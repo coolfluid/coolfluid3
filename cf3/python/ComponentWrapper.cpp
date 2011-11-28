@@ -34,7 +34,7 @@ namespace python {
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector6<std::string, Real, Uint, int, bool, common::URI> AnyTypes;
+typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, common::URI, Handle<common::Component> > AnyTypes;
 
 /// Conversion for basic types
 struct PythonToAny
@@ -62,6 +62,16 @@ struct PythonToAny
       m_found = true;
       m_result = extracted_value();
     }
+  }
+  
+  void operator()(const Handle<common::Component>) const
+  {
+    if(!boost::starts_with(m_target_type, "handle"))
+      return;
+    
+    ComponentWrapper& wrapped = extract<ComponentWrapper&>(m_value);
+    m_result = wrapped.component().handle<common::Component>();
+    m_found = true;
   }
 
   const object& m_value;

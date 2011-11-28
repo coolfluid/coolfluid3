@@ -12,6 +12,8 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_const.hpp>
 
 #include "common/Option.hpp"
 #include "common/Component.hpp"
@@ -40,12 +42,32 @@ public:
   OptionComponent(const std::string & name, const Handle<T> linked_component)
     : Option(name, linked_component)
   {
-    TypeInfo::instance().regist<value_type>("cf3::common::OptionComponent<"+T::type_name()+">::value_type");
+    TypeInfo::instance().regist<value_type>("handle<"+T::type_name()+">");
   }
 
   virtual ~OptionComponent() {}
 
   virtual std::string type() const { return class_name<value_type>(); }
+  
+  virtual void change_value(const boost::any& value)
+  {
+    typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
+    const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
+    if(is_not_null(generic_handle))
+    {
+      // value passed as a handle to the component base class, so we need to dynamic cast
+      m_value = Handle<T>(*generic_handle);
+    }
+    else
+    {
+      m_value = value;
+    }
+      
+    copy_to_linked_params(m_linked_params);
+
+    // call all trigger functors
+    trigger();
+  }
 
   /// @returns the xml tag for this option
   virtual const char * tag() const { return Protocol::Tags::type<URI>(); }

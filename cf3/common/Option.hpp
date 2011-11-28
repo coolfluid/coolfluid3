@@ -217,11 +217,15 @@ namespace XML { class XmlNode; }
     /// restore the default value of the option
     void restore_default() { m_value = m_default; }
 
+  protected:
+    /// storage of the value of the option
+    boost::any m_value;
+    /// parameters that also get updated when option is changed
+    std::vector< boost::any > m_linked_params;
+    
   private: // data
     /// storage of the default value of the option
     boost::any m_default;
-    /// storage of the value of the option
-    boost::any m_value;
     /// option name
     std::string m_name;
     /// option pretty name
@@ -230,8 +234,6 @@ namespace XML { class XmlNode; }
     std::string m_description;
     /// list of processors that will process the option
     TriggerStorageT m_triggers;
-    /// parameters that also get updated when option is changed
-    std::vector< boost::any > m_linked_params;
     /// Restricted list of values.
     std::vector<boost::any> m_restricted_list;
     /// Option separator.
