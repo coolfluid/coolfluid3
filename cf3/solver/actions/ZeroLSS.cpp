@@ -10,7 +10,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "CSolveSystem.hpp"
+#include "ZeroLSS.hpp"
 
 namespace cf3 {
 namespace solver {
@@ -19,16 +19,16 @@ namespace actions {
 using namespace common;
 using namespace math;
 
-common::ComponentBuilder < CSolveSystem, common::Action, LibActions > CSolveSystem_Builder;
+common::ComponentBuilder < ZeroLSS, common::Action, LibActions > ZeroLSS_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSolveSystem::CSolveSystem( const std::string& name  ) :
+ZeroLSS::ZeroLSS( const std::string& name  ) :
   Action ( name )
 {
   mark_basic();
 
-  properties()["brief"] = std::string("Runs a linear system solver");
+  properties()["brief"] = std::string("Sets  linear system solver back to zero");
   std::string description =
     "This object executes a linear system solver\n";
   properties()["description"] = description;
@@ -42,17 +42,12 @@ CSolveSystem::CSolveSystem( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSolveSystem::execute ()
+void ZeroLSS::execute ()
 {
   if(is_null(m_lss))
     throw SetupError(FromHere(), "LSS not set for component " + uri().string());
 
-  LSS::System& lss = *m_lss;
-
-  if(!lss.is_created())
-    throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is not created!");
-
-  lss.solve();
+  m_lss->reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

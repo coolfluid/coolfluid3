@@ -5,13 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for the CSolveSystem action"
+#define BOOST_TEST_MODULE "Test module for the SolveLSS action"
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/test/unit_test.hpp>
 
 
-#include "solver/actions/CSolveSystem.hpp"
+#include "solver/actions/SolveLSS.hpp"
 
 #include "common/Core.hpp"
 
@@ -37,12 +37,12 @@ BOOST_AUTO_TEST_SUITE( SolveSystemSuite )
 BOOST_AUTO_TEST_CASE( TestSolveSystem )
 {
   Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  
+
   Component& root = Core::instance().root();
-  CSolveSystem& solve_action = *root.create_component<CSolveSystem>("solve_action");
+  SolveLSS& solve_action = *root.create_component<SolveLSS>("solve_action");
   Handle<LSS::System> lss = root.create_component<LSS::System>("LSS");
   CommPattern& cp = *root.create_component<CommPattern>("commpattern");
-  
+
   std::vector<Uint> gid, conn, startidx, rnk;
   gid += 0,1,2,3,4,5,6,7,8,9;
   rnk += 0,0,0,0,0,0,0,0,0,0;
@@ -50,10 +50,10 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
   startidx += 0,2,4,6,8,10,12,14,16,18,20;
   cp.insert("gid",gid,1,false);
   cp.setup(cp.get_child("gid")->handle<common::PE::CommWrapper>(),rnk);
-  
+
   lss->options().configure_option("solver", std::string("EmptyLSS"));
   lss->create(cp, 4u, conn, startidx);
-  
+
   solve_action.options().configure_option("lss", lss);
   solve_action.execute();
 }
