@@ -12,6 +12,8 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "common/SignalHandler.hpp" // for cf3::common::SignalArgs typedef
+
 /// Manages a TCP connection between to entities where one is a
 /// server and the other one is a client.@n
 
@@ -32,19 +34,13 @@
 /// to propagate received data.
 
 /// @author Quentin Gasper
-class TCPConnection : public boost::enable_shared_from_this<TCPConnection>
+class TCPConnection : public cf3::common::SignalHandler
 {
-public: // typdefs
-
-  typedef boost::shared_ptr<TCPConnection> Ptr;
-  typedef boost::shared_ptr<TCPConnection const> ConstPtr;
-
 public:
 
-  /// Creates a instance of @c TCPConnection.
-  /// @param ios The I/O service the connection is based on.
-  /// @return Returns a shared pointer containing the new instance.
-  static Ptr create( boost::asio::io_service& ios );
+  /// Constructor.
+  /// @param io_service The I/O service the connection will be based on.
+  TCPConnection( boost::asio::io_service& io_service );
 
   /// Gives a referemce to the internal socket.
   /// @return Returns a reference to the internal socket.
@@ -57,43 +53,40 @@ public:
   /// Sends a message to the remote entity.
   /// The message is sent asynchronously and the function returns directly,
   /// before the data is actually send.
-  /// @param message The message to send.
-  void send( const std::string & message );
+  /// @param data The XML data to send. Must be valid.
+  void send( cf3::common::SignalArgs & data );
 
   /// Initiates an asynchronous reading from the remote entity.
   /// The function returns directly.
-  /// @param timeout Time is seconds after which the reading is stopped and
-  /// considered to have failed. If less than 0, the reading will never time out.
-  void read( int timeout = -1 );
+  void read();
 
 private: // functions
 
-  /// Constructor.
-  /// @param io_service The I/O service the connection will be based on.
-  TCPConnection( boost::asio::io_service& io_service);
-
   /// Function called when a sending operation is completed, successfully or not.
   /// @param error Describes the error that occured, if any.
-  void handle_frame_sent(const boost::system::error_code& error);
+  void handle_frame_sent( const boost::system::error_code& error );
 
   /// Function called when a reading operation is completed, successfully or not.
   /// @param error Describes the error that occured, if any.
-  /// @param n Number of bytes read.
-  void handle_frame_read(const boost::system::error_code& error, size_t n);
+  void handle_frame_header_read( const boost::system::error_code & error );
 
-  /// Function called when a reading operation times out.
-  void close();
+  /// Function called when the frame data has been read
+  void handle_frame_data_read( const boost::system::error_code & error, size_t count );
 
 private: // data
-
-  /// Timer for reading operations.
-  boost::asio::deadline_timer timer;
 
   /// Network socket.
   boost::asio::ip::tcp::socket m_socket;
 
-  /// Buffer for reading operations
-  boost::array<char, 128> m_network_buffer;
+  std::string m_outgoing_data;
+
+  std::string m_outgoing_header;
+
+  enum { HEADER_LENGTH = 8 };
+
+  char m_incoming_header[HEADER_LENGTH];
+
+  std::vector<char> m_incoming_data;
 
 }; // TCPConnection
 
