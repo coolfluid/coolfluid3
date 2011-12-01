@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, U = 1, V = 2, W=3, P = 4 };
 
-  typedef boost::shared_ptr<Prim3D> Ptr;
-  typedef boost::shared_ptr<Prim3D const> ConstPtr;
+  
+  
 
 public: // functions
 

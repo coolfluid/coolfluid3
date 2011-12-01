@@ -33,7 +33,7 @@ ScalarSys2D::~ScalarSys2D() {}
 
 boost::shared_ptr< physics::Variables > ScalarSys2D::create_variables( const std::string type, const std::string name )
 {
-  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+  boost::shared_ptr< physics::Variables > vars = boost::algorithm::contains( type, "." ) ?
         build_component_abstract_type< physics::Variables >( type, name ) :
         build_component_abstract_type< physics::Variables >( LibScalar::library_namespace() + "." + type, name );
 

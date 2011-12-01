@@ -42,8 +42,8 @@ class NavierStokes_API LibNavierStokes : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibNavierStokes> Ptr;
-  typedef boost::shared_ptr<LibNavierStokes const> ConstPtr;
+  
+  
 
   /// Constructor
   LibNavierStokes ( const std::string& name) : common::Library(name) { }
