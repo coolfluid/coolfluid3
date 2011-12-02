@@ -14,6 +14,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+
 #include "common/Assertions.hpp"
 #include "common/Log.hpp"
 #include "common/StringConversion.hpp"
@@ -46,7 +48,7 @@ void TCPConnection::send( cf3::common::SignalArgs & message )
 
   // prepare the outgoing data
   message.options().flush();
-  XML::to_string( message.node, m_outgoing_data );
+  XML::to_string( *message.xml_doc.get(), m_outgoing_data );
 
   // create the header on HEADER_LENGTH characters
   std::ostringstream header_stream;
@@ -56,19 +58,18 @@ void TCPConnection::send( cf3::common::SignalArgs & message )
 
   // write header and data to buffers and then on the socket
   write_buffers.push_back( asio::buffer(m_outgoing_header) );
-//  write_buffers.push_back( asio::buffer(m_outgoing_data) );
+  write_buffers.push_back( asio::buffer(m_outgoing_data) );
 
   std::cout << "[" << m_outgoing_header << "]" << std::endl;
   std::cout << m_outgoing_data.size() << " => " << m_outgoing_data << std::endl;
 
-  asio::write( m_socket, write_buffers );
-//  asio::async_write( m_socket,
-//                     write_buffers,
-//                     boost::bind( &TCPConnection::handle_frame_sent,
-//                                  this,
-//                                  asio::placeholders::error )
-//                    );
-
+//  asio::write( m_socket, write_buffers );
+  asio::async_write( m_socket,
+                     write_buffers,
+                     boost::bind( &TCPConnection::handle_frame_sent,
+                                  this,
+                                  asio::placeholders::error )
+                    );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ void TCPConnection::read()
   asio::async_read( m_socket,
                     asio::buffer(m_incoming_header),
                     boost::bind( &TCPConnection::handle_frame_header_read,
-                                 this,
+                                 shared_from_this(),
                                  asio::placeholders::error ) // callback 1st argument
                    );
 }
@@ -91,7 +92,7 @@ void TCPConnection::handle_frame_sent( const system::error_code & error )
 {
   if (!error)
   {
-//    read(); // (2)
+//    read();
   }
   else
   {
@@ -103,13 +104,16 @@ void TCPConnection::handle_frame_sent( const system::error_code & error )
 
 void TCPConnection::handle_frame_header_read( const system::error_code & error )
 {
-  std::cout << "[" << std::string(m_incoming_header, HEADER_LENGTH) << "]" << std::endl;
 
   if( !error )
   {
     try
     {
-      cf3::Uint data_size = from_str<cf3::Uint>( std::string(m_incoming_header, HEADER_LENGTH) );
+      std::string header_str = std::string(m_incoming_header, HEADER_LENGTH);
+
+      // trim the string to remove the leading spaces (cast fails if spaces are present)
+      algorithm::trim(header_str);
+      cf3::Uint data_size = from_str<cf3::Uint>( header_str );
 
       // resize the data vector
       m_incoming_data.resize( (size_t) data_size );
@@ -118,7 +122,7 @@ void TCPConnection::handle_frame_header_read( const system::error_code & error )
       asio::async_read( m_socket,
                         asio::buffer(m_incoming_data, data_size),
                         boost::bind( &TCPConnection::handle_frame_data_read,
-                                     this,
+                                     shared_from_this(),
                                      asio::placeholders::error, // callback 1st argument
                                      asio::placeholders::bytes_transferred )
                        );
@@ -153,12 +157,16 @@ void TCPConnection::handle_frame_header_read( const system::error_code & error )
 void TCPConnection::handle_frame_data_read( const system::error_code & error,
                                              size_t count )
 {
+//    std::cout << "read [" << count << "] bytes" << std::endl;
+  //  std::cout << "[" << std::string(&m_incoming_header[0], count) << "]" << std::endl;
 
   if( !error )
   {
     try
     {
       std::string frame (&m_incoming_data[0], count);
+
+//      std::cout << frame << std::endl;
 
       SignalFrame signal_frame = XML::parse_string(frame);
 
@@ -182,6 +190,7 @@ void TCPConnection::handle_frame_data_read( const system::error_code & error,
     CFerror << "An error occured when reading frame data: "
             << error.message() << CFendl;
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

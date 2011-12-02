@@ -34,7 +34,9 @@
 /// to propagate received data.
 
 /// @author Quentin Gasper
-class TCPConnection : public cf3::common::SignalHandler
+class TCPConnection
+    : public cf3::common::SignalHandler,
+      public boost::enable_shared_from_this<TCPConnection>
 {
 public:
 

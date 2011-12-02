@@ -87,6 +87,7 @@ int main()
 
     TCPClient client(io_service, endpoint);
     io_service.run();
+    std::cout << "Finished" << std::endl;
   }
   catch (std::exception& e)
   {

@@ -63,6 +63,8 @@ private:
 
       start_accept();
     }
+    else
+      std::cerr << "Failed to open a network connection: " << error.message() << std::endl;
   }
 
 
