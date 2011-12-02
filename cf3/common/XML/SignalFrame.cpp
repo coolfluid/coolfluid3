@@ -401,6 +401,23 @@ void SignalFrame::insert( std::vector<std::string>& input )
 
 ////////////////////////////////////////////////////////////////////////////
 
+void SignalFrame::flush_maps()
+{
+  std::map<std::string, SignalFrame>::iterator it_maps = m_maps.begin();
+  std::map<std::string, SignalOptions>::iterator it_options = m_options.begin();
+
+  // flush the maps
+  for( ; it_maps != m_maps.begin() ; ++it_maps )
+    it_maps->second.flush_maps();
+
+  // flush the options
+  for( ; it_options != m_options.begin() ; ++it_options )
+    it_options->second.flush();
+
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalOptions & SignalFrame::options( const std::string & name )
 {
   std::string tmp_name(name);
