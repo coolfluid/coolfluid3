@@ -49,8 +49,8 @@ class RiemannSolvers_API LibRiemannSolvers :
 {
 public:
 
-  typedef boost::shared_ptr<LibRiemannSolvers> Ptr;
-  typedef boost::shared_ptr<LibRiemannSolvers const> ConstPtr;
+  
+  
 
   /// Constructor
   LibRiemannSolvers ( const std::string& name) : common::Library(name) { }
