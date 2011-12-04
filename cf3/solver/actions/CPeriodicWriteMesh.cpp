@@ -41,7 +41,7 @@ CPeriodicWriteMesh::CPeriodicWriteMesh ( const std::string& name ) : solver::Act
       .description("The component that stores the \'iteration\'")
       .link_to(&m_iterator);
 
-  options().add_option( "saverate", 0 )
+  options().add_option( "saverate", 0u )
       .pretty_name("Save Rate")
       .description("Interval of iterations between saves");
 

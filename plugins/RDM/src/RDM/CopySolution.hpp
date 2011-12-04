@@ -24,8 +24,8 @@ class RDM_API CopySolution : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CopySolution> Ptr;
-  typedef boost::shared_ptr<CopySolution const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -44,7 +44,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_solution;  ///< solution field pointer
+  Handle<mesh::Field> m_solution;  ///< solution field pointer
 
 };
 

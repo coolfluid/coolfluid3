@@ -101,6 +101,8 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       ->pretty_name("Time");
 
   config_rk_order();
+  
+  configure_option_recursively( "iterator", handle<Component>() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -207,10 +209,6 @@ void IterativeSolver::link_fields()
 
 void IterativeSolver::execute()
 {
-
-  /// @todo these configurations sould be in constructor but does not work there
-  ///       because uri() is undefined on the constructor ( component is still free )
-  configure_option_recursively( "iterator", this->uri() );
 
   link_fields();
 

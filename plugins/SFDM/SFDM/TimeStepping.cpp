@@ -68,6 +68,8 @@ TimeStepping::TimeStepping ( const std::string& name ) :
   CCriterionTime& time_criterion =
       create_component<CCriterionTime>( "EndTime" );
 
+  configure_option_recursively( SFDM::Tags::time(),    m_time->uri() );
+  configure_option_recursively( "iterator", handle<Component>() );
 }
 
 bool TimeStepping::stop_condition()
@@ -93,12 +95,6 @@ bool TimeStepping::stop_condition()
 
 void TimeStepping::execute()
 {
-  /// @todo these configurations sould be in constructor but does not work there
-  ///       becasue uri() is undefined on the constructor ( component is still free )
-
-  configure_option_recursively( SFDM::Tags::time(),    m_time->uri() );
-  configure_option_recursively( "iterator", this->uri() );
-
   // start loop - iterations start from 1 ( max iter zero will do nothing )
 
   Uint k = 1;

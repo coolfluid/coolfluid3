@@ -24,8 +24,8 @@ class RDM_API RK : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<RK> Ptr;
-  typedef boost::shared_ptr<RK const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -44,11 +44,11 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution;
   /// residual field pointer
-  boost::weak_ptr<mesh::Field> m_residual;
+  Handle<mesh::Field> m_residual;
   /// dual_area field pointer
-  boost::weak_ptr<mesh::Field> m_dual_area;
+  Handle<mesh::Field> m_dual_area;
 
 };
 

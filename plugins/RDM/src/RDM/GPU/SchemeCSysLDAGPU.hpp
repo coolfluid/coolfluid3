@@ -34,8 +34,8 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
   CLEnv env;
 

@@ -8,7 +8,8 @@
 
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
@@ -61,16 +62,16 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
 {
   // options
 
-  options().add_option< OptionT<Uint> >( "rkorder", 1u )
-      ->description("Order of the explicit time stepping")
-      ->pretty_name("Time Step Order");
+  options().add_option( "rkorder", 1u )
+      .description("Order of the explicit time stepping")
+      .pretty_name("Time Step Order");
 
   // signals
 
   regist_signal( "create_model" )
-    ->connect( boost::bind( &UnsteadyExplicit::signal_create_model, this, _1 ) )
-    ->description("Creates a model for solving steady problms with RD using explicit iterations")
-    ->pretty_name("Create Model");
+    .connect( boost::bind( &UnsteadyExplicit::signal_create_model, this, _1 ) )
+    .description("Creates a model for solving steady problms with RD using explicit iterations")
+    .pretty_name("Create Model");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -87,11 +88,11 @@ UnsteadyExplicit::~UnsteadyExplicit() {}
 CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
 
-  const Uint rkorder = option("rkorder").value<Uint>();
+  const Uint rkorder = options().option("rkorder").value<Uint>();
 
   // (1) create the model
 
-  CModel& model = common::Core::instance().root().create_component<CModelUnsteady>( model_name );
+  CModel& model = *common::Core::instance().root().create_component<CModelUnsteady>( model_name );
 
   // (2) create the domain
 
@@ -105,7 +106,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4) setup solver
 
-  cf3::RDM::RDSolver& solver = model.create_solver( "cf3.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = *model.create_solver( "cf3.RDM.RDSolver" ).handle< cf3::RDM::RDSolver >();
 
   solver.mark_basic();
 
@@ -113,49 +114,40 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4a) setup time step stop condition
 
-  CCriterionTime& time_limit = solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
+  CCriterionTime& time_limit = *solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
 
-  time_limit.configure_option( RDM::Tags::time(), solver.time_stepping().time().uri() );
-
-  // (4b) setup iterative solver reset action
-
-  CopySolution::Ptr cps  = allocate_component<CopySolution>("CopySolution");
-  solver.time_stepping().pre_actions().append( cps );
+  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().uri() );
 
   // (4b) setup iterative solver reset action
 
-  Reset::Ptr reset  = allocate_component<Reset>("Reset");
-  solver.iterative_solver().pre_actions().append( reset );
+  solver.time_stepping().pre_actions().create_component<CopySolution>("CopySolution");
+
+  // (4b) setup iterative solver reset action
+
+  Handle<Reset> reset(solver.iterative_solver().pre_actions().create_component<Reset>("Reset"));
 
   std::vector<std::string> reset_fields;
   reset_fields.push_back( RDM::Tags::residual() );
   reset_fields.push_back( RDM::Tags::wave_speed() );
-  reset->configure_option("FieldTags", reset_fields);
+  reset->options().configure_option("FieldTags", reset_fields);
 
   // (4c) setup iterative solver explicit time stepping  - RK
+  solver.iterative_solver().update().create_component<RK>("Step");
 
-  RK::Ptr rk = allocate_component<RK>("Step");
-  solver.iterative_solver().update().append( rk );
+  solver.iterative_solver().get_child("MaxIterations")->options().configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
-  solver.iterative_solver().get_child("MaxIterations").configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
-
-  solver.iterative_solver().get_child("PostActions").get_child("IterationSummary").configure_option("print_rate", 0u); // dont print under unsteady iterations
+  solver.iterative_solver().get_child("PostActions")->get_child("IterationSummary")->options().configure_option("print_rate", 0u); // dont print under unsteady iterations
 
   // (4d) setup solver fields
+  solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().configure_option( "nb_levels", rkorder );
 
-  SetupMultipleSolutions::Ptr setup = allocate_component<SetupMultipleSolutions>("SetupFields");
-  solver.prepare_mesh().append(setup);
-
-  setup->configure_option( "nb_levels", rkorder );
-
-  ComputeDualArea::Ptr dual_area = allocate_component<ComputeDualArea>("ComputeDualArea");
-  solver.prepare_mesh().append(dual_area);
+  solver.prepare_mesh().create_component<ComputeDualArea>("ComputeDualArea");
 
   // (5) configure domain, physical model and solver in all subcomponents
 
-  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
-  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
-  solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
+  solver.configure_option_recursively( RDM::Tags::domain(),         domain.handle<Domain>() );
+  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
+  solver.configure_option_recursively( RDM::Tags::solver(),         solver.handle<CSolver>() );
 
   return model;
 }
@@ -176,9 +168,9 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("model_name", std::string() )
-      ->description("Name for created model" )
-      ->pretty_name("Model Name");
+  options.add_option("model_name", std::string() )
+      .description("Name for created model" )
+      .pretty_name("Model Name");
 
   std::vector<boost::any> models = boost::assign::list_of
       ( Scalar::Scalar2D::type_name() )
@@ -186,10 +178,10 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add_option< OptionT<std::string> >("physical_model", std::string() )
-      ->description("Name of the Physical Model")
-      ->pretty_name("Physical Model Type")
-      ->restricted_list() = models;
+  options.add_option("physical_model", std::string() )
+      .description("Name of the Physical Model")
+      .pretty_name("Physical Model Type")
+      .restricted_list() = models;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

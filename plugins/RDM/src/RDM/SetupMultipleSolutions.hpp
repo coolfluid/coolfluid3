@@ -26,8 +26,8 @@ class RDM_API SetupMultipleSolutions : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<SetupMultipleSolutions> Ptr;
-  typedef boost::shared_ptr<SetupMultipleSolutions const> ConstPtr;
+  
+  
 
 public: // functions
 

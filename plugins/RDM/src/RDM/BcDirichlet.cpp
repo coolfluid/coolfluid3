@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
@@ -40,10 +40,10 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
-      ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as Dirichlet boundary condition (vars x,y)")
+      .attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -66,7 +66,7 @@ void BcDirichlet::execute()
 
   // apply BC to solution field
 
-  Field& solution_field = solution();
+  Field& solution_field = *solution();
 
 //  std::cout << "   field.size() == " << field.size() << std::endl;
 //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
@@ -75,7 +75,7 @@ void BcDirichlet::execute()
 
   RealVector return_val( solution_field.row_size() );
 
-  boost_foreach(Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
   {
 
     /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry_fields()

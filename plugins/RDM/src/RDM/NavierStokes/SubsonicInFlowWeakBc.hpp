@@ -32,8 +32,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<SubsonicInFlowWeakBc> Ptr;
-  typedef boost::shared_ptr<SubsonicInFlowWeakBc const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -75,8 +75,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -257,8 +257,8 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent().as_type<SubsonicInFlowWeakBc>().density_function.evaluate(vars,rho_in);
-    this->parent().as_type<SubsonicInFlowWeakBc>().velocity_function.evaluate(vars,vel_in);
+    this->parent()->handle<SubsonicInFlowWeakBc>()->density_function.evaluate(vars,rho_in);
+    this->parent()->handle<SubsonicInFlowWeakBc>()->velocity_function.evaluate(vars,vel_in);
 
 //    std::cout << "The value rho_in = " << rho_in[0] << std::endl;
 //    std::cout << "The value vel_in = " << vel_in[XX] << "," << vel_in[YY] << std::endl;

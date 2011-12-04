@@ -53,14 +53,18 @@ public:
   {
     typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
     const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
-    if(is_not_null(generic_handle))
+    if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
     {
       // value passed as a handle to the component base class, so we need to dynamic cast
       m_value = Handle<T>(*generic_handle);
     }
-    else
+    else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
     {
       m_value = value;
+    }
+    else
+    {
+      throw BadValue(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
     }
       
     copy_to_linked_params(m_linked_params);

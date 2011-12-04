@@ -23,8 +23,8 @@ class RDM_API BoundaryConditions : public cf3::solver::ActionDirector {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<BoundaryConditions> Ptr;
-  typedef boost::shared_ptr<BoundaryConditions const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -55,9 +55,9 @@ public: // functions
 
 private:
 
-  common::ActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
+  Handle< common::ActionDirector > m_weak_bcs;   ///< set of weak bcs
 
-  common::ActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
+  Handle< common::ActionDirector > m_strong_bcs; ///< set of strong bcs
 
 };
 

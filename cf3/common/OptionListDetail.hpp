@@ -36,6 +36,12 @@ struct SelectOptionType< char[N] >
   typedef OptionT<std::string> type;
 };
 
+template<>
+struct SelectOptionType< char const * >
+{
+  typedef OptionT<std::string> type;
+};
+
 /// Specialization for URI
 template<>
 struct SelectOptionType<URI>
