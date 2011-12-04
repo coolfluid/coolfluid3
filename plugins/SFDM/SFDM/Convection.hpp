@@ -29,8 +29,8 @@ class SFDM_API Convection : public Term
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Convection> Ptr;
-    typedef boost::shared_ptr<Convection const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -55,8 +55,8 @@ private:
 
   void trigger_physical_model();
   void build_riemann_solver();
-  boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
-  boost::weak_ptr<physics::Variables> m_solution_vars;
+  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;
+  Handle<physics::Variables> m_solution_vars;
 
 }; // end Convection
 

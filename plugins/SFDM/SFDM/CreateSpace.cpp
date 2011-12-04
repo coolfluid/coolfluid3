@@ -41,8 +41,8 @@ CreateSpace::CreateSpace( const std::string& name )
   m_properties["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
 
   options().add_option( OptionT<Uint>::create("P", 0u) )
-    ->description("The order of the polynomial of the solution")
-    ->pretty_name("Polynomial Order");
+    .description("The order of the polynomial of the solution")
+    .pretty_name("Polynomial Order");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ CreateSpace::CreateSpace( const std::string& name )
 void CreateSpace::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   Uint p = option("P").value<Uint>();
   boost_foreach(Entities& entities, find_components_recursively_with_filter<Entities>(mesh,IsElementsVolume()))

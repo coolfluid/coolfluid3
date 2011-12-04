@@ -41,10 +41,10 @@ Reconstruct::Reconstruct( const std::string& name )
   from_to[0] = "e.g. cf3SFDM.SF.LineSolutionP2";
   from_to[1] = "e.g. cf3SFDM.SF.LineFluxP3";
   options().add_option( OptionArrayT<std::string>::create("from_to", from_to ) )
-      ->description("Shape function points from where the states are known")
-      ->pretty_name("From and To Shape Function")
-      ->mark_basic()
-      ->attach_trigger( boost::bind ( &Reconstruct::configure_from_to , this ) );
+      .description("Shape function points from where the states are known")
+      .pretty_name("From and To Shape Function")
+      .mark_basic()
+      .attach_trigger( boost::bind ( &Reconstruct::configure_from_to , this ) );
 
 }
 
@@ -56,10 +56,10 @@ void Reconstruct::configure_from_to()
 
   if (is_not_null(m_from))
     remove_component(*m_from);
-  m_from = create_component("from_"+from_to[0],from_to[0]).as_ptr<ShapeFunction>();
+  m_from = create_component("from_"+from_to[0],from_to[0]).handle<ShapeFunction>();
   if (is_not_null(m_to))
     remove_component(*m_to);
-  m_to   = create_component("to_"+from_to[1],from_to[1]).as_ptr<ShapeFunction>();
+  m_to   = create_component("to_"+from_to[1],from_to[1]).handle<ShapeFunction>();
 
   m_value_reconstruction_matrix.resize(m_to->nb_nodes(),m_from->nb_nodes());
   m_gradient_reconstruction_matrix.resize(m_to->dimensionality());

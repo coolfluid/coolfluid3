@@ -50,50 +50,50 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
 {
   // options
   options().add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
-    ->description("Solution to calculate RHS for")
-    ->pretty_name("Solution")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) );
+    .description("Solution to calculate RHS for")
+    .pretty_name("Solution")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) );
 
   options().add_option(OptionURI::create("residual", URI("cpath:"),URI::Scheme::CPATH))
-    ->description("Residual to be calculated")
-    ->pretty_name("Residual")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) );
+    .description("Residual to be calculated")
+    .pretty_name("Residual")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) );
 
   options().add_option(OptionURI::create("wave_speed", URI("cpath:"),URI::Scheme::CPATH))
-    ->description("Wave speed to be calculated. Used for stability condition.")
-    ->pretty_name("Wave Speed")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) );
+    .description("Wave speed to be calculated. Used for stability condition.")
+    .pretty_name("Wave Speed")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) );
 
   options().add_option(OptionURI::create("jacobian_determinant", URI("cpath:"),URI::Scheme::CPATH))
-    ->description("Jacobian Determinant of the Transformation to mapped space")
-    ->pretty_name("Jacobian Determinant")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
+    .description("Jacobian Determinant of the Transformation to mapped space")
+    .pretty_name("Jacobian Determinant")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
   options().add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
-    ->description("The component to solve the Rieman Problem on cell-faces")
-    ->pretty_name("Riemann Solver")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
+    .description("The component to solve the Rieman Problem on cell-faces")
+    .pretty_name("Riemann Solver")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
   options().add_option( OptionComponent<solver::State>::create("solution_state", &m_sol_state) )
-    ->description("The component describing the solution state")
-    ->pretty_name("Solution State")
-    ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
+    .description("The component describing the solution state")
+    .pretty_name("Solution State")
+    .attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
 
 
   options()["Elements"].attach_trigger ( boost::bind ( &ComputeRhsInCell::trigger_elements,   this ) );
 
-  m_solution             = create_static_component_ptr<CMultiStateFieldView>("solution_view");
-  m_residual             = create_static_component_ptr<CMultiStateFieldView>("residual_view");
-  m_jacobian_determinant = create_static_component_ptr<CMultiStateFieldView>("jacobian_determinant_view");
-  m_wave_speed           = create_static_component_ptr<CScalarFieldView>    ("wave_speed_view");
+  m_solution             = create_static_component<CMultiStateFieldView>("solution_view");
+  m_residual             = create_static_component<CMultiStateFieldView>("residual_view");
+  m_jacobian_determinant = create_static_component<CMultiStateFieldView>("jacobian_determinant_view");
+  m_wave_speed           = create_static_component<CScalarFieldView>    ("wave_speed_view");
 
-  m_reconstruct_solution = create_static_component_ptr<Reconstruct>("solution_reconstruction_helper");
-  m_reconstruct_flux     = create_static_component_ptr<Reconstruct>("flux_reconstruction_helper");
+  m_reconstruct_solution = create_static_component<Reconstruct>("solution_reconstruction_helper");
+  m_reconstruct_flux     = create_static_component<Reconstruct>("flux_reconstruction_helper");
 
 }
 
@@ -103,12 +103,12 @@ void ComputeRhsInCell::config_solution()
 {
   URI uri;
   option("solution").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
+  Handle< CField > comp = Core::instance().root().access_component(uri)->handle<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_solution->set_field(comp);
 
-  m_mesh_elements = m_solution->field().parent().as_type<Mesh>().elements().as_ptr<MeshElements>();
+  m_mesh_elements = m_solution->field().parent()->as_type<Mesh>().elements().handle<MeshElements>();
   m_nb_vars = m_solution->field().data().row_size();
 
 }
@@ -117,7 +117,7 @@ void ComputeRhsInCell::config_solution()
 
 void ComputeRhsInCell::config_solution_physics()
 {
-  m_sol_vars = m_sol_state.lock()->create_physics();
+  m_sol_vars = m_sol_state->create_physics();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ void ComputeRhsInCell::config_residual()
 {
   URI uri;
   option("residual").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
+  Handle< CField > comp = Core::instance().root().access_component(uri)->handle<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_residual->set_field(comp);
@@ -138,7 +138,7 @@ void ComputeRhsInCell::config_jacobian_determinant()
 {
   URI uri;
   option("jacobian_determinant").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
+  Handle< CField > comp = Core::instance().root().access_component(uri)->handle<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_jacobian_determinant->set_field(comp);
@@ -150,7 +150,7 @@ void ComputeRhsInCell::config_wavespeed()
 {
   URI uri;
   option("wave_speed").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr_checked(uri)->as_ptr_checked<CField>();
+  Handle< CField > comp = Core::instance().root().access_component_checked(uri)->as_ptr_checked<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
 
@@ -174,12 +174,12 @@ void ComputeRhsInCell::trigger_elements()
     std::vector<std::string> solution_from_to(2);
     solution_from_to[0] = m_solution_sf->derived_type_name();
     solution_from_to[1] = m_flux_sf->derived_type_name();
-    m_reconstruct_solution->configure_option("from_to",solution_from_to);
+    m_reconstruct_solution->options().configure_option("from_to",solution_from_to);
 
     std::vector<std::string> flux_from_to(2);
     flux_from_to[0] = m_flux_sf->line().derived_type_name();
     flux_from_to[1] = m_solution_sf->line().derived_type_name();
-    m_reconstruct_flux->configure_option("from_to",flux_from_to);
+    m_reconstruct_flux->options().configure_option("from_to",flux_from_to);
 
     m_dimensionality = elements().element_type().dimensionality();
     // Create normals for every orientation
@@ -202,7 +202,7 @@ void ComputeRhsInCell::build_riemann_solver()
 {
   if (is_not_null(m_riemann_solver))
     remove_component(*m_riemann_solver);
-  m_riemann_solver = create_component("riemann_solver",option("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
+  m_riemann_solver = create_component("riemann_solver",option("riemann_solver").value<std::string>()).handle<RiemannSolver>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ void ComputeRhsInCell::execute()
   Reconstruct& reconstruct_solution_in_all_flux_points = *m_reconstruct_solution;
   Reconstruct& reconstruct_flux_in_solution_points_in_line = *m_reconstruct_flux;
 
-  solver::State& sol_state = *m_sol_state.lock();
+  solver::State& sol_state = *m_sol_state;
   solver::Physics& sol_vars = *m_sol_vars;
 
   const SFDM::ShapeFunction& solution_sf = *m_solution_sf;
@@ -279,11 +279,11 @@ void ComputeRhsInCell::execute()
   Real& wave_speed = (*m_wave_speed)[idx()];
 
   Connectivity& c2f = elements().get_child("face_connectivity").as_type<Connectivity>();
-  Component::Ptr faces;
+  Handle< Component > faces;
   Uint face_idx;
-  Component::Ptr neighbor_cells;
+  Handle< Component > neighbor_cells;
   Uint neighbor_cell_idx;
-  const Uint this_cell_idx = m_mesh_elements.lock()->unified_idx(elements(),idx());
+  const Uint this_cell_idx = m_mesh_elements->unified_idx(elements(),idx());
 
   //CFdebug << "\ncell " << idx() << CFendl;
   //CFdebug <<   "------"<<CFendl;
@@ -343,7 +343,7 @@ void ComputeRhsInCell::execute()
         FaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<FaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
-          //CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
+          //CFdebug << "    must implement a boundary condition on face " << faces->parent()->name() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement real boundary condition.
           if (side == 0)
           {
@@ -364,7 +364,7 @@ void ComputeRhsInCell::execute()
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-          //CFdebug << "    must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
+          //CFdebug << "    must solve Riemann problem on face " << faces->parent()->name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
 
           /// @todo Multi-region support.
           /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.

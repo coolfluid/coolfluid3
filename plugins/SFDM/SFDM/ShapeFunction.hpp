@@ -27,8 +27,8 @@ namespace SFDM {
 class SFDM_API ShapeFunction  : public mesh::ShapeFunction {
 public:
 
-  typedef boost::shared_ptr<ShapeFunction>       Ptr;
-  typedef boost::shared_ptr<ShapeFunction const> ConstPtr;
+  
+  
 
   /// Constructor
   ShapeFunction(const std::string& name = type_name());

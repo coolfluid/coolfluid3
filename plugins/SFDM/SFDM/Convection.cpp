@@ -12,8 +12,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 
 #include "common/PE/debug.hpp"
@@ -63,13 +63,13 @@ Convection::Convection( const std::string& name )
   properties()["brief"] = std::string("Convective Spectral Finite Difference term");
   properties()["description"] = std::string("Fields to be created: ...");
 
-  options().add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
-    ->description("The component to solve the Rieman Problem on cell-faces")
-    ->pretty_name("Riemann Solver")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &Convection::build_riemann_solver, this) );
+  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
+    .description("The component to solve the Rieman Problem on cell-faces")
+    .pretty_name("Riemann Solver")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &Convection::build_riemann_solver, this) );
 
-  option(SFDM::Tags::physical_model()).attach_trigger( boost::bind ( &Convection::trigger_physical_model, this ) );
+  options().option(SFDM::Tags::physical_model()).attach_trigger( boost::bind ( &Convection::trigger_physical_model, this ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -79,8 +79,8 @@ void Convection::trigger_physical_model()
   build_riemann_solver();
 
   // try to configure solution vars
-  if (Component::Ptr found_solution_vars = find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()) )
-    m_solution_vars = found_solution_vars->as_ptr<Variables>();
+  if (Handle< Component > found_solution_vars = find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()) )
+    m_solution_vars = found_solution_vars->handle<Variables>();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,8 +89,8 @@ void Convection::build_riemann_solver()
 {
   if (is_not_null(m_riemann_solver))
     remove_component(*m_riemann_solver);
-  m_riemann_solver = create_component("riemann_solver",option("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
-  m_riemann_solver->configure_option("physical_model",physical_model().uri());
+  m_riemann_solver = create_component("riemann_solver",options().option("riemann_solver").value<std::string>())->handle<RiemannSolver>();
+  m_riemann_solver->options().configure_option("physical_model",physical_model().handle<Component>());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ void Convection::compute_one_cell_at_a_time()
   Field& wave_speed_field = wave_speed();
   Field& jacob_det_field = jacob_det();
 
-  Variables& solution_vars = *m_solution_vars.lock();
+  Variables& solution_vars = *m_solution_vars;
 
   const Uint nb_vars = solution_field.row_size();
 
@@ -129,13 +129,13 @@ void Convection::compute_one_cell_at_a_time()
   RealVector dummy_ev(nb_vars);
 
   /// Cells loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
   if( field_group().elements_lookup().contains(elements))
   {
     //std::cout << "      ConvectionTerm() for cells " << elements.uri().string() << std::endl;
     const Space& space = field_group().space(elements);
-    const SFDM::ShapeFunction& shape_func = space.shape_function().as_type<SFDM::ShapeFunction>();
+    const SFDM::ShapeFunction& shape_func = *space.shape_function().handle<SFDM::ShapeFunction>();
 
     const Uint nb_sol_pts = shape_func.line().nb_nodes();
     const Uint nb_lines = shape_func.dimensionality() == 1 ? 1 : nb_sol_pts;
@@ -195,10 +195,10 @@ void Convection::compute_one_cell_at_a_time()
     RealVector riemann_flux(nb_vars);
 
 
-    Component::Ptr dummy_component;
+    Handle< Component > dummy_component;
     Uint dummy_idx;
 
-    Connectivity& c2f = elements.get_child("face_connectivity").as_type<Connectivity>();
+    Connectivity& c2f = *elements.get_child("face_connectivity")->handle<Connectivity>();
 
     /// element loop
     for (Uint elem=0; elem<elements.size(); ++elem)
@@ -213,7 +213,7 @@ void Convection::compute_one_cell_at_a_time()
 
       ElementType& geometry = elements.element_type();
       const Uint nb_faces = geometry.nb_faces();
-      std::vector<Entities::Ptr> connected_faces(nb_faces);
+      std::vector<Handle< Entities > > connected_faces(nb_faces);
       std::vector<Uint> connected_face_idx(nb_faces);
 
       std::vector<Entities const*> connected_cells(nb_faces);
@@ -223,10 +223,10 @@ void Convection::compute_one_cell_at_a_time()
       for (Uint f=0; f<nb_faces; ++f)
       {
         boost::tie(dummy_component,dummy_idx) = c2f.lookup().location( c2f[elem][f] );
-        connected_faces[f] = dummy_component->as_ptr<Entities>();
+        connected_faces[f] = dummy_component->handle<Entities>();
         connected_face_idx[f] = dummy_idx;
 
-        if (CellFaces::Ptr inner_face = connected_faces[f]->as_ptr<CellFaces>())
+        if (Handle< CellFaces > inner_face = connected_faces[f]->handle<CellFaces>())
         {
           FaceCellConnectivity& f2c = inner_face->cell_connectivity();
           for (Uint c=0; c<2; ++c)
@@ -382,7 +382,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
   Field& wave_speed_field = wave_speed();
   Field& jacob_det_field = jacob_det();
 
-  Variables& solution_vars = *m_solution_vars.lock();
+  Variables& solution_vars = *m_solution_vars;
   const Uint nb_vars = solution_field.row_size();
 
   std::auto_ptr<physics::Properties> phys_props = physical_model().create_properties();
@@ -392,12 +392,12 @@ void Convection::compute_cell_interior_flux_points_contribution()
   RealVector phys_ev(nb_vars);
 
   /// Cells loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
   if( field_group().elements_lookup().contains(elements))
   {
     const Space& space = field_group().space(elements);
-    const SFDM::ShapeFunction& shape_func = space.shape_function().as_type<SFDM::ShapeFunction>();
+    const SFDM::ShapeFunction& shape_func = *space.shape_function().handle<SFDM::ShapeFunction>();
 
     const Uint nb_sol_pts = shape_func.line().nb_nodes();
     const Uint nb_flx_pts = shape_func.flux_line().nb_nodes();
@@ -559,7 +559,7 @@ void Convection::compute_inner_face_flux_points_contribution()
   Field& wave_speed_field = wave_speed();
   Field& jacob_det_field = jacob_det();
 
-  Variables& solution_vars = *m_solution_vars.lock();
+  Variables& solution_vars = *m_solution_vars;
   const Uint nb_vars = solution_field.row_size();
 
   std::auto_ptr<physics::Properties> phys_props = physical_model().create_properties();
@@ -568,7 +568,7 @@ void Convection::compute_inner_face_flux_points_contribution()
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_ev(nb_vars);
 
-  Component::Ptr dummy_component;
+  Handle< Component > dummy_component;
   Uint dummy_idx;
 
   std::vector<bool> ghost(2);
@@ -584,10 +584,10 @@ void Convection::compute_inner_face_flux_points_contribution()
 
 
   /// inner-faces loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::inner_faces()))
   {
-    FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
+    FaceCellConnectivity& cell_connectivity = *faces.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
 
     /// face loop
     for (Uint face=0; face<faces.size(); ++face)
@@ -603,7 +603,7 @@ void Convection::compute_inner_face_flux_points_contribution()
         cells[side] = dynamic_cast<Cells const*>(connected_cell.comp);
         cell_idx[side] = connected_cell.idx;
         spaces[side] = &field_group().space(*cells[side]);
-        sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
+        sf[side] = spaces[side]->shape_function().handle<SFDM::ShapeFunction>().get();
         nb_sol_pts[side] = sf[side]->line().nb_nodes();
         nb_flx_pts[side] = sf[side]->flux_line().nb_nodes();
         flx_pt_line_coord[side].resize(1);
@@ -730,12 +730,12 @@ void Convection::compute_inner_face_flux_points_contribution()
 
   /// outer-faces loop
   /// These faces should be moved to the boundary condition
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively<Entities>(*region))
   {
-    if (faces.as_ptr<Faces>())
+    if (faces.handle<Faces>())
     {
-      FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
+      FaceCellConnectivity& cell_connectivity = *faces.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
 
       /// face loop
       for (Uint face=0; face<faces.size(); ++face)
@@ -748,7 +748,7 @@ void Convection::compute_inner_face_flux_points_contribution()
           cells[side] = dynamic_cast<Cells const*>(connected_cell.comp);
           cell_idx[side] = connected_cell.idx;
           spaces[side] = &field_group().space(*cells[side]);
-          sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
+          sf[side] = spaces[side]->shape_function().handle<SFDM::ShapeFunction>().get();
           nb_sol_pts[side] = sf[side]->line().nb_nodes();
           nb_flx_pts[side] = sf[side]->flux_line().nb_nodes();
           flx_pt_line_coord[side].resize(1);

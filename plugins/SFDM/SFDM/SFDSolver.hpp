@@ -44,8 +44,8 @@ class SFDM_API SFDSolver : public solver::CSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<SFDSolver> Ptr;
-  typedef boost::shared_ptr<SFDSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -84,7 +84,7 @@ public: // functions
   /// @returns the group of shared fields
   common::Group&       fields()                 { return *m_fields; }
 
-  mesh::Mesh& mesh() { return *m_mesh.lock(); }
+  mesh::Mesh& mesh() { return *m_mesh; }
 
 private: // functions
 
@@ -101,18 +101,18 @@ private: // data
 
   bool m_mesh_configured;
 
-  boost::shared_ptr<common::Group>          m_actions;               ///< the group of shared actions
-  boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
+  Handle<common::Group>          m_actions;               ///< the group of shared actions
+  Handle<common::Group>          m_fields;                ///< the group of fields
 
-  boost::weak_ptr<physics::PhysModel>        m_physical_model;        ///< physical model
-  boost::weak_ptr<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
+  Handle<physics::PhysModel>        m_physical_model;        ///< physical model
+  Handle<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 
-  boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
-  boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
-  boost::shared_ptr<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
-  boost::shared_ptr<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
-  boost::shared_ptr<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
-//  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
+  Handle<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
+  Handle<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
+//  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
 
 };
 

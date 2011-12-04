@@ -37,7 +37,7 @@ DummyTerm::~DummyTerm() {}
 
 void DummyTerm::execute()
 {
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   {
     boost_foreach(Cells& cells, find_components_recursively<Cells>(*region))
     {

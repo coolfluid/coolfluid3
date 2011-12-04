@@ -63,7 +63,7 @@ Quad::Quad(const std::string& name) : ShapeFunction(name)
 
 const ShapeFunction& Quad::line() const
 {
-  const static ShapeFunction::ConstPtr line_sf(common::allocate_component< P1::Line >(P1::Line::type_name()));
+  const static boost::shared_ptr< ShapeFunction > line_sf(common::allocate_component< P1::Line >(P1::Line::type_name()));
   return *line_sf;
 }
 
@@ -71,7 +71,7 @@ const ShapeFunction& Quad::line() const
 
 const ShapeFunction& Quad::flux_line() const
 {
-  const static ShapeFunction::ConstPtr flux_line_sf(common::allocate_component< P2::Line >(P2::Line::type_name()));
+  const static boost::shared_ptr< ShapeFunction > flux_line_sf(common::allocate_component< P2::Line >(P2::Line::type_name()));
   return *flux_line_sf;
 }
 

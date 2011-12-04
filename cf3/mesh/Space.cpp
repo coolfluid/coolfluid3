@@ -114,7 +114,7 @@ void Space::configure_shape_function()
   {
     remove_component(m_shape_function->name());
   }
-  m_shape_function = Handle<ShapeFunction>( create_component(sf_name, sf_name));
+  m_shape_function = create_component<ShapeFunction>(sf_name, sf_name);
   m_shape_function->rename(m_shape_function->derived_type_name());
 }
 

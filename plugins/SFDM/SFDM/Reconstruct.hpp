@@ -30,8 +30,8 @@ class SFDM_API Reconstruct : public common::Component
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Reconstruct> Ptr;
-    typedef boost::shared_ptr<Reconstruct const> ConstPtr;
+    
+    
 
 public: // functions
 

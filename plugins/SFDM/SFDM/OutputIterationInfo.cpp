@@ -42,22 +42,22 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
 
   // options
   options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
-    ->description("Residual")
-    ->pretty_name("Residual");
+    .description("Residual")
+    .pretty_name("Residual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void OutputIterationInfo::execute()
 {
-  if (m_residual.expired())     throw SetupError(FromHere(), "Residual field was not set");
-  if (m_time.expired())         throw SetupError(FromHere(), "Time component was not set");
+  if (is_null(m_residual))     throw SetupError(FromHere(), "Residual field was not set");
+  if (is_null(m_time))         throw SetupError(FromHere(), "Time component was not set");
 
   // compute norm
   Real rhs_L2=0;
-  boost_foreach(Table<Real>::ConstRow rhs , m_residual.lock()->data().array())
+  boost_foreach(Table<Real>::ConstRow rhs , m_residual->data().array())
     rhs_L2 += rhs[0]*rhs[0];
-  rhs_L2 = sqrt(rhs_L2) / m_residual.lock()->data().size();
+  rhs_L2 = sqrt(rhs_L2) / m_residual->data().size();
 
   // output convergence info
   CFinfo << "Iter [" << std::setw(4) << time().iter() << "]";

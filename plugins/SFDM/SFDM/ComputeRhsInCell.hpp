@@ -37,8 +37,8 @@ class SFDM_API ComputeRhsInCell : public solver::actions::CLoopOperation {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<ComputeRhsInCell> Ptr;
-  typedef boost::shared_ptr<ComputeRhsInCell const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -81,10 +81,10 @@ private: // data
   boost::shared_ptr<Reconstruct> m_reconstruct_solution;
   boost::shared_ptr<Reconstruct> m_reconstruct_flux;
 
-  boost::weak_ptr<mesh::MeshElements> m_mesh_elements;
+  Handle<mesh::MeshElements> m_mesh_elements;
 
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
-  boost::weak_ptr<solver::State> m_sol_state;
+  Handle<solver::State> m_sol_state;
   boost::shared_ptr<solver::Physics> m_sol_vars;
 
   boost::shared_ptr<SFDM::ShapeFunction const> m_solution_sf;

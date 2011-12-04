@@ -23,8 +23,8 @@ class SFDM_API Term : public cf3::solver::Action {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -41,15 +41,15 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  mesh::SpaceFields& field_group() { return *m_field_group.lock(); }
+  mesh::SpaceFields& field_group() { return *m_field_group; }
 
-  mesh::Field& solution()    { return *m_solution.lock(); }
+  mesh::Field& solution()    { return *m_solution; }
 
-  mesh::Field& residual()    { return *m_residual.lock(); }
+  mesh::Field& residual()    { return *m_residual; }
 
-  mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
+  mesh::Field& wave_speed()  { return *m_wave_speed; }
 
-  mesh::Field& jacob_det()   { return *m_jacob_det.lock(); }
+  mesh::Field& jacob_det()   { return *m_jacob_det; }
 
   //@} END ACCESSORS
 
@@ -59,15 +59,15 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<mesh::SpaceFields> m_field_group;
+  Handle<mesh::SpaceFields> m_field_group;
 
-  boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
+  Handle<mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<mesh::Field> m_residual;     ///< access to the residual field
+  Handle<mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+  Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
-  boost::weak_ptr<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
+  Handle<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
 
 };
 

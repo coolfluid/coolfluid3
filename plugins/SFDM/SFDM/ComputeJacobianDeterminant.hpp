@@ -27,8 +27,8 @@ class SFDM_API ComputeJacobianDeterminant : public solver::actions::CLoopOperati
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<ComputeJacobianDeterminant> Ptr;
-  typedef boost::shared_ptr<ComputeJacobianDeterminant const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor

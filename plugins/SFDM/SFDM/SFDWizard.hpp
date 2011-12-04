@@ -31,8 +31,8 @@ class SFDM_API SFDWizard : public solver::CWizard
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<SFDWizard> Ptr;
-    typedef boost::shared_ptr<SFDWizard const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -85,8 +85,8 @@ class SFDM_API SFDSetup : public solver::Action
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<SFDSetup> Ptr;
-    typedef boost::shared_ptr<SFDSetup const> ConstPtr;
+    
+    
 
 public: // functions
 

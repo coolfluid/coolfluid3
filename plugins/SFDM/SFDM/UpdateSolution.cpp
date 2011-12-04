@@ -6,7 +6,7 @@
 
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Mesh.hpp"
@@ -37,17 +37,20 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  options().add_option(OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
-     ->description("Solution to update")
-     ->pretty_name("Solution");
+  options().add_option(SFDM::Tags::solution(), m_solution)
+     .description("Solution to update")
+     .pretty_name("Solution")
+     .link_to(&m_solution);
 
-  options().add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
-     ->description("Update coefficient")
-     ->pretty_name("Update Coefficient");
+  options().add_option(SFDM::Tags::update_coeff(), m_update_coeff)
+     .description("Update coefficient")
+     .pretty_name("Update Coefficient")
+     .link_to(&m_update_coeff);
 
-  options().add_option(OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
-     ->description("Residual")
-     ->pretty_name("Residual");
+  options().add_option(SFDM::Tags::residual(), m_residual)
+     .description("Residual")
+     .pretty_name("Residual")
+     .link_to(&m_residual);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,9 +59,9 @@ void UpdateSolution::execute()
 {
   link_fields();
 
-  Field& solution     = *m_solution.lock();
-  Field& residual     = *m_residual.lock();
-  Field& update_coeff = *m_update_coeff.lock();
+  Field& solution     = *m_solution;
+  Field& residual     = *m_residual;
+  Field& update_coeff = *m_update_coeff;
 
   for (Uint i=0; i<solution.size(); ++i)
   {
@@ -73,25 +76,25 @@ void UpdateSolution::execute()
 
 void UpdateSolution::link_fields()
 {
-  if( is_null( m_solution.lock() ) )
+  if( is_null( m_solution ) )
   {
-    m_solution = solver().field_manager()
-        .get_child( SFDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-    configure_option( SFDM::Tags::solution(), m_solution.lock()->uri() );
+    m_solution = Handle<Field>( follow_link( solver().field_manager()
+        .get_child( SFDM::Tags::solution() ) ) );
+    options().configure_option( SFDM::Tags::solution(), m_solution->uri() );
   }
 
-  if( is_null( m_update_coeff.lock() ) )
+  if( is_null( m_update_coeff ) )
   {
-    m_update_coeff = solver().field_manager()
-        .get_child( SFDM::Tags::update_coeff() ).follow()->as_ptr_checked<Field>();
-    configure_option( SFDM::Tags::update_coeff(), m_update_coeff.lock()->uri() );
+    m_update_coeff = Handle<Field>( follow_link( solver().field_manager()
+        .get_child( SFDM::Tags::update_coeff() ) ) );
+    options().configure_option( SFDM::Tags::update_coeff(), m_update_coeff->uri() );
   }
 
-  if( is_null( m_residual.lock() ) )
+  if( is_null( m_residual ) )
   {
-    m_residual = solver().field_manager()
-        .get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
-    configure_option( SFDM::Tags::residual(), m_residual.lock()->uri() );
+    m_residual = Handle<Field>( follow_link( solver().field_manager()
+        .get_child( SFDM::Tags::residual() ) ) );
+    options().configure_option( SFDM::Tags::residual(), m_residual->uri() );
   }
 }
 

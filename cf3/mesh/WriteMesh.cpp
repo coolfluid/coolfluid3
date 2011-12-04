@@ -56,7 +56,8 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   options().add_option( "mesh", m_mesh)
       .description("Mesh to write")
       .pretty_name("Mesh")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_mesh);
 
   options().add_option("file", m_file)
       .supported_protocol(URI::Scheme::FILE)

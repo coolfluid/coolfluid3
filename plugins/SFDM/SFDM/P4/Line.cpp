@@ -53,7 +53,7 @@ Line::Line(const std::string& name) : ShapeFunction(name)
 
 const SFDM::ShapeFunction& Line::line() const
 {
-  const static SFDM::ShapeFunction::Ptr line_sf(common::allocate_component< P4::Line >(P4::Line::type_name()));
+  const static boost::shared_ptr< SFDM::ShapeFunction > line_sf(common::allocate_component< P4::Line >(P4::Line::type_name()));
   return *line_sf;
 }
 
@@ -62,7 +62,7 @@ const SFDM::ShapeFunction& Line::line() const
 const SFDM::ShapeFunction& Line::flux_line() const
 {
   throw common::NotImplemented(FromHere(),"SFDM::P5::Line not implemented");
-  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(common::allocate_component< Line >(Line::type_name()));
+  const static boost::shared_ptr< SFDM::ShapeFunction > flux_line_sf(common::allocate_component< Line >(Line::type_name()));
   return *flux_line_sf;
 }
 

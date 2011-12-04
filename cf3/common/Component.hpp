@@ -549,7 +549,15 @@ boost::shared_ptr<ATYPE> build_component_abstract_type_reduced(const std::string
 template<typename T>
 Handle< T > Component::create_component(const std::string& name, const std::string& builder)
 {
-  boost::shared_ptr<T> comp = build_component_abstract_type_reduced<T>(builder, name);
+  boost::shared_ptr<T> comp;
+  if(std::count(builder.begin(), builder.end(), '.') != 0)
+  {
+    comp = build_component_abstract_type<T>(builder, name);
+  }
+  else
+  {
+    comp = build_component_abstract_type_reduced<T>(builder, name);
+  }
   add_component( comp );
   return Handle<T>(comp);
 }

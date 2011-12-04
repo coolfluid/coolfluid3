@@ -31,7 +31,8 @@ MeshTransformer::MeshTransformer ( const std::string& name  ) :
   options().add_option("mesh", m_mesh)
       .description( "The mesh to be transformed" )
       .pretty_name( "Mesh" )
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

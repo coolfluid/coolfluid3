@@ -71,7 +71,7 @@ void Roe::trigger_physical_model()
   {
     if (Handle< Component > found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
-      options().configure_option("solution_vars",found_solution_vars->uri());
+      options().configure_option("solution_vars",found_solution_vars);
     }
     else
     {
@@ -86,11 +86,11 @@ void Roe::trigger_physical_model()
   {
     if (Handle< Component > found_roe_vars = find_component_ptr_recursively_with_name(physical_model(),"roe_vars"))
     {
-      options().configure_option("roe_vars",found_roe_vars->uri());
+      options().configure_option("roe_vars",found_roe_vars);
     }
     else if (is_null(m_solution_vars) == false)
     {
-      options().configure_option("roe_vars",solution_vars().uri());
+      options().configure_option("roe_vars",solution_vars().handle<Component>());
       CFwarn << "Roe RiemannSolver " << uri().string() << " auto-configured \"roe_vars\" to \"solution_vars\".\n"
              << "Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "].\n"
              << "Configure manually for different \"roe_vars\"" << CFendl;

@@ -14,7 +14,9 @@
 #include "common/Environment.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
+#include "common/OptionList.hpp"
 #include "common/List.hpp"
+#include "common/Link.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -112,25 +114,25 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( solver_test )
 {
-  Core::instance().environment().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure SFD - LinEuler 2D model
   Uint dim=1;
 
-  CModel& model   = Core::instance().root().create_component<CModel>("model");
+  CModel& model   = *Core::instance().root().create_component<CModel>("model");
   model.setup("cf3.SFDM.SFDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
-  SFDSolver& solver  = model.solver().as_type<SFDSolver>();
+  SFDSolver& solver  = *model.solver().handle<SFDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.configure_option("v",1.);
+  physics.options().configure_option("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 
   // Create a 2D rectangular mesh
-  Mesh& mesh = domain.create_component<Mesh>("mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
   Uint res = 20;
   Uint order = 3;
@@ -138,22 +140,22 @@ BOOST_AUTO_TEST_CASE( solver_test )
   std::vector<Real> lengths  = list_of(  10.  );
   std::vector<Real> offsets  = list_of(  0.  );
 
-  SimpleMeshGenerator& generate_mesh = domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.configure_option("mesh",mesh.uri());
-  generate_mesh.configure_option("nb_cells",nb_cells);
-  generate_mesh.configure_option("lengths",lengths);
-  generate_mesh.configure_option("offsets",offsets);
-  generate_mesh.configure_option("bdry",false);
+  SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
+  generate_mesh.options().configure_option("mesh",mesh.uri());
+  generate_mesh.options().configure_option("nb_cells",nb_cells);
+  generate_mesh.options().configure_option("lengths",lengths);
+  generate_mesh.options().configure_option("offsets",offsets);
+  generate_mesh.options().configure_option("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.configure_option(SFDM::Tags::solution_order(),order);
-  solver.iterative_solver().configure_option("rk_order",order);
+  solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().configure_option(SFDM::Tags::solution_order(),order);
+  solver.iterative_solver().options().configure_option("rk_order",order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -165,18 +167,18 @@ BOOST_AUTO_TEST_CASE( solver_test )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("sigma:=0.5;mu:=5;exp(-(x-mu)^2/(2*sigma^2))");
-  init_gauss.configure_option("functions",functions);
+  init_gauss.options().configure_option("functions",functions);
   solver.initial_conditions().execute();
 
-  Field& solution_field = solver.field_manager().get_child(SFDM::Tags::solution()).follow()->as_type<Field>();
+  Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(SFDM::Tags::solution()) ) );
   solution_field.field_group().create_coordinates();
 
   // Discretization
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().configure_option("time_step",100.);
-  solver.time_stepping().time().configure_option("end_time" ,2.); // instead of 0.3
+  solver.time_stepping().time().options().configure_option("time_step",100.);
+  solver.time_stepping().time().options().configure_option("end_time" ,2.); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , 0.4);
   solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
 

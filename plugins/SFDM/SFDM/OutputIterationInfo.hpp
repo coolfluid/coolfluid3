@@ -22,8 +22,8 @@ class SFDM_API OutputIterationInfo : public solver::Action
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<OutputIterationInfo> Ptr;
-  typedef boost::shared_ptr<OutputIterationInfo const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -41,7 +41,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<mesh::CField> m_residual;
+  Handle<mesh::CField> m_residual;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -33,15 +33,15 @@ ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name
 {
   // options
   options().add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))
-    ->description("Field storing the Jacobian Determinant")
-    ->pretty_name("Jacobian Determinant")
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::config_jacobian_determinant,   this ) )
+    .description("Field storing the Jacobian Determinant")
+    .pretty_name("Jacobian Determinant")
+    .mark_basic()
+    .attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::config_jacobian_determinant,   this ) )
     ->add_tag("jacobian_determinant");
 
   options()["Elements"].attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::trigger_elements,   this ) );
 
-  m_jacobian_determinant = create_static_component_ptr<CMultiStateFieldView>("jacobian_determinant_view");
+  m_jacobian_determinant = create_static_component<CMultiStateFieldView>("jacobian_determinant_view");
 
 }
 
@@ -51,7 +51,7 @@ void ComputeJacobianDeterminant::config_jacobian_determinant()
 {
   URI uri;
   option("jacobian_determinant").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
+  Handle< CField > comp = Core::instance().root().access_component(uri)->handle<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_jacobian_determinant->set_field(comp);

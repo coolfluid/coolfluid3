@@ -28,8 +28,8 @@ class SFDM_API CreateSpace : public mesh::MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CreateSpace> Ptr;
-    typedef boost::shared_ptr<CreateSpace const> ConstPtr;
+    
+    
 
 public: // functions
   
