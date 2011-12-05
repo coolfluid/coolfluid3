@@ -166,7 +166,7 @@ XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value,
 {
   cf3_assert ( node.is_valid() );
 
-  return main_map.set_value( name, value, descr);
+  return options().main_map.set_value( name, value, descr );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -230,7 +230,7 @@ SignalFrame & SignalFrame::map ( const std::string & name )
     XmlNode node = main_map.content.add_node( Protocol::Tags::node_value() );
     node.set_attribute( Protocol::Tags::attr_key(), name );
     m_maps[name] = SignalFrame(node); // SignalFrame() adds a map under the node
-  }
+ }
 
   return m_maps[name];
 }
@@ -425,8 +425,10 @@ SignalOptions & SignalFrame::options( const std::string & name )
   if( tmp_name.empty() )
     tmp_name = Protocol::Tags::key_options();
 
-  map(tmp_name);
-  m_options[tmp_name] = SignalOptions( *this, tmp_name );
+  if( m_options.find(tmp_name) == m_options.end() )
+  {
+    m_options[tmp_name] = SignalOptions( *this, tmp_name );
+  }
 
   return m_options[tmp_name];
 }

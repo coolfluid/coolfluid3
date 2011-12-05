@@ -73,7 +73,7 @@ void TCPConnection::send( cf3::common::SignalArgs & message )
   cf3_assert( message.node.is_valid() );
   std::vector< asio::const_buffer > write_buffers;
 
-  // prepare the outgoing data
+  // prepare the outgoing data: flush to XML and convert to string
   message.flush_maps();
   XML::to_string( *message.xml_doc.get(), m_outgoing_data );
 

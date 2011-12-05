@@ -66,11 +66,16 @@ private:
 
   void new_frame( SignalArgs & args )
   {
-    std::string str;
+    try
+    {
+      std::string message = args.options().value<std::string>("text");
 
-    XML::to_string(args.node, str);
-
-    std::cout << str << std::endl;
+      std::cout << message << std::endl;
+    }
+    catch( Exception & e )
+    {
+      std::cerr << e.what() << std::endl;
+    }
   }
 
   asio::io_service & m_io_service;
