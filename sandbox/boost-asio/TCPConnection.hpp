@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
 #ifndef cf3_sandbox_boost_asio_tcp_connection_hpp
 #define cf3_sandbox_boost_asio_tcp_connection_hpp
 
@@ -12,7 +11,7 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include "common/SignalHandler.hpp" // for cf3::common::SignalArgs typedef
+#include "common/SignalHandler.hpp"
 
 /// Manages a TCP connection between to entities where one is a
 /// server and the other one is a client.@n
@@ -22,12 +21,22 @@
 /// pointer because a such object has to maintain asynchronous operations.
 /// One cannot predict when all of those operations will be completed, using a
 /// shared pointer garantees the connection stays alive until all operations
-/// are done.@c
+/// are done. @c
+
+/// Frames handled by this class have two main parts:
+/// @li A size-fixed header (8 bytes): contains the size in bytes of the frame
+/// data.
+/// @li Frame data: actual data that is sent.
+/// The header is complitely tansparent to the calling code and is use as a
+/// guard to check that all data has arrived and allocate the correct buffer
+/// for the reading process.
 
 /// A TCP connection is based on an I/O service that handles the asynchronous
-/// operations and calls an appropriate function when of those is completed.@n
+/// operations and calls an appropriate function when of those is completed. @n
 
-/// This class can be used in both client and server applications.
+/// This class can be used in both client and server applications. However, an
+/// additional step is need on the server-side: open a network connection and
+/// start accepting new clients connections. @n
 
 /// @todo either allow a calling code to @c boost::bind a callback function for
 /// completion of sending and reading operations or use the CF EnventHandler to
@@ -38,11 +47,21 @@ class TCPConnection
     : public cf3::common::SignalHandler,
       public boost::enable_shared_from_this<TCPConnection>
 {
+public: // typedefs
+
+  typedef boost::shared_ptr<TCPConnection> Ptr;
+  typedef boost::shared_ptr<TCPConnection const> ConstPtr;
+
 public:
 
-  /// Constructor.
-  /// @param io_service The I/O service the connection will be based on.
-  TCPConnection( boost::asio::io_service& io_service );
+  /// Creates a @c TCPConnection instance.
+  /// @param io_service The I/O service the new connection will be based on.
+  /// @return Returns the created instance as a boost share pointer.
+  static Ptr create( boost::asio::io_service & ios );
+
+  /// Destructor.
+  /// Cleanly closes the socket.
+  ~TCPConnection();
 
   /// Gives a referemce to the internal socket.
   /// @return Returns a reference to the internal socket.
@@ -76,6 +95,10 @@ private: // functions
   void handle_frame_data_read( const boost::system::error_code & error, size_t count );
 
 private: // data
+
+  /// Constructor.
+  /// @param io_service The I/O service the connection will be based on.
+  TCPConnection( boost::asio::io_service& io_service );
 
   /// Network socket.
   boost::asio::ip::tcp::socket m_socket;

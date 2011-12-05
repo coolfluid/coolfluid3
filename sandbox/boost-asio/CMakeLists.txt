@@ -11,3 +11,4 @@ list( APPEND sandbox-boost-asio-client_files client.cpp TCPConnection.hpp TCPCon
 set( sandbox-boost-asio-client_sandbox_app TRUE )
 
 coolfluid_add_application( sandbox-boost-asio-client )
+

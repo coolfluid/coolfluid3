@@ -25,8 +25,6 @@ using namespace cf3::common::XML;
 
 class TCPServer
 {
-  typedef boost::shared_ptr<TCPConnection> ConnPtr;
-
 public:
 
   TCPServer(asio::io_service& io_service, int port)
@@ -39,7 +37,7 @@ private:
 
   void start_accept()
   {
-    ConnPtr new_connection( new TCPConnection(m_acceptor.io_service() ));
+    TCPConnection::Ptr new_connection = TCPConnection::create(m_acceptor.get_io_service());
 
     m_acceptor.async_accept( new_connection->socket(),
                              boost::bind( &TCPServer::handle_accept,
@@ -48,14 +46,13 @@ private:
                                           asio::placeholders::error));
   }
 
-  void handle_accept( ConnPtr new_connection, const system::error_code& error)
+  void handle_accept( TCPConnection::Ptr new_connection, const system::error_code& error)
   {
     if (!error)
     {
       SignalFrame frame("message", "cpath:/", "cpath:/");
 
       std::cout << "New client connected from " << new_connection->socket().remote_endpoint() << std::endl;
-//      new_connection->send("Welcome to the server!");
 
       frame.set_option<std::string>("text", std::string("Welcome to the server!") );
 
@@ -75,10 +72,10 @@ private:
 
 int main()
 {
+  asio::io_service io_service;
+
   try
   {
-    asio::io_service io_service;
-
     TCPServer server(io_service, 7171);
     io_service.run();
   }

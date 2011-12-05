@@ -28,8 +28,6 @@ using namespace cf3::common;
 
 class TCPClient
 {
-  typedef boost::shared_ptr<TCPConnection> ConnPtr;
-
 public:
 
   TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint)
@@ -43,23 +41,25 @@ private:
 
   void connect(tcp::endpoint& endpoint)
   {
-    ConnPtr new_connection(new TCPConnection(m_io_service) );
+    TCPConnection::Ptr new_connection = TCPConnection::create(m_io_service);
     tcp::socket& socket = new_connection->socket();
 
     new_connection->signal("new_frame")
         ->connect( boost::bind( &TCPClient::new_frame, this, _1) );
 
     socket.async_connect( endpoint,
-                          boost::bind( &TCPClient::handle_connect, this,
+                          boost::bind( &TCPClient::handle_connect,
+                                       this,
                                        new_connection,
                                        asio::placeholders::error)
                          );
   }
 
-  void handle_connect( ConnPtr new_connection, const system::error_code & error)
+  void handle_connect( TCPConnection::Ptr new_connection, const system::error_code & error)
   {
     if ( !error )
     {
+      std::cout << "Connected to " << new_connection->socket().remote_endpoint() << std::endl;
       new_connection->read();
     }
   }
