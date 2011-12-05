@@ -56,14 +56,25 @@ private:
 
       frame.set_option<std::string>("text", std::string("Welcome to the server!") );
 
-      new_connection->send(frame);
-
+      new_connection->send( frame,
+                            boost::bind( &TCPServer::handle_send,
+                                         this,
+                                         asio::placeholders::error
+                                        )
+                           );
       start_accept();
     }
     else
       std::cerr << "Failed to open a network connection: " << error.message() << std::endl;
   }
 
+  void handle_send( const system::error_code & error )
+  {
+    if( error )
+      CFerror << error.message() << CFendl;
+    else
+      CFinfo << "Message sent" << CFendl;
+  }
 
   tcp::acceptor m_acceptor;
 };

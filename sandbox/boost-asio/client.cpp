@@ -44,14 +44,11 @@ private:
     TCPConnection::Ptr new_connection = TCPConnection::create(m_io_service);
     tcp::socket& socket = new_connection->socket();
 
-    new_connection->signal("new_frame")
-        ->connect( boost::bind( &TCPClient::new_frame, this, _1) );
-
     socket.async_connect( endpoint,
                           boost::bind( &TCPClient::handle_connect,
                                        this,
                                        new_connection,
-                                       asio::placeholders::error)
+                                       asio::placeholders::error )
                          );
   }
 
@@ -60,24 +57,42 @@ private:
     if ( !error )
     {
       std::cout << "Connected to " << new_connection->socket().remote_endpoint() << std::endl;
-      new_connection->read();
+      new_connection->read( m_args,
+                            boost::bind( &TCPClient::handle_read,
+                                         this,
+                                         m_args,
+                                         asio::placeholders::error )
+                            );
     }
   }
 
-  void new_frame( SignalArgs & args )
+  void handle_read( SignalArgs & args, const system::error_code & error )
   {
-    try
+    if( error )
+      CFerror << "Could not read: " << error.message() << CFendl;
+    else
     {
-      std::string message = args.options().value<std::string>("text");
+      try
+      {
+        std::string str;
 
-      std::cout << message << std::endl;
-    }
-    catch( Exception & e )
-    {
-      std::cerr << e.what() << std::endl;
+        XML::to_string( args.options().main_map.content, str );
+
+        std::cout << str << std::endl ;
+
+        std::string message = args.options().value<std::string>("options");
+
+        std::cout << message << std::endl;
+
+      }
+      catch( Exception & e )
+      {
+        std::cerr << e.what() << std::endl;
+      }
     }
   }
 
+  SignalArgs m_args;
   asio::io_service & m_io_service;
 };
 
