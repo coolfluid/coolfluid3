@@ -43,11 +43,12 @@ namespace server {
 
 ServerNetworkComm::ServerNetworkComm()
   : m_server(nullptr),
-  m_lastClientId(0)
+    m_lastClientId(0),
+    m_blockSize(0),
+    m_bytesRecieved(0),
+    m_bytesSent(0)
 {
-  m_blockSize = 0;
-  m_bytesRecieved = 0;
-  m_bytesSent = 0;
+  m_mutex = new QMutex();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -101,6 +102,7 @@ bool ServerNetworkComm::openPort(quint16 port)
 
 int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
 {
+  QMutexLocker locker(m_mutex);
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
   int count = 0; // total bytes sent
