@@ -23,6 +23,8 @@
 #include "common/Log.hpp" // to be removed!!!
 
 #include "common/XML/FileOperations.hpp"
+#include "common/XML/SignalFrame.hpp"
+
 #include "common/SignalHandler.hpp"
 
 /// Manages a TCP connection between to entities where one is a
@@ -106,7 +108,7 @@ public:
     // initiate the async read for the header and bind the callback function
     boost::asio::async_read( m_socket,
                              boost::asio::buffer(m_incoming_header),
-                             boost::bind( &TCPConnection::handle_frame_header_read<HANDLER>,
+                             boost::bind( &TCPConnection::callback_header_read<HANDLER>,
                                           shared_from_this(),
                                           boost::ref(args),
                                           boost::asio::placeholders::error,
@@ -117,16 +119,12 @@ public:
 
 private: // functions
 
-  /// Function called when a sending operation is completed, successfully or not.
-  /// @param error Describes the error that occured, if any.
-  void handle_frame_sent( const boost::system::error_code& error );
-
   /// Function called when a reading operation is completed, successfully or not.
   /// @param error Describes the error that occured, if any.
   template< typename HANDLER >
-  void handle_frame_header_read( cf3::common::SignalArgs & args,
-                                 const boost::system::error_code & error,
-                                 boost::tuple<HANDLER> functions )
+  void callback_header_read( cf3::common::SignalArgs & args,
+                             const boost::system::error_code & error,
+                             boost::tuple<HANDLER> functions )
   {
     if( !error )
     {
@@ -136,7 +134,7 @@ private: // functions
 
         // trim the string to remove the leading spaces (cast fails if spaces are present)
         boost::algorithm::trim(header_str);
-        cf3::Uint data_size = boost::lexical_cast<cf3::Uint>( header_str ); //from_str<cf3::Uint>( header_str );
+        cf3::Uint data_size = boost::lexical_cast<cf3::Uint>( header_str );
 
         // resize the data vector
         m_incoming_data.resize( (size_t) data_size );
@@ -144,7 +142,7 @@ private: // functions
         // initiate an async read to get the frame data
         boost::asio::async_read( m_socket,
                                  boost::asio::buffer(m_incoming_data, data_size),
-                                 boost::bind( &TCPConnection::handle_frame_data_read<HANDLER>,
+                                 boost::bind( &TCPConnection::callback_data_read<HANDLER>,
                                               shared_from_this(),
                                               boost::ref(args),
                                               boost::asio::placeholders::error,
@@ -178,9 +176,9 @@ private: // functions
 
   /// Function called when the frame data has been read
   template< typename HANDLER >
-  void handle_frame_data_read( cf3::common::SignalArgs & args,
-                               const boost::system::error_code & error,
-                               boost::tuple<HANDLER> functions )
+  void callback_data_read( cf3::common::SignalArgs & args,
+                           const boost::system::error_code & error,
+                           boost::tuple<HANDLER> functions )
   {
     if( !error )
     {
@@ -190,7 +188,7 @@ private: // functions
 
         CFinfo << frame << CFendl;
 
-        args = cf3::common::XML::parse_string(frame);
+        args = cf3::common::XML::SignalFrame(cf3::common::XML::parse_string(frame));
 
         boost::get<0>(functions)(error);
 

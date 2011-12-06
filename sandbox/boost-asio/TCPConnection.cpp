@@ -87,18 +87,3 @@ void TCPConnection::prepare_write_buffers( SignalArgs & args,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-
-void TCPConnection::handle_frame_sent( const system::error_code & error )
-{
-  if (!error)
-  {
-//    read();
-  }
-  else
-  {
-    CFerror << "An error has occured during frame sending: " << error.message() << CFendl;
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////

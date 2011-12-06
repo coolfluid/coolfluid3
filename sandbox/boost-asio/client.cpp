@@ -12,10 +12,13 @@
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include <rapidxml/rapidxml.hpp>
+
 #include "common/Signal.hpp"
 
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
+#include "common/XML/XmlNode.hpp"
 
 #include "boost-asio/TCPConnection.hpp"
 
@@ -39,26 +42,28 @@ public:
 
 private:
 
-  void connect(tcp::endpoint& endpoint)
+  void connect( tcp::endpoint& endpoint )
   {
     TCPConnection::Ptr new_connection = TCPConnection::create(m_io_service);
     tcp::socket& socket = new_connection->socket();
 
     socket.async_connect( endpoint,
-                          boost::bind( &TCPClient::handle_connect,
+                          boost::bind( &TCPClient::callback_connect,
                                        this,
                                        new_connection,
                                        asio::placeholders::error )
                          );
   }
 
-  void handle_connect( TCPConnection::Ptr new_connection, const system::error_code & error)
+//  void start_reading ()
+
+  void callback_connect( TCPConnection::Ptr new_connection, const system::error_code & error)
   {
     if ( !error )
     {
       std::cout << "Connected to " << new_connection->socket().remote_endpoint() << std::endl;
       new_connection->read( m_args,
-                            boost::bind( &TCPClient::handle_read,
+                            boost::bind( &TCPClient::callback_read,
                                          this,
                                          m_args,
                                          asio::placeholders::error )
@@ -66,7 +71,7 @@ private:
     }
   }
 
-  void handle_read( SignalArgs & args, const system::error_code & error )
+  void callback_read( SignalArgs & args, const system::error_code & error )
   {
     if( error )
       CFerror << "Could not read: " << error.message() << CFendl;
@@ -74,13 +79,7 @@ private:
     {
       try
       {
-        std::string str;
-
-        XML::to_string( args.options().main_map.content, str );
-
-        std::cout << str << std::endl ;
-
-        std::string message = args.options().value<std::string>("options");
+        std::string message = m_args.options().value<std::string>("text");
 
         std::cout << message << std::endl;
 
@@ -100,6 +99,9 @@ private:
 
 int main()
 {
+  ExceptionManager::instance().ExceptionDumps = false;
+  ExceptionManager::instance().ExceptionOutputs = false;
+
   try
   {
     asio::io_service io_service;
