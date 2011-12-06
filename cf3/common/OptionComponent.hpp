@@ -56,6 +56,9 @@ public:
     if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
     {
       // value passed as a handle to the component base class, so we need to dynamic cast
+      Handle<T> cast_value(*generic_handle);
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
       m_value = Handle<T>(*generic_handle);
     }
     else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
