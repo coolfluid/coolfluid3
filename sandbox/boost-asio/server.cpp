@@ -6,8 +6,9 @@
 
 #include <iostream>
 
-#include <boost/bind/bind.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/asio.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #include "boost-asio/TCPConnection.hpp"
@@ -19,6 +20,7 @@
 using namespace boost;
 using namespace boost::asio::ip;
 
+using namespace cf3::common;
 using namespace cf3::common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -30,54 +32,115 @@ public:
   TCPServer(asio::io_service& io_service, int port)
     : m_acceptor(io_service, tcp::endpoint(tcp::v4(), port))
   {
-    start_accept();
+    init_accept();
   }
 
-private:
+private: // functions
 
-  void start_accept()
+  void init_accept()
   {
-    TCPConnection::Ptr new_connection = TCPConnection::create(m_acceptor.get_io_service());
+    m_connection = TCPConnection::create(m_acceptor.get_io_service());
 
-    m_acceptor.async_accept( new_connection->socket(),
-                             boost::bind( &TCPServer::handle_accept,
+    m_acceptor.async_accept( m_connection->socket(),
+                             boost::bind( &TCPServer::callback_accept,
                                           this,
-                                          new_connection,
                                           asio::placeholders::error));
   }
 
-  void handle_accept( TCPConnection::Ptr new_connection, const system::error_code& error)
+  /////////////////////////////////////////////////////////////////////////////
+
+  void init_read ()
+  {
+    m_connection->read( m_args,
+                        boost::bind( &TCPServer::callback_read,
+                                     this,
+                                     asio::placeholders::error )
+                        );
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  void init_send ( SignalFrame & frame )
+  {
+    m_connection->send ( frame,
+                         boost::bind( &TCPServer::callback_send,
+                                      this,
+                                      asio::placeholders::error
+                                     )
+                        );
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_accept( const system::error_code& error )
   {
     if (!error)
     {
       SignalFrame frame("message", "cpath:/", "cpath:/");
 
-      std::cout << "New client connected from " << new_connection->socket().remote_endpoint() << std::endl;
+      std::cout << "New client connected from " << m_connection->socket().remote_endpoint() << std::endl;
 
       frame.set_option<std::string>("text", std::string("Welcome to the server!") );
 
-      new_connection->send( frame,
-                            boost::bind( &TCPServer::handle_send,
-                                         this,
-                                         asio::placeholders::error
-                                        )
-                           );
-      start_accept();
+      init_read(); // start listening process
+
+      init_send(frame); // send data
+
+      init_accept(); // wait for other clients
     }
     else
       std::cerr << "Failed to open a network connection: " << error.message() << std::endl;
   }
 
-  void handle_send( const system::error_code & error )
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_send( const system::error_code & error )
   {
     if( error )
-      CFerror << error.message() << CFendl;
+      CFerror << "Data could not be sent: " << error.message() << CFendl;
     else
       CFinfo << "Message sent" << CFendl;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_read( const system::error_code & error )
+  {
+    if( error )
+      CFerror << "Could not read: " << error.message() << CFendl;
+    else
+    {
+      try
+      {
+        std::string message = m_args.options().value<std::string>("text");
+
+//        std::cout << message << std::endl;
+
+        algorithm::to_upper(message);
+
+        SignalFrame reply = m_args.create_reply();
+
+        reply.set_option<std::string>( "text", message );
+
+        init_send( m_args );
+
+        std::cout << m_connection->socket().is_open() << std::endl;
+        init_read();
+      }
+      catch( Exception & e )
+      {
+        std::cerr << e.what() << std::endl;
+      }
+    }
+  }
+
+private: // data
+
+  SignalFrame m_args;
+  TCPConnection::Ptr m_connection;
   tcp::acceptor m_acceptor;
-};
+
+}; // TCPServer
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +150,7 @@ int main()
 
   try
   {
-    TCPServer server(io_service, 7171);
+    TCPServer server(io_service, 62784);
     io_service.run();
   }
   catch (std::exception& e)

@@ -26,6 +26,7 @@ using namespace boost;
 using namespace boost::asio::ip;
 
 using namespace cf3::common;
+using namespace cf3::common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -36,42 +37,72 @@ public:
   TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint)
     : m_io_service (io_service)
   {
-    // Try to connect to the server
-    connect(endpoint);
+    init_connect(endpoint);
   }
 
-private:
+private: // functions
 
-  void connect( tcp::endpoint& endpoint )
+  void init_connect( tcp::endpoint& endpoint )
   {
-    TCPConnection::Ptr new_connection = TCPConnection::create(m_io_service);
-    tcp::socket& socket = new_connection->socket();
+    m_connection = TCPConnection::create(m_io_service);
+    tcp::socket& socket = m_connection->socket();
 
     socket.async_connect( endpoint,
                           boost::bind( &TCPClient::callback_connect,
                                        this,
-                                       new_connection,
                                        asio::placeholders::error )
                          );
   }
 
-//  void start_reading ()
+  /////////////////////////////////////////////////////////////////////////////
 
-  void callback_connect( TCPConnection::Ptr new_connection, const system::error_code & error)
+  void init_read ( )
+  {
+    m_connection->read( m_args,
+                        boost::bind( &TCPClient::callback_read,
+                                     this,
+                                     asio::placeholders::error )
+                        );
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  void init_send ( SignalFrame & frame )
+  {
+    m_connection->send ( frame,
+                         boost::bind( &TCPClient::callback_send,
+                                      this,
+                                      asio::placeholders::error
+                                     )
+                        );
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_send( const system::error_code & error )
+  {
+    if( error )
+      CFerror << error.message() << CFendl;
+    else
+      CFinfo << "Message sent" << CFendl;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_connect ( const system::error_code & error)
   {
     if ( !error )
     {
-      std::cout << "Connected to " << new_connection->socket().remote_endpoint() << std::endl;
-      new_connection->read( m_args,
-                            boost::bind( &TCPClient::callback_read,
-                                         this,
-                                         m_args,
-                                         asio::placeholders::error )
-                            );
+      std::cout << "Connected to " << m_connection->socket().remote_endpoint() << std::endl;
+      init_read();
     }
+    else
+      CFerror << "Could not connect to host: " << error.message() << CFendl;
   }
 
-  void callback_read( SignalArgs & args, const system::error_code & error )
+  /////////////////////////////////////////////////////////////////////////////
+
+  void callback_read( const system::error_code & error )
   {
     if( error )
       CFerror << "Could not read: " << error.message() << CFendl;
@@ -80,9 +111,23 @@ private:
       try
       {
         std::string message = m_args.options().value<std::string>("text");
+        std::string text;
 
         std::cout << message << std::endl;
 
+        while( text.empty() )
+        {
+          std::cout << "String to capitalize: " << std::flush;
+          std::getline( std::cin, text );
+        }
+
+        SignalFrame frame;
+
+        frame.set_option<std::string>( "text", text );
+
+        init_send(frame);
+
+        init_read();
       }
       catch( Exception & e )
       {
@@ -91,9 +136,13 @@ private:
     }
   }
 
+private: // data
+
+  TCPConnection::Ptr m_connection;
   SignalArgs m_args;
   asio::io_service & m_io_service;
-};
+
+}; // TCPClient
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +154,7 @@ int main()
   try
   {
     asio::io_service io_service;
-    tcp::endpoint endpoint(asio::ip::address::from_string("127.0.0.1"), 7171);
+    tcp::endpoint endpoint(asio::ip::address::from_string("127.0.0.1"), 62784);
 
     TCPClient client(io_service, endpoint);
     io_service.run();
