@@ -15,8 +15,8 @@
 
 #include "common/BoostAnyConversion.hpp"
 #include "common/Log.hpp"
-#include "common/OptionURI.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/FileOperations.hpp"
@@ -46,12 +46,12 @@ using namespace cf3::common::XML;
 using namespace cf3::ui::core;
 using namespace cf3::ui::CoreTest;
 
-NRoot::Ptr makeTreeFromFile()
+Handle< NRoot > makeTreeFromFile()
 {
-  static XmlDoc::Ptr doc = XML::parse_file(URI("./tree.xml",URI::Scheme::FILE));
+  static boost::shared_ptr< XmlDoc > doc = XML::parse_file(URI("./tree.xml"));
 
-  static NRoot::Ptr root = CNode::create_from_xml(doc->content->first_node("node"))->castTo<NRoot>();
-  return root;
+  static boost::shared_ptr< NRoot > root = boost::dynamic_pointer_cast<NRoot>(CNode::create_from_xml(doc->content->first_node("node")));
+  return Handle<NRoot>(root);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -84,25 +84,25 @@ BOOST_AUTO_TEST_CASE( component_type )
 
 BOOST_AUTO_TEST_CASE( is_client_component )
 {
-  MyNode node("Node");
-  NBrowser browser;
-  NGeneric group("Group", "MyType");
-  NLink link("Link");
-  NLog log;
-  NGeneric mesh("Mesh", "MyType");
-  NGeneric method("Method", "MyType");
-  NRoot root("Root");
-  NTree tree;
+  boost::shared_ptr<MyNode> node(new MyNode("Node"));
+  boost::shared_ptr<NBrowser> browser(new NBrowser());
+  boost::shared_ptr<NGeneric> group(new NGeneric("Group", "MyType"));
+  boost::shared_ptr<NLink> link(new NLink("Link"));
+  boost::shared_ptr<NLog> log(new NLog());
+  boost::shared_ptr<NGeneric> mesh(new NGeneric("Mesh", "MyType"));
+  boost::shared_ptr<NGeneric> method(new NGeneric("Method", "MyType"));
+  boost::shared_ptr<NRoot> root(new NRoot("Root"));
+  boost::shared_ptr<NTree> tree(new NTree(root->handle<NRoot>()));
 
-  BOOST_CHECK( browser.is_local_component() );
-  BOOST_CHECK( !group.is_local_component()  );
-  BOOST_CHECK( !link.is_local_component()   );
-  BOOST_CHECK( log.is_local_component()     );
-  BOOST_CHECK( !mesh.is_local_component()   );
-  BOOST_CHECK( !method.is_local_component() );
-  BOOST_CHECK( !root.is_local_component()   );
-  BOOST_CHECK( node.is_local_component()    );
-  BOOST_CHECK( tree.is_local_component()    );
+  BOOST_CHECK( browser->is_local_component() );
+  BOOST_CHECK( !group->is_local_component()  );
+  BOOST_CHECK( !link->is_local_component()   );
+  BOOST_CHECK( log->is_local_component()     );
+  BOOST_CHECK( !mesh->is_local_component()   );
+  BOOST_CHECK( !method->is_local_component() );
+  BOOST_CHECK( !root->is_local_component()   );
+  BOOST_CHECK( node->is_local_component()    );
+  BOOST_CHECK( tree->is_local_component()    );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
   MyNode node("Node");
 
   // an invalid tree (the type of fakePi option is unknown)
-  XmlDoc::Ptr wrong_opt = XML::parse_cstring(
+  boost::shared_ptr< XmlDoc > wrong_opt = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"properties\">"
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
   // (1) a string property (because "is_option" attribute is not defined)
   // (2) a bool property (because "is_option" attribute is set to false)
   // (3) a Real option
-  XmlDoc::Ptr correct_opt = XML::parse_cstring(
+  boost::shared_ptr< XmlDoc > correct_opt = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"properties\">"
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( set_signals )
   // my_signal3 : with readable name, description and missing hidden
   // my_signal4 : with readable name and missing description and hidden
   // my_signal5 : with nothing else but the mandatory key
-  XmlDoc::Ptr sigs = XML::parse_cstring(
+  boost::shared_ptr< XmlDoc > sigs = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"signals\">"
@@ -265,18 +265,18 @@ BOOST_AUTO_TEST_CASE( modify_options )
 
   // call with an empty map, nothing should change
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.option("theAnswer").value<int>(), int(42) );
-  BOOST_CHECK_EQUAL( node.option("someBool").value<bool>(), true );
-  BOOST_CHECK_EQUAL( node.option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(42) );
+  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), true );
+  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // modify some options
   map["someBool"] = QVariant(false).toString();
   map["theAnswer"] = QString::number(-45782446);
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.option("theAnswer").value<int>(), int(-45782446) );
-  BOOST_CHECK_EQUAL( node.option("someBool").value<bool>(), false );
-  BOOST_CHECK_EQUAL( node.option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(-45782446) );
+  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), false );
+  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // try to modify a property (should fail)
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( modify_options )
 
 BOOST_AUTO_TEST_CASE( list_properties )
 {
-  MyNode::Ptr node( new MyNode("MyNode") );
+  boost::shared_ptr< MyNode > node( new MyNode("MyNode") );
   PropertyList& list = node->properties();
   int itemCount = list.store.size() + node->options().store.size();
   QMap<QString, QString> map;
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( list_properties )
 BOOST_AUTO_TEST_CASE( list_options )
 {
   MyNode node("MyNode");
-  QList<Option::ConstPtr> options;
+  QList<boost::shared_ptr< Option > > options;
 
   node.list_options(options);
 
@@ -329,34 +329,34 @@ BOOST_AUTO_TEST_CASE( list_options )
 
 BOOST_AUTO_TEST_CASE( create_from_xml )
 {
-  Component::Ptr node;
-  NRoot::Ptr root;
-  NGeneric::Ptr group;
+  Handle< Component > node;
+  Handle< NRoot > root;
+  Handle< NGeneric > group;
 
   BOOST_REQUIRE_NO_THROW(root = makeTreeFromFile());
 
-  BOOST_REQUIRE_NO_THROW(node = root->get_child_ptr("Tools") );
-  BOOST_REQUIRE_NO_THROW(group = node->as_ptr_checked<NGeneric>());
+  BOOST_REQUIRE_NO_THROW(node = root->get_child("Tools") );
+  BOOST_REQUIRE_NO_THROW(group = node->handle<NGeneric>());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( add_node )
 {
-  NRoot::Ptr root(new NRoot("Root"));
-  NGeneric::Ptr node(new NGeneric("Node", "NGeneric"));
-  NLog::Ptr log( new NLog() );
+  boost::shared_ptr< NRoot > root(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > node(new NGeneric("Node", "NGeneric"));
+  boost::shared_ptr< NLog > log( new NLog() );
   QSignalSpy rootSpy(root->notifier(), SIGNAL(child_count_changed()));
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(child_count_changed()));
 
   BOOST_REQUIRE_NO_THROW( root->add_node(node));
   // the component should have been added to the *real* root (Root)
-  BOOST_REQUIRE_NO_THROW( root->access_component_ptr("cpath:/Node")->as_ptr<NGeneric>() );
+  BOOST_REQUIRE_NO_THROW( root->access_component("cpath:/Node")->handle<NGeneric>() );
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->add_node(log) );
-  BOOST_REQUIRE_NO_THROW( node->access_component_ptr("cpath:/Node/" CLIENT_LOG)->as_ptr<NLog>() );
+  BOOST_REQUIRE_NO_THROW( node->access_component("cpath:/Node/" CLIENT_LOG)->handle<NLog>() );
 
   BOOST_CHECK_EQUAL(nodeSpy.count(), 1);
 }
@@ -365,9 +365,9 @@ BOOST_AUTO_TEST_CASE( add_node )
 
 BOOST_AUTO_TEST_CASE( remove_node )
 {
-  NRoot::Ptr root(new NRoot("Root"));
-  NGeneric::Ptr node(new NGeneric("Node", "NGeneric"));
-  NLog::Ptr log( new NLog() );
+  boost::shared_ptr< NRoot > root(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > node(new NGeneric("Node", "NGeneric"));
+  boost::shared_ptr< NLog > log( new NLog() );
   Component * nullComp = (Component*)nullptr;
 
   root->add_node(node);
@@ -378,12 +378,12 @@ BOOST_AUTO_TEST_CASE( remove_node )
 
   BOOST_REQUIRE_NO_THROW( root->remove_node("Node"));
   // the component should have been removed from the REAL root (Root)
-  BOOST_CHECK_EQUAL( root->access_component_ptr("cpath:/Node").get(), nullComp);
+  BOOST_CHECK_EQUAL( root->access_component("cpath:/Node").get(), nullComp);
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->remove_node( CLIENT_LOG ) );
-  BOOST_CHECK_EQUAL( root->access_component_ptr( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
+  BOOST_CHECK_EQUAL( root->access_component( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
 
   BOOST_CHECK_EQUAL( nodeSpy.count(), 1 );
 }
@@ -408,14 +408,14 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   */
 
   QStringList list;
-  NRoot::Ptr root(new NRoot("Root"));
-  NLog::Ptr log(new NLog());
-  NTree::Ptr tree(new NTree(root));
-  NGeneric::Ptr node1(new NGeneric("Node1", "NGeneric"));
-  NGeneric::Ptr node2(new NGeneric("Node2", "NGeneric"));
-  NGeneric::Ptr node3(new NGeneric("Node3", "NGeneric"));
-  NGeneric::Ptr node4(new NGeneric("Node4", "NGeneric"));
-  NGeneric::Ptr node5(new NGeneric("Node5", "NGeneric"));
+  boost::shared_ptr< NRoot > root(new NRoot("Root"));
+  boost::shared_ptr< NLog > log(new NLog());
+  boost::shared_ptr< NTree > tree(new NTree(root->handle<NRoot>()));
+  boost::shared_ptr< NGeneric > node1(new NGeneric("Node1", "NGeneric"));
+  boost::shared_ptr< NGeneric > node2(new NGeneric("Node2", "NGeneric"));
+  boost::shared_ptr< NGeneric > node3(new NGeneric("Node3", "NGeneric"));
+  boost::shared_ptr< NGeneric > node4(new NGeneric("Node4", "NGeneric"));
+  boost::shared_ptr< NGeneric > node5(new NGeneric("Node5", "NGeneric"));
 
   root->add_node(log);
   root->add_node(node2);

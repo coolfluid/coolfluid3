@@ -115,7 +115,7 @@ void OptionLayout::modified_options(CommitDetails & commitDetails) const
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::add_option(cf3::common::Option::ConstPtr option)
+void OptionLayout::add_option(const boost::shared_ptr<cf3::common::Option>& option)
 {
   GraphicalValue * value = GraphicalValue::create_from_option(option);
   QString name(option->name().c_str());

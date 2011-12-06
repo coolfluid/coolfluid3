@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, RhoU = 1, RhoV = 2, RhoE = 3 };
 
-  typedef boost::shared_ptr<Cons2D> Ptr;
-  typedef boost::shared_ptr<Cons2D const> ConstPtr;
+  
+  
 
 public: // functions
 

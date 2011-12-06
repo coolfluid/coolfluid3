@@ -23,8 +23,8 @@ class solver_actions_API CComputeArea : public CLoopOperation
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CComputeArea> Ptr;
-  typedef boost::shared_ptr<CComputeArea const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -48,8 +48,8 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_area;
-  boost::weak_ptr<mesh::Space> m_area_field_space;
+  Handle<mesh::Field> m_area;
+  Handle<mesh::Space> m_area_field_space;
 
   RealMatrix m_coordinates;
 

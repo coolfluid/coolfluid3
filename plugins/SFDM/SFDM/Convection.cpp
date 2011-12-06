@@ -8,6 +8,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -84,7 +86,7 @@ void Convection::execute()
 void Convection::compute_interior_flx_pts_contribution()
 {
   /// Cells loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
   if( solution_field().elements_lookup().contains(elements))
   {
@@ -130,10 +132,10 @@ void Convection::compute_face_flx_pts_contribution()
   /// Faces loop
   std::vector< boost::shared_ptr<Flyweight> > fly(2);
 
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Handle< Region > region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::inner_faces()))
   {
-    FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
+    FaceCellConnectivity& cell_connectivity = *faces.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
     /// For every face
     for (Face2Cell face(cell_connectivity); face.idx<cell_connectivity.size(); ++face.idx)
     {
@@ -179,10 +181,10 @@ void Convection::compute_face_flx_pts_contribution()
 void Convection::apply_null_bc()
 {
   /// Faces loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(const Handle<Region>& region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::outer_faces()))
   {
-    FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
+    FaceCellConnectivity& cell_connectivity = *faces.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
 
     /// For every face
     for (Face2Cell face(cell_connectivity); face.idx<cell_connectivity.size(); ++face.idx)

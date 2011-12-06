@@ -55,24 +55,22 @@ Commands::commands_description Commands::description()
 
 void Commands::compare(const std::vector<std::string>& params)
 {
-  Component::Ptr meshes_ptr = Core::instance().root().get_child_ptr("Meshes");
-  if (is_null(meshes_ptr))
-    meshes_ptr = Core::instance().root().create_component_ptr<Group>("Meshes");
-  Group& meshes = meshes_ptr->as_type<Group>();
+  Handle<Group> meshes(Core::instance().root().get_child("Meshes"));
+  if (is_null(meshes))
+    meshes = Core::instance().root().create_component<Group>("Meshes");
 
-  Component::Ptr mesh_loader_ptr = Core::instance().root().get_child_ptr("mesh_loader");
-  if (is_null(mesh_loader_ptr))
-    mesh_loader_ptr = Core::instance().root().create_component_ptr<LoadMesh>("mesh_loader");
-  LoadMesh& mesh_loader = mesh_loader_ptr->as_type<LoadMesh>();
+  Handle<LoadMesh> mesh_loader(Core::instance().root().get_child("mesh_loader"));
+  if (is_null(mesh_loader))
+    mesh_loader = Core::instance().root().create_component<LoadMesh>("mesh_loader");
 
-  std::vector<Mesh::Ptr> mesh_vector;
+  std::vector<Handle< Mesh > > mesh_vector;
   boost_foreach(const std::string& file_str, params)
   {
     URI file(file_str);
-    Mesh::Ptr mesh = mesh_loader.load_mesh(file);
+    boost::shared_ptr< Mesh > mesh = mesh_loader->load_mesh(file);
     mesh->rename(file.name());
-    meshes.add_component(mesh);
-    mesh_vector.push_back(mesh);
+    meshes->add_component(mesh);
+    mesh_vector.push_back(Handle<Mesh>(mesh));
   }
 
   Mesh& reference_mesh = *mesh_vector[0];

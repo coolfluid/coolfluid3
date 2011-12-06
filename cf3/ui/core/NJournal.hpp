@@ -31,8 +31,8 @@ class NJournal : public QObject, public CNode
 
 public: // typedefs
 
-  typedef boost::shared_ptr<NJournal> Ptr;
-  typedef boost::shared_ptr<NJournal const> ConstPtr;
+  
+  
 
 public:
 

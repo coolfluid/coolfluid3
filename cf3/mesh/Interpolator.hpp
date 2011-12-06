@@ -32,8 +32,8 @@ class Mesh_API Interpolator : public common::Component {
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<Interpolator> Ptr;
-  typedef boost::shared_ptr<Interpolator const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -55,7 +55,7 @@ public: // functions
 
   void interpolate();
 
-  virtual void construct_internal_storage(const Mesh& source) = 0;
+  virtual void construct_internal_storage(Mesh& source) = 0;
   
   virtual void interpolate_field_from_to(const Field& source, Field& target) = 0;
 
@@ -68,16 +68,16 @@ private: // functions
 private: // data
   
   /// source field
-  boost::weak_ptr<Field> m_source;
+  Handle<Field> m_source;
   
   /// target field
-  boost::weak_ptr<Field> m_target;
+  Handle<Field> m_target;
   
   /// The strategy to compute the stencil
-  boost::shared_ptr<StencilComputer>       m_stencil_computer;
+  Handle<StencilComputer>       m_stencil_computer;
   
   /// The strategy to interpolate.
-  boost::shared_ptr<Component>       m_interpolator_function;
+  Handle<Component>       m_interpolator_function;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

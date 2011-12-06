@@ -11,6 +11,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "common/List.hpp"
 #include "mesh/Elements.hpp"
@@ -36,14 +37,14 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
   m_idx(0)
 {
   // Following option is ignored if the loop is not about elements
-  //m_options.add_option(OptionComponent<mesh::Entities>::create("elements","Elements that are being looped",&m_elements));
-  options().add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
-      ->description("Elements that are being looped")
-      ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
+  options().add_option("elements", URI())
+      .supported_protocol(URI::Scheme::CPATH)
+      .description("Elements that are being looped")
+      .attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
 
-  options().add_option< OptionT<Uint> > ("loop_index", 0u)
-      ->description("Index that is being looped")
-      ->link_to( &m_idx );
+  options().add_option("loop_index", 0u)
+      .description("Index that is being looped")
+      .link_to( &m_idx );
 
 }
 
@@ -55,10 +56,9 @@ void CLoopOperation::config_elements()
   // otherwise this would get triggered
   if (m_call_config_elements)
   {
-    URI uri;
-    option("elements").put_value(uri);
-    m_elements = access_component_ptr_checked(uri)->as_ptr_checked<Entities>();
-    if ( is_null(m_elements.lock()) )
+    const URI uri = options().option("elements").value<URI>();
+    m_elements = access_component_checked(uri)->handle<Entities>();
+    if ( is_null(m_elements) )
       throw CastingFailed (FromHere(), "Elements must be of a Entities or derived type");
   }
 }
@@ -71,10 +71,10 @@ void CLoopOperation::set_elements(Entities& elements)
   m_call_config_elements = false;
 
   // Set elements
-  m_elements = elements.as_ptr_checked<Entities>();
+  m_elements = elements.handle<Entities>();
 
   // Call triggers
-  option("elements").trigger();
+  options().option("elements").trigger();
 
   // re-enable CLoop::Operation::config_elements() trigger
   m_call_config_elements = true;

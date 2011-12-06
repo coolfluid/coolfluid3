@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "common/PropertyList.hpp"
+
 #include "solver/actions/CCriterion.hpp"
 
 namespace cf3 {

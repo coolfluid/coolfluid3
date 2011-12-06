@@ -39,9 +39,9 @@ CPlotXY::CPlotXY(const std::string& name) :
     m_num_it(10000)
 {
   regist_signal( "convergence_history" )
-    ->connect( boost::bind( &CPlotXY::convergence_history, this, _1 ) )
-    ->description("Lists convergence history")
-    ->pretty_name("Get history");
+    .connect( boost::bind( &CPlotXY::convergence_history, this, _1 ) )
+    .description("Lists convergence history")
+    .pretty_name("Get history");
 
   // hide some signals from the GUI
   signal("create_component")->hidden(true);
@@ -90,7 +90,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
 
 void CPlotXY::set_data(const URI &uri)
 {
-  m_data = access_component(uri).as_ptr< Table<Real> >();
+  m_data = Handle< Table<Real> >(access_component(uri));
 }
 
 /////////////////////////////////////////////////////////////////////////////////

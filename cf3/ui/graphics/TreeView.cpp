@@ -178,7 +178,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QPoint mousePosition = event->pos() + this->geometry().topLeft();
 
   QModelIndex index = this->indexAt(mousePosition);
-  NTree::Ptr tree = NTree::global();
+  Handle< NTree > tree = NTree::global();
 
   QModelIndex indexInModel = m_model_filter->mapToSource(this->currentIndex());
 
@@ -226,7 +226,7 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  NTree::Ptr tree= NTree::global();
+  Handle< NTree > tree= NTree::global();
   QModelIndex currentIndex = m_model_filter->mapFromSource(tree->current_index());
 
   if(m_context_menu_allowed)
@@ -266,7 +266,7 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 bool TreeView::confirm_change_options(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-  NTree::Ptr tree = NTree::global();
+  Handle< NTree > tree = NTree::global();
 
   if(!okIfSameIndex &&  tree->are_from_same_node(tree->current_index(), index))
     return confirmed;

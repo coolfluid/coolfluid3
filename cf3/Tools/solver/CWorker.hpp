@@ -21,8 +21,8 @@ class CWorker : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CWorker> Ptr;
-  typedef boost::shared_ptr<const CWorker> ConstPtr;
+  
+  
 
 public:
 

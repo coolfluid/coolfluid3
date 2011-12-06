@@ -28,8 +28,8 @@ class mesh_actions_API BuildVolume : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<BuildVolume> Ptr;
-    typedef boost::shared_ptr<BuildVolume const> ConstPtr;
+    
+    
 
 public: // functions
   

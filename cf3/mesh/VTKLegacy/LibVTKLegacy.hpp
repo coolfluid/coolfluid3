@@ -42,8 +42,8 @@ class VTKLegacy_API LibVTKLegacy :
 {
 public:
 
-  typedef boost::shared_ptr<LibVTKLegacy> Ptr;
-  typedef boost::shared_ptr<LibVTKLegacy const> ConstPtr;
+  
+  
 
   /// Constructor
   LibVTKLegacy ( const std::string& name) : common::Library(name) {   }

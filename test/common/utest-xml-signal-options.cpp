@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 1. check option "my_bool"
   //
-  OptionT<bool>::Ptr my_bool;
+  boost::shared_ptr< OptionT<bool> > my_bool;
   BOOST_CHECK( options.check("my_bool") );
   my_bool = boost::dynamic_pointer_cast<OptionT<bool> >(options.store["my_bool"]);
   BOOST_CHECK( my_bool.get() != nullptr );
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 2. check option "cfl"
   //
-  OptionT<cf3::Real>::Ptr cfl;
+  boost::shared_ptr< OptionT<cf3::Real> > cfl;
   BOOST_CHECK( options.check("cfl") );
   cfl = boost::dynamic_pointer_cast<OptionT<cf3::Real> >(options.store["cfl"]);
   BOOST_CHECK( cfl.get() != nullptr );
@@ -88,16 +88,16 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 3. check option "my_bool"
   //
-  OptionArrayT<std::string>::Ptr strings;
+  boost::shared_ptr< OptionArray<std::string> > strings;
   BOOST_CHECK( options.check("strings") );
-  strings = boost::dynamic_pointer_cast<OptionArrayT<std::string> >(options.store["strings"]);
+  strings = boost::dynamic_pointer_cast<OptionArray<std::string> >(options.store["strings"]);
   BOOST_CHECK( strings.get() != nullptr );
   BOOST_CHECK_EQUAL( strings->name(), std::string("strings") );
-  BOOST_CHECK_EQUAL( std::string(strings->elem_type()), std::string(Protocol::Tags::type<std::string>()) );
+  BOOST_CHECK_EQUAL( std::string(strings->element_type()), std::string(Protocol::Tags::type<std::string>()) );
   BOOST_CHECK_EQUAL( strings->description(), std::string("Some special data") );
   BOOST_CHECK_EQUAL( strings->has_tag("basic"), false );
 
-  std::vector<std::string> data_read = strings->value_vect();
+  std::vector<std::string> data_read = strings->value< std::vector<std::string> >();
   BOOST_CHECK_EQUAL( data.size(), data_read.size() );
 
   for(int i = 0 ; i < data.size() ; ++i)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 4. check option "website"
   //
-  OptionURI::Ptr website;
+  boost::shared_ptr< OptionURI > website;
   BOOST_CHECK( options.check("website") );
   website = boost::dynamic_pointer_cast<OptionURI>(options.store["website"]);
   BOOST_CHECK( website.get() != nullptr );
@@ -123,8 +123,8 @@ BOOST_AUTO_TEST_CASE ( contructors )
 
 BOOST_AUTO_TEST_CASE ( xml_to_option )
 {
-  XmlDoc::Ptr xmldoc;
-  Option::Ptr option;
+  boost::shared_ptr< XmlDoc > xmldoc;
+  boost::shared_ptr<Option> option;
   XmlNode node;
 
   //
@@ -196,8 +196,8 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
 
 BOOST_AUTO_TEST_CASE( xml_to_option_types )
 {
-  XmlDoc::Ptr xmldoc(new XmlDoc());
-  Option::Ptr option;
+  boost::shared_ptr< XmlDoc > xmldoc(new XmlDoc());
+  boost::shared_ptr<Option> option;
 
   Map map(xmldoc->add_node("map"));
 
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
 
 BOOST_AUTO_TEST_CASE( xml_to_option_uri_schemes )
 {
-  XmlDoc::Ptr xmldoc(new XmlDoc());
+  boost::shared_ptr< XmlDoc > xmldoc(new XmlDoc());
   Map map(xmldoc->add_node("map"));
   const char * tag = Protocol::Tags::attr_uri_schemes();
 
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_uri_schemes )
   opt4.set_attribute(tag, "cpath,https,file");  // several schemes
   opt5.set_attribute(tag, "cpath,scheme");      // a wrong scheme
 
-  OptionURI::Ptr opt;
+  boost::shared_ptr< OptionURI > opt;
   std::vector<URI::Scheme::Type> vect;
 
   // 1. check opt1
@@ -306,9 +306,9 @@ BOOST_AUTO_TEST_CASE( xml_to_option_uri_schemes )
 
 BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
 {
-  XmlDoc::Ptr xmldoc(new XmlDoc());
+  boost::shared_ptr< XmlDoc > xmldoc(new XmlDoc());
   Map map(xmldoc->add_node("map"));
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   std::vector<int> vectInt = list_of<int>(344646)(544684)(446454)
                                                         (878764)(646316);
 
@@ -328,13 +328,12 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
 
   std::vector<boost::any> & restr_list = option->restricted_list();
 
-  BOOST_CHECK_EQUAL( restr_list.size(), size_t( vectInt.size() + 1 ) );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[0]), int(-15468) );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[1]), vectInt[0] );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[2]), vectInt[1] );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[3]), vectInt[2] );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[4]), vectInt[3] );
-  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[5]), vectInt[4] );
+  BOOST_CHECK_EQUAL( restr_list.size(), size_t( vectInt.size() ) );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[0]), vectInt[0] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[1]), vectInt[1] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[2]), vectInt[2] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[3]), vectInt[3] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[4]), vectInt[4] );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -411,7 +410,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 1. my_bool_array
   BOOST_CHECK ( options.check("my_bool_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_bool_array"].tag()), std::string("array") );
-  std::vector<bool> bool_array = options["my_bool_array"].cast_to< OptionArrayT<bool> >()->value_vect();
+  std::vector<bool> bool_array = options["my_bool_array"].value< std::vector<bool> >();
   BOOST_CHECK_EQUAL ( bool_array.size(), 4 );
   BOOST_CHECK ( bool_array[0] );
   BOOST_CHECK ( !bool_array[1] );
@@ -421,7 +420,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 2. my_uint_array
   BOOST_CHECK ( options.check("my_uint_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_uint_array"].tag()), std::string("array") );
-  std::vector<Uint> uint_array = options["my_uint_array"].cast_to< OptionArrayT<Uint> >()->value_vect();
+  std::vector<Uint> uint_array = options["my_uint_array"].value< std::vector<Uint> >();
   BOOST_CHECK_EQUAL ( uint_array.size(), 4 );
   BOOST_CHECK_EQUAL ( uint_array[0], 7489 );
   BOOST_CHECK_EQUAL ( uint_array[1], 12 );
@@ -431,7 +430,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 3. my_int_array
   BOOST_CHECK ( options.check("my_int_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_int_array"].tag()), std::string("array") );
-  std::vector<int> int_array = options["my_int_array"].cast_to< OptionArrayT<int> >()->value_vect();
+  std::vector<int> int_array = options["my_int_array"].value< std::vector<int> >();
   BOOST_CHECK_EQUAL ( int_array.size(), 3 );
   BOOST_CHECK_EQUAL ( int_array[0], -4567 );
   BOOST_CHECK_EQUAL ( int_array[1], 42 );
@@ -440,7 +439,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 4. my_real_array
   BOOST_CHECK ( options.check("my_real_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_real_array"].tag()), std::string("array") );
-  std::vector<Real> real_array = options["my_real_array"].cast_to< OptionArrayT<Real> >()->value_vect();
+  std::vector<Real> real_array = options["my_real_array"].value< std::vector<Real> >();
   BOOST_CHECK_EQUAL ( real_array.size(), 4 );
   BOOST_CHECK_EQUAL ( real_array[0], 3.1415 );
   BOOST_CHECK_EQUAL ( real_array[1], 2.71 );
@@ -450,7 +449,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 5. my_string_array
   BOOST_CHECK ( options.check("my_string_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_string_array"].tag()), std::string("array") );
-  std::vector<std::string> string_array = options["my_string_array"].cast_to< OptionArrayT<std::string> >()->value_vect();
+  std::vector<std::string> string_array = options["my_string_array"].value< std::vector<std::string> >();
   BOOST_CHECK_EQUAL ( string_array.size(), 3 );
   BOOST_CHECK_EQUAL ( string_array[0], std::string("Hello World!") );
   BOOST_CHECK_EQUAL ( string_array[1], std::string("VKI") );
@@ -459,7 +458,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 6. my_uri_array
   BOOST_CHECK ( options.check("my_uri_array") );
   BOOST_CHECK_EQUAL ( std::string(options["my_uri_array"].tag()), std::string("array") );
-  std::vector<URI> uri_array = options["my_uri_array"].cast_to< OptionArrayT<URI> >()->value_vect();
+  std::vector<URI> uri_array = options["my_uri_array"].value< std::vector<URI> >();
   BOOST_CHECK_EQUAL ( uri_array.size(), 3 );
   BOOST_CHECK_EQUAL ( uri_array[0].path(), URI("cpath:/Tools").path() );
   BOOST_CHECK_EQUAL ( uri_array[1].path(), URI("http://coolfluidsrv.vki.ac.be/cdash").path() );
@@ -477,7 +476,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   BOOST_CHECK_EQUAL ( options["my_int"].value<int>(), 42 );
 
   // 2. my_real_array
-  real_array = options["my_real_array"].cast_to< OptionArrayT<Real> >()->value_vect();
+  real_array = options["my_real_array"].value< std::vector<Real> >();
   BOOST_CHECK_EQUAL ( real_array.size(), 3 );
   BOOST_CHECK_EQUAL ( real_array[0], 1.56 );
   BOOST_CHECK_EQUAL ( real_array[1], 7894.012 );

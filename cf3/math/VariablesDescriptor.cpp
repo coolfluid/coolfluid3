@@ -18,6 +18,7 @@
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
 #include "common/Tags.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -39,12 +40,12 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >(common::Tags::dimension(), 0)
-      ->pretty_name("Dimension")
-      ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
-      ->mark_basic()
-      ->link_to(&m_dim)
-      ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
+    m_component.options().add_option(common::Tags::dimension(), 0u)
+      .pretty_name("Dimension")
+      .description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
+      .mark_basic()
+      .link_to(&m_dim)
+      .attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
 
   //////////////// Interface implementation /////////////////////
@@ -64,10 +65,10 @@ struct VariablesDescriptor::Implementation
     m_offsets.push_back(m_size);
     m_user_names.push_back(name);
 
-    m_component.options().add_option< OptionT<std::string> >(variable_property_name(name), name)
-        ->pretty_name(name + std::string(" Variable Name"))
-        ->description("Variable name for variable " + name)
-        ->link_to(&m_user_names.back());
+    m_component.options().add_option(variable_property_name(name), name)
+        .pretty_name(name + std::string(" Variable Name"))
+        .description("Variable name for variable " + name)
+        .link_to(&m_user_names.back());
 
     m_size += to_size(type);
   }
@@ -449,7 +450,7 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  configure_option(common::Tags::dimension(), dimension);
+  options().configure_option(common::Tags::dimension(), dimension);
   m_implementation->set_variables(description);
 }
 

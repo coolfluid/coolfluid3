@@ -39,8 +39,8 @@ class mesh_actions_API LibActions :
 
 public:
 
-  typedef boost::shared_ptr<mesh::actions::LibActions> Ptr;
-  typedef boost::shared_ptr<mesh::actions::LibActions const> ConstPtr;
+  
+  
 
   /// Constructor
   LibActions ( const std::string& name) : common::Library(name) {   }

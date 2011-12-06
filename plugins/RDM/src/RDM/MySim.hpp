@@ -24,8 +24,8 @@ class RDM_API MySim : public solver::CWizard {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<MySim> Ptr;
-  typedef boost::shared_ptr<MySim const> ConstPtr;
+  
+  
 
 public: // functions
 

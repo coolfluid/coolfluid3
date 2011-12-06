@@ -26,8 +26,8 @@ class RDM_API CellTerm : public cf3::solver::Action {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< CellTerm > Ptr;
-  typedef boost::shared_ptr< CellTerm const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -46,11 +46,11 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  mesh::Field& solution()    { return *m_solution.lock(); }
+  Handle<mesh::Field> solution()    { return m_solution; }
 
-  mesh::Field& residual()    { return *m_residual.lock(); }
+  Handle<mesh::Field> residual()    { return m_residual; }
 
-  mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
+  Handle<mesh::Field> wave_speed()  { return m_wave_speed; }
 
   //@} END ACCESSORS
 
@@ -60,11 +60,11 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
+  Handle<mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<mesh::Field> m_residual;     ///< access to the residual field
+  Handle<mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+  Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
 };
 

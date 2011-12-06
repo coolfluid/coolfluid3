@@ -56,12 +56,12 @@ TreeThread & ThreadManager::tree()
   {
     QMutex mutex;
 
-    mutex.lock();
+    mutex;
 
     m_tree_thread->set_mutex(&mutex);
     m_tree_thread->start();
 
-    mutex.lock();
+    mutex;
   }
 
   return *m_tree_thread;

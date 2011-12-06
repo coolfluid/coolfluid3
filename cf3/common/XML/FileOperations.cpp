@@ -22,12 +22,12 @@ namespace XML {
 
 /////////////////////////////////////////////////////////////////////////////
 
-XmlDoc::Ptr parse_string ( const std::string& str )
+boost::shared_ptr<XmlDoc> parse_string ( const std::string& str )
 {
   return parse_cstring(str.c_str(), str.length());
 }
 
-XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
+boost::shared_ptr<XmlDoc> parse_cstring ( const char* str, std::size_t length )
 {
   using namespace rapidxml;
 
@@ -56,11 +56,11 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
     throw XmlError(FromHere(), "Unknown error when parsing XML string");
   }
 
-  return XmlDoc::Ptr( new XmlDoc(xmldoc) );
+  return boost::shared_ptr<XmlDoc>( new XmlDoc(xmldoc) );
 }
 
 
-XmlDoc::Ptr parse_file ( const URI& file )
+boost::shared_ptr<XmlDoc> parse_file ( const URI& file )
 {
   using namespace rapidxml;
 

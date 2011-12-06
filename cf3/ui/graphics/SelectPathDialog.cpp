@@ -112,16 +112,16 @@ void SelectPathDialog::path_changed(const QString & path)
   int lastSlash = path.lastIndexOf(URI::separator().c_str());
   QString newPath;
   QStringList list;
-  CNode::Ptr node;
+  Handle< CNode > node;
 
   if(m_node_clicked)
     m_node_clicked = false;
   else
   {
-    Component::Ptr root = NTree::global()->tree_root();
+    Handle< Component > root = NTree::global()->tree_root();
     try
     {
-      if(boost::dynamic_pointer_cast<CNode>(root->access_component_ptr(path.toStdString())) != nullptr)
+      if(Handle<CNode>(root->access_component(path.toStdString())) != nullptr)
         newPath = path;
       else
         newPath = path.left(lastSlash);
@@ -129,7 +129,7 @@ void SelectPathDialog::path_changed(const QString & path)
       if(newPath == "/")
         newPath = root->uri().path().c_str();
 
-      node = boost::dynamic_pointer_cast<CNode>(root->access_component_ptr(newPath.toStdString()));
+      node = Handle<CNode>(root->access_component(newPath.toStdString()));
 
       if(node.get() != nullptr)
       {

@@ -26,8 +26,8 @@ class UFEM_API BoundaryConditions : public common::ActionDirector
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<BoundaryConditions> Ptr;
-  typedef boost::shared_ptr<BoundaryConditions const> ConstPtr;
+  
+  
 
 public: // functions
   

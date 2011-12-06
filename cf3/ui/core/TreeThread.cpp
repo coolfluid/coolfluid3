@@ -71,16 +71,16 @@ void TreeThread::set_mutex(QMutex * mutex)
 
 void TreeThread::run()
 {
-  m_root = NRoot::Ptr(new NRoot("Root"));
+  m_root = boost::shared_ptr< NRoot >(new NRoot("Root"));
 
-  Component::Ptr realRoot = m_root;
+  Handle< NRoot > realRoot(m_root);
 
-  NLog::Ptr log(new NLog());
-  NBrowser::Ptr browser(new NBrowser());
-  NTree::Ptr tree(new NTree(m_root));
-  NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
-  NGeneric::Ptr uidir( new NGeneric( CLIENT_UI_DIR, "cf3.common.Group", CNode::LOCAL_NODE ) );
-  NetworkQueue::Ptr networkQueue( new NetworkQueue() );
+  boost::shared_ptr< NLog > log(new NLog());
+  boost::shared_ptr< NBrowser > browser(new NBrowser());
+  boost::shared_ptr< NTree > tree(new NTree(realRoot));
+  boost::shared_ptr< NPlugins > plugins(new NPlugins(CLIENT_PLUGINS));
+  boost::shared_ptr< NGeneric > uidir( new NGeneric( CLIENT_UI_DIR, "cf3.common.Group", CNode::LOCAL_NODE ) );
+  boost::shared_ptr< NetworkQueue > networkQueue( new NetworkQueue() );
 
   Logger::instance().getStream(WARNING).addStringForwarder( log.get() );
   Logger::instance().getStream(ERROR).addStringForwarder( log.get() );
@@ -109,7 +109,7 @@ void TreeThread::run()
   plugins->mark_basic();
 
   // set the root as model root
-  tree->set_tree_root(m_root);
+  tree->set_tree_root(realRoot);
 
   ThreadManager::instance().network().newSignal.connect(
       boost::bind(&TreeThread::new_signal, this, _1) );
@@ -123,7 +123,7 @@ void TreeThread::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::new_signal(common::XML::XmlDoc::Ptr doc)
+void TreeThread::new_signal(boost::shared_ptr< common::XML::XmlDoc > doc)
 {
   const char * tag = Protocol::Tags::node_frame();
   XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
@@ -142,13 +142,13 @@ void TreeThread::new_signal(common::XML::XmlDoc::Ptr doc)
 
     try
     {
-      Component::Ptr realRoot = root();
+      Handle< Component > realRoot = root();
       SignalFrame frame(nodeToProcess);
 
       if(realRoot->uri().path() == URI(receiver).path())
         root()->call_signal(type, frame);
       else
-        realRoot->access_component(receiver).call_signal(type, frame);
+        realRoot->access_component(receiver)->call_signal(type, frame);
     }
     catch(cf3::common::Exception & cfe)
     {

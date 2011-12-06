@@ -109,7 +109,7 @@ void TreeBrowser::previous_clicked()
 
   const QModelIndex & index = m_history.at(m_current_index);
 
-//  if(!index.parent().isValid())
+//  if(!index.parent()->isValid())
 //    m_treeView->setRootIndex(index.parent());
 //  else
     m_tree_view->setRootIndex(index.parent());

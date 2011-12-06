@@ -58,7 +58,7 @@ BOOST_FIXTURE_TEST_SUITE( NodeElementConnectivity_TestSuite, NodeElementConnecti
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  NodeElementConnectivity::Ptr c = allocate_component<NodeElementConnectivity>("nodes_to_elements");
+  boost::shared_ptr<NodeElementConnectivity> c = allocate_component<NodeElementConnectivity>("nodes_to_elements");
   BOOST_CHECK_EQUAL(c->name(),"nodes_to_elements");
   BOOST_CHECK_EQUAL(NodeElementConnectivity::type_name(), "NodeElementConnectivity");
 }
@@ -68,15 +68,15 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag");
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 
   // create and setup node to elements connectivity
-  NodeElementConnectivity::Ptr c = mesh.create_component_ptr<NodeElementConnectivity>("node_elem_connectivity");
+  Handle<NodeElementConnectivity> c = mesh.create_component<NodeElementConnectivity>("node_elem_connectivity");
   c->setup( find_component<Region>(mesh) );
 
   BOOST_CHECK( true );
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
   CFinfo << CFendl << "node 10 is connected to elements: \n";
   boost_foreach(const Uint elem, elements)
   {
-    Component::Ptr connected_comp;
+    Handle< Component > connected_comp;
     Uint connected_idx;
     tie(connected_comp,connected_idx) = c->elements().location(elem);
     CFinfo << "   " << connected_comp->uri().path() << "  [" <<connected_idx <<  "] " << CFendl;

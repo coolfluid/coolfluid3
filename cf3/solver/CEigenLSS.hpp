@@ -35,8 +35,8 @@ class solver_API CEigenLSS : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CEigenLSS> Ptr;
-  typedef boost::shared_ptr<CEigenLSS const> ConstPtr;
+  
+  
 
 public: // functions
 

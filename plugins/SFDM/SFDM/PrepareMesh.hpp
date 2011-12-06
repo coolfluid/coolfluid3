@@ -22,8 +22,8 @@ class SFDM_API PrepareMesh : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<PrepareMesh> Ptr;
-  typedef boost::shared_ptr<PrepareMesh const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor

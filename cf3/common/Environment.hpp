@@ -18,12 +18,8 @@ namespace common {
 
 /// Component that defines global environment
 /// @author Quentin Gasper
-class Common_API Environment : public Component {
-
-public: //typedefs
-
-  typedef boost::shared_ptr<Environment> Ptr;
-  typedef boost::shared_ptr<Environment const> ConstPtr;
+class Common_API Environment : public Component
+{
 
 public: // functions
 

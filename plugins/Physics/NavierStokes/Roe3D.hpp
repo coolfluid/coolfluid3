@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Z0 = 0, Z1 = 1, Z2 = 2, Z3 = 3 , Z4 = 4 };
 
-  typedef boost::shared_ptr<Roe3D> Ptr;
-  typedef boost::shared_ptr<Roe3D const> ConstPtr;
+  
+  
 
 public: // functions
 

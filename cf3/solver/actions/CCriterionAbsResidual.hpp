@@ -24,8 +24,8 @@ class solver_actions_API CCriterionAbsResidual : public CCriterion {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterionAbsResidual> Ptr;
-  typedef boost::shared_ptr<CCriterionAbsResidual const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -45,7 +45,7 @@ public: // functions
 private:
   
   /// component where to access the current iteration
-  boost::weak_ptr<Component> m_iter_comp;
+  Handle<Component> m_iter_comp;
   /// maximum number of iterations
   Uint m_max_iter;
 

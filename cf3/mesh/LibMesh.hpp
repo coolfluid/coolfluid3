@@ -43,8 +43,8 @@ class Mesh_API LibMesh :  public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibMesh> Ptr;
-  typedef boost::shared_ptr<LibMesh const> ConstPtr;
+  
+  
 
   /// Constructor
   LibMesh ( const std::string& name) : common::Library(name) {   }
@@ -83,8 +83,8 @@ private:
   /// terminate library
   void terminate_impl();
   
-  boost::weak_ptr<common::Component> m_load_mesh;
-  boost::weak_ptr<common::Component> m_write_mesh;
+  Handle<common::Component> m_load_mesh;
+  Handle<common::Component> m_write_mesh;
 
 }; // end LibMesh
 

@@ -45,10 +45,10 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  options().add_option< OptionT<std::string> > ("p_out", std::string() )
-      ->description("Outlet pressure (vars x,y,z)")
-      ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
-      ->mark_basic();
+  options().add_option("p_out", std::string() )
+      .description("Outlet pressure (vars x,y,z)")
+      .attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
+      .mark_basic();
 
   pressure_function.variables("x,y,z");
 }
@@ -67,7 +67,7 @@ void SubsonicOutFlowWeakBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     loop.select_region( region );
 

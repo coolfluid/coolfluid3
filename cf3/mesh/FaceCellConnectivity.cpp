@@ -5,11 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 #include "common/Builder.hpp"
 #include "common/DynTable.hpp"
+#include "common/OptionList.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/Consts.hpp"
@@ -23,6 +25,10 @@
 #include "mesh/Cells.hpp"
 #include "mesh/ElementConnectivity.hpp"
 #include "mesh/Connectivity.hpp"
+
+#include "common/OptionList.hpp"
+
+#include "common/OptionList.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -39,14 +45,14 @@ FaceCellConnectivity::FaceCellConnectivity ( const std::string& name ) :
   m_face_building_algorithm(false)
 {
 
-  options().add_option< OptionT<bool> >("face_building_algorithm", m_face_building_algorithm)
-      ->link_to(&m_face_building_algorithm)
-      ->description("Improves efficiency for face building algorithm");
+  options().add_option("face_building_algorithm", m_face_building_algorithm)
+      .link_to(&m_face_building_algorithm)
+      .description("Improves efficiency for face building algorithm");
 
-  m_used_components = create_static_component_ptr<Group>("used_components");
-  m_connectivity = create_static_component_ptr<common::Table<Entity> >(mesh::Tags::connectivity_table());
-  m_face_nb_in_elem = create_static_component_ptr<common::Table<Uint> >("face_number");
-  m_is_bdry_face = create_static_component_ptr<common::List<bool> >("is_bdry_face");
+  m_used_components = create_static_component<Group>("used_components");
+  m_connectivity = create_static_component<common::Table<Entity> >(mesh::Tags::connectivity_table());
+  m_face_nb_in_elem = create_static_component<common::Table<Uint> >("face_number");
+  m_is_bdry_face = create_static_component<common::List<bool> >("is_bdry_face");
   m_connectivity->set_row_size(2);
   m_face_nb_in_elem->set_row_size(2);
 }
@@ -65,9 +71,9 @@ void FaceCellConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<Component::Ptr> FaceCellConnectivity::used()
+std::vector<Handle< Component > > FaceCellConnectivity::used()
 {
-  std::vector<Component::Ptr> vec;
+  std::vector<Handle< Component > > vec;
   boost_foreach( Link& link, find_components<Link>(*m_used_components) )
   {
     vec.push_back(link.follow());
@@ -77,20 +83,20 @@ std::vector<Component::Ptr> FaceCellConnectivity::used()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FaceCellConnectivity::add_used (const Component& used_comp)
+void FaceCellConnectivity::add_used (Component& used_comp)
 {
   bool found = false;
-  std::vector<Component::Ptr> used_components = used();
-  boost_foreach( Component::Ptr comp, used_components )
+  std::vector<Handle< Component > > used_components = used();
+  boost_foreach( Handle< Component > comp, used_components )
   {
-    if (comp == used_comp.follow())
+    if (comp == follow_link(used_comp))
     {
       found = true;
       break;
     }
   }
   if (found == false)
-    m_used_components->create_component_ptr<Link>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
+    m_used_components->create_component<Link>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
 
 }
 
@@ -107,7 +113,7 @@ void FaceCellConnectivity::build_connectivity()
 
   // sanity check
 //  CFinfo << "building face_cell connectivity using " << CFendl;
-//  boost_foreach(Component::Ptr cells, used() )
+//  boost_foreach(Handle< Component > cells, used() )
 //  {
 //    CFinfo << "  " << cells->uri().path() << CFendl;
 //  }
@@ -126,26 +132,26 @@ void FaceCellConnectivity::build_connectivity()
   Uint max_nb_faces(0);
 
   // calculate max_nb_faces
-  boost_foreach ( Component::Ptr elements_comp, used() )
+  boost_foreach ( Handle< Component > elements_comp, used() )
   {
-    Elements& elements = elements_comp->as_type<Elements>();
-    if (elements.element_type().dimensionality() != elements.element_type().dimension() )
+    Handle<Elements> elements(elements_comp);
+    if (elements->element_type().dimensionality() != elements->element_type().dimension() )
       continue;
-    const Uint nb_faces = elements.element_type().nb_faces();
-    max_nb_faces += nb_faces * elements.size() ;
+    const Uint nb_faces = elements->element_type().nb_faces();
+    max_nb_faces += nb_faces * elements->size() ;
   }
 
   if (m_face_building_algorithm)
   {
     // allocate storage if doesn't exist that says if the element is at the boundary of a region
     // ( = not the same as the mesh boundary)
-    boost_foreach (Component::Ptr elements_comp, used())
+    boost_foreach (Handle< Component > elements_comp, used())
     {
-      Elements& elements = elements_comp->as_type<Elements>();
-      Component::Ptr comp = elements.get_child_ptr("is_bdry");
-      if ( is_null( comp ) || is_null(comp->as_ptr< common::List<bool> >()) )
+      Elements& elements = dynamic_cast<Elements&>(*elements_comp);
+      Handle< Component > comp = elements.get_child("is_bdry");
+      if ( is_null( comp ) || is_null(Handle< common::List<bool> >(comp)) )
       {
-        common::List<bool>& is_bdry_elem = * elements.create_component_ptr< common::List<bool> >("is_bdry");
+        common::List<bool>& is_bdry_elem = * elements.create_component< common::List<bool> >("is_bdry");
 
         const Uint nb_elem = elements.size();
         is_bdry_elem.resize(nb_elem);
@@ -153,7 +159,7 @@ void FaceCellConnectivity::build_connectivity()
         for (Uint e=0; e<nb_elem; ++e)
           is_bdry_elem[e] = true;
       }
-      cf3_assert( elements.get_child_ptr("is_bdry")->as_ptr< common::List<bool> >() );
+      cf3_assert( Handle< common::List<bool> >(elements.get_child("is_bdry")) );
     }
   }
 
@@ -167,20 +173,20 @@ void FaceCellConnectivity::build_connectivity()
   Uint node;
   Uint nb_nodes;
   bool found_face = false;
-  Component::Ptr elem_location_comp;
+  Handle< Component > elem_location_comp;
   Uint elem_location_idx;
 
   // loop over the element types
   m_nb_faces=0;
-  boost_foreach (Component::Ptr elements_comp, used() )
+  boost_foreach (Handle< Component > elements_comp, used() )
   {
-    Elements& elements = elements_comp->as_type<Elements>();
+    Elements& elements = dynamic_cast<Elements&>(*elements_comp);
     const Uint nb_faces_in_elem = elements.element_type().nb_faces();
 
-    common::List<bool>::Ptr is_bdry_elem;
+    Handle< common::List<bool> > is_bdry_elem;
 
     if (m_face_building_algorithm)
-      is_bdry_elem = elements.get_child_ptr("is_bdry")->as_ptr< common::List<bool> >();
+      is_bdry_elem = Handle< common::List<bool> >(elements.get_child("is_bdry"));
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
@@ -310,11 +316,12 @@ void FaceCellConnectivity::build_connectivity()
   {
     for (Uint f=0; f<m_connectivity->size(); ++f)
     {
-      boost_foreach (const Entity& elem, (*m_connectivity)[f])
+      ElementConnectivity::Row elem_row = (*m_connectivity)[f];
+      boost_foreach (Entity& elem, elem_row)
       {
         if ( is_not_null(elem.comp) )
         {
-          common::List<bool>& is_bdry_elem = elem.comp->get_child("is_bdry").as_type< common::List<bool> >();
+          common::List<bool>& is_bdry_elem = *Handle< common::List<bool> >(elem.comp->get_child("is_bdry"));
           is_bdry_elem[elem.idx] = is_bdry_elem[elem.idx] || is_bdry_face.get_row(f) ;
         }
       }

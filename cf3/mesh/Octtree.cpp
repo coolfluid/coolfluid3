@@ -12,6 +12,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
@@ -51,22 +52,23 @@ Octtree::Octtree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
-      ->description("Mesh to create octtree from")
-      ->pretty_name("Mesh")
-      ->mark_basic();
+  options().add_option("mesh", m_mesh)
+      .description("Mesh to create octtree from")
+      .pretty_name("Mesh")
+      .mark_basic()
+      .link_to(&m_mesh);
 
-  options().add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
-      ->description("The approximate amount of elements that are stored in a structured cell of the octtree")
-      ->pretty_name("Number of Elements per Octtree Cell");
+  options().add_option( "nb_elems_per_cell", 1u )
+      .description("The approximate amount of elements that are stored in a structured cell of the octtree")
+      .pretty_name("Number of Elements per Octtree Cell");
 
   std::vector<Uint> dummy;
-  options().add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
-      ->description("The number of cells in each direction of the comb. "
+  options().add_option( "nb_cells", dummy)
+      .description("The number of cells in each direction of the comb. "
                         "Takes precedence over \"Number of Elements per Octtree Cell\". ")
-      ->pretty_name("Number of Cells");
+      .pretty_name("Number of Cells");
 
-  m_elements = create_component_ptr<UnifiedData>("elements");
+  m_elements = create_component<UnifiedData>("elements");
 
 }
 
@@ -76,16 +78,16 @@ void Octtree::create_bounding_box()
 {
   m_dim=0;
 
-  if (m_mesh.expired())
+  if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  m_dim = m_mesh.lock()->geometry_fields().coordinates().row_size();
+  m_dim = m_mesh->geometry_fields().coordinates().row_size();
 
   // find bounding box coordinates for region 1 and region 2
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(Field::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
+  boost_foreach(Field::ConstRow coords, m_mesh->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -100,7 +102,8 @@ void Octtree::create_bounding_box()
 void Octtree::create_octtree()
 {
   create_bounding_box();
-  if (m_mesh.expired())
+
+  if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
   std::vector<Real> L(3);
@@ -112,18 +115,18 @@ void Octtree::create_octtree()
     V*=L[d];
   }
 
-  const Uint nb_elems = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
+  const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
 
-  if (option("nb_cells").value<std::vector<Uint> >().size() > 0)
+  if (options().option("nb_cells").value<std::vector<Uint> >().size() > 0)
   {
-    m_N = option("nb_cells").value<std::vector<Uint> >();
+    m_N = options().option("nb_cells").value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*option("nb_elems_per_cell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*options().option("nb_elems_per_cell").value<Uint>();
 
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -143,13 +146,13 @@ void Octtree::create_octtree()
   // initialize the honeycomb
   m_octtree.resize(boost::extents[std::max(Uint(1),m_N[XX])][std::max(Uint(1),m_N[YY])][std::max(Uint(1),m_N[ZZ])]);
 
-  boost_foreach (const Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh.lock(),IsElementsVolume()))
+  boost_foreach (Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsVolume()))
     m_elements->add(elements);
 
   Uint unif_elem_idx=0;
   RealVector centroid(m_dim);
   std::vector<Uint> octtree_idx(3);
-  boost_foreach (const Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh.lock(),IsElementsVolume()))
+  boost_foreach (const Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsVolume()))
   {
     Uint nb_nodes_per_element = elements.node_connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
@@ -210,7 +213,7 @@ void Octtree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, st
 {
   ranks.resize(coordinates.size());
 
-  Elements::ConstPtr element_component;
+  Handle< Elements > element_component;
   Uint element_idx;
   std::deque<Uint> missing_cells;
 
@@ -408,9 +411,9 @@ void Octtree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, c
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Elements::ConstPtr,Uint> Octtree::find_element(const RealVector& target_coord)
+boost::tuple<Handle< Elements >,Uint> Octtree::find_element(const RealVector& target_coord)
 {
-  Elements::ConstPtr element_component;
+  Handle< Elements > element_component;
   Uint element_idx;
   find_element(target_coord,element_component,element_idx);
   return boost::make_tuple(element_component, element_idx);
@@ -419,7 +422,7 @@ boost::tuple<Elements::ConstPtr,Uint> Octtree::find_element(const RealVector& ta
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Octtree::find_element(const RealVector& target_coord, Elements::ConstPtr& element_component, Uint& element_idx)
+bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& element_component, Uint& element_idx)
 {
   if (m_octtree.num_elements() == 0)
     create_octtree();
@@ -427,7 +430,7 @@ bool Octtree::find_element(const RealVector& target_coord, Elements::ConstPtr& e
   {
     std::vector<Uint> unified_elements(0); unified_elements.reserve(16);
 
-    Component::ConstPtr component;
+    Handle< Component > component;
     Uint elem_idx;
 
     gather_elements_around_idx(m_octtree_idx,0,unified_elements);
@@ -435,11 +438,11 @@ bool Octtree::find_element(const RealVector& target_coord, Elements::ConstPtr& e
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
-      const Elements& elements = component->as_type<Elements>();
+      Elements& elements = dynamic_cast<Elements&>(*component);
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        element_component = elements.as_ptr<Elements>();
+        element_component = Handle<Elements>(elements.handle<Component>());
         element_idx = elem_idx;
         cf3_assert(is_not_null(element_component));
         return true;
@@ -453,11 +456,11 @@ bool Octtree::find_element(const RealVector& target_coord, Elements::ConstPtr& e
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
-      const Elements& elements = component->as_type<Elements>();
+      Elements& elements = dynamic_cast<Elements&>(*component);
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        element_component = elements.as_ptr<Elements>();
+        element_component = Handle<Elements>(elements.handle<Component>());
         element_idx = elem_idx;
         cf3_assert(is_not_null(element_component));
         return true;

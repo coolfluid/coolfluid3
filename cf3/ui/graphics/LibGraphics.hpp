@@ -40,8 +40,8 @@ namespace cf3 {
   {
   public:
 
-    typedef boost::shared_ptr<LibGraphics> Ptr;
-    typedef boost::shared_ptr<LibGraphics const> ConstPtr;
+    
+    
 
     /// Constructor
     LibGraphics ( const std::string& name) : common::Library(name) {   }

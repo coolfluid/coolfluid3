@@ -32,9 +32,9 @@ NLink::NLink(const std::string & name)
   : CNode(name, "Link", CNode::STANDARD_NODE)
 {
   regist_signal( "goToTarget" )
-    ->connect( boost::bind( &NLink::go_to_target, this, _1 ) )
-    ->description("Switch to the target node")
-    ->pretty_name("Go to target node");
+    .connect( boost::bind( &NLink::go_to_target, this, _1 ) )
+    .description("Switch to the target node")
+    .pretty_name("Go to target node");
 
   m_local_signals << "goToTarget";
 }
@@ -67,7 +67,7 @@ void NLink::set_target_path(const URI & path)
 {
   if(!path.empty())
   {
-    CNode::Ptr target = access_component(path).as_ptr<CNode>();
+    Handle< CNode > target(access_component(path));
     cf3_assert( is_not_null(target.get()) );
     this->set_target_node(target);
   }
@@ -75,7 +75,7 @@ void NLink::set_target_path(const URI & path)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NLink::set_target_node(const CNode::Ptr & node)
+void NLink::set_target_node(const Handle< CNode > & node)
 {
   cf3_always_assert( is_not_null(node.get()) );
 

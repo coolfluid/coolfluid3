@@ -22,8 +22,8 @@ class UFEM_API TimeLoop : public common::ActionDirector
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<TimeLoop> Ptr;
-  typedef boost::shared_ptr<TimeLoop const> ConstPtr;
+  
+  
 
 public: // functions
 

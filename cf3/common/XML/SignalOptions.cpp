@@ -43,7 +43,7 @@ namespace XML {
 /// @return Returns the created option.
 /// @author Quentin Gasper.
 template<typename TYPE>
-Option::Ptr make_option_t(const std::string & name, const std::string & pretty_name,
+boost::shared_ptr<Option> make_option_t(const std::string & name, const std::string & pretty_name,
                           const std::string & descr, XmlNode & node)
 {
   TYPE value;
@@ -52,7 +52,7 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
       .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
 
-  Option::Ptr option(new common::OptionT<TYPE>(name, value));
+  boost::shared_ptr<Option> option(new common::OptionT<TYPE>(name, value));
 
   option->description( descr );
   option->pretty_name( pretty_name );
@@ -77,7 +77,7 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
 
 ////////////////////////////////////////////////////////////////////////////
 
-/// Creates an @c #OptionArrayT option with values of type TYPE.
+/// Creates an @c #OptionArray option with values of type TYPE.
 /// @param name Option name
 /// @param pretty_name The option pretty name
 /// @param descr Option description
@@ -86,7 +86,7 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
 /// @return Returns the created option.
 /// @author Quentin Gasper.
 template<typename TYPE>
-typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
+boost::shared_ptr< OptionArray<TYPE> > make_option_array_t(const std::string & name,
                                                      const std::string & pretty_name,
                                                      const std::string & descr,
                                                      const XmlNode & node)
@@ -94,7 +94,7 @@ typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
   std::string delimiter;
   std::vector<TYPE> value = Map().array_to_vector<TYPE>(node, &delimiter);
 
-  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, value));
+  boost::shared_ptr< OptionArray<TYPE> > option(new OptionArray<TYPE>(name, value));
 
   option->description( descr );
   option->pretty_name( pretty_name );
@@ -121,12 +121,12 @@ typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
+boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
 {
   cf3_assert( node.is_valid() );
 
   bool advanced; // indicates whether the option should be advanced or not
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   std::string opt_type( Map::get_value_type(node) ); // option type
 
   // get some attributes
@@ -172,7 +172,7 @@ Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
       rapidxml::xml_attribute<>* schemes_attr = nullptr;
       std::vector<std::string> schemes;
       std::vector<std::string>::iterator it;
-      OptionURI::Ptr option_uri;
+      boost::shared_ptr<OptionURI> option_uri;
 
       XmlNode restr_node = Map(node).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
@@ -190,7 +190,7 @@ Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
       }
 
       // create the option
-      option_uri = OptionURI::Ptr (new common::OptionURI(key_str, value));
+      option_uri = boost::shared_ptr<OptionURI> (new common::OptionURI(key_str, value));
 
       option_uri->description( descr_str );
       option_uri->pretty_name( pretty_name );
@@ -272,7 +272,7 @@ Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
 /// @param is_array If @c true, the option is treated as an array.
 /// @author Quentin Gasper.
 template<typename TYPE>
-void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
+void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 {
   cf3_assert( opt_map.content.is_valid() );
   cf3_assert( is_not_null( opt.get() ) );
@@ -286,8 +286,7 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
     value_node = opt_map.set_value<TYPE>( opt->name(), opt->value<TYPE>(), desc );
   else
   {
-    typename OptionArrayT<TYPE>::Ptr array = boost::dynamic_pointer_cast<OptionArrayT<TYPE> >(opt);
-    value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), opt->separator(), desc );
+    value_node = opt_map.set_array<TYPE>( opt->name(), opt->value< std::vector<TYPE> >(), opt->separator(), desc );
   }
 
   value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
@@ -349,7 +348,7 @@ SignalOptions::SignalOptions( SignalFrame & frame,  const std::string & name )
 
   for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
   {
-    Option::Ptr option = xml_to_option( XmlNode(value_node) );
+    boost::shared_ptr<Option> option = xml_to_option( XmlNode(value_node) );
 
     if( check(option->name()) )
       throw ValueExists(FromHere(), "Option [" + option->name() + "] already exists.");
@@ -387,13 +386,11 @@ void SignalOptions::add_to_map( Map & map, const OptionList & list )
 
   for( OptionStorage_t::const_iterator it = list.begin() ; it != list.end() ; ++it )
   {
-    Option::Ptr option = it->second;
-    std::string type = option->tag();
-    bool is_array = ( type == Protocol::Tags::node_array() );
+    boost::shared_ptr<Option> option = it->second;
 
-    if( is_array )
-      type = boost::dynamic_pointer_cast<OptionArray>( option )->elem_type();
+    bool is_array = ( option->tag() == Protocol::Tags::node_array() );
 
+    const std::string type = option->element_type();
     if ( type == Protocol::Tags::type<bool>() )
       add_opt_to_xml<bool>( map, option, is_array );
     else if ( type == Protocol::Tags::type<int>() )
@@ -424,13 +421,7 @@ TYPE SignalOptions::value( const std::string & name ) const
 template<typename TYPE>
 std::vector<TYPE> SignalOptions::array( const std::string & name ) const
 {
-  typename OptionArrayT<TYPE>::ConstPtr opt;
-
-  opt = boost::dynamic_pointer_cast< const OptionArrayT<TYPE> >(option(name).shared_from_this());
-
-  cf3_assert( is_not_null(opt) ); // check the casting went OK
-
-  return opt->value_vect();
+  return option(name).template value< std::vector<TYPE> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////

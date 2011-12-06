@@ -43,26 +43,26 @@ NRoot::NRoot(const std::string & name)
   m_is_root = true;
 
   regist_signal( "shutdown" )
-    ->description("Server shutdown")
-    ->pretty_name("")->connect(boost::bind(&NRoot::shutdown, this, _1));
+    .description("Server shutdown")
+    .pretty_name("").connect(boost::bind(&NRoot::shutdown, this, _1));
 
   regist_signal( "client_registration" )
-    ->description("Registration confirmation")
-    ->pretty_name("")->connect(boost::bind(&NRoot::client_registration, this, _1));
+    .description("Registration confirmation")
+    .pretty_name("").connect(boost::bind(&NRoot::client_registration, this, _1));
 
   regist_signal( "frame_rejected" )
-    ->description("Frame rejected by the server")
-    ->pretty_name("")->connect(boost::bind(&NRoot::frame_rejected, this, _1));
+    .description("Frame rejected by the server")
+    .pretty_name("").connect(boost::bind(&NRoot::frame_rejected, this, _1));
 
   regist_signal( "connect_server" )
-    ->connect( boost::bind( &NRoot::signal_connect_server, this, _1 ) )
-    ->description("Connects to the server")
-    ->pretty_name("Connect to server");
+    .connect( boost::bind( &NRoot::signal_connect_server, this, _1 ) )
+    .description("Connects to the server")
+    .pretty_name("Connect to server");
 
   regist_signal( "disconnect_server" )
-    ->connect( boost::bind( &NRoot::signal_disconnect_server, this, _1 ) )
-    ->description("Disconnects from the server")
-    ->pretty_name("Disconnect from server");
+    .connect( boost::bind( &NRoot::signal_disconnect_server, this, _1 ) )
+    .description("Disconnects from the server")
+    .pretty_name("Disconnect from server");
 
   m_local_signals << "connect_server" << "disconnect_server";
 
@@ -85,7 +85,7 @@ QString NRoot::tool_tip() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNode::ConstPtr NRoot::child_from_root(cf3::Uint number) const
+Handle< CNode const > NRoot::child_from_root(cf3::Uint number) const
 {
   ComponentIterator<CNode const> it = component_begin<CNode>(*this);
   ComponentIterator<CNode const> end = component_end<CNode>(*this);
@@ -101,7 +101,7 @@ CNode::ConstPtr NRoot::child_from_root(cf3::Uint number) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NRoot::child_from_root(cf3::Uint number)
+Handle< CNode > NRoot::child_from_root(cf3::Uint number)
 {
   ComponentIterator<CNode> it = component_begin<CNode>(*this);
   ComponentIterator<CNode> end = component_end<CNode>(*this);
@@ -201,11 +201,11 @@ void NRoot::signature_connect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option< OptionT<std::string> >("Hostname", std::string("localhost") )
-      ->description("Name or IP address of the server.");
+  options.add_option("Hostname", std::string("localhost") )
+      .description("Name or IP address of the server.");
 
-  options.add_option< OptionT<Uint> >("Port number", Uint(62784) )
-      ->description("Port number the server is listening to.");
+  options.add_option("Port number", Uint(62784) )
+      .description("Port number the server is listening to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -214,8 +214,8 @@ void NRoot::signature_disconnect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option< OptionT<bool> >("Shutdown the server", false )
-      ->description("If checked, the server application will be closed.");
+  options.add_option("Shutdown the server", false )
+      .description("If checked, the server application will be closed.");
 }
 
 ////////////////////////////////////////////////////////////////////////////

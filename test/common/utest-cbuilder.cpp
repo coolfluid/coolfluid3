@@ -31,13 +31,8 @@ struct Builder_fixture
 
 //------------------------------------------------------------------------------------------
 
-class CAbstract : public Component {
-
-public:
-
-  typedef boost::shared_ptr<CAbstract> Ptr;
-  typedef boost::shared_ptr<CAbstract const> ConstPtr;
-
+class CAbstract : public Component
+{
 public:
 
   CAbstract ( const std::string& name ) : Component(name) {}
@@ -46,13 +41,8 @@ public:
 
 };
 
-class CConcrete1 : public CAbstract {
-
-public:
-
-  typedef boost::shared_ptr<CConcrete1> Ptr;
-  typedef boost::shared_ptr<CConcrete1 const> ConstPtr;
-
+class CConcrete1 : public CAbstract
+{
 public:
 
   CConcrete1 ( const std::string& name ) : CAbstract(name) {}
@@ -71,23 +61,18 @@ BOOST_AUTO_TEST_CASE( registration )
 {
   common::ComponentBuilder < CConcrete1 , CAbstract, common::LibCommon > aBuilder;
 
-  CAbstract::Ptr ptr = build_component_abstract_type< CAbstract >("cf3.common.CConcrete1","acomp");
+  boost::shared_ptr<CAbstract> ptr = build_component_abstract_type< CAbstract >("cf3.common.CConcrete1","acomp");
 
   BOOST_CHECK( is_not_null(ptr) );
 
   Core::instance().root().add_component(ptr);
 
-  CConcrete1::Ptr ptr2 = Core::instance().root().create_component_ptr<CConcrete1>("cconc");
+  Handle<CConcrete1> ptr2 = Core::instance().root().create_component<CConcrete1>("cconc");
 
   BOOST_CHECK( ptr2 );
 
-  CAbstract::Ptr cabs = boost::dynamic_pointer_cast<CAbstract>(ptr2);
-
+  Handle<CAbstract> cabs(ptr2);
   BOOST_CHECK( cabs );
-
-  CAbstract::Ptr cabs2 = ptr2->as_ptr<CAbstract>();
-
-  BOOST_CHECK( cabs2 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

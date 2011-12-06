@@ -12,6 +12,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/Core.hpp"
@@ -42,11 +43,11 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
 
-  Domain::Ptr domain = Core::instance().root().create_component_ptr<Domain>("Domain");
+  Handle<Domain> domain = Core::instance().root().create_component<Domain>("Domain");
 
   BOOST_CHECK(true);
 
-  LoadMesh::Ptr load_mesh = Core::instance().root().create_component_ptr<LoadMesh>("load_mesh");
+  Handle<LoadMesh> load_mesh = Core::instance().root().create_component<LoadMesh>("load_mesh");
 
   BOOST_CHECK(true);
 
@@ -56,9 +57,9 @@ BOOST_AUTO_TEST_CASE( constructor )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:../../resources/rotation-tg-p1.neu" );
-  options.add_option< OptionURI >("location", URI( domain->uri().string()) );
-  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
-  options.add_option< OptionArrayT<URI> >("files", files);
+  options.add_option("location", URI( domain->uri().string()) );
+  options.add_option("name", std::string("Mesh") );
+  options.add_option("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -70,8 +71,8 @@ BOOST_AUTO_TEST_CASE( constructor )
 BOOST_AUTO_TEST_CASE( output )
 {
   Domain& domain = find_component_recursively<Domain>(Core::instance().root());
-  Mesh::Ptr mesh = domain.get_child_ptr_checked("Mesh")->as_ptr<Mesh>();
-  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter> ( "cf3.mesh.gmsh.Writer", "GmshWriter" );
+  Handle< Mesh > mesh(domain.get_child_checked("Mesh"));
+  boost::shared_ptr< MeshWriter > mesh_writer = build_component_abstract_type<MeshWriter> ( "cf3.mesh.gmsh.Writer", "GmshWriter" );
   mesh_writer->write_from_to(*mesh,"utest-loadmesh-result.msh");
 }
 

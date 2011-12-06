@@ -9,7 +9,9 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Link.hpp"
 
 #include "mesh/Space.hpp"
@@ -39,18 +41,18 @@ Space::Space ( const std::string& name ) :
 {
   mark_basic();
 
-  m_properties["brief"] = std::string("Spaces are other views of Entities, for instance a higher-order representation");
-  m_properties["description"] = std::string("");
+  properties()["brief"] = std::string("Spaces are other views of Entities, for instance a higher-order representation");
+  properties()["description"] = std::string("");
 
-  options().add_option(OptionT<std::string>::create("shape_function", std::string("")))
-      ->description("Shape Function defined in this space")
-      ->pretty_name("Shape Function")
-      ->attach_trigger(boost::bind(&Space::configure_shape_function, this))
-      ->mark_basic();
+  options().add_option("shape_function", std::string())
+      .description("Shape Function defined in this space")
+      .pretty_name("Shape Function")
+      .attach_trigger(boost::bind(&Space::configure_shape_function, this))
+      .mark_basic();
 
-  m_connectivity = create_static_component_ptr<Connectivity>("connectivity");
+  m_connectivity = create_static_component<Connectivity>("connectivity");
 
-  m_fields = create_static_component_ptr<Link>("fields");
+  m_fields = create_static_component<Link>("fields");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,23 +71,23 @@ const ShapeFunction& Space::shape_function() const
 
 void Space::set_support(Entities& support)
 {
-  m_support = support.as_ptr<Entities>();
+  m_support = Handle<Entities>(support.handle<Component>());
 }
 
 Entities& Space::support()
 {
-  if(m_support.expired())
+  if(is_null(m_support))
     throw SetupError(FromHere(), "Support not set for " + uri().string());
 
-  return *m_support.lock();
+  return *m_support;
 }
 
 const Entities& Space::support() const
 {
-  if(m_support.expired())
+  if(is_null(m_support))
     throw SetupError(FromHere(), "Support not set for " + uri().string());
 
-  return *m_support.lock();
+  return *m_support;
 }
 
 ElementType& Space::element_type()
@@ -107,14 +109,13 @@ Uint Space::nb_states() const
 
 void Space::configure_shape_function()
 {
-  const std::string sf_name = option("shape_function").value<std::string>();
+  const std::string sf_name = options().option("shape_function").value<std::string>();
   if (is_not_null(m_shape_function))
   {
     remove_component(m_shape_function->name());
   }
-  m_shape_function = build_component_abstract_type<ShapeFunction>( sf_name, sf_name );
+  m_shape_function = create_component<ShapeFunction>(sf_name, sf_name);
   m_shape_function->rename(m_shape_function->derived_type_name());
-  add_component( m_shape_function );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +130,7 @@ bool Space::is_bound_to_fields() const
 SpaceFields& Space::fields() const
 {
   cf3_assert(is_bound_to_fields());
-  return m_fields->follow()->as_type<SpaceFields>();
+  return *Handle<SpaceFields>(follow_link(*m_fields));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

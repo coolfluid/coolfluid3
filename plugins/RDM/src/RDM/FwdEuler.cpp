@@ -6,8 +6,7 @@
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionComponent.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/Foreach.hpp"
 
 #include "math/Checks.hpp"
@@ -38,9 +37,9 @@ FwdEuler::FwdEuler ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option< OptionT<Real> >( "cfl", 1.0 )
-      ->pretty_name("CFL")
-      ->description("Courant-Fredrichs-Levy stability number");
+  options().add_option( "cfl", 1.0 )
+      .pretty_name("CFL")
+      .description("Courant-Fredrichs-Levy stability number");
 
 }
 
@@ -48,18 +47,18 @@ FwdEuler::FwdEuler ( const std::string& name ) :
 
 void FwdEuler::execute()
 {
-  RDSolver& mysolver = solver().as_type< RDSolver >();
+  RDSolver& mysolver = *solver().handle< RDSolver >();
 
-  if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-  if (m_wave_speed.expired())
-    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
-  if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
+  if (is_null(m_solution))
+    m_solution = follow_link(mysolver.fields().get_child( RDM::Tags::solution() ))->handle<Field>();
+  if (is_null(m_wave_speed))
+    m_wave_speed = follow_link(mysolver.fields().get_child( RDM::Tags::wave_speed() ))->handle<Field>();
+  if (is_null(m_residual))
+    m_residual = follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->handle<Field>();
 
-  Field& solution     = *m_solution.lock();
-  Field& wave_speed   = *m_wave_speed.lock();
-  Field& residual     = *m_residual.lock();
+  Field& solution     = *m_solution;
+  Field& wave_speed   = *m_wave_speed;
+  Field& residual     = *m_residual;
 
   const Real CFL = options().option("cfl").value<Real>();
 

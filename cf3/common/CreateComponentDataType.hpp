@@ -26,10 +26,6 @@
 #define create_component_data_type( data_type , API , CName , Cname_type_name) \
 class API CName : public common::Component                                     \
 {                                                                              \
-public:                                                                        \
-                                                                               \
-  typedef boost::shared_ptr<CName> Ptr;                                        \
-  typedef boost::shared_ptr<CName const> ConstPtr;                             \
                                                                                \
 public:                                                                        \
                                                                                \

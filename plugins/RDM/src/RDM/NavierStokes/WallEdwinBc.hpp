@@ -28,8 +28,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<WallEdwinBc> Ptr;
-  typedef boost::shared_ptr<WallEdwinBc const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -52,7 +52,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<mesh::Field> solution;
+  Handle<mesh::Field> solution;
 
 }; // !WallEdwinBc
 
@@ -66,8 +66,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 

@@ -27,8 +27,8 @@ class NPlugins : public CNode
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<NPlugins> Ptr;
-  typedef boost::shared_ptr<const NPlugins> ConstPtr;
+
+
 
 public:
 
@@ -37,12 +37,12 @@ public:
   virtual ~NPlugins();
 
   template<typename LIB>
-  NPlugin::Ptr register_plugin()
+  Handle< NPlugin > register_plugin()
   {
     // a plugin cannot be registered twice
-    cf3_assert( is_null(get_child_ptr(LIB::library_name())) );
+    cf3_assert( is_null(get_child(LIB::library_name())) );
 
-    NPlugin::Ptr plugin = create_component_ptr<NPlugin>( LIB::library_name() );
+    Handle<NPlugin> plugin = create_component<NPlugin>( LIB::library_name() );
 
     plugin->mark_basic();
 
@@ -52,18 +52,18 @@ public:
   template<typename LIB>
   bool is_registered_plugin()
   {
-    return is_not_null(get_child_ptr(LIB::library_name()));
+    return is_not_null(get_child(LIB::library_name()));
   }
 
   template<typename LIB>
-  NPlugin::Ptr plugin()
+  Handle< NPlugin > plugin()
   {
-    return get_child_ptr_checked( LIB::library_name() )->as_ptr_checked<NPlugin>();
+    return get_child_checked( LIB::library_name() )->handle<NPlugin>();
   }
 
   virtual QString tool_tip() const;
 
-  static Ptr global();
+  static Handle<NPlugins> global();
 
 protected:
 

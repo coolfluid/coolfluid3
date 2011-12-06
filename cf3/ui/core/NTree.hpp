@@ -44,25 +44,25 @@ namespace core {
 
   public:
 
-    typedef boost::shared_ptr<NTree> Ptr;
-    typedef boost::shared_ptr<NTree const> ConstPtr;
+
+
 
     /// @brief Constructor.
 
     /// If the root node is a @c nullptr pointer
     /// @param rootNode The root node. May be @c nullptr.
-    NTree(cf3::ui::core::NRoot::Ptr rootNode = cf3::ui::core::NRoot::Ptr());
+    NTree(Handle< cf3::ui::core::NRoot > rootNode = Handle< cf3::ui::core::NRoot >());
 
     /// @brief Replaces the current component tree.
 
     /// The old tree is destroyed (regarding to @c boost::shared_ptr delete
     /// rules).
     /// @param node The new root. May be @c nullptr.
-    void set_tree_root(NRoot::Ptr node);
+    void set_tree_root(Handle< NRoot > node);
 
     /// @brief Gives the current root
     /// @return Returns the current root
-    NRoot::Ptr tree_root() const;
+    Handle< NRoot > tree_root() const;
 
     /// @brief Sets the current index.
 
@@ -95,7 +95,7 @@ namespace core {
     /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
     void list_node_options(const QModelIndex & index,
-                         QList<cf3::common::Option::ConstPtr> & options,
+                         QList<boost::shared_ptr< cf3::common::Option > > & options,
                          bool * ok = nullptr) const;
 
     /// @brief Gets node properties
@@ -150,14 +150,14 @@ namespace core {
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::ConstPtr node_by_path(const cf3::common::URI & path) const;
+    Handle< CNode > node_by_path(const cf3::common::URI & path) const;
 
     /// @brief Retrieves a node from its path.
 
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr node_by_path(const cf3::common::URI & path);
+    Handle< CNode > node_by_path(const cf3::common::URI & path);
 
     /// @brief Retrieves a node index from its path.
 
@@ -212,7 +212,7 @@ namespace core {
     virtual QModelIndex index(int row, int column,
                               const QModelIndex & parent = QModelIndex()) const;
 
-    /// @brief Implementation of @c QAbstractItemModel::parent().
+    /// @brief Implementation of @c QAbstractItemModel::parent()->
 
     /// @param child Item index of which we would like to know the parent.
     /// @return Returns the parent index of the given child or a nullptr
@@ -302,9 +302,9 @@ namespace core {
 
     /// @} END Signals
 
-    void content_listed(Component::Ptr node);
+    void content_listed(Handle< Component > node);
 
-    static Ptr global();
+    static Handle<NTree> global();
 
   public slots:
 
@@ -373,7 +373,7 @@ namespace core {
     /// @param index Node index to convert
     /// @return Returns the node, or a null shared pointer if the index could
     /// not be converted (i.e. index is invalid)
-    CNode::Ptr index_to_node(const QModelIndex & index) const;
+    Handle< CNode > index_to_node(const QModelIndex & index) const;
 
     /// @brief Retrieves a node path from its index.
 
@@ -389,7 +389,7 @@ namespace core {
     /// @param regex Regular expression to match.
     /// @return Returns @c true if the node or at least one of its children
     /// matches the regular expression.
-    bool node_matches_recursive(Component::Ptr node, const QRegExp regex) const;
+    bool node_matches_recursive(Handle< Component > node, const QRegExp regex) const;
 
   }; // class NTree
 

@@ -33,12 +33,12 @@ class Mesh_CGNS_API Writer : public MeshWriter, public Shared
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Writer> Ptr;
-  typedef boost::shared_ptr<Writer const> ConstPtr;
+  
+  
 
 private : // typedefs
 
-  typedef std::vector<boost::shared_ptr<Elements const> > GroupedElements;
+  typedef std::vector<Handle<Elements const> > GroupedElements;
   typedef std::map<std::string, GroupedElements > GroupsMapType;
 
 public: // functions

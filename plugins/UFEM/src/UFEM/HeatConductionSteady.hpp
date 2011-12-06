@@ -22,8 +22,8 @@ class UFEM_API HeatConductionSteady : public LinearSolver
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<HeatConductionSteady> Ptr;
-  typedef boost::shared_ptr<HeatConductionSteady const> ConstPtr;
+  
+  
 
 public: // functions
   

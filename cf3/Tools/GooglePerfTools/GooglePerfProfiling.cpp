@@ -37,8 +37,8 @@ void GooglePerfProfiling::start_profiling()
 {
   if( !m_profiling )
   {
-    ProfilerStart(m_path.native_file_string().c_str());
-    CFinfo <<  type_name() << ": Saving profile data to: " << m_path.native_file_string() << CFendl;
+    ProfilerStart(m_path.string().c_str());
+    CFinfo <<  type_name() << ": Saving profile data to: " << m_path.string() << CFendl;
     m_profiling = true;
   }
   else
