@@ -40,9 +40,6 @@ namespace core {
 
   public:
 
-    typedef boost::shared_ptr<NLog> Ptr;
-    typedef boost::shared_ptr<NLog const> ConstPtr;
-
     /// @brief Constructor.
     NLog();
 
@@ -81,7 +78,7 @@ namespace core {
     /// @return The name of the class.
     virtual QString tool_tip() const;
 
-    static Ptr global();
+    static Handle<NLog> global();
 
   signals:
 

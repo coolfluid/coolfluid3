@@ -33,7 +33,7 @@ namespace graphics {
 
 /////////////////////////////////////////////////////////////////////////
 
-GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
+GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(boost::shared_ptr< Option > opt,
                                                            QWidget * parent)
 {
   QStringList restrList;
@@ -73,21 +73,9 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
  if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
     opt->has_restricted_list())
  {
-   OptionArray::ConstPtr array;
-   std::string type;
+   const std::vector<boost::any> & vect = opt->restricted_list();
 
-   try
-   {
-     array = boost::dynamic_pointer_cast<const OptionArray>(opt);
-   }
-   catch(boost::bad_any_cast & bac)
-   {
-     throw CastingFailed(FromHere(), "Unable to cast to OptionArray");
-   }
-
-   const std::vector<boost::any> & vect = array->restricted_list();
-
-   type = array->elem_type();
+   const std::string type = opt->element_type();
 
    if(type == Protocol::Tags::type<bool>())              // bool option
    {

@@ -36,13 +36,13 @@ NRemoteOpen::~NRemoteOpen()
 
 //////////////////////////////////////////////////////////////////////////
 
-NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
+Handle< NRemoteOpen > NRemoteOpen::create(QMainWindow * parent)
 {
-  NRemoteOpen::Ptr rop(new NRemoteOpen(parent));
+  boost::shared_ptr< NRemoteOpen > rop(new NRemoteOpen(parent));
 
   NBrowser::global()->add_node(rop);
 
-  return rop;
+  return Handle<NRemoteOpen>(rop);
 }
 
 //////////////////////////////////////////////////////////////////////////

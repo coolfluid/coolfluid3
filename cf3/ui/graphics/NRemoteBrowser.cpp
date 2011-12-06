@@ -59,8 +59,8 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
 {
 
   regist_signal( "read_dir" )
-    ->description("Directory content")
-    ->pretty_name("")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
+    .description("Directory content")
+    .pretty_name("").connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 
@@ -739,10 +739,10 @@ void NRemoteBrowser::open_dir(const QString & path)
     it++;
   }
 
-  options.add_option< OptionT<std::string> >("dirPath", path.toStdString());
-  options.add_option< OptionT<bool> >("includeFiles", m_includeFiles);
-  options.add_option< OptionT<bool> >("includeNoExtensions", m_include_no_extension);
-  options.add_option< OptionArrayT<std::string> >("extensions", vect);
+  options.add_option("dirPath", path.toStdString());
+  options.add_option("includeFiles", m_includeFiles);
+  options.add_option("includeNoExtensions", m_include_no_extension);
+  options.add_option("extensions", vect);
 
   options.flush();
 

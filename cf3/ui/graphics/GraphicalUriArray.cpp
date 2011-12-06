@@ -181,7 +181,7 @@ void GraphicalUriArray::bt_add_clicked()
     }
     else if(m_combo_type->currentText() == "file")
     {
-      NRemoteOpen::Ptr nro = NRemoteOpen::create();
+      Handle< NRemoteOpen > nro = NRemoteOpen::create();
 
       QStringList fileList = nro->show_multiple_select("");
       QStringList::iterator file = fileList.begin();

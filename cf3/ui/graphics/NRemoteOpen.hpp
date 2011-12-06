@@ -32,8 +32,8 @@ namespace graphics {
   {
   public:
 
-    typedef boost::shared_ptr<NRemoteOpen> Ptr;
-    typedef boost::shared_ptr<const NRemoteOpen> ConstPtr;
+    
+    
 
     /// @brief Constructor
 
@@ -45,7 +45,7 @@ namespace graphics {
     /// Frees all allocated memory. Parent is not destroyed.
     ~NRemoteOpen();
 
-    static NRemoteOpen::Ptr create(QMainWindow * parent = nullptr);
+    static Handle< NRemoteOpen > create(QMainWindow * parent = nullptr);
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.

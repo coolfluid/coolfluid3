@@ -29,7 +29,7 @@ namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
-GraphicalUri::GraphicalUri(cf3::common::OptionURI::ConstPtr opt, QWidget *parent) :
+GraphicalUri::GraphicalUri(const boost::shared_ptr<OptionURI>& opt, QWidget *parent) :
     GraphicalValue(parent)
 {
   m_bt_browse = new QPushButton("Browse", this);
@@ -148,7 +148,7 @@ void GraphicalUri::bt_browse_clicked()
   }
   else if(m_combo_schemes->currentText() == "file")
   {
-    NRemoteOpen::Ptr nro = NRemoteOpen::create();
+    Handle< NRemoteOpen > nro = NRemoteOpen::create();
     bool canceled;
 
     QString filename = nro->show("", &canceled);

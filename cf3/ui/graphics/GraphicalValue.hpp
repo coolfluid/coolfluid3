@@ -31,7 +31,7 @@ namespace graphics {
     Q_OBJECT
   public:
 
-    static GraphicalValue * create_from_option( common::Option::ConstPtr option,
+    static GraphicalValue * create_from_option( boost::shared_ptr< common::Option > option,
                                               QWidget * parent = nullptr );
 
     GraphicalValue(QWidget * parent = 0);

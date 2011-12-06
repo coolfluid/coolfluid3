@@ -46,7 +46,7 @@ ServerRoot::ServerRoot()
   : m_queue(nullptr),
     m_notifier(nullptr),
     m_thread(nullptr),
-    m_root( Core::instance().root().self() ),
+    m_root( Core::instance().root().handle<Component>() ),
     m_core( new CCore() ),
     m_journal( common::allocate_component<Journal>("Journal") ),
     m_manager( common::allocate_component<Manager>("PEManager") ),
@@ -54,7 +54,7 @@ ServerRoot::ServerRoot()
 {
   m_root->add_component(m_core);
 
-  Component::Ptr tools = m_root->get_child_ptr("Tools");
+  Handle< Component > tools = m_root->get_child("Tools");
 
   tools->add_component( m_journal );
   tools->add_component( m_manager );
@@ -65,7 +65,7 @@ ServerRoot::ServerRoot()
   m_manager->mark_basic();
   m_plotter->mark_basic();
 
-  Table<Real>::Ptr table = tools->create_component_ptr< Table<Real> >("MyTable");
+  Handle< Table<Real> > table = tools->create_component< Table<Real> >("MyTable");
   table->set_row_size(8); // reserve 8 columns
   Table<Real>::Buffer buffer = table->create_buffer(8000);
 
@@ -130,7 +130,7 @@ void ServerRoot::process_signal( const std::string & target,
       m_doc.swap(signal.xml_doc);
       m_current_client_id = clientid;
       m_current_frame_id = frameid;
-      Component::Ptr receivingCompo = m_root->access_component_ptr_checked(receiver);
+      Handle< Component > receivingCompo = m_root->access_component_checked(receiver);
 
       m_thread = new ProcessingThread(signal, target, receivingCompo);
       QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
@@ -145,7 +145,7 @@ void ServerRoot::process_signal( const std::string & target,
 
       try
       {
-        Component::Ptr comp = m_root->access_component_ptr_checked(receiver);
+        Handle< Component > comp = m_root->access_component_checked(receiver);
 
         if( comp->signal(target)->is_read_only() )
         {

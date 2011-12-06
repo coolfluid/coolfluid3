@@ -18,8 +18,8 @@
 #include "common/BoostAnyConversion.hpp"
 #include "common/CF.hpp"
 #include "common/Signal.hpp"
-#include "common/OptionArray.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionURI.hpp"
 #include "common/StringConversion.hpp"
 #include "common/FindComponents.hpp"
@@ -97,21 +97,21 @@ CNode::CNode( const std::string & name, const QString & component_type, Type typ
   unregist_signal( "configure" );
 
   regist_signal( "configure" )
-    ->description("Update component options")
-    ->connect(boost::bind(&CNode::reply_configure, this, _1));
+    .description("Update component options")
+    .connect(boost::bind(&CNode::reply_configure, this, _1));
 
   regist_signal( "tree_updated" )
-    ->description("Event that notifies a path has changed")
-    ->connect(boost::bind(&CNode::reply_update_tree, this, _1));
+    .description("Event that notifies a path has changed")
+    .connect(boost::bind(&CNode::reply_update_tree, this, _1));
 
   regist_signal( "list_content" )
-    ->description("Updates node contents")
-    ->connect(boost::bind(&CNode::reply_list_content, this, _1));
+    .description("Updates node contents")
+    .connect(boost::bind(&CNode::reply_list_content, this, _1));
 
   regist_signal("signal_signature")
-      ->hidden(true);
+      .hidden(true);
 
-  m_properties.add_property( "original_component_type", m_component_type.toStdString() );
+  properties().add_property( "original_component_type", m_component_type.toStdString() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ void CNode::set_properties( const SignalArgs & options )
       {
         boost::shared_ptr<Option> opt = SignalOptions::xml_to_option(curr_node);
         cf3_assert( opt.get() != nullptr );
-        m_options.store[ opt->name() ] = opt;
+        this->options().store[ opt->name() ] = opt;
       }
       else // it is a property
       {
@@ -157,20 +157,20 @@ void CNode::set_properties( const SignalArgs & options )
           {
             const char * value = first_node->value();
 
-            if(m_properties.check(key_val))
+            if(properties().check(key_val))
             {
               if( typ_val == Protocol::Tags::type<bool>() )
-                configure_property(key_val, from_str<bool>(value));
+                properties().configure_property(key_val, from_str<bool>(value));
               else if( typ_val == Protocol::Tags::type<int>() )
-                configure_property(key_val, from_str<int>(value));
+                properties().configure_property(key_val, from_str<int>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                configure_property(key_val, from_str<cf3::Uint>(value));
+                properties().configure_property(key_val, from_str<cf3::Uint>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                configure_property(key_val, from_str<cf3::Real>(value));
+                properties().configure_property(key_val, from_str<cf3::Real>(value));
               else if( typ_val == Protocol::Tags::type<std::string>() )
-                configure_property(key_val, std::string(value));
+                properties().configure_property(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
-                configure_property(key_val, from_str<URI>(value));
+                properties().configure_property(key_val, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -178,17 +178,17 @@ void CNode::set_properties( const SignalArgs & options )
             {
 
               if( typ_val == Protocol::Tags::type<bool>() )
-                m_properties.add_property(key_val, from_str<bool>(value));
+                properties().add_property(key_val, from_str<bool>(value));
               else if( typ_val == Protocol::Tags::type<int>() )
-                m_properties.add_property(key_val, from_str<int>(value));
+                properties().add_property(key_val, from_str<int>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                m_properties.add_property(key_val, from_str<cf3::Uint>(value));
+                properties().add_property(key_val, from_str<cf3::Uint>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                m_properties.add_property(key_val, from_str<cf3::Real>(value));
+                properties().add_property(key_val, from_str<cf3::Real>(value));
               else if( typ_val == Protocol::Tags::type<std::string>() )
-                m_properties.add_property(key_val, std::string(value));
+                properties().add_property(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
-                m_properties.add_property(key_val, from_str<URI>(value));
+                properties().add_property(key_val, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -255,13 +255,13 @@ void addValueToXml( const std::string& name,
     std::vector<TYPE> data;
     Map::split_string(value, sep, data);
 
-    options.add_option< OptionArrayT<TYPE> >(name, data);
+    options.add_option(name, data);
   }
   else
   {
     try
     {
-      options.add_option< OptionT<TYPE> >(name, from_str<TYPE>(value));
+      options.add_option(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {
@@ -295,24 +295,18 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
     std::string name( it.key().toStdString() );
     std::string value( it.value().toStdString() );
 
-    if( !m_options.check(name) )
+    if( !this->options().check(name) )
       throw ValueNotFound(FromHere(), "Could not find an option with name ["+name+"]");
 
-    Option& option = m_options[name];
+    Option& option = this->options().option(name);
     std::string type( option.type() );
     bool is_array = std::strcmp(option.tag(), "array") == 0;
 
     // if it is an array, we need to get the element type
     if(is_array)
     {
-      OptionArray * opt_array;
-
-      opt_array = static_cast<OptionArray*>(&option);
-
-      cf3_assert(opt_array != nullptr);
-
-      type = opt_array->elem_type();
-      sep = opt_array->separator();
+      type = option.element_type();
+      sep = option.separator();
     }
 
     if(type == Protocol::Tags::type<bool>())              // bool
@@ -330,12 +324,12 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
       // since OptionT<URI> does not exist, using addValueToXml for
       // this type would lead to an undefined reference linking error
       if( sep.empty() )
-        options.add_option< OptionURI >(name, from_str<URI>(value));
+        options.add_option(name, from_str<URI>(value));
       else
       {
         std::vector<URI> data;
         Map::split_string(value, sep, data);
-        options.add_option< OptionArrayT<URI> >(name, data);
+        options.add_option(name, data);
       }
     }
     else
@@ -372,11 +366,11 @@ void CNode::finish_setup()
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::create_from_xml( XmlNode args )
+boost::shared_ptr< CNode > CNode::create_from_xml( XmlNode args )
 {
-  QMap<NLink::Ptr, URI> link_targets;
-  QMap<NLink::Ptr, URI>::iterator it;
-  CNode::Ptr root_node;
+  QMap<boost::shared_ptr< NLink >, URI> link_targets;
+  QMap<boost::shared_ptr< NLink >, URI>::iterator it;
+  boost::shared_ptr< CNode > root_node;
 
   root_node = create_from_xml_recursive(args, link_targets);
 
@@ -390,7 +384,7 @@ CNode::Ptr CNode::create_from_xml( XmlNode args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::child(cf3::Uint index)
+Handle< CNode > CNode::child(cf3::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
@@ -450,7 +444,7 @@ void CNode::list_child_paths( QStringList & list,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::add_node(CNode::Ptr node)
+void CNode::add_node(boost::shared_ptr< CNode > node)
 {
   QMutexLocker locker(m_mutex);
 
@@ -493,7 +487,7 @@ void CNode::reply_list_content( SignalArgs & node )
   m_content_listed = true;
   m_listing_content = false;
 
-  NTree::global()->content_listed( boost::dynamic_pointer_cast<CNode>(self()) );
+  NTree::global()->content_listed( handle<Component>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -505,7 +499,7 @@ void CNode::reply_signal_signature( SignalArgs & node )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::list_options(QList<Option::ConstPtr> & list)
+void CNode::list_options(QList<boost::shared_ptr< Option > > & list)
 {
   QMutexLocker locker( m_mutex );
 
@@ -530,17 +524,17 @@ void CNode::list_properties(QMap<QString, QString> & props)
     fetch_content();
   else
   {
-    PropertyList::const_iterator it_prop = m_properties.begin();
-    OptionList::const_iterator it_opt = m_options.begin();
+    PropertyList::const_iterator it_prop = properties().begin();
+    OptionList::const_iterator it_opt = options().begin();
 
     props.clear();
 
     // add the properties
-    for( ; it_prop != m_properties.end() ; ++it_prop)
+    for( ; it_prop != properties().end() ; ++it_prop)
       props[ it_prop->first.c_str() ] =  any_to_str(it_prop->second).c_str();
 
     // add the options
-    for( ; it_opt != m_options.end() ; ++it_opt)
+    for( ; it_opt != options().end() ; ++it_opt)
       props[ it_opt->first.c_str() ] = it_opt->second->value_str().c_str();
   }
 
@@ -594,8 +588,8 @@ void CNode::list_signals(QList<ActionInfo> & actions)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
-                                             QMap<NLink::Ptr, URI> & link_targets )
+boost::shared_ptr< CNode > CNode::create_from_xml_recursive( XmlNode & node,
+                                             QMap<boost::shared_ptr< NLink >, URI> & link_targets )
 {
   rapidxml::xml_attribute<>* typeAttr = node.content->first_attribute("atype");
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
@@ -615,14 +609,14 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   cf3_assert( type_name.length() > 0 );
   cf3_assert( std::strlen(node_name) > 0 );
 
-  CNode::Ptr root_node;
+  boost::shared_ptr< CNode > root_node;
 
   if( type_name == "CCore" )
     return root_node;
 
   if( type_name == "Link" )
   {
-    NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(node_name));
+    boost::shared_ptr< NLink > link = boost::shared_ptr<NLink>(new NLink(node_name));
     root_node = link;
     link_targets[link] = node.content->value();
   }
@@ -639,7 +633,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
     root_node->mark_basic();
 
   if( !uuid.is_nil() )
-    root_node->configure_property( "uuid", uuid );
+    root_node->properties().configure_property( "uuid", uuid );
   else
     NLog::global()->add_warning( "Found a Component without no UuiD." );
 
@@ -647,7 +641,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   {
     try
     {
-      CNode::Ptr node = create_from_xml_recursive(child, link_targets);
+      boost::shared_ptr< CNode > node = create_from_xml_recursive(child, link_targets);
 
       if(node.get() != nullptr)
       {

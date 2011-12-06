@@ -41,9 +41,9 @@ NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
   set_root_node(rootNode);
 
   regist_signal( "list_journal" )
-    ->connect( boost::bind( &NJournalBrowser::list_journal, this, _1 ) )
-    ->description("List journal")
-    ->pretty_name("List journal");
+    .connect( boost::bind( &NJournalBrowser::list_journal, this, _1 ) )
+    .description("List journal")
+    .pretty_name("List journal");
 
   m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }
@@ -176,7 +176,7 @@ void NJournalBrowser::set_root_node(const XmlNode * rootNode)
 {
   emit layoutAboutToBeChanged();
 
-  m_current_doc = XmlDoc::Ptr(new XmlDoc());
+  m_current_doc = boost::shared_ptr< XmlDoc >(new XmlDoc());
   m_root_node = m_current_doc->add_node("tmp");
 
   if(is_not_null(rootNode))

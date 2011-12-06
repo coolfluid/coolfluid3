@@ -41,9 +41,9 @@ QString NBrowser::tool_tip() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-NBrowser::Ptr NBrowser::global()
+Handle< NBrowser > NBrowser::global()
 {
-  static NBrowser::Ptr browser = ThreadManager::instance().tree().root_child<NBrowser>(CLIENT_BROWSERS);
+  static Handle< NBrowser > browser = ThreadManager::instance().tree().root_child<NBrowser>(CLIENT_BROWSERS);
   cf3_assert( is_not_null(browser.get()) );
   return browser;
 }

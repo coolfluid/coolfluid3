@@ -17,7 +17,7 @@ namespace CoreTest {
   {
   public:
 
-    typedef boost::shared_ptr<CNode> Ptr;
+    
 
     MyNode(const std::string & name);
 

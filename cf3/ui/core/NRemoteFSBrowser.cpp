@@ -40,7 +40,7 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
   m_headers << "Name" << "Size" << "Date Modified";
 
   regist_signal("read_dir")
-      ->connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
+      .connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
 
 }
 
@@ -163,10 +163,10 @@ void NRemoteFSBrowser::open_dir ( const QString & path )
     it++;
   }
 
-  options.add_option< OptionT<std::string> >("dirPath", path.toStdString());
-  options.add_option< OptionT<bool> >("includeFiles", m_include_files);
-  options.add_option< OptionT<bool> >("includeNoExtensions", m_include_no_extensions);
-  options.add_option< OptionArrayT<std::string> >("extensions", vect);
+  options.add_option("dirPath", path.toStdString());
+  options.add_option("includeFiles", m_include_files);
+  options.add_option("includeNoExtensions", m_include_no_extensions);
+  options.add_option("extensions", vect);
 
   options.flush();
 

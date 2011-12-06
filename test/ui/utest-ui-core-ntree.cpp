@@ -33,6 +33,7 @@
 #include "test/ui/CoreApplication.hpp"
 #include "test/ui/MyNode.hpp"
 
+using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::ui::core;
@@ -40,12 +41,12 @@ using namespace cf3::ui::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex)
 
-NRoot::Ptr makeTreeFromFile()
+Handle< NRoot > makeTreeFromFile()
 {
-  static XmlDoc::Ptr doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
+  static boost::shared_ptr< XmlDoc > doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
 
-  static NRoot::Ptr root = CNode::create_from_xml(doc->content->first_node("node"))->castTo<NRoot>();
-  return root;
+  static boost::shared_ptr< NRoot > root = boost::dynamic_pointer_cast<NRoot>(CNode::create_from_xml(doc->content->first_node("node")));
+  return root->handle<NRoot>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,22 +86,22 @@ BOOST_AUTO_TEST_CASE( constructor )
 BOOST_AUTO_TEST_CASE( set_root )
 {
   NTree t;
-  NRoot::Ptr newRoot(new NRoot("Root"));
+  boost::shared_ptr< NRoot > newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->create_component_ptr<Link>("link");
-  newRoot->create_component_ptr<Group>("Group1");
-  newRoot->create_component_ptr<Group>("Group2");
-  newRoot->create_component_ptr<Group>("Group3");
-  newRoot->create_component_ptr<Group>("Group4");
+  newRoot->create_component<Link>("link");
+  newRoot->create_component<Group>("Group1");
+  newRoot->create_component<Group>("Group2");
+  newRoot->create_component<Group>("Group3");
+  newRoot->create_component<Group>("Group4");
 
-  t.set_tree_root(newRoot);
+  t.set_tree_root(newRoot->handle<NRoot>());
 
   // the tree must have emitted a layoutChanged signal exactly once
   BOOST_CHECK_EQUAL(spy.count(), 1);
 
   // newRoot must be the tree root now
-  BOOST_CHECK_EQUAL(t.tree_root(), newRoot);
+  BOOST_CHECK_EQUAL(t.tree_root(), newRoot->handle<NRoot>());
 
   // the tree root should have 5 children now
   BOOST_CHECK_EQUAL( t.tree_root()->count_children(), std::size_t(5));
@@ -215,9 +216,9 @@ BOOST_AUTO_TEST_CASE( path_from_index )
 BOOST_AUTO_TEST_CASE( list_node_options )
 {
   NTree t;
-  MyNode::Ptr node(new MyNode("UselessNode"));
+  boost::shared_ptr< MyNode > node(new MyNode("UselessNode"));
   QModelIndex index;
-  QList<Option::ConstPtr> options;
+  QList<boost::shared_ptr< Option > > options;
   bool ok = false;
 
   //
@@ -314,7 +315,7 @@ BOOST_AUTO_TEST_CASE( are_from_same_node )
 BOOST_AUTO_TEST_CASE( node_by_path )
 {
   NTree t;
-  CNode::Ptr logNode = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
+  Handle< CNode > logNode = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
 
   BOOST_CHECK(logNode.get() == nullptr);
 
@@ -336,7 +337,7 @@ BOOST_AUTO_TEST_CASE( index_from_path )
   QModelIndex rootIndex = t.index(0, 0);
   QModelIndex index = t.index(0, 0, rootIndex);
 
-  CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->node();
+  Handle< CNode > node = static_cast<TreeNode*>(index.internalPointer())->node();
 
 
   // 1. get the root
@@ -476,15 +477,15 @@ BOOST_AUTO_TEST_CASE( set_debug_mode_enabled )
 
 BOOST_AUTO_TEST_CASE( options_changed )
 {
-  NTree::Ptr t = NTree::global();
-  NGeneric::Ptr node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
-  XmlDoc::Ptr doc;
+  Handle< NTree > t = NTree::global();
+  boost::shared_ptr< NGeneric > node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
+  Handle< XmlDoc > doc;
   SignalFrame frame;
-  NRoot::Ptr root = t->tree_root();
-  Component::Ptr newRoot = allocate_component<Group>("Root");
+  Handle< NRoot > root = t->tree_root();
+  boost::shared_ptr<Component> newRoot = allocate_component<Group>("Root");
 
-  newRoot->create_component_ptr<Link>("Environment");
-  newRoot->create_component_ptr<Group>("Tools");
+  newRoot->create_component<Link>("Environment");
+  newRoot->create_component<Group>("Tools");
 
   newRoot->signal_list_tree( frame );
 
@@ -504,9 +505,9 @@ BOOST_AUTO_TEST_CASE( options_changed )
   BOOST_CHECK_NO_THROW( root->get_child("Tools") );
 
   // check that the local components are still there
-  Component::Ptr uidir;
+  Handle< Component > uidir;
 
-  BOOST_CHECK_NO_THROW( uidir = root->get_child_ptr("UI") );
+  BOOST_CHECK_NO_THROW( uidir = root->get_child("UI") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Browsers") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Log") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Plugins") );
@@ -539,12 +540,12 @@ BOOST_AUTO_TEST_CASE( node_matches )
 BOOST_AUTO_TEST_CASE( signal_list_tree )
 {
   NTree t;
-  NGeneric::Ptr node(new NGeneric("MyNode", "MyType"));
+  boost::shared_ptr< NGeneric > node(new NGeneric("MyNode", "MyType"));
   QModelIndex rootIndex = t.index_from_path( CLIENT_ROOT_PATH );
   QModelIndex treeIndex = t.index_from_path( CLIENT_TREE_PATH );
   QModelIndex logIndex = t.index_from_path( CLIENT_LOG_PATH );
 
-  t.tree_root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
+  t.tree_root()->get_child("UI")->get_child("Log")->handle<NLog>()->add_node( node );
 
   QModelIndex nodeIndex = t.index_from_path( CLIENT_TREE_PATH "/MyNode" );
 
@@ -586,8 +587,8 @@ BOOST_AUTO_TEST_CASE( signal_list_tree )
 BOOST_AUTO_TEST_CASE( index_is_visible )
 {
   NTree t;
-  NGeneric::Ptr node(new NGeneric("Node", "MyType"));
-  MyNode::Ptr myNode(new MyNode("AnotherNode"));
+  boost::shared_ptr< NGeneric > node(new NGeneric("Node", "MyType"));
+  boost::shared_ptr< MyNode > myNode(new MyNode("AnotherNode"));
 
   t.tree_root()->add_node(node);
   t.tree_root()->add_node(myNode);

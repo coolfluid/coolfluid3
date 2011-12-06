@@ -43,17 +43,17 @@ namespace server {
 
     static ServerRoot & instance();
 
-    common::Component::Ptr root() { return m_root; }
+    Handle< common::Component > root() { return m_root; }
 
-    common::Component::ConstPtr root() const { return m_root; }
+    Handle< common::Component > root() const { return m_root; }
 
-    CCore::Ptr core() { return m_core; }
+    Handle< CCore > core() { return Handle<CCore>(m_core); }
 
-    CCore::ConstPtr core() const { return m_core; }
+    Handle< CCore > core() const { return Handle<CCore>(m_core); }
 
-    common::Journal::Ptr journal() { return m_journal; }
+    Handle< common::Journal > journal() { return Handle<common::Journal>(m_journal); }
 
-    common::Journal::ConstPtr journal() const { return m_journal; }
+    Handle< common::Journal > journal() const { return Handle<common::Journal>(m_journal); }
 
     boost::shared_ptr<common::PE::Manager> manager() { return m_manager; }
 
@@ -87,11 +87,11 @@ namespace server {
 
     ProcessingThread * m_thread;
 
-    common::Component::Ptr m_root;
+    Handle< common::Component > m_root;
 
-    CCore::Ptr m_core;
+    boost::shared_ptr< CCore > m_core;
 
-    common::Journal::Ptr m_journal;
+    boost::shared_ptr< common::Journal > m_journal;
 
     QMutex m_mutex;
 

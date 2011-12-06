@@ -49,7 +49,7 @@ void GraphicalUriTest::test_constructor()
   QCOMPARE( lineEdit->text(), QString() );
 
   delete value;
-  OptionURI::Ptr option(new OptionURI("Option",  URI("cpath:/")));
+  Handle< OptionURI > option(new OptionURI("Option",  URI("cpath:/")));
   value = new GraphicalUri(option);
   lineEdit = findLineEdit(value);
 
@@ -64,7 +64,7 @@ void GraphicalUriTest::test_constructor()
 
 void GraphicalUriTest::test_setSchemes()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  Handle< OptionURI > option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QComboBox * comboBox = findComboBox(value);
   std::vector<URI::Scheme::Type> schemes;
@@ -113,7 +113,7 @@ void GraphicalUriTest::test_setSchemes()
 
 void GraphicalUriTest::test_setValue()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  Handle< OptionURI > option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = findLineEdit(value);
 
@@ -150,7 +150,7 @@ void GraphicalUriTest::test_setValue()
 
 void GraphicalUriTest::test_value()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  Handle< OptionURI > option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = findLineEdit(value);
   QComboBox * comboBox = findComboBox(value);

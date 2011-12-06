@@ -84,7 +84,7 @@ private:
 
   QPushButton * m_bt_execute;
 
-  core::NJournalBrowser::Ptr m_model;
+  boost::shared_ptr< core::NJournalBrowser > m_model;
 
 }; // JournalBrowserDialog
 

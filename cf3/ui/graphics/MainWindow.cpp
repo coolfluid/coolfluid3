@@ -529,7 +529,7 @@ void MainWindow::save_file_locally()
 
 void MainWindow::save_file_remotely()
 {
-//  NRemoteSave::Ptr flg;
+//  Handle< NRemoteSave > flg;
 
 //  flg->show();
 }
@@ -549,7 +549,7 @@ void MainWindow::open_file_locally()
 void MainWindow::open_file_remotely()
 {
   BrowserDialog dlg(this);
-//  NRemoteOpen::Ptr rop = NRemoteOpen::create();
+//  Handle< NRemoteOpen > rop = NRemoteOpen::create();
 //  rop->show();
   QVariant selected;
   dlg.show(false, selected);

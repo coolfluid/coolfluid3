@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
       errorString = "At least 1 worker must be spawn.";
 
     // spawn the
-    Manager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<Manager>();
+    Handle< Manager > mgr(Core::instance().tools().get_child("PEManager"));
     mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/cf3/Tools/solver/coolfluid-solver").c_str());
 
     // check if the port number is valid and launch the network connection if so
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
       Core::instance().network_info().set_port( port );
 
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-      CCore::Ptr sk = ServerRoot::instance().core();
+      Handle< CCore > sk = ServerRoot::instance().core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
       sk->listenToPort(port); // start listening to the network

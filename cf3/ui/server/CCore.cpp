@@ -72,12 +72,12 @@ CCore::CCore()
   connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
   regist_signal( "read_dir" )
-    ->description("Read directory content")
-    ->read_only(true)
-    ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+    .description("Read directory content")
+    .read_only(true)
+    .pretty_name("").connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal( "shutdown" )
-    ->description("Shutdown the server")
-    ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
+    .description("Shutdown the server")
+    .pretty_name("").connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -257,12 +257,12 @@ void CCore::read_dir(SignalArgs & args)
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
 
-    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dirDates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.fileDates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.fileSizes);
+    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirs", content.dirs);
+    roptions.add_option("files", content.files);
+    roptions.add_option("dirDates", content.dirDates);
+    roptions.add_option("fileDates", content.fileDates);
+    roptions.add_option("fileSizes", content.fileSizes);
 
     roptions.flush();
 
@@ -341,9 +341,9 @@ void CCore::sendACK( const std::string & clientid,
   SignalOptions & options = frame.options();
 
 
-  options.add_option< OptionT<std::string> >("frameid", frameid );
-  options.add_option< OptionT<bool> >("success", success );
-  options.add_option< OptionT<std::string> >("message", message );
+  options.add_option("frameid", frameid );
+  options.add_option("success", success );
+  options.add_option("message", message );
 
   options.flush();
 

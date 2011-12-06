@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "common/PropertyList.hpp"
+
 #include "ui/core/ThreadManager.hpp"
 #include "ui/core/TreeThread.hpp"
 
@@ -22,8 +24,8 @@ namespace core {
 NPlugins::NPlugins(const std::string & name)
   : CNode(name, "NPlugins", CNode::LOCAL_NODE)
 {
-  m_properties["brief"] = std::string("Manages the client plugins.");
-  m_properties["description"] =
+  properties()["brief"] = std::string("Manages the client plugins.");
+  properties()["description"] =
       std::string("All the plugins currently loaded are referenced as "
                   "children of this component. Each allows to do specific "
                   "actions defined by the related plugin.");
@@ -45,9 +47,9 @@ QString NPlugins::tool_tip() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-NPlugins::Ptr NPlugins::global()
+Handle< NPlugins > NPlugins::global()
 {
-  static NPlugins::Ptr plugins =
+  static Handle< NPlugins > plugins =
       ThreadManager::instance().tree().root_child<NPlugins>(CLIENT_PLUGINS);
   cf3_assert( is_not_null(plugins.get()) );
   return plugins;

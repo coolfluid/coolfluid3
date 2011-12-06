@@ -45,7 +45,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   QDialog(parent),
   m_updating_completer(false)
 {
-  m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser("MyBrowser"));
+  m_model = boost::shared_ptr< NRemoteFSBrowser >(new NRemoteFSBrowser("MyBrowser"));
   m_filter_model = new FileFilter(m_model.get(), this);
   m_view = new QListView( this );
   m_favorites_view = new QListView( this );

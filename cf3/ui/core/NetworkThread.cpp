@@ -160,7 +160,7 @@ void NetworkThread::new_data()
     {
       if( m_block_size > 0 )
       {
-        XmlDoc::Ptr doc = XML::parse_cstring(frame, m_block_size-1);
+        boost::shared_ptr< XmlDoc > doc = XML::parse_cstring(frame, m_block_size-1);
         newSignal(doc);
       }
     }
@@ -176,7 +176,7 @@ void NetworkThread::new_data()
     m_block_size = 0;
   }
 }
- 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void NetworkThread::run()
