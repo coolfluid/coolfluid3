@@ -38,6 +38,8 @@ BOOST_AUTO_TEST_CASE( init )
 {
   application();
 
+  TreeThread& tree = ThreadManager::instance().tree();
+
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;
   ExceptionManager::instance().ExceptionDumps = false;
@@ -65,7 +67,7 @@ BOOST_AUTO_TEST_CASE( init )
   BOOST_CHECK_EQUAL( opts.store.size(), size_t(4));
 
   // add the node to the tree
-  ThreadManager::instance().tree().root()->add_node( node );
+  tree.root()->add_node( node );
 
   // set the node as the current index
   NTree::global()->set_current_index( NTree::global()->index_from_path( node->uri() ) );

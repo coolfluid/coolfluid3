@@ -67,8 +67,7 @@ void NLink::set_target_path(const URI & path)
 {
   if(!path.empty())
   {
-    Handle< CNode > target(access_component(path));
-    cf3_assert( is_not_null(target.get()) );
+    Handle< CNode > target(access_component_checked(path));
     this->set_target_node(target);
   }
 }

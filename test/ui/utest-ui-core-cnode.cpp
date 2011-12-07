@@ -23,6 +23,7 @@
 #include "common/XML/Protocol.hpp"
 
 #include "ui/core/TreeThread.hpp"
+#include "ui/core/ThreadManager.hpp"
 #include "ui/core/CNode.hpp"
 #include "ui/core/NBrowser.hpp"
 #include "ui/core/NGeneric.hpp"
@@ -64,6 +65,8 @@ BOOST_AUTO_TEST_SUITE( uiCoreCNodeSuite )
 BOOST_AUTO_TEST_CASE( init )
 {
   application();
+
+  ThreadManager::instance().tree();
 
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;

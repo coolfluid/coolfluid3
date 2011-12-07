@@ -39,11 +39,7 @@ NTree::NTree(Handle< NRoot > rootNode)
     m_debug_mode_enabled(false)
 {
 
-
-  if(rootNode.get() == nullptr)
-    m_root_node = new TreeNode(ThreadManager::instance().tree().root(), nullptr, 0);
-  else
-    m_root_node = new TreeNode(rootNode, nullptr, 0);
+  m_root_node = new TreeNode(rootNode, nullptr, 0);
 
   m_mutex = new QMutex();
 

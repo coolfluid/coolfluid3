@@ -54,14 +54,7 @@ TreeThread & ThreadManager::tree()
 {
   if(!m_tree_thread->isRunning())
   {
-    QMutex mutex;
-
-    mutex;
-
-    m_tree_thread->set_mutex(&mutex);
     m_tree_thread->start();
-
-    mutex;
   }
 
   return *m_tree_thread;

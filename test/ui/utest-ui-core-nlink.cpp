@@ -39,6 +39,8 @@ BOOST_AUTO_TEST_CASE( init )
 {
   application();
 
+  ThreadManager::instance().tree();
+
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;
   ExceptionManager::instance().ExceptionDumps = false;

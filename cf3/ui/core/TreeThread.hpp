@@ -14,6 +14,7 @@
 #include "ui/core/NRoot.hpp"
 
 #include "ui/core/LibCore.hpp"
+#include <qmutex.h>
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,14 +53,24 @@ public:
   template<typename TYPE>
   Handle< TYPE > root_child(const std::string & name) const
   {
-    return Handle<TYPE>(m_root->get_child("UI")->get_child(name));
+    return Handle<TYPE>(root()->get_child("UI")->get_child(name));
   }
 
-  void set_mutex(QMutex * mutex);
+  Handle< NRoot > root() const
+  {
+    QMutexLocker locker(m_mutex);
+    cf3_assert(isRunning());
+    cf3_assert(is_not_null(m_root));
+    return Handle<NRoot>(m_root);
+  }
 
-  Handle< NRoot > root() const { return Handle<NRoot>(m_root); }
-
-  Handle< NRoot > root() { return Handle<NRoot>(m_root); }
+  Handle< NRoot > root()
+  {
+    QMutexLocker locker(m_mutex);
+    cf3_assert(isRunning());
+    cf3_assert(is_not_null(m_root));
+    return Handle<NRoot>(m_root);
+  }
 
   void new_signal( boost::shared_ptr<common::XML::XmlDoc> doc);
 

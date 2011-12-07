@@ -47,6 +47,7 @@ namespace core {
 TreeThread::TreeThread(QObject * parent) :
     QThread(parent)
 {
+  m_mutex = new QMutex();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -57,20 +58,15 @@ TreeThread::~TreeThread()
   {
     exit(0);
     wait();
+    delete m_mutex;
   }
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-void TreeThread::set_mutex(QMutex * mutex)
-{
-  m_mutex = mutex;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void TreeThread::run()
 {
+  m_mutex->lock();
   m_root = boost::shared_ptr< NRoot >(new NRoot("Root"));
 
   Handle< NRoot > realRoot(m_root);

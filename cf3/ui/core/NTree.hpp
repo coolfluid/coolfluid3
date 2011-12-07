@@ -51,7 +51,7 @@ namespace core {
 
     /// If the root node is a @c nullptr pointer
     /// @param rootNode The root node. May be @c nullptr.
-    NTree(Handle< cf3::ui::core::NRoot > rootNode = Handle< cf3::ui::core::NRoot >());
+    NTree(Handle< cf3::ui::core::NRoot > rootNode);
 
     /// @brief Replaces the current component tree.
 
