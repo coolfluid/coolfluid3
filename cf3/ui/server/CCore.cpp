@@ -46,19 +46,16 @@ namespace server {
 
 CCore::CCore()
   : Component(SERVER_CORE),
-    DEFAULT_PATH("."),
-    m_fileOpen(false),
-    m_sim_running(false),
-    m_active(false)
+    DEFAULT_PATH(".")
 {
   TypeInfo::instance().regist<CCore>( type_name() );
 
-  m_commServer = new ServerNetworkComm();
+  m_comm_server = new ServerNetworkComm();
   m_settings = new QSettings( "vki.ac.be", "coolfluid-server", this);
 
   m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  connect( m_commServer, SIGNAL(newClientConnected(std::string)),
+  connect( m_comm_server, SIGNAL(newClientConnected(std::string)),
            this,  SLOT(new_client(std::string)) );
 
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
@@ -94,21 +91,21 @@ CCore::CCore()
 
 CCore::~CCore()
 {
-  delete m_commServer;
+  delete m_comm_server;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 bool CCore::listen_to_port(quint16 portNumber)
 {
-  return m_commServer->openPort(portNumber);
+  return m_comm_server->openPort(portNumber);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::send_signal( const XmlDoc & signal )
 {
-  m_commServer->sendSignalToClient(signal);
+  m_comm_server->sendSignalToClient(signal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -323,33 +320,10 @@ void CCore::read_special_dir(SignalArgs & args)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::newEvent(const std::string & name, const URI & path)
-{
-  SignalFrame frame(name, path, path);
-
-  m_commServer->sendSignalToClient(*frame.xml_doc.get());
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::create_dir(SignalArgs & node)
-{
-  m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void CCore::shutdown(SignalArgs & node)
 {
   ServerRoot::instance().manager()->kill_group("Workers");
   qApp->exit(0); // exit the Qt event loop
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::save_config(SignalArgs & node)
-{
-  m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -393,7 +367,7 @@ void CCore::signal_list_favorites( SignalArgs &node )
 void CCore::new_client(const std::string & clientId)
 {
   // send a welcome message to the new client
-  m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
+  m_comm_server->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -413,7 +387,7 @@ void CCore::send_ack( const std::string & clientid,
 
   options.flush();
 
-  m_commServer->sendSignalToClient( *frame.xml_doc.get(), clientid);
+  m_comm_server->sendSignalToClient( *frame.xml_doc.get(), clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////
