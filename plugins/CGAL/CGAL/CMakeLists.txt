@@ -5,12 +5,8 @@ list( APPEND coolfluid_cgal_files
     ImplicitFunctionMesh.hpp
 )
 
-find_package(CGAL)
-find_package(GMP)
-find_package(MPFR)
-
 list( APPEND coolfluid_cgal_includedirs ${CGAL_INCLUDE_DIR} )
-list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARIES} ${Boost_THREAD_LIBRARY} )
+list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARY} ${Boost_THREAD_LIBRARY} )
 list( APPEND coolfluid_cgal_cflibs      coolfluid_mesh_lagrangep1 )
 
 if(GMP_FOUND)
