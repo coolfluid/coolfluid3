@@ -33,8 +33,8 @@ class Mesh_CGNS_API Writer : public MeshWriter, public Shared
 
 public: // typedefs
 
-  
-  
+
+
 
 private : // typedefs
 
@@ -57,9 +57,9 @@ public: // functions
 
 private: // functions
 
-  void write_base();
+  void write_base(const Mesh& mesh);
 
-  void write_zone(const Region& region);
+  void write_zone(const Region& region, const Mesh& mesh);
 
   void write_section(const GroupedElements& grouped_elements);
 

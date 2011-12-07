@@ -197,6 +197,20 @@ template<typename T> inline bool operator==(const Handle<T>& a, const int b)
   return is_null(a.get());
 }
 
+// Workaround for GCC4.5 error
+template<typename T> inline bool operator!=(const int b, const Handle<T>& a)
+{
+  cf3_assert(b == 0);
+  return is_not_null(a.get());
+}
+
+// Workaround for GCC4.5 error
+template<typename T> inline bool operator==(const int b, const Handle<T>& a)
+{
+  cf3_assert(b == 0);
+  return is_null(a.get());
+}
+
 template<typename T, typename U> inline bool operator!=(const U a, const Handle<T>& b)
 {
   return a != b.get();

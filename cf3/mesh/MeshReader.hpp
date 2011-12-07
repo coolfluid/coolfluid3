@@ -11,6 +11,7 @@
 
 #include "common/BoostFilesystem.hpp"
 
+#include "common/ArrayBufferT.hpp"
 #include "common/Component.hpp"
 #include "common/Table.hpp"
 
@@ -86,7 +87,7 @@ public: // functions
 protected: // functions
 
   /// Map type from string to a common::Table<Uint>::Buffer
-  typedef std::map<std::string,Handle< common::Table<Uint>::Buffer > > BufferMap;
+  typedef std::map<std::string,boost::shared_ptr< common::ArrayBufferT<Uint > > > BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made

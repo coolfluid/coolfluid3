@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
-#include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
@@ -401,7 +401,7 @@ void Reader::read_section(Region& parent_region)
   boost::algorithm::replace_all(m_section.name,".","_");
 
   BOOST_FOREACH(Region& existing_region, find_components<Region>(parent_region))
-  if (existing_region.follow())
+  if (follow_link(existing_region))
   {
     if (existing_region.properties().check("cgns_section_name"))
     {
@@ -424,7 +424,7 @@ void Reader::read_section(Region& parent_region)
   {
     // Create Elements component for each element type.
     std::map<std::string,Handle< Elements > > elements = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
-    std::map<std::string,Handle< common::Table<Uint>::Buffer > > buffer = create_connectivity_buffermap(elements);
+    std::map<std::string, boost::shared_ptr< ArrayBufferT<Uint> > > buffer = create_connectivity_buffermap(elements);
 
     // Handle each element of this section separately to see in which Elements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -497,7 +497,7 @@ void Reader::read_section(Region& parent_region)
         node_connectivity[elem][node] = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0;
 
       // Store the global element number to a pair of (region , local element number)
-      m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<Elements>(element_region.shared_from_this()),elem));
+      m_global_to_region.push_back(Region_TableIndex_pair(element_region.handle<Elements>(),elem));
     } // for elem
 
 
@@ -637,9 +637,9 @@ void Reader::read_boco_unstructured(Region& parent_region)
       // First do some simple checks to see if an entire region can be taken as a BC.
       Handle< Elements > first_elements = m_global_to_region[boco_elems[0]-1].first;
       Handle< Elements > last_elements = m_global_to_region[boco_elems[1]-1].first;
-      if (&first_elements->parent() == &last_elements->parent())
+      if (first_elements->parent() == last_elements->parent())
       {
-        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle<Component>());
+        Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
@@ -656,7 +656,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Handle< Elements > > elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,Handle< common::Table<Uint>::Buffer > > buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,boost::shared_ptr< ArrayBufferT<Uint > > > buffer = create_connectivity_buffermap(elements);
 
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
@@ -686,9 +686,9 @@ void Reader::read_boco_unstructured(Region& parent_region)
       // First do some simple checks to see if an entire region can be taken as a BC.
       Handle< Elements > first_elements = m_global_to_region[boco_elems[0]-1].first;
       Handle< Elements > last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
-      if (&first_elements->parent() == &last_elements->parent())
+      if (first_elements->parent() == last_elements->parent())
       {
-        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle<Component>());
+        Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
@@ -704,7 +704,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Handle< Elements > > elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,Handle< common::Table<Uint>::Buffer > > buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,boost::shared_ptr< ArrayBufferT<Uint > > > buffer = create_connectivity_buffermap(elements);
 
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
