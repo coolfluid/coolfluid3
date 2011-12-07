@@ -40,9 +40,11 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  Real compute_norm(mesh::Field&) const;
+
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_field;
+//  boost::weak_ptr<mesh::Field> m_field;
 
 };
 

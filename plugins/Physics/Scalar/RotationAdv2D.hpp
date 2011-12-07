@@ -77,6 +77,16 @@ public: // functions
     flux(0,YY)   = p.v[YY] * p.u;
   }
 
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    flux[0] = p.u * (p.v[XX] * direction[XX] +
+                     p.v[YY] * direction[YY]);
+  }
+
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >
   static void flux_jacobian_eigen_values(const MODEL::Properties& p,

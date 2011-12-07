@@ -49,7 +49,7 @@ void OptionT<TYPE>::configure ( XmlNode& node )
   if( type_node.is_valid() )
     val = from_str<TYPE>( type_node.content->value() );
   else
-    throw XmlError(FromHere(), std::string("Could not find a value of this type [") + type_str + "].");
+    throw XmlError(FromHere(), "Could not find a value of this type ["+std::string(type_str)+"].");
 
   m_value = val;
   copy_to_linked_params(val);

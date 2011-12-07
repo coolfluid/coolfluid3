@@ -117,30 +117,20 @@ void Roe::compute_interface_flux(const RealVector& left, const RealVector& right
   // Roe-average = standard average of the Roe-parameter vectors
   roe_vars.compute_variables(*p_left,  roe_left );
   roe_vars.compute_variables(*p_right, roe_right);
-  roe_avg = 0.5*(roe_left+roe_right);                // Roe-average is result
+  roe_avg.noalias() = 0.5*(roe_left+roe_right);                // Roe-average is result
   roe_vars.compute_properties(coord, roe_avg, grads, *p_avg);
 
   // Compute absolute jacobian using Roe averaged properties
   sol_vars.flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
-  RealMatrix& abs_jacobian = right_eigenvectors;
-  abs_jacobian *= eigenvalues.cwiseAbs().asDiagonal();
-  abs_jacobian *= left_eigenvectors;
+  abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
   // Compute left and right fluxes
-  sol_vars.flux(*p_left , f_left);
-  sol_vars.flux(*p_right, f_right);
+  sol_vars.flux(*p_left , normal, f_left);
+  sol_vars.flux(*p_right, normal, f_right);
 
-  // Compute flux at interface composed of central part and upwind part
-  cf3_assert_desc("f_left.cols(){"+to_str((Uint)f_left.cols())+"} != normal.size() {"+to_str((Uint)normal.size())+"}",f_left.cols() == normal.size());
-
-  central_flux  = f_left*normal;
-  central_flux += f_right*normal;
-  central_flux *= 0.5;
-
-  upwind_flux  = abs_jacobian*(right-left);
-  upwind_flux *= 0.5;
-  flux  = central_flux;
-  flux -= upwind_flux;
+  // flux = central flux - upwind flux
+  flux.noalias() = 0.5*(f_left + f_right);
+  flux.noalias() -= 0.5*abs_jacobian*(right-left);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

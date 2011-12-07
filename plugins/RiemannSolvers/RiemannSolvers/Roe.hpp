@@ -58,8 +58,8 @@ private:
   std::auto_ptr<physics::Properties> p_avg;
   RealVector coord;
   RealMatrix grads;
-  RealMatrix f_left;
-  RealMatrix f_right;
+  RealVector f_left;
+  RealVector f_right;
   RealVector roe_left;
   RealVector roe_right;
   RealVector roe_avg;

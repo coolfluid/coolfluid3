@@ -32,6 +32,8 @@ struct SFDM_API Tags : public solver::Tags
   static const char * jacob_det();
   static const char * plane_jacob_normal();
 
+  static const char * L2norm();
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

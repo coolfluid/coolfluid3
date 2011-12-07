@@ -58,6 +58,9 @@ public: // functions
   /// constuctor initializes signal with its name
   Signal( const std::string& name );
 
+  /// destructor
+  virtual ~Signal();
+
   /// @name MUTATORS
   //@{
 
@@ -108,10 +111,8 @@ public: // functions
 private: // data
 
   /// the boost signal object
-  /// @todo change this pointer to boost::scope_ptr (there is no need to share)
   boost::scoped_ptr< signal_type > m_signal;
   /// pointer to another signal that returns the signature of this signal
-  /// @todo change this pointer to raw pointer (appears there is no need to share ?)
   boost::scoped_ptr< signal_type > m_signature;
   /// signal name
   std::string m_name;

@@ -148,6 +148,7 @@ Flyweight::Flyweight(const Flyweight& flyweight) :
   space(term.solution_field().space(entities)),
   sf(space.shape_function().as_type<SFDM::ShapeFunction>())
 {
+  throw common::ShouldNotBeHere(FromHere(),"Flyweight is not supposed to be copied");
   entities.allocate_coordinates(term.cache.geometry_nodes);
   set_element(flyweight.element->idx);
 }
@@ -189,11 +190,12 @@ void Flyweight::reconstruct_solution_in_flx_pt(const Uint flx_pt, RealVector& so
 void Flyweight::add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt)
 {
   cf3_assert(sf.flx_pt_dirs(flx_pt).size()==1);
+  Uint var;
   boost_foreach(const Uint direction, sf.flx_pt_dirs(flx_pt))
   boost_foreach(const Uint sol_pt, sf.interpolate_grad_flx_to_sol_used_sol_pts(flx_pt,direction))
   {
     term.cache.coeff = sf.interpolate_grad_flx_to_sol_coeff(flx_pt,direction,sol_pt);
-    for (Uint var=0; var<flx_in_flx_pt.size(); ++var)
+    for (var=0; var<flx_in_flx_pt.size(); ++var)
       element->residual[sol_pt][var] -= term.cache.coeff * flx_in_flx_pt[var] / element->jacob_det[sol_pt][0];
   }
 }
@@ -220,14 +222,15 @@ void Flyweight::compute_analytical_flux(const Uint flx_pt, const RealVector& sol
 {
   cf3_assert(sf.flx_pt_dirs(flx_pt).size()==1);
 
+  geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)sf.flx_pt_dirs(flx_pt)[0],term.cache.plane_jacobian_normal);
+
   // compute physical properties in flux point
   term.solution_vars().compute_properties(term.cache.geometry_nodes.row(0),sol_in_flx_pt, term.cache.dummy_grads, *term.cache.phys_props);
   // compute flux in flux point
-  term.solution_vars().flux(*term.cache.phys_props,term.cache.phys_flux);
+  term.solution_vars().flux(*term.cache.phys_props,term.cache.plane_jacobian_normal,flx_in_flx_pt);
 
-  // transform physical flux to local coordinate system
-  geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)sf.flx_pt_dirs(flx_pt)[0],term.cache.plane_jacobian_normal);
-  flx_in_flx_pt = term.cache.phys_flux*term.cache.plane_jacobian_normal;
+//  // transform physical flux to local coordinate system
+//  flx_in_flx_pt = term.cache.phys_flux*term.cache.plane_jacobian_normal;
 
   if (term.m_compute_wave_speed)
   {
@@ -283,11 +286,11 @@ Flyweight Term::create_flyweight(const mesh::Entity& entity)
   return Flyweight(*entity.comp, entity.idx, *this);
 }
 
-std::vector<Flyweight> Term::create_flyweight(const mesh::Face2Cell& face)
+std::vector< boost::shared_ptr<Flyweight> > Term::create_flyweight(const mesh::Face2Cell& face)
 {
-  std::vector<Flyweight> flyweights; flyweights.reserve(2u);
+  std::vector< boost::shared_ptr<Flyweight> > flyweights(2);
   for (Uint side=0; side<2u; ++side)
-    flyweights.push_back(create_flyweight(face.cells()[side]));
+    flyweights[side] = boost::shared_ptr<Flyweight>(new Flyweight(*face.cells()[side].comp,face.cells()[side].idx,*this));
   return flyweights;
 }
 

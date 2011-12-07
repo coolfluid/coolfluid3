@@ -70,8 +70,8 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
   CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
   post_actions().append( cwriter );
 
-  cnorm.configure_option("Scale", true);
-  cnorm.configure_option("Order", 2u);
+  cnorm.configure_option("scale", true);
+  cnorm.configure_option("order", 2u);
 }
 
 bool IterativeSolver::stop_condition()
@@ -102,7 +102,7 @@ void IterativeSolver::execute()
   Action& synchronize = mysolver.actions().get_child("Synchronize").as_type<Action>();
 
   Component& cnorm = post_actions().get_child("ComputeNorm");
-  cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
+  cnorm.configure_option("field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
 
   Component& cprint = post_actions().get_child("IterationSummary");
   cprint.configure_option("norm", cnorm.uri() );

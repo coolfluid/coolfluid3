@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( solver_test )
 {
-  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure SFD - LinEuler 2D model
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   interpolate.execute();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_geom.uri());
+//  fields.push_back(solution_geom.uri());
   mesh.write_mesh("sfdm_output.msh",fields);
   mesh.write_mesh("sfdm_output.vtu",fields);
   mesh.write_mesh("sfdm_output.plt",fields);

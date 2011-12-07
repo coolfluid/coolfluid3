@@ -81,6 +81,9 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const;
 
+  /// return the number of elements across all processes;
+  Uint glb_size() const;
+
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
   virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;

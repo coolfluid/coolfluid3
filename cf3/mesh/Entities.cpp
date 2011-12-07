@@ -17,6 +17,7 @@
 #include "common/List.hpp"
 
 #include "common/XML/SignalOptions.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
@@ -190,6 +191,23 @@ Uint Entities::size() const
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+Uint Entities::glb_size() const
+{
+  if (PE::Comm::instance().is_active())
+  {
+    Uint glb_nb_elems(0);
+    const Uint loc_nb_elems(size() );
+    PE::Comm::instance().all_reduce(PE::min(), &loc_nb_elems, 1, &glb_nb_elems);
+    return glb_nb_elems;
+  }
+  else
+  {
+    return size();
+  }
+}
+
 common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
 {
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
@@ -289,6 +307,7 @@ void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->
 Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
 std::ostream& operator<<(std::ostream& os, const Entity& entity)
 {
+  cf3_assert(is_not_null(entity.comp));
   os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
   return os;
 }

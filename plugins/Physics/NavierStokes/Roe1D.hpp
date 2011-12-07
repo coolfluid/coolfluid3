@@ -114,6 +114,15 @@ public: // functions
     throw common::NotImplemented(FromHere(), "flux not implemented for Roe1D");
   }
 
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "flux not implemented for Roe1D");
+  }
+
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >
   static void flux_jacobian_eigen_values(const MODEL::Properties& p,

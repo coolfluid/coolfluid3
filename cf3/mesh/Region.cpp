@@ -84,6 +84,16 @@ Elements& Region::create_elements(const std::string& element_type_name)
 
 //////////////////////////////////////////////////////////////////////////////
 
+Uint Region::global_elements_count() const
+{
+  Uint elem_count = 0;
+  boost_foreach (const Entities& elements, elements_range() )
+    elem_count += elements.glb_size();
+  return elem_count;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 Uint Region::recursive_elements_count() const
 {
   Uint elem_count = 0;
