@@ -35,8 +35,8 @@ class solver_API CModel : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CModel> Ptr;
-  typedef boost::shared_ptr<CModel const> ConstPtr;
+  
+  
 
 public: // functions
 

@@ -39,8 +39,8 @@ class Mesh_CGNS_API LibCGNS : public cf3::common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibCGNS> Ptr;
-  typedef boost::shared_ptr<LibCGNS const> ConstPtr;
+  
+  
 
   /// Constructor
   LibCGNS ( const std::string& name) : common::Library(name) {   }

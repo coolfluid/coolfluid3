@@ -66,28 +66,28 @@ CCore::CCore()
   Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
   regist_signal( "read_dir" )
-    ->description("Read directory content")
-    ->read_only(true)
-    ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+    .description("Read directory content")
+    .read_only(true)
+    .pretty_name("").connect(boost::bind(&CCore::read_dir, this, _1));
 
   regist_signal( "read_special_dir" )
-    ->description("Read special directory content")
-    ->read_only(true)
-    ->pretty_name("")->connect(boost::bind(&CCore::read_special_dir, this, _1));
+    .description("Read special directory content")
+    .read_only(true)
+    .pretty_name("").connect(boost::bind(&CCore::read_special_dir, this, _1));
 
   regist_signal( "shutdown" )
-    ->description("Shutdown the server")
-    ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
+    .description("Shutdown the server")
+    .pretty_name("").connect(boost::bind(&CCore::shutdown, this, _1));
 
   regist_signal("list_favorites")
-      ->description( "Lists the favorite directories for the remote browsing feature." )
-      ->read_only(true)
-      ->connect(boost::bind(&CCore::signal_list_favorites, this, _1));
+      .description( "Lists the favorite directories for the remote browsing feature." )
+      .read_only(true)
+      .connect(boost::bind(&CCore::signal_list_favorites, this, _1));
 
   regist_signal("set_favorites")
-      ->description( "Sets the favorite directories for the remote browsing feature." )
-      ->read_only(true)
-      ->connect(boost::bind(&CCore::signal_set_favorites, this, _1));
+      .description( "Sets the favorite directories for the remote browsing feature." )
+      .read_only(true)
+      .connect(boost::bind(&CCore::signal_set_favorites, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -247,12 +247,12 @@ void CCore::read_dir(SignalArgs & args)
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
 
-    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirs", content.dirs);
+    roptions.add_option("files", content.files);
+    roptions.add_option("dirDates", content.dir_dates);
+    roptions.add_option("fileDates", content.file_dates);
+    roptions.add_option("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -309,12 +309,12 @@ void CCore::read_special_dir(SignalArgs & args)
 
     reply.node.set_attribute( "target", "read_dir" );
 
-    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirs", content.dirs);
+    roptions.add_option("files", content.files);
+    roptions.add_option("dirDates", content.dir_dates);
+    roptions.add_option("fileDates", content.file_dates);
+    roptions.add_option("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -407,9 +407,9 @@ void CCore::send_ack( const std::string & clientid,
   SignalOptions & options = frame.options();
 
 
-  options.add_option< OptionT<std::string> >("frameid", frameid );
-  options.add_option< OptionT<bool> >("success", success );
-  options.add_option< OptionT<std::string> >("message", message );
+  options.add_option("frameid", frameid );
+  options.add_option("success", success );
+  options.add_option("message", message );
 
   options.flush();
 

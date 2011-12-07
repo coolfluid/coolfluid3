@@ -27,8 +27,8 @@ class mesh_actions_API Info : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Info> Ptr;
-    typedef boost::shared_ptr<Info const> ConstPtr;
+    
+    
 
 private: // typedefs
   

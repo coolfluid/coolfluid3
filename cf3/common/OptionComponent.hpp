@@ -12,6 +12,8 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_const.hpp>
 
 #include "common/Option.hpp"
 #include "common/Component.hpp"
@@ -40,12 +42,39 @@ public:
   OptionComponent(const std::string & name, const Handle<T> linked_component)
     : Option(name, linked_component)
   {
-    TypeInfo::instance().regist<value_type>("cf3::common::OptionComponent<"+T::type_name()+">::value_type");
+    TypeInfo::instance().regist<value_type>("handle<"+T::type_name()+">");
   }
 
   virtual ~OptionComponent() {}
 
   virtual std::string type() const { return class_name<value_type>(); }
+  
+  virtual void change_value(const boost::any& value)
+  {
+    typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
+    const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
+    if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
+    {
+      // value passed as a handle to the component base class, so we need to dynamic cast
+      Handle<T> cast_value(*generic_handle);
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
+      m_value = Handle<T>(*generic_handle);
+    }
+    else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
+    {
+      m_value = value;
+    }
+    else
+    {
+      throw BadValue(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
+    }
+      
+    copy_to_linked_params(m_linked_params);
+
+    // call all trigger functors
+    trigger();
+  }
 
   /// @returns the xml tag for this option
   virtual const char * tag() const { return Protocol::Tags::type<URI>(); }
@@ -83,6 +112,9 @@ private:
 
   virtual void copy_to_linked_params(std::vector< boost::any >& linked_params)
   {
+    if(linked_params.empty())
+      return;
+
     value_type val = this->template value<value_type>();
     BOOST_FOREACH ( boost::any& v, linked_params )
     {

@@ -43,8 +43,20 @@ void ActionDirector::execute()
   BOOST_FOREACH(Component& child, *this)
   {
     Handle<Action> action(follow_link(child));
-    if(is_not_null(action) && !is_disabled(action->name()))
+    
+    const bool disabled = is_not_null(action) ? is_disabled(action->name()) : true;
+    if(!disabled)
+    {
+      CFdebug << name() << ": Executing action " << action->uri().path() << CFendl;
       action->execute();
+    }
+    else
+    {
+      if(is_not_null(action))
+        CFdebug << name() << ": Skipping disabled action " << action->uri().path() << CFendl;
+      else
+        CFdebug << name() << ": Doing nothing for non-action " << child.uri().path() << CFendl;
+    }
   }
 }
 
@@ -72,6 +84,19 @@ ActionDirector& operator<<(ActionDirector& action_director, const boost::shared_
   action_director.add_component(action);
   return action_director;
 }
+
+const boost::shared_ptr< ActionDirector >& operator<<(const boost::shared_ptr< ActionDirector >& action_director, Action& action)
+{
+  action_director->add_link(action);
+  return action_director;
+}
+
+const boost::shared_ptr< ActionDirector >& operator<<(const boost::shared_ptr< ActionDirector >& action_director, const boost::shared_ptr< Action >& action)
+{
+  action_director->add_component(action);
+  return action_director;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

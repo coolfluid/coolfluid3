@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U = 0 };
 
-  typedef boost::shared_ptr<LinearAdv1D> Ptr;
-  typedef boost::shared_ptr<LinearAdv1D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -50,6 +50,10 @@ public: // functions
                                    const GM& grad_vars,
                                    MODEL::Properties& p )
   {
+    cf3_assert(coord.size()==MODEL::_ndim);
+    cf3_assert(sol.size()==MODEL::_neqs);
+    cf3_assert(grad_vars.rows()==MODEL::_ndim);
+    cf3_assert(grad_vars.cols()==MODEL::_neqs);
     p.coords    = coord;       // cache the coordiantes locally
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
@@ -69,6 +73,15 @@ public: // functions
                     FM& flux)
   {
     flux(0,XX)   = p.v * p.u;
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    flux[0] = p.u * p.v * direction[XX];
   }
 
   /// compute the eigen values of the flux jacobians

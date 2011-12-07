@@ -6,6 +6,8 @@
 
 // header
 #include <boost/multi_array/storage_order.hpp>
+#include "common/BoostArray.hpp"
+
 #include "common/Signal.hpp"
 #include "common/XML/Protocol.hpp"
 #include "common/XML/MultiArray.hpp"
@@ -37,19 +39,19 @@ NPlotXY::NPlotXY(const std::string & name) :
 //  TabBuilder::instance()->widget<Graph>(as_const());
 
   regist_signal( "convergence_history" )
-      ->connect( boost::bind( &NPlotXY::convergence_history, this, _1 ) )
-      ->description("Lists convergence history")
-      ->pretty_name("Get history");
+      .connect( boost::bind( &NPlotXY::convergence_history, this, _1 ) )
+      .description("Lists convergence history")
+      .pretty_name("Get history");
 
   regist_signal("show_hide_plot")
-      ->connect( boost::bind( &NPlotXY::show_hide_plot, this, _1) )
-      ->description("Shows or hides the plot tab")
-      ->pretty_name("Show/Hide plot");
+      .connect( boost::bind( &NPlotXY::show_hide_plot, this, _1) )
+      .description("Shows or hides the plot tab")
+      .pretty_name("Show/Hide plot");
 
   regist_signal( "go_to_tab" )
-      ->connect( boost::bind( &NPlotXY::go_to_plot, this, _1 ) )
-      ->description("Activates the tab")
-      ->pretty_name("Switch to tab");
+      .connect( boost::bind( &NPlotXY::go_to_plot, this, _1 ) )
+      .description("Activates the tab")
+      .pretty_name("Switch to tab");
 
   m_local_signals << "show_hide_plot" << "go_to_tab";
 }
@@ -84,14 +86,14 @@ void NPlotXY::show_hide_plot( common::SignalArgs& node )
 
 void NPlotXY::go_to_plot( common::SignalArgs& node )
 {
-  TabBuilder::instance()->show_tab( as_ptr<CNode>() );
+  TabBuilder::instance()->show_tab( handle<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void NPlotXY::setup_finished()
 {
-  TabBuilder::instance()->widget<Graph>( as_ptr<CNode>() );
+  TabBuilder::instance()->widget<Graph>( handle<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,7 +136,7 @@ void NPlotXY::convergence_history ( SignalArgs& node )
       (*plot)[row][col+1] = (*array)[row][col];
   }
 
-  TabBuilder::instance()->widget<Graph>(as_ptr<CNode>())->set_xy_data(plot, fct_label);
+  TabBuilder::instance()->widget<Graph>(handle<CNode>())->set_xy_data(plot, fct_label);
 }
 
 //////////////////////////////////////////////////////////////////////////////

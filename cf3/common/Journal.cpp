@@ -40,16 +40,16 @@ Journal::Journal (const std::string & name)
     m_xmldoc(Protocol::create_doc())
 {
   regist_signal( "list_journal" )
-    ->description("Lists all journal entries")
-    ->pretty_name("List journal")->connect( boost::bind( &Journal::list_journal, this, _1) );
+    .description("Lists all journal entries")
+    .pretty_name("List journal").connect( boost::bind( &Journal::list_journal, this, _1) );
 
   regist_signal( "load_journal" )
-    ->description("Loads the journal entries from file")
-    ->pretty_name("Load journal")->connect( boost::bind( &Journal::load_journal, this, _1) );
+    .description("Loads the journal entries from file")
+    .pretty_name("Load journal").connect( boost::bind( &Journal::load_journal, this, _1) );
 
   regist_signal( "save_journal" )
-    ->description("Saves all journal entries")
-    ->pretty_name("Save journal")->connect( boost::bind( &Journal::save_journal, this, _1) );
+    .description("Saves all journal entries")
+    .pretty_name("Save journal").connect( boost::bind( &Journal::save_journal, this, _1) );
 
   signal("list_journal")->hidden(true);
 
@@ -84,7 +84,7 @@ Journal::~Journal()
 ////////////////////////////////////////////////////////////////////////////////
 
 boost::shared_ptr<Journal> Journal::create_from_file ( const std::string & name,
-                                           const boost::filesystem::path & file_path )
+                                         const URI& file_path )
 {
   boost::shared_ptr<Journal> journal( allocate_component<Journal>(name) );
 
@@ -95,7 +95,7 @@ boost::shared_ptr<Journal> Journal::create_from_file ( const std::string & name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::load_journal_file ( const boost::filesystem::path & file_path )
+void Journal::load_journal_file ( const URI& file_path )
 {
   /// @todo handle m_info_node and m_signals_map
 
@@ -105,7 +105,7 @@ void Journal::load_journal_file ( const boost::filesystem::path & file_path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::dump_journal_to ( const boost::filesystem::path & file_path ) const
+void Journal::dump_journal_to ( const URI& file_path ) const
 {
   XML::to_file( *m_xmldoc, file_path );
 
@@ -130,7 +130,7 @@ void Journal::add_signal ( const SignalArgs & signal_node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::execute_signals (const boost::filesystem::path & filename)
+void Journal::execute_signals (const URI& filename)
 {
   boost::shared_ptr<XmlDoc> xmldoc = XML::parse_file(filename);
   XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
@@ -214,11 +214,9 @@ void Journal::load_journal ( SignalArgs & args )
 void Journal::save_journal ( SignalArgs & args )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
-  boost::filesystem::path path(file_path.path());
+  XML::to_file( *m_xmldoc, file_path );
 
-  XML::to_file( *m_xmldoc, file_path.path() );
-
-  CFinfo << "Journal dumped to '" << path.canonize().string() << "'" << CFendl;
+  CFinfo << "Journal dumped to '" << file_path.string() << "'" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

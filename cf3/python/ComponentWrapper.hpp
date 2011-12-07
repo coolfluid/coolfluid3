@@ -14,6 +14,7 @@
 
 namespace cf3 {
   namespace common { class Component; }
+  template<typename T> class Handle;
 namespace python {
 
 /// Encapsulates the behavior required for Python lists. When wrapping a component for Python,
@@ -42,7 +43,7 @@ struct PythonListInterface
 class ComponentWrapper
 {
 public:
-  ComponentWrapper(common::Component& component);
+  ComponentWrapper(const Handle<common::Component>& component);
   ~ComponentWrapper();
 
   /// Access to the wrapped component
@@ -79,7 +80,7 @@ private:
 /// Python wrapping for the Component class
 void def_component();
 
-boost::python::object wrap_component(common::Component& component);
+boost::python::object wrap_component(const cf3::Handle<common::Component>& component);
 
 } // python
 } // cf3

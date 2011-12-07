@@ -31,8 +31,8 @@ class Tools_Prowl_API Notifier: public common::Component
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<Notifier> Ptr;
-  typedef boost::shared_ptr<Notifier const> ConstPtr;
+  
+  
 
 public:
 

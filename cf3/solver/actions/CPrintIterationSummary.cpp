@@ -15,6 +15,8 @@
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "solver/actions/CPrintIterationSummary.hpp"
 
@@ -39,17 +41,19 @@ CPrintIterationSummary::CPrintIterationSummary ( const std::string& name ) : Act
 
   // options
 
-  options().add_option< OptionT<bool> >("check_convergence", true)
-      ->description("checks if the norm contains a non-real number ( either a nan or infinity )");
+  options().add_option("check_convergence", true)
+      .description("checks if the norm contains a non-real number ( either a nan or infinity )");
 
-  options().add_option< OptionT<Uint> >("print_rate", 1u)
-      ->description("how often to print the iteration summary");
+  options().add_option("print_rate", 1u)
+      .description("how often to print the iteration summary");
 
-  options().add_option(OptionComponent<Component>::create("norm", &my_norm))
-      ->description("component holding the norm property");
+  options().add_option("norm", my_norm)
+      .description("component holding the norm property")
+      .link_to(&my_norm);
 
-  options().add_option(OptionComponent<Component>::create("iterator", &my_iter))
-      ->description("component holding the iteration property");
+  options().add_option("iterator", my_iter)
+      .description("component holding the iteration property")
+      .link_to(&my_iter);
 }
 
 
@@ -59,13 +63,13 @@ void CPrintIterationSummary::execute()
 
   // get norm
 
-  if ( my_norm.expired() ) throw SetupError(FromHere(), "Component holding norm was not configured");
+  if ( is_null(my_norm) ) throw SetupError(FromHere(), "Component holding norm was not configured");
 
-  Uint iter = my_iter.lock()->properties().value<Uint>("iteration");
-  Real norm = my_norm.lock()->properties().value<Real>("norm");
+  Uint iter = my_iter->properties().value<Uint>("iteration");
+  Real norm = my_norm->properties().value<Real>("norm");
 
-  Uint print_rate = option("print_rate").value<Uint>();
-  bool check_convergence = option("check_convergence").value<bool>();
+  Uint print_rate = options().option("print_rate").value<Uint>();
+  bool check_convergence = options().option("check_convergence").value<bool>();
 
   if( print_rate > 0 && !(iter % print_rate) )
     CFinfo << "iter ["    << std::setw(4)  << iter << "]"

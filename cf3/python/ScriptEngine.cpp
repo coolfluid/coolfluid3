@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/python.hpp>
+#include "python/BoostPython.hpp"
 
 #include <coolfluid-paths.hpp>
 
@@ -43,10 +43,10 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
   }
   
   regist_signal( "execute_script" )
-    ->connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
-    ->description("Execute a python script, passed as string")
-    ->pretty_name("Execute Script")
-    ->signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
+    .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
+    .description("Execute a python script, passed as string")
+    .pretty_name("Execute Script")
+    .signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
 }
 
 
@@ -96,9 +96,9 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
 {
   SignalOptions options( node );
   
-  options.add_option< OptionT<std::string> >( "script", std::string() )
-    ->description("Script to execute")
-    ->pretty_name("Script");
+  options.add_option( "script", std::string() )
+    .description("Script to execute")
+    .pretty_name("Script");
 }
 
 

@@ -13,8 +13,8 @@
 #  include <dlfcn.h>
 #endif // cf3_HAVE_DLOPEN
 
-#include "common/BoostFilesystem.hpp"
-
+//#include "common/BoostFilesystem.hpp"
+#include "common/URI.hpp"
 #include "common/PosixDlopenLibLoader.hpp"
 #include "common/CommonAPI.hpp"
 
@@ -40,40 +40,38 @@ PosixDlopenLibLoader::~PosixDlopenLibLoader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PosixDlopenLibLoader::set_search_paths(const std::vector< boost::filesystem::path >& paths)
+void PosixDlopenLibLoader::set_search_paths(const std::vector< URI >& paths)
 {
   m_search_paths = paths;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
+void* PosixDlopenLibLoader::call_dlopen(const URI& fpath)
 {
-  using namespace boost::filesystem;
-
   void* hdl = nullptr;
 
-  hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+  hdl = dlopen (fpath.path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
 
   if( is_not_null(hdl) )
-    CFinfo << "dlopen() loaded library \'" << fpath.string() << "\'" << CFendl;
+    CFinfo << "dlopen() loaded library \'" << fpath.path() << "\'" << CFendl;
 
   // library name
-  if ( is_null(hdl) && !fpath.is_complete() )
+  if ( is_null(hdl) && !fpath.is_absolute() )
   {
 
     // loop over the search paths and attempt to load the library
 
-    std::vector< path >::const_iterator itr = m_search_paths.begin();
+    std::vector< URI >::const_iterator itr = m_search_paths.begin();
     for ( ; itr != m_search_paths.end(); ++itr)
     {
 //          CFinfo << "searching in [" << *itr << "]\n" << CFflush;
-      path fullqname = *itr / fpath;
+      URI fullqname = *itr / fpath;
 //          CFinfo << "fullqname [" << fullqname.string() << "]\n" << CFflush;
-      hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+      hdl = dlopen (fullqname.path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
       if( hdl != nullptr )
       {
-        CFinfo << "dlopen() loaded library \'" << fullqname.string() << "\'" << CFendl;
+        CFinfo << "dlopen() loaded library \'" << fullqname.path() << "\'" << CFendl;
         break;
       }
     }
@@ -91,7 +89,7 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 
   if (lib.empty()) return;
 
-  boost::filesystem::path libpath( lib );
+  URI libpath( lib );
 
   // library handler
   void* hdl = nullptr;
@@ -102,8 +100,8 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 
   // if failed, check if extension is correct then try again
 
-  string filename = libpath.filename();
-  path basepath = libpath.parent_path();
+  std::string filename = libpath.name();
+  URI basepath = libpath.base_path();
 
   std::string noext;
   std::string filewext;
@@ -132,14 +130,14 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
   if( !starts_with(filewext,"lib") )
     filewext = "lib" + filewext;
 
-  hdl = call_dlopen( basepath / path(filewext) );
+  hdl = call_dlopen( basepath / URI(filewext) );
 
   // check for success
   if( is_not_null(hdl) ) return;
 
   // react on failure
   const char * msg = dlerror();
-  throw LibLoadingError (FromHere(),"Library " + lib + " failed to load with dlopen error: " + std::string(msg));
+  throw LibLoadingError ("Library " + lib + " failed to load with dlopen error: " + std::string(msg));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

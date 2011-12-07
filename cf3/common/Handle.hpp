@@ -7,7 +7,11 @@
 #ifndef cf3_common_Handle_hpp
 #define cf3_common_Handle_hpp
 
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/or.hpp>
 #include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -17,7 +21,17 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common {
+
+namespace detail
+{
+  /// Helper struct to put const-correctness in a short expression
+  template<typename T, typename Y>
+  struct is_const_comptible
+  {
+    const static bool value = boost::mpl::or_< boost::mpl::not_< boost::is_const<Y> >, boost::is_const<T> >::type::value;
+  };
+
+}
 
 /// Safe pointer to an object. This is the supported method for referring to components.
 template<typename T>
@@ -33,6 +47,7 @@ public:
   template<typename Y>
   explicit Handle(const boost::shared_ptr<Y>& ptr)
   {
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y));
     create_from_shared(ptr);
   }
 
@@ -40,6 +55,8 @@ public:
   template<typename Y>
   explicit Handle(const Handle<Y>& other)
   {
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y));
+
     create_from_shared(other.m_weak_ptr.lock());
   }
 
@@ -69,6 +86,8 @@ public:
   template<typename Y>
   operator Handle<Y>() const
   {
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<Y, T>::value), HANDLE_CONVERSION_REMOVES_CONSTNESS, (Y));
+
     Handle<Y> other;
     other.m_cached_ptr = m_cached_ptr;
     other.m_weak_ptr = m_weak_ptr;
@@ -178,6 +197,20 @@ template<typename T> inline bool operator==(const Handle<T>& a, const int b)
   return is_null(a.get());
 }
 
+// Workaround for GCC4.5 error
+template<typename T> inline bool operator!=(const int b, const Handle<T>& a)
+{
+  cf3_assert(b == 0);
+  return is_not_null(a.get());
+}
+
+// Workaround for GCC4.5 error
+template<typename T> inline bool operator==(const int b, const Handle<T>& a)
+{
+  cf3_assert(b == 0);
+  return is_null(a.get());
+}
+
 template<typename T, typename U> inline bool operator!=(const U a, const Handle<T>& b)
 {
   return a != b.get();
@@ -195,7 +228,6 @@ Handle<T> make_handle(const boost::shared_ptr<T>& p)
   return Handle<T>(p);
 }
 
-} // common
 } // cf3
 
 #endif // cf3_common_Handle_hpp

@@ -35,8 +35,8 @@ class RDM_LINEULER_API LibLinEuler : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibLinEuler> Ptr;
-  typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
+  
+  
 
   /// Constructor
   LibLinEuler ( const std::string& name) : common::Library(name) {   }

@@ -12,6 +12,7 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/view/filter_view.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/for_each.hpp>

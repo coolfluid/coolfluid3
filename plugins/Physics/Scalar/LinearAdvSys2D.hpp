@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U0 = 0, U1 = 1 };
 
-  typedef boost::shared_ptr<LinearAdvSys2D> Ptr;
-  typedef boost::shared_ptr<LinearAdvSys2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -83,6 +83,15 @@ public: // functions
   {
     flux.row(U0)  = p.v.row(U0) * p.vars[U0];
     flux.row(U1)  = p.v.row(U1) * p.vars[U0];
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "directional flux not implemented for LinearAdvSys2D");
   }
 
   /// compute the eigen values of the flux jacobians

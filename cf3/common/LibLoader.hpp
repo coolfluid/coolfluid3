@@ -16,21 +16,17 @@
 
 namespace cf3 {
 namespace common {
-
+class URI;
 class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LibLoadingError : public common::Exception {
+/// Not deriving from common::Exception to avoid the automatic error output
+class Common_API LibLoadingError : public std::runtime_error {
 public:
-
   /// Constructor
-  LibLoadingError ( const common::CodeLocation& where, const std::string& what) :
-    common::Exception(where, what, "LibLoadingError") {}
-
-  /// Copy constructor
-  LibLoadingError ( const LibLoadingError& e) throw () : Exception(e) {}
-
+  LibLoadingError ( const std::string& what) :
+    std::runtime_error(what) {}
 }; // LibLoadingError
 
 
@@ -64,7 +60,7 @@ public: // methods
 
   /// class interface to add paths to search for libraries
   ///
-  virtual void set_search_paths(const std::vector< boost::filesystem::path >& paths) = 0;
+  virtual void set_search_paths(const std::vector< URI >& paths) = 0;
 
   /// Gets the Class name
   static std::string type_name() { return "LibLoader"; }

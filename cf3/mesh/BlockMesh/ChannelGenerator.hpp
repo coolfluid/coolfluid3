@@ -29,8 +29,8 @@ namespace BlockMesh {
 class BlockMesh_API ChannelGenerator : public MeshGenerator
 {
 public:
-  typedef boost::shared_ptr<ChannelGenerator> Ptr;
-  typedef boost::shared_ptr<ChannelGenerator const> ConstPtr;
+  
+  
   
   ChannelGenerator(const std::string& name);
   

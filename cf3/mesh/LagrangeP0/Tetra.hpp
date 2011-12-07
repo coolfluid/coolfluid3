@@ -18,7 +18,8 @@ namespace LagrangeP0 {
 
 struct Mesh_LagrangeP0_API Tetra_traits
 {
-  enum { nb_nodes       = 1              };
+  enum { nb_nodes       = 1               };
+  enum { nb_faces       = 4               };
   enum { dimensionality = 3               };
   enum { order          = 0               };
   enum { shape          = GeoShape::TETRA };

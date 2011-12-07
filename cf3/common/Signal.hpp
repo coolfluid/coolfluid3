@@ -58,28 +58,31 @@ public: // functions
   /// constuctor initializes signal with its name
   Signal( const std::string& name );
 
+  /// destructor
+  virtual ~Signal();
+
   /// @name MUTATORS
   //@{
 
   /// sets the description of this signal
-  Signal* description( const std::string& desc );
+  Signal& description( const std::string& desc );
   /// sets the pretty name of this signal
-  Signal* pretty_name( const std::string& name );
+  Signal& pretty_name( const std::string& name );
 
   /// sets if it is read only signal
-  Signal* read_only( bool is );
+  Signal& read_only( bool is );
   /// sets if it is read only signal
-  Signal* hidden( bool is );
+  Signal& hidden( bool is );
 
   /// connects to a subscribing signature
-  Signal* signature(const Signal::slot_type& subscriber);
+  Signal& signature(const Signal::slot_type& subscriber);
 
   /// connects to a subscribing slot
-  Signal* connect(const Signal::slot_type& subscriber);
+  Signal& connect(const Signal::slot_type& subscriber);
 
   /// connects to a subscribing slot
   /// and saves the connection on a ConnectionManager
-  Signal* connect(const Signal::slot_type& subscriber, ConnectionManager* mng );
+  Signal& connect(const Signal::slot_type& subscriber, ConnectionManager* mng );
 
   //@} END MUTATORS
 
@@ -108,10 +111,8 @@ public: // functions
 private: // data
 
   /// the boost signal object
-  /// @todo change this pointer to boost::scope_ptr (there is no need to share)
   boost::scoped_ptr< signal_type > m_signal;
   /// pointer to another signal that returns the signature of this signal
-  /// @todo change this pointer to raw pointer (appears there is no need to share ?)
   boost::scoped_ptr< signal_type > m_signature;
   /// signal name
   std::string m_name;

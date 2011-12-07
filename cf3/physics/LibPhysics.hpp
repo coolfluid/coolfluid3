@@ -39,8 +39,8 @@ namespace cf3 {
 
   public:
 
-    typedef boost::shared_ptr<LibPhysics> Ptr;
-    typedef boost::shared_ptr<LibPhysics const> ConstPtr;
+    
+    
 
     /// Constructor
     LibPhysics ( const std::string& name) : common::Library(name) {   }

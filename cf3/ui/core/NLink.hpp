@@ -32,8 +32,8 @@ namespace core {
 
   public:
 
-    typedef boost::shared_ptr<NLink> Ptr;
-    typedef boost::shared_ptr<NLink const> ConstPtr;
+    
+    
 
     /// @brief Constructor
     /// @param name Link name
@@ -56,7 +56,7 @@ namespace core {
     /// @brief Sets new target.
     /// If the node is null, nothing is done.
     /// @param path New target path.
-    void set_target_node(const CNode::Ptr & node);
+    void set_target_node(const Handle< CNode > & node);
 
     /// @brief Slot called when user wants to switch to the target
     void go_to_target(common::SignalArgs & node);
@@ -71,7 +71,7 @@ namespace core {
   private :
 
     /// @brief Target path
-    CNode::Ptr m_target;
+    Handle< CNode > m_target;
 
     /// @name Signals
     //@{

@@ -19,6 +19,7 @@ namespace LagrangeP1 {
 struct Mesh_LagrangeP1_API Triag_traits
 {
   enum { nb_nodes       = 3               };
+  enum { nb_faces       = 3               };
   enum { dimensionality = 2               };
   enum { order          = 1               };
   enum { shape          = GeoShape::TRIAG };

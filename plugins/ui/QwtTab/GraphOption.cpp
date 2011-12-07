@@ -18,6 +18,7 @@
 #include "qwt/qwt_plot_curve.h"
 
 // headers
+#include "common/BoostArray.hpp"
 #include "ui/core/NLog.hpp"
 #include "ui/QwtTab/GraphOption.hpp"
 #include "ui/QwtTab/Graph.hpp"

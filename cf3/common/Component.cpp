@@ -48,7 +48,8 @@ namespace common {
 Component::Component ( const std::string& name ) :
     m_name (),
     m_properties(new PropertyList()),
-    m_options(new OptionList())
+    m_options(new OptionList()),
+    m_parent(0)
 {
   // accept name
 
@@ -59,82 +60,82 @@ Component::Component ( const std::string& name ) :
   // signals
 
   regist_signal( "create_component" )
-      ->connect( boost::bind( &Component::signal_create_component, this, _1 ) )
-      ->description("creates a component")
-      ->pretty_name("Create component")
-      ->signature( boost::bind(&Component::signature_create_component, this, _1) );
+      .connect( boost::bind( &Component::signal_create_component, this, _1 ) )
+      .description("creates a component")
+      .pretty_name("Create component")
+      .signature( boost::bind(&Component::signature_create_component, this, _1) );
 
   regist_signal( "list_tree" )
-      ->connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
-      ->hidden(true)
-      ->read_only(true)
-      ->description("lists the component tree inside this component")
-      ->pretty_name("List tree");
+      .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
+      .hidden(true)
+      .read_only(true)
+      .description("lists the component tree inside this component")
+      .pretty_name("List tree");
 
   regist_signal( "list_properties" )
-      ->connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the properties of this component")
-      ->pretty_name("List properties");
+      .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
+      .hidden(true)
+      .description("lists the properties of this component")
+      .pretty_name("List properties");
 
   regist_signal( "list_options" )
-      ->connect( boost::bind( &Component::signal_list_options, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the options of this component")
-      ->pretty_name("List options");
+      .connect( boost::bind( &Component::signal_list_options, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component")
+      .pretty_name("List options");
 
   regist_signal( "list_signals" )
-      ->connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the options of this component")
-      ->pretty_name("List signals");
+      .connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component")
+      .pretty_name("List signals");
 
   regist_signal( "configure" )
-      ->connect( boost::bind( &Component::signal_configure, this, _1 ) )
-      ->hidden(true)
-      ->description("configures this component")
-      ->pretty_name("Configure");
+      .connect( boost::bind( &Component::signal_configure, this, _1 ) )
+      .hidden(true)
+      .description("configures this component")
+      .pretty_name("Configure");
 
   regist_signal( "print_info" )
-      ->connect( boost::bind( &Component::signal_print_info, this, _1 ) )
-      ->description("prints info on this component")
-      ->pretty_name("Info");
+      .connect( boost::bind( &Component::signal_print_info, this, _1 ) )
+      .description("prints info on this component")
+      .pretty_name("Info");
 
   regist_signal( "rename_component" )
-      ->connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
-      ->description("Renames this component")
-      ->pretty_name("Rename")
-      ->signature( boost::bind(&Component::signature_rename_component, this, _1) );
+      .connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
+      .description("Renames this component")
+      .pretty_name("Rename")
+      .signature( boost::bind(&Component::signature_rename_component, this, _1) );
 
   regist_signal( "delete_component" )
-      ->connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
-      ->description("Deletes a component")
-      ->pretty_name("Delete");
+      .connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
+      .description("Deletes a component")
+      .pretty_name("Delete");
 
   regist_signal( "move_component" )
-      ->connect( boost::bind( &Component::signal_move_component, this, _1 ) )
-      ->description("Moves a component to another component")
-      ->pretty_name("Move")
-      ->signature( boost::bind(&Component::signature_move_component, this, _1) );
+      .connect( boost::bind( &Component::signal_move_component, this, _1 ) )
+      .description("Moves a component to another component")
+      .pretty_name("Move")
+      .signature( boost::bind(&Component::signature_move_component, this, _1) );
 
   regist_signal( "save_tree" )
-      ->connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
-      ->hidden(true)
-      ->description("Saves the tree")
-      ->pretty_name("Save tree");
+      .connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
+      .hidden(true)
+      .description("Saves the tree")
+      .pretty_name("Save tree");
 
   regist_signal( "list_content" )
-      ->connect( boost::bind( &Component::signal_list_content, this, _1 ) )
-      ->hidden(true)
-      ->read_only(true)
-      ->description("Lists component content")
-      ->pretty_name("List content");
+      .connect( boost::bind( &Component::signal_list_content, this, _1 ) )
+      .hidden(true)
+      .read_only(true)
+      .description("Lists component content")
+      .pretty_name("List content");
 
   regist_signal( "signal_signature" )
-      ->connect( boost::bind(&Component::signal_signature, this, _1))
-      ->hidden(true)
-      ->read_only(true)
-      ->description("Gives signature of a signal");
+      .connect( boost::bind(&Component::signal_signature, this, _1))
+      .hidden(true)
+      .read_only(true)
+      .description("Gives signature of a signal");
 
 
   // properties
@@ -172,16 +173,16 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_tree_updated_event();
 
-  if(is_not_null(parent()))
+  if(is_not_null(m_parent))
   {
-    if(is_not_null(parent()->get_child(name)))
+    if(is_not_null(m_parent->get_child(name)))
       throw ValueExists(FromHere(), std::string("A component with name ") + this->name() + " already exists in " + uri().string());
 
     // Rename key in parent
-    CompLookupT::iterator lookup = parent()->m_component_lookup.find(m_name);
+    CompLookupT::iterator lookup = m_parent->m_component_lookup.find(m_name);
     const Uint idx = lookup->second;
-    parent()->m_component_lookup.erase(lookup);
-    parent()->m_component_lookup[name] = idx;
+    m_parent->m_component_lookup.erase(lookup);
+    m_parent->m_component_lookup[name] = idx;
   }
 
   m_name = name;
@@ -191,23 +192,26 @@ void Component::rename ( const std::string& name )
 
 URI Component::uri() const
 {
-  if(is_null(parent()))
+  if(is_null(m_parent))
     return URI(std::string("/"), URI::Scheme::CPATH);
 
-  return parent()->uri() / URI(name(), URI::Scheme::CPATH);
+  return m_parent->uri() / URI(name(), URI::Scheme::CPATH);
 }
 
-const Handle<Component>& Component::parent() const
+Handle<Component> Component::parent() const
 {
-  return m_parent;
+  if(m_parent)
+    return m_parent->handle<Component>();
+
+  return Handle<Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::Handle< const Component > Component::root() const
+Handle< const Component > Component::root() const
 {
-  Handle<Component const> result(handle());
-  while(is_not_null(result->parent()))
+  Handle<Component const> result(handle<Component>());
+  while(is_not_null(result->m_parent))
     result = result->parent();
 
   return result;
@@ -217,8 +221,8 @@ cf3::common::Handle< const Component > Component::root() const
 
 Handle< Component > Component::root()
 {
-  Handle<Component> result(handle());
-  while(is_not_null(result->parent()))
+  Handle<Component> result(handle<Component>());
+  while(is_not_null(result->m_parent))
     result = result->parent();
 
   return result;
@@ -246,7 +250,7 @@ Component& Component::add_component ( const boost::shared_ptr<Component>& subcom
 
   cf3_assert(m_component_lookup.size() == m_components.size());
 
-  subcomp->change_parent( handle() );
+  subcomp->m_parent = this;
 
   raise_tree_updated_event();
 
@@ -394,14 +398,15 @@ Handle<Component> Component::get_child_checked(const std::string& name)
 void Component::change_parent(Handle<Component> to_parent)
 {
   // modifiy the parent, may be NULL
-  m_parent = to_parent;
+  m_parent = to_parent.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::move_to ( Component& new_parent )
 {
-  boost::shared_ptr<Component> this_ptr = parent()->remove_component( *this );
+  cf3_assert(m_parent);
+  boost::shared_ptr<Component> this_ptr = m_parent->remove_component( *this );
   new_parent.add_component( this_ptr );
   raise_tree_updated_event();
 }
@@ -412,7 +417,7 @@ Handle<Component> Component::access_component(const URI& path)
 {
   // Return self for trivial path or at end of recursion.
   if(path.path() == "." || path.empty())
-    return handle();
+    return handle<Component>();
 
   // If the path is absolute, make it relative and pass it to the root
   if(path.is_absolute())
@@ -425,7 +430,7 @@ Handle<Component> Component::access_component(const URI& path)
 
     if(new_path.empty())
     {
-      return root()->handle();
+      return root()->handle<Component>();
     }
 
     // Pass the rest to root
@@ -453,7 +458,7 @@ Handle<Component> Component::access_component(const URI& path)
 
   // Dispatch to parent
   if(current_part == "..")
-    return parent() ? parent()->access_component(next_part) : Handle<Component>();
+    return m_parent ? m_parent->access_component(next_part) : Handle<Component>();
 
   // Dispatch to child
   Handle<Component> child = get_child(current_part);
@@ -493,7 +498,9 @@ Handle< Component > Component::create_component (const std::string& name ,
                                         const std::string& builder_name )
 {
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
-  add_component( comp );
+  if(is_not_null(comp))
+    add_component( comp );
+  
   return Handle<Component>(comp);
 }
 
@@ -526,10 +533,8 @@ void Component::signal_create_component ( SignalArgs& args  )
 
 void Component::signal_delete_component ( SignalArgs& args  )
 {
-  // when goes out of scope it gets deleted
-  // unless someone else shares it
-
-  parent()->remove_component( *this );
+  cf3_assert(m_parent);
+  m_parent->remove_component( *this );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -634,7 +639,10 @@ std::string Component::tree(Uint level) const
   tree += name() ;
 
   if( is_not_null(dynamic_cast<Link const*>(this)) )
-    tree += " -> " + follow_link(*this)->uri().string();
+  {
+    Handle<Component const> linked = follow_link(*this);
+    tree += " -> " + (is_null(linked) ? "": linked->uri().string());
+  }
 
   tree += "\n";
 
@@ -708,6 +716,8 @@ void Component::signal_list_properties( SignalFrame& args ) const
      options.set_value<Real>( name, any_to_value<Real>(value) );
    else if(type == Protocol::Tags::type<URI>())
      options.set_value<URI>( name, any_to_value<URI>(value) );
+   else if(type == Protocol::Tags::type<UUCount>())
+     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
    else
      throw ShouldNotBeHere(FromHere(),
                            std::string("Don't know how the manage [" + type + "] type."));
@@ -1188,21 +1198,23 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
-
-  if ( is_null( factories->get_child( factory_type_name ) ) )
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
-
   Handle<Component> factory = factories->get_child( factory_type_name );
+  
+    
+  if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
+  {
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
+  }
+
+  factory = factories->get_child( factory_type_name );
+  
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
   // get the builder
-
-  if ( is_null( factory->get_child( builder_name ) ) )
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
-
   Handle<Builder> builder(factory->get_child( builder_name ));
   if ( is_null(builder) )
   {
@@ -1277,12 +1289,14 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
 
 
-  Handle<Builder> cbuilder(Core::instance().root().access_component( builder_path ));
+  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
 
   if( is_null(cbuilder) ) // try to load the library that contains the builder
   {
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
-    cbuilder = Handle<Builder>(Core::instance().root().access_component( builder_path ));
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
+      
+    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
   if( is_null(cbuilder) ) // if still fails, then give up
@@ -1293,6 +1307,33 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   return comp;
 }
+
+boost::shared_ptr< Component > build_component_nothrow(const std::string& builder_name, const std::string& name)
+{
+  std::string libnamespace = Builder::extract_namespace(builder_name);
+
+  URI builder_path = Core::instance().libraries().uri()
+                   / URI(libnamespace)
+                   / URI(builder_name);
+
+  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
+
+  if( is_null(cbuilder) ) // try to load the library that contains the builder
+  {
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      return boost::shared_ptr<Component>();
+      
+    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
+  }
+
+  if( is_null(cbuilder) ) // if still fails, then give up
+    return boost::shared_ptr<Component>();
+
+  boost::shared_ptr<Component> comp = cbuilder->build( name );
+
+  return comp;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -19,6 +19,7 @@ namespace LagrangeP1 {
 struct Mesh_LagrangeP1_API Hexa_traits
 {
   enum { nb_nodes       = 8              };
+  enum { nb_faces       = 6              };
   enum { dimensionality = 3              };
   enum { order          = 1              };
   enum { shape          = GeoShape::HEXA };

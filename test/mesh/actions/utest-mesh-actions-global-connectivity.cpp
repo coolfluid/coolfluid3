@@ -10,6 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/List.hpp"
 
@@ -53,10 +54,10 @@ struct TestGlobalConnectivity_Fixture
   char** m_argv;
 
   /// common values accessed by all tests goes here
-  static Mesh::Ptr mesh;
+  static Handle< Mesh > mesh;
 };
 
-Mesh::Ptr TestGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Handle< Mesh > TestGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,17 +77,17 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  meshreader->configure_option("read_boundaries",false);
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  meshreader->options().configure_option("read_boundaries",false);
   meshreader->read_mesh_into("../../../resources/quadtriag.neu",*mesh);
 
 
-  GlobalNumbering::Ptr build_glb_numbering = allocate_component<GlobalNumbering>("build_glb_numbering");
+  boost::shared_ptr<GlobalNumbering> build_glb_numbering = allocate_component<GlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
-  build_glb_numbering->configure_option("debug",true);
+  build_glb_numbering->options().configure_option("debug",true);
   build_glb_numbering->execute();
 
-  GlobalConnectivity::Ptr build_connectivity = allocate_component<GlobalConnectivity>("build_glb_connectivity");
+  boost::shared_ptr<GlobalConnectivity> build_connectivity = allocate_component<GlobalConnectivity>("build_glb_connectivity");
   build_connectivity->set_mesh(mesh);
   build_connectivity->execute();
 

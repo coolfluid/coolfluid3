@@ -40,8 +40,8 @@ class BlockMesh_API LibBlockMesh :
 {
 public:
 
-  typedef boost::shared_ptr<LibBlockMesh> Ptr;
-  typedef boost::shared_ptr<LibBlockMesh const> ConstPtr;
+  
+  
 
   /// Constructor
   LibBlockMesh ( const std::string& name) : common::Library(name) {   }

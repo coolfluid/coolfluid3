@@ -12,6 +12,9 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
+#include "solver/actions/SolveLSS.hpp"
+#include "solver/actions/ZeroLSS.hpp"
+
 #include "solver/actions/Proto/CProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -24,37 +27,38 @@ namespace UFEM {
 
 using namespace common;
 using namespace solver;
+using namespace solver::actions;
 using namespace solver::actions::Proto;
 
 ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 {
-  options().add_option< OptionT<Real> >("initial_pressure", 0.)
-    ->description("Initial condition for the pressure")
-    ->pretty_name("Initial pressure")
-    ->link_to(&m_p0);
+  options().add_option("initial_pressure", 0.)
+    .description("Initial condition for the pressure")
+    .pretty_name("Initial pressure")
+    .link_to(&m_p0);
 
-  options().add_option< OptionArrayT<Real> >("initial_velocity")
-    ->description("Initial condition for the velocity")
-    ->pretty_name("Initial velocity")
-    ->attach_trigger(boost::bind(&NavierStokes::trigger_u, this));
+  options().add_option< std::vector<Real> >("initial_velocity")
+    .description("Initial condition for the velocity")
+    .pretty_name("Initial velocity")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_u, this));
 
-  options().add_option< OptionT<Real> >("reference_velocity")
-    ->description("Reference velocity for the calculation of the stabilization coefficients")
-    ->pretty_name("Reference velocity")
-    ->link_to(&m_coeffs.u_ref);
+  options().add_option<Real>("reference_velocity")
+    .description("Reference velocity for the calculation of the stabilization coefficients")
+    .pretty_name("Reference velocity")
+    .link_to(&m_coeffs.u_ref);
 
-  options().add_option< OptionT<Real> >("density", 1.2)
-    ->description("Mass density (kg / m^3)")
-    ->pretty_name("Density")
-    ->link_to(&m_coeffs.rho)
-    ->attach_trigger(boost::bind(&NavierStokes::trigger_rho, this));
+  options().add_option("density", 1.2)
+    .description("Mass density (kg / m^3)")
+    .pretty_name("Density")
+    .link_to(&m_coeffs.rho)
+    .attach_trigger(boost::bind(&NavierStokes::trigger_rho, this));
 
-  options().add_option< OptionT<Real> >("dynamic_viscosity", 1.7894e-5)
-    ->description("Dynamic Viscosity (kg / m s)")
-    ->pretty_name("Dynamic Viscosity")
-    ->link_to(&m_coeffs.mu);
+  options().add_option("dynamic_viscosity", 1.7894e-5)
+    .description("Dynamic Viscosity (kg / m s)")
+    .pretty_name("Dynamic Viscosity")
+    .link_to(&m_coeffs.mu);
 
 
   MeshTerm<0, VectorField> u("Velocity", Tags::solution());
@@ -73,8 +77,8 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
     << create_proto_action("InitializeU3", nodes_expression(u3 = u))
     <<
     ( // Time loop
-      create_component<TimeLoop>("TimeLoop")
-      << zero_action()
+      allocate_component<TimeLoop>("TimeLoop")
+      << allocate_component<ZeroLSS>("ZeroLSS")
       << create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
       << create_proto_action
       (
@@ -100,8 +104,8 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
           )
         )
       )
-      << boundary_conditions()
-      << solve_action()
+      << allocate_component<BoundaryConditions>("BoundaryConditions")
+      << allocate_component<SolveLSS>("SolveLSS")
       << create_proto_action("UpdateU3", nodes_expression(u3 = u2))
       << create_proto_action("UpdateU2", nodes_expression(u2 = u1))
       << create_proto_action("UpdateU1", nodes_expression(u1 = u))
@@ -112,13 +116,12 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 
 void NavierStokes::trigger_rho()
 {
-  m_coeffs.one_over_rho = 1. / option("density").value<Real>();
+  m_coeffs.one_over_rho = 1. / options().option("density").value<Real>();
 }
 
 void NavierStokes::trigger_u()
 {
-  std::vector<Real> u_vec;
-  option("initial_velocity").put_value(u_vec);
+  std::vector<Real> u_vec = options().option("initial_velocity").value< std::vector<Real> >();
 
   const Uint nb_comps = u_vec.size();
   m_u0.resize(nb_comps);

@@ -60,13 +60,13 @@ boost::shared_ptr<XmlDoc> parse_cstring ( const char* str, std::size_t length )
 }
 
 
-boost::shared_ptr<XmlDoc> parse_file ( const boost::filesystem::path& path )
+boost::shared_ptr<XmlDoc> parse_file ( const URI& file )
 {
   using namespace rapidxml;
 
   xml_document<>* xmldoc = new xml_document<>();
 
-  std::string filepath = path.string();
+  std::string filepath = file.path();
   FILE *filep = fopen( filepath.c_str(), "rb" );
 
   if (filep == NULL)
@@ -100,9 +100,9 @@ boost::shared_ptr<XmlDoc> parse_file ( const boost::filesystem::path& path )
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void to_file ( const XmlNode& node, const boost::filesystem::path& fpath )
+void to_file ( const XmlNode& node, const URI& file )
 {
-  std::ofstream fout ( fpath.string().c_str() );
+  std::ofstream fout ( file.path().c_str() );
 
   std::string xml_as_string;
 

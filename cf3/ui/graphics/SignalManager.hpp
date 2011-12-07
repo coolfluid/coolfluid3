@@ -41,7 +41,7 @@ namespace graphics {
 
     ~SignalManager();
 
-    void show_menu(const QPoint & pos, core::CNode::Ptr node,
+    void show_menu(const QPoint & pos, Handle< core::CNode > node,
                   const QList<cf3::ui::core::ActionInfo> & sigs);
 
   private slots:
@@ -58,7 +58,7 @@ namespace graphics {
 
     QMenu * m_menu;
 
-    core::CNode::Ptr m_node;
+    Handle< core::CNode > m_node;
 
     QMap<QAction *, core::ActionInfo> m_signals;
 

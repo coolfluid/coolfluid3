@@ -46,26 +46,35 @@ OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 {
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
     m_protocols.push_back(protocol);
+
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void OptionURI::change_value(const boost::any& value)
 {
-  const URI val = boost::any_cast<URI>(value);
-  
-  if(std::count(m_protocols.begin(), m_protocols.end(), val.scheme() == 0))
+  try
   {
-    std::stringstream error_str;
-    error_str << "Protocol " + URI::Scheme::Convert::instance().to_str(val.scheme()) + " is not supported. Accepted values are:";
-    BOOST_FOREACH(const URI::Scheme::Type scheme, m_protocols)
+    const URI val = boost::any_cast<URI>(value);
+
+    if(std::count(m_protocols.begin(), m_protocols.end(), val.scheme() == 0))
     {
-      error_str << " " << URI::Scheme::Convert::instance().to_str(scheme);
+      std::stringstream error_str;
+      error_str << "Protocol " + URI::Scheme::Convert::instance().to_str(val.scheme()) + " is not supported. Accepted values are:";
+      BOOST_FOREACH(const URI::Scheme::Type scheme, m_protocols)
+      {
+        error_str << " " << URI::Scheme::Convert::instance().to_str(scheme);
+      }
+      throw BadValue(FromHere(), error_str.str());
     }
-    throw BadValue(FromHere(), error_str.str());
+
+    Option::change_value(value);
   }
-  
-  Option::change_value(value);
+  catch(boost::bad_any_cast& e)
+  {
+    throw CastingFailed(FromHere(), "Expected a URI, got a " + demangle(value.type().name()));
+  }
 }
 
 

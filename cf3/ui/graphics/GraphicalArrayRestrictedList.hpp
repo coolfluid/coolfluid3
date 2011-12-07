@@ -33,7 +33,7 @@ namespace graphics {
     Q_OBJECT
   public:
 
-    GraphicalArrayRestrictedList( common::Option::ConstPtr opt = common::Option::ConstPtr(),
+    GraphicalArrayRestrictedList( boost::shared_ptr< common::Option > opt = boost::shared_ptr< common::Option >(),
                                   QWidget * parent = 0 );
 
     ~GraphicalArrayRestrictedList();

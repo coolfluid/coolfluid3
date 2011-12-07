@@ -26,8 +26,8 @@ class LibTestActions : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibTestActions> Ptr;
-  typedef boost::shared_ptr<LibTestActions const> ConstPtr;
+  
+  
 
   /// Constructor
   LibTestActions ( const std::string& name) : common::Library(name) {   }

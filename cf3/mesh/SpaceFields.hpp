@@ -39,8 +39,8 @@ class Mesh_API SpaceFields : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<SpaceFields> Ptr;
-  typedef boost::shared_ptr<SpaceFields const> ConstPtr;
+
+
 
   class Mesh_API Basis
   {
@@ -120,10 +120,10 @@ public: // functions
   /// @throws common::InvalidStructure
   void check_sanity();
 
-  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
-  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
+  std::vector<Handle< Entities > > entities_range();
+  std::vector<Handle< Elements > > elements_range();
 
-  Field& field(const std::string& name) const;
+  Field& field(const std::string& name);
 
   UnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
@@ -171,13 +171,13 @@ protected:
 
   Uint m_size;
 
-  boost::shared_ptr<common::Link> m_topology;
-  boost::shared_ptr<common::List<Uint> > m_glb_idx;
-  boost::shared_ptr<common::List<Uint> > m_rank;
-  boost::shared_ptr<UnifiedData> m_elements_lookup;
-  boost::shared_ptr<Field> m_coordinates;
-  boost::shared_ptr<common::DynTable<Uint> > m_glb_elem_connectivity;
-  boost::weak_ptr<common::PE::CommPattern> m_comm_pattern;
+  Handle<common::Link> m_topology;
+  Handle<common::List<Uint> > m_glb_idx;
+  Handle<common::List<Uint> > m_rank;
+  Handle<UnifiedData> m_elements_lookup;
+  Handle<Field> m_coordinates;
+  Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
+  Handle<common::PE::CommPattern> m_comm_pattern;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -13,6 +13,7 @@
 
 #include "common/AllocatedComponent.hpp"
 #include "common/Action.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Timer.hpp"
 
 namespace cf3 {

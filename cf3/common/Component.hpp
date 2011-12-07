@@ -172,11 +172,13 @@ public: // functions
   Handle<Component const> access_component_checked ( const URI& path ) const;
 
   /// Get a handle to the component
-  Handle<Component> handle() { return Handle<Component>(shared_from_this()); }
-  Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
+  template<typename ComponentT>
+  Handle<ComponentT> handle() { return Handle<ComponentT>(shared_from_this()); }
+  template<typename ComponentT>
+  Handle<ComponentT const> handle() const { return Handle<ComponentT const>(shared_from_this()); }
 
   /// @returns the handle to the parent component, which can be null if there is no parent
-  const Handle<Component>& parent() const;
+  Handle<Component> parent() const;
 
   /// @returns the upper-most component in the tree, or self if there is no parent
   Handle<Component const> root() const;
@@ -208,14 +210,18 @@ public: // functions
     add_component( comp );
     return Handle<T>(comp);
   }
+  
+  /// Create a component using the reduced builder name
+  template<typename T>
+  Handle<T> create_component(const std::string& name , const std::string& builder );
 
   /// Create a static "always there" subcomponent
   template < typename T >
   Handle<T> create_static_component ( const std::string& name )
   {
     boost::shared_ptr<T> comp = allocate_component<T>(name);
-    add_static_component( *comp );
-    return comp;
+    add_static_component( comp );
+    return Handle<T>(comp);
   }
 
   /// Add the passed component as a subcomponent
@@ -383,7 +389,7 @@ private: // data
   /// lookup of the index of a component
   CompLookupT m_component_lookup;
   /// pointer to parent, naked pointer because of static components
-  Handle<Component> m_parent;
+  Component* m_parent;
 
 protected: // functions
 
@@ -393,7 +399,6 @@ protected: // functions
   /// Friend declarations allow enable_shared_from_this to be private
   template<class T> friend class boost::enable_shared_from_this;
   template<class T> friend class boost::shared_ptr;
-
 }; // Component
 
 
@@ -480,6 +485,10 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
 boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name);
 
+/// Same as before, but will not throw and return null if something went wrong
+boost::shared_ptr<Component> build_component_nothrow(const std::string& builder_name,
+                               const std::string& name);
+
 
 /// Create a component by providing the name of its builder.
 /// If factory does not exist, tries to auto-load based on the factory name.
@@ -536,6 +545,23 @@ boost::shared_ptr<ATYPE> build_component_abstract_type_reduced(const std::string
 
     return comp;
 }
+
+template<typename T>
+Handle< T > Component::create_component(const std::string& name, const std::string& builder)
+{
+  boost::shared_ptr<T> comp;
+  if(std::count(builder.begin(), builder.end(), '.') != 0)
+  {
+    comp = build_component_abstract_type<T>(builder, name);
+  }
+  else
+  {
+    comp = build_component_abstract_type_reduced<T>(builder, name);
+  }
+  add_component( comp );
+  return Handle<T>(comp);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

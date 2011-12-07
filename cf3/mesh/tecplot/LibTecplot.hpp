@@ -42,8 +42,8 @@ class tecplot_API LibTecplot :
 
 public:
 
-  typedef boost::shared_ptr<LibTecplot> Ptr;
-  typedef boost::shared_ptr<LibTecplot const> ConstPtr;
+  
+  
 
   /// Constructor
   LibTecplot ( const std::string& name) : common::Library(name) {   }

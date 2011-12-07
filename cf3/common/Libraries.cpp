@@ -41,9 +41,9 @@ Libraries::Libraries ( const std::string& name) : Component ( name )
 
   // signals
   regist_signal( "load_libraries" )
-    ->connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
-    ->description("loads libraries")
-    ->pretty_name("Load Libraries");
+    .connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
+    .description("loads libraries")
+    .pretty_name("Load Libraries");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -105,7 +105,7 @@ Handle<Library> Libraries::autoload_library_with_namespace( const std::string& l
 
   try // to auto-load in case builder not there
   {
-    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+    CFdebug << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
     Handle<Library> lib(get_child( libnamespace ));
     cf3_assert( is_not_null(lib) );
@@ -113,8 +113,7 @@ Handle<Library> Libraries::autoload_library_with_namespace( const std::string& l
   }
   catch(const std::exception& e)
   {
-    throw ValueNotFound(FromHere(),
-                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    return Handle<Library>();
   }
 }
 
@@ -122,25 +121,7 @@ Handle<Library> Libraries::autoload_library_with_namespace( const std::string& l
 
 Handle<Library> Libraries::autoload_library_with_builder( const std::string& builder_name )
 {
-  if( builder_name.empty() )
-    throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
-
-  const std::string libnamespace = Builder::extract_namespace( builder_name );
-  const std::string lib_name = namespace_to_libname( libnamespace );
-
-  try // to auto-load in case builder not there
-  {
-    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
-    OSystem::instance().lib_loader()->load_library(lib_name);
-    Handle<Library> lib(get_child( libnamespace ));
-    cf3_assert( is_not_null(lib) );
-    return lib;
-  }
-  catch(const std::exception& e)
-  {
-    throw ValueNotFound(FromHere(),
-                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
-  }
+  return autoload_library_with_namespace(Builder::extract_namespace( builder_name ));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

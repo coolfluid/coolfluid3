@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Z0 = 0, Z1 = 1, Z2 = 2, Z3 = 3 };
 
-  typedef boost::shared_ptr<Roe2D> Ptr;
-  typedef boost::shared_ptr<Roe2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -116,6 +116,16 @@ public: // functions
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "flux not implemented for Roe2D");
+  }
+
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
                     FM& flux)
   {
     throw common::NotImplemented(FromHere(), "flux not implemented for Roe2D");

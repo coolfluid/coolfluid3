@@ -53,7 +53,7 @@ CommPattern::CommPattern(const std::string& name): Component(name), m_gid(alloca
   m_recvCount(PE::Comm::instance().size(),0),
   m_recvMap(0)
 {
-  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" ).connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
   m_isUpToDate=false;
   m_isFreeze=false;
 }

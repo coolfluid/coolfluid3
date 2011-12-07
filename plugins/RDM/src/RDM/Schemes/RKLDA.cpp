@@ -42,7 +42,7 @@ void RKLDA::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     loop.select_region( region );
 

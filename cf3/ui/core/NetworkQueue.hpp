@@ -54,8 +54,8 @@ class Core_API NetworkQueue
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<NetworkQueue> Ptr;
-  typedef boost::shared_ptr<NetworkQueue const> ConstPtr;
+  
+  
 
 public: // enums
 
@@ -85,7 +85,7 @@ public:
 
   virtual QString tool_tip() const;
 
-  static NetworkQueue::Ptr global();
+  static Handle< NetworkQueue > global();
 
   inline bool is_running() const { return m_current_index != -1; }
 

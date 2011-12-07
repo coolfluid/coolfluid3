@@ -19,6 +19,7 @@ namespace LagrangeP1 {
 struct Mesh_LagrangeP1_API Line_traits
 {
   enum { nb_nodes       = 2               };
+  enum { nb_faces       = 2               };
   enum { dimensionality = 1               };
   enum { order          = 1               };
   enum { shape          = GeoShape::LINE  };

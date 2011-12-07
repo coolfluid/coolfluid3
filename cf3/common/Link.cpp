@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include "common/BasicExceptions.hpp"
 #include "common/Builder.hpp"
 #include "common/Signal.hpp"
@@ -27,9 +29,9 @@ common::ComponentBuilder < Link, Component, LibCommon > Link_Builder;
 Link::Link ( const std::string& name) : Component ( name )
 {
   regist_signal( "change_link" )
-    ->connect( boost::bind( &Link::change_link, this, _1 ) )
-    ->description("Change link path")
-    ->pretty_name("Change target");
+    .connect( boost::bind( &Link::change_link, this, _1 ) )
+    .description("Change link path")
+    .pretty_name("Change target");
 }
 
 
@@ -56,10 +58,10 @@ bool Link::is_linked () const
 
 Link& Link::link_to ( Component& lnkto )
 {
-  if (is_not_null(Handle<Link>(lnkto.handle())))
+  if (is_not_null(Handle<Link>(lnkto.handle<Component>())))
     throw SetupError(FromHere(), "Cannot link a Link to another Link");
 
-  m_link_component = lnkto.handle();
+  m_link_component = lnkto.handle<Component>();
   return *this;
 }
 
@@ -99,12 +101,13 @@ Handle< const Component > follow_link(const Handle< const Component >& link_or_c
 
 Handle< Component > follow_link(Component& link_or_comp)
 {
-  return follow_link(link_or_comp.handle());
+  return follow_link(link_or_comp.handle<Component>());
 }
 
 Handle< const Component > follow_link(const Component& link_or_comp)
 {
-  return follow_link(link_or_comp.handle());
+  std::cout << "checking link on " << link_or_comp.uri() << std::endl;
+  return follow_link(link_or_comp.handle<Component>());
 }
 
 

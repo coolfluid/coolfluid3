@@ -60,37 +60,37 @@ Manager::Manager ( const std::string & name )
   }
 
   regist_signal( "spawn_group" )
-      ->description("Creates a new group of workers")
-      ->pretty_name("Spawn new group")
-      ->connect( boost::bind(&Manager::signal_spawn_group, this, _1) );
+      .description("Creates a new group of workers")
+      .pretty_name("Spawn new group")
+      .connect( boost::bind(&Manager::signal_spawn_group, this, _1) );
 
   regist_signal( "kill_group" )
-      ->description("Kills a group of workers")
-      ->pretty_name("Kill group")
-      ->connect( boost::bind(&Manager::signal_kill_group, this, _1) );
+      .description("Kills a group of workers")
+      .pretty_name("Kill group")
+      .connect( boost::bind(&Manager::signal_kill_group, this, _1) );
 
   regist_signal( "kill_all" )
-      ->description("Kills all groups of workers")
-      ->hidden(true)
-      ->pretty_name("Kill all groups")
-      ->connect( boost::bind(&Manager::signal_kill_all, this, _1) );
+      .description("Kills all groups of workers")
+      .hidden(true)
+      .pretty_name("Kill all groups")
+      .connect( boost::bind(&Manager::signal_kill_all, this, _1) );
 
   regist_signal("exit")
-      ->connect( boost::bind(&Manager::signal_exit, this, _1) )
-      ->hidden(true)
-      ->description( "Stops the listening thread" );
+      .connect( boost::bind(&Manager::signal_exit, this, _1) )
+      .hidden(true)
+      .description( "Stops the listening thread" );
 
   regist_signal("forward_signal")
-      ->hidden(true)
-      ->description("Called when there is a signal to forward");
+      .hidden(true)
+      .description("Called when there is a signal to forward");
 
   regist_signal( "message" )
-      ->description("New message has arrived from a worker")
-      ->pretty_name("")
-      ->connect( boost::bind(&Manager::signal_message, this, _1) );
+      .description("New message has arrived from a worker")
+      .pretty_name("")
+      .connect( boost::bind(&Manager::signal_message, this, _1) );
 
   regist_signal( "signal_to_forward" )
-      ->description("Signal called by this object when to forward a signal "
+      .description("Signal called by this object when to forward a signal "
                     "called from a worker.");
 
   signal("spawn_group")->signature( boost::bind(&Manager::signature_spawn_group, this, _1) );

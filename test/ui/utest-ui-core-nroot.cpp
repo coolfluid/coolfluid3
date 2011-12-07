@@ -12,6 +12,7 @@
 
 #include "test/ui/CoreApplication.hpp"
 
+using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::ui::core;
 
@@ -36,10 +37,10 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( child_from_root )
 {
-  NRoot::Ptr root( new NRoot("Root") );
-  NGeneric::Ptr node1(new NGeneric("Node1", "MyFirstType"));
-  NGeneric::Ptr node2(new NGeneric("Node2", "MySecondType"));
-  CNode::Ptr node;
+  boost::shared_ptr< NRoot > root( new NRoot("Root") );
+  boost::shared_ptr< NGeneric > node1(new NGeneric("Node1", "MyFirstType"));
+  boost::shared_ptr< NGeneric > node2(new NGeneric("Node2", "MySecondType"));
+  Handle< CNode > node;
 
   // 1. root has no child
   BOOST_CHECK_THROW( root->child_from_root(0), FailedAssertion );

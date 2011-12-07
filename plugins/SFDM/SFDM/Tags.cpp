@@ -22,7 +22,10 @@ const char * Tags::wave_speed()     { return "wave_speed"; }
 const char * Tags::update_coeff()   { return "update_coefficient"; }
 const char * Tags::residual()       { return "residual"; }
 const char * Tags::jacob_det()      { return "jacobian_determinant"; }
-  
+const char * Tags::plane_jacob_normal()  { return "plane_jacobian_normal"; }
+
+const char * Tags::L2norm()         { return "L2norm"; }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM

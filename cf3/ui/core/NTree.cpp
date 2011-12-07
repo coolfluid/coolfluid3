@@ -33,17 +33,13 @@ namespace core {
 
 /////////////////////////////////////////////////////////////////////////
 
-NTree::NTree(NRoot::Ptr rootNode)
+NTree::NTree(Handle< NRoot > rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::DEBUG_NODE),
     m_advanced_mode(false),
     m_debug_mode_enabled(false)
 {
 
-
-  if(rootNode.get() == nullptr)
-    m_root_node = new TreeNode(ThreadManager::instance().tree().root(), nullptr, 0);
-  else
-    m_root_node = new TreeNode(rootNode, nullptr, 0);
+  m_root_node = new TreeNode(rootNode, nullptr, 0);
 
   m_mutex = new QMutex();
 
@@ -52,13 +48,13 @@ NTree::NTree(NRoot::Ptr rootNode)
   unregist_signal("list_tree"); // unregister base class signal
 
   regist_signal( "list_tree" )
-    ->description("New tree")
-    ->pretty_name("")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
+    .description("New tree")
+    .pretty_name("").connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NTree::set_tree_root(NRoot::Ptr rootNode)
+void NTree::set_tree_root(Handle< NRoot > rootNode)
 {
 
 
@@ -78,7 +74,7 @@ void NTree::set_tree_root(NRoot::Ptr rootNode)
 
 ////////////////////////////////////////////////////////////////////////////
 
-NRoot::Ptr NTree::tree_root() const
+Handle< NRoot > NTree::tree_root() const
 {
 
 
@@ -122,7 +118,7 @@ URI NTree::current_path() const
 ////////////////////////////////////////////////////////////////////////////
 
 void NTree::list_node_options(const QModelIndex & index,
-                           QList<Option::ConstPtr> & options,
+                           QList<boost::shared_ptr< Option > > & options,
                            bool * ok) const
 {
 
@@ -233,7 +229,7 @@ bool NTree::are_from_same_node(const QModelIndex & left, const QModelIndex & rig
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::ConstPtr NTree::node_by_path(const URI & path) const
+Handle< CNode > NTree::node_by_path(const URI & path) const
 {
 
 
@@ -242,23 +238,26 @@ CNode::ConstPtr NTree::node_by_path(const URI & path) const
   QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
-  CNode::ConstPtr node = m_root_node->node();
+  Handle< CNode > node = m_root_node->node();
 
   if(path.is_absolute())
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first().toStdString() == node->name())
-      comps.removeFirst();
-
-    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+    if( !comps.isEmpty() )
     {
-      Component::ConstPtr comp = node->get_child_ptr(it->toStdString());
+      if(comps.first().toStdString() == node->name())
+        comps.removeFirst();
 
-      if( is_not_null(comp.get()) )
-        node = comp->as_ptr_checked<CNode>();
-      else
-        node = CNode::ConstPtr();
+      for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+      {
+      Handle< Component > comp = node->get_child(it->toStdString());
+
+        if( is_not_null(comp.get()) )
+        node = comp->handle<CNode>();
+        else
+        node = Handle< CNode >();
+      }
     }
   }
 
@@ -267,7 +266,7 @@ CNode::ConstPtr NTree::node_by_path(const URI & path) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NTree::node_by_path(const URI & path)
+Handle< CNode > NTree::node_by_path(const URI & path)
 {
 
 
@@ -276,23 +275,26 @@ CNode::Ptr NTree::node_by_path(const URI & path)
   QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
-  CNode::Ptr node = m_root_node->node();
+  Handle< CNode > node = m_root_node->node();
 
   if(path.is_absolute())
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first().toStdString() == node->name())
-      comps.removeFirst();
-
-    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+    if( !comps.isEmpty() )
     {
-      Component::Ptr comp = node->get_child_ptr(it->toStdString());
+      if(comps.first().toStdString() == node->name())
+        comps.removeFirst();
 
-      if( is_not_null(comp.get()) )
-        node = comp->as_ptr_checked<CNode>();
-      else
-        node = CNode::Ptr();
+      for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+      {
+      Handle< Component > comp = node->get_child(it->toStdString());
+
+        if( is_not_null(comp.get()) )
+        node = comp->handle<CNode>();
+        else
+        node = Handle< CNode >();
+      }
     }
   }
 
@@ -409,7 +411,7 @@ bool NTree::node_matches(const QModelIndex & index, const QRegExp & regex) const
 
   //QMutexLocker locker(m_mutex);
 
-  Component::Ptr node = m_root_node->node()->castTo<NRoot>();
+  Handle< Component > node = m_root_node->node()->castTo<NRoot>();
 
   // if the index is value, we get the right node
   if(index.isValid() && index_to_tree_node(index) != m_root_node)
@@ -433,7 +435,7 @@ bool NTree::check_index_visible(const QModelIndex & index) const
 
   if(index.isValid())
   {
-    CNode::Ptr node = this->index_to_node(index);
+    Handle< CNode > node = this->index_to_node(index);
 
     if( is_not_null(node.get()) )
     {
@@ -476,7 +478,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
   if(check_index_visible(index))
   {
     //QMutexLocker locker(m_mutex);
-    CNode::Ptr node = this->index_to_node(index);
+    Handle< CNode > node = this->index_to_node(index);
 
     if(role == Qt::DisplayRole)
     {
@@ -598,10 +600,10 @@ void NTree::list_tree_reply(SignalArgs & args)
 
   try
   {
-    NRoot::Ptr tree_root = m_root_node->node()->castTo<NRoot>();
-    CNode::Ptr root_node = CNode::create_from_xml(args.main_map.content.content->first_node());
-    ComponentIterator<CNode> it = component_begin<CNode>(root_node->root());
-    ComponentIterator<CNode> root_end = component_end<CNode>(root_node->root());
+    Handle< NRoot > tree_root = m_root_node->node()->castTo<NRoot>();
+    boost::shared_ptr< CNode > root_node = CNode::create_from_xml(args.main_map.content.content->first_node());
+    ComponentIterator<CNode> it = component_begin<CNode>(*root_node->root());
+    ComponentIterator<CNode> root_end = component_end<CNode>(*root_node->root());
     URI currentIndexPath;
 
     if(m_current_index.isValid())
@@ -634,7 +636,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     for( ; itList != list_to_remove.end() ; itList++)
     {
-      tree_root->access_component_ptr_checked(*itList)->as_ptr<CNode>()->about_to_be_removed();
+      tree_root->access_component_checked(*itList)->handle<CNode>()->about_to_be_removed();
       tree_root->remove_component(*itList);
     }
 
@@ -642,8 +644,12 @@ void NTree::list_tree_reply(SignalArgs & args)
     // add the new nodes
     //
 
+    std::vector<std::string> names_to_add;
+    names_to_add.reserve(root_node->count_children());
     for( ; it != root_end ; it++)
-      tree_root->add_component(it.get());
+      names_to_add.push_back(it.get()->name());
+    BOOST_FOREACH(const std::string& name, names_to_add)
+      tree_root->add_component( root_node->remove_component(name) );
 
     // child count may have changed, ask the root TreeNode to update its internal data
     m_root_node->update_child_list();
@@ -677,7 +683,7 @@ void NTree::clear_tree()
 
   //QMutexLocker locker(m_mutex);
 
-  NRoot::Ptr treeRoot = m_root_node->node()->castTo<NRoot>();
+  Handle< NRoot > treeRoot = m_root_node->node()->castTo<NRoot>();
   ComponentIterator<CNode> itRem = component_begin<CNode>(*treeRoot);
   ComponentIterator<CNode> tree_root_end = component_end<CNode>(*treeRoot);
   QMap<int, std::string> listToRemove;
@@ -723,7 +729,7 @@ URI NTree::complete_relativepath(const URI & uri) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NTree::content_listed(Component::Ptr node)
+void NTree::content_listed(Handle< Component > node)
 {
 
 
@@ -775,7 +781,7 @@ QString NTree::tool_tip() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NTree::node_matches_recursive(Component::Ptr node, const QRegExp regex) const
+bool NTree::node_matches_recursive(Handle< Component > node, const QRegExp regex) const
 {
 
 
@@ -791,11 +797,9 @@ bool NTree::node_matches_recursive(Component::Ptr node, const QRegExp regex) con
 
 ////////////////////////////////////////////////////////////////////////////
 
-NTree::Ptr NTree::global()
+Handle< NTree > NTree::global()
 {
-
-
-  static NTree::Ptr tree = ThreadManager::instance().tree().root_child<NTree>(CLIENT_TREE);
+  static Handle< NTree > tree = ThreadManager::instance().tree().root_child<NTree>(CLIENT_TREE);
   cf3_assert( tree.get() != nullptr );
 
   return tree;
@@ -812,7 +816,7 @@ TreeNode * NTree::index_to_tree_node(const QModelIndex & index) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NTree::index_to_node(const QModelIndex & index) const
+Handle< CNode > NTree::index_to_node(const QModelIndex & index) const
 {
   return this->index_to_tree_node(index)->node();
 }

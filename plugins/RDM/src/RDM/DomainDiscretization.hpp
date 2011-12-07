@@ -23,8 +23,8 @@ class RDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<DomainDiscretization> Ptr;
-  typedef boost::shared_ptr<DomainDiscretization const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -66,9 +66,9 @@ public: // functions
 
 private:
 
-  common::ActionDirector::Ptr m_face_terms;   ///< set of face terms
+  Handle< common::ActionDirector > m_face_terms;   ///< set of face terms
 
-  common::ActionDirector::Ptr m_cell_terms;   ///< set of cell terms
+  Handle< common::ActionDirector > m_cell_terms;   ///< set of cell terms
 
 };
 

@@ -45,15 +45,12 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
 {
   mark_basic();
 
-  BuildFaces::Ptr build_faces ( allocate_component<BuildFaces>("build_inner_faces") );
-  build_faces->configure_option("store_cell2face",true);
-
-  append( build_faces );
-
+  create_component<BuildFaces>("build_inner_faces")->options().configure_option("store_cell2face",true);
+  
   // renumber elements because of the faces (not strictly necessary)
   // append( allocate_component<GlobalNumbering>("glb_numbering") );
 
-  append( allocate_component<CreateSFDFields>("create_sfd_fields") );
+  create_component<CreateSFDFields>("create_sfd_fields");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -62,18 +59,18 @@ void PrepareMesh::execute()
 {
   // configuration of all solver components.
   // This component and its children should be part of it.
-  solver().configure_option_recursively(SFDM::Tags::solution_order(),solver().option(SFDM::Tags::solution_order()).value<Uint>());
-  solver().configure_option_recursively(SFDM::Tags::mesh(),mesh().uri());
-  solver().configure_option_recursively(SFDM::Tags::physical_model(),physical_model().uri());
-  solver().configure_option_recursively(SFDM::Tags::solver(),solver().uri());
+  solver().configure_option_recursively(SFDM::Tags::solution_order(),solver().options().option(SFDM::Tags::solution_order()).value<Uint>());
+  solver().configure_option_recursively(SFDM::Tags::mesh(),mesh().handle<Component>());
+  solver().configure_option_recursively(SFDM::Tags::physical_model(),physical_model().handle<Component>());
+  solver().configure_option_recursively(SFDM::Tags::solver(),solver().handle<Component>());
 
   // execution of prepare mesh
   ActionDirector::execute();
 
   std::vector<URI> fields;
-  fields.push_back(solver().field_manager().get_child(SFDM::Tags::solution()).follow()->uri());
-  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("fields",fields);
-  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
+  fields.push_back( follow_link( solver().field_manager().get_child(SFDM::Tags::solution()) )->uri() );
+  solver().handle<SFDSolver>()->time_stepping().post_actions().get_child("Periodic")->configure_option_recursively("fields",fields);
+  solver().handle<SFDSolver>()->time_stepping().post_actions().get_child("Periodic")->configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

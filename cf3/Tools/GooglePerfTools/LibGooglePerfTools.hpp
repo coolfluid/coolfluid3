@@ -47,8 +47,8 @@ class GooglePerfTools_API LibGooglePerfTools : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibGooglePerfTools> Ptr;
-  typedef boost::shared_ptr<LibGooglePerfTools const> ConstPtr;
+  
+  
 
   /// Constructor
   LibGooglePerfTools ( const std::string& name) : common::Library(name) {   }

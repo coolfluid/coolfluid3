@@ -28,8 +28,8 @@ class solver_actions_API CIterate : public common::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CIterate> Ptr;
-  typedef boost::shared_ptr<CIterate const> ConstPtr;
+  
+  
 
 public: // functions
 

@@ -14,6 +14,7 @@
 #include "ui/core/NRoot.hpp"
 
 #include "ui/core/LibCore.hpp"
+#include <qmutex.h>
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -50,22 +51,34 @@ public:
   inline const common::UUCount& get_uuid() { return m_root->uuid(); }
 
   template<typename TYPE>
-  typename TYPE::Ptr root_child(const std::string & name) const
+  Handle< TYPE > root_child(const std::string & name) const
   {
-    return m_root->get_child_ptr("UI")->get_child_ptr(name)->as_ptr<TYPE>();
+    return Handle<TYPE>(root()->get_child("UI")->get_child(name));
   }
 
-  void set_mutex(QMutex * mutex);
+  Handle< NRoot > root() const
+  {
+    QMutexLocker locker(m_mutex);
+    cf3_assert(isRunning());
+    cf3_assert(is_not_null(m_root));
+    return Handle<NRoot>(m_root);
+  }
 
-  NRoot::ConstPtr root() const { return m_root; }
-
-  NRoot::Ptr root() { return m_root; }
+  Handle< NRoot > root()
+  {
+    QMutexLocker locker(m_mutex);
+    cf3_assert(isRunning());
+    cf3_assert(is_not_null(m_root));
+    return Handle<NRoot>(m_root);
+  }
 
   void new_signal( boost::shared_ptr<common::XML::XmlDoc> doc);
 
+  void set_mutex(QMutex* mutex);
+
 private:
 
-  NRoot::Ptr m_root;
+  boost::shared_ptr< NRoot > m_root;
 
   QMutex * m_mutex;
 

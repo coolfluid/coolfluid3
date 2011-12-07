@@ -14,6 +14,7 @@
 
 #include "test/ui/CoreApplication.hpp"
 
+using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::ui::core;
 
@@ -39,23 +40,23 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( contructor )
 {
   // 1. the node is null
-  BOOST_CHECK_THROW( TreeNode(CNode::Ptr(), nullptr, 0), FailedAssertion );
+  BOOST_CHECK_THROW( TreeNode(Handle< CNode >(), nullptr, 0), FailedAssertion );
 
   // 2. the row number is below 0
-  NGeneric::Ptr node(new NGeneric("MyNode", "MyType"));
-  BOOST_CHECK_THROW( TreeNode(node, nullptr, -1), FailedAssertion);
+  boost::shared_ptr< NGeneric > node(new NGeneric("MyNode", "MyType"));
+  BOOST_CHECK_THROW( TreeNode(node->handle<CNode>(), nullptr, -1), FailedAssertion);
 
   // 3. everything is OK
-  BOOST_CHECK_NO_THROW( TreeNode(node, nullptr, 0) );
+  BOOST_CHECK_NO_THROW( TreeNode(node->handle<CNode>(), nullptr, 0) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( has_parent )
 {
-  NGeneric::Ptr node(new NGeneric("MyNode", "MyType"));
-  TreeNode parentLess(node, nullptr, 0);
-  TreeNode withParent(node, &parentLess, 0);
+  boost::shared_ptr< NGeneric > node(new NGeneric("MyNode", "MyType"));
+  TreeNode parentLess(node->handle<CNode>(), nullptr, 0);
+  TreeNode withParent(node->handle<CNode>(), &parentLess, 0);
 
   // 1. does not have a parent
   BOOST_CHECK( !parentLess.has_parent() );
@@ -87,15 +88,15 @@ BOOST_AUTO_TEST_CASE( child )
 
   */
 
-  NRoot::Ptr node(new NRoot("Root"));
-  NGeneric::Ptr node1(new NGeneric("Node1", "MyType"));
-  NGeneric::Ptr node11(new NGeneric("Node11", "MyType"));
-  NGeneric::Ptr node12(new NGeneric("Node12", "MyType"));
-  NGeneric::Ptr node2(new NGeneric("Node2", "MyType"));
-  NGeneric::Ptr node21(new NGeneric("Node21", "MyType"));
-  NGeneric::Ptr node22(new NGeneric("Node22", "MyType"));
-  NGeneric::Ptr node23(new NGeneric("Node23", "MyType"));
-  NGeneric::Ptr node3(new NGeneric("Node3", "MyType"));
+  boost::shared_ptr< NRoot > node(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > node1(new NGeneric("Node1", "MyType"));
+  boost::shared_ptr< NGeneric > node11(new NGeneric("Node11", "MyType"));
+  boost::shared_ptr< NGeneric > node12(new NGeneric("Node12", "MyType"));
+  boost::shared_ptr< NGeneric > node2(new NGeneric("Node2", "MyType"));
+  boost::shared_ptr< NGeneric > node21(new NGeneric("Node21", "MyType"));
+  boost::shared_ptr< NGeneric > node22(new NGeneric("Node22", "MyType"));
+  boost::shared_ptr< NGeneric > node23(new NGeneric("Node23", "MyType"));
+  boost::shared_ptr< NGeneric > node3(new NGeneric("Node3", "MyType"));
 
   TreeNode * treeNode = nullptr;
   TreeNode * treeNode1 = nullptr;
@@ -118,7 +119,7 @@ BOOST_AUTO_TEST_CASE( child )
   node2->add_node(node22);
   node2->add_node(node23);
 
-  treeNode = new TreeNode(node, nullptr, 0);
+  treeNode = new TreeNode(node->handle<CNode>(), nullptr, 0);
 
   //
   // 1. check the direct children
@@ -196,15 +197,15 @@ BOOST_AUTO_TEST_CASE( child_by_name )
 {
   // same tree as for test_child()
 
-  NRoot::Ptr node(new NRoot("Root"));
-  NGeneric::Ptr node1(new NGeneric("Node1", "MyType"));
-  NGeneric::Ptr node11(new NGeneric("Node11", "MyType"));
-  NGeneric::Ptr node12(new NGeneric("Node12", "MyType"));
-  NGeneric::Ptr node2(new NGeneric("Node2", "MyType"));
-  NGeneric::Ptr node21(new NGeneric("Node21", "MyType"));
-  NGeneric::Ptr node22(new NGeneric("Node22", "MyType"));
-  NGeneric::Ptr node23(new NGeneric("Node23", "MyType"));
-  NGeneric::Ptr node3(new NGeneric("Node3", "MyType"));
+  boost::shared_ptr< NRoot > node(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > node1(new NGeneric("Node1", "MyType"));
+  boost::shared_ptr< NGeneric > node11(new NGeneric("Node11", "MyType"));
+  boost::shared_ptr< NGeneric > node12(new NGeneric("Node12", "MyType"));
+  boost::shared_ptr< NGeneric > node2(new NGeneric("Node2", "MyType"));
+  boost::shared_ptr< NGeneric > node21(new NGeneric("Node21", "MyType"));
+  boost::shared_ptr< NGeneric > node22(new NGeneric("Node22", "MyType"));
+  boost::shared_ptr< NGeneric > node23(new NGeneric("Node23", "MyType"));
+  boost::shared_ptr< NGeneric > node3(new NGeneric("Node3", "MyType"));
 
   TreeNode * treeNode = nullptr;
   TreeNode * treeNode1 = nullptr;
@@ -227,7 +228,7 @@ BOOST_AUTO_TEST_CASE( child_by_name )
   node2->add_node(node22);
   node2->add_node(node23);
 
-  treeNode = new TreeNode(node, nullptr, 0);
+  treeNode = new TreeNode(node->handle<CNode>(), nullptr, 0);
   treeNode1 = treeNode->child(0);
   treeNode11 = treeNode1->child(0);
   treeNode12 = treeNode1->child(1);
@@ -290,15 +291,15 @@ BOOST_AUTO_TEST_CASE( child_by_name )
 
 BOOST_AUTO_TEST_CASE( update_child_list )
 {
-  NRoot::Ptr node(new NRoot("Root"));
-  NGeneric::Ptr node1(new NGeneric("Node1", "MyType"));
-  NGeneric::Ptr node2(new NGeneric("Node2", "MyType"));
+  boost::shared_ptr< NRoot > node(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > node1(new NGeneric("Node1", "MyType"));
+  boost::shared_ptr< NGeneric > node2(new NGeneric("Node2", "MyType"));
   TreeNode * treeNode;
   TreeNode * child;
 
   node->add_node(node1);
 
-  treeNode = new TreeNode(node, nullptr, 0);
+  treeNode = new TreeNode(node->handle<CNode>(), nullptr, 0);
 
   BOOST_CHECK_EQUAL( treeNode->child_count(), 1);
 

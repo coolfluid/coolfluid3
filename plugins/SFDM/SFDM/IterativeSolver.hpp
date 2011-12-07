@@ -24,8 +24,8 @@ class SFDM_API IterativeSolver : public solver::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<IterativeSolver> Ptr;
-  typedef boost::shared_ptr<IterativeSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -65,17 +65,17 @@ private: // data
   std::vector<Real> m_beta;
   std::vector<Real> m_gamma;
 
-  boost::weak_ptr<mesh::Field> m_solution;
-  boost::weak_ptr<mesh::Field> m_solution_backup;
-  boost::weak_ptr<mesh::Field> m_residual;
-  boost::weak_ptr<mesh::Field> m_update_coeff;
+  Handle<mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution_backup;
+  Handle<mesh::Field> m_residual;
+  Handle<mesh::Field> m_update_coeff;
 
-  boost::weak_ptr<solver::CTime> m_time;
+  Handle<solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
-  boost::shared_ptr<common::ActionDirector> m_pre_update;
+  Handle<common::ActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
-  boost::shared_ptr<common::ActionDirector> m_post_update;
+  Handle<common::ActionDirector> m_post_update;
 
 };
 

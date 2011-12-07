@@ -32,8 +32,8 @@ class physics_API PhysModel : public common::Component {
 
 public: //typedefs
 
-  typedef boost::shared_ptr<PhysModel> Ptr;
-  typedef boost::shared_ptr<PhysModel const> ConstPtr;
+  
+  
 
 public: // functions
 

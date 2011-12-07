@@ -7,13 +7,14 @@
 #include <iomanip>
 
 #include "common/Log.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/PropertyList.hpp"
 
 #include "math/Consts.hpp"
 
@@ -38,21 +39,21 @@ CIterate::CIterate( const std::string& name  ) :
   m_max_iter(uint_max())
 {
   mark_basic();
-  m_properties["brief"] = std::string("Iterator object");
+  properties()["brief"] = std::string("Iterator object");
   std::string description =
   "This object handles iterations\n"
   "It can have one or more stop criteria\n";
-  m_properties["description"] = description;
+  properties()["description"] = description;
 
-  options().add_option( OptionT<bool>::create("verbose", m_verbose))
-      ->description("Print iteration number")
-      ->pretty_name("Verbose")
-      ->link_to(&m_verbose);
+  options().add_option("verbose", m_verbose)
+      .description("Print iteration number")
+      .pretty_name("Verbose")
+      .link_to(&m_verbose);
 
-  options().add_option< OptionT<Uint> >("max_iter", m_max_iter)
-      ->description("Maximal number of iterations")
-      ->pretty_name("Max Iterations")
-      ->link_to(&m_max_iter);
+  options().add_option("max_iter", m_max_iter)
+      .description("Maximal number of iterations")
+      .pretty_name("Max Iterations")
+      .link_to(&m_max_iter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +85,9 @@ void CIterate::execute ()
       CFinfo << uri().path() << "[" << m_iter << "]" << CFendl;
 
     // call all actions and action links inside this component
-    boost_foreach(Component& child, children())
+    boost_foreach(Component& child, *this)
     {
-      if (Action::Ptr action = child.follow()->as_ptr<Action>())
+      if (Handle< Action > action = follow_link(child)->handle<Action>())
         action->execute();
     }
 

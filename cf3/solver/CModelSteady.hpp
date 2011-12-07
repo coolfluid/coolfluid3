@@ -23,8 +23,8 @@ class solver_API CModelSteady : public solver::CModel {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CModelSteady> Ptr;
-  typedef boost::shared_ptr<CModelSteady const> ConstPtr;
+  
+  
 
 public: // functions
 

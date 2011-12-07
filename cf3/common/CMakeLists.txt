@@ -259,7 +259,7 @@ coolfluid_mark_not_orphan(
 list( APPEND coolfluid_common_libs ${CF3_BOOST_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
-if( CF3_HAVE_RT )
+if( CF3_HAVE_REALTIME )
   list( APPEND coolfluid_common_libs ${RT_LIBRARIES})
 endif()
 

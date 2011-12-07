@@ -28,9 +28,9 @@ class solver_API CSimpleSolver : public CSolver {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CSimpleSolver> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CSimpleSolver const> ConstPtr;
+  
 
 public: // functions
 
@@ -53,7 +53,7 @@ protected:
   mesh::Mesh& mesh();
 
   /// Weak pointer to the mesh that was last loaded, or expired otherwise
-  boost::weak_ptr<mesh::Mesh> m_mesh;
+  Handle<mesh::Mesh> m_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

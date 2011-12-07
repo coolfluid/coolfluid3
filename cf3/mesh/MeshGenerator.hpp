@@ -29,9 +29,9 @@ class Mesh_API MeshGenerator : public common::Action {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<MeshGenerator> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<MeshGenerator const> ConstPtr;
+  
 
 public: // functions
 
@@ -61,7 +61,7 @@ protected: // functions
 
 protected: // data
 
-  boost::weak_ptr<Mesh> m_mesh;
+  Handle<Mesh> m_mesh;
 
 };
 

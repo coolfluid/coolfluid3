@@ -8,8 +8,9 @@
 
 #include "common/CommonAPI.hpp"
 #include "common/Assertions.hpp"
-#include "common/URI.hpp"
 #include "common/StringConversion.hpp"
+#include "common/UUCount.hpp"
+#include "common/URI.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
 
@@ -61,6 +62,13 @@ namespace XML {
     val = from_str<URI>(node.content->value());
   }
 
+  template <>
+  Common_API void to_value<UUCount> (XmlNode& node, UUCount& val)
+  {
+    cf3_assert( node.is_valid() );
+    val = from_str<UUCount>(node.content->value());
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 
   template <>
@@ -97,6 +105,12 @@ namespace XML {
   Common_API URI to_value<URI> (XmlNode& node)
   {
     return from_str<URI>(node.content->value());
+  }
+
+  template <>
+  Common_API UUCount to_value<UUCount> (XmlNode& node)
+  {
+    return from_str<UUCount>(node.content->value());
   }
 
 ////////////////////////////////////////////////////////////////////////////////

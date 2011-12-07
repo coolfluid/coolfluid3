@@ -61,12 +61,6 @@ public: // typedefs
   /// @brief the type of the buffer used to interact with the table
   typedef ArrayBufferT<ValueT> Buffer;
 
-  /// @brief boost::shared_ptr shortcut of this component
-  typedef boost::shared_ptr<Table> Ptr;
-
-  /// @brief boost::shared_ptr shortcut of this component const version
-  typedef boost::shared_ptr<Table const> ConstPtr;
-
 public: // functions
 
   /// Contructor

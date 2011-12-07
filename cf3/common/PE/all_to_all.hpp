@@ -405,6 +405,46 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
+void all_to_all(const Communicator& comm, const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
+{
+  std::vector<int> send_strides(send.size());
+  std::vector<int> send_displs(send.size());
+  for (Uint i=0; i<send.size(); ++i)
+    send_strides[i] = send[i].size();
+
+  send_displs[0] = 0;
+  for (Uint i=1; i<send.size(); ++i)
+    send_displs[i] = send_displs[i-1] + send_strides[i-1];
+
+  std::vector<T> send_linear(send_displs.back()+send_strides.back());
+  for (Uint i=0; i<send.size(); ++i)
+    for (Uint j=0; j<send[i].size(); ++j)
+      send_linear[send_displs[i]+j] = send[i][j];
+
+  std::vector<int> recv_strides(send.size());
+  std::vector<int> recv_displs(send.size());
+  all_to_all(comm,send_strides,recv_strides);
+  recv_displs[0] = 0;
+  for (Uint i=1; i<send.size(); ++i)
+    recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
+
+  std::vector<T> recv_linear(recv_displs.back()+recv_strides.back());
+  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<T>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<T>(), comm));
+
+  recv.resize(recv_strides.size());
+  for (Uint i=0; i<recv_strides.size(); ++i)
+  {
+    recv[i].resize(recv_strides[i]);
+    for (Uint j=0; j<recv_strides[i]; ++j)
+    {
+      recv[i][j]=recv_linear[recv_displs[i]+j];
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // namespace PE
 } // namespace common
 } // namespace cf3

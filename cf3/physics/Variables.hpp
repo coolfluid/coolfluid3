@@ -39,8 +39,8 @@ class physics_API Variables : public common::Component {
 
 public: //typedefs
 
-  typedef boost::shared_ptr<Variables> Ptr;
-  typedef boost::shared_ptr<Variables const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -73,6 +73,11 @@ public: // functions
   /// compute the physical flux
   virtual void flux (const physics::Properties& p,
                      RealMatrix& flux) = 0;
+
+  /// compute the physical flux
+  virtual void flux (const physics::Properties& p,
+                     const RealVector& direction,
+                     RealVector& flux) = 0;
 
   /// compute the eigen values of the flux jacobians
   virtual void flux_jacobian_eigen_values (const physics::Properties& p,
@@ -160,6 +165,17 @@ public:
         static_cast<typename PHYS::MODEL::Properties const&>( p );
 
     PHYS::flux( cp, flux );
+  }
+
+  /// compute the physical flux in a direction
+  virtual void flux (const physics::Properties& p,
+                     const RealVector& direction,
+                     RealVector& flux)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::flux( cp, direction, flux );
   }
 
   /// compute the eigen values of the flux jacobians

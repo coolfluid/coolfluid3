@@ -47,11 +47,8 @@ set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
 set( UFEM_LSS_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
-coolfluid_add_test( ATEST     atest-ufem-heat-steady
-                    CFSCRIPT  atest-ufem-heat-steady.cfscript)
-
-coolfluid_add_test( ATEST     atest-ufem-python
-                    PYTHON    atest-ufem-python.py
+coolfluid_add_test( ATEST     atest-ufem-heat2d-disk
+                    PYTHON    atest-ufem-heat2d-disk.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )                    
 
 coolfluid_add_test( ATEST     atest-ufem-heat3d-channel

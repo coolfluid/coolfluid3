@@ -45,7 +45,7 @@ struct MeshTransformer_Fixture
 
     root = allocate_component<Group>("Root");
     reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","MyReader");
-    domain = root->create_component_ptr<Domain>("MyDom");
+    domain = root->create_component<Domain>("MyDom");
 
     root->add_component( reader );
 
@@ -59,18 +59,18 @@ struct MeshTransformer_Fixture
   }
 
   /// possibly common functions used on the tests below
-  Component::Ptr root;
-  MeshReader::Ptr reader;
-  Domain::Ptr domain;
+  boost::shared_ptr< Component > root;
+  boost::shared_ptr< MeshReader > reader;
+  Handle< Domain > domain;
 
-  static Mesh::Ptr mesh;
+  static Handle< Mesh > mesh;
   /// common values accessed by all tests goes here
   int    m_argc;
   char** m_argv;
 
 };
 
-Mesh::Ptr MeshTransformer_Fixture::mesh;
+Handle< Mesh > MeshTransformer_Fixture::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +80,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshTransformer_TestSuite, MeshTransformer_Fixture )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  // boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   //
   // // the file to read from
   // boost::filesystem::path fp_in ("../../resources/quadtriag.neu");
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 BOOST_AUTO_TEST_CASE( test_arguments )
 {
-  MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
+  boost::shared_ptr< MeshTransformer > transformer = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
 
   std::vector<std::string> args;
   args.push_back("variable:bool=true");

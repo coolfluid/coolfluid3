@@ -10,6 +10,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
@@ -79,7 +80,7 @@ std::string BuildFaceNormals::help() const
 void BuildFaceNormals::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
@@ -87,11 +88,12 @@ void BuildFaceNormals::execute()
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(mesh::Tags::normal());
 
-  Component::Ptr component;
+  Handle< Component > component;
   Uint cell_idx(0);
-  boost_foreach( Entities& faces, face_normals.entities_range() )
+  boost_foreach( const Handle<Entities>& faces_handle, face_normals.entities_range() )
   {
-    FaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
+    Entities& faces = *faces_handle;
+    Handle< FaceCellConnectivity > face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
     {
       FaceCellConnectivity& face2cell = *face2cell_ptr;

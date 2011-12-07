@@ -19,6 +19,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -202,9 +203,9 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    options().add_option< OptionT<bool> >("distributed_files", false)
-    ->pretty_name("Distributed Files")
-    ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
+    options().add_option("distributed_files", false)
+    .pretty_name("Distributed Files")
+    .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -222,9 +223,9 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
-  boost::filesystem::path my_path(file_path.path());
-  const boost::filesystem::path my_dir = my_path.parent_path();
-  const std::string basename = boost::filesystem::basename(my_path);
+  URI my_path(file_path.path());
+  const URI my_dir = my_path.base_path();
+  const std::string basename = my_path.base_name();
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
@@ -361,9 +362,9 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
   std::set<std::string> added_fields;
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    const Field& field = *field_ptr.lock();
+    const Field& field = *field_ptr;
 
     if(!added_fields.insert(field.uri().string()).second)
       continue;
@@ -449,7 +450,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
   // Write to file, inserting the binary data at the end
-  boost::filesystem::fstream fout(my_path, std::ios_base::out | std::ios_base::binary);
+  boost::filesystem::fstream fout(my_path.string(), std::ios_base::out | std::ios_base::binary);
 
   // Remove the closing tag
   std::string xml_string;
@@ -468,9 +469,9 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(PE::Comm::instance().rank() == 0 || option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || options().option("distributed_files").value<bool>())
   {
-    boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
+    URI pvtu_path = my_dir / (basename + ".pvtu");
 
     XmlDoc pvtu_doc("1.0", "ISO-8859-1");
 

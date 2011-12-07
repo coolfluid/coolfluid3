@@ -35,9 +35,9 @@ class solver_API CSolver : public common::ActionDirector {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CSolver> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CSolver const> ConstPtr;
+  
 
 public: // functions
 

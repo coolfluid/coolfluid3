@@ -42,8 +42,8 @@ class VTKXML_API LibVTKXML :
 {
 public:
 
-  typedef boost::shared_ptr<LibVTKXML> Ptr;
-  typedef boost::shared_ptr<LibVTKXML const> ConstPtr;
+  
+  
 
   /// Constructor
   LibVTKXML ( const std::string& name) : common::Library(name) {   }

@@ -24,8 +24,8 @@ class Mesh_API Faces : public Elements {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Faces> Ptr;
-  typedef boost::shared_ptr<Faces const> ConstPtr;
+  
+  
 
 public: // functions
 

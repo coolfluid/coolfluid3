@@ -28,11 +28,6 @@ class ListeningThread;
 
 class Manager : public Component
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<Manager> Ptr;
-  typedef boost::shared_ptr<const Manager> ConstPtr;
-
 public: // functions
 
   Manager( const std::string & name );

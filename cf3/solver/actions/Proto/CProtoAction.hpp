@@ -28,8 +28,8 @@ class Expression;
 class CProtoAction : public solver::Action
 {
 public:
-  typedef boost::shared_ptr< CProtoAction > Ptr;
-  typedef boost::shared_ptr< CProtoAction const> ConstPtr;
+  
+  
 
   CProtoAction(const std::string& name);
 
@@ -52,7 +52,7 @@ private:
 };
 
 /// Create a new CProtoAction, immediatly setting the expression
-CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression);
+boost::shared_ptr< CProtoAction > create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression);
 
 } // namespace Proto
 } // namespace actions

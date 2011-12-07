@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, U = 1, V = 2, P = 3 };
 
-  typedef boost::shared_ptr<Prim2D> Ptr;
-  typedef boost::shared_ptr<Prim2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -118,6 +118,16 @@ public: // functions
   {
     throw common::NotImplemented(FromHere(), "flux not implemented for Prim2D");
   }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "flux not implemented for Prim2D");
+  }
+
 
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >

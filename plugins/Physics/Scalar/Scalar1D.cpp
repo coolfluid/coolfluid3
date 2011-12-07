@@ -7,7 +7,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 
 #include "physics/Variables.hpp"
 
@@ -41,13 +41,13 @@ Scalar1D::Scalar1D( const std::string& name ) :
   m_v (1.0),
   m_mu (1.0)
 {
-  options().add_option< OptionT<Real> >("v",m_v)
-      ->description("Advection Speed")
-      ->link_to(&m_v);
+  options().add_option("v",m_v)
+      .description("Advection Speed")
+      .link_to(&m_v);
 
-  options().add_option< OptionT<Real> >("mu",m_mu)
-      ->description("Diffusion Coefficient")
-      ->link_to(&m_mu);
+  options().add_option("mu",m_mu)
+      .description("Diffusion Coefficient")
+      .link_to(&m_mu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ void Scalar1D::set_constants(Scalar1D::Properties& props)
 
 boost::shared_ptr< physics::Variables > Scalar1D::create_variables( const std::string type, const std::string name )
 {
-  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+  boost::shared_ptr< physics::Variables > vars = boost::algorithm::contains( type, "." ) ?
         build_component_abstract_type< physics::Variables >( type, name ) :
         build_component_abstract_type< physics::Variables >( LibScalar::library_namespace() + "." + type, name );
 

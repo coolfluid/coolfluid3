@@ -28,8 +28,8 @@ class mesh_actions_API CreateSpaceP0 : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CreateSpaceP0> Ptr;
-    typedef boost::shared_ptr<CreateSpaceP0 const> ConstPtr;
+    
+    
 
 public: // functions
   

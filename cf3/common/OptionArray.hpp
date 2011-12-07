@@ -50,7 +50,7 @@ public:
 
   virtual std::string value_str() const
   {
-    return to_str( value<TYPE>() );
+    return to_str( value<value_type>() );
   }
 
   //@} END VIRTUAL FUNCTIONS

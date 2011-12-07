@@ -23,8 +23,8 @@ class solver_actions_API CCriterionTime : public CCriterion {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterionTime> Ptr;
-  typedef boost::shared_ptr<CCriterionTime const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -43,7 +43,7 @@ public: // functions
 
 private:
 
-  boost::weak_ptr<CTime> m_time;
+  Handle<CTime> m_time;
 
   Real m_tolerance;
 

@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
 
   // register data to CommPattern
-  pecp.insert<double>("VectorWeakPtr1",d1,2,true);
-  pecp.insert<double>("VectorWeakPtr2",d2,3,true);
+  pecp.insert<double>("VectorWeakPtr1",*d1,2,true);
+  pecp.insert<double>("VectorWeakPtr2",*d2,3,true);
 
   // these are just dummies to see the selective iteration
   boost::shared_ptr<Component> dir1  ( allocate_component<Group> ( "dir1" ) );

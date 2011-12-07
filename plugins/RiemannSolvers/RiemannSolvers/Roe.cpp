@@ -10,7 +10,8 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "RiemannSolvers/Roe.hpp"
 
@@ -26,11 +27,12 @@ common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 Roe::Roe ( const std::string& name ) : RiemannSolver(name)
 {
-  options().add_option( OptionComponent<physics::Variables>::create("roe_vars",&m_roe_vars) )
-      ->description("The component describing the Roe variables")
-      ->pretty_name("Roe Variables");
+  options().add_option("roe_vars",m_roe_vars)
+      .description("The component describing the Roe variables")
+      .pretty_name("Roe Variables")
+      .link_to(&m_roe_vars);
 
-  option("physical_model").attach_trigger( boost::bind( &Roe::trigger_physical_model, this) );
+  options().option("physical_model").attach_trigger( boost::bind( &Roe::trigger_physical_model, this) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,11 +67,11 @@ void Roe::trigger_physical_model()
   upwind_flux.resize(physical_model().neqs());
 
   // Try to configure solution_vars automatically
-  if (m_solution_vars.expired())
+  if (is_null(m_solution_vars))
   {
-    if (Component::Ptr found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
+    if (Handle< Component > found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
-      configure_option("solution_vars",found_solution_vars->uri());
+      options().configure_option("solution_vars",found_solution_vars);
     }
     else
     {
@@ -80,15 +82,15 @@ void Roe::trigger_physical_model()
   }
 
   // Try to configure roe_vars automatically
-  if (m_roe_vars.expired())
+  if (is_null(m_roe_vars))
   {
-    if (Component::Ptr found_roe_vars = find_component_ptr_recursively_with_name(physical_model(),"roe_vars"))
+    if (Handle< Component > found_roe_vars = find_component_ptr_recursively_with_name(physical_model(),"roe_vars"))
     {
-      configure_option("roe_vars",found_roe_vars->uri());
+      options().configure_option("roe_vars",found_roe_vars);
     }
-    else if (m_solution_vars.expired() == false)
+    else if (is_null(m_solution_vars) == false)
     {
-      configure_option("roe_vars",solution_vars().uri());
+      options().configure_option("roe_vars",solution_vars().handle<Component>());
       CFwarn << "Roe RiemannSolver " << uri().string() << " auto-configured \"roe_vars\" to \"solution_vars\".\n"
              << "Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "].\n"
              << "Configure manually for different \"roe_vars\"" << CFendl;
@@ -107,8 +109,8 @@ void Roe::trigger_physical_model()
 void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
                                  RealVector& flux)
 {
-  physics::Variables& sol_vars = *m_solution_vars.lock();
-  physics::Variables& roe_vars = *m_roe_vars.lock();
+  physics::Variables& sol_vars = *m_solution_vars;
+  physics::Variables& roe_vars = *m_roe_vars;
   // Compute left and right properties
   sol_vars.compute_properties(coord,left,grads,*p_left);
   sol_vars.compute_properties(coord,right,grads,*p_right);
@@ -117,28 +119,20 @@ void Roe::compute_interface_flux(const RealVector& left, const RealVector& right
   // Roe-average = standard average of the Roe-parameter vectors
   roe_vars.compute_variables(*p_left,  roe_left );
   roe_vars.compute_variables(*p_right, roe_right);
-  roe_avg = 0.5*(roe_left+roe_right);                // Roe-average is result
+  roe_avg.noalias() = 0.5*(roe_left+roe_right);                // Roe-average is result
   roe_vars.compute_properties(coord, roe_avg, grads, *p_avg);
 
   // Compute absolute jacobian using Roe averaged properties
   sol_vars.flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
-  RealMatrix& abs_jacobian = right_eigenvectors;
-  abs_jacobian *= eigenvalues.cwiseAbs().asDiagonal();
-  abs_jacobian *= left_eigenvectors;
+  abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
   // Compute left and right fluxes
-  sol_vars.flux(*p_left , f_left);
-  sol_vars.flux(*p_right, f_right);
+  sol_vars.flux(*p_left , normal, f_left);
+  sol_vars.flux(*p_right, normal, f_right);
 
-  // Compute flux at interface composed of central part and upwind part
-  central_flux  = f_left*normal;
-  central_flux += f_right*normal;
-  central_flux *= 0.5;
-
-  upwind_flux  = abs_jacobian*(right-left);
-  upwind_flux *= 0.5;
-  flux  = central_flux;
-  flux -= upwind_flux;
+  // flux = central flux - upwind flux
+  flux.noalias() = 0.5*(f_left + f_right);
+  flux.noalias() -= 0.5*abs_jacobian*(right-left);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

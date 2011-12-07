@@ -44,7 +44,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   QDialog(parent),
   m_updating_completer(false)
 {
-  m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser( NBrowser::global()->generate_name() ));
+  m_model = boost::shared_ptr< NRemoteFSBrowser >(new NRemoteFSBrowser(NBrowser::global()->generate_name()));
   m_favorites_model = new FavoritesModel();
 
   init_gui();

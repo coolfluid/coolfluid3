@@ -33,12 +33,12 @@ class neu_API Reader : public MeshReader, public Shared
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Reader> Ptr;
-  typedef boost::shared_ptr<Reader const> ConstPtr;
+  
+  
 
 private: // typedefs
 
-  typedef std::pair<boost::shared_ptr<Elements>,Uint> Region_TableIndex_pair;
+  typedef std::pair<Handle<Elements>,Uint> Region_TableIndex_pair;
 
 public: // functions
   /// constructor
@@ -76,15 +76,15 @@ private: // data
   virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
-  boost::shared_ptr<MergedParallelDistribution> m_hash;
+  Handle<MergedParallelDistribution> m_hash;
 
   // map< global index , pair< temporary table, index in temporary table > >
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
   boost::filesystem::fstream m_file;
-  boost::weak_ptr<Mesh> m_mesh;
-  boost::weak_ptr<Region> m_region;
-  Region::Ptr m_tmp;
+  Handle<Mesh> m_mesh;
+  Handle<Region> m_region;
+  Handle< Region > m_tmp;
 
   std::set<Uint> m_ghost_nodes;
   std::map<Uint,Uint> m_node_to_coord_idx;
