@@ -9,6 +9,7 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 #include "common/TimedComponent.hpp"
 
 #include "common/PE/Comm.hpp"
@@ -24,7 +25,7 @@ void store_timings(Component& root)
 {
   BOOST_FOREACH(Component& component, find_components_recursively(root))
   {
-    TimedComponent* timed_comp = dynamic_cast<TimedComponent*>(component.as_ptr<Component>().get());
+    TimedComponent* timed_comp = dynamic_cast<TimedComponent*>(&component);
     if(is_not_null(timed_comp))
     {
       timed_comp->store_timings();

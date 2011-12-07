@@ -30,17 +30,17 @@ BOOST_AUTO_TEST_CASE( ExecuteScript )
 
   Component& root = Core::instance().root();
 
-  python::ScriptEngine& engine = root.create_component<python::ScriptEngine>("PythonEngine");
+  Handle<python::ScriptEngine> engine = root.create_component<python::ScriptEngine>("PythonEngine");
 
   boost::filesystem::fstream file(boost::unit_test::framework::master_test_suite().argv[1]);
 
   std::stringstream script_stream;
   script_stream << file.rdbuf();
 
-  engine.execute_script(script_stream.str());
+  engine->execute_script(script_stream.str());
 
-  BOOST_CHECK(is_not_null(root.get_child_ptr("group")));
-  BOOST_CHECK(is_not_null(root.get_child("group").get_child_ptr("journal")));
+  BOOST_CHECK(is_not_null(root.get_child("group")));
+  BOOST_CHECK(is_not_null(root.get_child("group")->get_child("journal")));
 }
 
 

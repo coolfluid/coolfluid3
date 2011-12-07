@@ -45,7 +45,7 @@ void mesh_loaded(Mesh& mesh)
   mesh.update_statistics();
   // Raise an event to indicate that a mesh was loaded happened
   SignalOptions options;
-  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+  options.add_option("mesh_uri", mesh.uri());
 
   SignalFrame f= options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_loaded", f );
@@ -80,7 +80,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
     nodes.coordinates()[i][XX] = static_cast<Real>(i) * x_step;
   }
 
-  Cells::Ptr cells = region.create_component_ptr<Cells>("Line");
+  Handle<Cells> cells = region.create_component<Cells>("Line");
   cells->initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
   Table<Uint>& connectivity = cells->node_connectivity();
   connectivity.resize(x_segments);
@@ -92,14 +92,14 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
   }
 
   // Left boundary point
-  Faces::Ptr xneg = mesh.topology().create_region("xneg").create_component_ptr<Faces>("Point");
+  Handle<Faces> xneg = mesh.topology().create_region("xneg").create_component<Faces>("Point");
   xneg->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
   Table<Uint>& xneg_connectivity = xneg->node_connectivity();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
 
   // right boundary point
-  Faces::Ptr xpos = mesh.topology().create_region("xpos").create_component_ptr<Faces>("Point");
+  Handle<Faces> xpos = mesh.topology().create_region("xpos").create_component<Faces>("Point");
   xpos->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
   Table<Uint>& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
@@ -130,7 +130,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     }
   }
 
-  Cells::Ptr cells = region.create_component_ptr<Cells>("Quad");
+  Handle<Cells> cells = region.create_component<Cells>("Quad");
   cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
   Table<Uint>& connectivity = cells->node_connectivity();
   connectivity.resize((x_segments)*(y_segments));
@@ -146,7 +146,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     }
   }
 
-  Faces::Ptr left = mesh.topology().create_region("left").create_component_ptr<Faces>("Line");
+  Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
   left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& left_connectivity = left->node_connectivity();
   left_connectivity.resize(y_segments);
@@ -157,7 +157,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     crow[1] = (j+1) * (x_segments+1);
   }
 
-  Faces::Ptr right = mesh.topology().create_region("right").create_component_ptr<Faces>("Line");
+  Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
   right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& right_connectivity = right->node_connectivity();
   right_connectivity.resize(y_segments);
@@ -168,7 +168,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     nodes[0] = (j+1) * (x_segments+1) + x_segments;
   }
 
-  Faces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<Faces>("Line");
+  Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
   bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& bottom_connectivity = bottom->node_connectivity();
   bottom_connectivity.resize(x_segments);
@@ -179,7 +179,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     nodes[1] = i+1;
   }
 
-  Faces::Ptr top = mesh.topology().create_region("top").create_component_ptr<Faces>("Line");
+  Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
   top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& top_connectivity = top->node_connectivity();
   top_connectivity.resize(x_segments);
@@ -190,7 +190,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     nodes[0] = nodes[1] + 1;
   }
 
-  Faces::Ptr center = mesh.topology().create_region("center_line").create_component_ptr<Faces>("Line");
+  Handle<Faces> center = mesh.topology().create_region("center_line").create_component<Faces>("Line");
   center->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& center_connectivity = center->node_connectivity();
   center_connectivity.resize(y_segments);
@@ -201,13 +201,13 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
     crow[1] = (j+1) * (x_segments+1) + x_segments/2;
   }
 
-  Elements::Ptr corner = mesh.topology().create_region("corner").create_component_ptr<Elements>("Point");
+  Handle<Elements> corner = mesh.topology().create_region("corner").create_component<Elements>("Point");
   corner->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   Table<Uint>& corner_connectivity = corner->node_connectivity();
   corner_connectivity.resize(1);
   corner_connectivity[0][0] = 0;
 
-  Elements::Ptr center_point = mesh.topology().create_region("center_point").create_component_ptr<Elements>("Point");
+  Handle<Elements> center_point = mesh.topology().create_region("center_point").create_component<Elements>("Point");
   center_point->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   Table<Uint>& center_point_connectivity = center_point->node_connectivity();
   center_point_connectivity.resize(1);
@@ -237,7 +237,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     }
   }
 
-  Cells::Ptr cells = region.create_component_ptr<Cells>("Triag");
+  Handle<Cells> cells = region.create_component<Cells>("Triag");
   cells->initialize("cf3.mesh.LagrangeP1.Triag2D",nodes);
   Table<Uint>& connectivity = cells->node_connectivity();
   connectivity.resize(2*(x_segments)*(y_segments));
@@ -264,7 +264,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     }
   }
 
-  Faces::Ptr left = mesh.topology().create_region("left").create_component_ptr<Faces>("Line");
+  Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
   left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& left_connectivity = left->node_connectivity();
   left_connectivity.resize(y_segments);
@@ -275,7 +275,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     crow[1] = (j+1) * (x_segments+1);
   }
 
-  Faces::Ptr right = mesh.topology().create_region("right").create_component_ptr<Faces>("Line");
+  Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
   right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& right_connectivity = right->node_connectivity();
   right_connectivity.resize(y_segments);
@@ -286,7 +286,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     nodes[0] = (j+1) * (x_segments+1) + x_segments;
   }
 
-  Faces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<Faces>("Line");
+  Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
   bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& bottom_connectivity = bottom->node_connectivity();
   bottom_connectivity.resize(x_segments);
@@ -297,7 +297,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     nodes[1] = i+1;
   }
 
-  Faces::Ptr top = mesh.topology().create_region("top").create_component_ptr<Faces>("Line");
+  Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
   top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& top_connectivity = top->node_connectivity();
   top_connectivity.resize(x_segments);
@@ -308,7 +308,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     nodes[0] = nodes[1] + 1;
   }
 
-  Faces::Ptr center = mesh.topology().create_region("center_line").create_component_ptr<Faces>("Line");
+  Handle<Faces> center = mesh.topology().create_region("center_line").create_component<Faces>("Line");
   center->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   Table<Uint>& center_connectivity = center->node_connectivity();
   center_connectivity.resize(y_segments);
@@ -319,13 +319,13 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
     crow[1] = (j+1) * (x_segments+1) + x_segments/2;
   }
 
-  Elements::Ptr corner = mesh.topology().create_region("corner").create_component_ptr<Elements>("Point");
+  Handle<Elements> corner = mesh.topology().create_region("corner").create_component<Elements>("Point");
   corner->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   Table<Uint>& corner_connectivity = corner->node_connectivity();
   corner_connectivity.resize(1);
   corner_connectivity[0][0] = 0;
 
-  Elements::Ptr center_point = mesh.topology().create_region("center_point").create_component_ptr<Elements>("Point");
+  Handle<Elements> center_point = mesh.topology().create_region("center_point").create_component<Elements>("Point");
   center_point->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   Table<Uint>& center_point_connectivity = center_point->node_connectivity();
   center_point_connectivity.resize(1);
@@ -379,7 +379,7 @@ void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, cons
   Region& region = mesh.topology().create_region("region");
   SpaceFields& nodes = mesh.geometry_fields();
 
-  Faces::Ptr cells = region.create_component_ptr<Faces>("Faces");
+  Handle<Faces> cells = region.create_component<Faces>("Faces");
   cells->initialize("cf3.mesh.LagrangeP1.Line2D",nodes);
   Table<Uint>& connectivity = cells->node_connectivity();
 

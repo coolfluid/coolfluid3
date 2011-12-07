@@ -8,7 +8,8 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "solver/LibSolver.hpp"
 #include "solver/CTime.hpp"
@@ -31,41 +32,41 @@ CTime::CTime ( const std::string& name  ) :
 {
   mark_basic();
 
-  m_properties["brief"] = std::string("Time Tracking object");
+  properties()["brief"] = std::string("Time Tracking object");
   std::string description =
     "Offers configuration options for users to set a time step, the end time,\n"
     "and the current time.\n"
     "It also offers access functions to these values internally.\n"
     "Notice that the configuration options don't change value automatically to reflext the internal state,\n"
     "unless the code explicitely (re)configures them.";
-  m_properties["description"] = description;
+  properties()["description"] = description;
 
-  options().add_option(OptionT<Uint>::create("iteration", m_iter) )
-      ->description("Current iteration of the simulation")
-      ->pretty_name("Iteration")
-      ->link_to(&m_iter)
-      ->mark_basic();
+  options().add_option("iteration", m_iter)
+      .description("Current iteration of the simulation")
+      .pretty_name("Iteration")
+      .link_to(&m_iter)
+      .mark_basic();
 
 
-  options().add_option(OptionT<Real>::create("time", m_current_time) )
-      ->description("Current time of the simulation")
-      ->pretty_name("Time")
-      ->link_to(&m_current_time)
-      ->mark_basic();
+  options().add_option("time", m_current_time)
+      .description("Current time of the simulation")
+      .pretty_name("Time")
+      .link_to(&m_current_time)
+      .mark_basic();
 
-  options().add_option(OptionT<Real>::create("time_step", m_dt) )
-      ->description("Maximal Time Step the simulation will use.\n"
+  options().add_option("time_step", m_dt)
+      .description("Maximal Time Step the simulation will use.\n"
                         "A CFL condition will be applied to make time step more strict if required.")
-      ->pretty_name("Time Step")
-      ->link_to(&m_dt)
-      ->mark_basic()
-      ->attach_trigger(boost::bind(&CTime::trigger_timestep, this));
+      .pretty_name("Time Step")
+      .link_to(&m_dt)
+      .mark_basic()
+      .attach_trigger(boost::bind(&CTime::trigger_timestep, this));
 
-  options().add_option(OptionT<Real>::create("end_time", m_current_time) )
-      ->description("Time at which to finish the simulation")
-      ->pretty_name("End Time")
-      ->link_to(&m_end_time)
-      ->mark_basic();
+  options().add_option("end_time", m_current_time)
+      .description("Time at which to finish the simulation")
+      .pretty_name("End Time")
+      .link_to(&m_end_time)
+      .mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

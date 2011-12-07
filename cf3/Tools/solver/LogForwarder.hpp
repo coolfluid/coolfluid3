@@ -33,7 +33,7 @@ namespace solver {
 
   private:
 
-    common::PE::Manager::Ptr m_manager;
+    Handle< common::PE::Manager > m_manager;
 
   };
 

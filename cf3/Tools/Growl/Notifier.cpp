@@ -10,7 +10,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/Log.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/Builder.hpp"
 
 extern "C" {
@@ -68,43 +68,43 @@ Notifier::Notifier ( const std::string& name ) :
 
   // Configuration options
 
-  options().add_option( OptionT<std::string>::create("application_name", m_application_name) )
-      ->description("Name of the application")
-      ->pretty_name("Application Name")
-      ->link_to(&m_application_name);
+  options().add_option( "application_name", m_application_name) 
+      .description("Name of the application")
+      .pretty_name("Application Name")
+      .link_to(&m_application_name);
 
-  options().add_option( OptionT<std::string>::create("server", m_server) )
-      ->description("Server to send notification to")
-      ->pretty_name("Server")
-      ->link_to(&m_server);
+  options().add_option( "server", m_server) 
+      .description("Server to send notification to")
+      .pretty_name("Server")
+      .link_to(&m_server);
 
-  options().add_option( OptionT<std::string>::create("password", m_password) )
-      ->description("Password for server access")
-      ->pretty_name("Password")
-      ->link_to(&m_password);
+  options().add_option( "password", m_password) 
+      .description("Password for server access")
+      .pretty_name("Password")
+      .link_to(&m_password);
 
-  options().add_option( OptionT<std::string>::create("icon", m_icon) )
-      ->description("URL to icon")
-      ->pretty_name("Icon")
-      ->link_to(&m_icon);
+  options().add_option( "icon", m_icon) 
+      .description("URL to icon")
+      .pretty_name("Icon")
+      .link_to(&m_icon);
 
-  options().add_option( OptionT<std::string>::create("url", m_url) )
-      ->description("URL that is followd upon clicking the notification")
-      ->pretty_name("URL")
-      ->link_to(&m_url);
+  options().add_option( "url", m_url) 
+      .description("URL that is followd upon clicking the notification")
+      .pretty_name("URL")
+      .link_to(&m_url);
 
-  options().add_option( OptionT<Uint>::create("protocol", m_protocol) )
-      ->description("Protocol to use: [UDP=0, TCP=1]")
-      ->pretty_name("Protocol")
-      ->link_to(&m_protocol);
+  options().add_option( "protocol", m_protocol) 
+      .description("Protocol to use: [UDP=0, TCP=1]")
+      .pretty_name("Protocol")
+      .link_to(&m_protocol);
 
 
   // Signals
 
   regist_signal( "notify" )
-    ->connect( boost::bind( &Notifier::signal_notify, this, _1 ) )
-    ->description("Notify iPhone Growl app")
-    ->pretty_name("Notify");
+    .connect( boost::bind( &Notifier::signal_notify, this, _1 ) )
+    .description("Notify iPhone Growl app")
+    .pretty_name("Notify");
   signal("notify")->signature(boost::bind(&Notifier::signature_notify, this, _1));
 
 
@@ -192,11 +192,11 @@ void Notifier::signature_notify ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("event", "new_event")
-      ->description("Event name");
+  options.add_option("event", "new_event")
+      .description("Event name");
 
-  options.add_option< OptionT<std::string> >("description" , " ")
-      ->description("Description of the event");
+  options.add_option("description" , " ")
+      .description("Description of the event");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

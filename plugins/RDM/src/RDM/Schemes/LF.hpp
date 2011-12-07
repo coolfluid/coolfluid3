@@ -25,8 +25,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< LF > Ptr;
-  typedef boost::shared_ptr< LF const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -56,8 +56,8 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 

@@ -27,8 +27,8 @@ class Mesh_API StencilComputerOcttree : public StencilComputer
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<StencilComputerOcttree> Ptr;
-  typedef boost::shared_ptr<StencilComputerOcttree const> ConstPtr;
+  
+  
 
 public: // functions  
   /// constructor
@@ -45,7 +45,7 @@ private: // functions
   
 private: // data
   
-  boost::shared_ptr<Octtree> m_octtree;
+  Handle<Octtree> m_octtree;
   
   Uint m_dim;
   Uint m_nb_elems_in_mesh;

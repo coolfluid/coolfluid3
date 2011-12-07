@@ -23,8 +23,8 @@ class solver_actions_API CComputeLNorm : public common::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CComputeLNorm> Ptr;
-  typedef boost::shared_ptr<CComputeLNorm const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor

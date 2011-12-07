@@ -34,7 +34,7 @@ namespace graphics {
 
   public:
 
-    GraphicalUri(cf3::common::OptionURI::ConstPtr opt = cf3::common::OptionURI::ConstPtr(),
+    GraphicalUri(const boost::shared_ptr<cf3::common::OptionURI>& opt = boost::shared_ptr<cf3::common::OptionURI >(),
                  QWidget *parent = 0);
 
     ~GraphicalUri();

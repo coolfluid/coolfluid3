@@ -57,7 +57,7 @@ GraphicalValue::~GraphicalValue()
 
 //////////////////////////////////////////////////////////////////////////
 
-GraphicalValue * GraphicalValue::create_from_option(Option::ConstPtr option,
+GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > option,
                                                   QWidget * parent)
 {
   GraphicalValue * value = nullptr;
@@ -86,7 +86,7 @@ GraphicalValue * GraphicalValue::create_from_option(Option::ConstPtr option,
       else if(type == Protocol::Tags::type<std::string>())   // string option
         value = new GraphicalString(option->value<std::string>().c_str(), parent);
       else if(type == Protocol::Tags::type<URI>())           // URI option
-        value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI const>(option), parent);
+        value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI>(option), parent);
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
     }
@@ -97,10 +97,9 @@ GraphicalValue * GraphicalValue::create_from_option(Option::ConstPtr option,
       value = new GraphicalArrayRestrictedList(option, parent);
     else
     {
-      OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
-      std::string value_str( array->value_str() );
-      std::string type( array->elem_type() );
-      QString sep( array->separator().c_str() );
+      std::string value_str( option->value_str() );
+      std::string type( option->element_type() );
+      QString sep( option->separator().c_str() );
 
       if(type == Protocol::Tags::type<bool>())                 // bool option
       {
@@ -128,7 +127,7 @@ GraphicalValue * GraphicalValue::create_from_option(Option::ConstPtr option,
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
 
-      value->set_value( QString(value_str.c_str()).split(array->separator().c_str()) );
+      value->set_value( QString(value_str.c_str()).split(option->separator().c_str()) );
     }
   }
   return value;

@@ -24,8 +24,8 @@ class Mesh_API Cells : public Elements {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Cells> Ptr;
-  typedef boost::shared_ptr<Cells const> ConstPtr;
+  
+  
 
 public: // functions
 

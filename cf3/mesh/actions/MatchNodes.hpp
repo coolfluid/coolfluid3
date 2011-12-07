@@ -28,8 +28,8 @@ class mesh_actions_API MatchNodes : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<MatchNodes> Ptr;
-    typedef boost::shared_ptr<MatchNodes const> ConstPtr;
+    
+    
 
 public: // functions
   

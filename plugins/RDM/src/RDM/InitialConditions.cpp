@@ -11,6 +11,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
+#include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 
@@ -47,10 +48,10 @@ InitialConditions::InitialConditions ( const std::string& name ) :
   // signals
 
   regist_signal( "create_initial_condition" )
-      ->connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
-      ->signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
-      ->description("creates an initial condition for the solution")
-      ->pretty_name("Create Initial Condition");
+      .connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
+      .signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
+      .description("creates an initial condition for the solution")
+      .pretty_name("Create Initial Condition");
 }
 
 
@@ -63,17 +64,15 @@ void InitialConditions::execute()
 
   // apply all strong BCs
 
-  Action& strong_bcs =
-      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<Action>();
+  Handle<Action> strong_bcs(access_component( "cpath:../BoundaryConditions/StrongBCs" ));
 
-  strong_bcs.execute();
+  strong_bcs->execute();
 
   // synchronize fields to insure consistency of parallel data
 
-  Action& synchronize =
-      access_component( "cpath:../actions/Synchronize" ).as_type<Action>();
+  Handle<Action> synchronize(access_component( "cpath:../actions/Synchronize" ));
 
-  synchronize.execute();
+  synchronize->execute();
 }
 
 
@@ -83,13 +82,12 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 
   std::string name = options.value<std::string>("name");
 
-  Action::Ptr ic = allocate_component< RDM::Init >(name);
-  append( ic );
+  Handle<Action> ic = create_component< RDM::Init >(name);
 
 
-  URI solution_uri = solver().as_type< RDSolver >().fields().get_child( RDM::Tags::solution() ).follow()->uri();
+  Handle<Field> solution_field( follow_link( solver().handle<RDSolver>()->fields().get_child( RDM::Tags::solution() ) ) );
 
-  ic->configure_option( "field", solution_uri );
+  ic->options().configure_option( "field", solution_field );
 
   std::vector<URI> regions;
   if( options.check("regions") )
@@ -100,11 +98,11 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   {
     regions.push_back(mesh().topology().uri());
   }
-  ic->configure_option("regions" , regions);
+  ic->options().configure_option("regions" , regions);
 
-  ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  ic->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  ic->options().configure_option( RDM::Tags::mesh(), m_mesh );
+  ic->options().configure_option( RDM::Tags::solver() , m_solver );
+  ic->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
 }
 
 
@@ -114,8 +112,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created initial condition" );
+  options.add_option("name", std::string() )
+      .description("Name for created initial condition" );
 
   // regions
 
@@ -123,8 +121,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the initial condition [optional]");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the initial condition [optional]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

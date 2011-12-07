@@ -21,7 +21,7 @@ int main ( int argc, char * argv[])
        static_cast< OptionArrayT<bool>* >(option) << CFendl;
 
    std::vector<bool> vect;
-   Option::Ptr opt(new OptionArrayT<bool>("bla", "", vect));
+   boost::shared_ptr<Option> opt(new OptionArrayT<bool>("bla", "", vect));
 
    CFinfo << "OptionArrayT\t" << opt.get() << " " <<
        boost::dynamic_pointer_cast<OptionArray>(opt).get() << " " <<

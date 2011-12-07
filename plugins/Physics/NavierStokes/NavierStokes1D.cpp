@@ -7,7 +7,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 
 #include "physics/Variables.hpp"
 
@@ -33,13 +33,13 @@ NavierStokes1D::NavierStokes1D( const std::string& name ) :
   m_gamma(1.4),
   m_R(287.05)
 {
-  options().add_option< OptionT<Real> >("gamma",m_gamma)
-      ->description("Specific heat reatio")
-      ->link_to(&m_gamma);
+  options().add_option("gamma",m_gamma)
+      .description("Specific heat reatio")
+      .link_to(&m_gamma);
 
-  options().add_option< OptionT<Real> >("R",m_R)
-      ->description("Gas constant")
-      ->link_to(&m_R);
+  options().add_option("R",m_R)
+      .description("Gas constant")
+      .link_to(&m_R);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ NavierStokes1D::~NavierStokes1D()
 
 boost::shared_ptr< physics::Variables > NavierStokes1D::create_variables( const std::string type, const std::string name )
 {
-  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+  boost::shared_ptr< physics::Variables > vars = boost::algorithm::contains( type, "." ) ?
         build_component_abstract_type< physics::Variables >( type, name ) :
         build_component_abstract_type< physics::Variables >( LibNavierStokes::library_namespace() + "." + type, name );
 

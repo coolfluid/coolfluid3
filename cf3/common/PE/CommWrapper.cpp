@@ -35,11 +35,6 @@ ComponentBuilder < CommWrapperVector<int>,  CommWrapper, LibCommon > CommWrapper
 ComponentBuilder < CommWrapperVector<Uint>, CommWrapper, LibCommon > CommWrapperVector_Uint_builder;
 ComponentBuilder < CommWrapperVector<Real>, CommWrapper, LibCommon > CommWrapperVector_Real_builder;
 
-//ComponentBuilder < CommWrapperVectorWeakPtr<bool>, CommWrapper, LibCommon > CommWrapperVectorWeakPtr_bool_builder;
-ComponentBuilder < CommWrapperVectorWeakPtr<int>,  CommWrapper, LibCommon > CommWrapperVectorWeakPtr_int_builder;
-ComponentBuilder < CommWrapperVectorWeakPtr<Uint>, CommWrapper, LibCommon > CommWrapperVectorWeakPtr_Uint_builder;
-ComponentBuilder < CommWrapperVectorWeakPtr<Real>, CommWrapper, LibCommon > CommWrapperVectorWeakPtr_Real_builder;
-
 //////////////////////////////////////////////////////////////////////////////
 
 } // PE

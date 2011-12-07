@@ -14,6 +14,8 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 
+#include <common/Handle.hpp>
+
 namespace cf3 {
 namespace common {
 
@@ -81,8 +83,8 @@ public:
 
   /// dereferencing
   T& dereference() const { return *m_vec[m_position]; }
-  /// Get a shared pointer to the referenced object
-  boost::shared_ptr<T> get() const { return m_vec[m_position]; }
+  /// Get a handle to the referenced object
+  Handle<T> get() const { return Handle<T>(m_vec[m_position]); }
   /// Compatibility with boost filtered_iterator interface,
   /// so base() can be used transparently on all ranges
   ComponentIterator<T>& base() { return *this; }

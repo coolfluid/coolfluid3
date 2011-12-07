@@ -7,6 +7,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/MeshMetadata.hpp"
 
@@ -25,12 +26,12 @@ MeshMetadata::MeshMetadata(const std::string& name) :
   common::Component(name)
 {
   // get the day of today
-  m_properties["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
+  properties()["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
   // to convert back:
   // boost::gregorian::date date = boost::gregorian::from_simple_string(options()["date"].value_str());
 
-  m_properties["time"] = 0.;
-  m_properties["iter"] = 0u;
+  properties()["time"] = 0.;
+  properties()["iter"] = 0u;
 }
 
 
@@ -38,14 +39,14 @@ MeshMetadata::MeshMetadata(const std::string& name) :
 
 boost::any& MeshMetadata::operator[](const std::string& name)
 {
-  return  property(name);
+  return  properties().property(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const boost::any& MeshMetadata::operator[](const std::string& name) const
 {
-  return property(name);
+  return properties().property(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,7 @@ namespace core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
+  TreeNode::TreeNode(Handle< CNode > node, TreeNode * parent, int rowNumber)
   : m_node(node),
     m_parent(parent),
     m_row_number(rowNumber)
@@ -24,7 +24,7 @@ namespace core {
   cf3_always_assert(node.get() != nullptr);
   cf3_always_assert(rowNumber >= 0);
 
-  m_node.lock()->connect_notifier(this, SIGNAL(child_count_changed()), SLOT(update_child_list()));
+  m_node->connect_notifier(this, SIGNAL(child_count_changed()), SLOT(update_child_list()));
 
   this->update_child_list();
 }
@@ -53,7 +53,7 @@ TreeNode * TreeNode::child(int rowNumber)
 {
   TreeNode * child = nullptr;
 
-  if( !m_node.expired() )
+  if( is_not_null(m_node) )
   {
     // if the TreeNode corresponding to this child has already been created,
     // it is returned...
@@ -63,9 +63,9 @@ TreeNode * TreeNode::child(int rowNumber)
     // ...otherwise, if the index is valid, it is created and returned...
     if(child == nullptr && rowNumber>= 0 && rowNumber < child_count())
     {
-      CNode::Ptr childNode;
+      Handle< CNode > childNode;
 
-      childNode = m_node.lock()->child(rowNumber);
+      childNode = m_node->child(rowNumber);
 
       child = new TreeNode(childNode, this, rowNumber);
       m_child_nodes.replace(rowNumber, child);
@@ -78,18 +78,18 @@ TreeNode * TreeNode::child(int rowNumber)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr TreeNode::node()
+Handle< CNode > TreeNode::node()
 {
-  cf3_assert( !m_node.expired() );
-  return m_node.lock();
+  cf3_assert( is_not_null(m_node) );
+  return m_node;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::ConstPtr TreeNode::node() const
+Handle< CNode > TreeNode::node() const
 {
-  cf3_assert( !m_node.expired() );
-  return m_node.lock();
+  cf3_assert( is_not_null(m_node) );
+  return m_node;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -110,8 +110,8 @@ int TreeNode::row_number() const
 
 int TreeNode::child_count() const
 {
-  if( !m_node.expired() )
-    return m_node.lock()->count_children();
+  if( is_not_null(m_node) )
+    return m_node->count_children();
   else
     return 0;
 }

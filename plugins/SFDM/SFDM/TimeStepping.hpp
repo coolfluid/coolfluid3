@@ -25,8 +25,8 @@ class SFDM_API TimeStepping : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<TimeStepping> Ptr;
-  typedef boost::shared_ptr<TimeStepping const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -61,11 +61,11 @@ private: // functions
 
 private: // data
 
-  boost::shared_ptr< solver::CTime > m_time;   ///< component tracking time
+  Handle< solver::CTime > m_time;   ///< component tracking time
 
-  common::ActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
+  Handle< common::ActionDirector > m_pre_actions;  ///< set of actions before non-linear solve
 
-  common::ActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
+  Handle< common::ActionDirector > m_post_actions; ///< set of actions after non-linear solve
 
 };
 

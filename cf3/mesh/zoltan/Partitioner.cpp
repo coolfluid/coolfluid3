@@ -8,6 +8,7 @@
 
 // coolfluid
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/StringConversion.hpp"
 #include "common/PE/Comm.hpp"
@@ -38,14 +39,14 @@ Partitioner::Partitioner ( const std::string& name ) :
   m_partitioned(false)
 {
 
-  options().add_option<OptionT <std::string> >("graph_package", "PHG")
-      ->description("External library zoltan will use for graph partitioning")
-      ->pretty_name("Graph Package")
-      ->mark_basic();
+  options().add_option("graph_package", "PHG")
+      .description("External library zoltan will use for graph partitioning")
+      .pretty_name("Graph Package")
+      .mark_basic();
 
-  options().add_option<OptionT <Uint> >("debug_level", 0)
-      ->description("Internal zoltan debug level (0 to 10)")
-      ->pretty_name("Debug Level");
+  options().add_option("debug_level", 0u)
+      .description("Internal zoltan debug level (0 to 10)")
+      .pretty_name("Debug Level");
 
   float version;
   int error_code = Zoltan_Initialize(Core::instance().argc(),Core::instance().argv(),&version);

@@ -31,8 +31,8 @@ class Mesh_API Elements : public Entities {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Elements> Ptr;
-  typedef boost::shared_ptr<Elements const> ConstPtr;
+  
+  
 
 public: // functions
 

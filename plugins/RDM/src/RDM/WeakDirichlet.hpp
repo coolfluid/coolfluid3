@@ -31,8 +31,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<WeakDirichlet> Ptr;
-  typedef boost::shared_ptr<WeakDirichlet const> ConstPtr;
+
+
 
 public: // functions
   /// Contructor
@@ -57,7 +57,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<mesh::Field> solution;
+  Handle<mesh::Field> solution;
   /// function parser for the math formula of the dirichlet condition
   math::VectorialFunction  function;
 
@@ -73,8 +73,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+
+
 
 public: // functions
 
@@ -199,7 +199,7 @@ public: // functions
 
     // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
-    Component::Ptr neighbor_cells;
+    Handle< Component > neighbor_cells;
     Uint neighbor_cell_idx;
 
     common::Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
@@ -311,7 +311,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
+    this->parent()->handle<WeakDirichlet>()->function.evaluate(vars,return_val);
 
     PHYS::compute_properties(X_q.row(q),
                              return_val,

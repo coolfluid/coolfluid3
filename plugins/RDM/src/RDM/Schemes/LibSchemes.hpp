@@ -35,8 +35,8 @@ class RDM_SCHEMES_API LibSchemes : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibSchemes> Ptr;
-  typedef boost::shared_ptr<LibSchemes const> ConstPtr;
+  
+  
 
   /// Constructor
   LibSchemes ( const std::string& name) : common::Library(name) {   }

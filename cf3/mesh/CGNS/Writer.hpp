@@ -33,12 +33,12 @@ class Mesh_CGNS_API Writer : public MeshWriter, public Shared
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Writer> Ptr;
-  typedef boost::shared_ptr<Writer const> ConstPtr;
+
+
 
 private : // typedefs
 
-  typedef std::vector<boost::shared_ptr<Elements const> > GroupedElements;
+  typedef std::vector<Handle<Elements const> > GroupedElements;
   typedef std::map<std::string, GroupedElements > GroupsMapType;
 
 public: // functions
@@ -57,9 +57,9 @@ public: // functions
 
 private: // functions
 
-  void write_base();
+  void write_base(const Mesh& mesh);
 
-  void write_zone(const Region& region);
+  void write_zone(const Region& region, const Mesh& mesh);
 
   void write_section(const GroupedElements& grouped_elements);
 

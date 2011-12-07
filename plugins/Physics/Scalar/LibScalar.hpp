@@ -41,8 +41,8 @@ class Scalar_API LibScalar : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibScalar> Ptr;
-  typedef boost::shared_ptr<LibScalar const> ConstPtr;
+  
+  
 
   /// Constructor
   LibScalar ( const std::string& name) : common::Library(name) { }

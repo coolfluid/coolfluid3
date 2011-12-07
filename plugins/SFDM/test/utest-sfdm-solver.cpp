@@ -12,6 +12,7 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/OptionList.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
 
@@ -37,6 +38,7 @@
 #include "SFDM/Tags.hpp"
 
 #include "mesh/Region.hpp"
+#include <common/Link.hpp>
 //#include "mesh/Mesh.hpp"
 //#include "mesh/CField.hpp"
 //#include "mesh/Entities.hpp"
@@ -99,28 +101,28 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( solver_test )
 {
-  Core::instance().environment().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure SFD - LinEuler 2D model
   Uint dim=2;
 
-  CModel& model   = Core::instance().root().create_component<CModel>("model");
+  CModel& model   = *Core::instance().root().create_component<CModel>("model");
   model.setup("cf3.SFDM.SFDSolver","cf3.physics.LinEuler.LinEuler2D");
   PhysModel& physics = model.physics();
-  SFDSolver& solver  = model.solver().as_type<SFDSolver>();
+  SFDSolver& solver  = *model.solver().handle<SFDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.configure_option("gamma",1.4);
-  physics.configure_option("rho0",1.);
-  physics.configure_option("U0",std::vector<Real>(2,0.));
-  physics.configure_option("P0",1.);
+  physics.options().configure_option("gamma",1.4);
+  physics.options().configure_option("rho0",1.);
+  physics.options().configure_option("U0",std::vector<Real>(2,0.));
+  physics.options().configure_option("P0",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 
   // Create a 2D rectangular mesh
-  Mesh& mesh = domain.create_component<Mesh>("mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
   Uint res = 20;
   Uint order = 2;
@@ -128,21 +130,21 @@ BOOST_AUTO_TEST_CASE( solver_test )
   std::vector<Real> lengths  = list_of(  1.  )(  1. );
   std::vector<Real> offsets  = list_of( -0.5 )( -0.5 );
 
-  SimpleMeshGenerator& generate_mesh = domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.configure_option("mesh",mesh.uri());
-  generate_mesh.configure_option("nb_cells",nb_cells);
-  generate_mesh.configure_option("lengths",lengths);
-  generate_mesh.configure_option("offsets",offsets);
+  SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
+  generate_mesh.options().configure_option("mesh",mesh.uri());
+  generate_mesh.options().configure_option("nb_cells",nb_cells);
+  generate_mesh.options().configure_option("lengths",lengths);
+  generate_mesh.options().configure_option("offsets",offsets);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Component>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.LinEuler.Cons2D"));
-  solver.configure_option(SFDM::Tags::solution_order(),order);
-  solver.iterative_solver().configure_option("rk_order",3u);
+  solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.LinEuler.Cons2D"));
+  solver.options().configure_option(SFDM::Tags::solution_order(),order);
+  solver.iterative_solver().options().configure_option("rk_order",3u);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   functions.push_back(c2 + "*" + rho);
 
   // Accoustic pulse Euler
-//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.LinEuler.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  shocktube.options().configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.LinEuler.Prim2D",SFDM::Tags::input_vars())->uri() );
 //  std::string rho_ac = "0.001*exp( -( (x-0.5)^2 + (y-0.5)^2 )/(0.05)^2 )";
 //  std::string c2 = "1.4*1/1";  // c = sqrt(gamma*P0*rho0)
 //  functions.push_back("1*(1+"+rho_ac+")");
@@ -178,7 +180,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
 // Shocktube
-//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  shocktube.options().configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
 //  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
 //  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
 //  if (dim>1)
@@ -186,7 +188,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 //  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 404400 , 101100 )"); // Prim2D[ P   ]
 
 
-  shocktube.configure_option("functions",functions);
+  shocktube.options().configure_option("functions",functions);
   solver.initial_conditions().execute();
   domain.write_mesh("sfdm_initial.msh");
 
@@ -198,8 +200,8 @@ BOOST_AUTO_TEST_CASE( solver_test )
 //  solver.domain_discretization().create_term("cf3.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().configure_option("time_step",100.);
-  solver.time_stepping().time().configure_option("end_time" ,0.03); // instead of 0.3
+  solver.time_stepping().time().options().configure_option("time_step",100.);
+  solver.time_stepping().time().options().configure_option("end_time" ,0.03); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , 0.3);
   solver.time_stepping().configure_option_recursively("milestone_dt" , 0.3);
 
@@ -218,13 +220,13 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
   std::vector<URI> fields;
-  Field& solution_field = solver.field_manager().get_child(SFDM::Tags::solution()).follow()->as_type<Field>();
+  Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(SFDM::Tags::solution()) ) );;
   Field& solution_geom = mesh.geometry_fields().create_field("solution_geom",solution_field.descriptor());
 
-  common::Action& interpolate = mesh.create_component("interpolate","cf3.mesh.actions.Interpolate").as_type<common::Action>();
-  interpolate.configure_option("source",solution_field.uri());
-  interpolate.configure_option("target",solution_geom.uri());
-  interpolate.execute();
+  Handle<common::Action> interpolate(mesh.create_component("interpolate","cf3.mesh.actions.Interpolate"));
+  interpolate->options().configure_option("source",solution_field.handle<Component const>());
+  interpolate->options().configure_option("target",solution_geom.handle<Component>());
+  interpolate->execute();
 
   fields.push_back(solution_field.uri());
 //  fields.push_back(solution_geom.uri());
@@ -248,17 +250,17 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
 //  // Create a 1D line mesh
-//  Mesh& probe = domain.create_component<Mesh>("probe");
+//  Mesh& probe = *domain.create_component<Mesh>("probe");
 
 //  std::vector<Uint> nb_cells_probe = list_of( res*order*2 );
 //  std::vector<Real> lengths_probe  = list_of( 0.5 );
 //  std::vector<Real> offsets_probe  = list_of( 0. );
 
-//  SimpleMeshGenerator& generate_probe = domain.create_component<SimpleMeshGenerator>("generate_probe");
-//  generate_probe.configure_option("mesh",probe.uri());
-//  generate_probe.configure_option("nb_cells",nb_cells_probe);
-//  generate_probe.configure_option("lengths",lengths_probe);
-//  generate_probe.configure_option("offsets",offsets_probe);
+//  SimpleMeshGenerator& generate_probe = *domain.create_component<SimpleMeshGenerator>("generate_probe");
+//  generate_probe.options().configure_option("mesh",probe.uri());
+//  generate_probe.options().configure_option("nb_cells",nb_cells_probe);
+//  generate_probe.options().configure_option("lengths",lengths_probe);
+//  generate_probe.options().configure_option("offsets",offsets_probe);
 //  generate_probe.execute();
 
 //  Field& solution_probe = probe.geometry_fields().create_field("solution",solution_field.descriptor());
@@ -271,11 +273,11 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
 
-//  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
-////  interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
+//  boost::shared_ptr< Interpolator > interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
+////  interpolator->options().configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
 ////  // Following configuration option has priority over the the previous one.
 ////  std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
-////  //interpolator->configure_option("Divisions", divisions );
+////  //interpolator->options().configure_option("Divisions", divisions );
 
 //  // Create the honeycomb
 //  interpolator->construct_internal_storage(mesh);
@@ -293,42 +295,42 @@ BOOST_AUTO_TEST_CASE( solver_test )
 //  probe.write_mesh("probe.plt",probe_fields);
 
 
-//  solver.configure_option_recursively("time",model.time().uri());
-//  solver.configure_option_recursively("time_accurate",true);
-//  solver.configure_option_recursively("cfl",1.);
+//  solver.options().configure_option_recursively("time",model.time().uri());
+//  solver.options().configure_option_recursively("time_accurate",true);
+//  solver.options().configure_option_recursively("cfl",1.);
 
-//  model.time().configure_option("end_time",2.5);
-//  model.time().configure_option("time_step",5.);
+//  model.time().options().configure_option("end_time",2.5);
+//  model.time().options().configure_option("time_step",5.);
 
 //  /// Initialize solution field with the function sin(2*pi*x)
-//  actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<actions::InitFieldFunction>("init_field");
-//  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
+//  Handle<actions::InitFieldFunction> init_field = common::Core::instance().root().create_component<actions::InitFieldFunction>("init_field");
+//  //init_field->options().configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
 //  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
-//  init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
-//  init_field->configure_option("field",find_component_with_tag<CField>(mesh,"solution").uri());
+//  init_field->options().configure_option("functions",std::vector<std::string>(1,gaussian));
+//  init_field->options().configure_option("field",find_component_with_tag<CField>(mesh,"solution").uri());
 //  init_field->transform(mesh);
 
 
-//  std::vector<CField::Ptr> fields;
-//  fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
-//  fields.push_back(find_component_with_tag<CField>(mesh,"jacobian_determinant").as_ptr<CField>());
-//  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
-//  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
+//  std::vector<Handle< CField > > fields;
+//  fields.push_back(find_component_with_tag<CField>(mesh,"solution").handle<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"jacobian_determinant").handle<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"residual").handle<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").handle<CField>());
 
 //  MeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
-//  gmsh_writer.configure_option("mesh",mesh.uri());
-//  gmsh_writer.configure_option("file",URI("line_${iter}.msh"));
+//  gmsh_writer.options().configure_option("mesh",mesh.uri());
+//  gmsh_writer.options().configure_option("file",URI("line_${iter}.msh"));
 //  gmsh_writer.set_fields(fields);
 
 //  gmsh_writer.execute();
 
 //  CFinfo << model.tree() << CFendl;
 
-//  //solver.get_child("iterate").configure_option("MaxIterations",1u);
+//  //solver.get_child("iterate").options().configure_option("MaxIterations",1u);
 //  solver.solve();
 
-//  gmsh_writer.configure_option("file",URI("final.msh"));
+//  gmsh_writer.options().configure_option("file",URI("final.msh"));
 //  gmsh_writer.execute();
 
 //  /// write gmsh file. note that gmsh gets really confused because of the multistate view

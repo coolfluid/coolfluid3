@@ -10,6 +10,8 @@
 #include "common/Link.hpp"
 #include "common/Group.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
@@ -64,7 +66,7 @@ void Elements::assign_geometry(SpaceFields& geo)
 {
   Entities::assign_geometry(geo);
   node_connectivity().create_lookup().add(geo);
-  space(Tags::geometry()).get_child("fields").as_type<Link>().link_to(geo);
+  Handle<Link>(space(Tags::geometry()).get_child("fields"))->link_to(geo);
 }
 
 //////////////////////////////////////////////////////////////////////////////

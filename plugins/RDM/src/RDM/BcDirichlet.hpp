@@ -24,8 +24,8 @@ class RDM_API BcDirichlet : public RDM::BoundaryTerm {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<BcDirichlet> Ptr;
-  typedef boost::shared_ptr<BcDirichlet const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -50,7 +50,7 @@ private: // helper functions
 private: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution;
   /// function parser for the math formula of the dirichlet condition
   math::VectorialFunction  m_function;
 

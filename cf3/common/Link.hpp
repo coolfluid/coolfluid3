@@ -18,15 +18,9 @@ namespace common {
 
 /// Component for creating links between components
 /// @author Tiago Quintino
-class Common_API Link : public Component {
-
-public: //typedefs
-
-  typedef boost::shared_ptr<Link> Ptr;
-  typedef boost::shared_ptr<Link const> ConstPtr;
-
+class Common_API Link : public Component
+{
 public: // functions
-
   /// Contructor
   /// @param name of the component
   Link ( const std::string& name );
@@ -38,27 +32,30 @@ public: // functions
   static std::string type_name () { return "Link"; }
 
   /// get the component through the links to the actual components
-  virtual Component::Ptr follow ();
-  virtual Component::ConstPtr  follow() const;
+  Handle<Component> follow();
+  Handle<Component const>  follow() const;
 
   // functions specific to the Link component
 
   /// link to component
   bool is_linked () const;
 
-  Link& link_to ( Component::Ptr lnkto );
   Link& link_to ( Component& lnkto );
-  Link& link_to ( const Component& lnkto );
 
   void change_link( SignalArgs & args );
 
 private: // data
 
   /// this is a link to the component
-  /// using weak_ptr means it might become invalid so we should test for expire()
-  boost::weak_ptr<Component> m_link_component;
+  Handle<Component> m_link_component;
 
 }; // Link
+
+/// Follow links or return the component itself if it's not a link
+Handle<Component> follow_link(const Handle<Component>& link_or_comp);
+Handle<Component const> follow_link(const Handle<Component const>& link_or_comp);
+Handle<Component> follow_link(Component& link_or_comp);
+Handle<Component const> follow_link(const Component& link_or_comp);
 
 ////////////////////////////////////////////////////////////////////////////////
 

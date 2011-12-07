@@ -15,6 +15,7 @@
 #include <boost/weak_ptr.hpp>
 
 #include "common/CF.hpp"
+#include "common/Handle.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -31,6 +32,7 @@ struct PtrFixture : Tools::Testing::TimedTestFixture
 {
   typedef boost::shared_ptr<Uint> SharedT;
   typedef boost::weak_ptr<Uint> WeakT;
+  typedef Handle<Uint> HandleT;
   typedef Uint* RawT;
 
   SharedT* shared_vec()
@@ -46,6 +48,14 @@ struct PtrFixture : Tools::Testing::TimedTestFixture
     static WeakT* v = 0;
     if(!v)
       v = new WeakT[vec_size];
+    return v;
+  }
+
+  HandleT* handle_vec()
+  {
+    static HandleT* v = 0;
+    if(!v)
+      v = new HandleT[vec_size];
     return v;
   }
 
@@ -86,6 +96,14 @@ BOOST_AUTO_TEST_CASE ( FillWeak )
     w_vec[i] = s_vec[i];
 }
 
+BOOST_AUTO_TEST_CASE ( FillHandle )
+{
+  SharedT* s_vec = shared_vec();
+  HandleT* w_vec = handle_vec();
+  for(Uint i = 0; i != vec_size; ++i)
+    w_vec[i] = HandleT(s_vec[i]);
+}
+
 BOOST_AUTO_TEST_CASE ( FillRaw )
 {
   RawT* vec = raw_vec();
@@ -105,6 +123,14 @@ BOOST_AUTO_TEST_CASE ( CopyWeak )
 {
   WeakT* new_vec = new WeakT[vec_size];
   WeakT* old_vec = weak_vec();
+  for(Uint i = 0; i != vec_size; ++i)
+    new_vec[i] = old_vec[i];
+}
+
+BOOST_AUTO_TEST_CASE ( CopyHandle )
+{
+  HandleT* new_vec = new HandleT[vec_size];
+  HandleT* old_vec = handle_vec();
   for(Uint i = 0; i != vec_size; ++i)
     new_vec[i] = old_vec[i];
 }
@@ -132,6 +158,15 @@ BOOST_AUTO_TEST_CASE ( CheckWeak)
   Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
     result += !vec[i].expired();
+  BOOST_CHECK(vec_size == result);
+}
+
+BOOST_AUTO_TEST_CASE ( CheckHandle )
+{
+  HandleT* vec = handle_vec();
+  Uint result = 0;
+  for(Uint i = 0; i != vec_size; ++i)
+    result += is_not_null(vec[i]);
   BOOST_CHECK(vec_size == result);
 }
 
@@ -167,6 +202,20 @@ BOOST_AUTO_TEST_CASE ( DerefWeak)
     for(Uint i = 0; i != vec_size; ++i)
     {
       result += *vec[i].lock();
+    }
+  }
+  BOOST_CHECK(result);
+}
+
+BOOST_AUTO_TEST_CASE ( DerefHandle )
+{
+  HandleT* vec = handle_vec();
+  Uint result = 0;
+  for(Uint r = 0; r != deref_repeats; ++r)
+  {
+    for(Uint i = 0; i != vec_size; ++i)
+    {
+      result += *vec[i];
     }
   }
   BOOST_CHECK(result);

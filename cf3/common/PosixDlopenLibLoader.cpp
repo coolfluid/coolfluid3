@@ -137,7 +137,7 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 
   // react on failure
   const char * msg = dlerror();
-  throw LibLoadingError (FromHere(),"Library " + lib + " failed to load with dlopen error: " + std::string(msg));
+  throw LibLoadingError ("Library " + lib + " failed to load with dlopen error: " + std::string(msg));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

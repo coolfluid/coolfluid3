@@ -38,8 +38,7 @@ class ShapeFunctionT : public Abstract
 public: // typedefs
 
   typedef Concrete SF;
-  typedef boost::shared_ptr< ShapeFunctionT >        Ptr;
-  typedef boost::shared_ptr< ShapeFunctionT const > ConstPtr;
+  
 
 public:
   /// @name Constructor / Destructor / Type name

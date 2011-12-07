@@ -10,6 +10,7 @@
 #include "common/CF.hpp"
 #include "common/Exception.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -34,10 +35,10 @@ int main(int argc, char * argv[])
 
     // --------------------------------------------------------
 
-    Core::instance().environment().configure_option("exception_outputs",false);
-    Core::instance().environment().configure_option("exception_backtrace",false);
-    Core::instance().environment().configure_option("exception_aborts",false);
-    Core::instance().environment().configure_option("assertion_throws",true);
+    Core::instance().environment().options().configure_option("exception_outputs",false);
+    Core::instance().environment().options().configure_option("exception_backtrace",false);
+    Core::instance().environment().options().configure_option("exception_aborts",false);
+    Core::instance().environment().options().configure_option("assertion_throws",true);
 
     // Initialize empty commands
     options_description desc;

@@ -55,7 +55,7 @@ SignalManager::~SignalManager()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::show_menu(const QPoint & pos, CNode::Ptr node,
+void SignalManager::show_menu(const QPoint & pos, Handle< CNode > node,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();

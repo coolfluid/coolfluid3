@@ -39,7 +39,7 @@ public: // methods
   {
     ConnectionManager * mng = dynamic_cast<ConnectionManager*>(ptr);
 
-    return regist_signal ( sname )->connect( boost::bind ( pfunc, ptr, _1 ), mng );
+    return &regist_signal ( sname ).connect( boost::bind ( pfunc, ptr, _1 ), mng );
   }
 
   /// raises an event and dispatches immedietly to all listeners

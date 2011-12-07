@@ -29,8 +29,8 @@ class Mesh_LagrangeP0_API LibLagrangeP0 : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibLagrangeP0> Ptr;
-  typedef boost::shared_ptr<LibLagrangeP0 const> ConstPtr;
+  
+  
 
   /// Constructor
   LibLagrangeP0 ( const std::string& name) : common::Library(name) {   }

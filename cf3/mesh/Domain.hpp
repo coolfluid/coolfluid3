@@ -28,8 +28,8 @@ class Mesh_API Domain : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Domain> Ptr;
-  typedef boost::shared_ptr<Domain const> ConstPtr;
+  
+  
 
 public: // functions
 

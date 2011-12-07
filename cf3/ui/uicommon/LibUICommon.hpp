@@ -40,8 +40,8 @@ namespace uiCommon {
   {
   public:
 
-    typedef boost::shared_ptr<LibUICommon> Ptr;
-    typedef boost::shared_ptr<LibUICommon const> ConstPtr;
+    
+    
 
     /// Constructor
     LibUICommon ( const std::string& name) : common::Library(name) {   }

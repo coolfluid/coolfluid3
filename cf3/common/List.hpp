@@ -50,12 +50,6 @@ public: // typedefs
   /// @brief the type of the buffer used to interact with the table
   typedef ListBufferT<ValueT> Buffer;
 
-  /// @brief boost::shared_ptr shortcut of this component
-  typedef boost::shared_ptr<List> Ptr;
-
-  /// @brief boost::shared_ptr shortcut of this component const version
-  typedef boost::shared_ptr<List const> ConstPtr;
-
 public: // functions
 
   /// Contructor
@@ -98,9 +92,9 @@ public: // functions
   /// @param[in] buffersize the size that the buffer is allocated with
   ///                       the default value is 16384
   /// @return A Buffer object that can fill this Array
-  typename Buffer::Ptr create_buffer_ptr(const size_t buffersize=16384)
+  typename boost::shared_ptr<Buffer> create_buffer_ptr(const size_t buffersize=16384)
   {
-    return typename Buffer::Ptr ( new Buffer(m_array,buffersize) );
+    return boost::shared_ptr<Buffer>( new Buffer(m_array,buffersize) );
   }
 
 

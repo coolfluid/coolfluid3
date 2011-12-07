@@ -47,14 +47,6 @@ class CommWrapperMArray: public CommWrapper
 
 template <typename T>
 class CommWrapperMArray<T,1>: public CommWrapper{
-
-  public:
-
-    /// pointer to this type
-    typedef boost::shared_ptr< CommWrapperMArray > Ptr;
-    /// const pointer to this type
-    typedef boost::shared_ptr< CommWrapperMArray const> ConstPtr;
-
   public:
 
     /// constructor

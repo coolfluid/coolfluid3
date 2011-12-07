@@ -33,7 +33,7 @@ CForAllNodes2::CForAllNodes2 ( const std::string& name ) :
   
 void CForAllNodes2::execute()
 {
-  boost_foreach(Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
   {
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {

@@ -26,8 +26,8 @@ class RDM_API Init : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<Init> Ptr;
-  typedef boost::shared_ptr<Init const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -49,7 +49,7 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_field;  ///< access to the field to initialize
+  Handle<mesh::Field> m_field;  ///< access to the field to initialize
 
   math::VectorialFunction  m_function;    ///< function parser for the math formula
 

@@ -29,8 +29,8 @@ class VTKXML_API Writer : public MeshWriter
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Writer> Ptr;
-    typedef boost::shared_ptr<Writer const> ConstPtr;
+    
+    
 
 public: // functions
 

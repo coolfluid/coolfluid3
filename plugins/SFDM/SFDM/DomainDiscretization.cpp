@@ -49,12 +49,12 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
   // signals
 
   regist_signal( "create_term" )
-      ->connect  ( boost::bind( &DomainDiscretization::signal_create_term, this, _1 ) )
-      ->signature( boost::bind( &DomainDiscretization::signature_signal_create_term, this, _1))
-      ->description("creates a discretization term for cells")
-      ->pretty_name("Create Cell Term");
+      .connect  ( boost::bind( &DomainDiscretization::signal_create_term, this, _1 ) )
+      .signature( boost::bind( &DomainDiscretization::signature_signal_create_term, this, _1))
+      .description("creates a discretization term for cells")
+      .pretty_name("Create Cell Term");
 
-  m_terms = create_static_component_ptr<ActionDirector>("Terms");
+  m_terms = create_static_component<ActionDirector>("Terms");
 }
 
 
@@ -73,17 +73,16 @@ Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::vector<URI>& regions )
 {
   CFinfo << "Creating cell term   " << name << "(" << type << ")" << CFendl;
-  Term::Ptr term = build_component_abstract_type<Term>(type,name);
-  m_terms->append(term);
+  Handle< Term > term = m_terms->create_component<Term>(name, type);
 
   if (regions.size() == 0)
-    term->configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
+    term->options().configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
   else
-    term->configure_option("regions", regions);
+    term->options().configure_option("regions", regions);
 
-  term->configure_option( SFDM::Tags::mesh(),           mesh().uri());
-  term->configure_option( SFDM::Tags::solver(),         solver().uri());
-  term->configure_option( SFDM::Tags::physical_model(), physical_model().uri());
+  term->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
+  term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
+  term->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
 
   return *term;
 }
@@ -114,15 +113,15 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created term");
+  options.add_option("name", std::string() )
+      .description("Name for created term");
 
   // type
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option< OptionT<std::string> >("type", std::string("cf3.SFDM.Convection"))
-      ->description("Type for created term");
+  options.add_option("type", std::string("cf3.SFDM.Convection"))
+      .description("Type for created term");
 
   // regions
 
@@ -130,8 +129,8 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the term");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

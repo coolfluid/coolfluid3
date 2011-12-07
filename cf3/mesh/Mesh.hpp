@@ -36,8 +36,8 @@ namespace mesh {
 class Mesh_API Mesh : public common::Component {
 public: // typedefs
 
-  typedef boost::shared_ptr<Mesh> Ptr;
-  typedef boost::shared_ptr<Mesh const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -114,13 +114,13 @@ private: // data
 
   Uint m_dimensionality;
 
-  boost::shared_ptr<MeshElements> m_elements;
+  Handle<MeshElements> m_elements;
 
-  boost::shared_ptr<MeshMetadata> m_metadata;
+  Handle<MeshMetadata> m_metadata;
 
-  boost::shared_ptr<Region> m_topology;
+  Handle<Region> m_topology;
 
-  boost::shared_ptr<SpaceFields> m_geometry_fields;
+  Handle<SpaceFields> m_geometry_fields;
 
 };
 

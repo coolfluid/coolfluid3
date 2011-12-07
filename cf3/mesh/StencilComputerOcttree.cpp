@@ -21,6 +21,7 @@
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Octtree.hpp"
+#include "common/OptionList.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,9 +39,9 @@ cf3::common::ComponentBuilder < StencilComputerOcttree, StencilComputer, LibMesh
 StencilComputerOcttree::StencilComputerOcttree( const std::string& name )
   : StencilComputer(name), m_dim(0), m_nb_elems_in_mesh(0)
 {
-  option("mesh").attach_trigger(boost::bind(&StencilComputerOcttree::configure_mesh,this));
+  options().option("mesh").attach_trigger(boost::bind(&StencilComputerOcttree::configure_mesh,this));
 
-  m_octtree = create_static_component_ptr<Octtree>("octtree");
+  m_octtree = create_static_component<Octtree>("octtree");
   m_octtree->mark_basic();
 }
 
@@ -48,13 +49,13 @@ StencilComputerOcttree::StencilComputerOcttree( const std::string& name )
 
 void StencilComputerOcttree::configure_mesh()
 {
-  if (m_mesh.expired())
+  if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  m_nb_elems_in_mesh = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
-  m_dim = m_mesh.lock()->geometry_fields().coordinates().row_size();
+  m_nb_elems_in_mesh = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
+  m_dim = m_mesh->geometry_fields().coordinates().row_size();
 
-  m_octtree->configure_option("mesh",m_mesh.lock()->uri());
+  m_octtree->options().configure_option("mesh",m_mesh);
   m_octtree->create_octtree();
 }
 
@@ -64,10 +65,10 @@ void StencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::v
 {
   std::vector<Uint> octtree_cell(3);
   RealVector centroid(m_dim);
-  Component::Ptr component;
+  Handle< Component > component;
   Uint elem_idx;
   boost::tie(component,elem_idx) = unified_elements().location(unified_elem_idx);
-  Elements& elements = component->as_type<Elements>();
+  Elements& elements = dynamic_cast<Elements&>(*component);
   RealMatrix coordinates = elements.get_coordinates(elem_idx);
   elements.element_type().compute_centroid(coordinates,centroid);
   stencil.resize(0);

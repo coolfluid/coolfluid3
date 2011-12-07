@@ -37,12 +37,6 @@ public:
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<Vector> Ptr;
-
-  /// const pointer to this type
-  typedef boost::shared_ptr<Vector const> ConstPtr;
-
   /// name of the type
   static std::string type_name () { return "Vector"; }
 

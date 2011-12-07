@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U = 0 };
 
-  typedef boost::shared_ptr<LinearAdv2D> Ptr;
-  typedef boost::shared_ptr<LinearAdv2D const> ConstPtr;
+  
+  
 
 public: // functions
 

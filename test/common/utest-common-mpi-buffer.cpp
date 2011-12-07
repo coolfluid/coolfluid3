@@ -140,6 +140,10 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   std::vector<int> fifth(3,first);
 
 
+  //Uint expected_size = sizeof(first) + sizeof(second) + sizeof(Uint) + sizeof(char)*fourth.size() + sizeof(first)*fifth.size() + 2*sizeof(int);
+  //std::cout << "expected size is " << expected_size << std::endl;
+  Uint expected_size = 51;
+
   // ----------------------------------
 
   // Create a buffer
@@ -159,11 +163,11 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // ----------------------------------
 
-  BOOST_CHECK_EQUAL(buffer.packed_size(), 51);
+  BOOST_CHECK_EQUAL(buffer.packed_size(), expected_size);
 
   if (Comm::instance().rank() != root)
   {
-    BOOST_CHECK_EQUAL(buffer.size(), 51);
+    BOOST_CHECK_EQUAL(buffer.size(), expected_size);
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
   }
   else

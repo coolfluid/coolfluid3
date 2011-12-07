@@ -60,21 +60,21 @@ BOOST_AUTO_TEST_CASE( Channel3D )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("channel3d.dict");
-  MeshReader::Ptr dict_reader = root.create_component("meshreader", "cf3.BlockMeshReader.BlockMeshReader").as_ptr<MeshReader>();
+  Handle< MeshReader > dict_reader(root.create_component("meshreader", "cf3.BlockMeshReader.BlockMeshReader"));
 
   // Read the dict mesh
-  Mesh& dict_mesh = root.create_component< Mesh >("dict_mesh");
+  Mesh& dict_mesh = *root.create_component< Mesh >("dict_mesh");
   dict_reader->read_mesh_into(dict_path, dict_mesh);
 
   // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Channel3D-reference.neu");
-  MeshReader::Ptr ref_reader = root.create_component("meshreader", "cf3.mesh.neu.Reader").as_ptr<MeshReader>();
-  Mesh& ref_mesh = root.create_component< Mesh >("ref_mesh");
+  Handle< MeshReader > ref_reader(root.create_component("meshreader", "cf3.mesh.neu.Reader"));
+  Mesh& ref_mesh = *root.create_component< Mesh >("ref_mesh");
   ref_reader->read_mesh_into(ref_path, ref_mesh);
 
   // Write output
-  MeshWriter& writer = root.create_component("meshwriter", "cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
-  writer.write_from_to(dict_mesh, URI("channel3d-output.msh"));
+  Handle<MeshWriter> writer(root.create_component("meshwriter", "cf3.mesh.gmsh.Writer"));
+  writer->write_from_to(dict_mesh, URI("channel3d-output.msh"));
 
   // Check if they are equal
   //BOOST_CHECK(cf3::Tools::MeshDiff::diff(dict_mesh, ref_mesh, 25000));
@@ -86,16 +86,16 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("cavity2d.dict");
-  MeshReader::Ptr dict_reader = root.create_component_ptr<MeshReader>("meshreader");
+  Handle<MeshReader> dict_reader = root.create_component<MeshReader>("meshreader");
 
   // Read the dict mesh
-  Mesh::Ptr dict_mesh(allocate_component<Mesh>("dict_mesh"));
+  boost::shared_ptr< Mesh > dict_mesh(allocate_component<Mesh>("dict_mesh"));
   dict_reader->do_read_mesh_into(dict_path, dict_mesh);
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Cavity2D-reference.neu");
-  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
+  Handle< MeshReader > ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< Mesh > ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
   CFinfo << dict_mesh->tree() << CFendl;
@@ -111,16 +111,16 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("pitzdaily.dict");
-  MeshReader::Ptr dict_reader = root.create_component_ptr<MeshReader>("meshreader");
+  Handle<MeshReader> dict_reader = root.create_component<MeshReader>("meshreader");
 
   // Read the dict mesh
-  Mesh::Ptr dict_mesh(allocate_component<Mesh>("dict_mesh"));
+  boost::shared_ptr< Mesh > dict_mesh(allocate_component<Mesh>("dict_mesh"));
   dict_reader->do_read_mesh_into(dict_path, dict_mesh);
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-PitzDaily-reference.neu");
-  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
+  Handle< MeshReader > ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< Mesh > ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
   // Check if they are equal

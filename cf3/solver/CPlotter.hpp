@@ -22,8 +22,8 @@ class solver_API CPlotter : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CPlotter> Ptr;
-  typedef boost::shared_ptr<CPlotter const> ConstPtr;
+  
+  
 
 public:
 

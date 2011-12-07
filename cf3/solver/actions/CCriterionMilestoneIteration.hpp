@@ -24,8 +24,8 @@ class solver_actions_API CCriterionMilestoneIteration : public CCriterion {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterionMilestoneIteration> Ptr;
-  typedef boost::shared_ptr<CCriterionMilestoneIteration const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -44,7 +44,7 @@ public: // functions
 
 private:
 
-  boost::weak_ptr<CTime> m_time;
+  Handle<CTime> m_time;
 
 };
 

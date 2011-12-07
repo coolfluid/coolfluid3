@@ -11,6 +11,7 @@
 
 #include <boost/signals2.hpp>
 
+#include "common/Handle.hpp"
 #include "common/NotificationQueue.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ namespace solver {
   {
   public:
 
-    Notifier( boost::shared_ptr<common::PE::Manager> manager );
+    Notifier( const Handle<common::PE::Manager>& manager );
 
     ~Notifier();
 
@@ -50,7 +51,7 @@ namespace solver {
 
     std::map<std::string, bool> m_once_notifying_events;
 
-    boost::shared_ptr<common::PE::Manager> m_manager;
+    Handle<common::PE::Manager> m_manager;
 
   }; // class Notifier
 

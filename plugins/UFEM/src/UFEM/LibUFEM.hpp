@@ -40,8 +40,8 @@ class UFEM_API LibUFEM :
 {
 public:
 
-  typedef boost::shared_ptr<LibUFEM> Ptr;
-  typedef boost::shared_ptr<LibUFEM const> ConstPtr;
+  
+  
 
   /// Constructor
   LibUFEM ( const std::string& name) : common::Library(name) {   }

@@ -36,11 +36,6 @@ namespace XML {
 class Common_API XmlDoc : public XmlNode
 {
 
-public: // typedefs
-
-  typedef boost::shared_ptr<XmlDoc> Ptr;
-  typedef boost::shared_ptr<XmlDoc const> ConstPtr;
-
 public:
 
   /// Creates an empty document.

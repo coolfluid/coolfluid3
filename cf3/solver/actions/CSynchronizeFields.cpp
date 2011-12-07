@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
@@ -36,25 +36,24 @@ CSynchronizeFields::CSynchronizeFields ( const std::string& name ) : solver::Act
   mark_basic();
 
   std::vector< URI > dummy;
-  options().add_option< OptionArrayT < URI > > ("Fields", dummy)
-      ->description("Fields to synchronize")
-      ->attach_trigger ( boost::bind ( &CSynchronizeFields::config_fields,   this ) );
+  options().add_option("Fields", dummy)
+      .description("Fields to synchronize")
+      .attach_trigger ( boost::bind ( &CSynchronizeFields::config_fields,   this ) );
 }
 
 
 
 void CSynchronizeFields::config_fields()
 {
-  std::vector<URI> vec; option("Fields").put_value(vec);
+  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
 
   boost_foreach(const URI field_path, vec)
   {
-    Component& comp = access_component(field_path);
+    Handle<Component> comp = access_component(field_path);
 
-    if ( Field::Ptr field = comp.as_ptr<Field>() )
+    if ( Handle< Field > field = Handle<Field>(comp) )
     {
-      boost::weak_ptr<Field> wptr = field;
-      m_fields.push_back( wptr );
+      m_fields.push_back( field );
     }
     else
       throw ValueNotFound ( FromHere(), "Could not find field with path [" + field_path.path() +"]" );
@@ -65,11 +64,11 @@ void CSynchronizeFields::config_fields()
 
 void CSynchronizeFields::execute()
 {
-  boost_foreach(boost::weak_ptr<Field> ptr, m_fields)
+  boost_foreach(Handle<Field> ptr, m_fields)
   {
-    if( ptr.expired() ) continue; // skip if pointer invalid
+    if( is_null(ptr) ) continue; // skip if pointer invalid
 
-    ptr.lock()->synchronize();
+    ptr->synchronize();
   }
 }
 

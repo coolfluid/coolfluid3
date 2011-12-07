@@ -11,6 +11,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/Foreach.hpp"
@@ -18,6 +19,7 @@
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -50,29 +52,29 @@ Reader::Reader( const std::string& name )
   Shared()
 {
   // options
-  options().add_option<OptionT <bool> >("read_groups" ,true)
-      ->description("Reads neu Groups and splits the mesh in these subgroups")
-      ->pretty_name("Unified Zones");
+  options().add_option("read_groups" ,true)
+      .description("Reads neu Groups and splits the mesh in these subgroups")
+      .pretty_name("Unified Zones");
 
-  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
-      ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
-      ->pretty_name("Part");
+  options().add_option("part", PE::Comm::instance().rank())
+      .description("Number of the part of the mesh to read. (e.g. rank of processor)")
+      .pretty_name("Part");
 
-  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
-      ->description("Total nb_partitions. (e.g. number of processors)");
+  options().add_option("nb_parts", PE::Comm::instance().size())
+      .description("Total nb_partitions. (e.g. number of processors)");
 
-  options().add_option<OptionT <bool> >("read_boundaries", true)
-      ->description("Read the surface elements for the boundary")
-      ->pretty_name("Read Boundaries");
+  options().add_option("read_boundaries", true)
+      .description("Read the surface elements for the boundary")
+      .pretty_name("Read Boundaries");
 
-  m_properties["brief"] = std::string("neutral file mesh reader component");
+  properties()["brief"] = std::string("neutral file mesh reader component");
 
   std::string desc;
   desc += "This component can read in parallel.\n";
   desc += "Available coolfluid-element types are:\n";
   boost_foreach(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -102,7 +104,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   }
 
   // set the internal mesh pointer
-  m_mesh = mesh.as_ptr<Mesh>();
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   // Read file once and store positions
   get_file_positions();
@@ -110,42 +112,42 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // Read mesh information
   read_headerData();
 
-  m_mesh.lock()->initialize_nodes(0, m_headerData.NDFCD);
+  m_mesh->initialize_nodes(0, m_headerData.NDFCD);
 
-  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
 
   // Create a hash
-  m_hash = create_component_ptr<MergedParallelDistribution>("hash");
+  m_hash = create_component<MergedParallelDistribution>("hash");
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_headerData.NUMNP;
   num_obj[1] = m_headerData.NELEM;
-  m_hash->configure_option("nb_obj",num_obj);
+  m_hash->options().configure_option("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
-    m_region = m_mesh.lock()->topology().create_region(m_headerData.mesh_name).as_ptr<Region>();
+    m_region = Handle<Region>(m_mesh->topology().create_region(m_headerData.mesh_name).handle<Component>());
   //else
-  //  m_region = m_mesh.lock()->create_region(m_headerData.mesh_name,!option("Serial Merge").value<bool>()).as_ptr<Region>();
+  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Handle<Region>(Merge").value<bool>()).handle<Component>());
 
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-  if (option("read_boundaries").value<bool>())
+  if (options().option("read_boundaries").value<bool>())
     read_boundaries();
 
-  if (option("read_groups").value<bool>())
+  if (options().option("read_groups").value<bool>())
     read_groups();
 
   // clean-up
   // --------
   // Remove regions with empty connectivity tables
-  remove_empty_element_regions(m_mesh.lock()->topology());
+  remove_empty_element_regions(m_mesh->topology());
 
 
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh.lock()->topology()))
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
   {
     elements.rank().resize(elements.size());
-    Uint my_rank = option("part").value<Uint>();
+    Uint my_rank = options().option("part").value<Uint>();
     for (Uint e=0; e<elements.size(); ++e)
     {
       elements.rank()[e] = my_rank;
@@ -156,11 +158,11 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the file
   m_file.close();
 
-  m_mesh.lock()->elements().update();
-  m_mesh.lock()->update_statistics();
+  m_mesh->elements().update();
+  m_mesh->update_statistics();
 
-  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
-  cf3_assert(m_mesh.lock()->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
+  cf3_assert(m_mesh->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -235,7 +237,7 @@ void Reader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (option("nb_parts").value<Uint>() > 1)
+  if (options().option("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line
@@ -284,7 +286,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -342,14 +344,14 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
-  m_tmp = m_region.lock()->create_region("main").as_ptr<Region>();
+  SpaceFields& nodes = m_mesh->geometry_fields();
+  m_tmp = Handle<Region>(m_region->create_region("main").handle<Component>());
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
-  std::map<std::string,Elements::Ptr> elements = create_cells_in_region(*m_tmp,nodes,m_supported_types);
-  std::map<std::string,Connectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+  std::map<std::string,Handle< Elements > > elements = create_cells_in_region(*m_tmp,nodes,m_supported_types);
+  std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
 
   // skip next line
   std::string line;
@@ -411,7 +413,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -480,27 +482,27 @@ void Reader::read_groups()
   boost_foreach(GroupData& group, groups)
   {
 
-    Region& region = m_region.lock()->create_region(group.ELMMAT);
+    Region& region = m_region->create_region(group.ELMMAT);
 
     //CFinfo << "region " << region.uri().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
-    std::map<std::string,Elements::Ptr> elements = create_cells_in_region(region,nodes,m_supported_types);
-    std::map<std::string,Connectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,Handle< Elements > > elements = create_cells_in_region(region,nodes,m_supported_types);
+    std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
 
     // Copy elements from tmp_region in the correct region
     boost_foreach(Uint global_element, group.ELEM)
     {
-      Elements::Ptr tmp_elems = m_global_to_tmp[global_element].first;
+      Handle< Elements > tmp_elems = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
       std::string etype = tmp_elems->element_type().derived_type_name();
 
       Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
-      m_global_to_tmp[global_element] = std::make_pair(region.get_child_ptr(new_elems_name)->as_ptr<Elements>(),idx);
+      m_global_to_tmp[global_element] = std::make_pair(Handle<Elements>(region.get_child(new_elems_name)),idx);
     }
   }
 
-  m_region.lock()->remove_component(m_tmp->name());
+  m_region->remove_component(m_tmp->name());
   m_tmp.reset();
 
 }
@@ -531,12 +533,12 @@ void Reader::read_boundaries()
       throw common::NotSupported(FromHere(),"error: supports only IBCODE1 6 (ELEMENT_SIDE)");
     }
 
-    Region& bc_region = m_region.lock()->create_region(NAME);
-    SpaceFields& nodes = m_mesh.lock()->geometry_fields();
+    Region& bc_region = m_region->create_region(NAME);
+    SpaceFields& nodes = m_mesh->geometry_fields();
 
     // create all kind of element type regions
-    std::map<std::string,Elements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);
-    std::map<std::string,Connectivity::Buffer::Ptr> buffer = create_connectivity_buffermap (elements);
+    std::map<std::string,Handle< Elements > > elements = create_faces_in_region (bc_region,nodes,m_supported_types);
+    std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap (elements);
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i)
@@ -549,7 +551,7 @@ void Reader::read_boundaries()
       std::map<Uint,Region_TableIndex_pair>::iterator it = m_global_to_tmp.find(global_element);
       if (it != m_global_to_tmp.end())
       {
-        Elements::Ptr tmp_elements = it->second.first;
+        Handle< Elements > tmp_elements = it->second.first;
         Uint local_element = it->second.second;
 
         //Uint elementType = ETYPE;

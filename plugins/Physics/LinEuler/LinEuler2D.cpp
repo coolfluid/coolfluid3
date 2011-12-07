@@ -9,7 +9,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionArray.hpp"
 
 #include "physics/Variables.hpp"
@@ -51,29 +51,29 @@ LinEuler2D::LinEuler2D( const std::string& name ) :
   m_u0( (LinEuler2D::GeoV() << 0.5 , 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
   m_P0(1.)
 {
-  options().add_option< OptionT<Real> >("gamma",m_gamma)
-      ->description("Specific heat reatio")
-      ->link_to(&m_gamma);
+  options().add_option("gamma",m_gamma)
+      .description("Specific heat reatio")
+      .link_to(&m_gamma);
 
-  options().add_option< OptionT<Real> >("rho0",m_rho0)
-      ->description("Uniform mean density")
-      ->link_to(&m_rho0);
+  options().add_option("rho0",m_rho0)
+      .description("Uniform mean density")
+      .link_to(&m_rho0);
 
   std::vector<Real> U0(m_u0.size());
   U0[XX] = m_u0[XX];
   U0[YY] = m_u0[YY];
-  options().add_option< OptionArrayT<Real> >("U0",U0)
-      ->description("Uniform mean velocity")
-      ->attach_trigger( boost::bind( &LinEuler2D::config_mean_velocity, this) );
+  options().add_option("U0",U0)
+      .description("Uniform mean velocity")
+      .attach_trigger( boost::bind( &LinEuler2D::config_mean_velocity, this) );
 
-  options().add_option< OptionT<Real> >("P0",m_P0)
-      ->description("Uniform mean pressure")
-      ->link_to(&m_P0);
+  options().add_option("P0",m_P0)
+      .description("Uniform mean pressure")
+      .link_to(&m_P0);
 }
 
 void LinEuler2D::config_mean_velocity()
 {
-  std::vector<Real> U0 = option("U0").value< std::vector<Real> >();
+  std::vector<Real> U0 = options().option("U0").value< std::vector<Real> >();
   m_u0[XX] = U0[XX];
   m_u0[YY] = U0[YY];
 }
@@ -97,7 +97,7 @@ LinEuler2D::~LinEuler2D()
 
 boost::shared_ptr< physics::Variables > LinEuler2D::create_variables( const std::string type, const std::string name )
 {
-  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+  boost::shared_ptr< physics::Variables > vars = boost::algorithm::contains( type, "." ) ?
         build_component_abstract_type< physics::Variables >( type, name ) :
         build_component_abstract_type< physics::Variables >( LibLinEuler::library_namespace() + "." + type, name );
 

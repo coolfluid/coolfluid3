@@ -72,7 +72,7 @@ void CFaceConnectivity::initialize(const Elements& own_celements, const CNodeCon
 
 void CFaceConnectivity::initialize(const CNodeConnectivity& node_connectivity)
 {
-  const Elements& parent_celements = parent().as_type<Elements>();
+  const Elements& parent_celements = *Handle<Elements>(parent());
   initialize(parent_celements, node_connectivity);
 }
 

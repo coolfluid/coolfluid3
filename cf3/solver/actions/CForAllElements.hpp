@@ -22,8 +22,8 @@ class solver_actions_API CForAllElements : public CLoop
 {
 public: // typedefs
 
-  typedef boost::shared_ptr< CForAllElements > Ptr;
-  typedef boost::shared_ptr< CForAllElements const > ConstPtr;
+  
+  
 
 public: // functions
 

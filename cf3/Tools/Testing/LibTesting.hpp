@@ -38,8 +38,8 @@ namespace Testing {
   {
   public:
 
-    typedef boost::shared_ptr<LibTesting> Ptr;
-    typedef boost::shared_ptr<LibTesting const> ConstPtr;
+    
+    
 
     /// Constructor
     LibTesting ( const std::string& name) : common::Library(name) {   }
