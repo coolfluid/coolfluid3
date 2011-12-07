@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   generate_mesh.options().configure_option("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   generate_mesh.options().configure_option("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   generate_mesh.options().configure_option("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
@@ -629,7 +629,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   generate_mesh.options().configure_option("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(SFDM::Tags::mesh(),mesh.uri());
+  solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh

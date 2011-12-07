@@ -9,6 +9,7 @@
 #include "common/PE/Comm.hpp"
 
 #include "common/Builder.hpp"
+#include "common/Log.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
@@ -108,6 +109,10 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 
   options().add_option("order", 2u)
       .description("Order of the p-norm, zero if L-inf");
+
+  options().add_option("field", URI())
+      .pretty_name("Field")
+      .description("URI to the field to use, or to a link");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +149,10 @@ Real CComputeLNorm::compute_norm(mesh::Field& field) const
 void CComputeLNorm::execute()
 {
   Handle<Field> field( follow_link(access_component(options().option("field").value<URI>())) );
-  properties().configure_property("norm", compute_norm(*field) );
+  if(is_not_null(field))
+    properties().configure_property("norm", compute_norm(*field) );
+  else
+    CFinfo << "Not computing norm in action " << uri() << " because option field is invalid." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -218,7 +218,7 @@ void SFDSolver::build_riemann_solver()
   if (is_not_null(m_riemann_solver))
     remove_component(*m_riemann_solver);
   m_riemann_solver = create_component("riemann_solver",options().option("riemann_solver").value<std::string>())->handle<RiemannSolvers::RiemannSolver>();
-  m_riemann_solver->options().configure_option("physical_model",physics().uri());
+  m_riemann_solver->options().configure_option("physical_model",physics().handle<PhysModel>());
 }
 
 /////////////////////////////////////////////////////////////////////////////
