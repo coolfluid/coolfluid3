@@ -37,13 +37,13 @@ public:
   /// Construction using references to the actual component (mainly useful in utests or other non-dynamic code)
   /// Using this constructor does not use dynamic configuration through options
   ComponentWrapperImpl(ComponentT& component) :
-    m_component( new boost::weak_ptr<ComponentT>(component.template as_ptr<ComponentT>()) )
+    m_component( new Handle<ComponentT>(component.template handle<ComponentT>()) )
   {
   }
 
   /// Construction using an option that will point to the actual component.
   ComponentWrapperImpl(common::Option& component_option) :
-    m_component( new boost::weak_ptr<ComponentT>() )
+    m_component( new Handle<ComponentT>() )
   {
     component_option.link_to(m_component.get());
   }
@@ -51,16 +51,16 @@ public:
   /// Return the wrapped component
   ComponentT& component()
   {
-    if(m_component->expired())
+    if(is_null(m_component))
       throw common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
 
-    return *(m_component->lock());
+    return **m_component;
   }
 
 private:
   /// Points to the wrapped component, if any
   /// The shared_ptr wraps the weak_ptr so the link is always OK
-  boost::shared_ptr< boost::weak_ptr<ComponentT> > m_component;
+  boost::shared_ptr< Handle<ComponentT> > m_component;
 };
 
 /// Proto-ready terminal type for wrapping a component

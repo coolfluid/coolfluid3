@@ -181,7 +181,7 @@ void ListeningThread::check_for_data()
       {
         try
         {
-          XmlDoc::Ptr doc = XML::parse_cstring( info->data );
+          boost::shared_ptr<XmlDoc> doc = XML::parse_cstring( info->data );
 
           new_signal( it->first, doc );
 

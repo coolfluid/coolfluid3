@@ -4,13 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/weak_ptr.hpp>
+#include "python/BoostPython.hpp"
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "python/BoostPython.hpp"
 #include "python/CoreWrapper.hpp"
 #include "python/ComponentWrapper.hpp"
 
@@ -23,12 +22,12 @@ struct CoreWrapper
 {
   static object root()
   {
-    return wrap_component(common::Core::instance().root());
+    return wrap_component(common::Core::instance().root().handle<common::Component>());
   }
 
   static object environment()
   {
-    return wrap_component(common::Core::instance().environment());
+    return wrap_component(common::Core::instance().environment().handle<common::Component>());
   }
 
   static void initiate(list arglist)
@@ -49,7 +48,7 @@ struct CoreWrapper
       common::PE::Comm::instance().init(argc, argv);
     }
   }
-  
+
   static void terminate()
   {
     common::Core::instance().terminate();

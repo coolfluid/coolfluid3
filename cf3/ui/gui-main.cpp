@@ -14,6 +14,7 @@
 #include "common/Environment.hpp"
 #include "common/NetworkInfo.hpp"
 #include "common/Exception.hpp"
+#include "common/OptionList.hpp"
 
 #include "ui/core/ThreadManager.hpp"
 
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
   ThreadManager::instance().tree();
 
   // initiate the core environment
-  Core::instance().environment().configure_option("regist_signal_handlers", false);
+  Core::instance().environment().options().configure_option("regist_signal_handlers", false);
   Core::instance().initiate(argc, argv);
   PE::Comm::instance().init(argc,argv);   // this might modify argc and argv
 

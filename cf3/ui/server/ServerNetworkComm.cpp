@@ -179,8 +179,8 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
   SignalFrame frame("frame_rejected", sender, CLIENT_ROOT_PATH);
   SignalOptions options( frame );
 
-  options.add_option< OptionT<std::string> >("frameid", frameid);
-  options.add_option< OptionT<std::string> >("reason", reason.toStdString());
+  options.add_option("frameid", frameid);
+  options.add_option("reason", reason.toStdString());
 
   options.flush();
 
@@ -199,8 +199,8 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  options.add_option< OptionT<std::string> >("type", LogMessage::Convert::instance().to_str(type));
-  options.add_option< OptionT<std::string> >("text", message.toStdString());
+  options.add_option("type", LogMessage::Convert::instance().to_str(type));
+  options.add_option("text", message.toStdString());
 
   options.flush();
 
@@ -307,7 +307,7 @@ void ServerNetworkComm::newData()
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      XmlDoc::Ptr xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
+      boost::shared_ptr< XmlDoc > xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
 
 //      std::cout << frame << std::endl;
 
@@ -339,7 +339,7 @@ void ServerNetworkComm::newData()
             SignalFrame reply = sig_frame->create_reply();
             SignalOptions roptions( reply );
 
-            roptions.add_option< OptionT<bool> >("accepted", true);
+            roptions.add_option("accepted", true);
 
             roptions.flush();
 

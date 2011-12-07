@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
@@ -37,12 +37,13 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  options().add_option(OptionURI::create(mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
-      ->description("Field to set")
-      ->pretty_name("Area")
-      ->mark_basic()
-      ->attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
-      ->add_tag(mesh::Tags::area());
+  options().add_option(mesh::Tags::area(), URI())
+      .supported_protocol(URI::Scheme::CPATH)
+      .description("Field to set")
+      .pretty_name("Area")
+      .mark_basic()
+      .attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
+      .add_tag(mesh::Tags::area());
 
   options()["elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 }
@@ -51,20 +52,19 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 
 void CComputeArea::config_field()
 {
-  URI uri;
-  option(mesh::Tags::area()).put_value(uri);
-  m_area = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
+  URI uri = options().option(mesh::Tags::area()).value<URI>();
+  m_area = Core::instance().root().access_component(uri)->handle<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CComputeArea::trigger_elements()
 {
-  m_can_start_loop = m_area.lock()->elements_lookup().contains(elements());
+  m_can_start_loop = m_area->elements_lookup().contains(elements());
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);
-    m_area_field_space = m_area.lock()->space(elements()).as_ptr<Space>();
+    m_area_field_space = m_area->space(elements()).handle<Space>();
   }
 }
 
@@ -72,8 +72,8 @@ void CComputeArea::trigger_elements()
 
 void CComputeArea::execute()
 {
-  Space& space = *m_area_field_space.lock();
-  Field& area = *m_area.lock();
+  Space& space = *m_area_field_space;
+  Field& area = *m_area;
 
   elements().put_coordinates(m_coordinates,idx());
   area[space.indexes_for_element(idx())[0]][0] = elements().element_type().area( m_coordinates );

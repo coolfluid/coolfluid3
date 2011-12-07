@@ -30,11 +30,6 @@ namespace UFEM {
 /// * Region to loop over
 class UFEM_API LinearSolver : public solver::CSimpleSolver
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<LinearSolver> Ptr;
-  typedef boost::shared_ptr<LinearSolver const> ConstPtr;
-
 public: // functions
 
   /// Contructor
@@ -50,16 +45,6 @@ public: // functions
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);
-
-  /// Return an action that resets the LSS to zero
-  common::Action& zero_action();
-
-  /// Return the action used for solving the system
-  common::Action& solve_action();
-
-  /// Get the component that manages boundary conditions
-  BoundaryConditions& boundary_conditions();
-
 
 private:
   class Implementation;

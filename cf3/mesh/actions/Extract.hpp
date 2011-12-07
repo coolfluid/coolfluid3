@@ -28,8 +28,8 @@ class mesh_actions_API Extract : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Extract> Ptr;
-    typedef boost::shared_ptr<Extract const> ConstPtr;
+    
+    
 
 private: // typedefs
   

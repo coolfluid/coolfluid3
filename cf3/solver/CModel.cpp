@@ -19,6 +19,8 @@
 #include "common/OptionURI.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -49,15 +51,15 @@ struct CModel::Implementation
 {
   Implementation(Component& component) :
     m_component(component),
-    m_tools(m_component.create_static_component<Group>("tools"))
+    m_tools(*m_component.create_static_component<Group>("tools"))
   {
     m_tools.mark_basic();
   }
 
   Component& m_component;
   Group& m_tools;
-  boost::weak_ptr<Domain> m_domain;
-  boost::weak_ptr<physics::PhysModel> m_physics;
+  Handle<Domain> m_domain;
+  Handle<physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,51 +74,51 @@ CModel::CModel( const std::string& name  ) :
 
   std::string cwd = boost::filesystem::current_path().string();
 
-   options().add_option< OptionURI >("WorkingDir", URI( cwd ) )
-       ->description("Your working directory")
-       ->mark_basic();
+   options().add_option("WorkingDir", URI( cwd ) )
+       .description("Your working directory")
+       .mark_basic();
 
-   options().add_option< OptionURI >("ResultsDir", URI( cwd ) )
-       ->description("Directory to store the output files")
-       ->mark_basic();
+   options().add_option("ResultsDir", URI( cwd ) )
+       .description("Directory to store the output files")
+       .mark_basic();
 
-   options().add_option< OptionT<Uint> >("CPUs", 1u )
-       ->description("Number of cpus to use in simulation")
-       ->mark_basic();
+   options().add_option("CPUs", 1u )
+       .description("Number of cpus to use in simulation")
+       .mark_basic();
 
   // properties
 
-  m_properties["steady"] = bool(true);
+  properties()["steady"] = bool(true);
 
   // signals
   regist_signal( "create_physics" )
-    ->connect( boost::bind( &CModel::signal_create_physics, this, _1 ) )
-    ->description("Create the physical model")
-    ->pretty_name("Create Physics")
-    ->signature( boost::bind ( &CModel::signature_create_physics, this, _1) );
+    .connect( boost::bind( &CModel::signal_create_physics, this, _1 ) )
+    .description("Create the physical model")
+    .pretty_name("Create Physics")
+    .signature( boost::bind ( &CModel::signature_create_physics, this, _1) );
 
   regist_signal( "create_domain" )
-    ->connect( boost::bind( &CModel::signal_create_domain, this, _1 ) )
-    ->description("Create the domain and load a mesh")
-    ->pretty_name("Create Domain")
-    ->signature( boost::bind ( &CModel::signature_create_domain, this, _1) );
+    .connect( boost::bind( &CModel::signal_create_domain, this, _1 ) )
+    .description("Create the domain and load a mesh")
+    .pretty_name("Create Domain")
+    .signature( boost::bind ( &CModel::signature_create_domain, this, _1) );
 
   regist_signal( "create_solver" )
-    ->connect( boost::bind( &CModel::signal_create_solver, this, _1 ) )
-    ->description("Create the solver")
-    ->pretty_name("Create Solver")
-    ->signature( boost::bind ( &CModel::signature_create_solver, this, _1) );
+    .connect( boost::bind( &CModel::signal_create_solver, this, _1 ) )
+    .description("Create the solver")
+    .pretty_name("Create Solver")
+    .signature( boost::bind ( &CModel::signature_create_solver, this, _1) );
 
   regist_signal( "simulate" )
-    ->connect( boost::bind( &CModel::signal_simulate, this, _1 ) )
-    ->description("Simulates this model")
-    ->pretty_name("Simulate");
+    .connect( boost::bind( &CModel::signal_simulate, this, _1 ) )
+    .description("Simulates this model")
+    .pretty_name("Simulate");
 
   regist_signal ( "setup" )
-    ->connect( boost::bind ( &CModel::signal_setup, this, _1 ) )
-    ->description( "Set up the model using a specific solver" )
-    ->pretty_name( "Setup" )
-    ->signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
+    .connect( boost::bind ( &CModel::signal_setup, this, _1 ) )
+    .description( "Set up the model using a specific solver" )
+    .pretty_name( "Setup" )
+    .signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
 
   // Listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_loaded", this, &CModel::on_mesh_loaded_event);
@@ -174,14 +176,14 @@ physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
   std::string pm_name = Builder::extract_reduced_name(builder);
 
-  physics::PhysModel::Ptr pm = boost::algorithm::contains( builder, "." ) ?
+  boost::shared_ptr< physics::PhysModel > pm = boost::algorithm::contains( builder, "." ) ?
         build_component_abstract_type< physics::PhysModel >( builder, pm_name ) :
         build_component_abstract_type_reduced< physics::PhysModel >( builder, pm_name );
 
   add_component(pm);
-  m_implementation->m_physics = pm;
+  m_implementation->m_physics = Handle<physics::PhysModel>(pm);
 
-  configure_option_recursively(Tags::physical_model(), pm->uri());
+  configure_option_recursively(Tags::physical_model(), m_implementation->m_physics);
 
   return *pm;
 }
@@ -190,7 +192,7 @@ physics::PhysModel& CModel::create_physics( const std::string& builder )
 
 Domain& CModel::create_domain( const std::string& name )
 {
-  Domain::Ptr dom = create_component_ptr<Domain>( name );
+  Handle<Domain> dom = create_component<Domain>( name );
   m_implementation->m_domain = dom;
 
   return *dom;
@@ -202,14 +204,14 @@ CSolver& CModel::create_solver( const std::string& builder)
 {
   std::string solver_name = Builder::extract_reduced_name(builder);
 
-  CSolver::Ptr solver = boost::algorithm::contains( builder, "." ) ?
+  boost::shared_ptr< CSolver > solver = boost::algorithm::contains( builder, "." ) ?
               build_component_abstract_type< solver::CSolver >( builder, solver_name ) :
               build_component_abstract_type_reduced< solver::CSolver >( builder, solver_name );
 
   add_component(solver);
 
-  if(!m_implementation->m_physics.expired())
-    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics.lock()->uri());
+  if(is_not_null(m_implementation->m_physics))
+    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics);
 
   return *solver;
 }
@@ -220,7 +222,7 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  Factory::Ptr pm_factory = Core::instance().factories().get_factory<physics::PhysModel>();
+  Handle< Factory > pm_factory = Core::instance().factories().get_factory<physics::PhysModel>();
   std::vector<boost::any> pms;
 
   // build the restricted list
@@ -230,9 +232,9 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->description("Choose solver")
-      ->restricted_list() = pms;
+  options.add_option( "builder", std::string() )
+      .description("Choose solver")
+      .restricted_list() = pms;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +268,7 @@ void CModel::signature_create_solver ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  Factory::Ptr solver_factory = Core::instance().factories().get_factory<CSolver>();
+  Handle< Factory > solver_factory = Core::instance().factories().get_factory<CSolver>();
   std::vector<boost::any> solvers;
 
   // build the restricted list
@@ -276,9 +278,9 @@ void CModel::signature_create_solver ( common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->description("Choose solver")
-      ->restricted_list() = solvers;
+  options.add_option( "builder", std::string() )
+      .description("Choose solver")
+      .restricted_list() = solvers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -303,13 +305,13 @@ void CModel::signature_setup(SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("solver_builder")
-    ->pretty_name("Solver Builder")
-    ->description("Builder name");
+  options.add_option<std::string>("solver_builder")
+    .pretty_name("Solver Builder")
+    .description("Builder name");
 
-  options.add_option< OptionT<std::string> >("physics_builder")
-    ->pretty_name("Physics Builder")
-    ->description("Builder name for the physics");
+  options.add_option<std::string>("physics_builder")
+    .pretty_name("Physics Builder")
+    .description("Builder name for the physics");
 }
 
 void CModel::signal_setup(SignalArgs& node)
@@ -333,7 +335,7 @@ void CModel::signal_simulate ( common::SignalArgs& node )
 void CModel::on_mesh_loaded_event(SignalArgs& args)
 {
   // If we have no domain, the event can't be for us
-  if(m_implementation->m_domain.expired())
+  if(is_null(m_implementation->m_domain))
     return;
 
   SignalOptions options(args);
@@ -343,12 +345,12 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
-    Mesh& mesh = access_component(mesh_uri).as_type<Mesh>();
+    Handle<Mesh> mesh(access_component(mesh_uri));
 
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
     {
-      solver.mesh_loaded(mesh);
+      solver.mesh_loaded(*mesh);
     }
   }
 }
@@ -356,7 +358,7 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
 void CModel::on_mesh_changed_event(SignalArgs& args)
 {
   // If we have no domain, the event can't be for us
-  if(m_implementation->m_domain.expired())
+  if(is_null(m_implementation->m_domain))
     return;
 
   SignalOptions options(args);
@@ -366,12 +368,12 @@ void CModel::on_mesh_changed_event(SignalArgs& args)
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
-    Mesh& mesh = access_component(mesh_uri).as_type<Mesh>();
+    Handle<Mesh> mesh(access_component(mesh_uri));
 
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
     {
-      solver.mesh_changed(mesh);
+      solver.mesh_changed(*mesh);
     }
   }
 }

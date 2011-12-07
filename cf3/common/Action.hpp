@@ -20,12 +20,6 @@ namespace common {
 /// Component that executes an action. Implementation of the IAction interface as a component, exposing the execute function as a signal.
 class Common_API Action : public IAction, public Component {
 
-public: // typedefs
-
-  /// pointers
-  typedef boost::shared_ptr<Action> Ptr;
-  typedef boost::shared_ptr<Action const> ConstPtr;
-
 public: // functions
 
   /// Contructor

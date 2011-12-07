@@ -47,8 +47,8 @@ class Expression
 {
 public:
   /// Pointer typedefs
-  typedef boost::shared_ptr<Expression> Ptr;
-  typedef boost::shared_ptr<Expression const> ConstPtr;
+  
+  
 
   /// Run the stored expression in a loop over the region
   virtual void loop(mesh::Region& region) = 0;
@@ -88,7 +88,7 @@ public:
     for(ConstantStorage::ScalarsT::iterator it = m_constant_values.m_scalars.begin(); it != m_constant_values.m_scalars.end(); ++it)
     {
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< common::OptionT<Real> >(name, it->second);
+      common::Option& option = options.check(name) ? options.option(name) : options.add_option(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
     }
@@ -107,7 +107,7 @@ public:
       }
 
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< common::OptionArrayT<Real> >(name, vec_proxy);
+      common::Option& option = options.check(name) ? options.option(name) : options.add_option(name, vec_proxy);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
@@ -184,7 +184,7 @@ private:
 
       if(is_null(result))
       {
-        result = &m_physical_model.variable_manager().template create_component<math::VariablesDescriptor>(tag);
+        result = m_physical_model.variable_manager().template create_component<math::VariablesDescriptor>(tag).get();
         result->add_tag(tag);
       }
 

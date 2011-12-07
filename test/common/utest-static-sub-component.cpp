@@ -28,10 +28,6 @@ using namespace cf3::common;
 
 class Part : public Component
 {
-public: // typedefs
-
-  typedef boost::shared_ptr< Part > Ptr;
-  typedef boost::shared_ptr< Part const > ConstPtr;
 
 public: // functions
 
@@ -50,18 +46,12 @@ public: // functions
 template < typename SubCompT >
 class HolderT : public Component
 {
-public: // typedefs
-
-  typedef boost::shared_ptr< HolderT<SubCompT> > Ptr;
-  typedef boost::shared_ptr< HolderT<SubCompT> const > ConstPtr;
-
 public: // functions
 
   HolderT ( const std::string& name ) :
       Component(name),
-      m_subcomp (allocate_component<SubCompT>("subc"))
+      m_subcomp (create_static_component<SubCompT>("subc"))
   {
-    add_static_component ( m_subcomp );
   }
 
   virtual ~HolderT() {}
@@ -70,7 +60,7 @@ public: // functions
 
 private: // data
 
-  Component::Ptr m_subcomp;
+  Handle<SubCompT> m_subcomp;
 
 }; // HolderT
 
@@ -82,9 +72,9 @@ BOOST_AUTO_TEST_SUITE( StaticSubComponent_TestSuite )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr cp = root->create_component_ptr< HolderT<Part> >( "myHolderT_Part" );
+  Handle<Component> cp = root->create_component< HolderT<Part> >( "myHolderT_Part" );
 
   BOOST_CHECK_EQUAL ( HolderT<Part>::type_name() , "HolderT_Part" );
 

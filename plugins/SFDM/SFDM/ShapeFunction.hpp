@@ -30,8 +30,6 @@ public:
 
   typedef boost::detail::multi_array::multi_array_view<Real,2> FieldView;
 
-  typedef boost::shared_ptr<ShapeFunction>       Ptr;
-  typedef boost::shared_ptr<ShapeFunction const> ConstPtr;
 
 private:
 

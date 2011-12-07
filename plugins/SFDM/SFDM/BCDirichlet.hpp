@@ -31,8 +31,8 @@ class SFDM_API BCDirichlet : public Term
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<BCDirichlet> Ptr;
-    typedef boost::shared_ptr<BCDirichlet const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -48,7 +48,7 @@ private:
 
   void config_function();
 
-  boost::weak_ptr<physics::Variables> m_input_vars;  ///< access to the input variables
+  Handle<physics::Variables> m_input_vars;  ///< access to the input variables
 
   math::VectorialFunction  m_function;    ///< function parser for the math formula
 

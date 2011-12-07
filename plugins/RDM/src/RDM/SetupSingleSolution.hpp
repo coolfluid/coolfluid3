@@ -25,8 +25,8 @@ class RDM_API SetupSingleSolution : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<SetupSingleSolution> Ptr;
-  typedef boost::shared_ptr<SetupSingleSolution const> ConstPtr;
+  
+  
 
 public: // functions
 

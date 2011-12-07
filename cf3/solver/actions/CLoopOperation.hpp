@@ -31,8 +31,8 @@ class solver_actions_API CLoopOperation : public common::Action
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CLoopOperation> Ptr;
-  typedef boost::shared_ptr<CLoopOperation const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -60,8 +60,8 @@ protected: // functions
 
   Uint idx() const { return m_idx; }
 
-  mesh::Entities const& elements() const { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
-  mesh::Entities& elements() { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+  mesh::Entities const& elements() const { cf3_assert( is_not_null(m_elements) ); return *m_elements; }
+  mesh::Entities& elements() { cf3_assert( is_not_null(m_elements) ); return *m_elements; }
 
   bool m_can_start_loop;
 
@@ -74,7 +74,7 @@ private: // data
 
   Uint m_idx;
 
-  boost::weak_ptr<mesh::Entities>  m_elements;
+  Handle<mesh::Entities>  m_elements;
 
 };
 

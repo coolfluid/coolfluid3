@@ -37,8 +37,8 @@ class RDM_GPU_API LibGPU : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibGPU> Ptr;
-  typedef boost::shared_ptr<LibGPU const> ConstPtr;
+  
+  
 
   /// Constructor
   LibGPU ( const std::string& name) : common::Library(name) {   }

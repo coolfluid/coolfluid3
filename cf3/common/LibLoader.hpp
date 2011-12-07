@@ -21,16 +21,12 @@ class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LibLoadingError : public common::Exception {
+/// Not deriving from common::Exception to avoid the automatic error output
+class Common_API LibLoadingError : public std::runtime_error {
 public:
-
   /// Constructor
-  LibLoadingError ( const common::CodeLocation& where, const std::string& what) :
-    common::Exception(where, what, "LibLoadingError") {}
-
-  /// Copy constructor
-  LibLoadingError ( const LibLoadingError& e) throw () : Exception(e) {}
-
+  LibLoadingError ( const std::string& what) :
+    std::runtime_error(what) {}
 }; // LibLoadingError
 
 
@@ -55,7 +51,7 @@ public: // methods
 
   /// Unloads a library and initiates it
   /// @throw LibLoadingError if loading fails for any reason
-  void unload_library( boost::shared_ptr<Library> lib );
+  void unload_library( Library& lib );
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm

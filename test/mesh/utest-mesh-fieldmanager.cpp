@@ -12,6 +12,7 @@
 #include <boost/foreach.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Environment.hpp"
 #include "common/Core.hpp"
 
@@ -45,37 +46,37 @@ BOOST_AUTO_TEST_SUITE( FieldManagerSuite )
 
 BOOST_AUTO_TEST_CASE( test_FieldManager )
 {
-  Core::instance().environment().configure_option("exception_aborts",false);
-  Core::instance().environment().configure_option("exception_backtrace",false);
-  Core::instance().environment().configure_option("exception_outputs",false);
+  Core::instance().environment().options().configure_option("exception_aborts",false);
+  Core::instance().environment().options().configure_option("exception_backtrace",false);
+  Core::instance().environment().options().configure_option("exception_outputs",false);
   Component& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
   const std::string tag = "solution";
 
-  VariableManager& var_manager = root.create_component<VariableManager>("varmanager");
-  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 2u);
+  Handle<VariableManager> var_manager = root.create_component<VariableManager>("varmanager");
+  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().configure_option(common::Tags::dimension(), 2u);
 
   // Test mesh
-  Mesh& mesh = root.create_component<Mesh>("mesh");
+  Mesh& mesh = *root.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 10, 10);
 
   // FieldManager
-  FieldManager& field_manager = root.create_component<FieldManager>("fieldmanager");
-  field_manager.configure_option("variable_manager", var_manager.uri());
+  FieldManager& field_manager = *root.create_component<FieldManager>("fieldmanager");
+  field_manager.options().configure_option("variable_manager", var_manager);
 
   // Do this twice, to ensure the second run does nothing
   field_manager.create_field(tag, mesh.geometry_fields());
   field_manager.create_field(tag, mesh.geometry_fields());
 
-  BOOST_CHECK(is_not_null(mesh.geometry_fields().get_child_ptr(tag)));
+  BOOST_CHECK(is_not_null(mesh.geometry_fields().get_child(tag)));
   Field& field = mesh.geometry_fields().field(tag);
   BOOST_CHECK(field.has_variable("a"));
   BOOST_CHECK(field.row_size() == 7);
 
   // Now change the descriptor and ensure there is an error
-  var_manager.get_child(tag).remove_tag(tag);
-  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 3u);
+  var_manager->get_child(tag)->remove_tag(tag);
+  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().configure_option(common::Tags::dimension(), 3u);
   BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry_fields()), SetupError);
 }
 

@@ -6,6 +6,8 @@
 
 #include <boost/program_options.hpp>
 
+#include "common/Handle.hpp"
+
 namespace cf3 {
 namespace common { class Component; class SignalDispatcher; }
 namespace Tools {
@@ -63,9 +65,9 @@ public: // functions
 
 public: // data
 
-  static boost::shared_ptr<common::Component> current_component;
+  static Handle<common::Component> current_component;
 
-  static boost::shared_ptr<common::Component> tree_root;
+  static Handle<common::Component> tree_root;
 
   static common::SignalDispatcher * dispatcher;
 };

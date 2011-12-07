@@ -24,8 +24,8 @@ class solver_actions_API CCriterion : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterion> Ptr;
-  typedef boost::shared_ptr<CCriterion const> ConstPtr;
+  
+  
 
 public: // functions
 

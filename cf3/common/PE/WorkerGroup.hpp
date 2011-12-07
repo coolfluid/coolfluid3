@@ -24,11 +24,6 @@ namespace PE {
 
 class Common_API WorkerGroup : public Component
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<WorkerGroup> Ptr;
-  typedef boost::shared_ptr<const WorkerGroup> ConstPtr;
-
 public:
 
   WorkerGroup( const std::string & name );

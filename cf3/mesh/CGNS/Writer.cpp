@@ -52,15 +52,13 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& path)
 {
-  m_mesh = mesh.as_ptr_checked<Mesh>().get();
-
   m_fileBasename = path.base_name(); // filename without extension
 
 
   CFdebug << "Opening file " << path.path() << CFendl;
   CALL_CGNS(cg_open(path.path().c_str(),CG_MODE_WRITE,&m_file.idx));
 
-  write_base();
+  write_base(mesh);
 
   CFdebug << "Closing file " << path.path() << CFendl;
   CALL_CGNS(cg_close(m_file.idx));
@@ -69,32 +67,32 @@ void Writer::write_from_to(const Mesh& mesh, const URI& path)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_base()
+void Writer::write_base(const Mesh& mesh)
 {
-  const Region& base_region = m_mesh->topology();
+  const Region& base_region = mesh.topology();
   m_base.name = base_region.name();
-  m_base.cell_dim = m_mesh->dimensionality();
-  m_base.phys_dim = m_mesh->dimension();
+  m_base.cell_dim = mesh.dimensionality();
+  m_base.phys_dim = mesh.dimension();
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
 
   BOOST_FOREACH(const Region& zone_region, find_components<Region>(base_region))
   {
-    write_zone(zone_region);
+    write_zone(zone_region, mesh);
   }
 
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_zone(const Region& region)
+void Writer::write_zone(const Region& region, const Mesh& mesh)
 {
   m_zone.name = region.name();
 
-  m_zone.coord_dim = m_mesh->dimension();
+  m_zone.coord_dim = mesh.dimension();
 
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry_fields(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(mesh.geometry_fields(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -124,7 +122,7 @@ void Writer::write_zone(const Region& region)
   }
 
   Uint idx=0;
-  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry_fields(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(mesh.geometry_fields(),mesh::Tags::coordinates()))
   {
     m_global_start_idx[&coordinates] = idx;
 
@@ -188,7 +186,7 @@ void Writer::write_zone(const Region& region)
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const Elements& elements, find_components_recursively<Elements>(region))
   {
-    grouped_elements_map[elements.parent().uri().path()].push_back(elements.as_ptr<Elements const>());
+    grouped_elements_map[elements.parent()->uri().path()].push_back(elements.handle<Elements>());
   }
 
   m_section.elemStartIdx = 0;
@@ -208,13 +206,13 @@ void Writer::write_section(const GroupedElements& grouped_elements)
   std::map<std::string,std::string> builder_name;
   boost_foreach(Builder& sf_builder, find_components_recursively<Builder>( sf_factory ) )
   {
-    ElementType::Ptr sf = sf_builder.build("sf")->as_ptr<ElementType>();
+    boost::shared_ptr< ElementType > sf = boost::dynamic_pointer_cast<ElementType>(sf_builder.build("sf"));
     builder_name[sf->derived_type_name()] = sf_builder.name();
   }
 
 
 
-  Region::ConstPtr section_region = grouped_elements[0]->parent().as_ptr<Region const>();
+  Handle<Region const> section_region = Handle<Region const>(grouped_elements[0]->parent());
 
   m_section.name = section_region->name();
   m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF3_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];
@@ -245,7 +243,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
 
       CALL_CGNS(cg_section_partial_write(m_file.idx,m_base.idx,m_zone.idx,m_section.name.c_str(),m_section.type,mixed_section.elemStartIdx,mixed_section.elemEndIdx,mixed_section.nbBdry,&m_section.idx));
 
-      BOOST_FOREACH(Elements::ConstPtr elements, grouped_elements)
+      BOOST_FOREACH(const Handle< Elements const>& elements, grouped_elements)
       {
         int nbElems = elements->size();
         m_section.elemNodeCount = elements->element_type().nb_nodes();

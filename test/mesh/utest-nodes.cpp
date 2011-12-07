@@ -43,13 +43,13 @@ struct Nodes_Fixture
   /// common setup for each test case
   Nodes_Fixture()
   {
-     mesh2d = Core::instance().root().create_component_ptr<Mesh>  ( "mesh2d" );
+     mesh2d = Core::instance().root().create_component<Mesh>  ( "mesh2d" );
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
     // Read the a .neu mesh as 2D mixed mesh
-    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+    boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
     // Read the mesh
     meshreader->read_mesh_into("../../resources/quadtriag.neu",*mesh2d);
@@ -60,7 +60,7 @@ struct Nodes_Fixture
   {
   }
   /// common values accessed by all tests goes here
-  boost::shared_ptr<Mesh> mesh2d;
+  Handle<Mesh> mesh2d;
 
   Elements& get_first_region()
   {
@@ -123,10 +123,10 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  SpaceFields::Ptr geometry = allocate_component<SpaceFields>("geometry_fieds");
+  boost::shared_ptr<SpaceFields> geometry = allocate_component<SpaceFields>("geometry_fieds");
   BOOST_CHECK( is_not_null(geometry) );
 
-  Field::Ptr coords = geometry->create_component_ptr<Field>("coordinates");
+  Handle<Field> coords = geometry->create_component<Field>("coordinates");
   coords->create_descriptor("coords[vec]",2u);
 
   // Tagging this component will cache it to geometry->coordinates()

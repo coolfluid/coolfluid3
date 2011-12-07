@@ -12,6 +12,7 @@
 #include <boost/foreach.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -52,10 +53,10 @@ struct SpaceFieldsTests_Fixture
   }
 
   /// common mesh accessed by all tests
-  static Mesh::Ptr m_mesh;
+  static Handle< Mesh > m_mesh;
 };
 
-Mesh::Ptr SpaceFieldsTests_Fixture::m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Handle< Mesh > SpaceFieldsTests_Fixture::m_mesh = Core::instance().root().create_component<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,10 +66,10 @@ BOOST_FIXTURE_TEST_SUITE( SpaceFieldsTests_TestSuite, SpaceFieldsTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
-  SimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
-  mesh_gen.configure_option("mesh",m_mesh->uri());
-  mesh_gen.configure_option("lengths",std::vector<Real>(2,5.));
-  mesh_gen.configure_option("nb_cells",std::vector<Uint>(2,5u));
+  SimpleMeshGenerator& mesh_gen = *Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
+  mesh_gen.options().configure_option("mesh",m_mesh->uri());
+  mesh_gen.options().configure_option("lengths",std::vector<Real>(2,5.));
+  mesh_gen.options().configure_option("nb_cells",std::vector<Uint>(2,5u));
   mesh_gen.execute();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +82,9 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   BOOST_CHECK_NO_THROW(mesh.geometry_fields().check_sanity());
 
   // Check if indexes_for_element function returns expected results
-  boost_foreach(Elements& elements, mesh.geometry_fields().elements_range())
+  boost_foreach(const Handle<Elements>& elements_handle, mesh.geometry_fields().elements_range())
   {
+    Elements& elements = *elements_handle;
     for (Uint e=0; e<elements.size(); ++e)
     {
       BOOST_CHECK( mesh.geometry_fields().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
@@ -114,8 +116,9 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
 
   // CHECK indexes_for_element access for nodes
   Uint cell_idx=0;
-  boost_foreach(Entities& elements, cell_fields.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, cell_fields.elements_range())
   {
+    Entities& elements = *elements_handle;
     for (Uint e=0; e<elements.size(); ++e)
     {
       BOOST_CHECK( elements.space(cell_fields.space()).is_bound_to_fields() );
@@ -178,10 +181,11 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
 
 BOOST_AUTO_TEST_CASE( test_Field )
 {
-  SpaceFields& cells_P0 = m_mesh->get_child("cells_P0").as_type<SpaceFields>();
-  Field& volume = cells_P0.field("volume");
-  boost_foreach(Elements& elements, volume.elements_range())
+  Handle<SpaceFields> cells_P0(m_mesh->get_child("cells_P0"));
+  Field& volume = cells_P0->field("volume");
+  boost_foreach(const Handle<Elements>& elements_handle, volume.elements_range())
   {
+    Elements& elements = *elements_handle;
     Space& space = volume.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -194,12 +198,13 @@ BOOST_AUTO_TEST_CASE( test_Field )
     }
   }
 
-  SpaceFields& points_P2 = m_mesh->get_child("points_P2").as_type<SpaceFields>();
-  Field& point_field = points_P2.create_field("point_field");
+  Handle<SpaceFields> points_P2(m_mesh->get_child("points_P2"));
+  Field& point_field = points_P2->create_field("point_field");
 
 
-  boost_foreach(const Elements& elements, point_field.elements_range())
+  boost_foreach(const Handle<Elements>& elements_handle, point_field.elements_range())
   {
+    Elements& elements = *elements_handle;
     const Space& space = point_field.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -215,9 +220,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
 
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
-  SpaceFields& cells_P0 = m_mesh->get_child("cells_P0").as_type<SpaceFields>();
-  Field& solution = cells_P0.create_field("solution","sol[1]");
-  Field& solution_copy = cells_P0.create_field("solution_copy",solution.descriptor().description());
+  Handle<SpaceFields> cells_P0(m_mesh->get_child("cells_P0"));
+  Field& solution = cells_P0->create_field("solution","sol[1]");
+  Field& solution_copy = cells_P0->create_field("solution_copy",solution.descriptor().description());
   solution_copy.descriptor().prefix_variable_names("copy_");
 
   solution[0][0] = 25.;

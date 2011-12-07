@@ -30,9 +30,9 @@ class Mesh_API MergedParallelDistribution : public common::Component {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<MergedParallelDistribution> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<MergedParallelDistribution const> ConstPtr;
+  
 
 public: // functions
 
@@ -90,7 +90,7 @@ private:
 
   Uint m_nb_parts;
 
-  std::vector<boost::shared_ptr<ParallelDistribution> > m_subhash;
+  std::vector<Handle<ParallelDistribution> > m_subhash;
 
 };
 

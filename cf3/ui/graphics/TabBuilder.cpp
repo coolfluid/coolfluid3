@@ -93,7 +93,7 @@ void TabBuilder::end_model_reset()
 
 ///////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::show_tab( CNode::ConstPtr node )
+void TabBuilder::show_tab( Handle< CNode > node )
 {
   common::UUCount key = node->properties().value<common::UUCount>("uuid"); //node->uri().path();
 
@@ -106,7 +106,7 @@ void TabBuilder::show_tab( CNode::ConstPtr node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::queue_tab(core::CNode::ConstPtr node)
+void TabBuilder::queue_tab(Handle< core::CNode > node)
 {
   std::string uuid = node->properties().value_str("uuid");
 

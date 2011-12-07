@@ -60,37 +60,37 @@ Manager::Manager ( const std::string & name )
   }
 
   regist_signal( "spawn_group" )
-      ->description("Creates a new group of workers")
-      ->pretty_name("Spawn new group")
-      ->connect( boost::bind(&Manager::signal_spawn_group, this, _1) );
+      .description("Creates a new group of workers")
+      .pretty_name("Spawn new group")
+      .connect( boost::bind(&Manager::signal_spawn_group, this, _1) );
 
   regist_signal( "kill_group" )
-      ->description("Kills a group of workers")
-      ->pretty_name("Kill group")
-      ->connect( boost::bind(&Manager::signal_kill_group, this, _1) );
+      .description("Kills a group of workers")
+      .pretty_name("Kill group")
+      .connect( boost::bind(&Manager::signal_kill_group, this, _1) );
 
   regist_signal( "kill_all" )
-      ->description("Kills all groups of workers")
-      ->hidden(true)
-      ->pretty_name("Kill all groups")
-      ->connect( boost::bind(&Manager::signal_kill_all, this, _1) );
+      .description("Kills all groups of workers")
+      .hidden(true)
+      .pretty_name("Kill all groups")
+      .connect( boost::bind(&Manager::signal_kill_all, this, _1) );
 
   regist_signal("exit")
-      ->connect( boost::bind(&Manager::signal_exit, this, _1) )
-      ->hidden(true)
-      ->description( "Stops the listening thread" );
+      .connect( boost::bind(&Manager::signal_exit, this, _1) )
+      .hidden(true)
+      .description( "Stops the listening thread" );
 
   regist_signal("forward_signal")
-      ->hidden(true)
-      ->description("Called when there is a signal to forward");
+      .hidden(true)
+      .description("Called when there is a signal to forward");
 
   regist_signal( "message" )
-      ->description("New message has arrived from a worker")
-      ->pretty_name("")
-      ->connect( boost::bind(&Manager::signal_message, this, _1) );
+      .description("New message has arrived from a worker")
+      .pretty_name("")
+      .connect( boost::bind(&Manager::signal_message, this, _1) );
 
   regist_signal( "signal_to_forward" )
-      ->description("Signal called by this object when to forward a signal "
+      .description("Signal called by this object when to forward a signal "
                     "called from a worker.");
 
   signal("spawn_group")->signature( boost::bind(&Manager::signature_spawn_group, this, _1) );
@@ -115,7 +115,7 @@ Manager::~Manager ()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
+void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDoc> sig)
 {
   if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {
@@ -143,7 +143,7 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       std::string str;
       to_string( signal_frame.node, str);
 
-      Component::Ptr comp = access_component_ptr_checked( receiver );
+      Handle<Component> comp = access_component_checked( receiver );
 
       comp->call_signal(target, signal_frame);
 
@@ -177,9 +177,9 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       SignalOptions & options = frame.options();
       std::string frameid = signal_frame.node.attribute_value("frameid");
 
-      options.add_option< OptionT<std::string> >("frameid", frameid );
-      options.add_option< OptionT<bool> >("success", success );
-      options.add_option< OptionT<std::string> >("message", message );
+      options.add_option("frameid", frameid );
+      options.add_option("success", success );
+      options.add_option("message", message );
 
       options.flush();
 
@@ -229,9 +229,9 @@ void Manager::spawn_group ( const std::string & name,
   m_groups[name] = comm;
   m_listener->add_communicator( comm );
 
-  WorkerGroup & wg = create_component<WorkerGroup>(name);
-  wg.set_communicator(comm);
-  wg.mark_basic();
+  Handle<WorkerGroup> wg = create_component<WorkerGroup>(name);
+  wg->set_communicator(comm);
+  wg->mark_basic();
 
   Comm::instance().barrier( comm );
 
@@ -401,7 +401,7 @@ void Manager::signal_message ( SignalArgs & args )
 
 void Manager::mpi_forward ( SignalArgs & args )
 {
-  XmlDoc::Ptr doc = Protocol::create_doc();
+  boost::shared_ptr<XmlDoc> doc = Protocol::create_doc();
   XmlNode node = Protocol::goto_doc_node( *doc.get() );
   XmlNode sig_node = node.add_node( "tmp" );
 
@@ -421,18 +421,18 @@ void Manager::signature_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("name", std::string())
-      ->pretty_name("Name")
-      ->description("Name of the new group");
+  options.add_option("name", std::string())
+      .pretty_name("Name")
+      .description("Name of the new group");
 
-  options.add_option< OptionT<Uint> >("count", Uint(1))
-      ->pretty_name("Workers Count")
-      ->description("Number of workers to spawn.");
+  options.add_option("count", Uint(1))
+      .pretty_name("Workers Count")
+      .description("Number of workers to spawn.");
 
-  options.add_option< OptionT<std::string> >("log_forwarding", std::string("None") )
-      ->pretty_name("Log Forwarding")
-      ->description("Defines the way the log is forwarded from the workers.")
-      ->restricted_list() += std::string("Only rank 0"), std::string("All ranks");
+  options.add_option("log_forwarding", std::string("None") )
+      .pretty_name("Log Forwarding")
+      .description("Defines the way the log is forwarded from the workers.")
+      .restricted_list() += std::string("Only rank 0"), std::string("All ranks");
 
 }
 
@@ -450,10 +450,10 @@ void Manager::signature_kill_group ( SignalArgs & args )
   for(int i = 0 ; it != m_groups.end() ; ++it, ++i )
     groups[i] = it->first;
 
-  options.add_option< OptionT<std::string> >("group", m_groups.begin()->first )
-      ->pretty_name("Group to kill")
-      ->description("Processes belonging to the selected group will be exited.")
-      ->restricted_list() = groups;
+  options.add_option("group", m_groups.begin()->first )
+      .pretty_name("Group to kill")
+      .description("Processes belonging to the selected group will be exited.")
+      .restricted_list() = groups;
 }
 
 ////////////////////////////////////////////////////////////////////////////

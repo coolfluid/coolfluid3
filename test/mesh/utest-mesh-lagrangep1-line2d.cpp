@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   //const Uint segments = 100;
 
   // complete circle
-  Mesh& mesh = Core::instance().root().create_component<Mesh>("surface_integral");
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("surface_integral");
   create_circle_2d(mesh, 1., 100);
   Table<Real>& coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
   Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
-  Mesh& mesh = Core::instance().root().create_component<Mesh>("arc_integral");
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("arc_integral");
   create_circle_2d(mesh, 1., 100, 0., Consts::pi());
   Table<Real>& arc_coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
   Table<Uint>& arc_connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Uint segments = 10000;
 
   // complete circle
-  Mesh& mesh = Core::instance().root().create_component<Mesh>("rotating_cylinder");
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("rotating_cylinder");
   create_circle_2d(mesh, 1., segments);
   Table<Real>& coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
   Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();

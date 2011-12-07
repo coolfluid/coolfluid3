@@ -44,8 +44,8 @@ class NJournalBrowser :
 
 public: // typedefs
 
-  typedef boost::shared_ptr<NJournalBrowser> Ptr;
-  typedef boost::shared_ptr<NJournalBrowser const> ConstPtr;
+  
+  
 
 public:
 
@@ -81,7 +81,7 @@ public:
   virtual QModelIndex index(int row, int column,
                             const QModelIndex & parent = QModelIndex()) const;
 
-  /// @brief Implementation of @c QAbstractItemModel::parent().
+  /// @brief Implementation of @c QAbstractItemModel::parent()->
 
   /// @param child Item index of which we would like to know the parent.
   /// @return Returns the parent index of the given child or a nullptr

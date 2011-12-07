@@ -9,6 +9,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "common/OptionList.hpp"
+
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
 
@@ -26,10 +28,10 @@ BOOST_AUTO_TEST_SUITE( VariableManagerSuite )
 // Add a single scalar variable
 BOOST_AUTO_TEST_CASE( CreateVariableDescriptor )
 {
-  VariableManager::Ptr manager = allocate_component<VariableManager>("manager");
+  boost::shared_ptr<VariableManager> manager = allocate_component<VariableManager>("manager");
   VariablesDescriptor& descriptor = manager->create_descriptor("solution", "a, b[v], c[t]");
 
-  descriptor.configure_option(common::Tags::dimension(), 2u);
+  descriptor.options().configure_option(common::Tags::dimension(), 2u);
 
   BOOST_CHECK(descriptor.has_tag("solution"));
   BOOST_CHECK_EQUAL(descriptor.size(), 7);

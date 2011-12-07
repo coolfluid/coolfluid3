@@ -183,7 +183,7 @@ namespace graphics {
     /// All existing options in the layouts are removed.
     /// @param list The list of options to set. Can be empty.
     /// @todo why don't we use PropertyList?
-    void set_options(const QList<cf3::common::Option::ConstPtr> & list);
+    void set_options(const QList<boost::shared_ptr<cf3::common::Option > > & list);
 
     /// Set the buttons to a visible/invisible state.
 

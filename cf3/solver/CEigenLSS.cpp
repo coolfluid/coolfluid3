@@ -36,6 +36,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionURI.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Timer.hpp"
@@ -56,11 +57,11 @@ cf3::common::ComponentBuilder < CEigenLSS, common::Component, LibSolver > aCeige
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
-  options().add_option< OptionURI >("config_file", URI())
-      ->description("Solver config file")
-      ->pretty_name("Config File")
-      ->mark_basic()
-      ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
+  options().add_option("config_file", URI())
+      .supported_protocol(URI::Scheme::FILE)
+      .description("Solver config file")
+      .pretty_name("Config File")
+      .mark_basic();
 
   if(!PE::Comm::instance().is_active())
     PE::Comm::instance().init();
@@ -68,7 +69,7 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 
 void CEigenLSS::set_config_file(const URI& path)
 {
-  configure_option("config_file", path);
+  options().configure_option("config_file", path);
 }
 
 
@@ -208,7 +209,7 @@ void CEigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  const URI config_uri = option("config_file").value<URI>();
+  const URI config_uri = options().option("config_file").value<URI>();
   const std::string config_path = config_uri.path();
 
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(config_path); // the most important in general setup

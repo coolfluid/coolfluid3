@@ -29,8 +29,8 @@ class mesh_actions_API LoadBalance : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<LoadBalance> Ptr;
-    typedef boost::shared_ptr<LoadBalance const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -44,7 +44,7 @@ public: // functions
 
 private:
 
-  boost::shared_ptr<MeshTransformer> m_partitioner;
+  Handle<MeshTransformer> m_partitioner;
 
 }; // end LoadBalance
 

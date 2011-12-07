@@ -94,8 +94,8 @@ class SFDM_API Term : public cf3::solver::Action {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -112,17 +112,17 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  mesh::Field& solution_field()                   { return *m_solution.lock(); }
+  mesh::Field& solution_field()                   { return *m_solution; }
 
-  mesh::Field& residual_field()                   { return *m_residual.lock(); }
+  mesh::Field& residual_field()                   { return *m_residual; }
 
-  mesh::Field& wave_speed_field()                 { return *m_wave_speed.lock(); }
+  mesh::Field& wave_speed_field()                 { return *m_wave_speed; }
 
-  mesh::Field& jacob_det_field()                  { return *m_jacob_det.lock(); }
+  mesh::Field& jacob_det_field()                  { return *m_jacob_det; }
 
-  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver.lock(); }
+  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
-  physics::Variables& solution_vars()             { return  *m_solution_vars.lock(); }
+  physics::Variables& solution_vars()             { return  *m_solution_vars; }
 
   //@} END ACCESSORS
 
@@ -144,17 +144,17 @@ protected:
 
 protected: // data
 
-  boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
+  Handle<mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<mesh::Field> m_residual;     ///< access to the residual field
+  Handle<mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+  Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
-  boost::weak_ptr<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
+  Handle<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
 
-  boost::weak_ptr<physics::Variables> m_solution_vars; ///< access to the solution variables
+  Handle<physics::Variables> m_solution_vars; ///< access to the solution variables
 
-  boost::weak_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver; ///< access to the riemann solver
+  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver; ///< access to the riemann solver
 
   /// Compute wave speeds in flx_pts
   /// TRUE:  - computation in flx_pts

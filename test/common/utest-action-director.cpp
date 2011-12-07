@@ -46,11 +46,9 @@ Uint SetIntegerAction::value = 0;
 BOOST_AUTO_TEST_CASE(ActionDirectorBasic)
 {
   Component& root = Core::instance().root();
-  ActionDirector::Ptr director = root.create_component_ptr<ActionDirector>("director");
-  SetIntegerAction::Ptr test_action = director->create_component_ptr<SetIntegerAction>("testaction");
-  const std::vector<std::string> action_vector(1, test_action->name());
-  director->configure_option("action_order", action_vector);
-  BOOST_CHECK_EQUAL(test_action->value, 0);
+  Handle<ActionDirector> director = root.create_component<ActionDirector>("director");
+  Handle<SetIntegerAction> test_action = director->create_component<SetIntegerAction>("testaction");
+
   director->execute();
   BOOST_CHECK_EQUAL(test_action->value, 1);
 }
@@ -59,34 +57,30 @@ BOOST_AUTO_TEST_CASE(ActionDirectorAppend)
 {
   Component& root = Core::instance().root();
   
-  ActionDirector& director = dynamic_cast<ActionDirector&>(root.get_child("director"));
-  SetIntegerAction& test_action2 = director.create_component<SetIntegerAction>("testaction2");
-  director.append(test_action2);
+  Handle<ActionDirector> director(root.get_child("director"));
+  Handle<SetIntegerAction> test_action2 = director->create_component<SetIntegerAction>("testaction2");
   
-  std::vector<std::string> actions; director.option("action_order").put_value(actions);
-  BOOST_CHECK_EQUAL(actions.size(), 2);
-  
-  BOOST_CHECK_EQUAL(test_action2.value, 1);
-  director.execute();
-  BOOST_CHECK_EQUAL(test_action2.value, 3);
+  BOOST_CHECK_EQUAL(test_action2->value, 1);
+  director->execute();
+  BOOST_CHECK_EQUAL(test_action2->value, 3);
 }
 
 BOOST_AUTO_TEST_CASE(ActionDirectorStream)
 {
   Component& root = Core::instance().root();
   
-  ActionDirector& director = dynamic_cast<ActionDirector&>(root.get_child("director"));
-  SetIntegerAction& test_action3 = director.create_component<SetIntegerAction>("testaction3");
+  Handle<ActionDirector> director(root.get_child("director"));
+  
+  boost::shared_ptr<SetIntegerAction> test_action3_shared = allocate_component<SetIntegerAction>("testaction3");
+  Handle<SetIntegerAction> test_action3_handle(test_action3_shared);
+  SetIntegerAction& test_action3_ref = *test_action3_handle;
   
   // Overloaded shift-left operator for easy chaining of actions
-  director << test_action3 << test_action3 << test_action3;
+  *director << test_action3_shared << test_action3_handle << test_action3_ref;
   
-  std::vector<std::string> actions; director.option("action_order").put_value(actions);
-  BOOST_CHECK_EQUAL(actions.size(), 5);
-  
-  BOOST_CHECK_EQUAL(test_action3.value, 3);
-  director.execute();
-  BOOST_CHECK_EQUAL(test_action3.value, 8);
+  BOOST_CHECK_EQUAL(test_action3_handle->value, 3);
+  director->execute();
+  BOOST_CHECK_EQUAL(test_action3_handle->value, 8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

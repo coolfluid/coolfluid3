@@ -32,8 +32,8 @@ namespace core {
 
   public:
 
-    typedef boost::shared_ptr<NGeneric> Ptr;
-    typedef boost::shared_ptr<NGeneric const> ConstPtr;
+    
+    
 
     /// @brief Constructor
     /// @param name Group name

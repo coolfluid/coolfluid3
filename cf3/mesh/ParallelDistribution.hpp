@@ -27,9 +27,9 @@ class Mesh_API ParallelDistribution : public common::Component {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<ParallelDistribution> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<ParallelDistribution const> ConstPtr;
+  
 
 public: // functions
 

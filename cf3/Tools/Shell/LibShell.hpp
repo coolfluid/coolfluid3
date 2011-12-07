@@ -44,8 +44,8 @@ class Tools_Shell_API LibShell : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibShell> Ptr;
-  typedef boost::shared_ptr<LibShell const> ConstPtr;
+  
+  
 
   /// Constructor
   LibShell ( const std::string& name) : common::Library(name) {   }

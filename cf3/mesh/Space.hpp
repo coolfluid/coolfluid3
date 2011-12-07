@@ -37,8 +37,8 @@ class Mesh_API Space : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Space> Ptr;
-  typedef boost::shared_ptr<Space const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -108,12 +108,12 @@ private: // functions
 protected: // data
 
   /// Shape function of this space
-  boost::shared_ptr<ShapeFunction> m_shape_function;
+  Handle<ShapeFunction> m_shape_function;
 
   /// node_connectivity or state_connectivity for this space
-  boost::shared_ptr<Connectivity> m_connectivity;
+  Handle<Connectivity> m_connectivity;
 
-  boost::shared_ptr<common::Link> m_fields;
+  Handle<common::Link> m_fields;
 
   /// keyword "mutable" means that this variable can be changed using a
   /// const access function.
@@ -126,7 +126,7 @@ private: // data
 
   bool m_is_proxy;
   Uint m_elem_start_idx;
-  boost::weak_ptr<Entities> m_support;
+  Handle<Entities> m_support;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

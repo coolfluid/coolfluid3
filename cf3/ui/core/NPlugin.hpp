@@ -27,8 +27,8 @@ class NPlugin : public CNode
 
 public: // typedefs
 
-  typedef boost::shared_ptr<NPlugin> Ptr;
-  typedef boost::shared_ptr<const NPlugin> ConstPtr;
+  
+  
 
 public:
 

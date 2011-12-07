@@ -8,6 +8,8 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Mesh.hpp"
@@ -26,10 +28,11 @@ MeshTransformer::MeshTransformer ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
-      ->description( "The mesh to be transformed" )
-      ->pretty_name( "Mesh" )
-      ->mark_basic();
+  options().add_option("mesh", m_mesh)
+      .description( "The mesh to be transformed" )
+      .pretty_name( "Mesh" )
+      .mark_basic()
+      .link_to(&m_mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +45,7 @@ std::string MeshTransformer::help() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshTransformer::set_mesh(Mesh::Ptr mesh)
+void MeshTransformer::set_mesh(Handle< Mesh > mesh)
 {
   set_mesh(*mesh);
 }
@@ -51,7 +54,7 @@ void MeshTransformer::set_mesh(Mesh::Ptr mesh)
 
 void MeshTransformer::set_mesh(Mesh& mesh)
 {
-  m_mesh=mesh.as_ptr<Mesh>();
+  m_mesh=Handle<Mesh>(mesh.handle<Component>());
   boost_foreach(MeshTransformer& meshtransformer, find_components<MeshTransformer>(*this))
     meshtransformer.set_mesh(mesh);
 
@@ -65,7 +68,7 @@ MeshTransformer::~MeshTransformer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshTransformer::transform(Mesh::Ptr mesh)
+void MeshTransformer::transform(Handle< Mesh > mesh)
 {
   transform(*mesh);
 }
@@ -83,7 +86,7 @@ void MeshTransformer::transform(Mesh& mesh)
 void MeshTransformer::execute()
 {
   boost_foreach(MeshTransformer& meshtransformer, find_components<MeshTransformer>(*this))
-    meshtransformer.transform(*m_mesh.lock());
+    meshtransformer.transform(*m_mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////

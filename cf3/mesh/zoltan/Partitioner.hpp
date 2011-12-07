@@ -27,9 +27,9 @@ class mesh_zoltan_API Partitioner : public MeshPartitioner {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<Partitioner> Ptr;
+
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<Partitioner const> ConstPtr;
+
 
 public: // functions
 

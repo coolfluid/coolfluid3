@@ -23,8 +23,8 @@ class SFDM_API ComputeUpdateCoefficient : public solver::Action
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<ComputeUpdateCoefficient> Ptr;
-  typedef boost::shared_ptr<ComputeUpdateCoefficient const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -46,9 +46,9 @@ private: // helper functions
   void link_fields();
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_update_coeff;
-  boost::weak_ptr<mesh::Field> m_wave_speed;
-  boost::weak_ptr<solver::CTime> m_time;
+  Handle<mesh::Field> m_update_coeff;
+  Handle<mesh::Field> m_wave_speed;
+  Handle<solver::CTime> m_time;
 
   bool m_freeze;
 

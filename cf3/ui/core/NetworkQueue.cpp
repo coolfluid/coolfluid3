@@ -56,9 +56,9 @@ NetworkQueue::NetworkQueue()
   m_interpreter = new Interpreter( desc );
 
   regist_signal( "ack" )
-      ->description("Frame execution (non)aknowledgment (ACK/NACK)")
-      ->hidden( true )
-      ->connect( boost::bind( &NetworkQueue::signal_ack, this, _1 ) );
+      .description("Frame execution (non)aknowledgment (ACK/NACK)")
+      .hidden( true )
+      .connect( boost::bind( &NetworkQueue::signal_ack, this, _1 ) );
 }
 
 
@@ -167,9 +167,9 @@ void NetworkQueue::insert_transaction( const QString & uuid,
 
 //////////////////////////////////////////////////////////////////////////////
 
-NetworkQueue::Ptr NetworkQueue::global()
+Handle< NetworkQueue > NetworkQueue::global()
 {
-  static NetworkQueue::Ptr queue = ThreadManager::instance().tree().root_child<NetworkQueue>(CLIENT_NETWORK_QUEUE);
+  static Handle< NetworkQueue > queue = ThreadManager::instance().tree().root_child<NetworkQueue>(CLIENT_NETWORK_QUEUE);
   cf3_assert( is_not_null(queue.get()) );
   return queue;
 }
@@ -303,7 +303,7 @@ void NetworkQueue::execute_script ( const QString & filename )
       const URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
-      options.add_option< OptionT<std::string> >("script", m_script_stream->readAll().toStdString());
+      options.add_option("script", m_script_stream->readAll().toStdString());
       SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
       
       dispatch_signal("execute_script", script_engine_path, frame);

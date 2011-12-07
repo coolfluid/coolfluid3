@@ -27,8 +27,8 @@ class Mesh_API CellFaces : public Entities {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CellFaces> Ptr;
-  typedef boost::shared_ptr<CellFaces const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -59,7 +59,7 @@ public: // functions
 
 protected:
 
-  boost::shared_ptr<FaceCellConnectivity> m_cell_connectivity;
+  Handle<FaceCellConnectivity> m_cell_connectivity;
   boost::scoped_ptr<common::TableArray<Uint>::type> m_proxy_nodes;
 
 };

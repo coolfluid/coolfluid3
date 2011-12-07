@@ -22,8 +22,8 @@ class SFDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<DomainDiscretization> Ptr;
-  typedef boost::shared_ptr<DomainDiscretization const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -55,7 +55,7 @@ public: // functions
 
 private:
 
-  common::ActionDirector::Ptr m_terms;   ///< set of terms
+  Handle< common::ActionDirector > m_terms;   ///< set of terms
 
 };
 

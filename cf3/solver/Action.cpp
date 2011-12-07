@@ -10,6 +10,7 @@
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Region.hpp"
@@ -36,26 +37,29 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  options().add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
-      ->description("Link to the solver discretizing the problem")
-      ->pretty_name("Solver")
-      ->mark_basic();
+  options().add_option(Tags::solver(), m_solver)
+      .description("Link to the solver discretizing the problem")
+      .pretty_name("Solver")
+      .mark_basic()
+      .link_to(&m_solver);
 
-  options().add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
-      ->description("Mesh the Discretization Method will be applied to")
-      ->pretty_name("Mesh")
-      ->mark_basic();
+  options().add_option(Tags::mesh(), m_mesh)
+      .description("Mesh the Discretization Method will be applied to")
+      .pretty_name("Mesh")
+      .mark_basic()
+      .link_to(&m_mesh);
 
-  options().add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
-      ->description("Physical model")
-      ->pretty_name("Physical Model")
-      ->mark_basic();
+  options().add_option(Tags::physical_model(), m_physical_model)
+      .description("Physical model")
+      .pretty_name("Physical Model")
+      .mark_basic()
+      .link_to(&m_physical_model);
 
   std::vector< common::URI > dummy;
-  options().add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
-      ->description("Regions this action is applied to")
-      ->pretty_name("Regions")
-      ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
+  options().add_option(Tags::regions(), dummy)
+      .description("Regions this action is applied to")
+      .pretty_name("Regions")
+      .attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }
 
@@ -65,7 +69,7 @@ Action::~Action() {}
 
 physics::PhysModel& Action::physical_model()
 {
-  physics::PhysModel::Ptr model = m_physical_model.lock();
+  Handle< physics::PhysModel > model = m_physical_model;
   if( is_null(model) )
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
@@ -76,7 +80,7 @@ physics::PhysModel& Action::physical_model()
 
 Mesh& Action::mesh()
 {
-  Mesh::Ptr m = m_mesh.lock();
+  Handle< Mesh > m = m_mesh;
   if( is_null(m) )
     throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );
@@ -86,7 +90,7 @@ Mesh& Action::mesh()
 
 solver::CSolver& Action::solver()
 {
-  solver::CSolver::Ptr s = m_solver.lock();
+  Handle< solver::CSolver > s = m_solver;
   if( is_null(s) )
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
@@ -94,24 +98,23 @@ solver::CSolver& Action::solver()
 }
 
 
-boost::iterator_range<common::ComponentIterator<Region> > Action::regions()
+const std::vector< Handle<Region> >& Action::regions() const
 {
-  return boost::make_iterator_range( common::ComponentIterator<Region>(m_loop_regions,0),
-                                     common::ComponentIterator<Region>(m_loop_regions,m_loop_regions.size()));
+  return m_loop_regions;
 }
 
 
 void Action::config_regions()
 {
-  std::vector<common::URI> vec; option(Tags::regions()).put_value(vec);
+  std::vector<common::URI> vec = options().option(Tags::regions()).value< std::vector<common::URI> >();
 
   m_loop_regions.clear();
 
   boost_foreach(const common::URI region_path, vec)
   {
-    Component& comp = access_component(region_path);
+    Handle<Component> comp = access_component(region_path);
 
-    if ( Region::Ptr region = comp.as_ptr<Region>() )
+    if ( Handle< Region > region = comp->handle<Region>() )
       m_loop_regions.push_back( region );
     else
       throw common::ValueNotFound ( FromHere(),

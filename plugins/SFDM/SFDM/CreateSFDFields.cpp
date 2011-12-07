@@ -9,8 +9,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/PE/debug.hpp"
 
@@ -65,7 +65,7 @@ CreateSFDFields::CreateSFDFields( const std::string& name )
 
 void CreateSFDFields::execute()
 {
-  const Uint solution_order = solver().option(SFDM::Tags::solution_order()).value<Uint>();
+  const Uint solution_order = solver().options().option(SFDM::Tags::solution_order()).value<Uint>();
 
   std::string solution_space_name = "solution_space";
   std::string flux_space_name = "flux_space";
@@ -80,23 +80,23 @@ void CreateSFDFields::execute()
     solution_space.add_tag(solution_space_name);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
-    Field& solution   = solution_space.create_field(SFDM::Tags::solution(), solution_vars.as_type<Variables>().description().description() );
-    solver().field_manager().create_component<Link>(SFDM::Tags::solution()).link_to(solution);
+    Field& solution   = solution_space.create_field(SFDM::Tags::solution(), solution_vars.handle<Variables>()->description().description() );
+    solver().field_manager().create_component<Link>(SFDM::Tags::solution())->link_to(solution);
     solution.parallelize();
 
     Field& residual   = solution_space.create_field(SFDM::Tags::residual(), solution.descriptor().description());
     residual.descriptor().prefix_variable_names("rhs_");
-    solver().field_manager().create_component<Link>(SFDM::Tags::residual()).link_to(residual);
+    solver().field_manager().create_component<Link>(SFDM::Tags::residual())->link_to(residual);
     residual.properties()[SFDM::Tags::L2norm()]=0.;
 
     Field& wave_speed = solution_space.create_field(SFDM::Tags::wave_speed(), "ws[1]");
-    solver().field_manager().create_component<Link>(SFDM::Tags::wave_speed()).link_to(wave_speed);
+    solver().field_manager().create_component<Link>(SFDM::Tags::wave_speed())->link_to(wave_speed);
 
     Field& update_coeff = solution_space.create_field(SFDM::Tags::update_coeff(), "uc[1]");
-    solver().field_manager().create_component<Link>(SFDM::Tags::update_coeff()).link_to(update_coeff);
+    solver().field_manager().create_component<Link>(SFDM::Tags::update_coeff())->link_to(update_coeff);
 
     Field& jacob_det = solution_space.create_field(SFDM::Tags::jacob_det(), "jacob_det[1]");
-    solver().field_manager().create_component<Link>(SFDM::Tags::jacob_det()).link_to(jacob_det);
+    solver().field_manager().create_component<Link>(SFDM::Tags::jacob_det())->link_to(jacob_det);
 
     boost_foreach(Cells& elements, find_components_recursively<Cells>(solution_space.topology()))
     {
@@ -133,7 +133,7 @@ void CreateSFDFields::execute()
       flux_space.add_tag(flux_space_name);
 
       Field& plane_jacob_normal = flux_space.create_field(SFDM::Tags::jacob_det(), "plane_jacob_normal[tensor]");
-      solver().field_manager().create_component<Link>(SFDM::Tags::plane_jacob_normal()).link_to(plane_jacob_normal);
+      solver().field_manager().create_component<Link>(SFDM::Tags::plane_jacob_normal())->link_to(plane_jacob_normal);
 
       boost_foreach(Cells& elements, find_components_recursively<Cells>(flux_space.topology()))
       {

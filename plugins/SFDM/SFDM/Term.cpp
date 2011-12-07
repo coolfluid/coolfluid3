@@ -7,9 +7,10 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "common/Link.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/SpaceFields.hpp"
@@ -43,19 +44,23 @@ Term::Term ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(OptionComponent<Field>::create( SFDM::Tags::solution(), &m_solution))
-      ->pretty_name("Solution Field");
+  options().add_option(SFDM::Tags::solution(), m_solution)
+      .pretty_name("Solution Field")
+      .link_to(&m_solution);
 
-  options().add_option(OptionComponent<Field>::create( SFDM::Tags::wave_speed(), &m_wave_speed))
-      ->pretty_name("Wave Speed Field");
+  options().add_option(SFDM::Tags::wave_speed(), m_wave_speed)
+      .pretty_name("Wave Speed Field")
+      .link_to(&m_wave_speed);
 
-  options().add_option(OptionComponent<Field>::create( SFDM::Tags::residual(), &m_residual))
-      ->pretty_name("Residual Field");
+  options().add_option(SFDM::Tags::residual(), m_residual)
+      .pretty_name("Residual Field")
+      .link_to(&m_residual);
 
-  options().add_option(OptionComponent<Field>::create( SFDM::Tags::jacob_det(), &m_jacob_det))
-      ->pretty_name("Jacobian Determinant Field");
+  options().add_option(SFDM::Tags::jacob_det(), m_jacob_det)
+      .pretty_name("Jacobian Determinant Field")
+      .link_to(&m_jacob_det);
 
-  option(SFDM::Tags::physical_model()).attach_trigger( boost::bind ( &Term::trigger_physical_model, this ) );
+  options().option(SFDM::Tags::physical_model()).attach_trigger( boost::bind ( &Term::trigger_physical_model, this ) );
 
 }
 
@@ -64,12 +69,12 @@ Term::Term ( const std::string& name ) :
 void Term::trigger_physical_model()
 {
   // try to configure solution vars
-  if (Component::Ptr found_solution_vars = find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()) )
-    m_solution_vars = found_solution_vars->as_ptr<physics::Variables>();
+  if (Handle<Component> found_solution_vars = find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()) )
+    m_solution_vars = found_solution_vars->handle<physics::Variables>();
   else
     throw SetupError(FromHere(),"solution_vars not found in physical model");
 
-  m_riemann_solver = solver().as_type<SFDSolver>().riemann_solver().as_ptr<RiemannSolvers::RiemannSolver>();
+  m_riemann_solver = solver().handle<SFDSolver>()->riemann_solver().handle<RiemannSolvers::RiemannSolver>();
 
   allocate_cache();
 }
@@ -95,32 +100,28 @@ Term::~Term() {}
 
 void Term::link_fields()
 {
-  if( is_null( m_solution.lock() ) )
+  if( is_null( m_solution ) )
   {
-    m_solution = solver().field_manager()
-                         .get_child( SFDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( SFDM::Tags::solution(), m_solution.lock()->uri() );
+    m_solution = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::solution() ) ) );
+    configure_option_recursively( SFDM::Tags::solution(), m_solution );
   }
 
-  if( is_null( m_residual.lock() ) )
+  if( is_null( m_residual ) )
   {
-    m_residual = solver().field_manager()
-                         .get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( SFDM::Tags::residual(), m_residual.lock()->uri() );
+    m_residual = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::residual() ) ) );
+    configure_option_recursively( SFDM::Tags::residual(), m_residual );
   }
 
-  if( is_null( m_wave_speed.lock() ) )
+  if( is_null( m_wave_speed ) )
   {
-    m_wave_speed = solver().field_manager()
-                           .get_child( SFDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( SFDM::Tags::wave_speed(), m_wave_speed.lock()->uri() );
+    m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::wave_speed() ) ) );
+    configure_option_recursively( SFDM::Tags::wave_speed(), m_wave_speed );
   }
 
-  if( is_null( m_jacob_det.lock() ) )
+  if( is_null( m_jacob_det ) )
   {
-    m_jacob_det = solver().field_manager()
-                          .get_child( SFDM::Tags::jacob_det() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( SFDM::Tags::jacob_det(), m_jacob_det.lock()->uri() );
+    m_jacob_det = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::jacob_det() ) ) );
+    configure_option_recursively( SFDM::Tags::jacob_det(), m_jacob_det );
   }
 
 }
@@ -133,7 +134,7 @@ Flyweight::Flyweight(const mesh::Entities& entities_comp, const Uint element_idx
   entities(entities_comp),
   geometry(entities.element_type()),
   space(term.solution_field().space(entities)),
-  sf(space.shape_function().as_type<SFDM::ShapeFunction>())
+  sf(*space.shape_function().handle<SFDM::ShapeFunction>())
 {
   entities.allocate_coordinates(term.cache.geometry_nodes);
   set_element(element_idx);
@@ -146,7 +147,7 @@ Flyweight::Flyweight(const Flyweight& flyweight) :
   entities(flyweight.entities),
   geometry(entities.element_type()),
   space(term.solution_field().space(entities)),
-  sf(space.shape_function().as_type<SFDM::ShapeFunction>())
+  sf(*space.shape_function().handle<SFDM::ShapeFunction>())
 {
   throw common::ShouldNotBeHere(FromHere(),"Flyweight is not supposed to be copied");
   entities.allocate_coordinates(term.cache.geometry_nodes);
@@ -236,7 +237,7 @@ void Flyweight::compute_analytical_flux(const Uint flx_pt, const RealVector& sol
   {
     term.cache.plane_jacobian_det = term.cache.plane_jacobian_normal.norm();
     term.cache.unit_normal = term.cache.plane_jacobian_normal/term.cache.plane_jacobian_det;
-    term.m_solution_vars.lock()->flux_jacobian_eigen_values(*term.cache.phys_props,term.cache.unit_normal, term.cache.phys_ev);
+    term.m_solution_vars->flux_jacobian_eigen_values(*term.cache.phys_props,term.cache.unit_normal, term.cache.phys_ev);
     ws_in_flx_pt = term.cache.plane_jacobian_det * term.cache.phys_ev.cwiseAbs().maxCoeff() / 2.;
   }
 }

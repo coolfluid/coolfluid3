@@ -31,8 +31,8 @@ class Mesh_API NodeElementConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<NodeElementConnectivity> Ptr;
-  typedef boost::shared_ptr<NodeElementConnectivity const> ConstPtr;
+  
+  
 
   /// Contructor
   /// @param name of the component
@@ -75,13 +75,13 @@ private: //functions
 private: // data
 
   /// link to the nodes component
-  boost::shared_ptr<common::Link> m_nodes;
+  Handle<common::Link> m_nodes;
 
   /// unified view of the elements
-  UnifiedData::Ptr m_elements;
+  Handle< UnifiedData > m_elements;
 
   /// Actual connectivity table
-  common::DynTable<Uint>::Ptr m_connectivity;
+  Handle< common::DynTable<Uint> > m_connectivity;
 
 }; // NodeElementConnectivity
 

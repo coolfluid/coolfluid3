@@ -45,8 +45,8 @@ class SFDM_API LibSFDM :
 {
 public:
 
-  typedef boost::shared_ptr<LibSFDM> Ptr;
-  typedef boost::shared_ptr<LibSFDM const> ConstPtr;
+  
+  
 
   /// Constructor
   LibSFDM ( const std::string& name) : cf3::common::Library(name) { }
@@ -74,6 +74,8 @@ public: // functions
 
   /// Gets the Class name
   static std::string type_name() { return "LibSFDM"; }
+  
+  virtual void initiate();
 }; // end LibSFDM
 
 ////////////////////////////////////////////////////////////////////////////////
