@@ -35,10 +35,10 @@ C3DViewBuilder::C3DViewBuilder(const std::string & name) :
 {
   // signals
   regist_signal( "create_3dview" )
-      ->description("Creates a 3D View")
-      ->pretty_name("New 3D View")
-      ->connect( boost::bind(&C3DViewBuilder::signal_create_3dview, this, _1) )
-      ->signature( boost::bind(&C3DViewBuilder::signature_create_3dview, this, _1) );
+      .description("Creates a 3D View")
+      .pretty_name("New 3D View")
+      .connect( boost::bind(&C3DViewBuilder::signal_create_3dview, this, _1) )
+      .signature( boost::bind(&C3DViewBuilder::signature_create_3dview, this, _1) );
 
   // hide some signals from the GUI
 
@@ -69,9 +69,9 @@ void C3DViewBuilder::signal_create_3dview(SignalArgs &args)
     throw InvalidURI(FromHere(), "The parent scheme is not CPATH");
 
   // create and add the component
-  Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
-  C3DView& view = parent_comp->create_component<C3DView>( name );
-  view.mark_basic();
+  Handle<Component> parent_comp = Core::instance().root().access_component(parent);
+  Handle<C3DView> view = parent_comp->create_component<C3DView>( name );
+  view->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

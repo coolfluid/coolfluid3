@@ -124,6 +124,9 @@ public:
   /// Converts this signal to a string in the CF script format
   std::string to_script( int indentation = 0 ) const;
 
+  /// Flushes internal @c SignalOptions maps.
+  void flush_maps();
+
 public: // data
 
   /// The frame node

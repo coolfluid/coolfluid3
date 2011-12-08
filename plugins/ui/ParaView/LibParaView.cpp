@@ -26,7 +26,7 @@ void LibParaView::initiate()
 {
   if(m_is_initiated)
     return;
-  
+
   initiate_impl();
   m_is_initiated = true;
 }
@@ -34,9 +34,9 @@ void LibParaView::initiate()
 
 void LibParaView::initiate_impl()
 {
-  Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
+  Handle<Component> tools = Core::instance().root().get_child("Tools");
 
-  tools->create_component_ptr<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
+  tools->create_component<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

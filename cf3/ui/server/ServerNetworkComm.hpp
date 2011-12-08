@@ -128,6 +128,9 @@ namespace server {
     /// Used to accept connections.
     QTcpServer * m_server;
 
+    /// @brief Mutex for thread-safe operations.
+    QMutex * m_mutex;
+
     /// @brief Size of the frame that is being read.
 
     /// If the value is 0, no frame is currently being recieved.
