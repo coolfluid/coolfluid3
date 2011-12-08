@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, U = 1, P = 2 };
 
-  typedef boost::shared_ptr<Prim1D> Ptr;
-  typedef boost::shared_ptr<Prim1D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -108,6 +108,15 @@ public: // functions
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "flux not implemented for Prim1D");
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
                     FM& flux)
   {
     throw common::NotImplemented(FromHere(), "flux not implemented for Prim1D");

@@ -26,8 +26,8 @@ namespace BlockMesh {
 /// Storage for the information about blocks for structured grid generation
 struct BlockMesh_API BlockData : common::Component
 {
-  typedef boost::shared_ptr<BlockData> Ptr;
-  typedef boost::shared_ptr<BlockData const> ConstPtr;
+  
+  
 
   BlockData(const std::string& name);
 

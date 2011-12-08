@@ -40,8 +40,8 @@ namespace core {
 
   public:
 
-    typedef boost::shared_ptr<NRoot> Ptr;
-    typedef boost::shared_ptr<NRoot const> ConstPtr;
+
+
 
     /// @brief Constructor
     /// @param name Node name
@@ -55,13 +55,13 @@ namespace core {
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::ConstPtr child_from_root(cf3::Uint number) const;
+    Handle< CNode const > child_from_root(cf3::Uint number) const;
 
     /// @brief Gets a child node bqsed on its number
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::Ptr child_from_root(cf3::Uint number);
+    Handle< CNode > child_from_root(cf3::Uint number);
 
     /// @brief Gives the client UuiD
     /// @return Returns the Client UuiD

@@ -23,7 +23,7 @@ namespace graphics {
 
 /////////////////////////////////////////////////////////////////////////////
 
-GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget * parent)
+GraphicalRestrictedList::GraphicalRestrictedList(const boost::shared_ptr<Option>& opt, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_comboChoices = new QComboBox(this);

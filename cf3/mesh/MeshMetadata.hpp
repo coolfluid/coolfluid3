@@ -27,8 +27,8 @@ class Mesh_API MeshMetadata : public common::Component
 {
 public: //typedefs
 
-  typedef boost::shared_ptr<MeshMetadata> Ptr;
-  typedef boost::shared_ptr<MeshMetadata const> ConstPtr;
+  
+  
 
 public: // functions
 

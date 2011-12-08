@@ -39,8 +39,8 @@ class mesh_actions_API GlobalNumberingElements : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<GlobalNumberingElements> Ptr;
-    typedef boost::shared_ptr<GlobalNumberingElements const> ConstPtr;
+    
+    
 
 public: // functions
 

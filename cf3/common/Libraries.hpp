@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "common/BasicExceptions.hpp"
 #include "common/Component.hpp"
 
 namespace cf3 {
@@ -18,92 +19,87 @@ class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component that defines global environment
-  /// @author Quentin Gasper
-  class Common_API Libraries : public Component {
+/// Component that defines global environment
+/// @author Quentin Gasper
+class Common_API Libraries : public Component
+{
 
-  public: //typedefs
+public: // functions
 
-    typedef boost::shared_ptr<Libraries> Ptr;
-    typedef boost::shared_ptr<Libraries const> ConstPtr;
+  /// Contructor
+  /// @param name of the component
+  Libraries ( const std::string& name );
 
-  public: // functions
+  /// Virtual destructor
+  virtual ~Libraries();
 
-    /// Contructor
-    /// @param name of the component
-    Libraries ( const std::string& name );
+  /// Get the class name
+  static std::string type_name () { return "Libraries"; }
 
-    /// Virtual destructor
-    virtual ~Libraries();
+  /// Converts a CF3 library namespace to the library name.
+  /// For example: cf3Common to coolfluid_common
+  static std::string namespace_to_libname( const std::string& libnamespace );
 
-    /// Get the class name
-    static std::string type_name () { return "Libraries"; }
+  /// gives access to the factory of supplied type,
+  /// insuring that in case it does not exist it gets built.
+  template < typename LIB >
+  Handle<LIB> library ()
+  {
+    const std::string lname = LIB::library_namespace(); //instead of LIB::type_name();
+    Handle<Component> clib = get_child(lname);
 
-    /// Converts a CF3 library namespace to the library name.
-    /// For example: cf3Common to coolfluid_common
-    static std::string namespace_to_libname( const std::string& libnamespace );
-
-    /// gives access to the factory of supplied type,
-    /// insuring that in case it does not exist it gets built.
-    template < typename LIB >
-    typename LIB::Ptr library ()
+    if ( is_null(clib) ) // doesnt exist so build it
     {
-      const std::string lname = LIB::library_namespace(); //instead of LIB::type_name();
-      Component::Ptr clib = get_child_ptr(lname);
-
-      typename LIB::Ptr lib;
-      if ( is_null(clib) ) // doesnt exist so build it
-      {
-        cf3::common::TypeInfo::instance().regist< LIB >( lname );
-        lib = create_component_ptr< LIB >(lname);
-        cf3_assert( is_not_null(lib) );
-        return lib;
-      }
-
-      // try to convert existing ptr to LIB::Ptr and return it
-      lib = clib->as_ptr<LIB>();
-
-      if( is_null(lib) ) // conversion failed
-        throw CastingFailed( FromHere(),
-                            "Found component in Libraries with name "
-                            + lname
-                            + " but is not the actual library "
-                            + LIB::type_name() );
+      cf3::common::TypeInfo::instance().regist< LIB >( lname );
+      Handle<LIB> lib(create_component< LIB >(lname));
+      cf3_assert( is_not_null(lib) );
       return lib;
     }
 
-    /// calls all the initiate hooks on all the libraries that have not been initiated yet
-    void initiate_all_libraries();
-    /// calls all the terminate hooks on all the libraries that have not been terminated yet
-    void terminate_all_libraries();
+    // try to convert existing ptr to Handle<LIB> and return it
+    Handle<LIB> lib(clib);
 
-    /// Checks if a CF3 plugin library is already loaded
-    /// @param [in] file URI to the shared library to be loaded
-    bool is_loaded(  const std::string& name );
+    if( is_null(lib) ) // conversion failed
+      throw CastingFailed( FromHere(),
+                          "Found component in Libraries with name "
+                          + lname
+                          + " but is not the actual library "
+                          + LIB::type_name() );
+    return lib;
+  }
 
-    /// Attempts to load a CF3 plugin library
-    /// @param [in] file URI to the shared library to be loaded
-    void load_library( const URI& file );
+  /// calls all the initiate hooks on all the libraries that have not been initiated yet
+  void initiate_all_libraries();
+  /// calls all the terminate hooks on all the libraries that have not been terminated yet
+  void terminate_all_libraries();
 
-    /// Attempts to load a CF3 plugin library from the builders name
-    /// @param [in] name of the shared library to be loaded
-    /// @throws ValueNotFound in case of library not able to be loaded
-    boost::shared_ptr<Library> autoload_library_with_builder( const std::string& builder_name );
+  /// Checks if a CF3 plugin library is already loaded
+  /// @param [in] file URI to the shared library to be loaded
+  bool is_loaded(  const std::string& name );
 
-    /// Attempts to load a CF3 plugin library from its namespace
-    /// @param [in] namespace of the shared library to be loaded (e.g. cf3Common)
-    /// @throws ValueNotFound in case of library not able to be loaded
-    boost::shared_ptr<Library> autoload_library_with_namespace( const std::string& libnamespace );
+  /// Attempts to load a CF3 plugin library
+  /// @param [in] file URI to the shared library to be loaded
+  void load_library( const URI& file );
 
-    /// @name SIGNALS
-    //@{
+  /// Attempts to load a CF3 plugin library from the builders name
+  /// @param [in] name of the shared library to be loaded
+  /// @throws ValueNotFound in case of library not able to be loaded
+  Handle<Library> autoload_library_with_builder( const std::string& builder_name );
 
-    /// Signal to load a list of libraries
-    void signal_load_libraries ( SignalArgs& args );
-    /// Signature of the signal to load a list of libraries
-    void signature_load_libraries ( SignalArgs& args );
+  /// Attempts to load a CF3 plugin library from its namespace
+  /// @param [in] namespace of the shared library to be loaded (e.g. cf3Common)
+  /// @throws ValueNotFound in case of library not able to be loaded
+  Handle<Library> autoload_library_with_namespace( const std::string& libnamespace );
 
-    //@} END SIGNALS
+  /// @name SIGNALS
+  //@{
+
+  /// Signal to load a list of libraries
+  void signal_load_libraries ( SignalArgs& args );
+  /// Signature of the signal to load a list of libraries
+  void signature_load_libraries ( SignalArgs& args );
+
+  //@} END SIGNALS
 
 }; // Libraries
 

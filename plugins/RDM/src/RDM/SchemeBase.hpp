@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 
 #include "common/Core.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/BasicExceptions.hpp"
 
@@ -52,8 +52,8 @@ class RDM_API SchemeBase : public solver::actions::CLoopOperation {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeBase > Ptr;
-  typedef boost::shared_ptr< SchemeBase const> ConstPtr;
+
+
 
 public: // functions
 
@@ -80,16 +80,16 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
+        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
     coordinates =
-        elements().geometry_fields().coordinates().as_ptr< mesh::Field >();
+        elements().geometry_fields().coordinates().handle< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock();
-    residual   = cresidual.lock();
-    wave_speed = cwave_speed.lock();
+    solution   = csolution;
+    residual   = cresidual;
+    wave_speed = cwave_speed;
   }
 
 protected: // typedefs
@@ -122,20 +122,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< mesh::Field > csolution;   ///< solution field
-  boost::weak_ptr< mesh::Field > cresidual;   ///< residual field
-  boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
+  Handle< mesh::Field > csolution;   ///< solution field
+  Handle< mesh::Field > cresidual;   ///< residual field
+  Handle< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::Connectivity::Ptr connectivity;
+  Handle< mesh::Connectivity > connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  mesh::Field::Ptr coordinates;
+  Handle< mesh::Field > coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Field::Ptr solution;
+  Handle< mesh::Field > solution;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Field::Ptr residual;
+  Handle< mesh::Field > residual;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Field::Ptr wave_speed;
+  Handle< mesh::Field > wave_speed;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -203,12 +203,9 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   // options
 
-  options().add_option(
-        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
-  options().add_option(
-        common::OptionComponent<mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
-  options().add_option(
-        common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &cresidual));
+  options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
+  options().add_option(RDM::Tags::wave_speed(), cwave_speed).link_to(&cwave_speed);
+  options().add_option(RDM::Tags::residual(), cresidual).link_to(&cresidual);
 
 
   options()["elements"]

@@ -25,8 +25,8 @@ class Mesh_API WriteMesh : public common::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<WriteMesh> Ptr;
-  typedef boost::shared_ptr<WriteMesh const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -69,9 +69,9 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<mesh::MeshWriter::Ptr> > m_extensions_to_writers;
+  std::map<std::string,std::vector<Handle< mesh::MeshWriter > > > m_extensions_to_writers;
 
-  boost::weak_ptr<Mesh> m_mesh;
+  Handle<Mesh> m_mesh;
   common::URI m_file;
   std::vector<common::URI> m_fields;
 

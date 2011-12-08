@@ -9,6 +9,7 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/PropertyList.hpp"
 
 #include "solver/actions/Conditional.hpp"
 #include "solver/actions/CCriterion.hpp"

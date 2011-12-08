@@ -13,6 +13,7 @@
 #include <QMap>
 #include <QTabWidget>
 
+#include "common/PropertyList.hpp"
 #include "common/UUCount.hpp"
 
 #include "ui/core/CNode.hpp"
@@ -46,7 +47,7 @@ public:
   static TabBuilder * instance();
 
   template<typename TYPE>
-  TYPE * widget( core::CNode::ConstPtr node )
+  TYPE * widget( Handle< core::CNode > node )
   {
     TYPE * widget = nullptr;
     std::string key = node->properties().value_str("uuid"); //node->uri().path();
@@ -72,9 +73,9 @@ public:
     return widget;
   }
 
-  void show_tab( core::CNode::ConstPtr node );
+  void show_tab( Handle< core::CNode > node );
 
-  void queue_tab( core::CNode::ConstPtr node);
+  void queue_tab( Handle< core::CNode > node);
 
 private slots:
 

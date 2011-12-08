@@ -12,9 +12,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionComponent.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Field.hpp"
@@ -65,15 +64,16 @@ BCDirichlet::BCDirichlet( const std::string& name )
   properties()["description"] = std::string("Fields to be created: ...");
 
 
-  options().add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
-      ->pretty_name("Input Variables")
-      ->description("The input variables.\nIf empty, Solution Variables will be used");
+  options().add_option("input_vars", m_input_vars)
+      .pretty_name("Input Variables")
+      .description("The input variables.\nIf empty, Solution Variables will be used")
+      .link_to(&m_input_vars);
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->pretty_name("Functions")
-      ->description("math function applied as initial condition using Input Variables (vars x,y)")
-      ->attach_trigger ( boost::bind ( &BCDirichlet::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .pretty_name("Functions")
+      .description("math function applied as initial condition using Input Variables (vars x,y)")
+      .attach_trigger ( boost::bind ( &BCDirichlet::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -96,9 +96,9 @@ void BCDirichlet::execute()
 {
   link_fields();
 
-  if (m_input_vars.expired())
-    m_input_vars = m_solution_vars.lock();
-  Variables& input_vars    = *m_input_vars.lock();
+  if (is_null(m_input_vars))
+    m_input_vars = m_solution_vars;
+  Variables& input_vars    = *m_input_vars;
   const Uint nb_vars = physical_model().neqs();
 
   sol_in_flx_pt.resize(physical_model().neqs());
@@ -108,10 +108,10 @@ void BCDirichlet::execute()
   RealVector sol_in_bc(nb_vars);
 
   /// Faces loop
-  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(const Handle<Region>& region, m_loop_regions)
   boost_foreach(Faces& faces, find_components_recursively<Faces>(*region))
   {
-    FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
+    FaceCellConnectivity& cell_connectivity = *faces.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
 
     /// For every face
     for (Face2Cell face(cell_connectivity); face.idx<cell_connectivity.size(); ++face.idx)

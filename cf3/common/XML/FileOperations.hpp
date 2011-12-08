@@ -21,20 +21,20 @@ namespace XML {
 /// Parses a XML string
 /// @param str String with the XML contents
 /// @return Returns a shared pointer with the built XML document.
-XmlDoc::Ptr parse_string ( const std::string& str );
+boost::shared_ptr<XmlDoc> parse_string ( const std::string& str );
 
 /// Parses a XML file
 /// @param fpath Path to file with xml contents
 /// @return Returns a shared pointer with the built XML document.
 /// @throw FileSystemError If the file cannot be read.
-XmlDoc::Ptr parse_file ( const URI& path );
+boost::shared_ptr<XmlDoc> parse_file ( const URI& path );
 
 /// Parses a XML C-string
 /// @param str String with the XML contents, cannot be null.
 /// @param length The length of the string
 /// @return Returns a shared pointer with the built XML document.
 /// @throw XmlError If the string could not be parsed.
-XmlDoc::Ptr parse_cstring ( const char * str, std::size_t length = 0 );
+boost::shared_ptr<XmlDoc> parse_cstring ( const char * str, std::size_t length = 0 );
 
 /// Writes the provided XML node to a file.
 /// @param node The node to write.

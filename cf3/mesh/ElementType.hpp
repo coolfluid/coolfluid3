@@ -34,8 +34,8 @@ class Mesh_API ElementType : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr< ElementType > Ptr;
-  typedef boost::shared_ptr< ElementType const> ConstPtr;
+  
+  
 
   typedef ElementTypeFaceConnectivity FaceConnectivity;
 public: // functions

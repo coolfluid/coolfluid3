@@ -30,8 +30,8 @@ class Mesh_API StencilComputer : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<StencilComputer> Ptr;
-  typedef boost::shared_ptr<StencilComputer const> ConstPtr;
+  
+  
 
 public: // functions  
   /// constructor
@@ -52,9 +52,9 @@ private: // functions
 
 protected: // data
   
-  boost::weak_ptr<Mesh> m_mesh;
+  Handle<Mesh> m_mesh;
     
-  UnifiedData::Ptr m_elements;
+  Handle< UnifiedData > m_elements;
   
   Uint m_min_stencil_size;
 

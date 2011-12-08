@@ -21,6 +21,7 @@
 #include "common/URI.hpp"
 
 #include "ui/graphics/GraphicalArray.hpp"
+#include "ui/core/ThreadManager.hpp"
 
 #include "test/ui/Application.hpp"
 
@@ -129,6 +130,9 @@ BOOST_AUTO_TEST_SUITE( uiGraphicsGraphicalArraySuite )
 BOOST_AUTO_TEST_CASE( init )
 {
   application();
+
+  ui::core::ThreadManager::instance().tree();
+
   GraphicalArray * value = new GraphicalArray();
 
   AssertionManager::instance().AssertionDumps = false;

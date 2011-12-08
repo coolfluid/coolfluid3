@@ -30,8 +30,8 @@ class Mesh_API Octtree : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Octtree> Ptr;
-  typedef boost::shared_ptr<Octtree const> ConstPtr;
+
+
 
 private: // typedefs
 
@@ -51,10 +51,10 @@ public: // functions
   /// Find one single element in which the given coordinate resides.
   /// @param target_coord [in] the given coordinate
   /// @return the elements region, and the local coefficient in this region
-  boost::tuple<Elements::ConstPtr,Uint> find_element(const RealVector& target_coord);
+  boost::tuple<Handle< Elements >,Uint> find_element(const RealVector& target_coord);
 
 
-  bool find_element(const RealVector& target_coord, Elements::ConstPtr& element_component, Uint& element_idx);
+  bool find_element(const RealVector& target_coord, Handle< Elements >& element_component, Uint& element_idx);
 
   /// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate  [in]  The coordinate to look for
@@ -91,8 +91,6 @@ private: //functions
 
 private: // data
 
-  boost::weak_ptr<Mesh> m_mesh;
-
   ArrayT m_octtree;
 
   Uint m_dim;
@@ -101,7 +99,8 @@ private: // data
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
 
-  boost::shared_ptr<UnifiedData> m_elements;
+  Handle<UnifiedData> m_elements;
+  Handle<Mesh> m_mesh;
 
   std::vector<Uint> m_octtree_idx;
 

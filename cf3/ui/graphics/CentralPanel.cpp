@@ -32,7 +32,7 @@ namespace graphics {
 CentralPanel::CentralPanel(QWidget * parent)
   : QWidget(parent)
 {
-  NTree::Ptr tree = NTree::global();
+  Handle< NTree > tree = NTree::global();
 
   // create the components
   m_scroll_basic_options = new QScrollArea();
@@ -122,10 +122,10 @@ CentralPanel::~CentralPanel()
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::set_options(const QList<Option::ConstPtr> & list)
+void CentralPanel::set_options(const QList<boost::shared_ptr< Option > > & list)
 {
-  QList<Option::ConstPtr>::const_iterator it = list.begin();
-  const NTree::Ptr & tree = NTree::global();
+  QList<boost::shared_ptr< Option > >::const_iterator it = list.begin();
+  const Handle< NTree > & tree = NTree::global();
 
   // delete old options
   m_basic_option_layout->clear_options();
@@ -147,7 +147,7 @@ void CentralPanel::set_options(const QList<Option::ConstPtr> & list)
     // create the option
     try
     {
-      Option::ConstPtr option = *it;
+      boost::shared_ptr< Option > option = *it;
       bool basic = option->has_tag("basic");
 
       if (basic)
@@ -257,7 +257,7 @@ void CentralPanel::bt_apply_clicked()
 
 void CentralPanel::current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  QList<Option::ConstPtr> options;
+  QList<boost::shared_ptr< Option > > options;
   NTree::global()->list_node_options(newIndex, options);
 
   this->set_options(options);
@@ -267,7 +267,7 @@ void CentralPanel::current_index_changed(const QModelIndex & newIndex, const QMo
 
 void CentralPanel::advanced_mode_changed(bool advanced)
 {
-  NTree::Ptr tree = NTree::global();
+  Handle< NTree > tree = NTree::global();
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???

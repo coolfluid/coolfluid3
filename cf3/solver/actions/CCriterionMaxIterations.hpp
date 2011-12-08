@@ -23,8 +23,8 @@ class solver_actions_API CCriterionMaxIterations : public CCriterion {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterionMaxIterations> Ptr;
-  typedef boost::shared_ptr<CCriterionMaxIterations const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -44,7 +44,7 @@ public: // functions
 private:
 
   /// component where to access the current iteration
-  boost::weak_ptr<Component> m_iter_comp;
+  Handle<Component> m_iter_comp;
 
 };
 

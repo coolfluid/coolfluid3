@@ -16,42 +16,38 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component that defines global environment
-  /// @author Quentin Gasper
-  class Common_API Factories : public Component {
+/// Component that defines global environment
+/// @author Quentin Gasper
+class Common_API Factories : public Component
+{
 
-  public: //typedefs
+public: // functions
 
-    typedef boost::shared_ptr<Factories> Ptr;
-    typedef boost::shared_ptr<Factories const> ConstPtr;
+  /// Contructor
+  /// @param name of the component
+  Factories ( const std::string& name );
 
-  public: // functions
+  /// Virtual destructor
+  virtual ~Factories();
 
-    /// Contructor
-    /// @param name of the component
-    Factories ( const std::string& name );
+  /// Get the class name
+  static std::string type_name () { return "Factories"; }
 
-    /// Virtual destructor
-    virtual ~Factories();
-
-    /// Get the class name
-    static std::string type_name () { return "Factories"; }
-
-    /// gives access to the factory of supplied type,
-    /// insuring that in case it does not exist it gets built.
-    template < typename CBase >
-    typename FactoryT<CBase>::Ptr get_factory ()
+  /// gives access to the factory of supplied type,
+  /// insuring that in case it does not exist it gets built.
+  template < typename CBase >
+  Handle< FactoryT<CBase> > get_factory ()
+  {
+    const std::string tname = CBase::type_name();
+    Handle<Component> factory = get_child(tname);
+    if ( is_not_null(factory) )
+      return Handle< FactoryT<CBase> >(factory);
+    else
     {
-      const std::string tname = CBase::type_name();
-      Component::Ptr factory = get_child_ptr(tname);
-      if ( is_not_null(factory) )
-        return boost::dynamic_pointer_cast< FactoryT<CBase> >(factory);
-      else
-      {
-        cf3::common::TypeInfo::instance().regist< FactoryT<CBase> >( FactoryT<CBase>::type_name() );
-        return create_component_ptr< FactoryT<CBase> >(tname);
-      }
+      cf3::common::TypeInfo::instance().regist< FactoryT<CBase> >( FactoryT<CBase>::type_name() );
+      return create_component< FactoryT<CBase> >(tname);
     }
+  }
 
 }; // Factories
 

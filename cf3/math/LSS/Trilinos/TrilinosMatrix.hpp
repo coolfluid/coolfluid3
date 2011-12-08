@@ -41,12 +41,6 @@ public:
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<TrilinosMatrix> Ptr;
-
-  /// const pointer to this type
-  typedef boost::shared_ptr<TrilinosMatrix const> ConstPtr;
-
   /// name of the type
   static std::string type_name () { return "TrilinosMatrix"; }
 
@@ -54,13 +48,13 @@ public:
   const std::string solvertype() { return "Trilinos"; }
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; }
+  const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) { return true; }
 
   /// Default constructor
   TrilinosMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -86,7 +80,7 @@ public:
 
   /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
   /// We bow on our knees before your greatness.
-  void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void solve(LSS::Vector& solution, LSS::Vector& rhs);
 
   //@} END SOLVE THE SYSTEM
 

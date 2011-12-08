@@ -24,8 +24,8 @@ class RiemannSolvers_API RiemannSolver : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<RiemannSolver> Ptr;
-  typedef boost::shared_ptr<RiemannSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -49,11 +49,11 @@ public: // functions
 
 protected:
 
-  physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
-  physics::PhysModel& physical_model() const { return *m_physical_model.lock(); }
+  physics::Variables& solution_vars() const { return *m_solution_vars; }
+  physics::PhysModel& physical_model() const { return *m_physical_model; }
 
-  boost::weak_ptr<physics::PhysModel> m_physical_model;
-  boost::weak_ptr<physics::Variables> m_solution_vars;
+  Handle<physics::PhysModel> m_physical_model;
+  Handle<physics::Variables> m_solution_vars;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

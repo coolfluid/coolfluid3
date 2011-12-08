@@ -88,18 +88,18 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( create_from_option )
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //
   // 1. null option, should get a null pointer
   //
-  BOOST_CHECK_EQUAL( GraphicalValue::create_from_option(Option::ConstPtr()), (GraphicalValue*) nullptr );
+  BOOST_CHECK_EQUAL( GraphicalValue::create_from_option(boost::shared_ptr< Option >()), (GraphicalValue*) nullptr );
 
   //
   // 2. check bool, should get a GraphicalBool
   //
-  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", true));
+  option = boost::shared_ptr< OptionT<bool> >(new OptionT<bool>("OptBool", true));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalBool*>(value) ) );
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( create_from_option )
   //
   // 3. check int, should get a GraphicalInt
   //
-  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", int(-156754)));
+  option = boost::shared_ptr< OptionT<int> >(new OptionT<int>("OptInt", int(-156754)));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalInt*>(value) ) );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( create_from_option )
   //
   // 4. check Uint, should get a GraphicalInt
   //
-  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", Uint(42)));
+  option = boost::shared_ptr< OptionT<Uint> >(new OptionT<Uint>("OptUint", Uint(42)));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalInt*>(value) ) );
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( create_from_option )
   //
   // 5. check Uint, should get a GraphicalReal
   //
-  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", Real(3.141592)));
+  option = boost::shared_ptr< OptionT<Real> >(new OptionT<Real>("OptReal", Real(3.141592)));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalDouble*>(value) ) );
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( create_from_option )
   //
   // 6. check str::string, should get a GraphicalString
   //
-  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", std::string()));
+  option = boost::shared_ptr< OptionT<std::string> >(new OptionT<std::string>("OptString", std::string()));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalString*>(value) ) );
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( create_from_option )
   //
   // 7. check URI, should get a GraphicalUri
   //
-  option = OptionURI::Ptr(new OptionURI("OptUri", URI()));
+  option = boost::shared_ptr< OptionURI >(new OptionURI("OptUri", URI()));
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
   BOOST_CHECK( is_not_null(dynamic_cast<GraphicalUri*>(value) ) );
@@ -161,19 +161,19 @@ BOOST_AUTO_TEST_CASE( create_from_option )
 
 BOOST_AUTO_TEST_CASE( create_from_option_array )
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
   const QValidator * validator;
 
   //
   // 1. null option, should get a null pointer
   //
-  BOOST_CHECK_EQUAL( GraphicalValue::create_from_option(Option::ConstPtr()), (GraphicalValue*) nullptr );
+  BOOST_CHECK_EQUAL( GraphicalValue::create_from_option(boost::shared_ptr< Option >()), (GraphicalValue*) nullptr );
 
   //
   // 2. check bool, should get a GraphicalArray
   //
-  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", std::vector<bool>()));
+  option = boost::shared_ptr< OptionArray<bool> >(new OptionArray<bool>("OptBool", std::vector<bool>()));
   value = GraphicalValue::create_from_option( option );
 
   // 2a. check that it is a GraphicalArray
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
   //
   // 3. check int, should get a GraphicalArray
   //
-  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", std::vector<int>()));
+  option = boost::shared_ptr< OptionArray<int> >(new OptionArray<int>("OptInt", std::vector<int>()));
   value = GraphicalValue::create_from_option( option );
 
   // 3a. check that it is a GraphicalArray
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
   //
   // 4. check Uint, should get a GraphicalArray
   //
-  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", std::vector<Uint>()));
+  option = boost::shared_ptr< OptionArray<Uint> >(new OptionArray<Uint>("OptUint", std::vector<Uint>()));
   value = GraphicalValue::create_from_option( option );
 
   // 4a. check that it is a GraphicalArray
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
   //
   // 5. check Real, should get a GraphicalArray
   //
-  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", std::vector<Real>()));
+  option = boost::shared_ptr< OptionArray<Real> >(new OptionArray<Real>("OptReal", std::vector<Real>()));
   value = GraphicalValue::create_from_option( option );
 
   // 5a. check that it is a GraphicalArray
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
   //
   // 6. check str::string, should get a GraphicalArray
   //
-  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", std::vector<std::string>()));
+  option = boost::shared_ptr< OptionArray<std::string> >(new OptionArray<std::string>("OptString", std::vector<std::string>()));
   value = GraphicalValue::create_from_option( option );
 
   // 6a. check that it is a GraphicalArray
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
   //
   // 7. check URI, should get a GraphicalUriArray
   //
-  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptString", std::vector<URI>()));
+  option = boost::shared_ptr< OptionArray<URI> >(new OptionArray<URI>("OptString", std::vector<URI>()));
   value = GraphicalValue::create_from_option( option );
 
   // check that is is a GraphicalUriArray
@@ -299,13 +299,13 @@ BOOST_AUTO_TEST_CASE( create_from_option_array )
 
 BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //
   // 1. check bool
   //
-  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", true));
+  option = boost::shared_ptr< OptionT<bool> >(new OptionT<bool>("OptBool", true));
   option->restricted_list() += false;
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
   //
   // 2. check int
   //
-  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", int(-156754)));
+  option = boost::shared_ptr< OptionT<int> >(new OptionT<int>("OptInt", int(-156754)));
   option->restricted_list() += int(47687876);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
   //
   // 3. check Uint
   //
-  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", Uint(42)));
+  option = boost::shared_ptr< OptionT<Uint> >(new OptionT<Uint>("OptUint", Uint(42)));
   option->restricted_list() += Uint(314);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
   //
   // 4. check Real
   //
-  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", Real(3.141592)));
+  option = boost::shared_ptr< OptionT<Real> >(new OptionT<Real>("OptReal", Real(3.141592)));
   option->restricted_list() += Real(2.71);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
   //
   // 5. check str::string
   //
-  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", std::string()));
+  option = boost::shared_ptr< OptionT<std::string> >(new OptionT<std::string>("OptString", std::string()));
   option->restricted_list() += std::string("Hello, World!");
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
   //
   // 6. check URI
   //
-  option = OptionURI::Ptr(new OptionURI("OptUri", URI("http://www.google.com")));
+  option = boost::shared_ptr< OptionURI >(new OptionURI("OptUri", URI("http://www.google.com")));
   option->restricted_list().push_back( URI("cpath:/") );
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_restr_values )
 
 BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<bool> vectBool;
   vectBool.push_back(true);
-  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", vectBool));
+  option = boost::shared_ptr< OptionArray<bool> >(new OptionArray<bool>("OptBool", vectBool));
   option->restricted_list() += false;
   BOOST_CHECK_NO_THROW(value = GraphicalValue::create_from_option( option ));
   BOOST_CHECK( is_not_null(value) );
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<int> vectInt;
   vectInt.push_back(-154786);
-  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", vectInt));
+  option = boost::shared_ptr< OptionArray<int> >(new OptionArray<int>("OptInt", vectInt));
   option->restricted_list() += int(47687876);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<Uint> vectUint;
   vectUint.push_back(42);
-  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", vectUint));
+  option = boost::shared_ptr< OptionArray<Uint> >(new OptionArray<Uint>("OptUint", vectUint));
   option->restricted_list() += Uint(3654614);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<Real> vectReal;
   vectReal.push_back(3.141592);
-  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", vectReal));
+  option = boost::shared_ptr< OptionArray<Real> >(new OptionArray<Real>("OptReal", vectReal));
   option->restricted_list() += Real(2.71);
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<std::string> vectString;
   vectString.push_back("Hello");
-  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", vectString));
+  option = boost::shared_ptr< OptionArray<std::string> >(new OptionArray<std::string>("OptString", vectString));
   option->restricted_list() += std::string(", World!");
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE( create_from_option_array_restr_values )
   //
   std::vector<URI> vectUri;
   vectUri.push_back( URI("http://coolfluidsrv.vki.ac.be") );
-  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptUri", vectUri));
+  option = boost::shared_ptr< OptionArray<URI> >(new OptionArray<URI>("OptUri", vectUri));
   option->restricted_list() += URI("cpath:/");
   value = GraphicalValue::create_from_option( option );
   BOOST_CHECK( is_not_null(value) );

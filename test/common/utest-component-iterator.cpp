@@ -33,65 +33,65 @@ struct ComponentIterationFixture
     ExceptionManager::instance().ExceptionAborts = false;
 
     m_root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-    Component::Ptr comp1 = m_root->create_component_ptr<Component>("comp1");
+    Handle<Component> comp1 = m_root->create_component<Component>("comp1");
     top_component_names.push_back(comp1->name());
     component_names.push_back(comp1->name());
-    Component::Ptr comp1_1 = comp1->create_component_ptr<Component>("comp1_1");
+    Handle<Component> comp1_1 = comp1->create_component<Component>("comp1_1");
     component_names.push_back(comp1_1->name());
-    Component::Ptr comp1_2 = comp1->create_component_ptr<Component>("comp1_2");
+    Handle<Component> comp1_2 = comp1->create_component<Component>("comp1_2");
     component_names.push_back(comp1_2->name());
-    Component::Ptr comp2   = m_root->create_component_ptr<Component>("comp2");
+    Handle<Component> comp2   = m_root->create_component<Component>("comp2");
     top_component_names.push_back(comp2->name());
     component_names.push_back(comp2->name());
-    Component::Ptr comp2_1 = comp2->create_component_ptr<Component>("comp2_1");
+    Handle<Component> comp2_1 = comp2->create_component<Component>("comp2_1");
     component_names.push_back(comp2_1->name());
-    Component::Ptr comp2_2 = comp2->create_component_ptr<Component>("comp2_2");
+    Handle<Component> comp2_2 = comp2->create_component<Component>("comp2_2");
     component_names.push_back(comp2_2->name());
-    Group::Ptr group1 = m_root->create_component_ptr<Group>("group1");
+    Handle<Group> group1 = m_root->create_component<Group>("group1");
     top_component_names.push_back(group1->name());
     component_names.push_back(group1->name());
     top_group_names.push_back(group1->name());
     group_names.push_back(group1->name());
-    Component::Ptr comp3 = group1->create_component_ptr<Component>("comp3");
+    Handle<Component> comp3 = group1->create_component<Component>("comp3");
     comp3->add_tag("special");
     component_names.push_back(comp3->name());
     special_component_names.push_back(comp3->name());
     group1_component_names.push_back(comp3->name());
-    Group::Ptr group1_1 = group1->create_component_ptr<Group>("group1_1");
+    Handle<Group> group1_1 = group1->create_component<Group>("group1_1");
     component_names.push_back(group1_1->name());
     group_names.push_back(group1_1->name());
     group1_group_names.push_back(group1_1->name());
     group1_component_names.push_back(group1_1->name());
-    Group::Ptr group1_2 = group1->create_component_ptr<Group>("group1_2");
+    Handle<Group> group1_2 = group1->create_component<Group>("group1_2");
     group1_2->add_tag("special");
     component_names.push_back(group1_2->name());
     group_names.push_back(group1_2->name());
     group1_group_names.push_back(group1_2->name());
     group1_component_names.push_back(group1_2->name());
     special_component_names.push_back(group1_2->name());
-    Group::Ptr group2 = m_root->create_component_ptr<Group>("group2");
+    Handle<Group> group2 = m_root->create_component<Group>("group2");
     top_component_names.push_back(group2->name());
     component_names.push_back(group2->name());
     top_group_names.push_back(group2->name());
     group_names.push_back(group2->name());
-    Group::Ptr group2_1 = group2->create_component_ptr<Group>("group2_1");
+    Handle<Group> group2_1 = group2->create_component<Group>("group2_1");
     component_names.push_back(group2_1->name());
     group_names.push_back(group2_1->name());
-    Group::Ptr group2_1_1 = group2_1->create_component_ptr<Group>("group2_1_1");
+    Handle<Group> group2_1_1 = group2_1->create_component<Group>("group2_1_1");
     component_names.push_back(group2_1_1->name());
     group_names.push_back(group2_1_1->name());
     group2_1_1->add_tag("very_special");
-    Link::Ptr link2 = group2->create_component_ptr<Link>("link2");
+    Handle<Link> link2 = group2->create_component<Link>("link2");
     component_names.push_back(link2->name());
-    Group::Ptr group3 = m_root->create_component_ptr<Group>("group3");
+    Handle<Group> group3 = m_root->create_component<Group>("group3");
     top_component_names.push_back(group3->name());
     component_names.push_back(group3->name());
     top_group_names.push_back(group3->name());
     group_names.push_back(group3->name());
-    Group::Ptr group3_1 = group3->create_component_ptr<Group>("group3_1");
+    Handle<Group> group3_1 = group3->create_component<Group>("group3_1");
     component_names.push_back(group3_1->name());
     group_names.push_back(group3_1->name());
-    Link::Ptr link1 = m_root->create_component_ptr<Link>("link1");
+    Handle<Link> link1 = m_root->create_component<Link>("link1");
     component_names.push_back(link1->name());
     top_component_names.push_back(link1->name());
 
@@ -128,15 +128,15 @@ struct ComponentIterationFixture
   /// const root
   const Component& const_root() { return *m_root; }
 
-  Group& group1() { return *root().get_child_ptr("group1")->as_ptr<Group>(); }
-  const Group& const_group1() { return *const_root().get_child_ptr("group1")->as_ptr<Group>(); }
-  Group& group2() { return *root().get_child_ptr("group2")->as_ptr<Group>(); }
-  const Group& const_group2() { return *const_root().get_child_ptr("group2")->as_ptr<Group>(); }
-  Group& group3() { return *root().get_child_ptr("group3")->as_ptr<Group>(); }
-  const Group& const_group3() { return *const_root().get_child_ptr("group3")->as_ptr<Group>(); }
+  Group& group1() { return *Handle<Group>(root().get_child("group1")); }
+  const Group& const_group1() { return *Handle<Group const>(const_root().get_child("group1")); }
+  Group& group2() { return *Handle<Group>(root().get_child("group2")); }
+  const Group& const_group2() { return *Handle<Group const>(const_root().get_child("group2")); }
+  Group& group3() { return *Handle<Group>(root().get_child("group3")); }
+  const Group& const_group3() { return *Handle<Group const>(const_root().get_child("group3")); }
 
-  Group& group2_1() { return *group2().get_child_ptr("group2_1")->as_ptr<Group>(); }
-  const Group& const_group2_1() { return *const_group2().get_child_ptr("group2_1")->as_ptr<Group>(); }
+  Group& group2_1() { return *Handle<Group>(group2().get_child("group2_1")); }
+  const Group& const_group2_1() { return *Handle<Group const>(const_group2().get_child("group2_1")); }
 
   /// list of all component names on the first level
   std::vector<std::string> top_component_names;
@@ -153,7 +153,7 @@ struct ComponentIterationFixture
   /// list of all components with a tag "special"
   std::vector<std::string> special_component_names;
 private:
-  Component::Ptr m_root;
+  boost::shared_ptr<Component> m_root;
 
 };
 
@@ -170,13 +170,13 @@ BOOST_AUTO_TEST_CASE( test_find_parent )
   const Group& group2 = find_parent_component<Group>(const_group2_1());
   BOOST_CHECK_EQUAL(group2.uri().string() , "cpath:/group2");
 
-  Component& root = group2_1().root();
+  Component& root = *group2_1().root();
   BOOST_CHECK_EQUAL(root.uri().string() , "cpath:/");
 
   Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
   BOOST_CHECK_EQUAL(group22.uri().string() , "cpath:/group2");
 
-  Component& root2 = group2_1().root();
+  Component& root2 = *group2_1().root();
   BOOST_CHECK_EQUAL(root2.uri().string() , "cpath:/");
 
 }
@@ -232,10 +232,10 @@ BOOST_AUTO_TEST_CASE( GetByName )
   BOOST_CHECK_THROW(find_component_with_name<Group>(root(), "comp1"), ValueNotFound);
 
   BOOST_CHECK_EQUAL(find_component_with_name<Group>(root(), "group1").name(), "group1");
-  BOOST_CHECK_EQUAL(find_component_ptr_with_name<Group>(root(), "comp1"), Group::Ptr());
+  BOOST_CHECK_EQUAL(find_component_ptr_with_name<Group>(root(), "comp1"), Handle<Group>());
   BOOST_CHECK_EQUAL(find_component_ptr_with_name<Group>(root(), "group1")->name(), "group1");
   BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1")->name(), "group1");
-  BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1"), root().get_child_ptr("group1"));
+  BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1"), root().get_child("group1"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( GetByNameRecursive )
   BOOST_CHECK_EQUAL(find_component_recursively_with_name(root(), "group1_1").name(), "group1_1");
   BOOST_CHECK_THROW(find_component_recursively_with_name<Group>(root(), "comp1"), ValueNotFound);
   BOOST_CHECK_EQUAL(find_component_recursively_with_name<Group>(root(), "group1").name(), "group1");
-  BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_name<Group>(root(), "comp1"), Group::Ptr());
+  BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_name<Group>(root(), "comp1"), Handle<Group>());
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_name<Group>(root(), "group1")->name(), "group1");
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_name(root(), "group1")->name(), "group1");
 }
@@ -664,21 +664,16 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_tag )
 
 BOOST_AUTO_TEST_CASE( speed_find_tag )
 {
-    Group::Ptr mg = root().create_component_ptr<Group>("ManyGroup2");
+  Handle<Group> mg = root().create_component<Group>("ManyGroup2");
 
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component_ptr<Group>( std::string("ggg") + to_str(i) )->add_tag("Group");
+    mg->create_component<Group>( std::string("ggg") + to_str(i) )->add_tag("Group");
   }
 
   boost::timer timer;
-  Uint counter = 0;
-  BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, "Group" ) )
-  {
-    comp.is_link(); // to disable unused variable warning
-    ++counter;
-  }
+  const Uint counter = count(find_components_recursively_with_tag(*mg, "Group" ));
   std::cout << "iterate by [tag] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
 }
 
@@ -686,21 +681,16 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
 
 BOOST_AUTO_TEST_CASE( speed_find_type )
 {
-    Group::Ptr mg = root().create_component_ptr<Group>("ManyGroup1");
+  Handle<Group> mg = root().create_component<Group>("ManyGroup1");
 
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component_ptr<Group>( std::string("ggg") + to_str(i) );
+    mg->create_component<Group>( std::string("ggg") + to_str(i) );
   }
 
   boost::timer timer;
-  Uint counter = 0;
-  BOOST_FOREACH(Component& comp, find_components_recursively<Group>(*mg) )
-  {
-    comp.is_link(); // to disable unused variable warning
-    ++counter;
-  }
+  const Uint counter = count(find_components_recursively<Group>(*mg) );
   std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
 }
 
@@ -708,19 +698,19 @@ BOOST_AUTO_TEST_CASE( speed_find_type )
 
 BOOST_AUTO_TEST_CASE( test_range_to_vector )
 {
-    Group::Ptr mg = root().create_component_ptr<Group>("ManyGroup1");
+  Handle<Group> mg = root().create_component<Group>("ManyGroup1");
 
   // allocate 10 components
   for ( Uint i = 0; i < 10 ; ++i)
   {
-    mg->create_component_ptr<Group>( std::string("ggg") + to_str(i) );
+    mg->create_component<Group>( std::string("ggg") + to_str(i) );
   }
 
-  std::vector<Group::Ptr> vector = range_to_vector(find_components_recursively<Group>(*mg));
+  std::vector< Handle<Group> > vector = range_to_vector(find_components_recursively<Group>(*mg));
   BOOST_CHECK_EQUAL(vector.size() , 10u);
 
-  Group::ConstPtr const_mg (mg);
-  std::vector<Group::ConstPtr> const_vector = range_to_vector(find_components_recursively<Group>(*const_mg));
+  Handle<Group const> const_mg(mg);
+  std::vector< Handle<Group const> > const_vector = range_to_vector(find_components_recursively<Group>(*const_mg));
   BOOST_CHECK_EQUAL(const_vector.size(), 10u);
 
   const_vector = range_to_const_vector(find_components_recursively<Group>(*mg));

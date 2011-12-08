@@ -22,9 +22,10 @@ namespace common {
 void LocalDispatcher::dispatch_signal(const std::string & target, const URI & receiver,
                                       SignalArgs & args)
 {
-  Component & comp = Core::instance().root().access_component( receiver );
+  Handle<Component> comp = Core::instance().root().access_component( receiver );
+  cf3_assert(is_not_null(comp));
   args.options().flush();
-  comp.call_signal( target, args );
+  comp->call_signal( target, args );
 }
 
 /////////////////////////////////////////////////////////////////////////////

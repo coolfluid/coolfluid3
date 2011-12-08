@@ -57,7 +57,8 @@ void XmlNode::set_attribute ( const std::string & name, const std::string & valu
   cf3_assert( is_not_null(content->document()) );
 
   rapidxml::xml_document<>& doc = *content->document();
-  rapidxml::xml_attribute<>* attr = content->first_attribute( name.c_str() );
+  rapidxml::xml_attribute<>* attr(nullptr);
+  attr = content->first_attribute( name.c_str() );
   const char * the_value = doc.allocate_string( value.c_str() );
 
   if( attr == nullptr )

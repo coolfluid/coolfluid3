@@ -26,9 +26,6 @@ class Common_API LibCommon : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibCommon> Ptr;
-  typedef boost::shared_ptr<LibCommon const> ConstPtr;
-
   /// Constructor
   LibCommon ( const std::string& name) : common::Library(name) {   }
 

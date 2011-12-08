@@ -47,14 +47,12 @@ void LibPython::terminate()
 
 void LibPython::initiate_impl()
 {
-  common::Component& group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
-  group.create_component("ScriptEngine", "cf3.python.ScriptEngine");
+  Handle<common::Component> group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
+  group->create_component("ScriptEngine", "cf3.python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()
 {
-  common::Component& group = common::Core::instance().tools().get_child("Python");
-  group.remove_component("ScriptEngine");
   common::Core::instance().tools().remove_component("Python");
 }
 

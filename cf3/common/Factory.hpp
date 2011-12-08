@@ -17,6 +17,8 @@
 namespace cf3 {
 namespace common {
 
+class Builder;
+
 /////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Component class for a factory which builds other components
@@ -24,9 +26,6 @@ namespace common {
 class Common_API Factory : public Component
 {
 public:
-
-  typedef boost::shared_ptr<Factory> Ptr;
-  typedef boost::shared_ptr<Factory const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
@@ -42,7 +41,7 @@ public:
   virtual std::string factory_type_name() const = 0;
 
   /// returns a build by its name stripped out of the namespace part
-  Component& find_builder_with_reduced_name( const std::string& name );
+  Builder& find_builder_with_reduced_name( const std::string& name );
 
 }; // Factory
 
@@ -53,9 +52,6 @@ public:
 template < typename TYPE >
 class FactoryT : public Factory {
 public:
-
-  typedef boost::shared_ptr< FactoryT<TYPE> > Ptr;
-  typedef boost::shared_ptr< FactoryT<TYPE> const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component

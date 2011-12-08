@@ -31,8 +31,8 @@ class SFDM_API Convection : public Term
 {
 public: // typedefs
 friend class Flyweight;
-    typedef boost::shared_ptr<Convection> Ptr;
-    typedef boost::shared_ptr<Convection const> ConstPtr;
+    
+    
 
 public: // functions
 

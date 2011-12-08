@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Faces.hpp"
 

@@ -9,6 +9,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
@@ -91,7 +92,7 @@ std::string Info::help() const
 void Info::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   CFinfo << "Element distribution:" << CFendl;
   boost_foreach( const Region& region, find_components_with_filter<Region>(mesh,IsComponentTrue()))

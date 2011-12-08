@@ -27,8 +27,8 @@ class solver_API CTime : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CTime> Ptr;
-  typedef boost::shared_ptr<CTime const> ConstPtr;
+  
+  
 
 public: // functions
 

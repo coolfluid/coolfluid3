@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "common/PropertyList.hpp"
 #include "common/StringConversion.hpp"
 
 #include "mesh/Field.hpp"
@@ -35,8 +36,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< RKLDA > Ptr;
-  typedef boost::shared_ptr< RKLDA const > ConstPtr;
+
+
 
 public: // functions
 
@@ -67,8 +68,8 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+
+
 
 public: // functions
 
@@ -83,7 +84,7 @@ public: // functions
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
 
-    this->option("elements").attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
+    this->options().option("elements").attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
 
   }
 
@@ -99,18 +100,18 @@ protected: // helper function
   {
     using namespace common;
 
-    RDSolver& mysolver = this->parent().as_type<CellTerm>().solver().as_type<RDSolver>();
+    RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
-    dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
+    dt      = mysolver.time_stepping().get_child("Time")->options().option("time_step").template value<Real>();
 
     k = step - 1;
 
     ksolutions.clear();
-    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<mesh::Field>() );
+    ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() ))->handle<mesh::Field>() );
     for ( Uint kstep = 1; kstep < rkorder; ++kstep)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ).follow()->as_ptr_checked<mesh::Field>() );
+      ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ))->handle<mesh::Field>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
@@ -185,7 +186,7 @@ protected: // data
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
 
-  std::vector< mesh::Field::Ptr > ksolutions;  ///< solution fields at different k steps
+  std::vector< Handle< mesh::Field > > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i

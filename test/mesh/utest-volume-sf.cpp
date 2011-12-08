@@ -20,6 +20,7 @@
 #include <boost/fusion/sequence/intrinsic/at_key.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
@@ -342,8 +343,8 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
-  Core::instance().environment().configure_option("exception_outputs",false);
-  Core::instance().environment().configure_option("exception_backtrace",false);
+  Core::instance().environment().options().configure_option("exception_outputs",false);
+  Core::instance().environment().options().configure_option("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
   boost::mpl::for_each<TestCellTypes>(functor);
 }

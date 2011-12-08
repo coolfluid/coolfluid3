@@ -27,12 +27,6 @@ namespace XML { class XmlDoc; }
   /// @author Quentin Gasper
   class Common_API Journal : public Component
   {
-
-  public: // typedefs
-
-    typedef boost::shared_ptr<Journal> Ptr;
-    typedef boost::shared_ptr<Journal const> ConstPtr;
-
   public: // methods
 
     /// Contructor
@@ -49,7 +43,7 @@ namespace XML { class XmlDoc; }
     /// @return Returns the built journal.
     /// @throw FileSystemError if the file does not exist.
     /// @throw InvalidPath if @c name is not a valid component name.
-    static Ptr create_from_file ( const std::string & name,
+    static boost::shared_ptr<Journal> create_from_file ( const std::string & name,
                                   const URI& file_path );
 
     /// Get the class name

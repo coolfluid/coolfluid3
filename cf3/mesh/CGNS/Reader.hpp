@@ -29,12 +29,12 @@ namespace CGNS {
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Reader> Ptr;
-  typedef boost::shared_ptr<Reader const> ConstPtr;
+  
+  
 
 private: // typedefs
 
-  typedef std::pair<boost::shared_ptr<Elements>,Uint> Region_TableIndex_pair;
+  typedef std::pair<Handle<Elements>,Uint> Region_TableIndex_pair;
 
 public: // functions
 
@@ -75,7 +75,7 @@ private: // functions
 private: // data
 
   std::vector<Region_TableIndex_pair> m_global_to_region;
-  boost::weak_ptr<Mesh> m_mesh;
+  Handle<Mesh> m_mesh;
   Uint m_coord_start_idx;
 
 }; // end Reader

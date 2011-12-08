@@ -21,6 +21,8 @@
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
 #include "common/CreateComponentDataType.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
@@ -63,20 +65,20 @@ GlobalNumberingElements::GlobalNumberingElements( const std::string& name )
   m_debug(false)
 {
 
-  m_properties["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
+  properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
     "  Usage: GlobalNumberingElements Regions:array[uri]=region1,region2\n\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
-  options().add_option<OptionT<bool> >("debug", m_debug)
-      ->description("Perform checks on validity")
-      ->pretty_name("Debug")
-      ->link_to(&m_debug);
+  options().add_option("debug", m_debug)
+      .description("Perform checks on validity")
+      .pretty_name("Debug")
+      .link_to(&m_debug);
 
-  options().add_option<OptionT<bool> >("combined", true)
-      ->description("Combine nodes and elements in one global numbering")
-      ->pretty_name("Combined");
+  options().add_option("combined", true)
+      .description("Combine nodes and elements in one global numbering")
+      .pretty_name("Combined");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -98,7 +100,7 @@ std::string GlobalNumberingElements::help() const
 
 void GlobalNumberingElements::execute()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
@@ -107,9 +109,9 @@ void GlobalNumberingElements::execute()
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
-    if ( is_null( elements.get_child_ptr("glb_elem_hash") ) )
+    if ( is_null( elements.get_child("glb_elem_hash") ) )
       elements.create_component<CVector_size_t>("glb_elem_hash");
-    CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
+    CVector_size_t& glb_elem_hash = *Handle<CVector_size_t>(elements.get_child("glb_elem_hash"));
     glb_elem_hash.data().resize(elements.size());
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
@@ -131,7 +133,7 @@ void GlobalNumberingElements::execute()
 
     boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
     {
-      CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
+      CVector_size_t& glb_elem_hash = *Handle<CVector_size_t>(elements.get_child("glb_elem_hash"));
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
       {
         if (glb_set.insert(glb_elem_hash.data()[i]).second == false)  // it was already in the set
@@ -172,7 +174,7 @@ void GlobalNumberingElements::execute()
   {
     common::List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
-    std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
+    std::vector<std::size_t>& glb_elem_hash = Handle<CVector_size_t>(elements.get_child("glb_elem_hash"))->data();
     cf3_assert(glb_elem_hash.size() == elements.size());
     for (Uint e=0; e<elements.size(); ++e)
     {

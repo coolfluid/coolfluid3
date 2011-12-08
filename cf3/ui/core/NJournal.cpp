@@ -49,9 +49,9 @@ NJournal::NJournal(const std::string & name)
   : CNode(name, "Journal", CNode::STANDARD_NODE)
 {
   regist_signal( "list_journal" )
-    ->connect( boost::bind( &NJournal::list_journal, this, _1 ) )
-    ->description("List journal")
-    ->pretty_name("List journal");
+    .connect( boost::bind( &NJournal::list_journal, this, _1 ) )
+    .description("List journal")
+    .pretty_name("List journal");
 
   m_local_signals << "list_journal";
 

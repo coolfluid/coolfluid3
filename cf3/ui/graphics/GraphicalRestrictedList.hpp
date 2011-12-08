@@ -27,7 +27,7 @@ namespace graphics {
 
   public:
 
-    GraphicalRestrictedList(cf3::common::Option::ConstPtr opt = cf3::common::Option::ConstPtr(),
+    GraphicalRestrictedList(const boost::shared_ptr<cf3::common::Option>& opt = boost::shared_ptr<cf3::common::Option>(),
                             QWidget * parent = 0);
 
     ~GraphicalRestrictedList();

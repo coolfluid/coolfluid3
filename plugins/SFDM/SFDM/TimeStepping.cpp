@@ -7,11 +7,11 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
-
+#include "common/Group.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -24,6 +24,7 @@
 
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/SFDSolver.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -48,26 +49,23 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property( "iteration", Uint(0) );
+  properties().add_property( "iteration", Uint(0) );
 
   // static components
 
-  m_time  = create_static_component_ptr<CTime>("Time");
+  m_time  = create_static_component<CTime>("Time");
 
-  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
+  m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
-  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
+  m_post_actions = create_static_component<ActionDirector>("PostActions");
 
-  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
-  post_actions().append( cwriter );
+  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
 
   // dyanmic components
 
 //  CCriterionMaxIterations& maxiter =
 //      create_component<CCriterionMaxIterations>( "MaxIterations" );
-  CCriterionTime& time_criterion =
-      create_component<CCriterionTime>( "EndTime" );
-
+  create_component<CCriterionTime>( "EndTime" );
 }
 
 bool TimeStepping::stop_condition()
@@ -93,16 +91,12 @@ bool TimeStepping::stop_condition()
 
 void TimeStepping::execute()
 {
-  /// @todo these configurations sould be in constructor but does not work there
-  ///       becasue uri() is undefined on the constructor ( component is still free )
-
-  configure_option_recursively( SFDM::Tags::time(),    m_time->uri() );
-  configure_option_recursively( "iterator", this->uri() );
-
+  configure_option_recursively( SFDM::Tags::time(),    m_time);
+  configure_option_recursively( "iterator", handle<Component>() );
   // start loop - iterations start from 1 ( max iter zero will do nothing )
 
   Uint k = 1;
-  property("iteration") = k;
+  properties().property("iteration") = k;
 
   while( ! stop_condition() ) // time loop
   {
@@ -118,9 +112,9 @@ void TimeStepping::execute()
 
     m_time->current_time() += m_time->dt();
 
-    property("iteration") = ++k; // update the iteration number
+    properties().property("iteration") = ++k; // update the iteration number
 
-    mesh().metadata()["iter"] = property("iteration");
+    mesh().metadata()["iter"] = properties().property("iteration");
     mesh().metadata()["time"] = m_time->current_time();
 
     // (3) the post actions - compute norm, post-process something, etc
@@ -131,7 +125,8 @@ void TimeStepping::execute()
 
     //raise_timestep_done();
 
-    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]" << CFendl;
+    Real norm = boost::any_cast<Real>(solver().handle<SFDSolver>()->actions().get_child(Tags::L2norm())->properties().property("norm"));
+    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]  L2(rhs) ["<<norm<<"]" << CFendl;
 
   }
 }
@@ -140,9 +135,9 @@ void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add_option< OptionT<Uint> >( "time",  m_time->current_time() );
-  opts.add_option< OptionT<Uint> >( "dt",    m_time->dt() );
-  opts.add_option< OptionT<Uint> >( "iteration", properties().value<Uint>("iteration") );
+  opts.add_option( "time",  m_time->current_time() );
+  opts.add_option( "dt",    m_time->dt() );
+  opts.add_option( "iteration", properties().value<Uint>("iteration") );
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 

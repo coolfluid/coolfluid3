@@ -33,8 +33,8 @@ class Mesh_API Connectivity : public common::Table<Uint>
 {
 public:
 
-  typedef boost::shared_ptr<Connectivity> Ptr;
-  typedef boost::shared_ptr<Connectivity const> ConstPtr;
+  
+  
 
   /// Contructor
   /// @param name of the component
@@ -56,9 +56,9 @@ public:
 
 private: // data
 
-  boost::shared_ptr<UnifiedData> m_lookup;
+  Handle<UnifiedData> m_lookup;
 
-  boost::shared_ptr<common::Link> m_lookup_link;
+  Handle<common::Link> m_lookup_link;
 
 }; // Connectivity
 

@@ -35,10 +35,6 @@ namespace LSS {
   class LSS_API LibLSS :  public common::Library
   {
   public:
-
-    typedef boost::shared_ptr<LibLSS> Ptr;
-    typedef boost::shared_ptr<LibLSS const> ConstPtr;
-
     /// Constructor
     LibLSS ( const std::string& name) : common::Library(name) {   }
 

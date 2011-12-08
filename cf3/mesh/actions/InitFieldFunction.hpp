@@ -31,8 +31,8 @@ class mesh_actions_API InitFieldFunction : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<InitFieldFunction> Ptr;
-    typedef boost::shared_ptr<InitFieldFunction const> ConstPtr;
+    
+    
 
 public: // functions
   
@@ -55,7 +55,7 @@ private: // data
   
   math::VectorialFunction  m_function;
   
-  boost::weak_ptr<Field> m_field;
+  Handle<Field> m_field;
   
 }; // end InitFieldFunction
 

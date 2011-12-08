@@ -36,8 +36,8 @@ class ElementTypeT : public ElementType
 {
 public: // typedefs
 
-  typedef boost::shared_ptr< ElementTypeT >       Ptr;
-  typedef boost::shared_ptr< ElementTypeT const > ConstPtr;
+
+
 
 public: // functions
   /// @name Constructor / Destructor / Type name
@@ -45,7 +45,9 @@ public: // functions
   //@{
 
   /// Default constructor without arguments
-  ElementTypeT( const std::string& name = type_name() ) : ElementType(name)
+  ElementTypeT( const std::string& name = type_name() ) :
+    ElementType(name),
+    m_sf(create_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name()))
   {
     m_shape          = ETYPE::shape;
     m_nb_nodes       = ETYPE::nb_nodes;
@@ -54,8 +56,6 @@ public: // functions
     m_dimension      = ETYPE::dimension;
     m_nb_faces       = ETYPE::nb_faces;
     m_nb_edges       = ETYPE::nb_edges;
-
-    m_sf = common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name());
   };
 
   /// Default destructor
@@ -188,7 +188,7 @@ public: // functions
   //@}
 
 private:
-  ShapeFunction::Ptr m_sf;
+  Handle< ShapeFunction > m_sf;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

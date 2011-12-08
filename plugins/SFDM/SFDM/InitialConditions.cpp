@@ -46,10 +46,10 @@ InitialConditions::InitialConditions ( const std::string& name ) :
   // signals
 
   regist_signal( "create_initial_condition" )
-      ->connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
-      ->signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
-      ->description("creates an initial condition for the solution")
-      ->pretty_name("Create Initial Condition");
+      .connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
+      .signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
+      .description("creates an initial condition for the solution")
+      .pretty_name("Create Initial Condition");
 }
 
 
@@ -77,26 +77,25 @@ void InitialConditions::execute()
 
 solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
 {
-  solver::Action::Ptr ic = allocate_component< SFDM::Init >(name);
-  append( ic );
+  Handle<solver::Action> ic = create_component< SFDM::Init >(name);
 
   /// @todo find the field through solver links
   Field& solution = find_component_recursively_with_name<Field>(mesh(),SFDM::Tags::solution());
 
-  ic->configure_option( "solution_field", solution.uri() );
+  ic->options().configure_option( "solution_field", solution.handle<Component>() );
 
   if( regions.empty() )
   {
-    ic->configure_option("regions" , std::vector<URI>(1,mesh().topology().uri()));
+    ic->options().configure_option("regions" , std::vector<URI>(1,mesh().topology().uri()));
   }
   else // if user did not specify, then use the whole topology (all regions)
   {
-    ic->configure_option("regions" , regions);
+    ic->options().configure_option("regions" , regions);
   }
 
-  ic->configure_option( SFDM::Tags::mesh(), m_mesh.lock()->uri());
-  ic->configure_option( SFDM::Tags::solver() , m_solver.lock()->uri());
-  ic->configure_option( SFDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  ic->options().configure_option( SFDM::Tags::mesh(), m_mesh);
+  ic->options().configure_option( SFDM::Tags::solver() , m_solver);
+  ic->options().configure_option( SFDM::Tags::physical_model() , m_physical_model);
 
   return *ic;
 }
@@ -127,8 +126,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created initial condition" );
+  options.add_option("name", std::string() )
+      .description("Name for created initial condition" );
 
   // regions
 
@@ -136,8 +135,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the initial condition [optional]");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the initial condition [optional]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

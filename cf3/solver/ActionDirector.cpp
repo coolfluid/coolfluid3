@@ -7,6 +7,7 @@
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/Mesh.hpp"
 
@@ -33,25 +34,29 @@ ActionDirector::ActionDirector ( const std::string& name ) :
 
   // options
 
-  options().add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
-      ->description("Link to the solver discretizing the problem")
-      ->pretty_name("Solver")
-      ->mark_basic();
+  options().add_option(Tags::solver(), m_solver)
+      .description("Link to the solver discretizing the problem")
+      .pretty_name("Solver")
+      .mark_basic()
+      .link_to(&m_solver);
 
-  options().add_option( OptionComponent<Mesh>::create("mesh", &m_mesh))
-      ->description("Mesh the Discretization Method will be applied to")
-      ->pretty_name("Mesh")
-      ->mark_basic();
+  options().add_option("mesh", m_mesh)
+      .description("Mesh the Discretization Method will be applied to")
+      .pretty_name("Mesh")
+      .mark_basic()
+      .link_to(&m_mesh);
 
-  options().add_option( OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
-      ->description("Physical model")
-      ->pretty_name("Physical Model")
-      ->mark_basic();
+  options().add_option(Tags::physical_model(), m_physical_model)
+      .description("Physical model")
+      .pretty_name("Physical Model")
+      .mark_basic()
+      .link_to(&m_physical_model);
 
-  options().add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
-      ->description("Time tracking component")
-      ->pretty_name("Time")
-      ->mark_basic();
+  options().add_option(Tags::time(), m_time)
+      .description("Time tracking component")
+      .pretty_name("Time")
+      .mark_basic()
+      .link_to(&m_time);
 }
 
 ActionDirector::~ActionDirector() {}
@@ -59,7 +64,7 @@ ActionDirector::~ActionDirector() {}
 
 physics::PhysModel& ActionDirector::physical_model()
 {
-  physics::PhysModel::Ptr model = m_physical_model.lock();
+  Handle< physics::PhysModel > model = m_physical_model;
   if( is_null(model) )
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
@@ -69,7 +74,7 @@ physics::PhysModel& ActionDirector::physical_model()
 
 CTime& ActionDirector::time()
 {
-  CTime::Ptr t = m_time.lock();
+  Handle< CTime > t = m_time;
   if( is_null(t) )
     throw common::SetupError( FromHere(),
                              "Time not yet set for component " + uri().string() );
@@ -79,7 +84,7 @@ CTime& ActionDirector::time()
 
 Mesh& ActionDirector::mesh()
 {
-  Mesh::Ptr m = m_mesh.lock();
+  Handle< Mesh > m = m_mesh;
   if( is_null(m) )
     throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );
@@ -89,7 +94,7 @@ Mesh& ActionDirector::mesh()
 
 solver::CSolver& ActionDirector::solver()
 {
-  solver::CSolver::Ptr s = m_solver.lock();
+  Handle< solver::CSolver > s = m_solver;
   if( is_null(s) )
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );

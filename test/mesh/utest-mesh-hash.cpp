@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 
 
 #include "mesh/ParallelDistribution.hpp"
@@ -50,7 +51,7 @@ BOOST_FIXTURE_TEST_SUITE( TestParallelDistribution_TestSuite, TestParallelDistri
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  ParallelDistribution::Ptr hash = allocate_component<ParallelDistribution>("hash");
+  boost::shared_ptr<ParallelDistribution> hash = allocate_component<ParallelDistribution>("hash");
   BOOST_CHECK_EQUAL(hash->name(),"hash");
 }
 
@@ -58,9 +59,9 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( SingleHash )
 {
-  ParallelDistribution::Ptr hash = allocate_component<ParallelDistribution>("hash");
-  hash->configure_option("nb_obj", (Uint) 11);
-  hash->configure_option("nb_parts", (Uint) 3);
+  boost::shared_ptr<ParallelDistribution> hash = allocate_component<ParallelDistribution>("hash");
+  hash->options().configure_option("nb_obj", (Uint) 11);
+  hash->options().configure_option("nb_parts", (Uint) 3);
 
   BOOST_CHECK(true);
 
@@ -88,12 +89,12 @@ BOOST_AUTO_TEST_CASE( SingleHash )
 
 BOOST_AUTO_TEST_CASE( MixedHash )
 {
-  MergedParallelDistribution::Ptr hash = allocate_component<MergedParallelDistribution>("hash");
+  boost::shared_ptr<MergedParallelDistribution> hash = allocate_component<MergedParallelDistribution>("hash");
   std::vector<Uint> num_obj(2);
   num_obj[0] = 10;
   num_obj[1] = 8;
-  hash->configure_option("nb_parts", (Uint) 3);
-  hash->configure_option("nb_obj", num_obj);
+  hash->options().configure_option("nb_parts", (Uint) 3);
+  hash->options().configure_option("nb_obj", num_obj);
 
   BOOST_CHECK(true);
 

@@ -9,8 +9,10 @@
 #include "common/PE/Comm.hpp"
 
 #include "common/Builder.hpp"
+#include "common/Log.hpp"
 #include "common/OptionT.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
@@ -98,55 +100,59 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 
   // properties
 
-  m_properties.add_property("norm", Real(0.) );
+  properties().add_property("norm", Real(0.) );
 
   // options
 
-  options().add_option< OptionT<bool> >("Scale", true)
-      ->description("Scales (divides) the norm by the number of entries (ignored if order zero)");
+  options().add_option("scale", true)
+      .description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  options().add_option< OptionT<Uint> >("Order", 2u)
-      ->description("Order of the p-norm, zero if L-inf");
+  options().add_option("order", 2u)
+      .description("Order of the p-norm, zero if L-inf");
 
-  options().add_option(OptionComponent<Field>::create("Field", &m_field))
-      ->description("Field for which to compute the norm");
+  options().add_option("field", URI())
+      .pretty_name("Field")
+      .description("URI to the field to use, or to a link");
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
-void CComputeLNorm::execute()
+Real CComputeLNorm::compute_norm(mesh::Field& field) const
 {
-  if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
-
-  Table<Real>& table = *m_field.lock();
-  Table<Real>::ArrayT& array =  m_field.lock()->array();
-
-  const Uint nbrows = table.size();
-
-  if ( !nbrows ) throw SetupError(FromHere(), "Field has empty table");
+  const Uint nb_rows = field.size();
+  if ( !nb_rows ) throw SetupError(FromHere(), "Field has empty table");
 
   Real norm = 0.;
 
-  const Uint order = options().option("Order").value<Uint>();
+  const Uint order = options().option("order").value<Uint>();
 
   // sum of all processors
 
   switch(order) {
 
-  case 2:  compute_L2( array, norm );    break;
+  case 2:  compute_L2( field.array(), norm );    break;
 
-  case 1:  compute_L1( array, norm );    break;
+  case 1:  compute_L1( field.array(), norm );    break;
 
-  case 0:  compute_Linf( array, norm );  break; // consider order 0 as Linf
+  case 0:  compute_Linf( field.array(), norm );  break; // consider order 0 as Linf
 
-  default: compute_Lp( array, norm, order );    break;
+  default: compute_Lp( field.array(), norm, order );    break;
 
   }
 
+  if( options().option("scale").value<bool>() && order )
+    norm /= nb_rows;
 
-  if( options().option("Scale").value<bool>() && order )
-    norm /= nbrows;
+  return norm;
+}
 
-  configure_property("norm", norm);
+void CComputeLNorm::execute()
+{
+  Handle<Field> field( follow_link(access_component(options().option("field").value<URI>())) );
+  if(is_not_null(field))
+    properties().configure_property("norm", compute_norm(*field) );
+  else
+    CFinfo << "Not computing norm in action " << uri() << " because option field is invalid." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

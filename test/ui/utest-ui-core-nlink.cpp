@@ -21,6 +21,7 @@
 
 #include "test/ui/CoreApplication.hpp"
 
+using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::ui::core;
@@ -38,6 +39,8 @@ BOOST_AUTO_TEST_CASE( init )
 {
   application();
 
+  ThreadManager::instance().tree();
+
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;
   ExceptionManager::instance().ExceptionDumps = false;
@@ -48,11 +51,11 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( tool_tip )
 {
-  NRoot::Ptr root(new NRoot("Root"));
-  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
+  boost::shared_ptr< NRoot > root(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > target(new NGeneric("Target", "MyType"));
 
-  NLink::Ptr l1(new NLink("Link1"));
-  NLink::Ptr l2(new NLink("Link2"));
+  boost::shared_ptr< NLink > l1(new NLink("Link1"));
+  boost::shared_ptr< NLink > l2(new NLink("Link2"));
 
   root->add_node(target);
   root->add_node(l1);
@@ -70,11 +73,11 @@ BOOST_AUTO_TEST_CASE( tool_tip )
 
 BOOST_AUTO_TEST_CASE( target_path )
 {
-  NRoot::Ptr root(new NRoot("Root"));
-  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
+  boost::shared_ptr< NRoot > root(new NRoot("Root"));
+  boost::shared_ptr< NGeneric > target(new NGeneric("Target", "MyType"));
 
-  NLink::Ptr l1(new NLink("Link1"));
-  NLink::Ptr l2(new NLink("Link2"));
+  boost::shared_ptr< NLink > l1(new NLink("Link1"));
+  boost::shared_ptr< NLink > l2(new NLink("Link2"));
 
   root->add_node(target);
   root->add_node(l1);
@@ -97,13 +100,13 @@ BOOST_AUTO_TEST_CASE( go_to_target )
 
  QModelIndex index;
  SignalFrame frame;
- NRoot::Ptr root = ThreadManager::instance().tree().root();
- NGeneric::Ptr target(new NGeneric("Target", "MyType"));
- NGeneric::Ptr wrongTargetParent(new NGeneric("WrongTargetParent", "MyType")); // not part of the tree
- NGeneric::Ptr wrongTarget(new NGeneric("WrongTarget", "MyType"));
+ Handle< NRoot > root = ThreadManager::instance().tree().root();
+ boost::shared_ptr< NGeneric > target(new NGeneric("Target", "MyType"));
+ boost::shared_ptr< NGeneric > wrongTargetParent(new NGeneric("WrongTargetParent", "MyType")); // not part of the tree
+ boost::shared_ptr< NGeneric > wrongTarget(new NGeneric("WrongTarget", "MyType"));
  wrongTargetParent->add_component(wrongTarget);
- NTree::Ptr tree = NTree::global();
- NLink::Ptr link(new NLink("link"));
+ Handle< NTree > tree = NTree::global();
+ boost::shared_ptr< NLink > link(new NLink("link"));
  QSignalSpy spy(tree.get(), SIGNAL(current_index_changed(QModelIndex,QModelIndex)));
 
  root->add_node(target);
@@ -115,12 +118,12 @@ BOOST_AUTO_TEST_CASE( go_to_target )
  BOOST_CHECK_THROW( link->go_to_target(frame) , ValueNotFound );
 
  // 2. target does not belong to the tree
- link->set_target_node(wrongTarget);
+ link->set_target_node(wrongTarget->handle<NGeneric>());
  BOOST_CHECK_THROW( link->go_to_target(frame) , ValueNotFound );
 
  // 3. everything is OK
  spy.clear();
- link->set_target_node(target);
+ link->set_target_node(target->handle<NGeneric>());
  index = tree->index_from_path("cpath:/Target");
  BOOST_REQUIRE_NO_THROW(link->go_to_target(frame));
 
@@ -137,8 +140,8 @@ BOOST_AUTO_TEST_CASE( go_to_target )
 
 BOOST_AUTO_TEST_CASE( set_target_path )
 {
-  NTree::Ptr tree = NTree::global();
-  NLink::Ptr link(new NLink("link"));
+  Handle< NTree > tree = NTree::global();
+  boost::shared_ptr< NLink > link(new NLink("link"));
 
   tree->tree_root()->add_node(link);
 
@@ -156,10 +159,10 @@ BOOST_AUTO_TEST_CASE( set_target_path )
 
 BOOST_AUTO_TEST_CASE( set_target_node )
 {
-  NTree::Ptr tree = NTree::global();
-  NLink::Ptr link(new NLink("link"));
-  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
-  NGeneric::Ptr emptyTarget;
+  Handle< NTree > tree = NTree::global();
+  boost::shared_ptr< NLink > link(new NLink("link"));
+  boost::shared_ptr< NGeneric > target(new NGeneric("Target", "MyType"));
+  Handle< NGeneric > emptyTarget;
 
   tree->tree_root()->add_node(link);
   tree->tree_root()->add_node(target);
@@ -168,7 +171,7 @@ BOOST_AUTO_TEST_CASE( set_target_node )
   BOOST_CHECK_THROW( link->set_target_node( emptyTarget ), FailedAssertion );
 
   // 2. everything is ok
-  BOOST_REQUIRE_NO_THROW( link->set_target_node( target ) );
+  BOOST_REQUIRE_NO_THROW( link->set_target_node( target->handle<NGeneric>() ) );
   BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath:/Target") );
 
   tree->tree_root()->remove_node("link");

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include<sstream>
+
 #include <boost/foreach.hpp>
 
 #include "rapidxml/rapidxml.hpp"
@@ -28,99 +30,53 @@ namespace common {
 
 
 OptionURI::OptionURI(const std::string & name, const URI & def) :
-  Option(name,  def)
+  OptionT(name,  def)
 {
-  m_restricted_list.push_back(def);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 OptionURI::~OptionURI()
 {
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void OptionURI::supported_protocol(URI::Scheme::Type protocol)
+OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 {
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
     m_protocols.push_back(protocol);
-}
 
-///////////////////////////////////////////////////////////////////////////////
-
-void OptionURI::configure ( XmlNode& node )
-{
-  URI val;
-  rapidxml::xml_node<>* type_node = node.content->first_node( tag() );
-
-  if(type_node != nullptr)
-    val = from_str<URI>(type_node->value());
-  else
-    throw XmlError(FromHere(), "Could not find a value for this option.");
-
-  URI::Scheme::Type protocol = val.scheme();
-  std::string str;
-
-  to_string(node, str);
-
-  if( !m_protocols.empty() && std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
-    throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + " : unsupported scheme.");
-
-  m_value = val;
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const char * OptionURI::tag() const
+void OptionURI::change_value(const boost::any& value)
 {
-  return Protocol::Tags::type<URI>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-std::string OptionURI::value_str () const
-{
-  return to_str( value<URI>() );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-std::string OptionURI::def_str () const
-{
-  return to_str( def<URI>() );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void OptionURI::copy_to_linked_params ( const boost::any& val )
-{
-  BOOST_FOREACH ( void* v, this->m_linked_params )
+  try
   {
-    value_type* cv = static_cast<value_type*>(v);
-    try
+    const URI val = boost::any_cast<URI>(value);
+
+    if(std::count(m_protocols.begin(), m_protocols.end(), val.scheme() == 0))
     {
-      *cv = boost::any_cast<value_type>(val);
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+common::class_name<value_type>());
+      std::stringstream error_str;
+      error_str << "Protocol " + URI::Scheme::Convert::instance().to_str(val.scheme()) + " is not supported. Accepted values are:";
+      BOOST_FOREACH(const URI::Scheme::Type scheme, m_protocols)
+      {
+        error_str << " " << URI::Scheme::Convert::instance().to_str(scheme);
+      }
+      throw BadValue(FromHere(), error_str.str());
     }
 
+    Option::change_value(value);
+  }
+  catch(boost::bad_any_cast& e)
+  {
+    throw CastingFailed(FromHere(), "Expected a URI, got a " + demangle(value.type().name()));
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-void OptionURI::set_supported_protocols( const std::vector<URI::Scheme::Type> & prots )
-{
-  std::vector<URI::Scheme::Type>::const_iterator it = prots.begin();
-  m_protocols.clear();
-
-  for( ; it != prots.end() ; ++it)
-    supported_protocol( *it );
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

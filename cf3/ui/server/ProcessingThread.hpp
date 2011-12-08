@@ -27,7 +27,7 @@ namespace server {
   public:
 
     ProcessingThread(common::SignalArgs & signal, const std::string & target,
-                     common::Component::Ptr receiver);
+                     Handle< common::Component > receiver);
 
     void run();
 
@@ -41,7 +41,7 @@ namespace server {
 
     std::string m_target;
 
-    common::Component::Ptr m_receiver;
+    Handle< common::Component > m_receiver;
 
     bool m_success;
 

@@ -37,7 +37,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Line3D::faces()
 
 const cf3::mesh::ElementType& Line3D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Line3D> >(Line3D::type_name()) );
+  static const boost::shared_ptr< ElementType > facetype( common::allocate_component<ElementTypeT<Line3D> >(Line3D::type_name()) );
   return *facetype;
 }
 
