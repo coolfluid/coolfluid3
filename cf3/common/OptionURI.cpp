@@ -30,7 +30,7 @@ namespace common {
 
 
 OptionURI::OptionURI(const std::string & name, const URI & def) :
-  OptionT(name,  def)
+  OptionT<URI>(name,  def)
 {
 }
 
