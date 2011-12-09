@@ -113,6 +113,7 @@ void to_file ( const XmlNode& node, const URI& file )
 
 void to_string ( const XmlNode& node, std::string& str )
 {
+  str.clear(); // back_inserter appends, so we need to clear the string before
   rapidxml::print(std::back_inserter(str), *node.content);
 }
 
