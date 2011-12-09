@@ -7,20 +7,18 @@
 #ifndef cf3_sandbox_boost_asio_tcp_connection_hpp
 #define cf3_sandbox_boost_asio_tcp_connection_hpp
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/deadline_timer.hpp>
-#include <boost/asio/placeholders.hpp>
-#include <boost/asio/read.hpp>
-#include <boost/asio/write.hpp>
-#include <boost/bind/bind.hpp>
+#include <boost/algorithm/string/trim.hpp> // trim the header when read
+#include <boost/asio/ip/tcp.hpp>           // TCP related classes
+#include <boost/asio/placeholders.hpp>     // for placholder::error_code
+#include <boost/asio/read.hpp>             // for async_read()
+#include <boost/asio/write.hpp>            // for async_write()
+#include <boost/bind/bind.hpp>             // for boost::bind()
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_io.hpp>
-#include <boost/variant/get.hpp>
+#include <boost/lexical_cast.hpp>          // boost::bad_lexical_cast exception
+#include <boost/tuple/tuple.hpp>           // for managing multiple callback fcts
+#include <boost/variant/get.hpp>           // for calling callback functions
 
-#include "common/Log.hpp" // to be removed!!!
+#include "common/Log.hpp" // to be removed when possible!!!
 
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -52,9 +50,10 @@
 /// additional step is need on the server-side: open a network connection and
 /// start accepting new clients connections. @n
 
-/// @todo either allow a calling code to @c boost::bind a callback function for
-/// completion of sending and reading operations or use the CF EnventHandler to
-/// to propagate received data.
+/// @note Due to template code, a lot of Boost headers are included by this
+/// file, which might increase the compilation time. Please consider only
+/// including this file in a limited number of CPP files (typically, one per
+/// application is sufficient).
 
 /// @author Quentin Gasper
 
@@ -144,20 +143,22 @@ private: // functions
 
     if ( !error )
     {
+      std::string header_str = std::string( m_incoming_header, HEADER_LENGTH );
+
       try
       {
-        std::string header_str = std::string( m_incoming_header, HEADER_LENGTH );
 
         // trim the string to remove the leading spaces (cast fails if spaces are present)
         boost::algorithm::trim( header_str );
-        cf3::Uint data_size = boost::lexical_cast<cf3::Uint> ( header_str );
+        m_incoming_data_size = boost::lexical_cast<cf3::Uint> ( header_str );
 
         // resize the data vector
-        m_incoming_data.resize(( size_t ) data_size );
+        delete[] m_incoming_data;
+        m_incoming_data = new char[m_incoming_data_size];
 
         // initiate an async read to get the frame data
         asio::async_read( m_socket,
-                          asio::buffer( m_incoming_data, data_size ),
+                          asio::buffer( m_incoming_data, m_incoming_data_size ),
                           boost::bind( &TCPConnection::callback_data_read<HANDLER>,
                                        shared_from_this(),
                                        boost::ref( args ),
@@ -171,7 +172,7 @@ private: // functions
       catch ( boost::bad_lexical_cast & blc ) // thrown by from_str()
       {
         CFerror << "Could not cast frame header to unsigned int "
-        << "(header content was [" /*<< m_incoming_data*/ << "])." << CFendl;
+        << "(header content was [" <<  header_str << "])." << CFendl;
       }
 
       catch ( cf3::common::Exception & cfe )
@@ -184,7 +185,7 @@ private: // functions
         CFerror << stde.what() << CFendl;
       }
 
-      catch ( ... ) // this function should catch all exception, since it is 
+      catch ( ... ) // this function should catch all exception, since it is
       {             // called by some kind of event handler from boost.
         CFerror << "An unknown exception has been raised during frame header processsing." << CFendl;
       }
@@ -206,7 +207,7 @@ private: // functions
     {
       try
       {
-        std::string frame( &m_incoming_data[0], m_incoming_data.size() );
+        std::string frame( m_incoming_data, m_incoming_data_size );
 
         args = cf3::common::XML::SignalFrame( cf3::common::XML::parse_string( frame ) );
 
@@ -225,7 +226,7 @@ private: // functions
       }
 
       catch ( ... ) // this function should catch all exception, since it is called
-      {           // by some kind of event handler from boost.
+      {             // by some kind of event handler from boost.
         CFerror << "An unknown exception has been raised during frame data processsing." << CFendl;
       }
     }
@@ -250,15 +251,25 @@ private: // data
   /// Network socket.
   boost::asio::ip::tcp::socket m_socket;
 
+  /// Buffer for outgoing data
   std::string m_outgoing_data;
 
+  /// Buffer for outgoing header
   std::string m_outgoing_header;
 
+  /// Nameless enum for header length
   enum { HEADER_LENGTH = 8 };
 
+  /// Buffer the receiving header.
   char m_incoming_header[HEADER_LENGTH];
 
-  std::vector<char> m_incoming_data;
+  /// Size of the receiving buffer.
+  cf3::Uint m_incoming_data_size;
+
+  /// Receiving buffer.
+  /// @warning This buffer does NOT finish by '\0'. Its size is given by
+  /// @c m_incoming_data_size.
+  char * m_incoming_data;
 
 }; // TCPConnection
 

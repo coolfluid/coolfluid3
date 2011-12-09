@@ -37,7 +37,9 @@ TCPConnection::Ptr TCPConnection::create( asio::io_service & ios )
 //////////////////////////////////////////////////////////////////////////////
 
 TCPConnection::TCPConnection( asio::io_service & io_service )
-  : m_socket(io_service)
+  : m_socket(io_service),
+    m_incoming_data(nullptr),
+    m_incoming_data_size(0)
 {
 
 }
