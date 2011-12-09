@@ -10,13 +10,14 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/iterator/iterator_concepts.hpp>
 
 #include "boost-asio/TCPConnection.hpp"
 
-#include "common/CF.hpp" // for cf3::Uint
+#include "common/Log.hpp"
 
+#include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
-#include <boost/iterator/iterator_concepts.hpp>
 
 using namespace boost;
 using namespace boost::asio::ip;
@@ -93,7 +94,7 @@ private: // functions
     if ( !error )
     {
       ClientInfo& info = m_clients[conn];
-      
+
       info.connection = conn;
       info.buffer = SignalFrame( "message", "cpath:/", "cpath:/" );
 
@@ -128,7 +129,7 @@ private: // functions
   void callback_read( TCPConnection::Ptr conn, const system::error_code & error )
   {
     std::map<TCPConnection::ConstPtr, ClientInfo>::iterator it = m_clients.find( conn );
-    
+
     if ( it == m_clients.end() )
       throw BadValue( FromHere(), "Received message from unknown connection." );
 

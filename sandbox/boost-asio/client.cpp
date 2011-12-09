@@ -12,9 +12,7 @@
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include <rapidxml/rapidxml.hpp>
-
-#include "common/Signal.hpp"
+#include "common/Log.hpp"
 
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -116,7 +114,7 @@ private: // functions
 
         if( m_args.has_reply() )
           message = m_args.get_reply().options().value<std::string>( "text" );
-          
+
         std::cout << message << std::endl;
 
         while ( text.empty() )
