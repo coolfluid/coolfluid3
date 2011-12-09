@@ -24,7 +24,6 @@
 
 using namespace boost;
 using namespace boost::asio::ip;
-
 using namespace cf3::common;
 using namespace cf3::common::XML;
 
@@ -82,8 +81,8 @@ void TCPConnection::prepare_write_buffers( SignalArgs & args,
   buffers.push_back( asio::buffer(m_outgoing_header) );
   buffers.push_back( asio::buffer(m_outgoing_data) );
 
-  std::cout << "[" << m_outgoing_header << "]" << std::endl;
-  std::cout << m_outgoing_data.size() << " => " << m_outgoing_data << std::endl;
+//  std::cout << "[" << m_outgoing_header << "]" << std::endl;
+//  std::cout << m_outgoing_data.size() << " => " << m_outgoing_data << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
