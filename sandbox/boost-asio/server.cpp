@@ -10,16 +10,16 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/iterator/iterator_concepts.hpp>
 
-#include "boost-asio/TCPConnection.hpp"
-
-#include "common/CF.hpp" // for cf3::Uint
-
+#include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
+
+#include "boost-asio/ErrorHandler.hpp"
+#include "boost-asio/TCPConnection.hpp"
 
 using namespace boost;
 using namespace boost::asio::ip;
-
 using namespace cf3::common;
 using namespace cf3::common::XML;
 
@@ -27,10 +27,25 @@ using namespace cf3::common::XML;
 
 class TCPServer
 {
+public: // nested structs
+
+  struct ClientInfo
+  {
+
+  public:
+    TCPConnection::Ptr connection;
+
+    SignalFrame buffer;
+
+    boost::shared_ptr<ErrorHandler> error_handler;
+
+  }; // ClientInfo
+
+
 public:
 
-  TCPServer(asio::io_service& io_service, int port)
-    : m_acceptor(io_service, tcp::endpoint(tcp::v4(), port))
+  TCPServer( asio::io_service& io_service, int port ) :
+      m_acceptor( io_service, tcp::endpoint( tcp::v4(), port ) )
   {
     init_accept();
   }
@@ -39,52 +54,62 @@ private: // functions
 
   void init_accept()
   {
-    m_connection = TCPConnection::create(m_acceptor.get_io_service());
+    TCPConnection::Ptr conn = TCPConnection::create( m_acceptor.get_io_service() );
 
-    m_acceptor.async_accept( m_connection->socket(),
+    m_acceptor.async_accept( conn->socket(),
                              boost::bind( &TCPServer::callback_accept,
                                           this,
-                                          asio::placeholders::error));
+                                          conn,// 1st param for the callback fct
+                                          asio::placeholders::error ) ); // 2nd param
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void init_read ()
+  void init_read( TCPConnection::Ptr conn, SignalArgs & buffer )
   {
-    m_connection->read( m_args,
-                        boost::bind( &TCPServer::callback_read,
-                                     this,
-                                     asio::placeholders::error )
-                        );
+    conn->read( buffer,
+                boost::bind( &TCPServer::callback_read,
+                             this,
+                             conn, // 1st param for the callback fct
+                             asio::placeholders::error ) // 2nd param
+              );
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void init_send ( SignalFrame & frame )
+  void init_send( TCPConnection::Ptr conn, SignalFrame & buffer )
   {
-    m_connection->send ( frame,
-                         boost::bind( &TCPServer::callback_send,
-                                      this,
-                                      asio::placeholders::error
-                                     )
-                        );
+    conn->send( buffer,
+                boost::bind( &TCPServer::callback_send,
+                             this,
+                             conn, // 1st param for the callback fct
+                             asio::placeholders::error // 2nd param
+                           )
+              );
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_accept( const system::error_code& error )
+  void callback_accept( TCPConnection::Ptr conn, const system::error_code& error )
   {
-    if (!error)
+    if ( !error )
     {
-      SignalFrame frame("message", "cpath:/", "cpath:/");
+      ClientInfo& info = m_clients[conn];
 
-      std::cout << "New client connected from " << m_connection->socket().remote_endpoint() << std::endl;
+      info.connection = conn;
+      info.buffer = SignalFrame( "message", "cpath:/", "cpath:/" );
+      info.error_handler = boost::shared_ptr<ErrorHandler>(new ErrorHandler());
 
-      frame.set_option<std::string>("text", std::string("Welcome to the server!") );
+      info.connection->set_error_handler(info.error_handler);
 
-      init_read(); // start listening process
+      std::cout << "New client connected from " << conn->socket().remote_endpoint()
+                << std::endl;
 
-      init_send(frame); // send data
+      info.buffer.set_option( "text", std::string( "Welcome to the server!" ) );
+
+      init_read( conn, info.buffer ); // start listening process
+
+      init_send( conn, info.buffer ); // send data
 
       init_accept(); // wait for other clients
     }
@@ -94,40 +119,54 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( const system::error_code & error )
+  void callback_send( TCPConnection::Ptr conn, const system::error_code & error )
   {
-    if( error )
-      CFerror << "Data could not be sent: " << error.message() << CFendl;
+    if ( error )
+      std::cerr << "Data could not be sent to [" << conn->socket().remote_endpoint()
+      << "]: " << error.message() << std::endl;
     else
-      CFinfo << "Message sent" << CFendl;
+      std::cout << "Message sent" << std::endl;
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( const system::error_code & error )
+  void callback_read( TCPConnection::Ptr conn, const system::error_code & error )
   {
-    if( error )
-      CFerror << "Could not read: " << error.message() << CFendl;
+    std::map<TCPConnection::ConstPtr, ClientInfo>::iterator it = m_clients.find( conn );
+
+    if ( it == m_clients.end() )
+      throw BadValue( FromHere(), "Received message from unknown connection." );
+
+    if ( error == asio::error::eof )
+    {
+      std::cout << "Client [" << conn->socket().remote_endpoint() << "] disconnected" << std::endl;
+      m_clients.erase(conn);
+    }
+    else if ( error )
+      std::cerr << "Could not read from [" << conn->socket().remote_endpoint()
+      << "]: " << error.message() << std::endl;
     else
     {
       try
       {
-        std::string message = m_args.options().value<std::string>("text");
+        SignalFrame & buffer = it->second.buffer;
 
-//        std::cout << message << std::endl;
+        std::string str;
+        XML::to_string(*buffer.xml_doc.get(), str);
 
-        algorithm::to_upper(message);
+        // get the message and put it to upper case
+        std::string message = buffer.options().value<std::string>( "text" );
+        algorithm::to_upper( message );
 
-        SignalFrame reply = m_args.create_reply();
-
+        // create the reply and add the string
+        SignalFrame reply = buffer.create_reply();
         reply.set_option<std::string>( "text", message );
 
-        init_send( m_args );
-
-        std::cout << m_connection->socket().is_open() << std::endl;
-        init_read();
+        // send back the modified frame and initiate a new read operation
+        init_send( conn, buffer );
+        init_read( conn, buffer );
       }
-      catch( Exception & e )
+      catch ( cf3::common::Exception & e )
       {
         std::cerr << e.what() << std::endl;
       }
@@ -136,8 +175,7 @@ private: // functions
 
 private: // data
 
-  SignalFrame m_args;
-  TCPConnection::Ptr m_connection;
+  std::map<TCPConnection::ConstPtr, ClientInfo> m_clients;
   tcp::acceptor m_acceptor;
 
 }; // TCPServer
@@ -150,10 +188,10 @@ int main()
 
   try
   {
-    TCPServer server(io_service, 62784);
+    TCPServer server( io_service, 62784 );
     io_service.run();
   }
-  catch (std::exception& e)
+  catch ( std::exception& e )
   {
     std::cerr << e.what() << std::endl;
   }
