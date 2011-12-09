@@ -220,6 +220,13 @@ bool SignalFrame::has_map ( const std::string & name ) const
 
 ////////////////////////////////////////////////////////////////////////////
 
+bool SignalFrame::has_reply() const
+{
+  return node.content->next_sibling() != nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalFrame & SignalFrame::map ( const std::string & name )
 {
   cf3_assert ( node.is_valid() );
