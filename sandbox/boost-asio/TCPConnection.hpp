@@ -18,6 +18,8 @@
 
 namespace cf3 { namespace common { namespace XML { class SignalFrame; } } }
 
+class ErrorHandler;
+
 /// Manages a TCP connection between to entities where one is a
 /// server and the other one is a client.@n
 
@@ -121,6 +123,8 @@ public:
                     );
   }
 
+  void set_error_handler ( boost::weak_ptr<ErrorHandler const> handler );
+
 private: // functions
 
   /// Function called when a reading operation is completed, successfully or not.
@@ -163,14 +167,9 @@ private: // functions
                            boost::tuple<HANDLER> functions )
   {
     if ( !error )
-    {
       parse_frame_data( args );
-      boost::get<0>( functions )( error );
-    }
-    else
-    {
-      boost::get<0> ( functions )( error );
-    }
+
+    boost::get<0>( functions )( error );
   }
 
 private: // functions
@@ -185,6 +184,8 @@ private: // functions
   void process_header ();
 
   void parse_frame_data ( cf3::common::XML::SignalFrame & args );
+
+  void error( const std::string & message ) const;
 
 private: // data
 
@@ -210,6 +211,9 @@ private: // data
   /// @warning This buffer does NOT finish by '\0'. Its size is given by
   /// @c m_incoming_data_size.
   char * m_incoming_data;
+
+  /// Weak pointer to the error handler.
+  boost::weak_ptr<ErrorHandler const> m_error_handler;
 
 }; // TCPConnection
 

@@ -12,12 +12,11 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/iterator/iterator_concepts.hpp>
 
-#include "boost-asio/TCPConnection.hpp"
-
-#include "common/Log.hpp"
-
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/SignalFrame.hpp"
+
+#include "boost-asio/ErrorHandler.hpp"
+#include "boost-asio/TCPConnection.hpp"
 
 using namespace boost;
 using namespace boost::asio::ip;
@@ -37,6 +36,8 @@ public: // nested structs
     TCPConnection::Ptr connection;
 
     SignalFrame buffer;
+
+    boost::shared_ptr<ErrorHandler> error_handler;
 
   }; // ClientInfo
 
@@ -97,6 +98,9 @@ private: // functions
 
       info.connection = conn;
       info.buffer = SignalFrame( "message", "cpath:/", "cpath:/" );
+      info.error_handler = boost::shared_ptr<ErrorHandler>(new ErrorHandler());
+
+      info.connection->set_error_handler(info.error_handler);
 
       std::cout << "New client connected from " << conn->socket().remote_endpoint()
                 << std::endl;
@@ -118,10 +122,10 @@ private: // functions
   void callback_send( TCPConnection::Ptr conn, const system::error_code & error )
   {
     if ( error )
-      CFerror << "Data could not be sent to [" << conn->socket().remote_endpoint()
-      << "]: " << error.message() << CFendl;
+      std::cerr << "Data could not be sent to [" << conn->socket().remote_endpoint()
+      << "]: " << error.message() << std::endl;
     else
-      CFinfo << "Message sent" << CFendl;
+      std::cout << "Message sent" << std::endl;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -135,12 +139,12 @@ private: // functions
 
     if ( error == asio::error::eof )
     {
-      CFinfo << "Client [" << conn->socket().remote_endpoint() << "] disconnected" << CFendl;
+      std::cout << "Client [" << conn->socket().remote_endpoint() << "] disconnected" << std::endl;
       m_clients.erase(conn);
     }
     else if ( error )
-      CFerror << "Could not read from [" << conn->socket().remote_endpoint()
-      << "]: " << error.message() << CFendl;
+      std::cerr << "Could not read from [" << conn->socket().remote_endpoint()
+      << "]: " << error.message() << std::endl;
     else
     {
       try

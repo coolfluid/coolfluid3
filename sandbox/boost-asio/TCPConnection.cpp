@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iostream>
 #include <iomanip> // for std::setw()
 
 #include <boost/algorithm/string/trim.hpp>
@@ -15,6 +14,7 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/FileOperations.hpp"
 
+#include "boost-asio/ErrorHandler.hpp"
 #include "boost-asio/TCPConnection.hpp"
 
 using namespace boost;
@@ -51,8 +51,7 @@ TCPConnection::~TCPConnection()
   }
   catch( system::error_code & e )
   {
-    std::cerr << "An error occured while the socket was shutting down: "
-              << e.message() << std::endl;
+    error("An error occured while the socket was shutting down: " + e.message());
   }
 }
 
@@ -102,20 +101,20 @@ void TCPConnection::process_header()
   }
   catch ( boost::bad_lexical_cast & blc ) // thrown by from_str()
   {
-    std::cerr << "Could not cast frame header to unsigned int "
-            << "(header content was [" <<  header_str << "])." << std::endl;
+    error( "Could not cast frame header to unsigned int (header content was ["
+           + header_str + "]).");
   }
   catch ( cf3::common::Exception & cfe )
   {
-    std::cerr << cfe.what() << std::endl;
+    error(cfe.what());
   }
   catch ( std::exception & stde )
   {
-    std::cerr << stde.what() << std::endl;
+    error(stde.what());
   }
   catch ( ... ) // this function should catch all exception, since it is
   {             // called by some kind of event handler from boost.
-    std::cerr << "An unknown exception has been raised during frame header processsing." << std::endl;
+    error("An unknown exception has been raised during frame header processsing.");
   }
 
 }
@@ -133,18 +132,31 @@ void TCPConnection::parse_frame_data( SignalFrame &args )
 
   catch ( cf3::common::Exception & cfe )
   {
-    std::cerr << cfe.what() << std::endl;
+   error(cfe.what());
   }
 
   catch ( std::exception & stde )
   {
-    std::cerr << stde.what() << std::endl;
+    error(stde.what());
   }
 
   catch ( ... ) // this function should catch all exception, since it is called
   {             // by some kind of event handler from boost.
-    std::cerr << "An unknown exception has been raised during frame data processsing." << std::endl;
+    error("An unknown exception has been raised during frame data processsing.");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void TCPConnection::set_error_handler( boost::weak_ptr<ErrorHandler const> handler)
+{
+  m_error_handler = handler;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void TCPConnection::error( const std::string & message ) const
+{
+  if( boost::shared_ptr<ErrorHandler const> h = m_error_handler.lock() )
+    h->error(message);
+}

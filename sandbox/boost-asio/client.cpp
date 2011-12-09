@@ -18,6 +18,7 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/XmlNode.hpp"
 
+#include "boost-asio/ErrorHandler.hpp"
 #include "boost-asio/TCPConnection.hpp"
 
 using namespace boost;
@@ -33,7 +34,8 @@ class TCPClient
 public:
 
   TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint )
-      : m_io_service( io_service )
+      : m_io_service( io_service ),
+        m_error_handler(new ErrorHandler())
   {
     init_connect( endpoint );
   }
@@ -44,6 +46,8 @@ private: // functions
   {
     m_connection = TCPConnection::create( m_io_service );
     tcp::socket& socket = m_connection->socket();
+
+    m_connection->set_error_handler(m_error_handler);
 
     socket.async_connect( endpoint,
                           boost::bind( &TCPClient::callback_connect,
@@ -60,7 +64,7 @@ private: // functions
                         boost::bind( &TCPClient::callback_read,
                                      this,
                                      asio::placeholders::error )
-                      );
+                       );
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -72,7 +76,7 @@ private: // functions
                                      this,
                                      asio::placeholders::error
                                    )
-                      );
+                       );
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -80,9 +84,9 @@ private: // functions
   void callback_send( const system::error_code & error )
   {
     if ( error )
-      CFerror << error.message() << CFendl;
+      std::cerr << error.message() << std::endl;
     else
-      CFinfo << "Message sent" << CFendl;
+      std::cout << "Message sent" << std::endl;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -96,7 +100,7 @@ private: // functions
     }
 
     else
-      CFerror << "Could not connect to host: " << error.message() << CFendl;
+      std::cerr << "Could not connect to host: " << error.message() << std::endl;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -104,7 +108,7 @@ private: // functions
   void callback_read( const system::error_code & error )
   {
     if ( error )
-      CFerror << "Could not read: " << error.message() << CFendl;
+      std::cerr << "Could not read: " << error.message() << std::endl;
     else
     {
       try
@@ -144,6 +148,7 @@ private: // data
   TCPConnection::Ptr m_connection;
   SignalArgs m_args;
   asio::io_service & m_io_service;
+  boost::shared_ptr<ErrorHandler> m_error_handler;
 
 }; // TCPClient
 
