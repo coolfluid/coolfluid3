@@ -24,7 +24,7 @@ list( APPEND coolfluid_ui_server_files
 # Use Qt Libraries
 #list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 
-list( APPEND coolfluid_ui_server_cflibs coolfluid_ui_common )
+list( APPEND coolfluid_ui_server_cflibs coolfluid_ui_network coolfluid_ui_common )
 
 list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 

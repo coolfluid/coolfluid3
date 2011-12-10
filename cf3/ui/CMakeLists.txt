@@ -11,6 +11,7 @@ if( QT4_FOUND AND CF3_ENABLE_GUI )
   include(${QT_USE_FILE})
 
 
+  add_subdirectory( network )
 
   add_subdirectory( core  )
   add_subdirectory( graphics  )

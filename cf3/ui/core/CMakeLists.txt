@@ -75,7 +75,7 @@ TreeThread.cpp
 TreeThread.hpp
 )
 
-list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_common coolfluid_shell )
+list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_network coolfluid_ui_common coolfluid_shell )
 
 # Use Qt Libraries
 list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES} )
