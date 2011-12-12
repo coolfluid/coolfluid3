@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Builder.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
@@ -36,24 +36,24 @@ CopySolution::CopySolution ( const std::string& name ) :
 
   // options
 
-  options().add_option(
-        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &m_solution))
-      ->pretty_name("Solution");
+  options().add_option(RDM::Tags::solution(), m_solution)
+      .pretty_name("Solution")
+      .link_to(&m_solution);
 }
 
 void CopySolution::execute()
 {
-  RDSolver& mysolver = solver().as_type< RDSolver >();
+  RDSolver& mysolver = *solver().handle< RDSolver >();
 
-  if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
+  if (is_null(m_solution))
+    m_solution = follow_link(mysolver.fields().get_child( RDM::Tags::solution() ))->handle<Field>();
 
   boost_foreach( Component& c, find_components_with_tag( mysolver.fields(), "rksteps" ) )
   {
-    Field::Ptr field = c.as_type<Link>().follow()->as_ptr<Field>();
+    Handle< Field > field(follow_link(c));
     if ( field )
     {
-      *field = *m_solution.lock();
+      *field = *m_solution;
     }
   }
 }

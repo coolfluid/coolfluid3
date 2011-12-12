@@ -28,8 +28,8 @@ class RDM_API ElementLoop : public common::Component {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< ElementLoop > Ptr;
-  typedef boost::shared_ptr< ElementLoop const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -47,12 +47,12 @@ public: // functions
   virtual void execute () = 0;
 
   /// selects the region where to loop on
-  void select_region( mesh::Region::Ptr region ) { current_region = region; }
+  void select_region( Handle< mesh::Region > region ) { current_region = region; }
 
 protected: // data
 
   /// region to loop on
-  mesh::Region::Ptr current_region;
+  Handle< mesh::Region > current_region;
 
 }; // ElementLoop
 

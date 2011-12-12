@@ -39,10 +39,6 @@ namespace cf3 {
     class Math_API LibMath :  public common::Library
     {
     public:
-
-      typedef boost::shared_ptr<LibMath> Ptr;
-      typedef boost::shared_ptr<LibMath const> ConstPtr;
-
       /// Constructor
       LibMath ( const std::string& name) : common::Library(name) {   }
 

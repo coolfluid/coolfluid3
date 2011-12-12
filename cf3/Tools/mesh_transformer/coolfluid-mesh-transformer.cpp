@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
 
     // create mesh object
     Component& root = Core::instance().root();
-    Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
+    Handle<Mesh> mesh = root.create_component<Mesh>("mesh");
 
     // Initialize empty commands
     options_description desc;

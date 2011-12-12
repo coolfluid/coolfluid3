@@ -23,8 +23,8 @@ class CDummyLoopOperation : public solver::actions::CLoopOperation {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CDummyLoopOperation> Ptr;
-  typedef boost::shared_ptr<CDummyLoopOperation const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor

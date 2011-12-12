@@ -33,6 +33,7 @@
 #include "test/ui/CoreApplication.hpp"
 #include "test/ui/MyNode.hpp"
 
+using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::ui::core;
@@ -40,12 +41,12 @@ using namespace cf3::ui::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex)
 
-NRoot::Ptr makeTreeFromFile()
+Handle< NRoot > makeTreeFromFile()
 {
-  static XmlDoc::Ptr doc = XML::parse_file(URI("./tree.xml",URI::Scheme::FILE));
+  static boost::shared_ptr< XmlDoc > doc = XML::parse_file(URI("./tree.xml"));
 
-  static NRoot::Ptr root = CNode::create_from_xml(doc->content->first_node("node"))->castTo<NRoot>();
-  return root;
+  static boost::shared_ptr< NRoot > root = boost::dynamic_pointer_cast<NRoot>(CNode::create_from_xml(doc->content->first_node("node")));
+  return root->handle<NRoot>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -59,6 +60,8 @@ BOOST_AUTO_TEST_CASE( init )
 {
   application();
 
+  ThreadManager::instance().tree();
+
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;
   ExceptionManager::instance().ExceptionDumps = false;
@@ -69,11 +72,11 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  BOOST_CHECK_EQUAL(t.tree_root().get(), ThreadManager::instance().tree().root().get());
+  //BOOST_CHECK_EQUAL(t.tree_root().get(), ThreadManager::instance().tree().root().get());
   BOOST_CHECK_EQUAL(makeTreeFromFile().get(), t2.tree_root().get());
 
   // the root must be different from nullptr
@@ -84,23 +87,23 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( set_root )
 {
-  NTree t;
-  NRoot::Ptr newRoot(new NRoot("Root"));
+  NTree t(ThreadManager::instance().tree().root());
+  boost::shared_ptr< NRoot > newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->create_component_ptr<Link>("link");
-  newRoot->create_component_ptr<Group>("Group1");
-  newRoot->create_component_ptr<Group>("Group2");
-  newRoot->create_component_ptr<Group>("Group3");
-  newRoot->create_component_ptr<Group>("Group4");
+  newRoot->create_component<Link>("link");
+  newRoot->create_component<Group>("Group1");
+  newRoot->create_component<Group>("Group2");
+  newRoot->create_component<Group>("Group3");
+  newRoot->create_component<Group>("Group4");
 
-  t.set_tree_root(newRoot);
+  t.set_tree_root(newRoot->handle<NRoot>());
 
   // the tree must have emitted a layoutChanged signal exactly once
   BOOST_CHECK_EQUAL(spy.count(), 1);
 
   // newRoot must be the tree root now
-  BOOST_CHECK_EQUAL(t.tree_root(), newRoot);
+  BOOST_CHECK_EQUAL(t.tree_root(), newRoot->handle<NRoot>());
 
   // the tree root should have 5 children now
   BOOST_CHECK_EQUAL( t.tree_root()->count_children(), std::size_t(5));
@@ -113,7 +116,7 @@ BOOST_AUTO_TEST_CASE( set_current_index )
   // QModelIndex needs to be registered. See QSignalSpy class doc.
   qRegisterMetaType<QModelIndex>("QModelIndex");
   QList<QVariant> arguments;
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex index = t.current_index();
   QSignalSpy spy(&t, SIGNAL(current_index_changed(QModelIndex,QModelIndex)));
 
@@ -160,7 +163,7 @@ BOOST_AUTO_TEST_CASE( set_current_index )
 
 BOOST_AUTO_TEST_CASE( current_path )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex rootIndex = t.index(0, 0);
 
   // 1. when the current index is not valid
@@ -179,7 +182,7 @@ BOOST_AUTO_TEST_CASE( current_path )
 
 BOOST_AUTO_TEST_CASE( node_path )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex rootIndex = t.index(0, 0);
 
   // 1. when the index is not valid
@@ -196,7 +199,7 @@ BOOST_AUTO_TEST_CASE( node_path )
 
 BOOST_AUTO_TEST_CASE( path_from_index )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex rootIndex = t.index(0, 0);
 
   // 1. when the current index is not valid
@@ -214,10 +217,10 @@ BOOST_AUTO_TEST_CASE( path_from_index )
 
 BOOST_AUTO_TEST_CASE( list_node_options )
 {
-  NTree t;
-  MyNode::Ptr node(new MyNode("UselessNode"));
+  NTree t(ThreadManager::instance().tree().root());
+  boost::shared_ptr< MyNode > node(new MyNode("UselessNode"));
   QModelIndex index;
-  QList<Option::ConstPtr> options;
+  QList<boost::shared_ptr< Option > > options;
   bool ok = false;
 
   //
@@ -230,9 +233,9 @@ BOOST_AUTO_TEST_CASE( list_node_options )
   //
   // 2. the list is not empty
   //
-  options.append( Option::Ptr(new OptionT<bool>("opt1", true)) );
-  options.append( Option::Ptr(new OptionT<int>("opt2", 42)) );
-  options.append( Option::Ptr(new OptionT<std::string>("opt3", std::string())) );
+  options.append( boost::shared_ptr<Option>(new OptionT<bool>("opt1", true)) );
+  options.append( boost::shared_ptr<Option>(new OptionT<int>("opt2", 42)) );
+  options.append( boost::shared_ptr<Option>(new OptionT<std::string>("opt3", std::string())) );
   t.list_node_options(QModelIndex(), options, &ok);
   BOOST_CHECK(!ok);
   BOOST_CHECK_EQUAL(options.count(), 0);
@@ -258,7 +261,7 @@ BOOST_AUTO_TEST_CASE( list_node_options )
 
 BOOST_AUTO_TEST_CASE( set_advanced_mode )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QSignalSpy spy(&t, SIGNAL(advanced_mode_changed(bool)));
   QList<QVariant> arguments;
 
@@ -299,7 +302,7 @@ BOOST_AUTO_TEST_CASE( set_advanced_mode )
 
 BOOST_AUTO_TEST_CASE( are_from_same_node )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex index = t.index(0, 0);
   QModelIndex anotherIndex = t.index(0, 0, index);
 
@@ -313,9 +316,9 @@ BOOST_AUTO_TEST_CASE( are_from_same_node )
 
 BOOST_AUTO_TEST_CASE( node_by_path )
 {
-  NTree t;
-  CNode::Ptr log_node = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
-  CNode::Ptr root = t.node_by_path("cpath:/");
+  NTree t(ThreadManager::instance().tree().root());
+  Handle< CNode > log_node = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
+  Handle<CNode> root = t.node_by_path("cpath:/");
 
   BOOST_CHECK(log_node.get() == nullptr);
 
@@ -337,11 +340,11 @@ BOOST_AUTO_TEST_CASE( node_by_path )
 
 BOOST_AUTO_TEST_CASE( index_from_path )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex rootIndex = t.index(0, 0);
   QModelIndex index = t.index(0, 0, rootIndex);
 
-  CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->node();
+  Handle< CNode > node = static_cast<TreeNode*>(index.internalPointer())->node();
 
 
   // 1. get the root
@@ -370,7 +373,7 @@ BOOST_AUTO_TEST_CASE( index_from_path )
 
 BOOST_AUTO_TEST_CASE( data )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex logIndex = t.index_from_path(CLIENT_LOG_PATH);
   QModelIndex logScndCol = t.index(logIndex.row(), 1, logIndex.parent());
 
@@ -408,7 +411,7 @@ BOOST_AUTO_TEST_CASE( data )
 
 BOOST_AUTO_TEST_CASE( index )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex index = t.index(0, 0);
 
   // 1. get the first item (the root), 1st column. Should be valid.
@@ -428,7 +431,7 @@ BOOST_AUTO_TEST_CASE( index )
 
 BOOST_AUTO_TEST_CASE( parent )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QModelIndex rootIndex = t.index(0, 0);
   QModelIndex childIndex = t.index(0, 0, rootIndex);
 
@@ -440,7 +443,7 @@ BOOST_AUTO_TEST_CASE( parent )
 
 BOOST_AUTO_TEST_CASE( row_count )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   TreeThread & tree = ThreadManager::instance().tree();
 
   BOOST_CHECK_EQUAL(t.rowCount(), 1);
@@ -452,7 +455,7 @@ BOOST_AUTO_TEST_CASE( row_count )
 
 BOOST_AUTO_TEST_CASE( header_data )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
 
   BOOST_CHECK_EQUAL(t.headerData(0, Qt::Horizontal).toString().toStdString(), std::string("Name"));
   BOOST_CHECK_EQUAL(t.headerData(1, Qt::Horizontal).toString().toStdString(), std::string("Type"));
@@ -465,7 +468,7 @@ BOOST_AUTO_TEST_CASE( header_data )
 
 BOOST_AUTO_TEST_CASE( set_debug_mode_enabled )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
   // by default, debug mode is disabled
@@ -481,15 +484,15 @@ BOOST_AUTO_TEST_CASE( set_debug_mode_enabled )
 
 BOOST_AUTO_TEST_CASE( options_changed )
 {
-  NTree::Ptr t = NTree::global();
-  NGeneric::Ptr node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
-  XmlDoc::Ptr doc;
+  Handle< NTree > t = NTree::global();
+  boost::shared_ptr< NGeneric > node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
+  Handle< XmlDoc > doc;
   SignalFrame frame;
-  NRoot::Ptr root = t->tree_root();
-  Component::Ptr newRoot = allocate_component<Group>("Root");
+  Handle< NRoot > root = t->tree_root();
+  boost::shared_ptr<Component> newRoot = allocate_component<Group>("Root");
 
-  newRoot->create_component_ptr<Link>("Environment");
-  newRoot->create_component_ptr<Group>("Tools");
+  newRoot->create_component<Link>("Environment");
+  newRoot->create_component<Group>("Tools");
 
   newRoot->signal_list_tree( frame );
 
@@ -502,16 +505,16 @@ BOOST_AUTO_TEST_CASE( options_changed )
   BOOST_CHECK_NO_THROW ( t->list_tree_reply( replyFrame ) );
 
   // check that the previously added node has been removed
-  BOOST_CHECK_THROW( root->get_child("ThisNodeShouldDisappear"),  ValueNotFound);
+  BOOST_CHECK_THROW( root->get_child_checked("ThisNodeShouldDisappear"),  ValueNotFound);
 
   // check that new nodes have been added
   BOOST_CHECK_NO_THROW( root->get_child("Environment") );
   BOOST_CHECK_NO_THROW( root->get_child("Tools") );
 
   // check that the local components are still there
-  Component::Ptr uidir;
+  Handle< Component > uidir;
 
-  BOOST_CHECK_NO_THROW( uidir = root->get_child_ptr("UI") );
+  BOOST_CHECK_NO_THROW( uidir = root->get_child("UI") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Browsers") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Log") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Plugins") );
@@ -522,7 +525,7 @@ BOOST_AUTO_TEST_CASE( options_changed )
 
 BOOST_AUTO_TEST_CASE( node_matches )
 {
-  NTree t;
+  NTree t(ThreadManager::instance().tree().root());
   QSignalSpy spy(&t, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
   QModelIndex index = t.index_from_path( CLIENT_LOG_PATH );
   QList<QVariant> args;
@@ -543,13 +546,13 @@ BOOST_AUTO_TEST_CASE( node_matches )
 
 BOOST_AUTO_TEST_CASE( signal_list_tree )
 {
-  NTree t;
-  NGeneric::Ptr node(new NGeneric("MyNode", "MyType"));
+  NTree t(ThreadManager::instance().tree().root());
+  boost::shared_ptr< NGeneric > node(new NGeneric("MyNode", "MyType"));
   QModelIndex rootIndex = t.index_from_path( CLIENT_ROOT_PATH );
   QModelIndex treeIndex = t.index_from_path( CLIENT_TREE_PATH );
   QModelIndex logIndex = t.index_from_path( CLIENT_LOG_PATH );
 
-  t.tree_root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
+  t.tree_root()->get_child("UI")->get_child("Log")->handle<NLog>()->add_node( node );
 
   QModelIndex nodeIndex = t.index_from_path( CLIENT_TREE_PATH "/MyNode" );
 
@@ -590,9 +593,9 @@ BOOST_AUTO_TEST_CASE( signal_list_tree )
 
 BOOST_AUTO_TEST_CASE( index_is_visible )
 {
-  NTree t;
-  NGeneric::Ptr node(new NGeneric("Node", "MyType"));
-  MyNode::Ptr myNode(new MyNode("AnotherNode"));
+  NTree t(ThreadManager::instance().tree().root());
+  boost::shared_ptr< NGeneric > node(new NGeneric("Node", "MyType"));
+  boost::shared_ptr< MyNode > myNode(new MyNode("AnotherNode"));
 
   t.tree_root()->add_node(node);
   t.tree_root()->add_node(myNode);

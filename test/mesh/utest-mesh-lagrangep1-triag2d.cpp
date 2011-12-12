@@ -81,9 +81,9 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  SpaceFields::Ptr nodes = allocate_component<SpaceFields>("nodes") ;
+  boost::shared_ptr<SpaceFields> nodes = allocate_component<SpaceFields>("nodes") ;
   // Create a Elements component
-  Elements::Ptr comp = allocate_component<Elements>("comp");
+  boost::shared_ptr<Elements> comp = allocate_component<Elements>("comp");
 
   comp->initialize("cf3.mesh.LagrangeP1.Triag2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);

@@ -12,6 +12,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
+#include "common/PropertyList.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -30,7 +31,7 @@ CellFaces::CellFaces ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, and global numbering unique over all processors");
 
-  m_cell_connectivity = create_static_component_ptr<FaceCellConnectivity>("cell_connectivity");
+  m_cell_connectivity = create_static_component<FaceCellConnectivity>("cell_connectivity");
 
   add_tag(mesh::Tags::face_entity());
 }

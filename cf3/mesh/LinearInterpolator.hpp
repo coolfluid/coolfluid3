@@ -30,8 +30,8 @@ class Mesh_API LinearInterpolator : public Interpolator
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<LinearInterpolator> Ptr;
-  typedef boost::shared_ptr<LinearInterpolator const> ConstPtr;
+  
+  
 
 private: // typedefs
 
@@ -50,7 +50,7 @@ private: // functions
 
   /// Construct internal storage for fast searching algorithm
   /// @param source [in] the mesh from which interpolation will occur
-  virtual void construct_internal_storage(const Mesh& source);
+  virtual void construct_internal_storage(Mesh& source);
 
   /// Interpolate from one source field to target field
   /// @param source [in] the source field
@@ -76,7 +76,7 @@ private: // functions
   /// Find one single element in which the given coordinate resides.
   /// @param target_coord [in] the given coordinate
   /// @return the elements region, and the local coefficient in this region
-  boost::tuple<Elements::ConstPtr,Uint> find_element(const RealVector& target_coord);
+  boost::tuple<Handle< Elements const >,Uint> find_element(const RealVector& target_coord);
 
   /// Pseudo-Laplacian weighted linear interpolation algorithm
   /// @param source_points [in] The coordinates of the points used for interpolation
@@ -97,7 +97,7 @@ private: // functions
 
 private: // data
 
-  Mesh::ConstPtr m_source_mesh;
+  Handle< Mesh > m_source_mesh;
 
   Pointcloud m_pointcloud;
   Honeycomb m_honeycomb;
@@ -113,7 +113,7 @@ private: // data
 
   Uint m_sufficient_nb_points;
 
-  boost::shared_ptr<UnifiedData> m_elements;
+  Handle<UnifiedData> m_elements;
 
   std::vector<Uint> m_element_cloud;
 

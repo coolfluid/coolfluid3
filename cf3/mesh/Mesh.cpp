@@ -16,7 +16,10 @@
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Signal.hpp"
 #include "common/Tags.hpp"
@@ -58,25 +61,25 @@ Mesh::Mesh ( const std::string& name  ) :
 {
   mark_basic(); // by default meshes are visible
 
-  m_properties.add_property("nb_cells",Uint(0));
-  m_properties.add_property("nb_faces",Uint(0));
-  m_properties.add_property("nb_nodes",Uint(0));
-  m_properties.add_property("dimensionality",Uint(0));
-  m_properties.add_property(common::Tags::dimension(),Uint(0));
+  properties().add_property("nb_cells",Uint(0));
+  properties().add_property("nb_faces",Uint(0));
+  properties().add_property("nb_nodes",Uint(0));
+  properties().add_property("dimensionality",Uint(0));
+  properties().add_property(common::Tags::dimension(),Uint(0));
 
-  m_elements   = create_static_component_ptr<MeshElements>("elements");
-  m_topology   = create_static_component_ptr<Region>("topology");
-  m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
+  m_elements   = create_static_component<MeshElements>("elements");
+  m_topology   = create_static_component<Region>("topology");
+  m_metadata   = create_static_component<MeshMetadata>("metadata");
 
   regist_signal ( "write_mesh" )
-      ->description( "Write mesh, guessing automatically the format" )
-      ->pretty_name("Write Mesh" )
-      ->connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
-      ->signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
+      .description( "Write mesh, guessing automatically the format" )
+      .pretty_name("Write Mesh" )
+      .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
+      .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_geometry_fields = create_static_component_ptr<SpaceFields>("geometry_fields");
+  m_geometry_fields = create_static_component<SpaceFields>("geometry_fields");
   m_geometry_fields->add_tag(mesh::Tags::geometry());
-  Field::Ptr coord_field = m_geometry_fields->create_static_component_ptr< Field >(mesh::Tags::coordinates());
+  Handle< Field > coord_field = m_geometry_fields->create_static_component< Field >(mesh::Tags::coordinates());
   coord_field->add_tag(mesh::Tags::coordinates());
   coord_field->create_descriptor("coord[vector]");
 
@@ -95,20 +98,20 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf3_assert(dimension > 0);
 
-  geometry_fields().configure_option("type",    SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
-  geometry_fields().configure_option("space",   std::string(Tags::geometry()));
-  geometry_fields().configure_option("topology",topology().uri());
+  geometry_fields().options().configure_option("type",    SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
+  geometry_fields().options().configure_option("space",   std::string(Tags::geometry()));
+  geometry_fields().options().configure_option("topology",topology().uri());
   geometry_fields().coordinates().set_field_group(geometry_fields());
   geometry_fields().coordinates().set_topology(geometry_fields().topology());
   geometry_fields().coordinates().set_basis(SpaceFields::Basis::POINT_BASED);
-  geometry_fields().coordinates().descriptor().configure_option(common::Tags::dimension(),dimension);
+  geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
 
   cf3_assert(geometry_fields().size() == nb_nodes);
   cf3_assert(geometry_fields().coordinates().row_size() == dimension);
   m_dimension = dimension;
-  property(common::Tags::dimension()) = m_dimension;
-  property("nb_nodes")  = geometry_fields().size();
+  properties().property(common::Tags::dimension()) = m_dimension;
+  properties().property("nb_nodes")  = geometry_fields().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,11 +130,11 @@ void Mesh::update_statistics()
   boost_foreach ( Faces& elements, find_components_recursively<Faces>(topology()) )
     nb_faces += elements.size();
 
-  property(common::Tags::dimension()) = m_dimension;
-  property("dimensionality")= m_dimensionality;
-  property("nb_cells") = nb_cells;
-  property("nb_faces") = nb_faces;
-  property("nb_nodes") = geometry_fields().size();
+  properties().property(common::Tags::dimension()) = m_dimension;
+  properties().property("dimensionality")= m_dimensionality;
+  properties().property("nb_cells") = nb_cells;
+  properties().property("nb_faces") = nb_faces;
+  properties().property("nb_nodes") = geometry_fields().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,11 +161,11 @@ SpaceFields& Mesh::create_field_group( const std::string& name,
                                        const std::string& space,
                                        const Region& topology )
 {
-  SpaceFields& field_group = create_component<SpaceFields>(name);
-  field_group.configure_option("type",SpaceFields::Basis::to_str(base));
-  field_group.configure_option("space",space);
-  field_group.configure_option("topology",topology.uri());
-  return field_group;
+  Handle<SpaceFields> field_group = create_component<SpaceFields>(name);
+  field_group->options().configure_option("type",SpaceFields::Basis::to_str(base));
+  field_group->options().configure_option("space",space);
+  field_group->options().configure_option("topology",topology.uri());
+  return *field_group;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,13 +240,13 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
-      ->description("File to write" );
+  options.add_option("file" , name() + ".msh" )
+      .description("File to write" );
 
   boost_foreach (Field& field, find_components_recursively<Field>(*this))
   {
-    options.add_option< OptionT<bool> >(field.name(), false )
-        ->description("Mark if field gets to be written");
+    options.add_option(field.name(), false )
+        .description("Mark if field gets to be written");
   }
 }
 
@@ -283,9 +286,9 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
 void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 {
-  WriteMesh& mesh_writer = create_component<WriteMesh>("writer");
-  mesh_writer.write_mesh(*this,file,fields);
-  remove_component(mesh_writer);
+  Handle<WriteMesh> mesh_writer = create_component<WriteMesh>("writer");
+  mesh_writer->write_mesh(*this,file,fields);
+  remove_component(*mesh_writer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/PE/Comm.hpp"
@@ -44,30 +45,34 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
-      ->description("Total number of partitions (e.g. number of processors)")
-      ->pretty_name("Number of Partitions")
-      ->link_to(&m_nb_parts)
-      ->mark_basic();
+  options().add_option("nb_parts", m_nb_parts)
+      .description("Total number of partitions (e.g. number of processors)")
+      .pretty_name("Number of Partitions")
+      .link_to(&m_nb_parts)
+      .mark_basic();
 
-  m_global_to_local = create_static_component_ptr<common::Map<Uint,Uint> >("global_to_local");
-  m_lookup = create_static_component_ptr<UnifiedData >("lookup");
+  m_global_to_local = create_static_component<common::Map<Uint,Uint> >("global_to_local");
+  m_lookup = create_static_component<UnifiedData >("lookup");
 
   regist_signal( "load_balance" )
-    ->description("Partitions and migrates elements between processors")
-    ->pretty_name("Load Balance")
-    ->connect ( boost::bind ( &MeshPartitioner::load_balance,this, _1 ) )
-    ->signature ( boost::bind ( &MeshPartitioner::load_balance_signature, this, _1));
+    .description("Partitions and migrates elements between processors")
+    .pretty_name("Load Balance")
+    .connect ( boost::bind ( &MeshPartitioner::load_balance,this, _1 ) )
+    .signature ( boost::bind ( &MeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void MeshPartitioner::execute()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   initialize(mesh);
+  Comm::instance().barrier();
+  CFdebug << "    -partitioning" << CFendl;
   partition_graph();
   //show_changes();
+  Comm::instance().barrier();
+  CFdebug << "    -migrating" << CFendl;
   migrate();
 }
 
@@ -83,7 +88,7 @@ void MeshPartitioner::load_balance( SignalArgs& node  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  Mesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<Mesh>();
+  Handle<Mesh> mesh(access_component(path));
   if ( is_null(mesh) )
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid Mesh." );
 
@@ -99,15 +104,15 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option<OptionURI>("mesh", URI())
-      ->description("Mesh to load balance");
+  options.add_option("mesh", URI())
+      .description("Mesh to load balance");
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void MeshPartitioner::initialize(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<Mesh>();
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   SpaceFields& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
@@ -254,7 +259,7 @@ void MeshPartitioner::show_changes()
       }
       for (Uint comp=0; comp<m_elements_to_export.size(); ++comp)
       {
-        std::string elements = m_lookup->components()[comp+1].lock()->uri().path();
+        std::string elements = m_lookup->components()[comp+1]->uri().path();
         for (Uint to_part=0; to_part<m_elements_to_export[comp].size(); ++to_part)
         {
           std::cout << "[" << PE::Comm::instance().rank() << "] export " << elements << " to part " << to_part << ":  ";
@@ -285,87 +290,12 @@ boost::tuple<Uint,Uint> MeshPartitioner::location_idx(const Uint glb_obj) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Component::Ptr,Uint> MeshPartitioner::location(const Uint glb_obj) const
+boost::tuple<Handle< Component >,Uint> MeshPartitioner::location(const Uint glb_obj) const
 {
   return m_lookup->location( (*m_global_to_local)[glb_obj] );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-template <typename T>
-void flex_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> strides;
-  PE::Comm::instance().all_gather((int)send.size(),strides);
-  std::vector<int> displs(strides.size());
-  if (strides.size())
-  {
-    int sum_strides = strides[0];
-    displs[0] = 0;
-    for (Uint i=1; i<strides.size(); ++i)
-    {
-      displs[i] = displs[i-1] + strides[i-1];
-      sum_strides += strides[i];
-    }
-    std::vector<T> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::Comm::instance().communicator()));
-    recv.resize(strides.size());
-    for (Uint i=0; i<strides.size(); ++i)
-    {
-      recv[i].resize(strides[i]);
-      for (Uint j=0; j<strides[i]; ++j)
-      {
-        recv[i][j]=recv_linear[displs[i]+j];
-      }
-    }
-  }
-  else
-  {
-    recv.resize(0);
-  }
-}
-
-template <typename T>
-void flex_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> send_strides(send.size());
-  std::vector<int> send_displs(send.size());
-  for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].size();
-
-  send_displs[0] = 0;
-  for (Uint i=1; i<send.size(); ++i)
-    send_displs[i] = send_displs[i-1] + send_strides[i-1];
-
-  std::vector<T> send_linear(send_displs.back()+send_strides.back());
-  for (Uint i=0; i<send.size(); ++i)
-    for (Uint j=0; j<send[i].size(); ++j)
-      send_linear[send_displs[i]+j] = send[i][j];
-
-  std::vector<int> recv_strides(PE::Comm::instance().size());
-  std::vector<int> recv_displs(PE::Comm::instance().size());
-  PE::Comm::instance().all_to_all(send_strides,recv_strides);
-  recv_displs[0] = 0;
-  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
-    recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
-
-  std::vector<T> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::Comm::instance().communicator()));
-
-  recv.resize(recv_strides.size());
-  for (Uint i=0; i<recv_strides.size(); ++i)
-  {
-    recv[i].resize(recv_strides[i]);
-    for (Uint j=0; j<recv_strides[i]; ++j)
-    {
-      recv[i][j]=recv_linear[recv_displs[i]+j];
-    }
-  }
-}
 
 void flex_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 {
@@ -439,7 +369,7 @@ void MeshPartitioner::migrate()
     return;
 
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   SpaceFields& nodes = mesh.geometry_fields();
 
   // ----------------------------------------------------------------------------
@@ -475,6 +405,8 @@ void MeshPartitioner::migrate()
     /// @todo mechanism not to flush element_manipulation until during real migration
   }
 
+  Comm::instance().barrier();
+  CFdebug << "        * removed ghost elements and ghost nodes" << CFendl;
 
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
@@ -482,7 +414,7 @@ void MeshPartitioner::migrate()
   const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -495,7 +427,7 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
 
-  std::vector< boost::weak_ptr<Component> > mesh_element_comps = mesh.elements().components();
+  std::vector< Handle<Component> > mesh_element_comps = mesh.elements().components();
 
   PE::Buffer send_to_proc;  std::vector<int> send_strides(PE::Comm::instance().size());
   PE::Buffer recv_from_all; std::vector<int> recv_strides(PE::Comm::instance().size());
@@ -503,7 +435,7 @@ void MeshPartitioner::migrate()
   // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
   {
-    Elements& elements = mesh_element_comps[i].lock()->as_type<Elements>();
+    Elements& elements = dynamic_cast<Elements&>(*mesh_element_comps[i]);
 
     send_to_proc.reset();
     recv_from_all.reset();
@@ -573,6 +505,8 @@ void MeshPartitioner::migrate()
   // ELEMENTS AND NODES HAVE BEEN MOVED
   // -----------------------------------------------------------------------------
 
+   Comm::instance().barrier();
+   CFdebug << "        * elements and nodes migrated, request ghost nodes" << CFendl;
 
   // -----------------------------------------------------------------------------
   // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
@@ -607,8 +541,7 @@ void MeshPartitioner::migrate()
   // COMMUNICATE NODES TO LOOK FOR
 
   std::vector<std::vector<Uint> > recv_request_nodes;
-  flex_all_gather(request_nodes,recv_request_nodes);
-
+  Comm::instance().all_gather(request_nodes,recv_request_nodes);
 
   PackUnpackNodes copy_node(nodes);
   std::vector<PE::Buffer> nodes_to_send(Comm::instance().size());
@@ -662,6 +595,8 @@ void MeshPartitioner::migrate()
   // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
 
+  Comm::instance().barrier();
+  CFdebug << "        * requested ghost nodes added" << CFendl;
 
   // -----------------------------------------------------------------------------
   // FIX NODE CONNECTIVITY
@@ -676,7 +611,7 @@ void MeshPartitioner::migrate()
   }
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -692,6 +627,10 @@ void MeshPartitioner::migrate()
   mesh.update_statistics();
   mesh.elements().reset();
   mesh.elements().update();
+
+  Comm::instance().barrier();
+  CFdebug << "        * migration complete" << CFendl;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

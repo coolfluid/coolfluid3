@@ -12,6 +12,7 @@
 #include <QStringList>
 
 #include "common/Component.hpp"
+#include "common/Option.hpp"
 
 #include "ui/core/LibCore.hpp"
 
@@ -123,8 +124,8 @@ namespace core {
 
     ////////////////////////////////////////////
 
-    typedef boost::shared_ptr<CNode> Ptr;
-    typedef boost::shared_ptr<CNode const> ConstPtr;
+
+
 
     /// Defines the sub-node types
     enum Type
@@ -162,7 +163,7 @@ namespace core {
     /// @param index Index of the wanted child. Should be between 0 (included)
     /// and @c #count_children() (excluded).
     /// @return Returns the found child.
-    CNode::Ptr child( Uint index );
+    Handle< CNode > child( Uint index );
 
     /// Gives the node tooltip.
     /// @return Returns the tooltip text.
@@ -215,7 +216,7 @@ namespace core {
     /// Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void list_options( QList<common::Option::ConstPtr> & list );
+    void list_options( QList<boost::shared_ptr< common::Option > > & list );
 
     /// Gives properties
     /// @param props Reference to a map where properties will be put. The map
@@ -232,24 +233,32 @@ namespace core {
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr create_from_xml( common::XML::XmlNode node );
+    static boost::shared_ptr< CNode > create_from_xml( common::XML::XmlNode node );
 
     /// Casts this node to a constant component of type TYPE.
     /// @return Returns the cast pointer
-    /// @throw boost::bad_any_cast if the casting failed.
+    /// @throw CastingFailed if the casting failed.
     template<class TYPE>
-    boost::shared_ptr<const TYPE> castTo() const
+    Handle<const TYPE> castTo() const
     {
-      return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
+      Handle<const TYPE> self = handle<TYPE>();
+      if(is_null(self))
+        throw CastingFailed(FromHere(), "Failed to cast node " + name() + " to type " + TYPE::type_name());
+
+      return self;
     }
 
     /// Casts this node to a component of type TYPE.
     /// @return Returns the cast pointer
-    /// @throw boost::bad_any_cast if the casting failed.
+    /// @throw CastingFailed if the casting failed.
     template<class TYPE>
-    boost::shared_ptr<TYPE> castTo()
+    Handle<TYPE> castTo()
     {
-      return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
+      Handle<TYPE> self = handle<TYPE>();
+      if(is_null(self))
+        throw common::CastingFailed(FromHere(), "Failed to cast node " + name() + " to type " + TYPE::type_name());
+
+      return self;
     }
 
     /// Connects a slot a signal provided by the internal notifier.
@@ -273,7 +282,7 @@ namespace core {
     /// @throw common::ValueExists Forwards to the upper level any
     /// @c common::ValueExists exception thrown by
     /// @c Component::add_component()
-    void add_node( CNode::Ptr node );
+    void add_node( boost::shared_ptr< CNode > node );
 
     /// Removes a sub-node.
 
@@ -398,7 +407,7 @@ namespace core {
     /// @param link_targets Map where links
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr create_from_xml_recursive(common::XML::XmlNode & node,
+    static boost::shared_ptr< CNode > create_from_xml_recursive(common::XML::XmlNode & node,
                          QMap<boost::shared_ptr<NLink>, common::URI> & link_targets);
 
     void fetch_content();

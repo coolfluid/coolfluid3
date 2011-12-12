@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   GraphicalRestrictedList * value = new GraphicalRestrictedList();
   QComboBox * combo_box = find_combo_box(value);
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
 
   // 1. empty option
   BOOST_CHECK( is_not_null(combo_box) );
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   combo_box = find_combo_box(value);
 
   BOOST_CHECK( is_not_null(combo_box) );
-  BOOST_CHECK_EQUAL( combo_box->count(), 3 );
+  BOOST_CHECK_EQUAL( combo_box->count(), 2 );
 
   delete value;
 }
@@ -109,8 +109,9 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( set_value )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
+  opt->restricted_list().push_back( std::string("Hello") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
   GraphicalRestrictedList * value = new GraphicalRestrictedList(opt);
@@ -149,7 +150,8 @@ BOOST_AUTO_TEST_CASE( set_value )
 
 BOOST_AUTO_TEST_CASE( value )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  opt->restricted_list().push_back( std::string("Hello") );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -176,7 +178,8 @@ BOOST_AUTO_TEST_CASE( value )
 
 BOOST_AUTO_TEST_CASE( signal_emitting )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  opt->restricted_list().push_back( std::string("Hello") );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -222,7 +225,8 @@ BOOST_AUTO_TEST_CASE( signal_emitting )
 
 BOOST_AUTO_TEST_CASE( value_string )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  opt->restricted_list().push_back( std::string("Hello") );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -241,7 +245,7 @@ BOOST_AUTO_TEST_CASE( value_string )
 
 BOOST_AUTO_TEST_CASE( is_modified )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -268,7 +272,7 @@ BOOST_AUTO_TEST_CASE( is_modified )
 
 BOOST_AUTO_TEST_CASE( set_restricted_list )
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 

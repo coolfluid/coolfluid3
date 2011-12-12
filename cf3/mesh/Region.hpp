@@ -34,8 +34,8 @@ class Mesh_API Region : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Region> Ptr;
-  typedef boost::shared_ptr<Region const> ConstPtr;
+  
+  
 
   typedef common::ComponentIteratorRange<Entities const> ConstElementsRange;
   typedef common::ComponentIteratorRange<Entities>       ElementsRange;
@@ -69,6 +69,11 @@ public: // functions
 
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
+
+  /// @return the number of elements stored in this region, including any subregions
+  ///         summed over all processors
+  /// @todo remove ghost nodes from the count
+  Uint global_elements_count() const;
 
   /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>

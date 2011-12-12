@@ -30,8 +30,8 @@ class Mesh_API FieldManager : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<FieldManager> Ptr;
-  typedef boost::shared_ptr<FieldManager const> ConstPtr;
+  
+  
 
 public: // functions
 

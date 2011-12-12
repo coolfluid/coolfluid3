@@ -44,7 +44,7 @@ public:
 
   /// Destructor
   virtual ~C3DView();
-  
+
   /// Component::derived_type_name implementation
   std::string derived_type_name() const
   {
@@ -88,7 +88,7 @@ private : //data
 
     std::string m_filename;                ///< filename to dump VTK file
 
-    boost::weak_ptr< mesh::Mesh > m_mesh; ///< mesh component to visualize
+    Handle< mesh::Mesh > m_mesh; ///< mesh component to visualize
 };
 
 //////////////////////////////////////////////////////////////////////////////

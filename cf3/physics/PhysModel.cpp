@@ -21,14 +21,14 @@ namespace physics {
 
 PhysModel::PhysModel( const std::string& name ) :
   Component(name),
-  m_variable_manager(create_static_component<math::VariableManager>("VariableManager"))
+  m_variable_manager(*create_static_component<math::VariableManager>("VariableManager"))
 {
 
   regist_signal( "create_variables" )
-      ->connect  ( boost::bind( &PhysModel::signal_create_variables, this, _1 ) )
-      ->signature( boost::bind( &PhysModel::signature_create_variables, this, _1))
-      ->description("Create Variables using this Physical Model")
-      ->pretty_name("Create Variables");
+      .connect  ( boost::bind( &PhysModel::signal_create_variables, this, _1 ) )
+      .signature( boost::bind( &PhysModel::signature_create_variables, this, _1))
+      .description("Create Variables using this Physical Model")
+      .pretty_name("Create Variables");
 
 }
 
@@ -65,12 +65,12 @@ void PhysModel::signature_create_variables( SignalArgs& args )
   SignalOptions options( args );
 
   // name
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created variables");
+  options.add_option("name", std::string() )
+      .description("Name for created variables");
 
   // type
-  options.add_option< OptionT<std::string> >("type", std::string() )
-      ->description("Type for created variables");
+  options.add_option("type", std::string() )
+      .description("Type for created variables");
 
 }
 

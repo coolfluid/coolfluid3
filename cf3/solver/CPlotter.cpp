@@ -35,10 +35,10 @@ CPlotter::CPlotter(const std::string & name) :
 {
   // signals
   regist_signal("create_xyplot")
-      ->description("Creates an XY-Plot")
-      ->pretty_name("New XY-Plot")
-      ->connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) )
-      ->signature( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
+      .description("Creates an XY-Plot")
+      .pretty_name("New XY-Plot")
+      .connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) )
+      .signature( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
 
   // hide some signals from the GUI
   signal("create_component")->hidden(true);
@@ -68,8 +68,8 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
     throw InvalidURI(FromHere(), "The parent scheme is not CPATH");
 
   // create and add the component
-  Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
-  CPlotXY::Ptr plot(common::allocate_component<CPlotXY>(name));
+  Handle< Component > parent_comp = Core::instance().root().access_component(parent);
+  boost::shared_ptr< CPlotXY > plot(common::allocate_component<CPlotXY>(name));
   parent_comp->add_component( plot );
   plot->mark_basic();
   plot->set_data(m_data);
@@ -81,12 +81,12 @@ void CPlotter::signature_create_xyplot(SignalArgs &args)
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("Plot name", std::string() )
-      ->description("Name for the new plot");
+  options.add_option("Plot name", std::string() )
+      .description("Name for the new plot");
 
-  options.add_option< OptionURI >("Parent", Core::instance().root().uri() )
-      ->description("Parent of the new component")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+  options.add_option("Parent", Core::instance().root().uri() )
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Parent of the new component");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

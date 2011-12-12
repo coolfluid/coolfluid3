@@ -8,6 +8,7 @@
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/SpaceFields.hpp"
@@ -41,20 +42,20 @@ CSimpleSolver::~CSimpleSolver()
 
 void CSimpleSolver::mesh_loaded(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<Mesh>();
+  m_mesh = mesh.handle<Mesh>();
 
   // Update the dimensions on the physics
-  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry_fields().coordinates().row_size());
+  physics().options().configure_option(common::Tags::dimension(), mesh.topology().geometry_fields().coordinates().row_size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Mesh& CSimpleSolver::mesh()
 {
-  if(m_mesh.expired())
+  if(is_null(m_mesh))
     throw SetupError(FromHere(), "No mesh configured for " + uri().string());
 
-  return *m_mesh.lock();
+  return *m_mesh;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

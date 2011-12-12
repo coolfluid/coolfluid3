@@ -28,8 +28,8 @@ class solver_actions_API CComputeVolume : public CLoopOperation {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CComputeVolume> Ptr;
-  typedef boost::shared_ptr<CComputeVolume const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -53,8 +53,8 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_volume;
-  boost::weak_ptr<mesh::Space> m_volume_field_space;
+  Handle<mesh::Field> m_volume;
+  Handle<mesh::Space> m_volume_field_space;
 
   RealMatrix m_coordinates;
 

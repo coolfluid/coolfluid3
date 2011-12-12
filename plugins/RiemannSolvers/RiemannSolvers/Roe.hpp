@@ -21,8 +21,8 @@ namespace RiemannSolvers {
 class RiemannSolvers_API Roe : public RiemannSolver
 {
 public:
-  typedef boost::shared_ptr< Roe >       Ptr;
-  typedef boost::shared_ptr< Roe const > ConstPtr;
+  
+  
 
 public:
 
@@ -48,18 +48,18 @@ public:
 private:
 
   void trigger_physical_model();
-  physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
+  physics::Variables& roe_vars() { return *m_roe_vars; }
 
 private:
 
-  boost::weak_ptr<physics::Variables> m_roe_vars;
+  Handle<physics::Variables> m_roe_vars;
   std::auto_ptr<physics::Properties> p_left;
   std::auto_ptr<physics::Properties> p_right;
   std::auto_ptr<physics::Properties> p_avg;
   RealVector coord;
   RealMatrix grads;
-  RealMatrix f_left;
-  RealMatrix f_right;
+  RealVector f_left;
+  RealVector f_right;
   RealVector roe_left;
   RealVector roe_right;
   RealVector roe_avg;

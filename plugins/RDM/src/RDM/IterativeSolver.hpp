@@ -21,8 +21,8 @@ class RDM_API IterativeSolver : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<IterativeSolver> Ptr;
-  typedef boost::shared_ptr<IterativeSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -58,11 +58,11 @@ private: // functions
 private: // data
 
   /// set of actions called every iteration before non-linear solve
-  common::ActionDirector::Ptr m_pre_actions;
+  Handle< common::ActionDirector > m_pre_actions;
   /// set of actions called every iteration to update the solution
-  common::ActionDirector::Ptr m_update;
+  Handle< common::ActionDirector > m_update;
   /// set of actions called every iteration after non-linear solve
-  common::ActionDirector::Ptr m_post_actions;
+  Handle< common::ActionDirector > m_post_actions;
 
 };
 

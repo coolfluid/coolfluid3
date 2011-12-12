@@ -107,7 +107,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Define the volume cells, i.e. the blocks
-  Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
+  Cells& block_elements = *(block_mesh_region.create_region("blocks").create_component<Cells>("interior"));
   block_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D", block_nodes);
   common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
@@ -135,11 +135,11 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Create connectivity data
-  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_ptr<CNodeConnectivity>("node_connectivity");
+  Handle<CNodeConnectivity> node_connectivity = block_mesh_region.create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively<Elements>(block_mesh_region));
   BOOST_FOREACH(Elements& celements, find_components_recursively<Elements>(block_mesh_region))
   {
-    celements.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 }
 
@@ -166,7 +166,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Define the volume cells, i.e. the blocks
-  Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
+  Cells& block_elements = *(block_mesh_region.create_region("blocks").create_component<Cells>("interior"));
   block_elements.initialize("cf3.mesh.LagrangeP1.Quad2D", block_nodes);
   common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
@@ -194,11 +194,11 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Create connectivity data
-  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_ptr<CNodeConnectivity>("node_connectivity");
+  Handle<CNodeConnectivity> node_connectivity = block_mesh_region.create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively<Elements>(block_mesh_region));
   BOOST_FOREACH(Elements& celements, find_components_recursively<Elements>(block_mesh_region))
   {
-    celements.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 }
 
@@ -802,7 +802,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a Mesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  Mesh& block_mesh = block_data.create_component<Mesh>("block_mesh");
+  Mesh& block_mesh = *block_data.create_component<Mesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
@@ -842,7 +842,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   const Uint nb_nodes_local = nodes_end - nodes_begin;
 
   Region& root_region = mesh.topology().create_region("root_region");
-  Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
+  Elements& volume_elements = *(root_region.create_region("volume").create_component<Cells>("interior"));
   volume_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
@@ -956,7 +956,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   {
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
-    const std::string& patch_name = patch_block.parent().name();
+    const std::string& patch_name = patch_block.parent()->name();
     Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Quad3D", mesh_geo_comp);
     common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
@@ -1070,7 +1070,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a Mesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  Mesh& block_mesh = block_data.create_component<Mesh>("block_mesh");
+  Mesh& block_mesh = *block_data.create_component<Mesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
@@ -1110,7 +1110,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   const Uint nb_nodes_local = nodes_end - nodes_begin;
 
   Region& root_region = mesh.topology().create_region("root_region");
-  Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
+  Elements& volume_elements = *(root_region.create_region("volume").create_component<Cells>("interior"));
   volume_elements.initialize("cf3.mesh.LagrangeP1.Quad2D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
@@ -1201,7 +1201,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   {
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
-    const std::string& patch_name = patch_block.parent().name();
+    const std::string& patch_name = patch_block.parent()->name();
     Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Line2D", mesh_geo_comp);
     common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
@@ -1342,10 +1342,10 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    MeshTransformer& global_conn = mesh.create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity").as_type<MeshTransformer>();
+    MeshTransformer& global_conn = *Handle<MeshTransformer>(mesh.create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity"));
     global_conn.transform(mesh);
 
-    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap").as_type<MeshTransformer>();
+    MeshTransformer& grow_overlap = *Handle<MeshTransformer>(mesh.create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
@@ -1354,7 +1354,7 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   // Raise an event to indicate that a mesh was loaded happened
   XML::SignalOptions options;
-  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+  options.add_option("mesh_uri", mesh.uri());
 
   XML::SignalFrame f= options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_loaded", f );
@@ -1440,7 +1440,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY] * blocks_in.block_subdivisions[block][ZZ];
 
-  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  boost::shared_ptr<BlockData> blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
   blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data
@@ -1634,7 +1634,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
           const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
           if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
           {
-            const Uint patch_idx = patch_idx_map[adjacent_element.first->parent().name()];
+            const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
             BOOST_FOREACH(const Uint i, Hexa3D::faces().nodes_range(transverse_direction))
             {
               blocks_out.patch_points[patch_idx].push_back(new_blocks[block_idx][i]);
@@ -1656,7 +1656,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
       const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direcion);
       if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
       {
-        const Uint patch_idx = patch_idx_map[adjacent_element.first->parent().name()];
+        const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
         BOOST_FOREACH(const Uint i, Hexa3D::faces().nodes_range(lengthwise_direcion))
         {
           blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
@@ -1738,7 +1738,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY];
 
-  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  boost::shared_ptr<BlockData> blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
   blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data
@@ -1929,7 +1929,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
           const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
           if(adjacent_element.first->element_type().dimensionality() == DIM_1D)
           {
-            const Uint patch_idx = patch_idx_map[adjacent_element.first->parent().name()];
+            const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
             BOOST_FOREACH(const Uint i, Quad2D::faces().nodes_range(transverse_direction))
             {
               blocks_out.patch_points[patch_idx].push_back(new_blocks[block_idx][i]);
@@ -1951,7 +1951,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
       const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direcion);
       if(adjacent_element.first->element_type().dimensionality() == DIM_1D)
       {
-        const Uint patch_idx = patch_idx_map[adjacent_element.first->parent().name()];
+        const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
         BOOST_FOREACH(const Uint i, Quad2D::faces().nodes_range(lengthwise_direcion))
         {
           blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
@@ -1963,7 +1963,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
 
 void partition_blocks(const cf3::mesh::BlockMesh::BlockData& blocks_in, const cf3::Uint nb_partitions, const cf3::CoordXYZ direction, cf3::mesh::BlockMesh::BlockData& blocks_out)
 {
-  Mesh& block_mesh = blocks_out.create_component<Mesh>("serial_block_mesh");
+  Mesh& block_mesh = *blocks_out.create_component<Mesh>("serial_block_mesh");
 
   if(blocks_in.dimension == 3)
   {

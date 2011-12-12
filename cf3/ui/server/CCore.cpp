@@ -46,19 +46,16 @@ namespace server {
 
 CCore::CCore()
   : Component(SERVER_CORE),
-    DEFAULT_PATH("."),
-    m_fileOpen(false),
-    m_sim_running(false),
-    m_active(false)
+    DEFAULT_PATH(".")
 {
   TypeInfo::instance().regist<CCore>( type_name() );
 
-  m_commServer = new ServerNetworkComm();
+  m_comm_server = new ServerNetworkComm();
   m_settings = new QSettings( "vki.ac.be", "coolfluid-server", this);
 
   m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  connect( m_commServer, SIGNAL(newClientConnected(std::string)),
+  connect( m_comm_server, SIGNAL(newClientConnected(std::string)),
            this,  SLOT(new_client(std::string)) );
 
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
@@ -66,49 +63,49 @@ CCore::CCore()
   Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
   regist_signal( "read_dir" )
-    ->description("Read directory content")
-    ->read_only(true)
-    ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+    .description("Read directory content")
+    .read_only(true)
+    .pretty_name("").connect(boost::bind(&CCore::read_dir, this, _1));
 
   regist_signal( "read_special_dir" )
-    ->description("Read special directory content")
-    ->read_only(true)
-    ->pretty_name("")->connect(boost::bind(&CCore::read_special_dir, this, _1));
+    .description("Read special directory content")
+    .read_only(true)
+    .pretty_name("").connect(boost::bind(&CCore::read_special_dir, this, _1));
 
   regist_signal( "shutdown" )
-    ->description("Shutdown the server")
-    ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
+    .description("Shutdown the server")
+    .pretty_name("").connect(boost::bind(&CCore::shutdown, this, _1));
 
   regist_signal("list_favorites")
-      ->description( "Lists the favorite directories for the remote browsing feature." )
-      ->read_only(true)
-      ->connect(boost::bind(&CCore::signal_list_favorites, this, _1));
+      .description( "Lists the favorite directories for the remote browsing feature." )
+      .read_only(true)
+      .connect(boost::bind(&CCore::signal_list_favorites, this, _1));
 
   regist_signal("set_favorites")
-      ->description( "Sets the favorite directories for the remote browsing feature." )
-      ->read_only(true)
-      ->connect(boost::bind(&CCore::signal_set_favorites, this, _1));
+      .description( "Sets the favorite directories for the remote browsing feature." )
+      .read_only(true)
+      .connect(boost::bind(&CCore::signal_set_favorites, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 CCore::~CCore()
 {
-  delete m_commServer;
+  delete m_comm_server;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 bool CCore::listen_to_port(quint16 portNumber)
 {
-  return m_commServer->openPort(portNumber);
+  return m_comm_server->openPort(portNumber);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::send_signal( const XmlDoc & signal )
 {
-  m_commServer->sendSignalToClient(signal);
+  m_comm_server->sendSignalToClient(signal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -247,12 +244,12 @@ void CCore::read_dir(SignalArgs & args)
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
 
-    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirs", content.dirs);
+    roptions.add_option("files", content.files);
+    roptions.add_option("dirDates", content.dir_dates);
+    roptions.add_option("fileDates", content.file_dates);
+    roptions.add_option("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -309,12 +306,12 @@ void CCore::read_special_dir(SignalArgs & args)
 
     reply.node.set_attribute( "target", "read_dir" );
 
-    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirs", content.dirs);
+    roptions.add_option("files", content.files);
+    roptions.add_option("dirDates", content.dir_dates);
+    roptions.add_option("fileDates", content.file_dates);
+    roptions.add_option("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -323,33 +320,10 @@ void CCore::read_special_dir(SignalArgs & args)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::newEvent(const std::string & name, const URI & path)
-{
-  SignalFrame frame(name, path, path);
-
-  m_commServer->sendSignalToClient(*frame.xml_doc.get());
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::create_dir(SignalArgs & node)
-{
-  m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void CCore::shutdown(SignalArgs & node)
 {
   ServerRoot::instance().manager()->kill_group("Workers");
   qApp->exit(0); // exit the Qt event loop
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::save_config(SignalArgs & node)
-{
-  m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -393,7 +367,7 @@ void CCore::signal_list_favorites( SignalArgs &node )
 void CCore::new_client(const std::string & clientId)
 {
   // send a welcome message to the new client
-  m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
+  m_comm_server->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -407,13 +381,13 @@ void CCore::send_ack( const std::string & clientid,
   SignalOptions & options = frame.options();
 
 
-  options.add_option< OptionT<std::string> >("frameid", frameid );
-  options.add_option< OptionT<bool> >("success", success );
-  options.add_option< OptionT<std::string> >("message", message );
+  options.add_option("frameid", frameid );
+  options.add_option("success", success );
+  options.add_option("message", message );
 
   options.flush();
 
-  m_commServer->sendSignalToClient( *frame.xml_doc.get(), clientid);
+  m_comm_server->sendSignalToClient( *frame.xml_doc.get(), clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////

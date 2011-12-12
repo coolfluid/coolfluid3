@@ -140,6 +140,10 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   std::vector<int> fifth(3,first);
 
 
+  //Uint expected_size = sizeof(first) + sizeof(second) + sizeof(Uint) + sizeof(char)*fourth.size() + sizeof(first)*fifth.size() + 2*sizeof(int);
+  //std::cout << "expected size is " << expected_size << std::endl;
+  Uint expected_size = 51;
+
   // ----------------------------------
 
   // Create a buffer
@@ -159,11 +163,11 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // ----------------------------------
 
-  BOOST_CHECK_EQUAL(buffer.packed_size(), 51);
+  BOOST_CHECK_EQUAL(buffer.packed_size(), expected_size);
 
   if (Comm::instance().rank() != root)
   {
-    BOOST_CHECK_EQUAL(buffer.size(), 51);
+    BOOST_CHECK_EQUAL(buffer.size(), expected_size);
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
   }
   else
@@ -177,6 +181,31 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   BOOST_CHECK_EQUAL(third, true);
   BOOST_CHECK_EQUAL(fourth, "from_proc_0");
   BOOST_CHECK_EQUAL(fifth[2], 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_all_gather )
+{
+
+  // Initialize some data, different for every processor
+
+  std::string str = "from_proc_" + to_str(Comm::instance().rank());
+
+  // ----------------------------------
+
+  // Create a buffer
+  common::PE::Buffer buffer;
+  buffer << str;
+
+  common::PE::Buffer out_buf;
+  buffer.all_gather(out_buf);
+
+  while (out_buf.more_to_unpack())
+  {
+    out_buf >> str;
+    CFinfo << str << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,8 +23,8 @@ class solver_actions_API CComputeLNorm : public common::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CComputeLNorm> Ptr;
-  typedef boost::shared_ptr<CComputeLNorm const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -40,9 +40,11 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  Real compute_norm(mesh::Field&) const;
+
 private: // data
 
-  boost::weak_ptr<mesh::Field> m_field;
+//  boost::weak_ptr<mesh::Field> m_field;
 
 };
 

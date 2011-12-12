@@ -28,8 +28,8 @@ class mesh_actions_API BuildFaceNormals : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<BuildFaceNormals> Ptr;
-    typedef boost::shared_ptr<BuildFaceNormals const> ConstPtr;
+    
+    
 
 public: // functions
   

@@ -45,14 +45,14 @@ bool CNodeBuilders::has_builder(const QString & component_type) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNodeBuilders::build_cnode( const QString & component_type,
+boost::shared_ptr< CNode > CNodeBuilders::build_cnode( const QString & component_type,
                                        const std::string & name ) const
 {
   cf3_assert( m_builders.contains( component_type ) );
 
-  Builder & builder = m_builders[component_type]->as_type<Builder>();
+  Builder & builder = *m_builders[component_type]->handle<Builder>();
 
-  return builder.build( name )->as_ptr_checked<CNode>();
+  return boost::dynamic_pointer_cast<CNode>( builder.build( name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -80,11 +80,19 @@ if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF3_CXX_COMPILER_VERSION MATCHES "
 endif()
 
 ########################################################################################
+# CLANG
+########################################################################################
+
+if( CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  coolfluid_add_cxx_flags("-Wno-parentheses")
+endif()
+
+########################################################################################
 # UNIX
 ########################################################################################
 
 if(UNIX)
-  
+
     if( CF3_ENABLE_CODECOVERAGE )
 
       find_program(CTEST_COVERAGE_COMMAND gcov)
@@ -111,7 +119,7 @@ if(WIN32)
   # disable auto-linking with boost
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
-  
+
   # Required for auto link not to mess up on vs80.
   # @todo Disable auto link on windows altogether.
   # add_definitions( -DBOOST_DYN_LINK )
@@ -124,9 +132,9 @@ if(WIN32)
   # add exception handling
   coolfluid_add_c_flags( "/EHsc" )
   coolfluid_add_cxx_flags( "/EHsc" )
-  
+
   # remove warnings
-  if( CF3_ENABLE_WARNINGS ) 
+  if( CF3_ENABLE_WARNINGS )
     coolfluid_add_c_flags( "/W3" )
     coolfluid_add_cxx_flags( "/W3" )
   else()

@@ -17,12 +17,12 @@
 
 namespace cf3 {
 namespace mesh {
-  
+
   class Region;
   class FaceCellConnectivity;
 
 namespace actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
@@ -32,34 +32,34 @@ class mesh_actions_API BuildFaces : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<BuildFaces> Ptr;
-    typedef boost::shared_ptr<BuildFaces const> ConstPtr;
+
+
 
 public: // functions
-  
+
   /// constructor
   BuildFaces( const std::string& name );
-  
+
   /// Gets the Class name
   static std::string type_name() { return "BuildFaces"; }
 
   virtual void execute();
-  
+
   /// brief description, typically one line
   virtual std::string brief_description() const;
-  
+
   /// extended help that user can query
   virtual std::string help() const;
-  
+
 private: // functions
- 
+
   void make_interfaces(Component& parent);
 
   void build_face_cell_connectivity_bottom_up(Component& parent);
   void build_faces_bottom_up(Component& parent);
 
   void build_face_elements(Region& in_region, FaceCellConnectivity& from_face_to_cell, const bool inner);
-    
+
   boost::shared_ptr<FaceCellConnectivity> match_faces(Region& region1, Region& region2);
   void match_boundary(Region& bdry_region, Region& region2);
 

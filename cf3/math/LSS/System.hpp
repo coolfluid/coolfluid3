@@ -15,6 +15,7 @@
 #include "common/Component.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Matrix.hpp"
 #include "math/LSS/Vector.hpp"
@@ -58,12 +59,6 @@ public:
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<System> Ptr;
-
-  /// const pointer to this type
-  typedef boost::shared_ptr<System const> ConstPtr;
-
   /// name of the type
   static std::string type_name () { return "System"; }
 
@@ -76,7 +71,7 @@ public:
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it
-  void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void swap(const Handle<LSS::Matrix>& matrix, const Handle<LSS::Vector>& solution, const Handle<LSS::Vector>& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -140,13 +135,13 @@ public:
   void print(const std::string& filename);
 
   /// Accessor to matrix
-  const LSS::Matrix::Ptr matrix() { return m_mat; };
+  Handle<LSS::Matrix> matrix() { return m_mat; };
 
   /// Accessor to right hand side
-  const LSS::Vector::Ptr rhs() { return m_rhs; };
+  Handle<LSS::Vector> rhs() { return m_rhs; };
 
   /// Accessor to solution
-  const LSS::Vector::Ptr solution() { return m_sol; };
+  Handle<LSS::Vector> solution() { return m_sol; };
 
   /// Accessor to the state of create
   const bool is_created();
@@ -169,13 +164,13 @@ private:
   void signature_print(common::SignalArgs& args);
 
   /// shared_ptr to system matrix
-  LSS::Matrix::Ptr m_mat;
+  Handle<LSS::Matrix> m_mat;
 
   /// shared_ptr to solution vectoe
-  LSS::Vector::Ptr m_sol;
+  Handle<LSS::Vector> m_sol;
 
   /// shared_ptr to right hand side vector
-  LSS::Vector::Ptr m_rhs;
+  Handle<LSS::Vector> m_rhs;
 
 }; // end of class System
 

@@ -84,7 +84,7 @@
 #cmakedefine CF3_REAL_IS_LONGDOUBLE  // cf3::Real is long double
 
 // for compilers that do not define the __FUNCTION__ variable
-#ifndef cf3_HAVE_FUNCTION_DEF
+#ifndef CF3_HAVE_FUNCTION_DEF
 #  define __FUNCTION__ ""
 #endif
 

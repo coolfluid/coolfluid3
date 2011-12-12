@@ -39,8 +39,8 @@ NLog::NLog()
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
   regist_signal( "message" )
-    ->description("Log message")
-    ->pretty_name("")->connect(boost::bind(&NLog::signal_message, this, _1));
+    .description("Log message")
+    .pretty_name("").connect(boost::bind(&NLog::signal_message, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,9 +143,9 @@ void NLog::message (const std::string & data )
 
 ////////////////////////////////////////////////////////////////////////////
 
-NLog::Ptr NLog::global()
+Handle< NLog > NLog::global()
 {
-  static NLog::Ptr log = ThreadManager::instance().tree().root_child<NLog>(CLIENT_LOG);
+  static Handle< NLog > log = ThreadManager::instance().tree().root_child<NLog>(CLIENT_LOG);
   cf3_assert( is_not_null(log.get()) );
   return log;
 }

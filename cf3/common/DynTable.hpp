@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <deque>
+#include "common/BasicExceptions.hpp"
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Foreach.hpp"
@@ -30,8 +31,6 @@ template<typename T>
 class DynTable : public common::Component {
 
 public:
-  typedef boost::shared_ptr<DynTable> Ptr;
-  typedef boost::shared_ptr<DynTable const> ConstPtr;
 
   typedef std::vector< std::vector<T> > ArrayT;
   typedef DynArrayBufferT<T> Buffer;
@@ -133,7 +132,6 @@ template <typename T>
 class DynArrayBufferT
 {
 public:
-  typedef boost::shared_ptr<DynArrayBufferT> Ptr;
   typedef std::vector< std::vector<T> > Array_t;
   typedef std::vector<T>& Row;
   typedef const std::vector<T>& ConstRow;

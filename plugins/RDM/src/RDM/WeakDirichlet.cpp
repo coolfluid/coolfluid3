@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionArray.hpp"
 #include "common/FindComponents.hpp"
 
@@ -55,10 +55,10 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
   // options
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
-      ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as Dirichlet boundary condition (vars x,y)")
+      .attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
+      .mark_basic();
 
   function.variables("x,y,z");
 }
@@ -77,7 +77,7 @@ void WeakDirichlet::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;

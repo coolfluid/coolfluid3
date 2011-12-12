@@ -42,17 +42,17 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( solver_1D )
 {
-  Core::instance().environment().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
 
-  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_option("model",std::string("gaussian_1D"));
-  wizard.configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State1D"));
-  wizard.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
-  wizard.configure_option("dim",1u);
+  SFDWizard& wizard = *Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.options().configure_option("model",std::string("gaussian_1D"));
+  wizard.options().configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State1D"));
+  wizard.options().configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
+  wizard.options().configure_option("dim",1u);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
+  Mesh& mesh = *model.domain().create_component<Mesh>("mesh");
   SimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
@@ -61,15 +61,15 @@ BOOST_AUTO_TEST_CASE( solver_1D )
   //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneIteration");
 
   WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
-  gmsh_writer.configure_option("mesh",mesh.uri());
-  gmsh_writer.configure_option("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
+  gmsh_writer.options().configure_option("mesh",mesh.uri());
+  gmsh_writer.options().configure_option("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
 
 
   CFinfo << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  gmsh_writer.configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
+  gmsh_writer.options().configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
 
   std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp( -(x-mu)^2/(2*sigma^2) )";
 
@@ -77,10 +77,10 @@ BOOST_AUTO_TEST_CASE( solver_1D )
   wizard.initialize_solution(std::vector<std::string>(1,gaussian));
 
 
-  model.configure_option_recursively("milestone_dt",0.5);
-  model.configure_option_recursively("milestone_rate",3);
-  model.configure_option_recursively("stages",1u);
-  iterate.configure_option("max_iter",3u);
+  model.options().configure_option_recursively("milestone_dt",0.5);
+  model.options().configure_option_recursively("milestone_rate",3);
+  model.options().configure_option_recursively("stages",1u);
+  iterate.options().configure_option("max_iter",3u);
 
 
   wizard.start_simulation(5.);
@@ -91,20 +91,20 @@ BOOST_AUTO_TEST_CASE( solver_1D )
 
 BOOST_AUTO_TEST_CASE( solver_2D )
 {
-  //Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
+  //Core::instance().environment().options().configure_option("log_level", (Uint)DEBUG);
 
-  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_option("model",std::string("gaussian_2D"));
-  wizard.configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State2D"));
-  wizard.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State2D"));
-  wizard.configure_option("dim",2u);
-  wizard.configure_option("P",1u);
-  wizard.configure_option("RK_stages",3u);
-  wizard.configure_option("cfl",1.);
+  SFDWizard& wizard = *Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.options().configure_option("model",std::string("gaussian_2D"));
+  wizard.options().configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State2D"));
+  wizard.options().configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State2D"));
+  wizard.options().configure_option("dim",2u);
+  wizard.options().configure_option("P",1u);
+  wizard.options().configure_option("RK_stages",3u);
+  wizard.options().configure_option("cfl",1.);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
+  Mesh& mesh = *model.domain().create_component<Mesh>("mesh");
   SimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
@@ -114,15 +114,15 @@ BOOST_AUTO_TEST_CASE( solver_2D )
 
   //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
-  gmsh_writer.configure_option("mesh",mesh.uri());
-  gmsh_writer.configure_option("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
+  gmsh_writer.options().configure_option("mesh",mesh.uri());
+  gmsh_writer.options().configure_option("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 
 
   CFinfo << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  gmsh_writer.configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
+  gmsh_writer.options().configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
 
   std::string gaussian="sigma:="+to_str(6.)+"; mu:="+to_str(40.)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
 
@@ -130,12 +130,12 @@ BOOST_AUTO_TEST_CASE( solver_2D )
   wizard.initialize_solution(std::vector<std::string>(1,gaussian));
 
 
-  //model.configure_option_recursively("milestone_dt",0.5);
-  //model.configure_option_recursively("milestone_rate",3);
+  //model.options().configure_option_recursively("milestone_dt",0.5);
+  //model.options().configure_option_recursively("milestone_rate",3);
 
   gmsh_writer.execute();
 
-  iterate.configure_option("max_iter",3u);
+  iterate.options().configure_option("max_iter",3u);
   wizard.start_simulation(40.);
 
 }

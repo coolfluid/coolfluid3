@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U = 0 };
 
-  typedef boost::shared_ptr<LinearAdv1D> Ptr;
-  typedef boost::shared_ptr<LinearAdv1D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -73,6 +73,15 @@ public: // functions
                     FM& flux)
   {
     flux(0,XX)   = p.v * p.u;
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    flux[0] = p.u * p.v * direction[XX];
   }
 
   /// compute the eigen values of the flux jacobians

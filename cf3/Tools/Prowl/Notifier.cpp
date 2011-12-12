@@ -10,7 +10,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/Log.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/Builder.hpp"
 
 extern "C" {
@@ -40,28 +40,27 @@ Notifier::Notifier ( const std::string& name ) :
     m_api_key = env_var;
   }
 
-  options().add_option( OptionT<int>::create("priority", m_priority) )
-      ->description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
-      ->pretty_name("Priority")
-      ->link_to(&m_priority);
+  options().add_option( "priority", m_priority) 
+      .description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
+      .pretty_name("Priority")
+      .link_to(&m_priority);
 
-  options().add_option( OptionT<std::string>::create("application_name", m_application_name) )
-      ->description("Name of the application")
-      ->pretty_name("Application Name")
-      ->link_to(&m_application_name);
+  options().add_option( "application_name", m_application_name) 
+      .description("Name of the application")
+      .pretty_name("Application Name")
+      .link_to(&m_application_name);
 
-  options().add_option( OptionT<std::string>::create("api_key", m_api_key) )
-      ->description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
-      ->pretty_name("API key")
-      ->link_to(&m_api_key)
-      ->mark_basic();
+  options().add_option( "api_key", m_api_key) 
+      .description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
+      .pretty_name("API key")
+      .link_to(&m_api_key)
+      .mark_basic();
 
   regist_signal( "notify" )
-    ->connect( boost::bind( &Notifier::signal_notify, this, _1 ) )
-    ->description("Notify iPhone Prowl app")
-    ->pretty_name("Notify");
-  signal("notify")->signature(boost::bind(&Notifier::signature_notify, this, _1));
-
+    .connect( boost::bind( &Notifier::signal_notify, this, _1 ) )
+    .description("Notify iPhone Prowl app")
+    .pretty_name("Notify")
+    .signature(boost::bind(&Notifier::signature_notify, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,11 +111,11 @@ void Notifier::signature_notify ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("event", "new_event")
-      ->description("Event name");
+  options.add_option("event", "new_event")
+      .description("Event name");
 
-  options.add_option< OptionT<std::string> >("description" , " ")
-      ->description("Description of the event" );
+  options.add_option("description" , " ")
+      .description("Description of the event" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

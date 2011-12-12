@@ -102,14 +102,14 @@ boost::iterator_range<ElementIterator> make_range(Entities& entities)
 struct Mesh_API SpaceElement
 {
 
-  SpaceElement(const Space& component, const Uint index=0) :
+  SpaceElement(Space& component, const Uint index=0) :
     comp( &component ),
     idx(index)
   {
     cf3_assert(idx<comp->support().size());
   }
 
-  Space const* comp;
+  Space* comp;
   Uint idx;
 
   /// return the elementType
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   Component& root = Core::instance().root();
 
-  Mesh& mesh = root.create_component<Mesh>( "mesh" ) ;
+  Mesh& mesh = *root.create_component<Mesh>( "mesh" ) ;
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 
@@ -351,9 +351,9 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   const Uint dim=2;
 
   // Create root and mesh component
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Mesh& mesh = root->create_component<Mesh>( "mesh" );
+  Mesh& mesh = *root->create_component<Mesh>( "mesh" );
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
@@ -480,7 +480,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }

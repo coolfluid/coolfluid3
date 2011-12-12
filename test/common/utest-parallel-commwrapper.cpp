@@ -15,7 +15,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
@@ -51,7 +50,7 @@ struct CommWrapperFixture
   }
 
   /// helper function to test setup
-  void test_setup(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2)
+  void test_setup(Handle<CommWrapper>& w1,Handle<CommWrapper>& w2)
   {
     BOOST_CHECK_EQUAL( w1->needs_update() , true );
     BOOST_CHECK_EQUAL( w2->needs_update() , false );
@@ -70,7 +69,7 @@ struct CommWrapperFixture
   }
 
   /// helper function to test pack and unpack
-  void test_pack_unpack(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2)
+  void test_pack_unpack(Handle<CommWrapper>& w1,Handle<CommWrapper>& w2)
   {
     int i;
     Uint   *itest1=(Uint*)  w1->pack();
@@ -144,7 +143,7 @@ struct CommWrapperFixture
   }
 
   /// helper function to test  mapped pack and unpack
-  void test_mapped_pack_unpack(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2, std::vector<int>&map)
+  void test_mapped_pack_unpack(Handle<CommWrapper>& w1,Handle<CommWrapper>& w2, std::vector<int>&map)
   {
     int i,j;
     Uint   *itest1=(Uint*)  w1->pack(map);
@@ -218,7 +217,7 @@ struct CommWrapperFixture
   }
 
   /// helper function for testing views
-  void test_view(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2)
+  void test_view(Handle<CommWrapper>& w1,Handle<CommWrapper>& w2)
   {
     int i;
 
@@ -248,7 +247,7 @@ struct CommWrapperFixture
   }
 
   /// helper function for testing resize
-  void test_resize(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2)
+  void test_resize(Handle<CommWrapper>& w1,Handle<CommWrapper>& w2)
   {
     int i;
 
@@ -312,10 +311,10 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<24; i++) d2[i]=24.+(double)i;
   for(i=0; i<4; i++) map[i]=1+2*i;
 
-  CommWrapperPtr<Uint>::Ptr wptr1=  allocate_component< CommWrapperPtr<Uint>   >("Ptr1");
-  CommWrapperPtr<double>::Ptr wptr2=allocate_component< CommWrapperPtr<double> >("Ptr2");
-  CommWrapper::Ptr w1= wptr1;
-  CommWrapper::Ptr w2= wptr2;
+  boost::shared_ptr< CommWrapperPtr<Uint> > wptr1=  allocate_component< CommWrapperPtr<Uint>   >("Ptr1");
+  boost::shared_ptr< CommWrapperPtr<double> > wptr2=allocate_component< CommWrapperPtr<double> >("Ptr2");
+  Handle<CommWrapper> w1(wptr1);
+  Handle<CommWrapper> w2(wptr2);
 
   wptr1->setup(i1,16,1,true);
   wptr2->setup(d2,24,3,false);
@@ -359,10 +358,10 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<24; i++) d2[i]=24.+(double)i;
   for(i=0; i<4; i++) map[i]=1+2*i;
 
-  CommWrapperVector<Uint>::Ptr wptr1=  allocate_component< CommWrapperVector<Uint>   >("Ptr1");
-  CommWrapperVector<double>::Ptr wptr2=allocate_component< CommWrapperVector<double> >("Ptr2");
-  CommWrapper::Ptr w1= wptr1;
-  CommWrapper::Ptr w2= wptr2;
+  boost::shared_ptr< CommWrapperVector<Uint> > wptr1=  allocate_component< CommWrapperVector<Uint>   >("Ptr1");
+  boost::shared_ptr< CommWrapperVector<double> > wptr2=allocate_component< CommWrapperVector<double> >("Ptr2");
+  Handle<CommWrapper> w1(wptr1);
+  Handle<CommWrapper> w2(wptr2);
 
   wptr1->setup(i1,1,true);
   wptr2->setup(d2,3,false);
@@ -391,41 +390,13 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
       d2[i][j]=24.+(double)(3*i+j);
   for(i=0; i<4; i++) map[i]=1+2*i;
 
-  CommWrapperMArray<Uint,1>::Ptr wptr1=  allocate_component< CommWrapperMArray<Uint,1>   >("Ptr1");
-  CommWrapperMArray<double,2>::Ptr wptr2=allocate_component< CommWrapperMArray<double,2> >("Ptr2");
-  CommWrapper::Ptr w1= wptr1;
-  CommWrapper::Ptr w2= wptr2;
+  boost::shared_ptr< CommWrapperMArray<Uint,1> > wptr1=  allocate_component< CommWrapperMArray<Uint,1>   >("Ptr1");
+  boost::shared_ptr< CommWrapperMArray<double,2> > wptr2=allocate_component< CommWrapperMArray<double,2> >("Ptr2");
+  Handle<CommWrapper> w1(wptr1);
+  Handle<CommWrapper> w2(wptr2);
 
   wptr1->setup(i1,true);
   wptr2->setup(d2,false);
-
-  test_setup(w1,w2);
-  test_pack_unpack(w1,w2);
-  test_mapped_pack_unpack(w1,w2,map);
-  test_view(w1,w2);
-  test_resize(w1,w2);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
-{
-  int i;
-  boost::shared_ptr< std::vector<Uint>   > i1( new std::vector<Uint>(16) );
-  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
-  std::vector<int> map(4);
-
-  for(i=0; i<16; i++) (*i1)[i]=16+i;
-  for(i=0; i<24; i++) (*d2)[i]=24.+(double)i;
-  for(i=0; i<4; i++) map[i]=1+2*i;
-
-  CommWrapperVectorWeakPtr<Uint>::Ptr wptr1=  allocate_component< CommWrapperVectorWeakPtr<Uint>   >("Ptr1");
-  CommWrapperVectorWeakPtr<double>::Ptr wptr2=allocate_component< CommWrapperVectorWeakPtr<double> >("Ptr2");
-  CommWrapper::Ptr w1= wptr1;
-  CommWrapper::Ptr w2= wptr2;
-
-  wptr1->setup(i1,1,true);
-  wptr2->setup(d2,3,false);
 
   test_setup(w1,w2);
   test_pack_unpack(w1,w2);

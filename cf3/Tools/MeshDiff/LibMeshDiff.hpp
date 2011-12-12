@@ -39,8 +39,8 @@ namespace MeshDiff {
   {
   public:
 
-    typedef boost::shared_ptr<LibMeshDiff> Ptr;
-    typedef boost::shared_ptr<LibMeshDiff const> ConstPtr;
+    
+    
 
     /// Constructor
     LibMeshDiff ( const std::string& name) : common::Library(name) {   }

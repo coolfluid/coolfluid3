@@ -32,7 +32,7 @@ CForAllFaces::CForAllFaces ( const std::string& name ) :
 
 void CForAllFaces::execute()
 {
-  boost_foreach(Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
   {
     boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(*region, mesh::Tags::face_entity() ) )
     {

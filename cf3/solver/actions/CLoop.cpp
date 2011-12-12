@@ -37,8 +37,7 @@ CLoopOperation& CLoop::create_loop_operation(const std::string action_provider)
   // The execuation of operations must be in chronological order,
   // hence they get an alphabetical name
   std::string name = action_provider;
-  CLoopOperation::Ptr sub_operation =
-    (build_component_abstract_type<CLoopOperation>(action_provider,name));
+  boost::shared_ptr< CLoopOperation > sub_operation = build_component_abstract_type<CLoopOperation>(action_provider,name);
   add_component(sub_operation);
   return *sub_operation;
 }
@@ -47,14 +46,14 @@ CLoopOperation& CLoop::create_loop_operation(const std::string action_provider)
 
 const CLoopOperation& CLoop::action(const std::string& name) const
 {
-  return *get_child_ptr(name)->as_ptr<CLoopOperation>();
+  return *get_child(name)->handle<CLoopOperation>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 CLoopOperation& CLoop::action(const std::string& name)
 {
-  return *get_child_ptr(name)->as_ptr<CLoopOperation>();
+  return *get_child(name)->handle<CLoopOperation>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

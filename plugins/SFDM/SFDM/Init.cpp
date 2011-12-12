@@ -8,7 +8,7 @@
 #include <boost/bind.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
@@ -48,19 +48,21 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
-      ->pretty_name("Solution Field")
-      ->description("The field to Initialize");
+  options().add_option("solution_field", m_field )
+      .pretty_name("Solution Field")
+      .description("The field to Initialize")
+      .link_to(&m_field);
 
-  options().add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
-      ->pretty_name("Input Variables")
-      ->description("The input variables.\nIf empty, Solution Variables will be used");
+  options().add_option("input_vars", m_input_vars)
+      .pretty_name("Input Variables")
+      .description("The input variables.\nIf empty, Solution Variables will be used")
+      .link_to(&m_input_vars);
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->pretty_name("Functions")
-      ->description("math function applied as initial condition using Input Variables (vars x,y)")
-      ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .pretty_name("Functions")
+      .description("math function applied as initial condition using Input Variables (vars x,y)")
+      .attach_trigger ( boost::bind ( &Init::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -78,17 +80,17 @@ void Init::config_function()
 
 void Init::execute()
 {
-  if( is_null( m_field.lock() ) )
+  if( is_null( m_field ) )
     throw SetupError(FromHere(),"Solution field not set.");
 
-  Field& solution = *m_field.lock();
+  Field& solution = *m_field;
 
-  Variables& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars()).as_type<Variables>();
+  Handle<Variables> solution_vars(find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()));
 
-  if (m_input_vars.expired())
-    configure_option("input_vars",solution_vars.uri());
+  if (is_null(m_input_vars))
+    options().configure_option("input_vars",solution_vars);
 
-  Variables& input_vars = *m_input_vars.lock();
+  Variables& input_vars = *m_input_vars;
 
   std::vector<Real> params(DIM_3D,0.);
   RealVector return_val( solution.row_size() );
@@ -130,10 +132,10 @@ void Init::execute()
         m_function.evaluate(params,return_val);
 
         // Transform the return_val of the function to solution variables,
-        if (&input_vars != &solution_vars)
+        if (m_input_vars != solution_vars)
         {
           input_vars.compute_properties(space_coords.row(node),return_val,grad_vars,*props);
-          solution_vars.compute_variables(*props,sol);
+          solution_vars->compute_variables(*props,sol);
 
           // Copy in the solution field
           solution.set_row(field_idx[node],sol);

@@ -37,7 +37,7 @@ struct CellLoopGPU : public CellLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
+    if( is_null(parent()->handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     /// definition of the quadrature type

@@ -40,7 +40,7 @@ public:
 
   bool has_builder(const QString & component_type) const;
 
-  CNode::Ptr build_cnode( const QString & component_type, const std::string & name ) const;
+  boost::shared_ptr< CNode > build_cnode( const QString & component_type, const std::string & name ) const;
 
 private:
 
@@ -48,7 +48,7 @@ private:
 
   ~CNodeBuilders();
 
-  QMap<QString, common::Component::Ptr> m_builders;
+  QMap<QString, boost::shared_ptr< common::Component > > m_builders;
 
 }; // CNodeBuilders
 

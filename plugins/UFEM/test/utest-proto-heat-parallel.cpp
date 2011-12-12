@@ -23,6 +23,7 @@
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "solver/CModel.hpp"
 
+#include "solver/actions/SolveLSS.hpp"
 #include "solver/actions/Proto/CProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -77,26 +78,29 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Heat2DParallel)
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
   const Uint nb_segments = 16 ;
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  CModel& model = *root.create_component<CModel>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
+  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
 
-  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
-  lss.configure_option("solver", std::string("Trilinos"));
-  solver.configure_option("lss", lss.uri());
+  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
+  lss.options().configure_option("solver", std::string("Trilinos"));
+  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
+  
+  // BCs
+  boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -114,8 +118,8 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
         )
       )
     )
-    << solver.boundary_conditions()
-    << solver.solve_action()
+    << bc
+    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
     << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
@@ -123,8 +127,8 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
   blocks.points += list_of(0.)(0.), list_of(length)(0.), list_of(length)(length), list_of(0.)(length);
@@ -136,16 +140,16 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
   blocks.block_distribution += 0, 1;
 
-  BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
-  Mesh& serial_block_mesh = model.create_component<Mesh>("serial_block_mesh");
+  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
+  Mesh& serial_block_mesh = *model.create_component<Mesh>("serial_block_mesh");
   BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
   BlockMesh::build_mesh(parallel_blocks, mesh, 1);
 
-  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
-  solver.boundary_conditions().add_constant_bc("left", "Temperature", 10.);
-  solver.boundary_conditions().add_constant_bc("right", "Temperature", 35.);
+  bc->add_constant_bc("left", "Temperature", 10.);
+  bc->add_constant_bc("right", "Temperature", 35.);
 
   // Run the solver
   model.simulate();

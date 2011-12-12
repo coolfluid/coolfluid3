@@ -14,6 +14,7 @@
 #include "common/Core.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
@@ -66,27 +67,27 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
 {
 
   // create meshreader
-  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
+  boost::shared_ptr< MeshGenerator > mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
-  mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"mesh");
+  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
   Mesh& mesh = mesh_generator->generate();
 
-  StencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component_ptr<StencilComputerRings>("stencilcomputer");
-  stencil_computer->configure_option("mesh", mesh.uri() );
+  Handle<StencilComputerRings> stencil_computer = Core::instance().root().create_component<StencilComputerRings>("stencilcomputer");
+  stencil_computer->options().configure_option("mesh", mesh.handle<Mesh>() );
 
   std::vector<Uint> stencil;
-//  stencil_computer->configure_option("stencil_size", 10u );
-  stencil_computer->configure_option("nb_rings", 1u );
+//  stencil_computer->options().configure_option("stencil_size", 10u );
+  stencil_computer->options().configure_option("nb_rings", 1u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->configure_option("nb_rings", 2u );
+  stencil_computer->options().configure_option("nb_rings", 2u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
-  stencil_computer->configure_option("nb_rings", 3u );
+  stencil_computer->options().configure_option("nb_rings", 3u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u);
 

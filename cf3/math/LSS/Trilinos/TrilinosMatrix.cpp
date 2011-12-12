@@ -24,6 +24,7 @@
 #include "common/Assertions.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "math/LSS/Trilinos/TrilinosMatrix.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
@@ -56,12 +57,12 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_converted_indices(0),
   m_comm(common::PE::Comm::instance().communicator())
 {
-  options().add_option< cf3::common::OptionT<std::string> >( "settings_file" , "trilinos_settings.xml" );
+  options().add_option( "settings_file", "trilinos_settings.xml" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
@@ -223,11 +224,11 @@ void TrilinosMatrix::get_value(const Uint icol, const Uint irow, Real& value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+void TrilinosMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
 {
   cf3_assert(m_is_created);
-  cf3_assert(solution->is_created());
-  cf3_assert(rhs->is_created());
+  cf3_assert(solution.is_created());
+  cf3_assert(rhs.is_created());
 
   // general setup phase
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
@@ -242,17 +243,17 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 
   // wrapping epetra to thyra
   Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( m_mat );
-  boost::shared_ptr<LSS::TrilinosVector> tsol = boost::dynamic_pointer_cast<LSS::TrilinosVector>(solution);
-  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( tsol->epetra_vector() , A->domain() );
-  boost::shared_ptr<LSS::TrilinosVector> trhs = boost::dynamic_pointer_cast<LSS::TrilinosVector>(rhs);
-  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs->epetra_vector() , A->range() );
+  LSS::TrilinosVector& tsol = dynamic_cast<LSS::TrilinosVector&>(solution);
+  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( tsol.epetra_vector() , A->domain() );
+  LSS::TrilinosVector& trhs = dynamic_cast<LSS::TrilinosVector&>(rhs);
+  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs.epetra_vector() , A->range() );
 
   // r = b - A*x, initial L2 norm
   double norm2_in=0.;
   {
-    Epetra_Vector epetra_r(*trhs->epetra_vector());
+    Epetra_Vector epetra_r(*trhs.epetra_vector());
     Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
+    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
     epetra_r.Update(-1.0,m_mat_x,1.0);
     epetra_r.Norm2(&norm2_in);
   }
@@ -285,9 +286,9 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   // r = b - A*x, final L2 norm
   double norm2_out=0.;
   {
-    Epetra_Vector epetra_r(*trhs->epetra_vector());
+    Epetra_Vector epetra_r(*trhs.epetra_vector());
     Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
+    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
     epetra_r.Update(-1.0,m_mat_x,1.0);
     epetra_r.Norm2(&norm2_out);
   }

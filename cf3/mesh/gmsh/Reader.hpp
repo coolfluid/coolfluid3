@@ -40,8 +40,8 @@ class gmsh_API Reader : public MeshReader, public Shared
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Reader> Ptr;
-  typedef boost::shared_ptr<Reader const> ConstPtr;
+  
+  
 
 private: // typedefs
 
@@ -60,7 +60,7 @@ private: // functions
 
   void get_file_positions();
 
-  boost::shared_ptr<Region> create_region(std::string const& relative_path);
+  Handle<Region> create_region(std::string const& relative_path);
 
   void find_ghost_nodes();
 
@@ -77,15 +77,15 @@ private: // data
   virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
-  boost::shared_ptr<MergedParallelDistribution> m_hash;
+  Handle<MergedParallelDistribution> m_hash;
 
   // map< gmsh index , pair< elements, index in elements > >
-  std::map<Uint, boost::tuple<boost::shared_ptr<Elements>,Uint> > m_elem_idx_gmsh_to_cf;
+  std::map<Uint, boost::tuple<Handle<Elements>,Uint> > m_elem_idx_gmsh_to_cf;
   std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
 
   boost::filesystem::fstream m_file;
-  boost::weak_ptr<Mesh> m_mesh;
-  boost::weak_ptr<Region> m_region;
+  Handle<Mesh> m_mesh;
+  Handle<Region> m_region;
 
   std::string m_file_basename;
 
@@ -94,7 +94,7 @@ private: // data
     Uint dim;
     Uint index;
     std::string name;
-    boost::weak_ptr<Region> region;
+    Handle<Region> region;
     std::set<Uint> element_types;
   };
 

@@ -34,20 +34,22 @@ CForAllCells::CForAllCells ( const std::string& name ) :
 
 void CForAllCells::execute()
 {
-  boost_foreach(Region& region, regions())
-    boost_foreach(Cells& elements, find_components_recursively<Cells>(region))
+  boost_foreach(const Handle<Region>& region, regions())
   {
-    // Setup all child operations
-    boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
+    boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
     {
-      op.set_elements(elements);
-      if (op.can_start_loop())
+      // Setup all child operations
+      boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
       {
-        const Uint nb_elem = elements.size();
-        for ( Uint elem = 0; elem != nb_elem; ++elem )
+        op.set_elements(elements);
+        if (op.can_start_loop())
         {
-          op.select_loop_idx(elem);
-          op.execute();
+          const Uint nb_elem = elements.size();
+          for ( Uint elem = 0; elem != nb_elem; ++elem )
+          {
+            op.select_loop_idx(elem);
+            op.execute();
+          }
         }
       }
     }

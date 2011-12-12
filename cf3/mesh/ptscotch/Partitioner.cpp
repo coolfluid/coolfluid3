@@ -6,6 +6,7 @@
 
 // coolfluid
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"

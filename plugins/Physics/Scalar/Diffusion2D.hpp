@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U = 0 };
 
-  typedef boost::shared_ptr<Diffusion2D> Ptr;
-  typedef boost::shared_ptr<Diffusion2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -77,6 +77,15 @@ public: // functions
     flux(0,XX)   = p.mu * p.grad_vars.col(XX);
     flux(0,YY)   = p.mu * p.grad_vars.col(YY);
 #endif
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "directional flux not implemented for Diffusion2D");
   }
 
   /// compute the eigen values of the flux jacobians

@@ -7,8 +7,8 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
 
@@ -47,31 +47,26 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property( "iteration", Uint(0) );
+  properties().add_property( "iteration", Uint(0) );
 
   // static components
 
-  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
+  m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
-  m_update = create_static_component_ptr<ActionDirector>("Update");
+  m_update = create_static_component<ActionDirector>("Update");
 
-  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
+  m_post_actions = create_static_component<ActionDirector>("PostActions");
 
   // dynamic components
 
   create_component<CCriterionMaxIterations>( "MaxIterations" );
 
-  CComputeLNorm& cnorm = post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
-  post_actions().append( cnorm );
+  CComputeLNorm& cnorm = *post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
+  post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
+  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
 
-  CPrintIterationSummary& cprint = post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
-  post_actions().append( cprint );
-
-  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
-  post_actions().append( cwriter );
-
-  cnorm.configure_option("Scale", true);
-  cnorm.configure_option("Order", 2u);
+  cnorm.options().configure_option("scale", true);
+  cnorm.options().configure_option("order", 2u);
 }
 
 bool IterativeSolver::stop_condition()
@@ -85,32 +80,32 @@ bool IterativeSolver::stop_condition()
 
 void IterativeSolver::execute()
 {
-  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
+  RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
 
   /// @todo this configuration sould be in constructor but does not work there
 
-  configure_option_recursively( "iterator", this->uri() );
+  configure_option_recursively( "iterator", handle<Component>() );
 
   // access components (out of loop)
 
   ActionDirector& boundary_conditions =
-      access_component( "cpath:../BoundaryConditions" ).as_type<ActionDirector>();
+      *access_component( "cpath:../BoundaryConditions" )->handle<ActionDirector>();
 
   ActionDirector& domain_discretization =
-      access_component( "cpath:../DomainDiscretization" ).as_type<ActionDirector>();
+      *access_component( "cpath:../DomainDiscretization" )->handle<ActionDirector>();
 
-  Action& synchronize = mysolver.actions().get_child("Synchronize").as_type<Action>();
+  Action& synchronize = *mysolver.actions().get_child("Synchronize")->handle<Action>();
 
-  Component& cnorm = post_actions().get_child("ComputeNorm");
-  cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
+  Handle<Component> cnorm = post_actions().get_child("ComputeNorm");
+  cnorm->options().configure_option("field", follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->uri() );
 
-  Component& cprint = post_actions().get_child("IterationSummary");
-  cprint.configure_option("norm", cnorm.uri() );
+  Component& cprint = *post_actions().get_child("IterationSummary");
+  cprint.options().configure_option("norm", cnorm );
 
   // iteration loop
 
   Uint iter = 1; // iterations start from 1 ( max iter zero will do nothing )
-  property("iteration") = iter;
+  properties().property("iteration") = iter;
 
 
   while( ! stop_condition() ) // non-linear loop
@@ -145,7 +140,7 @@ void IterativeSolver::execute()
 
     // increment iteration
 
-    property("iteration") = ++iter; // update the iteration number
+    properties().property("iteration") = ++iter; // update the iteration number
 
   }
 }
@@ -154,7 +149,7 @@ void IterativeSolver::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option< OptionT<Uint> >( "iteration", iter );
+  opts.add_option( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

@@ -29,32 +29,12 @@ Option::Option(const std::string & name, boost::any def)
     m_description(),
     m_separator(";")
 {
-  // cf3_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
-  //                "It may not contain spaces.",
-  //   boost::algorithm::all(name,
-  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Option::Option(const std::string& name, const std::string& pretty_name, const std::string& desc, boost::any def)
-//  : m_value(def),
-//    m_default(def),
-//    m_name(name),
-//    m_pretty_name(pretty_name),
-//    m_description(desc)
-//{
-//  // cf3_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
-//  //                "It may not contain spaces.",
-//  //   boost::algorithm::all(name,
-//  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
-//}
-
-////////////////////////////////////////////////////////////////////////////
-
 Option::~Option()
 {
-
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -62,19 +42,15 @@ Option::~Option()
 void Option::configure_option ( XmlNode& node )
 {
   cf3_assert ( node.is_valid() );
-
-  this->configure(node); // update the value
-
-  // call all trigger functors
-  trigger();
+  change_value(extract_configured_value(node));
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::attach_trigger ( Trigger_t trigger )
+Option& Option::attach_trigger ( TriggerT trigger )
 {
   m_triggers.push_back(trigger);
-  return shared_from_this();
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -87,25 +63,21 @@ Option& Option::operator =( const boost::any & new_value )
 
 ////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::mark_basic()
+Option& Option::mark_basic()
 {
   if(!has_tag("basic"))
     add_tag("basic");
-  return shared_from_this();
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void Option::change_value ( const boost::any& value )
 {
-  //  cf3_assert(/*m_restricted_list.size() == 1 ||*/
-  //            std::find(m_restricted_list.begin(), m_restricted_list.end(), value)
-  //            != m_restricted_list.end());
+  m_value = value; // update the value
+  copy_to_linked_params(m_linked_params);
 
-  boost::any data = value_to_data(value);
-  m_value = data; // update the value
-  copy_to_linked_params(data);
-    // call all trigger functors
+  // call all trigger functors
   trigger();
 };
 
@@ -114,7 +86,7 @@ void Option::change_value ( const boost::any& value )
 void Option::trigger () const
 {
   // call all trigger functors
-  boost_foreach( const Option::Trigger_t& call_trigger, m_triggers )
+  boost_foreach( const Option::TriggerT& call_trigger, m_triggers )
     call_trigger();
 }
 
@@ -127,26 +99,33 @@ std::string Option::type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::description ( const std::string & description )
+std::string Option::element_type() const
+{
+  return type();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Option& Option::description ( const std::string & description )
 {
   m_description = description;
-  return shared_from_this();
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::pretty_name ( const std::string & pretty_name )
+Option& Option::pretty_name ( const std::string & pretty_name )
 {
   m_pretty_name = pretty_name;
-  return shared_from_this();
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::separator ( const std::string & separator )
+Option& Option::separator ( const std::string & separator )
 {
   m_separator = separator;
-  return shared_from_this();
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////

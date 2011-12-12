@@ -25,9 +25,9 @@ class Mesh_API SimpleMeshGenerator : public MeshGenerator {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<SimpleMeshGenerator> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<SimpleMeshGenerator const> ConstPtr;
+  
 
 public: // functions
 

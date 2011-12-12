@@ -29,7 +29,7 @@ namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
-GraphicalUri::GraphicalUri(cf3::common::OptionURI::ConstPtr opt, QWidget *parent) :
+GraphicalUri::GraphicalUri(const boost::shared_ptr<OptionURI>& opt, QWidget *parent) :
     GraphicalValue(parent)
 {
   m_bt_browse = new QPushButton("Browse", this);
