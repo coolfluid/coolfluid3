@@ -55,7 +55,7 @@ private: // functions
   /// raises the event when iteration done
   void raise_iteration_done();
 
-  void config_rk_order();
+  void config_nb_stages();
 
   void link_fields();
 

@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -636,7 +636,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
