@@ -146,10 +146,10 @@ void BCDirichlet::execute()
         fly.compute_numerical_flux(flx_pt,sol_in_flx_pt,sol_in_bc,
                                    flx_in_flx_pt,wave_speed_in_flx_pt);
 
-        std::cout << "face for cell " << face.cells()[LEFT] << std::endl;
-        std::cout << "   inside  = " << sol_in_flx_pt << std::endl;
-        std::cout << "   outside = " << sol_in_bc << std::endl;
-        std::cout << "   flux = " << flx_in_flx_pt << std::endl;
+//        std::cout << "face for cell " << face.cells()[LEFT] << std::endl;
+//        std::cout << "   inside  = " << sol_in_flx_pt << std::endl;
+//        std::cout << "   outside = " << sol_in_bc << std::endl;
+//        std::cout << "   flux = " << flx_in_flx_pt << std::endl;
 
         /// 3) add contribution of this flux-point to solution points for the
         ///    gradient of the flux
