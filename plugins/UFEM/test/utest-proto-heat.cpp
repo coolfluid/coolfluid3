@@ -9,6 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -98,7 +101,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
-  
+
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action
@@ -107,7 +110,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       elements_expression
       (
         allowed_elements,
-        group <<
+        group
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),

@@ -9,6 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -75,7 +78,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
-  
+
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
@@ -92,10 +95,10 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
         elements_expression // assembly
         (
           allowed_elements,
-          group <<
+          group
           (
             _A = _0, _T = _0,
-            element_quadrature <<
+            element_quadrature
             (
               _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
               _T(v[_i], v[_i]) += solver.invdt() * (transpose(N(v)) * N(v))
