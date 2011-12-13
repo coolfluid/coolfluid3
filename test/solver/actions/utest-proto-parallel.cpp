@@ -157,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
     elements_expression
     (
       ElementsT(),
-      group <<
+      group
       (
         V = volume,
         R = rank
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
     elements_expression
     (
       ElementsT(),
-      group <<
+      group
       (
         V = volume,
         R = rank

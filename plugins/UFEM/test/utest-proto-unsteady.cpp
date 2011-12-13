@@ -9,6 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -155,7 +158,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
-  
+
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action("Initialize", nodes_expression(temperature = initial_temp))
@@ -170,10 +173,10 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
         elements_expression
         (
           allowed_elements,
-          group <<
+          group
           (
             _A = _0, _T = _0,
-            element_quadrature <<
+            element_quadrature
             (
               _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
               _T(temperature) += solver.invdt() * transpose(N(temperature))*N(temperature)
@@ -194,7 +197,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
-  
+
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   bc->add_constant_bc("xneg", "Temperature", ambient_temp);
@@ -217,7 +220,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     mesh.topology(),
     _check_close(temperature_analytical, temperature, 1.)
   );
-  
+
   std::cout << solver.tree() << std::endl;
 };
 
