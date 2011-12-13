@@ -224,9 +224,10 @@ void Flyweight::compute_analytical_flux(const Uint flx_pt, const RealVector& sol
   cf3_assert(sf.flx_pt_dirs(flx_pt).size()==1);
 
   geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)sf.flx_pt_dirs(flx_pt)[0],term.cache.plane_jacobian_normal);
+  RealVector coord = geometry.shape_function().value(sf.flx_pts().row(flx_pt)) * term.cache.geometry_nodes;
 
   // compute physical properties in flux point
-  term.solution_vars().compute_properties(term.cache.geometry_nodes.row(0),sol_in_flx_pt, term.cache.dummy_grads, *term.cache.phys_props);
+  term.solution_vars().compute_properties(coord,sol_in_flx_pt, term.cache.dummy_grads, *term.cache.phys_props);
   // compute flux in flux point
   term.solution_vars().flux(*term.cache.phys_props,term.cache.plane_jacobian_normal,flx_in_flx_pt);
 
@@ -250,15 +251,18 @@ void Flyweight::compute_numerical_flux(const Uint flx_pt, const RealVector& sol_
   const Uint dir = sf.flx_pt_dirs(flx_pt)[0];
   const Real sign = sf.flx_pt_sign(flx_pt,dir);
   geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)dir,term.cache.plane_jacobian_normal);
+
+  RealVector coord = geometry.shape_function().value(sf.flx_pts().row(flx_pt)) * term.cache.geometry_nodes;
   term.cache.plane_jacobian_det = term.cache.plane_jacobian_normal.norm();
   term.cache.unit_normal = sign*term.cache.plane_jacobian_normal/term.cache.plane_jacobian_det;
   if (term.m_compute_wave_speed)
   {
-    term.riemann_solver().compute_interface_flux_and_wavespeeds(sol_left,sol_right,term.cache.unit_normal,flx_in_flx_pt,term.cache.phys_ev);
+    term.riemann_solver().compute_interface_flux_and_wavespeeds(sol_left,sol_right,coord,term.cache.unit_normal,flx_in_flx_pt,term.cache.phys_ev);
     ws_in_flx_pt = term.cache.plane_jacobian_det * term.cache.phys_ev.cwiseAbs().maxCoeff()/2.;
+//    std::cout << "ws_in_flx_pt = " << ws_in_flx_pt << std::endl;
   }
   else
-    term.riemann_solver().compute_interface_flux(sol_left,sol_right,term.cache.unit_normal,flx_in_flx_pt);
+    term.riemann_solver().compute_interface_flux(sol_left,sol_right,coord,term.cache.unit_normal,flx_in_flx_pt);
 
   flx_in_flx_pt *= sign*term.cache.plane_jacobian_det;
 }
