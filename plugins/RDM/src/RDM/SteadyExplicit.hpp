@@ -27,8 +27,8 @@ class RDM_API SteadyExplicit : public solver::CWizard {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<SteadyExplicit> Ptr;
-  typedef boost::shared_ptr<SteadyExplicit const> ConstPtr;
+  
+  
 
 public: // functions
 

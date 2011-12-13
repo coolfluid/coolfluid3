@@ -31,8 +31,8 @@ class NRemoteFSBrowser :
 
 public: // typedefs
 
-  typedef boost::shared_ptr<NRemoteFSBrowser> Ptr;
-  typedef boost::shared_ptr<const NRemoteFSBrowser> ConstPtr;
+  
+  
 
 public:
 

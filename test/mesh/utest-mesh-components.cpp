@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create root and mesh component
   boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Mesh& mesh = root->create_component<Mesh>( "mesh" ) ;
+  Mesh& mesh = *root->create_component<Mesh>( "mesh" ) ;
 
   BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
   BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath:/" );
@@ -95,15 +95,15 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath:/mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  subregion.create_component_ptr<Table<Uint> >("connTable");
+  subregion.create_component<Table<Uint> >("connTable");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath:/mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
-  subregion.create_component_ptr<Elements>("elementType");
+  subregion.create_component<Elements>("elementType");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath:/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
-  mesh.create_component_ptr<Table<Real> >("coordinates");
+  mesh.create_component<Table<Real> >("coordinates");
   BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath:/mesh/coordinates" );
 
   find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion1");
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -241,13 +241,13 @@ BOOST_AUTO_TEST_CASE( Table_Uint_Test )
   // Create mesh component
   boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Mesh& mesh = root->create_component<Mesh>  ( "mesh" ) ;
+  Mesh& mesh = *root->create_component<Mesh>  ( "mesh" ) ;
 
   // Create one region inside mesh
   Region& region = mesh.topology().create_region("region");
 
   // Create connectivity table inside the region
-  Table<Uint>& connTable = region.create_component<Table<Uint> >("connTable");
+  Table<Uint>& connTable = *region.create_component<Table<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( Table_Uint_Test )
 BOOST_AUTO_TEST_CASE( Table_Real_Test )
 {
   // Create a Elements component
-  Table<Real>::Ptr coordinates (allocate_component< Table<Real> >("coords")) ;
+  boost::shared_ptr< Table<Real> > coordinates (allocate_component< Table<Real> >("coords")) ;
 
   // initialize the array
   Uint dim = 2;
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( Table_Real_Test )
 
 BOOST_AUTO_TEST_CASE( Table_Real_Templates )
 {
-  Table<Real>& vectorArray = root.create_component< Table<Real> >("vector");
+  Table<Real>& vectorArray = *root.create_component< Table<Real> >("vector");
   vectorArray.set_row_size(3);
   //CFinfo << "numdim = " << Table<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
 
@@ -340,14 +340,14 @@ BOOST_AUTO_TEST_CASE( Table_Real_Templates )
 
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-  Mesh& mesh = root->create_component<Mesh>("mesh");
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  Mesh& mesh = *root->create_component<Mesh>("mesh");
   Region& regions = mesh.topology().create_region("regions");
 
   Region& subregion1 = regions.create_region("subregion1");
   BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
 
-  subregion1.create_component_ptr<Table<Uint> >("table");
+  subregion1.create_component<Table<Uint> >("table");
   BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
 
   // create subregion2 in the wrong place
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 
   // move subregion 2 to the right place
-  Component::Ptr subregion2_ptr = subregion1.remove_component(subregion2.name());
+  boost::shared_ptr<Component> subregion2_ptr = subregion1.remove_component(subregion2.name());
   regions.add_component(subregion2_ptr);
   BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
   BOOST_CHECK_EQUAL(count(find_components<Region>(regions)), (Uint) 2);
@@ -367,19 +367,19 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 BOOST_AUTO_TEST_CASE( List_tests )
 {
-  List<bool>& bool_list = root.create_component< List<bool> >("bool_list");
+  List<bool>& bool_list = *root.create_component< List<bool> >("bool_list");
   BOOST_CHECK_EQUAL(bool_list.type_name(),"List<bool>");
 
-  List<int>::Ptr integer_list (allocate_component< List<int> >("integer_list"));
+  boost::shared_ptr< List<int> > integer_list (allocate_component< List<int> >("integer_list"));
   BOOST_CHECK_EQUAL(integer_list->type_name(),"List<integer>");
 
-  List<Uint>::Ptr unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
+  boost::shared_ptr< List<Uint> > unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
   BOOST_CHECK_EQUAL(unsigned_list->type_name(),"List<unsigned>");
 
-  List<Real>::Ptr real_list (allocate_component< List<Real> >("real_list"));
+  boost::shared_ptr< List<Real> > real_list (allocate_component< List<Real> >("real_list"));
   BOOST_CHECK_EQUAL(real_list->type_name(),"List<real>");
 
-  List<std::string>::Ptr string_list (allocate_component< List<std::string> >("string_list"));
+  boost::shared_ptr< List<std::string> > string_list (allocate_component< List<std::string> >("string_list"));
   BOOST_CHECK_EQUAL(string_list->type_name(),"List<string>");
 
   bool_list.resize(10);
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE( List_tests )
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 {
   // create table
-  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 BOOST_AUTO_TEST_CASE( ListFlushTest )
 {
   // create table
-  List<Uint>& list = root.create_component< List<Uint> >("list");
+  List<Uint>& list = *root.create_component< List<Uint> >("list");
   // create a buffer to interact with the list with buffersize 3 (if no argument, use default buffersize)
   List<Uint>::Buffer buffer = list.create_buffer(3);
 
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
 
 BOOST_AUTO_TEST_CASE ( DynTable_test )
 {
-  DynTable<Uint>& table = root.create_component< DynTable<Uint> >("table");
+  DynTable<Uint>& table = *root.create_component< DynTable<Uint> >("table");
   DynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;
@@ -644,7 +644,7 @@ BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 //  6:  ~
 //  7:  4294967295
 //  8:  ~
-  DynTable<Uint>& table = root.create_component< DynTable<Uint> >("table");
+  DynTable<Uint>& table = *root.create_component< DynTable<Uint> >("table");
   DynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;
@@ -690,8 +690,8 @@ BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-  Mesh& mesh = root->create_component<Mesh>("mesh");
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  Mesh& mesh = *root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
   SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(2,DIM_3D);
@@ -716,7 +716,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_Test )
   Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  List<Uint>& connTable = *region.create_component_ptr<List<Uint> >("connTable");
+  List<Uint>& connTable = *region.create_component<List<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -793,7 +793,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_rm_Test )
   Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  List<Uint>& list = *region.create_component_ptr<List<Uint> >("connTable");
+  List<Uint>& list = *region.create_component<List<Uint> >("connTable");
 
 
   // check initalization
@@ -844,7 +844,7 @@ BOOST_AUTO_TEST_CASE( List_bool_Test )
   Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  List<bool>& connTable = *region.create_component_ptr<List<bool> >("connTable");
+  List<bool>& connTable = *region.create_component<List<bool> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);

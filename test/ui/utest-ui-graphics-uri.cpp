@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   BOOST_CHECK_EQUAL( lineEdit->text().toStdString(), std::string() );
 
   delete value;
-  OptionURI::Ptr option(new OptionURI("Option",  URI("cpath:/")));
+  boost::shared_ptr<OptionURI> option(new OptionURI("Option",  URI("cpath:/")));
   value = new GraphicalUri(option);
   lineEdit = find_line_edit(value);
 
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( set_schemes )
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  boost::shared_ptr<OptionURI> option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QComboBox * comboBox = find_combo_box(value);
   std::vector<URI::Scheme::Type> schemes;
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( set_schemes )
 
 BOOST_AUTO_TEST_CASE( set_value )
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  boost::shared_ptr<OptionURI> option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = find_line_edit(value);
 
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( set_value )
 
 BOOST_AUTO_TEST_CASE( value )
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
+  boost::shared_ptr<OptionURI> option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = find_line_edit(value);
   QComboBox * comboBox = find_combo_box(value);

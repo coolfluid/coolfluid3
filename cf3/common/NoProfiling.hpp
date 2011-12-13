@@ -23,9 +23,6 @@ namespace common {
   {
   public:
 
-    typedef boost::shared_ptr<NoProfiling> Ptr;
-    typedef boost::shared_ptr<NoProfiling const> ConstPtr;
-
     /// constructor
     NoProfiling(const std::string& name);
 

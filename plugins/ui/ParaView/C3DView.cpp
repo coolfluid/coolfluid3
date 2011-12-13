@@ -17,6 +17,7 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshWriter.hpp"
@@ -52,47 +53,47 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  options().add_option( OptionComponent<mesh::Mesh>::create("mesh", &m_mesh))
-      ->description("Mesh to visualize with given refresh rate")
-      ->pretty_name("Mesh")
-      ->mark_basic();
+  options().add_option( "mesh", m_mesh )
+      .description("Mesh to visualize with given refresh rate")
+      .pretty_name("Mesh")
+      .mark_basic();
 
   m_filename = "solution_field.vtk";
-  options().add_option< OptionT<std::string> >("filename", m_filename )
-      ->description("File name to dumpmesh in VTK format")
-      ->pretty_name("File Name")
-      ->link_to(&m_filename);
+  options().add_option("filename", m_filename )
+      .description("File name to dumpmesh in VTK format")
+      .pretty_name("File Name")
+      .link_to(&m_filename);
 
   m_refresh_rate = 1;
-  options().add_option< OptionT<Uint> >("refresh_rate", m_refresh_rate )
-      ->description("Number of iterations between refreshing the mesh / solution")
-      ->pretty_name("Refresh Rate")
-      ->mark_basic()
-      ->link_to(&m_refresh_rate);
+  options().add_option("refresh_rate", m_refresh_rate )
+      .description("Number of iterations between refreshing the mesh / solution")
+      .pretty_name("Refresh Rate")
+      .mark_basic()
+      .link_to(&m_refresh_rate);
 
   m_port = 8080;
-  options().add_option< OptionT<Uint> >("paraview_server_port", m_port )
-      ->description("Port used on paraview server launch")
-      ->pretty_name("Server Port")
-      ->mark_basic()
-      ->link_to(&m_port);
+  options().add_option("paraview_server_port", m_port )
+      .description("Port used on paraview server launch")
+      .pretty_name("Server Port")
+      .mark_basic()
+      .link_to(&m_port);
 
   // signals
 
   regist_signal( "launch_pvserver" )
-      ->description("Launch Paraview Server")
-      ->pretty_name("Launch Server")
-      ->connect( boost::bind( &C3DView::launch_pvserver, this, _1));
+      .description("Launch Paraview Server")
+      .pretty_name("Launch Server")
+      .connect( boost::bind( &C3DView::launch_pvserver, this, _1));
 
   regist_signal( "iteration_done" )
-      ->description("iteration done")
-      ->pretty_name("iteration done")
-      ->connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
+      .description("iteration done")
+      .pretty_name("iteration done")
+      .connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
 
   regist_signal( "send_server_info_to_client" )
-      ->description("Load last dumped file")
-      ->pretty_name("Get file info")
-      ->connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
+      .description("Load last dumped file")
+      .pretty_name("Get file info")
+      .connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
 
   // hide some signals from the GUI
   signal("create_component")->hidden(true);
@@ -105,7 +106,7 @@ C3DView::C3DView(const std::string& name) :
                                                      this,
                                                      &C3DView::signal_iteration_done );
 
-  mesh::MeshWriter::Ptr meshwriter =
+  boost::shared_ptr<mesh::MeshWriter> meshwriter =
       build_component_abstract_type<mesh::MeshWriter>("cf3.mesh.VTKLegacy.Writer","writer");
   add_component(meshwriter);
 
@@ -167,12 +168,12 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     SignalFrame frame("file_dumped", uri(), uri());
     SignalOptions options(frame);
 
-    if (m_mesh.expired())
+//    if (m_mesh.expired())
     {
 
       mesh::Mesh& mesh = find_component_recursively<mesh::Mesh>( Core::instance().root() );
       URI mesh_path = mesh.uri();
-      configure_option("mesh", mesh_path );
+      properties().configure_property("mesh", mesh_path);
     }
     //  throw SetupError( FromHere(), "Mesh option is not configured");
 
@@ -181,16 +182,16 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     if( curr_iteration == 1 || ( curr_iteration % options["refresh_rate"].value<Uint>() ) == 0 )
     {
-      mesh::MeshWriter& writer = get_child("writer").as_type<mesh::MeshWriter>();
+      Handle<mesh::MeshWriter> writer = get_child("writer")->handle<mesh::MeshWriter>();
 
 
       std::vector<URI> fields;
-      boost_foreach(const Field& field, find_components_recursively<Field>(*m_mesh.lock()))
+      boost_foreach(const Field& field, find_components_recursively<Field>(*m_mesh.get()))
           fields.push_back(field.uri());
 
-      writer.configure_option("fields",fields);
+      writer->options()["fields"].change_value( fields );
 
-      writer.write_from_to( *m_mesh.lock(), m_filename);
+      writer->write_from_to( *m_mesh.get(), m_filename);
 
       std::vector<std::string> data(2);
 
@@ -199,7 +200,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
       data[1] = QFileInfo( options["filename"].value<std::string>().c_str())
           .fileName().section('.',0,0).toStdString();
 
-      options.add_option< OptionArrayT<std::string> >("pathinfo", data);
+      options.add_option("pathinfo", data);
 
       //    Server::ServerRoot::instance().core()->sendSignal( *frame.xml_doc.get() );
     }

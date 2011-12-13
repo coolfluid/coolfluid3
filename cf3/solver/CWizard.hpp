@@ -25,9 +25,9 @@ class solver_API CWizard : public common::Component {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CWizard> Ptr;
+  
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CWizard const> ConstPtr;
+  
 
 public: // functions
 

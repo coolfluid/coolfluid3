@@ -7,6 +7,7 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/PropertyList.hpp"
 
 #include "solver/CModelSteady.hpp"
 #include "solver/CSolver.hpp"
@@ -23,7 +24,7 @@ common::ComponentBuilder < CModelSteady, Component, LibSolver > CModelSteady_Bui
 CModelSteady::CModelSteady( const std::string& name  ) :
   CModel ( name )
 {
-   m_properties["steady"] = bool(true);
+   properties()["steady"] = bool(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,8 +23,8 @@ class RDM_API Reset : public cf3::solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<Reset> Ptr;
-  typedef boost::shared_ptr<Reset const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -47,7 +47,7 @@ private: // helper functions
 
 private: // data
 
-  std::vector< boost::weak_ptr<mesh::Field> > m_fields;
+  std::vector< Handle<mesh::Field> > m_fields;
 
 };
 

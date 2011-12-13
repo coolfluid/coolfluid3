@@ -23,8 +23,8 @@ class solver_actions_API CAdvanceTime : public solver::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CAdvanceTime> Ptr;
-  typedef boost::shared_ptr<CAdvanceTime const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -46,7 +46,7 @@ public: // functions
 
 private:
 
-  boost::weak_ptr< solver::CTime > m_time; ///< time used by this action
+  Handle< solver::CTime > m_time; ///< time used by this action
 
 };
 

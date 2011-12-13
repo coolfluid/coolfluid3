@@ -27,8 +27,8 @@ class CPlotXY :
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CPlotXY> Ptr;
-  typedef boost::shared_ptr<CPlotXY const> ConstPtr;
+  
+  
 
 public:
 
@@ -51,7 +51,7 @@ public:
 
     int m_num_it;
 
-    common::Table<Real>::Ptr m_data;
+    Handle< common::Table<Real> > m_data;
 
 }; // CPlotXY
 

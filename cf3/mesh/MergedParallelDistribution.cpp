@@ -9,6 +9,7 @@
 
 #include "common/Builder.hpp"
 
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/PE/Comm.hpp"
@@ -34,18 +35,18 @@ MergedParallelDistribution::MergedParallelDistribution ( const std::string& name
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  options().add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
-      ->description("Total number of objects of each subhash. Subhashes will "
+  options().add_option("nb_obj", m_nb_obj)
+      .description("Total number of objects of each subhash. Subhashes will "
                         "be created upon configuration with names hash_0 hash_1, ...")
-      ->pretty_name("Number of Objects");
+      .pretty_name("Number of Objects");
 
-  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
-      ->description("Total number of partitions (e.g. number of processors)")
-      ->pretty_name("Number of Partitions");
+  options().add_option("nb_parts", m_nb_parts)
+      .description("Total number of partitions (e.g. number of processors)")
+      .pretty_name("Number of Partitions");
 
-  options().add_option<OptionT <Uint> >("base", m_base)
-      ->description("Start index for global numbering")
-      ->pretty_name("Base");
+  options().add_option("base", m_base)
+      .description("Start index for global numbering")
+      .pretty_name("Base");
 
   options()["nb_parts"].attach_trigger( boost::bind ( &MergedParallelDistribution::config_nb_parts , this) );
   options()["base"].link_to( &m_base );
@@ -56,17 +57,17 @@ MergedParallelDistribution::MergedParallelDistribution ( const std::string& name
 
 void MergedParallelDistribution::config_nb_obj ()
 {
-  option("nb_obj").put_value(m_nb_obj);
-  boost_foreach(ParallelDistribution::Ptr hash, m_subhash)
+  m_nb_obj = options().option("nb_obj").value< std::vector<Uint> >();
+  boost_foreach(Handle< ParallelDistribution > hash, m_subhash)
     remove_component(hash->name());
   m_subhash.resize(0);
   Uint i=0;
   boost_foreach(Uint nb_obj, m_nb_obj)
   {
-    ParallelDistribution::Ptr hash = create_component_ptr<ParallelDistribution>("hash_"+to_str(i));
+    Handle<ParallelDistribution> hash = create_component<ParallelDistribution>("hash_"+to_str(i));
     m_subhash.push_back(hash);
-    hash->configure_option("nb_obj", nb_obj);
-    hash->configure_option("nb_parts", m_nb_parts);
+    hash->options().configure_option("nb_obj", nb_obj);
+    hash->options().configure_option("nb_parts", m_nb_parts);
     ++i;
   }
 }
@@ -75,11 +76,11 @@ void MergedParallelDistribution::config_nb_obj ()
 
 void MergedParallelDistribution::config_nb_parts ()
 {
-  option("nb_parts").put_value(m_nb_parts);
+  m_nb_parts = options().option("nb_parts").value<Uint>();
   if (m_subhash.size())
   {
-    boost_foreach(ParallelDistribution::Ptr hash, m_subhash)
-      hash->configure_option("nb_parts", m_nb_parts);
+    boost_foreach(Handle< ParallelDistribution > hash, m_subhash)
+      hash->options().configure_option("nb_parts", m_nb_parts);
   }
 }
 
@@ -102,7 +103,7 @@ Uint MergedParallelDistribution::proc_of_part(const Uint part) const
 Uint MergedParallelDistribution::part_size() const
 {
   Uint psize = 0;
-  boost_foreach (ParallelDistribution::ConstPtr hash, m_subhash)
+  boost_foreach (Handle< ParallelDistribution > hash, m_subhash)
     psize += hash->part_size();
   return psize;
 }
@@ -158,7 +159,7 @@ Uint MergedParallelDistribution::nb_objects_in_proc(const Uint proc) const
 Uint MergedParallelDistribution::start_idx_in_part(const Uint part) const
 {
   Uint start_idx = 0;
-  boost_foreach (ParallelDistribution::ConstPtr hash, m_subhash)
+  boost_foreach (Handle< ParallelDistribution > hash, m_subhash)
     start_idx += hash->start_idx_in_part(part);
   return start_idx ;
 }
@@ -168,7 +169,7 @@ Uint MergedParallelDistribution::start_idx_in_part(const Uint part) const
 Uint MergedParallelDistribution::end_idx_in_part(const Uint part) const
 {
   Uint end_idx = 0;
-  boost_foreach (ParallelDistribution::ConstPtr hash, m_subhash)
+  boost_foreach (Handle< ParallelDistribution > hash, m_subhash)
     end_idx += hash->end_idx_in_part(part);
   return end_idx;
 }
@@ -191,7 +192,7 @@ Uint MergedParallelDistribution::subhash_of_obj(const Uint obj) const
 
   Uint psize = 0;
   Uint i=0;
-  boost_foreach(ParallelDistribution::ConstPtr hash, m_subhash)
+  boost_foreach(Handle< ParallelDistribution > hash, m_subhash)
   {
     psize += hash->nb_objects_in_part(part);
     if (offset < psize)

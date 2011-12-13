@@ -33,8 +33,8 @@ namespace core {
   {
   public:
 
-    typedef boost::shared_ptr<NBrowser> Ptr;
-    typedef boost::shared_ptr<NBrowser const> ConstPtr;
+
+
 
     /// @brief Constructor
     NBrowser();
@@ -49,7 +49,7 @@ namespace core {
     /// @return The name of the class.
     virtual QString tool_tip() const;
 
-    static Ptr global();
+    static Handle<NBrowser> global();
 
   protected:
 

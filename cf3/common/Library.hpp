@@ -26,9 +26,6 @@ class Common_API Library : public Component {
 
 public:
 
-  typedef boost::shared_ptr<Library> Ptr;
-  typedef boost::shared_ptr<Library const> ConstPtr;
-
   /// Contructor
   /// @param name of Library
   Library( const std::string& name);

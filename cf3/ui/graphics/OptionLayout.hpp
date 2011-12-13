@@ -77,7 +77,7 @@ namespace graphics {
     /// object is not cleared.
     void modified_options(core::CommitDetails & commitDetails) const;
 
-    void add_option(cf3::common::Option::ConstPtr option);
+    void add_option(const boost::shared_ptr<cf3::common::Option >& option);
 
     bool has_options() const;
 
@@ -110,7 +110,7 @@ namespace graphics {
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advanced_mode;
 
-    void set_options(const QList<cf3::common::Option::ConstPtr> & list);
+    void set_options(const QList<boost::shared_ptr<cf3::common::Option > > & list);
 
   }; // class OptionPanel
 

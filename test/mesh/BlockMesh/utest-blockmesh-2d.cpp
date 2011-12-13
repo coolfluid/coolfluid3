@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer", "writer");
-  Domain& domain = Core::instance().root().create_component<Domain>("domain");
+  boost::shared_ptr< MeshWriter > writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer", "writer");
+  Domain& domain = *Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 
   const Real length = 1.;
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint x_segs = 12;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
 
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   blocks.block_distribution += 0, 2;
 
   domain.add_component(writer);
-  Mesh& mesh = domain.create_component<Mesh>("mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
   BlockMesh::build_mesh(blocks, mesh);
 
@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   writer->write_from_to(mesh, URI("grid-2d.vtk"));
 
   // Test block partitioning
-  BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
+  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   BlockMesh::partition_blocks(blocks, 4, XX, parallel_blocks);
 
-  Mesh& parallel_block_mesh = domain.create_component<Mesh>("parallel_blocks");
+  Mesh& parallel_block_mesh = *domain.create_component<Mesh>("parallel_blocks");
   BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
   writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
 }

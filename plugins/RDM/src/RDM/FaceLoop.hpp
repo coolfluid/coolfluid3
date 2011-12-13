@@ -33,20 +33,17 @@ struct FaceLoop : public ElementLoop
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
-    common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
-    typename TermT::Ptr term;
-    if( is_null( cterm ) )
+    Handle<TermT> term( parent()->get_child( TermT::type_name() ) );
+    if( is_null( term ) )
     {
       // does not exist so create the concrete term
-      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
+      term = Handle<TermT>(parent()->template create_component< TermT >( TermT::type_name() ));
 
       // configure the fields
-      term->configure_option_recursively( Tags::solution(),   parent().as_type<FaceTerm>().solution().uri()   );
-      term->configure_option_recursively( Tags::residual(),   parent().as_type<FaceTerm>().residual().uri()   );
-      term->configure_option_recursively( Tags::wave_speed(), parent().as_type<FaceTerm>().wave_speed().uri() );
+      term->configure_option_recursively( Tags::solution(),   parent()->handle<FaceTerm>()->solution() );
+      term->configure_option_recursively( Tags::residual(),   parent()->handle<FaceTerm>()->residual() );
+      term->configure_option_recursively( Tags::wave_speed(), parent()->handle<FaceTerm>()->wave_speed() );
     }
-    else
-      term = cterm->as_ptr_checked<TermT>();
 
     return *term;
   }
@@ -77,7 +74,7 @@ struct FaceLoopT1 : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
+    if( is_null(parent()->handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
@@ -131,7 +128,7 @@ struct FaceLoopT : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
+    if( is_null(parent()->handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type

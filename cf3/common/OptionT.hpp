@@ -16,61 +16,44 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Class defines one option to be used by the ConfigObject class
-  /// This class supports the following types:
-  ///   - bool
-  ///   - int
-  ///   - std::string
-  ///   - boost::filesystem::path
-  ///   - cf3::Uint
-  ///   - cf3::Real
-  ///   - cf3::common::URI
-  /// @author Tiago Quintino
-  template < typename TYPE >
-      class Common_API OptionT : public Option  {
+/// Class defines one option to be used by the ConfigObject class
+/// This class supports the following types:
+///   - bool
+///   - int
+///   - std::string
+///   - boost::filesystem::path
+///   - cf3::Uint
+///   - cf3::Real
+///   - cf3::common::URI
+/// @author Tiago Quintino
+template < typename TYPE >
+    class Common_API OptionT : public Option  {
 
-  public:
+public:
 
-    typedef TYPE value_type;
+  typedef TYPE value_type;
 
-    OptionT ( const std::string& name, value_type def);
+  OptionT ( const std::string& name, value_type def);
 
-    static Option::Ptr create(const std::string & name, const TYPE& def)
-    {
-      return Option::Ptr ( new OptionT(name, def) );
-    }
+  /// @name VIRTUAL FUNCTIONS
+  //@{
 
-    /// @name VIRTUAL FUNCTIONS
-    //@{
+  /// @returns the xml tag for this option
+  virtual const char * tag() const;
 
-    /// @returns the xml tag for this option
-    virtual const char * tag() const;
+  /// @returns the value as a std::string
+  virtual std::string value_str () const;
 
-    /// @returns the value as a sd::string
-    virtual std::string value_str () const;
+  //@} END VIRTUAL FUNCTIONS
 
-    /// @returns the default value as a sd::string
-    virtual std::string def_str () const;
+private: // functions
 
-    /// @brief Checks whether the option has a list of restricted values.
-    /// @return Returns @c true if the option a such list; otherwise, returns
-    /// @c false.
-    bool has_restricted_list() const { return m_restricted_list.size() > 1; }
+  /// copy the configured update value to all linked parameters
+  virtual void copy_to_linked_params (std::vector< boost::any >& linked_params );
+  
+  virtual boost::any extract_configured_value(XML::XmlNode& node);
 
-    virtual std::string data_type() const { return type(); }
-
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void configure ( XML::XmlNode& node );
-
-    //@} END VIRTUAL FUNCTIONS
-
-  protected: // functions
-
-    /// copy the configured update value to all linked parameters
-    virtual void copy_to_linked_params ( const boost::any& val );
-
-  }; // class OptionT
+}; // class OptionT
 
 ////////////////////////////////////////////////////////////////////////////////
 

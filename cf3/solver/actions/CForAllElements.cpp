@@ -34,7 +34,7 @@ CForAllElements::CForAllElements ( const std::string& name ) :
 
 void CForAllElements::execute()
 {
-  boost_foreach(Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
     boost_foreach(Elements& elements, find_components_recursively<Elements>(*region))
   {
     // Setup all child operations

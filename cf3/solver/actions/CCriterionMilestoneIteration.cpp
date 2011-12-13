@@ -6,7 +6,9 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 #include "solver/CTime.hpp"
 #include "solver/Tags.hpp"
 #include "solver/actions/CCriterionMilestoneIteration.hpp"
@@ -24,22 +26,22 @@ ComponentBuilder< CCriterionMilestoneIteration, CCriterion, LibActions > CCriter
 CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& name  ) :
   CCriterion ( name )
 {
-  m_properties["brief"] = std::string("Time Criterion object");
+  properties()["brief"] = std::string("Time Criterion object");
   std::string description = properties().value<std::string>("description")+
     "Returns true if a time is reached\n";
-  m_properties["description"] = description;
+  properties()["description"] = description;
 
-  options().add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
-      ->description("Time tracking component")
-      ->pretty_name("Time")
-      ->mark_basic()
-      ->add_tag("time");
+  options().add_option(Tags::time(), m_time)
+      .description("Time tracking component")
+      .pretty_name("Time")
+      .mark_basic()
+      .link_to(&m_time)
+      .add_tag("time");
 
-  Uint def = 1;
-  options().add_option(OptionT<Uint>::create("milestone_rate", def))
-      ->description("Defines the checkpoints for the criterion")
-      ->pretty_name("Milestone Rate")
-      ->mark_basic();
+  options().add_option("milestone_rate", 1u)
+      .description("Defines the checkpoints for the criterion")
+      .pretty_name("Milestone Rate")
+      .mark_basic();
 
 }
 
@@ -55,11 +57,11 @@ bool CCriterionMilestoneIteration::operator()()
 {
   /// @bug normally  option("milestone_rate").value<Uint>() should be used
   /// but that throws a bad any_cast exception somehow !?
-  const Uint rate = option("milestone_rate").value<int>();
+  const Uint rate = options().option("milestone_rate").value<int>();
   if ( rate == 0 )
     return false;
 
-  return ( m_time.lock()->iter() % rate == 0 );
+  return ( m_time->iter() % rate == 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -64,7 +64,7 @@ namespace PE {
   {
   public: // data
 
-    boost::signals2::signal< void(const Communicator &, XML::XmlDoc::Ptr) > new_signal;
+    boost::signals2::signal< void(const Communicator &, boost::shared_ptr<XML::XmlDoc>) > new_signal;
 
   public: // functions
 

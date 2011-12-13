@@ -25,7 +25,7 @@ namespace server {
 /////////////////////////////////////////////////////////////////////////////
 
 ProcessingThread::ProcessingThread(SignalArgs & signal, const std::string & target,
-                                   Component::Ptr receiver)
+                                   Handle< Component > receiver)
   : m_signal(signal),
     m_target(target),
     m_receiver(receiver),

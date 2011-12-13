@@ -25,6 +25,4 @@ int main(int argc, char * argv[])
   // bind used with boost::function to create a functor
   boost::function<int()> fix = boost::bind( &A::f, a,  4 );
   std::cout << fix() << std::endl;
-
 }
-

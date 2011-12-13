@@ -82,16 +82,16 @@ struct ProtoBenchmarkFixture :
     const Uint y_segs = boost::lexical_cast<Uint>(argv[2]);
     const Uint z_segs = boost::lexical_cast<Uint>(argv[3]);
 
-    CModel& model = Core::instance().root().create_component<CModel>(model_name);
+    CModel& model = *Core::instance().root().create_component<CModel>(model_name);
     physics::PhysModel& phys_model = model.create_physics("cf3.physics.DynamicModel");
     Domain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("cf3.solver.CSimpleSolver");
 
-    Mesh& mesh = dom.create_component<Mesh>("mesh");
+    Mesh& mesh = *dom.create_component<Mesh>("mesh");
 
     const Real ratio = 0.1;
 
-    BlockMesh::BlockData& blocks = dom.create_component<BlockMesh::BlockData>("blocks");
+    BlockMesh::BlockData& blocks = *dom.create_component<BlockMesh::BlockData>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     BlockMesh::build_mesh(blocks, mesh);
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( SetupProto )
   model.solver() << create_proto_action("ComputeVolume", elements_expression(ElementsT(), V = volume));
 
   std::vector<URI> root_regions;
-  root_regions.push_back(model.domain().get_child("mesh").as_type<Mesh>().topology().uri());
+  root_regions.push_back(model.domain().get_child("mesh")->handle<Mesh>()->topology().uri());
   model.solver().configure_option_recursively(solver::Tags::regions(), root_regions);
 }
 
@@ -162,13 +162,13 @@ BOOST_AUTO_TEST_CASE( SetupProto )
 BOOST_AUTO_TEST_CASE( SetupDirect )
 {
   CModel& model = setup("Direct");
-  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
-  Elements& elements = find_component_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume());
-  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
+  Handle<Mesh> mesh(model.domain().get_child("mesh"));
+  Elements& elements = find_component_recursively_with_filter<Elements>(mesh->topology(), IsElementsVolume());
+  Field& vol_field = find_component_recursively_with_tag<Field>(*mesh, "volume");
 
   direct_arrays.reset(new DirectArrays
   (
-    mesh.geometry_fields().coordinates(),
+    mesh->geometry_fields().coordinates(),
     elements.node_connectivity().array(),
     vol_field,
     vol_field.field_group().space(elements).elements_begin()
@@ -181,27 +181,27 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
 {
   CModel& model = setup("VolumeComputer");
 
-  CLoop& elem_loop = model.solver().create_component< CForAllElements >("elem_loop");
+  CLoop& elem_loop = *model.solver().create_component< CForAllElements >("elem_loop");
   model.solver() << elem_loop;
 
   std::vector<URI> root_regions;
-  root_regions.push_back(model.domain().get_child("mesh").as_type<Mesh>().topology().uri());
+  root_regions.push_back(model.domain().get_child("mesh")->handle<Mesh>()->topology().uri());
   model.solver().configure_option_recursively(solver::Tags::regions(), root_regions);
 
-  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
-  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
-  Elements& elements = find_component_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume());
+  Handle<Mesh> mesh(model.domain().get_child("mesh"));
+  Field& vol_field = find_component_recursively_with_tag<Field>(*mesh, "volume");
+  Elements& elements = find_component_recursively_with_filter<Elements>(mesh->topology(), IsElementsVolume());
 
   CLoopOperation& volume_computer = elem_loop.create_loop_operation("cf3.solver.actions.CComputeVolume");
-  volume_computer.configure_option("volume",vol_field.uri());
-  volume_computer.configure_option("elements",elements.uri());
+  volume_computer.options().configure_option("volume",vol_field.uri());
+  volume_computer.options().configure_option("elements",elements.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( SimulateProto )
 {
-  root.get_child("Proto").as_type<CModel>().simulate();
+  root.get_child("Proto")->handle<CModel>()->simulate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( SimulateDirect )
 
 BOOST_AUTO_TEST_CASE( SimulateVolumeComputer )
 {
-  root.get_child("VolumeComputer").as_type<CModel>().simulate();
+  root.get_child("VolumeComputer")->handle<CModel>()->simulate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

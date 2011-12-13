@@ -13,6 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/OptionList.hpp"
 
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"
@@ -61,10 +62,10 @@ struct TestBuildFaces_Fixture
 
 
   /// common values accessed by all tests goes here
-  static Mesh::Ptr mesh;
+  static Handle<Mesh> mesh;
 };
 
-Mesh::Ptr TestBuildFaces_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Handle<Mesh> TestBuildFaces_Fixture::mesh = Core::instance().root().create_component<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,15 +77,15 @@ BOOST_AUTO_TEST_CASE( init_mpi)
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  Core::instance().environment().configure_option("only_cpu0_writes",false);
+  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().configure_option("only_cpu0_writes",false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr<MeshReader> meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   meshreader->read_mesh_into("../../../resources/quadtriag.neu",*mesh);
 
   PEProcessSortedExecute(-1,
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
+  boost::shared_ptr<BuildFaces> facebuilder = allocate_component<BuildFaces>("facebuilder");
 
   facebuilder->set_mesh(mesh);
   facebuilder->execute();
@@ -107,17 +108,17 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
   PEProcessSortedExecute(-1,
                          std::cout << "checking rank " << PERank << std::endl;
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/inlet")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/outlet")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/wall")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/liquid")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/liquid/cells")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/liquid/inner_faces")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/liquid/outer_faces")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/gas")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/gas/cells")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/gas/inner_faces")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component_ptr("mesh/topology/quadtriag/gas/outer_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/inlet")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/outlet")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/wall")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/cells")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/inner_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/outer_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/cells")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/inner_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/outer_faces")) );
 //  std::cout << mesh->topology().access_component("quadtriag/gas").tree() << std::endl;
   );
 
@@ -127,10 +128,10 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
 BOOST_AUTO_TEST_CASE( write_mesh )
 {
-  MeshWriter::Ptr tecwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
+  boost::shared_ptr<MeshWriter> tecwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tecwriter->write_from_to(*mesh,URI("file:quadtriag-faces.plt"));
 
-  MeshWriter::Ptr gmshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr<MeshWriter> gmshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmshwriter->write_from_to(*mesh,URI("file:quadtriag-faces.msh"));
 
 }

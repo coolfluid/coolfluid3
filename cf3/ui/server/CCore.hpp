@@ -63,8 +63,8 @@ namespace server {
 
   public:
 
-    typedef boost::shared_ptr<CCore> Ptr;
-    typedef boost::shared_ptr<CCore const> ConstPtr;
+    
+    
 
     /// @brief Constructor
 
@@ -105,10 +105,6 @@ namespace server {
     /// @param clientId New client id.
      void new_client(const std::string & uuid);
 
-  public slots:
-
-    void newEvent(const std::string & name, const cf3::common::URI & path);
-
   private: // data
     /// @brief The default path for the file browsing.
 
@@ -116,21 +112,9 @@ namespace server {
     const QString DEFAULT_PATH;
 
     /// @brief The network communication
-    ServerNetworkComm * m_commServer;
+    ServerNetworkComm * m_comm_server;
 
     QSettings * m_settings;
-
-    /// @brief Indicates wether a file is already open.
-
-    /// If @c true, a file is already open.
-    bool m_fileOpen;
-
-    /// @brief Indicates wether the simulation is running.
-
-    /// If @c true, the simulation is running.
-    bool m_sim_running;
-
-    bool m_active;
 
     /// List of user's favorite directories.
     QStringList m_favorite_directories;
@@ -163,13 +147,7 @@ namespace server {
 
     void read_special_dir(cf3::common::SignalArgs & node);
 
-    void create_dir(cf3::common::SignalArgs & node);
-
     void shutdown(cf3::common::SignalArgs & node);
-
-    void save_config(cf3::common::SignalArgs & node);
-
-    void signal_list_tree(cf3::common::SignalArgs & node);
 
     void signal_set_favorites(cf3::common::SignalArgs & node);
 

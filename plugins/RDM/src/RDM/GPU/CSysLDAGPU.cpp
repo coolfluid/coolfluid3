@@ -44,8 +44,8 @@ CSysLDAGPU::~CSysLDAGPU() {}
 void CSysLDAGPU::execute()
 {
   // get the element loop or create it if does not exist
-  ElementLoop::Ptr loop;
-  common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  Handle< ElementLoop > loop;
+  Handle< common::Component > cloop = get_child( "LOOP" );
   if( is_null( cloop ) )
   {
     const std::string update_vars_type =
@@ -61,7 +61,7 @@ void CSysLDAGPU::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::cout << "looping on region " << region->name() << std::endl;
 

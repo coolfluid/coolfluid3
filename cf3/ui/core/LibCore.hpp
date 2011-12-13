@@ -40,8 +40,8 @@ namespace core {
   {
   public:
 
-    typedef boost::shared_ptr<LibCore> Ptr;
-    typedef boost::shared_ptr<LibCore const> ConstPtr;
+    
+    
 
     /// Constructor
     LibCore ( const std::string& name) : common::Library(name) {   }

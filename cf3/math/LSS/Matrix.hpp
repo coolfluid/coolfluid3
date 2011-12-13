@@ -38,12 +38,6 @@ public:
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<Matrix> Ptr;
-
-  /// const pointer to this type
-  typedef boost::shared_ptr<Matrix const> ConstPtr;
-
   /// name of the type
   static std::string type_name () { return "Matrix"; }
 
@@ -51,7 +45,7 @@ public:
   virtual const std::string solvertype() = 0;
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  virtual const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) = 0;
+  virtual const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) = 0;
 
   /// Default constructor
   Matrix(const std::string& name) : Component(name) { }
@@ -62,7 +56,7 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+  virtual void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -88,7 +82,7 @@ public:
 
   /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
   /// We bow on our knees before your greatness.
-  virtual void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+  virtual void solve(LSS::Vector& solution, LSS::Vector& rhs) = 0;
 
   //@} END SOLVE THE SYSTEM
 

@@ -37,8 +37,8 @@ class solver_actions_API LibActions :
 {
 public:
 
-  typedef boost::shared_ptr<LibActions> Ptr;
-  typedef boost::shared_ptr<LibActions const> ConstPtr;
+  
+  
 
   /// Constructor
   LibActions ( const std::string& name) : common::Library(name) {   }

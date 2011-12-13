@@ -43,8 +43,8 @@ class mesh_zoltan_API LibZoltan : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibZoltan> Ptr;
-  typedef boost::shared_ptr<LibZoltan const> ConstPtr;
+  
+  
 
   /// Constructor
   LibZoltan ( const std::string& name) : common::Library(name) { }

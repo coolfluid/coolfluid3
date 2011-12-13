@@ -29,11 +29,6 @@ namespace math {
 /// @author Tiago Quintino
 class Math_API VariablesDescriptor : public common::Component {
 
-public: //typedefs
-
-  typedef boost::shared_ptr<VariablesDescriptor> Ptr;
-  typedef boost::shared_ptr<VariablesDescriptor const> ConstPtr;
-
 public: // functions
 
   /// constructor

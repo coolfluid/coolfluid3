@@ -8,8 +8,8 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
@@ -53,61 +53,66 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property( "iteration", Uint(0) );
+  properties().add_property( "iteration", Uint(0) );
 
   // static components
 
-  m_pre_update = create_static_component_ptr<common::ActionDirector>("PreUpdate");
+  m_pre_update = create_static_component<common::ActionDirector>("PreUpdate");
 
-  m_post_update = create_static_component_ptr<common::ActionDirector>("PostUpdate");
+  m_post_update = create_static_component<common::ActionDirector>("PostUpdate");
 
-  options().add_option< OptionT<Uint> >("rk_order", 1u)
-      ->description("Order of the Runge-Kutta integration")
-      ->pretty_name("RK Integration Order")
-      ->attach_trigger( boost::bind( &IterativeSolver::config_rk_order , this ) );
+  options().add_option("rk_order", 1u)
+      .description("Order of the Runge-Kutta integration")
+      .pretty_name("RK Integration Order")
+      .attach_trigger( boost::bind( &IterativeSolver::config_rk_order , this ) );
 
-  options().add_option( OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
-      ->description("Solution to update")
-      ->pretty_name("Solution");
+  options().add_option(SFDM::Tags::solution(), m_solution)
+      .description("Solution to update")
+      .pretty_name("Solution")
+      .link_to(&m_solution);
 
-      options().add_option( OptionComponent<Field>::create("solution_backup", &m_solution_backup))
-      ->description("Solution Backup")
-      ->pretty_name("Solution Backup");
+      options().add_option("solution_backup", m_solution_backup)
+      .description("Solution Backup")
+      .pretty_name("Solution Backup")
+      .link_to(&m_solution_backup);
 
-      options().add_option( OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
-      ->description("Update coefficient")
-      ->pretty_name("Update Coefficient");
+      options().add_option(SFDM::Tags::update_coeff(), m_update_coeff)
+      .description("Update coefficient")
+      .pretty_name("Update Coefficient")
+      .link_to(&m_update_coeff);
 
-      options().add_option( OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
-      ->description("Residual")
-      ->pretty_name("Residual");
+      options().add_option(SFDM::Tags::residual(), m_residual)
+      .description("Residual")
+      .pretty_name("Residual")
+      .link_to(&m_residual);
 
   std::vector<Real> dummy(4);
-  options().add_option< OptionArrayT<Real> >("alpha", dummy)
-      ->description("RK coefficients alpha")
-      ->pretty_name("alpha")
-      ->link_to(&m_alpha);
+  options().add_option("alpha", dummy)
+      .description("RK coefficients alpha")
+      .pretty_name("alpha")
+      .link_to(&m_alpha);
 
-  options().add_option< OptionArrayT<Real> >("beta", dummy)
-      ->description("RK coefficients beta")
-      ->pretty_name("beta")
-      ->link_to(&m_beta);
+  options().add_option("beta", dummy)
+      .description("RK coefficients beta")
+      .pretty_name("beta")
+      .link_to(&m_beta);
 
-  options().add_option< OptionArrayT<Real> >("gamma", dummy)
-      ->description("RK coefficients gamma")
-      ->pretty_name("gamma")
-      ->link_to(&m_gamma);
+  options().add_option("gamma", dummy)
+      .description("RK coefficients gamma")
+      .pretty_name("gamma")
+      .link_to(&m_gamma);
 
-  options().add_option( OptionComponent<CTime>::create( SFDM::Tags::time(), &m_time))
-      ->description("Time component")
-      ->pretty_name("Time");
+  options().add_option(SFDM::Tags::time(), m_time)
+      .description("Time component")
+      .pretty_name("Time")
+      .link_to(&m_time);
 
   config_rk_order();
 
 
-  CComputeLNorm& cnorm = create_static_component<CComputeLNorm>( "ComputeNorm" );
-  cnorm.configure_option("order",2u);
-  cnorm.configure_option("scale",true);
+  CComputeLNorm& cnorm = *create_static_component<CComputeLNorm>( "ComputeNorm" );
+  cnorm.options().configure_option("order",2u);
+  cnorm.options().configure_option("scale",true);
 
 }
 
@@ -115,7 +120,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
 void IterativeSolver::config_rk_order()
 {
-  const Uint nb_stages = option("rk_order").value<Uint>();
+  const Uint nb_stages = options().option("rk_order").value<Uint>();
 
   std::vector<Real> alpha(nb_stages);
   std::vector<Real> beta(nb_stages);
@@ -176,37 +181,37 @@ void IterativeSolver::config_rk_order()
 
   if (gamma[0] != 0) throw BadValue(FromHere(),"gamma[0] must be zero for consistent time marching");
 
-  configure_option("alpha",alpha);
-  configure_option("beta",beta);
-  configure_option("gamma",gamma);
+  options().configure_option("alpha",alpha);
+  options().configure_option("beta",beta);
+  options().configure_option("gamma",gamma);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void IterativeSolver::link_fields()
 {
-  if (m_solution.expired())
-    m_solution = solver().field_manager().get_child( SFDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-  if (m_residual.expired())
-    m_residual = solver().field_manager().get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
-  if (m_update_coeff.expired())
-    m_update_coeff = solver().field_manager().get_child( SFDM::Tags::update_coeff() ).follow()->as_ptr_checked<Field>();
-  if ( m_solution_backup.expired() )  // backup not created --> create field
+  if (is_null(m_solution))
+    m_solution = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::solution() ) ) );
+  if (is_null(m_residual))
+    m_residual = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::residual() ) ) );
+  if (is_null(m_update_coeff))
+    m_update_coeff = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::update_coeff() ) ) );
+  if ( is_null(m_solution_backup) )  // backup not created --> create field
   {
-    if (Component::Ptr found_solution_backup = solver().field_manager().get_child_ptr( "solution_backup" ))
+    if (Handle< Component > found_solution_backup = solver().field_manager().get_child( "solution_backup" ))
     {
-      m_solution_backup = found_solution_backup->follow()->as_ptr_checked<Field>();
+      m_solution_backup = Handle<Field>( follow_link(found_solution_backup) );
     }
-    else if ( Component::Ptr found_solution_backup = m_solution.lock()->field_group().get_child_ptr( "solution_backup" ) )
+    else if ( Handle< Component > found_solution_backup = m_solution->field_group().get_child( "solution_backup" ) )
     {
-      solver().field_manager().create_component<Link>("solution_backup").link_to(found_solution_backup);
-      m_solution_backup = found_solution_backup->as_ptr<Field>();
+      solver().field_manager().create_component<Link>("solution_backup")->link_to(*found_solution_backup);
+      m_solution_backup = found_solution_backup->handle<Field>();
     }
     else
     {
-      m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup", m_solution.lock()->descriptor().description()).as_ptr<Field>();
-      m_solution_backup.lock()->descriptor().prefix_variable_names("backup_");
-      solver().field_manager().create_component<Link>("solution_backup").link_to(*m_solution_backup.lock());
+      m_solution_backup = m_solution->field_group().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
+      m_solution_backup->descriptor().prefix_variable_names("backup_");
+      solver().field_manager().create_component<Link>("solution_backup")->link_to(*m_solution_backup);
     }
   }
 }
@@ -215,24 +220,21 @@ void IterativeSolver::link_fields()
 
 void IterativeSolver::execute()
 {
-
-  /// @todo these configurations sould be in constructor but does not work there
-  ///       because uri() is undefined on the constructor ( component is still free )
-  configure_option_recursively( "iterator", this->uri() );
-
+  configure_option_recursively( "iterator", handle<Component>() );
+  
   link_fields();
 
-  const Uint nb_stages = option("rk_order").value<Uint>();
-  std::vector<Real> alpha = option("alpha").value< std::vector<Real> >();
-  std::vector<Real> beta  = option("beta").value< std::vector<Real> >();
-  std::vector<Real> gamma = option("gamma").value< std::vector<Real> >();
-  Field& U  = *m_solution.lock();
-  Field& U0 = *m_solution_backup.lock();
-  Field& R  = *m_residual.lock();
-  Field& H  = *m_update_coeff.lock();
+  const Uint nb_stages = options().option("rk_order").value<Uint>();
+  std::vector<Real> alpha = options().option("alpha").value< std::vector<Real> >();
+  std::vector<Real> beta  = options().option("beta").value< std::vector<Real> >();
+  std::vector<Real> gamma = options().option("gamma").value< std::vector<Real> >();
+  Field& U  = *m_solution;
+  Field& U0 = *m_solution_backup;
+  Field& R  = *m_residual;
+  Field& H  = *m_update_coeff;
 
-  if (m_time.expired())        throw SetupError(FromHere(), "Time was not set");
-  CTime& time = *m_time.lock();
+  if (is_null(m_time))        throw SetupError(FromHere(), "Time was not set");
+  CTime& time = *m_time;
 
   U0 = U;
 
@@ -243,7 +245,7 @@ void IterativeSolver::execute()
   for (Uint stage=0; stage<nb_stages; ++stage)
   {
     // Set time and iteration for this stage
-    property("iteration") = stage+1;
+    properties().property("iteration") = stage+1;
     time.current_time() = T0 + gamma[stage] * dt;
 
     // Do actual computations in pre_update
@@ -256,8 +258,9 @@ void IterativeSolver::execute()
 
     // Runge-Kutta UPDATE
     const Real one_minus_alpha = 1. - alpha[stage];
-    boost_foreach(const Entities& elements, U.entities_range())
+    boost_foreach(const Handle<Entities>& elements_handle, U.entities_range())
     {
+      Entities& elements = *elements_handle;
       Space& solution_space = U.space(elements);
       for (Uint e=0; e<elements.size(); ++e)
       {
@@ -299,7 +302,7 @@ void IterativeSolver::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option< OptionT<Uint> >( "iteration", iter );
+  opts.add_option( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

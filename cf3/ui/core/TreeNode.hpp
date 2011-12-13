@@ -40,7 +40,7 @@ namespace core {
     /// @param parent Pointer to the parent TreeNode. May be @c nullptr.
     /// @param rowNumber Row number of the node under the parent. Must be
     /// greater or equal to 0.
-    TreeNode(CNode::Ptr node, TreeNode * parent, int row_number);
+    TreeNode(Handle< CNode > node, TreeNode * parent, int row_number);
 
     ~TreeNode();
 
@@ -64,11 +64,11 @@ namespace core {
 
     /// @brief Gives the node handled by this object
     /// @returns Returns the node handled by this object.
-    CNode::Ptr node();
+    Handle< CNode > node();
 
     /// @brief Gives the node handled by this object
     /// @returns Returns the node handled by this object.
-    CNode::ConstPtr node() const;
+    Handle< CNode > node() const;
 
     /// @brief Gives the parent.
     /// @return Returns the parent. May return a @c nullptr pointer if the
@@ -90,8 +90,8 @@ namespace core {
     /// @return Return the node name.
     inline QString node_name() const
     {
-      if( !m_node.expired() )
-        return m_node.lock()->name().c_str();
+      if( is_not_null(m_node) )
+        return m_node->name().c_str();
       else
         return QString();
     }
@@ -117,7 +117,7 @@ namespace core {
   private:
 
     /// @brief Handled node.
-    boost::weak_ptr<CNode> m_node;
+    Handle<CNode> m_node;
 
     /// @brief The parent. May be @c nullptr
     TreeNode * m_parent;

@@ -42,8 +42,8 @@ class gmsh_API LibGmsh :
 {
 public:
 
-  typedef boost::shared_ptr<LibGmsh> Ptr;
-  typedef boost::shared_ptr<LibGmsh const> ConstPtr;
+  
+  
 
   /// Constructor
   LibGmsh ( const std::string& name) : common::Library(name) {   }

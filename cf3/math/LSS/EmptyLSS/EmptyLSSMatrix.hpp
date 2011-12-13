@@ -40,12 +40,6 @@ public:
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<EmptyLSSMatrix> Ptr;
-
-  /// const pointer to this type
-  typedef boost::shared_ptr<EmptyLSSMatrix const> ConstPtr;
-
   /// name of the type
   static std::string type_name () { return "EmptyLSSMatrix"; }
 
@@ -53,7 +47,7 @@ public:
   const std::string solvertype() { return "EmptyLSS"; }
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  virtual const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
+  virtual const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) { return true; };
 
   /// Default constructor
   EmptyLSSMatrix(const std::string& name) :
@@ -65,7 +59,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
   {
     destroy();
     m_neq=neq;
@@ -104,7 +98,7 @@ public:
 
   /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
   /// We bow on our knees before your greatness.
-  void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) { cf3_assert(m_is_created); }
+  void solve(LSS::Vector& solution, LSS::Vector& rhs) { cf3_assert(m_is_created); }
 
   //@} END SOLVE THE SYSTEM
 

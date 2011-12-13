@@ -19,8 +19,8 @@ class SFDM_API DummyTerm : public Term {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< DummyTerm > Ptr;
-  typedef boost::shared_ptr< DummyTerm const > ConstPtr;
+  
+  
 
 public: // functions
 

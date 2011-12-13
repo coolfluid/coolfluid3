@@ -22,8 +22,8 @@ class RDM_API InitialConditions : public cf3::solver::ActionDirector {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<InitialConditions> Ptr;
-  typedef boost::shared_ptr<InitialConditions const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor

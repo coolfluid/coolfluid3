@@ -24,14 +24,14 @@ struct DataComponentWrapperFixture
 {
   /// common setup for each test case
   DataComponentWrapperFixture()
-  {    
+  {
   }
 
   /// common tear-down for each test case
   ~DataComponentWrapperFixture()
   {
   }
-    
+
   create_component_data_type( std::set<int> , Common_API, Component_std_set_int, "Component_std_set<integer>");
 };
 
@@ -43,14 +43,14 @@ BOOST_FIXTURE_TEST_SUITE( DataComponentWrapperTests, DataComponentWrapperFixture
 
 BOOST_AUTO_TEST_CASE ( test_DataComponentWrapper )
 {
-  Component_std_set_int::Ptr comp_set = allocate_component<Component_std_set_int>("set");
-  
+  boost::shared_ptr<Component_std_set_int> comp_set = allocate_component<Component_std_set_int>("set");
+
   std::set<int>& wrapped_set = comp_set->data();
 
   BOOST_CHECK_EQUAL(comp_set->data().size() , 0u);
-  
+
   wrapped_set.insert(5);
-  
+
   BOOST_CHECK_EQUAL(comp_set->data().size() , 1u);
 }
 

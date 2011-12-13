@@ -8,11 +8,14 @@
 #include "common/Group.hpp"
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Signal.hpp"
 #include "common/FindComponents.hpp"
 #include "common/EventHandler.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -24,6 +27,10 @@
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
+
+#include "common/OptionList.hpp"
+
+#include "common/OptionList.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -48,16 +55,12 @@ struct Domain::Implementation
   {
     SignalOptions options( node );
 
-    std::vector<URI::Scheme::Type> schemes(1);
-    schemes[0] = URI::Scheme::FILE;
+    options.add_option("file", URI() )
+        .supported_protocol(URI::Scheme::FILE)
+        .description("Location of the file holding the mesh");
 
-
-    options.add_option< OptionURI >("file", URI() )
-        ->description("Location of the file holding the mesh")
-        ->cast_to<OptionURI>()->set_supported_protocols(schemes);
-
-    options.add_option< OptionT<std::string> >("name", std::string() )
-        ->description("Name for the mesh to load");
+    options.add_option("name", std::string() )
+        .description("Name for the mesh to load");
   }
 
 
@@ -65,17 +68,14 @@ struct Domain::Implementation
   {
     SignalOptions options( node );
 
-    std::vector<URI::Scheme::Type> schemes(1);
-    schemes[0] = URI::Scheme::FILE;
-
-    options.add_option< OptionURI >("file", URI() )
-        ->description("Location of the file holding the mesh")
-        ->cast_to<OptionURI>()->set_supported_protocols(schemes);
+    options.add_option("file", URI() )
+        .supported_protocol(URI::Scheme::FILE)
+        .description("Location of the file holding the mesh");
   }
 
 
   Component& m_component;
-  boost::weak_ptr<WriteMesh> m_write_mesh;
+  Handle<WriteMesh> m_write_mesh;
 
 };
 
@@ -87,23 +87,23 @@ Domain::Domain( const std::string& name  ) :
 {
   mark_basic(); // by default domains are visible
 
-  m_properties["brief"] = std::string("Domain for a simulation");
+  properties()["brief"] = std::string("Domain for a simulation");
   std::string description =
       "Holds one or more meshes.\n\n"
       "Offers signals to load or generate a mesh";
-  m_properties["description"] = description;
+  properties()["description"] = description;
 
   regist_signal( "load_mesh" )
-      ->connect( boost::bind( &Domain::signal_load_mesh, this, _1 ) )
-      ->description("Load a new mesh")
-      ->pretty_name("Load Mesh")
-      ->signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
+      .connect( boost::bind( &Domain::signal_load_mesh, this, _1 ) )
+      .description("Load a new mesh")
+      .pretty_name("Load Mesh")
+      .signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
 
   regist_signal( "write_mesh" )
-      ->connect( boost::bind( &Domain::signal_write_mesh, this, _1 ) )
-      ->description("Load a new mesh")
-      ->pretty_name("Write Mesh")
-      ->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
+      .connect( boost::bind( &Domain::signal_write_mesh, this, _1 ) )
+      .description("Load a new mesh")
+      .pretty_name("Write Mesh")
+      .signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
 
@@ -119,7 +119,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   LoadMesh& mesh_loader =
       find_component<LoadMesh>( tools );
 
-  Mesh::Ptr mesh = create_component_ptr<Mesh>(name);
+  Handle<Mesh> mesh = create_component<Mesh>(name);
 
   mesh_loader.load_mesh_into(file, *mesh);
 
@@ -135,8 +135,8 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   // considering it like a rebalance that had no effect
 
   SignalOptions options;
-  options.add_option< OptionURI >("mesh_uri", mesh->uri());
-  options.add_option< OptionT<bool> >("mesh_rebalanced", true);
+  options.add_option("mesh_uri", mesh->uri());
+  options.add_option("mesh_rebalanced", true);
   SignalArgs args = options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_changed", args);
 
@@ -150,8 +150,8 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 
 void Domain::write_mesh(const URI& file)
 {
-  if(m_implementation->m_write_mesh.expired()) // created on-demand
-    m_implementation->m_write_mesh = create_static_component_ptr<WriteMesh>("MeshWriter");
+  if(is_null(m_implementation->m_write_mesh)) // created on-demand
+    m_implementation->m_write_mesh = create_static_component<WriteMesh>("MeshWriter");
 
   std::vector<URI> state_fields;
   Mesh& mesh = find_component<Mesh>(*this);
@@ -160,7 +160,7 @@ void Domain::write_mesh(const URI& file)
     state_fields.push_back(field.uri());
   }
 
-  m_implementation->m_write_mesh.lock()->write_mesh(mesh, file, state_fields);
+  m_implementation->m_write_mesh->write_mesh(mesh, file, state_fields);
 }
 
 

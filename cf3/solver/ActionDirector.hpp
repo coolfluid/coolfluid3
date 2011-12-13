@@ -28,8 +28,8 @@ class solver_API ActionDirector : public common::ActionDirector {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< ActionDirector > Ptr;
-  typedef boost::shared_ptr< ActionDirector const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -70,15 +70,15 @@ protected: // functions
 protected: // data
 
   /// link back to the solver
-  boost::weak_ptr< solver::CSolver > m_solver;
+  Handle< solver::CSolver > m_solver;
   /// mesh where this action data resides
-  boost::weak_ptr< mesh::Mesh > m_mesh;
+  Handle< mesh::Mesh > m_mesh;
   /// physical model used by this action
-  boost::weak_ptr< physics::PhysModel > m_physical_model;
+  Handle< physics::PhysModel > m_physical_model;
 
   /// time used by this action
   /// @todo eventually removed time from Action
-  boost::weak_ptr< solver::CTime > m_time;
+  Handle< solver::CTime > m_time;
 
 };
 

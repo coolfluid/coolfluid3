@@ -29,8 +29,8 @@ class Mesh_API MeshTransformer : public common::Action
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<MeshTransformer> Ptr;
-  typedef boost::shared_ptr<MeshTransformer const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -46,7 +46,7 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void transform(boost::shared_ptr<Mesh> mesh);
+  virtual void transform(Handle<Mesh> mesh);
   virtual void transform(Mesh& mesh);
 
   virtual void execute();
@@ -54,24 +54,24 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-  void set_mesh(boost::shared_ptr<Mesh> mesh);
+  void set_mesh(Handle<Mesh> mesh);
   void set_mesh(Mesh& mesh);
 
   Mesh& mesh()
   {
-    cf3_assert(m_mesh.expired() == false);
-    return *m_mesh.lock();
+    cf3_assert(is_null(m_mesh) == false);
+    return *m_mesh;
   }
 
   const Mesh& mesh() const
   {
-    cf3_assert(m_mesh.expired() == false);
-    return *m_mesh.lock();
+    cf3_assert(is_null(m_mesh) == false);
+    return *m_mesh;
   }
 
 protected: // data
 
-  boost::weak_ptr<Mesh> m_mesh;
+  Handle<Mesh> m_mesh;
 
 };
 

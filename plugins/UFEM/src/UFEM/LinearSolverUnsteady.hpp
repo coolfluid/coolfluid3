@@ -23,8 +23,8 @@ class UFEM_API LinearSolverUnsteady : public LinearSolver
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<LinearSolverUnsteady> Ptr;
-  typedef boost::shared_ptr<LinearSolverUnsteady const> ConstPtr;
+  
+  
 
 public: // functions
   

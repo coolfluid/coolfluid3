@@ -70,7 +70,7 @@ public:
   bool signal_exists ( const SignalID& sname ) const;
 
   /// Regist signal
-  SignalPtr regist_signal ( const SignalID& sname );
+  Signal& regist_signal ( const SignalID& sname );
 
   /// Unregist signal
   void unregist_signal ( const SignalID& sname );

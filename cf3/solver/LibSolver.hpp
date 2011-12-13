@@ -40,8 +40,8 @@ namespace cf3 {
   {
   public:
 
-    typedef boost::shared_ptr<LibSolver> Ptr;
-    typedef boost::shared_ptr<LibSolver const> ConstPtr;
+    
+    
 
     /// Constructor
     LibSolver ( const std::string& name) : common::Library(name) {   }

@@ -26,8 +26,8 @@ class Mesh_API MeshElements : public UnifiedData
 {
 public: //typedefs
 
-  typedef boost::shared_ptr<MeshElements> Ptr;
-  typedef boost::shared_ptr<MeshElements const> ConstPtr;
+  
+  
   
 public: // functions
 

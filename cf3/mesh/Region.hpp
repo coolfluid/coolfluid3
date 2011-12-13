@@ -34,8 +34,8 @@ class Mesh_API Region : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Region> Ptr;
-  typedef boost::shared_ptr<Region const> ConstPtr;
+  
+  
 
   typedef common::ComponentIteratorRange<Entities const> ConstElementsRange;
   typedef common::ComponentIteratorRange<Entities>       ElementsRange;

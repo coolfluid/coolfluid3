@@ -27,8 +27,8 @@ class Python_API ScriptEngine : public common::Component {
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<ScriptEngine> Ptr;
-  typedef boost::shared_ptr<ScriptEngine const> ConstPtr;
+  
+  
 
 public: // functions
 

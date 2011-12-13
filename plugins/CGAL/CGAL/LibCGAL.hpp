@@ -39,8 +39,8 @@ class CGAL_API LibCGAL : public cf3::common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibCGAL> Ptr;
-  typedef boost::shared_ptr<LibCGAL const> ConstPtr;
+  
+  
 
   /// Constructor
   LibCGAL ( const std::string& name) : common::Library(name) {   }

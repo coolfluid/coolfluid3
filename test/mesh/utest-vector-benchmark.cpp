@@ -30,12 +30,12 @@ using namespace cf3::mesh::BlockMesh;
 
 struct VectorBenchmarkFixture : Tools::Testing::TimedTestFixture
 {
-  static Mesh::Ptr grid_2d;
-  static Mesh::Ptr channel_3d;
+  static Handle< Mesh > grid_2d;
+  static Handle< Mesh > channel_3d;
 };
 
-Mesh::Ptr VectorBenchmarkFixture::grid_2d;
-Mesh::Ptr VectorBenchmarkFixture::channel_3d;
+Handle< Mesh > VectorBenchmarkFixture::grid_2d;
+Handle< Mesh > VectorBenchmarkFixture::channel_3d;
 
 /// Calculates the centroid of all centroids over a set of quads
 template<typename VectorType>
@@ -129,8 +129,8 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
   grid_2d = allocate_component<Mesh>("grid_2d");
   Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
   channel_3d = allocate_component<Mesh>("channel_3d");
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-  BlockData& block_data = root->create_component<BlockData>("block_data");
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  BlockData& block_data = *root->create_component<BlockData>("block_data");
   Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
   build_mesh(block_data, *channel_3d);
 }

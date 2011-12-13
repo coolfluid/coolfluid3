@@ -82,7 +82,7 @@ public:
   /// @throw ProtocolError if the "key" attribute is missing
   /// @throw CastingFailed if the value could not be cast to the destination type
   /// @throw ShouldNotBeHere if the option type is not recognized
-  static Option::Ptr xml_to_option( const XmlNode & node );
+  static boost::shared_ptr<Option> xml_to_option( const XmlNode & node );
 
   /// Adds options to a provided map.
   /// @param map Map options will be added to. Must be valid.
@@ -98,7 +98,7 @@ public:
 
   /// Gives an option array value converted to a specified TYPE.
   /// This method is a shortcut provided to make the calling code more readable.
-  /// This is equivalent to calling: option(name).cast_to< OptionArrayT<TYPE> >.value_vect()
+  /// This is equivalent to calling: option(name).value< std::vector<TYPE> >()
   /// @param name Option name
   /// @return Returns the cast value as a vector.
   template<typename TYPE>

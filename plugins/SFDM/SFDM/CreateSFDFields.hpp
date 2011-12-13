@@ -28,8 +28,8 @@ class SFDM_API CreateSFDFields : public solver::Action
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CreateSFDFields> Ptr;
-    typedef boost::shared_ptr<CreateSFDFields const> ConstPtr;
+    
+    
 
 public: // functions
 

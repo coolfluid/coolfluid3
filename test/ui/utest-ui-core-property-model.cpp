@@ -9,6 +9,8 @@
 
 #include "common/OptionURI.hpp"
 #include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "ui/core/NTree.hpp"
 #include "ui/core/PropertyModel.hpp"
@@ -36,12 +38,14 @@ BOOST_AUTO_TEST_CASE( init )
 {
   application();
 
+  TreeThread& tree = ThreadManager::instance().tree();
+
   AssertionManager::instance().AssertionDumps = false;
   AssertionManager::instance().AssertionThrows = true;
   ExceptionManager::instance().ExceptionDumps = false;
   ExceptionManager::instance().ExceptionOutputs = false;
 
-  MyNode::Ptr node(new MyNode("MyAdditionalNode"));
+  boost::shared_ptr< MyNode > node(new MyNode("MyAdditionalNode"));
 
   PropertyList& props = node->properties();
   OptionList& opts = node->options();
@@ -51,19 +55,19 @@ BOOST_AUTO_TEST_CASE( init )
   props.store.clear();
   opts.store.clear();
 
-  opts.add_option< OptionURI >("AnUriOption", URI("cpath:/"));
+  opts.add_option("AnUriOption", URI("cpath:/"));
   props.add_property("Euler", Real(2.71));
-  opts.add_option< OptionT<std::string> >("MyString", std::string("Hello, World!"));
+  opts.add_option("MyString", std::string("Hello, World!"));
   props.add_property("Pi", Real(3.14159));
-  opts.add_option< OptionT<bool> >("SomeBool", true);
-  opts.add_option< OptionT<int> >("SomeInt", int(-2168454));
+  opts.add_option("SomeBool", true);
+  opts.add_option("SomeInt", int(-2168454));
   props.add_property("TheAnswer", Uint(42));
 
   BOOST_CHECK_EQUAL( props.store.size(), size_t(3));
   BOOST_CHECK_EQUAL( opts.store.size(), size_t(4));
 
   // add the node to the tree
-  ThreadManager::instance().tree().root()->add_node( node );
+  tree.root()->add_node( node );
 
   // set the node as the current index
   NTree::global()->set_current_index( NTree::global()->index_from_path( node->uri() ) );

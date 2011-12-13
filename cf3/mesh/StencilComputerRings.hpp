@@ -27,8 +27,8 @@ class Mesh_API StencilComputerRings : public StencilComputer
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<StencilComputerRings> Ptr;
-  typedef boost::shared_ptr<StencilComputerRings const> ConstPtr;
+  
+  
 
 public: // functions  
   /// constructor
@@ -43,7 +43,7 @@ private: // functions
 
   void configure_mesh();
   
-  NodeElementConnectivity& node2cell() { return *m_node2cell.lock(); }
+  NodeElementConnectivity& node2cell() { return *m_node2cell; }
 
   void compute_neighbors(std::set<Uint>& included, const Uint unified_elem_idx, const Uint level=0);
 
@@ -51,7 +51,7 @@ private: // data
   
   Uint m_nb_rings;
 
-  boost::weak_ptr<NodeElementConnectivity> m_node2cell;
+  Handle<NodeElementConnectivity> m_node2cell;
   
   std::set<Uint> visited_nodes;
 }; // end StencilComputerRings

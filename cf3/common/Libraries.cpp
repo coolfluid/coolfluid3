@@ -18,6 +18,7 @@
 #include "common/LibLoader.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -35,14 +36,14 @@ Libraries::Libraries ( const std::string& name) : Component ( name )
 {
   TypeInfo::instance().regist<Libraries>(Libraries::type_name());
 
-  m_properties["brief"] = std::string("Library loader");
-  m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
+  properties()["brief"] = std::string("Library loader");
+  properties()["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
   regist_signal( "load_libraries" )
-    ->connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
-    ->description("loads libraries")
-    ->pretty_name("Load Libraries");
+    .connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
+    .description("loads libraries")
+    .pretty_name("Load Libraries");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -78,7 +79,7 @@ std::string Libraries::namespace_to_libname( const std::string& libnamespace )
 
 bool Libraries::is_loaded( const std::string& name )
 {
-  return is_not_null( get_child_ptr( name ) );
+  return is_not_null( get_child( name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,59 +96,32 @@ void Libraries::load_library( const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr Libraries::autoload_library_with_namespace( const std::string& libnamespace )
+Handle<Library> Libraries::autoload_library_with_namespace( const std::string& libnamespace )
 {
   if( libnamespace.empty() )
     throw BadValue( FromHere(), "Library namespace is empty - cannot guess library name" );
 
-  Library::Ptr lib;
-
   const std::string lib_name = namespace_to_libname( libnamespace );
 
   try // to auto-load in case builder not there
   {
-    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+    CFdebug << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<Library>();
+    Handle<Library> lib(get_child( libnamespace ));
+    cf3_assert( is_not_null(lib) );
+    return lib;
   }
   catch(const std::exception& e)
   {
-    throw ValueNotFound(FromHere(),
-                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    return Handle<Library>();
   }
-
-  cf3_assert( is_not_null(lib) );
-
-  return lib;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr Libraries::autoload_library_with_builder( const std::string& builder_name )
+Handle<Library> Libraries::autoload_library_with_builder( const std::string& builder_name )
 {
-  if( builder_name.empty() )
-    throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
-
-  Library::Ptr lib;
-
-  const std::string libnamespace = Builder::extract_namespace( builder_name );
-  const std::string lib_name = namespace_to_libname( libnamespace );
-
-  try // to auto-load in case builder not there
-  {
-    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
-    OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<Library>();
-  }
-  catch(const std::exception& e)
-  {
-    throw ValueNotFound(FromHere(),
-                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
-  }
-
-  cf3_assert( is_not_null(lib) );
-
-  return lib;
+  return autoload_library_with_namespace(Builder::extract_namespace( builder_name ));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,8 +175,8 @@ void Libraries::signature_load_libraries ( SignalArgs& args )
 
   std::vector<URI> dummy;
 
-  options.add_option< OptionArrayT<URI> >("libs", dummy)
-      ->description("Libraries to load");
+  options.add_option("libs", dummy)
+      .description("Libraries to load");
       //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
 }

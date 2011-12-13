@@ -31,8 +31,8 @@ class mesh_actions_API InitFieldConstant : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<InitFieldConstant> Ptr;
-    typedef boost::shared_ptr<InitFieldConstant const> ConstPtr;
+    
+    
 
 public: // functions
   
@@ -54,7 +54,7 @@ private: // data
 
   Real m_constant;
 
-  boost::weak_ptr<Field> m_field;
+  Handle<Field> m_field;
   
 }; // end InitFieldConstant
 

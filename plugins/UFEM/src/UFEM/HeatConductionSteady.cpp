@@ -6,6 +6,8 @@
 
 #include "common/Builder.hpp"
 
+#include "solver/actions/SolveLSS.hpp"
+
 #include "solver/actions/Proto/CProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -17,6 +19,7 @@ namespace UFEM {
 
 using namespace common;
 using namespace solver;
+using namespace solver::actions;
 using namespace solver::actions::Proto;
 
 ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
@@ -43,8 +46,8 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
         system_rhs += _T * nodal_values(heat)
       )
     ))
-    << boundary_conditions()                                                                        // boundary conditions
-    << solve_action()                                                                               // Solve the LSS
+    << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
+    << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
     << create_proto_action("SetSolution", nodes_expression(temperature = solution(temperature)));     // Set the solution
 }
 

@@ -59,7 +59,7 @@ struct MeshSourceGlobalFixture {
   /// Returns a 2D square grid, with side MeshSize
   static const mesh::Mesh& grid2()
   {
-    static mesh::Mesh::Ptr grid2D;
+    static boost::shared_ptr< mesh::Mesh > grid2D;
     if(!grid2D) {
       grid2D = common::allocate_component<mesh::Mesh>("grid2D");
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);

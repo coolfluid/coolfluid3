@@ -80,7 +80,7 @@ void LibLoader::load_library(const std::string& lib)
   else
   {
     CFLog( VERBOSE, "LoadLibrary() failed to load module : '" << libname << "'\n" );
-    throw LibLoadingError (FromHere(), "Module failed to load '" + libname + "'"  );
+    throw LibLoadingError ("Module failed to load '" + libname + "'"  );
   }
 }
 
