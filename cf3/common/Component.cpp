@@ -570,6 +570,11 @@ void Component::signal_print_info ( SignalArgs& args  )
   CFinfo << "  options:" << CFendl;
   CFinfo << options().list_options() << CFendl;
 
+  CFinfo << "  properties:" << CFendl;
+  typedef std::pair<const std::string,boost::any> Property_t;
+  boost_foreach(const Property_t& property, properties() )
+    CFinfo << property.first << "=" << properties().value_str(property.first) << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
