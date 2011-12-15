@@ -681,14 +681,8 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
 
   boost_foreach(Cells& elements, find_components_recursively<Cells>(parent))
   {
-    Connectivity& c2f = *elements.create_component<Connectivity>("face_connectivity");
+    ElementConnectivity& c2f = *elements.create_component<ElementConnectivity>("face_connectivity");
     CFLogVar(c2f.uri());
-    UnifiedData& lookup = c2f.create_lookup();
-    boost_foreach(Entities& entities, find_components_recursively<Entities>(parent))
-    {
-      lookup.add(entities);
-      cf3_assert(c2f.lookup().contains(entities));
-    }
     c2f.resize(elements.size());
     c2f.set_row_size(elements.element_type().nb_faces());
   }
@@ -696,7 +690,7 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
     //CFdebug << PERank << face_elements.uri().path() << CFendl;
-    FaceCellConnectivity& f2c = *Handle<FaceCellConnectivity>(face_elements.get_child("cell_connectivity"));
+    FaceCellConnectivity& f2c = *face_elements.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
     const ElementConnectivity& connectivity = f2c.connectivity();
     const common::List<bool>& is_bdry       = f2c.is_bdry_face();
     const common::Table<Uint>& face_nb      = f2c.face_number();
@@ -707,13 +701,13 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
       //CFdebug << PERank << "    face["<<face_idx<<"]" << CFendl;;
       //CFdebug << PERank << "        --->  cell["<<cell_idx<<"]"<< CFendl;
       Entity left_cell = face.cells()[LEFT];
-      Connectivity& left_c2f = *Handle<Connectivity>(left_cell.comp->get_child("face_connectivity"));
-      left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = left_c2f.lookup().unified_idx(face_elements,face.idx);
+      ElementConnectivity& left_c2f = *left_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
+      left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = Entity(face_elements,idx);
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
-        Connectivity& right_c2f = *Handle<Connectivity>(right_cell.comp->get_child("face_connectivity"));
-        right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = right_c2f.lookup().unified_idx(face_elements,face.idx);
+        ElementConnectivity& right_c2f = *right_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
+        right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = Entity(face_elements,idx);
         //CFdebug << PERank << "        --->  cell[" << cell_idx<<"]"<< CFendl;
       }
     }
