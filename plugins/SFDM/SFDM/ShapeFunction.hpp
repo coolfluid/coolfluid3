@@ -73,6 +73,9 @@ public:
   /// Access the coefficient for interpolation contribution from flx_pt, for the interpolation to sol_pt
   virtual const Real& interpolate_flx_to_sol_coeff(const Uint flx_pt, const Uint direction, const Uint sol_pt) const = 0;
 
+  /// Compute the derivative to a given orientation using the values in flx_pts
+  virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const = 0;
+
   /// Number of solution points
   virtual Uint nb_sol_pts() const = 0;
 
