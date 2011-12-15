@@ -201,9 +201,15 @@ void SFDSolver::config_mesh()
 
 void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 {
+  if( is_null(m_mesh) ) return;
+
   SignalOptions options( args );
 
   URI mesh_uri = options.value<URI>("mesh_uri");
+
+
+  if (mesh().uri().string() != mesh_uri.string())
+    return;
 
   // Carefully see what needs to be changed!!!
   throw NotSupported(FromHere(),"Mesh may not be changed once configured!!! (yet)");

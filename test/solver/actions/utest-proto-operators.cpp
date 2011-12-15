@@ -10,7 +10,6 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-
 #include "solver/CModel.hpp"
 #include "solver/CSolver.hpp"
 
@@ -319,7 +318,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(result) = zero,
       element_quadrature( boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature) )
@@ -331,10 +330,10 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(result) = zero,
-      element_quadrature <<
+      element_quadrature
       (
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature),
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature)
@@ -358,7 +357,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(total) += volume,
       boost::proto::lit(total) += volume
@@ -387,21 +386,6 @@ BOOST_AUTO_TEST_CASE(IntegralConstant)
   BOOST_CHECK_EQUAL(boost::proto::value(IntegralConstantGrammar<3>()(integral_const)), 3);
 }
 
-
-/// Custom op taking indices as argument
-struct IndexPrinter
-{
-  typedef void result_type;
-
-  template<typename I, typename J>
-  void operator()(const I, const J)
-  {
-    std::cout << "I is " << I::value << ", J is " << J::value << std::endl;
-  }
-};
-
-static MakeSFOp<IndexPrinter>::type const print_indices = {};
-
 BOOST_AUTO_TEST_CASE(IndexLooper)
 {
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("QuadGrid");
@@ -416,10 +400,8 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
-      _cout << "i: " << _i << ", j: " << _j << "\n",
-      print_indices(_i, _j),
       boost::proto::lit(result_i) += boost::proto::lit(idx)[_i], // Loop with _i in (0, 1)
       boost::proto::lit(result_j) += boost::proto::lit(idx)[_j], // Loop with _j in (0, 1)
       boost::proto::lit(result_ij) += boost::proto::lit(idx)[_i] + boost::proto::lit(idx)[_j] // Nested loop forall(_i): forall(_j)
@@ -446,7 +428,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     line.topology(),
-    group <<
+    group
     (
       _cout << "i: " << _i << ", j: " << _j << "\n",
       result1d += nabla(u, center)[_i]
