@@ -34,79 +34,157 @@ namespace network {
 
 class ErrorHandler;
 
-/// Manages a TCP connection between to entities where one is a
-/// server and the other one is a client.@n
+/// @brief Manages a TCP/IP connection between two entities where one is a
+/// server and the other one is a client.
 
 /// This class is intented to be used in an asynchronous network architecture.
-/// Therefore, a @c TCPConnection object cannot live outside of a shared
-/// pointer because a such object has to maintain asynchronous operations.
-/// One cannot predict when all of those operations will be completed, using a
-/// shared pointer garantees the connection stays alive until all operations
-/// are done. @c
+/// Therefore, a @c Connection object cannot live outside of a shared pointer
+/// because a such object has to maintain asynchronous operations. One cannot
+/// predict when all of those operations will be completed; using a shared
+/// pointer garantees the connection stays alive until all operations are done.
+/// Use static function @c #create() to create a @c Connection object. @n@n
+
+/// A TCP/IP connection is based on an I/O service that handles the asynchronous
+/// operations and calls an appropriate function when one of those is
+/// completed. @n@n
 
 /// Frames handled by this class have two main parts:
 /// @li A size-fixed header (8 bytes): contains the size in bytes of the frame
 /// data.
-/// @li Frame data: actual data that is sent.
-/// The header is complitely tansparent to the calling code and is use as a
-/// guard to check that all data has arrived and allocate the correct buffer
-/// for the reading process.
-
-/// A TCP connection is based on an I/O service that handles the asynchronous
-/// operations and calls an appropriate function when of those is completed. @n
+/// @li Frame data: actual data that is sent, in XML format.@n@n
+///
+/// The header is completely tansparent to the calling code and is used as a
+/// safeguard to check that all data has arrived and allocate the correct buffer
+/// for the reading process. @n@n
 
 /// This class can be used in both client and server applications. However, an
-/// additional step is need on the server-side: open a network connection and
-/// start accepting new clients connections. @n
+/// additional step is needed on the server-side: open a network connection and
+/// start accepting new clients connections. @n@n
 
-/// @note Due to template code, a lot of Boost headers are included by this
+/// Most interesting method provided by this class are obviously @c #read() and
+/// @c #send(). Both take the same parameters:
+/// @li a non-const reference to a
+/// @link cf3::common::XML::SignalFrame @c SignalFrame @endlink object.
+/// @c #read() uses it as a buffer to which read data will be written. For
+/// @c #send(), it contains the data to send (the reference is non-const because
+/// @link cf3::common::XML::SignalFrame::flush_maps() @c SignalFrame::flush_maps() @endlink
+/// is called before converting the XML to string).
+/// @li the callback function which will be called when asynchronous
+/// operations finishes (on succes or failure). @n@n
+///
+/// The callback function can be created using @c Boost.Bind. Developers are
+/// free on the choice of the paramaters to give to this callback function, but
+/// have to handle those parameters by themselves. However, both @c read and
+/// @c send methods require one placeholder of type @c boost::system::error_code
+/// to store the error code. The placeholder value is given by the network layer.
+/// Examples:
+/// @li call @c read with a callback function that only takes the error code:
+/// @code
+/// connection->read( m_read_buffer, // SignalFrame object. Has to live until the end of the read!
+///                   boost::bind( &MyClass::callback_read, // pointer to callback function
+///                                this,                    // object on which to call the function
+///                                boost::asio::placeholders::error ) // placeholder for error code
+///                 );
+///
+/// // definition of the callback function
+/// void MyClass::callback_read( const boost::system::error_code error )
+/// {
+///   if ( error )
+///   {
+///     // operation failed: m_read_buffer was not modified
+///   {
+///   else
+///   {
+///     // operation succeeded: m_read_buffer contains the parsed XML data
+///   {
+/// }
+/// @endcode
+/// @li call @c read with a callback function that takes the error code and
+/// a @c Connection shared pointer (i.e. a multi-client server application that
+/// wants to know which client is speaking):
+/// @code
+/// connection->read( m_read_buffer, // SignalFrame object. Has to live until the end of the read!
+///                   boost::bind( &MyClass::callback_read, // pointer to callback function
+///                                this,                    // object on which to call the function
+///                                connection,              // 1st parameter for the callback function
+///                                boost::asio::placeholders::error ) // placeholder for error code
+///                 );
+///
+/// // definition of the callback function
+/// void MyClass::callback_read( Connection::Ptr conn, const boost::system::error_code error )
+/// {
+///   /// "conn" is a copy of the shared pointer we gave to @c boost::bind()
+///   if ( error )
+///   {
+///     // operation failed: m_read_buffer was not modified
+///   {
+///   else
+///   {
+///     // operation succeeded: m_read_buffer contains the parse XML data
+///   {
+/// }
+/// @endcode
+/// Similar codes can be applied to @c send function.
+///
+/// The internal socket can be retrieve by calling @c socket(). Developer
+/// can set an error handler by calling @c set_error_handler().
+///
+/// @n@warning Due to template code, a lot of Boost headers are included by this
 /// file, which might increase the compilation time. Please consider only
 /// including this file in a limited number of CPP files (typically, one per
 /// application is sufficient).
 
+/// @sa ErrorHandler
+
 /// @author Quentin Gasper
 
-
-class Network_API TCPConnection
-      : public boost::enable_shared_from_this<TCPConnection>
+class Network_API Connection
+    : public boost::enable_shared_from_this<Connection>
 {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<TCPConnection> Ptr;
-  typedef boost::shared_ptr<TCPConnection const> ConstPtr;
+  typedef boost::shared_ptr<Connection> Ptr;
+  typedef boost::shared_ptr<Connection const> ConstPtr;
 
 public:
 
-  /// Creates a @c TCPConnection instance.
+  /// @brief Creates a @c TCPConnection instance.
   /// @param io_service The I/O service the new connection will be based on.
   /// @return Returns the created instance as a boost share pointer.
   static Ptr create( boost::asio::io_service & ios );
 
-  /// Destructor.
+  /// @brief Destructor.
   /// Cleanly closes the socket.
-  ~TCPConnection();
+  ~Connection();
 
-  /// Gives a referemce to the internal socket.
+  /// @brief Gives a reference to the internal socket.
   /// @return Returns a reference to the internal socket.
   boost::asio::ip::tcp::socket & socket()
   {
     return m_socket;
   }
 
-  /// Gives a constant referemce to the internal socket.
+  /// @brief Gives a constant referemce to the internal socket.
   /// @return Returns a constant reference to the internal socket.
   const boost::asio::ip::tcp::socket & socket() const
   {
     return m_socket;
   }
 
-  /// Sends a message to the remote entity.
+  /// @brief Sends a message to the remote entity.
   /// The message is sent asynchronously and the function returns directly,
-  /// before the data is actually send.
+  /// before the data is actually send. Once the sending is finished,
+  /// the @c callback_function is called with error code
   /// @param data The XML data to send. Must be valid.
-  /// @param callback_function The function to call when sending is finished
-  /// (success or failure).
+  /// @param callback_function The callback function to call when
+  /// asynchronous operation is finished. See this class description for further
+  /// information about callback functions.
+  /// @note
+  /// @li this methods calls @c flush_maps() on @c args
+  /// @li the XML data is converted to string and stored in an internal buffer.
+  /// The calling can the freely reuse the object reference by @c args derectly
+  /// after this method returns.
   template<typename HANDLER>
   void send( cf3::common::XML::SignalFrame & args, HANDLER callback_function )
   {
@@ -117,8 +195,14 @@ public:
     boost::asio::async_write( m_socket, buffers, callback_function );
   }
 
-  /// Initiates an asynchronous reading from the remote entity.
+  /// @brief Initiates an asynchronous reading from the remote entity.
   /// The function returns directly.
+  /// @param args The buffer used to write recieved data.
+  /// @param callback_function The callback function to call when
+  /// asynchronous operation is finished. See this class description for further
+  /// information about callback functions.
+  /// @warning Calling code has to garantee that the object referenced by @c args
+  /// remains alive until the end of the asynchronous operation.
   template< typename HANDLER >
   void read( cf3::common::XML::SignalFrame & args,  HANDLER callback_function )
   {
@@ -128,7 +212,7 @@ public:
     // initiate the async read for the header and bind the callback function
     asio::async_read( m_socket,
                       asio::buffer( m_incoming_header ),
-                      boost::bind( &TCPConnection::callback_header_read<HANDLER>,
+                      boost::bind( &Connection::callback_header_read<HANDLER>,
                                    shared_from_this(),
                                    boost::ref( args ),
                                    shared_from_this(),
@@ -138,15 +222,23 @@ public:
                     );
   }
 
-  void set_error_handler ( boost::weak_ptr<ErrorHandler const> handler );
+  /// Sets an error handler.
+  /// @param handler Error handler to set. Can be expired.
+  void set_error_handler ( boost::weak_ptr<ErrorHandler> handler );
 
 private: // functions
 
-  /// Function called when a reading operation is completed, successfully or not.
+  /// @brief Function called when a frame header has been read, successfully or not.
+  /// This function allocates the frame data buffer depending on the header
+  /// received. If reading has failed or header is not valid, the
+  /// callback function is called with appropriate error code.
   /// @param error Describes the error that occured, if any.
+  /// @param conn The connection
+  /// @param error Error code, if any.
+  /// @param functions Callback function
   template< typename HANDLER >
   void callback_header_read( cf3::common::XML::SignalFrame & args,
-                             TCPConnection::Ptr conn,
+                             Connection::Ptr conn,
                              const boost::system::error_code & error,
                              boost::tuple<HANDLER> functions )
   {
@@ -154,12 +246,17 @@ private: // functions
 
     if ( !error )
     {
-      process_header();
+      boost::system::error_code err = process_header();
+
+      if( err )
+        boost::get<0>( functions )( err );
+      else
+      {
 
       // initiate an async read to get the frame data
       asio::async_read( m_socket,
                         asio::buffer( m_incoming_data, m_incoming_data_size ),
-                        boost::bind( &TCPConnection::callback_data_read<HANDLER>,
+                        boost::bind( &Connection::callback_data_read<HANDLER>,
                                      shared_from_this(),
                                      boost::ref( args ),
                                      shared_from_this(),
@@ -167,6 +264,7 @@ private: // functions
                                      functions
                                      )
                         );
+      }
     }
     else
     {
@@ -174,33 +272,50 @@ private: // functions
     }
   }
 
-  /// Function called when the frame data has been read
+  /// @brief Function called when the frame data has been read.
+  /// @param error Describes the error that occured, if any.
+  /// @param conn The connection
+  /// @param error Error code, if any.
+  /// @param functions Callback function
   template< typename HANDLER >
   void callback_data_read( cf3::common::XML::SignalFrame & args,
-                           TCPConnection::Ptr conn,
+                           Connection::Ptr conn,
                            const boost::system::error_code & error,
                            boost::tuple<HANDLER> functions )
   {
-    if ( !error )
-      parse_frame_data( args );
+    boost::system::error_code err(error);
 
-    boost::get<0>( functions )( error );
+    if ( !error )
+      err = parse_frame_data( args );
+
+    boost::get<0>( functions )( err );
   }
 
 private: // functions
 
-  /// Constructor.
+  /// @brief Constructor.
   /// @param io_service The I/O service the connection will be based on.
-  TCPConnection( boost::asio::io_service& io_service );
+  Connection( boost::asio::io_service& io_service );
 
+  /// @brief Builds the data to be sent on the network.
+  /// @param args XML data. @c flush_maps() is called before converting to string.
+  /// @param buffer Data buffer. First item is the header and second item is
+  /// the frame data. Vector is cleared before first use.
   void prepare_write_buffers( cf3::common::XML::SignalFrame & args,
                               std::vector<boost::asio::const_buffer> & buffers );
 
-  void process_header ();
+  /// @brief Processes a frame header.
+  /// Tries to cast the header to an @c unsigned @c int. On success, allocates
+  /// the data buffer to this size.
+  boost::system::error_code process_header ();
 
-  void parse_frame_data ( cf3::common::XML::SignalFrame & args );
+  /// @brief Parses frame data from string to XML.
+  /// @param args Object where the parsed XML will be written.
+  boost::system::error_code parse_frame_data ( cf3::common::XML::SignalFrame & args );
 
-  void error( const std::string & message ) const;
+  /// @brief Notifies an error if an error handler has been set.
+  /// @param message Error message.
+  void notify_error( const std::string & message ) const;
 
 private: // data
 
@@ -223,12 +338,12 @@ private: // data
   unsigned int m_incoming_data_size;
 
   /// Receiving buffer.
-  /// @warning This buffer does NOT finish by '\0'. Its size is given by
+  /// @warning This buffer does NOT end by '\0'. Its size is given by
   /// @c m_incoming_data_size.
   char * m_incoming_data;
 
   /// Weak pointer to the error handler.
-  boost::weak_ptr<ErrorHandler const> m_error_handler;
+  boost::weak_ptr<ErrorHandler> m_error_handler;
 
 }; // TCPConnection
 

@@ -21,7 +21,7 @@ class Network_API ErrorHandler
 {
 public:
 
-  virtual void error( const std::string & message ) const  {}
+  virtual void error( const std::string & message )  {}
 
 }; // ErrorHandler
 

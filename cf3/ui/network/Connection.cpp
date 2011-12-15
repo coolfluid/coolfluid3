@@ -30,14 +30,14 @@ namespace network {
 
 //////////////////////////////////////////////////////////////////////////////
 
-TCPConnection::Ptr TCPConnection::create( asio::io_service & ios )
+Connection::Ptr Connection::create( asio::io_service & ios )
 {
-  return Ptr( new TCPConnection(ios) );
+  return Ptr( new Connection(ios) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-TCPConnection::TCPConnection( asio::io_service & io_service )
+Connection::Connection( asio::io_service & io_service )
   : m_socket(io_service),
     m_incoming_data(nullptr),
     m_incoming_data_size(0)
@@ -47,26 +47,29 @@ TCPConnection::TCPConnection( asio::io_service & io_service )
 
 /////////////////////////////////////////////////////////////////////////////
 
-TCPConnection::~TCPConnection()
+Connection::~Connection()
 {
-  delete m_incoming_data;
+  delete[] m_incoming_data;
 
-  try
+  if( m_socket.is_open() )
   {
-    // shutdown both reading and writing async ops => "shutdown_both"
-    m_socket.shutdown( tcp::socket::shutdown_both );
-    m_socket.close();
-  }
-  catch( system::error_code & e )
-  {
-    error("An error occured while the socket was shutting down: " + e.message());
+    try
+    {
+      // shutdown both reading and writing async ops => "shutdown_both"
+      m_socket.shutdown( tcp::socket::shutdown_both );
+      m_socket.close();
+    }
+    catch( system::error_code & e )
+    {
+      notify_error("An error occured while the socket was shutting down: " + e.message());
+    }
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::prepare_write_buffers( SignalArgs & args,
-                                           std::vector<asio::const_buffer> & buffers )
+void Connection::prepare_write_buffers( SignalArgs & args,
+                                        std::vector<asio::const_buffer> & buffers )
 {
   cf3_assert( args.node.is_valid() );
 
@@ -88,9 +91,10 @@ void TCPConnection::prepare_write_buffers( SignalArgs & args,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::process_header()
+system::error_code Connection::process_header()
 {
   std::string header_str = std::string( m_incoming_header, HEADER_LENGTH );
+  system::error_code error;
 
   try
   {
@@ -101,32 +105,33 @@ void TCPConnection::process_header()
     // destroy old buffer and allocate the new one
     delete[] m_incoming_data;
     m_incoming_data = new char[m_incoming_data_size];
-
   }
   catch ( boost::bad_lexical_cast & blc ) // thrown by from_str()
   {
-    error( "Could not cast frame header to unsigned int (header content was ["
+    notify_error( "Could not cast frame header to unsigned int (header content was ["
            + header_str + "]).");
   }
   catch ( cf3::common::Exception & cfe )
   {
-    error(cfe.what());
+    notify_error(cfe.what());
   }
   catch ( std::exception & stde )
   {
-    error(stde.what());
+    notify_error(stde.what());
   }
   catch ( ... ) // this function should catch all exception, since it is
   {             // called by some kind of event handler from boost.
-    error("An unknown exception has been raised during frame header processsing.");
+    notify_error("An unknown exception has been raised during frame header processsing.");
   }
 
+  return error;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::parse_frame_data( SignalFrame &args )
+system::error_code Connection::parse_frame_data( SignalFrame &args )
 {
+  system::error_code error;
   try
   {
     std::string frame( m_incoming_data, m_incoming_data_size );
@@ -136,31 +141,33 @@ void TCPConnection::parse_frame_data( SignalFrame &args )
 
   catch ( cf3::common::Exception & cfe )
   {
-   error(cfe.what());
+   notify_error(cfe.what());
   }
   catch ( std::exception & stde )
   {
-    error(stde.what());
+    notify_error(stde.what());
   }
   catch ( ... ) // this function should catch all exception, since it is called
   {             // by some kind of event handler from boost.
-    error("An unknown exception has been raised during frame data processsing.");
+    notify_error("An unknown exception has been raised during frame data processsing.");
   }
+
+  return error;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::set_error_handler( boost::weak_ptr<ErrorHandler const> handler)
+void Connection::set_error_handler( boost::weak_ptr<ErrorHandler> handler)
 {
   m_error_handler = handler;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::error( const std::string & message ) const
+void Connection::notify_error( const std::string & message ) const
 {
-  if( boost::shared_ptr<ErrorHandler const> h = m_error_handler.lock() )
-    h->error(message);
+  if( !m_error_handler.expired() )
+    m_error_handler.lock()->error(message);
 }
 
 //////////////////////////////////////////////////////////////////////////////
