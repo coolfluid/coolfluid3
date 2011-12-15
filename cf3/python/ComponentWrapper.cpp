@@ -18,6 +18,8 @@
 #include "common/Option.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/TimedComponent.hpp"
 #include "common/TypeInfo.hpp"
 #include "common/Signal.hpp"
@@ -32,6 +34,28 @@ namespace python {
 
 // Types that can be held by any
 typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, common::URI, Handle<common::Component> > AnyTypes;
+
+/// Conversion from any to python for basic types
+struct AnyToPython
+{
+  AnyToPython(const boost::any& value, boost::python::object& result) :
+    m_value(value),
+    m_result(result)
+  {
+  }
+  
+  template<typename T>
+  void operator()(T) const
+  {
+    if(typeid(T) != m_value.type())
+      return;
+    
+    m_result = boost::python::object(boost::any_cast<T>(m_value));
+  }
+  
+  const boost::any& m_value;
+  boost::python::object& m_result;
+};
 
 /// Conversion for basic types
 struct PythonToAny
@@ -163,6 +187,16 @@ struct OptionCreator
   const std::string& m_name;
   bool& m_found;
 };
+
+// helper function to convert from any to python
+boost::python::object any_to_python(const boost::any& value)
+{
+  boost::python::object result;
+  boost::mpl::for_each<AnyTypes>(AnyToPython(value, result));
+  if(result.is_none())
+    throw common::CastingFailed(FromHere(), "Failed to convert boost any to a valid python object");
+  return result;
+}
 
 // Helper functions to convert to any
 boost::any python_to_any(const boost::python::object& val, const std::string& target_type)
@@ -461,10 +495,27 @@ void configure_option(common::OptionList* self, const std::string& optname, cons
   option.change_value(python_to_any(val, option.type()));
 }
 
-std::string value_str(const common::OptionList* self, const std::string& optname)
+std::string option_value_str(const common::OptionList* self, const std::string& optname)
 {
   cf3_assert(is_not_null(self));
   return self->option(optname).value_str();
+}
+
+//////////////////// PropertyList /////////////////////////////////////////////////////////////
+
+common::PropertyList* properties(ComponentWrapper& self)
+{
+  return &self.component().properties();
+}
+
+Uint properties_get_len(common::PropertyList* self)
+{
+  return self->store.size();
+}
+
+boost::python::object properties_get_item(common::PropertyList* self, const std::string& name)
+{
+  return any_to_python(self->property(name));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,6 +529,7 @@ void def_component()
     .def("access_component", access_component)
     .def("print_timing_tree", print_timing_tree)
     .def("options", options, boost::python::return_value_policy<boost::python::reference_existing_object>())
+    .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("uri", uri)
     .def("__len__", get_len)
     .def("__getitem__", get_item)
@@ -486,7 +538,11 @@ void def_component()
     
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
-    .def("value_str", value_str, "String value for an option");
+    .def("value_str", option_value_str, "String value for an option");
+    
+  boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
+    .def("__len__", properties_get_len)
+    .def("__getitem__", properties_get_item);
 }
 
 } // python
