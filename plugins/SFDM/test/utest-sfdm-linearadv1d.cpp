@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv2D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("rk_order",time_order);
+  solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////

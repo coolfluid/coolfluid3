@@ -188,16 +188,21 @@ void Flyweight::reconstruct_solution_in_flx_pt(const Uint flx_pt, RealVector& so
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Flyweight::add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt)
+void Flyweight::add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt,bool outward)
 {
   cf3_assert(sf.flx_pt_dirs(flx_pt).size()==1);
   Uint var;
   boost_foreach(const Uint direction, sf.flx_pt_dirs(flx_pt))
-  boost_foreach(const Uint sol_pt, sf.interpolate_grad_flx_to_sol_used_sol_pts(flx_pt,direction))
   {
-    term.cache.coeff = sf.interpolate_grad_flx_to_sol_coeff(flx_pt,direction,sol_pt);
-    for (var=0; var<flx_in_flx_pt.size(); ++var)
-      element->residual[sol_pt][var] -= term.cache.coeff * flx_in_flx_pt[var] / element->jacob_det[sol_pt][0];
+    const Uint dir = sf.flx_pt_dirs(flx_pt)[0];
+    const Real sign = sf.flx_pt_sign(flx_pt,dir) * (outward ? 1. : -1. );
+    // sign is positive if unit-normal is positive in coord direction
+    boost_foreach(const Uint sol_pt, sf.interpolate_grad_flx_to_sol_used_sol_pts(flx_pt,direction))
+    {
+      term.cache.coeff = sf.interpolate_grad_flx_to_sol_coeff(flx_pt,direction,sol_pt);
+      for (var=0; var<flx_in_flx_pt.size(); ++var)
+        element->residual[sol_pt][var] -= term.cache.coeff * sign * flx_in_flx_pt[var] / element->jacob_det[sol_pt][0];
+    }
   }
 }
 
@@ -224,14 +229,15 @@ void Flyweight::compute_analytical_flux(const Uint flx_pt, const RealVector& sol
   cf3_assert(sf.flx_pt_dirs(flx_pt).size()==1);
 
   geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)sf.flx_pt_dirs(flx_pt)[0],term.cache.plane_jacobian_normal);
+  RealVector coord = geometry.shape_function().value(sf.flx_pts().row(flx_pt)) * term.cache.geometry_nodes;
 
   // compute physical properties in flux point
-  term.solution_vars().compute_properties(term.cache.geometry_nodes.row(0),sol_in_flx_pt, term.cache.dummy_grads, *term.cache.phys_props);
+  term.solution_vars().compute_properties(coord,sol_in_flx_pt, term.cache.dummy_grads, *term.cache.phys_props);
   // compute flux in flux point
   term.solution_vars().flux(*term.cache.phys_props,term.cache.plane_jacobian_normal,flx_in_flx_pt);
 
-//  // transform physical flux to local coordinate system
-//  flx_in_flx_pt = term.cache.phys_flux*term.cache.plane_jacobian_normal;
+  /// this is required if flx_pt is also a face_pt, because add_flx_pt_gradient_contribution_to_residual takes this into account
+  flx_in_flx_pt *= sf.flx_pt_sign(flx_pt,sf.flx_pt_dirs(flx_pt)[0]);
 
   if (term.m_compute_wave_speed)
   {
@@ -250,17 +256,19 @@ void Flyweight::compute_numerical_flux(const Uint flx_pt, const RealVector& sol_
   const Uint dir = sf.flx_pt_dirs(flx_pt)[0];
   const Real sign = sf.flx_pt_sign(flx_pt,dir);
   geometry.compute_plane_jacobian_normal(sf.flx_pts().row(flx_pt),term.cache.geometry_nodes,(CoordRef)dir,term.cache.plane_jacobian_normal);
+
+  RealVector coord = geometry.shape_function().value(sf.flx_pts().row(flx_pt)) * term.cache.geometry_nodes;
   term.cache.plane_jacobian_det = term.cache.plane_jacobian_normal.norm();
   term.cache.unit_normal = sign*term.cache.plane_jacobian_normal/term.cache.plane_jacobian_det;
   if (term.m_compute_wave_speed)
   {
-    term.riemann_solver().compute_interface_flux_and_wavespeeds(sol_left,sol_right,term.cache.unit_normal,flx_in_flx_pt,term.cache.phys_ev);
+    term.riemann_solver().compute_interface_flux_and_wavespeeds(sol_left,sol_right,coord,term.cache.unit_normal,flx_in_flx_pt,term.cache.phys_ev);
     ws_in_flx_pt = term.cache.plane_jacobian_det * term.cache.phys_ev.cwiseAbs().maxCoeff()/2.;
   }
   else
-    term.riemann_solver().compute_interface_flux(sol_left,sol_right,term.cache.unit_normal,flx_in_flx_pt);
+    term.riemann_solver().compute_interface_flux(sol_left,sol_right,coord,term.cache.unit_normal,flx_in_flx_pt);
 
-  flx_in_flx_pt *= sign*term.cache.plane_jacobian_det;
+  flx_in_flx_pt *= term.cache.plane_jacobian_det;
 }
 
 /////////////////////////////////////////////////////////////////////////////

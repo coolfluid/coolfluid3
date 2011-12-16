@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Builder.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
@@ -34,10 +37,10 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
   *this <<                                                                                          // The linear problem (= inner loop, but executed once here)
     create_proto_action("Assembly", elements_expression                                             // Assembly action added to linear problem
     (
-      group <<
+      group
       (
         _A = _0, _T = _0,
-        element_quadrature <<
+        element_quadrature
         (
           _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
           _T(temperature) += transpose(N(temperature))*N(temperature)

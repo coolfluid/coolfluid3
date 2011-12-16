@@ -4,12 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
 #include <boost/assign.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
+
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
@@ -98,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
-  
+
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
@@ -110,7 +114,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
       elements_expression
       (
         allowed_elements,
-        group <<
+        group
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
@@ -153,7 +157,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Run the solver
   model.simulate();
-  
+
   // Write data pertaining to communication
   Field& comm_field = mesh.geometry_fields().create_field("comm", "ghosts, updatable, rank");
   const Uint nb_nodes = mesh.geometry_fields().size();
