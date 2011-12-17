@@ -174,166 +174,6 @@ private:
 //  }
 
 
-
-/// ElementData base class is a component. It is counted on not many of these objects will be created
-/// using a caching/locking mechanism
-class ElementDataBase //: public common::Component
-{
-public:
-
-  ElementDataBase(const std::string& name) //: common::Component(name)
-  {
-    m_idx = math::Consts::uint_max();
-    std::cout<<"Create new " << name;
-    unlock();
-  }
-
-  virtual void allocate(const Entities& entities_comp)
-  {
-    std::cout<<" for " << entities_comp.uri() <<std::endl;
-    entities = entities_comp.handle<Entities>();
-    space = entities->geometry_space().handle<mesh::Space>();
-    sf = space->shape_function().handle<mesh::ShapeFunction>();
-    entities->allocate_coordinates(nodes);
-  }
-
-  virtual void compute_element_data(const Uint elem_idx)
-  {
-    m_idx=elem_idx;
-    entities->put_coordinates(nodes,m_idx);
-  }
-
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Entities const      > entities;
-  Handle< mesh::Space const         > space;
-  Handle< mesh::ShapeFunction const > sf;
-
-  // extrinsic state (changed for every computation)
-  RealMatrix nodes;
-  Uint m_idx;
-
-  // locking mechanism
-  bool locked() const { return m_locked; }
-  void lock() { m_locked=true; }
-  void unlock() { m_locked=false; }
-
-private:
-  bool m_locked;
-};
-
-struct ElementDataA : ElementDataBase
-{
-  static std::string type_name() { return "ElementDataA"; }
-  ElementDataA (const std::string& name=type_name()) : ElementDataBase(name) {}
-};
-struct ElementDataB : ElementDataBase
-{
-  static std::string type_name() { return "ElementDataB"; }
-  ElementDataB (const std::string& name=type_name()) : ElementDataBase(name) {}
-};
-struct ElementDataZ : ElementDataBase
-{
-  static std::string type_name() { return "ElementDataZ"; }
-  ElementDataZ (const std::string& name=type_name()) : ElementDataBase(name) {}
-};
-
-#define ELEMENTDATA_MAX_CACHE_SIZE 2
-//#define ElementDataHandle boost::shared_ptr
-
-template <typename ElementData>
-ElementDataHandle<ElementData>::~ElementDataHandle()
-{
-  if (is_not_null(m_element_data))
-    m_element_data->unlock();
-}
-template <typename ElementData>
-ElementDataHandle<ElementData>::ElementDataHandle(boost::shared_ptr<ElementData>& element_data) :
-  m_element_data(element_data.get())
-{
-  m_element_data->lock();
-}
-template <typename ElementData>
-ElementDataHandle<ElementData>::ElementDataHandle() :
-  m_element_data(nullptr)
-{
-}
-
-template <typename ElementData>
-class ElementDataFactory : public common::Component
-{
-public:
-  typedef Entities const* KEY;
-
-  ElementDataFactory(const std::string& name) :
-    common::Component(name),
-    m_max_cache_size(ELEMENTDATA_MAX_CACHE_SIZE)
-  {
-  }
-
-  static std::string type_name() { return "ElementDataFactory"; }
-
-  void set_max_cache_size(const Uint max_cache_size)
-  {
-    m_max_cache_size=max_cache_size;
-  }
-
-  /// destructor
-  virtual ~ElementDataFactory()
-  {
-    while(!m_element_datas.empty())
-    {
-      typename std::map< KEY, std::vector<boost::shared_ptr<ElementData> > >::iterator it = m_element_datas.begin();
-//      std::vector<boost::shared_ptr<ElementData> >& cached_ElementDatas = it->second;
-//      boost_foreach(ElementData* t, cached_ElementDatas)
-//      {
-//        delete t;
-//      }
-      m_element_datas.erase(it);
-    }
-
-  }
-
-  /// Create ElementData if non-existant, else get the ElementData and lock it through ElementDataHandle constructor
-  ElementDataHandle<ElementData> get_element_data(const Entities& entities, Uint idx)
-  {
-    typename std::map< KEY, std::vector<boost::shared_ptr<ElementData> > >::iterator it = m_element_datas.find(&entities);
-    if(it != m_element_datas.end())
-    {
-      boost_foreach(boost::shared_ptr<ElementData>& t, it->second)
-      {
-        if(t->m_idx==idx) // safe to use
-        {
-          std::cout << "ElementData is shared for " << entities.uri() << std::endl;
-          return ElementDataHandle<ElementData>(t);
-        }
-        if(t->locked()==false) // safe to use
-        {
-          std::cout << "Use available ElementData for " << entities.uri() << std::endl;
-          return ElementDataHandle<ElementData>(t);
-        }
-
-      }
-      if (it->second.size() == m_max_cache_size) // Check for caching
-        throw InvalidStructure(FromHere(),"All ElementDatas are locked for "+entities.uri().string()+" created. (max_cache_size="+to_str(m_max_cache_size)+")");
-    }
-
-//    boost::shared_ptr<ElementData> ElementData = allocate_component<ElementData>(ElementData::type_name());
-    boost::shared_ptr<ElementData> element_data ( new ElementData );
-    element_data->allocate(entities);
-
-    if(it != m_element_datas.end())
-      it->second.push_back(element_data);
-    else
-      m_element_datas[&entities]=std::vector< boost::shared_ptr<ElementData> >(1,element_data);
-
-    return ElementDataHandle<ElementData>(element_data);
-  }
-
-private:
-  Uint m_max_cache_size;
-  std::map< KEY, std::vector<boost::shared_ptr<ElementData> > > m_element_datas;
-};
-
 #define ReconstructBase_Operation_Count
 #ifdef ReconstructBase_Operation_Count
 #define increase_elementary_operations ++ReconstructBase::elementary_operations
@@ -717,73 +557,542 @@ private:
   std::vector<ReconstructPoint> m_reconstruct;
 };
 
-struct ConvectiveTerm
+
+
+/// ElementData base class is a component. It is counted on not many of these objects will be created
+/// using a caching/locking mechanism
+class ElementDataBase //: public common::Component
 {
-  ConvectiveTerm() :
-    data(allocate_component<ElementDataFactory<ElementDataA> >("element_data"))
+public:
+
+  ElementDataBase(const std::string& name) //: common::Component(name)
+  {
+    idx = math::Consts::uint_max();
+    std::cout<<"Create new " << name;
+    unlock();
+  }
+
+  virtual void configure(const Entities& entities_comp)
+  {
+    std::cout<<" for " << entities_comp.uri() <<std::endl;
+    // reset and reconfigure for this element type
+    unlock();
+    if(entities)
+    {
+      if (&entities_comp==entities.get())
+      {
+        return;
+      }
+    }
+    // compute if it was not configured yet
+    idx = math::Consts::uint_max();
+    entities = entities_comp.handle<Entities>();
+    compute_fixed_data();
+  }
+
+  // mark this object as locked, must unlock manualy
+  void compute_element(const Uint elem_idx)
+  {
+    lock();
+    if (idx != elem_idx)
+    {
+      idx = elem_idx;
+      compute_variable_data();
+    }
+  }
+
+  Handle< mesh::Entities const      > entities;
+  Uint idx;
+
+  // locking mechanism
+  bool locked() const { return m_locked; }
+  void lock() { m_locked=true; }
+  void unlock() { m_locked=false; }
+
+private:
+
+  virtual void compute_fixed_data() = 0;
+  virtual void compute_variable_data() = 0;
+
+private:
+  bool m_locked;
+};
+
+struct GeometryElementData : ElementDataBase
+{
+  static std::string type_name() { return "GeometryElementData"; }
+  GeometryElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
+private:
+  virtual void compute_fixed_data()
+  {
+    cf3_assert(entities);
+    space = entities->geometry_space().handle<mesh::Space>();
+    sf = space->shape_function().handle<mesh::ShapeFunction>();
+    entities->allocate_coordinates(nodes);
+  }
+
+  virtual void compute_variable_data()
+  {
+    entities->put_coordinates(nodes,idx);
+  }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< mesh::ShapeFunction const > sf;
+
+  // extrinsic state (changed for every computation)
+  RealMatrix nodes;
+};
+
+template <Uint NEQS=1>
+struct SpectralElementData : ElementDataBase
+{
+  static std::string type_name() { return "SpectralElementData"; }
+  SpectralElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
+
+private:
+  virtual void compute_fixed_data()
+  {
+    geo.configure(*entities);
+    space = entities->space("sfd_space").handle<Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+
+    reconstruct_to_flux_points.build_coefficients(sf);
+    compute_divergence_from_flux_points.build_coefficients(sf);
+
+    sol_in_flx_pts.resize(sf->nb_flx_pts());
+    flx_in_flx_pts.resize(sf->nb_flx_pts());
+    plane_jacobian_normal.resize(sf->nb_flx_pts(),RealVector(entities->element_type().dimension()));
+  }
+
+  virtual void compute_variable_data()
+  {
+    geo.compute_element(idx); // computes geo.nodes, for use of plane_jacobian normals
+
+    // compute plane-jacobian normals
+    const RealMatrix& flx_pts = sf->flx_pts();
+    for (Uint f=0; f<sf->nb_flx_pts(); ++f)
+    {
+      cf3_assert(sf->flx_pt_dirs(f).size() == 1);
+      CoordRef dir = static_cast<CoordRef>(sf->flx_pt_dirs(f)[0]);
+      geo.entities->element_type().
+          compute_plane_jacobian_normal(flx_pts.row(f),geo.nodes,dir,
+                                        plane_jacobian_normal[f]);
+    }
+  }
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  GeometryElementData geo;
+  std::vector<RealVector> plane_jacobian_normal;
+  ReconstructToFluxPoints reconstruct_to_flux_points;
+  DivergenceReconstructFromFluxPoints compute_divergence_from_flux_points;
+  typedef Eigen::Matrix<Real, NEQS, 1> state_t;
+  std::vector<state_t> sol_in_flx_pts;
+  std::vector<state_t> flx_in_flx_pts;
+};
+
+template <Uint NEQS=1>
+struct SpectralNeighbourElementData : ElementDataBase
+{
+  static std::string type_name() { return "SpectralNeighbourElementData"; }
+  SpectralNeighbourElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
+
+private:
+  virtual void compute_fixed_data()
+  {
+    space = entities->space("sfd_space").handle<Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+    reconstruct_to_flux_points.build_coefficients(sf);
+    sol_in_flx_pts.resize(sf->nb_flx_pts());
+  }
+  virtual void compute_variable_data() {}
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  ReconstructToFluxPoints reconstruct_to_flux_points;
+  typedef Eigen::Matrix<Real, NEQS, 1> state_t;
+  std::vector<state_t> sol_in_flx_pts;
+};
+
+struct DummyElementData : ElementDataBase
+{
+  static std::string type_name() { return "DummyElementData"; }
+  DummyElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
+private:
+  virtual void compute_fixed_data() {}
+  virtual void compute_variable_data() {}
+};
+
+#define ELEMENTDATA_MAX_CACHE_SIZE 2
+//#define ElementDataHandle boost::shared_ptr
+
+template <typename ElementData>
+ElementDataHandle<ElementData>::~ElementDataHandle()
+{
+  if (is_not_null(m_element_data))
+    m_element_data->unlock();
+}
+template <typename ElementData>
+ElementDataHandle<ElementData>::ElementDataHandle(boost::shared_ptr<ElementData>& element_data) :
+  m_element_data(element_data.get())
+{
+  m_element_data->lock();
+}
+template <typename ElementData>
+ElementDataHandle<ElementData>::ElementDataHandle() :
+  m_element_data(nullptr)
+{
+}
+
+template <typename ElementData>
+class ElementDataFactory : public common::Component
+{
+public:
+  typedef Entities const* KEY;
+
+  ElementDataFactory(const std::string& name) :
+    common::Component(name),
+    m_max_cache_size(ELEMENTDATA_MAX_CACHE_SIZE)
+  {
+  }
+
+  static std::string type_name() { return "ElementDataFactory"; }
+
+  void set_max_cache_size(const Uint max_cache_size)
+  {
+    m_max_cache_size=max_cache_size;
+  }
+
+  /// destructor
+  virtual ~ElementDataFactory()
+  {
+    while(!m_element_datas.empty())
+    {
+      typename std::map< KEY, std::vector<boost::shared_ptr<ElementData> > >::iterator it = m_element_datas.begin();
+//      std::vector<boost::shared_ptr<ElementData> >& cached_ElementDatas = it->second;
+//      boost_foreach(ElementData* t, cached_ElementDatas)
+//      {
+//        delete t;
+//      }
+      m_element_datas.erase(it);
+    }
+
+  }
+
+  /// Create ElementData if non-existant, else get the ElementData and lock it through ElementDataHandle constructor
+  ElementDataHandle<ElementData> get_element_data(const Entities& entities, int idx=-1)
+  {
+    typename std::map< KEY, std::vector<boost::shared_ptr<ElementData> > >::iterator it = m_element_datas.find(&entities);
+    if(it != m_element_datas.end())
+    {
+      boost_foreach(boost::shared_ptr<ElementData>& t, it->second)
+      {
+        if(static_cast<int>(t->idx)==idx) // safe to use
+        {
+          std::cout << "ElementData is shared for " << entities.uri() << "["<<idx<<"]" << std::endl;
+          return ElementDataHandle<ElementData>(t);
+        }
+        if(t->locked()==false) // safe to use
+        {
+          std::cout << "Use available ElementData for " << entities.uri() << std::endl;
+          return ElementDataHandle<ElementData>(t);
+        }
+
+      }
+      if (it->second.size() == m_max_cache_size) // Check for caching
+        throw InvalidStructure(FromHere(),"All ElementDatas are locked for "+entities.uri().string()+" created. (max_cache_size="+to_str(m_max_cache_size)+")");
+    }
+
+//    boost::shared_ptr<ElementData> ElementData = allocate_component<ElementData>(ElementData::type_name());
+    boost::shared_ptr<ElementData> element_data ( new ElementData );
+    element_data->configure(entities);
+
+    if(it != m_element_datas.end())
+      it->second.push_back(element_data);
+    else
+      m_element_datas[&entities]=std::vector< boost::shared_ptr<ElementData> >(1,element_data);
+
+    return ElementDataHandle<ElementData>(element_data);
+  }
+
+private:
+  Uint m_max_cache_size;
+  std::map< KEY, std::vector<boost::shared_ptr<ElementData> > > m_element_datas;
+};
+
+class ElementDataFactoryMother : public Component
+{
+public:
+  static std::string type_name() { return "ElementDataFactoryMother"; }
+  ElementDataFactoryMother(const std::string& name) : Component(name) {}
+  virtual ~ElementDataFactoryMother() {}
+  template <typename ElementData>
+  Handle< ElementDataFactory<ElementData> > factory()
+  {
+    Handle< ElementDataFactory<ElementData> > fac = Handle< ElementDataFactory<ElementData> >(get_child(ElementData::type_name()));
+    if (!fac) // if not available, generate it
+    {
+      std::cout << "Creating ElementDataFactory for " << ElementData::type_name() << std::endl;
+      fac = create_component< ElementDataFactory<ElementData> >(ElementData::type_name());
+    }
+    return fac;
+  }
+};
+
+
+// UBER shared almost global struct
+class DomainDiscretizer : public Component
+{
+public:
+  static std::string type_name() { return "DomainDiscretizer"; }
+  DomainDiscretizer(const std::string& name) :
+    Component(name)
+  {
+    factory_mother = create_static_component<ElementDataFactoryMother>("factory_mother");
+    terms = create_static_component<Group>("terms");
+  }
+  virtual ~DomainDiscretizer() {}
+
+  template <typename TermT>
+  Handle<TermT> create_term(const std::string& name)
+  {
+    Handle<TermT> term = terms->create_component<TermT>(name);
+    term->set_discretizer(*this);
+    cf3_assert(term->discretizer);
+    return term;
+  }
+
+  void set_element(const Entities& entities_c, const Uint idx)
+  {
+    entities = entities_c.handle<Entities>();
+    elem=idx;
+  }
+
+  void execute();
+
+  Handle<Entities const> entities;
+  Uint elem;
+
+  Handle<ElementDataFactoryMother> factory_mother;
+  Handle<Group> terms;
+
+  Handle<Field> solution_field;
+  Handle<Field> residual;
+  Handle<Field> jacobian_determinant;
+  Handle<Field> wave_speed;
+};
+
+class Term : public Component
+{
+public:
+  static std::string type_name() { return "Term"; }
+  Term(const std::string& name) : Component(name), store_term_in_field(true) {}
+  virtual ~Term() {}
+  virtual void execute(const Entities& entities, const Uint elem_idx) = 0;
+
+  Handle<DomainDiscretizer> discretizer;
+
+  // Must be called right after construction
+  Handle<DomainDiscretizer> set_discretizer(DomainDiscretizer& _discretizer)
+  {
+      discretizer = _discretizer.handle<DomainDiscretizer>();
+      cf3_assert(discretizer);
+      create_term_field();
+      return discretizer;
+  }
+
+  void create_term_field()
+  {
+    term_field = discretizer->solution_field->field_group().create_field(name(),term_names()).handle<Field>();
+  }
+  virtual std::string term_names()
+  {
+    boost::shared_ptr<VariablesDescriptor> vars(allocate_component<VariablesDescriptor>("tmp"));
+    cf3_assert(vars);
+    cf3_assert(discretizer);
+    cf3_assert(discretizer->solution_field);
+    vars->set_variables(discretizer->solution_field->descriptor().description());
+    vars->prefix_variable_names(name()+"_");
+    return vars->description();
+  }
+
+  template <typename ElementData>
+  void set_element(const Entities& cell, const Uint cell_idx, ElementDataHandle<ElementData>& elem)
+  {
+    if (is_not_null(elem.get()))
+      elem->unlock();
+    cf3_assert(discretizer);
+    elem = discretizer->factory_mother->factory<ElementData>()->get_element_data(cell,cell_idx);
+    elem->compute_element(cell_idx);
+    precompute();
+  }
+
+  virtual void precompute() {};
+
+  template <typename ElementData, typename NeighbourElementData>
+  void set_neighbour(const ElementDataHandle<ElementData>& elem, const Uint face_nb, ElementDataHandle<NeighbourElementData>& neighbour_elem)
+  {
+    ElementConnectivity const& face_connectivity = *elem->entities->get_child("face_connectivity")->handle<ElementConnectivity>();
+    Entity face = face_connectivity[elem->idx][face_nb];
+    FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
+    if (cell_connectivity.is_bdry_face()[face.idx])
+    {
+      neighbour_elem = ElementDataHandle<NeighbourElementData>();
+    }
+    else
+    {
+      Entity neighbour;
+      if (cell_connectivity.connectivity()[face.idx][LEFT].comp == elem->entities.get() &&
+          cell_connectivity.connectivity()[face.idx][LEFT].idx == elem->idx)
+        neighbour = cell_connectivity.connectivity()[face.idx][LEFT];
+      else
+        neighbour = cell_connectivity.connectivity()[face.idx][RIGHT];
+      neighbour_elem = discretizer->factory_mother->factory<NeighbourElementData>()->get_element_data(*neighbour.comp,neighbour.idx);
+      neighbour_elem->compute_element(neighbour.idx);
+    }
+  }
+
+  bool store_term_in_field;
+  Handle<Field> term_field;
+};
+
+void DomainDiscretizer::execute()
+{
+//    element_data->compute_element_data(elem);
+//    Field::View sfd_sol_in_sol_pts = sfd_coords.view(element_data->space->indexes_for_element(elem));
+//    reconstruct_to_flx_pts(sfd_sol_in_sol_pts,sfd_sol_in_flx_pts);
+//    std::cout << sfd_sol_in_flx_pts.transpose() << std::endl;
+
+  // convective terms:
+  // Per term, create a field (good for visualization)
+  // So 1 term needs: analytical-flux-function,  numerical-flux-function,  boundary-condition
+//      Field::View sfd_div_flx = sfd_coord_grad.view(sfd_elem->space->indexes_for_element(elem_idx));
+//      divergence_reconstruct_from_flx_pts(convection->flx_in_flx_pts,sfd_div_flx);
+  // transform term to physical space
+
+  // diffusive terms:
+  // ...
+
+  // source terms:
+  // ...
+
+    boost_foreach(Term& term, find_components<Term>(*terms))
+    {
+      term.execute(*entities,elem);
+    }
+}
+
+
+template <Uint NEQS>
+class ConvectiveTerm : public Term
+{
+public:
+  static std::string type_name() { return "ConvectiveTerm"; }
+  ConvectiveTerm(const std::string& name) : Term(name) {}
+  virtual ~ConvectiveTerm() {}
+
+  Uint nb_eqs() const { return NEQS; }
+  Uint flx_pt;
+
+  // Convective term execution
+  // -------------------------
+
+  void execute(const Entities& entities, const Uint elem_idx)
+  {
+    set_element(entities,elem_idx,elem);
+    elem->reconstruct_to_flux_points(discretizer->solution_field->view(elem->space->indexes_for_element(elem->idx)),elem->sol_in_flx_pts);
+
+    boost_foreach(flx_pt, elem->sf->interior_flx_pts())
+    {
+      std::cout << "compute analytical flux in flx_pt["<<flx_pt<<"]"<<std::endl;
+      compute_analytical_flux();
+    }
+    for(Uint f=0; f<elem->sf->nb_faces(); ++f)
+    {
+      set_neighbour(elem,f,neighbour_elem);
+      if ( is_not_null(neighbour_elem.get()) )
+      {
+        // 2) solve riemann problem on interior-faces  ----> Flux   ( linked with (1) )
+        //     Save in face (yes/no)
+        boost_foreach(flx_pt, elem->sf->face_flx_pts(f))
+        {
+          std::cout << "compute numerical flux in flx_pt["<<flx_pt<<"]" << std::endl;
+          neighbour_elem->reconstruct_to_flux_points(discretizer->solution_field->view(neighbour_elem->space->indexes_for_element(neighbour_elem->idx)),neighbour_elem->sol_in_flx_pts);
+          std::cout << "neighbour sol_in_flx_pt = " << neighbour_elem->sol_in_flx_pts[f] << std::endl;
+          compute_numerical_flux();
+        }
+        neighbour_elem->unlock();
+      }
+      else
+      {
+        // 3) solve boundary condition on outer-faces  ----> Flux
+        // - see which face this is on, and apply correct BC, depending on 2 parameters:
+        //   --> term and location
+        boost_foreach(flx_pt, elem->sf->face_flx_pts(f))
+        {
+          compute_boundary_flux();
+        }
+      }
+    }
+    // compute divergence in solution points
+    Field::View term = term_field->view(elem->space->indexes_for_element(elem->idx));
+    elem->compute_divergence_from_flux_points(elem->flx_in_flx_pts,term);
+    std::cout << "div_flx = " << to_str(term) << std::endl; //elem->divergence_from_flux_points(elem->flx_in_flx_pts).transpose() << std::endl;
+
+    Field::View residual = discretizer->residual->view(elem->space->indexes_for_element(elem->idx));
+    for (Uint sol_pt=0; sol_pt<elem->sf->nb_sol_pts(); ++sol_pt) {
+      for (Uint v=0; v<NEQS; ++v) {
+        residual[sol_pt][v] -= term[sol_pt][v];
+      }
+    }
+  }
+
+  // Flux evaluations
+  // ----------------
+  virtual void compute_analytical_flux() = 0;
+  virtual void compute_numerical_flux() = 0;
+  virtual void compute_boundary_flux() = 0;
+
+  // Data
+  ElementDataHandle< SpectralElementData<NEQS>          > elem;
+  ElementDataHandle< SpectralNeighbourElementData<NEQS> > neighbour_elem;
+};
+
+class LinearAdvection : public ConvectiveTerm<1u>
+{
+public:
+  static std::string type_name() { return "LinearAdvection"; }
+  LinearAdvection(const std::string& name) : ConvectiveTerm(name)
   {
     analytical_flux.functions("2.*x");
     analytical_flux.variables("x");
     analytical_flux.parse();
   }
+  virtual ~LinearAdvection() {}
 
-  void set_element(Handle<Entities const> entities_h, const Uint idx)
+  virtual void precompute() {}
+
+  virtual void compute_analytical_flux()
   {
-    if (is_not_null(elem_data.get()))
-      elem_data->unlock();
-    elem = idx;
-    entities = entities_h;
-    elem_data = data->get_element_data(*entities,elem);
-    elem_data->lock();
-    elem_data->compute_element_data(elem);
+    analytical_flux.evaluate(elem->sol_in_flx_pts[flx_pt],elem->flx_in_flx_pts[flx_pt]);
+  }
+  virtual void compute_numerical_flux()
+  {
+    analytical_flux.evaluate(elem->sol_in_flx_pts[flx_pt],elem->flx_in_flx_pts[flx_pt]);
+  }
+  virtual void compute_boundary_flux()
+  {
+    analytical_flux.evaluate(elem->sol_in_flx_pts[flx_pt],elem->flx_in_flx_pts[flx_pt]);
   }
 
-  void set_neighbour(const Uint face_nb)
-  {
-    ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
-    Entity const& face = face_connectivity[elem][face_nb];
-    std::cout << "setting neighbour face " << face << std::endl;
-    FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
-    Entity neighbour;
-    if (cell_connectivity.is_bdry_face()[face.idx])
-    {
-      std::cout << "no neighbour because boundary face" << std::endl;
-      return;
-    }
-    if (cell_connectivity.connectivity()[face.idx][LEFT].comp == entities.get() &&
-        cell_connectivity.connectivity()[face.idx][LEFT].idx == elem)
-      neighbour = cell_connectivity.connectivity()[face.idx][LEFT];
-    else
-      neighbour = cell_connectivity.connectivity()[face.idx][RIGHT];
-    neighbour_elem_data = data->get_element_data(*neighbour.comp,neighbour.idx);
-    neighbour_elem_data->compute_element_data(neighbour.idx);
-  }
-
-  template <typename sol_t, typename flx_t>
-  void compute_analytical_flux( const sol_t& solution, const flx_t& flux) const
-  {
-    analytical_flux.evaluate(solution,flux);
-  }
-
-  template <typename sol_t, typename flx_t>
-  void compute_numerical_flux( const sol_t& solution, const flx_t& flux) const
-  {
-    analytical_flux.evaluate(solution,flux);
-  }
-
-  template <typename sol_t, typename flx_t>
-  void compute_boundary_flux( const sol_t& solution, const flx_t& flux) const
-  {
-    analytical_flux.evaluate(solution,flux);
-  }
+private:
   math::VectorialFunction analytical_flux;
-
-  Uint elem;
-  Handle<Entities const> entities;
-  ElementDataHandle<ElementDataA> elem_data;
-  ElementDataHandle<ElementDataA> neighbour_elem_data;
-  boost::shared_ptr< ElementDataFactory<ElementDataA> > data;
 };
+
 
 BOOST_AUTO_TEST_CASE( sandbox )
 {
@@ -815,108 +1124,56 @@ BOOST_AUTO_TEST_CASE( sandbox )
   build_faces->options().configure_option("store_cell2face",true);
   build_faces->transform(*mesh);
 
-  SpaceFields& sfd_space_fields = mesh->create_space_and_field_group("sfd_space",SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P5");
-  Field& sfd_coords = sfd_space_fields.create_field("coords","X[vector]");
-  Field& sfd_coord_grad = sfd_space_fields.create_field("coords","dXdx[vector]");
+  SpaceFields& sfd_space_fields = mesh->create_space_and_field_group("sfd_space",SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P0");
+  Field& solution = sfd_space_fields.create_field("solution","solution[vector]");
+  Field& residual = sfd_space_fields.create_field("residual","residual[vector]");
 
-  Handle<ElementDataFactory<ElementDataA> > factoryA = Core::instance().root().create_component<ElementDataFactory<ElementDataA> >("ElementDataA_factory");
-  Handle<ElementDataFactory<ElementDataB> > factoryB = Core::instance().root().create_component<ElementDataFactory<ElementDataB> >("ElementDataB_factory");
+  Handle<DomainDiscretizer> discretizer = sandbox->create_component<DomainDiscretizer>("discretizer");
+  discretizer->solution_field = solution.handle<Field>();
+  discretizer->residual = residual.handle<Field>();
+  Handle<LinearAdvection> advection = discretizer->create_term<LinearAdvection>("advection");
+  Handle<LinearAdvection> convection = discretizer->create_term<LinearAdvection>("convection");
 
-  ConvectiveTerm convection;
   boost_foreach(const Cells& elements, find_components_recursively<Cells>(*mesh))
   {
-    ElementDataHandle<ElementDataA> element_data = factoryA->get_element_data(elements,0);
-
-
-    Handle<Space const> sfd_space = elements.space("sfd_space").handle<Space>();
-    Handle<SFDM::ShapeFunction const> sfd_sf = sfd_space->shape_function().handle<SFDM::ShapeFunction>();
+    // Initial condition
+    ElementDataHandle<SpectralElementData<1> > sfd_elem = discretizer->factory_mother->factory<SpectralElementData<1> >()->get_element_data(elements,0);
 
     Reconstruct reconstruct_to_sfd;
-    reconstruct_to_sfd.build_coefficients(element_data->sf,sfd_sf);
+    reconstruct_to_sfd.build_coefficients(sfd_elem->geo.sf,sfd_elem->sf);
 
-    ReconstructToFluxPoints reconstruct_to_flx_pts;
-    reconstruct_to_flx_pts.build_coefficients(sfd_sf);
-
-    DivergenceReconstructFromFluxPoints divergence_reconstruct_from_flx_pts;
-    divergence_reconstruct_from_flx_pts.build_coefficients(sfd_sf);
-
-    std::cout << "flx_pt 0 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[0].used_points()) << std::endl;
-    std::cout << "flx_pt 1 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[1].used_points()) << std::endl;
-    std::cout << "flx_pt 2 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[2].used_points()) << std::endl;
-    std::cout << "flx_pt 3 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[3].used_points()) << std::endl;
-    std::cout << "flx_pt 4 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[4].used_points()) << std::endl;
-    std::cout << "flx_pt 5 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[5].used_points()) << std::endl;
-    std::cout << "flx_pt 6 reconstruction used_pts --> " << to_str(reconstruct_to_flx_pts[6].used_points()) << std::endl;
-
-
-    // Initial condition
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      Field::View sfd_sol_nodes = sfd_coords.view(sfd_space->indexes_for_element(elem));
-      reconstruct_to_sfd(element_data->nodes,sfd_sol_nodes);
+      sfd_elem->compute_element(elem);
+      Field::View sfd_sol_in_sol_pts = solution.view(sfd_elem->space->indexes_for_element(elem));
+      reconstruct_to_sfd(sfd_elem->geo.nodes,sfd_sol_in_sol_pts);
     }
-
-    // Domain discretization
-    RealMatrix sfd_sol_in_flx_pts(sfd_sf->nb_flx_pts(),elements.element_type().dimension());
-    RealMatrix sfd_flx_in_flx_pts(sfd_sf->nb_flx_pts(),elements.element_type().dimension());
-
-    for (Uint elem=0; elem<elements.size(); ++elem)
+  }
+  // Domain discretization
+  boost_foreach(const Cells& elements, find_components_recursively<Cells>(*mesh))
+  {
+    for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      // Shared for all terms
-      Field::View sfd_sol_in_sol_pts = sfd_coords.view(sfd_space->indexes_for_element(elem));
-      reconstruct_to_flx_pts(sfd_sol_in_sol_pts,sfd_sol_in_flx_pts);
+      // Actions shared before for all terms are computed
+      // ------------------------------------------------
+      discretizer->set_element(elements,elem_idx);
 
-      // convective terms:
-      // Per term, create a field (good for visualization)
-      convection.set_element(elements.handle<Entities>(),elem);
-      // 1) compute fluxes inside cell               ----> Flux
-      boost_foreach(Uint flx_pt, sfd_sf->interior_flx_pts())
-      {
-        convection.compute_analytical_flux(sfd_sol_in_flx_pts.row(flx_pt),sfd_flx_in_flx_pts.row(flx_pt));
-      }
-      for(Uint face=0; face<sfd_sf->nb_faces(); ++face)
-      {
-        convection.set_neighbour(face);
-        // 2) solve riemann problem on interior-faces  ----> Flux   ( linked with (1) )
-        //     Save in face (yes/no)
-        boost_foreach(Uint flx_pt, sfd_sf->face_flx_pts(face))
-        {
-          convection.compute_numerical_flux(sfd_sol_in_flx_pts.row(flx_pt),sfd_flx_in_flx_pts.row(flx_pt));
-        }
-        // 3) solve boundary condition on outer-faces  ----> Flux
-        // - see which face this is on, and apply correct BC, depending on 2 parameters:
-        //   --> term and location
-        boost_foreach(Uint flx_pt, sfd_sf->face_flx_pts(face))
-        {
-          convection.compute_boundary_flux(sfd_sol_in_flx_pts.row(flx_pt),sfd_flx_in_flx_pts.row(flx_pt));
-        }
-      }
-      // So 1 term needs: analytical-flux-function,  numerical-flux-function,  boundary-condition
-      Field::View sfd_div_flx = sfd_coord_grad.view(sfd_space->indexes_for_element(elem));
-      divergence_reconstruct_from_flx_pts(sfd_flx_in_flx_pts,sfd_div_flx);
-      std::cout << "div_flx = " << divergence_reconstruct_from_flx_pts(sfd_flx_in_flx_pts).transpose() << std::endl;
-      // transform term to physical space
+      // Computation of terms
+      // --------------------
+      discretizer->execute();
 
-      // diffusive terms:
-      // ...
-
-      // source terms:
-      // ...
-
-      // Add all terms to residual
-
-
-      std::cout << sfd_sol_in_flx_pts.transpose() << std::endl;
-      ElementDataHandle<ElementDataA> element_data2 = factoryA->get_element_data(elements,elem);
-      ElementDataHandle<ElementDataB> element_data3 = factoryB->get_element_data(elements,elem);
-      std::cout << "nb_faces = " << element_data->space->element_type().nb_faces() << std::endl;
+      // Actions shared after all terms are computed
+      // -------------------------------------------
+      // - Add all terms to residual
     }
   }
 
   std::cout << "operations = " << ReconstructBase::elementary_operations << std::endl;
   std::vector<URI> fields;
-  fields.push_back(sfd_coords.uri());
-  fields.push_back(sfd_coord_grad.uri());
+  fields.push_back(solution.uri());
+  fields.push_back(residual.uri());
+  fields.push_back(advection->term_field->uri());
+  fields.push_back(convection->term_field->uri());
   mesh->write_mesh("sandbox.plt",fields);
 
 }
