@@ -21,6 +21,7 @@ list( APPEND coolfluid_sfdm_files
   LibSFDM.cpp
   PrepareMesh.cpp
   PrepareMesh.hpp
+  Reconstructions.hpp
   ShapeFunction.hpp
   ShapeFunction.cpp
   SFDSolver.hpp
