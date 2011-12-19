@@ -33,6 +33,7 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
+#include "mesh/Reconstructions.hpp"
 #include "mesh/Domain.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
@@ -109,185 +110,6 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define ReconstructBase_Operation_Count
-#ifdef ReconstructBase_Operation_Count
-#define increase_elementary_operations ++ReconstructBase::elementary_operations
-#else
-#define increase_elementary_operations
-#endif
-struct ReconstructBase
-{
-  template <typename matrix_type>
-  static Uint nb_vars(const matrix_type& m)
-  {
-    return m[0].size();
-  }
-  static Uint nb_vars(const RealMatrix& m)
-  {
-    return m.cols();
-  }
-  static Uint nb_vars(const boost::multi_array<Real, 2>& m)
-  {
-    return m.shape()[1];
-  }
-  static Uint nb_vars(const boost::detail::multi_array::multi_array_view<Real, 2>& m)
-  {
-    return m.shape()[1];
-  }
-  template <typename matrix_type>
-  static const Real& access(const matrix_type& m, Uint i, Uint j)
-  {
-    return m[i][j];
-  }
-  static const Real& access(const RealMatrix& m, Uint i, Uint j)
-  {
-    return m(i,j);
-  }
-
-  /// Reconstruct values from matrix with values in row-vectors to vector
-  /// @param [in]  from  matrix with values in row-vectors
-  /// @param [out] to    vector
-  /// @note to is marked as const, but constness is casted away inside,
-  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-  template <typename matrix_type, typename vector_type>
-  void operator()(const matrix_type& from, const vector_type& to) const
-  {
-    equal(from,to);
-  }
-
-  template <typename matrix_type, typename vector_type>
-  void equal(const matrix_type& from, const vector_type& to) const
-  {
-    cf3_assert(m_pts.size()>0);
-    set_zero(to);
-    add(from,to);
-  }
-
-  template <typename matrix_type, typename vector_type>
-  void add(const matrix_type& from, const vector_type& to) const
-  {
-    cf3_assert(m_pts.size()>0);
-    boost_foreach(const Uint pt, m_pts)
-      contribute_plus(from,to,pt);
-  }
-
-  template <typename matrix_type, typename vector_type>
-  void subtract(const matrix_type& from, const vector_type& to) const
-  {
-    cf3_assert(m_pts.size()>0);
-    boost_foreach(const Uint pt, m_pts)
-      contribute_minus(from,to,pt);
-  }
-
-
-  /// @note vec is marked as const, but constness is casted away inside,
-  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-  template <typename vector_type>
-  static void set_zero(const vector_type& vec)
-  {
-    //increase_elementary_operations;
-    for (Uint var=0; var<vec.size(); ++var)
-      const_cast<vector_type&>(vec)[var] = 0;
-  }
-
-  /// @note to is marked as const, but constness is casted away inside,
-  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-  template <typename matrix_type, typename vector_type>
-  void contribute_plus(const matrix_type& from, const vector_type& to,const Uint pt) const
-  {
-    increase_elementary_operations;
-    for (Uint var=0; var<nb_vars(from); ++var)
-      const_cast<vector_type&>(to)[var] += m_N[pt] * access(from,pt,var);
-  }
-
-  /// @note to is marked as const, but constness is casted away inside,
-  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-  template <typename matrix_type, typename vector_type>
-  void contribute_minus(const matrix_type& from, const vector_type& to,const Uint pt) const
-  {
-    increase_elementary_operations;
-    for (Uint var=0; var<nb_vars(from); ++var)
-      const_cast<vector_type&>(to)[var] -= m_N[pt] * access(from,pt,var);
-  }
-
-  const Real& coeff(const Uint pt) const
-  {
-    return m_N[pt];
-  }
-
-  const std::vector<Uint>& used_points() const
-  {
-    return m_pts;
-  }
-
-  static Uint elementary_operations;
-
-protected:
-  Handle<mesh::ShapeFunction const> m_sf;
-  RealVector m_coord;
-  RealRowVector m_N;
-  std::vector<Uint> m_pts;
-};
-Uint ReconstructBase::elementary_operations=0u;
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct ReconstructPoint : ReconstructBase
-{
-  /// Build coefficients for reconstruction in a given coordinate
-  template <typename vector_type>
-  void build_coefficients(const vector_type& coord, const Handle<mesh::ShapeFunction const>& sf)
-  {
-    m_coord = coord;
-    m_pts.clear();
-    m_N.resize(sf->nb_nodes());
-    sf->compute_value(coord,m_N);
-
-    // Save indexes of non-zero values to speed up reconstruction
-    for (Uint pt=0; pt<m_N.size(); ++pt)
-    {
-      if (std::abs(m_N[pt])>math::Consts::eps())
-      {
-        m_pts.push_back(pt);
-      }
-    }
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct DerivativeReconstructPoint : ReconstructBase
-{
-  /// Build coefficients for reconstruction in a given coordinate
-  template <typename vector_type>
-  void build_coefficients(const Uint derivative, const vector_type& coord, const Handle<mesh::ShapeFunction const>& sf)
-  {
-    m_derivative = derivative;
-    m_coord = coord;
-    m_N = sf->gradient(coord).col(derivative);
-
-    // Save indexes of non-zero values to speed up reconstruction
-    m_pts.clear();
-    for (Uint pt=0; pt<m_N.size(); ++pt)
-    {
-      if (std::abs(m_N[pt])>math::Consts::eps())
-      {
-        m_pts.push_back(pt);
-      }
-    }
-  }
-
-  Uint derivative() const
-  {
-    return m_derivative;
-  }
-
-private:
-  Uint m_derivative;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 struct ReconstructToFluxPoints
 {
 
@@ -334,6 +156,36 @@ struct ReconstructToFluxPoints
 
 private:
   std::vector<ReconstructPoint> m_reconstruct;
+};
+
+struct ReconstructFromFluxPoint : ReconstructBase
+{
+  /// Build coefficients for reconstruction in a given coordinate
+  template <typename vector_type>
+  void build_coefficients(const Uint direction, const vector_type& coord, const Handle<SFDM::ShapeFunction const>& sf)
+  {
+    m_direction = direction;
+    m_coord = coord;
+    m_N.resize(sf->nb_flx_pts());
+    sf->compute_flux_value(direction,coord,m_N);
+    // Save indexes of non-zero values to speed up reconstruction
+    m_pts.clear();
+    for (Uint pt=0; pt<m_N.size(); ++pt)
+    {
+      if (std::abs(m_N[pt])>math::Consts::eps())
+      {
+        m_pts.push_back(pt);
+      }
+    }
+  }
+
+  Uint direction() const
+  {
+    return m_direction;
+  }
+
+private:
+  Uint m_direction;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -434,6 +286,71 @@ struct GradientReconstructFromFluxPoints
 
 private:
   std::vector< std::vector<DerivativeReconstructFromFluxPoint> > m_derivative_reconstruct_from_flx_pt;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct ReconstructFromFluxPoints
+{
+  void build_coefficients(const Handle<SFDM::ShapeFunction const>& from_sf,Handle<mesh::ShapeFunction const> to_sf = Handle<mesh::ShapeFunction const>())
+  {
+    if ( is_null(to_sf) )
+      to_sf=from_sf;
+    m_reconstruct_from_flx_pt.resize(to_sf->nb_nodes());
+    for (Uint pt=0; pt<to_sf->nb_nodes(); ++pt)
+    {
+      m_reconstruct_from_flx_pt[pt].resize(to_sf->dimensionality());
+      for (Uint d=0; d<to_sf->dimensionality(); ++d)
+        m_reconstruct_from_flx_pt[pt][d].build_coefficients(d,to_sf->local_coordinates().row(pt),from_sf);
+    }
+  }
+
+  template <typename matrix_type>
+  void set_zero(matrix_type& m) const
+  {
+    for (Uint i=0; i<m.size(); ++i) {
+      for (Uint j=0; j<m[i].size(); ++j) {
+        m[i][j]=0.;
+      }
+    }
+  }
+  void set_zero(RealMatrix& m) const
+  {
+    m.setZero();
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from, typename matrix_type_to>
+  void operator()(const Uint direction, const matrix_type_from& from, matrix_type_to& to) const
+  {
+    cf3_assert(m_reconstruct_from_flx_pt.size()==to.size());
+    set_zero(to);
+    for (Uint r=0; r<m_reconstruct_from_flx_pt.size(); ++r) {
+      m_reconstruct_from_flx_pt[r][direction].add(from,to[r]);
+    }
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from>
+  void operator()(const Uint direction, const matrix_type_from& from, RealMatrix& to) const
+  {
+    cf3_assert(m_reconstruct_from_flx_pt.size()==to.rows());
+    set_zero(to);
+    for (Uint r=0; r<m_reconstruct_from_flx_pt.size(); ++r) {
+      m_reconstruct_from_flx_pt[r][direction].add(from,to.row(r));
+    }
+  }
+
+  template <typename matrix_type_from>
+  RealMatrix operator()(const Uint direction, const matrix_type_from& from) const
+  {
+    RealMatrix to(m_reconstruct_from_flx_pt.size(),ReconstructBase::nb_vars(from));
+    operator()(direction,from,to);
+    return to;
+  }
+
+private:
+  std::vector< std::vector<ReconstructFromFluxPoint> > m_reconstruct_from_flx_pt;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -668,6 +585,8 @@ public:
   Handle< SFDM::ShapeFunction const > sf;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
 struct FluxPointDivergence : ElementDataBase
 {
   static std::string type_name() { return "FluxPointDivergence"; }
@@ -688,6 +607,30 @@ public:
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
   DivergenceReconstructFromFluxPoints compute;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct FluxPointReconstruct : ElementDataBase
+{
+  static std::string type_name() { return "FluxPointReconstruct"; }
+  FluxPointReconstruct (const std::string& name=type_name()) : ElementDataBase(name) {}
+
+private:
+  virtual void compute_fixed_data()
+  {
+    space = entities->space("sfd_space").handle<Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+    compute.build_coefficients(sf);
+  }
+
+  virtual void compute_variable_data() {}
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  ReconstructFromFluxPoints compute;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -812,6 +755,8 @@ public:
   // extrinsic state
   std::vector<field_t>      field_in_flx_pts;
 };
+
+////////////////////////////////////////////////////////////////////////////////
 
 template <Uint NVAR=1,Uint NDIM=1>
 struct SFDGradField : ElementDataBase
@@ -971,6 +916,7 @@ Uint PoolMother::factory_calls = 0;
 ////////////////////////////////////////////////////////////////////////////////
 
 class Term;
+class ApplyBC;
 // UBER shared almost global struct
 class DomainDiscretizer : public Component
 {
@@ -981,6 +927,7 @@ public:
   {
     factory_mother = create_static_component<PoolMother>("factory_mother");
     term_group = create_static_component<Group>("terms");
+    apply_bc = create_static_component<common::ActionDirector>("apply_bc");
   }
   virtual ~DomainDiscretizer() {}
 
@@ -993,6 +940,8 @@ public:
     terms.push_back(term);
     return term;
   }
+
+  void create_boundary_condition(const std::string& name, const std::string& builder, const std::vector< Handle<Region const> >& regions );
 
   void initialize();
 
@@ -1013,6 +962,10 @@ public:
 
   Handle<SFDElement> sfd;
   Handle<Pool<SFDElement> > sfd_pool;
+
+
+  Handle<common::ActionDirector> apply_bc;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1060,24 +1013,16 @@ public:
     return discretizer->factory_mother->factory<ElementData>(p);
   }
 
-//  template <typename ElementData>
-//  void set_element(const Entities& cell, const Uint cell_idx, Handle<ElementData>& elem)
-//  {
-//    if (is_not_null(elem.get()))
-//      elem->unlock();
-//    cf3_assert(discretizer);
-//    elem = discretizer->factory_mother->factory<ElementData>()->get_element_data(cell,cell_idx);
-//    elem->compute_element(cell_idx);
-//    precompute();
-//  }
-
-  virtual void precompute() {};
 
   /// @todo move in central place
-  void set_neighbour(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb, Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx)
+  void set_neighbour(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb,
+                     Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx,
+                     Handle<Entities const>& face_entities, Uint& face_idx)
   {
     ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
     Entity face = face_connectivity[elem_idx][face_nb];
+    face_entities = face.comp->handle<Entities>();
+    face_idx = face.idx;
     FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
     if (cell_connectivity.is_bdry_face()[face.idx])
     {
@@ -1102,6 +1047,106 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class BC : public common::Action
+{
+public:
+  static std::string type_name() { return "BC"; }
+  BC(const std::string& name) : common::Action(name) {}
+  virtual ~BC() {}
+
+  void set_inner_cell(const Handle<Entities const>& face_entities, const Uint face_idx, Handle<Entities const>& entities, Uint& elem_idx, Uint& face_nb)
+  {
+    FaceCellConnectivity const& cell_connectivity = *face_entities->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
+    entities = cell_connectivity.connectivity()[face_idx][LEFT].comp->handle<Entities>();
+    elem_idx = cell_connectivity.connectivity()[face_idx][LEFT].idx;
+    face_nb = cell_connectivity.face_number()[face_idx][LEFT];
+  }
+
+  Handle<DomainDiscretizer> discretizer;
+
+  // Must be called right after construction
+  Handle<DomainDiscretizer> set_discretizer(DomainDiscretizer& _discretizer)
+  {
+      discretizer = _discretizer.handle<DomainDiscretizer>();
+      return discretizer;
+  }
+
+  template <typename ElementData>
+  Handle< Pool<ElementData> > pool(const std::string& p = ElementData::type_name())
+  {
+    return discretizer->factory_mother->factory<ElementData>(p);
+  }
+
+  virtual void initialize() {}
+
+  std::vector<Handle<Region const> > regions;
+};
+
+template <Uint NEQS, Uint NDIM>
+class StrongBC : public BC
+{
+public:
+  static std::string type_name() { return "StrongBC"; }
+  StrongBC(const std::string& name) : BC(name) {}
+  virtual ~StrongBC() {}
+
+  virtual void execute()
+  {
+    std::cout << "executing " << type_name() << std::endl;
+    boost_foreach( const Handle<Region const>& region, regions)
+    {
+      boost_foreach( Entities const& face_entities, find_components_recursively<Entities>(*region))
+      {
+        for (Uint face_idx=0; face_idx<face_entities.size(); ++face_idx)
+        {
+          set_inner_cell(face_entities.handle<Entities>(),face_idx, entities, elem_idx, face_nb);
+          std::cout << "face_nb = " << face_nb << std::endl;
+          cf3_assert(solution_pool);
+          solution = solution_pool->get_element_data(entities,elem_idx);
+          cf3_assert(solution);
+          solution->set_field(discretizer->solution_field);
+          solution->compute_element(elem_idx);
+          boost_foreach(const Uint flx_pt, solution->sf->face_flx_pts(face_nb))
+          {
+            for (Uint v=0; v<NEQS; ++v)
+            {
+              solution->field_in_flx_pts[flx_pt][v]=0.;
+            }
+          }
+          std::cout << "sol_in_flx_pts = ";
+          boost_foreach(const RealRowVector& r, solution->field_in_flx_pts)
+            std::cout << r << " ";
+          std::cout << std::endl;
+          Field::View sol_in_sol_pts = solution->field->view(solution->space->indexes_for_element(elem_idx));
+          reconstruct_from_flx_pts = reconstruct_from_flx_pts_pool->get_element_data(entities,elem_idx);
+          reconstruct_from_flx_pts->compute(solution->sf->flx_pt_dirs(solution->sf->face_flx_pts(face_nb)[0])[0],
+                                            solution->field_in_flx_pts,sol_in_sol_pts);
+          std::cout << "sol_in_sol_pts = " << to_str(sol_in_sol_pts) << std::endl;
+        }
+      }
+    }
+  }
+
+  Handle<Entities const> entities;
+  Uint elem_idx;
+  Uint face_nb;
+
+  virtual void initialize()
+  {
+    solution_pool = pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    reconstruct_from_flx_pts_pool = pool< FluxPointReconstruct >("reconstruct_from_flx_pts");
+  }
+
+  Handle< Pool<SFDField<NEQS,NDIM> > > solution_pool;
+  Handle< SFDField<NEQS,NDIM> >        solution;
+
+  Handle< Pool<FluxPointReconstruct> > reconstruct_from_flx_pts_pool;
+  Handle< FluxPointReconstruct > reconstruct_from_flx_pts;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 void DomainDiscretizer::initialize()
 {
   sfd_pool = factory_mother->factory<SFDElement>();
@@ -1116,6 +1161,18 @@ void DomainDiscretizer::set_element(const Handle<Entities const>& entities_c, co
   entities = entities_c;
   elem=idx;
 }
+
+
+void DomainDiscretizer::create_boundary_condition(const std::string& name, const std::string& builder, const std::vector< Handle<Region const> >& regions )
+{
+//    Handle<BC> bc = apply_bc->create_component(name,builder);
+  Handle< BC > bc = apply_bc->create_component< StrongBC<1u,1u> >(name);
+  bc->regions = regions;
+  bc->discretizer = handle<DomainDiscretizer>();
+  bc->initialize();
+}
+
+
 
 void DomainDiscretizer::execute()
 {
@@ -1166,12 +1223,12 @@ public:
     {
       std::cout << "compute analytical flux in flx_pt["<<flx_pt<<"]"<<std::endl;
       compute_analytical_flux();
+      std::cout << "flux = " << flux[flx_pt] << std::endl;
     }
     for(Uint f=0; f<discretizer->sfd->sf->nb_faces(); ++f)
     {
-      Handle<Entities const> neighbour_entities;
-      Uint neighbour_elem_idx;
-      set_neighbour(entities,elem_idx,f,neighbour_entities,neighbour_elem_idx);
+      set_neighbour(entities,elem_idx,f,
+                    neighbour_entities,neighbour_elem_idx,face_entities,face_idx);
       if ( is_not_null(neighbour_entities) )
       {
         neighbour_solution = solution_pool->get_element_data(neighbour_entities,neighbour_elem_idx);
@@ -1184,17 +1241,15 @@ public:
           std::cout << "compute numerical flux in flx_pt["<<flx_pt<<"]" << std::endl;
           std::cout << "neighbour sol_in_flx_pt = " << neighbour_solution->field_in_flx_pts[f] << std::endl;
           compute_numerical_flux();
+          std::cout << "flux = " << flux[flx_pt] << std::endl;
         }
         neighbour_solution->unlock();
       }
       else
       {
-        // 3) solve boundary condition on outer-faces  ----> Flux
-        // - see which face this is on, and apply correct BC, depending on 2 parameters:
-        //   --> term and location
         boost_foreach(flx_pt, discretizer->sfd->sf->face_flx_pts(f))
         {
-          compute_boundary_flux();
+          compute_analytical_flux();
         }
       }
     }
@@ -1227,9 +1282,14 @@ public:
   // ----------------
   virtual void compute_analytical_flux() = 0;
   virtual void compute_numerical_flux() = 0;
-  virtual void compute_boundary_flux() = 0;
 
   // Data
+
+  Handle<Entities const> neighbour_entities;
+  Uint neighbour_elem_idx;
+  Handle<Entities const> face_entities;
+  Uint face_idx;
+
   // In flux points:
   Handle< Pool<FluxPointDivergence> > divergence_pool;
   Handle< Pool<SFDField<NEQS,NDIM> > > solution_pool;
@@ -1240,8 +1300,6 @@ public:
   Handle< SFDField<NEQS,NDIM> >                        neighbour_solution;
   Handle< PlaneJacobianNormal<NEQS,NDIM> >             plane_jacobian_normal;
   std::vector< typename SFDField<NEQS,NDIM>::field_t > flux;
-
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1265,10 +1323,6 @@ public:
     analytical_flux.evaluate(solution->field_in_flx_pts[flx_pt],flux[flx_pt]);
   }
   virtual void compute_numerical_flux()
-  {
-    analytical_flux.evaluate(solution->field_in_flx_pts[flx_pt],flux[flx_pt]);
-  }
-  virtual void compute_boundary_flux()
   {
     analytical_flux.evaluate(solution->field_in_flx_pts[flx_pt],flux[flx_pt]);
   }
@@ -1302,7 +1356,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
   build_faces->options().configure_option("store_cell2face",true);
   build_faces->transform(*mesh);
 
-  SpaceFields& sfd_space_fields = mesh->create_space_and_field_group("sfd_space",SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P1");
+  SpaceFields& sfd_space_fields = mesh->create_space_and_field_group("sfd_space",SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P4");
   Field& solution = sfd_space_fields.create_field("solution","solution[vector]");
   Field& residual = sfd_space_fields.create_field("residual","residual[vector]");
 
@@ -1310,7 +1364,12 @@ BOOST_AUTO_TEST_CASE( sandbox )
   discretizer->solution_field = solution.handle<Field>();
   discretizer->residual = residual.handle<Field>();
   Handle<LinearAdvection> advection = discretizer->create_term<LinearAdvection>("advection");
-  Handle<LinearAdvection> convection = discretizer->create_term<LinearAdvection>("convection");
+
+  std::vector< Handle<Region const> > bc_regions;
+  bc_regions.push_back(mesh->topology().access_component("xneg")->handle<Region>());
+  bc_regions.push_back(mesh->topology().access_component("xpos")->handle<Region>());
+  discretizer->create_boundary_condition("zero","cf3.common.Group",bc_regions);
+
 
   boost_foreach(const Cells& elements, find_components_recursively<Cells>(*mesh))
   {
@@ -1354,6 +1413,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
       }
     }
   }
+  discretizer->apply_bc->execute();
 
   std::cout << "factory_calls = " << PoolMother::factory_calls << std::endl;
   std::cout << "operations = " << ReconstructBase::elementary_operations << std::endl;
@@ -1361,7 +1421,6 @@ BOOST_AUTO_TEST_CASE( sandbox )
   fields.push_back(solution.uri());
   fields.push_back(residual.uri());
   fields.push_back(advection->term_field->uri());
-  fields.push_back(convection->term_field->uri());
   mesh->write_mesh("sandbox.plt",fields);
 
 }

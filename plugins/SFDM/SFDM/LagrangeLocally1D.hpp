@@ -326,6 +326,10 @@ public: // functions
       }
     }
   }
+  virtual void compute_flux_value(const Uint orientation, const RealVector& local_coordinate, RealRowVector& value) const
+  {
+    throw common::NotImplemented(FromHere(),"");
+  }
   virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
   {
     cf3_assert(derivative.size()==nb_flx_pts());
@@ -509,6 +513,14 @@ public: // functions
     for (Uint s=0; s<m_local_1d.nb_sol_pts; ++s) {
       gradient(KSI,s) = Lagrange::deriv_coeff(local_coordinate[KSI],m_local_1d.sol_pts,s);
     }
+  }
+  virtual void compute_flux_value(const Uint orientation, const RealVector& local_coordinate, RealRowVector& value) const
+  {
+    cf3_assert(value.size()==nb_flx_pts());
+    cf3_assert(orientation==KSI);
+    value.setZero();
+    for (Uint f_ksi=0; f_ksi<m_local_1d.nb_flx_pts; ++f_ksi)
+      value[f_ksi] = Lagrange::coeff(local_coordinate[KSI],m_local_1d.flx_pts,f_ksi);
   }
   virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
   {
