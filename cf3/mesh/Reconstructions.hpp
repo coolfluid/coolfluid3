@@ -26,18 +26,18 @@ namespace mesh {
 #else
 #define increase_elementary_operations
 #endif
+
+/// Base class to help reconstruction of element values to any given coordinate
+/// value_in_coord = sum ( N(i) * value_in_node(i) )
+/// Derived classes have to implement the actual computation of the
+/// values "N(i)". Optimization is allowed by storing an internal vector
+/// m_pts, holding the indices of only the non-zero N(i)'s.
+/// @author Willem Deconinck
 struct ReconstructBase
 {
-  template <typename matrix_type>
-  static Uint nb_vars(const matrix_type& m) { return m[0].size(); }
-  static Uint nb_vars(const RealMatrix& m) { return m.cols(); }
-  static Uint nb_vars(const boost::multi_array<Real, 2>& m) { return m.shape()[1]; }
-  static Uint nb_vars(const boost::detail::multi_array::multi_array_view<Real, 2>& m) { return m.shape()[1]; }
-  template <typename matrix_type>
-  static const Real& access(const matrix_type& m, Uint i, Uint j) { return m[i][j]; }
-  static const Real& access(const RealMatrix& m, Uint i, Uint j) { return m(i,j); }
-
-  /// Reconstruct values from matrix with values in row-vectors to vector
+  /// Reconstruct values from matrix with values in row-vectors to vector.
+  /// The location of the vector must have been previously setup using
+  /// build_coefficients()
   /// @param [in]  from  matrix with values in row-vectors
   /// @param [out] to    vector
   /// @note to is marked as const, but constness is casted away inside,
@@ -48,6 +48,13 @@ struct ReconstructBase
     equal(from,to);
   }
 
+  /// Reconstruct values from matrix with values in row-vectors to a vector.
+  /// The location of the vector must have been previously setup using
+  /// build_coefficients()
+  /// @param [in]  from  matrix with values in row-vectors
+  /// @param [out] to    vector
+  /// @note to is marked as const, but constness is casted away inside,
+  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
   template <typename matrix_type, typename vector_type>
   void equal(const matrix_type& from, const vector_type& to) const
   {
@@ -56,23 +63,7 @@ struct ReconstructBase
     add(from,to);
   }
 
-  template <typename matrix_type, typename vector_type>
-  void add(const matrix_type& from, const vector_type& to) const
-  {
-    cf3_assert(m_pts.size()>0);
-    boost_foreach(const Uint pt, m_pts)
-      contribute_plus(from,to,pt);
-  }
-
-  template <typename matrix_type, typename vector_type>
-  void subtract(const matrix_type& from, const vector_type& to) const
-  {
-    cf3_assert(m_pts.size()>0);
-    boost_foreach(const Uint pt, m_pts)
-      contribute_minus(from,to,pt);
-  }
-
-
+  /// Set the given vector to zero
   /// @note vec is marked as const, but constness is casted away inside,
   ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
   template <typename vector_type>
@@ -83,6 +74,46 @@ struct ReconstructBase
       const_cast<vector_type&>(vec)[var] = 0;
   }
 
+  /// Reconstruct values from matrix with values in row-vectors to a vector.
+  /// The location of the vector must have been previously setup using
+  /// build_coefficients()
+  /// The vector is not initialized to zero, hence the reconstructed values
+  /// will be summed on top of the existing vector values
+  /// @param [in]  from  matrix with values in row-vectors
+  /// @param [out] to    vector
+  /// @note to is marked as const, but constness is casted away inside,
+  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
+  template <typename matrix_type, typename vector_type>
+  void add(const matrix_type& from, const vector_type& to) const
+  {
+    cf3_assert(m_pts.size()>0);
+    boost_foreach(const Uint pt, m_pts)
+      contribute_plus(from,to,pt);
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to a vector.
+  /// The location of the vector must have been previously setup using
+  /// build_coefficients()
+  /// The vector is not initialized to zero, hence the reconstructed values
+  /// will be subtracted from the existing vector values
+  /// @param [in]  from  matrix with values in row-vectors
+  /// @param [out] to    vector
+  /// @note to is marked as const, but constness is casted away inside,
+  ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
+  template <typename matrix_type, typename vector_type>
+  void subtract(const matrix_type& from, const vector_type& to) const
+  {
+    cf3_assert(m_pts.size()>0);
+    boost_foreach(const Uint pt, m_pts)
+      contribute_minus(from,to,pt);
+  }
+
+
+  /// Add to a vector "to", the contribution of a given point "pt"
+  /// coming from a matrix "from"
+  /// @param [in]  from  matrix with values in row-vectors
+  /// @param [in]  pt    point of which the contribution is added
+  /// @param [out] to    vector
   /// @note to is marked as const, but constness is casted away inside,
   ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
   template <typename matrix_type, typename vector_type>
@@ -93,6 +124,11 @@ struct ReconstructBase
       const_cast<vector_type&>(to)[var] += m_N[pt] * access(from,pt,var);
   }
 
+  /// Subtract from a vector "to", the contribution of a given point "pt"
+  /// coming from a matrix "from"
+  /// @param [in]  from  matrix with values in row-vectors
+  /// @param [in]  pt    point of which the contribution is added
+  /// @param [out] to    vector
   /// @note to is marked as const, but constness is casted away inside,
   ///       according to Eigen documentation http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
   template <typename matrix_type, typename vector_type>
@@ -103,17 +139,32 @@ struct ReconstructBase
       const_cast<vector_type&>(to)[var] -= m_N[pt] * access(from,pt,var);
   }
 
+  /// Get the reconstruction coefficient of a given point
   const Real& coeff(const Uint pt) const
   {
     return m_N[pt];
   }
 
+  /// Get a vector of points of which the reconstruction coefficient is not zero
   const std::vector<Uint>& used_points() const
   {
     return m_pts;
   }
 
   static Uint elementary_operations;
+
+protected: // functions
+
+  // Adaptor functions to support both RealMatrix, multi_array, multi_array_view
+  // as function arguments in this class
+  template <typename matrix_type>
+  static Uint nb_vars(const matrix_type& m) { return m[0].size(); }
+  static Uint nb_vars(const RealMatrix& m) { return m.cols(); }
+  static Uint nb_vars(const boost::multi_array<Real, 2>& m) { return m.shape()[1]; }
+  static Uint nb_vars(const boost::detail::multi_array::multi_array_view<Real, 2>& m) { return m.shape()[1]; }
+  template <typename matrix_type>
+  static const Real& access(const matrix_type& m, Uint i, Uint j) { return m[i][j]; }
+  static const Real& access(const RealMatrix& m, Uint i, Uint j) { return m(i,j); }
 
 protected:
   Handle<mesh::ShapeFunction const> m_sf;
@@ -125,6 +176,15 @@ Uint ReconstructBase::elementary_operations=0u;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Reconstruction helper, implementing a function to calculate
+/// values N(i) for a given coordinate, and optimizing by storing
+/// indices i of non-zero N(i)'s.
+///
+/// Use:
+///   ReconstructPoint reconstruct;
+///   reconstruct.build_coefficients(coord,shape_function);
+///   reconstruct( matrix_of_node_values , vector_of_values_in_coord );
+/// @author Willem Deconinck
 struct ReconstructPoint : ReconstructBase
 {
   /// Build coefficients for reconstruction in a given coordinate
@@ -149,6 +209,12 @@ struct ReconstructPoint : ReconstructBase
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Reconstruction helper for the derivative in a given direction in a given coordinate.
+/// Use:
+///   DerivativeReconstructPoint reconstruct_derivative;
+///   reconstruct_derivative.build_coefficients(orientation,coord,shape_function);
+///   reconstruct_derivative( matrix_of_node_values , vector_of_derivatives_in_coord );
+/// @author Willem Deconinck
 struct DerivativeReconstructPoint : ReconstructBase
 {
   /// Build coefficients for reconstruction in a given coordinate
@@ -181,8 +247,17 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Reconstruction helper that reconstructs values matching one shape function
+/// to values matching another shape function.
+/// This is good to interpolate between different spaces.
+/// Use:
+///   Reconstruct reconstruct;
+///   reconstruct.build_coefficients( from_shape_function, to_shape_function);
+///   reconstruct( matrix_of_from_values , matrix_of_to_values );
+/// @author Willem Deconinck
 struct Reconstruct
 {
+  /// Build the coefficients for the reconstruction for every point of to_sf
   void build_coefficients(const Handle<mesh::ShapeFunction const>& from_sf,
                           const Handle<mesh::ShapeFunction const>& to_sf)
   {
@@ -195,6 +270,7 @@ struct Reconstruct
     }
   }
 
+  /// Access to individual reconstructor for one point
   const ReconstructPoint& operator[](const Uint pt) const
   {
     return m_reconstruct[pt];
