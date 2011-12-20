@@ -414,7 +414,7 @@ public:
   DomainDiscretizer(const std::string& name) :
     Component(name)
   {
-    cache_factory = create_static_component<CacheFactory>("cache_factory");
+    shared_caches = create_static_component<SharedCaches>("shared_caches");
     term_group = create_static_component<Group>("terms");
     apply_bc = create_static_component<common::ActionDirector>("apply_bc");
   }
@@ -441,7 +441,7 @@ public:
   Handle<Entities const> entities;
   Uint elem;
 
-  Handle<CacheFactory> cache_factory;
+  Handle<SharedCaches> shared_caches;
   Handle<Group> term_group;
   std::vector< Handle<Term> > terms;
   Handle<Field> solution_field;
@@ -605,9 +605,9 @@ public:
 
   virtual void initialize()
   {
-    solution_cache = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    solution_cache = discretizer->shared_caches->get_cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
     solution_cache->field = discretizer->solution_field;
-    reconstruct_from_flx_pts_cache = discretizer->cache_factory->cache< FluxPointReconstruct >("reconstruct_from_flx_pts");
+    reconstruct_from_flx_pts_cache = discretizer->shared_caches->get_cache< FluxPointReconstruct >("reconstruct_from_flx_pts");
   }
 
   Handle< SFDFieldCache<NEQS,NDIM> > solution_cache;
@@ -620,7 +620,7 @@ public:
 
 void DomainDiscretizer::initialize()
 {
-  sfd_cache = cache_factory->cache<SFDElement>();
+  sfd_cache = shared_caches->get_cache<SFDElement>();
   boost_foreach(Handle<Term>& term, terms)
   {
     term->initialize();
@@ -669,10 +669,10 @@ public:
   virtual void initialize()
   {
     //std::cout << "initialize " << type_name() << std::endl;
-    divergence_cache            = discretizer->cache_factory->cache< FluxPointDivergence >();
-    solution_cache              = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    neighbour_solution_cache    = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
-    plane_jacobian_normal_cache = discretizer->cache_factory->cache< PlaneJacobianNormal<NEQS,NDIM> >();
+    divergence_cache            = discretizer->shared_caches->get_cache< FluxPointDivergence >();
+    solution_cache              = discretizer->shared_caches->get_cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    neighbour_solution_cache    = discretizer->shared_caches->get_cache< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
+    plane_jacobian_normal_cache = discretizer->shared_caches->get_cache< PlaneJacobianNormal<NEQS,NDIM> >();
 
     solution_cache->field = discretizer->solution_field;
     neighbour_solution_cache->field = discretizer->solution_field;
@@ -840,8 +840,8 @@ BOOST_AUTO_TEST_CASE( sandbox )
     // Initial condition
     Handle<Entities const> entities = elements.handle<Entities>();
 
-    SFDElement& sfd_elem = discretizer->cache_factory->cache<SFDElement>()->cache(entities);
-    GeometryElementCache& geo_elem = discretizer->cache_factory->cache<GeometryElementCache>()->cache(entities);
+    SFDElement& sfd_elem = discretizer->shared_caches->get_cache<SFDElement>()->cache(entities);
+    GeometryElementCache& geo_elem = discretizer->shared_caches->get_cache<GeometryElementCache>()->cache(entities);
 
     Reconstruct reconstruct_to_sfd;
     reconstruct_to_sfd.build_coefficients(geo_elem.sf,sfd_elem.sf);
@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
   }
   discretizer->apply_bc->execute();
 
-  std::cout << "factory_calls = " << CacheFactory::factory_calls << std::endl;
+  std::cout << "factory_calls = " << SharedCaches::factory_calls << std::endl;
   std::cout << "operations = " << ReconstructBase::elementary_operations << std::endl;
   std::vector<URI> fields;
   fields.push_back(solution.uri());

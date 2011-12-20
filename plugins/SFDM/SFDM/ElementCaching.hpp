@@ -190,29 +190,31 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class CacheFactory : public common::Component
+class SharedCaches : public common::Component
 {
 public:
-  static std::string type_name() { return "CacheFactory"; }
-  CacheFactory(const std::string& name) : common::Component(name) {}
-  virtual ~CacheFactory() {}
+  static std::string type_name() { return "SharedCaches"; }
+  SharedCaches(const std::string& name) : common::Component(name) {}
+  virtual ~SharedCaches() {}
 
-
+  /// Get or create a shared cache object
+  /// @note this function should be avoided in loops, as it uses internally
+  /// the somewhat expensive function Component::get_child()
   template <typename ElementCache>
-  Handle< typename ElementCache::cache_type > cache(const std::string& key = ElementCache::type_name())
+  Handle< typename ElementCache::cache_type > get_cache(const std::string& tag = ElementCache::type_name())
   {
     ++factory_calls;
-    Handle< typename ElementCache::cache_type > fac = Handle< typename ElementCache::cache_type >(get_child(key));
+    Handle< typename ElementCache::cache_type > fac = Handle< typename ElementCache::cache_type >(get_child(tag));
     if (!fac) // if not available, generate it
     {
-      CFdebug << "Creating Cache for " << key << CFendl;
-      fac = create_component< typename ElementCache::cache_type >(key);
+      CFdebug << "Creating Cache for " << tag << CFendl;
+      fac = create_component< typename ElementCache::cache_type >(tag);
     }
     return fac;
   }
   static Uint factory_calls;
 };
-Uint CacheFactory::factory_calls = 0;
+Uint SharedCaches::factory_calls = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
