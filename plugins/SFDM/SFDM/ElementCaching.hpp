@@ -90,7 +90,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ElementCache>
-class Pool : public common::Component
+class Cache : public common::Component
 {
 public:
   typedef ElementCache element_type;
@@ -98,24 +98,28 @@ public:
   typedef mesh::Entities const* key_type;
   typedef boost::shared_ptr<element_type> data_type;
   typedef std::map<key_type,data_type> value_type;
-  Pool(const std::string& name) :
-    common::Component(name)
+  Cache(const std::string& name) :
+    common::Component(name),
+    m_cache(nullptr)
   {
   }
-  static std::string type_name() { return "Pool"; }
+  static std::string type_name() { return "Cache"; }
 
-  virtual void configure_cache(ElementCache& cache, const Handle<mesh::Entities const>& entities )
+  virtual ElementCache& configure_cache( const Handle<mesh::Entities const>& entities )
   {
-    cache.configure(entities);
+    CFdebug << "configuring Cache" << CFendl;
+    get().configure(entities);
+    return get();
   }
 
-  virtual void set_cache(ElementCache& cache, const Uint elem)
+  virtual ElementCache& set_cache(const Uint elem)
   {
-    cache.compute_element(elem);
+    get().compute_element(elem);
+    return get();
   }
 
   /// destructor
-  virtual ~Pool()
+  virtual ~Cache()
   {
     while(!m_element_caches.empty())
     {
@@ -125,81 +129,96 @@ public:
   }
 
   /// Create ElementCache if non-existant, else get the ElementCache and lock it through ElementCacheHandle constructor
-  Handle<ElementCache> cache(const Handle<mesh::Entities const>& entities)
+  ElementCache& cache(const Handle<mesh::Entities const>& entities)
   {
     typename value_type::iterator it = m_element_caches.find(entities.get());
     if(it != m_element_caches.end())
     {
-      if (it->second->locked()) throw common::IllegalCall(FromHere(),"cache is locked to elem "+common::to_str(it->second->idx));
-      return make_handle(it->second);
+      m_cache = it->second.get();
+
+      if (get().locked()) throw common::IllegalCall(FromHere(),"cache is locked to elem "+common::to_str(it->second->idx));
+
+      return get();
     }
     boost::shared_ptr<ElementCache> element_cache ( new ElementCache );
-    configure_cache(*element_cache,entities);
+    m_cache = element_cache.get();
+    configure_cache(entities);
     m_element_caches[entities.get()]=element_cache;
-    return make_handle(element_cache);
+    return get();
   }
 
   /// Create ElementCache if non-existant, else get the ElementCache and lock it through ElementCacheHandle constructor
-  Handle<ElementCache> cache(const Handle<mesh::Entities const>& entities, const Uint elem)
+  ElementCache& cache(const Handle<mesh::Entities const>& entities, const Uint elem)
   {
     typename value_type::iterator it = m_element_caches.find(entities.get());
     if(it != m_element_caches.end())
     {
-      if ( it->second->idx == elem ) // Nothing to be done
+      m_cache=it->second.get();
+
+      if ( get().idx == elem ) // Nothing to be done
       {
-        it->second->lock();
-        return make_handle(it->second);
+        get().lock();
+        return get();
       }
 
-      if ( it->second->locked() )
+      if ( get().locked() )
         throw common::IllegalCall(FromHere(),"cache is locked to elem "+common::to_str(it->second->idx));
 
-      set_cache(*it->second,elem);
-      return make_handle(it->second);
+      set_cache(elem);
+      return get();
     }
     boost::shared_ptr<ElementCache> element_cache ( new ElementCache );
-    configure_cache(*element_cache,entities);
-    set_cache(*element_cache,elem);
+    m_cache=element_cache.get();
+    configure_cache(entities);
+    set_cache(elem);
     m_element_caches[entities.get()]=element_cache;
-    return make_handle(element_cache);
+    return get();
   }
 
+  ElementCache& get()
+  {
+    cf3_assert(is_not_null(m_cache));
+    return *m_cache;
+  }
+  ElementCache* m_cache;
+
 private:
+
   value_type m_element_caches;
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class PoolFactory : public common::Component
+class CacheFactory : public common::Component
 {
 public:
-  static std::string type_name() { return "PoolFactory"; }
-  PoolFactory(const std::string& name) : common::Component(name) {}
-  virtual ~PoolFactory() {}
+  static std::string type_name() { return "CacheFactory"; }
+  CacheFactory(const std::string& name) : common::Component(name) {}
+  virtual ~CacheFactory() {}
 
 
   template <typename ElementCache>
-  Handle< typename ElementCache::CachePool > pool(const std::string& key = ElementCache::type_name())
+  Handle< typename ElementCache::cache_type > cache(const std::string& key = ElementCache::type_name())
   {
     ++factory_calls;
-    Handle< typename ElementCache::CachePool > fac = Handle< typename ElementCache::CachePool >(get_child(key));
+    Handle< typename ElementCache::cache_type > fac = Handle< typename ElementCache::cache_type >(get_child(key));
     if (!fac) // if not available, generate it
     {
-      CFdebug << "Creating Pool for " << key << CFendl;
-      fac = create_component< typename ElementCache::CachePool >(key);
+      CFdebug << "Creating Cache for " << key << CFendl;
+      fac = create_component< typename ElementCache::cache_type >(key);
     }
     return fac;
   }
   static Uint factory_calls;
 };
-Uint PoolFactory::factory_calls = 0;
+Uint CacheFactory::factory_calls = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 struct DummyElementCache : ElementCacheBase
 {
-  typedef Pool<DummyElementCache> CachePool;
+  typedef Cache<DummyElementCache> cache_type;
   static std::string type_name() { return "DummyElementCache"; }
   DummyElementCache (const std::string& name=type_name()) : ElementCacheBase(name) {}
 private:

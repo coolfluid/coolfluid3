@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 struct GeometryElementCache : ElementCacheBase
 {
-  typedef Pool<GeometryElementCache> CachePool;
+  typedef Cache<GeometryElementCache> cache_type;
   static std::string type_name() { return "GeometryElementCache"; }
   GeometryElementCache (const std::string& name=type_name()) : ElementCacheBase(name) {}
 private:
@@ -143,7 +143,7 @@ public:
 
 struct SFDElement : ElementCacheBase
 {
-  typedef Pool<SFDElement> CachePool;
+  typedef Cache<SFDElement> cache_type;
   static std::string type_name() { return "SFDElement"; }
   SFDElement (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -166,7 +166,7 @@ public:
 
 struct FluxPointDivergence : ElementCacheBase
 {
-  typedef Pool<FluxPointDivergence> CachePool;
+  typedef Cache<FluxPointDivergence> cache_type;
   static std::string type_name() { return "FluxPointDivergence"; }
   FluxPointDivergence (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -191,7 +191,7 @@ public:
 
 struct FluxPointReconstruct : ElementCacheBase
 {
-  typedef Pool<FluxPointReconstruct> CachePool;
+  typedef Cache<FluxPointReconstruct> cache_type;
   static std::string type_name() { return "FluxPointReconstruct"; }
   FluxPointReconstruct (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -217,7 +217,7 @@ public:
 template <Uint NEQS,Uint NDIM>
 struct PlaneJacobianNormal : ElementCacheBase
 {
-  typedef Pool<PlaneJacobianNormal<NEQS,NDIM> > CachePool;
+  typedef Cache<PlaneJacobianNormal<NEQS,NDIM> > cache_type;
   static std::string type_name() { return "SpectralElementCache"; }
   PlaneJacobianNormal (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -262,7 +262,7 @@ public:
 template <Uint NEQS,Uint NDIM>
 struct Coordinates : ElementCacheBase
 {
-  typedef Pool<Coordinates<NEQS,NDIM> > CachePool;
+  typedef Cache<Coordinates<NEQS,NDIM> > cache_type;
   static std::string type_name() { return "Coordinates"; }
   Coordinates (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -300,11 +300,11 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-template <Uint NVAR, Uint NDIM> class SFDFieldPool;
+template <Uint NVAR, Uint NDIM> class SFDFieldCache;
 template <Uint NVAR,Uint NDIM>
 struct SFDField : ElementCacheBase
 {
-  typedef SFDFieldPool<NVAR,NDIM> CachePool;
+  typedef SFDFieldCache<NVAR,NDIM> cache_type;
   static std::string type_name() { return "SFDField"; }
   SFDField (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -341,19 +341,20 @@ public:
 };
 
 template <Uint NVAR, Uint NDIM>
-class SFDFieldPool : public Pool< SFDField<NVAR,NDIM> >
+class SFDFieldCache : public Cache< SFDField<NVAR,NDIM> >
 {
 public:
-  static std::string type_name() { return "SFDFieldPool"; }
-  SFDFieldPool(const std::string& name) : Pool< SFDField<NVAR,NDIM> >(name) {}
-  virtual ~SFDFieldPool() {}
+  static std::string type_name() { return "SFDFieldCache"; }
+  SFDFieldCache(const std::string& name) : Cache< SFDField<NVAR,NDIM> >(name) {}
+  virtual ~SFDFieldCache() {}
 
-  virtual void configure_cache(SFDField<NVAR,NDIM> &cache, const Handle<const mesh::Entities> &entities)
+  virtual SFDField<NVAR,NDIM>& configure_cache( const Handle<mesh::Entities const>& entities )
   {
     cf3_assert(field);
-    std::cout << this->uri().string() << " configuring field to cache " << std::endl;
-    cache.set_field(field);
-    cache.configure(entities);
+    //std::cout << this->uri().string() << " configuring field to cache " << std::endl;
+    this->get().set_field(field);
+    this->get().configure(entities);
+    return this->get();
   }
 
   Handle<Field> field;
@@ -365,7 +366,7 @@ public:
 template <Uint NVAR,Uint NDIM>
 struct SFDGradField : ElementCacheBase
 {
-  typedef Pool< SFDGradField<NVAR,NDIM> > CachePool;
+  typedef Cache< SFDGradField<NVAR,NDIM> > cache_type;
   static std::string type_name() { return "SFDGradField"; }
   SFDGradField (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
@@ -413,7 +414,7 @@ public:
   DomainDiscretizer(const std::string& name) :
     Component(name)
   {
-    pool_factory = create_static_component<PoolFactory>("pool_factory");
+    cache_factory = create_static_component<CacheFactory>("cache_factory");
     term_group = create_static_component<Group>("terms");
     apply_bc = create_static_component<common::ActionDirector>("apply_bc");
   }
@@ -440,7 +441,7 @@ public:
   Handle<Entities const> entities;
   Uint elem;
 
-  Handle<PoolFactory> pool_factory;
+  Handle<CacheFactory> cache_factory;
   Handle<Group> term_group;
   std::vector< Handle<Term> > terms;
   Handle<Field> solution_field;
@@ -448,8 +449,7 @@ public:
   Handle<Field> jacobian_determinant;
   Handle<Field> wave_speed;
 
-  Handle<SFDElement> sfd;
-  Handle<Pool<SFDElement> > sfd_pool;
+  Handle<Cache<SFDElement> > sfd_cache;
 
 
   Handle<common::ActionDirector> apply_bc;
@@ -552,12 +552,6 @@ public:
       return discretizer;
   }
 
-  template <typename ElementCache>
-  Handle< typename ElementCache::Pool > pool(const std::string& p = ElementCache::type_name())
-  {
-    return discretizer->pool_factory->pool<ElementCache>(p);
-  }
-
   virtual void initialize() {}
 
   std::vector<Handle<Region const> > regions;
@@ -573,7 +567,7 @@ public:
 
   virtual void execute()
   {
-    std::cout << "executing " << type_name() << std::endl;
+    //std::cout << "executing " << type_name() << std::endl;
     boost_foreach( const Handle<Region const>& region, regions)
     {
       boost_foreach( Entities const& face_entities, find_components_recursively<Entities>(*region))
@@ -581,26 +575,25 @@ public:
         for (Uint face_idx=0; face_idx<face_entities.size(); ++face_idx)
         {
           set_inner_cell(face_entities.handle<Entities>(),face_idx, entities, elem_idx, face_nb);
-          std::cout << "face_nb = " << face_nb << std::endl;
-          cf3_assert(solution_pool);
-          solution = solution_pool->cache(entities,elem_idx);
-          boost_foreach(const Uint flx_pt, solution->sf->face_flx_pts(face_nb))
+          //std::cout << "face_nb = " << face_nb << std::endl;
+          cf3_assert(solution_cache);
+          solution_cache->cache(entities,elem_idx);
+          boost_foreach(const Uint flx_pt, solution_cache->get().sf->face_flx_pts(face_nb))
           {
             for (Uint v=0; v<NEQS; ++v)
             {
-              solution->field_in_flx_pts[flx_pt][v]=0.;
+              solution_cache->get().field_in_flx_pts[flx_pt][v]=0.;
             }
           }
-          std::cout << "sol_in_flx_pts = ";
-          boost_foreach(const RealRowVector& r, solution->field_in_flx_pts)
-            std::cout << r << " ";
-          std::cout << std::endl;
-          Field::View sol_in_sol_pts = solution->field->view(solution->space->indexes_for_element(elem_idx));
-          reconstruct_from_flx_pts = reconstruct_from_flx_pts_pool->cache(entities);
-          reconstruct_from_flx_pts->compute(solution->sf->flx_pt_dirs(solution->sf->face_flx_pts(face_nb)[0])[0],
-                                            solution->field_in_flx_pts,sol_in_sol_pts);
-          std::cout << "sol_in_sol_pts = " << to_str(sol_in_sol_pts) << std::endl;
-          solution->unlock();
+          //std::cout << "sol_in_flx_pts = "; boost_foreach(const RealRowVector& r, solution->field_in_flx_pts)
+            //std::cout << r << " ";
+          //std::cout << std::endl;
+          Field::View sol_in_sol_pts = solution_cache->get().field->view(solution_cache->get().space->indexes_for_element(elem_idx));
+          reconstruct_from_flx_pts_cache->cache(entities).
+              compute(solution_cache->get().sf->flx_pt_dirs(solution_cache->get().sf->face_flx_pts(face_nb)[0])[0],
+                                                solution_cache->get().field_in_flx_pts,sol_in_sol_pts);
+          //std::cout << "sol_in_sol_pts = " << to_str(sol_in_sol_pts) << std::endl;
+          solution_cache->get().unlock();
         }
       }
     }
@@ -612,16 +605,14 @@ public:
 
   virtual void initialize()
   {
-    solution_pool = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    solution_pool->field = discretizer->solution_field;
-    reconstruct_from_flx_pts_pool = discretizer->pool_factory->pool< FluxPointReconstruct >("reconstruct_from_flx_pts");
+    solution_cache = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    solution_cache->field = discretizer->solution_field;
+    reconstruct_from_flx_pts_cache = discretizer->cache_factory->cache< FluxPointReconstruct >("reconstruct_from_flx_pts");
   }
 
-  Handle< SFDFieldPool<NEQS,NDIM> > solution_pool;
-  Handle< SFDField<NEQS,NDIM> >       solution;
+  Handle< SFDFieldCache<NEQS,NDIM> > solution_cache;
+  Handle< Cache<FluxPointReconstruct> > reconstruct_from_flx_pts_cache;
 
-  Handle< Pool<FluxPointReconstruct> > reconstruct_from_flx_pts_pool;
-  Handle< FluxPointReconstruct > reconstruct_from_flx_pts;
 };
 
 
@@ -629,7 +620,7 @@ public:
 
 void DomainDiscretizer::initialize()
 {
-  sfd_pool = pool_factory->pool<SFDElement>();
+  sfd_cache = cache_factory->cache<SFDElement>();
   boost_foreach(Handle<Term>& term, terms)
   {
     term->initialize();
@@ -652,11 +643,9 @@ void DomainDiscretizer::create_boundary_condition(const std::string& name, const
   bc->initialize();
 }
 
-
-
 void DomainDiscretizer::execute()
 {
-  sfd = sfd_pool->cache(entities);
+  sfd_cache->cache(entities);
 
   boost_foreach(Handle<Term>& term, terms)
   {
@@ -679,14 +668,14 @@ public:
 
   virtual void initialize()
   {
-    std::cout << "initialize " << type_name() << std::endl;
-    divergence_pool            = discretizer->pool_factory->pool< FluxPointDivergence >();
-    solution_pool              = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    neighbour_solution_pool    = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
-    plane_jacobian_normal_pool = discretizer->pool_factory->pool< PlaneJacobianNormal<NEQS,NDIM> >();
+    //std::cout << "initialize " << type_name() << std::endl;
+    divergence_cache            = discretizer->cache_factory->cache< FluxPointDivergence >();
+    solution_cache              = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    neighbour_solution_cache    = discretizer->cache_factory->cache< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
+    plane_jacobian_normal_cache = discretizer->cache_factory->cache< PlaneJacobianNormal<NEQS,NDIM> >();
 
-    solution_pool->field = discretizer->solution_field;
-    neighbour_solution_pool->field = discretizer->solution_field;
+    solution_cache->field = discretizer->solution_field;
+    neighbour_solution_cache->field = discretizer->solution_field;
   }
 
   // Convective term execution
@@ -694,50 +683,47 @@ public:
 
   virtual void execute(const Handle<const Entities>& entities, const Uint elem_idx)
   {
-    plane_jacobian_normal = plane_jacobian_normal_pool->cache(entities,elem_idx);
+    plane_jacobian_normal_cache->cache(entities,elem_idx);
 
-    solution = solution_pool->cache(entities,elem_idx);
-    solution->field = discretizer->solution_field;
+    solution_cache->cache(entities,elem_idx);
+    flux.resize(discretizer->sfd_cache->get().sf->nb_flx_pts());
 
-    flux.resize(discretizer->sfd->sf->nb_flx_pts());
-
-    boost_foreach(flx_pt, discretizer->sfd->sf->interior_flx_pts())
+    boost_foreach(flx_pt, discretizer->sfd_cache->get().sf->interior_flx_pts())
     {
-      std::cout << "compute analytical flux in flx_pt["<<flx_pt<<"]"<<std::endl;
+      //std::cout << "compute analytical flux in flx_pt["<<flx_pt<<"]"<<std::endl;
       compute_analytical_flux();
-      std::cout << "flux = " << flux[flx_pt] << std::endl;
+      //std::cout << "flux = " << flux[flx_pt] << std::endl;
     }
-    for(Uint f=0; f<discretizer->sfd->sf->nb_faces(); ++f)
+    for(Uint f=0; f<discretizer->sfd_cache->get().sf->nb_faces(); ++f)
     {
       set_neighbour(entities,elem_idx,f,
                     neighbour_entities,neighbour_elem_idx,face_entities,face_idx);
       if ( is_not_null(neighbour_entities) )
       {
-        std::cout << "caching neighbour idx " << neighbour_elem_idx << std::endl;
-        neighbour_solution = neighbour_solution_pool->cache(neighbour_entities,neighbour_elem_idx);
+        //std::cout << "caching neighbour idx " << neighbour_elem_idx << std::endl;
+        neighbour_solution_cache->cache(neighbour_entities,neighbour_elem_idx);
         // 2) solve riemann problem on interior-faces  ----> Flux   ( linked with (1) )
         //     Save in face (yes/no)
-        boost_foreach(flx_pt, discretizer->sfd->sf->face_flx_pts(f))
+        boost_foreach(flx_pt, discretizer->sfd_cache->get().sf->face_flx_pts(f))
         {
-          std::cout << "compute numerical flux in flx_pt["<<flx_pt<<"]" << std::endl;
-          std::cout << "neighbour sol_in_flx_pt = " << neighbour_solution->field_in_flx_pts[f] << std::endl;
+          //std::cout << "compute numerical flux in flx_pt["<<flx_pt<<"]" << std::endl;
+          //std::cout << "neighbour sol_in_flx_pt = " << neighbour_solution->field_in_flx_pts[f] << std::endl;
           compute_numerical_flux();
-          std::cout << "flux = " << flux[flx_pt] << std::endl;
+          //std::cout << "flux = " << flux[flx_pt] << std::endl;
         }
-        neighbour_solution->unlock();
+        neighbour_solution_cache->get().unlock();
       }
       else
       {
-        boost_foreach(flx_pt, discretizer->sfd->sf->face_flx_pts(f))
+        boost_foreach(flx_pt, discretizer->sfd_cache->get().sf->face_flx_pts(f))
         {
           compute_analytical_flux();
         }
       }
     }
     // compute divergence in solution points
-    divergence = divergence_pool->cache(entities);
-    Field::View term = term_field->view(discretizer->sfd->space->indexes_for_element(elem_idx));
-    divergence->compute(flux,term);
+    Field::View term = term_field->view(discretizer->sfd_cache->get().space->indexes_for_element(elem_idx));
+    divergence_cache->cache(entities).compute(flux,term);
 
 //    Field::View jacob_det = discretizer->jacobian_determinant->view(discretizer->sfd->space->indexes_for_element(elem_idx));
 //    for (Uint sol_pt=0; sol_pt<discretizer->sfd->sf->nb_sol_pts(); ++sol_pt) {
@@ -746,17 +732,17 @@ public:
 //      }
 //    }
 
-    std::cout << "div_flx = " << to_str(term) << std::endl; //elem->divergence_from_flux_points(elem->flx_in_flx_pts).transpose() << std::endl;
+    //std::cout << "div_flx = " << to_str(term) << std::endl; //elem->divergence_from_flux_points(elem->flx_in_flx_pts).transpose() << std::endl;
 
-    Field::View residual = discretizer->residual->view(discretizer->sfd->space->indexes_for_element(elem_idx));
-    for (Uint sol_pt=0; sol_pt<discretizer->sfd->sf->nb_sol_pts(); ++sol_pt) {
+    Field::View residual = discretizer->residual->view(discretizer->sfd_cache->get().space->indexes_for_element(elem_idx));
+    for (Uint sol_pt=0; sol_pt<discretizer->sfd_cache->get().sf->nb_sol_pts(); ++sol_pt) {
       for (Uint v=0; v<NEQS; ++v) {
         residual[sol_pt][v] -= term[sol_pt][v];
       }
     }
 
-    plane_jacobian_normal->unlock();
-    solution->unlock();
+    plane_jacobian_normal_cache->get().unlock();
+    solution_cache->get().unlock();
   }
 
   // Flux evaluations
@@ -772,15 +758,11 @@ public:
   Uint face_idx;
 
   // In flux points:
-  Handle< Pool<FluxPointDivergence> > divergence_pool;
-  Handle< SFDFieldPool<NEQS,NDIM> > solution_pool;
-  Handle< SFDFieldPool<NEQS,NDIM> > neighbour_solution_pool;
-  Handle< Pool<PlaneJacobianNormal<NEQS,NDIM> > >plane_jacobian_normal_pool;
+  Handle< Cache<FluxPointDivergence> > divergence_cache;
+  Handle< SFDFieldCache<NEQS,NDIM> > solution_cache;
+  Handle< SFDFieldCache<NEQS,NDIM> > neighbour_solution_cache;
+  Handle< Cache<PlaneJacobianNormal<NEQS,NDIM> > >plane_jacobian_normal_cache;
 
-  Handle< FluxPointDivergence >                        divergence;
-  Handle< SFDField<NEQS,NDIM> >                        solution;
-  Handle< SFDField<NEQS,NDIM> >                        neighbour_solution;
-  Handle< PlaneJacobianNormal<NEQS,NDIM> >             plane_jacobian_normal;
   std::vector< typename SFDField<NEQS,NDIM>::field_t > flux;
 };
 
@@ -802,11 +784,11 @@ public:
 
   virtual void compute_analytical_flux()
   {
-    analytical_flux.evaluate(solution->field_in_flx_pts[flx_pt],flux[flx_pt]);
+    analytical_flux.evaluate(solution_cache->get().field_in_flx_pts[flx_pt],flux[flx_pt]);
   }
   virtual void compute_numerical_flux()
   {
-    analytical_flux.evaluate(solution->field_in_flx_pts[flx_pt],flux[flx_pt]);
+    analytical_flux.evaluate(solution_cache->get().field_in_flx_pts[flx_pt],flux[flx_pt]);
   }
 
 private:
@@ -858,17 +840,17 @@ BOOST_AUTO_TEST_CASE( sandbox )
     // Initial condition
     Handle<Entities const> entities = elements.handle<Entities>();
 
-    Handle<SFDElement> sfd_elem = discretizer->pool_factory->pool<SFDElement>()->cache(entities);
-    Handle<GeometryElementCache> geo_elem = discretizer->pool_factory->pool<GeometryElementCache>()->cache(entities);
+    SFDElement& sfd_elem = discretizer->cache_factory->cache<SFDElement>()->cache(entities);
+    GeometryElementCache& geo_elem = discretizer->cache_factory->cache<GeometryElementCache>()->cache(entities);
 
     Reconstruct reconstruct_to_sfd;
-    reconstruct_to_sfd.build_coefficients(geo_elem->sf,sfd_elem->sf);
+    reconstruct_to_sfd.build_coefficients(geo_elem.sf,sfd_elem.sf);
 
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      geo_elem->compute_element(elem);
-      Field::View sfd_sol_in_sol_pts = solution.view(sfd_elem->space->indexes_for_element(elem));
-      reconstruct_to_sfd(geo_elem->nodes,sfd_sol_in_sol_pts);
+      geo_elem.compute_element(elem);
+      Field::View sfd_sol_in_sol_pts = solution.view(sfd_elem.space->indexes_for_element(elem));
+      reconstruct_to_sfd(geo_elem.nodes,sfd_sol_in_sol_pts);
     }
   }
   // Domain discretization
@@ -897,7 +879,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
   }
   discretizer->apply_bc->execute();
 
-  std::cout << "factory_calls = " << PoolFactory::factory_calls << std::endl;
+  std::cout << "factory_calls = " << CacheFactory::factory_calls << std::endl;
   std::cout << "operations = " << ReconstructBase::elementary_operations << std::endl;
   std::vector<URI> fields;
   fields.push_back(solution.uri());
@@ -1062,8 +1044,8 @@ BOOST_AUTO_TEST_CASE( test_P0 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -1226,8 +1208,8 @@ BOOST_AUTO_TEST_CASE( test_P1 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -1396,8 +1378,8 @@ BOOST_AUTO_TEST_CASE( test_P2 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -1571,8 +1553,8 @@ BOOST_AUTO_TEST_CASE( test_P3 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 #endif
