@@ -9,6 +9,7 @@ list( APPEND coolfluid_sfdm_files
   CreateSFDFields.cpp
   DomainDiscretization.cpp
   DomainDiscretization.hpp
+  ElementCaching.hpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp

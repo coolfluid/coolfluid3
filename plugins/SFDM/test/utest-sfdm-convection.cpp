@@ -1,6 +1,6 @@
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
-// This software is distributed under the ElementDatas of the
+// This software is distributed under the ElementCaches of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
@@ -47,6 +47,7 @@
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/actions/BuildFaces.hpp"
 
+#include "SFDM/ElementCaching.hpp"
 #include "SFDM/Reconstructions.hpp"
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
@@ -110,73 +111,11 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// ElementData base class is a component. It is counted on not many of these objects will be created
-/// using a caching/locking mechanism
-class ElementDataBase //: public common::Component
+struct GeometryElementCache : ElementCacheBase
 {
-public:
-
-  static std::string type_name() { return "ElementDataBase"; }
-  ElementDataBase(const std::string& name) //: common::Component(name)
-  {
-    idx = math::Consts::uint_max();
-    std::cout<<"Create new " << name;
-    unlock();
-  }
-  virtual ~ElementDataBase() {}
-
-  virtual void configure(const Handle<const Entities>& entities_comp)
-  {
-    std::cout<<" for " << entities_comp->uri() <<std::endl;
-    // reset and reconfigure for this element type
-    unlock();
-    if(entities)
-    {
-      if (entities_comp==entities)
-      {
-        return;
-      }
-    }
-    // compute if it was not configured yet
-    idx = math::Consts::uint_max();
-    entities = entities_comp;
-    compute_fixed_data();
-  }
-
-  // mark this object as locked, must unlock manualy
-  void compute_element(const Uint elem_idx)
-  {
-    lock();
-    if (idx != elem_idx)
-    {
-      idx = elem_idx;
-      compute_variable_data();
-    }
-  }
-
-  Handle< mesh::Entities const      > entities;
-  Uint idx;
-
-  // locking mechanism
-  bool locked() const { return m_locked; }
-  void lock() { m_locked=true; }
-  void unlock() { m_locked=false; }
-
-private:
-
-  virtual void compute_fixed_data() = 0;
-  virtual void compute_variable_data() = 0;
-
-private:
-  bool m_locked;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct GeometryElementData : ElementDataBase
-{
-  static std::string type_name() { return "GeometryElementData"; }
-  GeometryElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
+  typedef Pool<GeometryElementCache> CachePool;
+  static std::string type_name() { return "GeometryElementCache"; }
+  GeometryElementCache (const std::string& name=type_name()) : ElementCacheBase(name) {}
 private:
   virtual void compute_fixed_data()
   {
@@ -202,10 +141,11 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SFDElement : ElementDataBase
+struct SFDElement : ElementCacheBase
 {
+  typedef Pool<SFDElement> CachePool;
   static std::string type_name() { return "SFDElement"; }
-  SFDElement (const std::string& name=type_name()) : ElementDataBase(name) {}
+  SFDElement (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
 private:
   virtual void compute_fixed_data()
@@ -224,10 +164,11 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct FluxPointDivergence : ElementDataBase
+struct FluxPointDivergence : ElementCacheBase
 {
+  typedef Pool<FluxPointDivergence> CachePool;
   static std::string type_name() { return "FluxPointDivergence"; }
-  FluxPointDivergence (const std::string& name=type_name()) : ElementDataBase(name) {}
+  FluxPointDivergence (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
 private:
   virtual void compute_fixed_data()
@@ -248,10 +189,11 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct FluxPointReconstruct : ElementDataBase
+struct FluxPointReconstruct : ElementCacheBase
 {
+  typedef Pool<FluxPointReconstruct> CachePool;
   static std::string type_name() { return "FluxPointReconstruct"; }
-  FluxPointReconstruct (const std::string& name=type_name()) : ElementDataBase(name) {}
+  FluxPointReconstruct (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
 private:
   virtual void compute_fixed_data()
@@ -272,11 +214,12 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <Uint NEQS=1,Uint NDIM=1>
-struct PlaneJacobianNormal : ElementDataBase
+template <Uint NEQS,Uint NDIM>
+struct PlaneJacobianNormal : ElementCacheBase
 {
-  static std::string type_name() { return "SpectralElementData"; }
-  PlaneJacobianNormal (const std::string& name=type_name()) : ElementDataBase(name) {}
+  typedef Pool<PlaneJacobianNormal<NEQS,NDIM> > CachePool;
+  static std::string type_name() { return "SpectralElementCache"; }
+  PlaneJacobianNormal (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
 private:
   virtual void compute_fixed_data()
@@ -307,7 +250,7 @@ public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
-  GeometryElementData geo;
+  GeometryElementCache geo;
   typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
 
   // extrinsic state
@@ -316,11 +259,12 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <Uint NEQS=1,Uint NDIM=1>
-struct Coordinates : ElementDataBase
+template <Uint NEQS,Uint NDIM>
+struct Coordinates : ElementCacheBase
 {
+  typedef Pool<Coordinates<NEQS,NDIM> > CachePool;
   static std::string type_name() { return "Coordinates"; }
-  Coordinates (const std::string& name=type_name()) : ElementDataBase(name) {}
+  Coordinates (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
 private:
   virtual void compute_fixed_data()
@@ -344,7 +288,7 @@ public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
-  GeometryElementData geo;
+  GeometryElementCache geo;
 
   ReconstructToFluxPoints reconstruct_to_flux_points;
   typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
@@ -355,11 +299,14 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <Uint NVAR=1,Uint NDIM=1>
-struct SFDField : ElementDataBase
+
+template <Uint NVAR, Uint NDIM> class SFDFieldPool;
+template <Uint NVAR,Uint NDIM>
+struct SFDField : ElementCacheBase
 {
+  typedef SFDFieldPool<NVAR,NDIM> CachePool;
   static std::string type_name() { return "SFDField"; }
-  SFDField (const std::string& name=type_name()) : ElementDataBase(name) {}
+  SFDField (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
   void set_field(const Handle<Field>& sfdfield)
   {
@@ -393,13 +340,34 @@ public:
   std::vector<field_t>      field_in_flx_pts;
 };
 
+template <Uint NVAR, Uint NDIM>
+class SFDFieldPool : public Pool< SFDField<NVAR,NDIM> >
+{
+public:
+  static std::string type_name() { return "SFDFieldPool"; }
+  SFDFieldPool(const std::string& name) : Pool< SFDField<NVAR,NDIM> >(name) {}
+  virtual ~SFDFieldPool() {}
+
+  virtual void configure_cache(SFDField<NVAR,NDIM> &cache, const Handle<const mesh::Entities> &entities)
+  {
+    cf3_assert(field);
+    std::cout << this->uri().string() << " configuring field to cache " << std::endl;
+    cache.set_field(field);
+    cache.configure(entities);
+  }
+
+  Handle<Field> field;
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
-template <Uint NVAR=1,Uint NDIM=1>
-struct SFDGradField : ElementDataBase
+template <Uint NVAR,Uint NDIM>
+struct SFDGradField : ElementCacheBase
 {
+  typedef Pool< SFDGradField<NVAR,NDIM> > CachePool;
   static std::string type_name() { return "SFDGradField"; }
-  SFDGradField (const std::string& name=type_name()) : ElementDataBase(name) {}
+  SFDGradField (const std::string& name=type_name()) : ElementCacheBase(name) {}
 
   void set_field(Handle<Field> sfdfield)
   {
@@ -433,123 +401,6 @@ public:
   std::vector< grad_field_t > grad_field_in_flx_pts;
 };
 
-////////////////////////////////////////////////////////////////////////////////0
-
-struct DummyElementData : ElementDataBase
-{
-  static std::string type_name() { return "DummyElementData"; }
-  DummyElementData (const std::string& name=type_name()) : ElementDataBase(name) {}
-private:
-  virtual void compute_fixed_data() {}
-  virtual void compute_variable_data() {}
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-#define ELEMENTDATA_MAX_CACHE_SIZE 2
-template <typename ElementData>
-class Pool : public common::Component
-{
-public:
-  typedef ElementData element_type;
-  typedef Handle<Entities const> key_type;
-  typedef std::vector< boost::shared_ptr<element_type> > data_type;
-  typedef std::map<key_type,data_type> value_type;
-  Pool(const std::string& name) :
-    common::Component(name),
-    m_max_cache_size(ELEMENTDATA_MAX_CACHE_SIZE)
-  {
-  }
-
-  static std::string type_name() { return "Pool"; }
-
-  void set_max_cache_size(const Uint max_cache_size)
-  {
-    m_max_cache_size=max_cache_size;
-  }
-
-  /// destructor
-  virtual ~Pool()
-  {
-    while(!m_element_datas.empty())
-    {
-      typename value_type::iterator it = m_element_datas.begin();
-//      std::vector<boost::shared_ptr<ElementData> >& cached_ElementDatas = it->second;
-//      boost_foreach(ElementData* t, cached_ElementDatas)
-//      {
-//        delete t;
-//      }
-      m_element_datas.erase(it);
-    }
-
-  }
-
-  /// Create ElementData if non-existant, else get the ElementData and lock it through ElementDataHandle constructor
-  Handle<ElementData> get_element_data(const Handle<Entities const>& entities, int idx=-1)
-  {
-    typename value_type::iterator it = m_element_datas.find(entities);
-    if(it != m_element_datas.end())
-    {
-      boost_foreach(boost::shared_ptr<element_type>& t, it->second)
-      {
-        if(static_cast<int>(t->idx)==idx) // safe to use
-        {
-          std::cout << "ElementData is shared for " << entities->uri() << "["<<idx<<"]" << std::endl;
-          return make_handle(t);
-        }
-        if(t->locked()==false) // safe to use
-        {
-          std::cout << "Use available ElementData for " << entities->uri() << std::endl;
-          return make_handle(t);
-        }
-
-      }
-      if (it->second.size() == m_max_cache_size) // Check for caching
-        throw InvalidStructure(FromHere(),"All ElementDatas are locked for "+entities->uri().string()+" created. (max_cache_size="+to_str(m_max_cache_size)+")");
-    }
-
-    boost::shared_ptr<ElementData> element_data ( new ElementData );
-    element_data->configure(entities);
-
-    if(it != m_element_datas.end())
-      it->second.push_back(element_data);
-    else
-      m_element_datas[entities]=data_type(1,element_data);
-
-    return make_handle(element_data);
-  }
-
-private:
-  Uint m_max_cache_size;
-  value_type m_element_datas;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class PoolMother : public Component
-{
-public:
-  static std::string type_name() { return "PoolMother"; }
-  PoolMother(const std::string& name) : Component(name) {}
-  virtual ~PoolMother() {}
-
-
-  template <typename ElementData>
-  Handle< Pool<ElementData> > factory(const std::string& key = ElementData::type_name())
-  {
-    ++factory_calls;
-    Handle< Pool<ElementData> > fac = Handle< Pool<ElementData> >(get_child(key));
-    if (!fac) // if not available, generate it
-    {
-      std::cout << "Creating Pool for " << key << std::endl;
-      fac = create_component< Pool<ElementData> >(key);
-    }
-    return fac;
-  }
-  static Uint factory_calls;
-};
-Uint PoolMother::factory_calls = 0;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 class Term;
@@ -562,7 +413,7 @@ public:
   DomainDiscretizer(const std::string& name) :
     Component(name)
   {
-    factory_mother = create_static_component<PoolMother>("factory_mother");
+    pool_factory = create_static_component<PoolFactory>("pool_factory");
     term_group = create_static_component<Group>("terms");
     apply_bc = create_static_component<common::ActionDirector>("apply_bc");
   }
@@ -589,7 +440,7 @@ public:
   Handle<Entities const> entities;
   Uint elem;
 
-  Handle<PoolMother> factory_mother;
+  Handle<PoolFactory> pool_factory;
   Handle<Group> term_group;
   std::vector< Handle<Term> > terms;
   Handle<Field> solution_field;
@@ -643,13 +494,6 @@ public:
     vars->prefix_variable_names(name()+"_");
     return vars->description();
   }
-
-  template <typename ElementData>
-  Handle< Pool<ElementData> > pool(const std::string& p = ElementData::type_name())
-  {
-    return discretizer->factory_mother->factory<ElementData>(p);
-  }
-
 
   /// @todo move in central place
   void set_neighbour(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb,
@@ -708,10 +552,10 @@ public:
       return discretizer;
   }
 
-  template <typename ElementData>
-  Handle< Pool<ElementData> > pool(const std::string& p = ElementData::type_name())
+  template <typename ElementCache>
+  Handle< typename ElementCache::Pool > pool(const std::string& p = ElementCache::type_name())
   {
-    return discretizer->factory_mother->factory<ElementData>(p);
+    return discretizer->pool_factory->pool<ElementCache>(p);
   }
 
   virtual void initialize() {}
@@ -739,10 +583,7 @@ public:
           set_inner_cell(face_entities.handle<Entities>(),face_idx, entities, elem_idx, face_nb);
           std::cout << "face_nb = " << face_nb << std::endl;
           cf3_assert(solution_pool);
-          solution = solution_pool->get_element_data(entities,elem_idx);
-          cf3_assert(solution);
-          solution->set_field(discretizer->solution_field);
-          solution->compute_element(elem_idx);
+          solution = solution_pool->cache(entities,elem_idx);
           boost_foreach(const Uint flx_pt, solution->sf->face_flx_pts(face_nb))
           {
             for (Uint v=0; v<NEQS; ++v)
@@ -755,10 +596,11 @@ public:
             std::cout << r << " ";
           std::cout << std::endl;
           Field::View sol_in_sol_pts = solution->field->view(solution->space->indexes_for_element(elem_idx));
-          reconstruct_from_flx_pts = reconstruct_from_flx_pts_pool->get_element_data(entities,elem_idx);
+          reconstruct_from_flx_pts = reconstruct_from_flx_pts_pool->cache(entities);
           reconstruct_from_flx_pts->compute(solution->sf->flx_pt_dirs(solution->sf->face_flx_pts(face_nb)[0])[0],
                                             solution->field_in_flx_pts,sol_in_sol_pts);
           std::cout << "sol_in_sol_pts = " << to_str(sol_in_sol_pts) << std::endl;
+          solution->unlock();
         }
       }
     }
@@ -770,12 +612,13 @@ public:
 
   virtual void initialize()
   {
-    solution_pool = pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    reconstruct_from_flx_pts_pool = pool< FluxPointReconstruct >("reconstruct_from_flx_pts");
+    solution_pool = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    solution_pool->field = discretizer->solution_field;
+    reconstruct_from_flx_pts_pool = discretizer->pool_factory->pool< FluxPointReconstruct >("reconstruct_from_flx_pts");
   }
 
-  Handle< Pool<SFDField<NEQS,NDIM> > > solution_pool;
-  Handle< SFDField<NEQS,NDIM> >        solution;
+  Handle< SFDFieldPool<NEQS,NDIM> > solution_pool;
+  Handle< SFDField<NEQS,NDIM> >       solution;
 
   Handle< Pool<FluxPointReconstruct> > reconstruct_from_flx_pts_pool;
   Handle< FluxPointReconstruct > reconstruct_from_flx_pts;
@@ -786,7 +629,7 @@ public:
 
 void DomainDiscretizer::initialize()
 {
-  sfd_pool = factory_mother->factory<SFDElement>();
+  sfd_pool = pool_factory->pool<SFDElement>();
   boost_foreach(Handle<Term>& term, terms)
   {
     term->initialize();
@@ -813,7 +656,7 @@ void DomainDiscretizer::create_boundary_condition(const std::string& name, const
 
 void DomainDiscretizer::execute()
 {
-  sfd = sfd_pool->get_element_data(entities,elem);
+  sfd = sfd_pool->cache(entities);
 
   boost_foreach(Handle<Term>& term, terms)
   {
@@ -837,9 +680,13 @@ public:
   virtual void initialize()
   {
     std::cout << "initialize " << type_name() << std::endl;
-    divergence_pool            = pool< FluxPointDivergence >();
-    solution_pool              = pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    plane_jacobian_normal_pool = pool< PlaneJacobianNormal<NEQS,NDIM> >();
+    divergence_pool            = discretizer->pool_factory->pool< FluxPointDivergence >();
+    solution_pool              = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
+    neighbour_solution_pool    = discretizer->pool_factory->pool< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
+    plane_jacobian_normal_pool = discretizer->pool_factory->pool< PlaneJacobianNormal<NEQS,NDIM> >();
+
+    solution_pool->field = discretizer->solution_field;
+    neighbour_solution_pool->field = discretizer->solution_field;
   }
 
   // Convective term execution
@@ -847,12 +694,10 @@ public:
 
   virtual void execute(const Handle<const Entities>& entities, const Uint elem_idx)
   {
-    plane_jacobian_normal = plane_jacobian_normal_pool->get_element_data(entities,elem_idx);
-    plane_jacobian_normal->compute_element(elem_idx);
+    plane_jacobian_normal = plane_jacobian_normal_pool->cache(entities,elem_idx);
 
-    solution = solution_pool->get_element_data(entities,elem_idx);
-    solution->set_field(discretizer->solution_field);
-    solution->compute_element(elem_idx);
+    solution = solution_pool->cache(entities,elem_idx);
+    solution->field = discretizer->solution_field;
 
     flux.resize(discretizer->sfd->sf->nb_flx_pts());
 
@@ -868,9 +713,8 @@ public:
                     neighbour_entities,neighbour_elem_idx,face_entities,face_idx);
       if ( is_not_null(neighbour_entities) )
       {
-        neighbour_solution = solution_pool->get_element_data(neighbour_entities,neighbour_elem_idx);
-        neighbour_solution->set_field(discretizer->solution_field);
-        neighbour_solution->compute_element(elem_idx);
+        std::cout << "caching neighbour idx " << neighbour_elem_idx << std::endl;
+        neighbour_solution = neighbour_solution_pool->cache(neighbour_entities,neighbour_elem_idx);
         // 2) solve riemann problem on interior-faces  ----> Flux   ( linked with (1) )
         //     Save in face (yes/no)
         boost_foreach(flx_pt, discretizer->sfd->sf->face_flx_pts(f))
@@ -891,7 +735,7 @@ public:
       }
     }
     // compute divergence in solution points
-    divergence = divergence_pool->get_element_data(entities,elem_idx);
+    divergence = divergence_pool->cache(entities);
     Field::View term = term_field->view(discretizer->sfd->space->indexes_for_element(elem_idx));
     divergence->compute(flux,term);
 
@@ -929,7 +773,8 @@ public:
 
   // In flux points:
   Handle< Pool<FluxPointDivergence> > divergence_pool;
-  Handle< Pool<SFDField<NEQS,NDIM> > > solution_pool;
+  Handle< SFDFieldPool<NEQS,NDIM> > solution_pool;
+  Handle< SFDFieldPool<NEQS,NDIM> > neighbour_solution_pool;
   Handle< Pool<PlaneJacobianNormal<NEQS,NDIM> > >plane_jacobian_normal_pool;
 
   Handle< FluxPointDivergence >                        divergence;
@@ -1013,8 +858,8 @@ BOOST_AUTO_TEST_CASE( sandbox )
     // Initial condition
     Handle<Entities const> entities = elements.handle<Entities>();
 
-    Handle<SFDElement> sfd_elem = discretizer->factory_mother->factory<SFDElement>()->get_element_data(entities,0);
-    Handle<GeometryElementData> geo_elem = discretizer->factory_mother->factory<GeometryElementData>()->get_element_data(entities,0);
+    Handle<SFDElement> sfd_elem = discretizer->pool_factory->pool<SFDElement>()->cache(entities);
+    Handle<GeometryElementCache> geo_elem = discretizer->pool_factory->pool<GeometryElementCache>()->cache(entities);
 
     Reconstruct reconstruct_to_sfd;
     reconstruct_to_sfd.build_coefficients(geo_elem->sf,sfd_elem->sf);
@@ -1052,7 +897,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
   }
   discretizer->apply_bc->execute();
 
-  std::cout << "factory_calls = " << PoolMother::factory_calls << std::endl;
+  std::cout << "factory_calls = " << PoolFactory::factory_calls << std::endl;
   std::cout << "operations = " << ReconstructBase::elementary_operations << std::endl;
   std::vector<URI> fields;
   fields.push_back(solution.uri());
@@ -1126,13 +971,13 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_ElementData("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_ElementCache("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  ElementData& dirichlet = solver.domain_discretization().create_ElementData("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -1151,7 +996,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
-  gp << "set ElementDatainal png\n";
+  gp << "set ElementCacheinal png\n";
   gp << "set output 'test_P0.png'\n";
 //  gp << "set yrange [-1.2:1.2]\n";
   gp << "set grid\n";
@@ -1284,13 +1129,13 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_ElementData("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_ElementCache("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  ElementData& dirichlet = solver.domain_discretization().create_ElementData("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -1309,7 +1154,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
-  gp << "set ElementDatainal png\n";
+  gp << "set ElementCacheinal png\n";
   gp << "set output 'test_P1.png'\n";
 //  gp << "set yrange [-1.2:1.2]\n";
   gp << "set grid\n";
@@ -1449,13 +1294,13 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_ElementData("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_ElementCache("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  ElementData& dirichlet = solver.domain_discretization().create_ElementData("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -1474,7 +1319,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
-  gp << "set ElementDatainal png\n";
+  gp << "set ElementCacheinal png\n";
   gp << "set output 'test_P2.png'\n";
 //  gp << "set yrange [-1.2:1.2]\n";
   gp << "set grid\n";
@@ -1619,13 +1464,13 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_ElementData("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_ElementCache("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Boundary condition
   std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  ElementData& dirichlet = solver.domain_discretization().create_ElementData("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -1644,7 +1489,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
-  gp << "set ElementDatainal png\n";
+  gp << "set ElementCacheinal png\n";
   gp << "set output 'test_P3.png'\n";
 //  gp << "set yrange [-1.2:1.2]\n";
   gp << "set grid\n";
