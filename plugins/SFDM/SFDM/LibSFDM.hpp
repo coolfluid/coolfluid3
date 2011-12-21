@@ -7,6 +7,8 @@
 #ifndef cf3_SFDM_LibSFDM_hpp
 #define cf3_SFDM_LibSFDM_hpp
 
+#define SANDBOX
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Library.hpp"

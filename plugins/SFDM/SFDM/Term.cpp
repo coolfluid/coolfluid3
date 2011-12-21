@@ -11,6 +11,7 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionList.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/SpaceFields.hpp"
@@ -95,6 +96,46 @@ void Term::allocate_cache()
 /////////////////////////////////////////////////////////////////////////////////////
 
 Term::~Term() {}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Term::create_term_field()
+{
+  if (is_null(m_term_field))
+  {
+    link_fields();
+    boost::shared_ptr<math::VariablesDescriptor> vars(allocate_component<math::VariablesDescriptor>("tmp"));
+    vars->set_variables(solution_field().descriptor().description());
+    vars->prefix_variable_names(name()+"_");
+    m_term_field = solution_field().field_group().create_field(name(),vars->description()).handle<Field>();
+  }
+}
+
+void Term::set_neighbour(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb,
+                   Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx,
+                   Handle<Entities const>& face_entities, Uint& face_idx)
+{
+  ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
+  Entity face = face_connectivity[elem_idx][face_nb];
+  face_entities = face.comp->handle<Entities>();
+  face_idx = face.idx;
+  FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
+  if (cell_connectivity.is_bdry_face()[face.idx])
+  {
+    neighbour_entities = Handle<Entities const>();
+  }
+  else
+  {
+    Entity neighbour;
+    if (cell_connectivity.connectivity()[face.idx][LEFT].comp == entities.get() &&
+        cell_connectivity.connectivity()[face.idx][LEFT].idx == elem_idx)
+      neighbour = cell_connectivity.connectivity()[face.idx][LEFT];
+    else
+      neighbour = cell_connectivity.connectivity()[face.idx][RIGHT];
+    neighbour_entities = neighbour.comp->handle<Entities>();
+    neighbour_elem_idx = neighbour.idx;
+  }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 

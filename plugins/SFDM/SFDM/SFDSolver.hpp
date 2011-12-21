@@ -31,6 +31,7 @@ class InitialConditions;
 class DomainDiscretization;
 class IterativeSolver;
 class TimeStepping;
+class SharedCaches;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,10 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  common::Group&       actions()                { return *m_actions; }
+  common::Group&       actions()                 { return *m_actions; }
+
+  /// @return shared caches
+  SharedCaches& shared_caches()                  { return *m_shared_caches; }
 
   mesh::Mesh& mesh() { return *m_mesh; }
 
@@ -106,6 +110,7 @@ private: // data
   Handle<common::Group>          m_actions;               ///< the group of shared actions
   Handle<common::Group>          m_fields;                ///< the group of fields
 
+  Handle<SharedCaches>           m_shared_caches;
   Handle<physics::PhysModel>        m_physical_model;        ///< physical model
   Handle<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 

@@ -20,6 +20,7 @@ list( APPEND coolfluid_sfdm_files
   LagrangeLocally1D.cpp
   LibSFDM.hpp
   LibSFDM.cpp
+  Operations.hpp
   PrepareMesh.cpp
   PrepareMesh.hpp
   Reconstructions.hpp

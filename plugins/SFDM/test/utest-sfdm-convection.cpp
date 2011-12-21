@@ -53,6 +53,7 @@
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
 #include "SFDM/ShapeFunction.hpp"
+#include "SFDM/Operations.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 #include <common/Link.hpp>
@@ -111,299 +112,6 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct GeometryElementCache : ElementCacheBase
-{
-  typedef Cache<GeometryElementCache> cache_type;
-  static std::string type_name() { return "GeometryElementCache"; }
-  GeometryElementCache (const std::string& name=type_name()) : ElementCacheBase(name) {}
-private:
-  virtual void compute_fixed_data()
-  {
-    cf3_assert(entities);
-    space = entities->geometry_space().handle<mesh::Space>();
-    sf = space->shape_function().handle<mesh::ShapeFunction>();
-    entities->allocate_coordinates(nodes);
-  }
-
-  virtual void compute_variable_data()
-  {
-    entities->put_coordinates(nodes,idx);
-  }
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< mesh::ShapeFunction const > sf;
-
-  // extrinsic state (changed for every computation)
-  RealMatrix nodes;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct SFDElement : ElementCacheBase
-{
-  typedef Cache<SFDElement> cache_type;
-  static std::string type_name() { return "SFDElement"; }
-  SFDElement (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-  }
-
-  virtual void compute_variable_data() {}
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct FluxPointDivergence : ElementCacheBase
-{
-  typedef Cache<FluxPointDivergence> cache_type;
-  static std::string type_name() { return "FluxPointDivergence"; }
-  FluxPointDivergence (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-    compute.build_coefficients(sf);
-  }
-
-  virtual void compute_variable_data() {}
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  DivergenceReconstructFromFluxPoints compute;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct FluxPointReconstruct : ElementCacheBase
-{
-  typedef Cache<FluxPointReconstruct> cache_type;
-  static std::string type_name() { return "FluxPointReconstruct"; }
-  FluxPointReconstruct (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-    compute.build_coefficients(sf);
-  }
-
-  virtual void compute_variable_data() {}
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  ReconstructFromFluxPoints compute;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <Uint NEQS,Uint NDIM>
-struct PlaneJacobianNormal : ElementCacheBase
-{
-  typedef Cache<PlaneJacobianNormal<NEQS,NDIM> > cache_type;
-  static std::string type_name() { return "SpectralElementCache"; }
-  PlaneJacobianNormal (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-private:
-  virtual void compute_fixed_data()
-  {
-    geo.configure(entities);
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-
-    plane_jacobian_normal.resize(sf->nb_flx_pts(),RealVector(entities->element_type().dimension()));
-  }
-
-  virtual void compute_variable_data()
-  {
-    geo.compute_element(idx); // computes geo.nodes, for use of plane_jacobian normals
-
-    // compute plane-jacobian normals
-    const RealMatrix& flx_pts = sf->flx_pts();
-    for (Uint f=0; f<sf->nb_flx_pts(); ++f)
-    {
-      cf3_assert(sf->flx_pt_dirs(f).size() == 1);
-      CoordRef dir = static_cast<CoordRef>(sf->flx_pt_dirs(f)[0]);
-      /// @todo remove copy
-      plane_jacobian_normal[f] = geo.entities->element_type().
-          plane_jacobian_normal(flx_pts.row(f),geo.nodes,dir);
-    }
-  }
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  GeometryElementCache geo;
-  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
-
-  // extrinsic state
-  std::vector<coord_t>      plane_jacobian_normal;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <Uint NEQS,Uint NDIM>
-struct Coordinates : ElementCacheBase
-{
-  typedef Cache<Coordinates<NEQS,NDIM> > cache_type;
-  static std::string type_name() { return "Coordinates"; }
-  Coordinates (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-private:
-  virtual void compute_fixed_data()
-  {
-    geo.configure(entities);
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-
-    reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
-    coord_in_flx_pts.resize(sf->nb_flx_pts());
-  }
-
-  virtual void compute_variable_data()
-  {
-    geo.compute_element(idx); // computes geo.nodes, for use of plane_jacobian normals
-
-    // reconstruct the nodes
-    reconstruct_to_flux_points(geo.nodes,coord_in_flx_pts);
-  }
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  GeometryElementCache geo;
-
-  ReconstructToFluxPoints reconstruct_to_flux_points;
-  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
-
-  // extrinsic state
-  std::vector<coord_t>      coord_in_flx_pts;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-template <Uint NVAR, Uint NDIM> class SFDFieldCache;
-template <Uint NVAR,Uint NDIM>
-struct SFDField : ElementCacheBase
-{
-  typedef SFDFieldCache<NVAR,NDIM> cache_type;
-  static std::string type_name() { return "SFDField"; }
-  SFDField (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-  void set_field(const Handle<Field>& sfdfield)
-  {
-    field = sfdfield;
-  }
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-    reconstruct_to_flux_points.build_coefficients(sf);
-    field_in_flx_pts.resize(sf->nb_flx_pts());
-  }
-
-  virtual void compute_variable_data()
-  {
-    Field::View field_in_sol_pts = field->view(space->indexes_for_element(idx));
-    reconstruct_to_flux_points(field_in_sol_pts,field_in_flx_pts);
-  }
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  Handle< Field > field;
-  ReconstructToFluxPoints reconstruct_to_flux_points;
-  typedef Eigen::Matrix<Real, NVAR, 1> field_t;
-
-  // extrinsic state
-  std::vector<field_t>      field_in_flx_pts;
-};
-
-template <Uint NVAR, Uint NDIM>
-class SFDFieldCache : public Cache< SFDField<NVAR,NDIM> >
-{
-public:
-  static std::string type_name() { return "SFDFieldCache"; }
-  SFDFieldCache(const std::string& name) : Cache< SFDField<NVAR,NDIM> >(name) {}
-  virtual ~SFDFieldCache() {}
-
-  virtual SFDField<NVAR,NDIM>& configure_cache( const Handle<mesh::Entities const>& entities )
-  {
-    cf3_assert(field);
-    //std::cout << this->uri().string() << " configuring field to cache " << std::endl;
-    this->get().set_field(field);
-    this->get().configure(entities);
-    return this->get();
-  }
-
-  Handle<Field> field;
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <Uint NVAR,Uint NDIM>
-struct SFDGradField : ElementCacheBase
-{
-  typedef Cache< SFDGradField<NVAR,NDIM> > cache_type;
-  static std::string type_name() { return "SFDGradField"; }
-  SFDGradField (const std::string& name=type_name()) : ElementCacheBase(name) {}
-
-  void set_field(Handle<Field> sfdfield)
-  {
-    field = sfdfield;
-  }
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = entities->space("sfd_space").handle<Space>();
-    sf = space->shape_function().handle<SFDM::ShapeFunction>();
-    gradient_reconstruct_to_flux_points.build_coefficients(sf);
-    grad_field_in_flx_pts.resize(sf->nb_flx_pts());
-  }
-
-  virtual void compute_variable_data()
-  {
-    Field::View grad_field_in_sol_pts = field->view(space->indexes_for_element(idx));
-    gradient_reconstruct_to_flux_points(grad_field_in_sol_pts,grad_field_in_flx_pts);
-  }
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< SFDM::ShapeFunction const > sf;
-  Handle< Field > field;
-  GradientReconstructToFluxPoints gradient_reconstruct_to_flux_points;
-  typedef Eigen::Matrix<Real, NVAR, NDIM> grad_field_t;
-
-  // extrinsic state
-  std::vector< grad_field_t > grad_field_in_flx_pts;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 class Term;
 class ApplyBC;
 // UBER shared almost global struct
@@ -449,7 +157,7 @@ public:
   Handle<Field> jacobian_determinant;
   Handle<Field> wave_speed;
 
-  Handle<Cache<SFDElement> > sfd_cache;
+  Handle<CacheT<SFDElement> > sfd_cache;
 
 
   Handle<common::ActionDirector> apply_bc;
@@ -606,12 +314,12 @@ public:
   virtual void initialize()
   {
     solution_cache = discretizer->shared_caches->get_cache< SFDField<NEQS,NDIM> >(SFDM::Tags::solution());
-    solution_cache->field = discretizer->solution_field;
+    solution_cache->options().configure_option("field",discretizer->solution_field->uri());
     reconstruct_from_flx_pts_cache = discretizer->shared_caches->get_cache< FluxPointReconstruct >("reconstruct_from_flx_pts");
   }
 
-  Handle< SFDFieldCache<NEQS,NDIM> > solution_cache;
-  Handle< Cache<FluxPointReconstruct> > reconstruct_from_flx_pts_cache;
+  Handle< CacheT<SFDField<NEQS,NDIM> > > solution_cache;
+  Handle< CacheT<FluxPointReconstruct> > reconstruct_from_flx_pts_cache;
 
 };
 
@@ -674,8 +382,8 @@ public:
     neighbour_solution_cache    = discretizer->shared_caches->get_cache< SFDField<NEQS,NDIM> >(std::string("neighbour_")+SFDM::Tags::solution());
     plane_jacobian_normal_cache = discretizer->shared_caches->get_cache< PlaneJacobianNormal<NEQS,NDIM> >();
 
-    solution_cache->field = discretizer->solution_field;
-    neighbour_solution_cache->field = discretizer->solution_field;
+    solution_cache->options().configure_option("field",discretizer->solution_field->uri());
+    neighbour_solution_cache->options().configure_option("field",discretizer->solution_field->uri());
   }
 
   // Convective term execution
@@ -758,10 +466,10 @@ public:
   Uint face_idx;
 
   // In flux points:
-  Handle< Cache<FluxPointDivergence> > divergence_cache;
-  Handle< SFDFieldCache<NEQS,NDIM> > solution_cache;
-  Handle< SFDFieldCache<NEQS,NDIM> > neighbour_solution_cache;
-  Handle< Cache<PlaneJacobianNormal<NEQS,NDIM> > >plane_jacobian_normal_cache;
+  Handle< CacheT<FluxPointDivergence> > divergence_cache;
+  Handle< CacheT<SFDField<NEQS,NDIM> > > solution_cache;
+  Handle< CacheT<SFDField<NEQS,NDIM> > > neighbour_solution_cache;
+  Handle< CacheT<PlaneJacobianNormal<NEQS,NDIM> > >plane_jacobian_normal_cache;
 
   std::vector< typename SFDField<NEQS,NDIM>::field_t > flux;
 };
@@ -841,7 +549,7 @@ BOOST_AUTO_TEST_CASE( sandbox )
     Handle<Entities const> entities = elements.handle<Entities>();
 
     SFDElement& sfd_elem = discretizer->shared_caches->get_cache<SFDElement>()->cache(entities);
-    GeometryElementCache& geo_elem = discretizer->shared_caches->get_cache<GeometryElementCache>()->cache(entities);
+    GeometryElement& geo_elem = discretizer->shared_caches->get_cache<GeometryElement>()->cache(entities);
 
     Reconstruct reconstruct_to_sfd;
     reconstruct_to_sfd.build_coefficients(geo_elem.sf,sfd_elem.sf);

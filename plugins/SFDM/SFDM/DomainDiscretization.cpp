@@ -14,6 +14,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -33,7 +34,6 @@ using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,36 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
   m_terms = create_static_component<ActionDirector>("Terms");
 }
 
+#ifdef SANDBOX
+void DomainDiscretization::execute()
+{
+  boost_foreach( Component& term , *m_terms)
+  {
+    term.handle<Term>()->initialize();
+  }
 
+  std::cout << "DomainDiscretization EXECUTE" << std::endl;
+  foreach_container( (const Handle<Region const>& region) (std::vector< Handle<Term> >& terms), m_terms_per_region)
+  {
+    if (region)
+    {
+      boost_foreach( const Cells& cells, find_components_recursively<Cells>(*region) )
+      {
+        boost_foreach( const Handle<Term>& term, terms)
+        {
+          term->set_entities(cells);
+          std::cout << "DomainDiscretization: executing " << term->name() << " for cells " << cells.uri() << std::endl;
+          for (Uint elem_idx=0; elem_idx<cells.size(); ++elem_idx)
+          {
+            term->set_element(elem_idx);
+            term->execute();
+          }
+        }
+      }
+    }
+  }
+}
+#else
 void DomainDiscretization::execute()
 {
 //  CFinfo << "[SFDM] applying domain discretization" << CFendl;
@@ -67,6 +96,7 @@ void DomainDiscretization::execute()
   //CFinfo << "  terms()" << CFendl;
   m_terms->execute();
 }
+#endif
 
 Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::string& name,
@@ -83,6 +113,11 @@ Term& DomainDiscretization::create_term( const std::string& type,
   term->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
   term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
   term->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
+
+  boost_foreach(const URI& region_uri, regions)
+  {
+    m_terms_per_region[access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
+  }
 
   return *term;
 }

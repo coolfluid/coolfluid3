@@ -11,10 +11,13 @@
 
 #include <set>
 
+/// @todo remove common/Log include
 #include "common/Log.hpp"
+
 #include "common/StringConversion.hpp"
 
-#include "mesh/Reconstructions.hpp"
+#include "math/Consts.hpp"
+
 #include "mesh/Entities.hpp"
 
 #include "SFDM/ShapeFunction.hpp"
@@ -26,20 +29,33 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class Cache : public common::Component
+{
+public:
+  Cache(const std::string& name) : common::Component(name), options_added(false) { }
+  static std::string type_name() { return "Cache"; }
+  virtual ~Cache() {}
+
+public:
+  bool options_added;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// ElementCache base class is a component. It is counted on not many of these objects will be created
 /// using a caching/locking mechanism
-class ElementCacheBase //: public common::Component
+class ElementCache //: public common::Component
 {
 public:
 
-  static std::string type_name() { return "ElementCacheBase"; }
-  ElementCacheBase(const std::string& name) //: common::Component(name)
+  static std::string type_name() { return "ElementCache"; }
+  ElementCache(const std::string& name) //: common::Component(name)
   {
     idx = math::Consts::uint_max();
     CFdebug <<"Create new " << name;
     unlock();
   }
-  virtual ~ElementCacheBase() {}
+  virtual ~ElementCache() {}
 
   virtual void configure(const Handle<const mesh::Entities>& entities_comp)
   {
@@ -73,11 +89,17 @@ public:
   Handle< mesh::Entities const      > entities;
   Uint idx;
 
+  /// This object contains all user-configurable options
+  Handle< Cache const> cache;
+
+  const common::OptionList& options() const;
+
   // locking mechanism
   bool locked() const { return m_locked; }
   void lock() { m_locked=true; }
   void unlock() { m_locked=false; }
 
+  static void add_options(Cache& cache) { throw common::NotImplemented(FromHere(),"Type of object "+cache.uri().string()+" must override add_options()"); }
 private:
 
   virtual void compute_fixed_data() = 0;
@@ -87,39 +109,55 @@ private:
   bool m_locked;
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename ElementCache>
-class Cache : public common::Component
+const common::OptionList& ElementCache::options() const
+{
+  return cache->options();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename ElementCacheT>
+class CacheT : public Cache
 {
 public:
-  typedef ElementCache element_type;
+  typedef ElementCacheT element_type;
 
   typedef mesh::Entities const* key_type;
   typedef boost::shared_ptr<element_type> data_type;
   typedef std::map<key_type,data_type> value_type;
-  Cache(const std::string& name) :
-    common::Component(name),
+  CacheT(const std::string& name) :
+    Cache(name),
     m_cache(nullptr)
-  {
-  }
+  { }
   static std::string type_name() { return "Cache"; }
 
-  virtual ElementCache& configure_cache( const Handle<mesh::Entities const>& entities )
+  void add_options()
+  {
+    if (options_added == false)
+    {
+      ElementCacheT::add_options( *this );
+      options_added = true;
+    }
+  }
+
+  virtual ElementCacheT& configure_cache( const Handle<mesh::Entities const>& entities )
   {
     CFdebug << "configuring Cache" << CFendl;
     get().configure(entities);
     return get();
   }
 
-  virtual ElementCache& set_cache(const Uint elem)
+  virtual ElementCacheT& set_cache(const Uint elem)
   {
     get().compute_element(elem);
     return get();
   }
 
   /// destructor
-  virtual ~Cache()
+  virtual ~CacheT()
   {
     while(!m_element_caches.empty())
     {
@@ -129,7 +167,7 @@ public:
   }
 
   /// Create ElementCache if non-existant, else get the ElementCache and lock it through ElementCacheHandle constructor
-  ElementCache& cache(const Handle<mesh::Entities const>& entities)
+  ElementCacheT& cache(const Handle<mesh::Entities const>& entities)
   {
     typename value_type::iterator it = m_element_caches.find(entities.get());
     if(it != m_element_caches.end())
@@ -140,15 +178,16 @@ public:
 
       return get();
     }
-    boost::shared_ptr<ElementCache> element_cache ( new ElementCache );
+    boost::shared_ptr<ElementCacheT> element_cache ( new ElementCacheT );
     m_cache = element_cache.get();
+    m_cache->cache = this->handle<Cache>();
     configure_cache(entities);
     m_element_caches[entities.get()]=element_cache;
     return get();
   }
 
   /// Create ElementCache if non-existant, else get the ElementCache and lock it through ElementCacheHandle constructor
-  ElementCache& cache(const Handle<mesh::Entities const>& entities, const Uint elem)
+  ElementCacheT& cache(const Handle<mesh::Entities const>& entities, const Uint elem)
   {
     typename value_type::iterator it = m_element_caches.find(entities.get());
     if(it != m_element_caches.end())
@@ -167,20 +206,21 @@ public:
       set_cache(elem);
       return get();
     }
-    boost::shared_ptr<ElementCache> element_cache ( new ElementCache );
+    boost::shared_ptr<ElementCacheT> element_cache ( new ElementCacheT );
     m_cache=element_cache.get();
+    m_cache->cache = this->handle<Cache>();
     configure_cache(entities);
     set_cache(elem);
     m_element_caches[entities.get()]=element_cache;
     return get();
   }
 
-  ElementCache& get()
+  ElementCacheT& get()
   {
     cf3_assert(is_not_null(m_cache));
     return *m_cache;
   }
-  ElementCache* m_cache;
+  ElementCacheT* m_cache;
 
 private:
 
@@ -200,30 +240,38 @@ public:
   /// Get or create a shared cache object
   /// @note this function should be avoided in loops, as it uses internally
   /// the somewhat expensive function Component::get_child()
-  template <typename ElementCache>
-  Handle< typename ElementCache::cache_type > get_cache(const std::string& tag = ElementCache::type_name())
+  template <typename ElementCacheT>
+  Handle< typename ElementCacheT::cache_type > get_cache(const std::string& tag = ElementCacheT::type_name())
   {
     ++factory_calls;
-    Handle< typename ElementCache::cache_type > fac = Handle< typename ElementCache::cache_type >(get_child(tag));
+    Handle< typename ElementCacheT::cache_type > fac = Handle< typename ElementCacheT::cache_type >(get_child(tag));
     if (!fac) // if not available, generate it
     {
       CFdebug << "Creating Cache for " << tag << CFendl;
-      fac = create_component< typename ElementCache::cache_type >(tag);
+      fac = create_component< typename ElementCacheT::cache_type >(tag);
+      fac->add_options();
     }
     return fac;
   }
+
+  void reset_shared_caches()
+  {
+    throw common::NotImplemented(FromHere(),"Create a non-templated ElementCache base function with function to reset, and call here on every child");
+  }
+
   static Uint factory_calls;
 };
 Uint SharedCaches::factory_calls = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct DummyElementCache : ElementCacheBase
+struct DummyElementCache : ElementCache
 {
-  typedef Cache<DummyElementCache> cache_type;
+  typedef CacheT<DummyElementCache> cache_type;
   static std::string type_name() { return "DummyElementCache"; }
-  DummyElementCache (const std::string& name=type_name()) : ElementCacheBase(name) {}
+  DummyElementCache (const std::string& name=type_name()) : ElementCache(name) {}
 private:
+  static void add_options(Cache& cache) {}
   virtual void compute_fixed_data() {}
   virtual void compute_variable_data() {}
 };

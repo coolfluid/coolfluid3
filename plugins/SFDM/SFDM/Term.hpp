@@ -11,7 +11,7 @@
 #include "common/BoostArray.hpp"
 
 #include "math/MatrixTypes.hpp"
-
+#include "mesh/Entities.hpp"
 #include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
@@ -108,6 +108,19 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "Term"; }
+
+  virtual void initialize() { }
+  void create_term_field();
+  virtual void set_entities(const mesh::Entities& entities) { m_entities = entities.handle<mesh::Entities>(); }
+  virtual void set_element(const Uint elem_idx) { m_elem_idx = elem_idx; }
+
+  void set_neighbour(const Handle<mesh::Entities const>& entities, const Uint elem_idx, const Uint face_nb,
+                     Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx,
+                     Handle<mesh::Entities const>& face_entities, Uint& face_idx);
+
+  Uint m_elem_idx;
+  Handle<mesh::Entities const> m_entities;
+  Handle<mesh::Field> m_term_field;
 
   /// @name ACCESSORS
   //@{

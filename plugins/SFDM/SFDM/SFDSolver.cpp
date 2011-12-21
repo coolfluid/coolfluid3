@@ -32,6 +32,7 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
+#include "SFDM/ElementCaching.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
@@ -82,6 +83,8 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
     .attach_trigger ( boost::bind ( &SFDSolver::build_riemann_solver, this) );
 
   options().option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
+
+  m_shared_caches = create_component<SharedCaches>("shared_caches");
 
   // Shared actions by the solver
   m_actions = create_static_component< Group >( SFDM::Tags::actions() );

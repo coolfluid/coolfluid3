@@ -67,6 +67,13 @@ void Convection::allocate_fast_access_data()
 
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef SANDBOX
+void Convection::execute()
+{
+  std::cout << name() << " for " << m_entities->uri() << "["<<m_elem_idx<<"]"<<std::endl;
+}
+
+#else
 void Convection::execute()
 {
   link_fields();
@@ -80,7 +87,7 @@ void Convection::execute()
   compute_face_flx_pts_contribution();
   apply_null_bc();
 }
-
+#endif
 //////////////////////////////////////////////////////////////////////////////
 
 void Convection::compute_interior_flx_pts_contribution()
