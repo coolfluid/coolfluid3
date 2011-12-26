@@ -16,6 +16,7 @@
 #include "mesh/ShapeFunction.hpp"
 
 #include "SFDM/ElementCaching.hpp"
+#include "SFDM/Reconstructions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -145,18 +146,20 @@ public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
-  std::string space_id;
   ReconstructFromFluxPoints compute;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <Uint NEQS,Uint NDIM>
-struct PlaneJacobianNormal : ElementCache
+template <Uint NDIM>
+struct FluxPointPlaneJacobianNormal : ElementCache
 {
-  typedef CacheT<PlaneJacobianNormal<NEQS,NDIM> > cache_type;
-  static std::string type_name() { return "PlaneJacobianNormal"; }
-  PlaneJacobianNormal (const std::string& name=type_name()) : ElementCache(name) {}
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  typedef CacheT<FluxPointPlaneJacobianNormal<NDIM> > cache_type;
+  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
+
+  static std::string type_name() { return "FluxPointPlaneJacobianNormal"; }
+  FluxPointPlaneJacobianNormal (const std::string& name=type_name()) : ElementCache(name) {}
 
   static void add_options(Cache& cache)
   {
@@ -171,7 +174,7 @@ private:
     space = entities->space(space_id).handle<mesh::Space>();
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
-    plane_jacobian_normal.resize(sf->nb_flx_pts(),RealVector(entities->element_type().dimension()));
+    plane_jacobian_normal.resize(sf->nb_flx_pts());
   }
 
   virtual void compute_variable_data()
@@ -189,12 +192,17 @@ private:
           plane_jacobian_normal(flx_pts.row(f),geo.nodes,dir);
     }
   }
+
+public:
+
+  coord_t& operator[] (const Uint flx_pt)             { return plane_jacobian_normal[flx_pt]; }
+  const coord_t& operator[] (const Uint flx_pt) const { return plane_jacobian_normal[flx_pt]; }
+
 public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
   GeometryElement geo;
-  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
 
   // extrinsic state
   std::vector<coord_t>      plane_jacobian_normal;
@@ -202,53 +210,174 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//template <Uint NEQS,Uint NDIM>
-//struct Coordinates : ElementCache
-//{
-//  typedef CacheT<Coordinates<NEQS,NDIM> > cache_type;
-//  static std::string type_name() { return "Coordinates"; }
-//  Coordinates (const std::string& name=type_name()) : ElementCache(name) {}
+template <Uint NDIM>
+struct FluxPointCoordinates : ElementCache
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
 
-//private:
-//  virtual void compute_fixed_data()
-//  {
-//    geo.configure(entities);
-//    std::string space_id = cache->options()->option("space").value<std::string>();
-//    space = entities->space(space_id).handle<mesh::Space>();
-//    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+  typedef CacheT<FluxPointCoordinates<NDIM> > cache_type;
+  static std::string type_name() { return "FluxPointCoordinates"; }
+  FluxPointCoordinates (const std::string& name=type_name()) : ElementCache(name) {}
 
-//    reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
-//    coord_in_flx_pts.resize(sf->nb_flx_pts());
-//  }
+  static void add_options(Cache& cache)
+  {
+    cache.options().add_option("space",std::string("sfd_space"));
+  }
 
-//  virtual void compute_variable_data()
-//  {
-//    geo.compute_element(idx); // computes geo.nodes, for use of plane_jacobian normals
+private:
+  virtual void compute_fixed_data()
+  {
+    geo.configure(entities);
+    std::string space_id = options().option("space").template value<std::string>();
+    space = entities->space(space_id).handle<mesh::Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
-//    // reconstruct the nodes
-//    reconstruct_to_flux_points(geo.nodes,coord_in_flx_pts);
-//  }
-//public:
-//  // intrinsic state (not supposed to change)
-//  Handle< mesh::Space const         > space;
-//  Handle< SFDM::ShapeFunction const > sf;
-//  GeometryElementCache geo;
+    reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
+    coord_in_flx_pts.resize(sf->nb_flx_pts());
+  }
 
-//  ReconstructToFluxPoints reconstruct_to_flux_points;
-//  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
+  virtual void compute_variable_data()
+  {
+    geo.compute_element(idx); // computes geo.nodes
 
-//  // extrinsic state
-//  std::vector<coord_t>      coord_in_flx_pts;
-//};
+    // reconstruct the nodes
+    reconstruct_to_flux_points(geo.nodes,coord_in_flx_pts);
+  }
+
+public:
+
+  coord_t& operator[] (const Uint flx_pt)             { return coord_in_flx_pts[flx_pt]; }
+  const coord_t& operator[] (const Uint flx_pt) const { return coord_in_flx_pts[flx_pt]; }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  GeometryElement geo;
+
+  ReconstructToFluxPoints reconstruct_to_flux_points;
+
+  // extrinsic state
+  std::vector<coord_t>      coord_in_flx_pts;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <Uint NDIM>
+struct SolutionPointCoordinates : ElementCache
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  typedef Eigen::Matrix<Real, NDIM, 1> coord_t;
+
+  typedef CacheT<SolutionPointCoordinates<NDIM> > cache_type;
+  static std::string type_name() { return "SolutionPointCoordinates"; }
+  SolutionPointCoordinates (const std::string& name=type_name()) : ElementCache(name) {}
+
+  static void add_options(Cache& cache)
+  {
+    cache.options().add_option("space",std::string("sfd_space"));
+  }
+
+private:
+  virtual void compute_fixed_data()
+  {
+    geo.configure(entities);
+    std::string space_id = options().option("space").template value<std::string>();
+    space = entities->space(space_id).handle<mesh::Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+
+    reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
+    coord_in_sol_pts.resize(sf->nb_flx_pts());
+  }
+
+  virtual void compute_variable_data()
+  {
+    geo.compute_element(idx); // computes geo.nodes
+
+    // reconstruct the nodes
+    reconstruct_to_flux_points(geo.nodes,coord_in_sol_pts);
+  }
+
+public:
+
+  coord_t& operator[] (const Uint sol_pt)             { return coord_in_sol_pts[sol_pt]; }
+  const coord_t& operator[] (const Uint sol_pt) const { return coord_in_sol_pts[sol_pt]; }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  GeometryElement geo;
+
+  ReconstructToFluxPoints reconstruct_to_flux_points;
+
+  // extrinsic state
+  std::vector<coord_t>      coord_in_sol_pts;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint NVAR,Uint NDIM>
-struct SFDField : ElementCache
+struct SolutionPointField : ElementCache
 {
-  typedef CacheT< SFDField<NVAR,NDIM> > cache_type;
-  static std::string type_name() { return "SFDField"; }
-  SFDField (const std::string& name=type_name()) : ElementCache(name) {}
+  typedef CacheT< SolutionPointField<NVAR,NDIM> > cache_type;
+  static std::string type_name() { return "SolutionPointField"; }
+  SolutionPointField (const std::string& name=type_name()) : ElementCache(name), field_in_sol_pts(nullptr) {}
+
+  ~SolutionPointField()
+  {
+    if (is_not_null(field_in_sol_pts))
+      delete(field_in_sol_pts);
+  }
+
+  static void add_options(Cache& cache)
+  {
+    cache.options().add_option("field",common::URI());
+  }
+
+private:
+  virtual void compute_fixed_data()
+  {
+    field = cache->access_component(options().option("field").template value<common::URI>())->template handle<mesh::Field>();
+    space = field->field_group().space(*entities).template handle<mesh::Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+  }
+
+  virtual void compute_variable_data()
+  {
+    if (is_not_null(field_in_sol_pts))
+      delete(field_in_sol_pts);
+
+    field_in_sol_pts = new mesh::Field::View(field->view(space->indexes_for_element(idx)));
+  }
+
+public:
+  typedef boost::detail::multi_array::sub_array<Real, 1> field_t;
+  typedef boost::detail::multi_array::const_sub_array<Real, 1> const_field_t;
+
+  field_t operator[] (const Uint sol_pt)             { std::cout << "3" << std::endl; cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+  const field_t operator[] (const Uint sol_pt) const { std::cout << "3" << std::endl; cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  Handle< mesh::Field > field;
+
+  // extrinsic state
+  mesh::Field::View*     field_in_sol_pts;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <Uint NVAR,Uint NDIM>
+struct FluxPointField : ElementCache
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  typedef CacheT< FluxPointField<NVAR,NDIM> > cache_type;
+  static std::string type_name() { return "FluxPointField"; }
+  FluxPointField (const std::string& name=type_name()) : ElementCache(name) {}
 
   static void add_options(Cache& cache)
   {
@@ -272,12 +401,17 @@ private:
   }
 
 public:
+  typedef Eigen::Matrix<Real, NVAR, 1> field_t;
+
+  field_t& operator[] (const Uint flx_pt)             { return field_in_flx_pts[flx_pt]; }
+  const field_t& operator[] (const Uint flx_pt) const { return field_in_flx_pts[flx_pt]; }
+
+public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
   Handle< mesh::Field > field;
   ReconstructToFluxPoints reconstruct_to_flux_points;
-  typedef Eigen::Matrix<Real, NVAR, 1> field_t;
 
   // extrinsic state
   std::vector<field_t>      field_in_flx_pts;
@@ -292,9 +426,9 @@ public:
 //  static std::string type_name() { return "SFDGradField"; }
 //  SFDGradField (const std::string& name=type_name()) : ElementCache(name) {}
 
-//  void set_field(Handle<Field> sfdfield)
+//  void set_field(Handle<Field> FluxPointField)
 //  {
-//    field = sfdfield;
+//    field = FluxPointField;
 //  }
 
 //private:

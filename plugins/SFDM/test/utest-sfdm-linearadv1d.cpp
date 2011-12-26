@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
 
 
   Uint DOF = 10;
-  Uint order = 3;
+  Uint order = 4;
 
   Uint res = 20;//DOF/order;
 
@@ -184,8 +184,12 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
+#ifdef SANDBOX
+  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  convection.options().configure_option("advection_speed",std::vector<Real>(1,2.));
+#else
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
-
+#endif
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
@@ -248,7 +252,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
+  Field& rank = solution_field.field_group().create_field("rankfield");
   Field& rank_sync = solution_field.field_group().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
@@ -261,6 +265,12 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   fields.push_back(solution_field.uri());
   fields.push_back(solution_field.field_group().field("residual").uri());
   fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.field_group().field("wave_speed").uri());
+  fields.push_back(solution_field.field_group().field("update_coefficient").uri());
+#ifdef SANDBOX
+  fields.push_back(solution_field.field_group().field("convection").uri());
+  fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
+#endif
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -299,12 +309,12 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
   Uint DOF = 5;
-  Uint order = 2;
+  Uint order = 3;
 
   Uint res = 20;//DOF/order;
 
   Uint sol_order = order;
-  Uint time_order = 2;
+  Uint time_order = 3;
 
   std::vector<Uint> nb_cells = list_of( res )( res );
   std::vector<Real> lengths  = list_of( 10. )( 10. );
@@ -344,7 +354,15 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
+#ifdef SANDBOX
+  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.RotationAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  std::vector<Real> advection_speed(2);
+  advection_speed[XX]=2.0;
+  advection_speed[YY]=1.0;
+//  convection.options().configure_option("advection_speed",advection_speed);
+#else
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+#endif
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
@@ -367,7 +385,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/10.); // instead of 0.3
+  solver.time_stepping().time().options().configure_option("end_time" , 2.0);//lengths[XX]/10.); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , cfl_matteo );
   solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
 
@@ -427,7 +445,14 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   rank_sync.parallelize();
   rank_sync.synchronize();
 
+  fields.push_back(solution_field.field_group().field("solution_backup").uri());
   fields.push_back(solution_field.field_group().field("wave_speed").uri());
+  fields.push_back(solution_field.field_group().field("update_coefficient").uri());
+#ifdef SANDBOX
+  fields.push_back(solution_field.field_group().field("convection").uri());
+  fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
+  fields.push_back(solution_field.field_group().field("delta").uri());
+#endif
 
   mesh.write_mesh("linearadv2d.msh",fields);
 

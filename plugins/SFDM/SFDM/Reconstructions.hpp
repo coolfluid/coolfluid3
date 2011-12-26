@@ -234,8 +234,23 @@ struct ReconstructFromFluxPoints
   template <typename matrix_type_from, typename matrix_type_to>
   void operator()(const Uint direction, const matrix_type_from& from, matrix_type_to& to) const
   {
-    cf3_assert(m_reconstruct_from_flx_pt.size()==to.size());
     set_zero(to);
+    add(direction,from,to);
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from>
+  void operator()(const Uint direction, const matrix_type_from& from, RealMatrix& to) const
+  {
+    set_zero(to);
+    add(direction,from,to);
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from, typename matrix_type_to>
+  void add(const Uint direction, const matrix_type_from& from, matrix_type_to& to) const
+  {
+    cf3_assert(m_reconstruct_from_flx_pt.size()==to.size());
     for (Uint r=0; r<m_reconstruct_from_flx_pt.size(); ++r) {
       m_reconstruct_from_flx_pt[r][direction].add(from,to[r]);
     }
@@ -243,10 +258,9 @@ struct ReconstructFromFluxPoints
 
   /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
   template <typename matrix_type_from>
-  void operator()(const Uint direction, const matrix_type_from& from, RealMatrix& to) const
+  void add(const Uint direction, const matrix_type_from& from, RealMatrix& to) const
   {
     cf3_assert(m_reconstruct_from_flx_pt.size()==to.rows());
-    set_zero(to);
     for (Uint r=0; r<m_reconstruct_from_flx_pt.size(); ++r) {
       m_reconstruct_from_flx_pt[r][direction].add(from,to.row(r));
     }

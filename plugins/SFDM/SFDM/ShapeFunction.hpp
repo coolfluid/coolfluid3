@@ -101,7 +101,7 @@ public:
   virtual const std::vector<Uint>& face_flx_pts(const Uint face_idx) const = 0;
 
   /// Sign to be multiplied with the flux computed in flx_pt
-  virtual const Real& flx_pt_sign(const Uint flx_pt, const Uint dir) const = 0;
+  virtual const Real& flx_pt_sign(const Uint flx_pt, const Uint dir=999) const = 0;
 
 };
 

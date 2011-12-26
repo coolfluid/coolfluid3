@@ -14,6 +14,7 @@
 /// @todo remove common/Log include
 #include "common/Log.hpp"
 
+#include "common/OptionList.hpp"
 #include "common/StringConversion.hpp"
 
 #include "math/Consts.hpp"
@@ -112,7 +113,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const common::OptionList& ElementCache::options() const
+inline const common::OptionList& ElementCache::options() const
 {
   return cache->options();
 }
@@ -243,7 +244,6 @@ public:
   template <typename ElementCacheT>
   Handle< typename ElementCacheT::cache_type > get_cache(const std::string& tag = ElementCacheT::type_name())
   {
-    ++factory_calls;
     Handle< typename ElementCacheT::cache_type > fac = Handle< typename ElementCacheT::cache_type >(get_child(tag));
     if (!fac) // if not available, generate it
     {
@@ -258,10 +258,7 @@ public:
   {
     throw common::NotImplemented(FromHere(),"Create a non-templated ElementCache base function with function to reset, and call here on every child");
   }
-
-  static Uint factory_calls;
 };
-Uint SharedCaches::factory_calls = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -15,6 +15,8 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Field.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -22,6 +24,7 @@
 #include "solver/actions/CForAllCells.hpp"
 #include "solver/actions/CForAllFaces.hpp"
 
+#include "SFDM/LibSFDM.hpp"
 #include "SFDM/DomainDiscretization.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
@@ -60,12 +63,15 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
 #ifdef SANDBOX
 void DomainDiscretization::execute()
 {
+  Field& residual = *follow_link(solver().field_manager().get_child(SFDM::Tags::residual()))->handle<Field>();
+  residual = 0.;
+
   boost_foreach( Component& term , *m_terms)
   {
     term.handle<Term>()->initialize();
   }
 
-  std::cout << "DomainDiscretization EXECUTE" << std::endl;
+  CFdebug << "DomainDiscretization EXECUTE" << CFendl;
   foreach_container( (const Handle<Region const>& region) (std::vector< Handle<Term> >& terms), m_terms_per_region)
   {
     if (region)
@@ -75,11 +81,12 @@ void DomainDiscretization::execute()
         boost_foreach( const Handle<Term>& term, terms)
         {
           term->set_entities(cells);
-          std::cout << "DomainDiscretization: executing " << term->name() << " for cells " << cells.uri() << std::endl;
+          CFdebug << "DomainDiscretization: executing " << term->name() << " for cells " << cells.uri() << CFendl;
           for (Uint elem_idx=0; elem_idx<cells.size(); ++elem_idx)
           {
             term->set_element(elem_idx);
             term->execute();
+            term->unset_element();
           }
         }
       }

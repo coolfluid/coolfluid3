@@ -25,6 +25,7 @@ namespace mesh   { class Field; class SpaceFields; class Cells; class Space; cla
 namespace SFDM {
 class ShapeFunction;
 class Term;
+class SharedCaches;
 /////////////////////////////////////////////////////////////////////////////////////
 
 class Flyweight
@@ -109,19 +110,25 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Term"; }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+
   virtual void initialize() { }
   void create_term_field();
   virtual void set_entities(const mesh::Entities& entities) { m_entities = entities.handle<mesh::Entities>(); }
   virtual void set_element(const Uint elem_idx) { m_elem_idx = elem_idx; }
-
+  virtual void unset_element() { }
   void set_neighbour(const Handle<mesh::Entities const>& entities, const Uint elem_idx, const Uint face_nb,
-                     Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx,
+                     Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
                      Handle<mesh::Entities const>& face_entities, Uint& face_idx);
 
+  SFDM::SharedCaches& shared_caches() { return *m_shared_caches; }
   Uint m_elem_idx;
   Handle<mesh::Entities const> m_entities;
   Handle<mesh::Field> m_term_field;
+  Handle<mesh::Field> m_term_wave_speed_field;
+  Handle<SFDM::SharedCaches> m_shared_caches;
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
   /// @name ACCESSORS
   //@{
 
@@ -132,6 +139,8 @@ public: // functions
   mesh::Field& wave_speed_field()                 { return *m_wave_speed; }
 
   mesh::Field& jacob_det_field()                  { return *m_jacob_det; }
+
+  mesh::Field& delta_field()                      { return *m_delta; }
 
   RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
@@ -164,6 +173,8 @@ protected: // data
   Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
   Handle<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
+
+  Handle<mesh::Field> m_delta;        ///< access to the delta field (dx, dy, dz)
 
   Handle<physics::Variables> m_solution_vars; ///< access to the solution variables
 

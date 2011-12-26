@@ -5,6 +5,8 @@ list( APPEND coolfluid_sfdm_files
   ComputeUpdateCoefficient.cpp
   Convection.hpp
   Convection.cpp
+  ConvectiveTerm.hpp
+  ConvectiveTerm.cpp
   CreateSFDFields.hpp
   CreateSFDFields.cpp
   DomainDiscretization.cpp
