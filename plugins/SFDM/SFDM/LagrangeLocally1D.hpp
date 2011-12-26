@@ -195,7 +195,7 @@ public: // functions
     m_interp_flx_to_sol_used_sol_pts.resize(m_nb_flx_pts);
     m_flx_pt_local_1d.resize(m_nb_flx_pts);
     m_sol_pt_local_1d.resize(m_nb_sol_pts,std::vector<Uint>(2));
-    m_face_flx_pts.resize(4);
+    m_face_flx_pts.resize(4,std::vector<Uint>(m_local_1d.nb_sol_pts));
     m_flx_pt_sign.resize(m_nb_flx_pts,1.);
 
     for (Uint s_ksi=0; s_ksi<m_local_1d.nb_sol_pts; ++s_ksi)
@@ -239,12 +239,12 @@ public: // functions
         // f_eta is ignored as 1) the location may not be on faces; 2) it doesn't count as a face-point in the locally-1D line
         if (f_ksi==0)
         {
-          m_face_flx_pts[KSI_NEG].push_back(f);
+          m_face_flx_pts[KSI_NEG][m_local_1d.nb_sol_pts-1-f_eta]=f;
           m_flx_pt_sign[f]= -1.;
         }
         else if(f_ksi==m_local_1d.nb_flx_pts-1)
         {
-          m_face_flx_pts[KSI_POS].push_back(f);
+          m_face_flx_pts[KSI_POS][f_eta]=f;
           m_flx_pt_sign[f]= +1.;
         }
         else
@@ -280,12 +280,12 @@ public: // functions
         // f_ksi is ignored as 1) the location may not be on faces; 2) it doesn't count as a face-point in the locally-1D line
         if (f_eta==0)
         {
-          m_face_flx_pts[ETA_NEG].push_back(f);
+          m_face_flx_pts[ETA_NEG][f_ksi]=f;
           m_flx_pt_sign[f]=-1.;
         }
         else if(f_eta==m_local_1d.nb_flx_pts-1)
         {
-          m_face_flx_pts[ETA_POS].push_back(f);
+          m_face_flx_pts[ETA_POS][m_local_1d.nb_sol_pts-1-f_ksi]=f;
           m_flx_pt_sign[f]=+1.;
         }
         else
@@ -301,7 +301,15 @@ public: // functions
     m_face_normals(KSI_POS,KSI)=+1;
     m_face_normals(ETA_NEG,ETA)=-1;
     m_face_normals(ETA_POS,ETA)=+1;
+
+
+    std::cout << "face_flx_pts[KSI_NEG]="<< common::to_str(m_face_flx_pts[KSI_NEG]) << std::endl;
+    std::cout << "face_flx_pts[KSI_POS]="<< common::to_str(m_face_flx_pts[KSI_POS]) << std::endl;
+    std::cout << "face_flx_pts[ETA_NEG]="<< common::to_str(m_face_flx_pts[ETA_NEG]) << std::endl;
+    std::cout << "face_flx_pts[ETA_POS]="<< common::to_str(m_face_flx_pts[ETA_POS]) << std::endl;
+
   }
+
 
   virtual ~QuadLagrange1D() {}
   virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const
@@ -328,7 +336,28 @@ public: // functions
   }
   virtual void compute_flux_value(const Uint orientation, const RealVector& local_coordinate, RealRowVector& value) const
   {
-    throw common::NotImplemented(FromHere(),"");
+    cf3_assert(value.size()==nb_flx_pts());
+    value.setZero();
+    switch (orientation)
+    {
+    case KSI:
+      for (Uint f_ksi=0; f_ksi<m_local_1d.nb_flx_pts; ++f_ksi) {
+        for (Uint f_eta=0; f_eta<m_local_1d.nb_sol_pts; ++f_eta) {
+          const Uint f = f_eta*m_local_1d.nb_flx_pts+f_ksi;
+          value[f] = Lagrange::coeff(local_coordinate[KSI],m_local_1d.flx_pts,f_ksi) * Lagrange::coeff(local_coordinate[ETA],m_local_1d.sol_pts,f_eta);
+        }
+      }
+      break;
+    case ETA:
+      for (Uint f_ksi=0; f_ksi<m_local_1d.nb_sol_pts; ++f_ksi) {
+        for (Uint f_eta=0; f_eta<m_local_1d.nb_flx_pts; ++f_eta)
+        {
+          const Uint f = f_ksi*m_local_1d.nb_flx_pts+f_eta + m_local_1d.nb_sol_pts*m_local_1d.nb_flx_pts;
+          value[f] = Lagrange::coeff(local_coordinate[KSI],m_local_1d.sol_pts,f_ksi) * Lagrange::coeff(local_coordinate[ETA],m_local_1d.flx_pts,f_eta);
+        }
+      }
+      break;
+    }
   }
   virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
   {
