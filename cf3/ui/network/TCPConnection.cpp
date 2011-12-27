@@ -15,7 +15,7 @@
 #include "common/XML/FileOperations.hpp"
 
 #include "ui/network/ErrorHandler.hpp"
-#include "ui/network/Connection.hpp"
+#include "ui/network/TCPConnection.hpp"
 
 using namespace boost;
 using namespace boost::asio::ip;
@@ -30,14 +30,14 @@ namespace network {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Connection::Ptr Connection::create( asio::io_service & ios )
+TCPConnection::Ptr TCPConnection::create( asio::io_service & ios )
 {
-  return Ptr( new Connection(ios) );
+  return Ptr( new TCPConnection(ios) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Connection::Connection( asio::io_service & io_service )
+TCPConnection::TCPConnection( asio::io_service & io_service )
   : m_socket(io_service),
     m_incoming_data(nullptr),
     m_incoming_data_size(0)
@@ -47,28 +47,15 @@ Connection::Connection( asio::io_service & io_service )
 
 /////////////////////////////////////////////////////////////////////////////
 
-Connection::~Connection()
+TCPConnection::~TCPConnection()
 {
   delete[] m_incoming_data;
-
-  if( m_socket.is_open() )
-  {
-    try
-    {
-      // shutdown both reading and writing async ops => "shutdown_both"
-      m_socket.shutdown( tcp::socket::shutdown_both );
-      m_socket.close();
-    }
-    catch( system::error_code & e )
-    {
-      notify_error("An error occured while the socket was shutting down: " + e.message());
-    }
-  }
+  disconnect();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Connection::prepare_write_buffers( SignalArgs & args,
+void TCPConnection::prepare_write_buffers( SignalArgs & args,
                                         std::vector<asio::const_buffer> & buffers )
 {
   cf3_assert( args.node.is_valid() );
@@ -91,10 +78,9 @@ void Connection::prepare_write_buffers( SignalArgs & args,
 
 //////////////////////////////////////////////////////////////////////////////
 
-system::error_code Connection::process_header()
+void TCPConnection::process_header( system::error_code & error )
 {
   std::string header_str = std::string( m_incoming_header, HEADER_LENGTH );
-  system::error_code error;
 
   try
   {
@@ -110,28 +96,29 @@ system::error_code Connection::process_header()
   {
     notify_error( "Could not cast frame header to unsigned int (header content was ["
            + header_str + "]).");
+    error = asio::error::invalid_argument;
   }
   catch ( cf3::common::Exception & cfe )
   {
     notify_error(cfe.what());
+    error = asio::error::invalid_argument;
   }
   catch ( std::exception & stde )
   {
     notify_error(stde.what());
+    error = asio::error::invalid_argument;
   }
   catch ( ... ) // this function should catch all exception, since it is
   {             // called by some kind of event handler from boost.
     notify_error("An unknown exception has been raised during frame header processsing.");
+    error = asio::error::invalid_argument;
   }
-
-  return error;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-system::error_code Connection::parse_frame_data( SignalFrame &args )
+void TCPConnection::parse_frame_data( SignalFrame & args, system::error_code & error )
 {
-  system::error_code error;
   try
   {
     std::string frame( m_incoming_data, m_incoming_data_size );
@@ -142,29 +129,51 @@ system::error_code Connection::parse_frame_data( SignalFrame &args )
   catch ( cf3::common::Exception & cfe )
   {
    notify_error(cfe.what());
+   error = asio::error::invalid_argument;
   }
   catch ( std::exception & stde )
   {
     notify_error(stde.what());
+    error = asio::error::invalid_argument;
   }
   catch ( ... ) // this function should catch all exception, since it is called
   {             // by some kind of event handler from boost.
     notify_error("An unknown exception has been raised during frame data processsing.");
+    error = asio::error::invalid_argument;
   }
 
-  return error;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Connection::set_error_handler( boost::weak_ptr<ErrorHandler> handler)
+void TCPConnection::disconnect()
+{
+  if( m_socket.is_open() )
+  {
+    try
+    {
+      // shutdown both reading and writing async ops => "shutdown_both"
+      m_socket.shutdown( tcp::socket::shutdown_both );
+      m_socket.close();
+    }
+    catch( system::error_code & e )
+    {
+      notify_error("An error occured while the socket was shutting down: " + e.message());
+    }
+  }
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void TCPConnection::set_error_handler( boost::weak_ptr<ErrorHandler> handler)
 {
   m_error_handler = handler;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Connection::notify_error( const std::string & message ) const
+void TCPConnection::notify_error( const std::string & message ) const
 {
   if( !m_error_handler.expired() )
     m_error_handler.lock()->error(message);

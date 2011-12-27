@@ -3,8 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_ui_network_files
   LibNetwork.cpp
   LibNetwork.hpp
-  Connection.cpp
-  Connection.hpp 
+  TCPConnection.cpp
+  TCPConnection.hpp
   ErrorHandler.hpp
 )
 
