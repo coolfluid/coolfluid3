@@ -11,6 +11,7 @@
 
 #include <QThread>
 
+#include <boost/asio/ip/tcp.hpp> // for tcp::acceptor (nested classes cannot be forward declared)
 
 #include "common/XML/XmlDoc.hpp"
 

@@ -11,9 +11,6 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp>
-
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
