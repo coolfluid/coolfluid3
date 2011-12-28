@@ -241,6 +241,14 @@ void MainWindow::build_menus()
                                 SLOT(update_tree()), tr("ctrl+u") );
   m_actions[ACTION_UPDATE_TREE] = action;
 
+  m_mnu_file->addSeparator();
+
+  //-----------------------------------------------
+
+  action = m_mnu_file->addAction("&Quit", this,
+                                SLOT(quit()), tr("ctrl+Q"));
+  m_actions[ACTION_QUIT] = action;
+
   //-----------------------------------------------
   //-----------------------------------------------
 
@@ -411,7 +419,12 @@ void MainWindow::closeEvent(QCloseEvent * event)
 void MainWindow::quit()
 {
 //  NCore::globalCore()->disconnectFromServer(false);
-  qApp->exit(0);
+  QCloseEvent e;
+
+  closeEvent( &e );
+
+  if( e.isAccepted() )
+    qApp->exit(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////

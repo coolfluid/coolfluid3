@@ -77,6 +77,8 @@ namespace graphics {
 
       ACTION_RUN_SCRIPT,
 
+      ACTION_QUIT,
+
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
