@@ -63,8 +63,8 @@ namespace server {
 
   public:
 
-    
-    
+
+
 
     /// @brief Constructor
 
@@ -86,7 +86,7 @@ namespace server {
      /// @throw NetworkException
      bool listen_to_port(quint16 portNumber);
 
-     void send_signal(const common::XML::XmlDoc & signal);
+     void send_signal( common::XML::SignalFrame & signal );
 
      static std::string type_name() { return "CCore"; }
 
@@ -97,13 +97,13 @@ namespace server {
                     bool success,
                     const std::string & message );
 
-  private slots:
+  private: // functions
 
     /// @brief Slot called when a new client connects
 
     /// Sends server status (file open, simulation running) to the new client.
-    /// @param clientId New client id.
-     void new_client(const std::string & uuid);
+    /// @param args Signal arguments.
+     void new_client( common::SignalArgs & args);
 
   private: // data
     /// @brief The default path for the file browsing.

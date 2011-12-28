@@ -111,8 +111,12 @@ void TreeThread::run()
   // set the root as model root
   tree->set_tree_root(realRoot);
 
-  ThreadManager::instance().network().newSignal.connect(
-      boost::bind(&TreeThread::new_signal, this, _1) );
+  ThreadManager::instance().network().signal( "new_network_frame" )
+      ->connect( boost::bind(&TreeThread::new_signal, this, _1) );
+
+
+//  ThreadManager::instance().network().newSignal.connect(
+//      boost::bind(&TreeThread::new_signal, this, _1) );
 
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
@@ -123,48 +127,88 @@ void TreeThread::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::new_signal(boost::shared_ptr< common::XML::XmlDoc > doc)
+void TreeThread::new_signal( SignalArgs & args)
 {
   const char * tag = Protocol::Tags::node_frame();
-  XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
-  rapidxml::xml_node<char>* nodeToProcess = nodedoc.content->first_node(tag);
+//  XmlNode nodedoc = *doc.xml_doc.get();
+//  rapidxml::xml_node<char>* nodeToProcess = nodedoc.content->first_node(tag);
 
-  if(nodeToProcess != nullptr)
-  {
-    rapidxml::xml_node<>* tmpNode = nodeToProcess->next_sibling( tag );
+  NLog::global()->add_message("In TreeThread::new_signal()");
 
-    // check this is a reply
-    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
-      nodeToProcess = tmpNode;
-
-    std::string type = nodeToProcess->first_attribute("target")->value();
-    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
-
-    try
+    if( args.node.is_valid() )
     {
-      Handle< Component > realRoot = root();
-      SignalFrame frame(nodeToProcess);
+      SignalFrame real_frame;
 
-      if(realRoot->uri().path() == URI(receiver).path())
-        root()->call_signal(type, frame);
+      if( args.has_reply() )
+        real_frame = args.get_reply();
       else
-        realRoot->access_component(receiver)->call_signal(type, frame);
-    }
-    catch(cf3::common::Exception & cfe)
-    {
-      NLog::global()->add_exception(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
-    }
-    catch(std::exception & stde)
-    {
-      NLog::global()->add_exception(stde.what());
-    }
-    catch(...)
-    {
-      CFerror << "Unknown exception thrown during execution of action [" << type
-          << "] on component " << " [" << receiver << "]." << CFendl;
+        real_frame = args;
+
+    std::string type = real_frame.node.attribute_value("target");
+    std::string receiver = real_frame.node.attribute_value("receiver");
+
+      try
+      {
+        Handle< Component > realRoot = root();
+//        SignalFrame frame(nodeToProcess);
+
+        if(realRoot->uri().path() == URI(receiver).path())
+          root()->call_signal(type, real_frame);
+        else
+          realRoot->access_component(receiver)->call_signal(type, real_frame);
+      }
+      catch(cf3::common::Exception & cfe)
+      {
+        NLog::global()->add_exception(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
+      }
+      catch(std::exception & stde)
+      {
+        NLog::global()->add_exception(stde.what());
+      }
+      catch(...)
+      {
+        CFerror << "Unknown exception thrown during execution of action [" << type
+            << "] on component " << " [" << receiver << "]." << CFendl;
+      }
+
     }
 
-  }
+//  if(nodeToProcess != nullptr)
+//  {
+//    rapidxml::xml_node<>* tmpNode = nodeToProcess->next_sibling( tag );
+
+//    // check this is a reply
+//    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
+//      nodeToProcess = tmpNode;
+
+//    std::string type = nodeToProcess->first_attribute("target")->value();
+//    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+
+//    try
+//    {
+//      Handle< Component > realRoot = root();
+//      SignalFrame frame(nodeToProcess);
+
+//      if(realRoot->uri().path() == URI(receiver).path())
+//        root()->call_signal(type, frame);
+//      else
+//        realRoot->access_component(receiver)->call_signal(type, frame);
+//    }
+//    catch(cf3::common::Exception & cfe)
+//    {
+//      NLog::global()->add_exception(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
+//    }
+//    catch(std::exception & stde)
+//    {
+//      NLog::global()->add_exception(stde.what());
+//    }
+//    catch(...)
+//    {
+//      CFerror << "Unknown exception thrown during execution of action [" << type
+//          << "] on component " << " [" << receiver << "]." << CFendl;
+//    }
+
+//  }
 
 }
 

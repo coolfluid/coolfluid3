@@ -55,8 +55,8 @@ CCore::CCore()
 
   m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  connect( m_comm_server, SIGNAL(newClientConnected(std::string)),
-           this,  SLOT(new_client(std::string)) );
+  m_comm_server->signal( "new_client_connected" )
+      ->connect(boost::bind(&CCore::new_client, this, _1));
 
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
@@ -98,21 +98,21 @@ CCore::~CCore()
 
 bool CCore::listen_to_port(quint16 portNumber)
 {
-  return m_comm_server->openPort(portNumber);
+  return m_comm_server->open_port(portNumber);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::send_signal( const XmlDoc & signal )
+void CCore::send_signal( SignalFrame & signal )
 {
-  m_comm_server->sendSignalToClient(signal);
+  m_comm_server->send_frame_to_client(signal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::forward_signal( SignalArgs & args )
 {
-  send_signal( *args.xml_doc );
+  send_signal( args );
 }
 
 /***************************************************************************
@@ -364,18 +364,19 @@ void CCore::signal_list_favorites( SignalArgs &node )
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void CCore::new_client(const std::string & clientId)
+void CCore::new_client( SignalArgs & args)
 {
   // send a welcome message to the new client
-  m_comm_server->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
+  std::string clientid = args.options().value<std::string>("clientid");
+  m_comm_server->send_message_to_client("Welcome to the Client-Server project!", LogMessage::INFO, clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::send_ack( const std::string & clientid,
-                     const std::string & frameid,
-                     bool success,
-                     const std::string & message)
+                      const std::string & frameid,
+                      bool success,
+                      const std::string & message )
 {
   SignalFrame frame("ack", uri(), CLIENT_NETWORK_QUEUE_PATH);
   SignalOptions & options = frame.options();
@@ -387,7 +388,7 @@ void CCore::send_ack( const std::string & clientid,
 
   options.flush();
 
-  m_comm_server->sendSignalToClient( *frame.xml_doc.get(), clientid);
+  m_comm_server->send_frame_to_client( frame, clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////

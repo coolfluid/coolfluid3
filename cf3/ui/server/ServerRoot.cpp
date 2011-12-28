@@ -112,7 +112,7 @@ void ServerRoot::process_signal( const std::string & target,
 
           if( reply.node.is_valid() )
           {
-            m_core->send_signal( *signal.xml_doc.get() );
+            m_core->send_signal( signal );
           }
 
           success = true;
@@ -147,7 +147,7 @@ void ServerRoot::process_signal( const std::string & target,
 
 void ServerRoot::signal_to_forward( common::SignalArgs & args )
 {
-  m_core->send_signal( *args.xml_doc.get() );
+  m_core->send_signal( args );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -159,6 +159,8 @@ void ServerRoot::finished ()
   bool success = m_thread->success();
   std::string message( m_thread->message() );
 
+  frame.xml_doc = m_doc;
+
   SignalFrame reply = frame.get_reply();
 
   if( reply.node.is_valid() )
@@ -166,7 +168,7 @@ void ServerRoot::finished ()
     rapidxml::xml_attribute<>* attr = reply.node.content->first_attribute("type");
     if( is_not_null(attr) && std::strcmp(attr->value(), Protocol::Tags::node_type_reply()) == 0)
     {
-      m_core->send_signal(*m_doc.get());
+      m_core->send_signal( frame );
     }
   }
 

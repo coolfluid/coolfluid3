@@ -141,9 +141,9 @@ namespace graphics {
 
     void disconnect_from_server();
 
-    void connected_to_server();
+    void connected_to_server( common::SignalArgs & args );
 
-    void disconnected_from_server(bool requested);
+    void disconnected_from_server( common::SignalArgs & args );
 
     void save_file_locally();
 

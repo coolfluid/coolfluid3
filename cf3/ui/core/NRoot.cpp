@@ -67,13 +67,22 @@ NRoot::NRoot(const std::string & name)
   m_local_signals << "connect_server" << "disconnect_server";
 
   // signatures
-  signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
-  signal("disconnect_server")->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
+  signal("connect_server")
+      ->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
+  signal("disconnect_server")
+      ->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
-  connect(&ThreadManager::instance().network(), SIGNAL(connected()),
-          this, SLOT(connected_to_server()));
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
-          this, SLOT(disconnected(bool)));
+  NetworkThread & ntwork = ThreadManager::instance().network();
+
+  ntwork.signal( "connected_to_server" )
+      ->connect( boost::bind(&NRoot::connected_to_server, this, _1) );
+  ntwork.signal( "disconnected_from_server" )
+      ->connect( boost::bind(&NRoot::disconnected_from_server, this, _1) );
+
+//  connect(&ThreadManager::instance().network(), SIGNAL(connected()),
+//          this, SLOT(connected_to_server()));
+//  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
+//          this, SLOT(disconnected(bool)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +133,7 @@ const UUCount& NRoot::uuid() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::connected_to_server()
+void NRoot::connected_to_server( SignalArgs & )
 {
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UuiD %1.";
@@ -140,7 +149,7 @@ void NRoot::connected_to_server()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::disconnected( bool requested)
+void NRoot::disconnected_from_server( SignalArgs & )
 {
   m_content_listed = false;
   m_action_sigs.clear();
@@ -148,7 +157,7 @@ void NRoot::disconnected( bool requested)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::shutdown(SignalArgs & node)
+void NRoot::shutdown(SignalArgs & )
 {
   NLog::global()->add_message("The server is shutting down. Disconnecting...");
   ThreadManager::instance().network().disconnect_from_server(false);
@@ -201,11 +210,13 @@ void NRoot::signature_connect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option("Hostname", std::string("localhost") )
-      .description("Name or IP address of the server.");
+  options.add_option("hostname", std::string("localhost") )
+      .pretty_name( "Hostname" )
+      .description( "Name or IP address of the server." );
 
-  options.add_option("Port number", Uint(62784) )
-      .description("Port number the server is listening to.");
+  options.add_option("port_number", Uint(62784) )
+      .pretty_name( "Port Number" )
+      .description( "Port number the server is listening to." );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -214,8 +225,9 @@ void NRoot::signature_disconnect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option("Shutdown the server", false )
-      .description("If checked, the server application will be closed.");
+  options.add_option("shutdown", false )
+      .pretty_name( "Shutdown the server" )
+      .description( "If checked, the server application will be closed." );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -224,17 +236,17 @@ void NRoot::signal_connect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  std::string hostname = options.value<std::string>("Hostname");
-  Uint port = options.value<Uint>("Port number");
+  std::string hostname = options.value<std::string>( "hostname" );
+  Uint port = options.value<Uint>( "port_number" );
 
-  ThreadManager::instance().network().connect_to_host(hostname.c_str(), port);
+  ThreadManager::instance().network().connect_to_host( hostname.c_str(), port );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void NRoot::signal_disconnect_server( SignalArgs & frame )
 {
-  bool shutdown = SignalOptions(frame).value<bool>("Shutdown the server");
+  bool shutdown = SignalOptions(frame).value<bool>( "shutdown" );
 
   ThreadManager::instance().network().disconnect_from_server(shutdown);
 }

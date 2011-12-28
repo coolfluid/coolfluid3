@@ -2,7 +2,6 @@
 # List of classes to "moc"
 set( coolfluid_ui_server_moc_classes
   CCore.hpp
-  ServerNetworkComm.hpp
   ServerRoot.hpp )
 
 # Create the moc files

@@ -62,6 +62,7 @@ void TCPConnection::prepare_write_buffers( SignalArgs & args,
 
   // prepare the outgoing data: flush to XML and convert to string
   args.flush_maps();
+
   XML::to_string( *args.xml_doc.get(), m_outgoing_data );
 
   // create the header on HEADER_LENGTH characters

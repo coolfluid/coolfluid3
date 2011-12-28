@@ -92,8 +92,9 @@ int main(int argc, char *argv[])
     if( nb_workers == 0 )
       errorString = "At least 1 worker must be spawn.";
 
-    // spawn the
+    // spawn the MPI workers
     Handle< Manager > mgr(Core::instance().tools().get_child("PEManager"));
+    /// @warning the below instruction will be broken when installing CF
     mgr->spawn_group("Workers", nb_workers, CF3_BUILD_DIR "/cf3/Tools/solver/coolfluid-solver");
 
     // check if the port number is valid and launch the network connection if so
