@@ -111,7 +111,7 @@ void TreeThread::run()
   // set the root as model root
   tree->set_tree_root(realRoot);
 
-  ThreadManager::instance().network().signal( "new_network_frame" )
+  ThreadManager::instance().network().signal( "network_new_frame" )
       ->connect( boost::bind(&TreeThread::new_signal, this, _1) );
 
 

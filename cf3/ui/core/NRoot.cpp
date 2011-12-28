@@ -74,14 +74,14 @@ NRoot::NRoot(const std::string & name)
 
   NetworkThread & ntwork = ThreadManager::instance().network();
 
-  ntwork.signal( "connected_to_server" )
-      ->connect( boost::bind(&NRoot::connected_to_server, this, _1) );
-  ntwork.signal( "disconnected_from_server" )
-      ->connect( boost::bind(&NRoot::disconnected_from_server, this, _1) );
+  ntwork.signal( "network_connected" )
+      ->connect( boost::bind(&NRoot::network_connected, this, _1) );
+  ntwork.signal( "network_disconnected" )
+      ->connect( boost::bind(&NRoot::network_disconnected, this, _1) );
 
 //  connect(&ThreadManager::instance().network(), SIGNAL(connected()),
-//          this, SLOT(connected_to_server()));
-//  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
+//          this, SLOT(network_connected()));
+//  connect(&ThreadManager::instance().network(), SIGNAL(network_disconnected(bool)),
 //          this, SLOT(disconnected(bool)));
 }
 
@@ -133,7 +133,7 @@ const UUCount& NRoot::uuid() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::connected_to_server( SignalArgs & )
+void NRoot::network_connected( SignalArgs & )
 {
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UuiD %1.";
@@ -149,7 +149,7 @@ void NRoot::connected_to_server( SignalArgs & )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::disconnected_from_server( SignalArgs & )
+void NRoot::network_disconnected( SignalArgs & )
 {
   m_content_listed = false;
   m_action_sigs.clear();

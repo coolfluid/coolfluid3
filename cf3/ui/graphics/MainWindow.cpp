@@ -144,13 +144,13 @@ MainWindow::MainWindow()
           SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(new_log_message(QString, uiCommon::LogMessage::Type)));
 
-//  connect(root, SIGNAL(connected()), this, SLOT(connected_to_server()));
+//  connect(root, SIGNAL(connected()), this, SLOT(network_connected()));
 
-  ThreadManager::instance().network().signal( "disconnected_from_server" )
-      ->connect( boost::bind( &MainWindow::disconnected_from_server, this, _1));
+  ThreadManager::instance().network().signal( "network_disconnected" )
+      ->connect( boost::bind( &MainWindow::network_disconnected, this, _1));
 
-//  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
-//          this, SLOT(disconnected_from_server(bool)));
+//  connect(&ThreadManager::instance().network(), SIGNAL(network_disconnected(bool)),
+//          this, SLOT(network_disconnected(bool)));
 
   connect(NTree::global().get(),
           SIGNAL(current_index_changed(QModelIndex,QModelIndex)),
@@ -493,14 +493,14 @@ void MainWindow::disconnect_from_server()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::connected_to_server( SignalFrame & )
+void MainWindow::network_connected( SignalFrame & )
 {
   this->set_connected_state(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnected_from_server( SignalFrame & )
+void MainWindow::network_disconnected( SignalFrame & )
 {
   this->set_connected_state(false);
   NTree::global()->clear_tree();

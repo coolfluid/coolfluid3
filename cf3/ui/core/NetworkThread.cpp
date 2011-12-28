@@ -49,9 +49,9 @@ NetworkThread::NetworkThread(QObject *parent)
     m_endpoint(nullptr)
 {
   m_io_service = new asio::io_service();
-  regist_signal( "new_network_frame" );
-  regist_signal( "connected_to_server" );
-  regist_signal( "disconnected_from_server" );
+  regist_signal( "network_new_frame" );
+  regist_signal( "network_connected" );
+  regist_signal( "network_disconnected" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ void NetworkThread::callback_connect( const boost::system::error_code & error )
   if( !error )
   {
     SignalFrame frame;
-    call_signal( "connected_to_server", frame );
+    call_signal( "network_connected", frame );
     init_read();
   }
   else
@@ -216,7 +216,7 @@ void NetworkThread::callback_connect( const boost::system::error_code & error )
 void NetworkThread::callback_read( const boost::system::error_code & error )
 {
   if( !error )
-    call_signal( "new_network_frame", m_buffer );
+    call_signal( "network_new_frame", m_buffer );
   else
     NLog::global()->add_error( QString("Could not read data: %1").arg(error.message().c_str()) );
 

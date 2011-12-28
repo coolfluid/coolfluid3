@@ -83,7 +83,7 @@ namespace core {
 
   private slots:
 
-    void disconnected_from_server( common::SignalArgs & args );
+    void network_disconnected( common::SignalArgs & args );
 
   protected:
 
@@ -95,7 +95,7 @@ namespace core {
   private slots:
 
     /// @brief Slot called when the client is connected to the server.
-    void connected_to_server(common::SignalArgs &);
+    void network_connected(common::SignalArgs &);
 
   private :
 
