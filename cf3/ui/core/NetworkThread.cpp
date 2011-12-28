@@ -78,29 +78,27 @@ bool NetworkThread::connect_to_host(const std::string &host_address, unsigned sh
 {
   if(!isRunning())
   {
-//    m_port = port;
-//    m_hostname = host_address.c_str();
+    m_port = port;
+    m_hostname = host_address.c_str();
 
-//    // check whether the host address contains an IP address or a hostname
-//    boost::regex expression( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" );
+    // check whether the host address contains an IP address or a hostname
+    boost::regex expression( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" );
 
-//    if( !regex_match( host_address, expression ) )
-//    {
-//      // it's not an IP address so we need to resolve the name
-//      tcp::resolver resolver( *m_io_service );
-//      tcp::resolver::query query ( host_address, to_str<cf3::Uint>(port) );
-//      tcp::resolver::iterator it_begin = resolver.resolve( query );
-//      tcp::resolver::iterator it_end;
+    if( !regex_match( host_address, expression ) )
+    {
+      // it's not an IP address so we need to resolve the name
+      tcp::resolver resolver( *m_io_service );
+      tcp::resolver::query query ( tcp::v4(), host_address, to_str<cf3::Uint>(port) );
+      tcp::resolver::iterator it_begin = resolver.resolve( query );
+      tcp::resolver::iterator it_end;
 
-//      if( it_begin == it_end ) // if no addresses were found
-//        throw BadValue( FromHere(), "Could not resolve hostname [" + host_address + "].");
+      if( it_begin == it_end ) // if no addresses were found
+        throw BadValue( FromHere(), "Could not resolve hostname [" + host_address + "].");
 
-//      m_endpoint = new tcp::endpoint ( *it_begin );
-//    }
-//    else
-//      m_endpoint = new tcp::endpoint( address::from_string(host_address), port );
-
-    m_endpoint = new tcp::endpoint( tcp::v4(), port );
+      m_endpoint = new tcp::endpoint ( it_begin->endpoint() );
+    }
+    else
+      m_endpoint = new tcp::endpoint( address::from_string(host_address), port );
 
     start();
     return true;
