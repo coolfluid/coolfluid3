@@ -11,8 +11,6 @@
 
 #include <QThread>
 
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/ip/tcp.hpp> // for tcp::acceptor (nested class, cannot be forward declared)
 
 #include "common/XML/XmlDoc.hpp"
 
@@ -41,9 +39,8 @@ namespace server {
 
 /// @author Quentin Gasper.
 
-class ServerNetworkComm : public QThread, public common::SignalHandler //: public QObject
+class ServerNetworkComm : public QThread, public common::SignalHandler
 {
-  //    Q_OBJECT
 
 public: // nested structs
 
@@ -80,16 +77,6 @@ public:
 
   void run();
 
-  /// @brief Gives the number of bytes recieved.
-
-  /// @return Returns the number of bytes recieved.
-  //    int getBytesRecieved() const;
-
-  /// @brief Gives the number of bytes sent.
-
-  /// @return Returns the number of bytes sent.
-  //    int getBopen_portytesSent() const;
-
   /// @brief Sends a message to a client
 
   /// @param message Message to send
@@ -107,34 +94,6 @@ public:
                                       const common::URI & sender,
                                       const QString & reason );
 
-  //  private slots :
-
-  /// @brief Slot called when a new client tries to connect.
-  //    void newClient();
-
-  /// @brief Slot called when new data are available on one of the
-  /// client sockets.
-  //    void newData();
-
-  /// @brief Slot called when the client has been disconnected.
-  //    void clientDisconnected();
-
-  /// @brief Slot called when a message (i.e. output forwarding) comes
-  /// from the simulator.
-
-  /// Sends this message to all clients.
-  /// @param message The message.
-  //    void message(const QString & message);
-
-  /// @brief Slot called when an error comes from the simulator.
-
-  /// Sends this error message to all clients.
-  /// @param message The error message.
-  //    void error(const QString & message);
-
-  //  signals:
-
-  //    void newClientConnected(const std::string & uuid);
 
 private: // functions
 
@@ -157,10 +116,6 @@ private: // functions
 
 private:
 
-  /// @brief The server m_socket.
-
-  /// Used to accept connections.
-  //    QTcpServer * m_server;
 
   boost::asio::io_service * m_io_service;
 
@@ -171,24 +126,10 @@ private:
   /// @brief Mutex for thread-safe operations.
   QMutex * m_mutex;
 
-  /// @brief Size of the frame that is being read.
-
-  /// If the value is 0, no frame is currently being recieved.
-  //    quint32 m_blockSize;
-
   /// @brief The client sockets.
 
   /// The key is pointer to the m_socket. The value is the client UuiD.
   std::map<boost::shared_ptr<network::TCPConnection>, ClientInfo> m_clients;
-
-  /// @brief Number of bytes recieved.
-  //    int m_bytesRecieved;
-
-  /// @brief Number of bytes sent.
-  //    int m_bytesSent;
-
-  /// @brief Last ID given to a client
-  //    int m_lastClientId;
 
   /// @brief Sends a message to a client.
 

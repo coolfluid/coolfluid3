@@ -9,11 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//#include <QAbstractSocket>
 #include <QThread>
 #include <QMutex>
-
-//#include <boost/signals2/signal.hpp>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/system/error_code.hpp>
@@ -22,8 +19,6 @@
 #include "common/XML/SignalFrame.hpp"
 
 #include "ui/core/LibCore.hpp"
-
-//class QTcpSocket;
 
 namespace boost { namespace asio { class io_service; } }
 
@@ -82,39 +77,6 @@ public:
 
   void set_error_handler( boost::weak_ptr<network::ErrorHandler> handler );
 
-public: // boost signals
-
-  /// Signal executed when a new frame arrived (given as parameter).
-//  boost::signals2::signal< void ( boost::shared_ptr<common::XML::XmlDoc> ) > newSignal;
-
-private slots :
-
-  /// @brief Slot called when there is an error on the socket.
-  void new_data();
-
-  /// @brief Slot called when the connection has been broken or closed.
-  /// If the thread is running, it is exited with error code 0 if
-  /// @c #disconnected() was called, or 1 if the disconnection is due to an
-  /// error code.
-  void disconnected();
-
-  /// @brief Slot called when there is an error on the m_socket.
-
-  /// @param err Error that occured.
-//  void socket_error(QAbstractSocket::SocketError err);
-
-signals:
-
-  /// The signal is not emitted if the user resquested a disconnection (if
-  /// @c #m_requestDisc is @c true ).
-  void disconnected_from_server(bool requested);
-
-  /// @brief Signal emitted when a connection has been successfully
-  /// established between the client and the server.
-
-  /// The signal is emitted exactly once when the first frame is
-  /// recieved from the server.
-  void connected();
 
 private: // callback functions
 
@@ -128,11 +90,8 @@ private: // callback functions
 
 private: // data
 
-//  QTcpSocket * m_socket;
 
   boost::shared_ptr<network::TCPConnection> m_connection;
-
-//  quint32 m_block_size;
 
   common::SignalArgs m_buffer;
 

@@ -11,6 +11,9 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
+
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
@@ -105,62 +108,12 @@ bool ServerNetworkComm::open_port( unsigned short port )
 
     start();
 
-//    m_server = new QTcpServer(this);
-
-//    if(!m_server->listen(QHostAddress::Any, port))
-//    {
-//      QString message = QString("Cannot listen %1 on port %2 : %3")
-//                        .arg("")
-//                        .arg(port)
-//                        .arg(m_server->errorString());
-//      throw NetworkError(FromHere(), message.toStdString());
-//    }
-
-//    connect(m_server, SIGNAL(newConnection()), this, SLOT(newClient()));
-//    m_server->setMaxPendingConnections(1);
-
     success = true;
   }
 
   return success;
 }
 
-////////////////////////////////////////////////////////////////////////////
-
-void ServerNetworkComm::send(TCPConnection::Ptr client, const XmlDoc & signal)
-{
-//  QMutexLocker locker(m_mutex);
-//  QByteArray block;
-//  QDataStream out(&block, QIODevice::WriteOnly);
-//  int count = 0; // total bytes sent
-
-//  std::string signal_str;
-
-//  XML::to_string(signal, signal_str);
-
-//  out.setVersion(QDataStream::Qt_4_6);
-
-//  out.writeBytes(signal_str.c_str(), signal_str.length() + 1);
-
-//  if(client == nullptr)
-//  {
-//    QHash<TCPConnection::Ptr, std::string>::iterator it = m_clients.begin();
-//    while(it != m_clients.end())
-//    {
-//      client = it.key();
-//      count += client->write(block);
-//      m_bytesSent += count;
-//      it++;
-//    }
-//  }
-//  else
-//  {
-//    count = client->write(block);
-//    m_bytesSent += count;
-//  }
-
-//  return count;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -397,159 +350,6 @@ TCPConnection::Ptr ServerNetworkComm::get_connection( const string & uuid ) cons
 
   return connection;
 }
-
-
-/****************************************************************************
-
-SLOTS
-
-*****************************************************************************/
-
-//void ServerNetworkComm::newClient()
-//{
-//  TCPConnection::Ptr socket;
-
-//  socket = m_server->nextPendingConnection();
-
-//  // connect useful signals to slots
-//  connect(socket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
-//  connect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
-
-//  std::cout << "A new client is connected" << std::endl;
-//}
-
-////////////////////////////////////////////////////////////////////////////
-
-//void ServerNetworkComm::newData()
-//{
-//  // which client has sent data ?
-//  TCPConnection::Ptr socket = qobject_cast<TCPConnection::Ptr>(sender());
-//  std::string target;
-//  std::string receiver;
-//  std::string clientId;
-//  std::string frameId;
-
-//  QString errorMsg;
-
-//  try
-//  {
-//    char * frame;
-//    QDataStream in(socket);
-
-//    in.setVersion(QDataStream::Qt_4_6); // set stream version
-
-//    // if the client sends two messages very close in time, it is possible that
-//    // the server never gets the second one.
-//    // So, it is useful to explicitly read the socket until the end is reached.
-//    while(!socket->atEnd())
-//    {
-//      in.readBytes(frame, m_blockSize);
-
-//      m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
-
-//      boost::shared_ptr< XmlDoc > xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
-
-////      std::cout << frame << std::endl;
-
-//      // free the buffer
-//      delete[] frame;
-//      frame = nullptr;
-
-//      XmlNode nodedoc = Protocol::goto_doc_node(*xmldoc.get());
-//      SignalFrame * sig_frame = new SignalFrame( nodedoc.content->first_node() );
-
-//      sig_frame->xml_doc = xmldoc;
-
-//      target = this->get_attr(sig_frame->node, "target", errorMsg);
-//      receiver = this->get_attr(sig_frame->node, "receiver", errorMsg);
-//      clientId = this->get_attr(sig_frame->node, "clientid", errorMsg);
-//      frameId = this->get_attr(sig_frame->node, "frameid", errorMsg);
-
-//      if( errorMsg.isEmpty() )
-//      {
-//        if(target == "client_registration")
-//        {
-//          if(!m_clients[socket].empty())
-//            errorMsg = "This client has already been registered.";
-//          else
-//          {
-//            m_clients[socket] = clientId;
-
-//            // Build the reply
-//            SignalFrame reply = sig_frame->create_reply();
-//            SignalOptions roptions( reply );
-
-//            roptions.add_option("accepted", true);
-
-//            roptions.flush();
-
-//            this->send(socket, *xmldoc.get());
-
-//            emit newClientConnected(clientId);
-//          }
-//        }
-//        else
-//        {
-//          if( m_clients[socket].empty() )
-//            errorMsg = "The signal came from an unregistered client.";
-//          else if( m_clients[socket] != clientId )
-//            errorMsg = QString("The client id '%1' (used for registration) "
-//                               "and '%2' (used for identification) do not "
-//                               "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
-//          else
-//            ServerRoot::instance().process_signal(target, receiver, clientId, frameId, *sig_frame);
-//        }
-//      }
-
-//      m_blockSize = 0;
-//    }
-//  }
-//  catch(Exception & e)
-//  {
-//    this->send_message(socket, e.what(), LogMessage::EXCEPTION);
-//  }
-//  catch(std::exception & stde)
-//  {
-//    this->send_message(socket, stde.what(), LogMessage::EXCEPTION);
-//  }
-//  catch(...)
-//  {
-//    errorMsg = QString("An unknown exception has been caught.");
-//  }
-
-//  if(!errorMsg.isEmpty())
-//    this->send_frame_rejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
-
-//}
-
-////////////////////////////////////////////////////////////////////////////
-
-//void ServerNetworkComm::clientDisconnected()
-//{
-//  // which client has been disconnected ?
-//  TCPConnection::Ptr socket = qobject_cast<TCPConnection::Ptr>(sender());
-
-//  if(socket != nullptr)
-//  {
-//    m_clients.remove(socket);
-
-//    std::cout << "A client has gone (" << m_clients.size() << " left)\n";
-//  }
-//}
-
-////////////////////////////////////////////////////////////////////////////
-
-//void ServerNetworkComm::message(const QString & message)
-//{
-//  this->send_message( TCPConnection::Ptr(), message, LogMessage::INFO);
-//}
-
-////////////////////////////////////////////////////////////////////////////
-
-//void ServerNetworkComm::error(const QString & message)
-//{
-//  this->send_message(TCPConnection::Ptr(), message, LogMessage::ERROR);
-//}
 
 ////////////////////////////////////////////////////////////////////////////
 
