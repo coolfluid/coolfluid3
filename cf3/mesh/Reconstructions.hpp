@@ -20,13 +20,6 @@ namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define ReconstructBase_Operation_Count
-#ifdef ReconstructBase_Operation_Count
-#define increase_elementary_operations ++ReconstructBase::elementary_operations
-#else
-#define increase_elementary_operations
-#endif
-
 /// Base class to help reconstruction of element values to any given coordinate
 /// value_in_coord = sum ( N(i) * value_in_node(i) )
 /// Derived classes have to implement the actual computation of the
@@ -69,7 +62,6 @@ struct ReconstructBase
   template <typename vector_type>
   static void set_zero(const vector_type& vec)
   {
-    //increase_elementary_operations;
     for (Uint var=0; var<vec.size(); ++var)
       const_cast<vector_type&>(vec)[var] = 0;
   }
@@ -119,7 +111,6 @@ struct ReconstructBase
   template <typename matrix_type, typename vector_type>
   void contribute_plus(const matrix_type& from, const vector_type& to,const Uint pt) const
   {
-    increase_elementary_operations;
     for (Uint var=0; var<nb_vars(from); ++var)
       const_cast<vector_type&>(to)[var] += m_N[pt] * access(from,pt,var);
   }
@@ -134,7 +125,6 @@ struct ReconstructBase
   template <typename matrix_type, typename vector_type>
   void contribute_minus(const matrix_type& from, const vector_type& to,const Uint pt) const
   {
-    increase_elementary_operations;
     for (Uint var=0; var<nb_vars(from); ++var)
       const_cast<vector_type&>(to)[var] -= m_N[pt] * access(from,pt,var);
   }
@@ -150,8 +140,6 @@ struct ReconstructBase
   {
     return m_pts;
   }
-
-  static Uint elementary_operations;
 
 protected: // functions
 
@@ -172,7 +160,6 @@ protected:
   RealRowVector m_N;
   std::vector<Uint> m_pts;
 };
-Uint ReconstructBase::elementary_operations=0u;
 
 ////////////////////////////////////////////////////////////////////////////////
 
