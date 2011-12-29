@@ -118,7 +118,7 @@ void Term::create_term_field()
   {
     link_fields();
     boost::shared_ptr<math::VariablesDescriptor> vars(allocate_component<math::VariablesDescriptor>("tmp"));
-    vars->set_variables(name()+"_wavespeed[vector]");
+    vars->set_variables(name()+"_wavespeed");
     m_term_wave_speed_field = solution_field().field_group().create_field(name()+"_wavespeed",vars->description()).handle<Field>();
   }
 
@@ -131,19 +131,26 @@ void Term::set_neighbour(const Handle<Entities const>& entities, const Uint elem
                    Handle<Entities const>& face_entities, Uint& face_idx)
 {
   ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
+  cf3_assert(elem_idx < face_connectivity.size());
+  cf3_assert(face_nb < face_connectivity[elem_idx].size());
   Entity face = face_connectivity[elem_idx][face_nb];
+  cf3_assert( is_not_null(face.comp) );
   face_entities = face.comp->handle<Entities>();
   face_idx = face.idx;
   FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
+  cf3_assert(face.idx < cell_connectivity.is_bdry_face().size())
   if (cell_connectivity.is_bdry_face()[face.idx])
   {
     neighbour_entities = Handle<Entities const>();
   }
   else
   {
+    cf3_assert(face.idx < cell_connectivity.connectivity().size());
+    cf3_assert(is_not_null(cell_connectivity.connectivity()[face.idx][LEFT].comp))
     if (cell_connectivity.connectivity()[face.idx][LEFT].comp == entities.get() &&
         cell_connectivity.connectivity()[face.idx][LEFT].idx == elem_idx)
     {
+      cf3_assert(is_not_null(cell_connectivity.connectivity()[face.idx][RIGHT].comp))
       neighbour_entities = cell_connectivity.connectivity()[face.idx][RIGHT].comp->handle<Entities>();
       neighbour_elem_idx = cell_connectivity.connectivity()[face.idx][RIGHT].idx;
       neighbour_face_nb = cell_connectivity.face_number()[face.idx][RIGHT];

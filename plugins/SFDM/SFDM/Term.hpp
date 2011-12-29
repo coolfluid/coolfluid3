@@ -112,7 +112,7 @@ public: // functions
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  virtual void initialize() { }
+  virtual void initialize() { link_fields(); create_term_field(); }
   void create_term_field();
   virtual void set_entities(const mesh::Entities& entities) { m_entities = entities.handle<mesh::Entities>(); }
   virtual void set_element(const Uint elem_idx) { m_elem_idx = elem_idx; }

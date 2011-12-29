@@ -42,6 +42,7 @@
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
+#include "SFDM/BC.hpp"
 #include "SFDM/Tags.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
@@ -185,7 +186,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
 
   // Discretization
 #ifdef SANDBOX
-  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
   convection.options().configure_option("advection_speed",std::vector<Real>(1,2.));
 #else
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
@@ -325,7 +326,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   generate_mesh.options().configure_option("nb_cells",nb_cells);
   generate_mesh.options().configure_option("lengths",lengths);
   generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().configure_option("bdry",true);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
   solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
@@ -355,11 +356,13 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   // Discretization
 #ifdef SANDBOX
-  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.RotationAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
-  std::vector<Real> advection_speed(2);
-  advection_speed[XX]=2.0;
-  advection_speed[YY]=1.0;
-//  convection.options().configure_option("advection_speed",advection_speed);
+  Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  std::vector<Real> advection_speed(2,0.);
+  advection_speed[XX]=1;
+  convection.options().configure_option("advection_speed",advection_speed);
+  std::cout << model.tree() << std::endl;
+  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCConstant","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  bc.options().configure_option("constants",std::vector<Real>(1,.5));
 #else
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 #endif
@@ -385,7 +388,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , 2.0);//lengths[XX]/10.); // instead of 0.3
+  solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/10.); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , cfl_matteo );
   solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
 
@@ -451,7 +454,6 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 #ifdef SANDBOX
   fields.push_back(solution_field.field_group().field("convection").uri());
   fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
-  fields.push_back(solution_field.field_group().field("delta").uri());
 #endif
 
   mesh.write_mesh("linearadv2d.msh",fields);
@@ -468,7 +470,9 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   }
   std::cout << "solution_field.max = " << max.transpose() << std::endl;
   std::cout << "solution_field.min = " << min.transpose() << std::endl;
+
 }
+
 
 #endif
 ////////////////////////////////////////////////////////////////////////////////

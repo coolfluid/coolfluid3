@@ -1,6 +1,10 @@
 list( APPEND coolfluid_sfdm_files
+  BC.hpp
+  BC.cpp
   BCDirichlet.hpp
   BCDirichlet.cpp
+  BoundaryConditions.hpp
+  BoundaryConditions.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
   Convection.hpp
@@ -30,6 +34,8 @@ list( APPEND coolfluid_sfdm_files
   ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
+  StrongBC.hpp
+  StrongBC.cpp
   Tags.hpp
   Tags.cpp
   Term.cpp
@@ -46,3 +52,6 @@ coolfluid_add_library( coolfluid_sfdm )
 
 coolfluid_mark_not_orphan(
 )
+
+add_subdirectory( scalar )  # library coolfludi_sfdm_scalar
+

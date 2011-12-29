@@ -58,8 +58,6 @@ protected: // configuration
   virtual void initialize()
   {
     Term::initialize();
-    link_fields();
-    create_term_field();
     elem                  = shared_caches().template get_cache< SFDElement >();
     divergence_in_solution_points  = shared_caches().template get_cache< FluxPointDivergence >();
     reconstruct_in_solution_points = shared_caches().template get_cache< FluxPointReconstruct >();
@@ -84,6 +82,10 @@ protected: // configuration
     divergence_in_solution_points->cache(m_entities);
     reconstruct_in_solution_points->cache(m_entities);
     flx_pt_solution->cache(m_entities);
+
+    sol_pt_wave_speed.resize(NDIM,std::vector<Eigen::Matrix<Real,1,1> >(elem->get().sf->nb_sol_pts()));
+    flx_pt_wave_speed.resize(elem->get().sf->nb_flx_pts());
+    flx_pt_flux.resize(elem->get().sf->nb_flx_pts());
   }
 
   virtual void set_element(const Uint elem_idx)
@@ -111,6 +113,7 @@ protected: // fast-access-data (for convenience no "m_" prefix)
   Uint neighbour_flx_pt;
   Handle<mesh::Entities const> neighbour_entities;
   Uint neighbour_elem_idx;
+  Uint neighbour_face_nb;
   Handle<mesh::Entities const> face_entities;
   Uint face_idx;
 
@@ -122,12 +125,9 @@ protected: // fast-access-data (for convenience no "m_" prefix)
   Handle< CacheT<FluxPointField<NEQS,NDIM> > > flx_pt_neighbour_solution;
   Handle< CacheT<FluxPointPlaneJacobianNormal<NDIM> > > flx_pt_plane_jacobian_normal;
 
-  std::vector< Eigen::Matrix<Real,NEQS,1> > flux;
-  std::vector< Eigen::Matrix<Real,1,1> > wave_speed;
-  Eigen::Matrix<Real,NDIM,1> delta_ksi;
-  Eigen::Matrix<Real,NDIM,1> m_unit_normal;
-
-  virtual void compute_wave_speed() {}
+  std::vector< Eigen::Matrix<Real,NEQS,1> >   flx_pt_flux;
+  std::vector< Eigen::Matrix<Real,1,1> >   flx_pt_wave_speed;
+  std::vector< std::vector<Eigen::Matrix<Real,1,1> > > sol_pt_wave_speed;
 
 }; // end ConvectiveTerm
 
@@ -139,8 +139,6 @@ ConvectiveTerm<NEQS,NDIM>::ConvectiveTerm( const std::string& name )
 {
   properties()["brief"] = std::string("Convective Spectral Finite Difference term");
   properties()["description"] = std::string("Fields to be created: ...");
-
-  delta_ksi.setConstant(2.);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -148,52 +146,30 @@ ConvectiveTerm<NEQS,NDIM>::ConvectiveTerm( const std::string& name )
 template <Uint NEQS, Uint NDIM>
 void ConvectiveTerm<NEQS,NDIM>::execute()
 {
-  wave_speed.resize(elem->get().sf->nb_flx_pts());
-  flux.resize(elem->get().sf->nb_flx_pts());
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {
-    //std::cout << "compute analytical flux in flx_pt["<<flx_pt<<"]"<<std::endl;
-    m_unit_normal = flx_pt_plane_jacobian_normal->get()[flx_pt] / flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-    compute_analytical_flux(m_unit_normal);
-    flux[flx_pt] *= flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-//    std::cout << "flux = " << flux[flx_pt] << std::endl;
+    compute_analytical_flux(flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt]);
+    flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+    flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
   }
   for(Uint f=0; f<elem->get().sf->nb_faces(); ++f)
   {
-    Uint neighbour_face_nb(100);
     set_neighbour(m_entities,m_elem_idx,f,
                   neighbour_entities,neighbour_elem_idx,neighbour_face_nb,
                   face_entities,face_idx);
     if ( is_not_null(neighbour_entities) )
     {
-      //std::cout << "caching neighbour idx " << neighbour_elem_idx << std::endl;
+      // Reconstruct neighbour solution
       flx_pt_neighbour_solution->cache(neighbour_entities,neighbour_elem_idx);
-      // 2) solve riemann problem on interior-faces  ----> Flux   ( linked with (1) )
-      //     Save in face (yes/no)
       Uint c=0;
       boost_foreach(flx_pt, elem->get().sf->face_flx_pts(f))
       {
+        // Get connected neighbour_flx_pt
         neighbour_flx_pt = flx_pt_neighbour_solution->get().sf->face_flx_pts(neighbour_face_nb)[elem->get().sf->face_flx_pts(f).size()-1-c];
-//        std::cout << "compute numerical flux in flx_pt["<<flx_pt<<"]  <-->  flx_pt["<<neighbour_flx_pt<<"]" << std::endl;
-        //std::cout << "neighbour sol_in_flx_pt = " << neighbour_solution->field_in_flx_pts[f] << std::endl;
-        m_unit_normal = elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get()[flx_pt] / flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-
-//        RealMatrix neighbour_nodes = neighbour_entities->get_coordinates(neighbour_elem_idx);
-//        RealVector plane_jacob = neighbour_entities->element_type().plane_jacobian_normal(elem->get().sf->flx_pts().row(neighbour_flx_pt),neighbour_nodes,(CoordRef)elem->get().sf->flx_pt_dirs(neighbour_flx_pt)[0]);
-//        cf3_assert(plane_jacob == plane_jacobian_normal->get()[flx_pt]);
-//        RealMatrix nodes = m_entities->get_coordinates(m_elem_idx);
-//        RealRowVector sf = m_entities->element_type().shape_function().value(elem->get().sf->flx_pts().row(flx_pt));
-//        RealVector flx_pt_coord = sf*nodes;
-//        RealRowVector neighbour_sf = neighbour_entities->element_type().shape_function().value(elem->get().sf->flx_pts().row(neighbour_flx_pt));
-//        RealVector neighbour_flx_pt_coord = neighbour_sf*neighbour_nodes;
-//        cf3_assert(flx_pt_coord == neighbour_flx_pt_coord);
-        compute_numerical_flux(m_unit_normal);
-        flux[flx_pt]*=elem->get().sf->flx_pt_sign(flx_pt);
         ++c;
-
-        flux[flx_pt] *= flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-//        std::cout << "flux = " << flux[flx_pt] << std::endl;
-
+        compute_numerical_flux(elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt]);
+        flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }
       flx_pt_neighbour_solution->get().unlock();
     }
@@ -201,26 +177,21 @@ void ConvectiveTerm<NEQS,NDIM>::execute()
     {
       boost_foreach(flx_pt, elem->get().sf->face_flx_pts(f))
       {
-        m_unit_normal = flx_pt_plane_jacobian_normal->get()[flx_pt] / flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-        compute_analytical_flux(m_unit_normal);
-        flux[flx_pt] *= flx_pt_plane_jacobian_normal->get()[flx_pt].norm();
-//        std::cout << "flux = " << flux[flx_pt] << std::endl;
-
+        compute_analytical_flux(flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt]);
+        flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }
     }
   }
   // compute divergence in solution points
   mesh::Field::View term = m_term_field->view(elem->get().space->indexes_for_element(m_elem_idx));
-  divergence_in_solution_points->cache(m_entities).compute(flux,term);
+  divergence_in_solution_points->cache(m_entities).compute(flx_pt_flux,term);
   mesh::Field::View jacob_det = jacob_det_field().view(elem->get().space->indexes_for_element(m_elem_idx));
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
     for (Uint v=0; v<NEQS; ++v) {
       term[sol_pt][v] /= jacob_det[sol_pt][0];
     }
   }
-
-//  reconstruct_in_solution_points->cache(m_entities).compute(XX,wave_speed,wave_speed_field().view(elem->get().space->indexes_for_element(m_elem_idx)));
-  //std::cout << "div_flx = " << to_str(term) << std::endl; //elem->divergence_from_flux_points(elem->flx_in_flx_pts).transpose() << std::endl;
 
   mesh::Field::View residual = residual_field().view(elem->get().space->indexes_for_element(m_elem_idx));
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
@@ -244,175 +215,24 @@ void ConvectiveTerm<NEQS,NDIM>::execute()
   // (3) --> cfl = 1/|J| * delta(t) * A'/delta(ksi)
   //             = 1/|J| * delta(t) * |J|*J^-1 * A / delta(ksi)  (note that |J|*J^(-1) == plane_jacobian normal!)
 
-  for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
-    compute_wave_speed();
-    mesh::Field::View term_wave = m_term_wave_speed_field->view(elem->get().space->indexes_for_element(m_elem_idx));
-    mesh::Field::View delta = m_delta->view(elem->get().space->indexes_for_element(m_elem_idx));
-    RealVector ws(NDIM);
+  mesh::Field::View wave_speed = wave_speed_field().view(elem->get().space->indexes_for_element(m_elem_idx));
+  mesh::Field::View term_wave = m_term_wave_speed_field->view(elem->get().space->indexes_for_element(m_elem_idx));
+  for (Uint d=0; d<NDIM; ++d)
+  {
+    reconstruct_in_solution_points->cache(m_entities).compute(d,flx_pt_wave_speed,sol_pt_wave_speed[d]);
+  }
+
+  for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
+  {
+    term_wave[sol_pt][0] = 0;
     for (Uint d=0; d<NDIM; ++d)
     {
-      ws[d]= std::abs(term_wave[sol_pt][d])  / delta[sol_pt][d];
+      term_wave[sol_pt][0] += sol_pt_wave_speed[d][sol_pt][0]/2.;
     }
-    wave_speed_field().view(elem->get().space->indexes_for_element(m_elem_idx))[sol_pt][0] = ws.maxCoeff();
+    term_wave[sol_pt][0] /= jacob_det[sol_pt][0];
+    wave_speed[sol_pt][0] = std::max(wave_speed[sol_pt][0],term_wave[sol_pt][0]);
   }
-
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-class LinearAdvection1D : public ConvectiveTerm<1u,1u>
-{
-public:
-  static std::string type_name() { return "LinearAdvection1D"; }
-  LinearAdvection1D(const std::string& name) : ConvectiveTerm(name)
-  {
-    m_advection_speed.resize(1u);
-    m_advection_speed[XX]= 1.;
-
-    analytical_flux.functions(common::to_str(m_advection_speed[XX])+"*U");
-    analytical_flux.variables("U");
-    analytical_flux.parse();
-
-    options().add_option("advection_speed",m_advection_speed).link_to(&m_advection_speed);
-  }
-  virtual ~LinearAdvection1D() {}
-
-  virtual void compute_analytical_flux(const RealVector1& unit_normal)
-  {
-    Real A = unit_normal[XX]*m_advection_speed[XX];
-    flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-    wave_speed[flx_pt][0] = std::abs(m_advection_speed[XX]);
-  }
-
-  virtual void compute_numerical_flux(const RealVector1& unit_normal)
-  {
-    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-    Real A = m_advection_speed[XX]*unit_normal[XX];
-    flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-    wave_speed[flx_pt][0] = std::abs(m_advection_speed[XX]);
-  }
-
-  virtual void compute_wave_speed()
-  {
-    mesh::Field::View ws = m_term_wave_speed_field->view(elem->get().space->indexes_for_element(m_elem_idx));
-    ws[sol_pt][XX] = m_advection_speed[XX];
-  }
-
-private:
-  math::VectorialFunction analytical_flux;
-
-  std::vector<Real> m_advection_speed;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class LinearAdvection2D : public ConvectiveTerm<1u,2u>
-{
-public:
-  static std::string type_name() { return "LinearAdvection2D"; }
-  LinearAdvection2D(const std::string& name) : ConvectiveTerm(name)
-  {
-    m_advection_speed.resize(2u);
-    m_advection_speed[XX]= 1.;
-    m_advection_speed[YY]= 1.;
-
-    options().add_option("advection_speed",m_advection_speed).link_to(&m_advection_speed);
-  }
-  virtual ~LinearAdvection2D() {}
-
-  virtual void compute_analytical_flux(const RealVector2& unit_normal)
-  {
-    Real A = (unit_normal[XX]*m_advection_speed[XX]+unit_normal[YY]*m_advection_speed[YY]);
-    flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-  }
-
-  virtual void compute_numerical_flux(const RealVector2& unit_normal)
-  {
-    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-    Real A = (m_advection_speed[XX]*unit_normal[XX]+m_advection_speed[YY]*unit_normal[YY]);
-    flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-  }
-
-  virtual void compute_wave_speed()
-  {
-    mesh::Field::View ws = m_term_wave_speed_field->view(elem->get().space->indexes_for_element(m_elem_idx));
-    ws[sol_pt][XX] = m_advection_speed[XX];
-    ws[sol_pt][YY] = m_advection_speed[YY];
-  }
-
-private:
-  std::vector<Real> m_advection_speed;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class RotationAdvection2D : public ConvectiveTerm<1u,2u>
-{
-public:
-  static std::string type_name() { return "RotationAdvection2D"; }
-  RotationAdvection2D(const std::string& name) : ConvectiveTerm(name)
-  {
-  }
-
-  virtual ~RotationAdvection2D() {}
-
-  virtual void compute_analytical_flux(const RealVector2& unit_normal)
-  {
-    Real A = (unit_normal[XX]*flx_pt_coordinates->get()[flx_pt][YY]-unit_normal[YY]*flx_pt_coordinates->get()[flx_pt][XX]);
-    flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-  }
-
-  virtual void compute_numerical_flux(const RealVector2& unit_normal)
-  {
-    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-    Real A = (unit_normal[XX]*flx_pt_coordinates->get()[flx_pt][YY]-unit_normal[YY]*flx_pt_coordinates->get()[flx_pt][XX]);
-    flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-  }
-
-  virtual void compute_wave_speed()
-  {
-    mesh::Field::View ws = m_term_wave_speed_field->view(elem->get().space->indexes_for_element(m_elem_idx));
-    ws[sol_pt][XX] =  sol_pt_coordinates->get()[flx_pt][YY];
-    ws[sol_pt][YY] = -sol_pt_coordinates->get()[flx_pt][XX];
-  }
-
-  virtual void initialize()
-  {
-    ConvectiveTerm::initialize();
-    flx_pt_coordinates = shared_caches().get_cache< FluxPointCoordinates<2u> >();
-    flx_pt_coordinates->options().configure_option("space",solution_field().space());
-    sol_pt_coordinates = shared_caches().get_cache< SolutionPointCoordinates<2u> >();
-    sol_pt_coordinates->options().configure_option("space",solution_field().space());
-  }
-
-  virtual void set_entities(const mesh::Entities& entities)
-  {
-    ConvectiveTerm::set_entities(entities);
-    flx_pt_coordinates->cache(m_entities);
-    sol_pt_coordinates->cache(m_entities);
-  }
-
-  virtual void set_element(const Uint elem_idx)
-  {
-    ConvectiveTerm::set_element(elem_idx);
-    flx_pt_coordinates->get().compute_element(m_elem_idx);
-    sol_pt_coordinates->get().compute_element(m_elem_idx);
-  }
-
-  virtual void unset_element()
-  {
-    ConvectiveTerm::unset_element();
-    flx_pt_coordinates->get().unlock();
-    sol_pt_coordinates->get().unlock();
-  }
-
-private:
-  Handle< CacheT< FluxPointCoordinates<2u> > > flx_pt_coordinates;
-  Handle< CacheT< SolutionPointCoordinates<2u> > > sol_pt_coordinates;
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

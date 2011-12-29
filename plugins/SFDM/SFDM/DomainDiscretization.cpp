@@ -66,10 +66,10 @@ void DomainDiscretization::execute()
   Field& residual = *follow_link(solver().field_manager().get_child(SFDM::Tags::residual()))->handle<Field>();
   residual = 0.;
 
-  boost_foreach( Component& term , *m_terms)
-  {
-    term.handle<Term>()->initialize();
-  }
+//  boost_foreach( Component& term , *m_terms)
+//  {
+//    term.handle<Term>()->initialize();
+//  }
 
   CFdebug << "DomainDiscretization EXECUTE" << CFendl;
   foreach_container( (const Handle<Region const>& region) (std::vector< Handle<Term> >& terms), m_terms_per_region)
@@ -121,7 +121,9 @@ Term& DomainDiscretization::create_term( const std::string& type,
   term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
   term->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
 
-  boost_foreach(const URI& region_uri, regions)
+  term->initialize();
+
+  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
   {
     m_terms_per_region[access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
   }

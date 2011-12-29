@@ -4,18 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/Builder.hpp"
+#include "common/RegistLibrary.hpp"
 
-#include "SFDM/ConvectiveTerm.hpp"
-
-//////////////////////////////////////////////////////////////////////////////
+#include "SFDM/scalar/LibScalar.hpp"
 
 namespace cf3 {
 namespace SFDM {
+namespace scalar {
 
-//////////////////////////////////////////////////////////////////////////////
+  using namespace common;
 
-/////////////////////////////////////////////////////////////////////////////
+cf3::common::RegistLibrary<LibScalar> LibScalar;
 
+
+} // scalar
 } // SFDM
 } // cf3
+

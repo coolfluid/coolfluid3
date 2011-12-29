@@ -24,9 +24,6 @@ class SFDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component
