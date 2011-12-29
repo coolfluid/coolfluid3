@@ -115,7 +115,8 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   m_iterative_solver->pre_update().add_link(*m_domain_discretization);
   m_iterative_solver->pre_update().create_component<ComputeUpdateCoefficient>("compute_time_step");
 
-  //  m_iterative_solver->pre_update().append(m_boundary_conditions);
+  m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );
+  m_iterative_solver->post_update().add_link(*m_boundary_conditions);
   m_iterative_solver->post_update().add_link(synchronize);
 }
 

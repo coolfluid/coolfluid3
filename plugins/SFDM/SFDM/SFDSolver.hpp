@@ -16,6 +16,7 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/InitialConditions.hpp"
 #include "SFDM/DomainDiscretization.hpp"
+#include "SFDM/BoundaryConditions.hpp"
 
 namespace cf3 {
 
@@ -65,11 +66,8 @@ public: // functions
   /// solves the PDE's
   virtual void execute();
 
-#if 0
   /// @return subcomponent for boundary conditions
-  BoundaryConditions&   boundary_conditions();
-#endif
-
+  BoundaryConditions&   boundary_conditions()    { return *m_boundary_conditions; }
   /// @return subcomponent for initial conditions
   InitialConditions&    initial_conditions()     { return *m_initial_conditions; }
   /// @return subcomponent for domain terms
@@ -119,7 +117,7 @@ private: // data
   Handle<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
   Handle<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
   Handle<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
-//  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<BoundaryConditions>      m_boundary_conditions;   ///< subcomponent for boundary conditions
 
   Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
 
