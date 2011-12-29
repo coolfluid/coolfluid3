@@ -1,6 +1,10 @@
 list( APPEND coolfluid_sfdm_files
   BC.hpp
   BC.cpp
+  BCConstant.hpp
+  BCConstant.cpp
+  BCFunction.hpp
+  BCFunction.cpp
   BCDirichlet.hpp
   BCDirichlet.cpp
   BoundaryConditions.hpp
@@ -34,8 +38,8 @@ list( APPEND coolfluid_sfdm_files
   ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
-  StrongBC.hpp
-  StrongBC.cpp
+  BCStrong.hpp
+  BCStrong.cpp
   Tags.hpp
   Tags.cpp
   Term.cpp

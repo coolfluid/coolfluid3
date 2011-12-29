@@ -268,6 +268,56 @@ public:
   std::vector<coord_t>      coord_in_flx_pts;
 };
 
+struct FluxPointCoordinatesDyn : ElementCache
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  typedef RealVector coord_t;
+
+  typedef CacheT<FluxPointCoordinatesDyn > cache_type;
+  static std::string type_name() { return "FluxPointCoordinatesDyn"; }
+  FluxPointCoordinatesDyn (const std::string& name=type_name()) : ElementCache(name) {}
+
+  static void add_options(Cache& cache)
+  {
+    cache.options().add_option("space",std::string("sfd_space"));
+  }
+
+private:
+  virtual void compute_fixed_data()
+  {
+    geo.configure(entities);
+    std::string space_id = options().option("space").value<std::string>();
+    space = entities->space(space_id).handle<mesh::Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+
+    reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
+    coord_in_flx_pts.resize(sf->nb_flx_pts(),RealVector(entities->element_type().dimension()));
+  }
+
+  virtual void compute_variable_data()
+  {
+    geo.compute_element(idx); // computes geo.nodes
+
+    // reconstruct the nodes
+    reconstruct_to_flux_points(geo.nodes,coord_in_flx_pts);
+  }
+
+public:
+
+  coord_t& operator[] (const Uint flx_pt)             { return coord_in_flx_pts[flx_pt]; }
+  const coord_t& operator[] (const Uint flx_pt) const { return coord_in_flx_pts[flx_pt]; }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  GeometryElement geo;
+
+  ReconstructToFluxPoints reconstruct_to_flux_points;
+
+  // extrinsic state
+  std::vector<coord_t>      coord_in_flx_pts;
+};
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint NDIM>

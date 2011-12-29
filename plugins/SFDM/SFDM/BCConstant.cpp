@@ -6,7 +6,7 @@
 
 #include "common/Builder.hpp"
 
-#include "SFDM/StrongBC.hpp"
+#include "SFDM/BCConstant.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

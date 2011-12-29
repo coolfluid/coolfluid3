@@ -63,11 +63,6 @@ BoundaryConditions::BoundaryConditions ( const std::string& name ) :
 
 void BoundaryConditions::execute()
 {
-  boost_foreach( Component& bc , *m_bcs)
-  {
-    bc.handle<BC>()->initialize();
-  }
-
   CFdebug << "BoundaryConditions EXECUTE" << CFendl;
   foreach_container( (const Handle<Region const>& region) (Handle<BC>& bc), m_bc_per_region)
   {
@@ -103,6 +98,8 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
   bc->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
   bc->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
   bc->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
+
+  bc->initialize();
 
   boost_foreach(const URI& region_uri, regions)
   {

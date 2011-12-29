@@ -360,9 +360,10 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   std::vector<Real> advection_speed(2,0.);
   advection_speed[XX]=1;
   convection.options().configure_option("advection_speed",advection_speed);
-  std::cout << model.tree() << std::endl;
-  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCConstant","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
-  bc.options().configure_option("constants",std::vector<Real>(1,.5));
+  // BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCConstant","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  // bc.options().configure_option("constants",std::vector<Real>(1,.5));
+  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCFunction","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  bc.options().configure_option("functions",std::vector<std::string>(1,"sin(y*2*pi/10)"));
 #else
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 #endif
@@ -388,7 +389,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/10.); // instead of 0.3
+  solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/3.); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , cfl_matteo );
   solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
 

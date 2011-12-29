@@ -108,7 +108,7 @@ void BC::link_fields()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void BC::set_inner_cell(const Handle<Entities const>& face_entities, const Uint face_idx, Handle<Entities const>& cell_entities, Uint& cell_idx, Uint& cell_face_nb)
+void BC::find_inner_cell(const Handle<Entities const>& face_entities, const Uint face_idx, Handle<Entities const>& cell_entities, Uint& cell_idx, Uint& cell_face_nb)
 {
   FaceCellConnectivity const& cell_connectivity = *face_entities->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
   cell_entities = cell_connectivity.connectivity()[face_idx][LEFT].comp->handle<Entities>();
