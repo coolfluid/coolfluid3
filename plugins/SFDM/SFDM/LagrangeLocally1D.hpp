@@ -302,12 +302,6 @@ public: // functions
     m_face_normals(ETA_NEG,ETA)=-1;
     m_face_normals(ETA_POS,ETA)=+1;
 
-
-    std::cout << "face_flx_pts[KSI_NEG]="<< common::to_str(m_face_flx_pts[KSI_NEG]) << std::endl;
-    std::cout << "face_flx_pts[KSI_POS]="<< common::to_str(m_face_flx_pts[KSI_POS]) << std::endl;
-    std::cout << "face_flx_pts[ETA_NEG]="<< common::to_str(m_face_flx_pts[ETA_NEG]) << std::endl;
-    std::cout << "face_flx_pts[ETA_POS]="<< common::to_str(m_face_flx_pts[ETA_POS]) << std::endl;
-
   }
 
 
