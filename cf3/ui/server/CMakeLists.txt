@@ -1,11 +1,4 @@
 
-# List of classes to "moc"
-set( coolfluid_ui_server_moc_classes
-  ServerRoot.hpp )
-
-# Create the moc files
-QT4_WRAP_CPP(coolfluid_ui_server_moc_files ${coolfluid_ui_server_moc_classes})
-
 # Add the project files (including the moc files)
 list( APPEND coolfluid_ui_server_files
   CCore.cpp
@@ -21,8 +14,6 @@ list( APPEND coolfluid_ui_server_files
 #list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 
 list( APPEND coolfluid_ui_server_cflibs coolfluid_ui_network coolfluid_ui_common )
-
-list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 
 coolfluid_add_library(coolfluid_ui_server)
 
