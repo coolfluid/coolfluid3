@@ -6,9 +6,6 @@
 
 #include <iostream>
 
-#include <QCoreApplication>
-#include <QHostInfo>
-
 #include <boost/program_options/errors.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -37,8 +34,7 @@ using namespace cf3::ui::server;
 
 int main(int argc, char *argv[])
 {
-  QCoreApplication app(argc, argv);
-  QString errorString;
+  std::string error_string;
   int return_value = 0;
   int port = 62784;
   Uint nb_workers = 1;
@@ -87,10 +83,10 @@ int main(int argc, char *argv[])
     ServerRoot::instance().root();
 
     if( Comm::instance().size() != 1 )
-      errorString = "This application is not designed to run in parallel.";
+      error_string = "This application is not designed to run in parallel.";
 
     if( nb_workers == 0 )
-      errorString = "At least 1 worker must be spawn.";
+      error_string = "At least 1 worker must be spawn.";
 
     // spawn the MPI workers
     Handle< Manager > mgr(Core::instance().tools().get_child("PEManager"));
@@ -99,33 +95,15 @@ int main(int argc, char *argv[])
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
-      errorString = "Port number must be an integer between 49153 and 65535\n";
-    else if( errorString.isEmpty() )
+      error_string = "Port number must be an integer between 49153 and 65535\n";
+    else if( error_string.empty() )
     {
-      Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
-      Core::instance().network_info().set_port( port );
+//      Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
+//      Core::instance().network_info().set_port( port );
 
-      QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
       Handle< CCore > sk = ServerRoot::instance().core();
-      QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
       sk->listen_to_port(port); // start listening to the network
-
-      QList<QHostAddress> addrs = hostInfo.addresses();
-      QString ip;
-
-      if( addrs.isEmpty() )
-        ip = "<unknown IP address>";
-      else
-        ip = hostInfo.addresses().at(0).toString();
-
-      message = message.arg(ip)
-          .arg(QHostInfo::localHostName())
-          .arg(port);
-
-      std::cout << message.toStdString() << std::endl;
-
-      return_value = app.exec();
     }
 
     PE::Comm::instance().finalize();
@@ -135,30 +113,30 @@ int main(int argc, char *argv[])
   }
   catch(program_options::error & error)
   {
-    errorString = error.what();
+    error_string = error.what();
   }
   catch(NetworkError ne)
   {
-    errorString = ne.what();
+    error_string = ne.what();
   }
   catch(std::string str)
   {
-    errorString = str.c_str();
+    error_string = str.c_str();
   }
   catch ( std::exception& e )
   {
-    errorString = e.what();
+    error_string = e.what();
   }
   catch (...)
   {
-    errorString = "Unknown exception thrown and not caught !!!\n";
+    error_string = "Unknown exception thrown and not caught !!!\n";
   }
 
-  if(!errorString.isEmpty())
+  if(!error_string.empty())
   {
     std::cerr << std::endl << std::endl;
     std::cerr << "Server application exited on error:" << std::endl;
-    std::cerr << errorString.toStdString() << std::endl;
+    std::cerr << error_string << std::endl;
     std::cerr << "Aborting ..." << std::endl << std::endl << std::endl;
     return_value = -1;
   }
