@@ -12,6 +12,8 @@
 
 #include "common/XML/SignalOptions.hpp"
 
+#include "math/Consts.hpp"
+
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
@@ -65,6 +67,9 @@ void DomainDiscretization::execute()
 {
   Field& residual = *follow_link(solver().field_manager().get_child(SFDM::Tags::residual()))->handle<Field>();
   residual = 0.;
+
+  Field& wave_speed = *follow_link(solver().field_manager().get_child(SFDM::Tags::wave_speed()))->handle<Field>();
+  wave_speed = math::Consts::eps();
 
 //  boost_foreach( Component& term , *m_terms)
 //  {

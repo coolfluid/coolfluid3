@@ -167,7 +167,7 @@ void ConvectiveTerm<NEQS,NDIM>::execute()
         // Get connected neighbour_flx_pt
         neighbour_flx_pt = flx_pt_neighbour_solution->get().sf->face_flx_pts(neighbour_face_nb)[elem->get().sf->face_flx_pts(f).size()-1-c];
         ++c;
-        compute_numerical_flux(elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt]);
+        compute_numerical_flux(flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt));
         flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
         flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }

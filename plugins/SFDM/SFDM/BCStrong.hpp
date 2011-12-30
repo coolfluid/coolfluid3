@@ -106,7 +106,7 @@ protected: // fast-access-data (for convenience no "m_" prefix)
 inline BCStrong::BCStrong( const std::string& name )
   : BC(name)
 {
-  properties()["brief"] = std::string("Convective Spectral Finite Difference BC");
+  properties()["brief"] = std::string("Spectral Finite Difference BC");
   properties()["description"] = std::string("");
 }
 
