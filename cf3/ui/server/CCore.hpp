@@ -12,8 +12,6 @@
 #include <vector>
 #include <string>
 
-#include <QStringList>
-
 #include "common/Component.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -77,7 +75,7 @@ namespace server {
      /// @param hostame Host name
      /// @param portNumber Port number
      /// @throw NetworkException
-     bool listen_to_port(quint16 portNumber);
+     bool listen_to_port(cf3::Uint portNumber);
 
      void send_signal( common::XML::SignalFrame & signal );
 

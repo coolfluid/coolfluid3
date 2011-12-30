@@ -154,7 +154,7 @@ CCore::~CCore()
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool CCore::listen_to_port(quint16 portNumber)
+bool CCore::listen_to_port(cf3::Uint portNumber)
 {
   return m_comm_server->open_port(portNumber);
 }
