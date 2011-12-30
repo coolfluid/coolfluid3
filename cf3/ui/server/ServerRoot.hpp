@@ -25,9 +25,7 @@ namespace common { namespace PE { class Manager; } }
 namespace ui {
 namespace server {
 
-  class ProcessingThread;
-
-  ///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
   class ServerRoot :
       public QObject
@@ -46,9 +44,9 @@ namespace server {
 
     Handle< CCore > core() const { return Handle<CCore>(m_core); }
 
-    boost::shared_ptr<common::PE::Manager> manager() { return m_manager; }
+    boost::shared_ptr<common::PE::Manager> manager() { return m_pe_manager; }
 
-    boost::shared_ptr<common::PE::Manager const> manager() const { return m_manager; }
+    boost::shared_ptr<common::PE::Manager const> manager() const { return m_pe_manager; }
 
     void process_signal( const std::string & target,
                          const common::URI & receiver,
@@ -56,11 +54,9 @@ namespace server {
                          const std::string & frameid,
                          common::SignalArgs & node );
 
+    /// @name SIGNALS
+    // @{
     void signal_to_forward( common::SignalArgs & args );
-
-  public slots:
-
-    void finished();
 
   private:
 
@@ -70,23 +66,13 @@ namespace server {
 
   private: // data
 
-    boost::shared_ptr<common::XML::XmlDoc> m_doc;
-
-    ProcessingThread * m_thread;
-
     Handle< common::Component > m_root;
 
     boost::shared_ptr< CCore > m_core;
 
-    QMutex m_mutex;
+    std::vector< common::URI > m_local_components;
 
-    std::string m_current_client_id;
-
-    std::string m_current_frame_id;
-
-    QList< common::URI > m_local_components;
-
-    boost::shared_ptr<common::PE::Manager> m_manager;
+    boost::shared_ptr<common::PE::Manager> m_pe_manager;
 
   }; // class ServerRoot
 
