@@ -30,6 +30,7 @@ public: // typedefs
   typedef Eigen::Matrix<Real, _ndim, 1>    GeoV;  ///< type of geometry coordinates vector
   typedef Eigen::Matrix<Real, _neqs, 1>    SolV;  ///< type of solution variables vector
   typedef Eigen::Matrix<Real, _neqs,_ndim> SolM;  ///< type of solution gradient matrix
+  typedef Eigen::Matrix<Real, _neqs,_neqs> JacM;  ///< type of flux jacobian matrix
 
 public: // functions
 
