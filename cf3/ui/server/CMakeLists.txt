@@ -1,7 +1,6 @@
 
 # List of classes to "moc"
 set( coolfluid_ui_server_moc_classes
-  CCore.hpp
   ServerRoot.hpp )
 
 # Create the moc files
@@ -11,8 +10,6 @@ QT4_WRAP_CPP(coolfluid_ui_server_moc_files ${coolfluid_ui_server_moc_classes})
 list( APPEND coolfluid_ui_server_files
   CCore.cpp
   CCore.hpp
-  ProcessingThread.cpp
-  ProcessingThread.hpp
   ServerExceptions.hpp
   ServerExceptions.cpp
   ServerNetworkComm.cpp

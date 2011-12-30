@@ -73,7 +73,7 @@ std::string find_home_path()
   {
     // the $HOME environment variable may not exist (i.e. the application
     // was not lauched from a terminal on OSX). We need to use getpwuid()
-    // function then.
+    // POSIX function then.
     passwd * pwd = getpwuid( getuid() );
 
     if( is_not_null(pwd) )
@@ -87,7 +87,7 @@ std::string find_home_path()
    home_path = user_profile;
 
  // note: some WebSites recommend to use %HOMEDRIVE% + %HOMEPATH% if
- // %USERPROFILE% does not exist. This does not seem a good solution to me
+ // %USERPROFILE% does not exist. This does not seem to be a good solution to me
  // because - according to Microsoft documentation - %HOMEDRIVE% may not
  // contain a useful value in the case of a network home directory (in which
  // case %HOMESHARE% should also have to be used somewhere).
