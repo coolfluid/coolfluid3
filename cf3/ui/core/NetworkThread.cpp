@@ -144,6 +144,8 @@ void NetworkThread::send ( common::SignalArgs& signal )
   if(!is_connected())
     throw IllegalCall(FromHere(), "There is no active connection.");
 
+  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid().string() );
+
   m_connection->send( signal,
                       boost::bind( &NetworkThread::callback_send,
                                    this,
