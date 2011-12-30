@@ -4,11 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-//#include <iostream>
-
-#include <QtNetwork>
-#include <QtCore>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/OptionT.hpp"
@@ -55,7 +50,7 @@ ServerNetworkComm::ServerNetworkComm()
   regist_signal( "new_client_connected" )
       .description("Event raised whan a new client gets connected and registered.");
 
-  m_mutex = new QMutex();
+//  m_mutex = new QMutex();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -95,6 +90,16 @@ void ServerNetworkComm::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
+void ServerNetworkComm::close()
+{
+  if( is_not_null(m_io_service) )
+  {
+    m_io_service->stop();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 bool ServerNetworkComm::open_port( unsigned short port )
 {
   bool success = false;
@@ -103,7 +108,7 @@ bool ServerNetworkComm::open_port( unsigned short port )
   {
     m_port = port;
 
-    start();
+    run();
 
     success = true;
   }
@@ -215,6 +220,11 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
     std::string clientid = buffer.node.attribute_value( "clientid" );
     std::string frameid = buffer.node.attribute_value( "frameid" );
 
+    std::string str;
+
+    XML::to_string( buffer.node, str);
+    std::cout << str << std::endl;
+
     // check if the client is attempting to register
     if( target == "client_registration" )
     {
@@ -241,9 +251,9 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
     }
     else
     {
-      /*if( info.uuid.empty() )
+      if( info.uuid.empty() )
         error_msg = "The signal came from an unregistered client.";
-      else*/ if( info.uuid != clientid )
+      else if( info.uuid != clientid )
         error_msg = "The client id '" + info.uuid + "' (used for registration) "
             + "and '" + clientid + "' (used for identification) do not match.";
       else
@@ -274,14 +284,14 @@ void ServerNetworkComm::send_frame_to_client( SignalFrame & signal,
 void ServerNetworkComm::send_frame_rejected_to_client( const string clientid,
                                                        const string & frameid,
                                                        const URI & sender,
-                                                       const QString & reason )
+                                                       const string &reason )
 {
-  send_frame_rejected( get_connection(clientid), frameid, sender, reason.toStdString() );
+  send_frame_rejected( get_connection(clientid), frameid, sender, reason );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ServerNetworkComm::send_message_to_client( const QString & message,
+void ServerNetworkComm::send_message_to_client( const string & message,
                                                 LogMessage::Type type,
                                                 const string & clientid )
 {
@@ -301,15 +311,13 @@ void ServerNetworkComm::send_frame_rejected( TCPConnection::Ptr client,
   options.add_option( "frameid", frameid );
   options.add_option( "reason", reason );
 
-//  options.flush();
-
   init_send( client, frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::send_message( TCPConnection::Ptr client,
-                                      const QString & message,
+                                      const string & message,
                                       LogMessage::Type type )
 {
   SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
@@ -319,9 +327,8 @@ void ServerNetworkComm::send_message( TCPConnection::Ptr client,
     type = LogMessage::INFO;
 
   options.add_option("type", LogMessage::Convert::instance().to_str(type));
-  options.add_option("text", message.toStdString());
+  options.add_option("text", message);
 
-//  options.flush();
   init_send( client, frame );
 }
 

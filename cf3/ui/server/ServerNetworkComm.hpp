@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QThread>
+//#include <QThread>
 
 #include <boost/asio/ip/tcp.hpp> // for tcp::acceptor (nested classes cannot be forward declared)
 
@@ -17,8 +17,8 @@
 
 #include "ui/uicommon/LogMessage.hpp"
 
-class QString;
-class QMutex;
+//class QString;
+//class QMutex;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,9 @@ namespace server {
 
 /// @author Quentin Gasper.
 
-class ServerNetworkComm : public QThread, public common::SignalHandler
+class ServerNetworkComm :
+//    public QThread,
+    public common::SignalHandler
 {
 
 public: // nested structs
@@ -78,12 +80,15 @@ public:
 
   void run();
 
+  /// Stops all network operations
+  void close();
+
   /// @brief Sends a message to a client
 
   /// @param message Message to send
   /// @param uuid Client UuiD, or an empty string to send to all clients.
   /// @throw UnknownClientIdException if Client UuiD is unknown.
-  void send_message_to_client( const QString & message,
+  void send_message_to_client( const std::string & message,
                                uiCommon::LogMessage::Type type,
                                const std::string & uuid = std::string() );
 
@@ -93,7 +98,7 @@ public:
   void send_frame_rejected_to_client( const std::string clientid,
                                       const std::string & frameid,
                                       const common::URI & sender,
-                                      const QString & reason );
+                                      const std::string & reason );
 
 
 private: // functions
@@ -125,7 +130,7 @@ private:
   unsigned short m_port;
 
   /// @brief Mutex for thread-safe operations.
-  QMutex * m_mutex;
+//  QMutex * m_mutex;
 
   /// @brief The client sockets.
 
@@ -140,7 +145,7 @@ private:
   /// @return Returns @c true if the frame was built and sent successfully;
   /// otherwise returns @c false.
   void send_message( boost::shared_ptr<network::TCPConnection> client,
-                     const QString & message,
+                     const std::string & message,
                      uiCommon::LogMessage::Type type );
 
   /// @brief Sends a message to a client.
