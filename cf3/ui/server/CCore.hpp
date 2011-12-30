@@ -12,9 +12,7 @@
 #include <vector>
 #include <string>
 
-#include <QDir>
 #include <QStringList>
-#include <QThread>
 
 #include "common/Component.hpp"
 
@@ -45,10 +43,8 @@ namespace server {
   /// @author Quentin Gasper
 
   class CCore :
-      public QObject,
-      public cf3::common::Component
+      public common::Component
   {
-    Q_OBJECT
 
   private:
 
@@ -62,9 +58,6 @@ namespace server {
     };
 
   public:
-
-
-
 
     /// @brief Constructor
 
@@ -109,15 +102,15 @@ namespace server {
     /// @brief The default path for the file browsing.
 
     /// The default path is the current directory (./).
-    const QString DEFAULT_PATH;
+    std::string default_path;
 
     /// @brief The network communication
     ServerNetworkComm * m_comm_server;
 
-    QSettings * m_settings;
+//    QSettings * m_settings;
 
     /// List of user's favorite directories.
-    QStringList m_favorite_directories;
+//    QStringList m_favorite_directories;
 
   private: // functions
 
@@ -137,21 +130,21 @@ namespace server {
     /// @return Returns @c true if the directory has been correctly read.
     /// Otherwise, returns @c false (@c dirsList and @c filesList are not
     /// modified in this case).
-    bool get_dir_content( const QString & directory,
+    bool get_dir_content( const std::string & directory,
                           const std::vector<std::string> & extensions,
                           bool includeFiles,
                           bool includeNoExtension,
                           DirContent & content ) const;
 
-    void read_dir(cf3::common::SignalArgs & node);
+    void read_dir( common::SignalArgs & node );
 
-    void read_special_dir(cf3::common::SignalArgs & node);
+    void read_special_dir( common::SignalArgs & node );
 
-    void shutdown(cf3::common::SignalArgs & node);
+    void shutdown( common::SignalArgs & node );
 
-    void signal_set_favorites(cf3::common::SignalArgs & node);
+    void signal_set_favorites( common::SignalArgs & node );
 
-    void signal_list_favorites(cf3::common::SignalArgs & node);
+    void signal_list_favorites( common::SignalArgs & node );
   };
 
 ////////////////////////////////////////////////////////////////////////////
