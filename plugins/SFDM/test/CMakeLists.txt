@@ -28,6 +28,14 @@ coolfluid_add_test( UTEST      utest-sfdm-transformation
                     CPP        utest-sfdm-transformation.cpp
                     LIBS       coolfluid_sfdm )
 
+coolfluid_add_test( ATEST      atest-sfdm-shocktube-1d
+                    PYTHON     atest-sfdm-shocktube-1d.py
+                    LIBS       coolfluid_sfdm_navierstokes)
+
+coolfluid_add_test( ATEST      atest-sfdm-shocktube-2d
+                    PYTHON     atest-sfdm-shocktube-2d.py
+                    LIBS       coolfluid_sfdm_navierstokes)
+
 #########################################################################
 
 coolfluid_add_test( UTEST      utest-sfdm-wizard

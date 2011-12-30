@@ -57,5 +57,5 @@ coolfluid_add_library( coolfluid_sfdm )
 coolfluid_mark_not_orphan(
 )
 
-add_subdirectory( scalar )  # library coolfludi_sfdm_scalar
-
+add_subdirectory( scalar       )  # library coolfluid_sfdm_scalar
+add_subdirectory( navierstokes )  # library coolfluid_sfdm_navierstokes
