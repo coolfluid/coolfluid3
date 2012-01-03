@@ -226,7 +226,7 @@ Uint Entities::glb_size() const
   {
     Uint glb_nb_elems(0);
     const Uint loc_nb_elems(size() );
-    PE::Comm::instance().all_reduce(PE::min(), &loc_nb_elems, 1, &glb_nb_elems);
+    PE::Comm::instance().all_reduce(PE::plus(), &loc_nb_elems, 1, &glb_nb_elems);
     return glb_nb_elems;
   }
   else
