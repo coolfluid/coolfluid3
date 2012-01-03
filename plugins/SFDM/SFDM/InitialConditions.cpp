@@ -14,6 +14,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -79,10 +80,9 @@ solver::Action& InitialConditions::create_initial_condition(const std::string& n
 {
   Handle<solver::Action> ic = create_component< SFDM::Init >(name);
 
-  /// @todo find the field through solver links
-  Field& solution = find_component_recursively_with_name<Field>(mesh(),SFDM::Tags::solution());
+  Handle<Field> solution = follow_link(solver().field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
 
-  ic->options().configure_option( "solution_field", solution.handle<Component>() );
+  ic->options().configure_option( "solution_field", solution);
 
   if( regions.empty() )
   {

@@ -3,6 +3,12 @@
 list( APPEND coolfluid_sfdm_navierstokes_files
   LibNavierStokes.hpp
   LibNavierStokes.cpp
+  BCSubsonicInlet2D.hpp
+  BCSubsonicInlet2D.cpp
+  BCSubsonicOutlet2D.hpp
+  BCSubsonicOutlet2D.cpp
+  BCWallEuler2D.hpp
+  BCWallEuler2D.cpp
   Convection1D.hpp
   Convection1D.cpp
   Convection2D.hpp

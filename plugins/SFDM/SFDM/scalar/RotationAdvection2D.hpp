@@ -20,7 +20,7 @@ namespace scalar {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_scalar_API RotationAdvection2D : public ConvectiveTerm<1u,2u>
+class SFDM_scalar_API RotationAdvection2D : public ConvectiveTerm< ConvectiveTermPointData<1u,2u> >
 {
 public:
   static std::string type_name() { return "RotationAdvection2D"; }
@@ -59,21 +59,21 @@ public:
     flx_pt_coordinates->get().compute_element(m_elem_idx);
   }
 
-  virtual void compute_analytical_flux(const RealVector2& unit_normal)
-  {
-    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
-    flx_pt_flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
-  }
+//  virtual void compute_analytical_flux(const RealVector2& unit_normal)
+//  {
+//    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
+//    flx_pt_flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
+//    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
+//  }
 
-  virtual void compute_numerical_flux(const RealVector2& unit_normal)
-  {
-    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
-    flx_pt_flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
-  }
+//  virtual void compute_numerical_flux(const RealVector2& unit_normal)
+//  {
+//    RealVector1& left  = flx_pt_solution->get()[flx_pt];
+//    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
+//    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
+//    flx_pt_flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
+//    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
+//  }
 
   virtual void unset_element()
   {

@@ -52,7 +52,7 @@ protected: // configuration
   {
     BC::initialize();
     reconstruct_in_solution_points = shared_caches().get_cache< FluxPointReconstruct >();
-    flx_pt_solution              = shared_caches().get_cache< FluxPointFieldDyn >(SFDM::Tags::solution()+std::string("Dyn"));
+    flx_pt_solution                = shared_caches().get_cache< FluxPointFieldDyn >(SFDM::Tags::solution()+std::string("Dyn"));
 
     reconstruct_in_solution_points->options().configure_option("space",solution_field().space());
     flx_pt_solution->options().configure_option("field",solution_field().uri());
@@ -114,7 +114,7 @@ inline BCStrong::BCStrong( const std::string& name )
 
 inline void BCStrong::execute()
 {
-  find_inner_cell(m_entities,m_elem_idx,cell_entities,cell_idx,cell_face_nb);
+  find_inner_cell(m_face_entities,m_face_elem_idx,cell_entities,cell_idx,cell_face_nb);
   set_inner_cell();
   boost_foreach(cell_flx_pt, flx_pt_solution->get().sf->face_flx_pts(cell_face_nb))
   {

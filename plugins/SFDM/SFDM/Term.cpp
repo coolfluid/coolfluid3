@@ -126,9 +126,9 @@ void Term::create_term_field()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Term::set_neighbour(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb,
-                   Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
-                   Handle<Entities const>& face_entities, Uint& face_idx)
+void Term::set_face(const Handle<Entities const>& entities, const Uint elem_idx, const Uint face_nb,
+                    Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
+                    Handle<Entities const>& face_entities, Uint& face_idx, Uint& face_side)
 {
   ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
   cf3_assert(elem_idx < face_connectivity.size());
@@ -150,6 +150,7 @@ void Term::set_neighbour(const Handle<Entities const>& entities, const Uint elem
     if (cell_connectivity.connectivity()[face.idx][LEFT].comp == entities.get() &&
         cell_connectivity.connectivity()[face.idx][LEFT].idx == elem_idx)
     {
+      face_side = LEFT;
       cf3_assert(is_not_null(cell_connectivity.connectivity()[face.idx][RIGHT].comp))
       neighbour_entities = cell_connectivity.connectivity()[face.idx][RIGHT].comp->handle<Entities>();
       neighbour_elem_idx = cell_connectivity.connectivity()[face.idx][RIGHT].idx;
@@ -157,6 +158,7 @@ void Term::set_neighbour(const Handle<Entities const>& entities, const Uint elem
     }
     else
     {
+      face_side = RIGHT;
       neighbour_entities = cell_connectivity.connectivity()[face.idx][LEFT].comp->handle<Entities>();
       neighbour_elem_idx = cell_connectivity.connectivity()[face.idx][LEFT].idx;
       neighbour_face_nb = cell_connectivity.face_number()[face.idx][LEFT];

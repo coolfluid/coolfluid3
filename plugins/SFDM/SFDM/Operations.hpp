@@ -374,6 +374,57 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct SolutionPointFieldDyn : ElementCache
+{
+  typedef CacheT< SolutionPointFieldDyn > cache_type;
+  static std::string type_name() { return "SolutionPointFieldDyn"; }
+  SolutionPointFieldDyn (const std::string& name=type_name()) : ElementCache(name), field_in_sol_pts(nullptr) {}
+
+  ~SolutionPointFieldDyn()
+  {
+    if (is_not_null(field_in_sol_pts))
+      delete(field_in_sol_pts);
+  }
+
+  static void add_options(Cache& cache)
+  {
+    cache.options().add_option("field",common::URI());
+  }
+
+private:
+  virtual void compute_fixed_data()
+  {
+    field = cache->access_component(options().option("field").value<common::URI>())->handle<mesh::Field>();
+    space = field->field_group().space(*entities).handle<mesh::Space>();
+    sf = space->shape_function().handle<SFDM::ShapeFunction>();
+  }
+
+  virtual void compute_variable_data()
+  {
+    if (is_not_null(field_in_sol_pts))
+      delete(field_in_sol_pts);
+
+    field_in_sol_pts = new mesh::Field::View(field->view(space->indexes_for_element(idx)));
+  }
+
+public:
+  typedef boost::detail::multi_array::sub_array<Real, 1> field_t;
+  typedef boost::detail::multi_array::const_sub_array<Real, 1> const_field_t;
+
+  field_t operator[] (const Uint sol_pt)             { cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+  const field_t operator[] (const Uint sol_pt) const { cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+
+public:
+  // intrinsic state (not supposed to change)
+  Handle< mesh::Space const         > space;
+  Handle< SFDM::ShapeFunction const > sf;
+  Handle< mesh::Field > field;
+
+  // extrinsic state
+  mesh::Field::View*     field_in_sol_pts;
+};
+
+
 template <Uint NVAR,Uint NDIM>
 struct SolutionPointField : ElementCache
 {
@@ -412,8 +463,8 @@ public:
   typedef boost::detail::multi_array::sub_array<Real, 1> field_t;
   typedef boost::detail::multi_array::const_sub_array<Real, 1> const_field_t;
 
-  field_t operator[] (const Uint sol_pt)             { std::cout << "3" << std::endl; cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
-  const field_t operator[] (const Uint sol_pt) const { std::cout << "3" << std::endl; cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+  field_t operator[] (const Uint sol_pt)             { cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
+  const field_t operator[] (const Uint sol_pt) const { cf3_assert(is_not_null(field_in_sol_pts)); return (*field_in_sol_pts)[sol_pt]; }
 
 public:
   // intrinsic state (not supposed to change)

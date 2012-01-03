@@ -48,15 +48,15 @@ public: // functions
 
   virtual void execute() = 0;
   virtual void initialize() { link_fields(); }
-  virtual void set_face_entities(const mesh::Entities& entities) { m_entities = entities.handle<mesh::Entities>(); }
-  virtual void set_face_element(const Uint elem_idx) { m_elem_idx = elem_idx; }
+  virtual void set_face_entities(const mesh::Entities& face_entities) { m_face_entities = face_entities.handle<mesh::Entities>(); }
+  virtual void set_face_element(const Uint face_elem_idx) { m_face_elem_idx = face_elem_idx; }
   virtual void unset_face_element() {}
   void find_inner_cell(const Handle<mesh::Entities const>& face_entities, const Uint face_idx,
                      Handle<mesh::Entities const>& cell_entities, Uint& cell_idx, Uint& cell_face_nb);
 
   SFDM::SharedCaches& shared_caches() { return *m_shared_caches; }
-  Uint m_elem_idx;
-  Handle<mesh::Entities const> m_entities;
+  Uint m_face_elem_idx;
+  Handle<mesh::Entities const> m_face_entities;
   Handle<SFDM::SharedCaches> m_shared_caches;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////

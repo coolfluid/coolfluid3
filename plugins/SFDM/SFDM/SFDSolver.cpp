@@ -111,11 +111,12 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 
+  m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );
+
   m_domain_discretization= create_static_component< DomainDiscretization > ( DomainDiscretization::type_name() );
   m_iterative_solver->pre_update().add_link(*m_domain_discretization);
   m_iterative_solver->pre_update().create_component<ComputeUpdateCoefficient>("compute_time_step");
 
-  m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );
   m_iterative_solver->post_update().add_link(*m_boundary_conditions);
   m_iterative_solver->post_update().add_link(synchronize);
 }
@@ -131,6 +132,7 @@ SFDSolver::~SFDSolver()
 void SFDSolver::execute()
 {
   CFinfo << "Solving the amazing PDE's..."      << CFendl;
+  m_boundary_conditions->execute();
   m_time_stepping->execute();
   CFinfo << "Solving the amazing PDE's... done" << CFendl;
 }

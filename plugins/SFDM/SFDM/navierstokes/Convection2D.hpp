@@ -25,7 +25,7 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_navierstokes_API Convection2D : public ConvectiveTerm<4u,2u>
+class SFDM_navierstokes_API Convection2D : public ConvectiveTerm< ConvectiveTermPointData<4u,2u> >
 {
 private:
   typedef physics::NavierStokes::Cons2D PHYS;
@@ -56,22 +56,21 @@ public:
 
   virtual ~Convection2D() {}
 
-  virtual void compute_analytical_flux(const PHYS::MODEL::GeoV& unit_normal)
+  virtual void compute_analytical_flux(ConvectiveTermPointData<4u,2u>& data, const PHYS::MODEL::GeoV& unit_normal,
+                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
   {
-    PHYS::compute_properties(dummy_coords, flx_pt_solution->get()[flx_pt] , dummy_grads, p);
-    PHYS::flux(p, unit_normal, flx_pt_flux[flx_pt]);
+    PHYS::compute_properties(dummy_coords, data.solution , dummy_grads, p);
+    PHYS::flux(p, unit_normal, flux);
     PHYS::flux_jacobian_eigen_values(p, unit_normal, eigenvalues);
-    flx_pt_wave_speed[flx_pt][0] = eigenvalues.cwiseAbs().maxCoeff();
+    wave_speed = eigenvalues.cwiseAbs().maxCoeff();
   }
 
-  virtual void compute_numerical_flux(const PHYS::MODEL::GeoV& unit_normal)
+  virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
+                                      PHYS::MODEL::SolV& flux, Real& wave_speed)
   {
-    PHYS::MODEL::SolV& left  = flx_pt_solution->get()[flx_pt];
-    PHYS::MODEL::SolV& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-
     // Compute left and right properties
-    PHYS::compute_properties(dummy_coords,left,dummy_grads,p_left);
-    PHYS::compute_properties(dummy_coords,right,dummy_grads,p_right);
+    PHYS::compute_properties(dummy_coords,left.solution,dummy_grads,p_left);
+    PHYS::compute_properties(dummy_coords,right.solution,dummy_grads,p_right);
 
     // Compute the Roe averaged properties
     // Roe-average = standard average of the Roe-parameter vectors
@@ -89,9 +88,9 @@ public:
     PHYS::flux(p_right, unit_normal, flux_right);
 
     // flux = central flux - upwind flux
-    flx_pt_flux[flx_pt].noalias() = 0.5*(flux_left + flux_right);
-    flx_pt_flux[flx_pt].noalias() -= 0.5*abs_jacobian*(right-left);
-    flx_pt_wave_speed[flx_pt][0] = eigenvalues.cwiseAbs().maxCoeff();
+    flux.noalias() = 0.5*(flux_left + flux_right);
+    flux.noalias() -= 0.5*abs_jacobian*(right.solution-left.solution);
+    wave_speed = eigenvalues.cwiseAbs().maxCoeff();
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

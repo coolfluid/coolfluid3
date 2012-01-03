@@ -117,13 +117,14 @@ public: // functions
   virtual void set_entities(const mesh::Entities& entities) { m_entities = entities.handle<mesh::Entities>(); }
   virtual void set_element(const Uint elem_idx) { m_elem_idx = elem_idx; }
   virtual void unset_element() { }
-  void set_neighbour(const Handle<mesh::Entities const>& entities, const Uint elem_idx, const Uint face_nb,
-                     Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
-                     Handle<mesh::Entities const>& face_entities, Uint& face_idx);
+  void set_face(const Handle<mesh::Entities const>& entities, const Uint elem_idx, const Uint face_nb,
+                Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
+                Handle<mesh::Entities const>& face_entities, Uint& face_idx, Uint& face_side);
 
   SFDM::SharedCaches& shared_caches() { return *m_shared_caches; }
-  Uint m_elem_idx;
   Handle<mesh::Entities const> m_entities;
+  Uint m_elem_idx;
+  Uint m_face_nb;
   Handle<mesh::Field> m_term_field;
   Handle<mesh::Field> m_term_wave_speed_field;
   Handle<SFDM::SharedCaches> m_shared_caches;

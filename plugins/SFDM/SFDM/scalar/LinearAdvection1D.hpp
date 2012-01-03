@@ -20,7 +20,7 @@ namespace scalar {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_scalar_API LinearAdvection1D : public ConvectiveTerm<1u,1u>
+class SFDM_scalar_API LinearAdvection1D : public ConvectiveTerm< ConvectiveTermPointData<1u,1u> >
 {
 public:
   static std::string type_name() { return "LinearAdvection1D"; }
@@ -33,20 +33,18 @@ public:
   }
   virtual ~LinearAdvection1D() {}
 
-  virtual void compute_analytical_flux(const RealVector1& unit_normal)
+  virtual void compute_analytical_flux(ConvectiveTermPointData<1u,1u>& data, const RealVector1& unit_normal, RealVector1& flux, Real& wave_speed)
   {
     Real A = unit_normal[XX]*m_advection_speed[XX];
-    flx_pt_flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
+    flux = A*data.solution;
+    wave_speed = std::abs(A);
   }
 
-  virtual void compute_numerical_flux(const RealVector1& unit_normal)
+  virtual void compute_numerical_flux(ConvectiveTermPointData<1u,1u>& left, ConvectiveTermPointData<1u,1u>& right, const RealVector1& unit_normal, RealVector1& flux, Real& wave_speed)
   {
-    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
     Real A = m_advection_speed[XX]*unit_normal[XX];
-    flx_pt_flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
+    flux = 0.5 * A*(left.solution + right.solution) - 0.5 * std::abs(A)*(right.solution - left.solution);
+    wave_speed = std::abs(A);
   }
 
 private:
