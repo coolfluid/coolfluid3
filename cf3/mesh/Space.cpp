@@ -146,6 +146,7 @@ Connectivity::ConstRow Space::indexes_for_element(const Uint elem_idx) const
   }
   else
   {
+    cf3_assert(elem_idx<connectivity().size());
     return connectivity()[elem_idx];
   }
 }
