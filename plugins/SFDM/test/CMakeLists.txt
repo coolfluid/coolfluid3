@@ -28,13 +28,21 @@ coolfluid_add_test( UTEST      utest-sfdm-transformation
                     CPP        utest-sfdm-transformation.cpp
                     LIBS       coolfluid_sfdm )
 
-coolfluid_add_test( ATEST      atest-sfdm-shocktube-1d
-                    PYTHON     atest-sfdm-shocktube-1d.py
+coolfluid_add_test( ATEST      atest-sfdm-euler-shocktube-1d
+                    PYTHON     atest-sfdm-euler-shocktube-1d.py
                     LIBS       coolfluid_sfdm_navierstokes)
 
-coolfluid_add_test( ATEST      atest-sfdm-shocktube-2d
-                    PYTHON     atest-sfdm-shocktube-2d.py
+coolfluid_add_test( ATEST      atest-sfdm-euler-shocktube-2d
+                    PYTHON     atest-sfdm-euler-shocktube-2d.py
                     LIBS       coolfluid_sfdm_navierstokes)
+
+coolfluid_add_test( ATEST      atest-sfdm-euler-cylinder-2d
+                    PYTHON     atest-sfdm-euler-cylinder-2d.py
+                    LIBS       coolfluid_sfdm_navierstokes)
+
+coolfluid_add_test( ATEST      atest-sfdm-lineuler-accousticpulse-2d
+                    PYTHON     atest-sfdm-lineuler-accousticpulse-2d.py
+                    LIBS       coolfluid_sfdm_lineuler)
 
 #########################################################################
 
