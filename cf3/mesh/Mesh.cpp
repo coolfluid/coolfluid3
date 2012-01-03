@@ -243,11 +243,11 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
   options.add_option("file" , name() + ".msh" )
       .description("File to write" );
 
-  boost_foreach (Field& field, find_components_recursively<Field>(*this))
-  {
-    options.add_option(field.name(), false )
-        .description("Mark if field gets to be written");
-  }
+//  boost_foreach (Field& field, find_components_recursively<Field>(*this))
+//  {
+//    options.add_option(field.name(), false )
+//        .description("Mark if field gets to be written");
+//  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
