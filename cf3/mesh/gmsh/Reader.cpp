@@ -194,17 +194,19 @@ void Reader::get_file_positions()
            (m_nb_gmsh_elem_in_region[ir])[type] = 0;
       }
 
-      std::string tempstr;
       m_mesh_dimension = DIM_1D;
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
-        m_file >> m_region_list[ir].dim;
-        m_mesh_dimension = std::max(m_region_list[ir].dim,m_mesh_dimension);
-        m_file >> m_region_list[ir].index;
+        Uint phys_group_dimensionality;
+        Uint phys_group_index;
+        std::string phys_group_name;
+        m_file >> phys_group_dimensionality >> phys_group_index >> phys_group_name;
+        m_region_list[phys_group_index-1].dim=phys_group_dimensionality;
+        m_region_list[phys_group_index-1].index=phys_group_index;
         //The original name of the region in the mesh file has quotes, we want to strip them off
-        m_file >> tempstr;
-        m_region_list[ir].name = tempstr.substr(1,tempstr.length()-2);
-        m_region_list[ir].region = create_region(m_region_list[ir].name);
+        m_region_list[phys_group_index-1].name=phys_group_name.substr(1,phys_group_name.length()-2);
+        m_region_list[phys_group_index-1].region = create_region(m_region_list[phys_group_index-1].name);
+        m_mesh_dimension = std::max(m_region_list[phys_group_index-1].dim,m_mesh_dimension);
       }
     }
     else if (line.find(nodes)!=std::string::npos) {
