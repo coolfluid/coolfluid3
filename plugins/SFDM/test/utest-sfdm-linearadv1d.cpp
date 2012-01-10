@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   generate_mesh.options().configure_option("nb_cells",nb_cells);
   generate_mesh.options().configure_option("lengths",lengths);
   generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().configure_option("bdry",true);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
   solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
@@ -185,12 +185,8 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-#ifdef SANDBOX
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
   convection.options().configure_option("advection_speed",std::vector<Real>(1,2.));
-#else
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
-#endif
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
@@ -212,15 +208,13 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time", 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , cfl_matteo );
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
 
   Field& residual_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::residual()))->handle<Field>();
   Field& wave_speed_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::wave_speed()))->handle<Field>();
-
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
@@ -268,10 +262,8 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   fields.push_back(solution_field.field_group().field("solution_backup").uri());
   fields.push_back(solution_field.field_group().field("wave_speed").uri());
   fields.push_back(solution_field.field_group().field("update_coefficient").uri());
-#ifdef SANDBOX
   fields.push_back(solution_field.field_group().field("convection").uri());
   fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
-#endif
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -355,18 +347,14 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-#ifdef SANDBOX
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
   std::vector<Real> advection_speed(2,0.);
   advection_speed[XX]=1;
   convection.options().configure_option("advection_speed",advection_speed);
-  // BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCConstant","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  // BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCConstant<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
   // bc.options().configure_option("constants",std::vector<Real>(1,.5));
-  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCFunction","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.SFDM.BCFunction<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
   bc.options().configure_option("functions",std::vector<std::string>(1,"sin(y*2*pi/10)"));
-#else
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
-#endif
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
@@ -390,8 +378,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/3.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , cfl_matteo );
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation

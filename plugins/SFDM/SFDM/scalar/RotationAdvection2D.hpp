@@ -40,53 +40,24 @@ public:
 
   virtual ~RotationAdvection2D() {}
 
-  virtual void initialize()
+  virtual void compute_analytical_flux(ConvectiveTermPointData<NEQS,NDIM>& data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
   {
-    ConvectiveTerm::initialize();
-    flx_pt_coordinates = shared_caches().get_cache< FluxPointCoordinates<2u> >();
-    flx_pt_coordinates->options().configure_option("space",solution_field().space());
+    Real A = m_omega*(unit_normal[XX]*(data.coord[YY]-m_rotation_centre[YY])-unit_normal[YY]*(data.coord[XX]-m_rotation_centre[XX]));
+    flux = A*data.solution;
+    wave_speed = std::abs(A);
   }
 
-  virtual void set_entities(const mesh::Entities& entities)
+  virtual void compute_numerical_flux(ConvectiveTermPointData<NEQS,NDIM>& left, ConvectiveTermPointData<NEQS,NDIM>& right, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
   {
-    ConvectiveTerm::set_entities(entities);
-    flx_pt_coordinates->cache(m_entities);
-  }
-
-  virtual void set_element(const Uint elem_idx)
-  {
-    ConvectiveTerm::set_element(elem_idx);
-    flx_pt_coordinates->get().compute_element(m_elem_idx);
-  }
-
-//  virtual void compute_analytical_flux(const RealVector2& unit_normal)
-//  {
-//    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
-//    flx_pt_flux[flx_pt] = A*flx_pt_solution->get()[flx_pt];
-//    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
-//  }
-
-//  virtual void compute_numerical_flux(const RealVector2& unit_normal)
-//  {
-//    RealVector1& left  = flx_pt_solution->get()[flx_pt];
-//    RealVector1& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
-//    Real A = m_omega*(unit_normal[XX]*(flx_pt_coordinates->get()[flx_pt][YY]-m_rotation_centre[YY])-unit_normal[YY]*(flx_pt_coordinates->get()[flx_pt][XX]-m_rotation_centre[XX]));
-//    flx_pt_flux[flx_pt] = 0.5 * A*(left + right) - 0.5 * std::abs(A)*(right - left);
-//    flx_pt_wave_speed[flx_pt][0] = std::abs(A);
-//  }
-
-  virtual void unset_element()
-  {
-    ConvectiveTerm::unset_element();
-    flx_pt_coordinates->get().unlock();
+    Real A = m_omega*(unit_normal[XX]*(left.coord[YY]-m_rotation_centre[YY])-unit_normal[YY]*(left.coord[XX]-m_rotation_centre[XX]));
+    flux = 0.5 * A*(left.solution + right.solution) - 0.5 * std::abs(A)*(right.solution - left.solution);
+    wave_speed = std::abs(A);
   }
 
 private:
 
   Real m_omega;
   std::vector<Real> m_rotation_centre;
-
-  Handle< CacheT< FluxPointCoordinates<2u> > > flx_pt_coordinates;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

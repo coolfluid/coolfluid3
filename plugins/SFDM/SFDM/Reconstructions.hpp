@@ -89,6 +89,7 @@ struct ReconstructToFluxPoints
 
   void build_coefficients(const Handle<mesh::ShapeFunction const>& from_sf, const Handle<SFDM::ShapeFunction const>& sf)
   {
+    cf3_assert(sf);
     m_reconstruct.resize(sf->nb_flx_pts());
     for (Uint flx_pt=0; flx_pt<sf->nb_flx_pts(); ++flx_pt)
     {

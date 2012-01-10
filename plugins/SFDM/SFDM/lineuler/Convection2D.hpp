@@ -65,39 +65,42 @@ public:
 
   virtual ~Convection2D() {}
 
-//  virtual void compute_analytical_flux(const PHYS::MODEL::GeoV& unit_normal)
-//  {
-//    PHYS::compute_properties(dummy_coords, flx_pt_solution->get()[flx_pt] , dummy_grads, p);
-//    PHYS::flux(p, unit_normal, flx_pt_flux[flx_pt]);
-//    PHYS::flux_jacobian_eigen_values(p, unit_normal, eigenvalues);
-//    flx_pt_wave_speed[flx_pt][0] = eigenvalues.cwiseAbs().maxCoeff();
-//  }
 
-//  virtual void compute_numerical_flux(const PHYS::MODEL::GeoV& unit_normal)
-//  {
-//    PHYS::MODEL::SolV& left  = flx_pt_solution->get()[flx_pt];
-//    PHYS::MODEL::SolV& right = flx_pt_neighbour_solution->get()[neighbour_flx_pt];
+  virtual void compute_analytical_flux(ConvectiveTermPointData<4u,2u>& data, const PHYS::MODEL::GeoV& unit_normal,
+                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
+  {
+    PHYS::compute_properties(data.coord, data.solution , dummy_grads, p);
+    PHYS::flux(p, unit_normal, flux);
+    PHYS::flux_jacobian_eigen_values(p, unit_normal, eigenvalues);
+    wave_speed = eigenvalues.cwiseAbs().maxCoeff();
+  }
 
-//    // Compute left and right fluxes
-//    PHYS::compute_properties(dummy_coords, left, dummy_grads, p);
-//    PHYS::flux(p , unit_normal, flux_left);
+  virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
+                                      PHYS::MODEL::SolV& flux, Real& wave_speed)
+  {
+    PHYS::compute_properties(left.coord,left.solution,dummy_grads,p_left);
+    PHYS::compute_properties(right.coord,right.solution,dummy_grads,p_right);
 
-//    PHYS::compute_properties(dummy_coords, right, dummy_grads, p);
-//    PHYS::flux(p , unit_normal, flux_right);
+    // Compute left and right fluxes
+    PHYS::compute_properties(left.coord, left.solution, dummy_grads, p);
+    PHYS::flux(p , unit_normal, flux_left);
 
-//    // Compute the averaged properties
-//    sol_avg.noalias() = 0.5*(left+right);
-//    PHYS::compute_properties(dummy_coords, sol_avg, dummy_grads, p);
+    PHYS::compute_properties(left.coord, right.solution, dummy_grads, p);
+    PHYS::flux(p , unit_normal, flux_right);
 
-//    // Compute absolute jacobian using averaged properties
-//    PHYS::flux_jacobian_eigen_structure(p,unit_normal,right_eigenvectors,left_eigenvectors,eigenvalues);
-//    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    // Compute the averaged properties
+    sol_avg.noalias() = 0.5*(left.solution+right.solution);
+    PHYS::compute_properties(left.coord, sol_avg, dummy_grads, p);
 
-//    // flux = central flux - upwind flux
-//    flx_pt_flux[flx_pt].noalias() = 0.5*(flux_left + flux_right);
-//    flx_pt_flux[flx_pt].noalias() -= 0.5*abs_jacobian*(right-left);
-//    flx_pt_wave_speed[flx_pt][0] = eigenvalues.cwiseAbs().maxCoeff();
-//  }
+    // Compute absolute jacobian using averaged properties
+    PHYS::flux_jacobian_eigen_structure(p,unit_normal,right_eigenvectors,left_eigenvectors,eigenvalues);
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+
+    // flux = central flux - upwind flux
+    flux.noalias() = 0.5*(flux_left + flux_right);
+    flux.noalias() -= 0.5*abs_jacobian*(right.solution-left.solution);
+    wave_speed = eigenvalues.cwiseAbs().maxCoeff();
+  }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:

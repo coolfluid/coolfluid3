@@ -57,8 +57,6 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
 
 void PrepareMesh::execute()
 {
-  std::cout << mesh().tree() << std::endl;
-
   // configuration of all solver components.
   // This component and its children should be part of it.
   solver().configure_option_recursively(SFDM::Tags::solution_order(),solver().options().option(SFDM::Tags::solution_order()).value<Uint>());

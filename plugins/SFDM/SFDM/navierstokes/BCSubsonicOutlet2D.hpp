@@ -32,15 +32,14 @@ public:
   BCSubsonicOutlet2D(const std::string& name) : BCWeak(name)
   {
     m_p = 101300.;
-    m_gamma = 1.4;
-    m_gamma_minus_1 = m_gamma-1.;
     options().add_option("p",m_p).link_to(&m_p);
-    options().add_option("gamma",m_gamma).attach_trigger( boost::bind( &BCSubsonicOutlet2D::configure_gamma , this));
   }
   virtual ~BCSubsonicOutlet2D() {}
-  virtual void configure_gamma()
+
+  virtual void initialize()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    BCWeak::initialize();
+    m_gamma = physical_model().options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
@@ -69,6 +68,7 @@ private: // data
   Real m_v_inner;
   Real m_rho_inner;
   Real m_uuvv_inner;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iomanip>
+
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
@@ -13,6 +15,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
 #include "common/XML/SignalOptions.hpp"
+
+#include "math/Consts.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshMetadata.hpp"
@@ -47,9 +51,14 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 {
   mark_basic();
 
-  // properties
+ // properties
 
   properties().add_property( "iteration", Uint(0) );
+
+  options().add_option("max_iteration",math::Consts::uint_max());
+  options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this));
+  parse_cfl();
+  options().add_option("time_accurate",true);
 
   // static components
 
@@ -61,11 +70,27 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
 
-  // dyanmic components
+  // dynamic components
 
 //  CCriterionMaxIterations& maxiter =
 //      create_component<CCriterionMaxIterations>( "MaxIterations" );
+
   create_component<CCriterionTime>( "EndTime" );
+}
+
+void TimeStepping::parse_cfl()
+{
+  m_cfl.Parse(options().option("cfl").value_str(),"i,t");
+
+  if ( m_cfl.GetParseErrorType() !=  FunctionParser::FP_NO_ERROR )
+  {
+    std::string msg("ParseError in parsing cfl number: ");
+    msg += " Error [" +std::string(m_cfl.ErrorMsg()) + "]";
+    msg += " Function [" + options().option("cfl").value_str() + "]";
+    msg += " Vars: [ i, t ]";
+    throw common::ParsingFailed (FromHere(),msg);
+  }
+
 }
 
 bool TimeStepping::stop_condition()
@@ -83,8 +108,8 @@ bool TimeStepping::stop_condition()
     return true; // stop
   }
 
-//  if (properties().value<Uint>("iteration")>1)
-//    return true; // stop
+  if (properties().value<Uint>("iteration") > options().option("max_iteration").value<Uint>())
+    return true; // stop
 
   return finish;
 }
@@ -101,6 +126,14 @@ void TimeStepping::execute()
   while( ! stop_condition() ) // time loop
   {
     // (1) the pre actions - pre-process, user defined actions, etc
+
+    solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option(SFDM::Tags::time(),m_time);
+    solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("time_accurate",options().option("time_accurate").value<bool>());
+    std::vector<Real> vars(2);
+    vars[0] = properties().value<Uint>("iteration");
+    vars[1] = m_time->current_time();
+    Real cfl = m_cfl.Eval(&vars[0]);
+    solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("cfl",cfl);
 
     m_pre_actions->execute();
 
@@ -126,7 +159,12 @@ void TimeStepping::execute()
     //raise_timestep_done();
 
     Real norm = boost::any_cast<Real>(solver().handle<SFDSolver>()->actions().get_child(Tags::L2norm())->properties().property("norm"));
-    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]  L2(rhs) ["<<norm<<"]" << CFendl;
+
+    if (options().option("time_accurate").value<bool>())
+      CFinfo << "iter [" << std::setw(4) << k << "]  cfl [" << std::setw(8) << cfl<< "]  time [" << std::setw(8) << m_time->current_time() << "]  dt ["<< std::setw(8) << m_time->dt()<<"]  L2(rhs) ["<< std::setw(8) << norm<<"]" << CFendl;
+    else
+      CFinfo << "iter [" << std::setw(4) << k << "]  cfl [" << std::setw(8) << cfl<< "]  L2(rhs) [" << std::setw(8) << norm << "]" << CFendl;
+
 
   }
 }

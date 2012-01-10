@@ -62,7 +62,6 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
   m_terms = create_static_component<ActionDirector>("Terms");
 }
 
-#ifdef SANDBOX
 void DomainDiscretization::execute()
 {
   Field& residual = *follow_link(solver().field_manager().get_child(SFDM::Tags::residual()))->handle<Field>();
@@ -98,17 +97,6 @@ void DomainDiscretization::execute()
     }
   }
 }
-#else
-void DomainDiscretization::execute()
-{
-//  CFinfo << "[SFDM] applying domain discretization" << CFendl;
-
-  // compute first the cell terms, since they may store something for faces to use
-
-  //CFinfo << "  terms()" << CFendl;
-  m_terms->execute();
-}
-#endif
 
 Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::string& name,

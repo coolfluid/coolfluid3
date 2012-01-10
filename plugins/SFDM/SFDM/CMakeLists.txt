@@ -5,18 +5,12 @@ list( APPEND coolfluid_sfdm_files
   BCConstant.cpp
   BCFunction.hpp
   BCFunction.cpp
-  BCDirichlet.hpp
-  BCDirichlet.cpp
-  BCStrong.hpp
-  BCStrong.cpp
   BCWeak.hpp
   BCWeak.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
-  Convection.hpp
-  Convection.cpp
   ConvectiveTerm.hpp
   ConvectiveTerm.cpp
   CreateSFDFields.hpp
@@ -52,7 +46,7 @@ list( APPEND coolfluid_sfdm_files
   UpdateSolution.cpp
 )
 
-list( APPEND coolfluid_sfdm_cflibs coolfluid_common coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_physics coolfluid_riemannsolvers)
+list( APPEND coolfluid_sfdm_cflibs coolfluid_common coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_physics coolfluid_riemannsolvers coolfluid_mesh_lagrangep2)
 
 coolfluid_add_library( coolfluid_sfdm )
 

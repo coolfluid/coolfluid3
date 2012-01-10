@@ -143,8 +143,6 @@ public: // functions
 
   mesh::Field& delta_field()                      { return *m_delta; }
 
-  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
-
   physics::Variables& solution_vars()             { return  *m_solution_vars; }
 
   //@} END ACCESSORS
@@ -156,14 +154,6 @@ protected: // function
 private: // function
 
   void trigger_physical_model();
-
-  void allocate_cache();
-
-protected:
-
-  Flyweight create_flyweight(const mesh::Entities& entities, const Uint element_idx=0);
-  Flyweight create_flyweight(const mesh::Entity& entity);
-  std::vector< boost::shared_ptr<Flyweight> > create_flyweight(const mesh::Face2Cell& face);
 
 protected: // data
 

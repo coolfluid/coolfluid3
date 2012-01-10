@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include "SFDM/BCStrong.hpp"
+#include "SFDM/BCWeak.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,13 +21,14 @@ namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API BCFunction : public BCStrong
+template <Uint NEQS, Uint NDIM>
+class BCFunction : public BCWeak< BCPointData<NEQS,NDIM> >
 {
 public:
-  static std::string type_name() { return "BCFunction"; }
-  BCFunction(const std::string& name) : BCStrong(name)
+  static std::string type_name() { return "BCFunction<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
+  BCFunction(const std::string& name) : BCWeak<BCPointData<NEQS,NDIM> >(name)
   {
-    options().add_option("functions", std::vector<std::string>())
+    common::Component::options().add_option("functions", std::vector<std::string>())
         .description("math function applied as boundary condition (vars x,y,z)")
         .pretty_name("Functions")
         .attach_trigger ( boost::bind ( &BCFunction::config_function, this ) )
@@ -39,41 +40,21 @@ public:
 
   void config_function()
   {
-    m_functions.functions( options()["functions"].value<std::vector<std::string> >() );
+    m_functions.functions( common::Component::options()["functions"].template value<std::vector<std::string> >() );
     m_functions.parse();
   }
 
   virtual ~BCFunction() {}
 
-  virtual void compute_solution()
+  virtual void compute_solution(const BCPointData<NEQS,NDIM>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
   {
-    for (Uint d=0; d<flx_pt_coordinates->get()[cell_flx_pt].size(); ++d)
-      params[d] = flx_pt_coordinates->get()[cell_flx_pt][d];
-    m_functions.evaluate(params,flx_pt_solution->get()[cell_flx_pt]);
-  }
-
-  virtual void initialize()
-  {
-    BCStrong::initialize();
-    flx_pt_coordinates = shared_caches().get_cache<FluxPointCoordinatesDyn>();
-    flx_pt_coordinates->options().configure_option("space",solution_field().space());
-  }
-
-  virtual void set_inner_cell()
-  {
-    BCStrong::set_inner_cell();
-    flx_pt_coordinates->cache(cell_entities,cell_idx);
-  }
-
-  virtual void unset_inner_cell()
-  {
-    BCStrong::unset_inner_cell();
-    flx_pt_coordinates->get().unlock();
+    for (Uint d=0; d<NDIM; ++d)
+      params[d] = inner_cell_data.coord[d];
+    m_functions.evaluate(params,boundary_face_solution);
   }
 
 private:
 
-  Handle< CacheT< FluxPointCoordinatesDyn > > flx_pt_coordinates;
   math::VectorialFunction  m_functions;
   std::vector<Real> params;
 };

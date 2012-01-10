@@ -38,6 +38,7 @@ struct BCPointData
   enum { _neqs = NEQS }; ///< number of independent variables or equations
 
   Eigen::Matrix<Real,NEQS,1> solution;
+  Eigen::Matrix<Real,NDIM,1> coord;
 };
 
 /// @author Willem Deconinck
@@ -84,6 +85,11 @@ protected: // configuration
     inner_cell_face_data.resize(face_elem->get().sf->nb_nodes());
     for(Uint face_pt=0; face_pt<inner_cell_face_data.size(); ++face_pt)
       inner_cell_face_data[face_pt] = boost::shared_ptr<POINTDATA>(new POINTDATA);
+
+    boundary_face_data.resize(face_elem->get().sf->nb_nodes());
+    for(Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
+      boundary_face_data[face_pt] = boost::shared_ptr<POINTDATA>(new POINTDATA);
+
   }
 
   virtual void set_face_element(const Uint face_elem_idx)
@@ -127,6 +133,66 @@ protected: // configuration
     {
       reconstruct_flx_pt_data(inner_cell->get(),inner_cell_face_pt_idx[face_pt],*inner_cell_face_data[face_pt]);
     }
+
+    // boundary face data
+    for (Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
+    {
+//        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx);
+//        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[right_flx_pt_idx[face_pt]] << "  ---> " ;
+
+      boundary_face_pt_idx[face_pt] = face_pt;
+
+
+      mesh::Field::View boundary_face_pt_solution = solution_field().view(face_elem->get().space->indexes_for_element(face_elem->get().idx));
+      for (Uint v=0; v<NEQS; ++v)
+        boundary_face_data[face_pt]->solution[v] = boundary_face_pt_solution[face_pt][v];
+      boundary_face_data[face_pt]->coord = face_elem->get().space->get_coordinates(face_elem->get().idx).row(face_pt);
+    }
+
+
+    boost::shared_ptr<POINTDATA> tmp_data;
+    Uint tmp_idx;
+    for (Uint face_pt=0; face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++face_pt)
+    {
+      Uint bdry_face_pt=0;
+      bool matched=false;
+      for (; bdry_face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++bdry_face_pt)
+      {
+//        RealMatrix coords = face_elem->get().space->get_coordinates(face_elem->get().idx);
+//        cf3_assert(bdry_face_pt<coords.rows());
+//        const RealVector2& coord = coords.row(bdry_face_pt);
+        bool m=true;
+        for (Uint d=0; d<NDIM; ++d)
+        {
+          m = m && ( std::abs(boundary_face_data[bdry_face_pt]->coord[d] - inner_cell_face_data[face_pt]->coord[d]) < 20*math::Consts::eps() );
+        }
+        if ( m )
+        {
+          matched=true;
+          break;
+        }
+      }
+      if (!matched)
+      {
+        std::cout << face_elem->get().entities->uri() << "["<<face_elem->get().idx << "] boundary_face_data[0]->coord = " << boundary_face_data[0]->coord.transpose() << std::endl;
+        std::cout << inner_cell->get().entities->uri() << "["<<inner_cell->get().idx << "] inner_cell_face_data[0]->coord = " << inner_cell_face_data[0]->coord.transpose() << std::endl;
+      }
+      cf3_assert(matched);
+
+      tmp_data=boundary_face_data[face_pt];
+      tmp_idx=boundary_face_pt_idx[face_pt];
+      boundary_face_data[face_pt]=boundary_face_data[bdry_face_pt];
+      boundary_face_pt_idx[face_pt]=boundary_face_pt_idx[bdry_face_pt];
+      boundary_face_data[bdry_face_pt]=tmp_data;
+      boundary_face_pt_idx[bdry_face_pt]=tmp_idx;
+    }
+
+//    for (Uint face_pt=0; face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++face_pt)
+//    {
+//      cf3_assert(inner_cell_face_data[face_pt]->coord == boundary_face_data[face_pt]->coord);
+//    }
+
+
 //    std::cout << "check reconstruction:" << std::endl;
 //    for (Uint face_pt=0; face_pt<inner_cell_face_pt_idx.size(); ++face_pt)
 //    {
@@ -138,12 +204,9 @@ protected: // configuration
   virtual void reconstruct_flx_pt_data(const SFDElement& elem, const Uint flx_pt, POINTDATA& point_data )
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
-
-    ReconstructToFluxPoints reconstruct;
-    reconstruct.build_coefficients(elem.sf);
-    reconstruct[flx_pt](sol_pt_solution,point_data.solution);
-
-//    std::cout << "reconstruct \n" << common::to_str(sol_pt_solution) << "   to flx_pt " << flx_pt << "\n" << point_data.solution.transpose() << std::endl;
+    elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),point_data.coord);
+//    std::cout << "reconstruct \n" << elem.entities->get_coordinates(elem.idx) << "   to flx_pt " << flx_pt << "\n" << point_data.coord.transpose() << std::endl;
   }
 
 

@@ -82,18 +82,22 @@ public:
   static std::string type_name() { return "BCSubsonicInletTtPtAlpha2D"; }
   BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak(name)
   {
-    m_Tt=273.15 + 25;
-    options().add_option("Tt",m_Tt).link_to(&m_Tt);
-    m_Pt=100000;
-    options().add_option("Pt",m_Pt).link_to(&m_Pt);
-    m_alpha=0.;
-    options().add_option("alpha",m_alpha).link_to(&m_alpha);
-
-    m_gamma=1.4;
-    m_gamma_minus_1=m_gamma-1.;
-    m_R=287.05;
+    m_Tt=273.15 + 25; // 25 degrees Celcius
+    options().add_option("Tt",m_Tt).description("Total Temperature").link_to(&m_Tt);
+    m_Pt=100000; // 1 bar
+    options().add_option("Pt",m_Pt).description("Total Pressure").link_to(&m_Pt);
+    m_alpha=0.; // 0 rad
+    options().add_option("alpha",m_alpha).description("flow angle in rad").link_to(&m_alpha);
   }
   virtual ~BCSubsonicInletTtPtAlpha2D() {}
+
+  virtual void initialize()
+  {
+    BCWeak::initialize();
+    m_gamma = physical_model().options().option("gamma").value<Real>();
+    m_gamma_minus_1 = m_gamma - 1.;
+    m_R = physical_model().options().option("R").value<Real>();
+  }
 
   virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
   {

@@ -15,7 +15,27 @@ namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCFunction,BC,LibSFDM> bcfunction_builder;
+// Commented out unnecessary builders for now
+
+common::ComponentBuilder<BCFunction<1u,1u>,BC,LibSFDM> bcfunction_1eq_1d_builder;
+common::ComponentBuilder<BCFunction<1u,2u>,BC,LibSFDM> bcfunction_1eq_2d_builder;
+//common::ComponentBuilder<BCFunction<1u,3u>,BC,LibSFDM> bcfunction_1eq_3d_builder;
+
+//common::ComponentBuilder<BCFunction<2u,1u>,BC,LibSFDM> bcfunction_2eq_1d_builder;
+//common::ComponentBuilder<BCFunction<2u,2u>,BC,LibSFDM> bcfunction_2eq_2d_builder;
+//common::ComponentBuilder<BCFunction<2u,3u>,BC,LibSFDM> bcfunction_2eq_3d_builder;
+
+common::ComponentBuilder<BCFunction<3u,1u>,BC,LibSFDM> bcfunction_3eq_1d_builder;
+//common::ComponentBuilder<BCFunction<3u,2u>,BC,LibSFDM> bcfunction_3eq_2d_builder;
+//common::ComponentBuilder<BCFunction<3u,3u>,BC,LibSFDM> bcfunction_3eq_3d_builder;
+
+//common::ComponentBuilder<BCFunction<4u,1u>,BC,LibSFDM> bcfunction_4eq_1d_builder;
+common::ComponentBuilder<BCFunction<4u,2u>,BC,LibSFDM> bcfunction_4eq_2d_builder;
+//common::ComponentBuilder<BCFunction<4u,3u>,BC,LibSFDM> bcfunction_4eq_3d_builder;
+
+//common::ComponentBuilder<BCFunction<5u,1u>,BC,LibSFDM> bcfunction_5eq_1d_builder;
+//common::ComponentBuilder<BCFunction<5u,2u>,BC,LibSFDM> bcfunction_5eq_2d_builder;
+//common::ComponentBuilder<BCFunction<5u,3u>,BC,LibSFDM> bcfunction_5eq_3d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 

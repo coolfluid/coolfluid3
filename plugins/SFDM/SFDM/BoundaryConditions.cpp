@@ -87,7 +87,7 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
                                                    const std::string& name,
                                                    const std::vector<URI>& regions )
 {
-  CFinfo << "Creating BC   " << name << "(" << type << ")" << CFendl;
+  CFinfo << "Creating BC   " << name << "(" << type << ") ... " << CFendl;
   Handle< BC > bc = m_bcs->create_component<BC>(name, type);
 
   if (regions.size() == 0)

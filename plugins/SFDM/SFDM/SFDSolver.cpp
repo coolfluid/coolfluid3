@@ -22,7 +22,7 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
-#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
+//#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
 #include "solver/actions/CSynchronizeFields.hpp"
 #include "solver/actions/CComputeLNorm.hpp"
@@ -76,11 +76,11 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
       .mark_basic()
       .link_to(&m_mesh);
 
-  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
-    .description("The component to solve the Rieman Problem on cell-faces")
-    .pretty_name("Riemann Solver")
-    .mark_basic()
-    .attach_trigger ( boost::bind ( &SFDSolver::build_riemann_solver, this) );
+//  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
+//    .description("The component to solve the Rieman Problem on cell-faces")
+//    .pretty_name("Riemann Solver")
+//    .mark_basic()
+//    .attach_trigger ( boost::bind ( &SFDSolver::build_riemann_solver, this) );
  options().option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
   m_shared_caches = create_component<SharedCaches>(Tags::shared_caches());
@@ -91,6 +91,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   L2norm.options().configure_option("order",2u);
   L2norm.options().configure_option("scale",true);
   L2norm.options().configure_option("field",URI("../../FieldManager/")/Tags::residual());
+  ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
 
   // create the parallel synchronization action
   CSynchronizeFields& synchronize = *m_actions->create_component<CSynchronizeFields>("Synchronize");
@@ -107,7 +108,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   m_iterative_solver = m_time_stepping->create_component< IterativeSolver >( IterativeSolver::type_name() );
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
-  conditional->create_component("milestone_dt","cf3.solver.actions.CCriterionMilestoneTime");
+  conditional->create_component("time_step","cf3.solver.actions.CCriterionMilestoneTime");
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 
@@ -115,7 +116,6 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
 
   m_domain_discretization= create_static_component< DomainDiscretization > ( DomainDiscretization::type_name() );
   m_iterative_solver->pre_update().add_link(*m_domain_discretization);
-  m_iterative_solver->pre_update().create_component<ComputeUpdateCoefficient>("compute_time_step");
 
   m_iterative_solver->post_update().add_link(*m_boundary_conditions);
   m_iterative_solver->post_update().add_link(synchronize);
@@ -174,8 +174,6 @@ void SFDSolver::config_physics()
       child.configure_option_recursively( SFDM::Tags::physical_model(), pm.handle<Component>() );
       child.configure_option_recursively( SFDM::Tags::solver(), handle<Component>() );
     }
-
-    build_riemann_solver();
   }
   catch(SetupError&)
   {
@@ -224,13 +222,13 @@ void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFDSolver::build_riemann_solver()
-{
-  if (is_not_null(m_riemann_solver))
-    remove_component(*m_riemann_solver);
-  m_riemann_solver = create_component("riemann_solver",options().option("riemann_solver").value<std::string>())->handle<RiemannSolvers::RiemannSolver>();
-  m_riemann_solver->options().configure_option("physical_model",physics().handle<PhysModel>());
-}
+//void SFDSolver::build_riemann_solver()
+//{
+//  if (is_not_null(m_riemann_solver))
+//    remove_component(*m_riemann_solver);
+//  m_riemann_solver = create_component("riemann_solver",options().option("riemann_solver").value<std::string>())->handle<RiemannSolvers::RiemannSolver>();
+//  m_riemann_solver->options().configure_option("physical_model",physics().handle<PhysModel>());
+//}
 
 /////////////////////////////////////////////////////////////////////////////
 

@@ -9,7 +9,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "SFDM/BCStrong.hpp"
+#include "common/StringConversion.hpp"
+#include "common/OptionList.hpp"
+#include "common/Option.hpp"
+#include "common/Component.hpp"
+#include "SFDM/BCWeak.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,22 +22,26 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API BCConstant : public BCStrong
+template <Uint NEQS, Uint NDIM>
+class BCConstant : public BCWeak< BCPointData<NEQS,NDIM> >
 {
 public:
-  static std::string type_name() { return "BCConstant"; }
-  BCConstant(const std::string& name) : BCStrong(name)
+  static std::string type_name() { return "BCConstant<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
+
+  BCConstant(const std::string& name) :
+    BCWeak< BCPointData<NEQS,NDIM> >(name)
   {
-    options().add_option("constants",std::vector<Real>())
+    common::Component::options().add_option("constants",std::vector<Real>())
         .link_to(&m_constants);
   }
+
   virtual ~BCConstant() {}
 
-  virtual void compute_solution()
+  virtual void compute_solution(const BCPointData<NEQS,NDIM>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
   {
-    for (Uint v=0; v<flx_pt_solution->get()[cell_flx_pt].size(); ++v)
+    for (Uint v=0; v<NEQS; ++v)
     {
-      flx_pt_solution->get()[cell_flx_pt][v] = m_constants[v];
+      boundary_face_solution[v] = m_constants[v];
     }
   }
 

@@ -2,17 +2,10 @@
 
 #########################################################################
 
-coolfluid_add_test( UTEST      utest-sfdm-solver
-                    CPP        utest-sfdm-solver.cpp
-                               DummyTerm.hpp DummyTerm.cpp
-                    PLUGINS    Physics RiemannSolvers
-                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_mesh_vtkxml coolfluid_physics_navierstokes coolfluid_physics_lineuler
-                    MPI        1 )
-
 coolfluid_add_test( UTEST      utest-sfdm-linearadv1d
                     CPP        utest-sfdm-linearadv1d.cpp
                     PLUGINS    Physics RiemannSolvers
-                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
+                    LIBS       coolfluid_sfdm_scalar coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
                     MPI        2 )
 
 coolfluid_add_test( UTEST      utest-sfdm-lagrange

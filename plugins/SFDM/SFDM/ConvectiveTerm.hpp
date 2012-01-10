@@ -14,6 +14,8 @@
 #include "math/MatrixTypes.hpp"
 #include "math/VectorialFunction.hpp"
 
+#include "mesh/Connectivity.hpp"
+
 #include "SFDM/Tags.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/ShapeFunction.hpp"
@@ -35,6 +37,7 @@ struct ConvectiveTermPointData
   enum { _neqs = NEQS }; ///< number of independent variables or equations
 
   Eigen::Matrix<Real,NEQS,1> solution;
+  Eigen::Matrix<Real,NDIM,1> coord;
 };
 
 /// A proposed base class for simple convective terms.
@@ -65,14 +68,8 @@ private: // functions
 
   // Flux evaluations
   // ----------------
-  virtual void compute_analytical_flux(PHYS& data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
-  {
-    throw common::NotImplemented(FromHere(),"");
-  }
-  virtual void compute_numerical_flux(PHYS& left, PHYS& right, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
-  {
-    throw common::NotImplemented(FromHere(),"");
-  }
+  virtual void compute_analytical_flux(PHYS& data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed) = 0;
+  virtual void compute_numerical_flux(PHYS& left, PHYS& right, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed) = 0;
 
 protected: // configuration
 
@@ -136,23 +133,25 @@ protected: // configuration
   virtual void reconstruct_flx_pt_data(const SFDElement& elem, const Uint flx_pt, PHYS& phys_data )
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
-
-    ReconstructToFluxPoints reconstruct;
-    reconstruct.build_coefficients(elem.sf);
-    reconstruct[flx_pt](sol_pt_solution,phys_data.solution);
+    elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,phys_data.solution);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),phys_data.coord);
   }
 
   virtual void compute_face()
   {
+
     Uint face_side;
     set_face(m_entities,m_elem_idx,m_face_nb,
              neighbour_entities,neighbour_elem_idx,neighbour_face_nb,
              face_entities,face_idx,face_side);
 
+
     left_flx_pt_idx = elem->get().sf->face_flx_pts(m_face_nb);
+
 
     for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       reconstruct_flx_pt_data(elem->get(),left_flx_pt_idx[face_pt],*left_face_data[face_pt]);
+
 
     if ( is_not_null(neighbour_entities) )
     {
@@ -165,38 +164,119 @@ protected: // configuration
 
       Uint nb_neighbour_face_pts = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb).size();
       for(Uint face_pt=0; face_pt<nb_neighbour_face_pts; ++face_pt)
+      {
         right_flx_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
+
+      }
       for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
         reconstruct_flx_pt_data(neighbour_elem->get(),right_flx_pt_idx[face_pt],*right_face_data[face_pt]);
     }
     else
     {
       neighbour_elem->cache(face_entities,face_idx);
-      for(Uint face_pt=0; face_pt<neighbour_elem->get().sf->nb_sol_pts(); ++face_pt)
+
+      if (face_entities->has_tag(mesh::Tags::outer_faces())) // no data can be set
+      {
+        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+        {
+          right_face_data[face_pt]->solution = left_face_data[face_pt]->solution;
+          right_face_data[face_pt]->coord = left_face_data[face_pt]->coord;
+          right_flx_pt_idx[face_pt]=left_flx_pt_idx[face_pt];
+        }
+      }
+      else
+      {
+        for (Uint face_pt=0; face_pt<right_flx_pt_idx.size(); ++face_pt)
+        {
+  //        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx);
+  //        std::cout << field_index.shape()[0] << "x" << field_index.shape()[1] << std::endl;
+  //        std::cout << right_flx_pt_idx.size() << std::endl;
+  //        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[face_pt] << "  ---> " ;
+
           right_flx_pt_idx[face_pt] = face_pt;
 
-      for (Uint face_pt=0; face_pt<right_flx_pt_idx.size(); ++face_pt)
-      {
-//        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx);
-//        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[right_flx_pt_idx[face_pt]] << "  ---> " ;
+          mesh::Field::View boundary_face_pt_solution = solution_field().view(neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx));
+          for (Uint v=0; v<NEQS; ++v)
+            right_face_data[face_pt]->solution[v] = boundary_face_pt_solution[face_pt][v];
+          right_face_data[face_pt]->coord = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx).row(face_pt);
+        }
 
-        mesh::Field::View boundary_face_pt_solution = solution_field().view(neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx));
-        for (Uint v=0; v<NEQS; ++v)
-          right_face_data[face_pt]->solution[v] = boundary_face_pt_solution[right_flx_pt_idx[face_pt]][v];
 
-//        for (Uint v=0; v<NEQS; ++v)
-//        {
-//          std::cout << boundary_face_pt_solution[face_pt][v] << " ";
-//        }
-//        std::cout << std::endl;
+        boost::shared_ptr<PHYS> tmp_data;
+        Uint tmp_idx;
+        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+        {
+          Uint right_face_pt=0;
+          bool matched=false;
+
+          for (; right_face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++right_face_pt)
+          {
+            bool m=true;
+  //          std::cout << "right = " << right_face_data[right_face_pt]->coord.transpose() << std::endl;
+            for (Uint d=0; d<NDIM; ++d)
+            {
+              m = m && ( std::abs(left_face_data[face_pt]->coord[d] - right_face_data[right_face_pt]->coord[d]) < 20*math::Consts::eps() );
+            }
+            if ( m )
+            {
+              matched=true;
+              break;
+            }
+          }
+  //        if (!matched)
+  //        {
+  //          std::cout << "coord " << left_face_data[face_pt]->coord.transpose() << std::endl;
+            cf3_assert_desc(elem->get().space->uri().string()+"["+common::to_str(elem->get().idx)+"]",matched);
+  //        }
+
+
+          tmp_data=right_face_data[face_pt];
+          tmp_idx=right_flx_pt_idx[face_pt];
+          right_face_data[face_pt]=right_face_data[right_face_pt];
+          right_flx_pt_idx[face_pt]=right_flx_pt_idx[right_face_pt];
+          right_face_data[right_face_pt]=tmp_data;
+          right_flx_pt_idx[right_face_pt]=tmp_idx;
+
+        }
+
 
       }
 
 
     }
+//    boost::shared_ptr<PHYS> tmp_data;
+//    Uint tmp_idx;
+//    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+//    {
+//      Uint right_face_pt=0;
+//      bool matched=false;
+//      for (; right_face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++right_face_pt)
+//      {
 
+//        if (left_face_data[face_pt]->coord == right_face_data[right_face_pt]->coord)
+//        {
+//          matched=true;
+//          break;
+//        }
+//      }
+//      cf3_assert(matched);
 
+//      tmp_data=right_face_data[face_pt];
+//      tmp_idx=right_flx_pt_idx[face_pt];
+//      right_face_data[face_pt]=right_face_data[right_face_pt];
+//      right_flx_pt_idx[face_pt]=right_flx_pt_idx[right_face_pt];
+//      right_face_data[right_face_pt]=tmp_data;
+//      right_flx_pt_idx[right_face_pt]=tmp_idx;
 
+//    }
+//    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+//    {
+//      if(left_face_data[face_pt]->coord != right_face_data[face_pt]->coord)
+//      {
+//        std::cout << m_entities->uri() << "["<<m_elem_idx<<"]  <--> " << neighbour_elem->get().entities->uri() << "["<<neighbour_elem->get().idx<<"]"<<std::endl;
+//        cf3_assert(false);
+//      }
+//    }
 
 
   }
@@ -254,6 +334,7 @@ ConvectiveTerm<PHYS>::ConvectiveTerm( const std::string& name )
 template <typename PHYS>
 void ConvectiveTerm<PHYS>::execute()
 {
+
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {
     reconstruct_flx_pt_data(elem->get(),flx_pt,*flx_pt_data);
@@ -262,6 +343,7 @@ void ConvectiveTerm<PHYS>::execute()
     flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
     flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
   }
+
   for(m_face_nb=0; m_face_nb<elem->get().sf->nb_faces(); ++m_face_nb)
   {
     compute_face();
@@ -269,6 +351,10 @@ void ConvectiveTerm<PHYS>::execute()
     {
       for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       {
+//        cf3_assert(face_pt<left_flx_pt_idx.size());
+//        cf3_assert(face_pt<right_flx_pt_idx.size());
+//        cf3_assert(is_not_null(left_face_data[left_flx_pt_idx[face_pt]]));
+//        cf3_assert(is_not_null(right_face_data[right_flx_pt_idx[face_pt]]));
         flx_pt = left_flx_pt_idx[face_pt];
         compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
                                flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
@@ -290,6 +376,7 @@ void ConvectiveTerm<PHYS>::execute()
 //    }
     neighbour_elem->get().unlock();
   }
+
   // compute divergence in solution points
   mesh::Field::View term = m_term_field->view(elem->get().space->indexes_for_element(m_elem_idx));
   divergence_in_solution_points->cache(m_entities).compute(flx_pt_flux,term);
@@ -336,7 +423,7 @@ void ConvectiveTerm<PHYS>::execute()
     {
       term_wave[sol_pt][0] += sol_pt_wave_speed[d][sol_pt][0]/2.;
     }
-    term_wave[sol_pt][0] /= jacob_det[sol_pt][0];
+    term_wave[sol_pt][0] /= std::abs(jacob_det[sol_pt][0]);
     wave_speed[sol_pt][0] = std::max(wave_speed[sol_pt][0],term_wave[sol_pt][0]);
   }
 }

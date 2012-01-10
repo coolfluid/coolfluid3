@@ -77,6 +77,9 @@ private:
     std::string space_id = cache->options().option("space").value<std::string>();
     space = entities->space(space_id).handle<mesh::Space>();
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
+
+    reconstruct_geometry_space_to_flux_points.build_coefficients(entities->element_type().shape_function().handle<mesh::ShapeFunction>(),sf);
+    reconstruct_solution_space_to_flux_points.build_coefficients(sf,sf);
   }
 
   virtual void compute_variable_data() {}
@@ -85,6 +88,10 @@ public:
   // intrinsic state (not supposed to change)
   Handle< mesh::Space const         > space;
   Handle< SFDM::ShapeFunction const > sf;
+
+  ReconstructToFluxPoints reconstruct_solution_space_to_flux_points;
+  ReconstructToFluxPoints reconstruct_geometry_space_to_flux_points;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -35,26 +35,17 @@ public:
   static std::string type_name() { return "Convection2D"; }
   Convection2D(const std::string& name) : ConvectiveTerm(name)
   {
-    p.gamma = 1.4;
-    p.gamma_minus_1 = p.gamma-1.;
-    p.R = 287.05;
-    options().add_option("gamma",p.gamma).attach_trigger(boost::bind(&Convection2D::configure_gamma, this));
-    options().add_option("R",p.R).link_to(&p.R);
-  }
-
-  void configure_gamma()
-  {
-    p.gamma = options().option("gamma").value<Real>();
-    p.gamma_minus_1 = p.gamma - 1.;
-
-    p_left.gamma = options().option("gamma").value<Real>();
-    p_left.gamma_minus_1 = p_left.gamma - 1.;
-
-    p_right.gamma = options().option("gamma").value<Real>();
-    p_right.gamma_minus_1 = p_right.gamma - 1.;
   }
 
   virtual ~Convection2D() {}
+
+  virtual void initialize()
+  {
+    ConvectiveTerm::initialize();
+    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p);
+    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_left);
+    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_right);
+  }
 
   virtual void compute_analytical_flux(ConvectiveTermPointData<4u,2u>& data, const PHYS::MODEL::GeoV& unit_normal,
                                        PHYS::MODEL::SolV& flux, Real& wave_speed)
@@ -68,16 +59,17 @@ public:
   virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
   {
+//    cf3_assert(left.coord == right.coord);
     // Compute left and right properties
-    PHYS::compute_properties(dummy_coords,left.solution,dummy_grads,p_left);
-    PHYS::compute_properties(dummy_coords,right.solution,dummy_grads,p_right);
+    PHYS::compute_properties(left.coord,left.solution,dummy_grads,p_left);
+    PHYS::compute_properties(right.coord,right.solution,dummy_grads,p_right);
 
     // Compute the Roe averaged properties
     // Roe-average = standard average of the Roe-parameter vectors
     ROE::compute_variables(p_left,  roe_left );
     ROE::compute_variables(p_right, roe_right);
     roe_avg.noalias() = 0.5*(roe_left+roe_right); // Roe-average is result
-    ROE::compute_properties(dummy_coords, roe_avg, dummy_grads, p);
+    ROE::compute_properties(left.coord, roe_avg, dummy_grads, p);
 
     // Compute absolute jacobian using Roe averaged properties
     PHYS::flux_jacobian_eigen_structure(p,unit_normal,right_eigenvectors,left_eigenvectors,eigenvalues);

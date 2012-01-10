@@ -10,7 +10,7 @@ env.options().configure_option('assertion_backtrace', True)
 env.options().configure_option('exception_backtrace', True)
 env.options().configure_option('regist_signal_handlers', True)
 env.options().configure_option('exception_log_level', 10)
-env.options().configure_option('log_level', 1)
+env.options().configure_option('log_level', 3)
 env.options().configure_option('exception_outputs', True)
 
 ############################
@@ -18,8 +18,10 @@ env.options().configure_option('exception_outputs', True)
 model = root.create_component('shocktube_2d','cf3.solver.CModel');
 model.create_solver('cf3.SFDM.SFDSolver')
 model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
-model.create_domain()
 physics = model.get_child('NavierStokes2D')
+physics.options().configure_option('gamma',1.4)
+physics.options().configure_option('R',287.05)
+model.create_domain()
 solver  = model.get_child('SFDSolver')
 domain  = model.get_child('Domain')
 
@@ -42,8 +44,10 @@ solver.options().configure_option('solution_vars','cf3.physics.NavierStokes.Cons
 solver.options().configure_option('solution_order',3)
 
 ### Configure timestepping
-solver.access_component('TimeStepping/Time').options().configure_option("time_step",1.);
-solver.access_component('TimeStepping/Time').options().configure_option("end_time",0.008);
+solver.access_component('TimeStepping').options().configure_option('time_accurate',True);
+solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
+solver.access_component('TimeStepping/Time').options().configure_option('time_step',1.);
+solver.access_component('TimeStepping/Time').options().configure_option('end_time',0.008);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -63,13 +67,14 @@ solver.get_child('InitialConditions').execute();
 ### Create convection term
 solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.navierstokes.Convection2D')
 convection = solver.access_component('DomainDiscretization/Terms/convection')
-convection.options().configure_option('gamma',1.4)
-convection.options().configure_option('R',287.05)
 
-# the messy part, to be improved one day
-solver.access_component('TimeStepping/IterativeSolver/PreUpdate/compute_time_step').options().configure_option("cfl",0.2);
-solver.access_component('TimeStepping/IterativeSolver/PreUpdate/compute_time_step').options().configure_option("milestone_dt",0.001);
-solver.access_component('TimeStepping/PostActions/Periodic/milestone_dt').options().configure_option("milestone_dt",0.001);
+solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.SFDM.BCNull',
+regions=[
+mesh.access_component('topology/left').uri(),
+mesh.access_component('topology/right').uri(),
+mesh.access_component('topology/top').uri(),
+mesh.access_component('topology/bottom').uri()
+])
 
 #######################################
 # SIMULATE

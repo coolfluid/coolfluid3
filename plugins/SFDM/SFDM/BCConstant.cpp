@@ -15,7 +15,27 @@ namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCConstant,BC,LibSFDM> bcconstant_builder;
+// Commented out unnecessary builders for now
+
+common::ComponentBuilder<BCConstant<1u,1u>,BC,LibSFDM> bcconstant_1eq_1d_builder;
+common::ComponentBuilder<BCConstant<1u,2u>,BC,LibSFDM> bcconstant_1eq_2d_builder;
+//common::ComponentBuilder<BCConstant<1u,3u>,BC,LibSFDM> bcconstant_1eq_3d_builder;
+
+//common::ComponentBuilder<BCConstant<2u,1u>,BC,LibSFDM> bcconstant_2eq_1d_builder;
+//common::ComponentBuilder<BCConstant<2u,2u>,BC,LibSFDM> bcconstant_2eq_2d_builder;
+//common::ComponentBuilder<BCConstant<2u,3u>,BC,LibSFDM> bcconstant_2eq_3d_builder;
+
+common::ComponentBuilder<BCConstant<3u,1u>,BC,LibSFDM> bcconstant_3eq_1d_builder;
+//common::ComponentBuilder<BCConstant<3u,2u>,BC,LibSFDM> bcconstant_3eq_2d_builder;
+//common::ComponentBuilder<BCConstant<3u,3u>,BC,LibSFDM> bcconstant_3eq_3d_builder;
+
+//common::ComponentBuilder<BCConstant<4u,1u>,BC,LibSFDM> bcconstant_4eq_1d_builder;
+common::ComponentBuilder<BCConstant<4u,2u>,BC,LibSFDM> bcconstant_4eq_2d_builder;
+//common::ComponentBuilder<BCConstant<4u,3u>,BC,LibSFDM> bcconstant_4eq_3d_builder;
+
+//common::ComponentBuilder<BCConstant<5u,1u>,BC,LibSFDM> bcconstant_5eq_1d_builder;
+//common::ComponentBuilder<BCConstant<5u,2u>,BC,LibSFDM> bcconstant_5eq_2d_builder;
+//common::ComponentBuilder<BCConstant<5u,3u>,BC,LibSFDM> bcconstant_5eq_3d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 

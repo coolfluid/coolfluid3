@@ -179,8 +179,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().configure_option_recursively("cfl" ,std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -337,8 +336,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -502,8 +500,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -671,8 +668,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
