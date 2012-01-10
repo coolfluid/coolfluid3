@@ -106,21 +106,21 @@ void Roe::trigger_physical_model()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                  RealVector& flux)
 {
   physics::Variables& sol_vars = *m_solution_vars;
   physics::Variables& roe_vars = *m_roe_vars;
   // Compute left and right properties
-  sol_vars.compute_properties(coord,left,grads,*p_left);
-  sol_vars.compute_properties(coord,right,grads,*p_right);
+  sol_vars.compute_properties(coords,left,grads,*p_left);
+  sol_vars.compute_properties(coords,right,grads,*p_right);
 
   // Compute the Roe averaged properties
   // Roe-average = standard average of the Roe-parameter vectors
   roe_vars.compute_variables(*p_left,  roe_left );
   roe_vars.compute_variables(*p_right, roe_right);
   roe_avg.noalias() = 0.5*(roe_left+roe_right);                // Roe-average is result
-  roe_vars.compute_properties(coord, roe_avg, grads, *p_avg);
+  roe_vars.compute_properties(coords, roe_avg, grads, *p_avg);
 
   // Compute absolute jacobian using Roe averaged properties
   sol_vars.flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
@@ -137,10 +137,10 @@ void Roe::compute_interface_flux(const RealVector& left, const RealVector& right
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Roe::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+void Roe::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                 RealVector& flux, RealVector& wave_speeds)
 {
-  compute_interface_flux(left,right,normal,flux);
+  compute_interface_flux(left,right,coords,normal,flux);
   wave_speeds = eigenvalues;
 }
 

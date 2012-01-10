@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
   solver.options().configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.LinEuler.Cons2D"));
   solver.options().configure_option(SFDM::Tags::solution_order(),order);
-  solver.iterative_solver().options().configure_option("rk_order",3u);
+  solver.iterative_solver().options().configure_option("nb_stages",3u);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
