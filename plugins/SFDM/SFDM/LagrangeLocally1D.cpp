@@ -4,7 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP0/Point.hpp"
 #include "SFDM/LibSFDM.hpp"
 #include "SFDM/LagrangeLocally1D.hpp"
 #include "common/Builder.hpp"
@@ -53,6 +54,26 @@ LineP4_builder(LibSFDM::library_namespace()+".P4.Line");
 
 ComponentBuilder<LineLagrange1D<5>,mesh::ShapeFunction,LibSFDM>
 LineP5_builder(LibSFDM::library_namespace()+".P5.Line");
+
+////////////////////////////////////////////////////////////////////////////////
+
+ComponentBuilder<Point<0>,mesh::ShapeFunction,LibSFDM>
+PointP0_builder(LibSFDM::library_namespace()+".P0.Point");
+
+ComponentBuilder<Point<1>,mesh::ShapeFunction,LibSFDM>
+PointP1_builder(LibSFDM::library_namespace()+".P1.Point");
+
+ComponentBuilder<Point<2>,mesh::ShapeFunction,LibSFDM>
+PointP2_builder(LibSFDM::library_namespace()+".P2.Point");
+
+ComponentBuilder<Point<3>,mesh::ShapeFunction,LibSFDM>
+PointP3_builder(LibSFDM::library_namespace()+".P3.Point");
+
+ComponentBuilder<Point<4>,mesh::ShapeFunction,LibSFDM>
+PointP4_builder(LibSFDM::library_namespace()+".P4.Point");
+
+ComponentBuilder<Point<5>,mesh::ShapeFunction,LibSFDM>
+PointP5_builder(LibSFDM::library_namespace()+".P5.Point");
 
 ////////////////////////////////////////////////////////////////////////////////
 

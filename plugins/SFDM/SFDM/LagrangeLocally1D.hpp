@@ -613,6 +613,125 @@ private: // data
 
 };
 
+template<Uint P>
+class SFDM_API Point : public SFDM::ShapeFunction
+{
+public: // typedefs
+
+  typedef boost::shared_ptr<Point>       Ptr;
+  typedef boost::shared_ptr<Point const> ConstPtr;
+
+public: // functions
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
+
+  static std::string type_name() { return "Point<"+common::to_str(P)+">"; }
+
+  Point(const std::string& name = type_name())
+    : SFDM::ShapeFunction(name),
+      m_flx_pt_dirs(1,KSI),
+      m_order(P),
+      m_zero(0.),
+      m_one(1.)
+  {
+    m_sol_pts.resize(1,3);
+    m_sol_pts << 0, 0, 0;
+    m_flx_pts.resize(1,3);
+    m_flx_pts << 0, 0, 0;
+
+    m_interp_grad_flx_to_sol_used_sol_pts.resize(1);
+    m_interp_sol_to_flx_used_sol_pts.resize(1);
+    m_interp_flx_to_sol_used_sol_pts.resize(1);
+    m_face_flx_pts.resize(0);
+    m_flx_pt_sign.resize(1,1.);
+
+    m_interp_grad_flx_to_sol_used_sol_pts[0].push_back(0);
+    m_interp_flx_to_sol_used_sol_pts[0].push_back(0);
+    m_interp_sol_to_flx_used_sol_pts[0].push_back(0);
+
+//    m_face_normals.resize(0);
+  }
+
+  virtual ~Point() {}
+
+  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const
+  {
+    value[0] = 1.;
+  }
+  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const
+  {
+    gradient.setZero();
+  }
+  virtual void compute_flux_value(const Uint orientation, const RealVector& local_coordinate, RealRowVector& value) const
+  {
+    value[0] = 1.;
+  }
+  virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
+  {
+    derivative.setZero();
+  }
+  virtual const std::vector<Uint>& interpolate_grad_flx_to_sol_used_sol_pts(const Uint flx_pt, const Uint direction) const
+  {
+    // direction doesn't play a role because every flx_pt is uniquely defined for 1 direction
+    return m_interp_grad_flx_to_sol_used_sol_pts[flx_pt];
+  }
+  virtual const std::vector<Uint>& interpolate_sol_to_flx_used_sol_pts(const Uint flx_pt) const
+  {
+    // direction doesn't play a role because every flx_pt is uniquely defined for 1 direction,
+    // and if it would play a role, then just more solution points would be added in more directions
+    return m_interp_sol_to_flx_used_sol_pts[flx_pt];
+  }
+  virtual const std::vector<Uint>& interpolate_flx_to_sol_used_sol_pts(const Uint flx_pt, const Uint direction) const
+  {
+    // direction plays a role because interpolation in different directions can be of a different order
+    return m_interp_flx_to_sol_used_sol_pts[flx_pt];
+  }
+  virtual const Real& interpolate_grad_flx_to_sol_coeff(const Uint flx_pt, const Uint direction, const Uint sol_pt) const
+  {
+    // direction plays a role because every sol_pt is used in multiple directions
+    return m_zero;
+  }
+  virtual const Real& interpolate_sol_to_flx_coeff(const Uint flx_pt, const Uint sol_pt) const
+  {
+    return m_one;
+  }
+  virtual const Real& interpolate_flx_to_sol_coeff(const Uint flx_pt, const Uint direction, const Uint sol_pt) const
+  {
+    return m_one;
+  }
+  virtual mesh::GeoShape::Type shape() const { return mesh::GeoShape::POINT; }
+  virtual Uint dimensionality() const { return DIM_3D; }
+  virtual Uint nb_faces() const { return 0; }
+  virtual Uint order() const { return m_order; }
+  virtual Uint nb_sol_pts() const { return 1; }
+  virtual Uint nb_flx_pts() const { return 1; }
+  virtual const RealMatrix& sol_pts() const { return m_sol_pts; }
+  virtual const RealMatrix& flx_pts() const { return m_flx_pts; }
+  virtual const std::vector<Uint>& flx_pt_dirs(const Uint flx_pt) const { cf3_assert(flx_pt<nb_flx_pts()); return m_flx_pt_dirs; }
+  virtual const RealMatrix& face_normals() const { return m_face_normals; }
+  virtual const std::vector<Uint>& interior_flx_pts() const { return m_interior_flx_pts; }
+  virtual const std::vector<Uint>& face_flx_pts(const Uint face_idx) const { cf3_assert(face_idx<nb_faces()); return m_face_flx_pts[face_idx]; }
+  virtual const Real& flx_pt_sign(const Uint flx_pt, const Uint dir) const { return m_flx_pt_sign[flx_pt]; }
+
+private: // data
+
+  Real m_zero;
+  Real m_one;
+
+  Uint                                m_order;            ///< Order of the solution shape function
+  RealMatrix                          m_flx_pts;          ///< Flux point coordinates
+  RealMatrix                          m_sol_pts;          ///< Solution point coordinates
+  std::vector<Uint>                   m_flx_pt_dirs;      ///< Per flux point, the directions this flux point contributes to
+  std::vector< std::vector<Uint> >    m_interp_grad_flx_to_sol_used_sol_pts;  ///< Per flux point, the solution points used in the derivatives
+  std::vector< std::vector<Uint> >    m_interp_sol_to_flx_used_sol_pts; ///< Per flux point, the solution points used to interpolate it
+  std::vector< std::vector<Uint> >    m_interp_flx_to_sol_used_sol_pts; ///< Per flux point, the solution points used in the interpolation
+  RealMatrix                          m_face_normals;     ///< Rows are normals to faces according to FaceNumbering
+  std::vector<Uint>                   m_interior_flx_pts; ///< Flux points that lie inside the cell, not on the faces
+  std::vector<std::vector<Uint> >     m_face_flx_pts;     ///< Flux points that on the cell faces
+  std::vector<Real>                   m_flx_pt_sign;                          ///< Sign to be multiplied with computed flux in flx_pt in direction dir
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
