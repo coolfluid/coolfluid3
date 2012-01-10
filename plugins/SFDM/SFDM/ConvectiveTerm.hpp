@@ -423,7 +423,7 @@ void ConvectiveTerm<PHYS>::execute()
     {
       term_wave[sol_pt][0] += sol_pt_wave_speed[d][sol_pt][0]/2.;
     }
-    term_wave[sol_pt][0] /= std::abs(jacob_det[sol_pt][0]);
+    term_wave[sol_pt][0] /= jacob_det[sol_pt][0];
     wave_speed[sol_pt][0] = std::max(wave_speed[sol_pt][0],term_wave[sol_pt][0]);
   }
 }

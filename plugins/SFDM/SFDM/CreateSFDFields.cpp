@@ -124,6 +124,8 @@ void CreateSFDFields::execute()
         {
 
           jacob_det[field_idx[node]][0]=elements.element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
+          if (jacob_det[field_idx[node]][0] < 0)
+            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements.uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
           elements.element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
           dX.noalias() = jacobian.transpose()*dKsi;
           for (Uint d=0; d<dX.size(); ++d)
