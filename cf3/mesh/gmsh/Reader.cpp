@@ -29,6 +29,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Cells.hpp"
 
 #include "mesh/gmsh/Reader.hpp"
 
@@ -127,6 +128,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   read_coordinates();
 
   read_connectivity();
+
+  fix_negative_volumes(*m_mesh);
 
   if (options().option("read_fields").value<bool>())
   {
@@ -893,6 +896,45 @@ std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
   }
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+void Reader::fix_negative_volumes(Mesh& mesh)
+{
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(mesh.topology()))
+  {
+    Real jacobian_determinant=0;
+    Uint nb_nodes_per_elem = elements.element_type().nb_nodes();
+    std::vector<Uint> tmp_nodes(nb_nodes_per_elem);
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      jacobian_determinant = elements.element_type().jacobian_determinant(elements.element_type().shape_function().local_coordinates().row(0),elements.get_coordinates(e));
+      if (jacobian_determinant < 0)
+      {
+        // reverse the connectivity nodes order
+        for (Uint n=0;n<nb_nodes_per_elem; ++n)
+          tmp_nodes[n] = elements.geometry_space().connectivity()[e][n];
+        if (elements.element_type().derived_type_name() == "cf3.mesh.LagrangeP2.Quad2D")
+        {
+          elements.geometry_space().connectivity()[e][0] = tmp_nodes[0];
+          elements.geometry_space().connectivity()[e][1] = tmp_nodes[3];
+          elements.geometry_space().connectivity()[e][2] = tmp_nodes[2];
+          elements.geometry_space().connectivity()[e][3] = tmp_nodes[1];
+          elements.geometry_space().connectivity()[e][4] = tmp_nodes[7];
+          elements.geometry_space().connectivity()[e][5] = tmp_nodes[6];
+          elements.geometry_space().connectivity()[e][6] = tmp_nodes[5];
+          elements.geometry_space().connectivity()[e][7] = tmp_nodes[4];
+          elements.geometry_space().connectivity()[e][8] = tmp_nodes[8];
+        }
+        else
+        {
+          throw NotImplemented(FromHere(),"element type "+elements.element_type().derived_type_name()+" needs to fix negative volumes");
+        }
+      }
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 } // gmsh
