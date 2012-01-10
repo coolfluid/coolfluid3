@@ -27,7 +27,6 @@
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
 #include "common/XML/SignalOptions.hpp"
-
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 
@@ -885,6 +884,8 @@ const Field& SpaceFields::coordinates() const
 
 Field& SpaceFields::create_coordinates()
 {
+  CFinfo << "Creating coordinates field in " << uri() << CFendl;
+
   if (has_coordinates())
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
 
