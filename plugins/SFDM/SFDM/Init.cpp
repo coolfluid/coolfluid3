@@ -99,7 +99,7 @@ void Init::execute()
 
   std::auto_ptr<physics::Properties> props = physical_model().create_properties();
 
-  boost_foreach(Cells& elements, find_components_recursively<Cells>(solution.topology()))
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(solution.topology()))
   {
     Space& space = solution.space(elements);
 

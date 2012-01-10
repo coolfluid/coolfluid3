@@ -12,6 +12,11 @@ list( APPEND resources_files
    rectangle-mix-p1.msh
    rectangle-mix-p2.msh
    sinusbump-tg-p1.msh
+   circle-quad-p1-32.msh
+   cylinder-quad-p2-16x4.msh
+   cylinder-quad-p2-32x8.msh
+   cylinder-quad-p2-64x16.msh
+   cylinder-quad-p2-128x32.msh
 )
 
 set( CF3_RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "build dir" )

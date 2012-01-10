@@ -38,7 +38,6 @@ common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSFDM > C
 
 ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   solver::Action(name),
-  m_freeze(false),
   m_tolerance(1e-12)
 {
   mark_basic();
@@ -70,93 +69,81 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
     .pretty_name("Time")
     .link_to(&m_time);
 
-  options().add_option("milestone_dt", 0.)
-    .description("Limits time-steps to fall on milestones")
-    .pretty_name("Milestone Time Step");
-
-  options().add_option("freeze_update_coeff", m_freeze)
-    .description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
-    .pretty_name("Freeze Update Coefficient")
-    .link_to(&m_freeze);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ComputeUpdateCoefficient::execute()
 {
-  if (m_freeze == false)
+  link_fields();
+
+  if (is_null(m_wave_speed))   throw SetupError(FromHere(), "WaveSpeed field was not set");
+  if (is_null(m_update_coeff)) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
+
+  Field& wave_speed = *m_wave_speed;
+  Field& update_coeff = *m_update_coeff;
+  Real cfl = options().option("cfl").value<Real>();
+  if (options().option("time_accurate").value<bool>()) // global time stepping
   {
-    link_fields();
+    if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
 
-    if (is_null(m_wave_speed))    throw SetupError(FromHere(), "WaveSpeed field was not set");
-    if (is_null(m_update_coeff)) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
+    CTime& time = *m_time;
 
-    Field& wave_speed = *m_wave_speed;
-    Field& update_coeff = *m_update_coeff;
-    Real cfl = options().option("cfl").value<Real>();
+    cf3_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 
-    if (options().option("time_accurate").value<bool>()) // global time stepping
+    /// compute time step
+    //  -----------------
+    /// - take user-defined time step
+    Real dt = time.options().option("time_step").value<Real>();
+
+    /// - Make time step stricter through the CFL number
+    Real min_dt = dt;
+    Real max_dt = 0.;
+    RealVector ws(wave_speed.row_size());
+    for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
-
-      CTime& time = *m_time;
-
-      cf3_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
-
-      /// compute time step
-      //  -----------------
-      /// - take user-defined time step
-      Real dt = time.options().option("time_step").value<Real>();
-
-      /// - Make time step stricter through the CFL number
-      Real min_dt = dt;
-      Real max_dt = 0.;
-      RealVector ws(wave_speed.row_size());
-      for (Uint i=0; i<wave_speed.size(); ++i)
+      if (wave_speed[i][0] > 0)
       {
-        if (wave_speed[i][0] > 0)
-        {
-          dt = cfl/wave_speed[i][0];
+        dt = cfl/wave_speed[i][0];
 
-          min_dt = std::min(min_dt,dt);
-          max_dt = std::max(max_dt,dt);
-        }
+        min_dt = std::min(min_dt,dt);
+        max_dt = std::max(max_dt,dt);
       }
-      Real glb_min_dt;
-      PE::Comm::instance().all_reduce(PE::min(), &min_dt, 1, &glb_min_dt);
-      dt = glb_min_dt;
-
-      /// - Make sure we reach milestones and final simulation time
-      Real tf = limit_end_time(time.current_time(), time.options().option("end_time").value<Real>());
-      if( time.current_time() + dt + m_tolerance > tf )
-        dt = tf - time.current_time();
-
-      /// Calculate the update_coefficient
-      //  --------------------------------
-      /// For Forward Euler: update_coefficient = @f$ \Delta t @f$.
-      /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
-      for (Uint i=0; i<update_coeff.size(); ++i)
-      {
-        update_coeff[i][0] = dt ;
-      }
-
-      // Update the new time step
-      time.dt() = dt;
-
     }
-    else // local time stepping
-    {
-      if (is_not_null(m_time))  m_time->dt() = 0.;
+    Real glb_min_dt;
+    PE::Comm::instance().all_reduce(PE::min(), &min_dt, 1, &glb_min_dt);
+    dt = glb_min_dt;
 
-      // Calculate the update_coefficient = CFL/wave_speed
-      RealVector ws(wave_speed.row_size());
-      for (Uint i=0; i<wave_speed.size(); ++i)
-      {
-        for (Uint j=0; j<wave_speed.row_size(); ++j)
-          ws[j] = wave_speed[i][j];
-        Real abs_ws = ws.norm();
-        update_coeff[i][0] = cfl/(abs_ws);
-      }
+    /// - Make sure we reach milestones and final simulation time
+    Real tf = limit_end_time(time.current_time(), time.options().option("end_time").value<Real>());
+    if( time.current_time() + dt + m_tolerance > tf )
+      dt = tf - time.current_time();
+
+    /// Calculate the update_coefficient
+    //  --------------------------------
+    /// For Forward Euler: update_coefficient = @f$ \Delta t @f$.
+    /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
+    for (Uint i=0; i<update_coeff.size(); ++i)
+    {
+      update_coeff[i][0] = dt ;
+    }
+
+    // Update the new time step
+    time.dt() = dt;
+
+  }
+  else // local time stepping
+  {
+    if (is_not_null(m_time))  m_time->dt() = 0.;
+
+    // Calculate the update_coefficient = CFL/wave_speed
+    RealVector ws(wave_speed.row_size());
+    for (Uint i=0; i<wave_speed.size(); ++i)
+    {
+      for (Uint j=0; j<wave_speed.row_size(); ++j)
+        ws[j] = wave_speed[i][j];
+      Real abs_ws = ws.norm();
+      update_coeff[i][0] = cfl/(abs_ws);
     }
   }
 }
@@ -165,7 +152,7 @@ void ComputeUpdateCoefficient::execute()
 
 Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
 {
-  const Real milestone_dt   = options().option("milestone_dt").value<Real>();
+  const Real milestone_dt  =  m_time->options().option("time_step").value<Real>();
   if (milestone_dt == 0)
     return end_time;
 

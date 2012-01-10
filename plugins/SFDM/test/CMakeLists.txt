@@ -2,17 +2,10 @@
 
 #########################################################################
 
-coolfluid_add_test( UTEST      utest-sfdm-solver
-                    CPP        utest-sfdm-solver.cpp
-                               DummyTerm.hpp DummyTerm.cpp
-                    PLUGINS    Physics RiemannSolvers
-                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_mesh_vtkxml coolfluid_physics_navierstokes coolfluid_physics_lineuler
-                    MPI        1 )
-
 coolfluid_add_test( UTEST      utest-sfdm-linearadv1d
                     CPP        utest-sfdm-linearadv1d.cpp
                     PLUGINS    Physics RiemannSolvers
-                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
+                    LIBS       coolfluid_sfdm_scalar coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
                     MPI        2 )
 
 coolfluid_add_test( UTEST      utest-sfdm-lagrange
@@ -27,6 +20,24 @@ coolfluid_add_test( UTEST      utest-sfdm-convection
 coolfluid_add_test( UTEST      utest-sfdm-transformation
                     CPP        utest-sfdm-transformation.cpp
                     LIBS       coolfluid_sfdm )
+
+coolfluid_add_test( ATEST      atest-sfdm-euler-shocktube-1d
+                    PYTHON     atest-sfdm-euler-shocktube-1d.py
+                    LIBS       coolfluid_sfdm_navierstokes)
+
+coolfluid_add_test( ATEST      atest-sfdm-euler-shocktube-2d
+                    PYTHON     atest-sfdm-euler-shocktube-2d.py
+                    LIBS       coolfluid_sfdm_navierstokes)
+
+coolfluid_add_test( ATEST      atest-sfdm-euler-cylinder-2d
+                    PYTHON     atest-sfdm-euler-cylinder-2d.py
+                    LIBS       coolfluid_sfdm_navierstokes
+                    DEPENDS    copy-resources)
+
+coolfluid_add_test( ATEST      atest-sfdm-lineuler-accousticpulse-2d
+                    PYTHON     atest-sfdm-lineuler-accousticpulse-2d.py
+                    LIBS       coolfluid_sfdm_lineuler
+                    DEPENDS    copy-resources)
 
 #########################################################################
 

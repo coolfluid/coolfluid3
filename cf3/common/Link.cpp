@@ -106,7 +106,6 @@ Handle< Component > follow_link(Component& link_or_comp)
 
 Handle< const Component > follow_link(const Component& link_or_comp)
 {
-  std::cout << "checking link on " << link_or_comp.uri() << std::endl;
   return follow_link(link_or_comp.handle<Component>());
 }
 

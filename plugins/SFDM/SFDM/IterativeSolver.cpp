@@ -30,6 +30,7 @@
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/SFDSolver.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -250,7 +251,6 @@ void IterativeSolver::execute()
 
   const Real T0 = time.current_time();
   Real dt = 0;
-  pre_update().configure_option_recursively("freeze_update_coeff",false);
 
   for (Uint stage=0; stage<nb_stages; ++stage)
   {
@@ -263,6 +263,13 @@ void IterativeSolver::execute()
 
     // now assigned in pre-update
     // - R
+
+    if (stage == 0)
+    {
+      solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
+    }
+    // now assigned:
+
     // - H
     // - time.dt()
 
@@ -294,7 +301,6 @@ void IterativeSolver::execute()
     if (stage == 0)
     {
       dt = time.dt();
-      pre_update().configure_option_recursively("freeze_update_coeff",true);
     }
     else
     {

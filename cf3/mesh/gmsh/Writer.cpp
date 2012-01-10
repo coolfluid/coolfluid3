@@ -222,6 +222,7 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
   Uint elm_number=0;
   Uint partition_number = PE::Comm::instance().rank();
 
+  Uint elementary_entity_index=1;
   boost_foreach(const Entities& elements, mesh.topology().elements_range())
   {
     group_name = elements.parent()->uri().path();
@@ -234,13 +235,14 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
-      file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
+      file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
       boost_foreach(const Uint node_idx, elements.get_nodes(e))
       {
         file << " " << to_gmsh_node[node_idx];
       }
       file << "\n";
     }
+    ++elementary_entity_index;
   }
   file << "$EndElements\n";
 }

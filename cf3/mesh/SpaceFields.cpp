@@ -27,7 +27,6 @@
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
 #include "common/XML/SignalOptions.hpp"
-
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 
@@ -360,8 +359,8 @@ void SpaceFields::update()
   {
     case Basis::POINT_BASED:
     case Basis::ELEMENT_BASED:
-      boost_foreach(Entities& entities, find_components_recursively<Entities>(topology()))
-        elements_lookup().add(entities);
+      boost_foreach(Elements& elements, find_components_recursively<Elements>(topology()))
+        elements_lookup().add(elements);
       break;
     case Basis::CELL_BASED:
       boost_foreach(Cells& cells, find_components_recursively<Cells>(topology()))
@@ -885,6 +884,8 @@ const Field& SpaceFields::coordinates() const
 
 Field& SpaceFields::create_coordinates()
 {
+  CFinfo << "Creating coordinates field in " << uri() << CFendl;
+
   if (has_coordinates())
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
 
