@@ -682,7 +682,6 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
   boost_foreach(Cells& elements, find_components_recursively<Cells>(parent))
   {
     ElementConnectivity& c2f = *elements.create_component<ElementConnectivity>("face_connectivity");
-    CFLogVar(c2f.uri());
     c2f.resize(elements.size());
     c2f.set_row_size(elements.element_type().nb_faces());
   }
