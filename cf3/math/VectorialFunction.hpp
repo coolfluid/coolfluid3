@@ -134,12 +134,13 @@ void VectorialFunction::evaluate( const var_t& var_values, const ret_t& ret_valu
   cf3_assert(var_values.size() == m_nbvars);
 
   ret_t& non_const_ret = const_cast<ret_t&>(ret_value);
+  var_t& non_const_var = const_cast<var_t&>(var_values);
   // evaluate and store the functions line by line in the vector
   std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
   std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
   Uint i = 0;
   for( ; parser != end ; ++parser, ++i )
-    non_const_ret[i] = (*parser)->Eval(&var_values[0]);
+    non_const_ret[i] = (*parser)->Eval(&non_const_var[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

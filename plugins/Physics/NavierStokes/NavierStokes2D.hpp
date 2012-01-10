@@ -30,6 +30,7 @@ public: // typedefs
   typedef Eigen::Matrix<Real, _ndim, 1>    GeoV;  ///< type of geometry coordinates vector
   typedef Eigen::Matrix<Real, _neqs, 1>    SolV;  ///< type of solution variables vector
   typedef Eigen::Matrix<Real, _neqs,_ndim> SolM;  ///< type of solution gradient matrix
+  typedef Eigen::Matrix<Real, _neqs,_neqs> JacM;  ///< type of flux jacobian matrix
 
 public: // functions
 
@@ -103,7 +104,7 @@ public: // functions
   virtual std::auto_ptr<physics::Properties> create_properties()
   {
     std::auto_ptr<physics::Properties> props( new NavierStokes2D::Properties() );
-    set_constants( static_cast<NavierStokes2D::Properties&>( *props ) );
+    set_gas_constants( static_cast<NavierStokes2D::Properties&>( *props ) );
     return props;
   }
 
@@ -114,14 +115,15 @@ public: // functions
   virtual boost::shared_ptr< physics::Variables > create_variables( const std::string type, const std::string name );
   //@} END INTERFACE
 
-private:
 
-  void set_constants(NavierStokes2D::Properties& props)
+  virtual void set_gas_constants(NavierStokes2D::Properties& props)
   {
     props.gamma = m_gamma;
     props.gamma_minus_1 = m_gamma - 1.;
     props.R = m_R;
   }
+
+private:
 
   Real m_gamma;
   Real m_R;

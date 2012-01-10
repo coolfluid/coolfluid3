@@ -146,6 +146,7 @@ Connectivity::ConstRow Space::indexes_for_element(const Uint elem_idx) const
   }
   else
   {
+    cf3_assert_desc(connectivity().uri().string()+"["+common::to_str(elem_idx)+"]",elem_idx<connectivity().size());
     return connectivity()[elem_idx];
   }
 }
@@ -192,7 +193,7 @@ void Space::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
     {
       for (Uint j=0; j<coordinates.cols(); ++j)
       {
-        coordinates(i,j) = coordinates_field[i][j];
+        coordinates(i,j) = coordinates_field[indexes[i]][j];
       }
     }
   }
@@ -226,7 +227,6 @@ RealMatrix Space::get_coordinates(const Uint elem_idx) const
 {
   if (fields().has_coordinates())
   {
-
     Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
     Field& coordinates_field = fields().coordinates();
     RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
@@ -234,7 +234,7 @@ RealMatrix Space::get_coordinates(const Uint elem_idx) const
     {
       for (Uint j=0; j<coordinates.cols(); ++j)
       {
-        coordinates(i,j) = coordinates_field[i][j];
+        coordinates(i,j) = coordinates_field[indexes[i]][j];
       }
     }
     return coordinates;

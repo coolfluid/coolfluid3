@@ -58,7 +58,7 @@ Interpolate::Interpolate( const std::string& name )
 
   options().add_option("target", m_target)
       .description("Field to interpolate to")
-      .pretty_name("TargetField")
+      .pretty_name("Target Field")
       .mark_basic()
       .link_to(&m_target);
 

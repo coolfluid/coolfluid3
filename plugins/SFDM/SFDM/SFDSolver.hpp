@@ -16,12 +16,13 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/InitialConditions.hpp"
 #include "SFDM/DomainDiscretization.hpp"
+#include "SFDM/BoundaryConditions.hpp"
 
 namespace cf3 {
 
 namespace common    { class Group; }
 namespace solver    { namespace actions { class CSynchronizeFields; } }
-namespace RiemannSolvers { class RiemannSolver; }
+//namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
 // Forward declarations
@@ -31,6 +32,7 @@ class InitialConditions;
 class DomainDiscretization;
 class IterativeSolver;
 class TimeStepping;
+class SharedCaches;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,11 +66,8 @@ public: // functions
   /// solves the PDE's
   virtual void execute();
 
-#if 0
   /// @return subcomponent for boundary conditions
-  BoundaryConditions&   boundary_conditions();
-#endif
-
+  BoundaryConditions&   boundary_conditions()    { return *m_boundary_conditions; }
   /// @return subcomponent for initial conditions
   InitialConditions&    initial_conditions()     { return *m_initial_conditions; }
   /// @return subcomponent for domain terms
@@ -80,18 +79,19 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  common::Group&       actions()                { return *m_actions; }
+  common::Group&        actions()                 { return *m_actions; }
+
+  /// @return shared caches
+  SharedCaches& shared_caches()                  { return *m_shared_caches; }
 
   mesh::Mesh& mesh() { return *m_mesh; }
 
-  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
+//  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
 private: // functions
 
   /// Triggered when physical model is configured
   void config_physics();
-
-  void build_riemann_solver();
 
   /// Triggered when the mesh is configured
   void config_mesh();
@@ -106,17 +106,18 @@ private: // data
   Handle<common::Group>          m_actions;               ///< the group of shared actions
   Handle<common::Group>          m_fields;                ///< the group of fields
 
-  Handle<physics::PhysModel>        m_physical_model;        ///< physical model
-  Handle<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
+  Handle<SharedCaches>           m_shared_caches;
+  Handle<physics::PhysModel>     m_physical_model;        ///< physical model
+  Handle<mesh::Mesh>             m_mesh;                  ///< mesh which this solver operates
 
-  Handle<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
-  Handle<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
-  Handle<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
-  Handle<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
-  Handle<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
-//  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<PrepareMesh>            m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<TimeStepping>           m_time_stepping;         ///< subcomponent for time stepping
+  Handle<IterativeSolver>        m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<DomainDiscretization>   m_domain_discretization; ///< subcomponent for domain terms
+  Handle<InitialConditions>      m_initial_conditions;    ///< subcomponent for initial conditions
+  Handle<BoundaryConditions>     m_boundary_conditions;   ///< subcomponent for boundary conditions
 
-  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
+//  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
 
 };
 

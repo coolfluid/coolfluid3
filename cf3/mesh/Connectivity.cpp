@@ -73,8 +73,8 @@ void Connectivity::set_lookup(UnifiedData& lookup)
   }
   m_lookup = Handle<UnifiedData>(lookup.handle<Component>());
 
-  if(is_null(m_lookup_link))
-    m_lookup_link = create_component<Link>("lookup");
+  m_lookup = lookup.handle<UnifiedData>();
+  m_lookup_link = create_component<Link>("lookup_link");
   m_lookup_link->link_to(lookup);
 }
 

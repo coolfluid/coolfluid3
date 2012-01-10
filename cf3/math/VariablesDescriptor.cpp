@@ -203,8 +203,8 @@ struct VariablesDescriptor::Implementation
 
   std::string description() const
   {
-    if(!m_dim)
-      throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
+//    if(!m_dim)
+//      throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
 
     const Uint nb_vars = m_indices.size();
 

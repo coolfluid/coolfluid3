@@ -56,6 +56,7 @@ list( APPEND coolfluid_mesh_files
   Octtree.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
+  Reconstructions.hpp
   Region.hpp
   Region.cpp
   SimpleMeshGenerator.hpp
