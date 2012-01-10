@@ -15,13 +15,12 @@ env.options().configure_option('exception_outputs', True)
 
 ############################
 # Create simulation
+############################
 model = root.create_component('shocktube_2d','cf3.solver.CModel');
 model.create_solver('cf3.SFDM.SFDSolver')
 model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
-physics = model.get_child('NavierStokes2D')
-physics.options().configure_option('gamma',1.4)
-physics.options().configure_option('R',287.05)
 model.create_domain()
+physics = model.get_child('NavierStokes2D')
 solver  = model.get_child('SFDSolver')
 domain  = model.get_child('Domain')
 
@@ -37,6 +36,10 @@ load_balance = mesh_generator.create_component("load_balancer","cf3.mesh.actions
 load_balance.options().configure_option("mesh",mesh)
 load_balance.execute()
 #####
+
+### Configure physics
+physics.options().configure_option('gamma',1.4)
+physics.options().configure_option('R',287.05)
 
 ### Configure solver
 solver.options().configure_option('mesh',mesh)

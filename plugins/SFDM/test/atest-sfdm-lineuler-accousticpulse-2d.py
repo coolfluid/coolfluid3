@@ -1,6 +1,8 @@
-import sys
-sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/debug/dso/')
+# import sys
+# sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/debug/dso/')
+
 import coolfluid
+import math
 
 # The cf root component
 root = coolfluid.Core.root()
@@ -16,6 +18,7 @@ env.options().configure_option('exception_outputs', True)
 
 ############################
 # Create simulation
+############################
 model = root.create_component('accousticpulse_2d','cf3.solver.CModel');
 model.create_solver('cf3.SFDM.SFDSolver')
 model.create_physics('cf3.physics.LinEuler.LinEuler2D')
@@ -24,8 +27,13 @@ physics = model.get_child('LinEuler2D')
 solver  = model.get_child('SFDSolver')
 domain  = model.get_child('Domain')
 
-domain.load_mesh(file = coolfluid.URI('/Users/willem/Desktop/circle.msh'), name = 'circle');
+domain.load_mesh(file = coolfluid.URI('../../../resources/circle-quad-p1-32.msh'), name = 'circle');
 mesh = domain.access_component('circle');
+
+gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
+gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('file',coolfluid.URI('file:load.msh'))
+gmsh_writer.execute()
 
 ### Configure solver
 solver.options().configure_option('mesh',mesh)
