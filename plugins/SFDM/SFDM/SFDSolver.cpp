@@ -131,10 +131,10 @@ SFDSolver::~SFDSolver()
 
 void SFDSolver::execute()
 {
-  CFinfo << "Solving the amazing PDE's..."      << CFendl;
+  // Perform boundary condition before solving, to be sure it is applied correctly
   m_boundary_conditions->execute();
+  // Start time stepping
   m_time_stepping->execute();
-  CFinfo << "Solving the amazing PDE's... done" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

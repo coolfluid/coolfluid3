@@ -55,10 +55,10 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   properties().add_property( "iteration", Uint(0) );
 
-  options().add_option("max_iteration",math::Consts::uint_max());
-  options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this));
+  options().add_option("max_iteration",math::Consts::uint_max()).mark_basic();
+  options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
   parse_cfl();
-  options().add_option("time_accurate",true);
+  options().add_option("time_accurate",true).mark_basic();
 
   // static components
 
@@ -161,9 +161,9 @@ void TimeStepping::execute()
     Real norm = boost::any_cast<Real>(solver().handle<SFDSolver>()->actions().get_child(Tags::L2norm())->properties().property("norm"));
 
     if (options().option("time_accurate").value<bool>())
-      CFinfo << "iter [" << std::setw(4) << k << "]  cfl [" << std::setw(8) << cfl<< "]  time [" << std::setw(8) << m_time->current_time() << "]  dt ["<< std::setw(8) << m_time->dt()<<"]  L2(rhs) ["<< std::setw(8) << norm<<"]" << CFendl;
+      CFinfo << "iter [" << std::setw(4) << k-1 << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm<<"]" << CFendl;
     else
-      CFinfo << "iter [" << std::setw(4) << k << "]  cfl [" << std::setw(8) << cfl<< "]  L2(rhs) [" << std::setw(8) << norm << "]" << CFendl;
+      CFinfo << "iter [" << std::setw(4) << k-1 << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm << "]" << CFendl;
 
 
   }

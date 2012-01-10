@@ -102,7 +102,6 @@ Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::string& name,
                                          const std::vector<URI>& regions )
 {
-  CFinfo << "Creating cell term   " << name << "(" << type << ")" << CFendl;
   Handle< Term > term = m_terms->create_component<Term>(name, type);
 
   if (regions.size() == 0)
@@ -119,6 +118,12 @@ Term& DomainDiscretization::create_term( const std::string& type,
   boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
   {
     m_terms_per_region[access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
+  }
+
+  CFinfo << "Created term   " << name << "(" << type << ") for regions " << CFendl;
+  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
+  {
+    CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
   }
 
   return *term;

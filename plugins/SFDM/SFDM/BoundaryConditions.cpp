@@ -87,7 +87,6 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
                                                    const std::string& name,
                                                    const std::vector<URI>& regions )
 {
-  CFinfo << "Creating BC   " << name << "(" << type << ") ... " << CFendl;
   Handle< BC > bc = m_bcs->create_component<BC>(name, type);
 
   if (regions.size() == 0)
@@ -104,6 +103,12 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
   boost_foreach(const URI& region_uri, regions)
   {
     m_bc_per_region[access_component(region_uri)->handle<Region>()] = bc->handle<BC>();
+  }
+
+  CFinfo << "Created BC   " << name << "(" << type << ") for regions " << CFendl;
+  boost_foreach(const URI& region_uri, regions)
+  {
+    CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
   }
 
   return *bc;
