@@ -101,8 +101,7 @@ void SimpleMeshGenerator::execute()
   {
     throw SetupError(FromHere(), "Invalid size of the vector number of cells. Only 1D and 2D supported now.");
   }
-
-  raise_mesh_loaded();
+  m_mesh->raise_mesh_loaded();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,10 +134,11 @@ void SimpleMeshGenerator::create_line()
 
   Cells& cells = *region.create_component<Cells>("Line");
   cells.initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
+  cells.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   Connectivity& connectivity = cells.node_connectivity();
-  connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-  common::List<Uint>& elem_rank = cells.rank();
-  elem_rank.resize(connectivity.size());
+  common::List<Uint>& elem_rank    = cells.rank();
+  common::List<Uint>& elem_glb_idx = cells.glb_idx();
+
   const Real x_step = x_len / static_cast<Real>(x_segments);
   Uint node_idx(0);
   Uint elem_idx(0);
@@ -146,36 +146,38 @@ void SimpleMeshGenerator::create_line()
   {
     nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step + x_offset;
     nodes.rank()[node_idx] = part;
+    nodes.glb_idx()[node_idx] = i;
     ++node_idx;
   }
   for(Uint i = hash.subhash(ELEMS).start_idx_in_part(part); i < hash.subhash(ELEMS).end_idx_in_part(part); ++i)
   {
+    elem_rank[elem_idx] = part;
+    elem_glb_idx[elem_idx] = i;
+
     if (hash.subhash(NODES).part_owns(part,i) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i);
+      nodes.glb_idx()[node_idx] = i;
       connectivity[elem_idx][0]=node_idx;
-      elem_rank[elem_idx] = part;
       ++node_idx;
     }
     else
     {
       connectivity[elem_idx][0]=elem_idx;
-      elem_rank[elem_idx] = part;
     }
 
     if (hash.subhash(NODES).part_owns(part,i+1) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i+1);
+      nodes.glb_idx()[node_idx] = i+1;
       connectivity[elem_idx][1]=node_idx;
-      elem_rank[elem_idx] = part;
       ++node_idx;
     }
     else
     {
       connectivity[elem_idx][1]=elem_idx+1;
-      elem_rank[elem_idx] = part;
     }
     ++elem_idx;
   }
@@ -187,12 +189,10 @@ void SimpleMeshGenerator::create_line()
     xneg.initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
     if (part == 0)
     {
-      Connectivity& xneg_connectivity = xneg.node_connectivity();
-      xneg_connectivity.resize(1);
-      xneg_connectivity[0][0] = 0;
-      common::List<Uint>& xneg_rank = xneg.rank();
-      xneg_rank.resize(1);
-      xneg_rank[0] = part;
+      xneg.resize(1);
+      xneg.node_connectivity()[0][0] = 0;
+      xneg.rank()[0] = part;
+      xneg.glb_idx()[0] = x_segments+1;
     }
 
     // right boundary point
@@ -200,12 +200,10 @@ void SimpleMeshGenerator::create_line()
     xpos.initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
     if(part == nb_parts-1)
     {
-      Connectivity& xpos_connectivity = xpos.node_connectivity();
-      xpos_connectivity.resize(1);
-      xpos_connectivity[0][0] = connectivity[hash.subhash(ELEMS).nb_objects_in_part(part)-1][1];
-      common::List<Uint>& xpos_rank = xpos.rank();
-      xpos_rank.resize(1);
-      xpos_rank[0] = part;
+      xpos.resize(1);
+      xpos.node_connectivity()[0][0] = connectivity[hash.subhash(ELEMS).nb_objects_in_part(part)-1][1];
+      xpos.rank()[0] = part;
+      xpos.glb_idx()[0] = x_segments+2;
     }
   }
 }
@@ -252,25 +250,25 @@ void SimpleMeshGenerator::create_rectangle()
         glb_node_idx = j * (x_segments+1) + i;
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
-          ghost_nodes_loc[glb_node_idx]=0;
+          ghost_nodes_loc[glb_node_idx]=0; // this value will be set further
         }
 
         glb_node_idx = j * (x_segments+1) + (i+1);
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
-          ghost_nodes_loc[glb_node_idx]=0;
+          ghost_nodes_loc[glb_node_idx]=0; // this value will be set further
         }
+
         glb_node_idx = (j+1) * (x_segments+1) + i;
-        \
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
-          ghost_nodes_loc[glb_node_idx]=0;
+          ghost_nodes_loc[glb_node_idx]=0; // this value will be set further
         }
 
         glb_node_idx = (j+1) * (x_segments+1) + (i+1);
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
-          ghost_nodes_loc[glb_node_idx]=0;
+          ghost_nodes_loc[glb_node_idx]=0; // this value will be set further
         }
       }
     }
@@ -296,6 +294,7 @@ void SimpleMeshGenerator::create_rectangle()
         row[XX] = static_cast<Real>(i) * x_step + x_offset;
         row[YY] = y + y_offset;
         nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
+        nodes.glb_idx()[glb_node_idx-glb_node_start_idx]=glb_node_idx;
       }
     }
   }
@@ -314,15 +313,15 @@ void SimpleMeshGenerator::create_rectangle()
     row[XX] = static_cast<Real>(i) * x_step + x_offset;
     row[YY] = static_cast<Real>(j) * y_step + y_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
+    nodes.glb_idx()[loc_ghost_node_idx]=glb_ghost_node_idx;
   }
   Handle<Cells> cells = region.create_component<Cells>("Quad");
   cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
 
+  cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   Connectivity& connectivity = cells->node_connectivity();
-  connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-
   common::List<Uint>& elem_rank = cells->rank();
-  elem_rank.resize(connectivity.size());
+  common::List<Uint>& elem_glb_idx = cells->glb_idx();
 
   Uint glb_elem_start_idx = hash.subhash(ELEMS).start_idx_in_part(part);
   Uint glb_elem_idx;
@@ -336,6 +335,7 @@ void SimpleMeshGenerator::create_rectangle()
       {
         Connectivity::Row nodes = connectivity[glb_elem_idx-glb_elem_start_idx];
         elem_rank[glb_elem_idx-glb_elem_start_idx] = part;
+        elem_glb_idx[glb_elem_idx-glb_elem_start_idx] = glb_elem_idx;
 
         glb_node_idx = j * (x_segments+1) + i;
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
@@ -368,11 +368,13 @@ void SimpleMeshGenerator::create_rectangle()
 
   if (bdry)
   {
+    glb_elem_idx =  (x_segments+1) * (y_segments+1);
     std::vector<Real> line_nodes(2);
     Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
     left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
     common::List<Uint>::Buffer left_rank = left->rank().create_buffer();
+    common::List<Uint>::Buffer left_glb_idx = left->glb_idx().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
     {
       if (hash.subhash(ELEMS).part_owns(part,j*x_segments))
@@ -389,15 +391,18 @@ void SimpleMeshGenerator::create_rectangle()
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
-        left_connectivity.add_row(line_nodes);
-        left_rank.add_row(part);
+        Uint idx = left_connectivity.add_row(line_nodes);
+        cf3_assert(left_rank.add_row(part) == idx);
+        cf3_assert(left_glb_idx.add_row(glb_elem_idx) == idx);
       }
+      ++glb_elem_idx;
     }
 
     Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
     right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
     common::List<Uint>::Buffer right_rank = right->rank().create_buffer();
+    common::List<Uint>::Buffer right_glb_idx = right->glb_idx().create_buffer();
 
     for(Uint j = 0; j < y_segments; ++j)
     {
@@ -416,14 +421,18 @@ void SimpleMeshGenerator::create_rectangle()
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
         Uint idx = right_connectivity.add_row(line_nodes);
-        cf3_always_assert(right_rank.add_row(part) == idx);
+        cf3_assert(right_rank.add_row(part) == idx);
+        cf3_assert(right_glb_idx.add_row(glb_elem_idx) == idx);
+
       }
+      ++glb_elem_idx;
     }
 
     Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
     bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
     common::List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
+    common::List<Uint>::Buffer bottom_glb_idx = bottom->glb_idx().create_buffer();
 
     for(Uint i = 0; i < x_segments; ++i)
     {
@@ -441,15 +450,18 @@ void SimpleMeshGenerator::create_rectangle()
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
-        bottom_connectivity.add_row(line_nodes);
-        bottom_rank.add_row(part);
+        Uint idx = bottom_connectivity.add_row(line_nodes);
+        cf3_assert(bottom_rank.add_row(part) == idx);
+        cf3_assert(bottom_glb_idx.add_row(glb_elem_idx) == idx);
       }
+      ++glb_elem_idx;
     }
 
     Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
     top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
     common::List<Uint>::Buffer top_rank = top->rank().create_buffer();
+    common::List<Uint>::Buffer top_glb_idx = top->glb_idx().create_buffer();
 
     for(Uint i = 0; i < x_segments; ++i)
     {
@@ -467,9 +479,11 @@ void SimpleMeshGenerator::create_rectangle()
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
-        top_connectivity.add_row(line_nodes);
-        top_rank.add_row(part);
+        Uint idx = top_connectivity.add_row(line_nodes);
+        cf3_assert(top_rank.add_row(part) == idx);
+        cf3_assert(top_glb_idx.add_row(glb_elem_idx) == idx);
       }
+      ++glb_elem_idx;
     }
   }
 

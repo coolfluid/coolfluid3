@@ -1353,11 +1353,7 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
   }
 
   // Raise an event to indicate that a mesh was loaded happened
-  XML::SignalOptions options;
-  options.add_option("mesh_uri", mesh.uri());
-
-  XML::SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  mesh.raise_mesh_loaded();
 }
 
 

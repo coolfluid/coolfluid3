@@ -117,8 +117,8 @@ public: // functions
   bool is_ghost(const Uint idx) const;
 
   /// @brief Check if all fields are compatible
-  /// @throws common::InvalidStructure
-  void check_sanity();
+  bool check_sanity(std::vector<std::string>& messages) const;
+  bool check_sanity() const;
 
   std::vector<Handle< Entities > > entities_range();
   std::vector<Handle< Elements > > elements_range();

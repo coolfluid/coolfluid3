@@ -276,19 +276,39 @@ Field& SpaceFields::create_field(const std::string &name, math::VariablesDescrip
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::check_sanity()
+bool SpaceFields::check_sanity(std::vector<std::string>& messages) const
 {
-  boost_foreach(Field& field, find_components<Field>(*this))
-  {
-    if (field.size() != m_size)
-      throw InvalidStructure(FromHere(),"field ["+field.uri().string()+"] has a size "+to_str(field.size())+" != supposed "+to_str(m_size));
-  }
+  Uint nb_messages_init = messages.size();
+  if (rank().size() != size())
+    messages.push_back(uri().string()+": size() ["+to_str(size())+"] != rank().size() ["+to_str(rank().size())+"]");
 
-  boost_foreach(common::List<Uint>& list, find_components<common::List<Uint> >(*this))
+  if (glb_idx().size() != size())
+    messages.push_back(uri().string()+": size() ["+to_str(size())+"] != glb_idx().size() ["+to_str(glb_idx().size())+"]");
+
+  boost_foreach(const Field& field, find_components_recursively<Field>(*this))
   {
-    if (list.size() != m_size)
-      throw InvalidStructure(FromHere(),"list ["+list.uri().string()+"] has a size "+to_str(list.size())+" != supposed "+to_str(m_size));
+    if (field.size() != size())
+      messages.push_back(uri().string()+": size() ["+to_str(size())+"] != "+field.uri().string()+".size() ["+to_str(field.size())+"]");
   }
+  // Sane if number of messages did not grow in size
+  return messages.size() == nb_messages_init;
+}
+
+bool SpaceFields::check_sanity() const
+{
+  std::vector<std::string> messages;
+  bool sane = check_sanity(messages);
+  if ( sane == false )
+  {
+    std::stringstream message;
+    message << "SpaceFields "+uri().string()+" is not sane:"<<std::endl;
+    boost_foreach(const std::string& str, messages)
+    {
+      message << "- " << str << std::endl;
+    }
+    throw InvalidStructure(FromHere(), message.str() );
+  }
+  return sane;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

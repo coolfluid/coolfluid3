@@ -140,20 +140,23 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   if(entities_vector.empty())
     return used_nodes;
 
-  const Uint all_nb_nodes = entities_vector.front()->space(space_name).fields().coordinates().size();
-//  cf3_assert_desc(common::to_str(all_nb_nodes)+"!="+common::to_str( entities_vector.front()->space(space_name).fields().coordinates().size() ),entities_vector.front()->space(space_name).fields().size() == entities_vector.front()->space(space_name).fields().coordinates().size())
+  const Uint all_nb_nodes = entities_vector.front()->space(space_name).fields().size();
+
   std::vector<bool> node_is_used(all_nb_nodes, false);
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const Handle<Entities const>& entities_handle, entities_vector)
+  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
   {
-    const Entities& elements = *entities_handle;
-    const Uint nb_elems = elements.size();
+    const Space& space = entities->space(space_name);
+    const Uint nb_elems = entities->size();
+
     for (Uint idx=0; idx<nb_elems; ++idx)
     {
-      boost_foreach(const Uint node, elements.get_nodes(idx))
+      cf3_assert(idx<space.connectivity().size());
+      boost_foreach(const Uint node, space.connectivity()[idx])
       {
+        cf3_assert(node<node_is_used.size());
         if(!node_is_used[node])
         {
           node_is_used[node] = true;
@@ -170,13 +173,13 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   // Add the unique node indices
   node_is_used.assign(all_nb_nodes, false);
   Uint back = 0;
-  BOOST_FOREACH(const Handle<Entities const>& entities_handle, entities_vector)
+  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
   {
-    const Entities& elements = *entities_handle;
-    const Uint nb_elems = elements.size();
+    const Space& space = entities->space(space_name);
+    const Uint nb_elems = entities->size();
     for (Uint idx=0; idx<nb_elems; ++idx)
     {
-      boost_foreach(const Uint node, elements.get_nodes(idx))
+      boost_foreach(const Uint node, space.connectivity()[idx])
       {
         if(!node_is_used[node])
         {
@@ -359,6 +362,18 @@ bool IsElementsSurface::operator()(const Entities& component)
 {
   return component.element_type().dimension() == component.element_type().dimensionality() + 1;
 }
+
+
+void Entities::resize(const Uint nb_elem)
+{
+  rank().resize(nb_elem);
+  glb_idx().resize(nb_elem);
+  boost_foreach(Space& space, find_components_recursively<Space>(*m_spaces_group))
+  {
+    space.connectivity().resize(nb_elem);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 } // mesh

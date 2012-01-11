@@ -102,6 +102,29 @@ void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh;
 
+  if (PE::Comm::instance().size()==1)
+  {
+    Uint glb_idx=0;
+    mesh.geometry_fields().rank().resize(mesh.geometry_fields().size());
+    mesh.geometry_fields().glb_idx().resize(mesh.geometry_fields().size());
+    for (Uint n=0; n<mesh.geometry_fields().size(); ++n)
+    {
+      mesh.geometry_fields().rank()[n]=PE::Comm::instance().rank();
+      mesh.geometry_fields().glb_idx()[n]=glb_idx++;
+    }
+    boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
+    {
+      elements.rank().resize(elements.size());
+      elements.glb_idx().resize(elements.size());
+      for (Uint e=0; e<elements.size(); ++e)
+      {
+        elements.rank()[e]=PE::Comm::instance().rank();
+        elements.glb_idx()[e]=glb_idx++;
+      }
+    }
+    return;
+  }
+
   common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
   if ( is_null( mesh.geometry_fields().get_child("glb_node_hash") ) )

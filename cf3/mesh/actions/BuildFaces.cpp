@@ -35,6 +35,7 @@
 #include "mesh/Cells.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/actions/BuildFaces.hpp"
 
@@ -356,8 +357,6 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     }
   }
 
-
-  // Check sizes match
   boost_foreach( const std::string& face_type , face_types)
   {
     f2c_buffer_map[face_type]->flush();
@@ -366,15 +365,21 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CellFaces& faces = *Handle<CellFaces>(region.get_child(shape_name));
-
-    faces.rank().resize(faces.size());
-    faces.glb_idx().resize(faces.size());
     FaceCellConnectivity&  f2c  = faces.cell_connectivity();
+    faces.geometry_space().connectivity().set_row_size(faces.geometry_space().nb_states());
+    faces.resize(faces.size());
+    for (Uint f=0; f<faces.size(); ++f)
+    {
+      faces.geometry_space().connectivity().set_row(f,f2c.face_nodes(f));
+    }
+
     Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
     Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
     cf3_assert(f2c.size() == fnb->size());
     cf3_assert(fnb->size() == faces.size());
     cf3_assert(bdry->size() == faces.size());
+
+
   }
 
   if (PE::Comm::instance().is_active())

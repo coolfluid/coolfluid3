@@ -108,6 +108,8 @@ public: // functions
 
   void signature_create_space ( common::SignalArgs& node);
 
+  void resize(const Uint nb_elem);
+
 protected: // data
 
   Handle<ElementType> m_element_type;
