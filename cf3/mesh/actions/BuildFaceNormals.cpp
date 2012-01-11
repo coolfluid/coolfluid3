@@ -124,12 +124,12 @@ void BuildFaceNormals::execute()
           RealVector normal(1);
           normal = face_coordinates.row(0) - cell_centroid;
           normal.normalize();
-          face_normals[face_normals.indexes_for_element(faces,face.idx)[0]][XX]=normal[XX];
+          face_normals[face_normals.space(faces).connectivity()[face.idx][0]][XX]=normal[XX];
         }
         else
         {
           face.element_type().compute_normal(face_coordinates,normal);
-          Uint field_index = face_normals.indexes_for_element(faces,face.idx)[0];
+          Uint field_index = face_normals.space(faces).connectivity()[face.idx][0];
           cf3_assert(field_index    < face_normals.size()    );
           cf3_assert(normal.size() == face_normals.row_size());
           for (Uint i=0; i<normal.size(); ++i)

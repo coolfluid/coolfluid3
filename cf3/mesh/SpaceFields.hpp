@@ -130,17 +130,14 @@ public: // functions
   void create_connectivity_in_space();
   void bind_space();
 
-  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
-
-  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
-
-  Field& create_coordinates();
+// deprecated
+//  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
+// deprecated
+//  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
 
   const Field& coordinates() const;
 
   Field& coordinates();
-
-  bool has_coordinates() const;
 
   common::DynTable<Uint>& glb_elem_connectivity();
 
@@ -151,6 +148,10 @@ public: // functions
   void signature_create_field ( common::SignalArgs& node);
 
 private: // functions
+
+  bool has_coordinates() const;
+
+  Field& create_coordinates();
 
   void update();
 

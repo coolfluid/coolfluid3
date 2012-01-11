@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
     Elements& elements = *elements_handle;
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( mesh.geometry_fields().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
+      BOOST_CHECK( mesh.geometry_fields().space(elements).connectivity()[e] == elements.node_connectivity()[e] );
     }
   }
   BOOST_CHECK_EQUAL( mesh.geometry_fields().elements_lookup().components().size() , 5u);
@@ -118,26 +118,19 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   Uint cell_idx=0;
   boost_foreach(const Handle<Entities>& elements_handle, cell_fields.elements_range())
   {
-    Entities& elements = *elements_handle;
+    const Entities& elements = *elements_handle;
+    const Space& space = cell_fields.space(elements);
+    const Connectivity& field_connectivity = space.connectivity();
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( elements.space(cell_fields.space()).is_bound_to_fields() );
-      boost_foreach( const Uint point, cell_fields.indexes_for_element(elements,e) )
+      BOOST_CHECK( space.is_bound_to_fields() );
+      boost_foreach( const Uint point, field_connectivity[e] )
       {
         BOOST_CHECK_EQUAL( point, cell_idx );  // same because P0 field
         ++cell_idx;
       }
     }
   }
-  // Same check using a unified_cell_index
-  for (Uint unified_idx=0; unified_idx<cell_fields.elements_lookup().size(); ++unified_idx)
-  {
-    boost_foreach( const Uint point, cell_fields.indexes_for_element(unified_idx) )
-    {
-      BOOST_CHECK_EQUAL( point, unified_idx);  // The boost_foreach has only 1 iteration as it is P0 field
-    }
-  }
-
 
   // ----------------------------------------------------------------------------------------------
   // CHECK field building inside field groups
@@ -152,7 +145,8 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   BOOST_CHECK_EQUAL(volume.size() , cell_fields.size());
   BOOST_CHECK_EQUAL(volume.field_group().uri().string() , cell_fields.uri().string() );
 
-  BOOST_CHECK_EQUAL(find_components<Field>(cell_fields).size() , 1u);
+  // There should be 1 volume field and 1 coordinates field
+  BOOST_CHECK_EQUAL(find_components<Field>(cell_fields).size() , 2u);
   boost_foreach(Field& field, find_components<Field>(cell_fields))
     BOOST_CHECK_EQUAL( field.field_group().uri().string() , cell_fields.uri().string());
 

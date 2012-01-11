@@ -81,7 +81,7 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const;
 
-  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user);
+  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
   
   /// return the number of elements across all processes;
   Uint glb_size() const;

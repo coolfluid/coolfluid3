@@ -417,18 +417,18 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
         {
-          const Uint elements_begin = field.field_group().space(elements).elements_begin();
+          Connectivity& field_connectivity = field.field_group().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
             const Uint n_elems = elements.size();
-            const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
             if(dim == 2 && var_size == 2)
             {
               for(Uint i = 0; i != n_elems; ++i)
               {
                 for(Uint j = var_begin; j != var_end; ++j)
                 {
-                  appended_data.push_back(field[i+elements_begin][j]);
+                  /// @bug the field values of the space should be interpolated to the cell-centre, similar to the tecplot writer
+                  appended_data.push_back(field[field_connectivity[i][0]][j]);
                 }
                 appended_data.push_back(0.);
               }
@@ -438,7 +438,10 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
               for(Uint i = 0; i != n_elems; ++i)
               {
                 for(Uint j = var_begin; j != var_end; ++j)
-                  appended_data.push_back(field[i+elements_begin][j]);
+                {
+                  /// @bug the field values of the space should be interpolated to the cell-centre, similar to the tecplot writer
+                  appended_data.push_back(field[field_connectivity[i][0]][j]);
+                }
               }
             }
           }

@@ -106,10 +106,10 @@ public: // functions
     return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
   }
 
-
-  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
-
-  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+// deprecated
+//  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+// deprecated
+//  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
   common::List<Uint>& glb_idx() const { return field_group().glb_idx(); }
 

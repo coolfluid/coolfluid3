@@ -127,7 +127,7 @@ ElementType& Entities::element_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& node_user)
+boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& node_user, const std::string& space_name)
 {
   boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
 
@@ -140,9 +140,9 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   if(entities_vector.empty())
     return used_nodes;
 
-  const Uint coords_size = entities_vector.front()->geometry_space().fields().coordinates().size();
-
-  std::vector<bool> node_is_used(coords_size, false);
+  const Uint all_nb_nodes = entities_vector.front()->space(space_name).fields().coordinates().size();
+//  cf3_assert_desc(common::to_str(all_nb_nodes)+"!="+common::to_str( entities_vector.front()->space(space_name).fields().coordinates().size() ),entities_vector.front()->space(space_name).fields().size() == entities_vector.front()->space(space_name).fields().coordinates().size())
+  std::vector<bool> node_is_used(all_nb_nodes, false);
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
@@ -168,7 +168,7 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   common::List<Uint>::ListT& nodes_array = used_nodes->array();
 
   // Add the unique node indices
-  node_is_used.assign(coords_size, false);
+  node_is_used.assign(all_nb_nodes, false);
   Uint back = 0;
   BOOST_FOREACH(const Handle<Entities const>& entities_handle, entities_vector)
   {
@@ -201,7 +201,7 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    boost::shared_ptr< List<Uint> > used_nodes_shr = Entities::create_used_nodes(parent);
+    boost::shared_ptr< List<Uint> > used_nodes_shr = Entities::create_used_nodes(parent,mesh::Tags::geometry());
     used_nodes = Handle< List<Uint> >(used_nodes_shr);
     parent.add_component(used_nodes_shr);
     used_nodes->add_tag(mesh::Tags::nodes_used());

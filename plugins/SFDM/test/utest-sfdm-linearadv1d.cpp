@@ -182,7 +182,6 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   solver.initial_conditions().execute();
 
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(SFDM::Tags::solution()) ) );
-  solution_field.field_group().create_coordinates();
 
   // Discretization
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
@@ -344,7 +343,6 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));

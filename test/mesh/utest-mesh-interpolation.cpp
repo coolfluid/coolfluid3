@@ -130,10 +130,6 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   SpaceFields& source_node_fields = source.geometry_fields();
   SpaceFields& target_node_fields = target.geometry_fields();
 
-
-  source_elem_fields.create_coordinates();
-  target_elem_fields.create_coordinates();
-
   // Create empty fields
   Field& s_nodebased   = source_node_fields.create_field( "nodebased",     "rho_n[1],   V_n[3],   p_n[1]" );
   Field& s_elembased   = source_elem_fields.create_field( "elementbased",  "rho_e[1],   V_e[3],   p_e[1]" );

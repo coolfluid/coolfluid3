@@ -293,7 +293,6 @@ BOOST_AUTO_TEST_CASE( minitest )
 
 
   SpaceFields& elems = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
-  elems.create_coordinates();
   Field& elem_rank     = elems.create_field("elem_rank");
   elem_rank.parallelize();
 

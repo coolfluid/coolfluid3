@@ -97,7 +97,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        Connectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
+        Connectivity::ConstRow s_field_indexes = source.space(*s_elements).connectivity()[s_elm_idx];
         std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
         fill( s_nodes , source_coords , s_field_indexes );
@@ -136,7 +136,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
           Elements const& elements = dynamic_cast<Elements const&>(*component);
           RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
-          boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
+          boost_foreach ( const Uint state_idx, source.space(elements).connectivity()[s_elm_idx] )
           {
             s_field_indexes.push_back(state_idx);
           }
@@ -177,7 +177,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       t_space.allocate_coordinates(elem_coordinates);
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.indexes_for_element(t_elements,t_elm_idx);
+        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
@@ -185,7 +185,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
           boost::tie(s_elements,s_elm_idx) = find_element(t_node);
           if (is_not_null(s_elements))
           {
-            Connectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
+            Connectivity::ConstRow s_field_indexes = source.space(*s_elements).connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
             fill( s_nodes , source_coords , s_field_indexes );
@@ -226,7 +226,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       RealVector t_node(m_dim);  t_node.setZero();
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.indexes_for_element(t_elements,t_elm_idx);
+        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
@@ -245,7 +245,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
               boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
               Elements const& elements = dynamic_cast<Elements const&>(*component);
               RealMatrix space_coords = source.space(elements).get_coordinates(s_elm_idx);
-              boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
+              boost_foreach ( const Uint state_idx, source.space(elements).connectivity()[s_elm_idx] )
               {
                 s_field_indexes.push_back(state_idx);
               }

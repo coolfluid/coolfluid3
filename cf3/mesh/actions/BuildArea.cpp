@@ -17,6 +17,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -76,11 +77,11 @@ void BuildArea::execute()
   {
     Entities& elements = *elements_handle;
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
-
+    Connectivity& field_connectivity = area.space(elements).connectivity();
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().area( coordinates );
+      area[field_connectivity[cell_idx][0]][0] = elements.element_type().area( coordinates );
     }
   }
 }

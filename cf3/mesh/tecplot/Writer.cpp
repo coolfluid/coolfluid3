@@ -144,9 +144,14 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
     if (elements.size() == 0)
       continue;
 
+    if (etype.order() != 1)
+    {
+      throw NotImplemented(FromHere(), "Tecplot can only output P1 elements. A new P1 space should be created, and used as geometry space");
+    }
+
     zone_id[elements.handle<Component>()] = zone_idx++;
 
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements);
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements,mesh::Tags::geometry());
     common::List<Uint>& used_nodes = *used_nodes_ptr;
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)

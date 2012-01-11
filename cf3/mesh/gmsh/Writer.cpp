@@ -169,11 +169,13 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
   Uint prec = file.precision();
   file.precision(8);
 
-  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Elements::create_used_nodes(mesh.topology());
+  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Elements::create_used_nodes(mesh.topology(),mesh::Tags::geometry());
   const common::List<Uint>& used_nodes = *used_nodes_ptr;
   const Uint nb_nodes = used_nodes.size();
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
   to_gmsh_node.reserve(nb_nodes);
+
+  std::cout << "used_nodes = \n" << used_nodes << std::endl;
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
@@ -183,6 +185,7 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
+    std::cout << node << std::endl;
     to_gmsh_node.insert_blindly(node,gmsh_node++);
     common::Table<Real>::ConstRow coord = coordinates[node];
     file << ++node_number << " ";

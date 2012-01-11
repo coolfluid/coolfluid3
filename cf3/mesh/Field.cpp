@@ -177,16 +177,16 @@ void Field::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
-{
-  return field_group().indexes_for_element(elements,idx);
-}
+//common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
+//{
+//  return field_group().indexes_for_element(elements,idx);
+//}
 
 
-common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
-{
-  return field_group().indexes_for_element(unified_idx);
-}
+//common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
+//{
+//  return field_group().indexes_for_element(unified_idx);
+//}
 
 std::vector< Handle<Entities> > Field::entities_range()
 {

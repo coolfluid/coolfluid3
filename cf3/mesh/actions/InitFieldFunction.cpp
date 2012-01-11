@@ -115,11 +115,10 @@ void InitFieldFunction::execute()
       Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);
-
+      Connectivity& field_connectivity = space.connectivity();
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         coordinates = space.compute_coordinates(elem_idx);
-        Connectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
         /// for each state of the field shape function
         for (Uint iState=0; iState<space.nb_states(); ++iState)
         {
@@ -129,7 +128,7 @@ void InitFieldFunction::execute()
           m_function.evaluate(vars,return_val);
           /// put the return values in the field
           for (Uint i=0; i<field.row_size(); ++i)
-            field[field_idx[iState]][i] = return_val[i];
+            field[field_connectivity[elem_idx][iState]][i] = return_val[i];
         }
       }
     }

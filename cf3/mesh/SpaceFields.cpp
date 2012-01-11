@@ -375,22 +375,6 @@ void SpaceFields::update()
   }
 
   bind_space();
-//  if (m_basis != Basis::POINT_BASED)
-//  {
-//    Uint new_size = 0;
-//    boost_foreach(Entities& entities, entities_range())
-//      new_size += entities.space(m_space).nb_states() * entities.size();
-//    resize(new_size);
-//    bind_space();
-//  }
-//  else
-//  {
-//    if (m_space != Entities::MeshSpaces::to_str(Entities::MeshSpaces::MESH_NODES))
-//    {
-//      bind_space();
-//    }
-//  }
-
   check_sanity();
 }
 
@@ -514,7 +498,7 @@ void SpaceFields::create_connectivity_in_space()
       Space& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
       {
-        Connectivity::ConstRow nodes = space.indexes_for_element(e);
+        Connectivity::ConstRow nodes = space.connectivity()[e];
         boost_foreach(const Uint node, nodes)
           rank()[node] = std::min(rank()[node] , entities.rank()[e] );
       }
@@ -676,8 +660,13 @@ void SpaceFields::create_connectivity_in_space()
     {
       Space& space = entities->space(m_space);
       Handle<Link>(space.get_child("fields"))->link_to(*this);
-      space.make_proxy(field_idx);
-      field_idx += entities->size()*space.nb_states();
+      space.connectivity().set_row_size(space.nb_states());
+      space.connectivity().resize(entities->size());
+      for (Uint elem=0; elem<entities->size(); ++elem)
+      {
+        for (Uint node=0; node<space.nb_states(); ++node)
+          space.connectivity()[elem][node] = field_idx++;
+      }
     }
 
     resize(field_idx);
@@ -690,8 +679,7 @@ void SpaceFields::create_connectivity_in_space()
       space.connectivity().create_lookup().add(*this);
       for (Uint e=0; e<entities.size(); ++e)
       {
-        Connectivity::ConstRow field_indexes = space.indexes_for_element(e);
-        boost_foreach(const Uint idx, field_indexes)
+        boost_foreach(const Uint idx, space.connectivity()[e])
           rank()[idx] = entities.rank()[e];
       }
     }
@@ -734,12 +722,12 @@ void SpaceFields::create_connectivity_in_space()
       {
         if (entities.is_ghost(e) == false)
         {
-          boost_foreach(const Uint idx, space.indexes_for_element(e))
+          boost_foreach(const Uint idx, space.connectivity()[e])
             glb_idx()[idx] = id++;
         }
         else
         {
-          boost_foreach(const Uint idx, space.indexes_for_element(e))
+          boost_foreach(const Uint idx, space.connectivity()[e])
             glb_idx()[idx] = UNKNOWN;
         }
       }
@@ -798,7 +786,7 @@ void SpaceFields::create_connectivity_in_space()
             hash_to_elem_idx_iter = hash_to_elem_idx.find(recv_ghosts_hashed[p][h]);
             if ( hash_to_elem_idx_iter != hash_not_found )
             {
-              Uint first_glb_idx = glb_idx()[ space.indexes_for_element( hash_to_elem_idx_iter->second )[0] ];
+              Uint first_glb_idx = glb_idx()[ space.connectivity()[ hash_to_elem_idx_iter->second ][0] ];
               send_glb_idx_on_rank[p][h] = first_glb_idx;
             }
           }
@@ -818,33 +806,34 @@ void SpaceFields::create_connectivity_in_space()
       for (Uint g=0; g<ghosts.size(); ++g)
       {
         cf3_assert(entities.rank()[ghosts[g]] < Comm::instance().size());
-        const Uint first_loc_idx = space.indexes_for_element(ghosts[g])[0];
+        const Uint first_loc_idx = space.connectivity()[ghosts[g]][0];
         const Uint first_glb_idx = recv_glb_idx_on_rank[ entities.rank()[ghosts[g]] ][g];
         for (Uint s=0; s<nb_states_per_elem; ++s)
           glb_idx()[first_loc_idx+s] = first_glb_idx+s;
       }
     }
+    create_coordinates();
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Entities& elements, const Uint idx) const
-{
-  Space& space = elements.space(m_space);
-  cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
-  return space.indexes_for_element(idx);
-}
+//common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Entities& elements, const Uint idx) const
+//{
+//  Space& space = elements.space(m_space);
+//  cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
+//  return space.connectivity()[idx];
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Uint unified_idx) const
-{
-  Handle< Component > component;
-  Uint elem_idx;
-  boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
-  return indexes_for_element(dynamic_cast<Entities&>(*component),elem_idx);
-}
+//common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Uint unified_idx) const
+//{
+//  Handle< Component > component;
+//  Uint elem_idx;
+//  boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
+//  return indexes_for_element(dynamic_cast<Entities&>(*component),elem_idx);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -884,8 +873,6 @@ const Field& SpaceFields::coordinates() const
 
 Field& SpaceFields::create_coordinates()
 {
-  CFinfo << "Creating coordinates field in " << uri() << CFendl;
-
   if (has_coordinates())
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
 
@@ -910,14 +897,12 @@ Field& SpaceFields::create_coordinates()
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      Connectivity::ConstRow field_index = space.indexes_for_element(e);
-
       entities.put_coordinates(geom_nodes,e);
       coords = interpolation*geom_nodes;
 
       for (Uint i=0; i<sf.nb_nodes(); ++i)
       {
-        const Uint pt = field_index[i];
+        const Uint pt = space.connectivity()[e][i];
         for(Uint d=0; d<coords.cols(); ++d)
           coordinates[pt][d] = coords(i,d);
       }

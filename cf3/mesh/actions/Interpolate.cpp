@@ -132,8 +132,6 @@ void Interpolate::execute()
   }
   else // fields are on different meshes
   {
-    if (target.field_group().has_coordinates() == false)
-      target.field_group().create_coordinates();
     interpolate(source,target.coordinates(),target);
   }
 }
@@ -360,8 +358,6 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   {
     if ( Handle< Field > target_field = Handle<Field>(target.handle<Component>()) )
     {
-      if (target_field->field_group().has_coordinates() == false)
-        target_field->field_group().create_coordinates();
       coordinates = Handle< common::Table<Real> >(target_field->field_group().coordinates().handle<Component>());
     }
     else

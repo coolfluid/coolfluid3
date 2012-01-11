@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
     mesh->geometry_fields().coordinates(),
     elements.node_connectivity().array(),
     vol_field,
-    vol_field.field_group().space(elements).elements_begin()
+    vol_field.field_group().space(elements).connectivity()[0][0]
   ));
 }
 
