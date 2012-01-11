@@ -277,7 +277,7 @@ class SFDM_API BCNull : public BCWeak< BCPointData<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCNull"; }
-  BCNull(const std::string& name) : BCWeak(name)
+  BCNull(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
   }
   virtual ~BCNull() {}

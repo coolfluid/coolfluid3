@@ -33,7 +33,7 @@ private:
 
 public:
   static std::string type_name() { return "Convection1D"; }
-  Convection1D(const std::string& name) : ConvectiveTerm(name)
+  Convection1D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<3u,1u> >(name)
   {
   }
 

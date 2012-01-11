@@ -31,7 +31,7 @@ private:
 
 public:
   static std::string type_name() { return "Convection2D"; }
-  Convection2D(const std::string& name) : ConvectiveTerm(name)
+  Convection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<4u,2u> >(name)
   {
     p.gamma = 1.;
     options().add_option("gamma",p.gamma)
