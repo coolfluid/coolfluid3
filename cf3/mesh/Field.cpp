@@ -83,10 +83,10 @@ void Field::config_var_names()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_topology(Region& region)
-{
-  m_topology = Handle<Region>(region.handle<Component>());
-}
+//void Field::set_topology(Region& region)
+//{
+//  m_topology = Handle<Region>(region.handle<Component>());
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -146,14 +146,6 @@ Field::VarType Field::var_length ( const std::string& vname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Region& Field::topology() const
-{
-  cf3_assert(is_null(m_topology) == false);
-  return *m_topology;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void Field::set_field_group(SpaceFields& field_group)
 {
   m_field_group = Handle<SpaceFields>(field_group.handle<Component>());
@@ -177,26 +169,12 @@ void Field::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
-//{
-//  return field_group().indexes_for_element(elements,idx);
-//}
-
-
-//common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
-//{
-//  return field_group().indexes_for_element(unified_idx);
-//}
-
 std::vector< Handle<Entities> > Field::entities_range()
 {
   return field_group().entities_range();
 }
 
-std::vector< Handle<Elements> > Field::elements_range()
-{
-  return field_group().elements_range();
-}
+////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
@@ -205,6 +183,7 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
   return comm_pattern;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize()
 {
@@ -217,6 +196,7 @@ CommPattern& Field::parallelize()
   return parallelize_with( comm_pattern );
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 void Field::synchronize()
 {

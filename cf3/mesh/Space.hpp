@@ -86,8 +86,6 @@ public: // functions
 
   SpaceFields& fields() const;
 
-  void make_proxy(const Uint elem_start_idx);
-
   RealMatrix compute_coordinates(const Uint elem_idx) const;
 
   RealMatrix get_coordinates(const Uint elem_idx) const;
@@ -95,6 +93,8 @@ public: // functions
   void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
   void allocate_coordinates(RealMatrix& coordinates) const;
+
+  Uint size() const;
 
 private: // functions
 

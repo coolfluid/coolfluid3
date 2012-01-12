@@ -60,7 +60,7 @@ void CComputeArea::config_field()
 
 void CComputeArea::trigger_elements()
 {
-  m_can_start_loop = m_area->elements_lookup().contains(elements());
+  m_can_start_loop = m_area->field_group().defined_for_entities(elements().handle<Entities>());
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);

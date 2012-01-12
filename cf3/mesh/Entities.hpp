@@ -79,7 +79,7 @@ public: // functions
   bool is_ghost(const Uint idx) const;
 
   /// return the number of elements
-  virtual Uint size() const;
+  Uint size() const;
 
   static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
   

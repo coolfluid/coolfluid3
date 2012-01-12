@@ -217,9 +217,9 @@ BOOST_AUTO_TEST_CASE( RankField )
   SpaceFields& elems_P0 = mesh().create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
-  boost_foreach(const Handle<Elements>& elements_handle, elems_P0.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, elems_P0.entities_range())
   {
-    Elements& elements = *elements_handle;
+    Entities& elements = *elements_handle;
     Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {

@@ -160,9 +160,9 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
     nodes_P1_node_rank[n][0] = nodes_P1.rank()[n];
 
-  boost_foreach(const Handle<Elements>& elements_handle, elems_P0.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, elems_P0.entities_range())
   {
-    Elements& elements = *elements_handle;
+    Entities& elements = *elements_handle;
     Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {

@@ -94,7 +94,7 @@ void Interpolate::execute()
     boost_foreach(const Handle<Entities>& elements_handle, target.entities_range())
     {
       Entities& elements = *elements_handle;
-      if (source.elements_lookup().contains(elements) == false)
+      if (source.field_group().defined_for_entities(elements_handle) == false)
         continue;
       //      throw BadValue(FromHere(),"Source field "+source.uri().string()+" is not defined in elements "+elements.uri().string());
 

@@ -102,6 +102,11 @@ Uint Space::nb_states() const
   return shape_function().nb_nodes();
 }
 
+Uint Space::size() const
+{
+  return m_connectivity->size();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void Space::configure_shape_function()

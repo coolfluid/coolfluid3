@@ -171,8 +171,9 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     RealMatrix elem_coordinates;
     const Field& source_coords = source.coordinates();
 
-    boost_foreach( Elements& t_elements, find_components_recursively<Elements>(target.topology()) )
+    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
+      Elements& t_elements = *t_elements_handle->handle<Elements>();
       Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
@@ -219,8 +220,9 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes;
     Handle< Component > component;
-    boost_foreach( Elements& t_elements, find_components_recursively<Elements>(target.topology()) )
+    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
+      Elements& t_elements = *t_elements_handle->handle<Elements>();
       Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       RealVector t_node(m_dim);  t_node.setZero();

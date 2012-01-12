@@ -7,6 +7,8 @@
 #ifndef cf3_mesh_SpaceFields_hpp
 #define cf3_mesh_SpaceFields_hpp
 
+#include <set>
+
 #include "common/Table_fwd.hpp"
 #include "common/EnumT.hpp"
 #include "common/Component.hpp"
@@ -89,9 +91,6 @@ public: // functions
   /// Create a new field in this group
   Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
-  /// Return the topology
-  Region& topology() const;
-
   /// Number of rows of contained fields
   virtual Uint size() const { return m_size; }
 
@@ -121,11 +120,10 @@ public: // functions
   bool check_sanity() const;
 
   std::vector<Handle< Entities > > entities_range();
-  std::vector<Handle< Elements > > elements_range();
 
   Field& field(const std::string& name);
 
-  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
+//  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
   void create_connectivity_in_space();
   void bind_space();
@@ -147,6 +145,8 @@ public: // functions
 
   void signature_create_field ( common::SignalArgs& node);
 
+  bool defined_for_entities(const Handle<Entities const>& entities) const;
+
 private: // functions
 
   bool has_coordinates() const;
@@ -158,6 +158,8 @@ private: // functions
   void config_space();
 
   void config_topology();
+
+  void config_regions();
 
   void config_type();
 
@@ -179,6 +181,11 @@ protected:
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
+
+private:
+  std::vector< Handle<Region> > m_regions;
+  std::vector< Handle<Entities> > m_entities;
+  std::set< Handle<Entities const> > m_entities_set;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

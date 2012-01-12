@@ -155,12 +155,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   }
 
   RealMatrix coordinates;
-  boost_foreach( Elements& s_elements, find_components_recursively<Elements>(s_elembased.topology()) )
+  boost_foreach( const Handle<Entities>& s_elements, s_elembased.entities_range() )
   {
-    Space& space = s_elembased.space(s_elements);
+    Space& space = s_elembased.space(*s_elements);
     space.allocate_coordinates(coordinates);
 
-    for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
+    for (Uint elem_idx = 0; elem_idx<s_elements->size(); ++elem_idx)
     {
       coordinates = space.compute_coordinates( elem_idx );
       cf3_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());

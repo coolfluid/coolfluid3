@@ -227,7 +227,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
             }
             else
             {
-              if (field.elements_lookup().contains(elements))
+              if (field.field_group().defined_for_entities(elements.handle<Entities>()) )
               {
                 Space& field_space = field.space(elements);
                 RealVector field_data (field_space.nb_states());
@@ -278,7 +278,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
           }
           else // element based
           {
-            if (field.elements_lookup().contains(elements))
+            if (field.field_group().defined_for_entities(elements.handle<Entities>()))
             {
               Space& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());

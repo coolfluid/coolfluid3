@@ -86,10 +86,6 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
   VarType var_length(const Uint i=0) const;
 
-  void set_topology(Region& topology);
-
-  Region& topology() const;
-
   void set_field_group(SpaceFields& field_group);
 
   SpaceFields& field_group() const;
@@ -106,11 +102,6 @@ public: // functions
     return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
   }
 
-// deprecated
-//  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
-// deprecated
-//  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
-
   common::List<Uint>& glb_idx() const { return field_group().glb_idx(); }
 
   common::List<Uint>& rank() const { return field_group().rank(); }
@@ -123,8 +114,6 @@ public: // functions
 
   std::vector< Handle<Entities> > entities_range();
 
-  std::vector< Handle<Elements> > elements_range();
-
   Field& coordinates() const { return field_group().coordinates(); }
 
   common::PE::CommPattern& parallelize_with( common::PE::CommPattern& comm_pattern );
@@ -133,7 +122,7 @@ public: // functions
 
   void synchronize();
 
-  UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+//  UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
 
   math::VariablesDescriptor& descriptor() const { return *m_descriptor; }
 
@@ -322,7 +311,7 @@ private:
   void config_var_types();
 
   SpaceFields::Basis::Type m_basis;
-  Handle<Region> m_topology;
+//  Handle<Region> m_topology;
   Handle<SpaceFields> m_field_group;
 
   Handle< common::PE::CommPattern > m_comm_pattern;

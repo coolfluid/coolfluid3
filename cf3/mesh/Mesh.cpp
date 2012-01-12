@@ -104,7 +104,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry_fields().options().configure_option("space",   std::string(Tags::geometry()));
   geometry_fields().options().configure_option("topology",topology().uri());
   geometry_fields().coordinates().set_field_group(geometry_fields());
-  geometry_fields().coordinates().set_topology(geometry_fields().topology());
+//  geometry_fields().coordinates().set_topology(geometry_fields().topology());
   geometry_fields().coordinates().set_basis(SpaceFields::Basis::POINT_BASED);
   geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);

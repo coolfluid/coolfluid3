@@ -104,6 +104,12 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
       .attach_trigger( boost::bind( &SpaceFields::config_topology, this) )
       .mark_basic();
 
+  options().add_option("regions",std::vector<URI>())
+      .description("The regions these fields apply to")
+      .attach_trigger( boost::bind( &SpaceFields::config_regions, this) )
+      .mark_basic();
+
+
   // Option "type"
   options().add_option("type", Basis::to_str(m_basis))
       .description("The type of the field")
@@ -156,8 +162,22 @@ void SpaceFields::config_topology()
     throw CastingFailed (FromHere(), "Topology must be of a Region or derived type");
   m_topology->link_to(*topology);
 
+  m_regions.clear();
+  options().configure_option("regions",std::vector<URI>(1,topology_uri));
+
   if (m_basis != Basis::INVALID && m_space != "invalid")
     update();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SpaceFields::config_regions()
+{
+  m_regions.clear();
+  boost_foreach(const URI& region_uri, options().option("regions").value<std::vector<URI> >() )
+  {
+    m_regions.push_back(access_component(region_uri)->handle<Region>());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,13 +248,6 @@ bool SpaceFields::is_ghost(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Region& SpaceFields::topology() const
-{
-  return *Handle<Region>(m_topology->follow());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Space& SpaceFields::space(const Entities& entities) const
 {
   return entities.space(m_space);
@@ -247,7 +260,6 @@ Field& SpaceFields::create_field(const std::string &name, const std::string& var
 
   Field& field = *create_component<Field>(name);
   field.set_field_group(*this);
-  field.set_topology(topology());
   field.set_basis(m_basis);
 
   if (variables_description == "scalar_same_name")
@@ -265,7 +277,6 @@ Field& SpaceFields::create_field(const std::string &name, math::VariablesDescrip
 {
   Field& field = *create_component<Field>(name);
   field.set_field_group(*this);
-  field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
@@ -315,23 +326,23 @@ bool SpaceFields::check_sanity() const
 
 std::vector< Handle< Entities > > SpaceFields::entities_range()
 {
-  std::vector<Handle< Entities > > elements_vec(elements_lookup().components().size());
-  for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = Handle<Entities>(elements_lookup().components()[c]);
+//  std::vector<Handle< Entities > > elements_vec(elements_lookup().components().size());
+//  for (Uint c=0; c<elements_vec.size(); ++c)
+//    elements_vec[c] = Handle<Entities>(elements_lookup().components()[c]);
 
-  return elements_vec;;
+  return m_entities;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector< Handle< Elements > > SpaceFields::elements_range()
-{
-  std::vector<Handle< Elements > > elements_vec(elements_lookup().components().size());
-  for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = Handle<Elements>(elements_lookup().components()[c]);
+//std::vector< Handle< Elements > > SpaceFields::elements_range()
+//{
+//  std::vector<Handle< Elements > > elements_vec(elements_lookup().components().size());
+//  for (Uint c=0; c<elements_vec.size(); ++c)
+//    elements_vec[c] = Handle<Elements>(elements_lookup().components()[c]);
 
-  return elements_vec;
-}
+//  return elements_vec;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -373,29 +384,43 @@ void SpaceFields::on_mesh_changed_event( SignalArgs& args )
 
 void SpaceFields::update()
 {
-  elements_lookup().reset();
+  m_entities_set.clear();
 
-  switch (m_basis)
+  boost_foreach(Handle<Region>& region, m_regions)
   {
-    case Basis::POINT_BASED:
-    case Basis::ELEMENT_BASED:
-      boost_foreach(Elements& elements, find_components_recursively<Elements>(topology()))
-        elements_lookup().add(elements);
-      break;
-    case Basis::CELL_BASED:
-      boost_foreach(Cells& cells, find_components_recursively<Cells>(topology()))
-        elements_lookup().add(cells);
-      break;
-    case Basis::FACE_BASED:
-      boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(topology(),mesh::Tags::face_entity()))
-        elements_lookup().add(faces);
-      break;
-    default:
-      throw InvalidStructure(FromHere(), "basis not set");
+    switch (m_basis)
+    {
+      case Basis::POINT_BASED:
+      case Basis::ELEMENT_BASED:
+        boost_foreach(const Entities& entities, find_components_recursively<Elements>(*region) )
+          m_entities_set.insert( entities.handle<Entities>() );
+        break;
+      case Basis::CELL_BASED:
+        boost_foreach(const Entities& entities, find_components_recursively<Cells>(*region) )
+          m_entities_set.insert( entities.handle<Entities>() );
+        break;
+      case Basis::FACE_BASED:
+        boost_foreach(const Entities& entities, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::face_entity()))
+          m_entities_set.insert( entities.handle<Entities>() );
+        break;
+      default:
+        throw InvalidStructure(FromHere(), "basis not set");
+    }
   }
+  m_entities.clear();
+  m_entities.reserve(m_entities_set.size());
+  boost_foreach(const Handle<Entities const>& entities_handle, m_entities_set)
+      m_entities.push_back(const_cast<Entities&>(*entities_handle).handle<Entities>());
 
   bind_space();
   check_sanity();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool SpaceFields::defined_for_entities(const Handle<Entities const>& entities) const
+{
+  return ( m_entities_set.find(entities) != m_entities_set.end() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +473,7 @@ void SpaceFields::create_connectivity_in_space()
 
     // step 1: collect nodes in a set
     // ------------------------------
-    boost_foreach(const Handle<Entities>& entities_handle, elements_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
       Entities& entities = *entities_handle;
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();

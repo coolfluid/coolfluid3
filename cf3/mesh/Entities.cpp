@@ -48,7 +48,7 @@ Entities::Entities ( const std::string& name ) :
   options().add_option("element_type", "")
       .description("Element type")
       .pretty_name("Element type")
-      .attach_trigger(boost::bind(&Entities::configure_element_type, this));
+      .attach_trigger(boost::bind(&Entities::configure_element_type, this)); 
 
   m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
@@ -218,7 +218,7 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
 Uint Entities::size() const
 {
-  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
+  return geometry_space().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

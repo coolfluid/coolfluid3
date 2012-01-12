@@ -101,35 +101,36 @@ void CreateSFDFields::execute()
     Field& delta = solution_space.create_field(SFDM::Tags::delta(), "delta[vector]");
     solver().field_manager().create_component<Link>(SFDM::Tags::delta())->link_to(delta);
 
-    boost_foreach(Cells& elements, find_components_recursively<Cells>(solution_space.topology()))
+    boost_foreach(const Handle<Entities>& elements, solution_space.entities_range())
     {
-      Space& space = jacob_det.space(elements);
+      if ( is_null(elements->handle<Cells>()) ) continue;
+      Space& space = solution_space.space(*elements);
 
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
       RealMatrix geometry_coords;
-      elements.allocate_coordinates(geometry_coords);
+      elements->allocate_coordinates(geometry_coords);
 
-      RealVector dKsi (elements.element_type().dimensionality()); dKsi.setConstant(2.);
-      RealVector dX (elements.element_type().dimension());
-      RealMatrix jacobian(elements.element_type().dimensionality(),elements.element_type().dimension());
+      RealVector dKsi (elements->element_type().dimensionality()); dKsi.setConstant(2.);
+      RealVector dX (elements->element_type().dimension());
+      RealMatrix jacobian(elements->element_type().dimensionality(),elements->element_type().dimension());
 
-      for (Uint elem=0; elem<elements.size(); ++elem)
+      Connectivity& field_connectivity = space.connectivity();
+
+      for (Uint elem=0; elem<elements->size(); ++elem)
       {
-        elements.put_coordinates(geometry_coords,elem);
-
-        Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
+        elements->put_coordinates(geometry_coords,elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {
-
-          jacob_det[field_idx[node]][0]=elements.element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
-          if (jacob_det[field_idx[node]][0] < 0)
-            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements.uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
-          elements.element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
+          const Uint p = field_connectivity[elem][node];
+          jacob_det[p][0]=elements->element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
+          if (jacob_det[p][0] < 0)
+            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements->uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
+          elements->element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
           dX.noalias() = jacobian.transpose()*dKsi;
           for (Uint d=0; d<dX.size(); ++d)
-            delta[field_idx[node]][d]=dX[d];
+            delta[p][d]=dX[d];
         }
 
       }
