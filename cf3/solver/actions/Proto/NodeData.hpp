@@ -124,17 +124,20 @@ struct NodeVarData< ScalarField >
   /// Sets value
   void set_value(boost::proto::tag::assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] = v;
+    m_value = v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::plus_assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] += v;
+    m_value += v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::minus_assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] -= v;
+    m_value -= v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   /// Offset for the variable in the field

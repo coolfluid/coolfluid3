@@ -477,6 +477,32 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   std::cout << result << std::endl;
 }
 
+
+BOOST_AUTO_TEST_CASE( NodeExprGrouping )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
+  Tools::MeshGeneration::create_line(*mesh, 1., 4);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, ScalarField > T("Temperature", "solution");
+  Real total = 0.;
+  
+  boost::shared_ptr< Expression > test_expr = nodes_expression
+  (
+    group
+    (
+      T = 6.,
+      T += 4.,
+      _cout << T << "\n",
+      boost::proto::lit(total) += T
+    )
+  );
+  
+  test_expr->loop(mesh->topology());
+  
+  BOOST_CHECK_EQUAL(total, 50.);
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
