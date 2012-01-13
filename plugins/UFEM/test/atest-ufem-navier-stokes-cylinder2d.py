@@ -63,7 +63,7 @@ while current_end_time < final_end_time:
   domain.write_mesh(cf.URI('atest-ufem-navier-stokes-cylinder2d_output-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
-    solver.options().configure_option('disabled_actions', ['InitializePressure', 'InitializeVelocity', 'InitializeU1', 'InitializeU2', 'InitializeU3'])
+    solver.options().configure_option('disabled_actions', ['Initialize'])
 
 # print timings
 model.print_timing_tree()
