@@ -66,4 +66,11 @@ coolfluid_add_test( ATEST     atest-ufem-navier-stokes-cylinder2d
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     MPI       4)
 
+coolfluid_add_test( UTEST      utest-rdm-merge
+                    CPP        utest-rdm-merge.cpp
+                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
+                    ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    MPI        1
+                    CONDITION  coolfluid_ufem_builds )
+
 coolfluid_mark_not_orphan(tris.cpp)
