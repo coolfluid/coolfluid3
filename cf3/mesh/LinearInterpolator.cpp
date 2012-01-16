@@ -174,7 +174,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
       Elements& t_elements = *t_elements_handle->handle<Elements>();
-      Space& t_space = target.space(t_elements);
+      const Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
@@ -222,8 +222,8 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     Handle< Component > component;
     boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
-      Elements& t_elements = *t_elements_handle->handle<Elements>();
-      Space& t_space = target.space(t_elements);
+      const Elements& t_elements = *t_elements_handle->handle<Elements>();
+      const Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       RealVector t_node(m_dim);  t_node.setZero();
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)

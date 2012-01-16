@@ -31,13 +31,11 @@
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 
-#include "mesh/actions/CreateSpaceP0.hpp"
 
 using namespace boost;
 using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::mesh;
-using namespace cf3::mesh::actions;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +87,11 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   Mesh& source = *Core::instance().root().create_component<Mesh>("hextet");
   meshreader->read_mesh_into("../../resources/hextet.neu",source);
-  allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
   BOOST_CHECK_EQUAL( source.geometry_fields().coordinates().row_size() , (Uint)DIM_3D );
 
   Mesh& target = *Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("../../resources/quadtriag.neu",target);
-  allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
   BOOST_CHECK_EQUAL( target.geometry_fields().coordinates().row_size() , (Uint)DIM_2D );
 
@@ -125,8 +121,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  SpaceFields& source_elem_fields = source.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
-  SpaceFields& target_elem_fields = target.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
+  SpaceFields& source_elem_fields = source.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
+  SpaceFields& target_elem_fields = target.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
   SpaceFields& source_node_fields = source.geometry_fields();
   SpaceFields& target_node_fields = target.geometry_fields();
 
@@ -157,7 +153,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   RealMatrix coordinates;
   boost_foreach( const Handle<Entities>& s_elements, s_elembased.entities_range() )
   {
-    Space& space = s_elembased.space(*s_elements);
+    const Space& space = s_elembased.space(*s_elements);
     space.allocate_coordinates(coordinates);
 
     for (Uint elem_idx = 0; elem_idx<s_elements->size(); ++elem_idx)

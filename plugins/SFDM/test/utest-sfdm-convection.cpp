@@ -371,26 +371,34 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 8u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 10u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
-  BOOST_CHECK_EQUAL(residual_field[0][0] , -1.);
-  BOOST_CHECK_EQUAL(residual_field[1][0] , -1.);
+  // boundary
+  BOOST_CHECK_EQUAL(residual_field[0][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[1][0] , 0.);
 
-  BOOST_CHECK_EQUAL(residual_field[2][0] , 0.);
-  BOOST_CHECK_EQUAL(residual_field[3][0] , 0.);
+  // cells
+  BOOST_CHECK_EQUAL(residual_field[2][0] , -1.);
+  BOOST_CHECK_EQUAL(residual_field[3][0] , -1.);
 
-  BOOST_CHECK_EQUAL(residual_field[4][0] , 1.);
-  BOOST_CHECK_EQUAL(residual_field[5][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[4][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[5][0] , 0.);
 
   BOOST_CHECK_EQUAL(residual_field[6][0] , 1.);
   BOOST_CHECK_EQUAL(residual_field[7][0] , 1.);
+
+  BOOST_CHECK_EQUAL(residual_field[8][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[9][0] , 1.);
+
+
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
+  Field& rank = solution_field.field_group().create_field("rankfield");
   Field& rank_sync = solution_field.field_group().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
@@ -535,9 +543,10 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 12u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 14u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
+  // interior
   BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[1][0] , -1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[2][0] , -1.  , fraction);
@@ -553,6 +562,11 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   BOOST_CHECK_CLOSE_FRACTION(residual_field[9][0] ,  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[10][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[11][0],  1.  , fraction);
+
+  // boundary
+  BOOST_CHECK_SMALL(residual_field[12][0]  , fraction);
+  BOOST_CHECK_SMALL(residual_field[13][0]  , fraction);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
@@ -703,7 +717,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 16u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 18u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
   BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
@@ -725,6 +739,11 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   BOOST_CHECK_CLOSE_FRACTION(residual_field[13][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[14][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[15][0],  1.  , fraction);
+
+  // boundary
+  BOOST_CHECK_SMALL(residual_field[16][0], fraction);
+  BOOST_CHECK_SMALL(residual_field[17][0], fraction);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output

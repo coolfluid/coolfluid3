@@ -326,8 +326,8 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
 
         boost_foreach(const Handle<Entities>& elements_handle, field.entities_range() )
         {
-          Entities& elements = *elements_handle;
-          Space& field_space = field.space(elements);
+          const Entities& elements = *elements_handle;
+          const Space& field_space = field.space(elements);
           Uint elm_number = m_element_start_idx[&elements];
           Uint local_nb_elms = elements.size();
 

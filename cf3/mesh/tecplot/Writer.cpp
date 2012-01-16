@@ -45,7 +45,7 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
 
-  options().add_option("cell_centred",false)
+  options().add_option("cell_centred",true)
     .description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 
@@ -229,7 +229,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
             {
               if (field.field_group().defined_for_entities(elements.handle<Entities>()) )
               {
-                Space& field_space = field.space(elements);
+                const Space& field_space = field.space(elements);
                 RealVector field_data (field_space.nb_states());
 
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
@@ -280,7 +280,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
           {
             if (field.field_group().defined_for_entities(elements.handle<Entities>()))
             {
-              Space& field_space = field.space(elements);
+              const Space& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());
 
               if (options().option("cell_centred").value<bool>())

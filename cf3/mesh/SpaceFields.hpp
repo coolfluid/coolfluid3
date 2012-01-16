@@ -97,11 +97,11 @@ public: // functions
   /// Resize the contained fields
   void resize(const Uint size);
 
-  /// Return the space_id
-  const std::string& space() const { return m_space; }
+  /// Return the space of given entities
+  const Space& space(const Entities& entities) const;
 
   /// Return the space of given entities
-  Space& space(const Entities& entities) const;
+  const Handle< Space const>& space(const Handle< Entities const>& entities) const;
 
   /// Return the global index of every field row
   common::List<Uint>& glb_idx() const { return *m_glb_idx; }
@@ -126,7 +126,6 @@ public: // functions
 //  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
   void create_connectivity_in_space();
-  void bind_space();
 
 // deprecated
 //  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
@@ -147,13 +146,14 @@ public: // functions
 
   bool defined_for_entities(const Handle<Entities const>& entities) const;
 
+  void add_space(const Handle<Space>& space);
+  void update();
+
 private: // functions
 
   bool has_coordinates() const;
 
   Field& create_coordinates();
-
-  void update();
 
   void config_space();
 
@@ -170,8 +170,6 @@ protected:
 
   Basis::Type m_basis;
 
-  std::string m_space;
-
   Uint m_size;
 
   Handle<common::Link> m_topology;
@@ -183,9 +181,10 @@ protected:
   Handle<common::PE::CommPattern> m_comm_pattern;
 
 private:
-  std::vector< Handle<Region> > m_regions;
+
+  std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
+  std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
-  std::set< Handle<Entities const> > m_entities_set;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

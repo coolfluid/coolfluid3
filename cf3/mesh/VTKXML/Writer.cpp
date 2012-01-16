@@ -417,7 +417,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
         {
-          Connectivity& field_connectivity = field.field_group().space(elements).connectivity();
+          const Connectivity& field_connectivity = field.field_group().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
             const Uint n_elems = elements.size();

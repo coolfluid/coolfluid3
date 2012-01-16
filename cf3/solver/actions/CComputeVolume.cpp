@@ -73,7 +73,7 @@ void CComputeVolume::trigger_elements()
 
 void CComputeVolume::execute()
 {
-  Space& space = *m_volume_field_space;
+  const Space& space = *m_volume_field_space;
   Field& volume = *m_volume;
 
   elements().put_coordinates(m_coordinates,idx());

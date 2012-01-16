@@ -112,10 +112,10 @@ void InitFieldFunction::execute()
     boost_foreach( const Handle<Entities>& elements_handle, field.entities_range() )
     {
       Entities& elements = *elements_handle;
-      Space& space = field.space(elements);
+      const Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);
-      Connectivity& field_connectivity = space.connectivity();
+      const Connectivity& field_connectivity = space.connectivity();
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         coordinates = space.compute_coordinates(elem_idx);

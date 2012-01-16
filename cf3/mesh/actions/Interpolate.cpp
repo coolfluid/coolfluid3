@@ -167,7 +167,6 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   }
   const Uint dimension = source_mesh.dimension();
   const Uint nb_vars = source.row_size();
-  m_source_space = source.field_group().space();
   m_source = Handle<Field const>(source.handle<Component>());
 
   Handle< Elements > element_component;
@@ -319,7 +318,7 @@ void Interpolate::interpolate_coordinate(const RealVector& target_coord, const E
 {
   cf3_assert(is_null(m_source) == false);
   const Field& source = *m_source;
-  const Space& source_space = element_component.space(m_source_space);
+  const Space& source_space = source.space(element_component);
   const ShapeFunction& sf = source_space.shape_function();
 
   RealMatrix source_nodes(element_component.element_type().nb_nodes(),element_component.element_type().dimension());

@@ -60,11 +60,11 @@ Entities::Entities ( const std::string& name ) :
   m_rank = create_static_component< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  regist_signal ( "create_space" )
-      .connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
-      .description( "Create space for other interpretations of fields (e.g. high order)" )
-      .pretty_name( "Create space" )
-      .signature(boost::bind(&Entities::signature_create_space, this, _1));
+//  regist_signal ( "create_space" )
+//      .connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
+//      .description( "Create space for other interpretations of fields (e.g. high order)" )
+//      .pretty_name( "Create space" )
+//      .signature(boost::bind(&Entities::signature_create_space, this, _1));
 
 }
 
@@ -84,13 +84,26 @@ void Entities::initialize(const std::string& element_type_name)
 
 void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
 {
-  assign_geometry(geometry);
   initialize(element_type_name);
+  create_geometry_space(geometry);
 }
 
-void Entities::assign_geometry(SpaceFields& geometry)
+void Entities::create_geometry_space(SpaceFields& geometry)
 {
+  if ( is_null(m_element_type) )
+    throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
+
   m_geometry_fields = Handle<SpaceFields>(geometry.handle<Component>());
+  if ( exists_space(mesh::Tags::geometry()) )
+  {
+    space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+  }
+  else
+  {
+    Space& geometry_space = create_space(element_type().shape_function().derived_type_name(),*m_geometry_fields);
+    geometry_space.add_tag(mesh::Tags::geometry());
+    m_geometry_space = Handle<Space>(geometry_space.handle<Component>());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,17 +117,6 @@ void Entities::configure_element_type()
   }
   m_element_type = Handle<ElementType>(create_component( etype_name, etype_name ) );
   m_element_type->rename(m_element_type->derived_type_name());
-
-  if ( exists_space(mesh::Tags::geometry()) )
-  {
-    space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
-  }
-  else
-  {
-    Space& geometry_space = create_space(mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
-    geometry_space.add_tag(mesh::Tags::geometry());
-    m_geometry_space = Handle<Space>(geometry_space.handle<Component>());
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,11 +247,16 @@ common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Space& Entities::create_space( const std::string& name, const std::string& shape_function_builder_name )
+Space& Entities::create_space(const std::string& shape_function_builder_name, SpaceFields& space_fields)
 {
-  Handle<Space> space = m_spaces_group->create_component<Space>(name);
+  /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
+  Handle<Space> space = m_spaces_group->create_component<Space>(space_fields.name());
   space->options().configure_option("shape_function",shape_function_builder_name);
   space->set_support(*this);
+  space->get_child("fields")->handle<Link>()->link_to(space_fields);
+  space->connectivity().create_lookup().add(space_fields);
+  space->connectivity().set_row_size(space->nb_states());
+  space_fields.add_space( space );
   return *space;
 }
 
@@ -291,28 +298,28 @@ void Entities::allocate_coordinates(RealMatrix& coords) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Entities::signature_create_space ( SignalArgs& node)
-{
-  XML::SignalOptions options( node );
-  options.add_option("name" , std::string("new_space") )
-      .description("Name to add to space");
+//void Entities::signature_create_space ( SignalArgs& node)
+//{
+//  XML::SignalOptions options( node );
+//  options.add_option("name" , std::string("new_space") )
+//      .description("Name to add to space");
 
-  options.add_option("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
-      .description("Shape Function to add as space");
-}
+//  options.add_option("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
+//      .description("Shape Function to add as space");
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-void Entities::signal_create_space ( SignalArgs& node )
-{
-  XML::SignalOptions options( node );
+//void Entities::signal_create_space ( SignalArgs& node )
+//{
+//  XML::SignalOptions options( node );
 
-  std::string name = options.value<std::string>("name");
+//  std::string name = options.value<std::string>("name");
 
-  std::string shape_function_builder = options.value<std::string>("shape_function");
+//  std::string shape_function_builder = options.value<std::string>("shape_function");
 
-  Space& space = create_space(name, shape_function_builder);
-}
+//  Space& space = create_space(name, shape_function_builder);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

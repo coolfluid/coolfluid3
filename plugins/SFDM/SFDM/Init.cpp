@@ -101,7 +101,7 @@ void Init::execute()
 
   boost_foreach(const Handle<Entities>& entities, solution.entities_range())
   {
-    Space& space = solution.space(*entities);
+    const Space& space = solution.space(*entities);
 
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -114,7 +114,7 @@ void Init::execute()
     const ShapeFunction& geometry_shape_func = entities->element_type().shape_function();
     RealRowVector geometry_shape_func_values (geometry_shape_func.nb_nodes());
 
-    Connectivity& field_connectivity = space.connectivity();
+    const Connectivity& field_connectivity = space.connectivity();
 
     for (Uint elem=0; elem<entities->size(); ++elem)
     {

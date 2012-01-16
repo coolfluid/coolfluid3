@@ -28,6 +28,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -65,6 +66,8 @@ CreateSFDFields::CreateSFDFields( const std::string& name )
 
 void CreateSFDFields::execute()
 {
+
+//  mesh().check_sanity();
   const Uint solution_order = solver().options().option(SFDM::Tags::solution_order()).value<Uint>();
 
   std::string solution_space_name = "solution_space";
@@ -76,7 +79,21 @@ void CreateSFDFields::execute()
   }
   else
   {
-    SpaceFields& solution_space = mesh().create_space_and_field_group(solution_space_name,SpaceFields::Basis::ELEMENT_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+    std::vector< Handle<Entities> > cells_plus_bdry;
+    boost_foreach(Entities& entities, find_components_recursively<Cells>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively_with_tag<Entities>(mesh().topology(),mesh::Tags::outer_faces()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+
+    SpaceFields& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
@@ -104,7 +121,7 @@ void CreateSFDFields::execute()
     boost_foreach(const Handle<Entities>& elements, solution_space.entities_range())
     {
       if ( is_null(elements->handle<Cells>()) ) continue;
-      Space& space = solution_space.space(*elements);
+      const Space& space = solution_space.space(*elements);
 
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -115,7 +132,7 @@ void CreateSFDFields::execute()
       RealVector dX (elements->element_type().dimension());
       RealMatrix jacobian(elements->element_type().dimensionality(),elements->element_type().dimension());
 
-      Connectivity& field_connectivity = space.connectivity();
+      const Connectivity& field_connectivity = space.connectivity();
 
       for (Uint elem=0; elem<elements->size(); ++elem)
       {

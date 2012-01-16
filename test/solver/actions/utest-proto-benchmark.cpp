@@ -101,11 +101,7 @@ struct ProtoBenchmarkFixture :
     phys_model.variable_manager().create_descriptor("volume", "CellVolume");
 
     // Create field
-    boost_foreach(Entities& elements, mesh.topology().elements_range())
-    {
-      elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
-    }
-    SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+    SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
     solver.field_manager().create_field("volume", elems_P0);
 
     return model;

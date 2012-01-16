@@ -27,6 +27,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
@@ -278,10 +279,11 @@ void IterativeSolver::execute()
     boost_foreach(const Handle<Entities>& elements_handle, U.entities_range())
     {
       Entities& elements = *elements_handle;
-      Space& solution_space = U.space(elements);
+      const Connectivity& space_connectivity = U.space(elements).connectivity();
+
       for (Uint e=0; e<elements.size(); ++e)
       {
-        boost_foreach(const Uint state, solution_space.indexes_for_element(e))
+        boost_foreach(const Uint state, space_connectivity[e])
         {
           for (Uint var=0; var<U.row_size(); ++var)
           {

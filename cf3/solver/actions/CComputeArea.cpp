@@ -72,7 +72,7 @@ void CComputeArea::trigger_elements()
 
 void CComputeArea::execute()
 {
-  Space& space = *m_area_field_space;
+  const Space& space = *m_area_field_space;
   Field& area = *m_area;
 
   elements().put_coordinates(m_coordinates,idx());

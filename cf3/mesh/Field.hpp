@@ -108,9 +108,10 @@ public: // functions
 
   bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
 
-  const std::string& space() const { return field_group().space(); }
+//  const std::string& space() const { return field_group().space(); }
 
-  Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
+  const Handle<Space const>& space(const Handle<Entities const>& entities) const { return field_group().space(entities); }
+  const Space& space(const Entities& entities) const { return field_group().space(entities); }
 
   std::vector< Handle<Entities> > entities_range();
 
@@ -301,9 +302,6 @@ public: // functions
     // friend ostream& operator << (ostream& out, const Field& U);
     // /// istream >> U
     // friend istream& operator >> (istream& in,  Field& U);
-
-
-
 
 private:
 
