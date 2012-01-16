@@ -32,6 +32,7 @@ coolfluid_add_test( ATEST      atest-sfdm-euler-shocktube-2d
 coolfluid_add_test( ATEST      atest-sfdm-euler-cylinder-2d
                     PYTHON     atest-sfdm-euler-cylinder-2d.py
                     LIBS       coolfluid_sfdm_navierstokes
+                    MPI        2
                     DEPENDS    copy-resources)
 
 coolfluid_add_test( ATEST      atest-sfdm-lineuler-accousticpulse-2d

@@ -84,7 +84,9 @@ public: // functions
   /// @return shared caches
   SharedCaches& shared_caches()                  { return *m_shared_caches; }
 
-  mesh::Mesh& mesh() { return *m_mesh; }
+  mesh::Mesh& mesh()                             { return *m_mesh; }
+
+  std::vector< Handle<mesh::Region> >& regions() { return m_regions; }
 
 //  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
@@ -96,6 +98,9 @@ private: // functions
   /// Triggered when the mesh is configured
   void config_mesh();
 
+  /// Triggered when regions is configured
+  void config_regions();
+
   /// Triggered when the event mesh_changed
   void on_mesh_changed_event( common::SignalArgs& args );
 
@@ -103,19 +108,20 @@ private: // data
 
   bool m_mesh_configured;
 
-  Handle<common::Group>          m_actions;               ///< the group of shared actions
-  Handle<common::Group>          m_fields;                ///< the group of fields
+  Handle<common::Group>              m_actions;               ///< the group of shared actions
+  Handle<common::Group>              m_fields;                ///< the group of fields
 
-  Handle<SharedCaches>           m_shared_caches;
-  Handle<physics::PhysModel>     m_physical_model;        ///< physical model
-  Handle<mesh::Mesh>             m_mesh;                  ///< mesh which this solver operates
+  Handle<SharedCaches>               m_shared_caches;
+  Handle<physics::PhysModel>         m_physical_model;       ///< physical model
+  Handle<mesh::Mesh>                 m_mesh;                 ///< mesh which this solver operates
+  std::vector<Handle<mesh::Region> > m_regions;              ///< mesh which this solver operates
 
-  Handle<PrepareMesh>            m_prepare_mesh;          ///< subcomponent that setups the fields
-  Handle<TimeStepping>           m_time_stepping;         ///< subcomponent for time stepping
-  Handle<IterativeSolver>        m_iterative_solver;      ///< subcomponent for non linear iterative steps
-  Handle<DomainDiscretization>   m_domain_discretization; ///< subcomponent for domain terms
-  Handle<InitialConditions>      m_initial_conditions;    ///< subcomponent for initial conditions
-  Handle<BoundaryConditions>     m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<PrepareMesh>                m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<TimeStepping>               m_time_stepping;         ///< subcomponent for time stepping
+  Handle<IterativeSolver>            m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<DomainDiscretization>       m_domain_discretization; ///< subcomponent for domain terms
+  Handle<InitialConditions>          m_initial_conditions;    ///< subcomponent for initial conditions
+  Handle<BoundaryConditions>         m_boundary_conditions;   ///< subcomponent for boundary conditions
 
 //  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
 

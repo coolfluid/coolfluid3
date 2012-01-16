@@ -48,6 +48,7 @@ struct Mesh_LagrangeP2_API Line2D : public ElementTypeBase<Line2D,Line2D_traits>
   //@{
 
   static Real volume(const NodesT& nodes);
+  static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
 
   //@}
 

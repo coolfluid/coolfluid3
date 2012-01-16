@@ -24,7 +24,7 @@ class SFDM_scalar_API LinearAdvection1D : public ConvectiveTerm< ConvectiveTermP
 {
 public:
   static std::string type_name() { return "LinearAdvection1D"; }
-  LinearAdvection1D(const std::string& name) : ConvectiveTerm(name)
+  LinearAdvection1D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<1u,1u> >(name)
   {
     m_advection_speed.resize(1u);
     m_advection_speed[XX]= 1.;

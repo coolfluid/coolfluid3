@@ -50,7 +50,7 @@ public: // functions
   virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(SpaceFields& geometry);
+  virtual void create_geometry_space(SpaceFields& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -79,9 +79,9 @@ public: // functions
   bool is_ghost(const Uint idx) const;
 
   /// return the number of elements
-  virtual Uint size() const;
+  Uint size() const;
 
-  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user);
+  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
   
   /// return the number of elements across all processes;
   Uint glb_size() const;
@@ -92,7 +92,7 @@ public: // functions
 
   Space& space (const std::string& space_name) const;
 
-  Space& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
+  Space& create_space(const std::string& shape_function_builder_name, SpaceFields& space_fields);
 
   Space& geometry_space() const { cf3_assert(is_not_null(m_geometry_space)); return *m_geometry_space; }
 
@@ -104,9 +104,11 @@ public: // functions
 
   void allocate_coordinates(RealMatrix& coords) const;
 
-  void signal_create_space ( common::SignalArgs& node );
+//  void signal_create_space ( common::SignalArgs& node );
 
-  void signature_create_space ( common::SignalArgs& node);
+//  void signature_create_space ( common::SignalArgs& node);
+
+  void resize(const Uint nb_elem);
 
 protected: // data
 

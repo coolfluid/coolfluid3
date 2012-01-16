@@ -15,6 +15,7 @@
 #include "common/Group.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionArray.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
@@ -75,6 +76,13 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
       .attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) )
       .mark_basic()
       .link_to(&m_mesh);
+
+  options().add_option(SFDM::Tags::regions(), std::vector<URI>(1,mesh::Tags::topology()))
+      .description("The regions this solver will be applied to (if relative URI, it is relative to mesh/topology)")
+      .pretty_name("Regions")
+      .attach_trigger ( boost::bind ( &SFDSolver::config_regions,   this ) )
+      .mark_basic();
+
 
 //  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
 //    .description("The component to solve the Rieman Problem on cell-faces")
@@ -178,6 +186,25 @@ void SFDSolver::config_physics()
   catch(SetupError&)
   {
     // Do nothing if physmodel is not configured
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SFDSolver::config_regions()
+{
+  if ( is_null(m_mesh) )
+    throw SetupError(FromHere(), "First configure the mesh");
+  m_regions.clear();
+  boost_foreach(const URI& region_uri, options().option("regions").value< std::vector<URI> >())
+  {
+    Handle<Component> comp = m_mesh->access_component(region_uri);
+
+    if ( Handle< Region > region = comp->handle<Region>() )
+      m_regions.push_back( region );
+    else
+      throw common::ValueNotFound ( FromHere(),
+                           "Could not find region with path [" + region_uri.path() +"]" );
   }
 }
 

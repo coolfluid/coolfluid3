@@ -162,14 +162,6 @@ mesh.access_component('solution_space/post_proc').uri(),
 mesh.access_component('solution_space/wave_speed').uri()
 ]
 
-# tecplot
-#########
-tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-tec_writer.options().configure_option('mesh',mesh.uri())
-tec_writer.options().configure_option('fields',fields)
-tec_writer.options().configure_option('cell_centred',False)
-tec_writer.options().configure_option('file',coolfluid.URI('file:sfdm_output.plt'))
-tec_writer.execute()
 
 # gmsh
 ######
@@ -178,3 +170,12 @@ gmsh_writer.options().configure_option('mesh',mesh.uri())
 gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:sfdm_output.msh'))
 gmsh_writer.execute()
+
+# tecplot (cannot output P2 meshes)
+#########
+# tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
+# tec_writer.options().configure_option('mesh',mesh.uri())
+# tec_writer.options().configure_option('fields',fields)
+# tec_writer.options().configure_option('cell_centred',False)
+# tec_writer.options().configure_option('file',coolfluid.URI('file:sfdm_output.plt'))
+# tec_writer.execute()

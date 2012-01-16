@@ -48,29 +48,6 @@ Elements::~Elements()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Elements::initialize(const std::string& element_type_name)
-{
-  Entities::initialize(element_type_name);
-  node_connectivity().set_row_size(m_element_type->nb_nodes());
-  Space& geometry_space = space(Tags::geometry());
-  geometry_space.connectivity().set_row_size(geometry_space.nb_states());
-}
-
-void Elements::initialize(const std::string& element_type_name, SpaceFields& geo)
-{
-  initialize(element_type_name);
-  assign_geometry(geo);
-}
-
-void Elements::assign_geometry(SpaceFields& geo)
-{
-  Entities::assign_geometry(geo);
-  node_connectivity().create_lookup().add(geo);
-  Handle<Link>(space(Tags::geometry()).get_child("fields"))->link_to(geo);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 Uint Elements::size() const
 {
   return node_connectivity().size();

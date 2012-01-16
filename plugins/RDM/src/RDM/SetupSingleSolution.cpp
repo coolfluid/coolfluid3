@@ -64,7 +64,7 @@ void SetupSingleSolution::execute()
 
   Handle< SpaceFields > solution_group;
 
-  if( solution_space == geometry.space() )
+  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
     solution_group = geometry.handle<SpaceFields>();
   else
   {
@@ -72,12 +72,11 @@ void SetupSingleSolution::execute()
     solution_group = find_component_ptr_with_name<SpaceFields>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), SpaceFields::Basis::POINT_BASED, "cf3.mesh."+solution_space).handle<SpaceFields>();
+      solution_group = mesh.create_continuous_space( RDM::Tags::solution(), "cf3.mesh."+solution_space).handle<SpaceFields>();
     }
     else // not null so check that space is what user wants
     {
-      if( solution_space != solution_group->space() )
-        throw NotImplemented( FromHere(), "Changing solution space not supported" );
+      throw NotImplemented( FromHere(), "Changing solution space not supported" );
     }
   }
 

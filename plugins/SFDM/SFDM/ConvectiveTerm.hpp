@@ -83,11 +83,11 @@ protected: // configuration
     reconstruct_in_solution_points = shared_caches().template get_cache< FluxPointReconstruct >();
     flx_pt_plane_jacobian_normal = shared_caches().template get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
 
-    elem->options().configure_option("space",solution_field().space());
-    neighbour_elem->options().configure_option("space",solution_field().space());
-    divergence_in_solution_points->options().configure_option("space",solution_field().space());
-    reconstruct_in_solution_points->options().configure_option("space",solution_field().space());
-    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().space());
+    elem->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    neighbour_elem->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    divergence_in_solution_points->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    reconstruct_in_solution_points->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
 
   }
 

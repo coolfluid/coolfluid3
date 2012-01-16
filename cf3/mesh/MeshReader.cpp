@@ -29,6 +29,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -105,13 +106,11 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 
   do_read_mesh_into(path, mesh);
 
+  // Fix global numbering
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
+
   // Raise an event to indicate that a mesh was loaded happened
-
-  SignalOptions options;
-  options.add_option("mesh_uri", mesh.uri());
-
-  SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,9 @@ const cf3::mesh::ElementType& Line1D::face_type(const cf3::Uint face)
 
 void Line1D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 {
+  cf3_assert(nodes.rows()==2);
+  cf3_assert(nodes.cols()==1);
+  cf3_assert(centroid.size()==1);
   centroid[0] = 0.5*(nodes(0,XX)+nodes(1,XX));
 }
 

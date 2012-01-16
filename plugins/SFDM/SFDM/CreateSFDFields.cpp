@@ -28,6 +28,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -65,6 +66,8 @@ CreateSFDFields::CreateSFDFields( const std::string& name )
 
 void CreateSFDFields::execute()
 {
+
+//  mesh().check_sanity();
   const Uint solution_order = solver().options().option(SFDM::Tags::solution_order()).value<Uint>();
 
   std::string solution_space_name = "solution_space";
@@ -76,7 +79,21 @@ void CreateSFDFields::execute()
   }
   else
   {
-    SpaceFields& solution_space = mesh().create_space_and_field_group(solution_space_name,SpaceFields::Basis::ELEMENT_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+    std::vector< Handle<Entities> > cells_plus_bdry;
+    boost_foreach(Entities& entities, find_components_recursively<Cells>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively_with_tag<Entities>(mesh().topology(),mesh::Tags::outer_faces()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+
+    SpaceFields& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
@@ -101,35 +118,36 @@ void CreateSFDFields::execute()
     Field& delta = solution_space.create_field(SFDM::Tags::delta(), "delta[vector]");
     solver().field_manager().create_component<Link>(SFDM::Tags::delta())->link_to(delta);
 
-    boost_foreach(Cells& elements, find_components_recursively<Cells>(solution_space.topology()))
+    boost_foreach(const Handle<Entities>& elements, solution_space.entities_range())
     {
-      Space& space = jacob_det.space(elements);
+      if ( is_null(elements->handle<Cells>()) ) continue;
+      const Space& space = solution_space.space(*elements);
 
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
       RealMatrix geometry_coords;
-      elements.allocate_coordinates(geometry_coords);
+      elements->allocate_coordinates(geometry_coords);
 
-      RealVector dKsi (elements.element_type().dimensionality()); dKsi.setConstant(2.);
-      RealVector dX (elements.element_type().dimension());
-      RealMatrix jacobian(elements.element_type().dimensionality(),elements.element_type().dimension());
+      RealVector dKsi (elements->element_type().dimensionality()); dKsi.setConstant(2.);
+      RealVector dX (elements->element_type().dimension());
+      RealMatrix jacobian(elements->element_type().dimensionality(),elements->element_type().dimension());
 
-      for (Uint elem=0; elem<elements.size(); ++elem)
+      const Connectivity& field_connectivity = space.connectivity();
+
+      for (Uint elem=0; elem<elements->size(); ++elem)
       {
-        elements.put_coordinates(geometry_coords,elem);
-
-        Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
+        elements->put_coordinates(geometry_coords,elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {
-
-          jacob_det[field_idx[node]][0]=elements.element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
-          if (jacob_det[field_idx[node]][0] < 0)
-            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements.uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
-          elements.element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
+          const Uint p = field_connectivity[elem][node];
+          jacob_det[p][0]=elements->element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
+          if (jacob_det[p][0] < 0)
+            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements->uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
+          elements->element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
           dX.noalias() = jacobian.transpose()*dKsi;
           for (Uint d=0; d<dX.size(); ++d)
-            delta[field_idx[node]][d]=dX[d];
+            delta[p][d]=dX[d];
         }
 
       }

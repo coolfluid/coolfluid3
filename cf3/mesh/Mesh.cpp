@@ -12,6 +12,9 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/EventHandler.hpp"
 #include "common/Builder.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
@@ -68,7 +71,7 @@ Mesh::Mesh ( const std::string& name  ) :
   properties().add_property(common::Tags::dimension(),Uint(0));
 
   m_elements   = create_static_component<MeshElements>("elements");
-  m_topology   = create_static_component<Region>("topology");
+  m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
 
   regist_signal ( "write_mesh" )
@@ -77,7 +80,7 @@ Mesh::Mesh ( const std::string& name  ) :
       .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_geometry_fields = create_static_component<SpaceFields>("geometry_fields");
+  m_geometry_fields = create_static_component<SpaceFields>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
   Handle< Field > coord_field = m_geometry_fields->create_static_component< Field >(mesh::Tags::coordinates());
   coord_field->add_tag(mesh::Tags::coordinates());
@@ -99,10 +102,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf3_assert(dimension > 0);
 
   geometry_fields().options().configure_option("type",    SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
-  geometry_fields().options().configure_option("space",   std::string(Tags::geometry()));
-  geometry_fields().options().configure_option("topology",topology().uri());
   geometry_fields().coordinates().set_field_group(geometry_fields());
-  geometry_fields().coordinates().set_topology(geometry_fields().topology());
   geometry_fields().coordinates().set_basis(SpaceFields::Basis::POINT_BASED);
   geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
@@ -137,87 +137,170 @@ void Mesh::update_statistics()
   properties().property("nb_nodes") = geometry_fields().size();
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+
+//SpaceFields& Mesh::create_field_group( const std::string& name,
+//                                       const SpaceFields::Basis::Type base )
+//{
+//  return create_field_group ( name, base, name, topology() );
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//SpaceFields& Mesh::create_field_group( const std::string& name,
+//                                       const SpaceFields::Basis::Type base,
+//                                       const std::string& space )
+//{
+//  return create_field_group ( name, base, space, topology() );
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//SpaceFields& Mesh::create_field_group( const std::string& name,
+//                                       const SpaceFields::Basis::Type base,
+//                                       const std::string& space,
+//                                       const Region& topology )
+//{
+//  Handle<SpaceFields> field_group = create_component<SpaceFields>(name);
+//  field_group->options().configure_option("type",SpaceFields::Basis::to_str(base));
+//  field_group->options().configure_option("space",space);
+//  field_group->options().configure_option("topology",topology.uri());
+//  return *field_group;
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name)
+//{
+//  create_space(name,base,space_lib_name,topology());
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology)
+//{
+//  switch (base)
+//  {
+//  case SpaceFields::Basis::POINT_BASED:
+//  case SpaceFields::Basis::ELEMENT_BASED:
+//    boost_foreach(Entities& elements, find_components_recursively<Entities>(topology))
+//      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+//    break;
+//  case SpaceFields::Basis::CELL_BASED:
+//    boost_foreach(Cells& elements, find_components_recursively<Cells>(topology))
+//      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+//    break;
+//  case SpaceFields::Basis::FACE_BASED:
+//    boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(topology,mesh::Tags::face_entity()))
+//      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+//    break;
+//  case SpaceFields::Basis::INVALID:
+//  default:
+//    throw BadValue(FromHere(),"value "+SpaceFields::Basis::to_str(base)+" not supported for base");
+//  }
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
+//                                                 const SpaceFields::Basis::Type base,
+//                                                 const std::string& space_lib_name )
+//{
+//  return create_space_and_field_group(name,base,space_lib_name,topology());
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
+//                                                 const SpaceFields::Basis::Type base,
+//                                                 const std::string& space_lib_name,
+//                                                 Region& topology )
+//{
+//  create_space(name,base,space_lib_name);
+//  return create_field_group(name,base,name,topology);
+//}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Mesh::create_field_group( const std::string& name,
-                                       const SpaceFields::Basis::Type base )
+SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name)
 {
-  return create_field_group ( name, base, name, topology() );
+  std::vector< Handle<Region> > regions(1,topology().handle<Region>());
+  return create_continuous_space(space_name,space_lib_name,regions);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-SpaceFields& Mesh::create_field_group( const std::string& name,
-                                       const SpaceFields::Basis::Type base,
-                                       const std::string& space )
+SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  return create_field_group ( name, base, space, topology() );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SpaceFields& Mesh::create_field_group( const std::string& name,
-                                       const SpaceFields::Basis::Type base,
-                                       const std::string& space,
-                                       const Region& topology )
-{
-  Handle<SpaceFields> field_group = create_component<SpaceFields>(name);
-  field_group->options().configure_option("type",SpaceFields::Basis::to_str(base));
-  field_group->options().configure_option("space",space);
-  field_group->options().configure_option("topology",topology.uri());
-  return *field_group;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name)
-{
-  create_space(name,base,space_lib_name,topology());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology)
-{
-  switch (base)
+  std::set< Handle<Entities> > entities_set;
+  boost_foreach(const Handle<Region>& region, regions)
   {
-  case SpaceFields::Basis::POINT_BASED:
-  case SpaceFields::Basis::ELEMENT_BASED:
-    boost_foreach(Entities& elements, find_components_recursively<Entities>(topology))
-      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
-    break;
-  case SpaceFields::Basis::CELL_BASED:
-    boost_foreach(Cells& elements, find_components_recursively<Cells>(topology))
-      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
-    break;
-  case SpaceFields::Basis::FACE_BASED:
-    boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(topology,mesh::Tags::face_entity()))
-      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
-    break;
-  case SpaceFields::Basis::INVALID:
-  default:
-    throw BadValue(FromHere(),"value "+SpaceFields::Basis::to_str(base)+" not supported for base");
+    boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
+    {
+      entities_set.insert(entities.handle<Entities>());
+    }
   }
+  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  return create_continuous_space(space_name, space_lib_name, entities_vec);
+}
+
+SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
+{
+  SpaceFields& space_fields = *create_component<SpaceFields>(space_name);
+  space_fields.options().configure_option("type",SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
+  }
+  space_fields.update();
+
+  CFinfo << "Continuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
+  }
+  space_fields.update();
+  return space_fields;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
-                                                 const SpaceFields::Basis::Type base,
-                                                 const std::string& space_lib_name )
+SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name)
 {
-  return create_space_and_field_group(name,base,space_lib_name,topology());
+  std::vector< Handle<Region> > regions(1,topology().handle<Region>());
+  return create_discontinuous_space(space_name,space_lib_name,regions);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
-                                                 const SpaceFields::Basis::Type base,
-                                                 const std::string& space_lib_name,
-                                                 Region& topology )
+SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  create_space(name,base,space_lib_name);
-  return create_field_group(name,base,name,topology);
+  std::set< Handle<Entities> > entities_set;
+  boost_foreach(const Handle<Region>& region, regions)
+  {
+    boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
+    {
+      entities_set.insert(entities.handle<Entities>());
+    }
+  }
+  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  return create_discontinuous_space(space_name, space_lib_name, entities_vec);
+}
+
+SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
+{
+  SpaceFields& space_fields = *create_component<SpaceFields>(space_name);
+  space_fields.options().configure_option("type",SpaceFields::Basis::to_str(SpaceFields::Basis::ELEMENT_BASED));
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
+  }
+  space_fields.update();
+
+  CFinfo << "Discontinuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
+  }
+  return space_fields;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -293,38 +376,27 @@ void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::check_sanity() const
+bool Mesh::check_sanity(std::vector<std::string>& messages) const
 {
-  std::stringstream message;
-
+  Uint nb_messages_init = messages.size();
   if (dimension() == 0)
-    message << "- mesh.dimension not configured" << std::endl;
+    messages.push_back("mesh.dimension not configured");
 
   if (dimensionality() == 0)
-    message << "- mesh.dimensionality not configured" << std::endl;
+    messages.push_back("mesh.dimensionality not configured");
 
   if (dimensionality() > dimension())
-    message << "- dimensionality ["<< dimensionality()<<"]  >  dimension ["<<dimension()<<"]" << std::endl;
+    messages.push_back("dimensionality ["+to_str(dimensionality())+"]  >  dimension ["+to_str(dimension())+"]");
 
   if(geometry_fields().coordinates().row_size() != dimension())
-    message << "- coordinates dimension does not match mesh.dimension" << std::endl;
+    messages.push_back("coordinates dimension does not match mesh.dimension");
 
   boost_foreach(const SpaceFields& field_group, find_components_recursively<SpaceFields>(*this))
   {
-    if (field_group.rank().size() != field_group.size())
-      message << "- " << field_group.uri().string() << ": size() ["<<field_group.size()<<"] != rank().size() ["<<field_group.rank().size()<<"]"<<std::endl;
-
-    if (field_group.glb_idx().size() != field_group.size())
-      message << "- " << field_group.uri().string() << ": size() ["<<field_group.size()<<"] != glb_idx().size() ["<<field_group.glb_idx().size()<<"]"<<std::endl;
-
-    boost_foreach(const Field& field, find_components_recursively<Field>(field_group))
-    {
-      if (field.size() != field_group.size())
-        message << "- " << field.uri().string() << ": size() ["<<field.size()<<"] != field_group.size() ["<<field_group.size()<<"]"<<std::endl;
-    }
+    field_group.check_sanity(messages);
   }
 
-  if (Comm::instance().is_active())
+  if (Comm::instance().size()>1)
   {
     std::set<Uint> unique_node_gids;
     boost_foreach(const Uint gid, geometry_fields().glb_idx().array())
@@ -332,7 +404,7 @@ void Mesh::check_sanity() const
       std::pair<std::set<Uint>::iterator, bool > inserted = unique_node_gids.insert(gid);
       if (inserted.second == false)
       {
-        message << "- " << geometry_fields().glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
+        messages.push_back(geometry_fields().glb_idx().uri().string()+" has non-unique entries.  (entry "+to_str(gid)+" exists more than once, no further checks)");
         break;
       }
     }
@@ -342,28 +414,64 @@ void Mesh::check_sanity() const
   boost_foreach(const Entities& entities, find_components_recursively<Entities>(*this))
   {
     if (entities.rank().size() != entities.size())
-      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != rank().size() ["<<entities.rank().size()<<"]"<<std::endl;
+      messages.push_back(entities.uri().string()+": size() ["+to_str(entities.size())+"] != rank().size() ["+to_str(entities.rank().size())+"]");
     if (entities.glb_idx().size() != entities.size())
-      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != glb_idx().size() ["<<entities.glb_idx().size()<<"]"<<std::endl;
+      messages.push_back(entities.uri().string()+": size() ["+to_str(entities.size())+"] != glb_idx().size() ["+to_str(entities.glb_idx().size())+"]");
 
-    if (Comm::instance().is_active())
+    if (Comm::instance().size()>1)
     {
       boost_foreach(const Uint gid, entities.glb_idx().array())
       {
         std::pair<std::set<Uint>::iterator, bool > inserted = unique_elem_gids.insert(gid);
         if (inserted.second == false)
         {
-          message << "- " << entities.glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
+          messages.push_back(entities.glb_idx().uri().string()+" has non-unique entries.  (entry "+to_str(gid)+" exists more than once, no further checks)");
           break;
         }
       }
     }
-
   }
 
-  std::string message_str = message.str();
-  if (!message_str.empty())
-    throw InvalidStructure(FromHere(), "Mesh "+uri().string()+" is not sane:\n"+message_str);
+  return (messages.size()-nb_messages_init) == 0;
+
+}
+
+bool Mesh::check_sanity() const
+{
+  std::vector<std::string> messages;
+  bool sane = check_sanity(messages);
+  if ( sane == false )
+  {
+    std::stringstream message;
+    message << "Mesh "+uri().string()+" is not sane:"<<std::endl;
+    boost_foreach(const std::string& str, messages)
+    {
+      message << "- " << str << std::endl;
+    }
+    throw InvalidStructure(FromHere(), message.str() );
+  }
+  return sane;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::raise_mesh_loaded()
+{
+  geometry_fields().update();
+  update_statistics();
+  elements().update();
+  check_sanity();
+
+  // Raise an event to indicate that a mesh was loaded happened
+  SignalOptions options;
+  options.add_option("mesh_uri", uri());
+
+  SignalArgs f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+
+  update_statistics();
+  elements().update();
+  check_sanity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
