@@ -253,7 +253,7 @@ SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const
   }
   space_fields.update();
 
-  CFinfo << "Continuous space " << space_fields.uri() << " created for entities" << CFendl;
+  CFinfo << "Continuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
@@ -295,7 +295,7 @@ SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, co
   }
   space_fields.update();
 
-  CFinfo << "Discontinuous space " << space_fields.uri() << " created for entities" << CFendl;
+  CFinfo << "Discontinuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
@@ -396,7 +396,7 @@ bool Mesh::check_sanity(std::vector<std::string>& messages) const
     field_group.check_sanity(messages);
   }
 
-  if (Comm::instance().is_active())
+  if (Comm::instance().size()>1)
   {
     std::set<Uint> unique_node_gids;
     boost_foreach(const Uint gid, geometry_fields().glb_idx().array())
@@ -418,7 +418,7 @@ bool Mesh::check_sanity(std::vector<std::string>& messages) const
     if (entities.glb_idx().size() != entities.size())
       messages.push_back(entities.uri().string()+": size() ["+to_str(entities.size())+"] != glb_idx().size() ["+to_str(entities.glb_idx().size())+"]");
 
-    if (Comm::instance().is_active())
+    if (Comm::instance().size()>1)
     {
       boost_foreach(const Uint gid, entities.glb_idx().array())
       {

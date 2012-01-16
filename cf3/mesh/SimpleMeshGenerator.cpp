@@ -230,7 +230,6 @@ void SimpleMeshGenerator::create_line()
       xneg->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
       if (hash.subhash(ELEMS).part_owns(part,0u))
       {
-        std::cout << PERank << "will add xneg" << std::endl;
         xneg->resize(1);
         glb_node_idx=0u;
         if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
@@ -251,7 +250,6 @@ void SimpleMeshGenerator::create_line()
       xpos->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
       if (hash.subhash(ELEMS).part_owns(part,x_segments-1))
       {
-        std::cout << PERank << "will add xpos" << std::endl;
         xpos->resize(1);
 
         glb_node_idx = x_segments;

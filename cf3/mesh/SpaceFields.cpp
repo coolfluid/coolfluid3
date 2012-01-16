@@ -249,6 +249,29 @@ bool SpaceFields::check_sanity(std::vector<std::string>& messages) const
   if (glb_idx().size() != size())
     messages.push_back(uri().string()+": size() ["+to_str(size())+"] != glb_idx().size() ["+to_str(glb_idx().size())+"]");
 
+  std::set<Uint> unique_gids;
+  if (Comm::instance().size()>1)
+  {
+    for (Uint i=0; i<size(); ++i)
+    {
+      if (rank()[i] >= PE::Comm::instance().size())
+      {
+        messages.push_back(rank().uri().string()+"["+to_str(i)+"] has invalid entry. (entry = "+to_str(rank()[i])+" , no further checks)");
+        break;
+      }
+    }
+    for (Uint i=0; i<size(); ++i)
+    {
+      std::pair<std::set<Uint>::iterator, bool > inserted = unique_gids.insert(glb_idx()[i]);
+      if (inserted.second == false)
+      {
+        messages.push_back(glb_idx().uri().string()+"["+to_str(i)+"] has non-unique entries.  (entry "+to_str(glb_idx()[i])+" exists more than once, no further checks)");
+        break;
+      }
+    }
+  }
+
+
   boost_foreach(const Field& field, find_components_recursively<Field>(*this))
   {
     if (field.size() != size())

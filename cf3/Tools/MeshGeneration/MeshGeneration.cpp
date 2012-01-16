@@ -314,8 +314,8 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
 
   Handle<Elements> center_point = mesh.topology().create_region("center_point").create_component<Elements>("Point");
   center_point->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
+  center_point->resize(1);
   Table<Uint>& center_point_connectivity = center_point->node_connectivity();
-  center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
   build_serial_gids(mesh);
