@@ -69,8 +69,14 @@ Component::Component ( const std::string& name ) :
       .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("lists the component tree inside this component")
+      .description("lists the component tree inside this component, printing results in XML format")
       .pretty_name("List tree");
+
+  regist_signal( "list_tree_recursive" )
+      .connect( boost::bind( &Component::signal_list_tree_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the component tree inside this component")
+      .pretty_name("List tree recursively");
 
   regist_signal( "list_properties" )
       .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
@@ -84,11 +90,23 @@ Component::Component ( const std::string& name ) :
       .description("lists the options of this component")
       .pretty_name("List options");
 
+  regist_signal( "list_options_recursive" )
+      .connect( boost::bind( &Component::signal_list_options_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component and its subcomponents")
+      .pretty_name("List options recursively");
+
   regist_signal( "list_signals" )
       .connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
       .hidden(true)
       .description("lists the options of this component")
       .pretty_name("List signals");
+
+  regist_signal( "list_signals_recursive" )
+      .connect( boost::bind( &Component::signal_list_signals_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component and its subcomponents")
+      .pretty_name("List signals recursively");
 
   regist_signal( "configure" )
       .connect( boost::bind( &Component::signal_configure, this, _1 ) )
@@ -636,6 +654,17 @@ void Component::signal_list_tree( SignalArgs& args ) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void Component::signal_list_tree_recursive( SignalArgs& args) const
+{
+  CFinfo << uri().path() << CFendl;
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_tree_recursive( args );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 std::string Component::tree(Uint level) const
 {
   std::string tree;
@@ -739,6 +768,25 @@ void Component::signal_list_options ( SignalArgs& args ) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void Component::signal_list_options_recursive ( SignalArgs& args ) const
+{
+  std::string comp = uri().path();
+  std::string opts = options().list_options();
+  if (opts!="")
+  {
+    boost::tokenizer< boost::char_separator<char> > tok(opts,boost::char_separator<char>("\n"));
+    for(boost::tokenizer< boost::char_separator<char> >::iterator opt=tok.begin(); opt!=tok.end();++opt){
+      CFinfo << comp << "/" << *opt << CFendl;
+    }
+  }
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_options_recursive( args );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void Component::signal_list_signals( SignalArgs& args ) const
 {
   SignalHandler::storage_t::const_iterator it = m_signals.begin();
@@ -755,6 +803,21 @@ void Component::signal_list_signals( SignalArgs& args ) const
     signal_node.set_attribute( Protocol::Tags::attr_descr(), (*it)->description() );
     signal_node.set_attribute( "name", (*it)->pretty_name() );
     signal_node.set_attribute( "hidden", to_str( (*it)->is_hidden() ) );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_list_signals_recursive ( SignalArgs& args ) const
+{
+  std::string comp = uri().path();
+  for( SignalHandler::storage_t::const_iterator it = m_signals.begin(); it != m_signals.end(); ++it )
+  {
+    CFinfo << comp << "/" << (*it)->name() << " hidden:" << (*it)->is_hidden() << " " << (*it)->description() << CFendl;
+  }
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_signals_recursive( args );
   }
 }
 
