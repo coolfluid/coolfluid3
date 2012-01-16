@@ -453,6 +453,8 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   mesh.write_mesh("linearadv2d.plt",fields);
 
+  mesh.write_mesh("linearadv2d.pvtu",fields);
+
   RealVector max( solution_field.row_size() ); max.setZero();
   RealVector min( solution_field.row_size() ); min.setZero();
   for (Uint i=0; i<solution_field.size(); ++i)

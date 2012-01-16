@@ -453,7 +453,8 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
   // Write to file, inserting the binary data at the end
-  boost::filesystem::fstream fout(my_path.string(), std::ios_base::out | std::ios_base::binary);
+  std::cout << "writing file " << my_path.path() << std::endl;
+  boost::filesystem::fstream fout(my_path.path(), std::ios_base::out | std::ios_base::binary);
 
   // Remove the closing tag
   std::string xml_string;
