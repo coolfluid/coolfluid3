@@ -35,7 +35,8 @@ configure Model/RDSolver  update_vars:string=Cons2D
 
 configure Model/RDSolver  solution_space:string=LagrangeP1
 configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=5000
-configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1 end_time:real=50
+configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1 end_time:real=10
+# end time needed is 50
 
 #configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
