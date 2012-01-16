@@ -99,29 +99,30 @@ void Init::execute()
 
   std::auto_ptr<physics::Properties> props = physical_model().create_properties();
 
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(solution.topology()))
+  boost_foreach(const Handle<Entities>& entities, solution.entities_range())
   {
-    Space& space = solution.space(elements);
+    const Space& space = solution.space(*entities);
 
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
     RealMatrix geometry_coords;
-    elements.allocate_coordinates(geometry_coords);
+    entities->allocate_coordinates(geometry_coords);
 
     RealMatrix space_coords;
     space.allocate_coordinates(space_coords);
 
-    const ShapeFunction& geometry_shape_func = elements.element_type().shape_function();
+    const ShapeFunction& geometry_shape_func = entities->element_type().shape_function();
     RealRowVector geometry_shape_func_values (geometry_shape_func.nb_nodes());
 
-    for (Uint elem=0; elem<elements.size(); ++elem)
-    {
-      elements.put_coordinates(geometry_coords,elem);
+    const Connectivity& field_connectivity = space.connectivity();
 
-      Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
+    for (Uint elem=0; elem<entities->size(); ++elem)
+    {
+      entities->put_coordinates(geometry_coords,elem);
 
       for (Uint node=0; node<space.nb_states();++node)
       {
+        Uint p = field_connectivity[elem][node];
         // Get the coordinates for this point, and put in params
         geometry_shape_func.compute_value(local_coords.row(node),geometry_shape_func_values);
         space_coords.row(node) = geometry_shape_func_values * geometry_coords;
@@ -138,12 +139,12 @@ void Init::execute()
           solution_vars->compute_variables(*props,sol);
 
           // Copy in the solution field
-          solution.set_row(field_idx[node],sol);
+          solution.set_row(p,sol);
         }
         else
         {
           // Copy in the solution field
-          solution.set_row(field_idx[node],return_val);
+          solution.set_row(p,return_val);
         }
 
       }

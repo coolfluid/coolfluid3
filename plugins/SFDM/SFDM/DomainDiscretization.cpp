@@ -104,26 +104,29 @@ Term& DomainDiscretization::create_term( const std::string& type,
 {
   Handle< Term > term = m_terms->create_component<Term>(name, type);
 
+  term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
+  term->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
+
   if (regions.size() == 0)
-    term->options().configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
+    term->options().configure_option("regions", solver().options().option("regions").value< std::vector<common::URI> >() );
   else
     term->options().configure_option("regions", regions);
 
-  term->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
-  term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
   term->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
 
   term->initialize();
 
   boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
   {
-    m_terms_per_region[access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
+    cf3_assert(mesh().access_component(region_uri));
+    m_terms_per_region[mesh().access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
   }
 
   CFinfo << "Created term   " << name << "(" << type << ") for regions " << CFendl;
   boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
   {
-    CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
+    cf3_assert(mesh().access_component(region_uri));
+    CFinfo << "    - " << mesh().access_component(region_uri)->uri().path() << CFendl;
   }
 
   return *term;

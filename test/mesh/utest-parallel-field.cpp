@@ -149,21 +149,21 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
-  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
   Field& elem_rank     = elems_P0.create_field("elem_rank");
 
 
-  SpaceFields& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",SpaceFields::Basis::POINT_BASED,"cf3.mesh.LagrangeP2");
+  SpaceFields& nodes_P1 = mesh.create_continuous_space("nodes_P1","cf3.mesh.LagrangeP2");
   Field& nodes_P1_node_rank = nodes_P1.create_field("node_rank");
   nodes_P1_node_rank.parallelize();
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
     nodes_P1_node_rank[n][0] = nodes_P1.rank()[n];
 
-  boost_foreach(const Handle<Elements>& elements_handle, elems_P0.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, elems_P0.entities_range())
   {
-    Elements& elements = *elements_handle;
-    Space& space = elems_P0.space(elements);
+    const Entities& elements = *elements_handle;
+    const Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
       Uint field_idx = space.indexes_for_element(elem)[0];
@@ -292,8 +292,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   }
 
 
-  SpaceFields& elems = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
-  elems.create_coordinates();
+  SpaceFields& elems = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& elem_rank     = elems.create_field("elem_rank");
   elem_rank.parallelize();
 

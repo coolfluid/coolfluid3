@@ -64,9 +64,6 @@ public: // functions
   /// @param nodes  location of the nodes the elements are linked with
   Elements& create_elements (const std::string& element_type_name, SpaceFields& geometry);
 
-  /// Create a Elements with nodes unset
-  Elements& create_elements (const std::string& element_type_name);
-
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
 

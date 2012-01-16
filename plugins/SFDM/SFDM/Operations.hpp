@@ -67,15 +67,14 @@ struct SFDElement : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     //cf3_assert(cache->options().check("space"));
-    std::string space_id = cache->options().option("space").value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
     reconstruct_geometry_space_to_flux_points.build_coefficients(entities->element_type().shape_function().handle<mesh::ShapeFunction>(),sf);
@@ -104,14 +103,13 @@ struct FluxPointDivergence : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
-    std::string space_id = options().option("space").value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
     compute.build_coefficients(sf);
   }
@@ -135,14 +133,13 @@ struct FluxPointReconstruct : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
-    std::string space_id = options().option("space").value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
     compute.build_coefficients(sf);
   }
@@ -170,15 +167,14 @@ struct FluxPointPlaneJacobianNormal : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    std::string space_id = options().option("space").template value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").template value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
     plane_jacobian_normal.resize(sf->nb_flx_pts());
@@ -235,15 +231,14 @@ struct FluxPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    std::string space_id = options().option("space").template value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").template value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
     reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
@@ -286,15 +281,14 @@ struct FluxPointCoordinatesDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    std::string space_id = options().option("space").value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
     reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
@@ -339,15 +333,14 @@ struct SolutionPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",std::string("sfd_space"));
+    cache.options().add_option("space",Handle<mesh::SpaceFields>()).description("path to spacefields");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    std::string space_id = options().option("space").template value<std::string>();
-    space = entities->space(space_id).handle<mesh::Space>();
+    space = options().option("space").template value< Handle<mesh::SpaceFields> >()->space(entities);
     sf = space->shape_function().handle<SFDM::ShapeFunction>();
 
     reconstruct_to_solution_points.build_coefficients(geo.sf,sf);
@@ -593,8 +586,7 @@ public:
 //private:
 //  virtual void compute_fixed_data()
 //  {
-//    std::string space_id = cache->options()->option("space").value<std::string>();
-//    space = entities->space(space_id).handle<mesh::Space>();
+//    space = options().option("space").value< Handle<mesh::SpaceFields> >()->space(entities);
 //    sf = space->shape_function().handle<SFDM::ShapeFunction>();
 //    gradient_reconstruct_to_flux_points.build_coefficients(sf);
 //    grad_field_in_flx_pts.resize(sf->nb_flx_pts());

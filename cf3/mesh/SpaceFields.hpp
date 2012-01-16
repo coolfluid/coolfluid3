@@ -7,6 +7,8 @@
 #ifndef cf3_mesh_SpaceFields_hpp
 #define cf3_mesh_SpaceFields_hpp
 
+#include <set>
+
 #include "common/Table_fwd.hpp"
 #include "common/EnumT.hpp"
 #include "common/Component.hpp"
@@ -89,20 +91,17 @@ public: // functions
   /// Create a new field in this group
   Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
-  /// Return the topology
-  Region& topology() const;
-
   /// Number of rows of contained fields
   virtual Uint size() const { return m_size; }
 
   /// Resize the contained fields
   void resize(const Uint size);
 
-  /// Return the space_id
-  const std::string& space() const { return m_space; }
+  /// Return the space of given entities
+  const Space& space(const Entities& entities) const;
 
   /// Return the space of given entities
-  Space& space(const Entities& entities) const;
+  const Handle< Space const>& space(const Handle< Entities const>& entities) const;
 
   /// Return the global index of every field row
   common::List<Uint>& glb_idx() const { return *m_glb_idx; }
@@ -117,30 +116,25 @@ public: // functions
   bool is_ghost(const Uint idx) const;
 
   /// @brief Check if all fields are compatible
-  /// @throws common::InvalidStructure
-  void check_sanity();
+  bool check_sanity(std::vector<std::string>& messages) const;
+  bool check_sanity() const;
 
   std::vector<Handle< Entities > > entities_range();
-  std::vector<Handle< Elements > > elements_range();
 
   Field& field(const std::string& name);
 
-  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
+//  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
   void create_connectivity_in_space();
-  void bind_space();
 
-  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
-
-  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
-
-  Field& create_coordinates();
+// deprecated
+//  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
+// deprecated
+//  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
 
   const Field& coordinates() const;
 
   Field& coordinates();
-
-  bool has_coordinates() const;
 
   common::DynTable<Uint>& glb_elem_connectivity();
 
@@ -150,13 +144,22 @@ public: // functions
 
   void signature_create_field ( common::SignalArgs& node);
 
+  bool defined_for_entities(const Handle<Entities const>& entities) const;
+
+  void add_space(const Handle<Space>& space);
+  void update();
+
 private: // functions
 
-  void update();
+  bool has_coordinates() const;
+
+  Field& create_coordinates();
 
   void config_space();
 
   void config_topology();
+
+  void config_regions();
 
   void config_type();
 
@@ -167,8 +170,6 @@ protected:
 
   Basis::Type m_basis;
 
-  std::string m_space;
-
   Uint m_size;
 
   Handle<common::Link> m_topology;
@@ -178,6 +179,12 @@ protected:
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
+
+private:
+
+  std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
+  std::vector< Handle<Space   > > m_spaces;
+  std::vector< Handle<Entities> > m_entities;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

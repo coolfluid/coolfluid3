@@ -49,7 +49,7 @@ private: // helper functions
 private: // data
 
   Handle<mesh::Field> m_area;
-  Handle<mesh::Space> m_area_field_space;
+  Handle<mesh::Space const> m_area_field_space;
 
   RealMatrix m_coordinates;
 

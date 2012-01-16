@@ -34,10 +34,7 @@ common::ComponentBuilder < Space, Component, LibMesh > Space_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 Space::Space ( const std::string& name ) :
-  Component ( name ),
-  m_is_proxy(false),
-  m_elem_start_idx(0),
-  m_connectivity_proxy(new Connectivity::ArrayT)
+  Component ( name )
 {
   mark_basic();
 
@@ -105,6 +102,11 @@ Uint Space::nb_states() const
   return shape_function().nb_nodes();
 }
 
+Uint Space::size() const
+{
+  return m_connectivity->size();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void Space::configure_shape_function()
@@ -137,27 +139,8 @@ SpaceFields& Space::fields() const
 
 Connectivity::ConstRow Space::indexes_for_element(const Uint elem_idx) const
 {
-  if (m_is_proxy)
-  {
-    const Uint start_idx = m_elem_start_idx+elem_idx*m_connectivity_proxy->shape()[1];
-    for (Uint i=0; i<m_connectivity_proxy->shape()[1]; ++i)
-      (*m_connectivity_proxy)[0][i] = start_idx+i;
-    return (*m_connectivity_proxy)[0];
-  }
-  else
-  {
-    cf3_assert_desc(connectivity().uri().string()+"["+common::to_str(elem_idx)+"]",elem_idx<connectivity().size());
-    return connectivity()[elem_idx];
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Space::make_proxy(const Uint elem_start_idx)
-{
-  m_is_proxy = true;
-  m_elem_start_idx = elem_start_idx;
-  m_connectivity_proxy->resize(boost::extents[1][nb_states()]);
+  cf3_assert_desc(connectivity().uri().string()+"["+common::to_str(elem_idx)+"]",elem_idx<connectivity().size());
+  return connectivity()[elem_idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,35 +164,17 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
 
 void Space::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
-  if (fields().has_coordinates())
+  Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
+  Field& coordinates_field = fields().coordinates();
+
+  cf3_assert(coordinates.rows() == indexes.size());
+  cf3_assert(coordinates.cols() == coordinates_field.row_size());
+
+  for (Uint i=0; i<coordinates.rows(); ++i)
   {
-    Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-    Field& coordinates_field = fields().coordinates();
-
-    cf3_assert(coordinates.rows() == indexes.size());
-    cf3_assert(coordinates.cols() == coordinates_field.row_size());
-
-    for (Uint i=0; i<coordinates.rows(); ++i)
+    for (Uint j=0; j<coordinates.cols(); ++j)
     {
-      for (Uint j=0; j<coordinates.cols(); ++j)
-      {
-        coordinates(i,j) = coordinates_field[indexes[i]][j];
-      }
-    }
-  }
-  else
-  {
-    const ShapeFunction& space_sf       = shape_function();
-    const Entities&     geometry       = support();
-    const ElementType&   geometry_etype = element_type();
-    const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
-    RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
-
-    cf3_assert(coordinates.rows() == space_sf.nb_nodes());
-    cf3_assert(coordinates.cols() == geometry_etype.dimension());
-    for (Uint node=0; node<space_sf.nb_nodes(); ++node)
-    {
-      coordinates.row(node) = geometry_sf.value( space_sf.local_coordinates().row(node) ) * geometry_coordinates;
+      coordinates(i,j) = coordinates_field[indexes[i]][j];
     }
   }
 }
@@ -225,24 +190,17 @@ void Space::allocate_coordinates(RealMatrix& coordinates) const
 
 RealMatrix Space::get_coordinates(const Uint elem_idx) const
 {
-  if (fields().has_coordinates())
+  Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
+  Field& coordinates_field = fields().coordinates();
+  RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
+  for (Uint i=0; i<coordinates.rows(); ++i)
   {
-    Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-    Field& coordinates_field = fields().coordinates();
-    RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
-    for (Uint i=0; i<coordinates.rows(); ++i)
+    for (Uint j=0; j<coordinates.cols(); ++j)
     {
-      for (Uint j=0; j<coordinates.cols(); ++j)
-      {
-        coordinates(i,j) = coordinates_field[indexes[i]][j];
-      }
+      coordinates(i,j) = coordinates_field[indexes[i]][j];
     }
-    return coordinates;
   }
-  else
-  {
-    return compute_coordinates(elem_idx);
-  }
+  return coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

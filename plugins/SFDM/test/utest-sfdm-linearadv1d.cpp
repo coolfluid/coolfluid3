@@ -21,6 +21,7 @@
 #include "common/Link.hpp"
 
 #include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 #include "math/Consts.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -157,10 +158,16 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   generate_mesh.options().configure_option("lengths",lengths);
   generate_mesh.options().configure_option("offsets",offsets);
   generate_mesh.options().configure_option("bdry",true);
+
   generate_mesh.execute();
+
+  mesh.write_mesh("generated_line.msh");
+
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
   solver.options().configure_option(SFDM::Tags::mesh(),mesh.handle<Mesh>());
 
+
+  mesh.write_mesh("load_balanced_line.msh");
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
@@ -168,6 +175,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   solver.options().configure_option(SFDM::Tags::solution_order(),sol_order);
   solver.iterative_solver().options().configure_option("nb_stages",time_order);
   solver.prepare_mesh().execute();
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Configure simulation
@@ -182,7 +190,6 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   solver.initial_conditions().execute();
 
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(SFDM::Tags::solution()) ) );
-  solution_field.field_group().create_coordinates();
 
   // Discretization
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
@@ -344,7 +351,6 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
   Term& convection = solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
@@ -426,7 +432,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   //////////////////////////////////////////////////////////////////////////////
   // Output
 
-  Field& rank = solution_field.field_group().create_field("rank");
+  Field& rank = solution_field.field_group().create_field("elem_rank");
   Field& rank_sync = solution_field.field_group().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
@@ -436,15 +442,18 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   rank_sync.parallelize();
   rank_sync.synchronize();
 
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+//  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.field_group().field("elem_rank").uri());
   fields.push_back(solution_field.field_group().field("wave_speed").uri());
   fields.push_back(solution_field.field_group().field("update_coefficient").uri());
-#ifdef SANDBOX
   fields.push_back(solution_field.field_group().field("convection").uri());
   fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
-#endif
 
   mesh.write_mesh("linearadv2d.msh",fields);
+
+  mesh.write_mesh("linearadv2d.plt",fields);
+
+  mesh.write_mesh("linearadv2d.pvtu",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
   RealVector min( solution_field.row_size() ); min.setZero();

@@ -662,7 +662,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    SpaceFields& field_group = m_mesh->create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+    SpaceFields& field_group = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {

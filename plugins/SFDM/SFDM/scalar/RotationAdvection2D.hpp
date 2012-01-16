@@ -24,7 +24,7 @@ class SFDM_scalar_API RotationAdvection2D : public ConvectiveTerm< ConvectiveTer
 {
 public:
   static std::string type_name() { return "RotationAdvection2D"; }
-  RotationAdvection2D(const std::string& name) : ConvectiveTerm(name)
+  RotationAdvection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<1u,2u> >(name)
   {
     m_omega = 1.;
     m_rotation_centre.resize(2,0.);
