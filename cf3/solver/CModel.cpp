@@ -134,12 +134,19 @@ void CModel::simulate()
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
   // call all the solvers
-  boost_foreach(CSolver& solver, find_components<CSolver>(*this))
+  try
   {
-    solver.execute();
+    boost_foreach(CSolver& solver, find_components<CSolver>(*this))
+    {
+      solver.execute();
+    }
+    CFinfo << name() << ": end simulation\n" << CFendl;
+  }
+  catch (common::FailedToConverge& e)
+  {
+    CFerror << "simulation failed\n" << e.what() << CFendl;
   }
 
-  CFinfo << name() << ": end simulation\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

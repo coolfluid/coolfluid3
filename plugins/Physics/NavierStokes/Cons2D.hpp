@@ -82,7 +82,7 @@ public: // functions
           std::cout << "uuvv  : " << p.uuvv << std::endl;
 
 
-      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+      throw common::FailedToConverge( FromHere(), "Pressure is negative at coordinates ["
                                    + common::to_str(coord[XX]) + ","
                                    + common::to_str(coord[YY])
                                    + "]");

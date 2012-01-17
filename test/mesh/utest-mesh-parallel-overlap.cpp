@@ -781,7 +781,7 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
@@ -789,7 +789,7 @@ BOOST_CHECK(true);
   {
     Handle<Entities> elements_handle(mesh_elements[comp_idx]);
     Entities& elements = *elements_handle;
-    Space& space = glb_elem.space(elements);
+    const Space& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
       Uint field_idx = space.indexes_for_element(elem)[0];

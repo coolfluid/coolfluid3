@@ -106,19 +106,28 @@ const std::vector< Handle<Region> >& Action::regions() const
 
 void Action::config_regions()
 {
-  std::vector<common::URI> vec = options().option(Tags::regions()).value< std::vector<common::URI> >();
 
   m_loop_regions.clear();
 
-  boost_foreach(const common::URI region_path, vec)
+  boost_foreach(const common::URI region_uri, options().option("regions").value< std::vector<common::URI> >())
   {
-    Handle<Component> comp = access_component(region_path);
+    Handle<Component> comp;
+    if (region_uri.is_relative())
+    {
+      if ( is_null(m_mesh) )
+        throw common::SetupError(FromHere(), "First configure the mesh");
+      comp = m_mesh->access_component(region_uri);
+    }
+    else
+    {
+      comp = access_component(region_uri);
+    }
 
     if ( Handle< Region > region = comp->handle<Region>() )
       m_loop_regions.push_back( region );
     else
       throw common::ValueNotFound ( FromHere(),
-                           "Could not find region with path [" + region_path.path() +"]" );
+                           "Could not find region with path [" + region_uri.path() +"]" );
   }
 }
 

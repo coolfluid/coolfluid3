@@ -54,7 +54,7 @@ void* PosixDlopenLibLoader::call_dlopen(const URI& fpath)
   hdl = dlopen (fpath.path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
 
   if( is_not_null(hdl) )
-    CFinfo << "dlopen() loaded library \'" << fpath.path() << "\'" << CFendl;
+    CFdebug << "dlopen() loaded library \'" << fpath.path() << "\'" << CFendl;
 
   // library name
   if ( is_null(hdl) && !fpath.is_absolute() )
@@ -71,7 +71,7 @@ void* PosixDlopenLibLoader::call_dlopen(const URI& fpath)
       hdl = dlopen (fullqname.path().c_str(), RTLD_LAZY|RTLD_GLOBAL);
       if( hdl != nullptr )
       {
-        CFinfo << "dlopen() loaded library \'" << fullqname.path() << "\'" << CFendl;
+        CFdebug << "dlopen() loaded library \'" << fullqname.path() << "\'" << CFendl;
         break;
       }
     }

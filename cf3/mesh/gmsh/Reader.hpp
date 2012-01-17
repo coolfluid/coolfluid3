@@ -137,6 +137,8 @@ private: // data
     std::vector<Uint> file_data_positions;
   };
 
+  void fix_negative_volumes(Mesh& mesh);
+
   void read_variable_header(std::map<std::string,Field>& fields);
 
   std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh);

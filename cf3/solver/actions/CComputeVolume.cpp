@@ -61,7 +61,7 @@ void CComputeVolume::config_field()
 
 void CComputeVolume::trigger_elements()
 {
-  m_can_start_loop = m_volume->elements_lookup().contains(elements());
+  m_can_start_loop = m_volume->field_group().defined_for_entities(elements().handle<Entities>());
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);
@@ -73,7 +73,7 @@ void CComputeVolume::trigger_elements()
 
 void CComputeVolume::execute()
 {
-  Space& space = *m_volume_field_space;
+  const Space& space = *m_volume_field_space;
   Field& volume = *m_volume;
 
   elements().put_coordinates(m_coordinates,idx());
