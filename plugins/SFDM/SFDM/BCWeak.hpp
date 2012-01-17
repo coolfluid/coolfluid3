@@ -255,7 +255,7 @@ inline void BCWeak<POINTDATA>::execute()
     Eigen::Matrix<Real,NEQS,1> face_sol;
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
     compute_solution(*inner_cell_face_data[face_pt],face_sol);
-    common::TableConstRow<Uint>::type field_index = face_elem->get().space->indexes_for_element(m_face_elem_idx);
+//    common::TableConstRow<Uint>::type field_index = face_elem->get().space->indexes_for_element(m_face_elem_idx);
 
 //    std::cout << "boundary -- " << face_elem->get().entities->uri() << "[" << face_elem->get().idx << "]" << " : face_points = " << field_index[boundary_face_pt_idx[face_pt]] << "  ---> " ;
     for (Uint v=0; v<NEQS; ++v)
