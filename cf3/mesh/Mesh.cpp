@@ -356,12 +356,7 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   boost_foreach( Field& field, find_components_recursively<Field>(*this))
   {
-    if (options.check(field.name()))
-    {
-      bool add_field = options.value<bool>( field.name() );
-      if (add_field)
-        fields.push_back(field.uri());
-    }
+    fields.push_back(field.uri());
   }
 
   write_mesh(fpath,fields);
