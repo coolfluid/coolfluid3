@@ -14,11 +14,12 @@
 #include <CGAL/number_utils.h>
 
 #include "common/Log.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
