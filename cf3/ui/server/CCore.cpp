@@ -13,7 +13,7 @@
 #include <ctime>
 
 #include "coolfluid-config.hpp"
-#if defined CF3_OS_LINUX || CF3_OS_MACOSX // if we are on a POSIX system...
+#if defined CF3_OS_LINUX || defined CF3_OS_MACOSX // if we are on a POSIX system...
   #include <pwd.h> // for getpwuid()
 #endif
 
@@ -64,7 +64,7 @@ std::string find_home_path()
 {
   std::string home_path;
 
-#if defined CF3_OS_LINUX || CF3_OS_MACOSX // if we are on a POSIX system...
+#if defined CF3_OS_LINUX || defined CF3_OS_MACOSX // if we are on a POSIX system...
   char * home = getenv("HOME");
 
   if( is_not_null(home) )
