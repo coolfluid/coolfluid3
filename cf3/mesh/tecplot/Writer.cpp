@@ -255,7 +255,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
                   /// evaluate field shape function in P0 space
                   RealVector geometry_field_data = interpolation*field_data;
 
-                  Connectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  Connectivity::ConstRow geom_nodes = elements.geometry_space().connectivity()[e];
                   cf3_assert(geometry_field_data.size()==geom_nodes.size());
                   /// Average nodal values
                   for (Uint g=0; g<geom_nodes.size(); ++g)
@@ -334,7 +334,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
                   /// evaluate field shape function in P0 space
                   RealVector geometry_field_data = interpolation*field_data;
 
-                  Connectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  Connectivity::ConstRow geom_nodes = elements.geometry_space().connectivity()[e];
                   cf3_assert(geometry_field_data.size()==geom_nodes.size());
                   /// Average nodal values
                   for (Uint g=0; g<geom_nodes.size(); ++g)

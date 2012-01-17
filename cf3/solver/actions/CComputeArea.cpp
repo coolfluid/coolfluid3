@@ -63,7 +63,7 @@ void CComputeArea::trigger_elements()
   m_can_start_loop = m_area->dict().defined_for_entities(elements().handle<Entities>());
   if (m_can_start_loop)
   {
-    elements().allocate_coordinates(m_coordinates);
+    elements().geometry_space().allocate_coordinates(m_coordinates);
     m_area_field_space = m_area->space(elements()).handle<Space>();
   }
 }
@@ -75,7 +75,7 @@ void CComputeArea::execute()
   const Space& space = *m_area_field_space;
   Field& area = *m_area;
 
-  elements().put_coordinates(m_coordinates,idx());
+  elements().geometry_space().put_coordinates(m_coordinates,idx());
   area[space.indexes_for_element(idx())[0]][0] = elements().element_type().area( m_coordinates );
 }
 

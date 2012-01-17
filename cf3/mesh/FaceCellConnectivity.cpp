@@ -354,7 +354,7 @@ std::vector<Uint> FaceCellConnectivity::face_nodes(const Uint face) const
   cf3_assert(face < m_connectivity->size());
   cf3_assert(face < m_face_nb_in_elem->size());
   Entity element = (*m_connectivity)[face][0];
-  cf3_assert(element.idx < element.comp->size())
+  cf3_assert(element.idx < element.comp->size());
 
   Connectivity::ConstRow element_nodes = element.get_nodes();
 

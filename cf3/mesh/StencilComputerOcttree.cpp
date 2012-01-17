@@ -12,6 +12,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/StencilComputerOcttree.hpp"
 #include "mesh/Mesh.hpp"
@@ -20,8 +21,9 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Octtree.hpp"
-#include "common/OptionList.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +71,7 @@ void StencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::v
   Uint elem_idx;
   boost::tie(component,elem_idx) = unified_elements().location(unified_elem_idx);
   Elements& elements = dynamic_cast<Elements&>(*component);
-  RealMatrix coordinates = elements.get_coordinates(elem_idx);
+  RealMatrix coordinates = elements.geometry_space().get_coordinates(elem_idx);
   elements.element_type().compute_centroid(coordinates,centroid);
   stencil.resize(0);
   if (m_octtree->find_octtree_cell(centroid,octtree_cell))

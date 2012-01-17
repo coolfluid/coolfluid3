@@ -205,7 +205,7 @@ protected: // configuration
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
     elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),point_data.coord);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),point_data.coord);
 //    std::cout << "reconstruct \n" << elem.entities->get_coordinates(elem.idx) << "   to flx_pt " << flx_pt << "\n" << point_data.coord.transpose() << std::endl;
   }
 

@@ -911,7 +911,7 @@ void Reader::fix_negative_volumes(Mesh& mesh)
       std::vector<Uint> tmp_nodes(nb_nodes_per_elem);
       for (Uint e=0; e<elements.size(); ++e)
       {
-        jacobian_determinant = elements.element_type().jacobian_determinant(elements.element_type().shape_function().local_coordinates().row(0),elements.get_coordinates(e));
+        jacobian_determinant = elements.element_type().jacobian_determinant(elements.geometry_space().shape_function().local_coordinates().row(0),elements.geometry_space().get_coordinates(e));
         if (jacobian_determinant < 0)
         {
           // reverse the connectivity nodes order

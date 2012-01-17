@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
     {
       boost_foreach( const Uint state, space.indexes_for_element(e))
       {
-        volume[state][0] = elements.element_type().volume(elements.get_coordinates(e));
+        volume[state][0] = elements.element_type().volume(elements.geometry_space().get_coordinates(e));
       }
 
 

@@ -143,7 +143,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      boost_foreach(Uint node, entities.get_nodes(e))
+      boost_foreach(Uint node, entities.geometry_space().connectivity()[e])
       {
         if (node >=max_node_idx)
         {

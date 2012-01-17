@@ -236,7 +236,7 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
       file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
-      boost_foreach(const Uint node_idx, elements.get_nodes(e))
+      boost_foreach(const Uint node_idx, elements.geometry_space().connectivity()[e])
       {
         file << " " << to_gmsh_node[node_idx];
       }

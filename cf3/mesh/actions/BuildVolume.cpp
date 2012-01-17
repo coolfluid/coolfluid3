@@ -81,12 +81,12 @@ void BuildVolume::execute()
   boost_foreach( const Handle<Entities>& elements_handle, volume.entities_range() )
   {
     Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
+    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
 
     const Connectivity& space_connectivity = cells_P0.space(elements).connectivity();
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
-      elements.put_coordinates( coordinates, cell_idx );
+      elements.geometry_space().put_coordinates( coordinates, cell_idx );
       volume[space_connectivity[cell_idx][0]][0] = elements.element_type().volume( coordinates );
     }
   }

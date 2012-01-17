@@ -30,13 +30,8 @@ namespace mesh {
 /// Entities component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API Entities : public common::Component {
-
-public: // typedefs
-
-
-
-
+class Mesh_API Entities : public common::Component
+{
 public: // functions
 
   /// Contructor
@@ -44,7 +39,7 @@ public: // functions
   Entities ( const std::string& name );
 
   /// Initialize the Entities using the given type
-  virtual void initialize(const std::string& element_type_name);
+//  virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
   virtual void initialize(const std::string& element_type_name, Dictionary& geometry);
@@ -88,8 +83,6 @@ public: // functions
 
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
-
   Space& space (const std::string& space_name) const;
 
   Space& create_space(const std::string& shape_function_builder_name, Dictionary& space_fields);
@@ -98,11 +91,7 @@ public: // functions
 
   bool exists_space(const std::string& space_name) const;
 
-  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
-
-  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
-
-  void allocate_coordinates(RealMatrix& coords) const;
+//  void allocate_coordinates(RealMatrix& coords) const;
 
 //  void signal_create_space ( common::SignalArgs& node );
 

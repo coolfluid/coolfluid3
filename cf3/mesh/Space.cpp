@@ -151,7 +151,7 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
   const Entities&     geometry       = support();
   const ElementType&   geometry_etype = element_type();
   const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
-  RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
+  RealMatrix geometry_coordinates = geometry.geometry_space().get_coordinates(elem_idx);
   RealMatrix space_coordinates(space_sf.nb_nodes(),geometry_etype.dimension());
   for (Uint node=0; node<space_sf.nb_nodes(); ++node)
   {

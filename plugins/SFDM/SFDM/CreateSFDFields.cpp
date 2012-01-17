@@ -126,7 +126,7 @@ void CreateSFDFields::execute()
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
       RealMatrix geometry_coords;
-      elements->allocate_coordinates(geometry_coords);
+      elements->geometry_space().allocate_coordinates(geometry_coords);
 
       RealVector dKsi (elements->element_type().dimensionality()); dKsi.setConstant(2.);
       RealVector dX (elements->element_type().dimension());
@@ -136,7 +136,7 @@ void CreateSFDFields::execute()
 
       for (Uint elem=0; elem<elements->size(); ++elem)
       {
-        elements->put_coordinates(geometry_coords,elem);
+        elements->geometry_space().put_coordinates(geometry_coords,elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {

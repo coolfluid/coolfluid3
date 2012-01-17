@@ -157,7 +157,7 @@ void GlobalNumbering::execute()
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      elements.put_coordinates(element_coordinates,elem_idx);
+      elements.geometry_space().put_coordinates(element_coordinates,elem_idx);
       RealVector centroid(elements.element_type().dimension());
       elements.element_type().compute_centroid(element_coordinates,centroid);
       glb_elem_hash.data()[elem_idx]=elem_hash_value(element_coordinates);

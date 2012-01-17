@@ -40,12 +40,12 @@ private:
     cf3_assert(entities);
     space = entities->geometry_space().handle<mesh::Space>();
     sf = space->shape_function().handle<mesh::ShapeFunction>();
-    entities->allocate_coordinates(nodes);
+    entities->geometry_space().allocate_coordinates(nodes);
   }
 
   virtual void compute_variable_data()
   {
-    entities->put_coordinates(nodes,idx);
+    entities->geometry_space().put_coordinates(nodes,idx);
   }
 
 public:

@@ -354,11 +354,12 @@ void LinearInterpolator::create_octtree()
   boost_foreach(const Elements& elements, find_components_recursively_with_filter<Elements>(*m_source_mesh,IsElementsVolume()))
   {
     Uint nb_nodes_per_element = elements.geometry_space().connectivity().row_size();
-    RealMatrix coordinates(nb_nodes_per_element,m_dim);
+    RealMatrix coordinates;
+    elements.geometry_space().allocate_coordinates(coordinates);
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      elements.put_coordinates(coordinates,elem_idx);
+      elements.geometry_space().put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
         m_point_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
@@ -505,7 +506,7 @@ boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(con
     {
       boost::tie(component,elem_idx)=m_elements->location(glb_elem_idx);
       Elements const& elements = dynamic_cast<Elements const&>(*component);
-      RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      RealMatrix elem_coordinates = elements.geometry_space().get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
         return boost::make_tuple(Handle<Elements const>(elements.handle<Component>()),elem_idx);

@@ -134,7 +134,7 @@ protected: // configuration
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
     elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,phys_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),phys_data.coord);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),phys_data.coord);
   }
 
   virtual void compute_face()

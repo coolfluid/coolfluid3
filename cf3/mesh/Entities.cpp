@@ -76,15 +76,14 @@ Entities::~Entities()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Entities::initialize(const std::string& element_type_name)
-{
-  options().configure_option("element_type",element_type_name);
-  cf3_assert(is_not_null(m_element_type));
-}
+//void Entities::initialize(const std::string& element_type_name)
+//{
+//}
 
 void Entities::initialize(const std::string& element_type_name, Dictionary& geometry)
 {
-  initialize(element_type_name);
+  options().configure_option("element_type",element_type_name);
+  cf3_assert(is_not_null(m_element_type));
   create_geometry_space(geometry);
 }
 
@@ -240,10 +239,10 @@ Uint Entities::glb_size() const
   }
 }
 
-common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
-{
-  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
-}
+//common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
+//{
+//  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -276,25 +275,25 @@ bool Entities::exists_space(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix Entities::get_coordinates(const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-  return RealMatrix(1,1);
-}
+//RealMatrix Entities::get_coordinates(const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//  return RealMatrix(1,1);
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-}
+//void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-void Entities::allocate_coordinates(RealMatrix& coords) const
-{
-  coords.resize(element_type().nb_nodes(),element_type().dimension());
-}
+//void Entities::allocate_coordinates(RealMatrix& coords) const
+//{
+//  coords.resize(element_type().nb_nodes(),element_type().dimension());
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -338,10 +337,10 @@ ElementType& Entity::element_type() const { return comp->element_type(); }
 Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
 Uint Entity::rank() const { return comp->rank()[idx]; }
 bool Entity::is_ghost() const { return comp->is_ghost(idx); }
-RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); }
-void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
-void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
-Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+RealMatrix Entity::get_coordinates() const { return comp->geometry_space().get_coordinates(idx); }
+void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().put_coordinates(coordinates,idx); }
+void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().allocate_coordinates(coordinates); }
+Connectivity::ConstRow Entity::get_nodes() const { return comp->geometry_space().connectivity()[idx]; }
 std::ostream& operator<<(std::ostream& os, const Entity& entity)
 {
   cf3_assert(is_not_null(entity.comp));

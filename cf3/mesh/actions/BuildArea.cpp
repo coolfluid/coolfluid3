@@ -80,11 +80,11 @@ void BuildArea::execute()
   boost_foreach(const Handle<Entities>& elements_handle, area.entities_range() )
   {
     const Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
+    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
     const Connectivity& field_connectivity = area.space(elements).connectivity();
     for (Uint face_idx = 0; face_idx<elements.size(); ++face_idx)
     {
-      elements.put_coordinates( coordinates, face_idx );
+      elements.geometry_space().put_coordinates( coordinates, face_idx );
       area[field_connectivity[face_idx][0]][0] = elements.element_type().area( coordinates );
     }
   }

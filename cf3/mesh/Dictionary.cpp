@@ -426,7 +426,7 @@ void Dictionary::create_connectivity_in_space()
       const ShapeFunction& shape_function = space(entities).shape_function();
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
-        elem_coordinates = entities.get_coordinates(elem);
+        elem_coordinates = entities.geometry_space().get_coordinates(elem);
         for (Uint node=0; node<shape_function.nb_nodes(); ++node)
         {
           RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
@@ -457,7 +457,7 @@ void Dictionary::create_connectivity_in_space()
       connectivity.resize(entities.size());
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
-        elem_coordinates = entities.get_coordinates(elem);
+        elem_coordinates = entities.geometry_space().get_coordinates(elem);
         for (Uint node=0; node<shape_function.nb_nodes(); ++node)
         {
           RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
@@ -683,7 +683,7 @@ void Dictionary::create_connectivity_in_space()
       RealVector centroid(entities.element_type().dimension());
       for (Uint e=0; e<entities.size(); ++e)
       {
-        entities.put_coordinates(elem_coords,e);
+        entities.geometry_space().put_coordinates(elem_coords,e);
         entities.element_type().compute_centroid(elem_coords,centroid);
         size_t hash = hash_value(centroid);
 //        std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash;
@@ -868,7 +868,7 @@ void Dictionary::create_connectivity_in_space()
       RealVector centroid(entities.element_type().dimension());
       for (Uint e=0; e<entities.size(); ++e)
       {
-        entities.put_coordinates(elem_coords,e);
+        entities.geometry_space().put_coordinates(elem_coords,e);
         entities.element_type().compute_centroid(elem_coords,centroid);
         size_t hash = hash_value(centroid);
 //        std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash;
@@ -1046,7 +1046,7 @@ Field& Dictionary::create_coordinates()
     Space& geometry_space = entities.geometry_space();
     const ShapeFunction& geom_sf = geometry_space.shape_function();
     RealMatrix geom_nodes;
-    entities.allocate_coordinates(geom_nodes);
+    entities.geometry_space().allocate_coordinates(geom_nodes);
 
     const Space& entities_space = space(entities);
     const ShapeFunction& sf = entities_space.shape_function();
@@ -1060,7 +1060,7 @@ Field& Dictionary::create_coordinates()
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      entities.put_coordinates(geom_nodes,e);
+      entities.geometry_space().put_coordinates(geom_nodes,e);
       coords = interpolation*geom_nodes;
 
       for (Uint i=0; i<sf.nb_nodes(); ++i)

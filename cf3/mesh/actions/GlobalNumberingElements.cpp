@@ -107,7 +107,8 @@ void GlobalNumberingElements::execute()
 
   boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
   {
-    RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
+    RealMatrix element_coordinates;
+    elements.geometry_space().allocate_coordinates(element_coordinates);
 
     if ( is_null( elements.get_child("glb_elem_hash") ) )
       elements.create_component<CVector_size_t>("glb_elem_hash");
@@ -116,7 +117,7 @@ void GlobalNumberingElements::execute()
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      elements.put_coordinates(element_coordinates,elem_idx);
+      elements.geometry_space().put_coordinates(element_coordinates,elem_idx);
       glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
       if (m_debug)
         std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
