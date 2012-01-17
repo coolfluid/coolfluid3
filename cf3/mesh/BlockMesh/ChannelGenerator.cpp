@@ -20,6 +20,7 @@
 
 #include "common/PE/Comm.hpp"
 
+#include "mesh/Mesh.hpp"
 #include "mesh/BlockMesh/ChannelGenerator.hpp"
 
 namespace cf3 {
@@ -140,7 +141,7 @@ void ChannelGenerator::execute()
     build_mesh(blocks, mesh);
   }
 
-  raise_mesh_loaded();
+  mesh.raise_mesh_loaded();
 }
 
 } // BlockMesh

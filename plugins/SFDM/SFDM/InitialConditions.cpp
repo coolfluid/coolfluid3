@@ -14,6 +14,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -79,22 +80,21 @@ solver::Action& InitialConditions::create_initial_condition(const std::string& n
 {
   Handle<solver::Action> ic = create_component< SFDM::Init >(name);
 
-  /// @todo find the field through solver links
-  Field& solution = find_component_recursively_with_name<Field>(mesh(),SFDM::Tags::solution());
+  Handle<Field> solution = follow_link(solver().field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
 
-  ic->options().configure_option( "solution_field", solution.handle<Component>() );
+  ic->options().configure_option( SFDM::Tags::solver() , m_solver);
+  ic->options().configure_option( SFDM::Tags::mesh(), m_mesh);
+  ic->options().configure_option( "solution_field", solution);
 
-  if( regions.empty() )
+  if( regions.empty() ) // if user did not specify, then use the one from the solver
   {
-    ic->options().configure_option("regions" , std::vector<URI>(1,mesh().topology().uri()));
+    ic->options().configure_option("regions" , solver().options().option("regions").value< std::vector<common::URI> >() );
   }
-  else // if user did not specify, then use the whole topology (all regions)
+  else
   {
     ic->options().configure_option("regions" , regions);
   }
 
-  ic->options().configure_option( SFDM::Tags::mesh(), m_mesh);
-  ic->options().configure_option( SFDM::Tags::solver() , m_solver);
   ic->options().configure_option( SFDM::Tags::physical_model() , m_physical_model);
 
   return *ic;
@@ -113,7 +113,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   }
   else // if user did not specify, then use the whole topology (all regions)
   {
-    regions.push_back(mesh().topology().uri());
+    regions = solver().options().option("regions").value< std::vector<common::URI> >();
   }
 
   create_initial_condition(name,regions);

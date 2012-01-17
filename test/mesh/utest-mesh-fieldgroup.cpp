@@ -82,87 +82,69 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   BOOST_CHECK_NO_THROW(mesh.geometry_fields().check_sanity());
 
   // Check if indexes_for_element function returns expected results
-  boost_foreach(const Handle<Elements>& elements_handle, mesh.geometry_fields().elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, mesh.geometry_fields().entities_range())
   {
-    Elements& elements = *elements_handle;
+    Entities& elements = *elements_handle;
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( mesh.geometry_fields().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
+      BOOST_CHECK( mesh.geometry_fields().space(elements).connectivity()[e] == elements.geometry_space().connectivity()[e] );
     }
   }
-  BOOST_CHECK_EQUAL( mesh.geometry_fields().elements_lookup().components().size() , 5u);
+  BOOST_CHECK_EQUAL( mesh.geometry_fields().entities_range().size() , 5u);
 
 
   // ----------------------------------------------------------------------------------------------
   // CHECK element-based field group building
 
   // Create space and field_group for Lagrange P0 elements
-  SpaceFields& elem_fields = mesh.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elem_fields = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
-  BOOST_CHECK_EQUAL( elem_fields.elements_lookup().components().size() , 5u);
-
-  // Create space and field_group for Lagrange P0 cells
-  SpaceFields& cell_fields = mesh.create_space_and_field_group("cells_P0", SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
-
-  BOOST_CHECK_EQUAL( cell_fields.size() , 25);
-  BOOST_CHECK_EQUAL( cell_fields.elements_lookup().components().size() , 1u);
-
-  // Create space and field_group for Lagrange P0 faces
-  SpaceFields& face_fields = mesh.create_space_and_field_group("faces_P0", SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
-
-  BOOST_CHECK_EQUAL( face_fields.size() , 20);
-  BOOST_CHECK_EQUAL( face_fields.elements_lookup().components().size() , 4u);
+  BOOST_CHECK_EQUAL( elem_fields.entities_range().size() , 5u);
 
   // CHECK indexes_for_element access for nodes
   Uint cell_idx=0;
-  boost_foreach(const Handle<Entities>& elements_handle, cell_fields.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, elem_fields.entities_range())
   {
-    Entities& elements = *elements_handle;
+    const Entities& elements = *elements_handle;
+    const Space& space = elem_fields.space(elements);
+    const Connectivity& field_connectivity = space.connectivity();
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( elements.space(cell_fields.space()).is_bound_to_fields() );
-      boost_foreach( const Uint point, cell_fields.indexes_for_element(elements,e) )
+      BOOST_CHECK( space.is_bound_to_fields() );
+      boost_foreach( const Uint point, field_connectivity[e] )
       {
         BOOST_CHECK_EQUAL( point, cell_idx );  // same because P0 field
         ++cell_idx;
       }
     }
   }
-  // Same check using a unified_cell_index
-  for (Uint unified_idx=0; unified_idx<cell_fields.elements_lookup().size(); ++unified_idx)
-  {
-    boost_foreach( const Uint point, cell_fields.indexes_for_element(unified_idx) )
-    {
-      BOOST_CHECK_EQUAL( point, unified_idx);  // The boost_foreach has only 1 iteration as it is P0 field
-    }
-  }
-
 
   // ----------------------------------------------------------------------------------------------
   // CHECK field building inside field groups
 
   Field& solution = elem_fields.create_field("solution","rho[s],V[v],p[s]");
-  Field& volume   = cell_fields.create_field("volume");
+  Field& volume   = elem_fields.create_field("volume");
 
   BOOST_CHECK_EQUAL(solution.size() , elem_fields.size());
   BOOST_CHECK_EQUAL(solution.row_size() , 4);
   BOOST_CHECK_EQUAL(solution.array().num_elements() , solution.size()*solution.row_size());
   BOOST_CHECK_EQUAL(solution.field_group().uri().string() , elem_fields.uri().string() );
-  BOOST_CHECK_EQUAL(volume.size() , cell_fields.size());
-  BOOST_CHECK_EQUAL(volume.field_group().uri().string() , cell_fields.uri().string() );
+  BOOST_CHECK_EQUAL(volume.size() , elem_fields.size());
+  BOOST_CHECK_EQUAL(volume.field_group().uri().string() , elem_fields.uri().string() );
 
-  BOOST_CHECK_EQUAL(find_components<Field>(cell_fields).size() , 1u);
-  boost_foreach(Field& field, find_components<Field>(cell_fields))
-    BOOST_CHECK_EQUAL( field.field_group().uri().string() , cell_fields.uri().string());
+  // There should be 1 coordinates field, 1 volume field, 1 solution field
+  BOOST_CHECK_EQUAL(find_components<Field>(elem_fields).size() , 3u);
+  boost_foreach(Field& field, find_components<Field>(elem_fields))
+    BOOST_CHECK_EQUAL( field.field_group().uri().string() , elem_fields.uri().string());
 
-  BOOST_CHECK_EQUAL(cell_fields.field("volume").uri().string() , volume.uri().string());
+  BOOST_CHECK_EQUAL(elem_fields.field("volume").uri().string() , volume.uri().string());
 
   // ----------------------------------------------------------------------------------------------
   // CHECK P1 point-based field group building
 
   // Create field group for the space "points_P1" fields
-  SpaceFields& point_P1_fields = mesh.create_space_and_field_group("points_P1", SpaceFields::Basis::POINT_BASED, "cf3.mesh.LagrangeP1");
+  SpaceFields& point_P1_fields = mesh.create_continuous_space("points_P1","cf3.mesh.LagrangeP1");
 
   BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry_fields().size() );
 
@@ -170,7 +152,7 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   // CHECK P2 point-based field group building
 
   // Create field group for the space "P2"
-  SpaceFields& point_P2_fields = mesh.create_space_and_field_group("points_P2", SpaceFields::Basis::POINT_BASED, "cf3.mesh.LagrangeP2");
+  SpaceFields& point_P2_fields = mesh.create_continuous_space("points_P2","cf3.mesh.LagrangeP2");
   BOOST_CHECK_EQUAL ( point_P2_fields.size() , 121u );
 
 
@@ -181,12 +163,12 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
 
 BOOST_AUTO_TEST_CASE( test_Field )
 {
-  Handle<SpaceFields> cells_P0(m_mesh->get_child("cells_P0"));
-  Field& volume = cells_P0->field("volume");
-  boost_foreach(const Handle<Elements>& elements_handle, volume.elements_range())
+  Handle<SpaceFields> elems_P0(m_mesh->get_child("elems_P0"));
+  Field& volume = elems_P0->field("volume");
+  boost_foreach(const Handle<Entities>& elements_handle, volume.entities_range())
   {
-    Elements& elements = *elements_handle;
-    Space& space = volume.space(elements);
+    Entities& elements = *elements_handle;
+    const Space& space = volume.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
       boost_foreach( const Uint state, space.indexes_for_element(e))
@@ -202,9 +184,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
   Field& point_field = points_P2->create_field("point_field");
 
 
-  boost_foreach(const Handle<Elements>& elements_handle, point_field.elements_range())
+  boost_foreach(const Handle<Entities>& elements_handle, point_field.entities_range())
   {
-    Elements& elements = *elements_handle;
+    Entities& elements = *elements_handle;
     const Space& space = point_field.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -220,9 +202,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
 
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
-  Handle<SpaceFields> cells_P0(m_mesh->get_child("cells_P0"));
-  Field& solution = cells_P0->create_field("solution","sol[1]");
-  Field& solution_copy = cells_P0->create_field("solution_copy",solution.descriptor().description());
+  Handle<SpaceFields> elems_P0(m_mesh->get_child("elems_P0"));
+  Field& solution = elems_P0->create_field("solution","sol[1]");
+  Field& solution_copy = elems_P0->create_field("solution_copy",solution.descriptor().description());
   solution_copy.descriptor().prefix_variable_names("copy_");
 
   solution[0][0] = 25.;

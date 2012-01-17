@@ -27,6 +27,7 @@ public:
   static const char * volume ();
 
   static const char * geometry ();
+  static const char * topology ();
   static const char * coordinates ();
   static const char * nodes ();
   static const char * nodes_used ();
@@ -42,12 +43,13 @@ public:
 
   static const char * interface ();
 
+  static const char * cells ();
   static const char * inner_faces ();
   static const char * outer_faces ();
 
   static const char * connectivity_table ();
 
-  static const char * geometry_elements ();
+//  static const char * geometry_elements ();
 
 }; // Tags
 

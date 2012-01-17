@@ -55,10 +55,6 @@ private: // functions
 
   void config_mesh();
 
-protected: // functions
-
-  void raise_mesh_loaded();
-
 protected: // data
 
   Handle<Mesh> m_mesh;

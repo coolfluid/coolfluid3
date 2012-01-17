@@ -7,6 +7,7 @@
 #ifndef cf3_SFDM_TimeStepping_hpp
 #define cf3_SFDM_TimeStepping_hpp
 
+#include "math/VectorialFunction.hpp"
 #include "solver/ActionDirector.hpp"
 
 #include "solver/CTime.hpp"
@@ -67,6 +68,8 @@ private: // data
 
   Handle< common::ActionDirector > m_post_actions; ///< set of actions after non-linear solve
 
+  FunctionParser  m_cfl;
+  void parse_cfl();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

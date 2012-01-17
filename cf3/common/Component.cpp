@@ -431,11 +431,11 @@ void Component::move_to ( Component& new_parent )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Handle<Component> Component::access_component(const URI& path)
+Handle<Component> Component::access_component(const URI& path) const
 {
   // Return self for trivial path or at end of recursion.
   if(path.path() == "." || path.empty())
-    return handle<Component>();
+    return const_cast<Component*>(this)->handle<Component>();
 
   // If the path is absolute, make it relative and pass it to the root
   if(path.is_absolute())
@@ -448,7 +448,7 @@ Handle<Component> Component::access_component(const URI& path)
 
     if(new_path.empty())
     {
-      return root()->handle<Component>();
+      return const_cast<Component*>(root().get())->handle<Component>();
     }
 
     // Pass the rest to root
@@ -479,7 +479,7 @@ Handle<Component> Component::access_component(const URI& path)
     return m_parent ? m_parent->access_component(next_part) : Handle<Component>();
 
   // Dispatch to child
-  Handle<Component> child = get_child(current_part);
+  Handle<Component const> child = get_child(current_part);
   if(is_not_null(child))
     return child->access_component(next_part);
 
@@ -487,10 +487,10 @@ Handle<Component> Component::access_component(const URI& path)
   return Handle<Component>();
 }
 
-Handle<Component const> Component::access_component(const URI& path) const
-{
-  return const_cast<Component*>(this)->access_component(path);
-}
+//Handle<Component const> Component::access_component(const URI& path) const
+//{
+//  return const_cast<Component*>(this)->access_component(path);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -166,13 +166,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
-  SpaceFields& cells_P0 = mesh->create_space_and_field_group("cells_P0",SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& cells_P0 = mesh->create_discontinuous_space("cells_P0","cf3.mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
 
   BOOST_CHECK(true);
 
 
-  SpaceFields& faces_P0 = mesh->create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED, "cf3.mesh.LagrangeP0");
+  SpaceFields& faces_P0 = mesh->create_discontinuous_space("faces_P0", "cf3.mesh.LagrangeP0");
   Field& areas = faces_P0.create_field("area");
 
 
@@ -191,11 +191,11 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   compute_volume->execute();
   BOOST_CHECK(true);
 
-  Space& P0_space = volumes.space(elems);
+  const Space& P0_space = volumes.space(elems);
   BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
 
   Handle<CLoop> elem_loop = root.create_component< CForAllElements >("elem_loop");
-  elem_loop->options().configure_option("regions",std::vector<URI>(1,volumes.topology().uri()));
+  elem_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
 
   elem_loop->create_loop_operation("cf3.solver.actions.CComputeVolume");
   elem_loop->action("cf3.solver.actions.CComputeVolume").options().configure_option("volume",volumes.uri());

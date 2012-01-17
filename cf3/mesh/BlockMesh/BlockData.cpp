@@ -843,7 +843,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   Region& root_region = mesh.topology().create_region("root_region");
   Elements& volume_elements = *(root_region.create_region("volume").create_component<Cells>("interior"));
-  volume_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D");
+  volume_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D",mesh.geometry_fields());
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
@@ -880,9 +880,6 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   // Create the node coordinates
   SpaceFields& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
-
-  // Set the nodes, now the number of nodes is known
-  volume_elements.assign_geometry(mesh_geo_comp);
 
   // Fill the coordinate array
   for(Uint block = blocks_begin; block != blocks_end; ++block)
@@ -1111,8 +1108,8 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   Region& root_region = mesh.topology().create_region("root_region");
   Elements& volume_elements = *(root_region.create_region("volume").create_component<Cells>("interior"));
-  volume_elements.initialize("cf3.mesh.LagrangeP1.Quad2D");
-  volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
+  volume_elements.initialize("cf3.mesh.LagrangeP1.Quad2D",mesh.geometry_fields());
+  volume_elements.resize(elements_dist[rank+1]-elements_dist[rank]);
   common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
   // Set the connectivity, this also updates ghost node indices
@@ -1141,9 +1138,6 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   // Create the node coordinates
   SpaceFields& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
-
-  // Set the nodes, now the number of nodes is known
-  volume_elements.assign_geometry(mesh_geo_comp);
 
   // Fill the coordinate array
   for(Uint block = blocks_begin; block != blocks_end; ++block)
@@ -1353,11 +1347,7 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
   }
 
   // Raise an event to indicate that a mesh was loaded happened
-  XML::SignalOptions options;
-  options.add_option("mesh_uri", mesh.uri());
-
-  XML::SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  mesh.raise_mesh_loaded();
 }
 
 

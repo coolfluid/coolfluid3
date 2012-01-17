@@ -1,11 +1,13 @@
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
-// This software is distributed under the terms of the
+// This software is distributed under the ElementCaches of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::SFDM"
+
+#include <boost/flyweight.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -17,11 +19,13 @@
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
 #include "common/List.hpp"
+#include "common/Group.hpp"
 
 #include "common/PE/Comm.hpp"
 
 #include "math/Consts.hpp"
 #include "math/VariablesDescriptor.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "solver/CModel.hpp"
 #include "solver/Tags.hpp"
@@ -37,10 +41,19 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/LinearInterpolator.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/ElementConnectivity.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/actions/BuildFaces.hpp"
 
+#include "SFDM/ElementCaching.hpp"
+#include "SFDM/Reconstructions.hpp"
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/ShapeFunction.hpp"
+#include "SFDM/Operations.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 #include <common/Link.hpp>
@@ -103,7 +116,6 @@ BOOST_AUTO_TEST_CASE( test_P0 )
 {
 
   //////////////////////////////////////////////////////////////////////////////
-  // create and configure SFD - LinEuler 2D model
   Uint dim=1;
 
   CModel& model   = *Core::instance().root().create_component<CModel>("test_P0");
@@ -159,25 +171,14 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
-
-//  // Boundary condition
-//  std::vector<URI> bc_regions;
-//  bc_regions.push_back(mesh.topology().uri()/"xneg");
-//  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
-//  std::vector<std::string> dirichlet_functions;
-//  dirichlet_functions.push_back("0.");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+  solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().configure_option_recursively("cfl" ,std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -253,8 +254,8 @@ BOOST_AUTO_TEST_CASE( test_P0 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -317,16 +318,15 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -334,8 +334,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -372,26 +371,34 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 8u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 10u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
-  BOOST_CHECK_EQUAL(residual_field[0][0] , -1.);
-  BOOST_CHECK_EQUAL(residual_field[1][0] , -1.);
+  // boundary
+  BOOST_CHECK_EQUAL(residual_field[0][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[1][0] , 0.);
 
-  BOOST_CHECK_EQUAL(residual_field[2][0] , 0.);
-  BOOST_CHECK_EQUAL(residual_field[3][0] , 0.);
+  // cells
+  BOOST_CHECK_EQUAL(residual_field[2][0] , -1.);
+  BOOST_CHECK_EQUAL(residual_field[3][0] , -1.);
 
-  BOOST_CHECK_EQUAL(residual_field[4][0] , 1.);
-  BOOST_CHECK_EQUAL(residual_field[5][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[4][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[5][0] , 0.);
 
   BOOST_CHECK_EQUAL(residual_field[6][0] , 1.);
   BOOST_CHECK_EQUAL(residual_field[7][0] , 1.);
+
+  BOOST_CHECK_EQUAL(residual_field[8][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[9][0] , 1.);
+
+
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
+  Field& rank = solution_field.field_group().create_field("rankfield");
   Field& rank_sync = solution_field.field_group().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
@@ -417,8 +424,8 @@ BOOST_AUTO_TEST_CASE( test_P1 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -482,16 +489,15 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -499,8 +505,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -538,9 +543,10 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 12u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 14u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
+  // interior
   BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[1][0] , -1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[2][0] , -1.  , fraction);
@@ -556,6 +562,11 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   BOOST_CHECK_CLOSE_FRACTION(residual_field[9][0] ,  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[10][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[11][0],  1.  , fraction);
+
+  // boundary
+  BOOST_CHECK_SMALL(residual_field[12][0]  , fraction);
+  BOOST_CHECK_SMALL(residual_field[13][0]  , fraction);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
@@ -587,8 +598,8 @@ BOOST_AUTO_TEST_CASE( test_P2 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 
@@ -596,7 +607,6 @@ BOOST_AUTO_TEST_CASE( test_P3 )
 {
 
   //////////////////////////////////////////////////////////////////////////////
-  // create and configure SFD - LinEuler 2D model
   Uint dim=1;
 
   CModel& model   = *Core::instance().root().create_component<CModel>("test_P3");
@@ -652,16 +662,15 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(SFDM::Tags::solution()))->handle<Field>();
-  solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("cf3.SFDM.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Boundary condition
   std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
+//  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.SFDM.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
 //  dirichlet.configure_option("functions",dirichlet_functions);
@@ -669,8 +678,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   // Time stepping
   solver.time_stepping().time().options().configure_option("time_step",100.);
   solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 100.);
+  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -709,7 +717,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field.size()     , 16u);
+  BOOST_CHECK_EQUAL(residual_field.size()     , 18u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
   BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
@@ -731,6 +739,11 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   BOOST_CHECK_CLOSE_FRACTION(residual_field[13][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[14][0],  1.  , fraction);
   BOOST_CHECK_CLOSE_FRACTION(residual_field[15][0],  1.  , fraction);
+
+  // boundary
+  BOOST_CHECK_SMALL(residual_field[16][0], fraction);
+  BOOST_CHECK_SMALL(residual_field[17][0], fraction);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
@@ -762,8 +775,8 @@ BOOST_AUTO_TEST_CASE( test_P3 )
     }
   }
 
-  std::cout << "solution_field.max = " << max.transpose() << std::endl;
-  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+  //std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
 

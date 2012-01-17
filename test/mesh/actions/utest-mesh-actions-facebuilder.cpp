@@ -16,7 +16,6 @@
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/actions/CreateSpaceP0.hpp"
 #include "mesh/actions/BuildFaces.hpp"
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -294,11 +293,9 @@ BOOST_AUTO_TEST_CASE( build_faces )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#if 0
+
 BOOST_AUTO_TEST_CASE( build_face_normals )
 {
-  allocate_component<CreateSpaceP0>("create_space_P0")->transform(mesh);
-  BOOST_CHECK(true);
   boost::shared_ptr<BuildFaceNormals> face_normal_builder = allocate_component<BuildFaceNormals>("facenormalsbuilder");
 
   face_normal_builder->set_mesh(mesh);
@@ -384,8 +381,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 
   }
 }
-#endif
+
 //////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

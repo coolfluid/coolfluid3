@@ -20,6 +20,7 @@ list( APPEND coolfluid_common_files
     BoostAssertions.hpp
     BoostAssertions.cpp
     BoostArray.hpp
+    BoostArray.cpp
     Builder.hpp
     Builder.cpp
     BuildInfo.hpp
