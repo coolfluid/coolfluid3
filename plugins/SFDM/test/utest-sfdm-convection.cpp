@@ -34,7 +34,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
@@ -228,8 +228,8 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("rank");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -239,8 +239,8 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   rank_sync.synchronize();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
+  fields.push_back(solution_field.dict().field("solution_backup").uri());
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -398,8 +398,8 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rankfield");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("rankfield");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -409,8 +409,8 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   rank_sync.synchronize();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
+  fields.push_back(solution_field.dict().field("solution_backup").uri());
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -572,8 +572,8 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("rank");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -583,8 +583,8 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   rank_sync.synchronize();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
+  fields.push_back(solution_field.dict().field("solution_backup").uri());
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -749,8 +749,8 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rank");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("rank");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -760,8 +760,8 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   rank_sync.synchronize();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
+  fields.push_back(solution_field.dict().field("solution_backup").uri());
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();

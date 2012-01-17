@@ -14,7 +14,7 @@
 #include "common/List.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/FaceCellConnectivity.hpp"

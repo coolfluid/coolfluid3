@@ -39,7 +39,7 @@ public:
 
   virtual void initialize()
   {
-    ConvectiveTerm::initialize();
+    ConvectiveTerm< ConvectiveTermPointData<3u,1u> >::initialize();
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_left);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_right);

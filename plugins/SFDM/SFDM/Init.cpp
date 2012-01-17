@@ -16,7 +16,7 @@
 
 #include "physics/Variables.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -106,7 +106,7 @@ void Init::execute()
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
     RealMatrix geometry_coords;
-    entities->allocate_coordinates(geometry_coords);
+    entities->geometry_space().allocate_coordinates(geometry_coords);
 
     RealMatrix space_coords;
     space.allocate_coordinates(space_coords);
@@ -118,7 +118,7 @@ void Init::execute()
 
     for (Uint elem=0; elem<entities->size(); ++elem)
     {
-      entities->put_coordinates(geometry_coords,elem);
+      entities->geometry_space().put_coordinates(geometry_coords,elem);
 
       for (Uint node=0; node<space.nb_states();++node)
       {

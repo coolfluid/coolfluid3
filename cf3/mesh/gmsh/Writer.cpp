@@ -18,7 +18,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
@@ -236,7 +236,7 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
       file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
-      boost_foreach(const Uint node_idx, elements.get_nodes(e))
+      boost_foreach(const Uint node_idx, elements.geometry_space().connectivity()[e])
       {
         file << " " << to_gmsh_node[node_idx];
       }
@@ -274,9 +274,9 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
   {
     cf3_assert(is_null(field_ptr) == false);
     Field& field = *field_ptr;
-//    if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-//        field.basis() == SpaceFields::Basis::CELL_BASED    ||
-//        field.basis() == SpaceFields::Basis::FACE_BASED    )
+//    if (field.basis() == Dictionary::Basis::ELEMENT_BASED ||
+//        field.basis() == Dictionary::Basis::CELL_BASED    ||
+//        field.basis() == Dictionary::Basis::FACE_BASED    )
     {
       const Real field_time = 0;//field.option("time").value<Real>();
       const Uint field_iter = 0;//field.option("iteration").value<Uint>();
@@ -288,7 +288,7 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
         boost::algorithm::replace_first(path,mesh.topology().uri().path(),"");
         field_topology << path << " ";
       }
-      const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
+      const std::string field_basis = Dictionary::Basis::Convert::instance().to_str(field.basis());
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities>& elements, field.entities_range())
       {
@@ -432,7 +432,7 @@ void Writer::write_nodal_data(std::fstream& file)
   {
     Field& field = *field_ptr;
 
-    if (field.basis() == SpaceFields::Basis::POINT_BASED)
+    if (field.basis() == Dictionary::Basis::POINT_BASED)
     {
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
@@ -546,15 +546,15 @@ void Writer::write_element_data(std::fstream& file)
   boost_foreach(Handle<Field> field_ptr, m_fields)
   {
     Field& field = *field_ptr;
-    if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-        field.basis() == SpaceFields::Basis::CELL_BASED    ||
-        field.basis() == SpaceFields::Basis::FACE_BASED    )
+    if (field.basis() == Dictionary::Basis::ELEMENT_BASED ||
+        field.basis() == Dictionary::Basis::CELL_BASED    ||
+        field.basis() == Dictionary::Basis::FACE_BASED    )
     {
       const Real field_time = field.option("time").value<Real>();
       const Uint field_iter = field.option("iteration").value<Uint>();
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
-      const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
+      const std::string field_basis = Dictionary::Basis::Convert::instance().to_str(field.basis());
       boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(Entities& field_elements, find_components_recursively<Entities>(field.topology()))

@@ -29,7 +29,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"
@@ -166,13 +166,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
-  SpaceFields& cells_P0 = mesh->create_discontinuous_space("cells_P0","cf3.mesh.LagrangeP0");
+  Dictionary& cells_P0 = mesh->create_discontinuous_space("cells_P0","cf3.mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
 
   BOOST_CHECK(true);
 
 
-  SpaceFields& faces_P0 = mesh->create_discontinuous_space("faces_P0", "cf3.mesh.LagrangeP0");
+  Dictionary& faces_P0 = mesh->create_discontinuous_space("faces_P0", "cf3.mesh.LagrangeP0");
   Field& areas = faces_P0.create_field("area");
 
 
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->get_child("cells_P0")->handle<SpaceFields>()->create_field("test_CForAllElementsT","var[1]");
+  Field& field = mesh->get_child("cells_P0")->handle<Dictionary>()->create_field("test_CForAllElementsT","var[1]");
 
   BOOST_CHECK(true);
 

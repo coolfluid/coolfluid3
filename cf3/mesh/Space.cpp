@@ -19,7 +19,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
@@ -129,10 +129,10 @@ bool Space::is_bound_to_fields() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Space::fields() const
+Dictionary& Space::fields() const
 {
   cf3_assert(is_bound_to_fields());
-  return *Handle<SpaceFields>(follow_link(*m_fields));
+  return *Handle<Dictionary>(follow_link(*m_fields));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
   const Entities&     geometry       = support();
   const ElementType&   geometry_etype = element_type();
   const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
-  RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
+  RealMatrix geometry_coordinates = geometry.geometry_space().get_coordinates(elem_idx);
   RealMatrix space_coordinates(space_sf.nb_nodes(),geometry_etype.dimension());
   for (Uint node=0; node<space_sf.nb_nodes(); ++node)
   {

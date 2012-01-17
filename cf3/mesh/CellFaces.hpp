@@ -25,11 +25,6 @@ class FaceCellConnectivity;
 /// @author Willem Deconinck
 class Mesh_API CellFaces : public Entities {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor
@@ -42,25 +37,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CellFaces"; }
 
-  /// return the number of elements
-  virtual Uint size() const;
-
-  virtual common::TableConstRow<Uint>::type get_nodes(const Uint face_idx) const;
-
   bool is_bdry(const Uint idx) const;
 
   FaceCellConnectivity& cell_connectivity() { return *m_cell_connectivity; }
   const FaceCellConnectivity& cell_connectivity() const { return *m_cell_connectivity; }
 
-  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
-
-  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
-
-
 protected:
 
   Handle<FaceCellConnectivity> m_cell_connectivity;
-  boost::scoped_ptr<common::TableArray<Uint>::type> m_proxy_nodes;
 
 };
 

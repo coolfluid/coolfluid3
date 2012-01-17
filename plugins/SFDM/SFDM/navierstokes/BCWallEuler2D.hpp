@@ -25,7 +25,7 @@ class SFDM_navierstokes_API BCWallEuler2D : public BCWeak< BCPointData<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCWallEuler2D"; }
-  BCWallEuler2D(const std::string& name) : BCWeak(name)
+  BCWallEuler2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
   }
   virtual ~BCWallEuler2D() {}
@@ -53,7 +53,7 @@ private:
   {
     BCWeak::initialize();
     flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<2> >();
-    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
   virtual void set_inner_cell()

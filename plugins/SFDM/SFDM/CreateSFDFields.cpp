@@ -21,7 +21,7 @@
 
 
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Space.hpp"
@@ -73,7 +73,7 @@ void CreateSFDFields::execute()
   std::string solution_space_name = "solution_space";
 //  std::string boundary_space_name = "boundary_space";
 
-  if ( is_not_null (find_component_ptr_recursively_with_tag<SpaceFields>(mesh(),solution_space_name)))
+  if ( is_not_null (find_component_ptr_recursively_with_tag<Dictionary>(mesh(),solution_space_name)))
   {
     CFinfo << "field group ["<<solution_space_name<<"] already exists, check now to create the fields" << CFendl;
   }
@@ -93,7 +93,7 @@ void CreateSFDFields::execute()
       cells_plus_bdry.push_back(entities.handle<Entities>());
     }
 
-    SpaceFields& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
+    Dictionary& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
@@ -126,7 +126,7 @@ void CreateSFDFields::execute()
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
       RealMatrix geometry_coords;
-      elements->allocate_coordinates(geometry_coords);
+      elements->geometry_space().allocate_coordinates(geometry_coords);
 
       RealVector dKsi (elements->element_type().dimensionality()); dKsi.setConstant(2.);
       RealVector dX (elements->element_type().dimension());
@@ -136,7 +136,7 @@ void CreateSFDFields::execute()
 
       for (Uint elem=0; elem<elements->size(); ++elem)
       {
-        elements->put_coordinates(geometry_coords,elem);
+        elements->geometry_space().put_coordinates(geometry_coords,elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {
@@ -155,13 +155,13 @@ void CreateSFDFields::execute()
   }
 
 
-//  if ( is_not_null (find_component_ptr_recursively_with_tag<SpaceFields>(mesh(),boundary_space_name)))
+//  if ( is_not_null (find_component_ptr_recursively_with_tag<Dictionary>(mesh(),boundary_space_name)))
 //  {
 //    CFinfo << "field group ["<<boundary_space_name<<"] already exists, check now to create the fields" << CFendl;
 //  }
 //  else
 //  {
-//    SpaceFields& boundary_space = mesh().create_space_and_field_group(solution_space_name,SpaceFields::Basis::FACE_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+//    Dictionary& boundary_space = mesh().create_space_and_dict(solution_space_name,Dictionary::Basis::FACE_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
 //    boundary_space.add_tag(boundary_space_name);
 
 //    Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());

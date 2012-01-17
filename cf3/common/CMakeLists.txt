@@ -55,8 +55,6 @@ list( APPEND coolfluid_common_files
     Factories.cpp
     FindComponents.hpp
     Foreach.hpp
-    GroupActions.hpp
-    GroupActions.cpp
     Group.hpp
     Group.cpp
     Handle.hpp

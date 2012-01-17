@@ -69,9 +69,9 @@ protected: // configuration
     BC::initialize();
 
     face_elem = shared_caches().template get_cache<SFDElement>("face_elem");
-    face_elem->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    face_elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
     inner_cell = shared_caches().template get_cache<SFDElement>();
-    inner_cell->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    inner_cell->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
     face_pt_solution              = shared_caches().template get_cache< SolutionPointField<NEQS,NDIM> >(SFDM::Tags::solution());
     face_pt_solution->options().configure_option("field",solution_field().uri());
   }
@@ -205,7 +205,7 @@ protected: // configuration
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
     elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),point_data.coord);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),point_data.coord);
 //    std::cout << "reconstruct \n" << elem.entities->get_coordinates(elem.idx) << "   to flx_pt " << flx_pt << "\n" << point_data.coord.transpose() << std::endl;
   }
 
@@ -255,7 +255,7 @@ inline void BCWeak<POINTDATA>::execute()
     Eigen::Matrix<Real,NEQS,1> face_sol;
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
     compute_solution(*inner_cell_face_data[face_pt],face_sol);
-    common::TableConstRow<Uint>::type field_index = face_elem->get().space->indexes_for_element(m_face_elem_idx);
+//    common::TableConstRow<Uint>::type field_index = face_elem->get().space->indexes_for_element(m_face_elem_idx);
 
 //    std::cout << "boundary -- " << face_elem->get().entities->uri() << "[" << face_elem->get().idx << "]" << " : face_points = " << field_index[boundary_face_pt_idx[face_pt]] << "  ---> " ;
     for (Uint v=0; v<NEQS; ++v)

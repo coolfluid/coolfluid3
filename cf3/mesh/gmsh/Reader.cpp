@@ -21,7 +21,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -387,7 +387,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
   Uint part = options().option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -479,7 +479,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
 
   Uint part = options().option("part").value<Uint>();
@@ -533,7 +533,7 @@ void Reader::read_connectivity()
       // Celements& elements = region->create_component<Elements>(cf_elem_name);
       // elements.initialize(cf_elem_name,nodes);
 
-       Connectivity& elem_table = Handle<Elements>(elements)->node_connectivity();
+       Connectivity& elem_table = Handle<Elements>(elements)->geometry_space().connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
        elements->rank().resize(m_nb_gmsh_elem_in_region[ir][etype]);
@@ -600,7 +600,7 @@ void Reader::read_connectivity()
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
       Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle<Component>());
-      Connectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
+      Connectivity::Row element_nodes = elements_region->geometry_space().connectivity()[row_idx];
 
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
 
@@ -662,7 +662,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    SpaceFields& field_group = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
+    Dictionary& dict = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
@@ -672,7 +672,7 @@ void Reader::read_element_data()
 
       if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
-      mesh::Field& field = field_group.create_field(gmsh_field.name);
+      mesh::Field& field = dict.create_field(gmsh_field.name);
       field.options().configure_option("var_names",gmsh_field.var_names);
       field.options().configure_option("var_types",var_types_str);
 
@@ -911,7 +911,7 @@ void Reader::fix_negative_volumes(Mesh& mesh)
       std::vector<Uint> tmp_nodes(nb_nodes_per_elem);
       for (Uint e=0; e<elements.size(); ++e)
       {
-        jacobian_determinant = elements.element_type().jacobian_determinant(elements.element_type().shape_function().local_coordinates().row(0),elements.get_coordinates(e));
+        jacobian_determinant = elements.element_type().jacobian_determinant(elements.geometry_space().shape_function().local_coordinates().row(0),elements.geometry_space().get_coordinates(e));
         if (jacobian_determinant < 0)
         {
           // reverse the connectivity nodes order

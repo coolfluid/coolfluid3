@@ -22,8 +22,8 @@ list( APPEND coolfluid_mesh_files
   ElementTypes.hpp
   Field.hpp
   Field.cpp
-  SpaceFields.hpp
-  SpaceFields.cpp
+  Dictionary.hpp
+  Dictionary.cpp
   FieldManager.cpp
   FieldManager.hpp
   ParallelDistribution.hpp

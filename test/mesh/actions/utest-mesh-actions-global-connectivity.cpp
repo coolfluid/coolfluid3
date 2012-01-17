@@ -23,7 +23,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshReader.hpp"
 
 using namespace cf3;

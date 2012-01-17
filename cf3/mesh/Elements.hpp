@@ -29,8 +29,6 @@ namespace mesh {
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 class Mesh_API Elements : public Entities {
 
-public: // typedefs
-
 public: // functions
 
   /// Contructor
@@ -42,18 +40,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "Elements"; }
-
-  /// Access to the connectivity table
-  Connectivity& node_connectivity() const;
-
-  /// return the number of elements
-  virtual Uint size() const;
-
-  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
-
-  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
-
-  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
 };
 

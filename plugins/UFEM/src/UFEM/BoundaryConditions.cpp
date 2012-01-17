@@ -22,7 +22,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/actions/Proto/CProtoAction.hpp"
