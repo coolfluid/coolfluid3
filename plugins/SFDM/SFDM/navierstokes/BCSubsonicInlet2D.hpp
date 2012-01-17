@@ -25,7 +25,7 @@ class SFDM_navierstokes_API BCSubsonicInletUT2D : public BCWeak< BCPointData<4u,
 {
 public:
   static std::string type_name() { return "BCSubsonicInletUT2D"; }
-  BCSubsonicInletUT2D(const std::string& name) : BCWeak(name)
+  BCSubsonicInletUT2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
     m_U.resize(1.,0.);
     options().add_option("U",m_U).link_to(&m_U);
@@ -80,7 +80,7 @@ class SFDM_navierstokes_API BCSubsonicInletTtPtAlpha2D : public BCWeak< BCPointD
 {
 public:
   static std::string type_name() { return "BCSubsonicInletTtPtAlpha2D"; }
-  BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak(name)
+  BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
     m_Tt=273.15 + 25; // 25 degrees Celcius
     options().add_option("Tt",m_Tt).description("Total Temperature").link_to(&m_Tt);

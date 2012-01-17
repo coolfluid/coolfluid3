@@ -29,7 +29,7 @@ class SFDM_navierstokes_API BCSubsonicOutlet2D : public BCWeak< BCPointData<4u,2
   typedef physics::NavierStokes::Cons2D PHYS;
 public:
   static std::string type_name() { return "BCSubsonicOutlet2D"; }
-  BCSubsonicOutlet2D(const std::string& name) : BCWeak(name)
+  BCSubsonicOutlet2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
     m_p = 101300.;
     options().add_option("p",m_p).link_to(&m_p);

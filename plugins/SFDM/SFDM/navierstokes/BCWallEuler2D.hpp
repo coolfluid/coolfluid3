@@ -25,7 +25,7 @@ class SFDM_navierstokes_API BCWallEuler2D : public BCWeak< BCPointData<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCWallEuler2D"; }
-  BCWallEuler2D(const std::string& name) : BCWeak(name)
+  BCWallEuler2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
   {
   }
   virtual ~BCWallEuler2D() {}
