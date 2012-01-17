@@ -58,24 +58,8 @@ Elements& Region::create_elements(const std::string& element_type_name, SpaceFie
   Handle< Component > celems = get_child(name);
   if ( is_null(celems) )
   {
-    Elements& elements = create_elements(element_type_name);
-    elements.assign_geometry(nodes);
-    return elements;
-  }
-  else
-    return dynamic_cast<Elements&>(*celems);
-}
-
-Elements& Region::create_elements(const std::string& element_type_name)
-{
-  std::string name = "elements_" + element_type_name;
-
-  Handle< Component > celems = get_child(name);
-  if ( is_null(celems) )
-  {
     Handle<Elements> elements = create_component<Elements>(name);
-    elements->add_tag("SpaceFieldsElements");
-    elements->initialize(element_type_name);
+    elements->initialize(element_type_name,nodes);
     return *elements;
   }
   else

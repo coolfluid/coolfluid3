@@ -268,6 +268,13 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   qTableBuffer.flush();
   tTableBuffer.flush();
 
+  nodes.resize(nodes.coordinates().size());
+  quadRegion.resize(quadRegion.size());
+  triagRegion.resize(triagRegion.size());
+
+  mesh.raise_mesh_loaded();
+  BOOST_CHECK(true);
+
   // check if coordinates match
   Uint elem=1;
   Uint node=2;
@@ -436,6 +443,13 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   coordinatesBuffer.flush();
   qTableBuffer.flush();
   tTableBuffer.flush();
+
+  nodes.resize(nodes.coordinates().size());
+  quadRegion.resize(quadRegion.size());
+  triagRegion.resize(triagRegion.size());
+
+  mesh.raise_mesh_loaded();
+  BOOST_CHECK(true);
 
   // check if coordinates match
   Uint elem=1;

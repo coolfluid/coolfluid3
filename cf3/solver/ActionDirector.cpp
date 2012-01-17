@@ -64,41 +64,37 @@ ActionDirector::~ActionDirector() {}
 
 physics::PhysModel& ActionDirector::physical_model()
 {
-  Handle< physics::PhysModel > model = m_physical_model;
-  if( is_null(model) )
+  if( is_null(m_physical_model) )
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
-  return *model;
+  return *m_physical_model;
 }
 
 
 CTime& ActionDirector::time()
 {
-  Handle< CTime > t = m_time;
-  if( is_null(t) )
+  if( is_null(m_time) )
     throw common::SetupError( FromHere(),
                              "Time not yet set for component " + uri().string() );
-  return *t;
+  return *m_time;
 }
 
 
 Mesh& ActionDirector::mesh()
 {
-  Handle< Mesh > m = m_mesh;
-  if( is_null(m) )
+  if( is_null(m_mesh) )
     throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );
-  return *m;
+  return *m_mesh;
 }
 
 
 solver::CSolver& ActionDirector::solver()
 {
-  Handle< solver::CSolver > s = m_solver;
-  if( is_null(s) )
+  if( is_null(m_solver) )
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
-  return *s;
+  return *m_solver;
 }
 
 

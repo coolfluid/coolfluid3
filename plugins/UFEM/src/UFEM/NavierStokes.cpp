@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -60,6 +63,7 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
     .pretty_name("Dynamic Viscosity")
     .link_to(&m_coeffs.mu);
 
+  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   MeshTerm<0, VectorField> u("Velocity", Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
@@ -85,11 +89,12 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
         "Assembly",
         elements_expression
         (
-          group <<
+          allowed_elements,
+          group
           (
             _A = _0, _T = _0,
             compute_tau(u, m_coeffs),
-            element_quadrature <<
+            element_quadrature
             (
               _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG

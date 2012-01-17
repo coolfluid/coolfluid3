@@ -108,10 +108,7 @@ struct ProtoParallelFixture :
     phys_model.variable_manager().create_descriptor("variables", "CellVolume, CellRank");
 
     // Create field
-    boost_foreach(Entities& elements, mesh.topology().elements_range())
-    {
-      elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
-    }
+    mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
 
     return model;
   }
@@ -144,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
 
   CModel& model = setup("NoOverlap");
   Mesh& mesh = *model.domain().get_child("mesh")->handle<Mesh>();
-  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   model.solver().field_manager().create_field("variables", elems_P0);
 
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
@@ -157,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
     elements_expression
     (
       ElementsT(),
-      group <<
+      group
       (
         V = volume,
         R = rank
@@ -196,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
     elements_expression
     (
       ElementsT(),
-      group <<
+      group
       (
         V = volume,
         R = rank
@@ -232,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE( CreateOverlapFields, ProtoParallelFixture )
   CModel& model = *root.get_child("Overlap")->handle<CModel>();
   Mesh& mesh = *model.domain().get_child("mesh")->handle<Mesh>();
 
-  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   model.solver().field_manager().create_field("variables", elems_P0);
 }
 

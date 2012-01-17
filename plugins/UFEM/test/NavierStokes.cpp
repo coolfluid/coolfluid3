@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
@@ -43,10 +46,10 @@ boost::shared_ptr<Expression> stokes_artifdiss(LinearSolverUnsteady& solver, SUP
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) += transpose(N(p)) * nabla(u)[_i],
         _A(p    , p)     += epsilon * transpose(nabla(p))*nabla(p),
@@ -72,11 +75,11 @@ boost::shared_ptr<Expression> stokes_pspg(LinearSolverUnsteady& solver, SUPGCoef
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i], // Continuity, standard
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -103,11 +106,11 @@ boost::shared_ptr<Expression> navier_stokes_pspg(LinearSolverUnsteady& solver, S
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -134,11 +137,11 @@ boost::shared_ptr<Expression> navier_stokes_supg(LinearSolverUnsteady& solver, S
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -165,11 +168,11 @@ boost::shared_ptr<Expression> navier_stokes_bulk(LinearSolverUnsteady& solver, S
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG

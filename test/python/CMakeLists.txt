@@ -13,3 +13,6 @@ coolfluid_add_test( UTEST      utest-python-runscript
 
 coolfluid_add_test( UTEST  utest-python-table
                     PYTHON utest-python-table.py )
+
+coolfluid_add_test( UTEST  utest-python-properties
+                    PYTHON utest-python-properties.py )

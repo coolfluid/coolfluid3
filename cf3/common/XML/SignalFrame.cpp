@@ -166,7 +166,7 @@ XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value,
 {
   cf3_assert ( node.is_valid() );
 
-  return main_map.set_value( name, value, descr);
+  return options().main_map.set_value( name, value, descr );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -220,6 +220,13 @@ bool SignalFrame::has_map ( const std::string & name ) const
 
 ////////////////////////////////////////////////////////////////////////////
 
+bool SignalFrame::has_reply() const
+{
+  return node.content->next_sibling() != nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalFrame & SignalFrame::map ( const std::string & name )
 {
   cf3_assert ( node.is_valid() );
@@ -230,7 +237,7 @@ SignalFrame & SignalFrame::map ( const std::string & name )
     XmlNode node = main_map.content.add_node( Protocol::Tags::node_value() );
     node.set_attribute( Protocol::Tags::attr_key(), name );
     m_maps[name] = SignalFrame(node); // SignalFrame() adds a map under the node
-  }
+ }
 
   return m_maps[name];
 }
@@ -401,6 +408,23 @@ void SignalFrame::insert( std::vector<std::string>& input )
 
 ////////////////////////////////////////////////////////////////////////////
 
+void SignalFrame::flush_maps()
+{
+  std::map<std::string, SignalFrame>::iterator it_maps = m_maps.begin();
+  std::map<std::string, SignalOptions>::iterator it_options = m_options.begin();
+
+  // flush the maps
+  for( ; it_maps != m_maps.begin() ; ++it_maps )
+    it_maps->second.flush_maps();
+
+  // flush the options
+  for( ; it_options != m_options.begin() ; ++it_options )
+    it_options->second.flush();
+
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalOptions & SignalFrame::options( const std::string & name )
 {
   std::string tmp_name(name);
@@ -408,8 +432,10 @@ SignalOptions & SignalFrame::options( const std::string & name )
   if( tmp_name.empty() )
     tmp_name = Protocol::Tags::key_options();
 
-  map(tmp_name);
-  m_options[tmp_name] = SignalOptions( *this, tmp_name );
+  if( m_options.find(tmp_name) == m_options.end() )
+  {
+    m_options[tmp_name] = SignalOptions( *this, tmp_name );
+  }
 
   return m_options[tmp_name];
 }

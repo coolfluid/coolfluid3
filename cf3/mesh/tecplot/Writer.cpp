@@ -45,7 +45,7 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
 
-  options().add_option("cell_centred",false)
+  options().add_option("cell_centred",true)
     .description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 
@@ -144,9 +144,14 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
     if (elements.size() == 0)
       continue;
 
+    if (etype.order() != 1)
+    {
+      throw NotImplemented(FromHere(), "Tecplot can only output P1 elements. A new P1 space should be created, and used as geometry space");
+    }
+
     zone_id[elements.handle<Component>()] = zone_idx++;
 
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements);
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements,mesh::Tags::geometry());
     common::List<Uint>& used_nodes = *used_nodes_ptr;
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
@@ -222,9 +227,9 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
             }
             else
             {
-              if (field.elements_lookup().contains(elements))
+              if (field.field_group().defined_for_entities(elements.handle<Entities>()) )
               {
-                Space& field_space = field.space(elements);
+                const Space& field_space = field.space(elements);
                 RealVector field_data (field_space.nb_states());
 
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
@@ -273,9 +278,9 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
           }
           else // element based
           {
-            if (field.elements_lookup().contains(elements))
+            if (field.field_group().defined_for_entities(elements.handle<Entities>()))
             {
-              Space& field_space = field.space(elements);
+              const Space& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());
 
               if (options().option("cell_centred").value<bool>())

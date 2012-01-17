@@ -56,28 +56,35 @@ public: // functions
   /// @return the geometry topology
   Region& topology() const { return *m_topology; }
 
-  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
-  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
+//  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
+//  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
 
-  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base);
-  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space);
-  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space, const Region& topology);
+//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base);
+//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space);
+//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space, const Region& topology);
 
-  /// @brief Create new space and field-group matching the space
-  /// @param [in] name            Name to be given to the space, and the field group
-  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
-  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
-  /// @return newly created field group
-  /// @note The topology this field group applies to is by default the entire mesh topology
-  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
+//  /// @brief Create new space and field-group matching the space
+//  /// @param [in] name            Name to be given to the space, and the field group
+//  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
+//  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
+//  /// @return newly created field group
+//  /// @note The topology this field group applies to is by default the entire mesh topology
+//  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
 
-  /// @brief Create new space and field-group matching the space
-  /// @param [in] name            Name to be given to the space, and the field group
-  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
-  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
-  /// @param [in] topology        The topology of the mesh this field group applies to.
-  /// @return newly created field group
-  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
+//  /// @brief Create new space and field-group matching the space
+//  /// @param [in] name            Name to be given to the space, and the field group
+//  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
+//  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
+//  /// @param [in] topology        The topology of the mesh this field group applies to.
+//  /// @return newly created field group
+//  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
+
+  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
+  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
+  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name);
+  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
+  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
+  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
 
   void update_statistics();
 
@@ -106,7 +113,10 @@ public: // functions
   /// will among others set the coordinate dimension for the nodes
   void initialize_nodes(const Uint nb_nodes, const Uint dimension);
 
-  void check_sanity() const;
+  bool check_sanity() const;
+  bool check_sanity(std::vector<std::string>& messages) const;
+
+  void raise_mesh_loaded();
 
 private: // data
 

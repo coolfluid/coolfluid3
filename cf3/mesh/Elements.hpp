@@ -31,23 +31,11 @@ class Mesh_API Elements : public Entities {
 
 public: // typedefs
 
-  
-  
-
 public: // functions
 
   /// Contructor
   /// @param name of the component
   Elements ( const std::string& name );
-
-  /// Initialize uding the given type
-  virtual void initialize(const std::string& element_type_name);
-
-  /// Initialize the Elements using the given type and set the nodes
-  virtual void initialize(const std::string& element_type_name, SpaceFields& geo);
-
-  /// Set nodes
-  virtual void assign_geometry(SpaceFields& geo);
 
   /// Virtual destructor
   virtual ~Elements();

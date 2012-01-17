@@ -86,6 +86,8 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   }
   coordinatesBuffer.flush();
   connBuffer.flush();
+  nodes.resize(nodes.coordinates().size());
+  elements.resize(elements.node_connectivity().size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -21,6 +24,7 @@
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "mesh/MeshGenerator.hpp"
 
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/TimeLoop.hpp"
@@ -75,7 +79,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
-  
+
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
@@ -92,10 +96,10 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
         elements_expression // assembly
         (
           allowed_elements,
-          group <<
+          group
           (
             _A = _0, _T = _0,
-            element_quadrature <<
+            element_quadrature
             (
               _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
               _T(v[_i], v[_i]) += solver.invdt() * (transpose(N(v)) * N(v))
@@ -114,8 +118,17 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
+  // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  // Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
+  boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
+  create_rectangle->options().configure_option("mesh",domain.uri()/"Mesh");
+  std::vector<Real> lengths(2);     lengths[XX] = length;            lengths[YY]  = 0.5*length;
+  std::vector<Uint> nb_cells(2);    nb_cells[XX] = 2*nb_segments;    nb_cells[YY] = nb_segments;
+  create_rectangle->options().configure_option("lengths",lengths);
+  create_rectangle->options().configure_option("nb_cells",nb_cells);
+  Mesh& mesh = create_rectangle->generate();
+
+
 
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 

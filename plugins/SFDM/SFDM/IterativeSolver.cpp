@@ -27,9 +27,11 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/SFDSolver.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -61,10 +63,14 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_update = create_static_component<common::ActionDirector>("PostUpdate");
 
-  options().add_option("rk_order", 1u)
+  options().add_option("order", 1u)
       .description("Order of the Runge-Kutta integration")
-      .pretty_name("RK Integration Order")
-      .attach_trigger( boost::bind( &IterativeSolver::config_rk_order , this ) );
+      .pretty_name("RK order");
+
+  options().add_option("nb_stages", 1u)
+      .description("Number of stages of the Runge-Kutta integration")
+      .pretty_name("RK stages")
+      .attach_trigger( boost::bind( &IterativeSolver::config_nb_stages , this ) );
 
   options().add_option(SFDM::Tags::solution(), m_solution)
       .description("Solution to update")
@@ -107,7 +113,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       .pretty_name("Time")
       .link_to(&m_time);
 
-  config_rk_order();
+  config_nb_stages();
 
 
   CComputeLNorm& cnorm = *create_static_component<CComputeLNorm>( "ComputeNorm" );
@@ -118,24 +124,27 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void IterativeSolver::config_rk_order()
+void IterativeSolver::config_nb_stages()
 {
-  const Uint nb_stages = options().option("rk_order").value<Uint>();
+  const Uint nb_stages = options().option("nb_stages").value<Uint>();
 
-  std::vector<Real> alpha(nb_stages);
-  std::vector<Real> beta(nb_stages);
-  std::vector<Real> gamma(nb_stages);
+  std::vector<Real> alpha(nb_stages,0);
+  std::vector<Real> beta(nb_stages,0);
+  std::vector<Real> gamma(nb_stages,0);
 
   // Set defaults Values
   switch (nb_stages)
   {
     case 1: // Simple Forward Euler
+      options().configure_option("order",1u);
       alpha[0] = 0.0;
       beta[0] = 1.0;
       gamma[0] = 0.0;
       break;
 
     case 2: // R-K 2
+      options().configure_option("order",2u);
+
       alpha[0] = 0.0;
       alpha[1] = 0.0;
 
@@ -147,6 +156,8 @@ void IterativeSolver::config_rk_order()
       break;
 
     case 3:  // 3rd order TVD R-K scheme
+      options().configure_option("order",3u);
+
       alpha[0] = 0.0;
       alpha[1] = 1.0/4.0;
       alpha[2] = 2.0/3.0;
@@ -161,7 +172,8 @@ void IterativeSolver::config_rk_order()
       break;
 
     case 4:    // R-K 4
-    default:
+      options().configure_option("order",4u);
+
       alpha[0] = 0.0;
       alpha[1] = 0.0;
       alpha[2] = 0.0;
@@ -224,7 +236,7 @@ void IterativeSolver::execute()
   
   link_fields();
 
-  const Uint nb_stages = options().option("rk_order").value<Uint>();
+  const Uint nb_stages = options().option("nb_stages").value<Uint>();
   std::vector<Real> alpha = options().option("alpha").value< std::vector<Real> >();
   std::vector<Real> beta  = options().option("beta").value< std::vector<Real> >();
   std::vector<Real> gamma = options().option("gamma").value< std::vector<Real> >();
@@ -240,7 +252,6 @@ void IterativeSolver::execute()
 
   const Real T0 = time.current_time();
   Real dt = 0;
-  pre_update().configure_option_recursively("freeze_update_coeff",false);
 
   for (Uint stage=0; stage<nb_stages; ++stage)
   {
@@ -253,6 +264,13 @@ void IterativeSolver::execute()
 
     // now assigned in pre-update
     // - R
+
+    if (stage == 0)
+    {
+      solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
+    }
+    // now assigned:
+
     // - H
     // - time.dt()
 
@@ -261,10 +279,11 @@ void IterativeSolver::execute()
     boost_foreach(const Handle<Entities>& elements_handle, U.entities_range())
     {
       Entities& elements = *elements_handle;
-      Space& solution_space = U.space(elements);
+      const Connectivity& space_connectivity = U.space(elements).connectivity();
+
       for (Uint e=0; e<elements.size(); ++e)
       {
-        boost_foreach(const Uint state, solution_space.indexes_for_element(e))
+        boost_foreach(const Uint state, space_connectivity[e])
         {
           for (Uint var=0; var<U.row_size(); ++var)
           {
@@ -284,7 +303,6 @@ void IterativeSolver::execute()
     if (stage == 0)
     {
       dt = time.dt();
-      pre_update().configure_option_recursively("freeze_update_coeff",true);
     }
     else
     {

@@ -26,6 +26,7 @@
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "mesh/MeshGenerator.hpp"
 
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/SparsityBuilder.hpp"
@@ -78,8 +79,13 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
+  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
+  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  Mesh& mesh = create_line->generate();
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
@@ -283,7 +289,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       elements_expression
       (
         allowed_elements,
-        group <<
+        group
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),

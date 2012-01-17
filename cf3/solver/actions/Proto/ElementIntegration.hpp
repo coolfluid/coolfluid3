@@ -135,15 +135,22 @@ struct ElementQuadrature :
     /// Fusion functor to evaluate each child expression using the GrammarT supplied in the template argument
     struct evaluate_expr
     {
-      evaluate_expr(typename impl::state_param state, typename impl::data_param data, const Real weight) :
+      evaluate_expr(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data, const Real weight) :
+        m_expr(expr),
         m_state(state),
         m_data(data),
         m_weight(weight * data.support().jacobian_determinant())
       {
       }
       
+      template<typename I>
+      void operator()(const I&) const
+      {
+        evaluate_child(boost::proto::child_c<I::value>(m_expr));
+      }
+      
       template<typename ChildExprT>
-      void operator()(ChildExprT& expr) const
+      void evaluate_child(ChildExprT& expr) const
       {
         tag_dispatch(typename boost::proto::tag_of<ChildExprT>::type(), expr);
       }
@@ -162,6 +169,7 @@ struct ElementQuadrature :
       }
 
     private:
+      typename impl::expr_param m_expr;
       typename impl::state_param  m_state;
       typename impl::data_param m_data;
       const Real m_weight; // The integration weight (gauss point weight * jacobian determinant)
@@ -181,28 +189,11 @@ struct ElementQuadrature :
       {
         // Precompute the primitive element matrices (shape function values, gradients, ...) for the current Gauss point
         data.precompute_element_matrices(GaussT::instance().coords.col(i), expr);
-        tag_dispatch(typename boost::proto::tag_of<ExprT>::type(), expr, state, data, GaussT::instance().weights[i]);
+        boost::mpl::for_each< boost::mpl::range_c<int, 1, boost::proto::arity_of<ExprT>::value> >
+        (
+          evaluate_expr(expr, state, data, GaussT::instance().weights[i])
+        );
       }
-    }
-    
-    /// Choose based on tag,element_quadrature << (expr1, expr2, ..., exprN) syntax
-    void tag_dispatch(const boost::proto::tag::shift_left,
-                      typename impl::expr_param expr,
-                      typename impl::state_param state,
-                      typename impl::data_param data,
-                      const Real weight) const
-    {
-      boost::fusion::for_each(boost::proto::flatten(boost::proto::right(expr)), evaluate_expr(state, data, weight) );
-    }
-    
-    /// Choose based on tag, element_quadrature(expr) syntax
-    void tag_dispatch(const boost::proto::tag::function,
-                      typename impl::expr_param expr,
-                      typename impl::state_param state,
-                      typename impl::data_param data,
-                      const Real weight) const
-    {
-      evaluate_expr(state, data, weight)(boost::proto::child_c<1>(expr));
     }
   };
 };
@@ -236,12 +227,7 @@ struct ElementIntegration :
     >,
     boost::proto::when // function call syntax, to integrate a single += expression
     <
-      boost::proto::function< boost::proto::terminal<ElementQuadratureTag>, boost::proto::_ >,
-      ElementQuadrature< boost::proto::call< IndexLooper<ElementMathImplicitIndexed> > >
-    >,
-    boost::proto::when // << syntax, to integrate any number of += expressions
-    <
-      boost::proto::shift_left< boost::proto::terminal<ElementQuadratureTag>, boost::proto::comma<boost::proto::_, boost::proto::_> >,
+      boost::proto::function< boost::proto::terminal<ElementQuadratureTag>, boost::proto::vararg<boost::proto::_> >,
       ElementQuadrature< boost::proto::call< IndexLooper<ElementMathImplicitIndexed> > >
     >
   >

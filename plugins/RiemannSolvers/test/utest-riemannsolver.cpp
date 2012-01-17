@@ -67,7 +67,9 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   left <<  r_L, r_L*u_L, p_L/(g-1.) + 0.5*r_L*(u_L*u_L);
   right << r_R, r_R*u_R, p_R/(g-1.) + 0.5*r_R*(u_R*u_R);
 
-  riemann->compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  RealVector coords(dim); coords.setZero();
+
+  riemann->compute_interface_flux_and_wavespeeds(left,right, coords,normal, flux, wave_speeds);
 
   const Real tol (0.000001);
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
@@ -78,7 +80,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[1],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[2], -336.8571471643333 , tol);
 
-  riemann->compute_interface_flux_and_wavespeeds(right,left, -normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right,left,coords, -normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , -252750 , tol);
@@ -115,6 +117,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   RealVector left(neqs), right(neqs);
   RealVector flux(neqs);
   RealVector wave_speeds(neqs);
+  RealVector coords(dim); coords.setZero();
 
   const Real r_L = 4.696;     const Real r_R = 1.408;
   const Real u_L = 0.;        const Real u_R = 0.;
@@ -126,7 +129,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   left <<  r_L, r_L*u_L, r_L*v_L, p_L/(g-1.) + 0.5*r_L*(u_L*u_L+v_L*v_L);
   right << r_R, r_R*u_R, r_R*v_R, p_R/(g-1.) + 0.5*r_R*(u_R*u_R+v_R*v_R);
 
-  riemann->compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right, coords, normal, flux, wave_speeds);
   std::cout << "compute_riemann_problem( " << left.transpose() << "   ,   " << right.transpose() << "    ,    " << normal.transpose() << "  ) " << std::endl;
   std::cout << "  =   " << flux << std::endl;
 
@@ -141,7 +144,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[2],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[3], -336.8571471643333 , tol);
 
-  riemann->compute_interface_flux_and_wavespeeds(right,left, -normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right,left, coords, -normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , -252750 , tol);
@@ -154,7 +157,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[3], -336.8571471643333 , tol);
 
   normal << 0., 1.;
-  riemann->compute_interface_flux_and_wavespeeds(left,right,normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right,coords,normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , 0       , tol);
   BOOST_CHECK_CLOSE(flux[2] , 252750  , tol);
@@ -164,7 +167,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[1],  0                 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[2],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[3], -336.8571471643333 , tol);
-  riemann->compute_interface_flux_and_wavespeeds(right,left,-normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right,left,coords,-normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] ,  0       , tol);
   BOOST_CHECK_CLOSE(flux[2] , -252750  , tol);
@@ -172,9 +175,9 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
 
 
   normal << 1., 1.;
-  riemann->compute_interface_flux_and_wavespeeds(left,right,normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right,coords,normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[1] , flux[2] , tol);
-  riemann->compute_interface_flux_and_wavespeeds(right,left,-normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right,left,coords,-normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[1] , flux[2] , tol);
   BOOST_CHECK_CLOSE(wave_speeds[0],  0 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[1],  0 , tol);
@@ -210,6 +213,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   RealVector flux(neqs);
   RealVector wave_speeds(neqs);
   const Real tol (0.000001);
+  RealVector coords(dim); coords.setZero();
 
 
   const Real r_L = 4.696;     const Real r_R = 1.408;
@@ -223,7 +227,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   left <<  r_L, r_L*u_L, r_L*v_L, r_L*w_L, p_L/(g-1.) + 0.5*r_L*(u_L*u_L+v_L*v_L+w_L*w_L);
   right << r_R, r_R*u_R, r_R*v_R, r_R*w_R, p_R/(g-1.) + 0.5*r_R*(u_R*u_R+v_R*v_R+w_R*w_R);
 
-  riemann->compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right, coords, normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , 252750 , tol);
@@ -237,7 +241,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[3],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[4], -336.8571471643333 , tol);
 
-  riemann->compute_interface_flux_and_wavespeeds(right, left, -normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right, left, coords, -normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , -252750 , tol);
@@ -253,7 +257,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
   normal << 0. , 1. , 0.;
 
-  riemann->compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right, coords, normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , 0      , tol);
@@ -267,7 +271,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[3],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[4], -336.8571471643333 , tol);
 
-  riemann->compute_interface_flux_and_wavespeeds(right, left, -normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right, left, coords, -normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] ,  0      , tol);
@@ -283,7 +287,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
   normal << 0. , 0. , 1.;
 
-  riemann->compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right, coords, normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] , 0      , tol);
@@ -297,7 +301,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[3],  336.8571471643333 , tol);
   BOOST_CHECK_CLOSE(wave_speeds[4], -336.8571471643333 , tol);
 
-  riemann->compute_interface_flux_and_wavespeeds(right, left, -normal, flux, wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right, left, coords, -normal, flux, wave_speeds);
 
   BOOST_CHECK_CLOSE(flux[0] , -450.190834 , tol);
   BOOST_CHECK_CLOSE(flux[1] ,  0      , tol);
@@ -313,10 +317,10 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
 
   normal << 1., 1., 1.;
-  riemann->compute_interface_flux_and_wavespeeds(left,right,normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(left,right,coords,normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[1] , flux[2] , tol);
   BOOST_CHECK_CLOSE(flux[2] , flux[3] , tol);
-  riemann->compute_interface_flux_and_wavespeeds(right,left,-normal,flux,wave_speeds);
+  riemann->compute_interface_flux_and_wavespeeds(right,left,coords,-normal,flux,wave_speeds);
   BOOST_CHECK_CLOSE(flux[1] , flux[2] , tol);
   BOOST_CHECK_CLOSE(flux[2] , flux[3] , tol);
   BOOST_CHECK_CLOSE(wave_speeds[0],  0 , tol);

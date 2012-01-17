@@ -9,6 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -25,6 +28,8 @@
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+
+#include "mesh/SimpleMeshGenerator.hpp"
 
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/Tags.hpp"
@@ -98,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
-  
+
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action
@@ -107,7 +112,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       elements_expression
       (
         allowed_elements,
-        group <<
+        group
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
@@ -125,8 +130,13 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
+  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
+  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  Mesh& mesh = create_line->generate();
 
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 

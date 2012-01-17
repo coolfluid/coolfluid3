@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   BlockMesh::partition_blocks(blocks, 4, XX, parallel_blocks);
 
-  Mesh& parallel_block_mesh = *domain.create_component<Mesh>("parallel_blocks");
+  Mesh& parallel_block_mesh = *domain.create_component<Mesh>("parallel_block_mesh");
   BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
   writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
 }

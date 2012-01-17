@@ -7,6 +7,8 @@
 #ifndef cf3_SFDM_DomainDiscretization_hpp
 #define cf3_SFDM_DomainDiscretization_hpp
 
+#include "mesh/Region.hpp"
+
 #include "solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
@@ -21,9 +23,6 @@ class Term;
 class SFDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
-
-  
-  
 
 public: // functions
   /// Contructor
@@ -56,6 +55,7 @@ public: // functions
 private:
 
   Handle< common::ActionDirector > m_terms;   ///< set of terms
+  std::map< Handle<mesh::Region const> , std::vector< Handle<Term> > > m_terms_per_region;
 
 };
 
