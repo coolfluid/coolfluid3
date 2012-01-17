@@ -381,6 +381,9 @@ void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 
 boost::python::object wrap_component(const Handle<common::Component>& component)
 {
+  if(is_null(component))
+    return boost::python::object();
+
   boost::python::object result = boost::python::object(ComponentWrapper(component));
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
   wrapped.bind_signals(result);
