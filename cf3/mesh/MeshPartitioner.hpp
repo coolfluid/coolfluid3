@@ -28,6 +28,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -209,7 +210,7 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -243,7 +244,7 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
@@ -279,7 +280,7 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!

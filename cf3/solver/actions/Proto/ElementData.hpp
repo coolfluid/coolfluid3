@@ -87,7 +87,7 @@ public:
 
   GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry_fields().coordinates()),
-    m_connectivity(elements.node_connectivity())
+    m_connectivity(elements.geometry_space().connectivity())
   {
   }
 
@@ -335,7 +335,7 @@ public:
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(elements.node_connectivity()),
+    m_connectivity(elements.geometry_space().connectivity()),
     m_support(support)
   {
     offset = m_field.descriptor().offset(placeholder.name());

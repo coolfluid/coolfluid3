@@ -300,7 +300,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const Connectivity& conn_table = elements.node_connectivity();
+      const Connectivity& conn_table = elements.geometry_space().connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {

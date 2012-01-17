@@ -10,6 +10,7 @@
 #include <set>
 
 #include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -175,7 +176,7 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
   BOOST_FOREACH(const Elements& elements, range)
   {
     celements_first_elements.push_back(sum);
-    sum += elements.node_connectivity().array().size();
+    sum += elements.geometry_space().connectivity().array().size();
   }
 }
 

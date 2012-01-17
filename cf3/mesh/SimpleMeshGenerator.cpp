@@ -189,7 +189,7 @@ void SimpleMeshGenerator::create_line()
   Handle<Cells> cells = region.create_component<Cells>("Line");
   cells->initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
   cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-  Connectivity& connectivity = cells->node_connectivity();
+  Connectivity& connectivity = cells->geometry_space().connectivity();
   common::List<Uint>& elem_rank = cells->rank();
   common::List<Uint>& elem_glb_idx = cells->glb_idx();
 
@@ -378,7 +378,7 @@ void SimpleMeshGenerator::create_rectangle()
   cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
 
   cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-  Connectivity& connectivity = cells->node_connectivity();
+  Connectivity& connectivity = cells->geometry_space().connectivity();
   common::List<Uint>& elem_rank = cells->rank();
   common::List<Uint>& elem_glb_idx = cells->glb_idx();
 
@@ -431,7 +431,7 @@ void SimpleMeshGenerator::create_rectangle()
     std::vector<Uint> line_nodes(2);
     Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
     left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
-    Connectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
+    Connectivity::Buffer left_connectivity = left->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer left_rank = left->rank().create_buffer();
     common::List<Uint>::Buffer left_glb_idx = left->glb_idx().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
@@ -459,7 +459,7 @@ void SimpleMeshGenerator::create_rectangle()
 
     Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
     right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
-    Connectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
+    Connectivity::Buffer right_connectivity = right->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer right_rank = right->rank().create_buffer();
     common::List<Uint>::Buffer right_glb_idx = right->glb_idx().create_buffer();
 
@@ -489,7 +489,7 @@ void SimpleMeshGenerator::create_rectangle()
 
     Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
     bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
-    Connectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
+    Connectivity::Buffer bottom_connectivity = bottom->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
     common::List<Uint>::Buffer bottom_glb_idx = bottom->glb_idx().create_buffer();
 
@@ -518,7 +518,7 @@ void SimpleMeshGenerator::create_rectangle()
 
     Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
     top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
-    Connectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
+    Connectivity::Buffer top_connectivity = top->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer top_rank = top->rank().create_buffer();
     common::List<Uint>::Buffer top_glb_idx = top->glb_idx().create_buffer();
 

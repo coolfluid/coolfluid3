@@ -43,9 +43,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Elements"; }
 
-  /// Access to the connectivity table
-  Connectivity& node_connectivity() const;
-
   /// return the number of elements
   virtual Uint size() const;
 

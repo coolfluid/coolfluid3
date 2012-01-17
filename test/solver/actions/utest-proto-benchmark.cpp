@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
   direct_arrays.reset(new DirectArrays
   (
     mesh->geometry_fields().coordinates(),
-    elements.node_connectivity().array(),
+    elements.geometry_space().connectivity().array(),
     vol_field,
     vol_field.dict().space(elements).connectivity()[0][0]
   ));

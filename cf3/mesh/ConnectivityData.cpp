@@ -7,9 +7,10 @@
 #include <boost/foreach.hpp>
 
 #include "common/FindComponents.hpp"
-
-#include "mesh/ConnectivityData.hpp"
 #include "common/Table.hpp"
+
+#include "mesh/Space.hpp"
+#include "mesh/ConnectivityData.hpp"
 #include "mesh/ElementType.hpp"
 
 namespace cf3 {
@@ -111,7 +112,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
   const Uint celement_count = elements.size();
   for(Uint celement_idx = 0; celement_idx != celement_count; ++celement_idx)
   {
-    const Connectivity::ArrayT& element_connectivity = elements[celement_idx]->node_connectivity().array();
+    const Connectivity::ArrayT& element_connectivity = elements[celement_idx]->geometry_space().connectivity().array();
     const Uint elem_count = element_connectivity.size();
     for(Uint elem_idx = 0; elem_idx != elem_count; ++elem_idx)
     {
@@ -135,7 +136,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
   CFaceConnectivity::IndicesT last_added_element(nb_nodes, 0); // helper array to keep track of where we are in node_elements
   for(Uint celement_idx = 0; celement_idx != celement_count; ++celement_idx)
   {
-    const Connectivity::ArrayT& element_connectivity = elements[celement_idx]->node_connectivity().array();
+    const Connectivity::ArrayT& element_connectivity = elements[celement_idx]->geometry_space().connectivity().array();
     const Uint elem_count = element_connectivity.size();
     for(Uint elem_idx = 0; elem_idx != elem_count; ++elem_idx)
     {
@@ -159,7 +160,7 @@ void create_face_element_connectivity(const Elements& own_celements,
                                       CFaceConnectivity::IndicesT& face_element_connectivity)
 {
   // Cache some commonly accessed data
-  const Connectivity::ArrayT& element_connectivity = own_celements.node_connectivity().array();
+  const Connectivity::ArrayT& element_connectivity = own_celements.geometry_space().connectivity().array();
   const Uint elem_count = element_connectivity.size();
   const ElementType& etype = own_celements.element_type();
   const ElementType::FaceConnectivity& face_connectivity = etype.faces();
@@ -259,7 +260,7 @@ void create_face_face_connectivity(const Elements& own_celements, const CFaceCon
     }
   }
 
-  const Connectivity::ArrayT& connectivity_table = own_celements.node_connectivity().array();
+  const Connectivity::ArrayT& connectivity_table = own_celements.geometry_space().connectivity().array();
   const Uint elements_begin = 0;
   const Uint elements_end = connectivity_table.size();
   const Uint nb_faces = own_celements.element_type().nb_faces();
@@ -297,7 +298,7 @@ void create_face_face_connectivity(const Elements& own_celements, const CFaceCon
         CFaceConnectivity::IndicesT face_nodes;
         sorted_face_nodes(own_celements, connectivity_table, element_idx, face_idx, face_nodes);
         const Uint adjacent_local_elem = adjacent_global_elem - celements_first_elements[adjacent_celements_idx];
-        const Connectivity::ArrayT& adjacent_connectivity_table = adjacent_celements.node_connectivity().array();
+        const Connectivity::ArrayT& adjacent_connectivity_table = adjacent_celements.geometry_space().connectivity().array();
         for(Uint adjacent_face = 0; adjacent_face != adjacent_nb_faces; ++adjacent_face)
         {
           CFaceConnectivity::IndicesT adjacent_face_nodes;

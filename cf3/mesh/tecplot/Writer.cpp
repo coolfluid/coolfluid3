@@ -375,7 +375,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
     file << "\n### connectivity\n\n";
     // write connectivity
-    boost_foreach( Connectivity::ConstRow e_nodes, elements.node_connectivity().array() )
+    boost_foreach( Connectivity::ConstRow e_nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach ( Uint n, e_nodes)
       {

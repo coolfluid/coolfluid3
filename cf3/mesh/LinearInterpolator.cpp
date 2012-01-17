@@ -353,7 +353,7 @@ void LinearInterpolator::create_octtree()
   RealVector centroid(m_dim);
   boost_foreach(const Elements& elements, find_components_recursively_with_filter<Elements>(*m_source_mesh,IsElementsVolume()))
   {
-    Uint nb_nodes_per_element = elements.node_connectivity().row_size();
+    Uint nb_nodes_per_element = elements.geometry_space().connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)

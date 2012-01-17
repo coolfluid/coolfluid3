@@ -50,14 +50,7 @@ Elements::~Elements()
 
 Uint Elements::size() const
 {
-  return node_connectivity().size();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-Connectivity& Elements::node_connectivity() const
-{
-  return geometry_space().connectivity();
+  return geometry_space().connectivity().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +58,7 @@ Connectivity& Elements::node_connectivity() const
 RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 {
   const common::Table<Real>& coords_table = geometry_fields().coordinates();
-  Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
+  Connectivity::ConstRow elem_nodes = geometry_space().connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
   const Uint dim=coords_table.row_size();
@@ -81,7 +74,7 @@ RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
   const common::Table<Real>& coords_table = geometry_fields().coordinates();
-  Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
+  Connectivity::ConstRow elem_nodes = geometry_space().connectivity()[elem_idx];
 
   fill(elem_coords, coords_table, elem_nodes);
 }
@@ -90,8 +83,8 @@ void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) con
 
 common::Table<Uint>::ConstRow Elements::get_nodes(const Uint elem_idx) const
 {
-  cf3_assert_desc( to_str(elem_idx)+ ">="+to_str(node_connectivity().size()) , elem_idx < node_connectivity().size() );
-  return node_connectivity()[elem_idx];
+  cf3_assert_desc( to_str(elem_idx)+ ">="+to_str(geometry_space().connectivity().size()) , elem_idx < geometry_space().connectivity().size() );
+  return geometry_space().connectivity()[elem_idx];
 //  common::Table<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
 //  return std::vector<Uint> (elem_nodes.begin(),elem_nodes.end());
 }

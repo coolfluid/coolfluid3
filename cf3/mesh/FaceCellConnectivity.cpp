@@ -23,6 +23,7 @@
 #include "mesh/MeshElements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementConnectivity.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -190,7 +191,7 @@ void FaceCellConnectivity::build_connectivity()
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(Connectivity::ConstRow elem_nodes, elements.node_connectivity().array() )
+    boost_foreach(Connectivity::ConstRow elem_nodes, elements.geometry_space().connectivity().array() )
     {
       if ( is_not_null(is_bdry_elem) )
         if ( (*is_bdry_elem)[loc_elem_idx] == false )

@@ -13,6 +13,7 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -63,7 +64,7 @@ void NodeElementConnectivity::build_connectivity()
   boost_foreach(Handle<Component> elements_comp, m_elements->components() )
   {
     Elements& elements = dynamic_cast<Elements&>(*elements_comp);
-    boost_foreach (Connectivity::ConstRow nodes, elements.node_connectivity().array() )
+    boost_foreach (Connectivity::ConstRow nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {
@@ -82,7 +83,7 @@ void NodeElementConnectivity::build_connectivity()
   boost_foreach(Handle<Component> elements_comp, m_elements->components() )
   {
     Elements& elements = dynamic_cast<Elements&>(*elements_comp);
-    boost_foreach (Connectivity::ConstRow nodes, elements.node_connectivity().array() )
+    boost_foreach (Connectivity::ConstRow nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {

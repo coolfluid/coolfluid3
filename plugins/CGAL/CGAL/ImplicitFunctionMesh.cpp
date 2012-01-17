@@ -63,7 +63,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
 
   // connectivity storage
   Elements& elements = region.create_elements("cf3.mesh.LagrangeP1.Tetra3D",nodes);
-  Table<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
+  Table<Uint>::Buffer connBuffer = elements.geometry_space().connectivity().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
   CFinfo << "iterating over the cells" << CFendl;
@@ -87,7 +87,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   coordinatesBuffer.flush();
   connBuffer.flush();
   nodes.resize(nodes.coordinates().size());
-  elements.resize(elements.node_connectivity().size());
+  elements.resize(elements.geometry_space().connectivity().size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

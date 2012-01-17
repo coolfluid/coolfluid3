@@ -30,6 +30,7 @@
 #include "mesh/Manipulations.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/actions/GrowOverlap.hpp"
 
@@ -175,7 +176,7 @@ void GrowOverlap::execute()
   }
   boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
   {
-    boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
+    boost_foreach (Connectivity::Row face_nodes, faces.geometry_space().connectivity().array())
     {
       boost_foreach(const Uint node, face_nodes)
       {
@@ -270,7 +271,7 @@ void GrowOverlap::execute()
           elements_to_send[to_proc] << elements.glb_idx()[elem_idx]
                                     << elements.rank()[elem_idx];
 
-          boost_foreach(const Uint connected_node, elements.node_connectivity()[elem_idx])
+          boost_foreach(const Uint connected_node, elements.geometry_space().connectivity()[elem_idx])
               elements_to_send[to_proc] << nodes.glb_idx()[connected_node];
 
         }
@@ -307,7 +308,7 @@ void GrowOverlap::execute()
       std::set<Uint>::iterator not_found = bdry_nodes.end();
       for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
       {
-        boost_foreach(const Uint connected_glb_node, elements.node_connectivity()[e])
+        boost_foreach(const Uint connected_glb_node, elements.geometry_space().connectivity()[e])
         {
           if ( glb_node_2_loc_node.find(connected_glb_node) == glb_node_not_found)
             new_ghost_nodes.insert(connected_glb_node);
@@ -401,7 +402,7 @@ void GrowOverlap::execute()
 
       for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
       {
-        Connectivity::Row connected_nodes = elements.node_connectivity()[e];
+        Connectivity::Row connected_nodes = elements.geometry_space().connectivity()[e];
 
         boost_foreach ( Uint& node, connected_nodes )
         {

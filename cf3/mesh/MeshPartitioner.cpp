@@ -17,14 +17,14 @@
 #include "common/PE/Buffer.hpp"
 #include "common/PE/debug.hpp"
 #include "common/StringConversion.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "common/List.hpp"
 #include "mesh/MeshPartitioner.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Manipulations.hpp"
@@ -414,7 +414,7 @@ void MeshPartitioner::migrate()
   const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->geometry_space().connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -518,7 +518,7 @@ void MeshPartitioner::migrate()
   std::set<Uint> ghost_nodes;
   boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()))
   {
-    boost_foreach(Connectivity::ConstRow connected_nodes, elements.node_connectivity().array())
+    boost_foreach(Connectivity::ConstRow connected_nodes, elements.geometry_space().connectivity().array())
     {
       boost_foreach(const Uint node, connected_nodes)
       {
@@ -611,7 +611,7 @@ void MeshPartitioner::migrate()
   }
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->geometry_space().connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {

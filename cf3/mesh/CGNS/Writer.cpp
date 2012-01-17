@@ -16,6 +16,7 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -252,7 +253,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
         m_section.nbBdry = 0; // unsorted boundary
 
         ElementType_t type = m_elemtype_CF3_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
-        const Connectivity::ArrayT& connectivity_table = elements->node_connectivity().array();
+        const Connectivity::ArrayT& connectivity_table = elements->geometry_space().connectivity().array();
         int start_idx = m_global_start_idx[&elements->geometry_fields().coordinates()];
 
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
@@ -280,7 +281,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
       m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
       m_section.nbBdry = 0; // unsorted boundary
 
-      const Connectivity::ArrayT& connectivity_table = elements.node_connectivity().array();
+      const Connectivity::ArrayT& connectivity_table = elements.geometry_space().connectivity().array();
       int start_idx = m_global_start_idx[&elements.geometry_fields().coordinates()];
 
       int* elemNodes = new int [nbElems*m_section.elemNodeCount];

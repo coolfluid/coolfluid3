@@ -29,6 +29,7 @@
 #include "mesh/MeshElements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -496,7 +497,7 @@ void Reader::read_groups()
       Uint local_element = m_global_to_tmp[global_element].second;
       std::string etype = tmp_elems->element_type().derived_type_name();
 
-      Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
+      Uint idx = buffer[etype]->add_row(tmp_elems->geometry_space().connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
       m_global_to_tmp[global_element] = std::make_pair(Handle<Elements>(region.get_child(new_elems_name)),idx);
     }
@@ -561,7 +562,7 @@ void Reader::read_boundaries()
         const ElementType::FaceConnectivity& face_connectivity = etype.faces();
 
         // make a row of nodes
-        const Connectivity::Row& elem_nodes = tmp_elements->node_connectivity()[local_element];
+        const Connectivity::Row& elem_nodes = tmp_elements->geometry_space().connectivity()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.stride[faceIdx]);
         boost_foreach(const Uint& node, face_connectivity.nodes_range(faceIdx))

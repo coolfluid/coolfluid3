@@ -533,7 +533,7 @@ void Reader::read_connectivity()
       // Celements& elements = region->create_component<Elements>(cf_elem_name);
       // elements.initialize(cf_elem_name,nodes);
 
-       Connectivity& elem_table = Handle<Elements>(elements)->node_connectivity();
+       Connectivity& elem_table = Handle<Elements>(elements)->geometry_space().connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
        elements->rank().resize(m_nb_gmsh_elem_in_region[ir][etype]);
@@ -600,7 +600,7 @@ void Reader::read_connectivity()
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
       Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle<Component>());
-      Connectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
+      Connectivity::Row element_nodes = elements_region->geometry_space().connectivity()[row_idx];
 
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
 

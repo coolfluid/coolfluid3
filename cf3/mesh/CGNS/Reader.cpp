@@ -24,6 +24,8 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Space.hpp"
+
 #include "mesh/CGNS/Reader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -478,7 +480,7 @@ void Reader::read_section(Region& parent_region)
     Elements& element_region= *Handle<Elements>(this_region.get_child("elements_"+etype_CF));
 
     // Create a buffer for this element component, to start filling in the elements we will read.
-    Connectivity& node_connectivity = element_region.node_connectivity();
+    Connectivity& node_connectivity = element_region.geometry_space().connectivity();
 
     // Create storage for element nodes
     int* elemNodes = new int [m_section.elemDataSize];
@@ -547,7 +549,7 @@ void Reader::create_structured_elements(Region& parent_region)
   Elements& element_region = this_region.create_elements(etype_CF,nodes);
 
   // Create a buffer for this element component, to start filling in the elements we will read.
-  Connectivity& node_connectivity = element_region.node_connectivity();
+  Connectivity& node_connectivity = element_region.geometry_space().connectivity();
   node_connectivity.resize(m_zone.total_nbElements);
   // --------------------------------------------- Fill connectivity table
 
@@ -667,7 +669,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct Elements component through its buffer
-        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -717,7 +719,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct Elements component through its buffer
-        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -780,8 +782,8 @@ void Reader::read_boco_structured(Region& parent_region)
   }
 
   Elements& elements = this_region.create_elements(etypeBC_CF,nodes);
-  //common::Table<Uint>& source_elements = parent_region.get_child("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->node_connectivity();
-  Connectivity& node_connectivity = elements.node_connectivity();
+  //common::Table<Uint>& source_elements = parent_region.get_child("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->geometry_space().connectivity();
+  Connectivity& node_connectivity = elements.geometry_space().connectivity();
 
 
 

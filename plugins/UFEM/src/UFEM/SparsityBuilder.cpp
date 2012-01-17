@@ -14,6 +14,7 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 
@@ -34,7 +35,7 @@ void build_sparsity(const Mesh& mesh, std::vector< Uint >& node_connectivity, st
   // Determine the number of connected nodes for each element
   BOOST_FOREACH(const Elements& elements, find_components_recursively<Cells>(mesh.topology()))
   {
-    const Connectivity& connectivity = elements.node_connectivity();
+    const Connectivity& connectivity = elements.geometry_space().connectivity();
     const Uint nb_elems = connectivity.size();
     const Uint nb_elem_nodes = connectivity.row_size();
     for(Uint elem = 0; elem != nb_elems; ++elem)

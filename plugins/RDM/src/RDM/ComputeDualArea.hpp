@@ -99,7 +99,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates =
         elements().geometry_fields().coordinates().handle< mesh::Field >();
 
