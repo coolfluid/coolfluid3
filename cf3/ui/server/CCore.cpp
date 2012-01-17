@@ -4,10 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QApplication>
-#include <QDateTime>
-#include <QHostInfo>
-#include <QSettings>
+//#include <QApplication>
+//#include <QDateTime>
+//#include <QHostInfo>
+//#include <QSettings>
+//#include <QDir>
+
+#include <ctime>
+
+#include "coolfluid-config.hpp"
+#if defined CF3_OS_LINUX || CF3_OS_MACOSX // if we are on a POSIX system...
+  #include <pwd.h> // for getpwuid()
+#endif
+
+#include <boost/algorithm/string/join.hpp>
+#include <boost/regex.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -23,7 +34,6 @@
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
-
 
 #include "ui/uicommon/ComponentNames.hpp"
 
@@ -44,37 +54,85 @@ namespace server {
 
 /////////////////////////////////////////////////////////////////////////////
 
+/// Finds the home directory path of the current user.
+/// @return Return the home directory path.
+/// @throw ValueNotFound If the home directory path could not be retrieved.
+/// @note This function was written on Linux and was tested on Linux and OSX.
+/// There are @b NO garantee on its behavior on Windows as it was never
+/// officially tested on that operating system.
+std::string find_home_path()
+{
+  std::string home_path;
+
+#if defined CF3_OS_LINUX || CF3_OS_MACOSX // if we are on a POSIX system...
+  char * home = getenv("HOME");
+
+  if( is_not_null(home) )
+    home_path = home;
+  else
+  {
+    // the $HOME environment variable may not exist (i.e. the application
+    // was not lauched from a terminal on OSX). We need to use getpwuid()
+    // POSIX function then.
+    passwd * pwd = getpwuid( getuid() );
+
+    if( is_not_null(pwd) )
+      home_path = pwd->pw_dir; // get home directory
+  }
+#else
+#ifdef CF3_OS_WINDOWS
+ char * user_profile = getenv("USERPROFILE");
+
+ if( is_not_null(user_profile) )
+   home_path = user_profile;
+
+ // note: some WebSites recommend to use %HOMEDRIVE% + %HOMEPATH% if
+ // %USERPROFILE% does not exist. This does not seem to be a good solution to me
+ // because - according to Microsoft documentation - %HOMEDRIVE% may not
+ // contain a useful value in the case of a network home directory (in which
+ // case %HOMESHARE% should also have to be used somewhere).
+#endif
+#endif
+
+  if( home_path.empty() )
+    throw ValueNotFound( FromHere(), "Could not retrieve home directory." );
+
+  return home_path;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 CCore::CCore()
   : Component(SERVER_CORE),
-    DEFAULT_PATH(".")
+    default_path(".")
 {
   TypeInfo::instance().regist<CCore>( type_name() );
 
   m_comm_server = new ServerNetworkComm();
-  m_settings = new QSettings( "vki.ac.be", "coolfluid-server", this);
+//  m_settings = new QSettings( "vki.ac.be", "coolfluid-server" );
 
-  m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
+//  m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  connect( m_comm_server, SIGNAL(newClientConnected(std::string)),
-           this,  SLOT(new_client(std::string)) );
+  m_comm_server->signal( "new_client_connected" )
+      ->connect(boost::bind(&CCore::new_client, this, _1));
 
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
   regist_signal( "read_dir" )
-    .description("Read directory content")
-    .read_only(true)
-    .pretty_name("").connect(boost::bind(&CCore::read_dir, this, _1));
+      .description("Read directory content")
+      .read_only(true)
+      .pretty_name("").connect(boost::bind(&CCore::read_dir, this, _1));
 
   regist_signal( "read_special_dir" )
-    .description("Read special directory content")
-    .read_only(true)
-    .pretty_name("").connect(boost::bind(&CCore::read_special_dir, this, _1));
+      .description("Read special directory content")
+      .read_only(true)
+      .pretty_name("").connect(boost::bind(&CCore::read_special_dir, this, _1));
 
   regist_signal( "shutdown" )
-    .description("Shutdown the server")
-    .pretty_name("").connect(boost::bind(&CCore::shutdown, this, _1));
+      .description("Shutdown the server")
+      .pretty_name("").connect(boost::bind(&CCore::shutdown, this, _1));
 
   regist_signal("list_favorites")
       .description( "Lists the favorite directories for the remote browsing feature." )
@@ -96,106 +154,92 @@ CCore::~CCore()
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool CCore::listen_to_port(quint16 portNumber)
+bool CCore::listen_to_port(cf3::Uint portNumber)
 {
-  return m_comm_server->openPort(portNumber);
+  return m_comm_server->open_port(portNumber);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::send_signal( const XmlDoc & signal )
+void CCore::send_signal( SignalFrame & signal )
 {
-  m_comm_server->sendSignalToClient(signal);
+  m_comm_server->send_frame_to_client(signal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::forward_signal( SignalArgs & args )
 {
-  send_signal( *args.xml_doc );
+  send_signal( args );
 }
 
 /***************************************************************************
 
-PRIVATE METHODS
+                           PRIVATE METHODS
 
 ***************************************************************************/
 
-bool CCore::get_dir_content(const QString & directory,
-                          const std::vector<std::string> & extensions,
-                          bool includeFiles,
-                          bool includeNoExtension,
-                          DirContent & content) const {
-  QDir dir(directory);
-  bool dirExists = dir.exists();
+bool CCore::get_dir_content( const std::string &directory,
+                             const std::vector<std::string> & extensions,
+                             bool include_files,
+                             bool include_no_ext,
+                             DirContent & content) const
+{
+  using namespace boost::filesystem3;
 
-  dir.setFilter(QDir::Files | QDir::Dirs | QDir::Hidden);
-  dir.setSorting(QDir::DirsFirst | QDir::Name);
+  path p(directory);
+  bool dir_exists = exists(p) && is_directory(p);
 
-  if(dirExists)
+  if( dir_exists )
   {
-    QFileInfoList files = dir.entryInfoList();
-    QFileInfoList::iterator it = files.begin();
+    boost::regex regexp(".*\\..*"); // matches file that have an extension
 
-    QRegExp regex("", Qt::CaseSensitive, QRegExp::RegExp);
-
-    if(!extensions.empty())
+    if( include_files && !extensions.empty() )
     {
       /* build the regex pattern string.
-        For example, if the QStringList contains "xml" and "CFcase" extensions,
-        the resulting string will be : "^.+\\.((xml)|(CFcase))$" */
+         For example, if the vector contains "xml" and "CFcase" extensions,
+         the resulting string will be : "^.+\\.((xml)|(CFcase))$"
+      */
 
-      /// @todo try to use QString::resize() or QString::reserve()
-      QString regexPattern;
-      std::vector<std::string>::const_iterator it = extensions.begin();
+      std::string pattern = boost::algorithm::join( extensions, ")|(" );
 
-      while(it != extensions.end())
-      {
-        if(!regexPattern.isEmpty())
-          regexPattern.append(")|(");
-
-        regexPattern.append(it->c_str());
-
-        it++;
-      }
-
-//      QString regexPattern = extensions.join(")|(");
-      regexPattern.prepend("^.+\\.((").append("))$");
-      regex.setPattern(regexPattern);
+      pattern = "^.+\\.((" + pattern + "))$";
+      regexp = boost::regex( pattern );
     }
-    else
-      regex.setPattern("^.+\\..+$");
 
-    while(it != files.end())
+    // iterate through the directory contents
+    for( directory_iterator it_dir(p) ; it_dir != directory_iterator() ; ++it_dir )
     {
-      QFileInfo fileInfo = *it;
-      QString filename = fileInfo.fileName();
-      QString modified = fileInfo.lastModified().toString("yyyy-MM-dd hh:mm:ss");
+      directory_entry entry = *it_dir;
+      path entry_path = entry.path();
+      std::string filename = entry_path.filename().string();
+      std::time_t modif_time = last_write_time(entry_path);
+      std::string time_str( std::ctime(&modif_time) );
 
-      if (filename != "." && filename != "..")
+      time_str.resize( time_str.length()-1 ); // remove the ending '\n'
+
+      if( is_directory( entry_path ) )
       {
-        if(fileInfo.isDir())
+        content.dirs.push_back( filename );
+        content.dir_dates.push_back( time_str );
+      }
+      else if ( is_regular_file( entry_path ) && include_files )
+      {
+        // (1) filename matches the regular expression
+        // (2) files w/out extension are allowed and filename doesn't have one
+        if( boost::regex_match( filename, regexp ) || // (1)
+            ( include_no_ext && !entry_path.has_extension() ) ) // (2)
         {
-          content.dirs.push_back(filename.toStdString());
-          content.dir_dates.push_back(modified.toStdString());
-        }
-        else if(includeFiles)
-        {
-          if(regex.exactMatch(filename) ||
-             (includeNoExtension && !filename.contains('.')) )
-          {
-            content.files.push_back(filename.toStdString());
-            content.file_dates.push_back(modified.toStdString());
-            content.file_sizes.push_back(fileInfo.size());
-          }
+          content.files.push_back( filename );
+          content.file_sizes.push_back( file_size(entry_path) );
+          content.file_dates.push_back( time_str );
         }
       }
-
-      it++;
     }
+
   }
 
-  return dirExists;
+  return dir_exists;
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -208,35 +252,33 @@ void CCore::read_dir(SignalArgs & args)
 {
   SignalOptions options( args );
 
-//  std::vector<std::string> dirList;
-//  std::vector<std::string> fileList;
   DirContent content;
-  QString directory;
-  rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
+  std::string directory;
 
-  QString dirPath = options.value<std::string>("dirPath").c_str();
+  std::string dirPath = options.value<std::string>("dirPath");
   bool includeFiles = options.value<bool>("includeFiles");
   bool includeNoExt = options.value<bool>("includeNoExtensions");
   std::vector<std::string> exts = options.array<std::string>("extensions");
 
-  if(dirPath.isEmpty())
-    directory = this->DEFAULT_PATH;
+  if(dirPath.empty())
+    directory = this->default_path;
   else
     directory = dirPath;
 
-  directory = QDir(directory).absolutePath();
-  directory = QDir::cleanPath(directory);
+  // get the absolute path
+  directory = boost::filesystem3::complete(directory).string();
+//  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!
   if(directory != "/")
     content.dirs.push_back("..");
 
-  content.dir_dates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+  content.dir_dates.push_back("");//QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
 
-  if(!this->get_dir_content(directory, exts, includeFiles, includeNoExt, content))
+  if(! get_dir_content( directory, exts, includeFiles, includeNoExt, content ) )
   {
-    throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
+    throw FileSystemError(FromHere(), dirPath + ": no such directory");
   }
   else
   {
@@ -244,7 +286,7 @@ void CCore::read_dir(SignalArgs & args)
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
 
-    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirPath", directory);
     roptions.add_option("dirs", content.dirs);
     roptions.add_option("files", content.files);
     roptions.add_option("dirDates", content.dir_dates);
@@ -262,13 +304,10 @@ void CCore::read_special_dir(SignalArgs & args)
 {
   SignalOptions options( args );
 
-//  std::vector<std::string> dirList;
-//  std::vector<std::string> fileList;
   DirContent content;
-  QString directory;
-  rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
+  std::string directory;
 
-  QString dirPath = options.value<std::string>("dirPath").c_str();
+  std::string dir_path = options.value<std::string>("dirPath");
   bool includeFiles = options.value<bool>("includeFiles");
   bool includeNoExt = options.value<bool>("includeNoExtensions");
   std::vector<std::string> exts = options.array<std::string>("extensions");
@@ -276,27 +315,27 @@ void CCore::read_special_dir(SignalArgs & args)
 //  if(dirPath.isEmpty())
 //    directory = this->DEFAULT_PATH;
 //  else
-    directory = dirPath;
+    directory = dir_path;
 
   if( directory == "Home" )
-    directory = QDir::homePath();
+    directory = find_home_path();//QDir::homePath().toStdString();
   else
     throw ValueNotFound( FromHere(),
-                         "Unknown special directory [" + directory.toStdString() + "]." );
+                         "Unknown special directory [" + directory + "]." );
 
-//  directory = QDir(directory).absolutePath();
-//  directory = QDir::cleanPath(directory);
+  // get the absolute path
+  directory = boost::filesystem3::complete(directory).string();
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!
   if(directory != "/")
     content.dirs.push_back("..");
 
-  content.dir_dates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+  content.dir_dates.push_back("");// QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
 
-  if(!this->get_dir_content(directory, exts, includeFiles, includeNoExt, content))
+  if(! get_dir_content( directory, exts, includeFiles, includeNoExt, content ) )
   {
-    throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
+    throw FileSystemError(FromHere(), dir_path + ": no such direcrory");
   }
   else
   {
@@ -306,7 +345,7 @@ void CCore::read_special_dir(SignalArgs & args)
 
     reply.node.set_attribute( "target", "read_dir" );
 
-    roptions.add_option("dirPath", directory.toStdString());
+    roptions.add_option("dirPath", directory);
     roptions.add_option("dirs", content.dirs);
     roptions.add_option("files", content.files);
     roptions.add_option("dirDates", content.dir_dates);
@@ -320,10 +359,10 @@ void CCore::read_special_dir(SignalArgs & args)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::shutdown(SignalArgs & node)
+void CCore::shutdown( SignalArgs & )
 {
   ServerRoot::instance().manager()->kill_group("Workers");
-  qApp->exit(0); // exit the Qt event loop
+  m_comm_server->close(); // stop the network thread
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -333,15 +372,15 @@ void CCore::signal_set_favorites(SignalArgs &node)
   std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
   std::vector<std::string>::iterator it = favs.begin();
 
-  m_favorite_directories.clear();
+//  m_favorite_directories.clear();
 
-  for(int i = 0 ; it != favs.end() ; ++it, ++i )
-    m_favorite_directories.append( QString::fromStdString(*it) );
+//  for(int i = 0 ; it != favs.end() ; ++it, ++i )
+//    m_favorite_directories.append( QString::fromStdString(*it) );
 
-  m_favorite_directories.removeDuplicates();
+//  m_favorite_directories.removeDuplicates();
 
-  m_settings->setValue( "favorite_directories", m_favorite_directories );
-  m_settings->sync();
+//  m_settings->setValue( "favorite_directories", m_favorite_directories );
+//  m_settings->sync();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -349,13 +388,13 @@ void CCore::signal_set_favorites(SignalArgs &node)
 void CCore::signal_list_favorites( SignalArgs &node )
 {
   SignalArgs reply = node.create_reply();
-  QStringList::iterator it = m_favorite_directories.begin();
-  std::vector<std::string> vect( m_favorite_directories.size() );
+//  QStringList::iterator it = m_favorite_directories.begin();
+//  std::vector<std::string> vect( m_favorite_directories.size() );
 
-  for( int i = 0 ; it != m_favorite_directories.end() ; ++it, ++i )
-    vect[i] = it->toStdString();
+//  for( int i = 0 ; it != m_favorite_directories.end() ; ++it, ++i )
+//    vect[i] = it->toStdString();
 
-  reply.set_array<std::string>("favorite_dirs", vect, ";");
+//  reply.set_array<std::string>("favorite_dirs", vect, ";");
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -364,18 +403,19 @@ void CCore::signal_list_favorites( SignalArgs &node )
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void CCore::new_client(const std::string & clientId)
+void CCore::new_client( SignalArgs & args)
 {
   // send a welcome message to the new client
-  m_comm_server->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
+  std::string clientid = args.options().value<std::string>("clientid");
+  m_comm_server->send_message_to_client("Welcome to the Client-Server project!", LogMessage::INFO, clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CCore::send_ack( const std::string & clientid,
-                     const std::string & frameid,
-                     bool success,
-                     const std::string & message)
+                      const std::string & frameid,
+                      bool success,
+                      const std::string & message )
 {
   SignalFrame frame("ack", uri(), CLIENT_NETWORK_QUEUE_PATH);
   SignalOptions & options = frame.options();
@@ -387,7 +427,7 @@ void CCore::send_ack( const std::string & clientid,
 
   options.flush();
 
-  m_comm_server->sendSignalToClient( *frame.xml_doc.get(), clientid);
+  m_comm_server->send_frame_to_client( frame, clientid);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -326,6 +326,32 @@ public: // functions
       }
     }
   }
+  virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
+  {
+    cf3_assert(derivative.size()==nb_flx_pts());
+    derivative.setZero();
+    switch (orientation)
+    {
+    case KSI:
+      for (Uint f_ksi=0; f_ksi<m_local_1d.nb_flx_pts; ++f_ksi) {
+        for (Uint f_eta=0; f_eta<m_local_1d.nb_sol_pts; ++f_eta) {
+          const Uint f = f_eta*m_local_1d.nb_flx_pts+f_ksi;
+          derivative[f] = Lagrange::deriv_coeff(local_coordinate[KSI],m_local_1d.flx_pts,f_ksi) * Lagrange::coeff(local_coordinate[ETA],m_local_1d.sol_pts,f_eta);
+        }
+      }
+      break;
+    case ETA:
+      for (Uint f_ksi=0; f_ksi<m_local_1d.nb_sol_pts; ++f_ksi) {
+        for (Uint f_eta=0; f_eta<m_local_1d.nb_flx_pts; ++f_eta)
+        {
+          const Uint f = f_ksi*m_local_1d.nb_flx_pts+f_eta + m_local_1d.nb_sol_pts*m_local_1d.nb_flx_pts;
+          derivative[f] = Lagrange::coeff(local_coordinate[KSI],m_local_1d.sol_pts,f_ksi) * Lagrange::deriv_coeff(local_coordinate[ETA],m_local_1d.flx_pts,f_eta);
+        }
+      }
+      break;
+    }
+  }
+
   virtual const std::vector<Uint>& interpolate_grad_flx_to_sol_used_sol_pts(const Uint flx_pt, const Uint direction) const
   {
     // direction doesn't play a role because every flx_pt is uniquely defined for 1 direction
@@ -483,6 +509,14 @@ public: // functions
     for (Uint s=0; s<m_local_1d.nb_sol_pts; ++s) {
       gradient(KSI,s) = Lagrange::deriv_coeff(local_coordinate[KSI],m_local_1d.sol_pts,s);
     }
+  }
+  virtual void compute_flux_derivative(const Uint orientation, const RealVector& local_coordinate, RealVector& derivative) const
+  {
+    cf3_assert(derivative.size()==nb_flx_pts());
+    cf3_assert(orientation==KSI);
+    derivative.setZero();
+    for (Uint f_ksi=0; f_ksi<m_local_1d.nb_flx_pts; ++f_ksi)
+      derivative[f_ksi] = Lagrange::deriv_coeff(local_coordinate[KSI],m_local_1d.flx_pts,f_ksi);
   }
   virtual const std::vector<Uint>& interpolate_grad_flx_to_sol_used_sol_pts(const Uint flx_pt, const Uint direction) const
   {

@@ -22,7 +22,7 @@
 #include "common/XML/SignalOptions.hpp"
 #include "common/XML/SignalFrame.hpp"
 
-#include "common/Log.hpp"
+//#include "common/Log.hpp" // only used in commented code
 #include "common/XML/FileOperations.hpp"
 
 // makes explicit instantiation for all template functions with a same type
@@ -155,7 +155,9 @@ SignalFrame::SignalFrame ( const std::string& target,
 
 SignalFrame::~SignalFrame()
 {
-
+  // we need to flush so that Option are written as XML
+  // destroying a SignalFrame without flushing Option leads to loss of data
+  flush_maps();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -414,12 +416,14 @@ void SignalFrame::flush_maps()
   std::map<std::string, SignalOptions>::iterator it_options = m_options.begin();
 
   // flush the maps
-  for( ; it_maps != m_maps.begin() ; ++it_maps )
+  for( ; it_maps != m_maps.end() ; ++it_maps )
     it_maps->second.flush_maps();
 
   // flush the options
-  for( ; it_options != m_options.begin() ; ++it_options )
+  for( ; it_options != m_options.end() ; ++it_options )
+  {
     it_options->second.flush();
+  }
 
 }
 
@@ -433,9 +437,7 @@ SignalOptions & SignalFrame::options( const std::string & name )
     tmp_name = Protocol::Tags::key_options();
 
   if( m_options.find(tmp_name) == m_options.end() )
-  {
     m_options[tmp_name] = SignalOptions( *this, tmp_name );
-  }
 
   return m_options[tmp_name];
 }

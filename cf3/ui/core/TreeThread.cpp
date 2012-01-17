@@ -111,8 +111,8 @@ void TreeThread::run()
   // set the root as model root
   tree->set_tree_root(realRoot);
 
-  ThreadManager::instance().network().newSignal.connect(
-      boost::bind(&TreeThread::new_signal, this, _1) );
+  ThreadManager::instance().network().signal( "network_new_frame" )
+      ->connect( boost::bind(&TreeThread::new_signal, this, _1) );
 
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
@@ -123,32 +123,30 @@ void TreeThread::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::new_signal(boost::shared_ptr< common::XML::XmlDoc > doc)
+void TreeThread::new_signal( SignalArgs & args)
 {
   const char * tag = Protocol::Tags::node_frame();
-  XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
-  rapidxml::xml_node<char>* nodeToProcess = nodedoc.content->first_node(tag);
 
-  if(nodeToProcess != nullptr)
+  if( args.node.is_valid() )
   {
-    rapidxml::xml_node<>* tmpNode = nodeToProcess->next_sibling( tag );
+    SignalFrame real_frame;
 
-    // check this is a reply
-    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
-      nodeToProcess = tmpNode;
+    if( args.has_reply() )
+      real_frame = args.get_reply();
+    else
+      real_frame = args;
 
-    std::string type = nodeToProcess->first_attribute("target")->value();
-    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+    std::string type = real_frame.node.attribute_value("target");
+    std::string receiver = real_frame.node.attribute_value("receiver");
 
     try
     {
       Handle< Component > realRoot = root();
-      SignalFrame frame(nodeToProcess);
 
       if(realRoot->uri().path() == URI(receiver).path())
-        root()->call_signal(type, frame);
+        root()->call_signal(type, real_frame);
       else
-        realRoot->access_component(receiver)->call_signal(type, frame);
+        realRoot->access_component(receiver)->call_signal(type, real_frame);
     }
     catch(cf3::common::Exception & cfe)
     {
@@ -161,11 +159,10 @@ void TreeThread::new_signal(boost::shared_ptr< common::XML::XmlDoc > doc)
     catch(...)
     {
       CFerror << "Unknown exception thrown during execution of action [" << type
-          << "] on component " << " [" << receiver << "]." << CFendl;
+              << "] on component " << " [" << receiver << "]." << CFendl;
     }
 
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////

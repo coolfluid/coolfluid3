@@ -15,7 +15,7 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/FileOperations.hpp"
 
-#include "ui/network/Connection.hpp"
+#include "ui/network/TCPConnection.hpp"
 #include "ui/network/ErrorHandler.hpp"
 
 #define NETWORK_PORT 62784
@@ -37,7 +37,7 @@ public:
   enum Action { INVALID, READ, SEND, ACCEPT, CONNECT };
 
   Action action;
-  Connection::ConstPtr connection;
+  TCPConnection::ConstPtr connection;
   system::error_code error_raised;
 
 }; // LastCallbackInfo
@@ -94,7 +94,7 @@ public:
 
   void init_connect( tcp::endpoint& endpoint )
   {
-    connection = Connection::create( io_service );
+    connection = TCPConnection::create( io_service );
     tcp::socket& socket = connection->socket();
 
     connection->set_error_handler(error_handler);
@@ -162,7 +162,7 @@ public:
 public: // data (breaks encapsulation to uTests purpose)
 
   tcp::endpoint endpoint;
-  Connection::Ptr connection;
+  TCPConnection::Ptr connection;
   SignalFrame args;
   asio::io_service & io_service;
   boost::shared_ptr<ErrorHandler> error_handler;
@@ -180,7 +180,7 @@ public: // nested structs
   {
 
   public:
-    Connection::Ptr connection;
+    TCPConnection::Ptr connection;
 
     SignalFrame buffer;
 
@@ -201,7 +201,7 @@ public:
 
   void init_accept()
   {
-    Connection::Ptr conn = Connection::create( m_acceptor.get_io_service() );
+    TCPConnection::Ptr conn = TCPConnection::create( m_acceptor.get_io_service() );
 
     m_acceptor.async_accept( conn->socket(),
                              boost::bind( &Server::callback_accept,
@@ -212,7 +212,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void init_read( Connection::Ptr conn, SignalFrame & buffer )
+  void init_read( TCPConnection::Ptr conn, SignalFrame & buffer )
   {
     conn->read( buffer,
                 boost::bind( &Server::callback_read,
@@ -224,7 +224,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void init_send( Connection::Ptr conn, SignalFrame & buffer )
+  void init_send( TCPConnection::Ptr conn, SignalFrame & buffer )
   {
     conn->send( buffer,
                 boost::bind( &Server::callback_send,
@@ -237,7 +237,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_accept( Connection::Ptr conn, const system::error_code & error )
+  void callback_accept( TCPConnection::Ptr conn, const system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::ACCEPT;
@@ -253,7 +253,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( Connection::Ptr conn, const system::error_code & error )
+  void callback_send( TCPConnection::Ptr conn, const system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::SEND;
@@ -266,7 +266,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( Connection::Ptr conn, const system::error_code & error )
+  void callback_read( TCPConnection::Ptr conn, const system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::READ;
@@ -279,7 +279,7 @@ public:
 
 public: // data (breaks encapsulation to uTests purpose)
 
-  std::map<Connection::ConstPtr, ClientInfo> m_clients;
+  std::map<TCPConnection::ConstPtr, ClientInfo> m_clients;
   tcp::acceptor m_acceptor;
 
   LastCallbackInfo last_callback_info;
@@ -399,9 +399,9 @@ BOOST_AUTO_TEST_CASE( multi_client_read )
   // 2. each client sends a different string to the server
   //////////////////
 
-  Connection::Ptr conn;
+  TCPConnection::Ptr conn;
 
-  std::map<Connection::ConstPtr, Server::ClientInfo>::iterator it = server.m_clients.begin();
+  std::map<TCPConnection::ConstPtr, Server::ClientInfo>::iterator it = server.m_clients.begin();
 
   // initiate a read on all clients
   for( ; it != server.m_clients.end() ; ++it )
@@ -505,9 +505,9 @@ BOOST_AUTO_TEST_CASE( multi_client_send )
   //
   // a. send strings
   //
-  Connection::Ptr conn;
+  TCPConnection::Ptr conn;
 
-  std::map<Connection::ConstPtr, Server::ClientInfo>::iterator it = server.m_clients.begin();
+  std::map<TCPConnection::ConstPtr, Server::ClientInfo>::iterator it = server.m_clients.begin();
 
   server.last_callback_info = LastCallbackInfo();
 

@@ -33,7 +33,7 @@ namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-SignatureDialog::SignatureDialog(QWidget *parent) :
+SignatureDialog::SignatureDialog( QWidget *parent ) :
     QDialog(parent),
     m_ok_clicked(false),
     m_is_blocking(false)
@@ -58,7 +58,7 @@ SignatureDialog::~SignatureDialog()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
+bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 {
   cf3_assert( sig.is_valid() );
 

@@ -138,14 +138,16 @@ class ErrorHandler;
 
 /// @author Quentin Gasper
 
-class Network_API Connection
-    : public boost::enable_shared_from_this<Connection>
+
+
+class Network_API TCPConnection
+    : public boost::enable_shared_from_this<TCPConnection>
 {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Connection> Ptr;
-  typedef boost::shared_ptr<Connection const> ConstPtr;
+  typedef boost::shared_ptr<TCPConnection> Ptr;
+  typedef boost::shared_ptr<TCPConnection const> ConstPtr;
 
 public:
 
@@ -156,7 +158,7 @@ public:
 
   /// @brief Destructor.
   /// Cleanly closes the socket.
-  ~Connection();
+  ~TCPConnection();
 
   /// @brief Gives a reference to the internal socket.
   /// @return Returns a reference to the internal socket.
@@ -212,15 +214,17 @@ public:
     // initiate the async read for the header and bind the callback function
     asio::async_read( m_socket,
                       asio::buffer( m_incoming_header ),
-                      boost::bind( &Connection::callback_header_read<HANDLER>,
+                      boost::bind( &TCPConnection::callback_header_read<HANDLER>,
                                    shared_from_this(),
                                    boost::ref( args ),
-                                   shared_from_this(),
                                    boost::asio::placeholders::error,
                                    boost::make_tuple( callback_function )
                                  )
                     );
   }
+
+  /// Disconnects the socket from the remote entity.
+  void disconnect();
 
   /// Sets an error handler.
   /// @param handler Error handler to set. Can be expired.
@@ -238,7 +242,6 @@ private: // functions
   /// @param functions Callback function
   template< typename HANDLER >
   void callback_header_read( cf3::common::XML::SignalFrame & args,
-                             Connection::Ptr conn,
                              const boost::system::error_code & error,
                              boost::tuple<HANDLER> functions )
   {
@@ -246,7 +249,9 @@ private: // functions
 
     if ( !error )
     {
-      boost::system::error_code err = process_header();
+      boost::system::error_code err(error);
+
+      process_header(err);
 
       if( err )
         boost::get<0>( functions )( err );
@@ -256,14 +261,13 @@ private: // functions
       // initiate an async read to get the frame data
       asio::async_read( m_socket,
                         asio::buffer( m_incoming_data, m_incoming_data_size ),
-                        boost::bind( &Connection::callback_data_read<HANDLER>,
+                        boost::bind( &TCPConnection::callback_data_read<HANDLER>,
                                      shared_from_this(),
                                      boost::ref( args ),
-                                     shared_from_this(),
                                      boost::asio::placeholders::error,
                                      functions
-                                     )
-                        );
+                                   )
+                      );
       }
     }
     else
@@ -278,15 +282,14 @@ private: // functions
   /// @param error Error code, if any.
   /// @param functions Callback function
   template< typename HANDLER >
-  void callback_data_read( cf3::common::XML::SignalFrame & args,
-                           Connection::Ptr conn,
+  void callback_data_read( common::XML::SignalFrame & args,
                            const boost::system::error_code & error,
                            boost::tuple<HANDLER> functions )
   {
     boost::system::error_code err(error);
 
     if ( !error )
-      err = parse_frame_data( args );
+      parse_frame_data( args, err );
 
     boost::get<0>( functions )( err );
   }
@@ -295,23 +298,24 @@ private: // functions
 
   /// @brief Constructor.
   /// @param io_service The I/O service the connection will be based on.
-  Connection( boost::asio::io_service& io_service );
+  TCPConnection( boost::asio::io_service& io_service );
 
   /// @brief Builds the data to be sent on the network.
   /// @param args XML data. @c flush_maps() is called before converting to string.
   /// @param buffer Data buffer. First item is the header and second item is
   /// the frame data. Vector is cleared before first use.
-  void prepare_write_buffers( cf3::common::XML::SignalFrame & args,
+  void prepare_write_buffers( common::XML::SignalFrame & args,
                               std::vector<boost::asio::const_buffer> & buffers );
 
   /// @brief Processes a frame header.
   /// Tries to cast the header to an @c unsigned @c int. On success, allocates
   /// the data buffer to this size.
-  boost::system::error_code process_header ();
+  void process_header ( boost::system::error_code & error );
 
   /// @brief Parses frame data from string to XML.
   /// @param args Object where the parsed XML will be written.
-  boost::system::error_code parse_frame_data ( cf3::common::XML::SignalFrame & args );
+  void parse_frame_data ( common::XML::SignalFrame & args,
+                          boost::system::error_code & error);
 
   /// @brief Notifies an error if an error handler has been set.
   /// @param message Error message.

@@ -9,7 +9,6 @@
 # If a such header is missing here, linker returns a "missing vtable" error.
 list( APPEND coolfluid_ui_core_moc_classes
 CNode.hpp
-NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
 NLog.hpp
