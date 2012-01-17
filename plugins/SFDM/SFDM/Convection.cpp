@@ -150,8 +150,40 @@ void Convection::compute_face_flx_pts_contribution()
         for (Uint side=0; side<2; ++side)
         {
           face_at_side[side] = face.face_nb_in_cells()[side];
-          flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[face_pt];
+          if (side==RIGHT)
+          {
+            if(face_at_side[LEFT]==0 || face_at_side[LEFT]==1)
+            {
+              if (face_at_side[RIGHT]==0 || face_at_side[RIGHT]==1)
+              {
+                flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[nb_face_pts-1-face_pt];
+              }
+              else
+              {
+                flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[face_pt];
+              }
+            }
+            else if(face_at_side[LEFT]==2 || face_at_side[LEFT]==3)
+            {
+              if (face_at_side[RIGHT]==2 || face_at_side[RIGHT]==3)
+              {
+                flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[nb_face_pts-1-face_pt];
+              }
+              else
+              {
+                flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[face_pt];
+              }
+            }
+          }
+          else
+            flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[face_pt];
+
           fly[side]->reconstruct_solution_in_flx_pt(flx_pt_at_side[side],sol_at_side[side]);
+
+//          RealMatrix cell_coords = fly[side]->entities.get_coordinates(fly[side]->element->idx);
+//          flx_pt_coord[side] = fly[side]->geometry.shape_function().value(fly[side]->sf.flx_pts().row(flx_pt_at_side[side]))*cell_coords;
+//          if (side == RIGHT)
+//            cf3_assert(flx_pt_coord[LEFT]==flx_pt_coord[RIGHT]);
         }
 
         /// 2) compute numerical flux in this point
@@ -162,7 +194,7 @@ void Convection::compute_face_flx_pts_contribution()
         {
           /// 3) add contribution of this flux-point to solution points for the
           ///    gradient of the flux
-          fly[side]->add_flx_pt_gradient_contribution_to_residual(flx_pt_at_side[side],flx_in_flx_pt);
+          fly[side]->add_flx_pt_gradient_contribution_to_residual(flx_pt_at_side[side],flx_in_flx_pt, (side==0));
 
           /// 4) add contribution of this flux-point to solution points for the
           ///    interpolation of the wave_speed

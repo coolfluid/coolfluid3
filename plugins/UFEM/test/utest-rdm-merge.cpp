@@ -1,3 +1,4 @@
+
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
@@ -19,8 +20,9 @@
 
 #include "mesh/Domain.hpp"
 
-#include "mesh/LagrangeP1/Line1D.hpp"
-#include "solver/CModel.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
 
@@ -29,8 +31,9 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "UFEM/LinearSolver.hpp"
+#include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/Tags.hpp"
+#include "UFEM/TimeLoop.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -55,9 +58,9 @@ check_close(const Real a, const Real b, const Real threshold)
 
 static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
 
-struct ProtoHeatFixture
+struct RDMMergeFixture
 {
-  ProtoHeatFixture() :
+  RDMMergeFixture() :
     root( Core::instance().root() )
   {
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
@@ -68,7 +71,7 @@ struct ProtoHeatFixture
 
 };
 
-BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
+BOOST_FIXTURE_TEST_SUITE( RDMMergeSuite, RDMMergeFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
@@ -81,64 +84,97 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
-  Real length            = 5.;
-  const Uint nb_segments = 5 ;
+  Real length            = 1.;
+  const Uint nb_segments = 25 ;
 
   // Setup a model
-  CModel& model = *root.create_component<CModel>("Model");
+  CModelUnsteady& model = *root.create_component<CModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
+  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
   lss.options().configure_option("solver", std::string("Trilinos"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
+  MeshTerm<0, ScalarField> fi("FI", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Triag2D> allowed_elements;
 
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
+
+  MeshTerm<1, VectorField> u_adv("AdvectionSpeed", "linearized_velocity");
+  RealVector2 u_ref(1.,0.);
 
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action
     (
-      "Assembly",
-      elements_expression
+      "SetInitial",
+      nodes_expression
       (
-        allowed_elements,
-        group
-        (
-          _A = _0,
-          element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
-          solver.system_matrix += _A
-        )
+        fi = 5.
       )
     )
-    << bc
-    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-    << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
-    << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"))
-    << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
+    << create_proto_action
+    (
+      "InitAdvectionSpeed",
+      nodes_expression
+      (
+        u_adv = coordinates[1] * u_ref
+      )
+    )
+    << ( allocate_component<UFEM::TimeLoop>("TimeLoop")
+      << create_proto_action
+      (
+        "Assembly",
+        elements_expression
+        (
+          allowed_elements,
+          group
+          (
+            _A = _0,
+            element_quadrature
+            (
+              _A(fi,fi) += 0.0025 * transpose(nabla(fi)) * nabla(fi),
+              _A(fi,fi) += transpose(N(fi) /*+ 0.*/ ) * u_adv*nabla(fi)
+            ),
+            solver.system_matrix += _A,
+            solver.system_rhs += -_A * _b
+          )
+        )
+      )
+      << bc
+      << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+      << create_proto_action("Increment", nodes_expression(fi += solver.solution(fi)))
+    );
+//    << create_proto_action("CheckResult", nodes_expression(_check_close(fi, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
-  bc->add_constant_bc("xneg", "Temperature", 10.);
-  bc->add_constant_bc("xpos", "Temperature", 35.);
+  bc->add_constant_bc("top",    "FI", 8.);
+  bc->add_constant_bc("bottom", "FI", 2.);
+  bc->add_constant_bc("left",   "FI", 8.);
+  bc->add_constant_bc("right",  "FI", 2.);
+
+  model.create_time();
+  model.time().options().configure_option("end_time", 10.);
+  model.time().options().configure_option("time_step",1.);
 
   // Run the solver
   model.simulate();
+
+  domain.write_mesh(URI("rdmmerge.plt"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

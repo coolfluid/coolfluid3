@@ -67,7 +67,7 @@ public:
 
   /// Convection computations
   void reconstruct_solution_in_flx_pt(const Uint flx_pt, RealVector& sol_in_flx_pt);
-  void add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt);
+  void add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt, bool outward=true);
   void add_flx_pt_contribution_to_wave_speed(const Uint flx_pt, const Real& ws_in_flx_pt);
   void compute_analytical_flux(const Uint flx_pt, const RealVector& sol_in_flx_pt, RealVector& flx_in_flx_pt, Real& ws_in_flx_pt);
   void compute_numerical_flux(const Uint flx_pt, const RealVector& sol_left, const RealVector& sol_right, RealVector& flx_in_flx_pt, Real& ws_in_flx_pt);

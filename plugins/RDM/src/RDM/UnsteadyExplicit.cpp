@@ -23,6 +23,7 @@
 #include "Physics/Scalar/ScalarSys2D.hpp"
 #include "Physics/Scalar/Scalar3D.hpp"
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
+#include "Physics/LinEuler/LinEuler2D.hpp"
 
 #include "solver/CModelUnsteady.hpp"
 #include "solver/CTime.hpp"
@@ -116,7 +117,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   CCriterionTime& time_limit = *solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
 
-  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().uri() );
+  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<CTime>() /* .uri()*/ );
 
   // (4b) setup iterative solver reset action
 
@@ -145,7 +146,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (5) configure domain, physical model and solver in all subcomponents
 
-  solver.configure_option_recursively( RDM::Tags::domain(),         domain.handle<Domain>() );
+  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
   solver.configure_option_recursively( RDM::Tags::solver(),         solver.handle<CSolver>() );
 
@@ -176,7 +177,8 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::Scalar2D::type_name() )
       ( Scalar::Scalar3D::type_name() )
       ( Scalar::ScalarSys2D::type_name() )
-      ( NavierStokes::NavierStokes2D::type_name() ) ;
+      ( NavierStokes::NavierStokes2D::type_name() )
+      ( LinEuler::LinEuler2D::type_name() ) ;
 
   options.add_option("physical_model", std::string() )
       .description("Name of the Physical Model")

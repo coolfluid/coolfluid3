@@ -574,8 +574,8 @@ void CommPattern::synchronize( const std::string& name )
 {
   std::vector<unsigned char> sndbuf(1);
   std::vector<unsigned char> rcvbuf(1);
-  CommWrapper& pobj = get_child(name).as_type<CommWrapper>();
-  synchronize_this(pobj,sndbuf,rcvbuf);
+  Handle<CommWrapper> pobj(get_child(name));
+  synchronize_this(*pobj,sndbuf,rcvbuf);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

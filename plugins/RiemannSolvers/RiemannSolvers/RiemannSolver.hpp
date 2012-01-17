@@ -40,11 +40,11 @@ public: // functions
   static std::string type_name () { return "RiemannSolver"; }
 
   /// Compute interface flux and wavespeeds
-  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                      RealVector& flux, RealVector& wave_speeds) = 0;
 
   /// Compute interface flux
-  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                       RealVector& flux) = 0;
 
 protected:

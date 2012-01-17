@@ -61,10 +61,14 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_update = create_static_component<common::ActionDirector>("PostUpdate");
 
-  options().add_option("rk_order", 1u)
+  options().add_option("order", 1u)
       .description("Order of the Runge-Kutta integration")
-      .pretty_name("RK Integration Order")
-      .attach_trigger( boost::bind( &IterativeSolver::config_rk_order , this ) );
+      .pretty_name("RK order");
+
+  options().add_option("nb_stages", 1u)
+      .description("Number of stages of the Runge-Kutta integration")
+      .pretty_name("RK stages")
+      .attach_trigger( boost::bind( &IterativeSolver::config_nb_stages , this ) );
 
   options().add_option(SFDM::Tags::solution(), m_solution)
       .description("Solution to update")
@@ -107,7 +111,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       .pretty_name("Time")
       .link_to(&m_time);
 
-  config_rk_order();
+  config_nb_stages();
 
 
   CComputeLNorm& cnorm = *create_static_component<CComputeLNorm>( "ComputeNorm" );
@@ -118,24 +122,27 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void IterativeSolver::config_rk_order()
+void IterativeSolver::config_nb_stages()
 {
-  const Uint nb_stages = options().option("rk_order").value<Uint>();
+  const Uint nb_stages = options().option("nb_stages").value<Uint>();
 
-  std::vector<Real> alpha(nb_stages);
-  std::vector<Real> beta(nb_stages);
-  std::vector<Real> gamma(nb_stages);
+  std::vector<Real> alpha(nb_stages,0);
+  std::vector<Real> beta(nb_stages,0);
+  std::vector<Real> gamma(nb_stages,0);
 
   // Set defaults Values
   switch (nb_stages)
   {
     case 1: // Simple Forward Euler
+      options().configure_option("order",1u);
       alpha[0] = 0.0;
       beta[0] = 1.0;
       gamma[0] = 0.0;
       break;
 
     case 2: // R-K 2
+      options().configure_option("order",2u);
+
       alpha[0] = 0.0;
       alpha[1] = 0.0;
 
@@ -147,6 +154,8 @@ void IterativeSolver::config_rk_order()
       break;
 
     case 3:  // 3rd order TVD R-K scheme
+      options().configure_option("order",3u);
+
       alpha[0] = 0.0;
       alpha[1] = 1.0/4.0;
       alpha[2] = 2.0/3.0;
@@ -161,7 +170,8 @@ void IterativeSolver::config_rk_order()
       break;
 
     case 4:    // R-K 4
-    default:
+      options().configure_option("order",4u);
+
       alpha[0] = 0.0;
       alpha[1] = 0.0;
       alpha[2] = 0.0;
@@ -224,7 +234,7 @@ void IterativeSolver::execute()
   
   link_fields();
 
-  const Uint nb_stages = options().option("rk_order").value<Uint>();
+  const Uint nb_stages = options().option("nb_stages").value<Uint>();
   std::vector<Real> alpha = options().option("alpha").value< std::vector<Real> >();
   std::vector<Real> beta  = options().option("beta").value< std::vector<Real> >();
   std::vector<Real> gamma = options().option("gamma").value< std::vector<Real> >();
