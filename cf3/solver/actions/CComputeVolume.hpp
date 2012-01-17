@@ -54,7 +54,7 @@ private: // helper functions
 private: // data
 
   Handle<mesh::Field> m_volume;
-  Handle<mesh::Space> m_volume_field_space;
+  Handle<mesh::Space const> m_volume_field_space;
 
   RealMatrix m_coordinates;
 

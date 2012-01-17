@@ -483,7 +483,7 @@ public:
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_elements_begin(m_field.field_group().space(elements).elements_begin()),
+    m_elements_begin(m_field.field_group().space(elements).connectivity()[0][0]),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }

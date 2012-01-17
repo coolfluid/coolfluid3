@@ -19,7 +19,6 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/actions/CreateSpaceP0.hpp"
 #include "mesh/actions/BuildFaces.hpp"
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/MeshTransformer.hpp"

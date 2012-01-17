@@ -89,13 +89,14 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
 {
   Handle< BC > bc = m_bcs->create_component<BC>(name, type);
 
+  bc->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
+  bc->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
+
   if (regions.size() == 0)
-    bc->options().configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
+    bc->options().configure_option("regions", solver().options().option("regions").value< std::vector<common::URI> >());
   else
     bc->options().configure_option("regions", regions);
 
-  bc->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
-  bc->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
   bc->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
 
   bc->initialize();
