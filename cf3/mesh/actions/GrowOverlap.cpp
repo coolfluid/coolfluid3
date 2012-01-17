@@ -28,7 +28,7 @@
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
 
 #include "mesh/actions/GrowOverlap.hpp"
@@ -120,7 +120,7 @@ void GrowOverlap::execute()
 {
 
   Mesh& mesh = *m_mesh;
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
 

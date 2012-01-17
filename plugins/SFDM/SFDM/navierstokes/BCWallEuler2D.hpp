@@ -53,7 +53,7 @@ private:
   {
     BCWeak::initialize();
     flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<2> >();
-    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
   virtual void set_inner_cell()

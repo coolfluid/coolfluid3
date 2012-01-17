@@ -26,7 +26,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 BOOST_AUTO_TEST_CASE( RankField )
 {
   // Store element ranks
-  SpaceFields& elems_P0 = mesh().create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh().create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(const Handle<Entities>& elements_handle, elems_P0.entities_range())

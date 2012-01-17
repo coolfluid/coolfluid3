@@ -25,7 +25,7 @@ namespace mesh {
 class Elements;
 class Region;
 class MergedParallelDistribution;
-class SpaceFields;
+class Dictionary;
 
 class Mesh;
 

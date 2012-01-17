@@ -14,7 +14,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "solver/actions/CLoopOperation.hpp"
 

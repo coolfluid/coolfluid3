@@ -28,7 +28,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 

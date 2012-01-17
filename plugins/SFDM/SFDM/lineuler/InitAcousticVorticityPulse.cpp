@@ -19,7 +19,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 
 #include "SFDM/lineuler/InitAcousticVorticityPulse.hpp"

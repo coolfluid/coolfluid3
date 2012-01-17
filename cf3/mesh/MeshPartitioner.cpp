@@ -25,7 +25,7 @@
 #include "common/List.hpp"
 #include "mesh/MeshPartitioner.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Manipulations.hpp"
 #include "mesh/MeshElements.hpp"
@@ -114,7 +114,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
 {
   m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -171,7 +171,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
 {
 
 
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   m_lookup->add(nodes);
   boost_foreach ( Entities& elements, mesh.topology().elements_range() )
@@ -370,7 +370,7 @@ void MeshPartitioner::migrate()
 
 
   Mesh& mesh = *m_mesh;
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   // ----------------------------------------------------------------------------
   // ----------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 

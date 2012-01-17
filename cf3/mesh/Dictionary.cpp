@@ -34,9 +34,9 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "common/List.hpp"
@@ -62,36 +62,36 @@ using namespace common;
 using namespace common::PE;
 using namespace common::XML;
 
-common::ComponentBuilder < SpaceFields, Component, LibMesh >  SpaceFields_Builder;
+common::ComponentBuilder < Dictionary, Component, LibMesh >  Dictionary_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields::Basis::Convert::Convert()
+Dictionary::Basis::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
-      ( SpaceFields::Basis::POINT_BASED, "point_based" )
-      ( SpaceFields::Basis::ELEMENT_BASED, "element_based" )
-      ( SpaceFields::Basis::CELL_BASED, "cell_based" )
-      ( SpaceFields::Basis::FACE_BASED, "face_based" );
+      ( Dictionary::Basis::POINT_BASED, "point_based" )
+      ( Dictionary::Basis::ELEMENT_BASED, "element_based" )
+      ( Dictionary::Basis::CELL_BASED, "cell_based" )
+      ( Dictionary::Basis::FACE_BASED, "face_based" );
 
   all_rev = boost::assign::map_list_of
-      ("point_based",    SpaceFields::Basis::POINT_BASED )
-      ("element_based",  SpaceFields::Basis::ELEMENT_BASED )
-      ("cell_based",     SpaceFields::Basis::CELL_BASED )
-      ("face_based",     SpaceFields::Basis::FACE_BASED );
+      ("point_based",    Dictionary::Basis::POINT_BASED )
+      ("element_based",  Dictionary::Basis::ELEMENT_BASED )
+      ("cell_based",     Dictionary::Basis::CELL_BASED )
+      ("face_based",     Dictionary::Basis::FACE_BASED );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields::Basis::Convert& SpaceFields::Basis::Convert::instance()
+Dictionary::Basis::Convert& Dictionary::Basis::Convert::instance()
 {
-  static SpaceFields::Basis::Convert instance;
+  static Dictionary::Basis::Convert instance;
   return instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields::SpaceFields ( const std::string& name  ) :
+Dictionary::Dictionary ( const std::string& name  ) :
   Component( name ),
   m_basis(Basis::INVALID),
   m_size(0u)
@@ -101,7 +101,7 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
   // Option "type"
   options().add_option("type", Basis::to_str(m_basis))
       .description("The type of the field")
-      .attach_trigger ( boost::bind ( &SpaceFields::config_type,   this ) )
+      .attach_trigger ( boost::bind ( &Dictionary::config_type,   this ) )
       .mark_basic()
       .restricted_list() =  list_of
       (Basis::to_str(Basis::POINT_BASED))
@@ -119,42 +119,42 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
 
 
   // Event handlers
-//  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &SpaceFields::on_mesh_changed_event);
-  Core::instance().event_handler().connect_to_event("mesh_changed", this, &SpaceFields::on_mesh_changed_event);
+//  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &Dictionary::on_mesh_changed_event);
+  Core::instance().event_handler().connect_to_event("mesh_changed", this, &Dictionary::on_mesh_changed_event);
 
   // Signals
   regist_signal ( "create_field" )
       .description( "Create Field" )
       .pretty_name("Create Field" )
-      .connect   ( boost::bind ( &SpaceFields::signal_create_field,    this, _1 ) )
-      .signature ( boost::bind ( &SpaceFields::signature_create_field, this, _1 ) );
+      .connect   ( boost::bind ( &Dictionary::signal_create_field,    this, _1 ) )
+      .signature ( boost::bind ( &Dictionary::signature_create_field, this, _1 ) );
 
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::config_type()
+void Dictionary::config_type()
 {
   m_basis = Basis::to_enum( options().option("type").value<std::string>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::add_space(const Handle<Space>& space)
+void Dictionary::add_space(const Handle<Space>& space)
 {
   m_spaces_map.insert( std::make_pair(space->support().handle<Entities>(),space ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields::~SpaceFields()
+Dictionary::~Dictionary()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::resize(const Uint size)
+void Dictionary::resize(const Uint size)
 {
   m_size = size;
   m_glb_idx->resize(m_size);
@@ -167,7 +167,7 @@ void SpaceFields::resize(const Uint size)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CommPattern& SpaceFields::comm_pattern()
+CommPattern& Dictionary::comm_pattern()
 {
   if(is_null(m_comm_pattern))
   {
@@ -182,7 +182,7 @@ CommPattern& SpaceFields::comm_pattern()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SpaceFields::is_ghost(const Uint idx) const
+bool Dictionary::is_ghost(const Uint idx) const
 {
   cf3_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf3_assert(size() == m_rank->size());
@@ -192,14 +192,14 @@ bool SpaceFields::is_ghost(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Space& SpaceFields::space(const Entities& entities) const
+const Space& Dictionary::space(const Entities& entities) const
 {
   return *space(entities.handle<Entities>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Handle< Space const>& SpaceFields::space(const Handle<Entities const>& entities) const
+const Handle< Space const>& Dictionary::space(const Handle<Entities const>& entities) const
 {
   const Handle< Space const>& s = m_spaces_map.find(entities)->second;
   cf3_assert(s);
@@ -208,11 +208,11 @@ const Handle< Space const>& SpaceFields::space(const Handle<Entities const>& ent
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::create_field(const std::string &name, const std::string& variables_description)
+Field& Dictionary::create_field(const std::string &name, const std::string& variables_description)
 {
 
   Field& field = *create_component<Field>(name);
-  field.set_field_group(*this);
+  field.set_dict(*this);
   field.set_basis(m_basis);
 
   if (variables_description == "scalar_same_name")
@@ -226,10 +226,10 @@ Field& SpaceFields::create_field(const std::string &name, const std::string& var
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
+Field& Dictionary::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
   Field& field = *create_component<Field>(name);
-  field.set_field_group(*this);
+  field.set_dict(*this);
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
@@ -240,7 +240,7 @@ Field& SpaceFields::create_field(const std::string &name, math::VariablesDescrip
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SpaceFields::check_sanity(std::vector<std::string>& messages) const
+bool Dictionary::check_sanity(std::vector<std::string>& messages) const
 {
   Uint nb_messages_init = messages.size();
   if (rank().size() != size())
@@ -281,14 +281,14 @@ bool SpaceFields::check_sanity(std::vector<std::string>& messages) const
   return messages.size() == nb_messages_init;
 }
 
-bool SpaceFields::check_sanity() const
+bool Dictionary::check_sanity() const
 {
   std::vector<std::string> messages;
   bool sane = check_sanity(messages);
   if ( sane == false )
   {
     std::stringstream message;
-    message << "SpaceFields "+uri().string()+" is not sane:"<<std::endl;
+    message << "Dictionary "+uri().string()+" is not sane:"<<std::endl;
     boost_foreach(const std::string& str, messages)
     {
       message << "- " << str << std::endl;
@@ -300,7 +300,7 @@ bool SpaceFields::check_sanity() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector< Handle< Entities > > SpaceFields::entities_range()
+std::vector< Handle< Entities > > Dictionary::entities_range()
 {
 //  std::vector<Handle< Entities > > elements_vec(elements_lookup().components().size());
 //  for (Uint c=0; c<elements_vec.size(); ++c)
@@ -311,7 +311,7 @@ std::vector< Handle< Entities > > SpaceFields::entities_range()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//std::vector< Handle< Elements > > SpaceFields::elements_range()
+//std::vector< Handle< Elements > > Dictionary::elements_range()
 //{
 //  std::vector<Handle< Elements > > elements_vec(elements_lookup().components().size());
 //  for (Uint c=0; c<elements_vec.size(); ++c)
@@ -322,7 +322,7 @@ std::vector< Handle< Entities > > SpaceFields::entities_range()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::field(const std::string& name)
+Field& Dictionary::field(const std::string& name)
 {
   cf3_assert_desc("field "+name+" not found in "+uri().string(),get_child(name));
   return *Handle<Field>(get_child(name));
@@ -330,7 +330,7 @@ Field& SpaceFields::field(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::on_mesh_changed_event( SignalArgs& args )
+void Dictionary::on_mesh_changed_event( SignalArgs& args )
 {
   common::XML::SignalOptions options( args );
 
@@ -352,7 +352,7 @@ void SpaceFields::on_mesh_changed_event( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::update()
+void Dictionary::update()
 {
   m_entities.clear();
   m_spaces.clear();
@@ -386,7 +386,7 @@ void SpaceFields::update()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SpaceFields::defined_for_entities(const Handle<Entities const>& entities) const
+bool Dictionary::defined_for_entities(const Handle<Entities const>& entities) const
 {
   return ( m_spaces_map.find(entities) != m_spaces_map.end() );
 }
@@ -406,10 +406,10 @@ std::size_t hash_value(const RealMatrix& coords)
 }
 
 
-void SpaceFields::create_connectivity_in_space()
+void Dictionary::create_connectivity_in_space()
 {
   if (m_basis == Basis::INVALID)
-    throw SetupError(FromHere(), "type of field_group ["+uri().string()+"] not configured");
+    throw SetupError(FromHere(), "type of dict ["+uri().string()+"] not configured");
 
 
   if (m_basis == Basis::POINT_BASED)
@@ -449,7 +449,7 @@ void SpaceFields::create_connectivity_in_space()
     boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
       Entities& entities = *entities_handle;
-      SpaceFields& geometry = entities.geometry_fields();
+      Dictionary& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
       const ShapeFunction& shape_function = space(entities).shape_function();
@@ -981,16 +981,16 @@ void SpaceFields::create_connectivity_in_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Entities& elements, const Uint idx) const
+//common::Table<Uint>::ConstRow Dictionary::indexes_for_element(const Entities& elements, const Uint idx) const
 //{
 //  Space& space = elements.space(m_space);
-//  cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
+//  cf3_assert_desc("space not bound to this dict", &space.fields() == this);
 //  return space.connectivity()[idx];
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Uint unified_idx) const
+//common::Table<Uint>::ConstRow Dictionary::indexes_for_element(const Uint unified_idx) const
 //{
 //  Handle< Component > component;
 //  Uint elem_idx;
@@ -1000,14 +1000,14 @@ void SpaceFields::create_connectivity_in_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SpaceFields::has_coordinates() const
+bool Dictionary::has_coordinates() const
 {
   return is_not_null(m_coordinates);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::coordinates()
+Field& Dictionary::coordinates()
 {
   if (is_null(m_coordinates))
   {
@@ -1017,7 +1017,7 @@ Field& SpaceFields::coordinates()
     }
     else
     {
-      throw ValueNotFound(FromHere(),"SpaceFields ["+uri().string()+"] has no coordinates field");
+      throw ValueNotFound(FromHere(),"Dictionary ["+uri().string()+"] has no coordinates field");
     }
   }
   return *m_coordinates;
@@ -1025,16 +1025,16 @@ Field& SpaceFields::coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Field& SpaceFields::coordinates() const
+const Field& Dictionary::coordinates() const
 {
   if (is_null(m_coordinates))
-    throw ValueNotFound(FromHere(),"SpaceFields ["+uri().string()+"] has no coordinates field");
+    throw ValueNotFound(FromHere(),"Dictionary ["+uri().string()+"] has no coordinates field");
   return *m_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::create_coordinates()
+Field& Dictionary::create_coordinates()
 {
   if (has_coordinates())
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
@@ -1078,7 +1078,7 @@ Field& SpaceFields::create_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DynTable<Uint>& SpaceFields::glb_elem_connectivity()
+DynTable<Uint>& Dictionary::glb_elem_connectivity()
 {
   if (is_null(m_glb_elem_connectivity))
   {
@@ -1093,7 +1093,7 @@ DynTable<Uint>& SpaceFields::glb_elem_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::signature_create_field( SignalArgs& node )
+void Dictionary::signature_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -1107,7 +1107,7 @@ void SpaceFields::signature_create_field( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SpaceFields::signal_create_field( SignalArgs& node )
+void Dictionary::signal_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 

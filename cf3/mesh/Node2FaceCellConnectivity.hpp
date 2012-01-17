@@ -20,7 +20,7 @@ namespace common {
 namespace mesh {
 
   class Region;
-  class SpaceFields;
+  class Dictionary;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public:
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(SpaceFields& nodes);
+  void set_nodes(Dictionary& nodes);
 
   std::vector<Handle< FaceCellConnectivity > > used();
   void add_used (FaceCellConnectivity& used_comp);

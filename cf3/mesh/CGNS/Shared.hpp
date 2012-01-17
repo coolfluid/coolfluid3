@@ -19,7 +19,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class SpaceFields;
+  class Dictionary;
   
   class Region;
 
@@ -103,7 +103,7 @@ protected:
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
-    SpaceFields* nodes;
+    Dictionary* nodes;
     Uint nodes_start_idx;
     //
   } m_zone;
@@ -143,7 +143,7 @@ protected:
   std::map<int,Region*> m_base_map;
   std::map<int,Region*> m_zone_map;
   std::map<int,Region*> m_section_map;
-  std::map<int,SpaceFields*>  m_nodes_map;
+  std::map<int,Dictionary*>  m_nodes_map;
   std::map<int,Region*> m_boco_map;
 
 private:

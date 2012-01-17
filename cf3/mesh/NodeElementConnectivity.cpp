@@ -10,7 +10,7 @@
 #include "common/Builder.hpp"
 
 #include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -45,7 +45,7 @@ void NodeElementConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NodeElementConnectivity::set_nodes(SpaceFields& nodes)
+void NodeElementConnectivity::set_nodes(Dictionary& nodes)
 {
   m_nodes->link_to(nodes);
   m_connectivity->resize(nodes.size());
@@ -56,7 +56,7 @@ void NodeElementConnectivity::set_nodes(SpaceFields& nodes)
 void NodeElementConnectivity::build_connectivity()
 {
   set_nodes(Handle<Elements>(elements().components()[0])->geometry_fields());
-  SpaceFields const& nodes = *Handle<SpaceFields>(m_nodes->follow());
+  Dictionary const& nodes = *Handle<Dictionary>(m_nodes->follow());
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

@@ -10,7 +10,7 @@
 #include "common/Builder.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 
 namespace cf3 {
@@ -75,7 +75,7 @@ void Node2FaceCellConnectivity::add_used (FaceCellConnectivity& used_comp)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Node2FaceCellConnectivity::set_nodes(SpaceFields& nodes)
+void Node2FaceCellConnectivity::set_nodes(Dictionary& nodes)
 {
   m_nodes->link_to(nodes);
   m_connectivity->resize(nodes.size());
@@ -85,7 +85,7 @@ void Node2FaceCellConnectivity::set_nodes(SpaceFields& nodes)
 
 void Node2FaceCellConnectivity::build_connectivity()
 {
-  SpaceFields const& nodes = *Handle<SpaceFields>(m_nodes->follow());
+  Dictionary const& nodes = *Handle<Dictionary>(m_nodes->follow());
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

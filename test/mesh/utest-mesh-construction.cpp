@@ -20,7 +20,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
@@ -116,7 +116,7 @@ struct Mesh_API SpaceElement
   const ShapeFunction& element_type() const { return comp->shape_function(); }
 
   /// Const access to the coordinates
-  SpaceFields& fields() const { return comp->fields(); }
+  Dictionary& fields() const { return comp->fields(); }
 
   Entity support() const { return Entity(comp->support(),idx); }
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);

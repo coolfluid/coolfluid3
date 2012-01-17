@@ -22,7 +22,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 using namespace std;
 using namespace boost;
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  SpaceFields& nodes = find_component_recursively<SpaceFields>(mesh);
+  Dictionary& nodes = find_component_recursively<Dictionary>(mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))

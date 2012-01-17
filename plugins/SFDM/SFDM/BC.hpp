@@ -18,7 +18,7 @@
 
 namespace cf3 {
 
-namespace mesh   { class Field; class SpaceFields; class Cells; class Space; class Entities; class Entity; class ElementType; class Face2Cell; }
+namespace mesh   { class Field; class Dictionary; class Cells; class Space; class Entities; class Entity; class ElementType; class Face2Cell; }
 
 namespace SFDM {
 

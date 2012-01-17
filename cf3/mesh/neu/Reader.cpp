@@ -286,7 +286,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -344,7 +344,7 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   m_tmp = Handle<Region>(m_region->create_region("main").handle<Component>());
 
   m_global_to_tmp.clear();
@@ -413,7 +413,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -534,7 +534,7 @@ void Reader::read_boundaries()
     }
 
     Region& bc_region = m_region->create_region(NAME);
-    SpaceFields& nodes = m_mesh->geometry_fields();
+    Dictionary& nodes = m_mesh->geometry_fields();
 
     // create all kind of element type regions
     std::map<std::string,Handle< Elements > > elements = create_faces_in_region (bc_region,nodes,m_supported_types);

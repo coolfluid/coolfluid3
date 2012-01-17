@@ -22,7 +22,7 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
@@ -82,18 +82,18 @@ void Entities::initialize(const std::string& element_type_name)
   cf3_assert(is_not_null(m_element_type));
 }
 
-void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
+void Entities::initialize(const std::string& element_type_name, Dictionary& geometry)
 {
   initialize(element_type_name);
   create_geometry_space(geometry);
 }
 
-void Entities::create_geometry_space(SpaceFields& geometry)
+void Entities::create_geometry_space(Dictionary& geometry)
 {
   if ( is_null(m_element_type) )
     throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
 
-  m_geometry_fields = Handle<SpaceFields>(geometry.handle<Component>());
+  m_geometry_fields = Handle<Dictionary>(geometry.handle<Component>());
   if ( exists_space(mesh::Tags::geometry()) )
   {
     space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
@@ -247,7 +247,7 @@ common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Space& Entities::create_space(const std::string& shape_function_builder_name, SpaceFields& space_fields)
+Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_fields)
 {
   /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
   Handle<Space> space = m_spaces_group->create_component<Space>(space_fields.name());

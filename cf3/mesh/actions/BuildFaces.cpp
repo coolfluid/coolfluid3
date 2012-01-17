@@ -379,7 +379,7 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
         if (faces.is_bdry(f) == false)
         {
           faces.rank()[f] = math::Consts::uint_max();
-          /// @todo make restore following, when spacefields rank finding is done automatically for entire topology
+          /// @todo make restore following, when Dictionary rank finding is done automatically for entire topology
 //          if (f2c.connectivity()[f][LEFT].rank()  != PE::Comm::instance().rank() &&
 //              f2c.connectivity()[f][RIGHT].rank() != PE::Comm::instance().rank())
 //          {

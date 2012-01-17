@@ -214,14 +214,14 @@ void IterativeSolver::link_fields()
     {
       m_solution_backup = Handle<Field>( follow_link(found_solution_backup) );
     }
-    else if ( Handle< Component > found_solution_backup = m_solution->field_group().get_child( "solution_backup" ) )
+    else if ( Handle< Component > found_solution_backup = m_solution->dict().get_child( "solution_backup" ) )
     {
       solver().field_manager().create_component<Link>("solution_backup")->link_to(*found_solution_backup);
       m_solution_backup = found_solution_backup->handle<Field>();
     }
     else
     {
-      m_solution_backup = m_solution->field_group().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
+      m_solution_backup = m_solution->dict().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
       m_solution_backup->descriptor().prefix_variable_names("backup_");
       solver().field_manager().create_component<Link>("solution_backup")->link_to(*m_solution_backup);
     }

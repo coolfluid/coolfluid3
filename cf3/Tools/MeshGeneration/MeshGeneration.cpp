@@ -19,7 +19,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -59,7 +59,7 @@ void build_serial_gids(Mesh& mesh)
 void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 {
   Region& region = mesh.topology().create_region("fluid");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -100,7 +100,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -207,7 +207,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
 void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -364,7 +364,7 @@ void create_circle_2d(Table<Real>& coordinates, Table<Uint>& connectivity, const
 void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   Handle<Faces> cells = region.create_component<Faces>("Faces");
   cells->initialize("cf3.mesh.LagrangeP1.Line2D",nodes);

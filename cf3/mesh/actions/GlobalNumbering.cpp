@@ -29,7 +29,7 @@
 
 #include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
@@ -196,7 +196,7 @@ void GlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())

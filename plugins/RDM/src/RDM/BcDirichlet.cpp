@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -80,7 +80,7 @@ void BcDirichlet::execute()
 
     /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry_fields()
 
-    SpaceFields& nodes = mesh().geometry_fields();
+    Dictionary& nodes = mesh().geometry_fields();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())

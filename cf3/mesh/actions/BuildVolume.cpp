@@ -69,7 +69,7 @@ void BuildVolume::execute()
 
   Mesh& mesh = *m_mesh;
 
-  SpaceFields& cells_P0 = *mesh.create_component<SpaceFields>("cells_P0");
+  Dictionary& cells_P0 = *mesh.create_component<Dictionary>("cells_P0");
   boost_foreach(Cells& cells, find_components_recursively<Cells>(mesh.topology()))
     cells.create_space("cf3.mesh.LagrangeP0"+cells.element_type().shape_name(),cells_P0);
   cells_P0.update();

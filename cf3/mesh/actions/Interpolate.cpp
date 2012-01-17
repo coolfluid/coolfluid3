@@ -94,7 +94,7 @@ void Interpolate::execute()
     boost_foreach(const Handle<Entities>& elements_handle, target.entities_range())
     {
       Entities& elements = *elements_handle;
-      if (source.field_group().defined_for_entities(elements_handle) == false)
+      if (source.dict().defined_for_entities(elements_handle) == false)
         continue;
       //      throw BadValue(FromHere(),"Source field "+source.uri().string()+" is not defined in elements "+elements.uri().string());
 
@@ -357,7 +357,7 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   {
     if ( Handle< Field > target_field = Handle<Field>(target.handle<Component>()) )
     {
-      coordinates = Handle< common::Table<Real> >(target_field->field_group().coordinates().handle<Component>());
+      coordinates = Handle< common::Table<Real> >(target_field->dict().coordinates().handle<Component>());
     }
     else
     {

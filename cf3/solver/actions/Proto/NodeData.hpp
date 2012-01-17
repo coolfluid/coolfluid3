@@ -19,7 +19,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 
@@ -84,8 +84,8 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::SpaceFields& field_group =  mesh.geometry_fields();
-  return common::find_component_with_tag<mesh::Field>(field_group, tag);
+  mesh::Dictionary& dict =  mesh.geometry_fields();
+  return common::find_component_with_tag<mesh::Field>(dict, tag);
 }
 
 template<>

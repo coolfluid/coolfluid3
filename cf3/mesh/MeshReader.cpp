@@ -130,7 +130,7 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Handle< Elements > >
-  MeshReader::create_cells_in_region (Region& parent_region, SpaceFields& nodes,
+  MeshReader::create_cells_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Handle< Elements > > cells_map;
@@ -150,7 +150,7 @@ std::map<std::string,Handle< Elements > >
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Handle< Elements > >
-  MeshReader::create_faces_in_region (Region& parent_region, SpaceFields& nodes,
+  MeshReader::create_faces_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Handle< Elements > > faces_map;

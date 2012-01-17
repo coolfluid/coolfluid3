@@ -17,7 +17,7 @@
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 

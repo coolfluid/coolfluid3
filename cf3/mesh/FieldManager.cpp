@@ -67,9 +67,9 @@ struct FieldManager::Implementation
   {
     SignalOptions options(node);
 
-    options.add_option<URI>("field_group")
+    options.add_option<URI>("dict")
       .pretty_name("Field Group")
-      .description("URI for the SpaceFields in which to create fields");
+      .description("URI for the Dictionary in which to create fields");
 
     options.add_option<std::string>("tag")
       .pretty_name("Tag")
@@ -92,11 +92,11 @@ FieldManager::~FieldManager()
 }
 
 
-void FieldManager::create_field(const std::string& tag, SpaceFields& field_group)
+void FieldManager::create_field(const std::string& tag, Dictionary& dict)
 {
   boost_foreach(VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
-    const Handle< Field > existing_field = find_component_ptr_with_tag<Field>(field_group, tag);
+    const Handle< Field > existing_field = find_component_ptr_with_tag<Field>(dict, tag);
     if(is_not_null(existing_field))
     {
       if(descriptor.description() != existing_field->descriptor().description() || descriptor.options().option(common::Tags::dimension()).value<Uint>() != existing_field->descriptor().options().option(common::Tags::dimension()).value<Uint>())
@@ -105,11 +105,11 @@ void FieldManager::create_field(const std::string& tag, SpaceFields& field_group
               + ": existing " + existing_field->descriptor().description() + " != required " + descriptor.description());
       }
 
-      CFdebug << "Skipping second field creation for tag " << tag << " in fieldgroup " << field_group.uri().string() << CFendl;
+      CFdebug << "Skipping second field creation for tag " << tag << " in fieldgroup " << dict.uri().string() << CFendl;
       continue;
     }
 
-    field_group.create_field(tag, descriptor).add_tag(tag);
+    dict.create_field(tag, descriptor).add_tag(tag);
   }
 }
 
@@ -118,17 +118,17 @@ void FieldManager::signal_create_field(SignalArgs& node)
 {
   SignalOptions options(node);
 
-  const URI field_group_uri = options.option("field_group").value<URI>();
+  const URI dict_uri = options.option("dict").value<URI>();
 
-  Handle< Component > field_group_component = access_component(field_group_uri);
-  if(!field_group_component)
-    throw ValueNotFound(FromHere(), "No component found at field_group URI: " + field_group_uri.string());
+  Handle< Component > dict_component = access_component(dict_uri);
+  if(!dict_component)
+    throw ValueNotFound(FromHere(), "No component found at dict URI: " + dict_uri.string());
 
-  Handle< SpaceFields > field_group = Handle<SpaceFields>(field_group_component);
-  if(!field_group)
-    throw ValueNotFound(FromHere(), "Wrong component type at field_group URI: " + field_group_uri.string());
+  Handle< Dictionary > dict = Handle<Dictionary>(dict_component);
+  if(!dict)
+    throw ValueNotFound(FromHere(), "Wrong component type at dict URI: " + dict_uri.string());
 
-  create_field(options.option("tag").value_str(), *field_group);
+  create_field(options.option("tag").value_str(), *dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

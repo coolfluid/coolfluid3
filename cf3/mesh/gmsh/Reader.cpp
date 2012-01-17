@@ -21,7 +21,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -387,7 +387,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
   Uint part = options().option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -479,7 +479,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
 
   Uint part = options().option("part").value<Uint>();
@@ -662,7 +662,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    SpaceFields& field_group = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
+    Dictionary& dict = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
@@ -672,7 +672,7 @@ void Reader::read_element_data()
 
       if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
-      mesh::Field& field = field_group.create_field(gmsh_field.name);
+      mesh::Field& field = dict.create_field(gmsh_field.name);
       field.options().configure_option("var_names",gmsh_field.var_names);
       field.options().configure_option("var_types",var_types_str);
 

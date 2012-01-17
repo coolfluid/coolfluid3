@@ -11,7 +11,7 @@
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 #include "mesh/ptscotch/Partitioner.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 namespace cf3 {
 namespace mesh {

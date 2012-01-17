@@ -8,7 +8,7 @@
 #include "common/List.hpp"
 
 #include "mesh/CellFaces.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/FaceCellConnectivity.hpp"

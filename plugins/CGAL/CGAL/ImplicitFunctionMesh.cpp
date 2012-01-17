@@ -19,7 +19,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
@@ -53,7 +53,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
 
 
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,DIM_3D);
 
   // coordinate storage

@@ -29,7 +29,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/UnifiedData.hpp"
@@ -86,7 +86,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
 
-  if (source.basis() == SpaceFields::Basis::POINT_BASED && target.basis() == SpaceFields::Basis::POINT_BASED)
+  if (source.basis() == Dictionary::Basis::POINT_BASED && target.basis() == Dictionary::Basis::POINT_BASED)
   {
     const Field& source_coords = source.coordinates();
     const Field& target_coords = target.coordinates();
@@ -114,10 +114,10 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-              source.basis() == SpaceFields::Basis::CELL_BASED ||
-              source.basis() == SpaceFields::Basis::FACE_BASED )
-           && ( target.basis() == SpaceFields::Basis::POINT_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::ELEMENT_BASED ||
+              source.basis() == Dictionary::Basis::CELL_BASED ||
+              source.basis() == Dictionary::Basis::FACE_BASED )
+           && ( target.basis() == Dictionary::Basis::POINT_BASED ) )
   {
     const Field& target_coords = target.coordinates();
     std::vector<Uint> s_field_indexes(0);
@@ -162,10 +162,10 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::POINT_BASED ) &&
-            ( target.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-              target.basis() == SpaceFields::Basis::CELL_BASED    ||
-              target.basis() == SpaceFields::Basis::FACE_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::POINT_BASED ) &&
+            ( target.basis() == Dictionary::Basis::ELEMENT_BASED ||
+              target.basis() == Dictionary::Basis::CELL_BASED    ||
+              target.basis() == Dictionary::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     RealMatrix elem_coordinates;
@@ -207,12 +207,12 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::ELEMENT_BASED  ||
-              source.basis() == SpaceFields::Basis::CELL_BASED     ||
-              source.basis() == SpaceFields::Basis::FACE_BASED     )
-          && ( target.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-               target.basis() == SpaceFields::Basis::CELL_BASED    ||
-               target.basis() == SpaceFields::Basis::FACE_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::ELEMENT_BASED  ||
+              source.basis() == Dictionary::Basis::CELL_BASED     ||
+              source.basis() == Dictionary::Basis::FACE_BASED     )
+          && ( target.basis() == Dictionary::Basis::ELEMENT_BASED ||
+               target.basis() == Dictionary::Basis::CELL_BASED    ||
+               target.basis() == Dictionary::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     //Uint t_elm_idx;

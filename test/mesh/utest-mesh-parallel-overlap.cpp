@@ -33,7 +33,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
@@ -113,7 +113,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 }
 
 
-bool check_nodes_sanity(SpaceFields& nodes)
+bool check_nodes_sanity(Dictionary& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Core::instance().root().add_component(mesh_ptr);
 #endif
 
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
@@ -781,7 +781,7 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 

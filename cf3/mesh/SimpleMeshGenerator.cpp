@@ -22,7 +22,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Cells.hpp"
@@ -153,7 +153,7 @@ void SimpleMeshGenerator::create_line()
 
   mesh.initialize_nodes(hash.subhash(NODES).nb_objects_in_part(part)+ghost_nodes_loc.size(), DIM_1D);
   Region& region = mesh.topology().create_region("interior");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   Uint glb_node_start_idx = hash.subhash(NODES).start_idx_in_part(part);
 
@@ -294,7 +294,7 @@ void SimpleMeshGenerator::create_rectangle()
   hash.options().configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("interior");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
 
   // find ghost nodes

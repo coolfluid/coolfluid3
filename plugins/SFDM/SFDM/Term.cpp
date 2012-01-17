@@ -14,7 +14,7 @@
 #include "common/List.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
@@ -93,14 +93,14 @@ void Term::create_term_field()
     boost::shared_ptr<math::VariablesDescriptor> vars(allocate_component<math::VariablesDescriptor>("tmp"));
     vars->set_variables(solution_field().descriptor().description());
     vars->prefix_variable_names(name()+"_");
-    m_term_field = solution_field().field_group().create_field(name(),vars->description()).handle<Field>();
+    m_term_field = solution_field().dict().create_field(name(),vars->description()).handle<Field>();
   }
   if (is_null(m_term_wave_speed_field))
   {
     link_fields();
     boost::shared_ptr<math::VariablesDescriptor> vars(allocate_component<math::VariablesDescriptor>("tmp"));
     vars->set_variables(name()+"_wavespeed");
-    m_term_wave_speed_field = solution_field().field_group().create_field(name()+"_wavespeed",vars->description()).handle<Field>();
+    m_term_wave_speed_field = solution_field().dict().create_field(name()+"_wavespeed",vars->description()).handle<Field>();
   }
 
 }

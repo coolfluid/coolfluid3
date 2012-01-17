@@ -20,7 +20,7 @@
 
 #include "mesh/neu/Writer.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"

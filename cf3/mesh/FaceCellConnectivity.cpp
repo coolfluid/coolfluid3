@@ -18,7 +18,7 @@
 
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Region.hpp"
@@ -123,7 +123,7 @@ void FaceCellConnectivity::build_connectivity()
   common::Table<Entity>::Buffer f2c = m_connectivity->create_buffer();
   common::Table<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
   common::List<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  SpaceFields& geometry_fields = find_parent_component<Mesh>(*used()[0]).geometry_fields();
+  Dictionary& geometry_fields = find_parent_component<Mesh>(*used()[0]).geometry_fields();
   Uint tot_nb_nodes = geometry_fields.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
