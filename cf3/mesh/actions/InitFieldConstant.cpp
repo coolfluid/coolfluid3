@@ -47,6 +47,7 @@ InitFieldConstant::InitFieldConstant( const std::string& name )
   options().add_option("field", m_field)
       .description("Field to initialize")
       .pretty_name("Field")
+      .link_to(&m_field)
       .mark_basic();
 
   options().add_option("constant", m_constant)

@@ -37,7 +37,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ElementType.hpp"
@@ -80,7 +80,7 @@ Mesh::Mesh ( const std::string& name  ) :
       .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_geometry_fields = create_static_component<SpaceFields>(mesh::Tags::geometry());
+  m_geometry_fields = create_static_component<Dictionary>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
   Handle< Field > coord_field = m_geometry_fields->create_static_component< Field >(mesh::Tags::coordinates());
   coord_field->add_tag(mesh::Tags::coordinates());
@@ -101,9 +101,9 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf3_assert(dimension > 0);
 
-  geometry_fields().options().configure_option("type",    SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
-  geometry_fields().coordinates().set_field_group(geometry_fields());
-  geometry_fields().coordinates().set_basis(SpaceFields::Basis::POINT_BASED);
+  geometry_fields().options().configure_option("type",    Dictionary::Basis::to_str(Dictionary::Basis::POINT_BASED));
+  geometry_fields().coordinates().set_dict(geometry_fields());
+  geometry_fields().coordinates().set_basis(Dictionary::Basis::POINT_BASED);
   geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
 
@@ -139,96 +139,96 @@ void Mesh::update_statistics()
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//SpaceFields& Mesh::create_field_group( const std::string& name,
-//                                       const SpaceFields::Basis::Type base )
+//Dictionary& Mesh::create_dict( const std::string& name,
+//                                       const Dictionary::Basis::Type base )
 //{
-//  return create_field_group ( name, base, name, topology() );
+//  return create_dict ( name, base, name, topology() );
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//SpaceFields& Mesh::create_field_group( const std::string& name,
-//                                       const SpaceFields::Basis::Type base,
+//Dictionary& Mesh::create_dict( const std::string& name,
+//                                       const Dictionary::Basis::Type base,
 //                                       const std::string& space )
 //{
-//  return create_field_group ( name, base, space, topology() );
+//  return create_dict ( name, base, space, topology() );
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//SpaceFields& Mesh::create_field_group( const std::string& name,
-//                                       const SpaceFields::Basis::Type base,
+//Dictionary& Mesh::create_dict( const std::string& name,
+//                                       const Dictionary::Basis::Type base,
 //                                       const std::string& space,
 //                                       const Region& topology )
 //{
-//  Handle<SpaceFields> field_group = create_component<SpaceFields>(name);
-//  field_group->options().configure_option("type",SpaceFields::Basis::to_str(base));
-//  field_group->options().configure_option("space",space);
-//  field_group->options().configure_option("topology",topology.uri());
-//  return *field_group;
+//  Handle<Dictionary> dict = create_component<Dictionary>(name);
+//  dict->options().configure_option("type",Dictionary::Basis::to_str(base));
+//  dict->options().configure_option("space",space);
+//  dict->options().configure_option("topology",topology.uri());
+//  return *dict;
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name)
+//void Mesh::create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name)
 //{
 //  create_space(name,base,space_lib_name,topology());
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology)
+//void Mesh::create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name, Region& topology)
 //{
 //  switch (base)
 //  {
-//  case SpaceFields::Basis::POINT_BASED:
-//  case SpaceFields::Basis::ELEMENT_BASED:
+//  case Dictionary::Basis::POINT_BASED:
+//  case Dictionary::Basis::ELEMENT_BASED:
 //    boost_foreach(Entities& elements, find_components_recursively<Entities>(topology))
 //      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
 //    break;
-//  case SpaceFields::Basis::CELL_BASED:
+//  case Dictionary::Basis::CELL_BASED:
 //    boost_foreach(Cells& elements, find_components_recursively<Cells>(topology))
 //      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
 //    break;
-//  case SpaceFields::Basis::FACE_BASED:
+//  case Dictionary::Basis::FACE_BASED:
 //    boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(topology,mesh::Tags::face_entity()))
 //      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
 //    break;
-//  case SpaceFields::Basis::INVALID:
+//  case Dictionary::Basis::INVALID:
 //  default:
-//    throw BadValue(FromHere(),"value "+SpaceFields::Basis::to_str(base)+" not supported for base");
+//    throw BadValue(FromHere(),"value "+Dictionary::Basis::to_str(base)+" not supported for base");
 //  }
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
-//                                                 const SpaceFields::Basis::Type base,
+//Dictionary& Mesh::create_space_and_dict( const std::string& name,
+//                                                 const Dictionary::Basis::Type base,
 //                                                 const std::string& space_lib_name )
 //{
-//  return create_space_and_field_group(name,base,space_lib_name,topology());
+//  return create_space_and_dict(name,base,space_lib_name,topology());
 //}
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
-//                                                 const SpaceFields::Basis::Type base,
+//Dictionary& Mesh::create_space_and_dict( const std::string& name,
+//                                                 const Dictionary::Basis::Type base,
 //                                                 const std::string& space_lib_name,
 //                                                 Region& topology )
 //{
 //  create_space(name,base,space_lib_name);
-//  return create_field_group(name,base,name,topology);
+//  return create_dict(name,base,name,topology);
 //}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name)
+Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name)
 {
   std::vector< Handle<Region> > regions(1,topology().handle<Region>());
   return create_continuous_space(space_name,space_lib_name,regions);
 }
 
-SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
+Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
   std::set< Handle<Entities> > entities_set;
   boost_foreach(const Handle<Region>& region, regions)
@@ -242,10 +242,10 @@ SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const
   return create_continuous_space(space_name, space_lib_name, entities_vec);
 }
 
-SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
+Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  SpaceFields& space_fields = *create_component<SpaceFields>(space_name);
-  space_fields.options().configure_option("type",SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
+  Dictionary& space_fields = *create_component<Dictionary>(space_name);
+  space_fields.options().configure_option("type",Dictionary::Basis::to_str(Dictionary::Basis::POINT_BASED));
 
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
@@ -264,13 +264,13 @@ SpaceFields& Mesh::create_continuous_space( const std::string& space_name, const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name)
+Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name)
 {
   std::vector< Handle<Region> > regions(1,topology().handle<Region>());
   return create_discontinuous_space(space_name,space_lib_name,regions);
 }
 
-SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
+Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
   std::set< Handle<Entities> > entities_set;
   boost_foreach(const Handle<Region>& region, regions)
@@ -284,10 +284,10 @@ SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, co
   return create_discontinuous_space(space_name, space_lib_name, entities_vec);
 }
 
-SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
+Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  SpaceFields& space_fields = *create_component<SpaceFields>(space_name);
-  space_fields.options().configure_option("type",SpaceFields::Basis::to_str(SpaceFields::Basis::ELEMENT_BASED));
+  Dictionary& space_fields = *create_component<Dictionary>(space_name);
+  space_fields.options().configure_option("type",Dictionary::Basis::to_str(Dictionary::Basis::ELEMENT_BASED));
 
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
@@ -305,7 +305,7 @@ SpaceFields& Mesh::create_discontinuous_space( const std::string& space_name, co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Mesh::geometry_fields() const
+Dictionary& Mesh::geometry_fields() const
 {
   return *m_geometry_fields;
 }
@@ -356,12 +356,7 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   boost_foreach( Field& field, find_components_recursively<Field>(*this))
   {
-    if (options.check(field.name()))
-    {
-      bool add_field = options.value<bool>( field.name() );
-      if (add_field)
-        fields.push_back(field.uri());
-    }
+    fields.push_back(field.uri());
   }
 
   write_mesh(fpath,fields);
@@ -391,9 +386,9 @@ bool Mesh::check_sanity(std::vector<std::string>& messages) const
   if(geometry_fields().coordinates().row_size() != dimension())
     messages.push_back("coordinates dimension does not match mesh.dimension");
 
-  boost_foreach(const SpaceFields& field_group, find_components_recursively<SpaceFields>(*this))
+  boost_foreach(const Dictionary& dict, find_components_recursively<Dictionary>(*this))
   {
-    field_group.check_sanity(messages);
+    dict.check_sanity(messages);
   }
 
   if (Comm::instance().size()>1)

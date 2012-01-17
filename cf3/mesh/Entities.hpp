@@ -20,7 +20,7 @@ namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  class SpaceFields;
+  class Dictionary;
 
   class ElementType;
   class Space;
@@ -30,13 +30,8 @@ namespace mesh {
 /// Entities component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API Entities : public common::Component {
-
-public: // typedefs
-
-
-
-
+class Mesh_API Entities : public common::Component
+{
 public: // functions
 
   /// Contructor
@@ -44,13 +39,13 @@ public: // functions
   Entities ( const std::string& name );
 
   /// Initialize the Entities using the given type
-  virtual void initialize(const std::string& element_type_name);
+//  virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
+  virtual void initialize(const std::string& element_type_name, Dictionary& geometry);
 
   /// Set the nodes
-  virtual void create_geometry_space(SpaceFields& geometry);
+  virtual void create_geometry_space(Dictionary& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -65,7 +60,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  SpaceFields& geometry_fields() const { cf3_assert(is_not_null(m_geometry_fields)); return *m_geometry_fields; }
+  Dictionary& geometry_fields() const { cf3_assert(is_not_null(m_geometry_fields)); return *m_geometry_fields; }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -88,21 +83,15 @@ public: // functions
 
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
-
   Space& space (const std::string& space_name) const;
 
-  Space& create_space(const std::string& shape_function_builder_name, SpaceFields& space_fields);
+  Space& create_space(const std::string& shape_function_builder_name, Dictionary& space_fields);
 
   Space& geometry_space() const { cf3_assert(is_not_null(m_geometry_space)); return *m_geometry_space; }
 
   bool exists_space(const std::string& space_name) const;
 
-  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
-
-  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
-
-  void allocate_coordinates(RealMatrix& coords) const;
+//  void allocate_coordinates(RealMatrix& coords) const;
 
 //  void signal_create_space ( common::SignalArgs& node );
 
@@ -114,7 +103,7 @@ protected: // data
 
   Handle<ElementType> m_element_type;
 
-  Handle<SpaceFields> m_geometry_fields;
+  Handle<Dictionary> m_geometry_fields;
 
   Handle<Space> m_geometry_space;
 

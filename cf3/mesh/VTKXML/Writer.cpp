@@ -34,7 +34,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -300,7 +300,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const Connectivity& conn_table = elements.node_connectivity();
+      const Connectivity& conn_table = elements.geometry_space().connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {
@@ -370,18 +370,18 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       continue;
 
     // point-based field
-    if(!(field.basis() == SpaceFields::Basis::POINT_BASED || field.basis() == cf3::mesh::SpaceFields::Basis::ELEMENT_BASED))
+    if(!(field.basis() == Dictionary::Basis::POINT_BASED || field.basis() == cf3::mesh::Dictionary::Basis::ELEMENT_BASED))
       continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = SpaceFields::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
+      const Uint field_size = Dictionary::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
 
-      XmlNode data_array = SpaceFields::Basis::POINT_BASED == field.basis()
+      XmlNode data_array = Dictionary::Basis::POINT_BASED == field.basis()
         ? point_data.add_node("DataArray")
         : cell_data.add_node("DataArray");
 
@@ -393,7 +393,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::mesh::SpaceFields::Basis::POINT_BASED)
+      if(field.basis() == cf3::mesh::Dictionary::Basis::POINT_BASED)
       {
         if(dim == 2 && var_size == 2)
         {
@@ -417,7 +417,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
         {
-          const Connectivity& field_connectivity = field.field_group().space(elements).connectivity();
+          const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
             const Uint n_elems = elements.size();

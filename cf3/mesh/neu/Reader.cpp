@@ -29,6 +29,7 @@
 #include "mesh/MeshElements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -286,7 +287,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -344,7 +345,7 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   m_tmp = Handle<Region>(m_region->create_region("main").handle<Component>());
 
   m_global_to_tmp.clear();
@@ -413,7 +414,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -496,7 +497,7 @@ void Reader::read_groups()
       Uint local_element = m_global_to_tmp[global_element].second;
       std::string etype = tmp_elems->element_type().derived_type_name();
 
-      Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
+      Uint idx = buffer[etype]->add_row(tmp_elems->geometry_space().connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
       m_global_to_tmp[global_element] = std::make_pair(Handle<Elements>(region.get_child(new_elems_name)),idx);
     }
@@ -534,7 +535,7 @@ void Reader::read_boundaries()
     }
 
     Region& bc_region = m_region->create_region(NAME);
-    SpaceFields& nodes = m_mesh->geometry_fields();
+    Dictionary& nodes = m_mesh->geometry_fields();
 
     // create all kind of element type regions
     std::map<std::string,Handle< Elements > > elements = create_faces_in_region (bc_region,nodes,m_supported_types);
@@ -561,7 +562,7 @@ void Reader::read_boundaries()
         const ElementType::FaceConnectivity& face_connectivity = etype.faces();
 
         // make a row of nodes
-        const Connectivity::Row& elem_nodes = tmp_elements->node_connectivity()[local_element];
+        const Connectivity::Row& elem_nodes = tmp_elements->geometry_space().connectivity()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.stride[faceIdx]);
         boost_foreach(const Uint& node, face_connectivity.nodes_range(faceIdx))

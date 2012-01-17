@@ -367,7 +367,7 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     CellFaces& faces = *Handle<CellFaces>(region.get_child(shape_name));
     FaceCellConnectivity&  f2c  = faces.cell_connectivity();
     faces.geometry_space().connectivity().set_row_size(faces.geometry_space().nb_states());
-    faces.resize(faces.size());
+    faces.resize(f2c.size());
     for (Uint f=0; f<faces.size(); ++f)
     {
       if (PE::Comm::instance().size()==1)
@@ -379,7 +379,7 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
         if (faces.is_bdry(f) == false)
         {
           faces.rank()[f] = math::Consts::uint_max();
-          /// @todo make restore following, when spacefields rank finding is done automatically for entire topology
+          /// @todo make restore following, when Dictionary rank finding is done automatically for entire topology
 //          if (f2c.connectivity()[f][LEFT].rank()  != PE::Comm::instance().rank() &&
 //              f2c.connectivity()[f][RIGHT].rank() != PE::Comm::instance().rank())
 //          {
@@ -402,9 +402,9 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 
     Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
     Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
-    cf3_assert(f2c.size() == fnb->size());
-    cf3_assert(fnb->size() == faces.size());
-    cf3_assert(bdry->size() == faces.size());
+    cf3_assert_desc(to_str(f2c.size())+"=="+to_str(fnb->size()),(f2c.size() == fnb->size()));
+    cf3_assert_desc(to_str(fnb->size())+"=="+to_str(faces.size()),fnb->size() == faces.size());
+    cf3_assert_desc(to_str(bdry->size())+"=="+to_str(faces.size()),bdry->size() == faces.size());
   }
 
   if (PE::Comm::instance().is_active())

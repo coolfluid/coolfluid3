@@ -25,7 +25,7 @@ namespace mesh {
   class Elements;
   class Connectivity;
   class ShapeFunction;
-  class SpaceFields;
+  class Dictionary;
   class Entities;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ public: // functions
 
   bool is_bound_to_fields() const;
 
-  SpaceFields& fields() const;
+  Dictionary& fields() const;
 
   RealMatrix compute_coordinates(const Uint elem_idx) const;
 

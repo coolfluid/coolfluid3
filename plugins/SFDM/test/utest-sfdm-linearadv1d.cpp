@@ -33,7 +33,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
@@ -254,8 +254,8 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   // Output
 
   std::vector<URI> fields;
-  Field& rank = solution_field.field_group().create_field("rankfield");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("rankfield");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -265,12 +265,12 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   rank_sync.synchronize();
 
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
-  fields.push_back(solution_field.field_group().field("solution_backup").uri());
-  fields.push_back(solution_field.field_group().field("wave_speed").uri());
-  fields.push_back(solution_field.field_group().field("update_coefficient").uri());
-  fields.push_back(solution_field.field_group().field("convection").uri());
-  fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
+  fields.push_back(solution_field.dict().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("wave_speed").uri());
+  fields.push_back(solution_field.dict().field("update_coefficient").uri());
+  fields.push_back(solution_field.dict().field("convection").uri());
+  fields.push_back(solution_field.dict().field("convection_wavespeed").uri());
   mesh.write_mesh("linearadv1d.plt",fields);
 
   RealVector max( solution_field.row_size() ); max.setZero();
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   std::vector<URI> fields;
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.field_group().field("residual").uri());
+  fields.push_back(solution_field.dict().field("residual").uri());
 
   mesh.write_mesh("initial2d.msh",fields);
 
@@ -432,8 +432,8 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   //////////////////////////////////////////////////////////////////////////////
   // Output
 
-  Field& rank = solution_field.field_group().create_field("elem_rank");
-  Field& rank_sync = solution_field.field_group().create_field("rank_sync");
+  Field& rank = solution_field.dict().create_field("elem_rank");
+  Field& rank_sync = solution_field.dict().create_field("rank_sync");
   for (Uint r=0; r<rank.size(); ++r)
   {
     rank[r][0] = rank.rank()[r];
@@ -442,12 +442,12 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   rank_sync.parallelize();
   rank_sync.synchronize();
 
-//  fields.push_back(solution_field.field_group().field("solution_backup").uri());
-  fields.push_back(solution_field.field_group().field("elem_rank").uri());
-  fields.push_back(solution_field.field_group().field("wave_speed").uri());
-  fields.push_back(solution_field.field_group().field("update_coefficient").uri());
-  fields.push_back(solution_field.field_group().field("convection").uri());
-  fields.push_back(solution_field.field_group().field("convection_wavespeed").uri());
+//  fields.push_back(solution_field.dict().field("solution_backup").uri());
+  fields.push_back(solution_field.dict().field("elem_rank").uri());
+  fields.push_back(solution_field.dict().field("wave_speed").uri());
+  fields.push_back(solution_field.dict().field("update_coefficient").uri());
+  fields.push_back(solution_field.dict().field("convection").uri());
+  fields.push_back(solution_field.dict().field("convection_wavespeed").uri());
 
   mesh.write_mesh("linearadv2d.msh",fields);
 

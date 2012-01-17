@@ -83,11 +83,11 @@ protected: // configuration
     reconstruct_in_solution_points = shared_caches().template get_cache< FluxPointReconstruct >();
     flx_pt_plane_jacobian_normal = shared_caches().template get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
 
-    elem->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
-    neighbour_elem->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
-    divergence_in_solution_points->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
-    reconstruct_in_solution_points->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
-    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().field_group().handle<mesh::SpaceFields>());
+    elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    neighbour_elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    divergence_in_solution_points->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    reconstruct_in_solution_points->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
 
   }
 
@@ -134,7 +134,7 @@ protected: // configuration
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
     elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,phys_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->get_coordinates(elem.idx),phys_data.coord);
+    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),phys_data.coord);
   }
 
   virtual void compute_face()

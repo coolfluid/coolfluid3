@@ -169,8 +169,8 @@ coolfluid_add_test( UTEST utest-nodes
                     DEPENDS copy-resources )
 
 
-coolfluid_add_test( UTEST utest-mesh-fieldgroup
-                    CPP   utest-mesh-fieldgroup.cpp
+coolfluid_add_test( UTEST utest-mesh-dictionary
+                    CPP   utest-mesh-dictionary.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
 
 

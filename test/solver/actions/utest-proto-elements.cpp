@@ -24,7 +24,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
     << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
 
   // Create the fields
-  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   solver.field_manager().create_field("volumes", elems_P0);
 
   // Set the region of all children to the root region of the mesh

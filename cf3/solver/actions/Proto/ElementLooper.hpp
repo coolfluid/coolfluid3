@@ -40,8 +40,8 @@ struct CheckSameEtype
   {
     // Find the field group for the variable
     const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
-    const mesh::SpaceFields& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
-    const mesh::Space& space = var_field_group.space(elements);
+    const mesh::Dictionary& var_dict = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).dict();
+    const mesh::Space& space = var_dict.space(elements);
 
     if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
     {
@@ -106,8 +106,8 @@ struct ExpressionRunner
 
     // Find the field group for the variable
     const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
-    const mesh::SpaceFields& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
-    const mesh::Space& space = var_field_group.space(elements);
+    const mesh::Dictionary& var_dict = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).dict();
+    const mesh::Space& space = var_dict.space(elements);
 
     ++m_nb_tests;
 

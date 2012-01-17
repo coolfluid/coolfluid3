@@ -17,7 +17,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/Tags.hpp"

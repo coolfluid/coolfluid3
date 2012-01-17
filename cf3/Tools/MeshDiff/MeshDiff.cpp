@@ -11,6 +11,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
@@ -96,8 +97,8 @@ void array2d_test(const Table<Uint>::ArrayT& a, const Table<Uint>::ArrayT& b, Ac
 /// Compares Elements
 void test(const Elements& a, const Elements& b, Accumulator& result)
 {
-  const Table<Uint>::ArrayT& table_a = a.node_connectivity().array();
-  const Table<Uint>::ArrayT& table_b = b.node_connectivity().array();
+  const Table<Uint>::ArrayT& table_a = a.geometry_space().connectivity().array();
+  const Table<Uint>::ArrayT& table_b = b.geometry_space().connectivity().array();
 
   array2d_test(table_a, table_b, result, "comparing " + a.uri().path() + " and " + b.uri().path());
 }

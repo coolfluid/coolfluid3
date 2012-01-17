@@ -22,7 +22,7 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
@@ -76,24 +76,23 @@ Entities::~Entities()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Entities::initialize(const std::string& element_type_name)
+//void Entities::initialize(const std::string& element_type_name)
+//{
+//}
+
+void Entities::initialize(const std::string& element_type_name, Dictionary& geometry)
 {
   options().configure_option("element_type",element_type_name);
   cf3_assert(is_not_null(m_element_type));
-}
-
-void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
-{
-  initialize(element_type_name);
   create_geometry_space(geometry);
 }
 
-void Entities::create_geometry_space(SpaceFields& geometry)
+void Entities::create_geometry_space(Dictionary& geometry)
 {
   if ( is_null(m_element_type) )
     throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
 
-  m_geometry_fields = Handle<SpaceFields>(geometry.handle<Component>());
+  m_geometry_fields = Handle<Dictionary>(geometry.handle<Component>());
   if ( exists_space(mesh::Tags::geometry()) )
   {
     space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
@@ -240,14 +239,14 @@ Uint Entities::glb_size() const
   }
 }
 
-common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
-{
-  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
-}
+//common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
+//{
+//  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Space& Entities::create_space(const std::string& shape_function_builder_name, SpaceFields& space_fields)
+Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_fields)
 {
   /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
   Handle<Space> space = m_spaces_group->create_component<Space>(space_fields.name());
@@ -276,25 +275,25 @@ bool Entities::exists_space(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix Entities::get_coordinates(const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-  return RealMatrix(1,1);
-}
+//RealMatrix Entities::get_coordinates(const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//  return RealMatrix(1,1);
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-}
+//void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-void Entities::allocate_coordinates(RealMatrix& coords) const
-{
-  coords.resize(element_type().nb_nodes(),element_type().dimension());
-}
+//void Entities::allocate_coordinates(RealMatrix& coords) const
+//{
+//  coords.resize(element_type().nb_nodes(),element_type().dimension());
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -338,10 +337,10 @@ ElementType& Entity::element_type() const { return comp->element_type(); }
 Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
 Uint Entity::rank() const { return comp->rank()[idx]; }
 bool Entity::is_ghost() const { return comp->is_ghost(idx); }
-RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); }
-void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
-void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
-Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+RealMatrix Entity::get_coordinates() const { return comp->geometry_space().get_coordinates(idx); }
+void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().put_coordinates(coordinates,idx); }
+void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().allocate_coordinates(coordinates); }
+Connectivity::ConstRow Entity::get_nodes() const { return comp->geometry_space().connectivity()[idx]; }
 std::ostream& operator<<(std::ostream& os, const Entity& entity)
 {
   cf3_assert(is_not_null(entity.comp));

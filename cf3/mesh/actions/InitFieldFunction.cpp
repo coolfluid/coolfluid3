@@ -51,6 +51,7 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
   options().add_option("field", m_field)
       .description("Field to initialize")
       .pretty_name("Field")
+      .link_to(&m_field)
       .mark_basic();
 
   options().add_option("functions", std::vector<std::string>())
@@ -90,7 +91,7 @@ void InitFieldFunction::execute()
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == SpaceFields::Basis::POINT_BASED)
+  if (field.basis() == Dictionary::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();

@@ -72,7 +72,7 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates = elements().nodes().coordinates().handle< mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );

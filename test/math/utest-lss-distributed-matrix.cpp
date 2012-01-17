@@ -144,7 +144,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
     trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
     trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
     trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
     trilinos_xml << "        </ParameterList>\n";
     trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
     trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";

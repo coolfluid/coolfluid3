@@ -68,7 +68,7 @@ void BoundaryConditions::execute()
   {
     if (region)
     {
-      boost_foreach( const Faces& faces, find_components_recursively<Faces>(*region) )
+      boost_foreach( const Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::face_entity()) )
       {
         bc->set_face_entities(faces);
         CFdebug << "BoundaryConditions: executing " << bc->name() << " for cells " << faces.uri() << CFendl;
@@ -107,7 +107,7 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
   }
 
   CFinfo << "Created BC   " << name << "(" << type << ") for regions " << CFendl;
-  boost_foreach(const URI& region_uri, regions)
+  boost_foreach(const URI& region_uri, bc->options().option("regions").value< std::vector<URI> >())
   {
     CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
   }

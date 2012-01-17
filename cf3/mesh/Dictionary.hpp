@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_SpaceFields_hpp
-#define cf3_mesh_SpaceFields_hpp
+#ifndef cf3_mesh_Dictionary_hpp
+#define cf3_mesh_Dictionary_hpp
 
 #include <set>
 
@@ -37,7 +37,7 @@ namespace mesh {
 
 /// Component that holds Fields of the same type (topology and space)
 /// @author Willem Deconinck
-class Mesh_API SpaceFields : public common::Component {
+class Mesh_API Dictionary : public common::Component {
 
 public: // typedefs
 
@@ -77,13 +77,13 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  SpaceFields ( const std::string& name );
+  Dictionary ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SpaceFields();
+  virtual ~Dictionary();
 
   /// Get the class name
-  static std::string type_name () { return "SpaceFields"; }
+  static std::string type_name () { return "Dictionary"; }
 
   /// Create a new field in this group
   Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
@@ -192,4 +192,4 @@ private:
 } // mesh
 } // cf3
 
-#endif // cf3_mesh_SpaceFields_hpp
+#endif // cf3_mesh_Dictionary_hpp
