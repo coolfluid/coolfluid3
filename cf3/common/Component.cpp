@@ -500,7 +500,7 @@ Handle< Component > Component::create_component (const std::string& name ,
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
   if(is_not_null(comp))
     add_component( comp );
-  
+
   return Handle<Component>(comp);
 }
 
@@ -527,6 +527,10 @@ void Component::signal_create_component ( SignalArgs& args  )
   {
     comp->mark_basic();
   }
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", comp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1204,8 +1208,8 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   // get the factory holding the builder
   Handle<Component> factory = factories->get_child( factory_type_name );
-  
-    
+
+
   if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
@@ -1213,7 +1217,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   }
 
   factory = factories->get_child( factory_type_name );
-  
+
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
@@ -1300,7 +1304,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
@@ -1327,7 +1331,7 @@ boost::shared_ptr< Component > build_component_nothrow(const std::string& builde
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       return boost::shared_ptr<Component>();
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 

@@ -240,7 +240,7 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
 
   // create de value and add the restricted list
   options.add_option( "builder", std::string() )
-      .description("Choose solver")
+      .description("Choose physical model")
       .restricted_list() = pms;
 }
 
@@ -250,7 +250,11 @@ void CModel::signal_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
   std::string builder = options.value<std::string>( "builder" );
-  create_physics( builder );
+  physics::PhysModel& phys_model = create_physics( builder );
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", phys_model.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +271,10 @@ void CModel::signal_create_domain ( common::SignalArgs& node )
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
   Domain& domain = create_domain("Domain"); // dispatch to virtual function
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", domain.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,7 +304,11 @@ void CModel::signal_create_solver ( common::SignalArgs& node )
 {
   SignalOptions options( node );
   std::string builder_name = options.value<std::string>( "builder" );
-  create_solver(builder_name);
+  CSolver& solver = create_solver(builder_name);
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", solver.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
