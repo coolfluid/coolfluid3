@@ -33,15 +33,15 @@ public:
   static std::string type_name() { return "Convection2D"; }
   Convection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<4u,2u> >(name)
   {
-    p.gamma = 1.;
+    p.gamma = 1.4;
     options().add_option("gamma",p.gamma)
         .description("Specific heat reatio")
-        .link_to(&p.gamma);
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
 
     p.rho0 = 1.;
     options().add_option("rho0",p.rho0)
         .description("Uniform mean density")
-        .link_to(&p.rho0);
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
 
     p.u0.setZero();
     std::vector<Real> U0(p.u0.size());
@@ -49,15 +49,26 @@ public:
       U0[d] = p.u0[d];
     options().add_option("U0",U0)
         .description("Uniform mean velocity")
-        .attach_trigger( boost::bind( &Convection2D::config_mean_velocity, this) );
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
 
     options().add_option("p0",p.P0)
         .description("Uniform mean pressure")
-        .link_to(&p.P0);
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
+
+    config_constants();
   }
 
-  void config_mean_velocity()
+  void config_constants()
   {
+    p.gamma = options().option("gamma").value<Real>();
+    p.rho0  = options().option("rho0").value<Real>();
+    p.P0  = options().option("p0").value<Real>();
+
+    p.inv_rho0 = 1./p.rho0;
+
+    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
+    p.inv_c = 1./p.c;
+
     std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
     for (Uint d=0; d<U0.size(); ++d)
       p.u0[d] = U0[d];
@@ -78,9 +89,6 @@ public:
   virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
   {
-    PHYS::compute_properties(left.coord,left.solution,dummy_grads,p_left);
-    PHYS::compute_properties(right.coord,right.solution,dummy_grads,p_right);
-
     // Compute left and right fluxes
     PHYS::compute_properties(left.coord, left.solution, dummy_grads, p);
     PHYS::flux(p , unit_normal, flux_left);
