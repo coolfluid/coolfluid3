@@ -212,7 +212,7 @@ public: // functions
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
     common::Table<Uint>& connectivity =
-        neighbor_cells->as_type<mesh::Elements>().node_connectivity();
+        neighbor_cells->as_type<mesh::Elements>().geometry_space().connectivity();
 
     const common::Table<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 

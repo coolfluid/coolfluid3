@@ -25,7 +25,7 @@ namespace mesh {
   class Elements;
   class Connectivity;
   class ShapeFunction;
-  class SpaceFields;
+  class Dictionary;
   class Entities;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +84,7 @@ public: // functions
 
   bool is_bound_to_fields() const;
 
-  SpaceFields& fields() const;
-
-  void make_proxy(const Uint elem_start_idx);
+  Dictionary& fields() const;
 
   RealMatrix compute_coordinates(const Uint elem_idx) const;
 
@@ -96,9 +94,7 @@ public: // functions
 
   void allocate_coordinates(RealMatrix& coordinates) const;
 
-  /// Gives the index relative to global field arrays
-  /// @returns the index in global element-based arrays for the first element
-  Uint elements_begin() const { return m_elem_start_idx; }
+  Uint size() const;
 
 private: // functions
 
@@ -115,17 +111,8 @@ protected: // data
 
   Handle<common::Link> m_fields;
 
-  /// keyword "mutable" means that this variable can be changed using a
-  /// const access function.
-  /// This is because this is just a temporary storage to mimic the full
-  /// connectivity table. This variable is being accessed by the function
-  /// indexes_for_element()
-  mutable boost::scoped_ptr<common::TableArray<Uint>::type> m_connectivity_proxy;
-
 private: // data
 
-  bool m_is_proxy;
-  Uint m_elem_start_idx;
   Handle<Entities> m_support;
 };
 

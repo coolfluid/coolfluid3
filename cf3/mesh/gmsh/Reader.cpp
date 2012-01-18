@@ -21,7 +21,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -29,6 +29,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Cells.hpp"
 
 #include "mesh/gmsh/Reader.hpp"
 
@@ -128,6 +129,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   read_connectivity();
 
+  fix_negative_volumes(*m_mesh);
+
   if (options().option("read_fields").value<bool>())
   {
     read_element_data();
@@ -194,17 +197,19 @@ void Reader::get_file_positions()
            (m_nb_gmsh_elem_in_region[ir])[type] = 0;
       }
 
-      std::string tempstr;
       m_mesh_dimension = DIM_1D;
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
-        m_file >> m_region_list[ir].dim;
-        m_mesh_dimension = std::max(m_region_list[ir].dim,m_mesh_dimension);
-        m_file >> m_region_list[ir].index;
+        Uint phys_group_dimensionality;
+        Uint phys_group_index;
+        std::string phys_group_name;
+        m_file >> phys_group_dimensionality >> phys_group_index >> phys_group_name;
+        m_region_list[phys_group_index-1].dim=phys_group_dimensionality;
+        m_region_list[phys_group_index-1].index=phys_group_index;
         //The original name of the region in the mesh file has quotes, we want to strip them off
-        m_file >> tempstr;
-        m_region_list[ir].name = tempstr.substr(1,tempstr.length()-2);
-        m_region_list[ir].region = create_region(m_region_list[ir].name);
+        m_region_list[phys_group_index-1].name=phys_group_name.substr(1,phys_group_name.length()-2);
+        m_region_list[phys_group_index-1].region = create_region(m_region_list[phys_group_index-1].name);
+        m_mesh_dimension = std::max(m_region_list[phys_group_index-1].dim,m_mesh_dimension);
       }
     }
     else if (line.find(nodes)!=std::string::npos) {
@@ -382,7 +387,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
   Uint part = options().option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -474,7 +479,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  SpaceFields& nodes = m_mesh->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
 
 
   Uint part = options().option("part").value<Uint>();
@@ -528,7 +533,7 @@ void Reader::read_connectivity()
       // Celements& elements = region->create_component<Elements>(cf_elem_name);
       // elements.initialize(cf_elem_name,nodes);
 
-       Connectivity& elem_table = Handle<Elements>(elements)->node_connectivity();
+       Connectivity& elem_table = Handle<Elements>(elements)->geometry_space().connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
        elements->rank().resize(m_nb_gmsh_elem_in_region[ir][etype]);
@@ -595,7 +600,7 @@ void Reader::read_connectivity()
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
       Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle<Component>());
-      Connectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
+      Connectivity::Row element_nodes = elements_region->geometry_space().connectivity()[row_idx];
 
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
 
@@ -657,7 +662,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    SpaceFields& field_group = m_mesh->create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+    Dictionary& dict = m_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
@@ -667,7 +672,7 @@ void Reader::read_element_data()
 
       if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
-      mesh::Field& field = field_group.create_field(gmsh_field.name);
+      mesh::Field& field = dict.create_field(gmsh_field.name);
       field.options().configure_option("var_names",gmsh_field.var_names);
       field.options().configure_option("var_types",var_types_str);
 
@@ -891,6 +896,45 @@ std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
   }
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+void Reader::fix_negative_volumes(Mesh& mesh)
+{
+  /// @note this is now only implemented for LagrangeP2.Quad2D elements!!! others are ignored
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(mesh.topology()))
+  {
+    if (elements.element_type().derived_type_name() == "cf3.mesh.LagrangeP2.Quad2D")
+    {
+      Real jacobian_determinant=0;
+      Uint nb_nodes_per_elem = elements.element_type().nb_nodes();
+      std::vector<Uint> tmp_nodes(nb_nodes_per_elem);
+      for (Uint e=0; e<elements.size(); ++e)
+      {
+        jacobian_determinant = elements.element_type().jacobian_determinant(elements.geometry_space().shape_function().local_coordinates().row(0),elements.geometry_space().get_coordinates(e));
+        if (jacobian_determinant < 0)
+        {
+          // reverse the connectivity nodes order
+          for (Uint n=0;n<nb_nodes_per_elem; ++n)
+            tmp_nodes[n] = elements.geometry_space().connectivity()[e][n];
+          if (elements.element_type().derived_type_name() == "cf3.mesh.LagrangeP2.Quad2D")
+          {
+            elements.geometry_space().connectivity()[e][0] = tmp_nodes[0];
+            elements.geometry_space().connectivity()[e][1] = tmp_nodes[3];
+            elements.geometry_space().connectivity()[e][2] = tmp_nodes[2];
+            elements.geometry_space().connectivity()[e][3] = tmp_nodes[1];
+            elements.geometry_space().connectivity()[e][4] = tmp_nodes[7];
+            elements.geometry_space().connectivity()[e][5] = tmp_nodes[6];
+            elements.geometry_space().connectivity()[e][6] = tmp_nodes[5];
+            elements.geometry_space().connectivity()[e][7] = tmp_nodes[4];
+            elements.geometry_space().connectivity()[e][8] = tmp_nodes[8];
+          }
+        }
+      }
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 } // gmsh

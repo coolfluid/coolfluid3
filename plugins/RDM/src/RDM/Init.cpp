@@ -13,7 +13,7 @@
 #include "common/FindComponents.hpp"
 #include "common/List.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -84,7 +84,7 @@ void Init::execute()
   {
     /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    SpaceFields& nodes = mesh().geometry_fields();
+    Dictionary& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

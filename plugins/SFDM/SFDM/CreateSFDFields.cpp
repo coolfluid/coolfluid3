@@ -21,13 +21,14 @@
 
 
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -65,18 +66,34 @@ CreateSFDFields::CreateSFDFields( const std::string& name )
 
 void CreateSFDFields::execute()
 {
+
+//  mesh().check_sanity();
   const Uint solution_order = solver().options().option(SFDM::Tags::solution_order()).value<Uint>();
 
   std::string solution_space_name = "solution_space";
-  std::string flux_space_name = "flux_space";
+//  std::string boundary_space_name = "boundary_space";
 
-  if ( is_not_null (find_component_ptr_recursively_with_tag<SpaceFields>(mesh(),solution_space_name)))
+  if ( is_not_null (find_component_ptr_recursively_with_tag<Dictionary>(mesh(),solution_space_name)))
   {
     CFinfo << "field group ["<<solution_space_name<<"] already exists, check now to create the fields" << CFendl;
   }
   else
   {
-    SpaceFields& solution_space = mesh().create_space_and_field_group(solution_space_name,SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+    std::vector< Handle<Entities> > cells_plus_bdry;
+    boost_foreach(Entities& entities, find_components_recursively<Cells>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively_with_tag<Entities>(mesh().topology(),mesh::Tags::outer_faces()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+    boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
+    {
+      cells_plus_bdry.push_back(entities.handle<Entities>());
+    }
+
+    Dictionary& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
@@ -98,78 +115,59 @@ void CreateSFDFields::execute()
     Field& jacob_det = solution_space.create_field(SFDM::Tags::jacob_det(), "jacob_det[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::jacob_det())->link_to(jacob_det);
 
-    boost_foreach(Cells& elements, find_components_recursively<Cells>(solution_space.topology()))
+    Field& delta = solution_space.create_field(SFDM::Tags::delta(), "delta[vector]");
+    solver().field_manager().create_component<Link>(SFDM::Tags::delta())->link_to(delta);
+
+    boost_foreach(const Handle<Entities>& elements, solution_space.entities_range())
     {
-      Space& space = jacob_det.space(elements);
+      if ( is_null(elements->handle<Cells>()) ) continue;
+      const Space& space = solution_space.space(*elements);
 
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
       RealMatrix geometry_coords;
-      elements.allocate_coordinates(geometry_coords);
+      elements->geometry_space().allocate_coordinates(geometry_coords);
 
-      for (Uint elem=0; elem<elements.size(); ++elem)
+      RealVector dKsi (elements->element_type().dimensionality()); dKsi.setConstant(2.);
+      RealVector dX (elements->element_type().dimension());
+      RealMatrix jacobian(elements->element_type().dimensionality(),elements->element_type().dimension());
+
+      const Connectivity& field_connectivity = space.connectivity();
+
+      for (Uint elem=0; elem<elements->size(); ++elem)
       {
-        elements.put_coordinates(geometry_coords,elem);
-
-        Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
+        elements->geometry_space().put_coordinates(geometry_coords,elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {
-          jacob_det[field_idx[node]][0]=elements.element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
+          const Uint p = field_connectivity[elem][node];
+          jacob_det[p][0]=elements->element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
+          if (jacob_det[p][0] < 0)
+            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements->uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
+          elements->element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
+          dX.noalias() = jacobian.transpose()*dKsi;
+          for (Uint d=0; d<dX.size(); ++d)
+            delta[p][d]=dX[d];
         }
 
       }
     }
   }
 
-  if (0) {
-    if ( is_not_null (find_component_ptr_recursively_with_tag<SpaceFields>(mesh(),flux_space_name)))
-    {
-      CFinfo << "field group ["<<flux_space_name<<"] already exists, check now to create the fields" << CFendl;
-    }
-    else
-    {
-      SpaceFields& flux_space = mesh().create_space_and_field_group(flux_space_name,SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P"+to_str(solution_order-1)+".flux");
-      flux_space.add_tag(flux_space_name);
 
-      Field& plane_jacob_normal = flux_space.create_field(SFDM::Tags::jacob_det(), "plane_jacob_normal[tensor]");
-      solver().field_manager().create_component<Link>(SFDM::Tags::plane_jacob_normal())->link_to(plane_jacob_normal);
+//  if ( is_not_null (find_component_ptr_recursively_with_tag<Dictionary>(mesh(),boundary_space_name)))
+//  {
+//    CFinfo << "field group ["<<boundary_space_name<<"] already exists, check now to create the fields" << CFendl;
+//  }
+//  else
+//  {
+//    Dictionary& boundary_space = mesh().create_space_and_dict(solution_space_name,Dictionary::Basis::FACE_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+//    boundary_space.add_tag(boundary_space_name);
 
-      boost_foreach(Cells& elements, find_components_recursively<Cells>(flux_space.topology()))
-      {
-        Space& space = plane_jacob_normal.space(elements);
-        RealMatrix geometry_nodes;
-        elements.allocate_coordinates(geometry_nodes);
-        Uint dim = space.shape_function().dimensionality();
-        RealVector pjn(space.shape_function().dimensionality());
+//    Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
+//    Field& solution   = boundary_space.create_field(SFDM::Tags::solution(), solution_vars.handle<Variables>()->description().description() );
+//  }
 
-        for (Uint elem=0; elem<elements.size(); ++elem)
-        {
-          elements.put_coordinates(geometry_nodes, elem);
-
-          Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
-          for (Uint flx_pt=0; flx_pt<space.shape_function().nb_nodes(); ++flx_pt)
-          {
-            RealMatrix jacobian = space.element_type().jacobian(space.shape_function().local_coordinates().row(flx_pt),geometry_nodes);
-            RealMatrix inv_jacobian = jacobian.inverse();
-            Real jacobian_determinant = jacobian.determinant();
-            for (Uint d1=0; d1<dim; ++d1)
-              for (Uint d2=0; d2<dim; ++d2)
-                plane_jacob_normal[field_idx[flx_pt]][d2+d1*dim] = jacobian_determinant*inv_jacobian(d1,d2);
-
-            //          for(Uint orientation=0; orientation<space.shape_function().dimensionality(); ++orientation)
-            //          {
-            //            space.element_type().compute_plane_jacobian_normal(space.shape_function().local_coordinates().row(flx_pt),geometry_nodes,(CoordRef)orientation,pjn);
-            //            for (Uint d=0; d<pjn.size(); ++d)
-            //            {
-            //              plane_jacob_normal[field_idx[flx_pt]][c++]=pjn[d];
-            //            }
-            //          }
-          }
-        }
-      }
-    }
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

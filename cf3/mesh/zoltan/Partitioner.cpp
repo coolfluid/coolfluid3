@@ -16,7 +16,7 @@
 #include "common/Log.hpp"
 #include "common/Map.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/zoltan/Partitioner.hpp"
 
 namespace cf3 {

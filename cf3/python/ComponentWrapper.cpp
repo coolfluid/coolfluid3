@@ -43,16 +43,16 @@ struct AnyToPython
     m_result(result)
   {
   }
-  
+
   template<typename T>
   void operator()(T) const
   {
     if(typeid(T) != m_value.type())
       return;
-    
+
     m_result = boost::python::object(boost::any_cast<T>(m_value));
   }
-  
+
   const boost::any& m_value;
   boost::python::object& m_result;
 };
@@ -84,12 +84,12 @@ struct PythonToAny
       m_result = extracted_value();
     }
   }
-  
+
   void operator()(const Handle<common::Component>) const
   {
     if(!boost::starts_with(m_target_type, "handle"))
       return;
-    
+
     ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(m_value);
     m_result = wrapped.component().handle<common::Component>();
     m_found = true;
@@ -225,8 +225,9 @@ boost::any python_to_any(const boost::python::object& val, const std::string& ta
 // Wrapper for signals
 struct SignalWrapper
 {
-  SignalWrapper(common::SignalPtr signal) :
-    m_signal(signal)
+  SignalWrapper(common::SignalPtr signal, const Handle<common::Component>& component) :
+    m_signal(signal),
+    m_component(component)
   {
   }
 
@@ -280,6 +281,15 @@ struct SignalWrapper
 
     (*m_signal->signal())(node);
 
+    // Process reply
+    SignalFrame reply = node.get_reply();
+    if(reply.node.is_valid())
+    {
+      SignalOptions reply_options(reply);
+      if(reply_options.check("created_component"))
+        return wrap_component(m_component->access_component(reply_options["created_component"].value< common::URI >()));
+    }
+
     return boost::python::object();
   }
 
@@ -310,6 +320,7 @@ struct SignalWrapper
   }
 
   common::SignalPtr m_signal;
+  Handle<common::Component> m_component;
 };
 
 struct ComponentWrapper::Implementation
@@ -365,11 +376,14 @@ void ComponentWrapper::bind_signals(boost::python::object& python_object)
 void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 {
   CFdebug << "Wrapping signal " << signal->name() << CFendl;
-  m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal));
+  m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal, m_implementation->m_component));
 }
 
 boost::python::object wrap_component(const Handle<common::Component>& component)
 {
+  if(is_null(component))
+    return boost::python::object();
+
   boost::python::object result = boost::python::object(ComponentWrapper(component));
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
   wrapped.bind_signals(result);
@@ -469,14 +483,14 @@ std::string to_str(ComponentWrapper& self)
 //   OptionListWrapper(common::OptionList& option_list) : m_option_list(option_list)
 //   {
 //   }
-//   
+//
 //   OptionList& wrapped()
 //   {
 //     return m_option_list;
 //   }
-//   
+//
 // private:
-//   
+//
 //   common::OptionList* m_option_list;
 // };
 
@@ -535,11 +549,11 @@ void def_component()
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
     .def("__str__", to_str);
-    
+
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
     .def("value_str", option_value_str, "String value for an option");
-    
+
   boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
     .def("__len__", properties_get_len)
     .def("__getitem__", properties_get_item);

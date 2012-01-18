@@ -33,7 +33,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
@@ -113,7 +113,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 }
 
 
-bool check_nodes_sanity(SpaceFields& nodes)
+bool check_nodes_sanity(Dictionary& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -143,7 +143,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      boost_foreach(Uint node, entities.get_nodes(e))
+      boost_foreach(Uint node, entities.geometry_space().connectivity()[e])
       {
         if (node >=max_node_idx)
         {
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Core::instance().root().add_component(mesh_ptr);
 #endif
 
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     }
     boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
     {
-      boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
+      boost_foreach (Connectivity::Row face_nodes, faces.geometry_space().connectivity().array())
       {
         boost_foreach(const Uint node, face_nodes)
         {
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
           elements_to_send[to_proc] << elements.glb_idx()[elem_idx]
                                     << elements.rank()[elem_idx];
 
-          boost_foreach(const Uint connected_node, elements.node_connectivity()[elem_idx])
+          boost_foreach(const Uint connected_node, elements.geometry_space().connectivity()[elem_idx])
               elements_to_send[to_proc] << nodes.glb_idx()[connected_node];
 
         }
@@ -625,7 +625,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       std::set<Uint>::iterator not_found = bdry_nodes.end();
       for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
       {
-        boost_foreach(const Uint connected_glb_node, elements.node_connectivity()[e])
+        boost_foreach(const Uint connected_glb_node, elements.geometry_space().connectivity()[e])
         {
           if ( glb_node_2_loc_node.find(connected_glb_node) == glb_node_not_found)
             new_ghost_nodes.insert(connected_glb_node);
@@ -737,7 +737,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
         for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
         {
-          Connectivity::Row connected_nodes = elements.node_connectivity()[e];
+          Connectivity::Row connected_nodes = elements.geometry_space().connectivity()[e];
 
           boost_foreach ( Uint& node, connected_nodes )
           {
@@ -781,7 +781,7 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
@@ -789,7 +789,7 @@ BOOST_CHECK(true);
   {
     Handle<Entities> elements_handle(mesh_elements[comp_idx]);
     Entities& elements = *elements_handle;
-    Space& space = glb_elem.space(elements);
+    const Space& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
       Uint field_idx = space.indexes_for_element(elem)[0];

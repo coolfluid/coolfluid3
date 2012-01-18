@@ -27,9 +27,11 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/SFDSolver.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -212,14 +214,14 @@ void IterativeSolver::link_fields()
     {
       m_solution_backup = Handle<Field>( follow_link(found_solution_backup) );
     }
-    else if ( Handle< Component > found_solution_backup = m_solution->field_group().get_child( "solution_backup" ) )
+    else if ( Handle< Component > found_solution_backup = m_solution->dict().get_child( "solution_backup" ) )
     {
       solver().field_manager().create_component<Link>("solution_backup")->link_to(*found_solution_backup);
       m_solution_backup = found_solution_backup->handle<Field>();
     }
     else
     {
-      m_solution_backup = m_solution->field_group().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
+      m_solution_backup = m_solution->dict().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
       m_solution_backup->descriptor().prefix_variable_names("backup_");
       solver().field_manager().create_component<Link>("solution_backup")->link_to(*m_solution_backup);
     }
@@ -250,7 +252,6 @@ void IterativeSolver::execute()
 
   const Real T0 = time.current_time();
   Real dt = 0;
-  pre_update().configure_option_recursively("freeze_update_coeff",false);
 
   for (Uint stage=0; stage<nb_stages; ++stage)
   {
@@ -263,6 +264,13 @@ void IterativeSolver::execute()
 
     // now assigned in pre-update
     // - R
+
+    if (stage == 0)
+    {
+      solver().handle<SFDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
+    }
+    // now assigned:
+
     // - H
     // - time.dt()
 
@@ -271,10 +279,11 @@ void IterativeSolver::execute()
     boost_foreach(const Handle<Entities>& elements_handle, U.entities_range())
     {
       Entities& elements = *elements_handle;
-      Space& solution_space = U.space(elements);
+      const Connectivity& space_connectivity = U.space(elements).connectivity();
+
       for (Uint e=0; e<elements.size(); ++e)
       {
-        boost_foreach(const Uint state, solution_space.indexes_for_element(e))
+        boost_foreach(const Uint state, space_connectivity[e])
         {
           for (Uint var=0; var<U.row_size(); ++var)
           {
@@ -294,7 +303,6 @@ void IterativeSolver::execute()
     if (stage == 0)
     {
       dt = time.dt();
-      pre_update().configure_option_recursively("freeze_update_coeff",true);
     }
     else
     {

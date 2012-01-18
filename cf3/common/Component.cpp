@@ -431,11 +431,11 @@ void Component::move_to ( Component& new_parent )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Handle<Component> Component::access_component(const URI& path)
+Handle<Component> Component::access_component(const URI& path) const
 {
   // Return self for trivial path or at end of recursion.
   if(path.path() == "." || path.empty())
-    return handle<Component>();
+    return const_cast<Component*>(this)->handle<Component>();
 
   // If the path is absolute, make it relative and pass it to the root
   if(path.is_absolute())
@@ -448,7 +448,7 @@ Handle<Component> Component::access_component(const URI& path)
 
     if(new_path.empty())
     {
-      return root()->handle<Component>();
+      return const_cast<Component*>(root().get())->handle<Component>();
     }
 
     // Pass the rest to root
@@ -479,7 +479,7 @@ Handle<Component> Component::access_component(const URI& path)
     return m_parent ? m_parent->access_component(next_part) : Handle<Component>();
 
   // Dispatch to child
-  Handle<Component> child = get_child(current_part);
+  Handle<Component const> child = get_child(current_part);
   if(is_not_null(child))
     return child->access_component(next_part);
 
@@ -487,10 +487,10 @@ Handle<Component> Component::access_component(const URI& path)
   return Handle<Component>();
 }
 
-Handle<Component const> Component::access_component(const URI& path) const
-{
-  return const_cast<Component*>(this)->access_component(path);
-}
+//Handle<Component const> Component::access_component(const URI& path) const
+//{
+//  return const_cast<Component*>(this)->access_component(path);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -518,7 +518,7 @@ Handle< Component > Component::create_component (const std::string& name ,
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
   if(is_not_null(comp))
     add_component( comp );
-  
+
   return Handle<Component>(comp);
 }
 
@@ -545,6 +545,10 @@ void Component::signal_create_component ( SignalArgs& args  )
   {
     comp->mark_basic();
   }
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", comp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1267,8 +1271,8 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   // get the factory holding the builder
   Handle<Component> factory = factories->get_child( factory_type_name );
-  
-    
+
+
   if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
@@ -1276,7 +1280,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   }
 
   factory = factories->get_child( factory_type_name );
-  
+
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
@@ -1363,7 +1367,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
@@ -1390,7 +1394,7 @@ boost::shared_ptr< Component > build_component_nothrow(const std::string& builde
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       return boost::shared_ptr<Component>();
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 

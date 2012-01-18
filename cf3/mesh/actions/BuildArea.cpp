@@ -12,11 +12,12 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildArea.hpp"
-#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,19 +69,23 @@ void BuildArea::execute()
 
   Mesh& mesh = *m_mesh;
 
-  SpaceFields& faces_P0 = mesh.create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
+  Dictionary& faces_P0 = *mesh.create_component<Dictionary>("faces_P0");
+  boost_foreach(Faces& faces, find_components_recursively<Faces>(mesh.topology()))
+    faces.create_space("cf3.mesh.LagrangeP0"+faces.element_type().shape_name(),faces_P0);
+  faces_P0.update();
+
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 
   boost_foreach(const Handle<Entities>& elements_handle, area.entities_range() )
   {
-    Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
-
-    for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
+    const Entities& elements = *elements_handle;
+    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
+    const Connectivity& field_connectivity = area.space(elements).connectivity();
+    for (Uint face_idx = 0; face_idx<elements.size(); ++face_idx)
     {
-      elements.put_coordinates( coordinates, cell_idx );
-      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().area( coordinates );
+      elements.geometry_space().put_coordinates( coordinates, face_idx );
+      area[field_connectivity[face_idx][0]][0] = elements.element_type().area( coordinates );
     }
   }
 }

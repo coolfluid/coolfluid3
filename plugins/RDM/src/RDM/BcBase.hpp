@@ -19,8 +19,9 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/Space.hpp"
 
 #include "solver/actions/CLoopOperation.hpp"
 
@@ -62,7 +63,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates =
         elements().geometry_fields().coordinates().handle< mesh::Field >();
 

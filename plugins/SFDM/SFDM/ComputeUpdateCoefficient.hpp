@@ -50,8 +50,6 @@ private: // data
   Handle<mesh::Field> m_wave_speed;
   Handle<solver::CTime> m_time;
 
-  bool m_freeze;
-
   Real m_tolerance;
 };
 

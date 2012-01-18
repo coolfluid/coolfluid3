@@ -9,7 +9,7 @@
 
 #include "common/Table.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
 
@@ -60,9 +60,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Field"; }
 
-  SpaceFields::Basis::Type basis() const { return m_basis; }
+  Dictionary::Basis::Type basis() const { return m_basis; }
 
-  void set_basis(const SpaceFields::Basis::Type basis) { m_basis = basis;}
+  void set_basis(const Dictionary::Basis::Type basis) { m_basis = basis;}
 
   std::string var_name(Uint i=0) const;
 
@@ -86,13 +86,9 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
   VarType var_length(const Uint i=0) const;
 
-  void set_topology(Region& topology);
+  void set_dict(Dictionary& dict);
 
-  Region& topology() const;
-
-  void set_field_group(SpaceFields& field_group);
-
-  SpaceFields& field_group() const;
+  Dictionary& dict() const;
 
   virtual void resize(const Uint size);
 
@@ -106,26 +102,20 @@ public: // functions
     return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
   }
 
+  common::List<Uint>& glb_idx() const { return dict().glb_idx(); }
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+  common::List<Uint>& rank() const { return dict().rank(); }
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  bool is_ghost(const Uint idx) const { return dict().is_ghost(idx); }
 
-  common::List<Uint>& glb_idx() const { return field_group().glb_idx(); }
+//  const std::string& space() const { return dict().space(); }
 
-  common::List<Uint>& rank() const { return field_group().rank(); }
-
-  bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
-
-  const std::string& space() const { return field_group().space(); }
-
-  Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
+  const Handle<Space const>& space(const Handle<Entities const>& entities) const { return dict().space(entities); }
+  const Space& space(const Entities& entities) const { return dict().space(entities); }
 
   std::vector< Handle<Entities> > entities_range();
 
-  std::vector< Handle<Elements> > elements_range();
-
-  Field& coordinates() const { return field_group().coordinates(); }
+  Field& coordinates() const { return dict().coordinates(); }
 
   common::PE::CommPattern& parallelize_with( common::PE::CommPattern& comm_pattern );
 
@@ -133,7 +123,7 @@ public: // functions
 
   void synchronize();
 
-  UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+//  UnifiedData& elements_lookup() const { return dict().elements_lookup(); }
 
   math::VariablesDescriptor& descriptor() const { return *m_descriptor; }
 
@@ -313,17 +303,14 @@ public: // functions
     // /// istream >> U
     // friend istream& operator >> (istream& in,  Field& U);
 
-
-
-
 private:
 
   void config_var_names();
   void config_var_types();
 
-  SpaceFields::Basis::Type m_basis;
-  Handle<Region> m_topology;
-  Handle<SpaceFields> m_field_group;
+  Dictionary::Basis::Type m_basis;
+//  Handle<Region> m_topology;
+  Handle<Dictionary> m_dict;
 
   Handle< common::PE::CommPattern > m_comm_pattern;
 

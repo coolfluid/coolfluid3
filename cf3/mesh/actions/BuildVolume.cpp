@@ -17,6 +17,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,21 +69,28 @@ void BuildVolume::execute()
 
   Mesh& mesh = *m_mesh;
 
-  SpaceFields& cells_P0 = mesh.create_space_and_field_group("cells_P0",SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
-  Field& volume = cells_P0.create_field(mesh::Tags::volume());
+  Dictionary& cells_P0 = *mesh.create_component<Dictionary>("cells_P0");
+  boost_foreach(Cells& cells, find_components_recursively<Cells>(mesh.topology()))
+    cells.create_space("cf3.mesh.LagrangeP0"+cells.element_type().shape_name(),cells_P0);
+  cells_P0.update();
+
+
+  Field& volume = cells_P0.create_field("volume");
   volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach( const Handle<Elements>& elements_handle, volume.elements_range() )
+  boost_foreach( const Handle<Entities>& elements_handle, volume.entities_range() )
   {
-    Elements& elements = *elements_handle;
-    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
+    Entities& elements = *elements_handle;
+    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
 
+    const Connectivity& space_connectivity = cells_P0.space(elements).connectivity();
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
-      elements.put_coordinates( coordinates, cell_idx );
-      volume[cell_idx][0] = elements.element_type().volume( coordinates );
+      elements.geometry_space().put_coordinates( coordinates, cell_idx );
+      volume[space_connectivity[cell_idx][0]][0] = elements.element_type().volume( coordinates );
     }
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

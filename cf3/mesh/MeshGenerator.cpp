@@ -71,23 +71,6 @@ Mesh& MeshGenerator::generate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshGenerator::raise_mesh_loaded()
-{
-  Mesh& mesh = *m_mesh;
-
-  mesh.update_statistics();
-  mesh.elements().update();
-
-  // Raise an event to indicate that a mesh was loaded happened
-  SignalOptions options;
-  options.add_option("mesh_uri", mesh.uri());
-
-  SignalArgs f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 MeshGenerator::~MeshGenerator()
 {
 }

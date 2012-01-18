@@ -25,7 +25,7 @@ namespace mesh {
 class Elements;
 class Region;
 class MergedParallelDistribution;
-class SpaceFields;
+class Dictionary;
 
 class Mesh;
 
@@ -136,6 +136,8 @@ private: // data
     Uint nb_entries;
     std::vector<Uint> file_data_positions;
   };
+
+  void fix_negative_volumes(Mesh& mesh);
 
   void read_variable_header(std::map<std::string,Field>& fields);
 

@@ -161,8 +161,11 @@ public: // functions
   /// Looks for a component via its path
   /// @param path to the component
   /// @return handle to component or null if it doesn't exist
-  Handle<Component> access_component ( const URI& path );
-  Handle<Component const> access_component ( const URI& path ) const;
+  /// @warning the return type is non-const!!! ( same reasoning as for parent() )
+  Handle<Component> access_component ( const URI& path ) const;
+
+  /// @warning this function is removed, as access_component does not modify the component itself (can access any non-const URI)
+  //Handle<Component const> access_component ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component

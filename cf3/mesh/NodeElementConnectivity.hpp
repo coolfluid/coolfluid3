@@ -20,7 +20,7 @@ namespace common {
 namespace mesh {
 
   class Region;
-  class SpaceFields;
+  class Dictionary;
   
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ private: //functions
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(SpaceFields& nodes);
+  void set_nodes(Dictionary& nodes);
 
 private: // data
 

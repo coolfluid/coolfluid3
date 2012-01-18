@@ -29,7 +29,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/UnifiedData.hpp"
@@ -86,7 +86,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
 
-  if (source.basis() == SpaceFields::Basis::POINT_BASED && target.basis() == SpaceFields::Basis::POINT_BASED)
+  if (source.basis() == Dictionary::Basis::POINT_BASED && target.basis() == Dictionary::Basis::POINT_BASED)
   {
     const Field& source_coords = source.coordinates();
     const Field& target_coords = target.coordinates();
@@ -97,7 +97,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        Connectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
+        Connectivity::ConstRow s_field_indexes = source.space(*s_elements).connectivity()[s_elm_idx];
         std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
         fill( s_nodes , source_coords , s_field_indexes );
@@ -114,10 +114,10 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-              source.basis() == SpaceFields::Basis::CELL_BASED ||
-              source.basis() == SpaceFields::Basis::FACE_BASED )
-           && ( target.basis() == SpaceFields::Basis::POINT_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::ELEMENT_BASED ||
+              source.basis() == Dictionary::Basis::CELL_BASED ||
+              source.basis() == Dictionary::Basis::FACE_BASED )
+           && ( target.basis() == Dictionary::Basis::POINT_BASED ) )
   {
     const Field& target_coords = target.coordinates();
     std::vector<Uint> s_field_indexes(0);
@@ -136,7 +136,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
           Elements const& elements = dynamic_cast<Elements const&>(*component);
           RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
-          boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
+          boost_foreach ( const Uint state_idx, source.space(elements).connectivity()[s_elm_idx] )
           {
             s_field_indexes.push_back(state_idx);
           }
@@ -162,22 +162,23 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::POINT_BASED ) &&
-            ( target.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-              target.basis() == SpaceFields::Basis::CELL_BASED    ||
-              target.basis() == SpaceFields::Basis::FACE_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::POINT_BASED ) &&
+            ( target.basis() == Dictionary::Basis::ELEMENT_BASED ||
+              target.basis() == Dictionary::Basis::CELL_BASED    ||
+              target.basis() == Dictionary::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     RealMatrix elem_coordinates;
     const Field& source_coords = source.coordinates();
 
-    boost_foreach( Elements& t_elements, find_components_recursively<Elements>(target.topology()) )
+    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
-      Space& t_space = target.space(t_elements);
+      Elements& t_elements = *t_elements_handle->handle<Elements>();
+      const Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.indexes_for_element(t_elements,t_elm_idx);
+        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
@@ -185,7 +186,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
           boost::tie(s_elements,s_elm_idx) = find_element(t_node);
           if (is_not_null(s_elements))
           {
-            Connectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
+            Connectivity::ConstRow s_field_indexes = source.space(*s_elements).connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
             fill( s_nodes , source_coords , s_field_indexes );
@@ -206,12 +207,12 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
       }
     }
   }
-  else if ( ( source.basis() == SpaceFields::Basis::ELEMENT_BASED  ||
-              source.basis() == SpaceFields::Basis::CELL_BASED     ||
-              source.basis() == SpaceFields::Basis::FACE_BASED     )
-          && ( target.basis() == SpaceFields::Basis::ELEMENT_BASED ||
-               target.basis() == SpaceFields::Basis::CELL_BASED    ||
-               target.basis() == SpaceFields::Basis::FACE_BASED ) )
+  else if ( ( source.basis() == Dictionary::Basis::ELEMENT_BASED  ||
+              source.basis() == Dictionary::Basis::CELL_BASED     ||
+              source.basis() == Dictionary::Basis::FACE_BASED     )
+          && ( target.basis() == Dictionary::Basis::ELEMENT_BASED ||
+               target.basis() == Dictionary::Basis::CELL_BASED    ||
+               target.basis() == Dictionary::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     //Uint t_elm_idx;
@@ -219,14 +220,15 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes;
     Handle< Component > component;
-    boost_foreach( Elements& t_elements, find_components_recursively<Elements>(target.topology()) )
+    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
     {
-      Space& t_space = target.space(t_elements);
+      const Elements& t_elements = *t_elements_handle->handle<Elements>();
+      const Space& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
       RealVector t_node(m_dim);  t_node.setZero();
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.indexes_for_element(t_elements,t_elm_idx);
+        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
@@ -245,7 +247,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
               boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
               Elements const& elements = dynamic_cast<Elements const&>(*component);
               RealMatrix space_coords = source.space(elements).get_coordinates(s_elm_idx);
-              boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
+              boost_foreach ( const Uint state_idx, source.space(elements).connectivity()[s_elm_idx] )
               {
                 s_field_indexes.push_back(state_idx);
               }
@@ -351,12 +353,13 @@ void LinearInterpolator::create_octtree()
   RealVector centroid(m_dim);
   boost_foreach(const Elements& elements, find_components_recursively_with_filter<Elements>(*m_source_mesh,IsElementsVolume()))
   {
-    Uint nb_nodes_per_element = elements.node_connectivity().row_size();
-    RealMatrix coordinates(nb_nodes_per_element,m_dim);
+    Uint nb_nodes_per_element = elements.geometry_space().connectivity().row_size();
+    RealMatrix coordinates;
+    elements.geometry_space().allocate_coordinates(coordinates);
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      elements.put_coordinates(coordinates,elem_idx);
+      elements.geometry_space().put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
         m_point_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
@@ -503,7 +506,7 @@ boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(con
     {
       boost::tie(component,elem_idx)=m_elements->location(glb_elem_idx);
       Elements const& elements = dynamic_cast<Elements const&>(*component);
-      RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      RealMatrix elem_coordinates = elements.geometry_space().get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
         return boost::make_tuple(Handle<Elements const>(elements.handle<Component>()),elem_idx);

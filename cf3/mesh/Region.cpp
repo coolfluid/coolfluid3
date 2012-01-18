@@ -17,7 +17,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 
 namespace cf3 {
@@ -51,22 +51,7 @@ Region& Region::create_region( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Elements& Region::create_elements(const std::string& element_type_name, SpaceFields& nodes)
-{
-  std::string name = "elements_" + element_type_name;
-
-  Handle< Component > celems = get_child(name);
-  if ( is_null(celems) )
-  {
-    Elements& elements = create_elements(element_type_name);
-    elements.assign_geometry(nodes);
-    return elements;
-  }
-  else
-    return dynamic_cast<Elements&>(*celems);
-}
-
-Elements& Region::create_elements(const std::string& element_type_name)
+Elements& Region::create_elements(const std::string& element_type_name, Dictionary& nodes)
 {
   std::string name = "elements_" + element_type_name;
 
@@ -74,8 +59,7 @@ Elements& Region::create_elements(const std::string& element_type_name)
   if ( is_null(celems) )
   {
     Handle<Elements> elements = create_component<Elements>(name);
-    elements->add_tag("SpaceFieldsElements");
-    elements->initialize(element_type_name);
+    elements->initialize(element_type_name,nodes);
     return *elements;
   }
   else
@@ -139,7 +123,7 @@ Elements& Region::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Region::geometry_fields() const
+Dictionary& Region::geometry_fields() const
 {
   return find_parent_component<Mesh>(*this).geometry_fields();
 }

@@ -16,12 +16,12 @@
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/actions/CreateSpaceP0.hpp"
 #include "mesh/actions/BuildFaces.hpp"
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/CellFaces.hpp"
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
     Entity cell = face.cells()[0];
     CFinfo << cell << CFendl;
     RealMatrix cell_coordinates = cell.get_coordinates();
-    RealVector face_coordinates = wall_faces.get_coordinates(face.idx).row(0);
+    RealVector face_coordinates = wall_faces.geometry_space().get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -294,11 +294,9 @@ BOOST_AUTO_TEST_CASE( build_faces )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#if 0
+
 BOOST_AUTO_TEST_CASE( build_face_normals )
 {
-  allocate_component<CreateSpaceP0>("create_space_P0")->transform(mesh);
-  BOOST_CHECK(true);
   boost::shared_ptr<BuildFaceNormals> face_normal_builder = allocate_component<BuildFaceNormals>("facenormalsbuilder");
 
   face_normal_builder->set_mesh(mesh);
@@ -355,7 +353,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     Entity cell = face.cells()[0];
     CFinfo << cell.comp->parent()->parent()->name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]  <-->  ";
     RealMatrix cell_coordinates = cell.get_coordinates();
-    RealVector face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
+    RealVector face_coordinates = inner_faces.geometry_space().get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -371,7 +369,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     cell = face.cells()[0];
     CFinfo << cell.comp->parent()->parent()->name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]"<<CFendl;
     cell_coordinates = cell.get_coordinates();
-    face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
+    face_coordinates = inner_faces.geometry_space().get_coordinates(face.idx).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
       if (cell_coordinates.row(i) == face_coordinates.transpose())
@@ -384,8 +382,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 
   }
 }
-#endif
+
 //////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

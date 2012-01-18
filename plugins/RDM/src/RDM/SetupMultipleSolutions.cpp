@@ -17,7 +17,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -61,28 +61,27 @@ void SetupMultipleSolutions::execute()
 
   // get the geometry field group
 
-  SpaceFields& geometry = mesh.geometry_fields();
+  Dictionary& geometry = mesh.geometry_fields();
 
   const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
 
   // check that the geometry belongs to the same space as selected by the user
 
-  Handle< SpaceFields > solution_group;
+  Handle< Dictionary > solution_group;
 
-  if( solution_space == geometry.space() )
-    solution_group = geometry.handle<SpaceFields>();
+  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
+    solution_group = geometry.handle<Dictionary>();
   else
   {
     // check if solution space already exists
-    solution_group = find_component_ptr_with_name<SpaceFields>( mesh, RDM::Tags::solution() );
+    solution_group = find_component_ptr_with_name<Dictionary>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), SpaceFields::Basis::POINT_BASED, "cf3.mesh."+solution_space).handle<SpaceFields>();
+      solution_group = mesh.create_continuous_space(RDM::Tags::solution(), "cf3.mesh."+solution_space).handle<Dictionary>();
     }
     else // not null so check that space is what user wants
     {
-      if( solution_space != solution_group->space() )
-        throw NotImplemented( FromHere(), "Changing solution space not supported" );
+      throw NotImplemented( FromHere(), "Changing solution space not supported" );
     }
   }
 

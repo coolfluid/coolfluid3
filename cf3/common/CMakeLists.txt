@@ -20,6 +20,7 @@ list( APPEND coolfluid_common_files
     BoostAssertions.hpp
     BoostAssertions.cpp
     BoostArray.hpp
+    BoostArray.cpp
     Builder.hpp
     Builder.cpp
     BuildInfo.hpp
@@ -54,8 +55,6 @@ list( APPEND coolfluid_common_files
     Factories.cpp
     FindComponents.hpp
     Foreach.hpp
-    GroupActions.hpp
-    GroupActions.cpp
     Group.hpp
     Group.cpp
     Handle.hpp

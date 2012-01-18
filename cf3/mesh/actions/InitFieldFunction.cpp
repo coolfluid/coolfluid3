@@ -51,6 +51,7 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
   options().add_option("field", m_field)
       .description("Field to initialize")
       .pretty_name("Field")
+      .link_to(&m_field)
       .mark_basic();
 
   options().add_option("functions", std::vector<std::string>())
@@ -90,7 +91,7 @@ void InitFieldFunction::execute()
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == SpaceFields::Basis::POINT_BASED)
+  if (field.basis() == Dictionary::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();
@@ -112,14 +113,13 @@ void InitFieldFunction::execute()
     boost_foreach( const Handle<Entities>& elements_handle, field.entities_range() )
     {
       Entities& elements = *elements_handle;
-      Space& space = field.space(elements);
+      const Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);
-
+      const Connectivity& field_connectivity = space.connectivity();
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         coordinates = space.compute_coordinates(elem_idx);
-        Connectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
         /// for each state of the field shape function
         for (Uint iState=0; iState<space.nb_states(); ++iState)
         {
@@ -129,7 +129,7 @@ void InitFieldFunction::execute()
           m_function.evaluate(vars,return_val);
           /// put the return values in the field
           for (Uint i=0; i<field.row_size(); ++i)
-            field[field_idx[iState]][i] = return_val[i];
+            field[field_connectivity[elem_idx][iState]][i] = return_val[i];
         }
       }
     }

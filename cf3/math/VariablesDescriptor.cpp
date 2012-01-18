@@ -203,8 +203,8 @@ struct VariablesDescriptor::Implementation
 
   std::string description() const
   {
-    if(!m_dim)
-      throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
+//    if(!m_dim)
+//      throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
 
     const Uint nb_vars = m_indices.size();
 
@@ -223,6 +223,20 @@ struct VariablesDescriptor::Implementation
     boost_foreach(std::string& name, m_user_names)
     {
       name = prefix+name;
+    }
+
+    std::vector<Uint> indices;                 indices.reserve(m_indices.size());
+    std::vector<std::string> internal_names;   internal_names.reserve(m_indices.size());
+    foreach_container((const std::string& internal_name) (const Uint idx) , m_indices)
+    {
+      internal_names.push_back(internal_name);
+      indices.push_back(idx);
+    }
+
+    for (Uint i=0; i<internal_names.size(); ++i)
+    {
+      m_indices.erase(internal_names[i]);
+      m_indices[prefix+internal_names[i]] = indices[i];
     }
   }
 
@@ -270,7 +284,15 @@ struct VariablesDescriptor::Implementation
     if(found != m_indices.end())
       return found->second;
 
-    throw ValueNotFound(FromHere(), "Variable with internal name " + name + " was not found in descriptor " + m_component.uri().string());
+    std::stringstream message;
+    message << "Variable with internal name " << name << " was not found in descriptor " << m_component.uri().string() << std::endl;
+    message << "Possible internal names:" << std::endl;
+    foreach_container( (const std::string& name) (const Uint idx) , m_indices)
+    {
+      message << "   - " << idx << "\t: " << name << std::endl;
+    }
+
+    throw ValueNotFound(FromHere(), message.str());
   }
 
   /////////////// data //////////////

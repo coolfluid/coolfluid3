@@ -39,12 +39,6 @@ CCriterionMilestoneTime::CCriterionMilestoneTime( const std::string& name  ) :
       .mark_basic()
       .link_to(&m_time)
       .add_tag("time");
-
-  options().add_option("milestone_dt", 0.)
-      .description("Defines the checkpoints for the criterion")
-      .pretty_name("Milestone Time Step")
-      .mark_basic();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,11 +51,12 @@ CCriterionMilestoneTime::~CCriterionMilestoneTime()
 
 bool CCriterionMilestoneTime::operator()()
 {
-  const Real dt = options().option("milestone_dt").value<Real>();
+  const Real dt = m_time->options().option("time_step").value<Real>();
   if ( dt == 0. )
     return true;
 
   const Real t = m_time->current_time();
+  if ( t==0 ) return false;
   return ( t - Uint(t/dt) * dt == 0 );
 }
 

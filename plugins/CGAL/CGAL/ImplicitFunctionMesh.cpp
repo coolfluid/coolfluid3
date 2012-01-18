@@ -14,12 +14,13 @@
 #include <CGAL/number_utils.h>
 
 #include "common/Log.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
@@ -53,7 +54,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
 
 
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,DIM_3D);
 
   // coordinate storage
@@ -63,7 +64,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
 
   // connectivity storage
   Elements& elements = region.create_elements("cf3.mesh.LagrangeP1.Tetra3D",nodes);
-  Table<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
+  Table<Uint>::Buffer connBuffer = elements.geometry_space().connectivity().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
   CFinfo << "iterating over the cells" << CFendl;
@@ -86,6 +87,8 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   }
   coordinatesBuffer.flush();
   connBuffer.flush();
+  nodes.resize(nodes.coordinates().size());
+  elements.resize(elements.geometry_space().connectivity().size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

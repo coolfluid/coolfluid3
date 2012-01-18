@@ -66,8 +66,6 @@ private:
   /// source field
   Handle<Field const> m_source;
 
-  std::string m_source_space;
-
   /// target field
   Handle<Field> m_target;
 

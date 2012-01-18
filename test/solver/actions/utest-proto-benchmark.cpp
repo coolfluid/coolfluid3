@@ -23,7 +23,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -101,11 +101,7 @@ struct ProtoBenchmarkFixture :
     phys_model.variable_manager().create_descriptor("volume", "CellVolume");
 
     // Create field
-    boost_foreach(Entities& elements, mesh.topology().elements_range())
-    {
-      elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
-    }
-    SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
+    Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
     solver.field_manager().create_field("volume", elems_P0);
 
     return model;
@@ -169,9 +165,9 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
   direct_arrays.reset(new DirectArrays
   (
     mesh->geometry_fields().coordinates(),
-    elements.node_connectivity().array(),
+    elements.geometry_space().connectivity().array(),
     vol_field,
-    vol_field.field_group().space(elements).elements_begin()
+    vol_field.dict().space(elements).connectivity()[0][0]
   ));
 }
 

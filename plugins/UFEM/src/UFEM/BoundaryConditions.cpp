@@ -22,7 +22,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/actions/Proto/CProtoAction.hpp"
@@ -125,11 +125,11 @@ BoundaryConditions::~BoundaryConditions()
 {
 }
 
-void BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
+Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
-  boost::shared_ptr< Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
+  boost::shared_ptr< common::Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
 
@@ -168,6 +168,8 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
 
   result->options().configure_option(solver::Tags::regions(), bc_regions);
   result->options().configure_option(solver::Tags::physical_model(), m_implementation->m_physical_model);
+
+  return Handle<Action>(result);
 }
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
@@ -179,10 +181,16 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
+  Handle<Action> result;
+
   if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
-    add_constant_bc(region_name, variable_name, 0.);
+    result = add_constant_bc(region_name, variable_name, 0.);
   else
-    add_constant_bc(region_name, variable_name, RealVector());
+    result = add_constant_bc(region_name, variable_name, RealVector());
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", result->uri());
 }
 
 } // UFEM
