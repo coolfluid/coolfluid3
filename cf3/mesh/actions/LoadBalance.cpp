@@ -33,11 +33,11 @@ common::ComponentBuilder < LoadBalance, MeshTransformer, mesh::actions::LibActio
 //////////////////////////////////////////////////////////////////////////////
 
 LoadBalance::LoadBalance( const std::string& name ) :
-  MeshTransformer(name),
+  MeshTransformer(name)
 #if defined (CF3_HAVE_PTSCOTCH)
-  m_partitioner(create_component("partitioner", "cf3.mesh.ptscotch.Partitioner"))
+  ,m_partitioner(create_component("partitioner", "cf3.mesh.ptscotch.Partitioner"))
 #elif defined (CF3_HAVE_ZOLTAN)
-  m_partitioner(create_component("partitioner", "cf3.mesh.zoltan.Partitioner"))
+  ,m_partitioner(create_component("partitioner", "cf3.mesh.zoltan.Partitioner"))
 #endif
 {
 
