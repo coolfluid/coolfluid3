@@ -4,73 +4,69 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/EventHandler.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
+#include "common/EventHandler.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Solver/Actions/CPeriodicWriteMesh.hpp"
-#include "Solver/Actions/CSynchronizeFields.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
-#include "Solver/Actions/CComputeLNorm.hpp"
-#include "Solver/Actions/CPrintIterationSummary.hpp"
+#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CComputeLNorm.hpp"
+#include "solver/actions/CPrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
 
 #include "IterativeSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
+using namespace cf3::solver::actions;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < IterativeSolver, CAction, LibRDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, common::Action, LibRDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
   // properties
 
-  m_properties.add_property( "iteration", Uint(0) );
+  properties().add_property( "iteration", Uint(0) );
 
   // static components
 
-  m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
+  m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
-  m_update = create_static_component_ptr<CActionDirector>("Update");
+  m_update = create_static_component<ActionDirector>("Update");
 
-  m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
+  m_post_actions = create_static_component<ActionDirector>("PostActions");
 
   // dynamic components
 
   create_component<CCriterionMaxIterations>( "MaxIterations" );
 
-  CComputeLNorm& cnorm = post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
-  post_actions().append( cnorm );
+  CComputeLNorm& cnorm = *post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
+  post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
+  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
 
-  CPrintIterationSummary& cprint = post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
-  post_actions().append( cprint );
-
-  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
-  post_actions().append( cwriter );
-
-  cnorm.configure_option("Scale", true);
-  cnorm.configure_option("Order", 2u);
+  cnorm.options().configure_option("scale", true);
+  cnorm.options().configure_option("order", 2u);
 }
 
 bool IterativeSolver::stop_condition()
@@ -84,32 +80,32 @@ bool IterativeSolver::stop_condition()
 
 void IterativeSolver::execute()
 {
-  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
+  RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
 
   /// @todo this configuration sould be in constructor but does not work there
 
-  configure_option_recursively( "iterator", this->uri() );
+  configure_option_recursively( "iterator", handle<Component>() );
 
   // access components (out of loop)
 
-  CActionDirector& boundary_conditions =
-      access_component( "cpath:../BoundaryConditions" ).as_type<CActionDirector>();
+  ActionDirector& boundary_conditions =
+      *access_component( "cpath:../BoundaryConditions" )->handle<ActionDirector>();
 
-  CActionDirector& domain_discretization =
-      access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
+  ActionDirector& domain_discretization =
+      *access_component( "cpath:../DomainDiscretization" )->handle<ActionDirector>();
 
-  CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
+  Action& synchronize = *mysolver.actions().get_child("Synchronize")->handle<Action>();
 
-  Component& cnorm = post_actions().get_child("ComputeNorm");
-  cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
+  Handle<Component> cnorm = post_actions().get_child("ComputeNorm");
+  cnorm->options().configure_option("field", follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->uri() );
 
-  Component& cprint = post_actions().get_child("IterationSummary");
-  cprint.configure_option("norm", cnorm.uri() );
+  Component& cprint = *post_actions().get_child("IterationSummary");
+  cprint.options().configure_option("norm", cnorm );
 
   // iteration loop
 
   Uint iter = 1; // iterations start from 1 ( max iter zero will do nothing )
-  property("iteration") = iter;
+  properties().property("iteration") = iter;
 
 
   while( ! stop_condition() ) // non-linear loop
@@ -144,7 +140,7 @@ void IterativeSolver::execute()
 
     // increment iteration
 
-    property("iteration") = ++iter; // update the iteration number
+    properties().property("iteration") = ++iter; // update the iteration number
 
   }
 }
@@ -153,13 +149,13 @@ void IterativeSolver::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option< OptionT<Uint> >( "iteration", iter );
+  opts.add_option( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
-  Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

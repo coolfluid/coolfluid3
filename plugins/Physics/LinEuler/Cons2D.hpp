@@ -6,19 +6,19 @@
 
 #include <iostream>
 
-#ifndef CF_Physics_LinEuler_Cons2D_hpp
-#define CF_Physics_LinEuler_Cons2D_hpp
+#ifndef cf3_physics_LinEuler_Cons2D_hpp
+#define cf3_physics_LinEuler_Cons2D_hpp
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "LinEuler2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace LinEuler {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ public: //typedefs
 
   enum { Rho = 0, Rho0U = 1, Rho0V = 2, P = 3 };
 
-  typedef boost::shared_ptr<Cons2D> Ptr;
-  typedef boost::shared_ptr<Cons2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -80,9 +80,9 @@ public: // functions
       std::cout << "v     : " << p.v    << std::endl;
       std::cout << "H     : " << p.H << std::endl;
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                               + Common::to_str(coord[XX]) + ","
-                               + Common::to_str(coord[YY])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                               + common::to_str(coord[XX]) + ","
+                               + common::to_str(coord[YY])
                                + "]");
     }
 
@@ -117,6 +117,24 @@ public: // functions
     flux(1,YY) = p.rho0*p.u0[YY]*p.u;
     flux(2,YY) = p.rho0*p.u0[YY]*p.v+p.p;
     flux(3,YY) = p.u0[YY]*p.p + p.v*p.gamma*p.P0;
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    const Real u0n = p.u0[XX] * direction[XX] +
+                     p.u0[YY] * direction[YY];
+
+    const Real un = p.u * direction[XX] +
+                    p.v * direction[YY];
+
+    flux[0] = u0n*p.rho+p.rho0*un;
+    flux[1] = p.rho0*u0n*p.u+p.p*direction[XX];
+    flux[2] = p.rho0*u0n*p.v+p.p*direction[YY];
+    flux[3] = u0n*p.p+un*p.gamma*p.P0;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -223,7 +241,7 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-//    throw Common::NotImplemented(FromHere(), "Cons2D::residual()");
+//    throw common::NotImplemented(FromHere(), "Cons2D::residual()");
 
 //    const Real gamma_minus_3 = p.gamma - 3.;
 
@@ -282,7 +300,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
-} // CF
+} // physics
+} // cf3
 
-#endif // CF_Physics_LinEuler_Cons2D_hpp
+#endif // cf3_physics_LinEuler_Cons2D_hpp

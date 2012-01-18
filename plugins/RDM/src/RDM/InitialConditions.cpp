@@ -4,53 +4,54 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Signal.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 
 #include "RDM/Tags.hpp"
 
-//#include "Mesh/Actions/CInitFieldFunction.hpp"
+//#include "mesh/actions/InitFieldFunction.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Init.hpp"
 
 #include "InitialConditions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, common::Action, LibRDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
   // signals
 
   regist_signal( "create_initial_condition" )
-      ->connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
-      ->signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
-      ->description("creates an initial condition for the solution")
-      ->pretty_name("Create Initial Condition");
+      .connect  ( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
+      .signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
+      .description("creates an initial condition for the solution")
+      .pretty_name("Create Initial Condition");
 }
 
 
@@ -59,21 +60,19 @@ void InitialConditions::execute()
 {
   // apply all registered actions
 
-  CActionDirector::execute();
+  ActionDirector::execute();
 
   // apply all strong BCs
 
-  CAction& strong_bcs =
-      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<CAction>();
+  Handle<Action> strong_bcs(access_component( "cpath:../BoundaryConditions/StrongBCs" ));
 
-  strong_bcs.execute();
+  strong_bcs->execute();
 
   // synchronize fields to insure consistency of parallel data
 
-  CAction& synchronize =
-      access_component( "cpath:../Actions/Synchronize" ).as_type<CAction>();
+  Handle<Action> synchronize(access_component( "cpath:../actions/Synchronize" ));
 
-  synchronize.execute();
+  synchronize->execute();
 }
 
 
@@ -83,13 +82,12 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 
   std::string name = options.value<std::string>("name");
 
-  CAction::Ptr ic = allocate_component< RDM::Init >(name);
-  append( ic );
+  Handle<Action> ic = create_component< RDM::Init >(name);
 
 
-  URI solution_uri = solver().as_type< RDSolver >().fields().get_child( RDM::Tags::solution() ).follow()->uri();
+  Handle<Field> solution_field( follow_link( solver().handle<RDSolver>()->fields().get_child( RDM::Tags::solution() ) ) );
 
-  ic->configure_option( "field", solution_uri );
+  ic->options().configure_option( "field", solution_field );
 
   std::vector<URI> regions;
   if( options.check("regions") )
@@ -100,11 +98,11 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   {
     regions.push_back(mesh().topology().uri());
   }
-  ic->configure_option("regions" , regions);
+  ic->options().configure_option("regions" , regions);
 
-  ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  ic->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  ic->options().configure_option( RDM::Tags::mesh(), m_mesh );
+  ic->options().configure_option( RDM::Tags::solver() , m_solver );
+  ic->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
 }
 
 
@@ -114,8 +112,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created initial condition" );
+  options.add_option("name", std::string() )
+      .description("Name for created initial condition" );
 
   // regions
 
@@ -123,12 +121,12 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the initial condition [optional]");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the initial condition [optional]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
 } // RDM
-} // CF
+} // cf3

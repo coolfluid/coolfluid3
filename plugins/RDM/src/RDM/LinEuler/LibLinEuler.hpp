@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibLinEuler_hpp
-#define CF_RDM_LibLinEuler_hpp
+#ifndef cf3_RDM_LibLinEuler_hpp
+#define cf3_RDM_LibLinEuler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,42 +17,42 @@
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_LINEULER_EXPORTS
-#   define RDM_LINEULER_API      CF_EXPORT_API
+#   define RDM_LINEULER_API      CF3_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_LINEULER_API      CF_IMPORT_API
-#   define RDM_LINEULER_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_LINEULER_API      CF3_IMPORT_API
+#   define RDM_LINEULER_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_LINEULER_API LibLinEuler : public Common::CLibrary {
+class RDM_LINEULER_API LibLinEuler : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibLinEuler> Ptr;
-  typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
+  
+  
 
   /// Constructor
-  LibLinEuler ( const std::string& name) : Common::CLibrary(name) {   }
+  LibLinEuler ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RDM.LinEuler"; }
+  static std::string library_namespace() { return "cf3.RDM.LinEuler"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "LinEuler"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -63,19 +63,11 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibLinEuler"; }
 
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
 }; // end LibLinEuler
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_LibLinEuler_hpp
+#endif // cf3_RDM_LibLinEuler_hpp

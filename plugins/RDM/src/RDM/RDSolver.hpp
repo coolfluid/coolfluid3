@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Solver_hpp
-#define CF_RDM_Solver_hpp
+#ifndef cf3_RDM_solver_hpp
+#define cf3_RDM_solver_hpp
 
-#include "Common/CGroup.hpp"
+#include "common/Group.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Action.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh    { class Field;    class CMesh; }
-namespace Physics { class PhysModel; class Variables; }
-namespace Solver  { namespace Actions { class CSynchronizeFields; } }
+namespace mesh    { class Field;    class Mesh; }
+namespace physics { class PhysModel; class Variables; }
+namespace solver  { namespace actions { class CSynchronizeFields; } }
 
 namespace RDM {
 
@@ -38,12 +38,12 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public CF::Solver::CSolver {
+class RDM_API RDSolver : public cf3::solver::CSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<RDSolver> Ptr;
-  typedef boost::shared_ptr<RDSolver const> ConstPtr;
+
+
 
 public: // functions
 
@@ -73,12 +73,12 @@ public: // functions
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping();
   /// @return subcomponent to prepare mesh for solving
-  CActionDirector&      prepare_mesh();
+  common::ActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
-  Common::CGroup& actions();
+  common::Group& actions();
   /// @returns the group of shared fields
-  Common::CGroup& fields();
+  common::Group& fields();
 
   /// @name SIGNALS
   //@{
@@ -94,29 +94,29 @@ private: // helper functions
   void config_mesh();
 
   /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( Common::SignalArgs& args );
+  void on_mesh_changed_event( common::SignalArgs& args );
 
 private: // data
 
-  Common::CGroup::Ptr m_actions;  ///< the group of shared actions
+  Handle< common::Group > m_actions;  ///< the group of shared actions
 
-  Common::CGroup::Ptr m_fields;   ///< the group of fields
+  Handle< common::Group > m_fields;   ///< the group of fields
 
-  boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
+  Handle<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
-  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
 
-  boost::shared_ptr<DomainDiscretization> m_domain_discretization; ///< subcomponent for domain terms
+  Handle<DomainDiscretization> m_domain_discretization; ///< subcomponent for domain terms
 
-  boost::shared_ptr<IterativeSolver>      m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<IterativeSolver>      m_iterative_solver;      ///< subcomponent for non linear iterative steps
 
-  boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
+  Handle<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
-  boost::shared_ptr<CActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<ActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
 
-  boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
+  Handle< physics::PhysModel >   m_physical_model;        ///< physical model
 
-  boost::weak_ptr<Mesh::CMesh> m_mesh; ///< mesh which this solver operates
+  Handle<mesh::Mesh> m_mesh; ///< mesh which this solver operates
 
 };
 
@@ -124,6 +124,6 @@ private: // data
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Solver_hpp
+#endif // cf3_RDM_solver_hpp

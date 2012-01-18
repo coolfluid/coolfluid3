@@ -4,48 +4,53 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/FindComponents.hpp"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CList.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
+#include "common/FindComponents.hpp"
+#include "common/List.hpp"
+
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Init, CF::Solver::Action, LibRDM > Init_Builder;
+common::ComponentBuilder < Init, common::Action, LibRDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "field", &m_field ))
-      ->pretty_name("Solution Field")
-      ->description("The field to Initialize");
+  options().add_option("field", m_field )
+      .pretty_name("Solution Field")
+      .description("The field to Initialize")
+      .link_to(&m_field);
 
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
-      ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as Dirichlet boundary condition (vars x,y)")
+      .attach_trigger ( boost::bind ( &Init::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -53,7 +58,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 
@@ -63,37 +68,36 @@ void Init::config_function()
 
 void Init::execute()
 {
-  if( is_null( m_field.lock() ) )
-    m_field = solver().as_type<RDM::RDSolver>().fields()
-        .get_child( RDM::Tags::solution() ).as_ptr_checked<Field>();
+  if( is_null( m_field ) )
+    m_field = solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::solution() )->handle<Field>();
 
-  Field& field = *m_field.lock();
+  Field& field = *m_field;
 
   //  std::cout << "   field.size() == " << field.size() << std::endl;
-  //  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
+  //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
   RealVector return_val( field.row_size() );
 
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
   {
-    /// @warning assumes that field maps one to one with mesh.geometry()
+    /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    Geometry& nodes = mesh().geometry();
+    SpaceFields& nodes = mesh().geometry_fields();
 
-    boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {
-      cf_assert(node < field.size());
+      cf3_assert(node < field.size());
 
-      CTable<Real>::ConstRow coords = nodes.coordinates()[node];
+      Table<Real>::ConstRow coords = nodes.coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
 
       m_function.evaluate(vars,return_val);
 
-      CTable<Real>::Row data_row = field[node];
+      Table<Real>::Row data_row = field[node];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }
@@ -105,4 +109,4 @@ void Init::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

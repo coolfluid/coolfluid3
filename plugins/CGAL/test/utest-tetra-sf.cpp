@@ -13,26 +13,28 @@
 #include <boost/foreach.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/FindComponents.hpp"
-#include "Common/Log.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Log.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
+#include "common/Table.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Field.hpp"
 
-#include "Mesh/LagrangeP1/Tetra3D.hpp"
-#include "Mesh/ElementTypes.hpp"
+#include "mesh/LagrangeP1/Tetra3D.hpp"
+#include "mesh/ElementTypes.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::CGAL;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::mesh::CGAL;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,19 +43,19 @@ struct GlobalFixture {
 
   GlobalFixture() {
     if(!sphere) {
-      sphere = allocate_component<CMesh>("sphere");
+      sphere = allocate_component<Mesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+      boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
       URI file_out("sphere.msh");
       meshwriter->write_from_to(*sphere,file_out);
     }
   }
 
-  static CMesh::Ptr sphere;
+  static boost::shared_ptr< Mesh > sphere;
 };
 
-CMesh::Ptr GlobalFixture::sphere = CMesh::Ptr();
+boost::shared_ptr< Mesh > GlobalFixture::sphere = boost::shared_ptr< Mesh >();
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +63,7 @@ CMesh::Ptr GlobalFixture::sphere = CMesh::Ptr();
 struct TetraSFFixture
 {
   TetraSFFixture() : sphere(*GlobalFixture::sphere) {}
-  const CMesh& sphere;
+  const Mesh& sphere;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -72,7 +74,7 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CElements& aregion, FunctorT afunctor )
+  LoopElems( const Elements& aregion, FunctorT afunctor )
     : region(aregion),
       functor(afunctor)
   {}
@@ -85,10 +87,10 @@ struct LoopElems
     if( !IsElementType<EType>()(region.element_type()) )
       return;
 
-    typename CTable<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
-    const CTable<Real>& coords = region.geometry().coordinates();
+    typename Table<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
+    const Table<Real>& coords = region.geometry_fields().coordinates();
     // loop on elements
-    BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)
+    BOOST_FOREACH(const Table<Uint>::ConstRow& elem, conn_table)
     {
       typename EType::NodesT nodes;
       fill(nodes, coords, elem );
@@ -96,14 +98,14 @@ struct LoopElems
     }
   }
 
-  const CElements& region;
+  const Elements& region;
   FunctorT functor;
 };
 
 /// Looping over all elements in a range of regions
 template<typename RangeT, typename FunctorT>
 void loop_over_regions(const RangeT& range, FunctorT functor) {
-  BOOST_FOREACH(const CElements& region, range) {
+  BOOST_FOREACH(const Elements& region, range) {
     boost::mpl::for_each<LagrangeP1::CellTypes>( LoopElems<FunctorT> ( region, functor ) );
   }
 }
@@ -132,7 +134,7 @@ BOOST_FIXTURE_TEST_SUITE( TetraSF, TetraSFFixture )
 BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
-  loop_over_regions(find_components_recursively<CElements>(sphere), VolumeFunctor(volume));
+  loop_over_regions(find_components_recursively<Elements>(sphere), VolumeFunctor(volume));
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 

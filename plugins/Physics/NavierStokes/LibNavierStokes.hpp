@@ -4,29 +4,29 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_NavierStokes_LibNavierStokes_hpp
-#define CF_NavierStokes_LibNavierStokes_hpp
+#ifndef cf3_NavierStokes_LibNavierStokes_hpp
+#define cf3_NavierStokes_LibNavierStokes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro NavierStokes_API
 /// @note build system defines COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
 #ifdef COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS
-#   define NavierStokes_API      CF_EXPORT_API
+#   define NavierStokes_API      CF3_EXPORT_API
 #   define TEMPLATE
 #else
-#   define NavierStokes_API      CF_IMPORT_API
-#   define NavierStokes_TEMPLATE CF_TEMPLATE_EXTERN
+#   define NavierStokes_API      CF3_IMPORT_API
+#   define NavierStokes_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 
 /// @brief %Physics %NavierStokes classes
 ///
@@ -38,30 +38,30 @@ namespace NavierStokes {
 
 /// Class defines the NavierStokes library
 /// @author Tiago Quintino
-class NavierStokes_API LibNavierStokes : public Common::CLibrary
+class NavierStokes_API LibNavierStokes : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibNavierStokes> Ptr;
-  typedef boost::shared_ptr<LibNavierStokes const> ConstPtr;
+  
+  
 
   /// Constructor
-  LibNavierStokes ( const std::string& name) : Common::CLibrary(name) { }
+  LibNavierStokes ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibNavierStokes() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.NavierStokes"; }
+  static std::string library_namespace() { return "cf3.physics.NavierStokes"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "NavierStokes"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -72,22 +72,14 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibNavierStokes"; }
 
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
 }; // end LibNavierStokes
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
-} // CF
+} // physics
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_NavierStokes_LibNavierStokes_hpp
+#endif // cf3_NavierStokes_LibNavierStokes_hpp

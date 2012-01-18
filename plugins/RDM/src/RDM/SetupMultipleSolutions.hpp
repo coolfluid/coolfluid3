@@ -4,30 +4,30 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SetupMultipleSolutions_hpp
-#define CF_RDM_SetupMultipleSolutions_hpp
+#ifndef cf3_RDM_SetupMultipleSolutions_hpp
+#define cf3_RDM_SetupMultipleSolutions_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 
 #include "RDM/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 
 namespace RDM {
 
 
-class RDM_API SetupMultipleSolutions : public CF::Solver::Action {
+class RDM_API SetupMultipleSolutions : public cf3::solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<SetupMultipleSolutions> Ptr;
-  typedef boost::shared_ptr<SetupMultipleSolutions const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -50,6 +50,6 @@ public: // functions
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SetupMultipleSolutions_hpp
+#endif // cf3_RDM_SetupMultipleSolutions_hpp

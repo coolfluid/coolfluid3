@@ -4,37 +4,40 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SchemeBase_hpp
-#define CF_RDM_SchemeBase_hpp
+#ifndef cf3_RDM_SchemeBase_hpp
+#define cf3_RDM_SchemeBase_hpp
 
 #include <functional>
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include <boost/assign.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/BasicExceptions.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Connectivity.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,13 +47,13 @@ namespace RDM {
 /// the physical variables
 /// @author Tiago Quintino
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public Solver::Actions::CLoopOperation {
+class RDM_API SchemeBase : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeBase > Ptr;
-  typedef boost::shared_ptr< SchemeBase const> ConstPtr;
+
+
 
 public: // functions
 
@@ -68,7 +71,7 @@ public: // functions
 
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ( const Mesh::CTable<Uint>::ConstRow& nodes_idx );
+  void interpolate ( const common::Table<Uint>::ConstRow& nodes_idx );
 
   void sol_gradients_at_qdpoint(const Uint q);
 
@@ -77,16 +80,16 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::Field >();
+        elements().geometry_fields().coordinates().handle< mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock();
-    residual   = cresidual.lock();
-    wave_speed = cwave_speed.lock();
+    solution   = csolution;
+    residual   = cresidual;
+    wave_speed = cwave_speed;
   }
 
 protected: // typedefs
@@ -119,20 +122,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
+  Handle< mesh::Field > csolution;   ///< solution field
+  Handle< mesh::Field > cresidual;   ///< residual field
+  Handle< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CConnectivity::Ptr connectivity;
+  Handle< mesh::Connectivity > connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::Field::Ptr coordinates;
+  Handle< mesh::Field > coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr solution;
+  Handle< mesh::Field > solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr residual;
+  Handle< mesh::Field > residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr wave_speed;
+  Handle< mesh::Field > wave_speed;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -200,15 +203,12 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
-  m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
-  m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
+  options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
+  options().add_option(RDM::Tags::wave_speed(), cwave_speed).link_to(&cwave_speed);
+  options().add_option(RDM::Tags::residual(), cresidual).link_to(&cresidual);
 
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   // initializations
@@ -253,13 +253,13 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& nodes_idx )
+void SchemeBase<SF, QD,PHYS>::interpolate( const common::Table<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be tested for 3D
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(X_n, *coordinates, nodes_idx );
+  mesh::fill(X_n, *coordinates, nodes_idx );
 
   // copy the solution from the large array to a small
 
@@ -345,6 +345,6 @@ void SchemeBase<SF, QD,PHYS>::sol_gradients_at_qdpoint(const Uint q)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SchemeBase_hpp
+#endif // cf3_RDM_SchemeBase_hpp

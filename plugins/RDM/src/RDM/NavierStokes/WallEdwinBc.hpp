@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_WallEdwinBc_hpp
-#define CF_RDM_WallEdwinBc_hpp
+#ifndef cf3_RDM_WallEdwinBc_hpp
+#define cf3_RDM_WallEdwinBc_hpp
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -28,8 +28,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<WallEdwinBc> Ptr;
-  typedef boost::shared_ptr<WallEdwinBc const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -52,7 +52,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> solution;
+  Handle<mesh::Field> solution;
 
 }; // !WallEdwinBc
 
@@ -66,8 +66,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -181,11 +181,11 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+   const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 
@@ -284,8 +284,8 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_WallEdwinBc_hpp
+#endif // cf3_RDM_WallEdwinBc_hpp

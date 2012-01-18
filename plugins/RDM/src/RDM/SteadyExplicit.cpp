@@ -6,18 +6,19 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Signal.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/Log.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/WriteMesh.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModelSteady.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -37,28 +38,28 @@
 
 #include "SteadyExplicit.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 
-Common::ComponentBuilder < SteadyExplicit, CF::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
+common::ComponentBuilder < SteadyExplicit, cf3::solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  CF::Solver::CWizard ( name )
+  cf3::solver::CWizard ( name )
 {
   // signals
 
   regist_signal( "create_model" )
-    ->connect( boost::bind( &SteadyExplicit::signal_create_model, this, _1 ) )
-    ->description("Creates a model for solving steady problms with RD using explicit iterations")
-    ->pretty_name("Create Model");
+    .connect( boost::bind( &SteadyExplicit::signal_create_model, this, _1 ) )
+    .description("Creates a model for solving steady problms with RD using explicit iterations")
+    .pretty_name("Create Model");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -76,11 +77,11 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 {
   // (1) create the model
 
-  CModel& model = Common::Core::instance().root().create_component<CModelSteady>( model_name );
+  CModel& model = *common::Core::instance().root().create_component<CModelSteady>( model_name );
 
   // (2) create the domain
 
-  CDomain& domain = model.create_domain( "Domain" );
+  Domain& domain = model.create_domain( "Domain" );
 
   // (3) create the Physical Model
 
@@ -90,43 +91,41 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (4) setup solver
 
-  CF::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
+  Handle<cf3::RDM::RDSolver> solver = model.create_solver( "cf3.RDM.RDSolver" ).handle<cf3::RDM::RDSolver>();
 
-  solver.mark_basic();
+  solver->mark_basic();
 
-  solver.time_stepping().configure_option_recursively( "maxiter",   1u);
+  solver->time_stepping().configure_option_recursively( "maxiter",   1u);
 
   // (4a) setup iterative solver reset action
 
-  Reset::Ptr reset  = allocate_component<Reset>("Reset");
-  reset->configure_option( RDM::Tags::solver(), solver.uri() );
-  solver.iterative_solver().pre_actions().append( reset );
+  Handle<Reset> reset(solver->iterative_solver().pre_actions().create_component<Reset>("Reset"));
+  reset->options().configure_option( RDM::Tags::solver(), solver->handle<CSolver>() );
 
   std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
                                                               ( RDM::Tags::wave_speed() );
-  reset->configure_option("FieldTags", reset_tags);
+  reset->options().configure_option("FieldTags", reset_tags);
 
   // (4c) setup iterative solver explicit time stepping  - forward euler
 
-  solver.iterative_solver().update()
-      .append( allocate_component<FwdEuler>("Step") );
+  solver->iterative_solver().update().create_component<FwdEuler>("Step");
 
   // (4d) setup solver fields
-
-  SetupSingleSolution::Ptr setup = allocate_component<SetupSingleSolution>("SetupFields");
-  solver.prepare_mesh().append(setup);
+  solver->prepare_mesh().create_component<SetupSingleSolution>("SetupFields");
 
   // (5) configure domain, physical model and solver in all subcomponents
 
-  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
-  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
-  solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
+  solver->configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
+  solver->configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
+  solver->configure_option_recursively( RDM::Tags::solver(),         solver->handle<CSolver>() );
 
+  CFinfo << tree() << CFendl;
+  
   return model;
 }
 
 
-void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
+void SteadyExplicit::signal_create_model ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -142,9 +141,9 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("model_name", std::string() )
-      ->description("Name for created model" )
-      ->pretty_name("Model Name");
+  options.add_option("model_name", std::string() )
+      .description("Name for created model" )
+      .pretty_name("Model Name");
 
   std::vector<boost::any> models = boost::assign::list_of
       ( Scalar::Scalar2D::type_name() )
@@ -152,13 +151,13 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add_option< OptionT<std::string> >("physical_model", std::string() )
-      ->description("Name of the Physical Model")
-      ->pretty_name("Physical Model Type")
-      ->restricted_list() = models;
+  options.add_option("physical_model", std::string() )
+      .description("Name of the Physical Model")
+      .pretty_name("Physical Model Type")
+      .restricted_list() = models;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

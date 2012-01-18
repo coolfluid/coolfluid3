@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BcDirichlet_hpp
-#define CF_RDM_BcDirichlet_hpp
+#ifndef cf3_RDM_BcDirichlet_hpp
+#define cf3_RDM_BcDirichlet_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -24,8 +24,8 @@ class RDM_API BcDirichlet : public RDM::BoundaryTerm {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<BcDirichlet> Ptr;
-  typedef boost::shared_ptr<BcDirichlet const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -50,15 +50,15 @@ private: // helper functions
 private: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution;
   /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  m_function;
+  math::VectorialFunction  m_function;
 
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_BcDirichlet_hpp
+#endif // cf3_RDM_BcDirichlet_hpp

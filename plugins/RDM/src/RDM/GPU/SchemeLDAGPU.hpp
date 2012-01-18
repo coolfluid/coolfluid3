@@ -12,37 +12,37 @@
 
 #include <Eigen/Dense>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CFieldView.hpp"
+#include "mesh/CNodes.hpp"
+#include "mesh/ElementType.hpp"
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeLDAGPU > Ptr;
-  typedef boost::shared_ptr< SchemeLDAGPU const> ConstPtr;
+  
+  
 
   CLEnv env;
 
@@ -72,22 +72,22 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
-    coordinates = elements().nodes().coordinates().as_ptr< Mesh::Field >();
+    connectivity = elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+    coordinates = elements().nodes().coordinates().handle< mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );
 
     /// @todo modify these to option components configured from
 
-    Mesh::CField::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "solution" );
+    Handle< mesh::CField > csolution = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    Mesh::CField::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "residual" );
+    Handle< mesh::CField > cresidual = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "wave_speed" );
+    Handle< mesh::CField > cwave_speed = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "wave_speed" );
     cf_assert( is_not_null( cwave_speed ) );
     wave_speed = cwave_speed->data_ptr();
   }
@@ -96,15 +96,15 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity;
+  Handle< common::Table<Uint> > connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  Handle< common::Table<Real> > coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  Handle< common::Table<Real> > solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr residual;
+  Handle< common::Table<Real> > residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr wave_speed;
+  Handle< common::Table<Real> > wave_speed;
 
   const QD& m_quadrature;
 
@@ -129,7 +129,7 @@ SchemeLDAGPU<SF,QD,PHYS>::SchemeLDAGPU ( const std::string& name ) :
 {
   regist_typeinfo(this);
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SF,QD,PHYS>::change_elements, this ) );
+  options()["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SF,QD,PHYS>::change_elements, this ) );
 
   m_phi.resize(SF::nb_nodes);
 

@@ -4,26 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_FwdEuler_hpp
-#define CF_RDM_FwdEuler_hpp
+#ifndef cf3_RDM_FwdEuler_hpp
+#define cf3_RDM_FwdEuler_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Mesh { class Field; }
+namespace cf3 {
+namespace mesh { class Field; }
 namespace RDM {
 
-class RDM_API FwdEuler : public CF::Solver::Action {
+class RDM_API FwdEuler : public cf3::solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<FwdEuler> Ptr;
-  typedef boost::shared_ptr<FwdEuler const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -42,17 +42,17 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::Field> m_residual;
+  Handle<mesh::Field> m_residual;
   /// wave_speed field pointer
-  boost::weak_ptr<Mesh::Field> m_wave_speed;
+  Handle<mesh::Field> m_wave_speed;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_FwdEuler_hpp
+#endif // cf3_RDM_FwdEuler_hpp

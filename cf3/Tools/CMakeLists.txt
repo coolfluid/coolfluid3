@@ -1,0 +1,35 @@
+coolfluid_find_orphan_files()
+
+# a library providing an interface to plot x-y plots with gnuplot
+add_subdirectory( Gnuplot )
+
+# a library providing an interface to profiling with google perftools
+add_subdirectory( GooglePerfTools )
+
+# a library to send notifications to the iPhone app Prowl
+add_subdirectory( Prowl )
+
+# a library to send notifications to Growl
+add_subdirectory( Growl )
+
+# a library to help testing differences in arrays
+add_subdirectory( Testing )
+
+# a simple block mesh generator
+add_subdirectory( MeshGeneration )
+
+# a library to help testing differences in meshes
+add_subdirectory( MeshDiff )
+
+# a command-line app to manipulate meshes
+add_subdirectory( mesh_transformer )
+
+# acommand-line tool to execute a batch of coolfluid commands
+add_subdirectory( Shell )
+
+# acommand-line tool to execute a batch of coolfluid commands
+add_subdirectory( Command )
+
+# a solver app to be spawned from the coolfluid-server
+# to run parallel simulations ( started from the UI )
+add_subdirectory( solver )

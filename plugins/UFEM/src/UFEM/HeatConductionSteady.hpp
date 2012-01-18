@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_HeatConductionSteady_hpp
-#define CF_UFEM_HeatConductionSteady_hpp
+#ifndef cf3_UFEM_HeatConductionSteady_hpp
+#define cf3_UFEM_HeatConductionSteady_hpp
 
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
 #include "LinearSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
@@ -22,8 +22,8 @@ class UFEM_API HeatConductionSteady : public LinearSolver
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<HeatConductionSteady> Ptr;
-  typedef boost::shared_ptr<HeatConductionSteady const> ConstPtr;
+  
+  
 
 public: // functions
   
@@ -36,7 +36,7 @@ public: // functions
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_HeatConductionSteady_hpp
+#endif // cf3_UFEM_HeatConductionSteady_hpp

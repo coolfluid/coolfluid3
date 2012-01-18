@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Quadrature_hpp
-#define CF_RDM_Quadrature_hpp
+#ifndef cf3_RDM_Quadrature_hpp
+#define cf3_RDM_Quadrature_hpp
 
-#include "Mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
-#include "Mesh/Integrators/GaussImplementation.hpp"
+#include "mesh/Integrators/GaussImplementation.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,9 +33,9 @@ inline Real minus ( Real x )
 template < typename TYPE >
 struct IsElementType
 {
-  bool operator()(const Mesh::CElements& component)
+  bool operator()(const mesh::Elements& component)
   {
-    return Mesh::IsElementType<TYPE>()( component.element_type() );
+    return mesh::IsElementType<TYPE>()( component.element_type() );
   }
 };
 
@@ -44,13 +44,13 @@ struct IsElementType
 template < typename SF, Uint order = SF::order >
 struct DefaultQuadrature
 {
-  typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
+  typedef mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SupportedCells_hpp
+#endif // cf3_RDM_SupportedCells_hpp

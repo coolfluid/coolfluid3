@@ -5,27 +5,27 @@ configure Environment log_level:unsigned=3
 
 echo "Canceled for now. Run atest-sfdm-euler1D-shocktube-P0"
 
-call //Root/Libraries/load_libraries "libs:array[uri]=\
+call //Libraries/load_libraries "libs:array[uri]=\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_euler"
 
-create wizard CF.SFDM.SFDWizard
+create wizard cf3SFDM.SFDWizard
 configure wizard \
    model:string=SFD_simulation \
-   solution_state:string=CF.Euler.Cons1D \
-   roe_state:string=CF.Euler.Roe1D \
+   solution_state:string=cf3Euler.Cons1D \
+   roe_state:string=cf3Euler.Roe1D \
    P:unsigned=2 \
    cfl:real=0.25 \
    RK_stages:unsigned=4
 
 call wizard/create_simulation
 
-create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+create SFD_simulation/tools/meshgen cf3Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=1 \
   nb_cells:array[unsigned]=100 \
-  parent:uri=cpath://Root/SFD_simulation/Domain
+  parent:uri=cpath:/SFD_simulation/Domain
 SFD_simulation/tools/meshgen
 
 call wizard/prepare_simulation

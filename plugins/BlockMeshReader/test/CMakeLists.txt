@@ -1,13 +1,9 @@
 ################################################################################
 
-list( APPEND utest-block-mesh-reader_cflibs coolfluid_mesh_blockmesh coolfluid_mesh_blockmesh_reader coolfluid_mesh_neu coolfluid_meshdiff )
-list( APPEND utest-block-mesh-reader_files   utest-block-mesh-reader.cpp )
-
-list( APPEND utest-block-mesh-reader_args ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
-
-set( utest-block-mesh-reader_condition ${CF_TMP_HAVE_SIMPLECOMM} )
-
-coolfluid_add_unit_test( utest-block-mesh-reader )
+coolfluid_add_test( UTEST      utest-block-mesh-reader
+                    CPP        utest-block-mesh-reader.cpp
+                    ARGUMENTS  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                    LIBS       coolfluid_mesh_blockmesh coolfluid_mesh_blockmesh_reader coolfluid_mesh_neu coolfluid_meshdiff)
 
 ################################################################################
 

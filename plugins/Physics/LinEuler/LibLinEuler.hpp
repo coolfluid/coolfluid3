@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_LinEuler_LibLinEuler_hpp
-#define CF_Physics_LinEuler_LibLinEuler_hpp
+#ifndef cf3_physics_LinEuler_LibLinEuler_hpp
+#define cf3_physics_LinEuler_LibLinEuler_hpp
 
 
-#include "Common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 /// Define the macro LinEuler_API
 /// @note build system defines COOLFLUID_PHYSICS_LINEULER_EXPORTS when compiling LinEuler files
 #ifdef COOLFLUID_PHYSICS_LINEULER_EXPORTS
-#   define LinEuler_API      CF_EXPORT_API
+#   define LinEuler_API      CF3_EXPORT_API
 #   define TEMPLATE
 #else
-#   define LinEuler_API      CF_IMPORT_API
-#   define LinEuler_TEMPLATE CF_TEMPLATE_EXTERN
+#   define LinEuler_API      CF3_IMPORT_API
+#   define LinEuler_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 
 /// @brief %Linearized Euler equations for sound propagation
 ///
@@ -34,30 +34,30 @@ namespace LinEuler {
 
 /// Class defines the LinEuler library
 /// @author Tiago Quintino
-class LinEuler_API LibLinEuler : public Common::CLibrary
+class LinEuler_API LibLinEuler : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibLinEuler> Ptr;
-  typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
+  
+  
 
   /// Constructor
-  LibLinEuler ( const std::string& name) : Common::CLibrary(name) { }
+  LibLinEuler ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibLinEuler() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.LinEuler"; }
+  static std::string library_namespace() { return "cf3.physics.LinEuler"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "LinEuler"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -68,21 +68,13 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibLinEuler"; }
 
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
 }; // end LibLinEuler
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
-} // CF
+} // physics
+} // cf3
 
-#endif // CF_Physics_LinEuler_LibLinEuler_hpp
+#endif // cf3_physics_LinEuler_LibLinEuler_hpp
 

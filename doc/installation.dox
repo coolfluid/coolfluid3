@@ -1,67 +1,129 @@
-namespace CF{
+namespace cf3{
 /**
 @page installation Installing a developer version
 
 @note This tutorial works only for Linux and Mac OS X command line <a href="http://en.wikipedia.org/wiki/Bash_(Unix_shell)">bash</a> environments.
 
-@section _installation_prepare_the_structure Prepare the structure
 
-You will get coolfluid sources and build the software that coolfluid depends on.
-You just need to do phase only once. 
-You may repeat this phase if you want to refresh the versions of the installed software.
+@section _installation_register New Developers
 
-@subsection _installation_make_a_dir_structure Make a dir structure
+The main development of coolfluid3 is hosted as a <a href=http://git-scm.com/>git</a> repository on <a href=https://github.com>github</a> .
+
+Developers are required to create a github account at https://github.com and create a fork of their own version of coolfluid3 from
+https://github.com/coolfluid/coolfluid3 .
+
+Developers new to git or github should read github's excellent <a href=http://help.github.com/>help pages</a>.
+
+You should now have your own repository of coolfluid3 at  https://github.com/your_name/coolfluid3 .
+
+@section _installation_get_sources Get the sources
+
+Make sure you have git installed, and configured for github as described <a href=http://help.github.com/set-up-git-redirect>here</a>.
 
 Create a directory to hold your sources and the build files:
 
 @verbatim
 $> mkdir coolfluid3
 $> cd coolfluid3
+$> git clone git@github.com:your_name/coolfluid3.git kernel
 @endverbatim
 
 Lets remember this directory to help the rest of the installation:
 
 @verbatim
-$> export COOLDIR=$PWD
+$> export CF3=$PWD
 @endverbatim
 
-@subsection _installation_get_the_sources Get the sources
+@section _installation_prerequisites Prerequisites
 
-Get the development version (named "trunk") into a "kernel" subdir. Give your developer login and password.
+COOLFluiD 3 depends on several third-party libraries, to enable extra functionality. Of all the third-party libraries,
+only 3 are absolutely necessary. These dependencies will allow coolfluid to build with minimum functionality, and several
+disabled coolfluid libraries.
 
+<ul>
+ <li> <a href=http://www.cmake.org/> CMake </a> version 2.8.2 or higher.
+ <li> <a href=http://www.boost.org/> Boost C++ Libraries </a>, offering a multitude of nice additions to C++.
+ <ul>
+  <li> Mandatory boost build options: @verbatim --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options @endverbatim
+  <li> Extra recommended boost build options:  @verbatim --with-python @endverbatim
+ </ul>
+ <li> <a href=http://www.open-mpi.org> open-mpi </a> or any other <a href=http://www.mcs.anl.gov/research/projects/mpi/>MPI</a> distribution.
+</ul>
+
+Besides creating C++ applications using the coolfluid libraries, coolfluid libraries can also be used in two additional ways.
+It is therefore highly recommended to make sure following dependencies are also available:
+<ul>
+  <li> coolfluid-client user interface, based on <a href=http://qt.nokia.com>Nokia's Qt Libraries</a>, providing full client-server interaction.
+  <ul>
+    <li> The open source version of the Qt Libraries can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
+  </ul>
+  <li> <a href=http://www.python.org/>Python</a> scripting.
+  <ul>
+    <li> Python must be available
+    <li> boost must be compiled with Python support
+  </ul>
+</ul>
+
+Other recommended third party libraries:
+<ul>
+  <li> Any of these parallel distributed mesh-partitioning libraries:
+  <ul>
+    <li> <a href=http://www.labri.fr/perso/pelegrin/scotch/>PTScotch</a>
+    <li> <a href=http://www.cs.sandia.gov/Zoltan/>Zoltan</a> (also sub-package of Trilinos)
+  </ul>
+  <li> <a href=http://trilinos.sandia.gov/>Trilinos</a> for solving parallel distributed linear systems
+  <li> <a href=http://cgns.sourceforge.net/>CGNS</a> to read and write meshes in cgns format
+  <li> <a href=http://www.paraview.org/>Paraview</a> libraries compiled with MPI for use with the coolfluid-client user interface, to visualize meshes.
+</ul>
+
+Other supported third party libraries of little use at the moment:
+<ul>
+  <li> <a href=http://www.cgal.org/>CGAL</a> for geometry related algorithms and mesh triangulation
+  <li> <a href=http://code.google.com/p/google-perftools/>google-perftools</a> to inspect performance
+  <li> <a href=http://crd.lbl.gov/~xiaoye/SuperLU/>superlu</a> to solve linear systems (not parallel)
+</ul>
+
+@subsection _installation_install_deps Installation of dependencies
+To make life easier for you, we provide a script with the coolfluid sources that downloads and installs the
+required dependencies, but without any guarantee of success for your specific architecture.
+It is also recommended to install the dependencies not in the system, but in your home directory where you have
+all the access-privileges (e.g. on high-performance computing clusters).
+
+Qt must be installed beforehand, (not through the script). Source code as well as pre-compiled binaries
+can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
+
+Continuing where we left off:
 @verbatim
-$> svn co https://coolfluidsrv.vki.ac.be/svn/coolfluid3/trunk   kernel
+$> mkdir $CF3/deps
+$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=cmake,boost,openmpi,zoltan,trilinos,cgns,paraview
 @endverbatim
+It is self-explanatory that one can add or remove any of the arguments given after "openmpi".
 
-@subsection _installation_build_dependencies Build dependencies
-
-Then build/install the software dependencies:
-
-@verbatim
-$> cd kernel
-$> ./tools/install-deps.pl --install-dir=$COOLDIR/deps --install=recommended
-@endverbatim
 
 @subsection _installation_export_dependencies Export dependencies
 
-You might want to save this in your bash startup script (~/.bash_profile), where @c $COOLDIR has to be replaced by the path to the coolfluid3 dir.
+Since the dependencies were not installed in the system directories but in $CF3/deps, we have to let the system know to look
+for these dependencies there.
+
+You might want to save this in your bash startup script (~/.bash_profile or ~/.bash_rc  -- create it if it doesn't exist)
 @verbatim
-$> export PATH=$COOLDIR/deps/bin:$PATH
-$> export LD_LIBRARY_PATH=$COOLDIR/deps/lib:$LD_LIBRARY_PATH
-$> export DYLD_LIBRARY_PATH=$COOLDIR/deps/lib:$DYLD_LIBRARY_PATH
+$> export CF3=complete/path/to/coolfluid3    # notice to replace the complete path!
+$> export PATH=$CF3/deps/bin:$PATH
+$> export LD_LIBRARY_PATH=$CF3/deps/lib:$LD_LIBRARY_PATH
+$> export DYLD_LIBRARY_PATH=$CF3/deps/lib:$DYLD_LIBRARY_PATH
 @endverbatim
 
 <hr>
 
 @section _installation_build_coolfluid Build COOLFluiD
 
-On this phase you will select your building options for CF.
+On this phase you will select your building options for cf3
 Repeat this phase as often as you need and whenever you want to refresh your build directory.
 
 @subsection _installation_create_a_build_directory_separate_from_the_sources Create a build directory separate from the sources
 
 @verbatim
-$> cd $COOLDIR
+$> cd $CF3
 $> mkdir build
 @endverbatim
 
@@ -70,8 +132,8 @@ $> mkdir build
 Unlike COOLFluiD 2, there is no prepare.pl script. The developer must now call CMake directly.
 CMake is a cross platform configuration/build system. The developer is advised to read the <a href="http://www.cmake.org/cmake/help/documentation.html">CMake documentation</a> for advanced configuration.
 @verbatim
-$> cd $COOLDIR/build
-$> cmake ../kernel -DDEPS_ROOT=$COOLDIR/deps
+$> cd $CF3/build
+$> cmake ../kernel -DDEPS_ROOT=$CF3/deps
 @endverbatim
 
 @subsubsection _installation_build_type_options Build type options
@@ -89,18 +151,18 @@ Available build types are:
 @subsubsection _installation_some_more_configuration_options Some more configuration options
 
 @verbatim
--DCF_CXX_FLAGS="-march=Core2"
--DCF_SKIP_FORTRAN=ON 
--DCF_ENABLE_WARNINGS=OFF
--DCF_ENABLE_SANDBOX=ON
--DCF_ENABLE_GUI=OFF
+-DCF3_CXX_FLAGS="-march=Core2"
+-DCF3_SKIP_FORTRAN=ON 
+-DCF3_ENABLE_WARNINGS=OFF
+-DCF3_ENABLE_SANDBOX=ON
+-DCF3_ENABLE_GUI=OFF
 @endverbatim
 
 @subsubsection _installation_customizing_configuration_further Customizing configuration further
 
 Calling the command
 @verbatim
-$> cd $COOLDIR/build
+$> cd $CF3/build
 $> ccmake ./
 @endverbatim
 This will show the interactive CMake configuration, where all available options are visible and can be changed. Press 'c' to configure, and afterwards 'g' to generate the build files.
@@ -109,7 +171,7 @@ This will show the interactive CMake configuration, where all available options 
 
 By default, the CMake configuration generates <a href="http://en.wikipedia.org/wiki/Make_(software)">makefiles</a> to compile %COOLFluiD. This is used by
 @verbatim
-$> cd $COOLDIR/build
+$> cd $CF3/build
 $> make -j2
 @endverbatim
 with the @c "-j2" assigning 2 processes to the compilation (e.g. for dual core)
@@ -118,8 +180,8 @@ with the @c "-j2" assigning 2 processes to the compilation (e.g. for dual core)
 
 Alternately the CMake argument @c -G"Xcode" can be used:
 @verbatim
-$> cd $COOLDIR/build
-$> cmake ../kernel -DDEPS_ROOT=$COOLDIR/deps -G"Xcode"
+$> cd $CF3/build
+$> cmake ../kernel -DDEPS_ROOT=$CF3/deps -G"Xcode"
 @endverbatim 
 This will generate an <a href="http://developer.apple.com/xcode/">Xcode</a> project instead of  makefiles. Xcode comes with a debugger and other nice features to help developers.
 @note Xcode version 4 is found to be nearly unusable due to high memory requirements at the "indexing" stage, version 3 is recommended.
@@ -128,12 +190,13 @@ This will generate an <a href="http://developer.apple.com/xcode/">Xcode</a> proj
 
 @section _installation_running_coolfluid_tests Running COOLFluiD tests
 
-%CF has many unit tests and acceptance tests. Unit tests are small executables that run each a maximum of 1 to 2 seconds, and test various classes and functions of CF. They serve also as mini-manuals and examples of how to use CF.
-Acceptance tests are typically more full simulations that take a longer time to finish. They are typically made in the form of a script that gets executed by a %CF command-line interpreter @ref coolfluid-command.
-To compile the tests, the developer has to make sure that the flags @c "-DCF_ENABLE_UNIT_TESTS" and @c "-DCF_ENABLE_ACCEPTANCE_TESTS" are passed to the CMake configuration. (They are on by default, but can be changed using @c "ccmake")
+Coolfluid has many unit tests and acceptance tests. Unit tests are small executables that run each a maximum of 1 to 2 seconds, and test various classes and functions of coolfluid. They serve also as mini-manuals and examples of how to use coolfluid.
+Acceptance tests are typically more full simulations that take a longer time to finish. They are typically made in the form of a script that gets executed by a coolfluid command-line interpreter @ref coolfluid-command.
+
+To compile the tests, the developer has to make sure that the flags @c "-DCF3_ENABLE_UNIT_TESTS" and @c "-DCF3_ENABLE_ACCEPTANCE_TESTS" are passed to the CMake configuration. (They are on by default, but can be changed using @c "ccmake")
 To run the tests:
 @verbatim
-$> cd $COOLDIR/build
+$> cd $CF3/build
 $> ctest
 @endverbatim 
 Individual tests can be selected. The developer is referred to the <a href="http://www.cmake.org/cmake/help/ctest-2-8-docs.html">CTest documentation</a>.

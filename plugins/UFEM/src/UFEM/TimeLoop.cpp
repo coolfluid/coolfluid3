@@ -4,39 +4,41 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Field.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
 #include "TimeLoop.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
-using namespace Solver;
+using namespace common;
+using namespace solver;
 
 struct TimeLoop::Implementation
 {
   Implementation(Component& comp) :
    m_component(comp)
   {
-    m_component.options().add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_time))
-    ->pretty_name("Time")
-    ->description("Component that keeps track of time for this simulation");
+    m_component.options().add_option(solver::Tags::time(), m_time)
+    .pretty_name("Time")
+    .description("Component that keeps track of time for this simulation")
+    .link_to(&m_time);
   }
   
   Component& m_component;
-  boost::weak_ptr<CTime> m_time;
+  Handle<CTime> m_time;
 };
 
 TimeLoop::TimeLoop(const std::string& name) :
-  CActionDirector(name),
+  ActionDirector(name),
   m_implementation(new Implementation(*this))
 {
 }
@@ -48,22 +50,22 @@ TimeLoop::~TimeLoop()
 
 void TimeLoop::execute()
 {
-  if(m_implementation->m_time.expired())
-    throw Common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
+  if(is_null(m_implementation->m_time))
+    throw common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
 
-  Solver::CTime& time = *m_implementation->m_time.lock();
+  solver::CTime& time = *m_implementation->m_time;
   const Real& t = time.current_time();
   const Real dt = time.dt();
   Uint iter = time.iter();
   while(t < time.end_time())
   {
-    CActionDirector::execute();
-    time.configure_option("iteration", ++iter);
-    time.configure_option("time", dt * static_cast<Real>(iter));
+    ActionDirector::execute();
+    time.options().configure_option("iteration", ++iter);
+    time.options().configure_option("time", dt * static_cast<Real>(iter));
   }
 }
 
 
 
 } // UFEM
-} // CF
+} // cf3

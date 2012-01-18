@@ -4,30 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CGroup.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/Group.hpp"
 
 #include "RDM/Scalar/LibScalar.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibScalar> LibScalar;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibScalar::initiate_impl()
-{
-}
-
-void LibScalar::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
+cf3::common::RegistLibrary<LibScalar> LibScalar;
 
 } // RDM
-} // CF
+} // cf3

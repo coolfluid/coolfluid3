@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SubsonicOutFlowWeakBc_hpp
-#define CF_RDM_SubsonicOutFlowWeakBc_hpp
+#ifndef cf3_RDM_SubsonicOutFlowWeakBc_hpp
+#define cf3_RDM_SubsonicOutFlowWeakBc_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -31,8 +31,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<SubsonicOutFlowWeakBc> Ptr;
-  typedef boost::shared_ptr<SubsonicOutFlowWeakBc const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -58,10 +58,10 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> solution;
+  Handle<mesh::Field> solution;
 
   /// function parser to set the value of pressure
-  Math::VectorialFunction  pressure_function;
+  math::VectorialFunction  pressure_function;
 
 }; // !SubsonicOutFlowWeakBc
 
@@ -75,8 +75,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -190,11 +190,11 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+   const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 
@@ -250,7 +250,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent().as_type<SubsonicOutFlowWeakBc>().pressure_function.evaluate(vars,p_out);
+    this->parent()->handle<SubsonicOutFlowWeakBc>()->pressure_function.evaluate(vars,p_out);
 
 //    std::cout << "The value of boundary pressure = " << p_out[0] << std::endl;
 //    std::cin.get();
@@ -302,8 +302,8 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_SubsonicOutFlowWeakBc_hpp
+#endif // cf3_RDM_SubsonicOutFlowWeakBc_hpp

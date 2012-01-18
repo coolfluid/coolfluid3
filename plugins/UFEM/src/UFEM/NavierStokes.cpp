@@ -4,53 +4,66 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Component.hpp"
-#include "Common/CBuilder.hpp"
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
+#include "common/Component.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
+
+#include "solver/actions/SolveLSS.hpp"
+#include "solver/actions/ZeroLSS.hpp"
+
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "NavierStokes.hpp"
 #include "Tags.hpp"
 #include "TimeLoop.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
-using namespace Solver;
-using namespace Solver::Actions::Proto;
+using namespace common;
+using namespace solver;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
 ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 {
-  options().add_option< OptionT<Real> >("initial_pressure", 0.)
-    ->description("Initial condition for the pressure")
-    ->pretty_name("Initial pressure")
-    ->link_to(&m_p0);
+  options().add_option("initial_pressure", 0.)
+    .description("Initial condition for the pressure")
+    .pretty_name("Initial pressure")
+    .link_to(&m_p0);
 
-  options().add_option< OptionT<RealVector> >("initial_velocity")
-    ->description("Initial condition for the velocity")
-    ->pretty_name("Initial velocity")
-    ->link_to(&m_u0);
+  options().add_option< std::vector<Real> >("initial_velocity")
+    .description("Initial condition for the velocity")
+    .pretty_name("Initial velocity")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_u, this));
 
-  options().add_option< OptionT<Real> >("reference_velocity")
-    ->description("Reference velocity for the calculation of the stabilization coefficients")
-    ->pretty_name("Reference velocity")
-    ->link_to(&m_coeffs.u_ref);
+  options().add_option<Real>("reference_velocity")
+    .description("Reference velocity for the calculation of the stabilization coefficients")
+    .pretty_name("Reference velocity")
+    .link_to(&m_coeffs.u_ref);
 
-  options().add_option< OptionT<Real> >("density", 1.2)
-    ->description("Mass density (kg / m^3)")
-    ->pretty_name("Density")
-    ->link_to(&m_coeffs.rho)
-    ->attach_trigger(boost::bind(&NavierStokes::trigger_rho, this));
+  options().add_option("density", 1.2)
+    .description("Mass density (kg / m^3)")
+    .pretty_name("Density")
+    .link_to(&m_coeffs.rho)
+    .attach_trigger(boost::bind(&NavierStokes::trigger_rho, this));
 
-  options().add_option< OptionT<Real> >("dynamic_viscosity", 1.7894e-5)
-    ->description("Dynamic Viscosity (kg / m s)")
-    ->pretty_name("Dynamic Viscosity")
-    ->link_to(&m_coeffs.mu);
+  options().add_option("dynamic_viscosity", 1.7894e-5)
+    .description("Dynamic Viscosity (kg / m s)")
+    .pretty_name("Dynamic Viscosity")
+    .link_to(&m_coeffs.mu);
 
+  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   MeshTerm<0, VectorField> u("Velocity", Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
@@ -68,19 +81,20 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
     << create_proto_action("InitializeU3", nodes_expression(u3 = u))
     <<
     ( // Time loop
-      create_component<TimeLoop>("TimeLoop")
-      << zero_action()
+      allocate_component<TimeLoop>("TimeLoop")
+      << allocate_component<ZeroLSS>("ZeroLSS")
       << create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
       << create_proto_action
       (
         "Assembly",
         elements_expression
         (
-          group <<
+          allowed_elements,
+          group
           (
             _A = _0, _T = _0,
             compute_tau(u, m_coeffs),
-            element_quadrature <<
+            element_quadrature
             (
               _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
@@ -95,8 +109,8 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
           )
         )
       )
-      << boundary_conditions()
-      << solve_action()
+      << allocate_component<BoundaryConditions>("BoundaryConditions")
+      << allocate_component<SolveLSS>("SolveLSS")
       << create_proto_action("UpdateU3", nodes_expression(u3 = u2))
       << create_proto_action("UpdateU2", nodes_expression(u2 = u1))
       << create_proto_action("UpdateU1", nodes_expression(u1 = u))
@@ -107,11 +121,18 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 
 void NavierStokes::trigger_rho()
 {
-  m_coeffs.one_over_rho = 1. / option("density").value<Real>();
+  m_coeffs.one_over_rho = 1. / options().option("density").value<Real>();
 }
 
+void NavierStokes::trigger_u()
+{
+  std::vector<Real> u_vec = options().option("initial_velocity").value< std::vector<Real> >();
 
-
+  const Uint nb_comps = u_vec.size();
+  m_u0.resize(nb_comps);
+  for(Uint i = 0; i != nb_comps; ++i)
+    m_u0[i] = u_vec[i];
+}
 
 } // UFEM
-} // CF
+} // cf3

@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "LinearAdv1D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::LinearAdv1D,
-                           Physics::Variables,
+common::ComponentBuilder < Scalar::LinearAdv1D,
+                           physics::Variables,
                            LibScalar >
                            Builder_LinearAdv1D;
 
@@ -29,5 +29,5 @@ LinearAdv1D::~LinearAdv1D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
-} // CF
+} // physics
+} // cf3

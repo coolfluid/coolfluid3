@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_IterativeSolver_hpp
-#define CF_SFDM_IterativeSolver_hpp
+#ifndef cf3_SFDM_IterativeSolver_hpp
+#define cf3_SFDM_IterativeSolver_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
-namespace Common { class CActionDirector; }
-namespace Solver { class CTime; }
-namespace Mesh   { class Field; }
+namespace cf3 {
+namespace common { class ActionDirector; }
+namespace solver { class CTime; }
+namespace mesh   { class Field; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API IterativeSolver : public Solver::Action {
+class SFDM_API IterativeSolver : public solver::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<IterativeSolver> Ptr;
-  typedef boost::shared_ptr<IterativeSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -42,8 +42,8 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Common::CActionDirector& pre_update()    { return *m_pre_update; }
-  Common::CActionDirector& post_update()   { return *m_post_update; }
+  common::ActionDirector& pre_update()    { return *m_pre_update; }
+  common::ActionDirector& post_update()   { return *m_post_update; }
 
   /// @name SIGNALS
   //@{
@@ -55,7 +55,7 @@ private: // functions
   /// raises the event when iteration done
   void raise_iteration_done();
 
-  void config_rk_order();
+  void config_nb_stages();
 
   void link_fields();
 
@@ -65,17 +65,17 @@ private: // data
   std::vector<Real> m_beta;
   std::vector<Real> m_gamma;
 
-  boost::weak_ptr<Mesh::Field> m_solution;
-  boost::weak_ptr<Mesh::Field> m_solution_backup;
-  boost::weak_ptr<Mesh::Field> m_residual;
-  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  Handle<mesh::Field> m_solution;
+  Handle<mesh::Field> m_solution_backup;
+  Handle<mesh::Field> m_residual;
+  Handle<mesh::Field> m_update_coeff;
 
-  boost::weak_ptr<Solver::CTime> m_time;
+  Handle<solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
-  boost::shared_ptr<Common::CActionDirector> m_pre_update;
+  Handle<common::ActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
-  boost::shared_ptr<Common::CActionDirector> m_post_update;
+  Handle<common::ActionDirector> m_post_update;
 
 };
 
@@ -83,6 +83,6 @@ private: // data
 
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_IterativeSolver_hpp
+#endif // cf3_SFDM_IterativeSolver_hpp

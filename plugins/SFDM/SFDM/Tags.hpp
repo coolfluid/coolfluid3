@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Tags_hpp
-#define CF_SFDM_Tags_hpp
+#ifndef cf3_SFDM_Tags_hpp
+#define cf3_SFDM_Tags_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/Tags.hpp"
+#include "solver/Tags.hpp"
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SFDM_API Tags : public Solver::Tags
+struct SFDM_API Tags : public solver::Tags
 {
   static const char * fields();
   static const char * actions();
@@ -30,13 +30,17 @@ struct SFDM_API Tags : public Solver::Tags
   static const char * update_coeff();
   static const char * residual();
   static const char * jacob_det();
+  static const char * plane_jacob_normal();
+
+  static const char * L2norm();
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Tags_hpp
+#endif // cf3_SFDM_Tags_hpp

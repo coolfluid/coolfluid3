@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_RotationAdv2D_hpp
-#define CF_Physics_Scalar_RotationAdv2D_hpp
+#ifndef cf3_physics_Scalar_RotationAdv2D_hpp
+#define cf3_physics_Scalar_RotationAdv2D_hpp
 
-#include "Common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "common/StringConversion.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "Scalar2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U = 0 };
 
-  typedef boost::shared_ptr<RotationAdv2D> Ptr;
-  typedef boost::shared_ptr<RotationAdv2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -75,6 +75,16 @@ public: // functions
   {
     flux(0,XX)   = p.v[XX] * p.u;
     flux(0,YY)   = p.v[YY] * p.u;
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    flux[0] = p.u * (p.v[XX] * direction[XX] +
+                     p.v[YY] * direction[YY]);
   }
 
   /// compute the eigen values of the flux jacobians
@@ -130,7 +140,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
-} // CF
+} // physics
+} // cf3
 
-#endif // CF_Physics_Scalar_RotationAdv2D_hpp
+#endif // cf3_physics_Scalar_RotationAdv2D_hpp

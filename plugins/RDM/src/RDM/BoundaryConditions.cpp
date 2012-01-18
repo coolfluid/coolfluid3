@@ -4,56 +4,56 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Signal.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Signal.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
 #include "BoundaryConditions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, common::Action, LibRDM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 BoundaryConditions::BoundaryConditions ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
   // subcomponents
 
-  m_weak_bcs   = create_static_component_ptr<CActionDirector>("WeakBCs");
-  m_strong_bcs = create_static_component_ptr<CActionDirector>("StrongBCs");
+  m_weak_bcs   = create_static_component<ActionDirector>("WeakBCs");
+  m_strong_bcs = create_static_component<ActionDirector>("StrongBCs");
 
   // signals
 
   regist_signal( "create_boundary_condition" )
-      ->connect  ( boost::bind( &BoundaryConditions::signal_create_boundary_condition, this, _1 ) )
-      ->signature( boost::bind( &BoundaryConditions::signature_signal_create_boundary_condition, this, _1))
-      ->description("creates a boundary condition for the solution")
-      ->pretty_name("Create Boundary Condition");
+      .connect  ( boost::bind( &BoundaryConditions::signal_create_boundary_condition, this, _1 ) )
+      .signature( boost::bind( &BoundaryConditions::signature_signal_create_boundary_condition, this, _1))
+      .description("creates a boundary condition for the solution")
+      .pretty_name("Create Boundary Condition");
 }
 
 
@@ -78,22 +78,22 @@ RDM::BoundaryTerm& BoundaryConditions::create_boundary_condition( const std::str
                                                                   const std::string& name,
                                                                   const std::vector<URI>& regions )
 {
-  RDM::BoundaryTerm::Ptr bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
+  boost::shared_ptr< RDM::BoundaryTerm > bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
 
   add_component( bterm ); // stays owned here
 
   // place link either in the weak or strong bcs
 
   if ( bterm->is_weak() )
-    m_weak_bcs->append( bterm );
+    m_weak_bcs->add_link( *bterm );
   else
-    m_strong_bcs->append( bterm );
+    m_strong_bcs->add_link( *bterm );
 
-  bterm->configure_option("regions" , regions);
+  bterm->options().configure_option("regions" , regions);
 
-  bterm->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  bterm->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  bterm->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  bterm->options().configure_option( RDM::Tags::mesh(), m_mesh);
+  bterm->options().configure_option( RDM::Tags::solver() , m_solver);
+  bterm->options().configure_option( RDM::Tags::physical_model() , m_physical_model);
 
   return *bterm;
 }
@@ -117,27 +117,27 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created boundary term" );
+  options.add_option("name", std::string() )
+      .description("Name for created boundary term" );
 
   /// @todo should loop on availabe BCs in factory of BCs
 
   // type
 
   std::vector< boost::any > restricted;
-//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  options.add_option< OptionT<std::string> >("type", std::string("CF.RDM.BcDirichlet") )
-      ->description("Type for created boundary")
-      ->restricted_list() = restricted;
+//  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
+  options.add_option("type", std::string("cf3.RDM.BcDirichlet") )
+      .description("Type for created boundary")
+      .restricted_list() = restricted;
 
   // regions
   std::vector<URI> dummy;
   /// @todo create here the list of restricted surface regions
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the boundary condition");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the boundary condition");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

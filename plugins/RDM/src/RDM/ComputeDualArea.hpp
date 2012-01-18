@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_ComputeDualArea_hpp
-#define CF_RDM_ComputeDualArea_hpp
+#ifndef cf3_RDM_ComputeDualArea_hpp
+#define cf3_RDM_ComputeDualArea_hpp
 
-#include "Common/OptionComponent.hpp"
+#include "common/OptionComponent.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
-#include "Mesh/CTable.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/ElementType.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/CellTerm.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,8 @@ public: // typedefs
 
   template < typename SF, typename QD > class Term;
 
-  typedef boost::shared_ptr< ComputeDualArea > Ptr;
-  typedef boost::shared_ptr< ComputeDualArea const > ConstPtr;
+
+
 
 public: // functions
 
@@ -53,7 +53,7 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute();
 
-  Mesh::Field& dual_area() { return *cdual_area.lock(); }
+  mesh::Field& dual_area() { return *cdual_area; }
 
 protected: // helper functions
 
@@ -61,7 +61,7 @@ protected: // helper functions
 
 private: // data
 
-  boost::weak_ptr< Mesh::Field > cdual_area;  ///< dual area
+  Handle< mesh::Field > cdual_area;  ///< dual area
 
 };
 
@@ -69,13 +69,13 @@ private: // data
 
 
 template < typename SF, typename QD >
-class RDM_API ComputeDualArea::Term : public Solver::Actions::CLoopOperation {
+class RDM_API ComputeDualArea::Term : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+
+
 
 public: // functions
 
@@ -99,15 +99,15 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::Field >();
+        elements().geometry_fields().coordinates().handle< mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock();
-    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
+    solution   = csolution;
+    dual_area  = parent()->handle<ComputeDualArea>()->dual_area().handle<mesh::Field>();
   }
 
 protected: // typedefs
@@ -121,16 +121,16 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::Field > csolution;  ///< solution field
+  Handle< mesh::Field > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr solution;
+  Handle< mesh::Field > solution;
   /// pointer to dual area table
-  Mesh::Field::Ptr dual_area;
+  Handle< mesh::Field > dual_area;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::Field::Ptr coordinates;
+  Handle< mesh::Field > coordinates;
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CConnectivity::Ptr connectivity;
+  Handle< mesh::Connectivity > connectivity;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -169,10 +169,9 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
+  options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations
@@ -208,18 +207,18 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 template<typename SF,typename QD >
 void ComputeDualArea::Term<SF,QD>::execute()
 {
-  using namespace CF::Math;
+  using namespace cf3::math;
 
 //  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
 
 
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(X_n, *coordinates, nodes_idx );
+  mesh::fill(X_n, *coordinates, nodes_idx );
 
   // interpolation of coordinates to quadrature points
 
@@ -264,6 +263,6 @@ void ComputeDualArea::Term<SF,QD>::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_ComputeDualArea_hpp
+#endif // cf3_RDM_ComputeDualArea_hpp

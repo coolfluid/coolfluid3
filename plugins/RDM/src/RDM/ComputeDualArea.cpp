@@ -4,31 +4,36 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/CLink.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
+#include "common/Builder.hpp"
+#include "common/Link.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
+
+#include "mesh/Region.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/ComputeDualArea.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT1< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
+common::ComponentBuilder < CellLoopT1< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
 
-Common::ComponentBuilder < ComputeDualArea, Solver::Action, LibRDM > ComputeDualArea_Builder;
+common::ComponentBuilder < ComputeDualArea, common::Action, LibRDM > ComputeDualArea_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,33 +46,28 @@ ComputeDualArea::~ComputeDualArea() {}
 
 void ComputeDualArea::create_dual_area_field()
 {
-  RDM::RDSolver& rdsolver = solver().as_type< RDM::RDSolver >();
-  CMesh& mymesh = mesh();
+  RDM::RDSolver& rdsolver = *solver().handle< RDM::RDSolver >();
+  Mesh& mymesh = mesh();
 
-  const std::string solution_space = rdsolver.option("solution_space").value<std::string>();
+  const std::string solution_space = rdsolver.options().option("solution_space").value<std::string>();
 
-  FieldGroup& solution_grp = find_component_with_tag<FieldGroup>( mymesh, solution_space );
+  SpaceFields& solution_grp = find_component_with_tag<SpaceFields>( mymesh, solution_space );
 
   // create if does not exist
-
-  Field::Ptr field;
-
-  Component::Ptr comp = solution_grp.get_child_ptr( Tags::dual_area() );
-  if( is_not_null( comp ) )
-    field = comp->as_ptr_checked<Field>();
-  else
+  Handle< Field > field( solution_grp.get_child( Tags::dual_area() ) );
+  if( is_null( field ) )
   {
-    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
+    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).handle<mesh::Field>();
     field->add_tag(Tags::dual_area());
   }
 
   cdual_area = field;
 
-  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
-  CGroup& fields = mysolver.fields();
+  RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
+  Group& fields = mysolver.fields();
 
-  if( ! fields.get_child_ptr( Tags::dual_area() ) )
-    fields.create_component<CLink>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
+  if( ! fields.get_child( Tags::dual_area() ) )
+    fields.create_component<Link>( Tags::dual_area() )->link_to(*field).add_tag( Tags::dual_area() );
 }
 
 void ComputeDualArea::execute()
@@ -82,23 +82,19 @@ void ComputeDualArea::execute()
   create_dual_area_field();
 
   if( m_loop_regions.empty() )
-    m_loop_regions.push_back( mesh().topology().as_ptr<CRegion>() );
+    m_loop_regions.push_back( mesh().topology().handle<Region>() );
 
   // get the element loop or create it if does not exist
 
-  ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
-  if( is_null( cloop ) )
+  Handle< ElementLoop > loop(get_child( "LOOP" ));
+  if( is_null( loop ) )
   {
-    loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT1<" + type_name() + ">" , "LOOP");
-    add_component(loop);
+    loop = create_component<CellLoop>("LOOP", "CellLoopT1<" + type_name() + ">");
   }
-  else
-    loop = cloop->as_ptr_checked<ElementLoop>();
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
 
@@ -113,4 +109,4 @@ void ComputeDualArea::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

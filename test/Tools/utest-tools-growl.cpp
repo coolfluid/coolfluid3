@@ -10,25 +10,24 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
- 
-#include "Common/CRoot.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/OSystem.hpp"
+#include "common/Core.hpp"
+
+#include "common/LibLoader.hpp"
+#include "common/OSystem.hpp"
 
 #include "Tools/Growl/Notifier.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Tools::Growl;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Tools::Growl;
 
 BOOST_AUTO_TEST_SUITE( Growl )
 
 /// Test creation of a 2D grid
 BOOST_AUTO_TEST_CASE( TestGrowl )
 {
-  Notifier& notifier = Core::instance().root().create_component<Notifier>("notifier");
-  notifier.notify("event","description");
+  Handle<Notifier> notifier = Core::instance().root().create_component<Notifier>("notifier");
+  notifier->notify("event","description");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SubsonicInFlowWeakBc_hpp
-#define CF_RDM_SubsonicInFlowWeakBc_hpp
+#ifndef cf3_RDM_SubsonicInFlowWeakBc_hpp
+#define cf3_RDM_SubsonicInFlowWeakBc_hpp
 
 #include <iostream> // to remove
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -32,8 +32,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<SubsonicInFlowWeakBc> Ptr;
-  typedef boost::shared_ptr<SubsonicInFlowWeakBc const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -59,9 +59,9 @@ private: // helper functions
 public: // data
 
   /// function parser to set the value of density
-  Math::VectorialFunction  density_function;
+  math::VectorialFunction  density_function;
   /// function parser to set the value of velocity
-  Math::VectorialFunction  velocity_function;
+  math::VectorialFunction  velocity_function;
 
 }; // !SubsonicInFlowWeakBc
 
@@ -75,8 +75,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -195,11 +195,11 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+   const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 
@@ -257,8 +257,8 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent().as_type<SubsonicInFlowWeakBc>().density_function.evaluate(vars,rho_in);
-    this->parent().as_type<SubsonicInFlowWeakBc>().velocity_function.evaluate(vars,vel_in);
+    this->parent()->handle<SubsonicInFlowWeakBc>()->density_function.evaluate(vars,rho_in);
+    this->parent()->handle<SubsonicInFlowWeakBc>()->velocity_function.evaluate(vars,vel_in);
 
 //    std::cout << "The value rho_in = " << rho_in[0] << std::endl;
 //    std::cout << "The value vel_in = " << vel_in[XX] << "," << vel_in[YY] << std::endl;
@@ -313,8 +313,8 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_SubsonicInFlowWeakBc_hpp
+#endif // cf3_RDM_SubsonicInFlowWeakBc_hpp

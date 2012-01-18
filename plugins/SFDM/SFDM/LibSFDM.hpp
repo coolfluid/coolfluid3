@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_LibSFDM_hpp
-#define CF_SFDM_LibSFDM_hpp
+#ifndef cf3_SFDM_LibSFDM_hpp
+#define cf3_SFDM_LibSFDM_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SFDM_API
 /// @note build system defines COOLFLUID_SFDM_EXPORTS when compiling SFDM files
 #ifdef COOLFLUID_SFDM_EXPORTS
-#   define SFDM_API      CF_EXPORT_API
+#   define SFDM_API      CF3_EXPORT_API
 #   define SFDM_TEMPLATE
 #else
-#   define SFDM_API      CF_IMPORT_API
-#   define SFDM_TEMPLATE CF_TEMPLATE_EXTERN
+#   define SFDM_API      CF3_IMPORT_API
+#   define SFDM_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 /// @brief Spectral Finite Difference Method namespace
 ///
@@ -41,30 +41,30 @@ namespace SFDM {
 /// This library implements Core components to construct a Spectral Finite Difference Solver.";
 /// @author Willem Deconinck
 class SFDM_API LibSFDM :
-    public CF::Common::CLibrary
+    public cf3::common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibSFDM> Ptr;
-  typedef boost::shared_ptr<LibSFDM const> ConstPtr;
+  
+  
 
   /// Constructor
-  LibSFDM ( const std::string& name) : CF::Common::CLibrary(name) { }
+  LibSFDM ( const std::string& name) : cf3::common::Library(name) { }
 
   virtual ~LibSFDM() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.SFDM"; }
+  static std::string library_namespace() { return "cf3.SFDM"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "SFDM"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -74,22 +74,15 @@ public: // functions
 
   /// Gets the Class name
   static std::string type_name() { return "LibSFDM"; }
-
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
+  
+  virtual void initiate();
 }; // end LibSFDM
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_LibSFDM_hpp
+#endif // cf3_SFDM_LibSFDM_hpp

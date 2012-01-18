@@ -6,17 +6,17 @@
 
 #include <iostream>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -24,74 +24,71 @@
 #include "RK.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::Checks;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::math::Checks;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
+common::ComponentBuilder < RK, common::Action, LibRDM > RK_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
   // options
 
-  options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
-  options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
-  options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
+  options().add_option(RDM::Tags::solution(), m_solution).link_to(&m_solution);
+  options().add_option(RDM::Tags::dual_area(), m_dual_area).link_to(&m_dual_area);
+  options().add_option(RDM::Tags::residual(), m_residual).link_to(&m_residual);
 
-  options().add_option< OptionT<Real> >( "cfl", 1.0 )
-      ->pretty_name("CFL")
-      ->description("Courant-Fredrichs-Levy stability number");
+  options().add_option( "cfl", 1.0 )
+      .pretty_name("CFL")
+      .description("Courant-Fredrichs-Levy stability number");
 
-  options().add_option< OptionT<Real> >( "rkorder", 1u )
-      ->pretty_name("RK Order")
-      ->description("Order of the Runge-Kutta step");
+  options().add_option( "rkorder", 1u )
+      .pretty_name("RK Order")
+      .description("Order of the Runge-Kutta step");
 
 }
 
 void RK::execute()
 {
-  RDSolver& mysolver = solver().as_type< RDSolver >();
+  RDSolver& mysolver = *solver().handle< RDSolver >();
 
   // get the current rk k step and order
 
   const Uint rkorder = mysolver.properties().value<Uint>("rkorder");
   const Uint step    = mysolver.iterative_solver().properties().value<Uint>("iteration");
 
-  if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-  if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
-  if (m_dual_area.expired())
-    m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<Field>();
+  if (is_null(m_solution))
+    m_solution = follow_link( mysolver.fields().get_child( RDM::Tags::solution() ) )->handle<Field>();
+  if (is_null(m_residual))
+    m_residual = follow_link( mysolver.fields().get_child( RDM::Tags::residual() ) )->handle<Field>();
+  if (is_null(m_dual_area))
+    m_dual_area = follow_link( mysolver.fields().get_child( RDM::Tags::dual_area() ) )->handle<Field>();
 
   // get the correct solution to update depending on which rk k step we are
 
-  Field::Ptr csolution_k;
+  Handle< Field > csolution_k;
   if ( step == rkorder )
-    csolution_k = m_solution.lock();
+    csolution_k = m_solution;
   else
   {
-    csolution_k = mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ).follow()->as_ptr_checked<Field>();
+    csolution_k = follow_link(mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ))->handle<Field>();
   }
 
-  cf_assert( is_not_null(csolution_k) );
+  cf3_assert( is_not_null(csolution_k) );
 
   Field& solution_k   = *csolution_k;
-  Field& dual_area    = *m_dual_area.lock();
-  Field& residual     = *m_residual.lock();
+  Field& dual_area    = *m_dual_area;
+  Field& residual     = *m_residual;
 
   /// @todo should be used later to calculate automatically the \Delta t
      //const Real CFL = options().option("cfl").value<Real>();
@@ -110,4 +107,4 @@ void RK::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

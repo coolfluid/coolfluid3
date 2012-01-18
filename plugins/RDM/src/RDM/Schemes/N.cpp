@@ -4,27 +4,27 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/N.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < N, RDM::CellTerm, LibSchemes > N_Builder;
+common::ComponentBuilder < N, RDM::CellTerm, LibSchemes > N_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ void N::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     loop.select_region( region );
 
@@ -54,4 +54,4 @@ void N::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

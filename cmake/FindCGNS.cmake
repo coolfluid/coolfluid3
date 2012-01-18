@@ -6,10 +6,10 @@
 # Sets
 #   CGNS_INCLUDE_DIR
 #   CGNS_LIBRARIES
-#   CF_HAVE_CGNS
+#   CF3_HAVE_CGNS
 #
 
-option( CF_SKIP_CGNS "Skip search for CGNS library" OFF )
+option( CF3_SKIP_CGNS "Skip search for CGNS library" OFF )
 
     coolfluid_set_trial_include_path("") # clear include search path
     coolfluid_set_trial_library_path("") # clear library search path

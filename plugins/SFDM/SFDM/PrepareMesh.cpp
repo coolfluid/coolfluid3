@@ -4,56 +4,53 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/GlobalNumbering.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/CreateSFDFields.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
+using namespace cf3::mesh::actions;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < PrepareMesh, CAction, LibSFDM > PrepareMesh_Builder;
+common::ComponentBuilder < PrepareMesh, common::Action, LibSFDM > PrepareMesh_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 PrepareMesh::PrepareMesh ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
-  CBuildFaces::Ptr build_faces ( allocate_component<CBuildFaces>("build_inner_faces") );
-  build_faces->configure_option("store_cell2face",true);
-
-  append( build_faces );
-
+  create_component<BuildFaces>("build_inner_faces")->options().configure_option("store_cell2face",true);
+  
   // renumber elements because of the faces (not strictly necessary)
-  // append( allocate_component<CGlobalNumbering>("glb_numbering") );
+  // append( allocate_component<GlobalNumbering>("glb_numbering") );
 
-  append( allocate_component<CreateSFDFields>("create_sfd_fields") );
+  create_component<CreateSFDFields>("create_sfd_fields");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -62,22 +59,22 @@ void PrepareMesh::execute()
 {
   // configuration of all solver components.
   // This component and its children should be part of it.
-  solver().configure_option_recursively(SFDM::Tags::solution_order(),solver().option(SFDM::Tags::solution_order()).value<Uint>());
-  solver().configure_option_recursively(SFDM::Tags::mesh(),mesh().uri());
-  solver().configure_option_recursively(SFDM::Tags::physical_model(),physical_model().uri());
-  solver().configure_option_recursively(SFDM::Tags::solver(),solver().uri());
+  solver().configure_option_recursively(SFDM::Tags::solution_order(),solver().options().option(SFDM::Tags::solution_order()).value<Uint>());
+  solver().configure_option_recursively(SFDM::Tags::mesh(),mesh().handle<Component>());
+  solver().configure_option_recursively(SFDM::Tags::physical_model(),physical_model().handle<Component>());
+  solver().configure_option_recursively(SFDM::Tags::solver(),solver().handle<Component>());
 
   // execution of prepare mesh
   ActionDirector::execute();
 
   std::vector<URI> fields;
-  fields.push_back(solver().field_manager().get_child(SFDM::Tags::solution()).follow()->uri());
-  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("fields",fields);
-  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
+  fields.push_back( follow_link( solver().field_manager().get_child(SFDM::Tags::solution()) )->uri() );
+  solver().handle<SFDSolver>()->time_stepping().post_actions().get_child("Periodic")->configure_option_recursively("fields",fields);
+  solver().handle<SFDSolver>()->time_stepping().post_actions().get_child("Periodic")->configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 
 } // SFDM
-} // CF
+} // cf3

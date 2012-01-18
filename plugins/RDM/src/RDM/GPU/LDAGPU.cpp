@@ -8,14 +8,14 @@
 #include <boost/timer.hpp>
 
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/SupportedCells.hpp"    // supported elements
 
@@ -26,16 +26,16 @@
 #include "RDM/GPU/LDAGPU.hpp"
 #include "RDM/GPU/SchemeLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
+common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,11 +45,11 @@ template < typename PHYS>
 struct LDAGPU::ElementLoop
 {
   /// region to loop on
-  Mesh::CRegion& region;
+  mesh::Region& region;
   /// component containing the element loop
   LDAGPU& comp;
   /// Constructor
-  ElementLoop( LDAGPU& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
+  ElementLoop( LDAGPU& comp_in, mesh::Region& region_in ) : comp(comp_in), region(region_in) {}
   /// operator needed for the loop over element types (SF)
   template < typename SF >
   void operator() ( SF& T )
@@ -59,14 +59,14 @@ struct LDAGPU::ElementLoop
     /// parametrization of the numerical scheme
     typedef SchemeLDAGPU< SF, QD, PHYS > SchemeT;
 
-    boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(region,IsElementType<SF>()))
     {
       // get the scheme or create it if does not exist
-      Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
-      typename SchemeT::Ptr scheme;
+      Handle< Component > cscheme = comp.get_child( SchemeT::type_name() );
+      typename Handle< SchemeT > scheme;
       if( is_null( cscheme ) )
-        scheme = comp.create_component_ptr< SchemeT >( SchemeT::type_name() );
+        scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
       else
         scheme = cscheme->as_ptr_checked<SchemeT>();
 
@@ -94,30 +94,30 @@ LDAGPU::~LDAGPU() {}
 void LDAGPU::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  Physics::PhysModel::Ptr pm = find_component_ptr_recursively<Physics::PhysModel>( Core::instance().root() );
+  Handle< physics::PhysModel > pm = find_component_ptr_recursively<physics::PhysModel>( Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::string physics = pm->type();
 
     if ( physics == "LinearAdv2D" )
     {
 
-      LDAGPU::ElementLoop< Physics::Scalar::LinearAdv2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::LinearAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      LDAGPU::ElementLoop< Physics::Scalar::RotationAdv2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::RotationAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      LDAGPU::ElementLoop< Physics::Scalar::Burgers2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::Burgers2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
   }

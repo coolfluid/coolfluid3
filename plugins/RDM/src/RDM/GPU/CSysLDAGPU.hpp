@@ -14,7 +14,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< CSysLDAGPU > Ptr;
-  typedef boost::shared_ptr< CSysLDAGPU const > ConstPtr;
+  
+  
 
 public: // functions
 

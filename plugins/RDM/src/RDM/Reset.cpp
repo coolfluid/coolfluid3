@@ -4,12 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Foreach.hpp"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
+
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/RDSolver.hpp"
 
@@ -17,51 +22,50 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Reset, CAction, LibRDM > Reset_Builder;
+common::ComponentBuilder < Reset, common::Action, LibRDM > Reset_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Reset::Reset ( const std::string& name ) : Solver::Action(name)
+Reset::Reset ( const std::string& name ) : solver::Action(name)
 {
   mark_basic();
 
   std::vector< URI > dummy0;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy0)
-      ->description("Fields to cleanup")
-      ->attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
+  options().add_option("Fields", dummy0)
+      .description("Fields to cleanup")
+      .attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
 
   std::vector< std::string > dummy1;
-  m_options.add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
-      ->description("Tags of the field for which to apply the action");
+  options().add_option("FieldTags", dummy1)
+      .description("Tags of the field for which to apply the action");
 
   // call config field_tags when mesh is configured
 
-  option("mesh").attach_trigger( boost::bind ( &Reset::config_field_tags,   this ) );
+  options().option("mesh").attach_trigger( boost::bind ( &Reset::config_field_tags,   this ) );
 }
 
 
 
 void Reset::config_fields()
 {
-  std::vector<URI> vec; option("Fields").put_value(vec);
+  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
 
   boost_foreach(const URI field_path, vec)
   {
-    Component& comp = access_component(field_path);
+    Handle<Field> field(access_component(field_path));
 
-    if ( Field::Ptr field = comp.as_ptr<Field>() )
+    if (is_not_null(field))
     {
-      boost::weak_ptr<Field> wptr = field;
-      m_fields.push_back( wptr );
+      m_fields.push_back( field );
     }
     else
       throw ValueNotFound ( FromHere(), "Could not find field with path [" + field_path.path() +"]" );
@@ -71,16 +75,16 @@ void Reset::config_fields()
 
 void Reset::config_field_tags()
 {
-  std::vector<std::string> vec; option("FieldTags").put_value(vec);
+  std::vector<std::string> vec = options().option("FieldTags").value< std::vector<std::string> >();
 
-  RDSolver& mysolver = solver().as_type<RDSolver>();
+  RDSolver& mysolver = *solver().handle<RDSolver>();
 
   boost_foreach(const std::string tag, vec)
-    boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
+    boost_foreach( Link& link, find_components_with_tag<Link>( mysolver.fields(), tag ) )
     {
-      if( Field::Ptr field = link.follow()->as_ptr<Field>() )
+      if( Handle< Field > field = link.follow()->handle<Field>() )
       {
-        boost::weak_ptr<Field> wptr = field;
+        Handle<Field> wptr = field;
         m_fields.push_back( wptr );
       }
     }
@@ -91,11 +95,11 @@ void Reset::config_field_tags()
 void Reset::execute()
 {
   // loop over fields to cleanup
-  boost_foreach(boost::weak_ptr<Field> ptr, m_fields)
+  boost_foreach(Handle<Field> ptr, m_fields)
   {
-    if( ptr.expired() ) continue; // skip if pointer invalid
+    if( is_null(ptr) ) continue; // skip if pointer invalid
 
-    CTable<Real>& field = *ptr.lock();
+    Field& field = *ptr;
 
     field = 0.; // set all entries to zero
   }
@@ -105,4 +109,4 @@ void Reset::execute()
 
 
 } // RDM
-} // CF
+} // cf3

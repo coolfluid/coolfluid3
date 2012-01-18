@@ -4,34 +4,34 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/NavierStokes/SubsonicInFlowWeakBc.hpp"
 
 #include "Physics/NavierStokes/Cons2D.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibRDM > SubsonicInFlowWeakBc_Builder;
+common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibRDM > SubsonicInFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > SubsonicInFlowWeakBc_Euler2D_Builder;
+common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > SubsonicInFlowWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,17 +42,17 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> > ("rho_in", std::string() )
-      ->description("Inlet density (vars x,y,z)")
-      ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
-      ->mark_basic();
+  options().add_option("rho_in", std::string() )
+      .description("Inlet density (vars x,y,z)")
+      .attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
+      .mark_basic();
 
   density_function.variables("x,y,z");
 
-  m_options.add_option< OptionArrayT<std::string> > ("vel_in",std::vector<std::string>())
-      ->description("Inlet velocity (vars x,y,z)")
-      ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
-      ->mark_basic();
+  options().add_option("vel_in",std::vector<std::string>())
+      .description("Inlet velocity (vars x,y,z)")
+      .attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
+      .mark_basic();
 
   velocity_function.variables("x,y,z");
 }
@@ -63,7 +63,7 @@ void SubsonicInFlowWeakBc::config_density_function()
 {
   std::cout << FromHere().short_str() << std::endl;
 
-  density_function.functions( m_options["rho_in"].value< std::string >() );
+  density_function.functions( options()["rho_in"].value< std::string >() );
   density_function.parse();
 }
 
@@ -73,7 +73,7 @@ void SubsonicInFlowWeakBc::config_velocity_function()
 {
   std::cout << FromHere().short_str() << std::endl;
 
-  velocity_function.functions( m_options["vel_in"].value< std::vector<std::string> >() );
+  velocity_function.functions( options()["vel_in"].value< std::vector<std::string> >() );
   velocity_function.parse();
 }
 
@@ -85,7 +85,7 @@ void SubsonicInFlowWeakBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;
@@ -101,4 +101,4 @@ void SubsonicInFlowWeakBc::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Diffusion2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::Diffusion2D,
-                           Physics::Variables,
+common::ComponentBuilder < Scalar::Diffusion2D,
+                           physics::Variables,
                            LibScalar >
                            Builder_Diffusion2D;
 
@@ -29,5 +29,5 @@ Diffusion2D::~Diffusion2D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
-} // CF
+} // physics
+} // cf3

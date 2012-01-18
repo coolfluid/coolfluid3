@@ -6,31 +6,31 @@
 
 #include <iostream>
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
-//#include "Common/CreateComponent.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
+//#include "common/CreateComponent.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/GPU/CellLoopGPU.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
+common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,13 +44,13 @@ CSysLDAGPU::~CSysLDAGPU() {}
 void CSysLDAGPU::execute()
 {
   // get the element loop or create it if does not exist
-  ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  Handle< ElementLoop > loop;
+  Handle< common::Component > cloop = get_child( "LOOP" );
   if( is_null( cloop ) )
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<Physics::Variables>()
+                        .as_type<physics::Variables>()
                         .type();
 
       loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");
@@ -61,7 +61,7 @@ void CSysLDAGPU::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::cout << "looping on region " << region->name() << std::endl;
 

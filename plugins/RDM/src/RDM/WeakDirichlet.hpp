@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_WeakDirichlet_hpp
-#define CF_RDM_WeakDirichlet_hpp
+#ifndef cf3_RDM_WeakDirichlet_hpp
+#define cf3_RDM_WeakDirichlet_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -31,8 +31,8 @@ public: // typedefs
   template < typename SF, typename QD, typename PHYS > class Term;
 
   /// pointers
-  typedef boost::shared_ptr<WeakDirichlet> Ptr;
-  typedef boost::shared_ptr<WeakDirichlet const> ConstPtr;
+
+
 
 public: // functions
   /// Contructor
@@ -57,9 +57,9 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> solution;
+  Handle<mesh::Field> solution;
   /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  function;
+  math::VectorialFunction  function;
 
 }; // !WeakDirichlet
 
@@ -73,8 +73,8 @@ public: // typedefs
   /// base class type
   typedef BcBase<SF,QD,PHYS> B;
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+
+
 
 public: // functions
 
@@ -194,15 +194,15 @@ public: // functions
 
     Uint face_idx = B::idx();
 
-    Mesh::CFaceCellConnectivity& f2c =
-        B::elements().get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
+    mesh::FaceCellConnectivity& f2c =
+        B::elements().get_child("cell_connectivity").as_type<mesh::FaceCellConnectivity>();
 
-    // cf_assert( f2c.is_bdry_face()[face_idx] );
+    // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
-    Component::Ptr neighbor_cells;
+    Handle< Component > neighbor_cells;
     Uint neighbor_cell_idx;
 
-    Mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+    common::Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
     Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
 
     // lookup the neighbor_cell elements and the index in its connectivity
@@ -211,10 +211,10 @@ public: // functions
 
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    Mesh::CTable<Uint>& connectivity =
-        neighbor_cells->as_type<Mesh::CElements>().node_connectivity();
+    common::Table<Uint>& connectivity =
+        neighbor_cells->as_type<mesh::Elements>().node_connectivity();
 
-    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
+    const common::Table<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 
@@ -229,7 +229,7 @@ public: // functions
 
     // get face connectivity
 
-     const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+     const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
 //   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];
@@ -241,7 +241,7 @@ public: // functions
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 
@@ -311,7 +311,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
+    this->parent()->handle<WeakDirichlet>()->function.evaluate(vars,return_val);
 
     PHYS::compute_properties(X_q.row(q),
                              return_val,
@@ -371,6 +371,6 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_WeakDirichlet_hpp
+#endif // cf3_RDM_WeakDirichlet_hpp

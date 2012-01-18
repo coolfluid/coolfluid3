@@ -8,12 +8,13 @@ project( CGAL CXX )
 
 coolfluid_define_plugin( CGAL ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CF_PLUGIN_CGAL )
-
+if( CF3_PLUGIN_CGAL )
   find_package(CGAL)
+  find_package(GMP)
+  find_package(MPFR)
 
   # disable optimizations to avoid enormous compilation times and memory usage
-  option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
+  option(CF3_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
   # avoid a conflict between boost and CGAL
   add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)

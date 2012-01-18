@@ -4,38 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
-#include "Common/CRoot.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibUFEM> libUFEM;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibUFEM::initiate_impl()
-{
-//   Core::instance().root()
-//     .get_child_ptr("Tools")
-//     ->create_component_ptr<SetupLinearSystem>( "SetupHeatConduction" )
-//     ->mark_basic();
-
-
-}
-
-void LibUFEM::terminate_impl()
-{
-//   Core::instance().root()
-//       .get_child_ptr("Tools")
-//       ->remove_component("SetupHeatConduction");
-}
-
-////////////////////////////////////////////////////////////////////////////////
+cf3::common::RegistLibrary<LibUFEM> libUFEM;
 
 } // UFEM
-} // CF
+} // cf3

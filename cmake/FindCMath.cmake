@@ -1,8 +1,8 @@
 #Sets:
 # CMATH_LIBRARIES      = the library to link against (RT etc)
-# CF_HAVE_CMATH        = set to true after finding the library
+# CF3_HAVE_CMATH        = set to true after finding the library
 
-option( CF_SKIP_CMATH "Skip search for C math library" OFF )
+option( CF3_SKIP_CMATH "Skip search for C math library" OFF )
 
   coolfluid_set_trial_library_path("") # clear library search path
 

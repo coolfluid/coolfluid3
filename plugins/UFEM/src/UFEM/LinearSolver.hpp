@@ -4,22 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_LinearSolver_hpp
-#define CF_UFEM_LinearSolver_hpp
+#ifndef cf3_UFEM_LinearSolver_hpp
+#define cf3_UFEM_LinearSolver_hpp
 
-#include "Common/CActionDirector.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/ActionDirector.hpp"
+#include "common/OptionURI.hpp"
 
-#include "Solver/CSimpleSolver.hpp"
+#include "solver/CSimpleSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
-#include "Solver/Actions/Proto/SolutionVector.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/SolutionVector.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
@@ -28,13 +28,8 @@ namespace UFEM {
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public Solver::CSimpleSolver
+class UFEM_API LinearSolver : public solver::CSimpleSolver
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<LinearSolver> Ptr;
-  typedef boost::shared_ptr<LinearSolver const> ConstPtr;
-
 public: // functions
 
   /// Contructor
@@ -48,18 +43,8 @@ public: // functions
 
   virtual void execute();
 
-  virtual void mesh_loaded(Mesh::CMesh& mesh);
-  virtual void mesh_changed(Mesh::CMesh& mesh);
-
-  /// Return an action that resets the LSS to zero
-  Common::CAction& zero_action();
-
-  /// Return the action used for solving the system
-  Common::CAction& solve_action();
-
-  /// Get the component that manages boundary conditions
-  BoundaryConditions& boundary_conditions();
-
+  virtual void mesh_loaded(mesh::Mesh& mesh);
+  virtual void mesh_changed(mesh::Mesh& mesh);
 
 private:
   class Implementation;
@@ -70,17 +55,17 @@ private:
 
 public:
   /// Proto placeholder for the system matrix
-  const Solver::Actions::Proto::SystemMatrix& system_matrix;
+  const solver::actions::Proto::SystemMatrix& system_matrix;
   /// Proto placeholder for the right hand side of the system
-  const Solver::Actions::Proto::SystemRHS& system_rhs;
+  const solver::actions::Proto::SystemRHS& system_rhs;
   /// Proto placeholder for dirichlet boundary conditions
-  const Solver::Actions::Proto::DirichletBC& dirichlet;
+  const solver::actions::Proto::DirichletBC& dirichlet;
   /// Proto placeholder for the solution vector
-  const Solver::Actions::Proto::SolutionVector& solution;
+  const solver::actions::Proto::SolutionVector& solution;
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_LinearSolver_hpp
+#endif // cf3_UFEM_LinearSolver_hpp

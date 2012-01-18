@@ -4,26 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_DomainDiscretization_hpp
-#define CF_SFDM_DomainDiscretization_hpp
+#ifndef cf3_SFDM_DomainDiscretization_hpp
+#define cf3_SFDM_DomainDiscretization_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 class Term;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API DomainDiscretization : public CF::Solver::ActionDirector {
+class SFDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<DomainDiscretization> Ptr;
-  typedef boost::shared_ptr<DomainDiscretization const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -41,21 +41,21 @@ public: // functions
 
   Term& create_term( const std::string& type,
                      const std::string& name,
-                     const std::vector<Common::URI>& regions = std::vector<Common::URI>() );
+                     const std::vector<common::URI>& regions = std::vector<common::URI>() );
 
   /// @name SIGNALS
   //@{
 
   /// creates a term
-  void signal_create_term( Common::SignalArgs& args );
+  void signal_create_term( common::SignalArgs& args );
   /// signature for @see signal_create_term
-  void signature_signal_create_term( Common::SignalArgs& args );
+  void signature_signal_create_term( common::SignalArgs& args );
 
   //@} END SIGNALS
 
 private:
 
-  Common::CActionDirector::Ptr m_terms;   ///< set of terms
+  Handle< common::ActionDirector > m_terms;   ///< set of terms
 
 };
 
@@ -63,6 +63,6 @@ private:
 
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_DomainDiscretization_hpp
+#endif // cf3_SFDM_DomainDiscretization_hpp

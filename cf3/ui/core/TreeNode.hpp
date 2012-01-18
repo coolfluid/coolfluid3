@@ -1,0 +1,149 @@
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef cf3_ui_core_TreeNode_hpp
+#define cf3_ui_core_TreeNode_hpp
+
+//////////////////////////////////////////////////////////////////////////////
+
+#include <QObject>
+
+#include "ui/core/CNode.hpp"
+
+#include "ui/core/LibCore.hpp"
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace cf3 {
+namespace ui {
+namespace core {
+
+  ////////////////////////////////////////////////////////////////////////////
+
+  /// @brief Handles a CNode component in the tree.
+
+  /// @author Quentin Gasper.
+
+  class Core_API TreeNode :
+      public QObject
+  {
+    Q_OBJECT
+
+  public:
+
+    /// @brief Constructor.
+
+    /// @param node The node to handle. The pointer can not be @c nullptr.
+    /// @param parent Pointer to the parent TreeNode. May be @c nullptr.
+    /// @param rowNumber Row number of the node under the parent. Must be
+    /// greater or equal to 0.
+    TreeNode(Handle< CNode > node, TreeNode * parent, int row_number);
+
+    ~TreeNode();
+
+    /// @brief Checks whether the node has a parent or not.
+
+    /// A node has a parent if was constructed with a non-null pointer as
+    /// @c parent.
+    /// @return Returns @c true if the node has parent. Otherwise, returns
+    /// @c false.
+    bool has_parent() const;
+
+    /// @brief Returns the @e ith child of this node.
+
+    /// If the TreeNode object corresponding to the asked child does not exist
+    /// yet, it is created.
+    /// @param rowNumber
+    /// @return Returns the wanted child, or a @c nullptr pointer if the row
+    /// number is not valid (less than 0, or bigger than the number of
+    /// child this this node has).
+    TreeNode * child(int row_number);
+
+    /// @brief Gives the node handled by this object
+    /// @returns Returns the node handled by this object.
+    Handle< CNode > node();
+
+    /// @brief Gives the node handled by this object
+    /// @returns Returns the node handled by this object.
+    Handle< CNode > node() const;
+
+    /// @brief Gives the parent.
+    /// @return Returns the parent. May return a @c nullptr pointer if the
+    /// node has no porent.
+    TreeNode * parent_node() const;
+
+    /// @brief Gives the row number.
+    /// @return Returns the row number.
+    int row_number() const;
+
+    /// @brief Gives the child count.
+    /// @return Returns the child count.
+    int child_count() const;
+
+    /// @brief Gives the node name.
+
+    /// Calling the method is equivalent to
+    /// @code node->getNode()->name().str(); @endcode
+    /// @return Return the node name.
+    inline QString node_name() const
+    {
+      if( is_not_null(m_node) )
+        return m_node->name().c_str();
+      else
+        return QString();
+    }
+
+    /// @brief Retrieves a child from its name.
+
+    /// @return Returns the child, or a @c nullptr pointer if no child
+    /// as such name.
+    TreeNode * child_by_name(const QString & name);
+
+  public slots:
+
+    /// @brief Updates the child internal list.
+    /// The method must be called whenever children are added or removed
+    /// from the corresponding node.
+    /// @warning To avoid consistency issues, the existing list is
+    /// cleared and its items are destroyed. This is because the position
+    /// of existing elements may have changed. This means that all items
+    /// created by @c getChild will have to be recreated again. Thus,
+    /// calling this method too often may lead to performance problems.
+    void update_child_list();
+
+  private:
+
+    /// @brief Handled node.
+    Handle<CNode> m_node;
+
+    /// @brief The parent. May be @c nullptr
+    TreeNode * m_parent;
+
+    /// @brief The row number.
+    int m_row_number;
+
+    /// @brief List of children.
+
+    /// This list is initialized at the right size in the constructor with
+    /// @c nullptr pointers (one pointer for each child). Each pointer is
+    /// replaced when the corresponding child is built by @c getChild method.
+    QList<TreeNode *> m_child_nodes;
+
+  private:
+
+    void remove_child( TreeNode * child );
+
+  }; // class MyTreeItem
+
+////////////////////////////////////////////////////////////////////////////
+
+} // Core
+} // ui
+} // cf3
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // cf3_ui_core_TreeNode_hpp

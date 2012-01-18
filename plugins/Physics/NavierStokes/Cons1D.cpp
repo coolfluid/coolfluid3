@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Cons1D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Cons1D,
-                           Physics::Variables,
+common::ComponentBuilder < NavierStokes::Cons1D,
+                           physics::Variables,
                            LibNavierStokes >
                            Builder_Cons1D;
 
@@ -29,5 +29,5 @@ Cons1D::~Cons1D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
-} // CF
+} // physics
+} // cf3

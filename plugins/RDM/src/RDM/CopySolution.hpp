@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CopySolution_hpp
-#define CF_RDM_CopySolution_hpp
+#ifndef cf3_RDM_CopySolution_hpp
+#define cf3_RDM_CopySolution_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Mesh { class Field; }
+namespace cf3 {
+namespace mesh { class Field; }
 namespace RDM {
 
 /// Copies the solution to a set of fields
 /// @author Tiago Quintino
-class RDM_API CopySolution : public CF::Solver::Action {
+class RDM_API CopySolution : public cf3::solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CopySolution> Ptr;
-  typedef boost::shared_ptr<CopySolution const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -44,13 +44,13 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_solution;  ///< solution field pointer
+  Handle<mesh::Field> m_solution;  ///< solution field pointer
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_CopySolution_hpp
+#endif // cf3_RDM_CopySolution_hpp

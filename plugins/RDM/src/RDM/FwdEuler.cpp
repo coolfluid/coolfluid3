@@ -4,43 +4,42 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/Foreach.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/FwdEuler.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::Checks;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::math::Checks;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
+common::ComponentBuilder < FwdEuler, common::Action, LibRDM > FwdEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 FwdEuler::FwdEuler ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
-  m_options.add_option< OptionT<Real> >( "cfl", 1.0 )
-      ->pretty_name("CFL")
-      ->description("Courant-Fredrichs-Levy stability number");
+  options().add_option( "cfl", 1.0 )
+      .pretty_name("CFL")
+      .description("Courant-Fredrichs-Levy stability number");
 
 }
 
@@ -48,18 +47,18 @@ FwdEuler::FwdEuler ( const std::string& name ) :
 
 void FwdEuler::execute()
 {
-  RDSolver& mysolver = solver().as_type< RDSolver >();
+  RDSolver& mysolver = *solver().handle< RDSolver >();
 
-  if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-  if (m_wave_speed.expired())
-    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
-  if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
+  if (is_null(m_solution))
+    m_solution = follow_link(mysolver.fields().get_child( RDM::Tags::solution() ))->handle<Field>();
+  if (is_null(m_wave_speed))
+    m_wave_speed = follow_link(mysolver.fields().get_child( RDM::Tags::wave_speed() ))->handle<Field>();
+  if (is_null(m_residual))
+    m_residual = follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->handle<Field>();
 
-  Field& solution     = *m_solution.lock();
-  Field& wave_speed   = *m_wave_speed.lock();
-  Field& residual     = *m_residual.lock();
+  Field& solution     = *m_solution;
+  Field& wave_speed   = *m_wave_speed;
+  Field& residual     = *m_residual;
 
   const Real CFL = options().option("cfl").value<Real>();
 
@@ -84,7 +83,7 @@ void FwdEuler::execute()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 

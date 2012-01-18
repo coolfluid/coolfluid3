@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_DummyTerm_hpp
-#define CF_SFDM_DummyTerm_hpp
+#ifndef cf3_SFDM_DummyTerm_hpp
+#define cf3_SFDM_DummyTerm_hpp
 
 #include "SFDM/Term.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -19,8 +19,8 @@ class SFDM_API DummyTerm : public Term {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< DummyTerm > Ptr;
-  typedef boost::shared_ptr< DummyTerm const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -41,6 +41,6 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_DummyTerm_hpp
+#endif // cf3_SFDM_DummyTerm_hpp

@@ -3,6 +3,10 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 ###############################################################################
+### test for boost::asio - implements a client/server architecture
+add_subdirectory( boost-asio )
+
+###############################################################################
 ### test for boost::mpl
 add_subdirectory( boost-mpl )
 
@@ -31,7 +35,7 @@ add_subdirectory( cuda )
 add_subdirectory( opencl )
 
 ###############################################################################
-### test for Zoltan
+### test for zoltan
 add_subdirectory( zoltan )
 
 ###############################################################################
@@ -63,5 +67,5 @@ add_subdirectory( paraview-deps )
 add_subdirectory( inheritance )
 
 ###############################################################################
-### test the MPI solver spawning 
+### test the MPI solver spawning
 add_subdirectory( mpi-solvers-spawning )

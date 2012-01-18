@@ -5,18 +5,18 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::AdvectionDiffusion"
+#define BOOST_TEST_MODULE "Test module for cf3::AdvectionDiffusion"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "AdvectionDiffusion/Physics.hpp"
 #include "AdvectionDiffusion/State1D.hpp"
 
-using namespace CF;
-using namespace CF::AdvectionDiffusion;
+using namespace cf3;
+using namespace cf3::AdvectionDiffusion;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +27,8 @@ BOOST_AUTO_TEST_SUITE( AdvectionDiffusion_Suite )
 BOOST_AUTO_TEST_CASE( advdiff1d )
 {
   AdvectionDiffusion::State1D ad_state;
-  boost::shared_ptr<Solver::Physics> p_ptr = ad_state.create_physics();
-  Solver::Physics& p = *p_ptr;
+  boost::shared_ptr<solver::Physics> p_ptr = ad_state.create_physics();
+  solver::Physics& p = *p_ptr;
   RealVector state(1); state << 5. ;
 
   ad_state.set_state(state,p);

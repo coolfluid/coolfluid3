@@ -4,14 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_RKLDA_hpp
-#define CF_RDM_Schemes_RKLDA_hpp
+#ifndef cf3_RDM_Schemes_RKLDA_hpp
+#define cf3_RDM_Schemes_RKLDA_hpp
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
+#include "common/PropertyList.hpp"
+#include "common/StringConversion.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -22,7 +23,7 @@
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -35,8 +36,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< RKLDA > Ptr;
-  typedef boost::shared_ptr< RKLDA const > ConstPtr;
+
+
 
 public: // functions
 
@@ -67,8 +68,8 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+
+
 
 public: // functions
 
@@ -83,7 +84,7 @@ public: // functions
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
 
-    m_options["elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
+    this->options().option("elements").attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
 
   }
 
@@ -97,20 +98,20 @@ protected: // helper function
 
   void config_coeffs()
   {
-    using namespace Common;
+    using namespace common;
 
-    RDSolver& mysolver = this->parent().as_type<CellTerm>().solver().as_type<RDSolver>();
+    RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
-    dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
+    dt      = mysolver.time_stepping().get_child("Time")->options().option("time_step").template value<Real>();
 
     k = step - 1;
 
     ksolutions.clear();
-    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::Field>() );
+    ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() ))->handle<mesh::Field>() );
     for ( Uint kstep = 1; kstep < rkorder; ++kstep)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ).follow()->as_ptr_checked<Mesh::Field>() );
+      ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ))->handle<mesh::Field>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
@@ -185,7 +186,7 @@ protected: // data
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
 
-  std::vector< Mesh::Field::Ptr > ksolutions;  ///< solution fields at different k steps
+  std::vector< Handle< mesh::Field > > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
@@ -216,7 +217,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   // fill sols_l with the solutions until the current step
 
@@ -229,7 +230,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
+  mesh::fill(B::X_n, *B::coordinates, nodes_idx );
 
   // coordinates of quadrature points in physical space
 
@@ -376,6 +377,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Schemes_RKLDA_hpp
+#endif // cf3_RDM_Schemes_RKLDA_hpp

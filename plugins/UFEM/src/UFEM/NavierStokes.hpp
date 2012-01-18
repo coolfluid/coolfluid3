@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_NavierStokes_hpp
-#define CF_UFEM_NavierStokes_hpp
+#ifndef cf3_UFEM_NavierStokes_hpp
+#define cf3_UFEM_NavierStokes_hpp
 
 #include <boost/scoped_ptr.hpp>
 
@@ -13,17 +13,17 @@
 #include "LinearSolverUnsteady.hpp"
 #include "NavierStokesOps.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
-/// Solver for the incompressible Navier-Stokes equations
+/// solver for the incompressible Navier-Stokes equations
 class UFEM_API NavierStokes : public LinearSolverUnsteady
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<NavierStokes> Ptr;
-  typedef boost::shared_ptr<NavierStokes const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -37,19 +37,22 @@ public: // functions
 private:
   /// Storage for stabilization coefficients
   SUPGCoeffs m_coeffs;
-  
+
   /// Initial condition for p
   Real m_p0;
-  
+
   /// Initial condition for v
   RealVector m_u0;
-  
+
   /// Trigger for rho
   void trigger_rho();
+
+  /// Trigger on initial condition for velocity
+  void trigger_u();
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_NavierStokes_hpp
+#endif // cf3_UFEM_NavierStokes_hpp

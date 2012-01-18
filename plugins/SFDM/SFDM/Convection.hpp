@@ -4,18 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Convection_hpp
-#define CF_SFDM_Convection_hpp
+#ifndef cf3_SFDM_Convection_hpp
+#define cf3_SFDM_Convection_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "math/MatrixTypes.hpp"
 
 #include "SFDM/Term.hpp"
+#include "SFDM/ShapeFunction.hpp"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace RiemannSolvers { class RiemannSolver; }
-namespace Physics        { class Variables; }
+namespace cf3 {
 namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,9 +30,9 @@ namespace SFDM {
 class SFDM_API Convection : public Term
 {
 public: // typedefs
-
-    typedef boost::shared_ptr<Convection> Ptr;
-    typedef boost::shared_ptr<Convection const> ConstPtr;
+friend class Flyweight;
+    
+    
 
 public: // functions
 
@@ -42,17 +44,24 @@ public: // functions
 
   virtual void execute();
 
-private:
+private: // functions
 
-  void compute_one_cell_at_a_time();
-  void compute_cell_interior_flux_points_contribution();
-  void compute_inner_face_flux_points_contribution();
+  void compute_interior_flx_pts_contribution();
+  void compute_face_flx_pts_contribution();
+  void apply_null_bc();
 
+private: // configuration
 
-  void trigger_physical_model();
-  void build_riemann_solver();
-  boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
-  boost::weak_ptr<Physics::Variables> m_solution_vars;
+  void allocate_fast_access_data();
+
+private: // fast-access-data (for convenience no "m_" prefix)
+
+  RealVector sol_in_flx_pt;
+  RealVector flx_in_flx_pt;
+  Real wave_speed_in_flx_pt;
+  std::vector<Uint> face_at_side;
+  std::vector<Uint> flx_pt_at_side;
+  std::vector<RealVector> sol_at_side;
 
 }; // end Convection
 
@@ -60,8 +69,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Convection_hpp
+#endif // cf3_SFDM_Convection_hpp

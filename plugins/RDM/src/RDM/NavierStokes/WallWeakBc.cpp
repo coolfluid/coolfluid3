@@ -4,34 +4,34 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/FaceLoop.hpp"
 #include "RDM/NavierStokes/WallWeakBc.hpp"
 
 #include "Physics/NavierStokes/Cons2D.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibRDM > WallWeakBc_Builder;
+common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibRDM > WallWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WallWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallWeakBc_Euler2D_Builder;
+common::ComponentBuilder < FaceLoopT< WallWeakBc, physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallWeakBc_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ void WallWeakBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;
@@ -63,4 +63,4 @@ void WallWeakBc::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -4,16 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/FindComponents.hpp"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionArray.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/WeakDirichlet.hpp"
 
@@ -24,24 +27,24 @@
 #include "Physics/Scalar/Burgers2D.hpp"      // to remove
 #include "Physics/NavierStokes/Cons2D.hpp"   // to remove
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibRDM > WeakDirichlet_Builder;
+common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibRDM > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv2D_Builder;
-//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv3D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdvSys2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, LibRDM > WeakDirichlet_RotationAdv2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, LibRDM > WeakDirichlet_Burgers2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, NavierStokes::Cons2D>   , RDM::FaceLoop, LibRDM > WeakDirichlet_Cons2D_Builder;
+common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv2D_Builder;
+//common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv3D_Builder;
+common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdvSys2D_Builder;
+common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, LibRDM > WeakDirichlet_RotationAdv2D_Builder;
+common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, LibRDM > WeakDirichlet_Burgers2D_Builder;
+common::ComponentBuilder < FaceLoopT< WeakDirichlet, NavierStokes::Cons2D>   , RDM::FaceLoop, LibRDM > WeakDirichlet_Cons2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,10 +55,10 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
-      ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as Dirichlet boundary condition (vars x,y)")
+      .attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
+      .mark_basic();
 
   function.variables("x,y,z");
 }
@@ -63,7 +66,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
 void WeakDirichlet::config_function()
 {
-  function.functions( m_options["functions"].value<std::vector<std::string> >() );
+  function.functions( options()["functions"].value<std::vector<std::string> >() );
   function.parse();
 }
 
@@ -74,7 +77,7 @@ void WeakDirichlet::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;
@@ -90,4 +93,4 @@ void WeakDirichlet::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

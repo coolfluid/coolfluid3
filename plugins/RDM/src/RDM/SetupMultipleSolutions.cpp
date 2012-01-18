@@ -4,80 +4,80 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CLink.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Foreach.hpp"
+#include "common/Link.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/SpaceFields.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 
 #include "SetupMultipleSolutions.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupMultipleSolutions, CAction, LibRDM > SetupMultipleSolutions_Builder;
+common::ComponentBuilder < SetupMultipleSolutions, common::Action, LibRDM > SetupMultipleSolutions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : CF::Solver::Action(name)
+SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::solver::Action(name)
 {
   // options
 
-  m_options.add_option< OptionT<Uint> >( "nb_levels", 1u )
-      ->description("Number of solution levels to be created")
-      ->pretty_name("Number of levels");
+  options().add_option( "nb_levels", 1u )
+      .description("Number of solution levels to be created")
+      .pretty_name("Number of levels");
 }
 
 void SetupMultipleSolutions::execute()
 {
-  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
+  RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
 
   /* nb_levels == rkorder */
 
-  const Uint nb_levels = option("nb_levels").value<Uint>();
+  const Uint nb_levels = options().option("nb_levels").value<Uint>();
 
-  CMesh&  mesh = *m_mesh.lock();
-  CGroup& fields = mysolver.fields();
+  Mesh&  mesh = *m_mesh;
+  Group& fields = mysolver.fields();
 
   // get the geometry field group
 
-  Geometry& geometry = mesh.geometry();
+  SpaceFields& geometry = mesh.geometry_fields();
 
-  const std::string solution_space = mysolver.option("solution_space").value<std::string>();
+  const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
 
   // check that the geometry belongs to the same space as selected by the user
 
-  FieldGroup::Ptr solution_group;
+  Handle< SpaceFields > solution_group;
 
   if( solution_space == geometry.space() )
-    solution_group = geometry.as_ptr<FieldGroup>();
+    solution_group = geometry.handle<SpaceFields>();
   else
   {
     // check if solution space already exists
-    solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
+    solution_group = find_component_ptr_with_name<SpaceFields>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "CF.Mesh."+solution_space).as_ptr<FieldGroup>();
+      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), SpaceFields::Basis::POINT_BASED, "cf3.mesh."+solution_space).handle<SpaceFields>();
     }
     else // not null so check that space is what user wants
     {
@@ -101,41 +101,41 @@ void SetupMultipleSolutions::execute()
 
   // configure 1st solution
 
-  Field::Ptr solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
+  Handle< Field > solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
-    solution = solution_group->create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
+    solution = solution_group->create_field( RDM::Tags::solution(), vars ).handle<Field>();
 
     solution->add_tag(Tags::solution());
   }
 
   // create the other solutions based on the first solution field
 
-  std::vector< Field::Ptr > rk_steps;
+  std::vector< Handle< Field > > rk_steps;
 
   rk_steps.push_back(solution);
 
   for(Uint step = 1; step < nb_levels; ++step)
   {
-    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() + to_str(step));
+    Handle< Field > solution_k = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() + to_str(step));
     if ( is_null( solution_k ) )
     {
       std::string name = std::string(Tags::solution()) + to_str(step);
-      solution_k = solution_group->create_field( name, solution->descriptor().description() ).as_ptr<Field>();
+      solution_k = solution_group->create_field( name, solution->descriptor().description() ).handle<Field>();
       solution_k->descriptor().prefix_variable_names("rk" + to_str(step) + "_");
       solution_k->add_tag("rksteps");
     }
 
-    cf_assert( solution_k );
+    cf3_assert( solution_k );
     rk_steps.push_back(solution_k);
   }
 
   // configure residual
 
-  Field::Ptr residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
+  Handle< Field > residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
+    residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).handle<Field>();
     residual->descriptor().prefix_variable_names("rhs_");
     residual->add_tag(Tags::residual());
   }
@@ -143,27 +143,27 @@ void SetupMultipleSolutions::execute()
 
   // configure wave_speed
 
-  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
+  Handle< Field > wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = solution_group->create_field(Tags::wave_speed(), "ws[1]" ).as_ptr<Field>();
+    wave_speed = solution_group->create_field(Tags::wave_speed(), "ws[1]" ).handle<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
 
   // create links
 
-  if( ! fields.get_child_ptr( solution->name() ) )
-    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
-  if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
-  if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+  if( ! fields.get_child( solution->name() ) )
+    fields.create_component<Link>( solution->name() )->link_to(*solution).add_tag(RDM::Tags::solution());
+  if( ! fields.get_child( RDM::Tags::residual() ) )
+    fields.create_component<Link>( RDM::Tags::residual() )->link_to(*residual).add_tag(RDM::Tags::residual());
+  if( ! fields.get_child( RDM::Tags::wave_speed() ) )
+    fields.create_component<Link>( RDM::Tags::wave_speed() )->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
 
   for( Uint step = 1; step < rk_steps.size(); ++step)
   {
-    if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
-      fields.create_component<CLink>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
+    if( ! fields.get_child( rk_steps[step]->name() ) )
+      fields.create_component<Link>( rk_steps[step]->name() )->link_to( *rk_steps[step] ).add_tag("rksteps");
   }
 
 
@@ -180,7 +180,7 @@ void SetupMultipleSolutions::execute()
     parallel_fields.push_back( rk_steps[step]->uri() );
   }
 
-  mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);
+  mysolver.actions().get_child("Synchronize")->options().configure_option("Fields", parallel_fields);
 
 //  std::cout << "solution " << solution->uri().string() << std::endl;
 //  std::cout << "residual " << residual->uri().string() << std::endl;
@@ -191,4 +191,4 @@ void SetupMultipleSolutions::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

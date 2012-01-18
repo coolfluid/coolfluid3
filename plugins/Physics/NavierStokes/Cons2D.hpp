@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_NavierStokes_Cons2D_hpp
-#define CF_Physics_NavierStokes_Cons2D_hpp
+#ifndef cf3_physics_NavierStokes_Cons2D_hpp
+#define cf3_physics_NavierStokes_Cons2D_hpp
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "common/StringConversion.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "NavierStokes2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, RhoU = 1, RhoV = 2, RhoE = 3 };
 
-  typedef boost::shared_ptr<Cons2D> Ptr;
-  typedef boost::shared_ptr<Cons2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -82,9 +82,9 @@ public: // functions
           std::cout << "uuvv  : " << p.uuvv << std::endl;
 
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                                   + Common::to_str(coord[XX]) + ","
-                                   + Common::to_str(coord[YY])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + common::to_str(coord[XX]) + ","
+                                   + common::to_str(coord[YY])
                                    + "]");
     }
 
@@ -121,13 +121,28 @@ public: // functions
   {
     flux(0,XX) = p.rhou;              // rho.u
     flux(1,XX) = p.rhou * p.u + p.P;  // rho.u^2 + P
-    flux(2,XX) = p.rhou * p.rhov * p.inv_rho; // rho.u.v
+    flux(2,XX) = p.rhou * p.v;        // rho.u.v
     flux(3,XX) = p.rhou * p.H;        // rho.u.H
 
     flux(0,YY) = p.rhov;              // rho.v
-    flux(1,YY) = p.rhou * p.rhov * p.inv_rho; // rho.v.u
+    flux(1,YY) = p.rhov * p.u;        // rho.v.u
     flux(2,YY) = p.rhov * p.v + p.P;  // rho.v^2 + P
     flux(3,YY) = p.rhov * p.H;        // rho.v.H
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    const Real rhoum = p.rhou * direction[XX]
+                     + p.rhov * direction[YY];
+
+    flux[0] = rhoum;
+    flux[1] = rhoum * p.u + p.P*direction[XX];
+    flux[2] = rhoum * p.v + p.P*direction[YY];
+    flux[3] = rhoum * p.H;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -303,7 +318,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
-} // CF
+} // physics
+} // cf3
 
-#endif // CF_Physics_NavierStokes_Cons2D_hpp
+#endif // cf3_physics_NavierStokes_Cons2D_hpp

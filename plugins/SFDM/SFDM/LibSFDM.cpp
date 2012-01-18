@@ -4,27 +4,29 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
-#include "Common/CRoot.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "SFDM/LibSFDM.hpp"
+#include "common/Link.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-CF::Common::RegistLibrary<LibSFDM> LibSFDM;
+using namespace common;
 
-////////////////////////////////////////////////////////////////////////////////
+cf3::common::RegistLibrary<LibSFDM> LibSFDM;
 
-void LibSFDM::initiate_impl()
+void LibSFDM::initiate()
 {
+  if(m_is_initiated)
+    return;
+
+  Handle<Component> lib = Core::instance().libraries().get_child("cf3.SFDM");
+  cf3_assert(lib);
+
+  m_is_initiated = true;
 }
 
-void LibSFDM::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

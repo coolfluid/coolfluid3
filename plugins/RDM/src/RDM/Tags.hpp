@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/Tags.hpp"
+#include "solver/Tags.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-#ifndef CF_RDM_Tags_hpp
-#define CF_RDM_Tags_hpp
+#ifndef cf3_RDM_Tags_hpp
+#define cf3_RDM_Tags_hpp
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the tags for the RDM components
 /// @author Tiago Quintino
-class RDM_API Tags : public Solver::Tags {
+class RDM_API Tags : public solver::Tags {
 public:
 
   static const char * fields()         { return "Fields";  }
-  static const char * actions()        { return "Actions"; }
+  static const char * actions()        { return "actions"; }
 
   static const char * solution()      { return "solution"; }
   static const char * residual()      { return "residual"; }
@@ -36,6 +36,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Tags_hpp
+#endif // cf3_RDM_Tags_hpp

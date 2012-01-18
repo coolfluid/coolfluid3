@@ -4,29 +4,29 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LibScalar_hpp
-#define CF_Physics_Scalar_LibScalar_hpp
+#ifndef cf3_physics_Scalar_LibScalar_hpp
+#define cf3_physics_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Scalar_API
 /// @note build system defines COOLFLUID_PHYSICS_SCALAR_EXPORTS when compiling Scalar files
 #ifdef COOLFLUID_PHYSICS_SCALAR_EXPORTS
-#   define Scalar_API      CF_EXPORT_API
+#   define Scalar_API      CF3_EXPORT_API
 #   define Scalar_TEMPLATE
 #else
-#   define Scalar_API      CF_IMPORT_API
-#   define Scalar_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Scalar_API      CF3_IMPORT_API
+#   define Scalar_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 
 /// @brief %Scalar transport equations
 ///
@@ -37,30 +37,30 @@ namespace Scalar {
 
 /// Class defines the Scalar library
 /// @author Tiago Quintino
-class Scalar_API LibScalar : public Common::CLibrary
+class Scalar_API LibScalar : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibScalar> Ptr;
-  typedef boost::shared_ptr<LibScalar const> ConstPtr;
+  
+  
 
   /// Constructor
-  LibScalar ( const std::string& name) : Common::CLibrary(name) { }
+  LibScalar ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibScalar() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.Scalar"; }
+  static std::string library_namespace() { return "cf3.physics.Scalar"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Scalar"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -71,23 +71,15 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibScalar"; }
 
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
 }; // end LibScalar
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
-} // CF
+} // physics
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Physics_Scalar_LibScalar_hpp
+#endif // cf3_physics_Scalar_LibScalar_hpp
 

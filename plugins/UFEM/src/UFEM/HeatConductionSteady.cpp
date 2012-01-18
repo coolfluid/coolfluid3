@@ -4,20 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "common/Builder.hpp"
+
+#include "solver/actions/SolveLSS.hpp"
+
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
-using namespace Solver;
-using namespace Solver::Actions::Proto;
+using namespace common;
+using namespace solver;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
 ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
 
@@ -31,10 +37,10 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
   *this <<                                                                                          // The linear problem (= inner loop, but executed once here)
     create_proto_action("Assembly", elements_expression                                             // Assembly action added to linear problem
     (
-      group <<
+      group
       (
         _A = _0, _T = _0,
-        element_quadrature <<
+        element_quadrature
         (
           _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
           _T(temperature) += transpose(N(temperature))*N(temperature)
@@ -43,12 +49,12 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
         system_rhs += _T * nodal_values(heat)
       )
     ))
-    << boundary_conditions()                                                                        // boundary conditions
-    << solve_action()                                                                               // Solve the LSS
+    << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
+    << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
     << create_proto_action("SetSolution", nodes_expression(temperature = solution(temperature)));     // Set the solution
 }
 
 
 
 } // UFEM
-} // CF
+} // cf3

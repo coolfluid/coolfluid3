@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_SFDSolver_hpp
-#define CF_SFDM_SFDSolver_hpp
+#ifndef cf3_SFDM_SFDSolver_hpp
+#define cf3_SFDM_SFDSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/TimeStepping.hpp"
@@ -17,11 +17,11 @@
 #include "SFDM/InitialConditions.hpp"
 #include "SFDM/DomainDiscretization.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Common    { class CGroup; }
-namespace Solver    { namespace Actions { class CSynchronizeFields; } }
-
+namespace common    { class Group; }
+namespace solver    { namespace actions { class CSynchronizeFields; } }
+namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
 // Forward declarations
@@ -40,12 +40,12 @@ class TimeStepping;
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
-class SFDM_API SFDSolver : public Solver::CSolver {
+class SFDM_API SFDSolver : public solver::CSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<SFDSolver> Ptr;
-  typedef boost::shared_ptr<SFDSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -80,47 +80,51 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  Common::CGroup&       actions()                { return *m_actions; }
-  /// @returns the group of shared fields
-  Common::CGroup&       fields()                 { return *m_fields; }
+  common::Group&       actions()                { return *m_actions; }
 
-  Mesh::CMesh& mesh() { return *m_mesh.lock(); }
+  mesh::Mesh& mesh() { return *m_mesh; }
+
+  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
 private: // functions
 
   /// Triggered when physical model is configured
   void config_physics();
 
+  void build_riemann_solver();
+
   /// Triggered when the mesh is configured
   void config_mesh();
 
   /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( Common::SignalArgs& args );
+  void on_mesh_changed_event( common::SignalArgs& args );
 
 private: // data
 
   bool m_mesh_configured;
 
-  boost::shared_ptr<Common::CGroup>          m_actions;               ///< the group of shared actions
-  boost::shared_ptr<Common::CGroup>          m_fields;                ///< the group of fields
+  Handle<common::Group>          m_actions;               ///< the group of shared actions
+  Handle<common::Group>          m_fields;                ///< the group of fields
 
-  boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
-  boost::weak_ptr<Mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates
+  Handle<physics::PhysModel>        m_physical_model;        ///< physical model
+  Handle<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 
-  boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
-  boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
-  boost::shared_ptr<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
-  boost::shared_ptr<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
-  boost::shared_ptr<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
-//  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
+  Handle<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
+  Handle<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
+//  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+
+  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_SFDSolver_hpp
+#endif // cf3_SFDM_SFDSolver_hpp

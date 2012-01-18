@@ -1,4 +1,4 @@
-# this module looks for Zoltan library
+# this module looks for zoltan library
 # it will define the following values
 #
 # Needs environmental variables
@@ -6,10 +6,10 @@
 # Sets
 #   SUPERLU_INCLUDE_DIR
 #   SUPERLU_LIBRARIES
-#   CF_HAVE_SUPERLU
+#   CF3_HAVE_SUPERLU
 #
 
-option( CF_SKIP_SUPERLU "Skip search for SuperLU library" OFF )
+option( CF3_SKIP_SUPERLU "Skip search for SuperLU library" OFF )
 
 coolfluid_set_trial_include_path("") # clear include search path
 coolfluid_set_trial_library_path("") # clear library search path

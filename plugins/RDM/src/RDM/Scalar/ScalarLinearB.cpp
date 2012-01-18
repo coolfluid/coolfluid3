@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/Schemes/B.hpp"
 
@@ -16,20 +16,20 @@
 
 #include "RDM/Scalar/LibScalar.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > B_LinearAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<B, physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > B_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > B_LinearAdvSys2D_Builder;
+common::ComponentBuilder < CellLoopT<B, physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > B_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > B_RotationAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<B, physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > B_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -11,7 +11,7 @@
 #include "RDM/SupportedCells.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -37,8 +37,8 @@ struct CellLoopGPU : public CellLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+    if( is_null(parent()->handle<ACTION>()) )
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -49,8 +49,8 @@ struct CellLoopGPU : public CellLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     {
       TermT& term = this->access_term<TermT>();
       // point the term to the elements of the (sub)region

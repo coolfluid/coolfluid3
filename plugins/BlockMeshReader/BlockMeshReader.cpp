@@ -4,29 +4,29 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "BlockMeshReader.hpp"
 #include "LibBlockMeshReader.hpp"
 #include "Parser.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
+cf3::common::ComponentBuilder < BlockMeshReader, mesh::MeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
+BlockMeshReader::BlockMeshReader(const std::string& name): MeshReader(name)
 {
 
 }
@@ -37,7 +37,7 @@ std::vector< std::string > BlockMeshReader::get_extensions()
   return result;
 }
 
-void BlockMeshReader::do_read_mesh_into(const CF::Common::URI& path_uri, CF::Mesh::CMesh& mesh)
+void BlockMeshReader::do_read_mesh_into(const cf3::common::URI& path_uri, cf3::mesh::Mesh& mesh)
 {
   boost::filesystem::path path(path_uri.path());
   // if the file is present open it
@@ -53,11 +53,11 @@ void BlockMeshReader::do_read_mesh_into(const CF::Common::URI& path_uri, CF::Mes
                                                 boost::system::error_code() );
   }
 
-  BlockData& block_data = create_component<BlockData>("block_data");
+  BlockData& block_data = *create_component<BlockData>("block_data");
   parse_blockmesh_dict(file, block_data);
   block_data.dimension = 3; // TODO add true 2D support
   build_mesh(block_data, mesh);
 }
 
 } // BlockMeshReader
-} // CF
+} // cf3

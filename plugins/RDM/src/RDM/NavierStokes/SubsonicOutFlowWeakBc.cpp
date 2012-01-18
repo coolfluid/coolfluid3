@@ -4,35 +4,35 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/NavierStokes/SubsonicOutFlowWeakBc.hpp"
 
 #include "Physics/NavierStokes/Cons2D.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SubsonicOutFlowWeakBc,
+common::ComponentBuilder < SubsonicOutFlowWeakBc,
                            RDM::BoundaryTerm,
                            LibRDM > SubsonicOutFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>,
+common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, physics::NavierStokes::Cons2D>,
                            RDM::FaceLoop,
                            LibRDM > SubsonicOutFlowWeakBc_Euler2D_Builder;
 
@@ -45,10 +45,10 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> > ("p_out", std::string() )
-      ->description("Outlet pressure (vars x,y,z)")
-      ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
-      ->mark_basic();
+  options().add_option("p_out", std::string() )
+      .description("Outlet pressure (vars x,y,z)")
+      .attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
+      .mark_basic();
 
   pressure_function.variables("x,y,z");
 }
@@ -56,7 +56,7 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
 void SubsonicOutFlowWeakBc::config_pressure_function()
 {
-  pressure_function.functions( m_options["p_out"].value< std::string >() );
+  pressure_function.functions( options()["p_out"].value< std::string >() );
   pressure_function.parse();
 }
 
@@ -67,7 +67,7 @@ void SubsonicOutFlowWeakBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     loop.select_region( region );
 
@@ -78,4 +78,4 @@ void SubsonicOutFlowWeakBc::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdvSys2D_hpp
-#define CF_Physics_Scalar_LinearAdvSys2D_hpp
+#ifndef cf3_physics_Scalar_LinearAdvSys2D_hpp
+#define cf3_physics_Scalar_LinearAdvSys2D_hpp
 
-#include "Common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "common/StringConversion.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "ScalarSys2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,8 @@ public: //typedefs
 
   enum { U0 = 0, U1 = 1 };
 
-  typedef boost::shared_ptr<LinearAdvSys2D> Ptr;
-  typedef boost::shared_ptr<LinearAdvSys2D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -83,6 +83,15 @@ public: // functions
   {
     flux.row(U0)  = p.v.row(U0) * p.vars[U0];
     flux.row(U1)  = p.v.row(U1) * p.vars[U0];
+  }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "directional flux not implemented for LinearAdvSys2D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -140,7 +149,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
-} // CF
+} // physics
+} // cf3
 
-#endif // CF_Physics_Scalar_LinearAdvSys2D_hpp
+#endif // cf3_physics_Scalar_LinearAdvSys2D_hpp

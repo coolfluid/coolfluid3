@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -17,43 +17,43 @@
 #include "CopySolution.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CopySolution, CAction, LibRDM > CopySolution_Builder;
+common::ComponentBuilder < CopySolution, common::Action, LibRDM > CopySolution_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 CopySolution::CopySolution ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
   // options
 
-  options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution))
-      ->pretty_name("Solution");
+  options().add_option(RDM::Tags::solution(), m_solution)
+      .pretty_name("Solution")
+      .link_to(&m_solution);
 }
 
 void CopySolution::execute()
 {
-  RDSolver& mysolver = solver().as_type< RDSolver >();
+  RDSolver& mysolver = *solver().handle< RDSolver >();
 
-  if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
+  if (is_null(m_solution))
+    m_solution = follow_link(mysolver.fields().get_child( RDM::Tags::solution() ))->handle<Field>();
 
   boost_foreach( Component& c, find_components_with_tag( mysolver.fields(), "rksteps" ) )
   {
-    Field::Ptr field = c.as_type<CLink>().follow()->as_ptr<Field>();
+    Handle< Field > field(follow_link(c));
     if ( field )
     {
-      *field = *m_solution.lock();
+      *field = *m_solution;
     }
   }
 }
@@ -61,4 +61,4 @@ void CopySolution::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

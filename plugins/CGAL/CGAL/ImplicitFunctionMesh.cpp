@@ -13,24 +13,27 @@
 #include <CGAL/Handle_hash_function.h>
 #include <CGAL/number_utils.h>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "common/Table.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Field.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Mesh {
+namespace cf3 {
+namespace mesh {
 namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,24 +46,24 @@ CGReal SphereFunction::operator()(const Point& p) const {
 
 /// Converts a CGAL mesh to a coolfluid mesh
 template<typename TriangulationComplexT>
-void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
+void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   // Map CGAL vertex handles to coolfluid point indices
   typedef ::CGAL::Unique_hash_map<typename TriangulationComplexT::Vertex_handle,Uint,::CGAL::Handle_hash_function> VertexMapT;
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
 
-  CRegion& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Region& region = mesh.topology().create_region("region");
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,DIM_3D);
 
   // coordinate storage
-  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
+  Table<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
 
   // connectivity storage
-  CElements& elements = region.create_elements("CF.Mesh.LagrangeP1.Tetra3D",nodes);
-  CTable<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
+  Elements& elements = region.create_elements("cf3.mesh.LagrangeP1.Tetra3D",nodes);
+  Table<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
   CFinfo << "iterating over the cells" << CFendl;
@@ -88,7 +91,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Implementation is heavily based on the CGAL example
-void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters) {
+void create_mesh(const ImplicitFunction& function, Mesh& mesh, const MeshParameters parameters) {
   // Domain type
   typedef ::CGAL::Implicit_mesh_domain_3<ImplicitFunction const,KernelT> MeshDomainT;
 
@@ -122,7 +125,7 @@ void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParame
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace CGAL
-} // namespace Mesh
-} // namespace CF
+} // namespace mesh
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////

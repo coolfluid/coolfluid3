@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Prim1D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Prim1D,
-                           Physics::Variables,
+common::ComponentBuilder < NavierStokes::Prim1D,
+                           physics::Variables,
                            LibNavierStokes >
                            Builder_Prim1D;
 
@@ -29,5 +29,5 @@ Prim1D::~Prim1D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
-} // CF
+} // physics
+} // cf3

@@ -1,5 +1,5 @@
-set( CF_LIBRARY_LINK_FLAGS "" CACHE STRING "Extra link flags for libraries" FORCE )
-mark_as_advanced( CF_LIBRARY_LINK_FLAGS )
+set( CF3_LIBRARY_LINK_FLAGS "" CACHE STRING "Extra link flags for libraries" FORCE )
+mark_as_advanced( CF3_LIBRARY_LINK_FLAGS )
 
 ########################################################################################
 # GCC Compiler
@@ -24,7 +24,7 @@ if( CMAKE_COMPILER_IS_GNUCC )
     coolfluid_add_cxx_flags("-fno-common")
 
 
-    if( CF_ENABLE_WARNINGS )
+    if( CF3_ENABLE_WARNINGS )
       # use many warnings
       coolfluid_add_cxx_flags("-Wall")
       coolfluid_add_cxx_flags("-W")
@@ -68,7 +68,7 @@ endif()
 # INTEL ICC
 ########################################################################################
 
-if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF_CXX_COMPILER_VERSION MATCHES "12")
+if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF3_CXX_COMPILER_VERSION MATCHES "12")
 
   # suppress warning (remark) #279: controlling expression is constant
   # because of boost use of BOOST_ASSERT( expr && "message")
@@ -80,12 +80,20 @@ if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF_CXX_COMPILER_VERSION MATCHES "1
 endif()
 
 ########################################################################################
+# CLANG
+########################################################################################
+
+if( CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  coolfluid_add_cxx_flags("-Wno-parentheses")
+endif()
+
+########################################################################################
 # UNIX
 ########################################################################################
 
 if(UNIX)
-  
-    if( CF_ENABLE_CODECOVERAGE )
+
+    if( CF3_ENABLE_CODECOVERAGE )
 
       find_program(CTEST_COVERAGE_COMMAND gcov)
 
@@ -111,7 +119,7 @@ if(WIN32)
   # disable auto-linking with boost
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
-  
+
   # Required for auto link not to mess up on vs80.
   # @todo Disable auto link on windows altogether.
   # add_definitions( -DBOOST_DYN_LINK )
@@ -124,9 +132,9 @@ if(WIN32)
   # add exception handling
   coolfluid_add_c_flags( "/EHsc" )
   coolfluid_add_cxx_flags( "/EHsc" )
-  
+
   # remove warnings
-  if( CF_ENABLE_WARNINGS ) 
+  if( CF3_ENABLE_WARNINGS )
     coolfluid_add_c_flags( "/W3" )
     coolfluid_add_cxx_flags( "/W3" )
   else()
@@ -136,7 +144,7 @@ if(WIN32)
 
   # linker flags:
   #   /OPT:NOREF keeps functions and data that are never referenced ( needed for static libs )
-  set( CF_LIBRARY_LINK_FLAGS "/OPT:NOREF /OPT:NOICF"  CACHE STRING "Extra link flags for libraries" FORCE )
+  set( CF3_LIBRARY_LINK_FLAGS "/OPT:NOREF /OPT:NOICF"  CACHE STRING "Extra link flags for libraries" FORCE )
 
   #   set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:NOREF /OPT:NOICF" )
   #   set( CMAKE_CXX_CREATE_STATIC_LIBRARY  "lib ${CMAKE_CL_NOLOGO} /OPT:NOREF /OPT:NOICF <LINK_FLAGS> /out:<TARGET> <OBJECTS>" )
@@ -155,11 +163,11 @@ if( APPLE )
   #  "<CMAKE_CXX_COMPILER> -undefined dynamic_lookup <LANGUAGE_COMPILE_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <LINK_FLAGS> -o <TARGET> -install_name <TARGET_INSTALLNAME_DIR><TARGET_SONAME> <OBJECTS> <LINK_LIBRARIES>")
 
   # under Mac OS X internal deps must be used so force them
-  if( NOT CF_ENABLE_INTERNAL_DEPS )
-    set( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
+  if( NOT CF3_ENABLE_INTERNAL_DEPS )
+    set( CF3_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
   endif()
 
-    if( CF_ENABLE_WARNINGS )
+    if( CF3_ENABLE_WARNINGS )
     endif()
 
 endif(APPLE)
@@ -170,22 +178,22 @@ endif(APPLE)
 
 # test and add the user defined flags
 
-string( REGEX MATCHALL "[^ ]+" C_FLAGS_LIST "${CF_C_FLAGS}"  )
+string( REGEX MATCHALL "[^ ]+" C_FLAGS_LIST "${CF3_C_FLAGS}"  )
 foreach( c_flag ${C_FLAGS_LIST} )
   coolfluid_add_c_flags_or_die ( ${c_flag} )
 endforeach()
 mark_as_advanced( C_FLAGS_LIST   )
 
-string( REGEX MATCHALL "[^ ]+" CXX_FLAGS_LIST "${CF_CXX_FLAGS}"  )
+string( REGEX MATCHALL "[^ ]+" CXX_FLAGS_LIST "${CF3_CXX_FLAGS}"  )
 foreach( cxx_flag ${CXX_FLAGS_LIST} )
   coolfluid_add_cxx_flags_or_die ( ${cxx_flag} )
 endforeach()
 mark_as_advanced( CXX_FLAGS_LIST  )
 
-if( NOT CF_SKIP_FORTRAN )
-  string( REGEX MATCHALL "[^ ]+" Fortran_FLAGS_LIST "${CF_Fortran_FLAGS}"  )
+if( NOT CF3_SKIP_FORTRAN )
+  string( REGEX MATCHALL "[^ ]+" Fortran_FLAGS_LIST "${CF3_Fortran_FLAGS}"  )
   # fortran flags currently nont checked
-  set( CMAKE_Fortran_FLAGS "${CF_Fortran_FLAGS}" )
+  set( CMAKE_Fortran_FLAGS "${CF3_Fortran_FLAGS}" )
   # foreach( fortran_flag ${Fortran_FLAGS_LIST} )
   #   coolfluid_add_Fortran_flags_or_die ( ${fortran_flag} )
   # endforeach()

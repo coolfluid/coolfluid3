@@ -4,30 +4,30 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_BoundaryConditions_hpp
-#define CF_UFEM_BoundaryConditions_hpp
+#ifndef cf3_UFEM_BoundaryConditions_hpp
+#define cf3_UFEM_BoundaryConditions_hpp
 
-#include "Common/CActionDirector.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/ActionDirector.hpp"
+#include "common/OptionURI.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
 
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
 /// BoundaryConditions for UFEM problems
-class UFEM_API BoundaryConditions : public Common::CActionDirector
+class UFEM_API BoundaryConditions : public common::ActionDirector
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<BoundaryConditions> Ptr;
-  typedef boost::shared_ptr<BoundaryConditions const> ConstPtr;
+  
+  
 
 public: // functions
   
@@ -47,7 +47,7 @@ public: // functions
   void add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
   
   /// Signal to create a constant BC and add it to the sequence of executed actions
-  void signal_create_constant_bc(Common::SignalArgs& node);
+  void signal_create_constant_bc(common::SignalArgs& node);
   
 private:
   class Implementation;
@@ -55,7 +55,7 @@ private:
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_BoundaryConditions_hpp
+#endif // cf3_UFEM_BoundaryConditions_hpp

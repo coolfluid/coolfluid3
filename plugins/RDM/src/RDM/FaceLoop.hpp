@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_FaceLoop_hpp
-#define CF_RDM_FaceLoop_hpp
+#ifndef cf3_RDM_FaceLoop_hpp
+#define cf3_RDM_FaceLoop_hpp
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedFaces.hpp"
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /// FaceLoop defines the base class for all FaceLoopT
@@ -33,20 +33,17 @@ struct FaceLoop : public ElementLoop
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
-    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
-    typename TermT::Ptr term;
-    if( is_null( cterm ) )
+    Handle<TermT> term( parent()->get_child( TermT::type_name() ) );
+    if( is_null( term ) )
     {
       // does not exist so create the concrete term
-      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
+      term = Handle<TermT>(parent()->template create_component< TermT >( TermT::type_name() ));
 
       // configure the fields
-      term->configure_option_recursively( Tags::solution(),   parent().as_type<FaceTerm>().solution().uri()   );
-      term->configure_option_recursively( Tags::residual(),   parent().as_type<FaceTerm>().residual().uri()   );
-      term->configure_option_recursively( Tags::wave_speed(), parent().as_type<FaceTerm>().wave_speed().uri() );
+      term->configure_option_recursively( Tags::solution(),   parent()->handle<FaceTerm>()->solution() );
+      term->configure_option_recursively( Tags::residual(),   parent()->handle<FaceTerm>()->residual() );
+      term->configure_option_recursively( Tags::wave_speed(), parent()->handle<FaceTerm>()->wave_speed() );
     }
-    else
-      term = cterm->as_ptr_checked<TermT>();
 
     return *term;
   }
@@ -77,8 +74,8 @@ struct FaceLoopT1 : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+    if( is_null(parent()->handle<ACTION>()) )
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -87,8 +84,8 @@ struct FaceLoopT1 : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -131,8 +128,8 @@ struct FaceLoopT : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+    if( is_null(parent()->handle<ACTION>()) )
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -141,8 +138,8 @@ struct FaceLoopT : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     {
       TermT& term = this->access_term<TermT>();
 
@@ -163,6 +160,6 @@ struct FaceLoopT : public FaceLoop
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_FaceLoop_hpp
+#endif // cf3_RDM_FaceLoop_hpp

@@ -4,59 +4,65 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Log.hpp"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
-#include "Physics/Variables.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/List.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CSpace.hpp"
+#include "physics/Variables.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
+
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Init.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::physics;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Init, CF::Solver::Action, LibSFDM > Init_Builder;
+common::ComponentBuilder < Init, common::Action, LibSFDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
-      ->pretty_name("Solution Field")
-      ->description("The field to Initialize");
+  options().add_option("solution_field", m_field )
+      .pretty_name("Solution Field")
+      .description("The field to Initialize")
+      .link_to(&m_field);
 
-  m_options.add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
-      ->pretty_name("Input Variables")
-      ->description("The input variables.\nIf empty, Solution Variables will be used");
+  options().add_option("input_vars", m_input_vars)
+      .pretty_name("Input Variables")
+      .description("The input variables.\nIf empty, Solution Variables will be used")
+      .link_to(&m_input_vars);
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->pretty_name("Functions")
-      ->description("Math function applied as initial condition using Input Variables (vars x,y)")
-      ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .pretty_name("Functions")
+      .description("math function applied as initial condition using Input Variables (vars x,y)")
+      .attach_trigger ( boost::bind ( &Init::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -64,7 +70,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 
@@ -74,28 +80,28 @@ void Init::config_function()
 
 void Init::execute()
 {
-  if( is_null( m_field.lock() ) )
+  if( is_null( m_field ) )
     throw SetupError(FromHere(),"Solution field not set.");
 
-  Field& solution = *m_field.lock();
+  Field& solution = *m_field;
 
-  Variables& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars()).as_type<Variables>();
+  Handle<Variables> solution_vars(find_component_ptr_with_tag(physical_model(),SFDM::Tags::solution_vars()));
 
-  if (m_input_vars.expired())
-    configure_option("input_vars",solution_vars.uri());
+  if (is_null(m_input_vars))
+    options().configure_option("input_vars",solution_vars);
 
-  Variables& input_vars = *m_input_vars.lock();
+  Variables& input_vars = *m_input_vars;
 
   std::vector<Real> params(DIM_3D,0.);
   RealVector return_val( solution.row_size() );
   RealMatrix grad_vars( physical_model().neqs(), physical_model().ndim() );
   RealVector sol (physical_model().neqs() );
 
-  std::auto_ptr<Physics::Properties> props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> props = physical_model().create_properties();
 
-  boost_foreach(CCells& elements, find_components_recursively<CCells>(solution.topology()))
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(solution.topology()))
   {
-    CSpace& space = solution.space(elements);
+    Space& space = solution.space(elements);
 
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -112,7 +118,7 @@ void Init::execute()
     {
       elements.put_coordinates(geometry_coords,elem);
 
-      CConnectivity::ConstRow field_idx = space.indexes_for_element(elem);
+      Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
 
       for (Uint node=0; node<space.nb_states();++node)
       {
@@ -126,10 +132,10 @@ void Init::execute()
         m_function.evaluate(params,return_val);
 
         // Transform the return_val of the function to solution variables,
-        if (&input_vars != &solution_vars)
+        if (m_input_vars != solution_vars)
         {
           input_vars.compute_properties(space_coords.row(node),return_val,grad_vars,*props);
-          solution_vars.compute_variables(*props,sol);
+          solution_vars->compute_variables(*props,sol);
 
           // Copy in the solution field
           solution.set_row(field_idx[node],sol);
@@ -150,4 +156,4 @@ void Init::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

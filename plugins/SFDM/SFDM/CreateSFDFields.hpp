@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_CreateSFDFields_hpp
-#define CF_SFDM_CreateSFDFields_hpp
+#ifndef cf3_SFDM_CreateSFDFields_hpp
+#define cf3_SFDM_CreateSFDFields_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -24,12 +24,12 @@ namespace SFDM {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_API CreateSFDFields : public Solver::Action
+class SFDM_API CreateSFDFields : public solver::Action
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CreateSFDFields> Ptr;
-    typedef boost::shared_ptr<CreateSFDFields const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -47,8 +47,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_CreateSFDFields_hpp
+#endif // cf3_SFDM_CreateSFDFields_hpp

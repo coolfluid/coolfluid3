@@ -22,4 +22,4 @@ add_subdirectory( SFDM  )
 add_subdirectory( Physics  )
 
 # Plugins for the UI
-add_subdirectory( UI )
+add_subdirectory( ui )

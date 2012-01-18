@@ -6,40 +6,40 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "NavierStokes2D.hpp"
 
-namespace CF {
-namespace Physics {
+namespace cf3 {
+namespace physics {
 namespace NavierStokes {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::NavierStokes2D,
-                           Physics::PhysModel,
+common::ComponentBuilder < NavierStokes::NavierStokes2D,
+                           physics::PhysModel,
                            LibNavierStokes >
                            Builder_NavierStokes2D;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 NavierStokes2D::NavierStokes2D( const std::string& name ) :
-  Physics::PhysModel(name),
+  physics::PhysModel(name),
   m_gamma(1.4),
   m_R(287.05)
 {
-  options().add_option< OptionT<Real> >("gamma",m_gamma)
-      ->description("Specific heat reatio")
-      ->link_to(&m_gamma);
+  options().add_option("gamma",m_gamma)
+      .description("Specific heat reatio")
+      .link_to(&m_gamma);
 
-  options().add_option< OptionT<Real> >("R",m_R)
-      ->description("Gas constant")
-      ->link_to(&m_R);
+  options().add_option("R",m_R)
+      .description("Gas constant")
+      .link_to(&m_R);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,11 +50,11 @@ NavierStokes2D::~NavierStokes2D()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Physics::Variables > NavierStokes2D::create_variables( const std::string type, const std::string name )
+boost::shared_ptr< physics::Variables > NavierStokes2D::create_variables( const std::string type, const std::string name )
 {
-  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
-        build_component_abstract_type< Physics::Variables >( type, name ) :
-        build_component_abstract_type< Physics::Variables >( LibNavierStokes::library_namespace() + "." + type, name );
+  boost::shared_ptr< physics::Variables > vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< physics::Variables >( type, name ) :
+        build_component_abstract_type< physics::Variables >( LibNavierStokes::library_namespace() + "." + type, name );
 
   add_component( vars );
 
@@ -64,5 +64,5 @@ boost::shared_ptr< Physics::Variables > NavierStokes2D::create_variables( const 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
-} // CF
+} // physics
+} // cf3

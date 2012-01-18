@@ -6,12 +6,12 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
-#include "Common/XML/SignalFrame.hpp" // indirectly includes XmlNode.hpp
+#include "common/XML/SignalFrame.hpp" // indirectly includes XmlNode.hpp
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 void test_signal( SignalFrame & frame )
 {
@@ -25,10 +25,10 @@ void test_signal( SignalFrame & frame )
 
   CFinfo << "OptionOne value is " << foptions.option<int>("OptionOne") << CFendl;
   CFinfo << "OptionTwo value is " << foptions.option<std::string>("OptionTwo") << CFendl;
-  CFinfo << "OptionThree value is " << foptions.option<CF::Real>("OptionThree") << CFendl;
+  CFinfo << "OptionThree value is " << foptions.option<cf3::Real>("OptionThree") << CFendl;
 
   roptions.add( "ArrayOne", vect, " ; ");
-  roptions.add( "OptionFour", CF::Real(3.1415));
+  roptions.add( "OptionFour", cf3::Real(3.1415));
 
   CFinfo << CFendl << "/////////////// leaving test_signal() \\\\\\\\\\\\\\\\" << CFendl << CFendl;
 }
@@ -36,8 +36,8 @@ void test_signal( SignalFrame & frame )
 int main ( int argc, char * argv[])
 {
   std::string str;
-  URI sender("//Root/Sender", URI::Scheme::CPATH);
-  URI receiver("//Root/Receiver", URI::Scheme::CPATH);
+  URI sender("//Sender", URI::Scheme::CPATH);
+  URI receiver("//Receiver", URI::Scheme::CPATH);
   std::vector<int> vect;
 
   SignalFrame signal_frame("MySignal",  sender, receiver);
@@ -45,7 +45,7 @@ int main ( int argc, char * argv[])
 
   foptions.add( "OptionOne", int(212135));
   foptions.add( "OptionTwo", std::string("Hello, World!"));
-  foptions.add( "OptionThree", CF::Real(2.71));
+  foptions.add( "OptionThree", cf3::Real(2.71));
 
   // output the signal
   signal_frame.xml_doc->to_string(str);
@@ -66,7 +66,7 @@ int main ( int argc, char * argv[])
   for(int i = 0 ; i < vect.size() ; ++i)
     CFinfo << "ArrayOne[" << i << "] value is " << vect[i] << CFendl;
 
-  CFinfo << "OptionFour value is " << roptions.option<CF::Real>("OptionFour") << CFendl;
+  CFinfo << "OptionFour value is " << roptions.option<cf3::Real>("OptionFour") << CFendl;
 
   return 0;
 }

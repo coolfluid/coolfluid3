@@ -4,78 +4,80 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PE/Comm.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/CModel.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Math::Consts;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::math::Consts;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibSFDM > ComputeUpdateCoefficient_Builder;
+common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSFDM > ComputeUpdateCoefficient_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
-  Solver::Action(name),
+  solver::Action(name),
   m_freeze(false),
   m_tolerance(1e-12)
 {
   mark_basic();
   // options
-  m_options.add_option< OptionT<bool> > ("time_accurate", true)
-    ->description("Time Accurate")
-    ->pretty_name("Time Accurate")
-    ->mark_basic()
-    ->add_tag("time_accurate");
+  options().add_option("time_accurate", true)
+    .description("Time Accurate")
+    .pretty_name("Time Accurate")
+    .mark_basic()
+    .add_tag("time_accurate");
 
-  m_options.add_option< OptionT<Real> > ("cfl", 1.)
-    ->description("Courant Number")
-    ->pretty_name("CFL")
-    ->mark_basic()
-    ->add_tag("cfl");
+  options().add_option("cfl", 1.)
+    .description("Courant Number")
+    .pretty_name("CFL")
+    .mark_basic()
+    .add_tag("cfl");
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
-    ->description("Update coefficient to multiply with residual")
-    ->pretty_name("Update Coefficient");
+  options().add_option(SFDM::Tags::update_coeff(), m_update_coeff)
+    .description("Update coefficient to multiply with residual")
+    .pretty_name("Update Coefficient")
+    .link_to(&m_update_coeff);
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::wave_speed(), &m_wave_speed ))
-    ->description("Wave Speed multiplied divided by characteristic length")
-    ->pretty_name("Wave Speed");
+  options().add_option(SFDM::Tags::wave_speed(), m_wave_speed)
+    .description("Wave Speed multiplied divided by characteristic length")
+    .pretty_name("Wave Speed")
+    .link_to(&m_wave_speed);
 
-  m_options.add_option(OptionComponent<CTime>::create(SFDM::Tags::time(), &m_time))
-    ->description("Time Tracking component")
-    ->pretty_name("Time");
+  options().add_option(SFDM::Tags::time(), m_time)
+    .description("Time Tracking component")
+    .pretty_name("Time")
+    .link_to(&m_time);
 
-  m_options.add_option(OptionT<Real>::create("milestone_dt", 0.))
-    ->description("Limits time-steps to fall on milestones")
-    ->pretty_name("Milestone Time Step");
+  options().add_option("milestone_dt", 0.)
+    .description("Limits time-steps to fall on milestones")
+    .pretty_name("Milestone Time Step");
 
-  m_options.add_option(OptionT<bool>::create("freeze_update_coeff", m_freeze))
-    ->description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
-    ->pretty_name("Freeze Update Coefficient")
-    ->link_to(&m_freeze);
+  options().add_option("freeze_update_coeff", m_freeze)
+    .description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
+    .pretty_name("Freeze Update Coefficient")
+    .link_to(&m_freeze);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,25 +88,25 @@ void ComputeUpdateCoefficient::execute()
   {
     link_fields();
 
-    if (m_wave_speed.expired())    throw SetupError(FromHere(), "WaveSpeed field was not set");
-    if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
+    if (is_null(m_wave_speed))    throw SetupError(FromHere(), "WaveSpeed field was not set");
+    if (is_null(m_update_coeff)) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
 
-    Field& wave_speed = *m_wave_speed.lock();
-    Field& update_coeff = *m_update_coeff.lock();
-    Real cfl = option("cfl").value<Real>();
+    Field& wave_speed = *m_wave_speed;
+    Field& update_coeff = *m_update_coeff;
+    Real cfl = options().option("cfl").value<Real>();
 
-    if (option("time_accurate").value<bool>()) // global time stepping
+    if (options().option("time_accurate").value<bool>()) // global time stepping
     {
-      if (m_time.expired())   throw SetupError(FromHere(), "Time component was not set");
+      if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
 
-      CTime& time = *m_time.lock();
+      CTime& time = *m_time;
 
-      cf_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
+      cf3_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 
       /// compute time step
       //  -----------------
       /// - take user-defined time step
-      Real dt = time.option("time_step").value<Real>();
+      Real dt = time.options().option("time_step").value<Real>();
 
       /// - Make time step stricter through the CFL number
       Real min_dt = dt;
@@ -125,7 +127,7 @@ void ComputeUpdateCoefficient::execute()
       dt = glb_min_dt;
 
       /// - Make sure we reach milestones and final simulation time
-      Real tf = limit_end_time(time.current_time(), time.option("end_time").value<Real>());
+      Real tf = limit_end_time(time.current_time(), time.options().option("end_time").value<Real>());
       if( time.current_time() + dt + m_tolerance > tf )
         dt = tf - time.current_time();
 
@@ -144,7 +146,7 @@ void ComputeUpdateCoefficient::execute()
     }
     else // local time stepping
     {
-      if (!m_time.expired())  m_time.lock()->dt() = 0.;
+      if (is_not_null(m_time))  m_time->dt() = 0.;
 
       // Calculate the update_coefficient = CFL/wave_speed
       RealVector ws(wave_speed.row_size());
@@ -163,7 +165,7 @@ void ComputeUpdateCoefficient::execute()
 
 Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
 {
-  const Real milestone_dt   = option("milestone_dt").value<Real>();
+  const Real milestone_dt   = options().option("milestone_dt").value<Real>();
   if (milestone_dt == 0)
     return end_time;
 
@@ -175,25 +177,23 @@ Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_
 
 void ComputeUpdateCoefficient::link_fields()
 {
-  if( is_null( m_update_coeff.lock() ) )
+  if( is_null( m_update_coeff ) )
   {
-    m_update_coeff = solver().field_manager()
-        .get_child( SFDM::Tags::update_coeff() ).follow()->as_ptr_checked<Field>();
-    configure_option( SFDM::Tags::update_coeff(), m_update_coeff.lock()->uri() );
+    m_update_coeff = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::update_coeff() ) ) );
+    options().configure_option( SFDM::Tags::update_coeff(), m_update_coeff );
   }
 
-  if( is_null( m_wave_speed.lock() ) )
+  if( is_null( m_wave_speed ) )
   {
-    m_wave_speed = solver().field_manager()
-        .get_child( SFDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
-    configure_option( SFDM::Tags::wave_speed(), m_wave_speed.lock()->uri() );
+    m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( SFDM::Tags::wave_speed() ) ) );
+    options().configure_option( SFDM::Tags::wave_speed(), m_wave_speed );
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

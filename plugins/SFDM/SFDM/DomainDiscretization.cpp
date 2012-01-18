@@ -4,57 +4,57 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
-#include "Solver/Actions/CForAllFaces.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/actions/CForAllCells.hpp"
+#include "solver/actions/CForAllFaces.hpp"
 
 #include "SFDM/DomainDiscretization.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < DomainDiscretization, CAction, LibSFDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, common::Action, LibSFDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
   // signals
 
   regist_signal( "create_term" )
-      ->connect  ( boost::bind( &DomainDiscretization::signal_create_term, this, _1 ) )
-      ->signature( boost::bind( &DomainDiscretization::signature_signal_create_term, this, _1))
-      ->description("creates a discretization term for cells")
-      ->pretty_name("Create Cell Term");
+      .connect  ( boost::bind( &DomainDiscretization::signal_create_term, this, _1 ) )
+      .signature( boost::bind( &DomainDiscretization::signature_signal_create_term, this, _1))
+      .description("creates a discretization term for cells")
+      .pretty_name("Create Cell Term");
 
-  m_terms = create_static_component_ptr<CActionDirector>("Terms");
+  m_terms = create_static_component<ActionDirector>("Terms");
 }
 
 
@@ -73,17 +73,16 @@ Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::vector<URI>& regions )
 {
   CFinfo << "Creating cell term   " << name << "(" << type << ")" << CFendl;
-  Term::Ptr term = build_component_abstract_type<Term>(type,name);
-  m_terms->append(term);
+  Handle< Term > term = m_terms->create_component<Term>(name, type);
 
   if (regions.size() == 0)
-    term->configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
+    term->options().configure_option("regions", std::vector<URI>(1,mesh().topology().uri()));
   else
-    term->configure_option("regions", regions);
+    term->options().configure_option("regions", regions);
 
-  term->configure_option( SFDM::Tags::mesh(),           mesh().uri());
-  term->configure_option( SFDM::Tags::solver(),         solver().uri());
-  term->configure_option( SFDM::Tags::physical_model(), physical_model().uri());
+  term->options().configure_option( SFDM::Tags::mesh(),           mesh().handle<Component>());
+  term->options().configure_option( SFDM::Tags::solver(),         solver().handle<Component>());
+  term->options().configure_option( SFDM::Tags::physical_model(), physical_model().handle<Component>());
 
   return *term;
 }
@@ -114,15 +113,15 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created term");
+  options.add_option("name", std::string() )
+      .description("Name for created term");
 
   // type
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option< OptionT<std::string> >("type", std::string("CF.SFDM.Convection"))
-      ->description("Type for created term");
+  options.add_option("type", std::string("cf3.SFDM.Convection"))
+      .description("Type for created term");
 
   // regions
 
@@ -130,12 +129,12 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the term");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 
 } // SFDM
-} // CF
+} // cf3

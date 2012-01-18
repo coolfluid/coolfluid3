@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RiemannSolvers_Roe_hpp
-#define CF_RiemannSolvers_Roe_hpp
+#ifndef cf3_RiemannSolvers_Roe_hpp
+#define cf3_RiemannSolvers_Roe_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 #include "RiemannSolvers/RiemannSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@ namespace RiemannSolvers {
 class RiemannSolvers_API Roe : public RiemannSolver
 {
 public:
-  typedef boost::shared_ptr< Roe >       Ptr;
-  typedef boost::shared_ptr< Roe const > ConstPtr;
+  
+  
 
 public:
 
@@ -39,27 +39,27 @@ public:
   static std::string type_name() { return "Roe"; }
 
 
-  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                      RealVector& flux, RealVector& wave_speeds);
 
-  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                       RealVector& flux);
 
 private:
 
   void trigger_physical_model();
-  Physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
+  physics::Variables& roe_vars() { return *m_roe_vars; }
 
 private:
 
-  boost::weak_ptr<Physics::Variables> m_roe_vars;
-  std::auto_ptr<Physics::Properties> p_left;
-  std::auto_ptr<Physics::Properties> p_right;
-  std::auto_ptr<Physics::Properties> p_avg;
+  Handle<physics::Variables> m_roe_vars;
+  std::auto_ptr<physics::Properties> p_left;
+  std::auto_ptr<physics::Properties> p_right;
+  std::auto_ptr<physics::Properties> p_avg;
   RealVector coord;
   RealMatrix grads;
-  RealMatrix f_left;
-  RealMatrix f_right;
+  RealVector f_left;
+  RealVector f_right;
   RealVector roe_left;
   RealVector roe_right;
   RealVector roe_avg;
@@ -72,7 +72,7 @@ private:
   RealVector upwind_flux;
 
   // Operator to calculate the absolute value
-  struct Abs : public Physics::UnaryRealOp
+  struct Abs : public physics::UnaryRealOp
   {
     virtual Real operator() ( const Real& r ) const { return std::abs(r); };
   } abs;
@@ -81,8 +81,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RiemannSolvers_Roe_hpp
+#endif // cf3_RiemannSolvers_Roe_hpp

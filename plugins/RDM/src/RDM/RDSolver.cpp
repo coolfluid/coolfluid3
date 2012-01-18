@@ -6,22 +6,22 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/EventHandler.hpp"
+#include "common/Log.hpp"
+#include "common/Builder.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
+#include "common/OSystem.hpp"
+#include "common/LibLoader.hpp"
+#include "common/EventHandler.hpp"
+#include "common/FindComponents.hpp"
+#include "common/XML/SignalOptions.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
-
-#include "Solver/Actions/CSynchronizeFields.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/InitialConditions.hpp"
@@ -32,20 +32,20 @@
 #include "RDM/RDSolver.hpp"
 #include "RDM/SetupSingleSolution.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > Solver_Builder;
+common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,51 +59,52 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // options
 
-  options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
-      ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
+  options().add_option( RDM::Tags::update_vars(), "")
+      .attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option< OptionT<std::string> >( "solution_space", Mesh::Tags::geometry() )
-      ->pretty_name("Solution Space")
-      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
+  options().add_option( "solution_space", mesh::Tags::geometry() )
+      .pretty_name("Solution Space")
+      .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
-      ->description("Mesh the Discretization Method will be applied to")
-      ->pretty_name("Mesh")
-      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
+  options().add_option(RDM::Tags::mesh(), m_mesh)
+      .description("Mesh the Discretization Method will be applied to")
+      .pretty_name("Mesh")
+      .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) )
+      .link_to(&m_mesh);
 
-  option(RDM::Tags::physical_model()).attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
+  options().option(RDM::Tags::physical_model()).attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
   // subcomponents
 
   m_initial_conditions =
-      create_static_component_ptr< InitialConditions >( InitialConditions::type_name() );
+      create_static_component< InitialConditions >( InitialConditions::type_name() );
 
   m_boundary_conditions =
-      create_static_component_ptr< BoundaryConditions >( BoundaryConditions::type_name() );
+      create_static_component< BoundaryConditions >( BoundaryConditions::type_name() );
 
   m_domain_discretization =
-      create_static_component_ptr< DomainDiscretization >( DomainDiscretization::type_name() );
+      create_static_component< DomainDiscretization >( DomainDiscretization::type_name() );
 
   m_iterative_solver =
-      create_static_component_ptr< IterativeSolver >( IterativeSolver::type_name() );
+      create_static_component< IterativeSolver >( IterativeSolver::type_name() );
 
   m_time_stepping =
-      create_static_component_ptr< TimeStepping >( TimeStepping::type_name() );
+      create_static_component< TimeStepping >( TimeStepping::type_name() );
 
-  m_time_stepping->append( *m_iterative_solver );
+  m_time_stepping->add_link( *m_iterative_solver );
 
   m_prepare_mesh =
-      create_static_component_ptr< CActionDirector >( "SetupMesh" );
+      create_static_component< common::ActionDirector >( "SetupMesh" );
 
   // for storing links to fields
 
-  m_fields  = create_static_component_ptr< CGroup >( RDM::Tags::fields()  );
+  m_fields  = create_static_component< Group >( RDM::Tags::fields()  );
 
-  m_actions = create_static_component_ptr< CGroup >( RDM::Tags::actions() );
+  m_actions = create_static_component< Group >( RDM::Tags::actions() );
 
   // create the parallel synchronization action
 
-  m_actions->create_component_ptr<CSynchronizeFields>("Synchronize");
+  m_actions->create_component<CSynchronizeFields>("Synchronize");
 
   // listen to mesh_updated events, emitted by the domain
 
@@ -124,11 +125,11 @@ IterativeSolver&      RDSolver::iterative_solver()       { return *m_iterative_s
 
 TimeStepping&         RDSolver::time_stepping()          { return *m_time_stepping; }
 
-CActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
+common::ActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
-Common::CGroup& RDSolver::actions() { return *m_actions; }
+common::Group& RDSolver::actions() { return *m_actions; }
 
-Common::CGroup& RDSolver::fields()  { return *m_fields; }
+common::Group& RDSolver::fields()  { return *m_fields; }
 
 
 
@@ -144,19 +145,17 @@ void RDSolver::config_physics()
   {
     PhysModel& pm = physics();
 
-    std::string user_vars = option(  RDM::Tags::update_vars() ).value<std::string>();
+    std::string user_vars = options().option(  RDM::Tags::update_vars() ).value<std::string>();
     if( user_vars.empty() )
       return;
 
-    Component::Ptr upv =
-        find_component_ptr_with_tag(pm, RDM::Tags::update_vars());
+    Handle< Variables > upv(find_component_ptr_with_tag(pm, RDM::Tags::update_vars()));
 
     if( is_not_null(upv) ) // if exits insure is the good one
     {
-      Variables& vars = upv->as_type<Variables>();
-      if( vars.type() != user_vars )
+      if( upv->type() != user_vars )
       {
-        pm.remove_component(vars.name() );
+        pm.remove_component(upv->name() );
         upv.reset();
       }
     }
@@ -165,7 +164,7 @@ void RDSolver::config_physics()
       pm.create_variables( user_vars, RDM::Tags::update_vars() );
 
     boost_foreach( Component& comp, find_components(*this) )
-      comp.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+      comp.configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
 
     // load the library which has the correct RDM physics
 
@@ -182,34 +181,34 @@ void RDSolver::config_physics()
 
 void RDSolver::config_mesh()
 {
-  if( is_null(m_mesh.lock()) ) return;
+  if( is_null(m_mesh) ) return;
 
-  CMesh& mesh = *(m_mesh.lock());
+  Mesh& mesh = *(m_mesh);
 
-  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  physics::PhysModel& pm = physics(); // physcial model must have already been configured
 
   if( pm.ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
 
-  prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
+  prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), m_mesh ); // trigger config_mesh()
 
   prepare_mesh().execute();
 
   // configure all other subcomponents with the mesh
 
   boost_foreach( Component& comp, find_components(*this) )
-    comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
+    comp.configure_option_recursively( RDM::Tags::mesh(), m_mesh );
 }
 
 void RDSolver::on_mesh_changed_event( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  URI mesh_uri = options.value<URI>("mesh_uri");
+  Handle<Mesh> mesh( access_component(options.value<URI>("mesh_uri")) );
 
-  configure_option( RDM::Tags::mesh(), mesh_uri ); // trigger config_mesh()
+  this->options().configure_option( RDM::Tags::mesh(), mesh ); // trigger config_mesh()
 }
 
 
@@ -217,4 +216,4 @@ void RDSolver::on_mesh_changed_event( SignalArgs& args )
 
 
 } // RDM
-} // CF
+} // cf3

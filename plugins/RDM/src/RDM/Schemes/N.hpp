@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_N_hpp
-#define CF_RDM_Schemes_N_hpp
+#ifndef cf3_RDM_Schemes_N_hpp
+#define cf3_RDM_Schemes_N_hpp
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -25,8 +25,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< N > Ptr;
-  typedef boost::shared_ptr< N const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -56,8 +56,8 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Term > Ptr;
-  typedef boost::shared_ptr< Term const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -111,7 +111,7 @@ void N::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   B::interpolate( nodes_idx );
 
@@ -250,6 +250,6 @@ void N::Term<SF,QD,PHYS>::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Schemes_N_hpp
+#endif // cf3_RDM_Schemes_N_hpp

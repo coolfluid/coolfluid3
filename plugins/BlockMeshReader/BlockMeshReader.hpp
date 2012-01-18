@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_BlockMeshReader_BlockMeshReader_hpp
-#define CF_BlockMeshReader_BlockMeshReader_hpp
+#ifndef cf3_BlockMeshReader_BlockMeshReader_hpp
+#define cf3_BlockMeshReader_BlockMeshReader_hpp
 
-#include "Mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines BlockMeshReader BlockMesh mesh format reader
 /// @author Bart Janssens
-class BlockMeshReader : public CF::Mesh::CMeshReader
+class BlockMeshReader : public cf3::mesh::MeshReader
 {
 public:
 
@@ -31,7 +31,7 @@ public:
   virtual std::vector<std::string> get_extensions();
 
 private:
-  virtual void do_read_mesh_into(const Common::URI& path, Mesh::CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& path, mesh::Mesh& mesh);
 
 }; // end BlockMeshReader
 
@@ -39,6 +39,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMeshReader
-} // CF
+} // cf3
 
-#endif /* CF_BlockMeshReader_BlockMeshReader_hpp */
+#endif /* CF3_BlockMeshReader_BlockMeshReader_hpp */

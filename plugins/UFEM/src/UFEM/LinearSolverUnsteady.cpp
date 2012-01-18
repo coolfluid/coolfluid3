@@ -4,24 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
-#include "Mesh/Geometry.hpp"
+#include "common/Log.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Field.hpp"
+
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
 #include "LinearSolverUnsteady.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
-using namespace Mesh;
-using namespace Solver;
-using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
+using namespace common;
+using namespace mesh;
+using namespace solver;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
 
 
@@ -29,18 +33,18 @@ struct LinearSolverUnsteady::Implementation
 {
   void trigger_time()
   {
-    if(m_time.expired())
+    if(is_null(m_time))
       return;
     
-    m_time.lock()->option("time_step").attach_trigger(boost::bind(&Implementation::trigger_timestep, this));
+    m_time->options().option("time_step").attach_trigger(boost::bind(&Implementation::trigger_timestep, this));
   }
   
   void trigger_timestep()
   {
-    m_invdt = m_time.lock()->invdt();
+    m_invdt = m_time->invdt();
   }
   
-  boost::weak_ptr<CTime> m_time;
+  Handle<CTime> m_time;
   Real m_invdt;
 };
 
@@ -48,10 +52,11 @@ LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
   LinearSolver(name),
   m_implementation( new Implementation() )
 {
-  m_options.add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_implementation->m_time))
-    ->pretty_name("Time")
-    ->description("Component that keeps track of time for this simulation")
-    ->attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()));
+  options().add_option(solver::Tags::time(), m_implementation->m_time)
+    .pretty_name("Time")
+    .description("Component that keeps track of time for this simulation")
+    .attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()))
+    .link_to(&m_implementation->m_time);
 }
 
 LinearSolverUnsteady::~LinearSolverUnsteady()
@@ -66,4 +71,4 @@ Real& LinearSolverUnsteady::invdt()
 
 
 } // UFEM
-} // CF
+} // cf3

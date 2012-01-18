@@ -11,7 +11,7 @@
 #include "RDM/GPU/LibGPU.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,8 @@ class RDM_GPU_API LDAGPU : public RDM::CellTerm {
 
 public: // typedefs
 
-  typedef boost::shared_ptr< LDAGPU > Ptr;
-  typedef boost::shared_ptr< LDAGPU const > ConstPtr;
+  
+  
 
 public: // functions
 
