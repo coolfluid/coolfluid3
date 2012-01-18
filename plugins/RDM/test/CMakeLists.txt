@@ -50,9 +50,6 @@ coolfluid_add_test( ATEST     atest-rdm-lineardiff2d
 ##########################################################################
 # RK atests
 
-coolfluid_add_test( ATEST     atest-rdm-rk-lineuler2d_old
-                    CFSCRIPT  atest-rdm-rk-lineuler2d.cfscript )
-
 coolfluid_add_test( ATEST     atest-rdm-rk-lineuler2d
                     PYTHON    atest-rdm-rk-lineuler2d.py )
 

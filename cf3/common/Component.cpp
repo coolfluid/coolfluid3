@@ -656,7 +656,7 @@ void Component::signal_list_tree( SignalArgs& args ) const
 
 void Component::signal_list_tree_recursive( SignalArgs& args) const
 {
-  CFinfo << uri().path() << CFendl;
+  CFinfo << uri().path() << " [" << derived_type_name() << "]" << CFendl;
   BOOST_FOREACH(const Component& c, *this )
   {
     c.signal_list_tree_recursive( args );
