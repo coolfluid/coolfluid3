@@ -13,6 +13,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/ShapeFunction.hpp"
 
 #include "SFDM/ElementCaching.hpp"
@@ -404,7 +405,7 @@ private:
     if (is_not_null(field_in_sol_pts))
       delete(field_in_sol_pts);
 
-    field_in_sol_pts = new mesh::Field::View(field->view(space->indexes_for_element(idx)));
+    field_in_sol_pts = new mesh::Field::View(field->view(space->connectivity()[idx]));
   }
 
 public:
@@ -456,7 +457,7 @@ private:
     if (is_not_null(field_in_sol_pts))
       delete(field_in_sol_pts);
 
-    field_in_sol_pts = new mesh::Field::View(field->view(space->indexes_for_element(idx)));
+    field_in_sol_pts = new mesh::Field::View(field->view(space->connectivity()[idx]));
   }
 
 public:
@@ -502,7 +503,7 @@ private:
 
   virtual void compute_variable_data()
   {
-    mesh::Field::View field_in_sol_pts = field->view(space->indexes_for_element(idx));
+    mesh::Field::View field_in_sol_pts = field->view(space->connectivity()[idx]);
     reconstruct_to_flux_points(field_in_sol_pts,field_in_flx_pts);
   }
 
@@ -548,7 +549,7 @@ private:
 
   virtual void compute_variable_data()
   {
-    mesh::Field::View field_in_sol_pts = field->view(space->indexes_for_element(idx));
+    mesh::Field::View field_in_sol_pts = field->view(space->connectivity()[idx]);
     reconstruct_to_flux_points(field_in_sol_pts,field_in_flx_pts);
   }
 
@@ -594,7 +595,7 @@ public:
 
 //  virtual void compute_variable_data()
 //  {
-//    Field::View grad_field_in_sol_pts = field->view(space->indexes_for_element(idx));
+//    Field::View grad_field_in_sol_pts = field->view(space->connectivity()[idx]);
 //    gradient_reconstruct_to_flux_points(grad_field_in_sol_pts,grad_field_in_flx_pts);
 //  }
 

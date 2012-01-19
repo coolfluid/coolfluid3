@@ -792,7 +792,7 @@ BOOST_CHECK(true);
     const Space& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
-      Uint field_idx = space.indexes_for_element(elem)[0];
+      Uint field_idx = space.connectivity()[elem][0];
       glb_elem[field_idx][0] = 1.;
       elem_rank[field_idx][0] = elements.rank()[elem];
     }

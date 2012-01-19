@@ -19,7 +19,6 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/MatchNodes.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"

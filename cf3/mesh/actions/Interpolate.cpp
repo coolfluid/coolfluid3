@@ -111,8 +111,8 @@ void Interpolate::execute()
       /// Element loop
       for (Uint e=0; e<elements.size(); ++e)
       {
-        Connectivity::ConstRow s_field_indexes = s_space.indexes_for_element(e);
-        Connectivity::ConstRow t_field_indexes = t_space.indexes_for_element(e);
+        Connectivity::ConstRow s_field_indexes = s_space.connectivity()[e];
+        Connectivity::ConstRow t_field_indexes = t_space.connectivity()[e];
 
         /// Interpolate: target[element] = interpolate * source[element]
         /// Split in loops since we cannot work with Matrix-products
@@ -328,7 +328,7 @@ void Interpolate::interpolate_coordinate(const RealVector& target_coord, const E
   RealRowVector sf_value(sf.nb_nodes());
   sf.compute_value(local_coord,sf_value);
 
-  Connectivity::ConstRow source_indexes = source_space.indexes_for_element(element_idx);
+  Connectivity::ConstRow source_indexes = source_space.connectivity()[element_idx];
   for(Uint v=0; v<target_row.size(); ++v)
   {
     target_row[v]=0.;

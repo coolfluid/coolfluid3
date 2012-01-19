@@ -16,13 +16,10 @@ env.options().configure_option('exception_outputs', True)
 ############################
 # Create simulation
 ############################
-model = root.create_component('shocktube_2d','cf3.solver.CModel');
-model.create_solver('cf3.SFDM.SFDSolver')
-model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
-model.create_domain()
-physics = model.get_child('NavierStokes2D')
-solver  = model.get_child('SFDSolver')
-domain  = model.get_child('Domain')
+model   = root.create_component('shocktube_2d','cf3.solver.CModel');
+solver  = model.create_solver('cf3.SFDM.SFDSolver')
+physics = model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
+domain  = model.create_domain()
 
 ###### Following generates a square mesh
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
@@ -68,10 +65,9 @@ solver.get_child('InitialConditions').get_child('shocktube').options().configure
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
-solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.navierstokes.Convection2D')
-convection = solver.access_component('DomainDiscretization/Terms/convection')
+convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.navierstokes.Convection2D')
 
-solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.SFDM.BCNull',
+nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.SFDM.BCNull',
 regions=[
 mesh.access_component('topology/left').uri(),
 mesh.access_component('topology/right').uri(),

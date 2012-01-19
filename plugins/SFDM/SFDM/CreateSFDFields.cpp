@@ -28,6 +28,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/CellFaces.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Connectivity.hpp"
@@ -84,14 +85,20 @@ void CreateSFDFields::execute()
     {
       cells_plus_bdry.push_back(entities.handle<Entities>());
     }
-    boost_foreach(Entities& entities, find_components_recursively_with_tag<Entities>(mesh().topology(),mesh::Tags::outer_faces()))
+    boost_foreach(Entities& entities, find_components_recursively_with_tag<Entities>(mesh().topology(),mesh::Tags::face_entity()))
     {
-      cells_plus_bdry.push_back(entities.handle<Entities>());
+      if (entities.has_tag(mesh::Tags::outer_faces())==true)
+        cells_plus_bdry.push_back(entities.handle<Entities>());
     }
     boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
     {
-      cells_plus_bdry.push_back(entities.handle<Entities>());
+        cells_plus_bdry.push_back(entities.handle<Entities>());
     }
+
+//    boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
+//    {
+//      cells_plus_bdry.push_back(entities.handle<Entities>());
+//    }
 
     Dictionary& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.SFDM.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
@@ -105,12 +112,15 @@ void CreateSFDFields::execute()
     residual.descriptor().prefix_variable_names("rhs_");
     solver().field_manager().create_component<Link>(SFDM::Tags::residual())->link_to(residual);
     residual.properties()[SFDM::Tags::L2norm()]=0.;
+    residual.parallelize();
 
     Field& wave_speed = solution_space.create_field(SFDM::Tags::wave_speed(), "ws[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::wave_speed())->link_to(wave_speed);
+    wave_speed.parallelize();
 
     Field& update_coeff = solution_space.create_field(SFDM::Tags::update_coeff(), "uc[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::update_coeff())->link_to(update_coeff);
+    update_coeff.parallelize();
 
     Field& jacob_det = solution_space.create_field(SFDM::Tags::jacob_det(), "jacob_det[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::jacob_det())->link_to(jacob_det);

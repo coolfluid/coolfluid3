@@ -80,28 +80,29 @@ Entities::~Entities()
 //{
 //}
 
-void Entities::initialize(const std::string& element_type_name, Dictionary& geometry)
+void Entities::initialize(const std::string& element_type_name, Dictionary& geometry_dict)
 {
   options().configure_option("element_type",element_type_name);
   cf3_assert(is_not_null(m_element_type));
-  create_geometry_space(geometry);
+  create_geometry_space(geometry_dict);
 }
 
-void Entities::create_geometry_space(Dictionary& geometry)
+void Entities::create_geometry_space(Dictionary& geometry_dict)
 {
   if ( is_null(m_element_type) )
     throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
 
-  m_geometry_fields = Handle<Dictionary>(geometry.handle<Component>());
+  m_geometry_dict = Handle<Dictionary>(geometry_dict.handle<Component>());
   if ( exists_space(mesh::Tags::geometry()) )
   {
     space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   }
   else
   {
-    Space& geometry_space = create_space(element_type().shape_function().derived_type_name(),*m_geometry_fields);
-    geometry_space.add_tag(mesh::Tags::geometry());
-    m_geometry_space = Handle<Space>(geometry_space.handle<Component>());
+    m_geometry_space = m_spaces_group->create_component<Space>(geometry_dict.name());
+    m_geometry_space->initialize(*this,geometry_dict);
+    m_geometry_space->options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    m_geometry_space->add_tag(mesh::Tags::geometry());
   }
 }
 
@@ -141,7 +142,7 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   if(entities_vector.empty())
     return used_nodes;
 
-  const Uint all_nb_nodes = entities_vector.front()->space(space_name).fields().size();
+  const Uint all_nb_nodes = entities_vector.front()->space(space_name).dict().size();
 
   std::vector<bool> node_is_used(all_nb_nodes, false);
 
@@ -246,16 +247,12 @@ Uint Entities::glb_size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_fields)
+Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_dict)
 {
   /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
-  Handle<Space> space = m_spaces_group->create_component<Space>(space_fields.name());
+  Handle<Space> space = m_spaces_group->create_component<Space>(space_dict.name());
+  space->initialize(*this,space_dict);
   space->options().configure_option("shape_function",shape_function_builder_name);
-  space->set_support(*this);
-  space->get_child("fields")->handle<Link>()->link_to(space_fields);
-  space->connectivity().create_lookup().add(space_fields);
-  space->connectivity().set_row_size(space->nb_states());
-  space_fields.add_space( space );
   return *space;
 }
 

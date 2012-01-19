@@ -131,7 +131,12 @@ void BoundaryConditions::signal_create_boundary_condition( SignalArgs& args )
   else
     regions.push_back(mesh().topology().uri());
 
-  create_boundary_condition( type, name, regions );
+  BC& created_component = create_boundary_condition( type, name, regions );
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", created_component.uri());
+
 }
 
 
