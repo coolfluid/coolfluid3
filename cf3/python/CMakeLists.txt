@@ -19,6 +19,8 @@ list( APPEND coolfluid_python_files
   URIWrapper.hpp
   URIWrapper.cpp
   Utility.hpp
+  NetworkXPython.hpp
+  NetworkXPython.cpp
 )
 
 set( coolfluid_python_kernellib TRUE )
@@ -30,5 +32,6 @@ list(APPEND coolfluid_python_cflibs coolfluid_common )
 coolfluid_add_library( coolfluid_python )
 
 configure_file(coolfluid.py ${coolfluid_DSO_DIR} COPYONLY)
+configure_file(networkxpython.py ${coolfluid_DSO_DIR} COPYONLY)
 
 endif()
