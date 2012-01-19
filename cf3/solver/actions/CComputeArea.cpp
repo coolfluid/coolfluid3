@@ -13,7 +13,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/UnifiedData.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "solver/actions/CComputeArea.hpp"
 
@@ -76,7 +76,7 @@ void CComputeArea::execute()
   Field& area = *m_area;
 
   elements().geometry_space().put_coordinates(m_coordinates,idx());
-  area[space.indexes_for_element(idx())[0]][0] = elements().element_type().area( m_coordinates );
+  area[space.connectivity()[idx()][0]][0] = elements().element_type().area( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -123,11 +123,17 @@ void Action::config_regions()
       comp = access_component(region_uri);
     }
 
-    if ( Handle< Region > region = comp->handle<Region>() )
+    if ( is_null(comp) )
+    {
+      throw common::ValueNotFound ( FromHere(),
+                           "Could not find region with path [" + region_uri.path() +"]" );
+    }
+    Handle< Region > region = comp->handle<Region>();
+    if ( is_not_null(region) )
       m_loop_regions.push_back( region );
     else
       throw common::ValueNotFound ( FromHere(),
-                           "Could not find region with path [" + region_uri.path() +"]" );
+                           "Component [" + region_uri.path() +"] is not of type Region" );
   }
 }
 

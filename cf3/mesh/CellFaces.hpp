@@ -37,14 +37,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CellFaces"; }
 
-  bool is_bdry(const Uint idx) const;
+//  bool is_bdry(const Uint idx) const;
 
-  FaceCellConnectivity& cell_connectivity() { return *m_cell_connectivity; }
-  const FaceCellConnectivity& cell_connectivity() const { return *m_cell_connectivity; }
+//  FaceCellConnectivity& cell_connectivity() { return *m_cell_connectivity; }
+//  const FaceCellConnectivity& cell_connectivity() const { return *m_cell_connectivity; }
 
-protected:
+//protected:
 
-  Handle<FaceCellConnectivity> m_cell_connectivity;
+//  Handle<FaceCellConnectivity> m_cell_connectivity;
 
 };
 

@@ -16,7 +16,6 @@
 #include "common/OptionList.hpp"
 
 #include "mesh/actions/BuildFaceNormals.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
@@ -26,7 +25,6 @@
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Faces.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 

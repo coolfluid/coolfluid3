@@ -16,13 +16,10 @@ env.options().configure_option('exception_outputs', True)
 ############################
 # Create simulation
 ############################
-model = root.create_component('shocktube_1d','cf3.solver.CModel');
-model.create_solver('cf3.SFDM.SFDSolver')
-model.create_physics('cf3.physics.NavierStokes.NavierStokes1D')
-model.create_domain()
-physics = model.get_child('NavierStokes1D')
-solver  = model.get_child('SFDSolver')
-domain  = model.get_child('Domain')
+model   = root.create_component('shocktube_1d','cf3.solver.CModel');
+solver  = model.create_solver('cf3.SFDM.SFDSolver')
+physics = model.create_physics('cf3.physics.NavierStokes.NavierStokes1D')
+domain  = model.create_domain()
 
 ###### Following generates a line mesh
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
@@ -57,18 +54,17 @@ solver.access_component('TimeStepping/IterativeSolver').options().configure_opti
 solver.get_child('PrepareMesh').execute()
 
 ### Set the initial condition
-solver.get_child('InitialConditions').create_initial_condition( name = 'shocktube')
 functions = [
 'r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=0,r_L,r_R)',
 'r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=0,r_L*u_L,r_R*u_R)',
 'r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=0,p_L/(g-1)+0.5*r_L*u_L*u_L,p_R/(g-1)+0.5*r_R*u_R*u_R)'
 ]
-solver.get_child('InitialConditions').get_child('shocktube').options().configure_option("functions",functions)
+initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'shocktube')
+initial_condition.options().configure_option("functions",functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
-solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.navierstokes.Convection1D')
-convection = solver.access_component('DomainDiscretization/Terms/convection')
+convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.navierstokes.Convection1D')
 
 #######################################
 # SIMULATE

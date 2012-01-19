@@ -8,7 +8,6 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Region.hpp"
-#include "mesh/CellFaces.hpp"
 
 #include "solver/actions/CForAllFaces.hpp"
 

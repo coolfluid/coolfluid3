@@ -24,6 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/Dictionary.hpp"
 
 using namespace cf3;
@@ -102,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
     const Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      Uint field_idx = space.indexes_for_element(elem)[0];
+      Uint field_idx = space.connectivity()[elem][0];
       elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }

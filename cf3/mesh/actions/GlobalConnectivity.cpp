@@ -22,7 +22,6 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/actions/GlobalConnectivity.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"

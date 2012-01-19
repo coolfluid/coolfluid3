@@ -94,6 +94,7 @@ void Term::create_term_field()
     vars->set_variables(solution_field().descriptor().description());
     vars->prefix_variable_names(name()+"_");
     m_term_field = solution_field().dict().create_field(name(),vars->description()).handle<Field>();
+    m_term_field->parallelize();
   }
   if (is_null(m_term_wave_speed_field))
   {
@@ -101,6 +102,7 @@ void Term::create_term_field()
     boost::shared_ptr<math::VariablesDescriptor> vars(allocate_component<math::VariablesDescriptor>("tmp"));
     vars->set_variables(name()+"_wavespeed");
     m_term_wave_speed_field = solution_field().dict().create_field(name()+"_wavespeed",vars->description()).handle<Field>();
+    m_term_wave_speed_field->parallelize();
   }
 
 }
@@ -111,38 +113,40 @@ void Term::set_face(const Handle<Entities const>& entities, const Uint elem_idx,
                     Handle<Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
                     Handle<Entities const>& face_entities, Uint& face_idx, Uint& face_side)
 {
-  ElementConnectivity const& face_connectivity = *entities->get_child("face_connectivity")->handle<ElementConnectivity>();
-  cf3_assert(elem_idx < face_connectivity.size());
-  cf3_assert(face_nb < face_connectivity[elem_idx].size());
-  Entity face = face_connectivity[elem_idx][face_nb];
+  const Handle<ElementConnectivity>& face_connectivity = entities->connectivity_cell2face();
+  cf3_assert(face_connectivity);
+  cf3_assert(elem_idx < face_connectivity->size());
+  cf3_assert(face_nb < (*face_connectivity)[elem_idx].size());
+  Entity face = (*face_connectivity)[elem_idx][face_nb];
   cf3_assert( is_not_null(face.comp) );
   face_entities = face.comp->handle<Entities>();
   face_idx = face.idx;
-  FaceCellConnectivity const& cell_connectivity = *face.comp->get_child("cell_connectivity")->handle<FaceCellConnectivity>();
-  cf3_assert(face.idx < cell_connectivity.is_bdry_face().size())
-  if (cell_connectivity.is_bdry_face()[face.idx])
+  const Handle<FaceCellConnectivity>& cell_connectivity = face.comp->connectivity_face2cell();
+  cf3_assert(cell_connectivity);
+  cf3_assert(face.idx < cell_connectivity->is_bdry_face().size())
+  if (cell_connectivity->is_bdry_face()[face.idx])
   {
     neighbour_entities = Handle<Entities const>();
   }
   else
   {
-    cf3_assert(face.idx < cell_connectivity.connectivity().size());
-    cf3_assert(is_not_null(cell_connectivity.connectivity()[face.idx][LEFT].comp))
-    if (cell_connectivity.connectivity()[face.idx][LEFT].comp == entities.get() &&
-        cell_connectivity.connectivity()[face.idx][LEFT].idx == elem_idx)
+    cf3_assert(face.idx < cell_connectivity->connectivity().size());
+    cf3_assert(is_not_null(cell_connectivity->connectivity()[face.idx][LEFT].comp))
+    if (cell_connectivity->connectivity()[face.idx][LEFT].comp == entities.get() &&
+        cell_connectivity->connectivity()[face.idx][LEFT].idx == elem_idx)
     {
       face_side = LEFT;
-      cf3_assert(is_not_null(cell_connectivity.connectivity()[face.idx][RIGHT].comp))
-      neighbour_entities = cell_connectivity.connectivity()[face.idx][RIGHT].comp->handle<Entities>();
-      neighbour_elem_idx = cell_connectivity.connectivity()[face.idx][RIGHT].idx;
-      neighbour_face_nb = cell_connectivity.face_number()[face.idx][RIGHT];
+      cf3_assert(is_not_null(cell_connectivity->connectivity()[face.idx][RIGHT].comp))
+      neighbour_entities = cell_connectivity->connectivity()[face.idx][RIGHT].comp->handle<Entities>();
+      neighbour_elem_idx = cell_connectivity->connectivity()[face.idx][RIGHT].idx;
+      neighbour_face_nb = cell_connectivity->face_number()[face.idx][RIGHT];
     }
     else
     {
       face_side = RIGHT;
-      neighbour_entities = cell_connectivity.connectivity()[face.idx][LEFT].comp->handle<Entities>();
-      neighbour_elem_idx = cell_connectivity.connectivity()[face.idx][LEFT].idx;
-      neighbour_face_nb = cell_connectivity.face_number()[face.idx][LEFT];
+      neighbour_entities = cell_connectivity->connectivity()[face.idx][LEFT].comp->handle<Entities>();
+      neighbour_elem_idx = cell_connectivity->connectivity()[face.idx][LEFT].idx;
+      neighbour_face_nb = cell_connectivity->face_number()[face.idx][LEFT];
     }
   }
 }

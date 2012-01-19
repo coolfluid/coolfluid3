@@ -14,7 +14,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Entities.hpp"
-#include "mesh/UnifiedData.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "solver/actions/CComputeVolume.hpp"
 
@@ -77,7 +77,7 @@ void CComputeVolume::execute()
   Field& volume = *m_volume;
 
   elements().geometry_space().put_coordinates(m_coordinates,idx());
-  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().volume( m_coordinates );
+  volume[space.connectivity()[idx()][0]][0] = elements().element_type().volume( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
