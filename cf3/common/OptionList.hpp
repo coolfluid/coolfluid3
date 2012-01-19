@@ -109,7 +109,7 @@ public:
   const_iterator end() const  { return store.end(); }
 
   /// list the options as a string
-  std::string list_options();
+  std::string list_options() const;
 
   /// Parses the strings to options.
 
