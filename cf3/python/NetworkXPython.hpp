@@ -45,6 +45,7 @@ class  NetworkXPython : public common::Component {
 
   /// signal for listing the tree
   void signal_print_component_graph( common::SignalArgs& args );
+  void signal_get_component_graph( common::SignalArgs& args );
   void signature_print_component_graph( common::SignalArgs& args );
 
   /// writing to python's stream
