@@ -8,12 +8,17 @@
  * @file NewtorkXPython.cpp Implementation of signals and printing functions for creating graph of the component system
  * @author Tamas Banyai
 **/
+
 #include "boost/python.hpp"
+#include "common/BoostAnyConversion.hpp"
+#include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/SignalHandler.hpp"
 #include "common/Builder.hpp"
 #include "common/URI.hpp"
+#include "common/FindComponents.hpp"
+#include "common/ComponentIterator.hpp"
 #include "python/LibPython.hpp"
 #include "python/NetworkXPython.hpp"
 
@@ -57,7 +62,10 @@ void NetworkXPython::signal_print_component_graph( SignalArgs& args )
          << "uri().name()=        " << printroot->uri().name()        << CFendl
          << "uri().path()=        " << printroot->uri().path()        << CFendl
          << CFflush << CFendl;
-  print_to_python_stdout("ABCDEFGHIJKLMNOPQRST\n");
+
+  std::string coll;
+  append_components_recursive(*printroot,coll,0);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +84,40 @@ void NetworkXPython::signature_print_component_graph( SignalArgs& args )
 void NetworkXPython::print_to_python_stdout(std::string what)
 {
   PySys_WriteStdout(what.c_str());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::append_components_recursive(const Component &c, std::string &coll, int depth)
+{
+
+/*
+void Component::signal_list_tree_recursive( SignalArgs& args) const
+{
+  CFinfo << uri().path() << " [" << derived_type_name() << "]" << CFendl;
+//  BOOST_FOREACH(const Component& c, *this )
+//  {
+//    CFinfo << "G.add_edge('" << uri().path() << "','" << c.uri().path() << "',weight=1.0)" << CFflush << CFendl;
+//    c.signal_list_tree_recursive( args );
+//  }
+}
+
+uri().path()=        /Model/RDSolver
+derived_type_name()= cf3.RDM.RDSolver
+name()=              RDSolver
+uri().base_path()=   cpath:/Model
+uri().base_name()=   RDSolver
+uri().name()=        RDSolver
+uri().path()=        /Model/RDSolver
+*/
+
+  CFinfo << "HI: " << c.uri().path() << CFendl;
+
+  BOOST_FOREACH(const Component& subc, c )
+  {
+    append_components_recursive(subc, coll, depth+1);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,9 @@
 #ifndef CF3_Python_NetworkXPython_hpp
 #define CF3_Python_NetworkXPython_hpp
 
+#include "string"
 #include "common/Component.hpp"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +50,9 @@ class  NetworkXPython : public common::Component {
   /// writing to python's stream
   /// @warning max 1000 characters at a time!
   void print_to_python_stdout(std::string what);
+
+  /// going recursively on the tree and append to string the command to add the nodes and edges to the graph
+  void append_components_recursive(const Component &c, std::string &coll, int depth);
 
 };
 
