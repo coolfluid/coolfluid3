@@ -44,8 +44,10 @@ public:
   static const char * interface ();
 
   static const char * cells ();
+
   static const char * inner_faces ();
   static const char * outer_faces ();
+  static const char * bdry_faces ();
 
   static const char * connectivity_table ();
 

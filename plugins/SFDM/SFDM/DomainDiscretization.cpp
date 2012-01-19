@@ -88,9 +88,12 @@ void DomainDiscretization::execute()
           CFdebug << "DomainDiscretization: executing " << term->name() << " for cells " << cells.uri() << CFendl;
           for (Uint elem_idx=0; elem_idx<cells.size(); ++elem_idx)
           {
-            term->set_element(elem_idx);
-            term->execute();
-            term->unset_element();
+            if (cells.is_ghost(elem_idx)==false)
+            {
+              term->set_element(elem_idx);
+              term->execute();
+              term->unset_element();
+            }
           }
         }
       }
@@ -148,7 +151,11 @@ void DomainDiscretization::signal_create_term( SignalArgs& args )
   else
     regions.push_back(mesh().topology().uri());
 
-  create_term( type, name, regions );
+  Term& created_component = create_term( type, name, regions );
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", created_component.uri());
 }
 
 

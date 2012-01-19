@@ -16,19 +16,19 @@
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/Core.hpp"
-
+#include "common/Table.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/Field.hpp"
 
 
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
     for (Uint elem_idx = 0; elem_idx<s_elements->size(); ++elem_idx)
     {
       coordinates = space.compute_coordinates( elem_idx );
-      cf3_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());
-      boost_foreach(const Uint state, space.indexes_for_element(elem_idx))
+      cf3_assert(space.connectivity()[elem_idx].size() == coordinates.rows());
+      boost_foreach(const Uint state, space.connectivity()[elem_idx])
       {
         const RealRowVector& coords = coordinates.row(0);
         s_elembased[state][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];

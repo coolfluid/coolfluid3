@@ -137,13 +137,13 @@ protected: // configuration
     // boundary face data
     for (Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
     {
-//        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->indexes_for_element(neighbour_elem->get().idx);
+//        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx];
 //        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[right_flx_pt_idx[face_pt]] << "  ---> " ;
 
       boundary_face_pt_idx[face_pt] = face_pt;
 
 
-      mesh::Field::View boundary_face_pt_solution = solution_field().view(face_elem->get().space->indexes_for_element(face_elem->get().idx));
+      mesh::Field::View boundary_face_pt_solution = solution_field().view(face_elem->get().space->connectivity()[face_elem->get().idx]);
       for (Uint v=0; v<NEQS; ++v)
         boundary_face_data[face_pt]->solution[v] = boundary_face_pt_solution[face_pt][v];
       boundary_face_data[face_pt]->coord = face_elem->get().space->get_coordinates(face_elem->get().idx).row(face_pt);
@@ -203,7 +203,7 @@ protected: // configuration
 
   virtual void reconstruct_flx_pt_data(const SFDElement& elem, const Uint flx_pt, POINTDATA& point_data )
   {
-    mesh::Field::View sol_pt_solution = solution_field().view(elem.space->indexes_for_element(elem.idx));
+    mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
     elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
     elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),point_data.coord);
 //    std::cout << "reconstruct \n" << elem.entities->get_coordinates(elem.idx) << "   to flx_pt " << flx_pt << "\n" << point_data.coord.transpose() << std::endl;
@@ -255,7 +255,7 @@ inline void BCWeak<POINTDATA>::execute()
     Eigen::Matrix<Real,NEQS,1> face_sol;
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
     compute_solution(*inner_cell_face_data[face_pt],face_sol);
-//    common::TableConstRow<Uint>::type field_index = face_elem->get().space->indexes_for_element(m_face_elem_idx);
+//    common::TableConstRow<Uint>::type field_index = face_elem->get().space->connectivity()[m_face_elem_idx];
 
 //    std::cout << "boundary -- " << face_elem->get().entities->uri() << "[" << face_elem->get().idx << "]" << " : face_points = " << field_index[boundary_face_pt_idx[face_pt]] << "  ---> " ;
     for (Uint v=0; v<NEQS; ++v)

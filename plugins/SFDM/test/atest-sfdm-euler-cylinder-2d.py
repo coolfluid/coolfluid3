@@ -19,18 +19,15 @@ env.options().configure_option('exception_outputs', True)
 ############################
 # Create simulation
 ############################
-model = root.create_component('cylinder_2d','cf3.solver.CModel');
-model.create_solver('cf3.SFDM.SFDSolver')
-model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
-model.create_domain()
-physics = model.get_child('NavierStokes2D')
-solver  = model.get_child('SFDSolver')
-domain  = model.get_child('Domain')
-# domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-16x4.msh'), name = 'cylinder2d');
-domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-32x8.msh'), name = 'cylinder2d');
-# domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
-# domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
-mesh = domain.access_component('cylinder2d');
+model   = root.create_component('cylinder_2d','cf3.solver.CModel');
+solver  = model.create_solver('cf3.SFDM.SFDSolver')
+physics = model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
+domain  = model.create_domain()
+
+# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-16x4.msh'), name = 'cylinder2d');
+mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-32x8.msh'), name = 'cylinder2d');
+# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
+# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
 
 gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',mesh.uri())
@@ -68,16 +65,16 @@ solver.access_component('TimeStepping/IterativeSolver').options().configure_opti
 solver.get_child('PrepareMesh').execute()
 
 ### Set the initial condition
-solver.get_child('InitialConditions').create_initial_condition( name = 'uniform')
+physics.create_variables(name='input_vars',type='cf3.physics.NavierStokes.Prim2D')
 functions = [
 str(rho_inf),
 'if( (x<-5) | (x>5) , '+str(u_inf)+' , 0.5*'+str(u_inf)+' )',
 '0.',
 str(p_inf)
 ]
-physics.create_variables(name='input_vars',type='cf3.physics.NavierStokes.Prim2D')
-solver.get_child('InitialConditions').get_child('uniform').options().configure_option('functions',functions)
-solver.get_child('InitialConditions').get_child('uniform').options().configure_option('input_vars',physics.access_component('input_vars'))
+initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'uniform')
+initial_condition.options().configure_option('functions',functions)
+initial_condition.options().configure_option('input_vars',physics.access_component('input_vars'))
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
@@ -85,14 +82,14 @@ solver.get_child('DomainDiscretization').create_term(name = 'convection', type =
 convection = solver.access_component('DomainDiscretization/Terms/convection')
 
 ### Create farfield boundary condition
-solver.get_child('BoundaryConditions').create_boundary_condition(
+bc_farfield = solver.get_child('BoundaryConditions').create_boundary_condition(
    name = 'farfield', 
    type = 'cf3.SFDM.BCConstant<4,2>', 
    regions=[mesh.access_component('topology/boundary').uri()])
-solver.access_component('BoundaryConditions/BCs/farfield').options().configure_option('constants',[rho_inf,rho_inf*u_inf,0.,rhoE_inf])
+bc_farfield.options().configure_option('constants',[rho_inf,rho_inf*u_inf,0.,rhoE_inf])
 
 ### Create wall boundary condition
-solver.get_child('BoundaryConditions').create_boundary_condition(
+bc_wall = solver.get_child('BoundaryConditions').create_boundary_condition(
    name = 'cylinder', 
    type = 'cf3.SFDM.navierstokes.BCWallEuler2D', 
    regions=[mesh.access_component('topology/cylinder').uri()])
@@ -100,7 +97,8 @@ solver.get_child('BoundaryConditions').create_boundary_condition(
 ########################################
 # Output initial condition (optional)
 #######################################
-# execute boundary condition for output for visualization
+
+### execute boundary condition for output for visualization
 solver.get_child('BoundaryConditions').execute();
 
 # fields to output:
@@ -126,8 +124,7 @@ print 'WARNING: not converged to steady state solution (would take too long) \n'
 # POST PROCESSING
 ########################
 
-mesh.access_component('solution_space').create_field(name='post_proc',variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
-post_proc=mesh.access_component('solution_space/post_proc')
+post_proc = mesh.access_component('solution_space').create_field(name='post_proc',variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
 solution=mesh.access_component('solution_space/solution')
 for index in range(len(solution)):
 	 rho=solution[index][0];

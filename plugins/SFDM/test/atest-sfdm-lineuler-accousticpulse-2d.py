@@ -19,16 +19,13 @@ env.options().configure_option('exception_outputs', True)
 ############################
 # Create simulation
 ############################
-model = root.create_component('accousticpulse_2d','cf3.solver.CModel');
-model.create_solver('cf3.SFDM.SFDSolver')
-model.create_physics('cf3.physics.LinEuler.LinEuler2D')
-model.create_domain()
-physics = model.get_child('LinEuler2D')
-solver  = model.get_child('SFDSolver')
-domain  = model.get_child('Domain')
+model   = root.create_component('accousticpulse_2d','cf3.solver.CModel');
+solver  = model.create_solver('cf3.SFDM.SFDSolver')
+physics = model.create_physics('cf3.physics.LinEuler.LinEuler2D')
+domain  = model.create_domain()
 
-domain.load_mesh(file = coolfluid.URI('../../../resources/circle-quad-p1-32.msh'), name = 'circle');
-mesh = domain.access_component('circle');
+### Load the mesh
+mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/circle-quad-p1-32.msh'), name = 'circle');
 
 gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',mesh.uri())
@@ -54,19 +51,18 @@ gamma = 1.4
 rho0 = 1.
 p0 = 1.
 c2 = gamma*p0/rho0
-solver.get_child('InitialConditions').create_initial_condition( name = 'shocktube')
+initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'shocktube')
 functions = [
  '0.001*exp( -( (x)^2 + (y)^2 )/(0.05)^2 )',
  '0',
  '0',
  str(c2)+' * 0.001*exp( -( (x)^2 + (y)^2 )/(0.05)^2 )'
 ]
-solver.get_child('InitialConditions').get_child('shocktube').options().configure_option('functions',functions)
+initial_condition.options().configure_option('functions',functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
-solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.lineuler.Convection2D')
-convection = solver.access_component('DomainDiscretization/Terms/convection')
+convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.SFDM.lineuler.Convection2D')
 convection.options().configure_option('gamma',gamma)
 convection.options().configure_option('rho0',1.)
 convection.options().configure_option('U0',[0.,0.])

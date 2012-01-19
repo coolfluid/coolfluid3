@@ -30,6 +30,7 @@
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Dictionary.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"
@@ -192,7 +193,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   const Space& P0_space = volumes.space(elems);
-  BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
+  BOOST_CHECK_EQUAL( volumes[P0_space.connectivity()[12][0]][0] , 0.0035918050864676932);
 
   Handle<CLoop> elem_loop = root.create_component< CForAllElements >("elem_loop");
   elem_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));

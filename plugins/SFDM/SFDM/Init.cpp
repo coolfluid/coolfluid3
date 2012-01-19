@@ -120,7 +120,7 @@ void Init::execute()
     {
       entities->geometry_space().put_coordinates(geometry_coords,elem);
 
-      for (Uint node=0; node<space.nb_states();++node)
+      for (Uint node=0; node<space.shape_function().nb_nodes();++node)
       {
         Uint p = field_connectivity[elem][node];
         // Get the coordinates for this point, and put in params

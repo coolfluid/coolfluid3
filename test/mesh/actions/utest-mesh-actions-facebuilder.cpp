@@ -24,11 +24,11 @@
 #include "mesh/Space.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Faces.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/CellFaces.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;

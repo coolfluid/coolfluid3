@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_Dictionary )
   // Check if nodes dict is sane
   BOOST_CHECK_NO_THROW(mesh.geometry_fields().check_sanity());
 
-  // Check if indexes_for_element function returns expected results
+  // Check if connectivity returns expected results
   boost_foreach(const Handle<Entities>& elements_handle, mesh.geometry_fields().entities_range())
   {
     Entities& elements = *elements_handle;
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( test_Dictionary )
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
   BOOST_CHECK_EQUAL( elem_fields.entities_range().size() , 5u);
 
-  // CHECK indexes_for_element access for nodes
+  // CHECK connectivity access for nodes
   Uint cell_idx=0;
   boost_foreach(const Handle<Entities>& elements_handle, elem_fields.entities_range())
   {
@@ -111,7 +111,6 @@ BOOST_AUTO_TEST_CASE( test_Dictionary )
     const Connectivity& field_connectivity = space.connectivity();
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( space.is_bound_to_fields() );
       boost_foreach( const Uint point, field_connectivity[e] )
       {
         BOOST_CHECK_EQUAL( point, cell_idx );  // same because P0 field
@@ -171,7 +170,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
     const Space& space = volume.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
-      boost_foreach( const Uint state, space.indexes_for_element(e))
+      boost_foreach( const Uint state, space.connectivity()[e])
       {
         volume[state][0] = elements.element_type().volume(elements.geometry_space().get_coordinates(e));
       }
@@ -190,7 +189,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
     const Space& space = point_field.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
-      boost_foreach( const Uint point, space.indexes_for_element(e) )
+      boost_foreach( const Uint point, space.connectivity()[e] )
       point_field[point][0] = 1.;
     }
   }

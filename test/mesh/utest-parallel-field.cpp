@@ -166,7 +166,7 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
     const Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      Uint field_idx = space.indexes_for_element(elem)[0];
+      Uint field_idx = space.connectivity()[elem][0];
       glb_elem_idx[field_idx][0] = elems_P0.glb_idx()[field_idx];
       elem_rank[field_idx][0] = elems_P0.rank()[field_idx];
     }

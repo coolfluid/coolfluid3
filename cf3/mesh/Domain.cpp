@@ -174,7 +174,11 @@ void Domain::signal_load_mesh ( common::SignalArgs& node )
   if( options.check("name") )
     name = options.value<std::string>("name");
 
-  load_mesh( fileuri, name);
+  Mesh& created_component = load_mesh( fileuri, name);
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", created_component.uri());
 }
 
 

@@ -45,7 +45,7 @@ struct CheckSameEtype
 
     if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
     {
-      throw common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+      throw common::SetupError(FromHere(), "Needed element type " + space.support().element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
     }
   }
 
@@ -117,7 +117,7 @@ struct ExpressionRunner
     {
       if(m_nb_tests == boost::mpl::size<ElementTypesT>::value && !m_found)
       {
-        throw common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+        throw common::SetupError(FromHere(), "Needed element type " + space.support().element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
       }
 
       return;

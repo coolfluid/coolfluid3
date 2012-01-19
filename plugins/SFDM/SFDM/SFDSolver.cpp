@@ -18,6 +18,7 @@
 #include "common/OptionArray.hpp"
 
 #include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -143,6 +144,8 @@ void SFDSolver::execute()
   m_boundary_conditions->execute();
   // Start time stepping
   m_time_stepping->execute();
+  boost_foreach(mesh::Field& field,  find_components_recursively<Field>(*mesh().get_child("solution_space")))
+    field.synchronize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

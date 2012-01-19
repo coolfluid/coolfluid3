@@ -121,7 +121,7 @@ void InitFieldFunction::execute()
       {
         coordinates = space.compute_coordinates(elem_idx);
         /// for each state of the field shape function
-        for (Uint iState=0; iState<space.nb_states(); ++iState)
+        for (Uint iState=0; iState<space.shape_function().nb_nodes(); ++iState)
         {
           /// evaluate the function using the physical coordinates
           for (Uint d=0; d<coordinates.cols(); ++d)
