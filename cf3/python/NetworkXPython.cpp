@@ -37,6 +37,12 @@ NetworkXPython::NetworkXPython( const std::string& name ) :
       .signature( boost::bind( &NetworkXPython::signature_print_component_graph, this, _1))
       .description("Outputs the add_node and add_edge commands in order to build the graph in NetworkX")
       .pretty_name("Prints commands to buld NetworkX graph.");
+      
+  regist_signal( "get_component_graph" )
+      .connect  ( boost::bind( &NetworkXPython::signal_get_component_graph, this,  _1 ))
+      .signature( boost::bind( &NetworkXPython::signature_print_component_graph, this, _1))
+      .description("Outputs the add_node and add_edge commands in order to build the graph in NetworkX as a string")
+      .pretty_name("GetComponentGraph");
 }
 
 NetworkXPython::~NetworkXPython()
@@ -58,6 +64,26 @@ void NetworkXPython::signal_print_component_graph( SignalArgs& args )
          << "uri().path()=        " << printroot->uri().path()        << CFendl
          << CFflush << CFendl;
   print_to_python_stdout("ABCDEFGHIJKLMNOPQRST\n");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::signal_get_component_graph(SignalArgs& args)
+{
+  SignalOptions options( args );
+  Handle<Component> printroot = access_component_checked(options.option("uri").value<URI>());
+  std::stringstream result_str;
+  result_str << "uri().path()=        " << printroot->uri().path()        << "\n"
+         << "derived_type_name()= " << printroot->derived_type_name() << "\n"
+         << "name()=              " << printroot->name()              << "\n"
+         << "uri().base_path()=   " << printroot->uri().base_path()   << "\n"
+         << "uri().base_name()=   " << printroot->uri().base_name()   << "\n"
+         << "uri().name()=        " << printroot->uri().name()        << "\n"
+         << "uri().path()=        " << printroot->uri().path()        << "\n";
+  
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("return_value", result_str.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
