@@ -211,17 +211,21 @@ BOOST_AUTO_TEST_CASE( test_P0 )
 
   CFinfo << "memory: " << OSystem::instance().layer()->memory_usage_str() << CFendl;
 
+  std::cout << mesh.tree() << std::endl;
+
   /// CHECKS
   BOOST_CHECK_EQUAL(solver.time_stepping().properties().value<Uint>("iteration") , 2u);
   BOOST_CHECK_EQUAL(solver.time_stepping().time().dt() , 2.);
 
-  BOOST_CHECK_EQUAL(residual_field[0][0] ,  0.);
+  Connectivity& node = *mesh.access_component("topology/interior/cells/Line/spaces/solution_space/connectivity")->handle<Connectivity>();
 
-  BOOST_CHECK_EQUAL(residual_field[1][0] , -1.);
+  BOOST_CHECK_EQUAL(residual_field[node[0][0]][0] ,  0.);
 
-  BOOST_CHECK_EQUAL(residual_field[2][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[node[1][0]][0] , -1.);
 
-  BOOST_CHECK_EQUAL(residual_field[3][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[node[2][0]][0] , 1.);
+
+  BOOST_CHECK_EQUAL(residual_field[node[3][0]][0] , 1.);
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -276,7 +280,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 
-  // Create a 2D rectangular mesh
+  // Create a 1D line mesh
   Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
   Uint res        = 4;
@@ -374,25 +378,19 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   BOOST_CHECK_EQUAL(residual_field.size()     , 10u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
-  // boundary
-  BOOST_CHECK_EQUAL(residual_field[0][0] , 0.);
-  BOOST_CHECK_EQUAL(residual_field[1][0] , 0.);
-
   // cells
-  BOOST_CHECK_EQUAL(residual_field[2][0] , -1.);
-  BOOST_CHECK_EQUAL(residual_field[3][0] , -1.);
+  Connectivity& node = *mesh.access_component("topology/interior/cells/Line/spaces/solution_space/connectivity")->handle<Connectivity>();
+  BOOST_CHECK_EQUAL(residual_field[node[0][0]][0] , -1.);
+  BOOST_CHECK_EQUAL(residual_field[node[0][1]][0] , -1.);
 
-  BOOST_CHECK_EQUAL(residual_field[4][0] , 0.);
-  BOOST_CHECK_EQUAL(residual_field[5][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[node[1][0]][0] , 0.);
+  BOOST_CHECK_EQUAL(residual_field[node[1][1]][0] , 0.);
 
-  BOOST_CHECK_EQUAL(residual_field[6][0] , 1.);
-  BOOST_CHECK_EQUAL(residual_field[7][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[node[2][0]][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[node[2][1]][0] , 1.);
 
-  BOOST_CHECK_EQUAL(residual_field[8][0] , 1.);
-  BOOST_CHECK_EQUAL(residual_field[9][0] , 1.);
-
-
-
+  BOOST_CHECK_EQUAL(residual_field[node[3][0]][0] , 1.);
+  BOOST_CHECK_EQUAL(residual_field[node[3][1]][0] , 1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
@@ -547,26 +545,22 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
   // interior
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[1][0] , -1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[2][0] , -1.  , fraction);
+  Connectivity& node = *mesh.access_component("topology/interior/cells/Line/spaces/solution_space/connectivity")->handle<Connectivity>();
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][0]][0] , -1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][1]][0] , -1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][2]][0] , -1.  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[3][0] , -2.  , fraction);
-  BOOST_CHECK_SMALL(residual_field[4][0]                 , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[5][0] ,  2.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][0]][0] , -2.  , fraction);
+  BOOST_CHECK_SMALL(residual_field[node[1][1]][0]                 , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][2]][0] ,  2.  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[6][0] ,  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[7][0] ,  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[8][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][0]][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][1]][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][2]][0] ,  1.  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[9][0] ,  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[10][0],  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[11][0],  1.  , fraction);
-
-  // boundary
-  BOOST_CHECK_SMALL(residual_field[12][0]  , fraction);
-  BOOST_CHECK_SMALL(residual_field[13][0]  , fraction);
-
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][0]][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][1]][0],  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][2]][0],  1.  , fraction);
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
@@ -720,30 +714,26 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   BOOST_CHECK_EQUAL(residual_field.size()     , 18u);
   BOOST_CHECK_EQUAL(residual_field.row_size() , 1u);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[0][0] , -1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[1][0] , -1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[2][0] , -1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[3][0] , -1.  , fraction);
+  Connectivity& node = *mesh.access_component("topology/interior/cells/Line/spaces/solution_space/connectivity")->handle<Connectivity>();
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][0]][0] , -1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][1]][0] , -1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][2]][0] , -1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[0][3]][0] , -1.  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[4][0] , -1.1270166537925839  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[5][0] , -0.87298334620741969 , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[6][0] ,  0.87298334620741969 , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[7][0] ,  1.1270166537925839  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][0]][0] , -1.1270166537925839  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][1]][0] , -0.87298334620741969 , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][2]][0] ,  0.87298334620741969 , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[1][3]][0] ,  1.1270166537925839  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[8][0] ,  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[9][0] ,  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[10][0] , 1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[11][0] , 1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][0]][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][1]][0] ,  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][2]][0] , 1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[2][3]][0] , 1.  , fraction);
 
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[12][0] , 1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[13][0],  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[14][0],  1.  , fraction);
-  BOOST_CHECK_CLOSE_FRACTION(residual_field[15][0],  1.  , fraction);
-
-  // boundary
-  BOOST_CHECK_SMALL(residual_field[16][0], fraction);
-  BOOST_CHECK_SMALL(residual_field[17][0], fraction);
-
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][0]][0] , 1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][1]][0],  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][2]][0],  1.  , fraction);
+  BOOST_CHECK_CLOSE_FRACTION(residual_field[node[3][3]][0],  1.  , fraction);
 
   //////////////////////////////////////////////////////////////////////////////
   // Output

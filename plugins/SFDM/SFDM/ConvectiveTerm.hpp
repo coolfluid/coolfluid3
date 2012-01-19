@@ -336,31 +336,35 @@ void ConvectiveTerm<PHYS>::execute()
     compute_face();
 //    if ( is_not_null(neighbour_entities) )
     {
-      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+
+      if (face_entities->has_tag(mesh::Tags::outer_faces()))
       {
-//        cf3_assert(face_pt<left_flx_pt_idx.size());
-//        cf3_assert(face_pt<right_flx_pt_idx.size());
-//        cf3_assert(is_not_null(left_face_data[left_flx_pt_idx[face_pt]]));
-//        cf3_assert(is_not_null(right_face_data[right_flx_pt_idx[face_pt]]));
-        flx_pt = left_flx_pt_idx[face_pt];
-        compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
-                               flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-        flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+        {
+          flx_pt = left_flx_pt_idx[face_pt];
+
+          compute_analytical_flux(*left_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
+                                  flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
+          flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+          flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        }
+      }
+      else
+      {
+        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+        {
+          //        cf3_assert(face_pt<left_flx_pt_idx.size());
+          //        cf3_assert(face_pt<right_flx_pt_idx.size());
+          //        cf3_assert(is_not_null(left_face_data[left_flx_pt_idx[face_pt]]));
+          //        cf3_assert(is_not_null(right_face_data[right_flx_pt_idx[face_pt]]));
+          flx_pt = left_flx_pt_idx[face_pt];
+          compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
+                                 flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
+          flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+          flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        }
       }
     }
-//    else
-//    {
-//      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-//      {
-//        flx_pt = left_flx_pt_idx[face_pt];
-
-//        compute_analytical_flux(*left_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
-//                                flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-//        flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-//        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-//      }
-//    }
     neighbour_elem->get().unlock();
   }
 
