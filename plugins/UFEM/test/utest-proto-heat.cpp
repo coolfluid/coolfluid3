@@ -23,11 +23,11 @@
 #include "mesh/Domain.hpp"
 
 #include "mesh/LagrangeP1/Line1D.hpp"
-#include "solver/CModel.hpp"
+#include "solver/Model.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   const Uint nb_segments = 5 ;
 
   // Setup a model
-  CModel& model = *root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
 

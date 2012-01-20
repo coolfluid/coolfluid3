@@ -19,7 +19,7 @@ env.options().configure_option('exception_outputs', True)
 ############################
 # Create simulation
 ############################
-model   = root.create_component('accousticpulse_2d','cf3.solver.CModel');
+model   = root.create_component('accousticpulse_2d','cf3.solver.Model');
 solver  = model.create_solver('cf3.sdm.SDSolver')
 physics = model.create_physics('cf3.physics.LinEuler.LinEuler2D')
 domain  = model.create_domain()

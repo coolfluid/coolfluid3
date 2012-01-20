@@ -81,13 +81,13 @@ int main(int argc, char * argv[])
 //    OpenCL_matrix_vector_basic_setup( clenv );
     OpenCL_matrix_vector_advanced_setup( clenv );
 //    OpenCL_matrix_matrix_setup( clenv );
-    boost::timer ctimer;
+    boost::timer Timer;
 //    matrix_matrix_mult(clenv, A, B, C, WA, HA, WB, N_BLOCKS );
     //for( int i = 0; i < 5; i++ )
 //    matrix_vector_mult(clenv, A, B, C, WA, HA, N_BLOCKS ); // multiplication of single of variables
     matrix_vector_mult_advanced(clenv, A, B, C, WA, HA, VARIABLES,N_BLOCKS); // multiplication of blocks of variables
     //printData(C,size_C);
-    printf("[native] time: %6.4f seconds\n", ctimer.elapsed() );
+    printf("[native] time: %6.4f seconds\n", Timer.elapsed() );
     //printData(C,size_C);
     //printData(C,size_C);
     //OpenCL_program_unsetup(clenv1);

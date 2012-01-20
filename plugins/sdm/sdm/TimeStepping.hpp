@@ -10,12 +10,12 @@
 #include "math/VectorialFunction.hpp"
 #include "solver/ActionDirector.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
 
-  namespace solver { class CTime; }
+  namespace solver { class Time; }
 
 namespace sdm {
 
@@ -46,7 +46,7 @@ public: // functions
   common::ActionDirector& pre_actions()  { return *m_pre_actions; }
   common::ActionDirector& post_actions() { return *m_post_actions; }
 
-  cf3::solver::CTime&       time()         { return *m_time; }
+  cf3::solver::Time&       time()         { return *m_time; }
 
   /// @name SIGNALS
   //@{
@@ -62,7 +62,7 @@ private: // functions
 
 private: // data
 
-  Handle< solver::CTime > m_time;   ///< component tracking time
+  Handle< solver::Time > m_time;   ///< component tracking time
 
   Handle< common::ActionDirector > m_pre_actions;  ///< set of actions before non-linear solve
 

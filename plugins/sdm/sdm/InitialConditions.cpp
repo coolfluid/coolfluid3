@@ -18,7 +18,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/Init.hpp"

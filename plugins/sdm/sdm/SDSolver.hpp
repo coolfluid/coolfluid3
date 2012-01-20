@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 
 #include "sdm/PrepareMesh.hpp"
 #include "sdm/TimeStepping.hpp"
@@ -21,7 +21,7 @@
 namespace cf3 {
 
 namespace common    { class Group; }
-namespace solver    { namespace actions { class CSynchronizeFields; } }
+namespace solver    { namespace actions { class SynchronizeFields; } }
 //namespace RiemannSolvers { class RiemannSolver; }
 namespace sdm {
 
@@ -42,7 +42,7 @@ class SharedCaches;
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
-class sdm_API SDSolver : public solver::CSolver {
+class sdm_API SDSolver : public solver::Solver {
 
 public: // typedefs
 

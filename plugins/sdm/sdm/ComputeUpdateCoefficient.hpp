@@ -14,7 +14,7 @@
 
 namespace cf3 {
 namespace mesh   { class Field; }
-namespace solver { class CTime;   }
+namespace solver { class Time;   }
 namespace sdm {
 
 
@@ -48,7 +48,7 @@ private: // data
 
   Handle<mesh::Field> m_update_coeff;
   Handle<mesh::Field> m_wave_speed;
-  Handle<solver::CTime> m_time;
+  Handle<solver::Time> m_time;
 
   Real m_tolerance;
 };

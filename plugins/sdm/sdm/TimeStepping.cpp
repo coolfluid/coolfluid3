@@ -21,10 +21,10 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshMetadata.hpp"
 
-#include "solver/CTime.hpp"
-#include "solver/actions/CCriterionTime.hpp"
-#include "solver/actions/CCriterionMaxIterations.hpp"
-#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/Time.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/actions/PeriodicWriteMesh.hpp"
 
 #include "sdm/TimeStepping.hpp"
 #include "sdm/Tags.hpp"
@@ -62,20 +62,20 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // static components
 
-  m_time  = create_static_component<CTime>("Time");
+  m_time  = create_static_component<Time>("Time");
 
   m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
   m_post_actions = create_static_component<ActionDirector>("PostActions");
 
-  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
+  post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
   // dynamic components
 
-//  CCriterionMaxIterations& maxiter =
-//      create_component<CCriterionMaxIterations>( "MaxIterations" );
+//  CriterionMaxIterations& maxiter =
+//      create_component<CriterionMaxIterations>( "MaxIterations" );
 
-  create_component<CCriterionTime>( "EndTime" );
+  create_component<CriterionTime>( "EndTime" );
 }
 
 void TimeStepping::parse_cfl()
@@ -97,7 +97,7 @@ bool TimeStepping::stop_condition()
 {
   Uint nb_criteria = 0;
   bool finish = false;
-  boost_foreach(CCriterion& stop_criterion, find_components<CCriterion>(*this))
+  boost_foreach(Criterion& stop_criterion, find_components<Criterion>(*this))
   {
     finish |= stop_criterion();
     ++nb_criteria;

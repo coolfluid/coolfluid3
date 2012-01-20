@@ -25,7 +25,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 
 #include "sdm/Init.hpp"
 #include "sdm/Tags.hpp"

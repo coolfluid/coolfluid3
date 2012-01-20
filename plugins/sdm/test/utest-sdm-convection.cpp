@@ -27,7 +27,7 @@
 #include "math/VariablesDescriptor.hpp"
 #include "math/VectorialFunction.hpp"
 
-#include "solver/CModel.hpp"
+#include "solver/Model.hpp"
 #include "solver/Tags.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   //////////////////////////////////////////////////////////////////////////////
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("test_P0");
+  Model& model   = *Core::instance().root().create_component<Model>("test_P0");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   // create and configure SFD - LinEuler 2D model
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("test_P1");
+  Model& model   = *Core::instance().root().create_component<Model>("test_P1");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   // create and configure SFD - LinEuler 2D model
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("test_P2");
+  Model& model   = *Core::instance().root().create_component<Model>("test_P2");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();
@@ -603,7 +603,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   //////////////////////////////////////////////////////////////////////////////
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("test_P3");
+  Model& model   = *Core::instance().root().create_component<Model>("test_P3");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();

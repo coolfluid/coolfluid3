@@ -26,7 +26,7 @@
 #include "math/Consts.hpp"
 #include "math/VariablesDescriptor.hpp"
 
-#include "solver/CModel.hpp"
+#include "solver/Model.hpp"
 #include "solver/Tags.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -56,8 +56,8 @@
 //#include "mesh/Domain.hpp"
 //#include "mesh/actions/InitFieldFunction.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
-//#include "solver/CModelUnsteady.hpp"
-//#include "solver/CSolver.hpp"
+//#include "solver/ModelUnsteady.hpp"
+//#include "solver/Solver.hpp"
 //#include "solver/CPhysicalModel.hpp"
 //#include "mesh/actions/BuildFaces.hpp"
 //#include "mesh/actions/BuildVolume.hpp"
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   //////////////////////////////////////////////////////////////////////////////
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("model");
+  Model& model   = *Core::instance().root().create_component<Model>("model");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   // create and configure SFD - Linear advection 2D model
   Uint dim=1;
 
-  CModel& model   = *Core::instance().root().create_component<CModel>("model2d");
+  Model& model   = *Core::instance().root().create_component<Model>("model2d");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar2D");
   PhysModel& physics = model.physics();
   SDSolver& solver  = *model.solver().handle<SDSolver>();

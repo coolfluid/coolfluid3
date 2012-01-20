@@ -17,8 +17,8 @@ namespace mesh { class Region; class Mesh; }
 namespace physics { class PhysModel; }
 namespace solver {
 
-class CSolver;
-class CTime;
+class Solver;
+class Time;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public: // functions
   //@{
 
   /// @returns the solver this action is part of
-  solver::CSolver& solver();
+  solver::Solver& solver();
 
   /// @returns the mesh this action is using
   mesh::Mesh& mesh();
@@ -66,7 +66,7 @@ protected: // functions
 protected: // data
 
   /// link back to the solver
-  Handle< solver::CSolver > m_solver;
+  Handle< solver::Solver > m_solver;
   /// mesh where this action data resides
   Handle< mesh::Mesh > m_mesh;
   /// physical model used by this action

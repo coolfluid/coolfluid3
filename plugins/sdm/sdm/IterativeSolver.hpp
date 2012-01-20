@@ -13,7 +13,7 @@
 
 namespace cf3 {
 namespace common { class ActionDirector; }
-namespace solver { class CTime; }
+namespace solver { class Time; }
 namespace mesh   { class Field; }
 namespace sdm {
 
@@ -70,7 +70,7 @@ private: // data
   Handle<mesh::Field> m_residual;
   Handle<mesh::Field> m_update_coeff;
 
-  Handle<solver::CTime> m_time;
+  Handle<solver::Time> m_time;
 
   /// set of actions called every iteration before non-linear solve
   Handle<common::ActionDirector> m_pre_update;

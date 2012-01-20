@@ -11,7 +11,7 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 
 #include "sdm/UpdateSolution.hpp"
 #include "sdm/Tags.hpp"

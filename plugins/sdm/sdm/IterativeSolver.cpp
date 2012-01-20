@@ -17,12 +17,12 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "solver/CTime.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Time.hpp"
+#include "solver/Solver.hpp"
 
-#include "solver/actions/CCriterion.hpp"
-#include "solver/actions/CCriterionMaxIterations.hpp"
-#include "solver/actions/CComputeLNorm.hpp"
+#include "solver/actions/Criterion.hpp"
+#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/actions/ComputeLNorm.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -116,7 +116,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
   config_nb_stages();
 
 
-  CComputeLNorm& cnorm = *create_static_component<CComputeLNorm>( "ComputeNorm" );
+  ComputeLNorm& cnorm = *create_static_component<ComputeLNorm>( "ComputeNorm" );
   cnorm.options().configure_option("order",2u);
   cnorm.options().configure_option("scale",true);
 
@@ -246,7 +246,7 @@ void IterativeSolver::execute()
   Field& H  = *m_update_coeff;
 
   if (is_null(m_time))        throw SetupError(FromHere(), "Time was not set");
-  CTime& time = *m_time;
+  Time& time = *m_time;
 
   U0 = U;
 

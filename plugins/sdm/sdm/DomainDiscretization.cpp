@@ -22,9 +22,9 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CSolver.hpp"
-#include "solver/actions/CForAllCells.hpp"
-#include "solver/actions/CForAllFaces.hpp"
+#include "solver/Solver.hpp"
+#include "solver/actions/ForAllCells.hpp"
+#include "solver/actions/ForAllFaces.hpp"
 
 #include "sdm/LibSDM.hpp"
 #include "sdm/DomainDiscretization.hpp"

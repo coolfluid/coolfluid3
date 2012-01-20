@@ -26,8 +26,8 @@
 
 //#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
-#include "solver/actions/CSynchronizeFields.hpp"
-#include "solver/actions/CComputeLNorm.hpp"
+#include "solver/actions/SynchronizeFields.hpp"
+#include "solver/actions/ComputeLNorm.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
@@ -48,12 +48,12 @@ namespace sdm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < SDSolver, CSolver, LibSDM > SDSolver_Builder;
+common::ComponentBuilder < SDSolver, Solver, LibSDM > SDSolver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SDSolver::SDSolver ( const std::string& name  ) :
-  CSolver ( name ),
+  Solver ( name ),
   m_mesh_configured(false)
 {
   // properties
@@ -96,14 +96,14 @@ SDSolver::SDSolver ( const std::string& name  ) :
 
   // Shared actions by the solver
   m_actions = create_static_component< Group >( sdm::Tags::actions() );
-  CComputeLNorm& L2norm = *m_actions->create_static_component<CComputeLNorm>(sdm::Tags::L2norm());
+  ComputeLNorm& L2norm = *m_actions->create_static_component<ComputeLNorm>(sdm::Tags::L2norm());
   L2norm.options().configure_option("order",2u);
   L2norm.options().configure_option("scale",true);
   L2norm.options().configure_option("field",URI("../../FieldManager/")/Tags::residual());
   ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
 
   // create the parallel synchronization action
-  CSynchronizeFields& synchronize = *m_actions->create_component<CSynchronizeFields>("Synchronize");
+  SynchronizeFields& synchronize = *m_actions->create_component<SynchronizeFields>("Synchronize");
 
   // listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &SDSolver::on_mesh_changed_event);
@@ -117,7 +117,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
   m_iterative_solver = m_time_stepping->create_component< IterativeSolver >( IterativeSolver::type_name() );
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
-  conditional->create_component("time_step","cf3.solver.actions.CCriterionMilestoneTime");
+  conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 

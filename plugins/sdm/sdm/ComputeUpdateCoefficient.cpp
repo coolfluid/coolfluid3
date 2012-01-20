@@ -12,9 +12,9 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "solver/CTime.hpp"
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Time.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/ComputeUpdateCoefficient.hpp"
@@ -87,7 +87,7 @@ void ComputeUpdateCoefficient::execute()
   {
     if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
 
-    CTime& time = *m_time;
+    Time& time = *m_time;
 
     cf3_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 

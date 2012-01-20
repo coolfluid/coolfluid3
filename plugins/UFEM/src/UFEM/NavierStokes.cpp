@@ -18,7 +18,7 @@
 #include "solver/actions/SolveLSS.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "NavierStokes.hpp"
@@ -33,7 +33,7 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
+ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 {

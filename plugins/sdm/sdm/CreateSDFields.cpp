@@ -16,8 +16,8 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "solver/CSolver.hpp"
-#include "solver/actions/CForAllCells.hpp"
+#include "solver/Solver.hpp"
+#include "solver/actions/ForAllCells.hpp"
 
 
 #include "mesh/Field.hpp"
