@@ -43,17 +43,50 @@ class  NetworkXPython : public common::Component {
   /// Get the class name
   static std::string type_name () { return "NetworkXPython"; }
 
-  /// signal for listing the tree
-  void signal_print_component_graph( common::SignalArgs& args );
+  /// signal for listing the components tree
   void signal_get_component_graph( common::SignalArgs& args );
-  void signature_print_component_graph( common::SignalArgs& args );
+  /// signature for listing the components tree
+  void signature_get_component_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_component_nodes_recursive(const Component &c, std::string &coll, int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_component_edges_recursive(const Component &c, std::string &coll, int depth);
 
-  /// writing to python's stream
-  /// @warning max 1000 characters at a time!
-  void print_to_python_stdout(std::string what);
+  /// signal for listing the options
+  void signal_get_option_graph( common::SignalArgs& args );
+  /// signature for listing the options
+  void signature_get_option_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_option_nodes_recursive(const Component &c, std::string &coll, int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_option_edges_recursive(const Component &c, std::string &coll, int depth);
 
-  /// going recursively on the tree and append to string the command to add the nodes and edges to the graph
-  void append_components_recursive(const Component &c, std::string &coll, int depth);
+  /// signal for listing the signals
+  void signal_get_signal_graph( common::SignalArgs& args );
+  /// signature for listing the signals
+  void signature_get_signal_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_signal_nodes_recursive(const Component &c, std::string &coll, int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_signal_edges_recursive(const Component &c, std::string &coll, int depth);
+
+  /// signal for listing the fields
+  void signal_get_field_graph( common::SignalArgs& args );
+  /// signature for listing the fields
+  void signature_get_field_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_field_nodes_recursive(const Component &c, std::string &coll, int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_field_edges_recursive(const Component &c, std::string &coll, int depth);
+
+  /// signal for listing the links
+  void signal_get_link_graph( common::SignalArgs& args );
+  /// signature for listing the links
+  void signature_get_link_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_link_nodes_recursive(const Component &c, std::string &coll, int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_link_edges_recursive(const Component &c, std::string &coll, int depth);
 
 };
 
