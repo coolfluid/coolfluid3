@@ -708,7 +708,6 @@ PropertyList& Component::properties()
   return *m_properties;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 const PropertyList& Component::properties() const
