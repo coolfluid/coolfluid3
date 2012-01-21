@@ -10,6 +10,8 @@
 #include "common/Core.hpp"
 #include "common/Exception.hpp"
 #include "common/EventHandler.hpp"
+#include "common/Group.hpp"
+#include "common/List.hpp"
 #include "common/Log.hpp"
 #include "common/OptionURI.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -32,6 +34,7 @@
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/ElementData.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/LagrangeP1/Hexa3D.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
@@ -45,7 +48,307 @@ using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::mesh::LagrangeP1;
 
+namespace detail
+{
+  void create_reply(SignalArgs& args, const Component& created_component)
+  {
+    SignalFrame reply = args.create_reply(created_component.parent()->uri());
+    SignalOptions reply_options(reply);
+    reply_options.add_option("created_component", created_component.uri());
+  }
+}
+
 ComponentBuilder < BlockData, Component, LibBlockMesh > BlockData_Builder;
+
+ComponentBuilder < BlockArrays, Component, LibBlockMesh > BlockArrays_Builder;
+
+BlockArrays::BlockArrays(const std::string& name) :
+  Component(name),
+  m_patches(create_static_component<Group>("Patches"))
+{
+  regist_signal( "create_points" )
+    .connect( boost::bind( &BlockArrays::signal_create_points, this, _1 ) )
+    .description("Create an array holding the points")
+    .pretty_name("Create Points")
+    .signature( boost::bind ( &BlockArrays::signature_create_points, this, _1) );
+
+  regist_signal( "create_blocks" )
+    .connect( boost::bind( &BlockArrays::signal_create_blocks, this, _1 ) )
+    .description("Create an array holding the block definitions (node connectivity")
+    .pretty_name("Create Blocks")
+    .signature( boost::bind ( &BlockArrays::signature_create_blocks, this, _1) );
+
+  regist_signal( "create_block_subdivisions" )
+    .connect( boost::bind( &BlockArrays::signal_create_block_subdivisions, this, _1 ) )
+    .description("Create an array holding the block subdivisions")
+    .pretty_name("Create Block Subdivisions");
+
+  regist_signal( "create_block_gradings" )
+    .connect( boost::bind( &BlockArrays::signal_create_block_gradings, this, _1 ) )
+    .description("Create an array holding the block gradings")
+    .pretty_name("Create Block Gradings");
+
+  regist_signal( "create_patch_nb_faces" )
+    .connect( boost::bind( &BlockArrays::signal_create_patch_nb_faces, this, _1 ) )
+    .description("Create an array holding the faces for a patch")
+    .pretty_name("Create Patch")
+    .signature( boost::bind ( &BlockArrays::signature_create_patch_nb_faces, this, _1) );
+    
+  regist_signal( "create_patch_face_list" )
+    .connect( boost::bind( &BlockArrays::signal_create_patch_face_list, this, _1 ) )
+    .description("Create an array holding the faces for a patch")
+    .pretty_name("Create Patch From Faces")
+    .signature( boost::bind ( &BlockArrays::signature_create_patch_face_list, this, _1) );
+
+  regist_signal( "create_block_mesh" )
+    .connect( boost::bind( &BlockArrays::signal_create_block_mesh, this, _1 ) )
+    .description("Create a mesh that only contains the inner blocks. Surface patches are in a single region and numbered for passing to create_patch.")
+    .pretty_name("Create Inner Blocks");
+}
+
+Handle< Table< Real > > BlockArrays::create_points(const Uint dimensions, const Uint nb_points)
+{
+  cf3_assert(is_null(m_points));
+  if(dimensions != 2 && dimensions != 3)
+    throw BadValue(FromHere(), "BlockArrays dimension must be 2 or 3, but " + to_str(dimensions) + " was given");
+  m_points = create_component< Table<Real> >("Points");
+  m_points->set_row_size(dimensions);
+  m_points->resize(nb_points);
+
+  return m_points;
+}
+
+Handle< Table< Uint > > BlockArrays::create_blocks(const Uint nb_blocks)
+{
+  cf3_assert(is_null(m_blocks));
+  m_blocks = create_component< Table<Uint> >("Blocks");
+
+  const Uint dimensions = m_points->row_size();
+
+  m_blocks->set_row_size(dimensions == 3 ? 8 : 2);
+  m_blocks->resize(nb_blocks);
+
+  return m_blocks;
+}
+
+Handle< Table< Uint > > BlockArrays::create_block_subdivisions()
+{
+  cf3_assert(is_null(m_block_subdivisions));
+  m_block_subdivisions = create_component< Table<Uint> >("BlockSubdivisions");
+
+  const Uint dimensions = m_points->row_size();
+  const Uint nb_blocks = m_blocks->size();
+
+  m_block_subdivisions->set_row_size(dimensions);
+  m_block_subdivisions->resize(nb_blocks);
+
+  return m_block_subdivisions;
+}
+
+Handle< Table< Real > > BlockArrays::create_block_gradings()
+{
+  cf3_assert(is_null(m_block_gradings));
+  m_block_gradings = create_component< Table<Real> >("BlockGradings");
+
+  const Uint dimensions = m_points->row_size();
+  const Uint nb_blocks = m_blocks->size();
+
+  m_block_gradings->set_row_size(dimensions == 3 ? 12 : 4);
+  m_block_gradings->resize(nb_blocks);
+
+  return m_block_gradings;
+}
+
+Handle< Table<Uint> > BlockArrays::create_patch(const std::string& name, const Uint nb_faces)
+{
+  Handle< Table<Uint> > result = m_patches->create_component< Table<Uint> >(name);
+  
+  const Uint dimensions = m_points->row_size();
+  result->set_row_size(dimensions == 3 ? 4 : 2);
+  result->resize(nb_faces);
+
+  return result;
+}
+
+Handle< Table< Uint > > BlockArrays::create_patch(const std::string& name, const std::vector< Uint >& face_indices)
+{
+  if(is_null(m_default_shell_connectivity))
+    throw SetupError(FromHere(), "Adding a patch using face indices requires a default patch. Call the create_block_mesh signal first.");
+  
+  const Uint nb_faces = face_indices.size();
+  Handle< Table<Uint> > result = create_patch(name, nb_faces);
+  Table<Uint>& patch = *result;
+  
+  const Table<Uint>& default_shell = *m_default_shell_connectivity;
+  for(Uint i = 0; i != nb_faces; ++i)
+  {
+    patch[i] = default_shell[face_indices[i]];
+  }
+  
+  return result;
+}
+
+Handle< Mesh > BlockArrays::create_block_mesh()
+{
+  m_block_mesh = create_component<Mesh>("InnerBlockMesh");
+
+  const Uint nb_nodes = m_points->size();
+  const Uint dimensions = m_points->row_size();
+  const Uint nb_blocks = m_blocks->size();
+
+  // root region and coordinates
+  Region& block_mesh_region = m_block_mesh->topology().create_region("block_mesh_region");
+  m_block_mesh->initialize_nodes(nb_nodes, dimensions);
+  Dictionary& geometry_dict = m_block_mesh->geometry_fields();
+  geometry_dict.coordinates().array() = m_points->array();
+
+  // Define the volume cells, i.e. the blocks
+  Elements& block_elements = block_mesh_region.create_region("blocks").create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Hexa3D" : "cf3.mesh.LagrangeP1.Quad2D", geometry_dict);
+  block_elements.resize(nb_blocks);
+  block_elements.geometry_space().connectivity().array() = m_blocks->array();
+
+  // Define surface patches
+  Region& boundary = m_block_mesh->topology().create_region("boundary");
+  boost_foreach(const Table<Uint>& patch_connectivity_table, find_components< Table<Uint> >(*m_patches))
+  {
+    Elements& patch_elems = boundary.create_region("default_patch").create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Quad3D" : "cf3.mesh.LagrangeP1.Line2D", geometry_dict);
+    patch_elems.resize(patch_connectivity_table.size());
+    patch_elems.geometry_space().connectivity().array() = patch_connectivity_table.array();
+  }
+
+  // Create connectivity data
+  CNodeConnectivity& node_connectivity = *m_block_mesh->create_component<CNodeConnectivity>("node_connectivity");
+  node_connectivity.initialize(find_components_recursively<Elements>(*m_block_mesh));
+  CFaceConnectivity& face_connectivity = *block_elements.create_component<CFaceConnectivity>("face_connectivity");
+  face_connectivity.initialize(node_connectivity);
+
+  const Uint nb_faces = dimensions == 3 ? LagrangeP1::Hexa3D::nb_faces : LagrangeP1::Quad2D::nb_faces;
+  const ElementType::FaceConnectivity& faces = dimensions == 3  ? LagrangeP1::Hexa3D::faces() : LagrangeP1::Quad2D::faces();
+  const Uint face_stride = dimensions == 3 ? 4 : 2;
+
+  // Region for default the shell, i.e. all non-defined patches
+  Elements& default_shell_elems = boundary.create_region("default_patch").create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Quad3D" : "cf3.mesh.LagrangeP1.Line2D", geometry_dict);
+  Connectivity& default_shell_connectivity = default_shell_elems.geometry_space().connectivity();
+  m_default_shell_connectivity = default_shell_connectivity.handle<Connectivity>();
+
+  Uint nb_shell_faces = 0;
+
+  // Count number of shell faces
+  for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
+  {
+    for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)
+    {
+      if(!face_connectivity.has_adjacent_element(block_idx, face_idx))
+        ++nb_shell_faces;
+    }
+  }
+
+  default_shell_elems.resize(nb_shell_faces);
+  const Connectivity& cell_connectivity = block_elements.geometry_space().connectivity();
+
+  Uint shell_idx = 0;
+  for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
+  {
+    for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)
+    {
+      if(!face_connectivity.has_adjacent_element(block_idx, face_idx))
+      {
+        Table<Uint>::Row conn_row = default_shell_connectivity[shell_idx++];
+        std::cout << "adding patch:";
+        for(Uint i  = 0; i != face_stride; ++i)
+        {
+          conn_row[i] = cell_connectivity[block_idx][faces.nodes[face_idx*face_stride+i]];
+          std::cout << " " << conn_row[i]+1 << " (" << faces.nodes[face_idx*face_stride+i] << ")";
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
+
+  Dictionary& elems_P0 = m_block_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0", std::vector< Handle<Entities> >(1, default_shell_elems.handle<Entities>()));
+  Field& shell_face_indices = elems_P0.create_field("shell_face_index");
+  const Space& shell_space = elems_P0.space(default_shell_elems);
+
+  for(Uint i =0; i != nb_shell_faces; ++i)
+  {
+    Uint field_idx = shell_space.indexes_for_element(i)[0];
+    shell_face_indices[field_idx][0] = i;
+  }
+
+  return m_block_mesh;
+}
+
+void BlockArrays::signature_create_points(SignalArgs& args)
+{
+  SignalOptions options(args);
+  options.add_option("dimensions", 3u).pretty_name("Dimensions").description("The physical dimensions for the mesh (must be 2 or 3)");
+  options.add_option("nb_points", 0u).pretty_name("Number of points").description("The number of points needed to define the blocks");
+}
+
+void BlockArrays::signal_create_points(SignalArgs& args)
+{
+  SignalOptions options(args);
+  create_points(options.option("dimensions").value<Uint>(), options.option("nb_points").value<Uint>());
+  detail::create_reply(args, *m_points);
+}
+
+void BlockArrays::signature_create_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+  options.add_option("nb_blocks", 0u).pretty_name("Number of blocks").description("The number of blocks that are needed");
+}
+
+void BlockArrays::signal_create_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+  create_blocks(options.option("nb_blocks").value<Uint>());
+  detail::create_reply(args, *m_blocks);
+}
+
+void BlockArrays::signal_create_block_subdivisions(SignalArgs& args)
+{
+  create_block_subdivisions();
+  detail::create_reply(args, *m_block_subdivisions);
+}
+
+void BlockArrays::signal_create_block_gradings(SignalArgs& args)
+{
+  create_block_gradings();
+  detail::create_reply(args, *m_block_gradings);
+}
+
+void BlockArrays::signature_create_patch_nb_faces(SignalArgs& args)
+{
+  SignalOptions options(args);
+  options.add_option("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
+  options.add_option("nb_faces", 0u).pretty_name("Number of faces").description("The number of faces (of individual blocks) that make up the patch");
+}
+
+void BlockArrays::signal_create_patch_nb_faces(SignalArgs& args)
+{
+  SignalOptions options(args);
+  const Handle< Table<Uint> > result = create_patch(options.option("name").value<std::string>(), options.option("nb_faces").value<Uint>());
+  detail::create_reply(args, *result);
+}
+
+void BlockArrays::signature_create_patch_face_list(SignalArgs& args)
+{
+  SignalOptions options(args);
+  options.add_option("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
+  options.add_option("face_list", std::vector<Uint>()).pretty_name("Face List").description("The list of faces that make up the patch. Numbers are as given in the default patch");
+}
+
+void BlockArrays::signal_create_patch_face_list(SignalArgs& args)
+{
+  SignalOptions options(args);
+  const Handle< Table<Uint> > result = create_patch(options.option("name").value<std::string>(), options.option("face_list").value< std::vector<Uint> >());
+  detail::create_reply(args, *result);
+}
+
+void BlockArrays::signal_create_block_mesh(SignalArgs& args)
+{
+  detail::create_reply(args, *create_block_mesh());
+}
 
 BlockData::BlockData(const std::string& name): Component(name)
 {
