@@ -25,7 +25,7 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
 

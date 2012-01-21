@@ -14,11 +14,11 @@
 
 #include "mesh/Domain.hpp"
 
-#include "solver/CModelUnsteady.hpp"
-#include "solver/CTime.hpp"
+#include "solver/ModelUnsteady.hpp"
+#include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   {
     std::cout << "\n################################## Running test for model " << names[i] << "##################################\n" << std::endl;
     // Setup a model
-    CModelUnsteady& model = *Core::instance().root().create_component<CModelUnsteady>(names[i]);
+    ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>(names[i]);
     Domain& domain = model.create_domain("Domain");
     LinearSolverUnsteady& solver = *model.create_component<LinearSolverUnsteady>("Solver");
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     bc->get_child("ParabolicBC")->options().configure_option(solver::Tags::regions(), in_out);
 
     // Configure timings
-    CTime& time = model.create_time();
+    Time& time = model.create_time();
     time.options().configure_option("time_step", dt);
     time.options().configure_option("end_time", end_time);
 

@@ -34,11 +34,11 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Functions.hpp"
@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 BOOST_AUTO_TEST_CASE( ProtoElementField )
 {
   // Setup a model
-  CModel& model = *Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   physics::PhysModel& phys_model = model.create_physics("cf3.physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
-  CSolver& solver = model.create_solver("cf3.solver.CSimpleSolver");
+  Solver& solver = model.create_solver("cf3.solver.SimpleSolver");
 
   Mesh& mesh = *dom.create_component<Mesh>("mesh");
 

@@ -18,9 +18,9 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/Action.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
 using namespace cf3::mesh;
@@ -88,9 +88,9 @@ Mesh& Action::mesh()
 }
 
 
-solver::CSolver& Action::solver()
+solver::Solver& Action::solver()
 {
-  Handle< solver::CSolver > s = m_solver;
+  Handle< solver::Solver > s = m_solver;
   if( is_null(s) )
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );

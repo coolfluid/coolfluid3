@@ -16,7 +16,7 @@ add_subdirectory( UFEM )
 add_subdirectory( RDM  )
 
 # Residual Distribution solver
-add_subdirectory( SFDM  )
+add_subdirectory( sdm  )
 
 # Physics
 add_subdirectory( Physics  )

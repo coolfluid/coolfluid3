@@ -16,7 +16,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/CellTerm.hpp"
 
@@ -69,7 +69,7 @@ private: // data
 
 
 template < typename SF, typename QD >
-class RDM_API ComputeDualArea::Term : public solver::actions::CLoopOperation {
+class RDM_API ComputeDualArea::Term : public solver::actions::LoopOperation {
 
 public: // typedefs
 
@@ -162,7 +162,7 @@ protected: // data
 
 template<typename SF, typename QD>
 ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
-  CLoopOperation(name),
+  LoopOperation(name),
   m_quadrature( QD::instance() )
 {
   regist_typeinfo(this); // template class so must force type registration @ construction

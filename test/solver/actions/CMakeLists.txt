@@ -2,7 +2,7 @@
 # test Component Action
 
 coolfluid_add_test( UTEST utest-solver-actions
-                    CPP   utest-solver-actions.cpp CDummyLoopOperation.hpp CDummyLoopOperation.cpp
+                    CPP   utest-solver-actions.cpp DummyLoopOperation.hpp DummyLoopOperation.cpp
                     LIBS  coolfluid_solver_actions coolfluid_mesh_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_gmsh coolfluid_mesh_neu )
 list( APPEND mesh_files  rotation-tg-p1.neu  rotation-qd-p1.neu  )
 foreach( mfile ${mesh_files} )

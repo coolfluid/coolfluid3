@@ -21,10 +21,10 @@
 #include "mesh/Domain.hpp"
 #include "mesh/MeshGenerator.hpp"
 
-#include "solver/CModelUnsteady.hpp"
-#include "solver/CTime.hpp"
+#include "solver/ModelUnsteady.hpp"
+#include "solver/Time.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Setup a model
-  CModelUnsteady& model = *Core::instance().root().create_component<CModelUnsteady>("Model");
+  ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   bc->add_constant_bc("xpos", "Temperature", ambient_temp);
 
   // Configure timings
-  CTime& time = model.create_time();
+  Time& time = model.create_time();
   time.options().configure_option("time_step", dt);
   time.options().configure_option("end_time", end_time);
 
