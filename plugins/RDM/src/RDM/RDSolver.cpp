@@ -21,7 +21,7 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
-#include "solver/actions/CSynchronizeFields.hpp"
+#include "solver/actions/SynchronizeFields.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/InitialConditions.hpp"
@@ -45,12 +45,12 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > solver_Builder;
+common::ComponentBuilder < RDM::RDSolver, Solver, LibRDM > solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RDSolver::RDSolver ( const std::string& name  ) :
-  CSolver ( name )
+  Solver ( name )
 {
   // properties
 
@@ -104,7 +104,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // create the parallel synchronization action
 
-  m_actions->create_component<CSynchronizeFields>("Synchronize");
+  m_actions->create_component<SynchronizeFields>("Synchronize");
 
   // listen to mesh_updated events, emitted by the domain
 

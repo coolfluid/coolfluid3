@@ -13,9 +13,9 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/ActionDirector.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
 
@@ -71,7 +71,7 @@ physics::PhysModel& ActionDirector::physical_model()
 }
 
 
-CTime& ActionDirector::time()
+Time& ActionDirector::time()
 {
   if( is_null(m_time) )
     throw common::SetupError( FromHere(),
@@ -89,7 +89,7 @@ Mesh& ActionDirector::mesh()
 }
 
 
-solver::CSolver& ActionDirector::solver()
+solver::Solver& ActionDirector::solver()
 {
   if( is_null(m_solver) )
     throw common::SetupError( FromHere(),

@@ -45,8 +45,8 @@ void CSysLDAGPU::execute()
 {
   // get the element loop or create it if does not exist
   Handle< ElementLoop > loop;
-  Handle< common::Component > cloop = get_child( "LOOP" );
-  if( is_null( cloop ) )
+  Handle< common::Component > Loop = get_child( "LOOP" );
+  if( is_null( Loop ) )
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
@@ -57,7 +57,7 @@ void CSysLDAGPU::execute()
       add_component(loop);
   }
   else
-    loop = cloop->as_ptr_checked<ElementLoop>();
+    loop = Loop->as_ptr_checked<ElementLoop>();
 
   // loop on all regions configured by the user
 

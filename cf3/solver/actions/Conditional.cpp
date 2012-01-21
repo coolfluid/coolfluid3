@@ -12,7 +12,7 @@
 #include "common/PropertyList.hpp"
 
 #include "solver/actions/Conditional.hpp"
-#include "solver/actions/CCriterion.hpp"
+#include "solver/actions/Criterion.hpp"
 
 namespace cf3 {
 namespace solver {
@@ -50,7 +50,7 @@ void Conditional::execute ()
 {
   bool conditional = true;
   // check if any criterion are met and abort if so
-  boost_foreach(CCriterion& if_criterion, find_components<CCriterion>(*this))
+  boost_foreach(Criterion& if_criterion, find_components<Criterion>(*this))
   {
     conditional = false;
     if (if_criterion())

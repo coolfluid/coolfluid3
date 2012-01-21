@@ -91,15 +91,15 @@ int main(int argc, char * argv[])
   viennacl::ocl::kernel & kernel_matrix_vector_mult = prog_matrix_vector_mult.add_kernel("matrix_vector_mult");
   kernel_matrix_vector_mult.local_work_size(0, HA);
   kernel_matrix_vector_mult.global_work_size(0,4 * computeUnits * HA );
-  Timer ctimer;
-  ctimer.start();
+  Timer Timer;
+  Timer.start();
   fast_copy(A, vcl_A);
   fast_copy(B, vcl_B);
   viennacl::ocl::enqueue( kernel_matrix_vector_mult( vcl_A, vcl_B, vcl_C, wA, hA, nBlocks ) );
   
     
   fast_copy(vcl_C,C);
-  printf("[native] time: %6.4f seconds\n", ctimer.get() ); 
+  printf("[native] time: %6.4f seconds\n", Timer.get() ); 
  // printData(C);
 
   viennacl::ocl::program & prog_matrix_matrix_mult = viennacl::ocl::current_context().add_program(own_matrix_matrix_mult, "own_matrix_matrix_mult");

@@ -32,7 +32,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/CellLoop.hpp"
@@ -48,7 +48,7 @@ namespace RDM {
 /// the physical variables
 /// @author Tiago Quintino
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public solver::actions::CLoopOperation {
+class RDM_API SchemeBase : public solver::actions::LoopOperation {
 
 public: // typedefs
 
@@ -197,7 +197,7 @@ protected:
 
 template<typename SF, typename QD, typename PHYS>
 SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
-  CLoopOperation(name),
+  LoopOperation(name),
   m_quadrature( QD::instance() )
 {
   regist_typeinfo(this); // template class so must force type registration @ construction

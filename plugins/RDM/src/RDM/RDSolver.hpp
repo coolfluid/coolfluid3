@@ -9,7 +9,7 @@
 
 #include "common/Group.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
@@ -18,7 +18,7 @@ namespace cf3 {
 
 namespace mesh    { class Field;    class Mesh; }
 namespace physics { class PhysModel; class Variables; }
-namespace solver  { namespace actions { class CSynchronizeFields; } }
+namespace solver  { namespace actions { class SynchronizeFields; } }
 
 namespace RDM {
 
@@ -38,7 +38,7 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public cf3::solver::CSolver {
+class RDM_API RDSolver : public cf3::solver::Solver {
 
 public: // typedefs
 

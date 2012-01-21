@@ -10,8 +10,8 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -443,7 +443,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
   MeshTerm<0, VectorField> u("Velocity", "solution");
 
-  CModel& model = *Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = *dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
