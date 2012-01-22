@@ -38,7 +38,7 @@ public:
 
   virtual void initialize()
   {
-    BCWeak::initialize();
+    BCWeak< BCPointData<4u,2u> >::initialize();
     m_gamma = physical_model().options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
   }
