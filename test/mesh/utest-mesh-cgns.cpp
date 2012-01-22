@@ -356,9 +356,11 @@ maintain SIDS-standard ordering
    printf("\nError. Need to increase maxcount to at least %i\n",icount);
    exit(0);
  }
+ PointSetType_t bc_type = ElementList;
 /* write boundary conditions for ilo face */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,ElementList, \
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,bc_type, \
                icount,ipnts,&index_bc));
+ std::cout << "\nSuccessfully wrote BC inflow (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
 
  // BC outflow
  /* we know that for the unstructured zone, the following face elements */
@@ -377,7 +379,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
  /* write boundary conditions for ihi face */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,ElementList,icount,ipnts,&index_bc));
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,bc_type,icount,ipnts,&index_bc));
+ std::cout << "\nSuccessfully wrote BC outflow (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
 
 
 /* we know that for the unstructured zone, the following face elements */
@@ -395,17 +398,18 @@ maintain SIDS-standard ordering
    printf("\nError. Need to increase maxcount to at least %i\n",icount);
    exit(0);
  }
-/* write boundary conditions for wall faces */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,ElementList,icount,ipnts,&index_bc));
-
+ /* write boundary conditions for wall faces */
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,bc_type,icount,ipnts,&index_bc));
+ std::cout << "\nSuccessfully wrote BC Walls (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
 
 /* ---------------------------------------------------------- */
 
 
 /* close CGNS file */
  CALL_CGNS(cg_close(index_file));
- //printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
+ std::cout << "\nSuccessfully wrote unstructured grid to file grid_c.cgns"<< std::endl;
 
+ BOOST_CHECK(true);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -637,12 +641,12 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
   /* close CGNS file */
   cg_close(index_file);
-  printf("\nSuccessfully added BCs (PointRange) to file grid_c.cgns\n");
+  printf("\nSuccessfully added BCs (PointRange) to file grid_str_2zones.cgns\n");
 
   /*  close CGNS file */
   cg_close(index_file);
   printf("\nSuccessfully wrote grid to file grid_str_2zones.cgns\n");
-
+  BOOST_CHECK(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -654,23 +658,23 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("grid_c");
-  meshreader->read_mesh_into("grid_c.cgns",mesh);
+  BOOST_CHECK_NO_THROW(meshreader->read_mesh_into("grid_c.cgns",mesh));
 
   // Write to gmsh
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->write_from_to(mesh,"grid_c.msh");
+  BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh,"grid_c.msh"));
 
   // Write to neu
   boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
-  neu_writer->write_from_to(mesh,"grid_c.neu");
+  BOOST_CHECK_NO_THROW(neu_writer->write_from_to(mesh,"grid_c.neu"));
 
   // Read from neu
   boost::shared_ptr< MeshReader > neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh& mesh_from_neu = *Core::instance().root().create_component<Mesh>("mesh_from_neu");
-  neu_reader->read_mesh_into("grid_c.neu",mesh_from_neu);
+  BOOST_CHECK_NO_THROW(neu_reader->read_mesh_into("grid_c.neu",mesh_from_neu));
 
   // Write to gmsh
-  gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh.msh");
+  BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh.msh"));
 
 
   //CFinfo << mesh_from_neu->tree() << CFendl;
@@ -704,10 +708,10 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   neu_reader->read_mesh_into("grid_str_2zones.neu",mesh_from_neu);
 
   // Write to gmsh
-  gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh_str_2zondes.msh");
+  gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh_str_2zones.msh");
 
 
-  CFinfo << mesh_from_neu.tree() << CFendl;
+//  CFinfo << mesh_from_neu.tree() << CFendl;
   BOOST_CHECK(true);
 
 }
