@@ -32,6 +32,7 @@
 #include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
 #include "sdm/IterativeSolver.hpp"
+#include "sdm/RungeKuttaLowStorage2.hpp"
 #include "sdm/TimeStepping.hpp"
 #include "sdm/ComputeUpdateCoefficient.hpp"
 #include "sdm/ElementCaching.hpp"
@@ -84,6 +85,12 @@ SDSolver::SDSolver ( const std::string& name  ) :
       .attach_trigger ( boost::bind ( &SDSolver::config_regions,   this ) )
       .mark_basic();
 
+  options().add_option("iterative_solver",("cf3.sdm.RungeKuttaLowStorage2"))
+      .description("Iterative solver to solve for the solution each time step")
+      .pretty_name("Iterative Solver")
+      .attach_trigger( boost::bind ( &SDSolver::config_iterative_solver, this ))
+      .mark_basic();
+
 
 //  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
 //    .description("The component to solve the Rieman Problem on cell-faces")
@@ -102,9 +109,6 @@ SDSolver::SDSolver ( const std::string& name  ) :
   L2norm.options().configure_option("field",URI("../../FieldManager/")/Tags::residual());
   ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
 
-  // create the parallel synchronization action
-  SynchronizeFields& synchronize = *m_actions->create_component<SynchronizeFields>("Synchronize");
-
   // listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &SDSolver::on_mesh_changed_event);
 
@@ -114,20 +118,15 @@ SDSolver::SDSolver ( const std::string& name  ) :
 
   m_time_stepping    = create_static_component< TimeStepping >( TimeStepping::type_name() );
 
-  m_iterative_solver = m_time_stepping->create_component< IterativeSolver >( IterativeSolver::type_name() );
-
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
   conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 
   m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );
-
   m_domain_discretization= create_static_component< DomainDiscretization > ( DomainDiscretization::type_name() );
-  m_iterative_solver->pre_update().add_link(*m_domain_discretization);
 
-  m_iterative_solver->post_update().add_link(*m_boundary_conditions);
-  m_iterative_solver->post_update().add_link(synchronize);
+  config_iterative_solver();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +145,19 @@ void SDSolver::execute()
   m_time_stepping->execute();
   boost_foreach(mesh::Field& field,  find_components_recursively<Field>(*mesh().get_child("solution_space")))
     field.synchronize();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SDSolver::config_iterative_solver()
+{
+  if ( is_not_null(m_iterative_solver) )
+  {
+    m_time_stepping->remove_component(*m_iterative_solver);
+  }
+  m_iterative_solver = m_time_stepping->create_component("IterativeSolver",options().option("iterative_solver").value_str())->handle<IterativeSolver>();
+  m_iterative_solver->pre_update().add_link(*m_domain_discretization);
+  m_iterative_solver->post_update().add_link(*m_boundary_conditions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

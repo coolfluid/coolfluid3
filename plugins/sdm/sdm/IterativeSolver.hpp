@@ -22,11 +22,6 @@ namespace sdm {
 
 class sdm_API IterativeSolver : public solver::Action {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor
@@ -39,9 +34,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "IterativeSolver"; }
 
-  /// execute the action
-  virtual void execute ();
-
   common::ActionDirector& pre_update()    { return *m_pre_update; }
   common::ActionDirector& post_update()   { return *m_post_update; }
 
@@ -50,27 +42,20 @@ public: // functions
 
   //@} END SIGNALS
 
-private: // functions
+protected: // functions
+
+  /// Link the solution field, the residual field and the update-coefficient field
+  virtual void link_fields();
 
   /// raises the event when iteration done
   void raise_iteration_done();
 
-  void config_nb_stages();
+protected: // data
 
-  void link_fields();
-
-private: // data
-
-  std::vector<Real> m_alpha;
-  std::vector<Real> m_beta;
-  std::vector<Real> m_gamma;
-
-  Handle<mesh::Field> m_solution;
-  Handle<mesh::Field> m_solution_backup;
-  Handle<mesh::Field> m_residual;
-  Handle<mesh::Field> m_update_coeff;
-
-  Handle<solver::Time> m_time;
+  Handle<mesh::Field> m_solution;        //!< Solution field
+  Handle<mesh::Field> m_residual;        //!< Residual field
+  Handle<mesh::Field> m_update_coeff;    //!< Update coefficient field
+  Handle<solver::Time> m_time;           //!< Time component
 
   /// set of actions called every iteration before non-linear solve
   Handle<common::ActionDirector> m_pre_update;
