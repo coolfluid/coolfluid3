@@ -101,6 +101,9 @@ private: // functions
   /// Triggered when regions is configured
   void config_regions();
 
+  /// Triggered when iterative_solver is configured
+  void config_iterative_solver();
+
   /// Triggered when the event mesh_changed
   void on_mesh_changed_event( common::SignalArgs& args );
 
