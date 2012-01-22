@@ -631,6 +631,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
   switch (m_boco.ptset_type)
   {
+    case PointRange:
     case ElementRange : // all bc elements are within a range given by 2 global element numbers
     {
       if (m_zone.type != Unstructured)
@@ -680,6 +681,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
       remove_empty_element_regions(this_region);
       break;
     }
+    case PointList:
     case ElementList : // all bc elements are listed as global element numbers
     {
       if (m_zone.type != Unstructured)
@@ -731,12 +733,12 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       break;
     }
-    case PointRange : // bc elements are given by node index range
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"PointRange\" is only supported for Structured grids");
-    case PointList : // bc elements are given by node index list
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"PointList\" is only supported for Structured grids");
+//    case PointRange : // bc elements are given by node index range
+//    throw NotSupported(FromHere(),"CGNS: Boundary "+m_boco.name+" with pointset_type \"PointRange\" (="+to_str<int>(PointRange)+") is only supported for Structured grids");
+//    case PointList : // bc elements are given by node index list
+//    throw NotSupported(FromHere(),"CGNS: Boundary "+m_boco.name+"  with pointset_type \"PointList\" (="+to_str<int>(PointRange)+") is only supported for Structured grids");
     default :
-      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + to_str<int>(m_boco.ptset_type) + " supported in CF yet");
+      throw NotImplemented(FromHere(),"CGNS: pointset_type " + to_str<int>(m_boco.ptset_type) + " for boundary "+m_boco.name+" not supported in CF yet");
   }
 
   delete_ptr(boco_elems);

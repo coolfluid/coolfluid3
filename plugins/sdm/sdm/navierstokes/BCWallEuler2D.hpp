@@ -51,19 +51,19 @@ private:
 
   virtual void initialize()
   {
-    BCWeak::initialize();
+    BCWeak< BCPointData<4u,2u> >::initialize();
     flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<2> >();
     flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
   virtual void set_inner_cell()
   {
-    BCWeak::set_inner_cell();
+    BCWeak< BCPointData<4u,2u> >::set_inner_cell();
     flx_pt_plane_jacobian_normal->cache(cell_entities,cell_idx);
   }
   virtual void unset_inner_cell()
   {
-    BCWeak::unset_inner_cell();
+    BCWeak< BCPointData<4u,2u> >::unset_inner_cell();
     flx_pt_plane_jacobian_normal->get().unlock();
   }
 
