@@ -1,5 +1,6 @@
 from cStringIO import StringIO
 from copy import deepcopy
+import numpy
 import Image
 import base64
 import sys
@@ -9,7 +10,7 @@ import coolfluid as cf
 
 # some settings
 titlecolor='white'
-bgcolor='red'
+bgcolor='black'
 
 componentcolor='#444444'
 optioncolor='#0e3815'
@@ -42,7 +43,12 @@ CIgCEgGnAAWF14iXLs/08g1Pe+P05+aNN97Qw4cPu8lk4kejEa2trd0SCABYX1+H976JMf5bla6tYHrl
 6aFrL/6Y8H/6OX36tLHW7mfmewF8SZjuiUr7GuWC6ONMRt3weJMf6WOdqVAEELYJesmG+mWn/Lo5c+YMzp49+5mBhBBCURRbqvoPIvIh6jtE2FNyNJ/qN93lXu+/06jbAK558EXV+OF/AOQy9FESRGTL
 AAAAAElFTkSuQmCC"""
 
-def show_graph(starturi):
+
+def traditional_left2right_tree_layout() :
+  pos=dict()
+  return pos
+
+def show_graph(starturi,depth=1000):
 
   # decode and load root component's image
   rootpng_bin=StringIO(base64.decodestring(rootpng))
@@ -58,11 +64,11 @@ def show_graph(starturi):
 
   # getting the strings which holds the script to setup the graph
   print "---------- PREPROCESS - C++ ----------"
-  components=nxp.get_component_graph( uri = starturi )
-  options=nxp.get_option_graph( uri = starturi )
-  signals=nxp.get_signal_graph( uri = starturi )
-  fields=nxp.get_field_graph( uri = starturi )
-  links=nxp.get_link_graph( uri = starturi )
+  components=nxp.get_component_graph( uri = starturi, depth = depth )
+  options=nxp.get_option_graph( uri = starturi, depth = depth )
+  signals=nxp.get_signal_graph( uri = starturi, depth = depth )
+  fields=nxp.get_field_graph( uri = starturi, depth = depth )
+  links=nxp.get_link_graph( uri = starturi, depth = depth )
 
   # dictionary to the fancy name and a second smaller line for extra info
   print "---------- PREPROCESS - PYTHON ----------"
@@ -76,29 +82,15 @@ def show_graph(starturi):
   plt.text(0.02,0.98,"COOLFluiD3 component graph starting from '" + start_key + "'",
     transform=ax.transAxes, size=20, weight='bold',
     color=titlecolor, ha='left', va='top')
-  #root_img=root_img.resize((0.1,0.1))
-  #plt.imshow(root_img,aspect='auto',transform=None)
+  trans=ax.transData.inverted()
+  plt.imshow(root_img,aspect='auto',zorder=10)
+  #rect=plt.Rectangle([0,0],50,32,facecolor=componentcolor,fill=True,zorder=11)#,lw=0)
+  #plt.gca().add_patch(rect)
+  plt.gca().add_patch(plt.Rectangle([20,5],12,22,facecolor=bgcolor,lw=0,fill=True,zorder=9))
   plt.axis('off')
 
-
-#trans=ax.transData.transform
-#trans2=fig.transFigure.inverted().transform
-
-#piesize=0.2 # this is the image size
-#p2=piesize/2.0
-#for n in G:
-    #xx,yy=trans(pos[n]) # figure coordinates
-    #xa,ya=trans2((xx,yy)) # axes coordinates
-    #a = plt.axes([xa-p2,ya-p2, piesize, piesize])
-    #a.set_aspect('equal')
-    #a.imshow(G.node[n]['image'])
-    #a.axis('off')
-
-#plt.show()
-
-  # constructing graph or directional graph
+  # constructing directional graph, because of using successors function, only directed graphs
   G=nx.DiGraph()
-  #G=nx.Graph()
 
   # executing the submission into the graph
   for line in StringIO(components):
@@ -149,20 +141,30 @@ def show_graph(starturi):
     lcapt[key]=nodecaption[key]
     lnote[key]=nodenote[key]
 
-  # setting the layout
+  # computing the positions of the nodes via layouts
   print "---------- LAYOUT ----------"
-  pos=nx.spring_layout(G,iterations=5)
-  #pos=nx.graphviz_layout(G,prog='twopi')
+  #pos=nx.spring_layout(G,iterations=50)
+  pos=nx.graphviz_layout(G,prog='twopi')
   #pos=nx.graphviz_layout(G,prog='circo')
   #pos2=nx.graphviz_layout(G,prog='twopi')
   #pos=nx.spring_layout(G,pos=pos2,iterations=500)
   #pos=nx.graphviz_layout(G,prog='circo',root=start_key ,args='mindist=1e8')
   #pos=nx.graphviz_layout(G,prog='twopi',root=start_key ,args='mindist=10')
 
+  # renormalizing positions in the range of zoomfact & root position in zoomfact
+  zoomfact=40.
+  imx,imy=root_img.size
+  rootx,rooty=pos[start_key]
+  xmin=min([i[0] for i in pos.values()])
+  ymin=min([i[1] for i in pos.values()])
+  xmax=max([i[0] for i in pos.values()])
+  ymax=max([i[1] for i in pos.values()])
+  for i in pos:
+    pos[i]=[(pos[i][0]-rootx)/(xmax-xmin)*zoomfact*imx+imx/2,
+            (pos[i][1]-rooty)/(ymax-ymin)*zoomfact*imy+imy/2]
+
   # draw the contents, node_shape: so^>v<dph8
   print "---------- MATPLOTLIB ----------"
-  #nx.draw_networkx_nodes(G,pos,nodelist=[start_key],node_color='white',node_size=150,node_shape='o',linewidths=2)
-
   nx.draw_networkx_edges(G,pos,edgelist=ce,edge_color=componentcolor,width=2,arrows=False,style='solid')
   nx.draw_networkx_edges(G,pos,edgelist=oe,edge_color=optioncolor,width=2,arrows=False,style='solid')
   nx.draw_networkx_edges(G,pos,edgelist=se,edge_color=signalcolor,width=2,arrows=False,style='solid')
