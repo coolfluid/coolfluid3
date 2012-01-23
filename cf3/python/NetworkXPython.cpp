@@ -22,6 +22,7 @@
 #include "common/URI.hpp"
 #include "common/FindComponents.hpp"
 #include "common/ComponentIterator.hpp"
+#include "common/XML/FileOperations.hpp"
 
 #include "mesh/Field.hpp"
 
@@ -212,23 +213,10 @@ void NetworkXPython::signature_get_signal_graph( SignalArgs& args )
 
 void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::string &coll, int depth)
 {
-  CFinfo << "NNNNNNNNNNNNNNNNNNNNNNNNN: "<< c.uri().path() << CFflush << CFendl;
-
   BOOST_FOREACH(const common::SignalPtr s, c.signal_list())
   {
-
-    CFinfo << "SSSSSSSSSSSSSSSSSSSSSSSSS: " << s->name() << "  " << s->signature() << CFflush;
-
     common::SignalArgs node;
     ( * s->signature() ) ( node );
-
-    CFinfo << "  2" << CFflush;
-    (*node.xml_doc.get()).print(0);
-    CFinfo << CFflush;
-    CFinfo << "  3" << CFflush;
-    CFinfo << node.to_script(0) << CFflush;
-    CFinfo << "  6" << CFflush;
-
     common::XML::SignalOptions options(node);
     std::string doc_str("");
     for(common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
@@ -236,9 +224,7 @@ void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::stri
     coll.append("G.add_node('" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + s->name() + "':'" + s->name() + "'})\n");
     coll.append("nodenote.update({'" + c.uri().path() + "/" + s->name() + "':'" + doc_str + "'})\n");
-
     CFinfo << CFendl;
-
   }
   BOOST_FOREACH(const Component& subc, c )
     append_signal_nodes_recursive(subc, coll, depth+1);

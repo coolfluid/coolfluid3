@@ -60,8 +60,7 @@ def show_graph(starturi):
   print "---------- PREPROCESS - C++ ----------"
   components=nxp.get_component_graph( uri = starturi )
   options=nxp.get_option_graph( uri = starturi )
-  signals=str("")
-  #signals=nxp.get_signal_graph( uri = starturi )
+  signals=nxp.get_signal_graph( uri = starturi )
   fields=nxp.get_field_graph( uri = starturi )
   links=nxp.get_link_graph( uri = starturi )
 
@@ -78,7 +77,7 @@ def show_graph(starturi):
     transform=ax.transAxes, size=20, weight='bold',
     color=titlecolor, ha='left', va='top')
   #root_img=root_img.resize((0.1,0.1))
-  plt.imshow(root_img,aspect='auto',transform=None)
+  #plt.imshow(root_img,aspect='auto',transform=None)
   plt.axis('off')
 
 
@@ -96,14 +95,6 @@ def show_graph(starturi):
     #a.axis('off')
 
 #plt.show()
-
-
-
-
-
-
-
-
 
   # constructing graph or directional graph
   G=nx.DiGraph()
