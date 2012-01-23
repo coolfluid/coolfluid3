@@ -84,7 +84,7 @@ class  NetworkXPython : public common::Component {
   /// signature for listing the links
   void signature_get_link_graph( common::SignalArgs& args );
   /// going recursively on the tree and append to string the command to add the nodes to the graph
-  void append_link_nodes_recursive(const Component &c, std::string &coll, int depth);
+  void append_link_nodes_recursive(const Component &c, std::string &coll, int depth, std::string printroot);
   /// going recursively on the tree and append to string the command to add the edges to the graph
   void append_link_edges_recursive(const Component &c, std::string &coll, int depth);
 
