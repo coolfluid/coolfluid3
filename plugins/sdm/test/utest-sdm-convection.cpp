@@ -112,6 +112,85 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace sandbox
+{
+
+
+template <typename PHYSDATA>
+class ConvectiveTerm : public Component
+{
+public:
+  enum {NEQS=PHYSDATA::_neqs};
+  enum {NDIM=PHYSDATA::_ndim};
+
+  static std::string type_name() { return "ConvectiveTerm"; }
+  ConvectiveTerm(const std::string& name) : Component(name)
+  {
+    flux_pt_data.resize(1);
+  }
+
+  ~ConvectiveTerm() {}
+//  virtual void compute_face_data() = 0;
+
+  template<typename VAR>
+  void reconstruct_to_flx_pt(const Handle<Field>& field, VAR& var)
+  {
+    std::cout << "reconstructing field to var " << std::endl;
+  }
+
+  std::vector<PHYSDATA> flux_pt_data;
+};
+
+
+class PhysData
+{
+public:
+  enum {_neqs=4};
+  enum {_ndim=2};
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  RealVector4 solution;
+  RealVector2 coords;
+};
+
+class ConcreteTerm: public ConvectiveTerm<PhysData>
+{
+public:
+  static std::string type_name() { return "ConcreteTerm"; }
+  ConcreteTerm(const std::string& name) : ConvectiveTerm<PhysData>(name) {}
+  ~ConcreteTerm() {}
+
+  virtual void compute_flx_pt_data(const SFDElement& elem, const Uint flx_pt, PhysData& phys_data)
+  {
+//    elem.reconstruct_solution_space_to_flux_points[flx_pt](solution->view(elem.idx), phys_data.solution);
+//    elem.reconstruct_solution_space_to_flux_points[flx_pt](coords->view(elem.idx)  , phys_data.coords  );
+  }
+
+//  virtual void compute_face_data()
+//  {
+//    //reconstruct_to_flx_pt()
+//    phys_data.solution.setZero();
+//    phys_data.coords.setZero();
+//  }
+
+  Handle<Field> solution;
+  Handle<Field> coords;
+};
+
+} // namespace sandbox
+using namespace sandbox;
+BOOST_AUTO_TEST_CASE( sandbox_convection )
+{
+  boost::shared_ptr<ConcreteTerm> term = allocate_component<ConcreteTerm>("term");
+//  term->compute_face_data();
+
+//  BOOST_CHECK_EQUAL(term->properties.rho     , 1.);
+//  BOOST_CHECK_EQUAL(term->properties.rhoU[XX], 1.);
+//  BOOST_CHECK_EQUAL(term->properties.rhoU[YY], 0.);
+//  BOOST_CHECK_EQUAL(term->properties.rhoE    , 2.);
+}
+
+# if 0
 BOOST_AUTO_TEST_CASE( test_P0 )
 {
 
@@ -769,6 +848,8 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   //std::cout << "solution_field.min = " << min.transpose() << std::endl;
 
 }
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

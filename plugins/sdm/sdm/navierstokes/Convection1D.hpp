@@ -25,7 +25,7 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API Convection1D : public ConvectiveTerm< ConvectiveTermPointData<3u,1u> >
+class sdm_navierstokes_API Convection1D : public ConvectiveTerm< PhysDataBase<3u,1u> >
 {
 private:
   typedef physics::NavierStokes::Cons1D PHYS;
@@ -33,13 +33,13 @@ private:
 
 public:
   static std::string type_name() { return "Convection1D"; }
-  Convection1D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<3u,1u> >(name)
+  Convection1D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
   }
 
   virtual void initialize()
   {
-    ConvectiveTerm< ConvectiveTermPointData<3u,1u> >::initialize();
+    ConvectiveTerm< PhysData >::initialize();
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_left);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_right);
@@ -47,8 +47,8 @@ public:
 
   virtual ~Convection1D() {}
 
-  virtual void compute_analytical_flux(ConvectiveTermPointData<3u,1u>& data, const PHYS::MODEL::GeoV& unit_normal,
-                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_analytical_flux(PhysData& data, const RealVectorNDIM& unit_normal,
+                                       RealVectorNEQS& flux, Real& wave_speed)
   {
     PHYS::compute_properties(dummy_coords, data.solution , dummy_grads, p);
     PHYS::flux(p, unit_normal, flux);
@@ -56,8 +56,8 @@ public:
     wave_speed = eigenvalues.cwiseAbs().maxCoeff();
   }
 
-  virtual void compute_numerical_flux(ConvectiveTermPointData<3u,1u>& left, ConvectiveTermPointData<3u,1u>& right, const PHYS::MODEL::GeoV& unit_normal,
-                                      PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_numerical_flux(PhysData& left, PhysData& right, const RealVectorNDIM& unit_normal,
+                                      RealVectorNEQS& flux, Real& wave_speed)
   {
 //    cf3_assert(left.coord == right.coord);
     // Compute left and right properties

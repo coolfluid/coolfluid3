@@ -78,8 +78,10 @@ private:
     space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
     sf = space->shape_function().handle<sdm::ShapeFunction>();
 
-    reconstruct_geometry_space_to_flux_points.build_coefficients(entities->element_type().shape_function().handle<mesh::ShapeFunction>(),sf);
-    reconstruct_solution_space_to_flux_points.build_coefficients(sf,sf);
+    reconstruct_from_geometry_space_to_flux_points.build_coefficients(entities->element_type().shape_function().handle<mesh::ShapeFunction>(),sf);
+    reconstruct_from_solution_space_to_flux_points.build_coefficients(sf,sf);
+    reconstruct_from_flux_points_to_solution_space.build_coefficients(sf);
+    reconstruct_divergence_from_flux_points_to_solution_space.build_coefficients(sf);
   }
 
   virtual void compute_variable_data() {}
@@ -89,69 +91,10 @@ public:
   Handle< mesh::Space const         > space;
   Handle< sdm::ShapeFunction const > sf;
 
-  ReconstructToFluxPoints reconstruct_solution_space_to_flux_points;
-  ReconstructToFluxPoints reconstruct_geometry_space_to_flux_points;
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct FluxPointDivergence : ElementCache
-{
-  typedef CacheT<FluxPointDivergence> cache_type;
-  static std::string type_name() { return "FluxPointDivergence"; }
-  FluxPointDivergence (const std::string& name=type_name()) : ElementCache(name) {}
-
-  static void add_options(Cache& cache)
-  {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
-  }
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
-    sf = space->shape_function().handle<sdm::ShapeFunction>();
-    compute.build_coefficients(sf);
-  }
-
-  virtual void compute_variable_data() {}
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< sdm::ShapeFunction const > sf;
-  DivergenceReconstructFromFluxPoints compute;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct FluxPointReconstruct : ElementCache
-{
-  typedef CacheT<FluxPointReconstruct> cache_type;
-  static std::string type_name() { return "FluxPointReconstruct"; }
-  FluxPointReconstruct (const std::string& name=type_name()) : ElementCache(name) {}
-
-  static void add_options(Cache& cache)
-  {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
-  }
-
-private:
-  virtual void compute_fixed_data()
-  {
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
-    sf = space->shape_function().handle<sdm::ShapeFunction>();
-    compute.build_coefficients(sf);
-  }
-
-  virtual void compute_variable_data() {}
-
-public:
-  // intrinsic state (not supposed to change)
-  Handle< mesh::Space const         > space;
-  Handle< sdm::ShapeFunction const > sf;
-  ReconstructFromFluxPoints compute;
+  ReconstructToFluxPoints              reconstruct_from_solution_space_to_flux_points;
+  ReconstructToFluxPoints              reconstruct_from_geometry_space_to_flux_points;
+  ReconstructFromFluxPoints            reconstruct_from_flux_points_to_solution_space;
+  DivergenceReconstructFromFluxPoints  reconstruct_divergence_from_flux_points_to_solution_space;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

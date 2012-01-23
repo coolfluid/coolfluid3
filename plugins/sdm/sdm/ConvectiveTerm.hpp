@@ -21,6 +21,7 @@
 #include "sdm/Term.hpp"
 #include "sdm/ShapeFunction.hpp"
 #include "sdm/Operations.hpp"
+#include "sdm/PhysDataBase.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,31 +30,22 @@ namespace sdm {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @todo this will be replaced eventually with physics properties
-template <Uint NEQS, Uint NDIM>
-struct ConvectiveTermPointData
-{
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  enum { _ndim = NDIM }; ///< number of dimensions
-  enum { _neqs = NEQS }; ///< number of independent variables or equations
-
-  Eigen::Matrix<Real,NEQS,1> solution;
-  Eigen::Matrix<Real,NDIM,1> coord;
-};
-
 /// A proposed base class for simple convective terms.
 /// Classes inheriting only need to implement functions to compute
 /// - analytical flux for interior flux points
 /// - numerical flux for face flux points
 /// @author Willem Deconinck
-template <typename PHYS>
+template <typename PHYSDATA>
 class ConvectiveTerm : public Term
 {
 public: // typedefs
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  enum { NDIM = PHYS::_ndim }; ///< number of dimensions
-  enum { NEQS = PHYS::_neqs }; ///< number of independent variables or equations
+  enum { NDIM = PHYSDATA::NDIM }; ///< number of dimensions
+  enum { NEQS = PHYSDATA::NEQS }; ///< number of independent variables or equations
+  typedef PHYSDATA PhysData;
+  typedef Eigen::Matrix<Real,NDIM,1> RealVectorNDIM;
+  typedef Eigen::Matrix<Real,NEQS,1> RealVectorNEQS;
 
 public: // functions
 
@@ -69,8 +61,8 @@ private: // functions
 
   // Flux evaluations
   // ----------------
-  virtual void compute_analytical_flux(PHYS& data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed) = 0;
-  virtual void compute_numerical_flux(PHYS& left, PHYS& right, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed) = 0;
+  virtual void compute_analytical_flux(PHYSDATA& data, const RealVectorNDIM& unit_normal, RealVectorNEQS& flux, Real& wave_speed) = 0;
+  virtual void compute_numerical_flux(PHYSDATA& left, PHYSDATA& right, const RealVectorNDIM& unit_normal, RealVectorNEQS& flux, Real& wave_speed) = 0;
 
 protected: // configuration
 
@@ -79,22 +71,16 @@ protected: // configuration
     Term::initialize();
     elem                  = shared_caches().template get_cache< SFDElement >();
     neighbour_elem        = shared_caches().template get_cache< SFDElement >("neighbour_elem");
-
-    divergence_in_solution_points  = shared_caches().template get_cache< FluxPointDivergence >();
-    reconstruct_in_solution_points = shared_caches().template get_cache< FluxPointReconstruct >();
     flx_pt_plane_jacobian_normal = shared_caches().template get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
 
-    elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    elem          ->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
     neighbour_elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
-    divergence_in_solution_points->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
-    reconstruct_in_solution_points->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
     flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
-
   }
 
   virtual void allocate_flx_pt_data()
   {
-    flx_pt_data = boost::shared_ptr< ConvectiveTermPointData<NEQS,NDIM> >( new ConvectiveTermPointData<NEQS,NDIM> );
+    flx_pt_data = boost::shared_ptr< PHYSDATA >( new PHYSDATA );
 
     left_flx_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
     right_flx_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
@@ -102,8 +88,8 @@ protected: // configuration
     right_face_data .resize(elem->get().sf->face_flx_pts(0).size());
     for (Uint face_pt=0; face_pt<left_face_data.size(); ++face_pt)
     {
-      left_face_data[face_pt] = boost::shared_ptr< ConvectiveTermPointData<NEQS,NDIM> >( new ConvectiveTermPointData<NEQS,NDIM> );
-      right_face_data[face_pt] = boost::shared_ptr< ConvectiveTermPointData<NEQS,NDIM> >( new ConvectiveTermPointData<NEQS,NDIM> );
+      left_face_data[face_pt] = boost::shared_ptr< PHYSDATA >( new PHYSDATA );
+      right_face_data[face_pt] = boost::shared_ptr< PHYSDATA >( new PHYSDATA );
     }
   }
 
@@ -113,15 +99,12 @@ protected: // configuration
 
     elem->cache(m_entities);
     flx_pt_plane_jacobian_normal->cache(m_entities);
-    divergence_in_solution_points->cache(m_entities);
-    reconstruct_in_solution_points->cache(m_entities);
 
-    sol_pt_wave_speed.resize(NDIM,std::vector<Eigen::Matrix<Real,1,1> >(elem->get().sf->nb_sol_pts()));
+    sol_pt_wave_speed.resize(NDIM,std::vector< RealVector1 >(elem->get().sf->nb_sol_pts()));
     flx_pt_wave_speed.resize(elem->get().sf->nb_flx_pts());
     flx_pt_flux.resize(elem->get().sf->nb_flx_pts());
 
     allocate_flx_pt_data();
-
   }
 
   virtual void set_element(const Uint elem_idx)
@@ -131,11 +114,15 @@ protected: // configuration
     flx_pt_plane_jacobian_normal->set_cache(m_elem_idx);
   }
 
-  virtual void reconstruct_flx_pt_data(const SFDElement& elem, const Uint flx_pt, PHYS& phys_data )
+  /// @brief Standard computation of solution and coordinates in flux point
+  ///
+  /// This function NEEDS to be overloaded for terms thar require more data to be set in phys_data
+  virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PHYSDATA& phys_data )
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
-    elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,phys_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),phys_data.coord);
+    mesh::Field::View sol_pt_coords   = solution_field().dict().coordinates().view(elem.space->connectivity()[elem.idx]);
+    elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_solution,phys_data.solution);
+    elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_coords,phys_data.coord);
   }
 
   virtual void compute_face()
@@ -151,7 +138,7 @@ protected: // configuration
 
 
     for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-      reconstruct_flx_pt_data(elem->get(),left_flx_pt_idx[face_pt],*left_face_data[face_pt]);
+      compute_flx_pt_phys_data(elem->get(),left_flx_pt_idx[face_pt],*left_face_data[face_pt]);
 
 
     if ( is_not_null(neighbour_entities) )
@@ -167,10 +154,9 @@ protected: // configuration
       for(Uint face_pt=0; face_pt<nb_neighbour_face_pts; ++face_pt)
       {
         right_flx_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
-
       }
       for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-        reconstruct_flx_pt_data(neighbour_elem->get(),right_flx_pt_idx[face_pt],*right_face_data[face_pt]);
+        compute_flx_pt_phys_data(neighbour_elem->get(),right_flx_pt_idx[face_pt],*right_face_data[face_pt]);
     }
     else
     {
@@ -191,8 +177,7 @@ protected: // configuration
         right_face_data[face_pt]->coord = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx).row(face_pt);
       }
 
-
-      boost::shared_ptr<PHYS> tmp_data;
+      boost::shared_ptr<PHYSDATA> tmp_data;
       Uint tmp_idx;
       for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       {
@@ -229,12 +214,11 @@ protected: // configuration
 
       }
 
-
     }
 
 
   }
-  //    boost::shared_ptr<PHYS> tmp_data;
+  //    boost::shared_ptr<PHYSDATA> tmp_data;
 //    Uint tmp_idx;
 //    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
 //    {
@@ -278,9 +262,9 @@ protected: // configuration
 
 protected: // fast-access-data (for convenience no "m_" prefix)
 
-  boost::shared_ptr< PHYS > flx_pt_data;
-  std::vector<boost::shared_ptr< PHYS > > left_face_data;
-  std::vector<boost::shared_ptr< PHYS > > right_face_data;
+  boost::shared_ptr< PHYSDATA > flx_pt_data;
+  std::vector<boost::shared_ptr< PHYSDATA > > left_face_data;
+  std::vector<boost::shared_ptr< PHYSDATA > > right_face_data;
   std::vector<Uint> left_flx_pt_idx;
   std::vector<Uint> right_flx_pt_idx;
 
@@ -296,20 +280,18 @@ protected: // fast-access-data (for convenience no "m_" prefix)
   // In flux points:
   Handle< CacheT<SFDElement> > elem;
   Handle< CacheT<SFDElement> > neighbour_elem;
-  Handle< CacheT<FluxPointDivergence> > divergence_in_solution_points;
-  Handle< CacheT<FluxPointReconstruct> > reconstruct_in_solution_points;
   Handle< CacheT<FluxPointPlaneJacobianNormal<NDIM> > > flx_pt_plane_jacobian_normal;
 
-  std::vector< Eigen::Matrix<Real,NEQS,1> >   flx_pt_flux;
-  std::vector< Eigen::Matrix<Real,1,1> >   flx_pt_wave_speed;
-  std::vector< std::vector<Eigen::Matrix<Real,1,1> > > sol_pt_wave_speed;
+  std::vector< RealVectorNEQS >   flx_pt_flux;
+  std::vector< RealVector1 >   flx_pt_wave_speed;
+  std::vector< std::vector<RealVector1 > > sol_pt_wave_speed;
 
 }; // end ConvectiveTerm
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename PHYS>
-ConvectiveTerm<PHYS>::ConvectiveTerm( const std::string& name )
+template <typename PHYSDATA>
+ConvectiveTerm<PHYSDATA>::ConvectiveTerm( const std::string& name )
   : Term(name)
 {
   properties()["brief"] = std::string("Convective Spectral Finite Difference term");
@@ -318,13 +300,13 @@ ConvectiveTerm<PHYS>::ConvectiveTerm( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-template <typename PHYS>
-void ConvectiveTerm<PHYS>::execute()
+template <typename PHYSDATA>
+void ConvectiveTerm<PHYSDATA>::execute()
 {
 
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {
-    reconstruct_flx_pt_data(elem->get(),flx_pt,*flx_pt_data);
+    compute_flx_pt_phys_data(elem->get(),flx_pt,*flx_pt_data);
     compute_analytical_flux(*flx_pt_data,flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
                             flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
     flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
@@ -370,7 +352,8 @@ void ConvectiveTerm<PHYS>::execute()
 
   // compute divergence in solution points
   mesh::Field::View term = m_term_field->view(elem->get().space->connectivity()[m_elem_idx]);
-  divergence_in_solution_points->cache(m_entities).compute(flx_pt_flux,term);
+  elem->get().reconstruct_divergence_from_flux_points_to_solution_space(flx_pt_flux,term);
+//  divergence_in_solution_points->cache(m_entities).compute(flx_pt_flux,term);
   mesh::Field::View jacob_det = jacob_det_field().view(elem->get().space->connectivity()[m_elem_idx]);
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
     for (Uint v=0; v<NEQS; ++v) {
@@ -404,7 +387,7 @@ void ConvectiveTerm<PHYS>::execute()
   mesh::Field::View term_wave = m_term_wave_speed_field->view(elem->get().space->connectivity()[m_elem_idx]);
   for (Uint d=0; d<NDIM; ++d)
   {
-    reconstruct_in_solution_points->cache(m_entities).compute(d,flx_pt_wave_speed,sol_pt_wave_speed[d]);
+    elem->get().reconstruct_from_flux_points_to_solution_space(d,flx_pt_wave_speed,sol_pt_wave_speed[d]);
   }
 
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)

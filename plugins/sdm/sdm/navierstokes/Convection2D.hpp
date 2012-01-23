@@ -25,7 +25,7 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API Convection2D : public ConvectiveTerm< ConvectiveTermPointData<4u,2u> >
+class sdm_navierstokes_API Convection2D : public ConvectiveTerm< PhysDataBase<4u,2u> >
 {
 private:
   typedef physics::NavierStokes::Cons2D PHYS;
@@ -33,7 +33,7 @@ private:
 
 public:
   static std::string type_name() { return "Convection2D"; }
-  Convection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<4u,2u> >(name)
+  Convection2D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
   }
 
@@ -41,14 +41,14 @@ public:
 
   virtual void initialize()
   {
-    ConvectiveTerm< ConvectiveTermPointData<4u,2u> >::initialize();
+    ConvectiveTerm< PhysData >::initialize();
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_left);
     physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_right);
   }
 
-  virtual void compute_analytical_flux(ConvectiveTermPointData<4u,2u>& data, const PHYS::MODEL::GeoV& unit_normal,
-                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_analytical_flux(PhysData& data, const RealVectorNDIM& unit_normal,
+                                       RealVectorNEQS& flux, Real& wave_speed)
   {
     PHYS::compute_properties(dummy_coords, data.solution , dummy_grads, p);
     PHYS::flux(p, unit_normal, flux);
@@ -56,8 +56,8 @@ public:
     wave_speed = eigenvalues.cwiseAbs().maxCoeff();
   }
 
-  virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
-                                      PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_numerical_flux(PhysData& left, PhysData& right, const RealVectorNDIM& unit_normal,
+                                      RealVectorNEQS& flux, Real& wave_speed)
   {
 //    cf3_assert(left.coord == right.coord);
     // Compute left and right properties

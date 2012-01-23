@@ -23,13 +23,13 @@ namespace sdm {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint NEQS, Uint NDIM>
-class BCConstant : public BCWeak< BCPointData<NEQS,NDIM> >
+class BCConstant : public BCWeak< PhysDataBase<NEQS,NDIM> >
 {
 public:
   static std::string type_name() { return "BCConstant<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
 
   BCConstant(const std::string& name) :
-    BCWeak< BCPointData<NEQS,NDIM> >(name)
+    BCWeak< PhysDataBase<NEQS,NDIM> >(name)
   {
     common::Component::options().add_option("constants",std::vector<Real>())
         .link_to(&m_constants);
@@ -37,7 +37,7 @@ public:
 
   virtual ~BCConstant() {}
 
-  virtual void compute_solution(const BCPointData<NEQS,NDIM>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
+  virtual void compute_solution(const PhysDataBase<NEQS,NDIM>& inner_cell_data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
   {
     for (Uint v=0; v<NEQS; ++v)
     {
