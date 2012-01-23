@@ -21,7 +21,9 @@ namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
   class Dictionary;
-
+  class Entity;
+  typedef common::Table<Entity> ElementConnectivity;
+  class FaceCellConnectivity;
   class ElementType;
   class Space;
 
@@ -60,7 +62,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  Dictionary& geometry_fields() const { cf3_assert(is_not_null(m_geometry_fields)); return *m_geometry_fields; }
+  Dictionary& geometry_fields() const { cf3_assert(is_not_null(m_geometry_dict)); return *m_geometry_dict; }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -103,7 +105,7 @@ protected: // data
 
   Handle<ElementType> m_element_type;
 
-  Handle<Dictionary> m_geometry_fields;
+  Handle<Dictionary> m_geometry_dict;
 
   Handle<Space> m_geometry_space;
 
@@ -112,6 +114,23 @@ protected: // data
   Handle<common::Group> m_spaces_group;
 
   Handle<common::List<Uint> > m_rank;
+
+// shortcuts to connectivity tables, otherwise expensive to access in loops
+
+public:
+
+  Handle<ElementConnectivity>&  connectivity_cell2face() { return m_connectivity_cell2face; }
+  Handle<FaceCellConnectivity>& connectivity_face2cell() { return m_connectivity_face2cell; }
+  Handle<ElementConnectivity>&  connectivity_cell2cell() { return m_connectivity_cell2cell; }
+  const Handle<ElementConnectivity>&  connectivity_cell2face() const { return m_connectivity_cell2face; }
+  const Handle<FaceCellConnectivity>& connectivity_face2cell() const { return m_connectivity_face2cell; }
+  const Handle<ElementConnectivity>&  connectivity_cell2cell() const { return m_connectivity_cell2cell; }
+
+private:
+
+  Handle<ElementConnectivity>  m_connectivity_cell2face;
+  Handle<FaceCellConnectivity> m_connectivity_face2cell;
+  Handle<ElementConnectivity>  m_connectivity_cell2cell;
 
 };
 

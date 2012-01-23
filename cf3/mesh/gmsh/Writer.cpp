@@ -331,7 +331,7 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
           Uint elm_number = m_element_start_idx[&elements];
           Uint local_nb_elms = elements.size();
 
-          const Uint nb_states = field_space.nb_states();
+          const Uint nb_states = field_space.shape_function().nb_nodes();
           RealMatrix field_data (nb_states,var_type);
 
           const Uint nb_nodes = elements.element_type().nb_nodes();
@@ -342,7 +342,7 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
             file << ++elm_number << " " << nb_nodes << " ";
 
             /// set field data
-            Connectivity::ConstRow field_indexes = field_space.indexes_for_element(local_elm_idx);
+            Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
             for (Uint iState=0; iState<nb_states; ++iState)
             {
               for (Uint j=0; j<var_type; ++j)

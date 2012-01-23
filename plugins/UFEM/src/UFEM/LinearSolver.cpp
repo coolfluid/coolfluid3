@@ -21,7 +21,7 @@
 #include "mesh/Field.hpp"
 
 #include "solver/Tags.hpp"
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -63,7 +63,7 @@ struct LinearSolver::Implementation
 };
 
 LinearSolver::LinearSolver(const std::string& name) :
-  CSimpleSolver(name),
+  SimpleSolver(name),
   m_implementation( new Implementation(*this) ),
   system_matrix(m_implementation->system_matrix),
   system_rhs(m_implementation->system_rhs),
@@ -82,12 +82,12 @@ void LinearSolver::execute()
   if(is_null(m_implementation->m_lss))
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
 
-  CSimpleSolver::execute();
+  SimpleSolver::execute();
 }
 
 void LinearSolver::mesh_loaded(Mesh& mesh)
 {
-  CSimpleSolver::mesh_loaded(mesh);
+  SimpleSolver::mesh_loaded(mesh);
   mesh_changed(mesh);
 }
 
@@ -103,7 +103,7 @@ void LinearSolver::mesh_changed(Mesh& mesh)
 
   // Find out what tags are used
   std::set<std::string> tags;
-  BOOST_FOREACH(const CProtoAction& action, find_components_recursively<CProtoAction>(*this))
+  BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
   {
     action.insert_tags(tags);
   }

@@ -74,9 +74,9 @@ struct LDAGPU::ElementLoop
       scheme->set_elements(elements);
 
       const Uint nb_elem = elements.size();
-//      boost::timer ctimer;
+//      boost::timer Timer;
       scheme->execute();
-//      std::cout<<ctimer.elapsed()<<std::endl;
+//      std::cout<<Timer.elapsed()<<std::endl;
     }
   }
 

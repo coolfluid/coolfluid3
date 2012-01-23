@@ -638,7 +638,7 @@ void Dictionary::create_connectivity_in_space()
       const Space& entities_space = *space(entities);
       Connectivity& space_connectivity = const_cast<Connectivity&>(entities_space.connectivity());
       space_connectivity.resize(entities->size());
-      Uint nb_nodes = entities_space.nb_states();
+      Uint nb_nodes = entities_space.shape_function().nb_nodes();
       for (Uint elem=0; elem<entities->size(); ++elem)
       {
         for (Uint node=0; node<nb_nodes; ++node)
@@ -678,8 +678,8 @@ void Dictionary::create_connectivity_in_space()
     {
       Entities& entities = *entities_handle;
       const Space& entities_space = space(entities);
-      Uint nb_states_per_elem = entities_space.nb_states();
-      RealMatrix elem_coords(entities.geometry_space().nb_states(),entities.element_type().dimension());
+      Uint nb_states_per_elem = entities_space.shape_function().nb_nodes();
+      RealMatrix elem_coords(entities.geometry_space().shape_function().nb_nodes(),entities.element_type().dimension());
       RealVector centroid(entities.element_type().dimension());
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -791,7 +791,7 @@ void Dictionary::create_connectivity_in_space()
 
 //      std::cout << PERank << "set unknown element rank: " << unknown_rank_elements_hashed[g] << " --> " << found_rank << std::endl;
 
-      for (Uint s=0; s<entities_space.nb_states(); ++s)
+      for (Uint s=0; s<entities_space.shape_function().nb_nodes(); ++s)
       {
         cf3_assert(first_loc_idx+s<rank().size());
         rank()[first_loc_idx+s] = found_rank;
@@ -815,7 +815,7 @@ void Dictionary::create_connectivity_in_space()
     boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
       Entities& entities = *entities_handle;
-      Uint nb_states_per_cell = space(entities).nb_states();
+      Uint nb_states_per_cell = space(entities).shape_function().nb_nodes();
 
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -863,8 +863,8 @@ void Dictionary::create_connectivity_in_space()
     {
       Entities& entities = *entities_handle;
       const Space& entities_space = space(entities);
-      Uint nb_states_per_elem = entities_space.nb_states();
-      RealMatrix elem_coords(entities.geometry_space().nb_states(),entities.element_type().dimension());
+      Uint nb_states_per_elem = entities_space.shape_function().nb_nodes();
+      RealMatrix elem_coords(entities.geometry_space().shape_function().nb_nodes(),entities.element_type().dimension());
       RealVector centroid(entities.element_type().dimension());
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -967,7 +967,7 @@ void Dictionary::create_connectivity_in_space()
       cf3_assert(ghost_rank < Comm::instance().size());
       if (first_glb_idx == UNKNOWN)
         throw ValueNotFound(FromHere(), "Could  not find ghost element "+entities_space.uri().path()+"["+to_str(elem_idx)+"] with hash "+to_str(ghosts_hashed[g])+" on rank "+to_str(ghost_rank));
-      for (Uint s=0; s<entities_space.nb_states(); ++s)
+      for (Uint s=0; s<entities_space.shape_function().nb_nodes(); ++s)
       {
         cf3_assert(first_loc_idx+s<glb_idx().size());
         glb_idx()[first_loc_idx+s] = first_glb_idx+s;
@@ -1117,7 +1117,11 @@ void Dictionary::signal_create_field( SignalArgs& node )
   {
     variables = options.value<std::string>("variables");
   }
-  create_field(name,variables);
+  Field& created_component = create_field(name,variables);
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", created_component.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

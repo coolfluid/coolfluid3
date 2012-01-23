@@ -78,6 +78,15 @@ Component::Component ( const std::string& name ) :
       .description("lists the component tree inside this component")
       .pretty_name("List tree recursively");
 
+  regist_signal( "print_tree" )
+      .connect( boost::bind( &Component::signal_print_tree, this, _1 ) )
+      .hidden(false)
+      .read_only(true)
+      .description("Print the component tree inside this component")
+      .pretty_name("Print tree")
+      .signature( boost::bind(&Component::signature_print_tree, this, _1) );
+
+
   regist_signal( "list_properties" )
       .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
       .hidden(true)
@@ -574,7 +583,7 @@ void Component::signal_move_component ( SignalArgs& args  )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_print_info ( SignalArgs& args  )
+void Component::signal_print_info ( SignalArgs& args  ) const
 {
   CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
 
@@ -669,26 +678,50 @@ void Component::signal_list_tree_recursive( SignalArgs& args) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Component::tree(Uint level) const
+std::string Component::tree(bool basic_mode, Uint depth, Uint recursion_level) const
 {
   std::string tree;
-  for (Uint i=0; i<level; i++)
-    tree += "  ";
-  tree += name() ;
-
-  if( is_not_null(dynamic_cast<Link const*>(this)) )
+  if (recursion_level<=depth || depth==0)
   {
-    Handle<Component const> linked = follow_link(*this);
-    tree += " -> " + (is_null(linked) ? "": linked->uri().string());
-  }
+    if ( !basic_mode || has_tag("basic") )
+    {
+      for (Uint i=0; i<recursion_level; i++)
+        tree += "  ";
+      tree += name() ;
 
-  tree += "\n";
+      if( is_not_null(dynamic_cast<Link const*>(this)) )
+      {
+        Handle<Component const> linked = follow_link(*this);
+        tree += " -> " + (is_null(linked) ? "": linked->uri().string());
+      }
 
-  boost_foreach( const Component& c, *this )
-  {
-    tree += c.tree(level+1);
+      tree += "\n";
+
+      boost_foreach( const Component& c, *this )
+      {
+        tree += c.tree(basic_mode,depth,recursion_level+1);
+      }
+    }
   }
   return tree;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_print_tree( SignalArgs& args ) const
+{
+  SignalOptions options( args );
+  CFinfo << tree(options.value<bool>("basic_mode"),options.value<Uint>("depth")) << CFendl;
+}
+
+void Component::signature_print_tree( SignalArgs& args ) const
+{
+  SignalOptions options( args );
+
+  options.add_option("basic_mode", false )
+      .description("If false, only components marked as basic will be printed");
+  options.add_option("depth", 0u )
+      .description("Define howmany levels will be printed");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -704,7 +737,6 @@ PropertyList& Component::properties()
 {
   return *m_properties;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

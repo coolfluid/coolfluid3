@@ -28,7 +28,6 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/actions/GlobalNumberingNodes.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"

@@ -10,7 +10,7 @@
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"

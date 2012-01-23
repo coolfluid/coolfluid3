@@ -83,7 +83,7 @@ int main(int argc, char * argv[])
     
     copy(A, vcl_A);
     
-    boost::timer ctimer;
+    boost::timer Timer;
     
     # pragma omp parallel for \
 	default ( shared )
@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
         copy(vcl_c,c );
     }
     
-    std::cout<<"[native] time: " << ctimer.elapsed() <<" seconds\n";
+    std::cout<<"[native] time: " << Timer.elapsed() <<" seconds\n";
  
   // clean up memory -------------------------------------------------------
 

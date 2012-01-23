@@ -5,26 +5,26 @@ list( APPEND coolfluid_solver_files
   Action.cpp
   ActionDirector.hpp
   ActionDirector.cpp
-  CModel.hpp
-  CModel.cpp
-  CModelSteady.hpp
-  CModelSteady.cpp
-  CModelUnsteady.hpp
-  CModelUnsteady.cpp
-  CEigenLSS.cpp
-  CEigenLSS.hpp
-  CSimpleSolver.hpp
-  CSimpleSolver.cpp
-  CSolver.hpp
-  CSolver.cpp
-  CTime.hpp
-  CTime.cpp
-  CPlotter.cpp
-  CPlotter.hpp
-  CPlotXY.cpp
-  CPlotXY.hpp
-  CWizard.hpp
-  CWizard.cpp
+  Model.hpp
+  Model.cpp
+  ModelSteady.hpp
+  ModelSteady.cpp
+  ModelUnsteady.hpp
+  ModelUnsteady.cpp
+  EigenLSS.cpp
+  EigenLSS.hpp
+  SimpleSolver.hpp
+  SimpleSolver.cpp
+  Solver.hpp
+  Solver.cpp
+  Time.hpp
+  Time.cpp
+  Plotter.cpp
+  Plotter.hpp
+  PlotXY.cpp
+  PlotXY.hpp
+  Wizard.hpp
+  Wizard.cpp
   LibSolver.hpp
   LibSolver.cpp
   Tags.hpp

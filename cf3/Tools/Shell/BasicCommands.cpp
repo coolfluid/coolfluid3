@@ -26,7 +26,7 @@
 #include "common/FindComponents.hpp"
 
 #include "common/Builder.hpp"
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"

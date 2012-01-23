@@ -230,11 +230,11 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
               if (field.dict().defined_for_entities(elements.handle<Entities>()) )
               {
                 const Space& field_space = field.space(elements);
-                RealVector field_data (field_space.nb_states());
+                RealVector field_data (field_space.shape_function().nb_nodes());
 
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
 
-                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                RealMatrix interpolation(elements.geometry_space().shape_function().nb_nodes(),field_space.shape_function().nb_nodes());
                 const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
                 const ShapeFunction& sf = field_space.shape_function();
                 for (Uint g=0; g<interpolation.rows(); ++g)
@@ -244,10 +244,10 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
 
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
@@ -281,7 +281,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
             if (field.dict().defined_for_entities(elements.handle<Entities>()))
             {
               const Space& field_space = field.space(elements);
-              RealVector field_data (field_space.nb_states());
+              RealVector field_data (field_space.shape_function().nb_nodes());
 
               if (options().option("cell_centred").value<bool>())
               {
@@ -289,9 +289,9 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
@@ -313,7 +313,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
                 std::vector<Uint> nodal_data_count(used_nodes.size(),0u);
 
-                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                RealMatrix interpolation(elements.geometry_space().shape_function().nb_nodes(),field_space.shape_function().nb_nodes());
                 const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
                 const ShapeFunction& sf = field_space.shape_function();
                 for (Uint g=0; g<interpolation.rows(); ++g)
@@ -323,10 +323,10 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
 
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
