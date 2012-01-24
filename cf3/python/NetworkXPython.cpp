@@ -115,7 +115,7 @@ void NetworkXPython::signature_get_component_graph( SignalArgs& args )
 
 void NetworkXPython::append_component_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
 {
-  coll.append("G.add_node('" + c.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
+  coll.append("nec.G.add_node('" + c.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
   coll.append("nodecaption.update({'" + c.uri().path() + "':'" + c.name() + "'})\n");
   coll.append("nodenote.update({'" + c.uri().path() + "':'" + c.derived_type_name() + "'})\n");
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -128,7 +128,7 @@ void NetworkXPython::append_component_edges_recursive(const Component &c, std::s
 {
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
   {
-    coll.append("G.add_edge('" + c.uri().path() + "','" + subc.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
+    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + subc.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
     append_component_edges_recursive(subc, coll, depthlimit, depth+1);
   }
 }
@@ -170,7 +170,7 @@ void NetworkXPython::append_option_nodes_recursive(const Component &c, std::stri
   BOOST_FOREACH(const OptionList::OptionStorage_t::value_type &ot, c.options())
   {
     Option &o = *ot.second;
-    coll.append("G.add_node('" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
+    coll.append("nec.G.add_node('" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + o.name() + "':'" + o.name() + "'})\n");
     coll.append("nodenote.update({'" + c.uri().path() + "/" + o.name() + "':'" + o.value_str() + "'})\n");
   }
@@ -185,7 +185,7 @@ void NetworkXPython::append_option_edges_recursive(const Component &c, std::stri
   BOOST_FOREACH(const OptionList::OptionStorage_t::value_type &ot, c.options())
   {
     Option &o = *ot.second;
-    coll.append("G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
+    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_option_edges_recursive(subc, coll, depthlimit, depth+1);
@@ -233,7 +233,7 @@ void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::stri
     std::string doc_str("");
     for(common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
       doc_str += option_it->first + " "; //+ ": " + option_it->second->description() ;// + "\n";
-    coll.append("G.add_node('" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
+    coll.append("nec.G.add_node('" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + s->name() + "':'" + s->name() + "'})\n");
     coll.append("nodenote.update({'" + c.uri().path() + "/" + s->name() + "':'" + doc_str + "'})\n");
   }
@@ -246,7 +246,7 @@ void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::stri
 void NetworkXPython::append_signal_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
 {
   BOOST_FOREACH(const common::SignalPtr s, c.signal_list())
-    coll.append("G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
+    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_signal_edges_recursive(subc, coll, depthlimit, depth+1);
 }
@@ -290,7 +290,7 @@ void NetworkXPython::append_field_nodes_recursive(const Component &c, std::strin
     const mesh::Field& f=dynamic_cast<const mesh::Field&>(c);
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
-      coll.append("G.add_node('" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
+      coll.append("nec.G.add_node('" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
       coll.append("nodecaption.update({'" + n + "':'" + f.name() + "/" + f.var_name(i) + "'})\n");
       coll.append("nodenote.update({'" + n + "':'" + boost::lexical_cast<std::string>(i) + "'})\n");
     }
@@ -308,7 +308,7 @@ void NetworkXPython::append_field_edges_recursive(const Component &c, std::strin
     const mesh::Field& f=dynamic_cast<const mesh::Field&>(c);
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
-      coll.append("G.add_edge('" + f.uri().path() + "','" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
+      coll.append("nec.G.add_edge('" + f.uri().path() + "','" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
     }
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -349,12 +349,13 @@ void NetworkXPython::signature_get_link_graph( SignalArgs& args )
 
 void NetworkXPython::append_link_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth, std::string printroot)
 {
+  /// @todo since depth limitation is now possible, its possible that link points on actual branch below the depth limit -> needs to be cured
   if (IsComponentType<common::Link>()(c))
   {
     const common::Link& l=dynamic_cast<const common::Link&>(c);
     std::string t=l.follow()->uri().path();
     if (t.find(printroot)==t.npos) {
-      coll.append("G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
+      coll.append("nec.G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
       coll.append("nodecaption.update({'" + t + "':'" + t + "'})\n");
       coll.append("nodenote.update({'" + t + "':'" + l.follow()->derived_type_name() + "'})\n");
     }
@@ -370,7 +371,7 @@ void NetworkXPython::append_link_edges_recursive(const Component &c, std::string
   if (IsComponentType<common::Link>()(c))
   {
     const common::Link& l=dynamic_cast<const common::Link&>(c);
-    coll.append("G.add_edge('" + c.uri().path() + "','" + l.follow()->uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='link')\n");
+    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + l.follow()->uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='link')\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_link_edges_recursive(subc, coll, depthlimit, depth+1);

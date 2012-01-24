@@ -12,7 +12,11 @@
  * For python: graphviz pygraphviz pydot networkx.
  * Usage:
  *   import cf3-networkx *
- *   cf3-networkx-twopi()
+ *   show graph(uri,depth,tree,caption)
+ *     uri: starting component
+ *     depth: how many levels deep into subtree
+ *     tree: set of: 'cosfl'
+ *     caption: set of: 'cosfl'
 **/
 
 #ifndef CF3_Python_NetworkXPython_hpp
