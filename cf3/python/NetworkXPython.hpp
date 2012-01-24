@@ -97,6 +97,14 @@ class  NetworkXPython : public common::Component {
   /// going recursively on the tree and append to string the command to add the edges to the graph
   void append_link_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
 
+  /// signal for listing the properties
+  void signal_get_property_graph( common::SignalArgs& args );
+  /// signature for listing the properties
+  void signature_get_property_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_property_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_property_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
