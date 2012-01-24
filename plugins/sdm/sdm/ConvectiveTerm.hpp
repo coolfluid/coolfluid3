@@ -12,10 +12,8 @@
 #include "common/PropertyList.hpp"
 
 #include "math/MatrixTypes.hpp"
-#include "math/VectorialFunction.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/CellFaces.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/Term.hpp"
@@ -66,6 +64,7 @@ private: // functions
 
 protected: // configuration
 
+  /// @brief Initialize this term
   virtual void initialize()
   {
     Term::initialize();
@@ -78,12 +77,13 @@ protected: // configuration
     flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
+  /// @brief allocate data to be used in flux points
   virtual void allocate_flx_pt_data()
   {
     flx_pt_data = boost::shared_ptr< PHYSDATA >( new PHYSDATA );
 
-    left_flx_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
-    right_flx_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
+    left_face_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
+    right_face_pt_idx.resize(elem->get().sf->face_flx_pts(0).size());
     left_face_data .resize(elem->get().sf->face_flx_pts(0).size());
     right_face_data .resize(elem->get().sf->face_flx_pts(0).size());
     for (Uint face_pt=0; face_pt<left_face_data.size(); ++face_pt)
@@ -93,6 +93,7 @@ protected: // configuration
     }
   }
 
+  /// @brief Initialize caches for a given Entities component
   virtual void set_entities(const mesh::Entities& entities)
   {
     Term::set_entities(entities);
@@ -107,6 +108,7 @@ protected: // configuration
     allocate_flx_pt_data();
   }
 
+  /// @brief Set caches for element with given index
   virtual void set_element(const Uint elem_idx)
   {
     Term::set_element(elem_idx);
@@ -125,133 +127,106 @@ protected: // configuration
     elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_coords,phys_data.coord);
   }
 
-  virtual void compute_face()
+  /// @brief Standard computation of solution and coordinates in a solution point
+  ///
+  /// This function has to be used for boundaries, where the neighbour-element is a face entities
+  /// The physical data is then located inside the face itself.
+  virtual void compute_sol_pt_phys_data(const SFDElement& elem, const Uint sol_pt, PHYSDATA& phys_data )
   {
-
-    Uint face_side;
-    set_face(m_entities,m_elem_idx,m_face_nb,
-             neighbour_entities,neighbour_elem_idx,neighbour_face_nb,
-             face_entities,face_idx,face_side);
-
-
-    left_flx_pt_idx = elem->get().sf->face_flx_pts(m_face_nb);
-
-
-    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-      compute_flx_pt_phys_data(elem->get(),left_flx_pt_idx[face_pt],*left_face_data[face_pt]);
+    mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
+    mesh::Field::View sol_pt_coords   = solution_field().dict().coordinates().view(elem.space->connectivity()[elem.idx]);
+    for (Uint var=0; var<NEQS; ++var)
+      phys_data.solution[var] = sol_pt_solution[sol_pt][var];
+    for (Uint dim=0; dim<NDIM; ++dim)
+      phys_data.coord[dim] = sol_pt_coords[sol_pt][dim];
+  }
 
 
+  /// @brief Given computed face, compute connectivity
+  ///
+  /// Sets left_face_pt_idx and right_face_pt_idx
+  void set_connectivity()
+  {
+    left_face_pt_idx = elem->get().sf->face_flx_pts(m_face_nb);
+
+    // If neighbour is a cell
     if ( is_not_null(neighbour_entities) )
     {
       neighbour_elem->cache(neighbour_entities,neighbour_elem_idx);
-
-      // if order(neighbour_elem) != order(elem)
-      //    {
-      //      interpolate neighbour-face to right_face_data
-      //    }
-
       Uint nb_neighbour_face_pts = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb).size();
       for(Uint face_pt=0; face_pt<nb_neighbour_face_pts; ++face_pt)
       {
-        right_flx_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
+        right_face_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
       }
-      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-        compute_flx_pt_phys_data(neighbour_elem->get(),right_flx_pt_idx[face_pt],*right_face_data[face_pt]);
     }
+    // If there is no neighbour, but a face
     else
     {
       neighbour_elem->cache(face_entities,face_idx);
 
-      for (Uint face_pt=0; face_pt<right_flx_pt_idx.size(); ++face_pt)
+      mesh::Field::View cell_coords   = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
+      std::vector<RealVector> cell_face_coords(left_face_pt_idx.size(),RealVector(NDIM));
+      for (Uint face_pt=0; face_pt<left_face_pt_idx.size(); ++face_pt)
       {
-        //        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx];
-        //        std::cout << field_index.shape()[0] << "x" << field_index.shape()[1] << std::endl;
-        //        std::cout << right_flx_pt_idx.size() << std::endl;
-        //        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[face_pt] << "  ---> " ;
-
-        right_flx_pt_idx[face_pt] = face_pt;
-
-        mesh::Field::View boundary_face_pt_solution = solution_field().view(neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx]);
-        for (Uint v=0; v<NEQS; ++v)
-          right_face_data[face_pt]->solution[v] = boundary_face_pt_solution[face_pt][v];
-        right_face_data[face_pt]->coord = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx).row(face_pt);
+        elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](cell_coords,cell_face_coords[face_pt]);
       }
-
-      boost::shared_ptr<PHYSDATA> tmp_data;
-      Uint tmp_idx;
-      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+      RealMatrix face_coords = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx);
+      for (Uint right_face_pt=0; right_face_pt<right_face_pt_idx.size(); ++right_face_pt)
       {
-        Uint right_face_pt=0;
-        bool matched=false;
-
-        for (; right_face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++right_face_pt)
+        const RealVector& right_face_pt_coord = face_coords.row(right_face_pt);
+        bool matched = false;
+        for (Uint left_face_pt=0; left_face_pt<left_face_pt_idx.size(); ++left_face_pt)
         {
           bool m=true;
-          //          std::cout << "right = " << right_face_data[right_face_pt]->coord.transpose() << std::endl;
           for (Uint d=0; d<NDIM; ++d)
-          {
-            m = m && ( std::abs(left_face_data[face_pt]->coord[d] - right_face_data[right_face_pt]->coord[d]) < 20*math::Consts::eps() );
-          }
+            m = m && ( std::abs(cell_face_coords[left_face_pt][d] - right_face_pt_coord[d]) < 20*math::Consts::eps() );
           if ( m )
           {
             matched=true;
+            right_face_pt_idx[left_face_pt] = right_face_pt;
             break;
           }
         }
-        //        if (!matched)
-        //        {
-        //          std::cout << "coord " << left_face_data[face_pt]->coord.transpose() << std::endl;
         cf3_assert_desc(elem->get().space->uri().string()+"["+common::to_str(elem->get().idx)+"]",matched);
-        //        }
-
-
-        tmp_data=right_face_data[face_pt];
-        tmp_idx=right_flx_pt_idx[face_pt];
-        right_face_data[face_pt]=right_face_data[right_face_pt];
-        right_flx_pt_idx[face_pt]=right_flx_pt_idx[right_face_pt];
-        right_face_data[right_face_pt]=tmp_data;
-        right_flx_pt_idx[right_face_pt]=tmp_idx;
-
       }
-
     }
-
-
   }
-  //    boost::shared_ptr<PHYSDATA> tmp_data;
-//    Uint tmp_idx;
-//    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-//    {
-//      Uint right_face_pt=0;
-//      bool matched=false;
-//      for (; right_face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++right_face_pt)
-//      {
 
-//        if (left_face_data[face_pt]->coord == right_face_data[right_face_pt]->coord)
-//        {
-//          matched=true;
-//          break;
-//        }
-//      }
-//      cf3_assert(matched);
+  /// @brief Compute all physical data and connectivity in the face
+  virtual void compute_face()
+  {
+    static Uint face_side;
 
-//      tmp_data=right_face_data[face_pt];
-//      tmp_idx=right_flx_pt_idx[face_pt];
-//      right_face_data[face_pt]=right_face_data[right_face_pt];
-//      right_flx_pt_idx[face_pt]=right_flx_pt_idx[right_face_pt];
-//      right_face_data[right_face_pt]=tmp_data;
-//      right_flx_pt_idx[right_face_pt]=tmp_idx;
+    // 1) Find the neighbour element and face entity
+    set_face(m_entities,m_elem_idx,m_face_nb,
+             neighbour_entities,neighbour_elem_idx,neighbour_face_nb,
+             face_entities,face_idx,face_side);
 
-//    }
-//    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-//    {
-//      if(left_face_data[face_pt]->coord != right_face_data[face_pt]->coord)
-//      {
-//        std::cout << m_entities->uri() << "["<<m_elem_idx<<"]  <--> " << neighbour_elem->get().entities->uri() << "["<<neighbour_elem->get().idx<<"]"<<std::endl;
-//        cf3_assert(false);
-//      }
-//    }
+    // 2) Set connectivity from face points on the left side to face points on the right side
+    set_connectivity();
 
+    // 3) Compute physical data in left face points
+    for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+      compute_flx_pt_phys_data(elem->get(),left_face_pt_idx[face_pt],*left_face_data[face_pt]);
+
+    // 4) Compute physical data in right face points
+
+    //  * Case there is a neighbour cell
+    if ( is_not_null(neighbour_entities) )
+    {
+      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
+        compute_flx_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
+    }
+    // * Case there is no neighbour, but physical data inside the face solution points
+    else
+    {
+      neighbour_elem->cache(face_entities,face_idx);
+      for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
+        compute_sol_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
+    }
+  }
+
+  /// @brief free the element caches
   virtual void unset_element()
   {
     Term::unset_element();
@@ -265,8 +240,8 @@ protected: // fast-access-data (for convenience no "m_" prefix)
   boost::shared_ptr< PHYSDATA > flx_pt_data;
   std::vector<boost::shared_ptr< PHYSDATA > > left_face_data;
   std::vector<boost::shared_ptr< PHYSDATA > > right_face_data;
-  std::vector<Uint> left_flx_pt_idx;
-  std::vector<Uint> right_flx_pt_idx;
+  std::vector<Uint> left_face_pt_idx;
+  std::vector<Uint> right_face_pt_idx;
 
   // Data
   Uint sol_pt;
@@ -294,8 +269,9 @@ template <typename PHYSDATA>
 ConvectiveTerm<PHYSDATA>::ConvectiveTerm( const std::string& name )
   : Term(name)
 {
-  properties()["brief"] = std::string("Convective Spectral Finite Difference term");
-  properties()["description"] = std::string("Fields to be created: ...");
+  properties()["brief"] = std::string("Convective Spectral Difference term");
+  properties()["description"] = std::string("Computes on a per cell basis the residual- and"
+                                            "wave-speed contribution of a convective term");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -304,6 +280,7 @@ template <typename PHYSDATA>
 void ConvectiveTerm<PHYSDATA>::execute()
 {
 
+  /// 1) Calculate flux in interior flux points
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {
     compute_flx_pt_phys_data(elem->get(),flx_pt,*flx_pt_data);
@@ -313,47 +290,45 @@ void ConvectiveTerm<PHYSDATA>::execute()
     flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
   }
 
+  /// 2) Calculate flux in face flux points
   for(m_face_nb=0; m_face_nb<elem->get().sf->nb_faces(); ++m_face_nb)
   {
+    /// 2.1) Compute physical data in face
     compute_face();
-//    if ( is_not_null(neighbour_entities) )
+
+    /// 2.2) Compute flux
+    /// * Case 1: face is marked as outer_face --> extrapolate solution from interior and compute analytical flux
+    if (face_entities->has_tag(mesh::Tags::outer_faces()))
     {
-
-      if (face_entities->has_tag(mesh::Tags::outer_faces()))
+      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       {
-        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-        {
-          flx_pt = left_flx_pt_idx[face_pt];
+        flx_pt = left_face_pt_idx[face_pt];
 
-          compute_analytical_flux(*left_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
-                                  flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-          flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-          flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-        }
+        compute_analytical_flux(*left_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
+                                flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
+        flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }
-      else
+    }
+    /// * Case 2: face is inner-face or boundary-face --> compute numerical flux
+    else
+    {
+      for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       {
-        for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
-        {
-          //        cf3_assert(face_pt<left_flx_pt_idx.size());
-          //        cf3_assert(face_pt<right_flx_pt_idx.size());
-          //        cf3_assert(is_not_null(left_face_data[left_flx_pt_idx[face_pt]]));
-          //        cf3_assert(is_not_null(right_face_data[right_flx_pt_idx[face_pt]]));
-          flx_pt = left_flx_pt_idx[face_pt];
-          compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
-                                 flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-          flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-          flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-        }
+        flx_pt = left_face_pt_idx[face_pt];
+        compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
+                               flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
+        flx_pt_flux[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+        flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }
     }
     neighbour_elem->get().unlock();
   }
 
-  // compute divergence in solution points
+
+  /// 3) Compute flux divergence in solution points and store in this term's field
   mesh::Field::View term = m_term_field->view(elem->get().space->connectivity()[m_elem_idx]);
   elem->get().reconstruct_divergence_from_flux_points_to_solution_space(flx_pt_flux,term);
-//  divergence_in_solution_points->cache(m_entities).compute(flx_pt_flux,term);
   mesh::Field::View jacob_det = jacob_det_field().view(elem->get().space->connectivity()[m_elem_idx]);
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
     for (Uint v=0; v<NEQS; ++v) {
@@ -361,6 +336,7 @@ void ConvectiveTerm<PHYSDATA>::execute()
     }
   }
 
+  /// 4) Subtract this term from the residual field
   mesh::Field::View residual = residual_field().view(elem->get().space->connectivity()[m_elem_idx]);
   for (sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt) {
     for (Uint v=0; v<NEQS; ++v) {
@@ -368,6 +344,9 @@ void ConvectiveTerm<PHYSDATA>::execute()
     }
   }
 
+  /// 5) Reconstruct the wave speed from flux points to solution points
+  ///    in this term's wave_speed field.
+  ///    Then modify the total wave_speed to be more strict
   // Compute cfl number.
   // dU'/dt = - A'*dU'/dski
   // dU/dt = - 1/|J| * A'*dU'/dksi  (1)

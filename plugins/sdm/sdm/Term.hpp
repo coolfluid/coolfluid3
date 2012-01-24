@@ -18,7 +18,6 @@
 
 namespace cf3 {
 
-namespace RiemannSolvers { class RiemannSolver; }
 namespace physics        { class Variables; class Properties; }
 namespace mesh   { class Field; class Dictionary; class Cells; class Space; class Entities; class Entity; class ElementType; class Face2Cell; }
 
@@ -28,75 +27,7 @@ class Term;
 class SharedCaches;
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Flyweight
-{
-public:
-
-  /// Constructors
-  Flyweight(const mesh::Entities& entities_comp, const Uint element_idx, Term& this_term);
-  Flyweight(const Flyweight& flyweight);
-
-  /// Assignment operator
-  Flyweight& operator= (const Flyweight& flyweight);
-
-  /// Destructor
-  ~Flyweight () {}
-
-  /// Extrinsic state
-  struct Element
-  {
-    Element(const Flyweight& flyweight, const Uint element_idx);
-    Uint idx;
-    common::TableConstRow<Uint>::type field_idx;
-    typedef common::TableArray<Real>::type::array_view<2>::type FieldView;
-    FieldView solution;
-    FieldView residual;
-    FieldView wave_speed;
-    FieldView jacob_det;
-  };
-  boost::shared_ptr<Element> element;
-
-  /// Intrinsic state
-  sdm::Term& term;
-  const mesh::Entities& entities;
-  const mesh::ElementType& geometry;
-  const mesh::Space& space;
-  const sdm::ShapeFunction& sf;
-
-  /// Set extrinsic state
-  Element& set_element(const Uint element_idx);
-
-  /// Convection computations
-  void reconstruct_solution_in_flx_pt(const Uint flx_pt, RealVector& sol_in_flx_pt);
-  void add_flx_pt_gradient_contribution_to_residual(const Uint flx_pt, const RealVector& flx_in_flx_pt, bool outward=true);
-  void add_flx_pt_contribution_to_wave_speed(const Uint flx_pt, const Real& ws_in_flx_pt);
-  void compute_analytical_flux(const Uint flx_pt, const RealVector& sol_in_flx_pt, RealVector& flx_in_flx_pt, Real& ws_in_flx_pt);
-  void compute_numerical_flux(const Uint flx_pt, const RealVector& sol_left, const RealVector& sol_right, RealVector& flx_in_flx_pt, Real& ws_in_flx_pt);
-
-  struct Cache
-  {
-    std::auto_ptr<physics::Properties> phys_props;
-    RealMatrix phys_flux;
-    RealMatrix dummy_grads;
-    RealVector phys_ev;
-    RealVector phys_coords;
-    RealVector plane_jacobian_normal;
-    RealVector unit_normal;
-    Real plane_jacobian_det;
-    Real coeff;
-    RealMatrix geometry_nodes;
-  };
-};
-
 class sdm_API Term : public cf3::solver::Action {
-
-  friend class Flyweight;
-
-public: // typedefs
-
-  /// provider
-  
-  
 
 public: // functions
 
@@ -169,8 +100,6 @@ protected: // data
 
   Handle<physics::Variables> m_solution_vars; ///< access to the solution variables
 
-  Handle<RiemannSolvers::RiemannSolver> m_riemann_solver; ///< access to the riemann solver
-
   /// Compute wave speeds in flx_pts
   /// TRUE:  - computation in flx_pts
   ///        - more expensive
@@ -178,9 +107,6 @@ protected: // data
   ///        - less accurate (mostly for shocks)
   ///        - WARNING: Must be computed somewhere else!!!!!!!!!
   bool m_compute_wave_speed;
-
-  Flyweight::Cache cache;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
