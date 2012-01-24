@@ -110,7 +110,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
 {
     std::cout<<"LDAGPU"<<std::endl;
 
-    boost::timer ctimer;
+    boost::timer Timer;
     Uint dim     = 2;
     Uint nEq     = 4;
     Uint shape   = SF::nb_nodes; //std::cout<< shape<<std::endl;
@@ -341,7 +341,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
 
 //  std::cout<< (*B::residual)[123][0] << " " << (*B::residual)[123][1] << " " << (*B::residual)[123][2] << " " << (*B::residual)[123][3] << std::endl;
 
-  //  std::cout<< std::scientific<<ctimer.elapsed()<<std::endl; */
+  //  std::cout<< std::scientific<<Timer.elapsed()<<std::endl; */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

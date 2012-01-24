@@ -150,7 +150,7 @@ std::string OptionList::list_options() const
 {
   std::string opt_list="";
   Uint cnt(0);
-  foreach_container( (const std::string& name) (boost::shared_ptr<Option> option) , *this )
+  foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , *this )
   {
     if (cnt > 0)
     {

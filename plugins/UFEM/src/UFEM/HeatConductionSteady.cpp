@@ -11,7 +11,7 @@
 
 #include "solver/actions/SolveLSS.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "HeatConductionSteady.hpp"
@@ -25,7 +25,7 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
+ComponentBuilder < HeatConductionSteady, Solver, LibUFEM > HeatConductionSteady_builder;
 
 HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolver(name)
 {

@@ -14,10 +14,10 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "solver/CTime.hpp"
-#include "solver/actions/CCriterionTime.hpp"
-#include "solver/actions/CCriterionMaxIterations.hpp"
-#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/Time.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/actions/PeriodicWriteMesh.hpp"
 
 #include "RDM/FaceTerm.hpp"
 
@@ -50,24 +50,24 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // static components
 
-  m_time  = create_static_component<CTime>("Time");
+  m_time  = create_static_component<Time>("Time");
 
   m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
   m_post_actions = create_static_component<ActionDirector>("PostActions");
 
-  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
+  post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
   // dyanmic components
-  create_component<CCriterionMaxIterations>( "MaxIterations" );
+  create_component<CriterionMaxIterations>( "MaxIterations" );
   
-  configure_option_recursively( "ctime",    m_time );
+  configure_option_recursively( "Time",    m_time );
 }
 
 bool TimeStepping::stop_condition()
 {
   bool finish = false;
-  boost_foreach(CCriterion& stop_criterion, find_components<CCriterion>(*this))
+  boost_foreach(Criterion& stop_criterion, find_components<Criterion>(*this))
       finish |= stop_criterion();
   return finish;
 }

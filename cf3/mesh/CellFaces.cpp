@@ -30,7 +30,7 @@ CellFaces::CellFaces ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, and global numbering unique over all processors");
 
-  m_cell_connectivity = create_static_component<FaceCellConnectivity>("cell_connectivity");
+//  m_cell_connectivity = create_static_component<FaceCellConnectivity>("cell_connectivity");
 
   add_tag(mesh::Tags::face_entity());
 }
@@ -43,10 +43,10 @@ CellFaces::~CellFaces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CellFaces::is_bdry(const Uint idx) const
-{
-  return m_cell_connectivity->is_bdry_face()[idx];
-}
+//bool CellFaces::is_bdry(const Uint idx) const
+//{
+//  return m_cell_connectivity->is_bdry_face()[idx];
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

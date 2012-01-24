@@ -701,7 +701,7 @@ void Reader::read_element_data()
           {
             boost::tie(elements,cf_idx) = it->second;
 
-            mesh::Field::Row field_data = field[field.space(*elements).indexes_for_element(cf_idx)[0]] ;
+            mesh::Field::Row field_data = field[field.space(*elements).connectivity()[cf_idx][0]] ;
 
             d=0;
             for(Uint v=var_begin; v<var_end; ++v)

@@ -49,9 +49,8 @@ void Builder::signal_create_component ( SignalArgs& args )
 
 void Builder::signature_signal_create_component ( SignalArgs& args )
 {
-  XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
-
-  p.set_option<URI>("path", URI("cpath:"), "Full path for the created component" );
+  SignalOptions options( args );
+  options.add_option("path", URI("cpath:")).description("Full path for the created component" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

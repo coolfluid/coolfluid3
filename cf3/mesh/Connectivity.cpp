@@ -33,50 +33,50 @@ Connectivity::Connectivity ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-UnifiedData& Connectivity::lookup()
-{
-  return *m_lookup;
-}
+//UnifiedData& Connectivity::lookup()
+//{
+//  return *m_lookup;
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//UnifiedData& Connectivity::create_lookup()
+//{
+//  if (is_not_null(m_lookup))
+//  {
+//    if (is_not_null(get_child(m_lookup->name())))
+//    {
+//      remove_component(m_lookup->name());
+//    }
+//  }
+//  if (is_not_null(m_lookup_link))
+//  {
+//    if (is_not_null(get_child(m_lookup_link->name())))
+//    {
+//      remove_component(*m_lookup_link);
+//    }
+//  }
+//  set_lookup( *create_component<UnifiedData>("lookup") );
+//  return lookup();
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-UnifiedData& Connectivity::create_lookup()
-{
-  if (is_not_null(m_lookup))
-  {
-    if (is_not_null(get_child(m_lookup->name())))
-    {
-      remove_component(m_lookup->name());
-    }
-  }
-  if (is_not_null(m_lookup_link))
-  {
-    if (is_not_null(get_child(m_lookup_link->name())))
-    {
-      remove_component(*m_lookup_link);
-    }
-  }
-  set_lookup( *create_component<UnifiedData>("lookup") );
-  return lookup();
-}
+//void Connectivity::set_lookup(UnifiedData& lookup)
+//{
+//  if (is_not_null(m_lookup))
+//  {
+//    if (is_not_null(get_child(m_lookup->name())))
+//    {
+//      remove_component(*m_lookup);
+//    }
+//  }
+//  m_lookup = Handle<UnifiedData>(lookup.handle<Component>());
 
-////////////////////////////////////////////////////////////////////////////////
-
-void Connectivity::set_lookup(UnifiedData& lookup)
-{
-  if (is_not_null(m_lookup))
-  {
-    if (is_not_null(get_child(m_lookup->name())))
-    {
-      remove_component(*m_lookup);
-    }
-  }
-  m_lookup = Handle<UnifiedData>(lookup.handle<Component>());
-
-  m_lookup = lookup.handle<UnifiedData>();
-  m_lookup_link = create_component<Link>("lookup_link");
-  m_lookup_link->link_to(lookup);
-}
+//  m_lookup = lookup.handle<UnifiedData>();
+//  m_lookup_link = create_component<Link>("lookup_link");
+//  m_lookup_link->link_to(lookup);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

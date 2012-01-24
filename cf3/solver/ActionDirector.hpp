@@ -18,8 +18,8 @@ namespace physics { class PhysModel; }
 
 namespace solver {
 
-class CSolver;
-class CTime;
+class Solver;
+class Time;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ public: // functions
   //@{
 
   /// @returns the solver this action is part of
-  solver::CSolver& solver();
+  solver::Solver& solver();
 
   /// @returns the mesh this action is using
   mesh::Mesh& mesh();
@@ -56,9 +56,9 @@ public: // functions
   physics::PhysModel& physical_model();
 
   /// @returns the time component
-  /// @deprecated CTime makes no sense in certain simulations
+  /// @deprecated Time makes no sense in certain simulations
   ///             This will eventually be removed
-  solver::CTime& time();
+  solver::Time& time();
 
   //@} END ACCESSORS
 
@@ -70,7 +70,7 @@ protected: // functions
 protected: // data
 
   /// link back to the solver
-  Handle< solver::CSolver > m_solver;
+  Handle< solver::Solver > m_solver;
   /// mesh where this action data resides
   Handle< mesh::Mesh > m_mesh;
   /// physical model used by this action
@@ -78,7 +78,7 @@ protected: // data
 
   /// time used by this action
   /// @todo eventually removed time from Action
-  Handle< solver::CTime > m_time;
+  Handle< solver::Time > m_time;
 
 };
 

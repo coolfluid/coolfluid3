@@ -16,7 +16,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/BoundaryTerm.hpp"

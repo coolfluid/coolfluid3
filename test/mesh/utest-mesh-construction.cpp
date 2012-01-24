@@ -116,11 +116,11 @@ struct Mesh_API SpaceElement
   const ShapeFunction& element_type() const { return comp->shape_function(); }
 
   /// Const access to the coordinates
-  Dictionary& fields() const { return comp->fields(); }
+  Dictionary& dict() const { return comp->dict(); }
 
   Entity support() const { return Entity(comp->support(),idx); }
 
-  Connectivity::ConstRow field_indices() const { return comp->indexes_for_element(idx); }
+  Connectivity::ConstRow field_indices() const { return comp->connectivity()[idx]; }
   Uint glb_idx() const { return comp->support().glb_idx()[idx]; }
   Uint rank() const { return comp->support().rank()[idx]; }
   bool is_ghost() const { return comp->support().is_ghost(idx); }

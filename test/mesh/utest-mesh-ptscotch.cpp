@@ -32,6 +32,7 @@
 #include "mesh/MeshWriter.hpp"
 
 #include "mesh/ptscotch/LibPTScotch.hpp"
+#include "mesh/ptscotch/Partitioner.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -384,9 +385,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   meshwriter->write_from_to(mesh,fp_out_1);
   CF3_DEBUG_POINT;
 
-  boost::shared_ptr< MeshPartitioner > partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.ptscotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
+  boost::shared_ptr< MeshTransformer > partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.ptscotch.Partitioner","partitioner");
 
-  MeshPartitioner& p = *partitioner_ptr;
+  MeshPartitioner& p = *boost::dynamic_pointer_cast<MeshPartitioner>(partitioner_ptr);
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
   CF3_DEBUG_POINT;
 

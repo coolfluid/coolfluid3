@@ -46,19 +46,19 @@ public:
   /// Get the class name
   static std::string type_name () { return "Connectivity"; }
 
-  UnifiedData& lookup();
+//  UnifiedData& lookup();
 
-  const UnifiedData& lookup() const { return *m_lookup; }
+//  const UnifiedData& lookup() const { return *m_lookup; }
 
-  UnifiedData& create_lookup();
+//  UnifiedData& create_lookup();
 
-  void set_lookup(UnifiedData& lookup);
+//  void set_lookup(UnifiedData& lookup);
 
 private: // data
 
-  Handle<UnifiedData> m_lookup;
+//  Handle<UnifiedData> m_lookup;
 
-  Handle<common::Link> m_lookup_link;
+//  Handle<common::Link> m_lookup_link;
 
 }; // Connectivity
 
