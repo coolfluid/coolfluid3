@@ -48,6 +48,11 @@ class  NetworkXPython : public common::Component {
   static std::string type_name () { return "NetworkXPython"; }
 
   /// signal for listing the components tree
+  void signal_get_detailed_info( common::SignalArgs& args );
+  /// signature for listing the components tree
+  void signature_get_detailed_info( common::SignalArgs& args );
+
+  /// signal for listing the components tree
   void signal_get_component_graph( common::SignalArgs& args );
   /// signature for listing the components tree
   void signature_get_component_graph( common::SignalArgs& args );

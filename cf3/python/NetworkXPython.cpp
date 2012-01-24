@@ -22,6 +22,7 @@
 #include "common/URI.hpp"
 #include "common/FindComponents.hpp"
 #include "common/ComponentIterator.hpp"
+#include "common/PropertyList.hpp"
 #include "common/XML/FileOperations.hpp"
 
 #include "mesh/Field.hpp"
@@ -44,6 +45,12 @@ common::ComponentBuilder < NetworkXPython, Component, LibPython > NetworkXPython
 NetworkXPython::NetworkXPython( const std::string& name ) :
   Component(name)
 {
+  regist_signal( "get_detailed_info" )
+      .connect  ( boost::bind( &NetworkXPython::signal_get_detailed_info, this,  _1 ))
+      .signature( boost::bind( &NetworkXPython::signature_get_detailed_info, this, _1))
+      .description("Gathers info on component specified by option 'uri' and returns in string.")
+      .pretty_name("GetDetailedInfo");
+
   regist_signal( "get_component_graph" )
       .connect  ( boost::bind( &NetworkXPython::signal_get_component_graph, this,  _1 ))
       .signature( boost::bind( &NetworkXPython::signature_get_component_graph, this, _1))
@@ -79,6 +86,95 @@ NetworkXPython::NetworkXPython( const std::string& name ) :
 
 NetworkXPython::~NetworkXPython()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::signal_get_detailed_info(SignalArgs& args)
+{
+  // get target component's uri
+  SignalOptions options( args );
+  Handle<Component> c = access_component_checked(options.option("uri").value<URI>());
+  std::string coll("");
+
+  // header
+  coll += "-----NAME---------------\n     " + c->name() + "\n";
+  coll += "-----TYPE---------------\n     " + c->derived_type_name() + "\n";
+  coll += "-----PATH---------------\n     " + c->uri().path() + "\n";
+
+  // options
+  coll += "-----OPTIONS------------\n";
+  BOOST_FOREACH(const OptionList::OptionStorage_t::value_type &ot, c->options())
+  {
+    common::Option &o = *ot.second;
+    coll += "     " + o.name()+ " (" + o.type() + ")=" + o.value_str() + "\n";
+    if (o.has_restricted_list())
+    {
+      coll += "          restricted to:";
+      std::vector<boost::any>::iterator ir = o.restricted_list().begin();
+      for( ; ir != o.restricted_list().end() ; ++ir )
+        coll += " " + boost::any_cast<std::string>(*ir);
+      coll += "\n";
+    }
+  }
+
+  // properties
+  coll += "-----PROPERTIES---------\n";
+  BOOST_FOREACH(const PropertyList::PropertyStorage_t::value_type &pt, c->properties())
+  {
+    std::string name = pt.first;
+    boost::any value = pt.second;
+    std::string valuestr="<String Conversion Failed>";
+    try {
+      valuestr=boost::any_cast<std::string>(value);
+    } catch(...) {}
+    coll += "     " + name + " (" + value.type().name() + ")=" + valuestr + "\n";
+  }
+
+  // child components
+  coll += "-----COMPONENTS---------\n";
+  BOOST_FOREACH(const Component& subc, *c )
+    coll += "     " + subc.name() + " (" + subc.derived_type_name() + ")\n";
+
+  // signals
+  coll += "-----SIGNALS------------\n";
+  BOOST_FOREACH(const common::SignalPtr s, c->signal_list())
+  {
+    coll += "     " + s->name() + ": " + s->description() + "\n";
+    common::SignalArgs node;
+    ( * s->signature() ) ( node );
+    common::XML::SignalOptions options(node);
+    for(common::OptionList::iterator iopt = options.begin(); iopt != options.end(); ++iopt)
+    {
+      boost::shared_ptr<common::Option> o=iopt->second;
+      coll += "          " + iopt->first + " (" + o->type() + ")=" + o->value_str() + ": " + o->description() + "\n";
+      if (o->has_restricted_list())
+      {
+        coll += "               restricted to:";
+        std::vector<boost::any>::iterator ir = o->restricted_list().begin();
+        for( ; ir != o->restricted_list().end() ; ++ir )
+          coll += " " + boost::any_cast<std::string>(*ir);
+        coll += "\n";
+      }
+    }
+  }
+
+  // send coll to python
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("return_value", coll);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::signature_get_detailed_info( common::SignalArgs& args )
+{
+  SignalOptions options( args );
+  options.add_option( "uri", URI("//") )
+    .description("URI of the component to start from")
+    .pretty_name("uri");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

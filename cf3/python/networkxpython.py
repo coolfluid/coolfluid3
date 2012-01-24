@@ -8,9 +8,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import coolfluid as cf
 
-# its just easier to be on top
-root = cf.Core.root()
-
 # color scheme
 titlecolor='white'
 bgcolor='black'
@@ -45,13 +42,42 @@ xIICoIqEAD4CIgCEgGnAAWF14iXLs/08g1Pe+P05+aNN97Qw4cPu8lk4kejEa2trd0SCABYX1+H976JM
 yBCEBY64D546aFrL/6Y8H/6OX36tLHW7mfmewF8SZjuiUr7GuWC6ONMRt3weJMf6WOdqVAEELYJesmG+mWn/Lo5c+YMzp49+5mBhBBCURRbqvoPIvIh6jtE2FNyNJ/qN93lXu+/06jbAK558EXV+OF/A
 OQy9FESRGTLAAAAAElFTkSuQmCC"""
 
+# its just easier to be on top
+root = cf.Core.root()
+fig=plt.figure(figsize=(10,10))
+fig.patch.set_facecolor(bgcolor)
+ax=plt.axes([0,0,1,1])
+
 # normal tree-like layout
 def traverse_successors_recursive(G,key,pos,y) :
   for i in G.successors(key):
-    if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
-      pos[i]=[G.node[i]['depth'],y]
-      y+=1
-      y=traverse_successors_recursive(G,i,pos,y)
+    if G.node[i]['tag']=='link':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
+    if G.node[i]['tag']=='option':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
+  for i in G.successors(key):
+    if G.node[i]['tag']=='field':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
+  for i in G.successors(key):
+    if G.node[i]['tag']=='signal':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
+    if G.node[i]['tag']=='component':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
   return y
 def traditional_left2right_tree_layout(G,key) :
   pos=dict(zip(G,numpy.tile(-1,(G.number_of_nodes(),2))))
@@ -73,15 +99,39 @@ class nx_event_connector:
   fe=list()
   ln=list()
   le=list()
+  printdestination='sc'
+  infotxt=plt.text(0.02,0.92,"",
+    transform=ax.transAxes, family='monospace',size=10, weight='bold',
+    color=titlecolor, ha='left', va='top',zorder=51)
   def on_pick(self, event):
       exec "key_orig= self." + event.artist.get_label() + "[" + str(event.ind[0]) + "]"
       key=deepcopy(key_orig)
       if ((self.G.node[key]['tag']=='signal') or (self.G.node[key]['tag']=='option') or (self.G.node[key]['tag']=='field')):
         key=self.G.pred[key].keys()[0]
       comp=root.access_component(key)
-      comp.print_info()
-      plt.text(self.pos[key_orig][0],self.pos[key_orig][1],"INFO   " + key,
-        size=12, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      if (self.G.node[key_orig]['tag']=='component'):
+        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], key, family='monspace',
+          size=10, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      if (self.G.node[key_orig]['tag']=='option'):
+        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "option of " + key, family='monspace',
+          size=10, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      if (self.G.node[key_orig]['tag']=='signal'):
+        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "signal of " + key, family='monspace',
+          size=10, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      if (self.G.node[key_orig]['tag']=='field'):
+        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "field of " + key, family='monspace',
+          size=10, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      if (self.G.node[key_orig]['tag']=='link'):
+        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "link to " + key, family='monspace',
+          size=10, weight='normal', color=titlecolor, ha='left', va='top',zorder=51)
+      nxp=root.get_child('NetworkXPython')
+      infostr=nxp.get_detailed_info(cf.URI(key))
+      if 's' in self.printdestination:
+        self.infotxt.set_text(infostr)
+      else:
+        self.infotxt.set_text("")
+      if 'c' in self.printdestination:
+        print infostr
       plt.draw()
 
 # starturi: from where the recursive listing starts
@@ -93,6 +143,9 @@ class nx_event_connector:
 #  's': signal
 #  'f': field
 #  'l': link
+# printdestination: 'sc' if user clicks on a node, the component information is printed
+#  's': to screen (matplotlib window)
+#  'c': console (terminal)
 #
 # zorder numbers:
 #   14:  component edges
@@ -114,7 +167,7 @@ class nx_event_connector:
 #   43:  link captions
 #   50:  title
 #   51:  component info
-def show_graph(starturi,depth=1000,tree='cofl',caption=''):
+def show_graph(starturi,depth=1000,tree='cofl',caption='',printdestination='c'):
 
   # decode and load root component's image
   rootpng_bin=StringIO(base64.decodestring(rootpng))
@@ -145,12 +198,9 @@ def show_graph(starturi,depth=1000,tree='cofl',caption=''):
   nodecaption = dict()
   nodenote = dict()
 
-  # setup and show in a mathplotlib window
-  fig=plt.figure(figsize=(10,10))
-  fig.patch.set_facecolor(bgcolor)
-  ax=plt.axes([0,0,1,1])
+  # setup title and root node logo
   plt.text(0.02,0.98,"COOLFluiD3 component graph starting from '" + start_key + "'",
-    transform=ax.transAxes, size=20, weight='bold',
+    transform=ax.transAxes, size=16, weight='bold',
     color=titlecolor, ha='left', va='top',zorder=50)
   plt.imshow(root_img,aspect='auto',zorder=31)
   plt.gca().add_patch(plt.Rectangle([20,5],12,22,facecolor=bgcolor,lw=0,fill=True,zorder=30))
@@ -158,6 +208,7 @@ def show_graph(starturi,depth=1000,tree='cofl',caption=''):
 
   # constructing directional graph, because of using successors function, only directed graphs
   nec=nx_event_connector()
+  nec.printdestination=printdestination
   cid=fig.canvas.mpl_connect('pick_event', nec.on_pick)
 
   # executing the submission into the graph
@@ -219,7 +270,7 @@ def show_graph(starturi,depth=1000,tree='cofl',caption=''):
   #nec.pos=nx.spring_layout(nec.G,iterations=50)
   #nec.pos=nx.graphviz_layout(nec.G,prog='twopi')
   #nec.pos=nx.graphviz_layout(nec.G,prog='fdp',root=start_key)
-  #nec.pos=nx.graphviz_layout(nec.G,prog='circo',root=start_key ,args='mindist=2')
+  #nec.pos=nx.graphviz_layout(nec.G,prog='circo',root=start_key)
   #nec.pos=nx.graphviz_layout(nec.G,prog='circo',root=start_key,mindist=10,aspect=2)
   #   pos2=nx.graphviz_layout(nec.G,prog='circo',root=start_key)
   #nec.pos=nx.spring_layout(nec.G,nec.pos=pos2,iterations=500)
@@ -288,24 +339,19 @@ def show_graph(starturi,depth=1000,tree='cofl',caption=''):
       ccnn.set_label('cn')
 
   if 's' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=scapt,font_size=11,font_color=signalcolor,font_weight='bold',font_family='sans-serif',verticalalignment='center',horizontalalignment='left',zorder=40)
-    #nx.draw_networkx_labels(nec.G,nec.pos,labels=scapt,font_size=11,font_color=signalcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=40)
+    nx.draw_networkx_labels(nec.G,nec.pos,labels=scapt,font_size=11,font_color=signalcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=40)
     #nx.draw_networkx_labels(nec.G,nec.pos,labels=snote,font_size=8,font_color=signalcolor,font_family='sans-serif',verticalalignment='top',horizontalalignment='left',zorder=40)
   if 'f' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=fcapt,font_size=11,font_color=fieldcolor,font_weight='bold',font_family='sans-serif',verticalalignment='center',horizontalalignment='left',zorder=41)
-    #nx.draw_networkx_labels(nec.G,nec.pos,labels=fcapt,font_size=11,font_color=fieldcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=41)
+    nx.draw_networkx_labels(nec.G,nec.pos,labels=fcapt,font_size=11,font_color=fieldcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=41)
     #nx.draw_networkx_labels(nec.G,nec.pos,labels=fnote,font_size=8,font_color=fieldcolor,font_family='sans-serif',verticalalignment='top',horizontalalignment='left',zorder=41)
   if 'o' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=ocapt,font_size=11,font_color=optioncolor,font_weight='bold',font_family='sans-serif',verticalalignment='center',horizontalalignment='left',zorder=42)
-    #nx.draw_networkx_labels(nec.G,nec.pos,labels=ocapt,font_size=11,font_color=optioncolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=42)
+    nx.draw_networkx_labels(nec.G,nec.pos,labels=ocapt,font_size=11,font_color=optioncolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=42)
     #nx.draw_networkx_labels(nec.G,nec.pos,labels=onote,font_size=8,font_color=optioncolor,font_family='sans-serif',verticalalignment='top',horizontalalignment='left',zorder=42)
   if 'l' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=lcapt,font_size=11,font_color=linkcolor,font_weight='bold',font_family='sans-serif',verticalalignment='center',horizontalalignment='left',zorder=43)
-    #nx.draw_networkx_labels(nec.G,nec.pos,labels=lcapt,font_size=11,font_color=linkcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=43)
+    nx.draw_networkx_labels(nec.G,nec.pos,labels=lcapt,font_size=11,font_color=linkcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=43)
     #nx.draw_networkx_labels(nec.G,nec.pos,labels=lnote,font_size=8,font_color=linkcolor,font_family='sans-serif',verticalalignment='top',horizontalalignment='left',zorder=43)
   if 'c' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=ccapt,font_size=11,font_color=componentcolor,font_weight='bold',font_family='sans-serif',verticalalignment='center',horizontalalignment='left',zorder=44)
-    #nx.draw_networkx_labels(nec.G,nec.pos,labels=ccapt,font_size=11,font_color=componentcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=44)
+    nx.draw_networkx_labels(nec.G,nec.pos,labels=ccapt,font_size=11,font_color=componentcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=44)
     #nx.draw_networkx_labels(nec.G,nec.pos,labels=cnote,font_size=8,font_color=componentcolor,font_family='sans-serif',verticalalignment='top',horizontalalignment='left',zorder=44)
 
   # showing the plot
