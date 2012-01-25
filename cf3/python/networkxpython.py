@@ -19,6 +19,7 @@ fieldcolor='#3a3a77'
 linkcolor='#aaaaaa'
 propertycolor='yellow'
 
+# base64 coded png image
 rootpng="""iVBORw0KGgoAAAANSUhEUgAAADIAAAAgCAYAAABQISshAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wBFRM6KYr0o9UAA
 AAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAJpUlEQVRYw61YT4hdVxn/fd93zr33vTeTTCZJmzY2kCGlmPQfWqQtKCIupJtCF9qFQsFVtFCycJVFyMZlSEFQcOGmxCLdqt2JqC2V0
 mqxVlBM2iammdZmZvJm3rv3/PlcnHPvu7ex7cQ6cDn3ngyT73d/f77vXDpz5syYmVZ3dpbvWV+/7VlmPlGWghhjvgJCSPdpDZ+475zv/U6Eqg7+FgBYW6Asy5cPHJBvHTq0feX8+R/GJ598Es8//zz+1
@@ -107,10 +108,24 @@ def traditional_left2right_tree_layout_in_polar(G,key) :
     pos[i][1]=r*math.sin(fi)
   return pos
 
+# compute angle in degree for each node at which the parent edge arrives
+def compute_edge_angles_for_target_nodes(G,pos):
+  angle=dict.fromkeys(pos,float(0.))
+  for i in G:
+    for j in G.successors(i):
+      if not ((G.node[j]['tag']!='link') and (G.edge[i][j]['tag']=='link')):
+        dx=float(pos[j][0]-pos[i][0])
+        dy=float(pos[j][1]-pos[i][1])
+        if not (dx==0. and dy==0.):
+          angle[j] = -180./math.pi*math.atan2(dy,dx)
+  return angle
+
 # need to put things into a class to be reachable by the event callbacks
 class nx_event_connector:
   G=nx.DiGraph()
   pos=dict()
+  nodecaption=dict()
+  edgecaption=dict()
   cn=list()
   ce=list()
   on=list()
@@ -161,6 +176,47 @@ class nx_event_connector:
         print infostr
       plt.draw()
 
+# draw text
+def draw_captions(G,pos,capt,label,color,zord,rotation=None):
+  for i in capt:
+    if capt[i]!="":
+      capt[i]= "  " + capt[i] + "  ."
+  txt=nx.draw_networkx_labels(G,pos,labels=capt,font_color=color)
+  if label is not None:
+    for i in txt:
+      if txt[i] is not None:
+        txt[i].set_family('sans-serif')
+        txt[i].set_size(11)
+        txt[i].set_weight('bold')
+        txt[i].set_zorder(zord)
+        txt[i].set_label(label)
+        txt[i].set_rotation_mode('anchor')
+        if rotation is not None:
+          if (abs(rotation[i])<=90):
+            txt[i].set_verticalalignment('center')
+            txt[i].set_horizontalalignment('left')
+            txt[i].set_rotation(rotation[i])
+          else:
+            txt[i].set_verticalalignment('center')
+            txt[i].set_horizontalalignment('right')
+            txt[i].set_rotation(rotation[i]+180.)
+
+# draw edges and nodes
+def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,color,zord):
+    edge=nx.draw_networkx_edges(G,pos,edgelist=elist,edge_color=color,arrows=False)
+    node=nx.draw_networkx_nodes(G,pos,nodelist=nlist,node_color=color,node_shape='o',node_size=50)
+    if edge is not None:
+      edge.set_label(elabel)
+      edge.set_zorder(zord)
+      edge.set_linewidths(1.5)
+      edge.set_linestyle('solid')
+    if node is not None:
+      node.set_picker(5)
+      node.set_edgecolor(bgcolor)
+      node.set_label(nlabel)
+      node.set_zorder(zord+10)
+      node.set_linewidths(1.5)
+
 # starturi: from where the recursive listing starts
 # depth: how many levels to list down deep in starturi's subtree
 # tree: what to plot in the tree. Combination of chars 'cosfl'
@@ -176,26 +232,11 @@ class nx_event_connector:
 #  'c': console (terminal)
 #
 # zorder numbers:
-#   14:  component edges
-#   12:  option edges
-#   12:  property edges
-#   10:  signal edges
-#   11:  field edges
-#   13:  link edges
-#   24:  component nodes
-#   22:  option nodes
-#   22:  property nodes
-#   20:  signal nodes
-#   21:  field nodes
-#   23:  link nodes
-#   30:  cf logo middle backdrop rectangle
-#   31:  cf logo image
-#   44:  component captions
-#   42:  option captions
-#   42:  property captions
-#   40:  signal captions
-#   41:  field captions
-#   43:  link captions
+#   1x:  edges
+#   2x:  nodes, always edges +10
+#   3x:  captions
+#   40:  cf logo middle backdrop rectangle
+#   41:  cf logo image
 #   50:  title
 #   51:  component info
 def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c'):
@@ -228,14 +269,13 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
 
   # dictionary to the fancy name and a second smaller line for extra info
   print "---------- PREPROCESS - PYTHON ----------"
-  nodecaption = dict()
 
   # setup title and root node logo
   plt.text(0.02,0.98,"COOLFluiD3 component graph starting from '" + start_key + "'",
     transform=ax.transAxes, size=16, weight='bold',
     color=titlecolor, ha='left', va='top',zorder=50)
-  plt.imshow(root_img,aspect='auto',zorder=31)
-  plt.gca().add_patch(plt.Rectangle([20,5],12,22,facecolor=bgcolor,lw=0,fill=True,zorder=30))
+  plt.imshow(root_img,aspect='auto',zorder=41)
+  plt.gca().add_patch(plt.Rectangle([20,5],12,22,facecolor=bgcolor,lw=0,fill=True,zorder=40))
   plt.axis('off')
 
   # constructing directional graph, because of using successors function, only directed graphs
@@ -245,49 +285,43 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
 
   # executing the submission into the graph
   if 'c' in tree:
-    for line in StringIO(components):
-      exec line
+    for line in StringIO(components): exec 'nec.' + line
   if 'o' in tree:
-    for line in StringIO(options):
-      exec line
+    for line in StringIO(options   ): exec 'nec.' + line
   if 'p' in tree:
-    for line in StringIO(properties):
-      exec line
+    for line in StringIO(properties): exec 'nec.' + line
   if 's' in tree:
-    for line in StringIO(signals):
-      exec line
+    for line in StringIO(signals   ): exec 'nec.' + line
   if 'f' in tree:
-    for line in StringIO(fields):
-      exec line
+    for line in StringIO(fields    ): exec 'nec.' + line
   if 'l' in tree:
-    for line in StringIO(links):
-      exec line
+    for line in StringIO(links     ): exec 'nec.' + line
 
   # separating lists for fancy drawing
   nec.cn=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='component']
   nec.ce=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='component']
-  ccapt=dict.fromkeys(nodecaption,'')
-  for key in nec.cn : ccapt[key]=nodecaption[key]
+  ccapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.cn : ccapt[key]=nec.nodecaption[key]
   nec.on=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='option']
   nec.oe=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='option']
-  ocapt=dict.fromkeys(nodecaption,'')
-  for key in nec.on : ocapt[key]=nodecaption[key]
+  ocapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.on : ocapt[key]=nec.nodecaption[key]
   nec.pn=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='property']
   nec.pe=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='property']
-  pcapt=dict.fromkeys(nodecaption,'')
-  for key in nec.pn : pcapt[key]=nodecaption[key]
+  pcapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.pn : pcapt[key]=nec.nodecaption[key]
   nec.sn=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='signal']
   nec.se=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='signal']
-  scapt=dict.fromkeys(nodecaption,'')
-  for key in nec.sn : scapt[key]=nodecaption[key]
+  scapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.sn : scapt[key]=nec.nodecaption[key]
   nec.fn=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='field']
   nec.fe=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='field']
-  fcapt=dict.fromkeys(nodecaption,'')
-  for key in nec.fn : fcapt[key]=nodecaption[key]
+  fcapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.fn : fcapt[key]=nec.nodecaption[key]
   nec.ln=[(u)   for (u,d)   in nec.G.nodes(data=True) if d['tag']=='link']
   nec.le=[(u,v) for (u,v,d) in nec.G.edges(data=True) if d['tag']=='link']
-  lcapt=dict.fromkeys(nodecaption,'')
-  for key in nec.ln : lcapt[key]=nodecaption[key]
+  lcapt=dict.fromkeys(nec.nodecaption,'')
+  for key in nec.ln : lcapt[key]=nec.nodecaption[key]
 
   # computing the positions of the nodes via layouts
   print "---------- LAYOUT ----------"
@@ -308,6 +342,7 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   #nec.pos=nx.spring_layout(nec.G,pos=pos2,iterations=50)
 
   # renormalizing positions in the range of zoomfact & root position in zoomfact
+  # also computing angles, just in case
   zoomfact=float(40.)
   imx=float(root_img.size[0])
   imy=float(root_img.size[1])
@@ -325,6 +360,7 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   for i in nec.pos:
     nec.pos[i]=[(nec.pos[i][0]-rootx)/(xmax-xmin)*zoomfact*imx+imx/2,
             (nec.pos[i][1]-rooty)/(ymax-ymin)*zoomfact*imy+imy/2]
+  rot=compute_edge_angles_for_target_nodes(nec.G,nec.pos)
 
   # print statistics
   print "Statistics for: ", start_key
@@ -338,65 +374,22 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   print "Links:      %10d%10d" % ( len(nec.ln), len(nec.le) )
   print "TOTAL:      %10d%10d" % ( len(nec.G.nodes()), len(nec.G.edges()) )
 
-
   # draw the contents, node_shape: so^>v<dph8
   # the order the commands are executed is important, todo: move out zorder via .set_zorder and will become proper
   print "---------- MATPLOTLIB ----------"
-  if 's' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.se,edge_color=signalcolor,width=2,arrows=False,style='solid',zorder=10)
-    ssnn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.sn,node_color=signalcolor,node_size=50,node_shape='o',linewidths=2,zorder=20)
-    if ssnn is not None:
-      ssnn.set_picker(5)
-      ssnn.set_edgecolor(bgcolor)
-      ssnn.set_label('sn')
-  if 'f' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.fe,edge_color=fieldcolor,width=2,arrows=False,style='solid',zorder=11)
-    ffnn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.fn,node_color=fieldcolor,node_size=50,node_shape='o',linewidths=2,zorder=21)
-    if ffnn is not None:
-      ffnn.set_picker(5)
-      ffnn.set_edgecolor(bgcolor)
-      ffnn.set_label('fn')
-  if 'o' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.oe,edge_color=optioncolor,width=2,arrows=False,style='solid',zorder=12)
-    oonn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.on,node_color=optioncolor,node_size=50,node_shape='o',linewidths=2,zorder=22)
-    if oonn is not None:
-      oonn.set_picker(5)
-      oonn.set_edgecolor(bgcolor)
-      oonn.set_label('on')
-  if 'p' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.pe,edge_color=propertycolor,width=2,arrows=False,style='solid',zorder=12)
-    ppnn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.pn,node_color=propertycolor,node_size=50,node_shape='o',linewidths=2,zorder=22)
-    if ppnn is not None:
-      ppnn.set_picker(5)
-      ppnn.set_edgecolor(bgcolor)
-      ppnn.set_label('pn')
-  if 'l' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.le,edge_color=linkcolor,width=2,arrows=False,style='dashed',zorder=13)
-    llnn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.ln,node_color=linkcolor,node_size=50,node_shape='o',linewidths=2,zorder=23)
-    if llnn is not None:
-      llnn.set_picker(5)
-      llnn.set_edgecolor(bgcolor)
-      llnn.set_label('ln')
-  if 'c' in tree:
-    nx.draw_networkx_edges(nec.G,nec.pos,edgelist=nec.ce,edge_color=componentcolor,width=2,arrows=False,style='solid',zorder=14)
-    ccnn=nx.draw_networkx_nodes(nec.G,nec.pos,nodelist=nec.cn,node_color=componentcolor,node_size=50,node_shape='o',linewidths=2,zorder=24)
-    if ccnn is not None:
-      ccnn.set_picker(5)
-      ccnn.set_edgecolor(bgcolor)
-      ccnn.set_label('cn')
+  if 's' in tree: draw_edges_nodes(nec.G,nec.pos,nec.se,'se',nec.sn,'sn',signalcolor,10)
+  if 'p' in tree: draw_edges_nodes(nec.G,nec.pos,nec.pe,'pe',nec.pn,'pn',propertycolor,11)
+  if 'f' in tree: draw_edges_nodes(nec.G,nec.pos,nec.fe,'fe',nec.fn,'fn',fieldcolor,12)
+  if 'o' in tree: draw_edges_nodes(nec.G,nec.pos,nec.oe,'oe',nec.on,'on',optioncolor,13)
+  if 'l' in tree: draw_edges_nodes(nec.G,nec.pos,nec.le,'le',nec.ln,'ln',linkcolor,14)
+  if 'c' in tree: draw_edges_nodes(nec.G,nec.pos,nec.ce,'ce',nec.cn,'cn',componentcolor,15)
 
-  if 's' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=scapt,font_size=11,font_color=signalcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=40)
-  if 'f' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=fcapt,font_size=11,font_color=fieldcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=41)
-  if 'o' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=ocapt,font_size=11,font_color=optioncolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=42)
-  if 'p' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=pcapt,font_size=11,font_color=propertycolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=42)
-  if 'l' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=lcapt,font_size=11,font_color=linkcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=43)
-  if 'c' in caption:
-    nx.draw_networkx_labels(nec.G,nec.pos,labels=ccapt,font_size=11,font_color=componentcolor,font_weight='bold',font_family='sans-serif',verticalalignment='bottom',horizontalalignment='left',zorder=44)
+  if 's' in caption: draw_captions(nec.G,nec.pos,scapt,'sc',signalcolor,40,rotation=rot)
+  if 'p' in caption: draw_captions(nec.G,nec.pos,pcapt,'pc',propertycolor,41,rotation=rot)
+  if 'f' in caption: draw_captions(nec.G,nec.pos,fcapt,'fc',fieldcolor,42,rotation=rot)
+  if 'o' in caption: draw_captions(nec.G,nec.pos,ocapt,'oc',optioncolor,43,rotation=rot)
+  if 'l' in caption: draw_captions(nec.G,nec.pos,lcapt,'lc',linkcolor,44,rotation=rot)
+  if 'c' in caption: draw_captions(nec.G,nec.pos,ccapt,'cc',componentcolor,45,rotation=rot)
 
   # showing the plot
   print "---------- SHOW ----------"

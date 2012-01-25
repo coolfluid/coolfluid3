@@ -217,7 +217,7 @@ void NetworkXPython::signature_get_component_graph( SignalArgs& args )
 
 void NetworkXPython::append_component_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
 {
-  coll.append("nec.G.add_node('" + c.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
+  coll.append("G.add_node('" + c.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
   coll.append("nodecaption.update({'" + c.uri().path() + "':'" + c.name() + "'})\n");
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_component_nodes_recursive(subc, coll, depthlimit, depth+1);
@@ -229,7 +229,7 @@ void NetworkXPython::append_component_edges_recursive(const Component &c, std::s
 {
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
   {
-    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + subc.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
+    coll.append("G.add_edge('" + c.uri().path() + "','" + subc.uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='component')\n");
     append_component_edges_recursive(subc, coll, depthlimit, depth+1);
   }
 }
@@ -271,7 +271,7 @@ void NetworkXPython::append_option_nodes_recursive(const Component &c, std::stri
   BOOST_FOREACH(const OptionList::OptionStorage_t::value_type &ot, c.options())
   {
     Option &o = *ot.second;
-    coll.append("nec.G.add_node('" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
+    coll.append("G.add_node('" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + o.name() + "':'" + o.name() + "'})\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -285,7 +285,7 @@ void NetworkXPython::append_option_edges_recursive(const Component &c, std::stri
   BOOST_FOREACH(const OptionList::OptionStorage_t::value_type &ot, c.options())
   {
     Option &o = *ot.second;
-    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
+    coll.append("G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + o.name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='option')\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_option_edges_recursive(subc, coll, depthlimit, depth+1);
@@ -333,7 +333,7 @@ void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::stri
     std::string doc_str("");
     for(common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
       doc_str += option_it->first + " "; //+ ": " + option_it->second->description() ;// + "\n";
-    coll.append("nec.G.add_node('" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
+    coll.append("G.add_node('" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + s->name() + "':'" + s->name() + "'})\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -345,7 +345,7 @@ void NetworkXPython::append_signal_nodes_recursive(const Component &c, std::stri
 void NetworkXPython::append_signal_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
 {
   BOOST_FOREACH(const common::SignalPtr s, c.signal_list())
-    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
+    coll.append("G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + s->name() + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='signal')\n");
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_signal_edges_recursive(subc, coll, depthlimit, depth+1);
 }
@@ -389,7 +389,7 @@ void NetworkXPython::append_field_nodes_recursive(const Component &c, std::strin
     const mesh::Field& f=dynamic_cast<const mesh::Field&>(c);
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
-      coll.append("nec.G.add_node('" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
+      coll.append("G.add_node('" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
       coll.append("nodecaption.update({'" + n + "':'" + f.name() + "/" + f.var_name(i) + "'})\n");
     }
   }
@@ -406,7 +406,7 @@ void NetworkXPython::append_field_edges_recursive(const Component &c, std::strin
     const mesh::Field& f=dynamic_cast<const mesh::Field&>(c);
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
-      coll.append("nec.G.add_edge('" + f.uri().path() + "','" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
+      coll.append("G.add_edge('" + f.uri().path() + "','" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field')\n");
     }
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -453,7 +453,7 @@ void NetworkXPython::append_link_nodes_recursive(const Component &c, std::string
     const common::Link& l=dynamic_cast<const common::Link&>(c);
     std::string t=l.follow()->uri().path();
     if (t.find(printroot)==t.npos) {
-      coll.append("nec.G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
+      coll.append("G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
       coll.append("nodecaption.update({'" + t + "':'" + t + "'})\n");
     }
   }
@@ -468,7 +468,7 @@ void NetworkXPython::append_link_edges_recursive(const Component &c, std::string
   if (IsComponentType<common::Link>()(c))
   {
     const common::Link& l=dynamic_cast<const common::Link&>(c);
-    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + l.follow()->uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='link')\n");
+    coll.append("G.add_edge('" + c.uri().path() + "','" + l.follow()->uri().path() + "',depth=" + boost::lexical_cast<std::string>(depth) + ",tag='link')\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_link_edges_recursive(subc, coll, depthlimit, depth+1);
@@ -511,7 +511,7 @@ void NetworkXPython::append_property_nodes_recursive(const Component &c, std::st
   BOOST_FOREACH(const PropertyList::PropertyStorage_t::value_type &pt, c.properties())
   {
     std::string name = pt.first;
-    coll.append("nec.G.add_node('" + c.uri().path() + "/" + name + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='property')\n");
+    coll.append("G.add_node('" + c.uri().path() + "/" + name + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='property')\n");
     coll.append("nodecaption.update({'" + c.uri().path() + "/" + name + "':'" + name + "'})\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -525,7 +525,7 @@ void NetworkXPython::append_property_edges_recursive(const Component &c, std::st
   BOOST_FOREACH(const PropertyList::PropertyStorage_t::value_type &pt, c.properties())
   {
     std::string name = pt.first;
-    coll.append("nec.G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + name + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='property')\n");
+    coll.append("G.add_edge('" + c.uri().path() + "','" + c.uri().path() + "/" + name + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='property')\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_property_edges_recursive(subc, coll, depthlimit, depth+1);
