@@ -178,9 +178,6 @@ class nx_event_connector:
 
 # draw text
 def draw_captions(G,pos,capt,label,color,zord,rotation=None):
-  for i in capt:
-    if capt[i]!="":
-      capt[i]= "  " + capt[i] + "  ."
   txt=nx.draw_networkx_labels(G,pos,labels=capt,font_color=color)
   if label is not None:
     for i in txt:
@@ -191,6 +188,7 @@ def draw_captions(G,pos,capt,label,color,zord,rotation=None):
         txt[i].set_zorder(zord)
         txt[i].set_label(label)
         txt[i].set_rotation_mode('anchor')
+        print txt[i].bbox
         if rotation is not None:
           if (abs(rotation[i])<=90):
             txt[i].set_verticalalignment('center')
@@ -202,14 +200,14 @@ def draw_captions(G,pos,capt,label,color,zord,rotation=None):
             txt[i].set_rotation(rotation[i]+180.)
 
 # draw edges and nodes
-def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,color,zord):
+def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,edgestyle,color,zord):
     edge=nx.draw_networkx_edges(G,pos,edgelist=elist,edge_color=color,arrows=False)
     node=nx.draw_networkx_nodes(G,pos,nodelist=nlist,node_color=color,node_shape='o',node_size=50)
     if edge is not None:
       edge.set_label(elabel)
       edge.set_zorder(zord)
       edge.set_linewidths(1.5)
-      edge.set_linestyle('solid')
+      edge.set_linestyle(edgestyle)
     if node is not None:
       node.set_picker(5)
       node.set_edgecolor(bgcolor)
@@ -377,12 +375,12 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   # draw the contents, node_shape: so^>v<dph8
   # the order the commands are executed is important, todo: move out zorder via .set_zorder and will become proper
   print "---------- MATPLOTLIB ----------"
-  if 's' in tree: draw_edges_nodes(nec.G,nec.pos,nec.se,'se',nec.sn,'sn',signalcolor,10)
-  if 'p' in tree: draw_edges_nodes(nec.G,nec.pos,nec.pe,'pe',nec.pn,'pn',propertycolor,11)
-  if 'f' in tree: draw_edges_nodes(nec.G,nec.pos,nec.fe,'fe',nec.fn,'fn',fieldcolor,12)
-  if 'o' in tree: draw_edges_nodes(nec.G,nec.pos,nec.oe,'oe',nec.on,'on',optioncolor,13)
-  if 'l' in tree: draw_edges_nodes(nec.G,nec.pos,nec.le,'le',nec.ln,'ln',linkcolor,14)
-  if 'c' in tree: draw_edges_nodes(nec.G,nec.pos,nec.ce,'ce',nec.cn,'cn',componentcolor,15)
+  if 's' in tree: draw_edges_nodes(nec.G,nec.pos,nec.se,'se',nec.sn,'sn','solid',signalcolor,10)
+  if 'p' in tree: draw_edges_nodes(nec.G,nec.pos,nec.pe,'pe',nec.pn,'pn','solid',propertycolor,11)
+  if 'f' in tree: draw_edges_nodes(nec.G,nec.pos,nec.fe,'fe',nec.fn,'fn','solid',fieldcolor,12)
+  if 'o' in tree: draw_edges_nodes(nec.G,nec.pos,nec.oe,'oe',nec.on,'on','solid',optioncolor,13)
+  if 'l' in tree: draw_edges_nodes(nec.G,nec.pos,nec.le,'le',nec.ln,'ln','dashed',linkcolor,14)
+  if 'c' in tree: draw_edges_nodes(nec.G,nec.pos,nec.ce,'ce',nec.cn,'cn','solid',componentcolor,15)
 
   if 's' in caption: draw_captions(nec.G,nec.pos,scapt,'sc',signalcolor,40,rotation=rot)
   if 'p' in caption: draw_captions(nec.G,nec.pos,pcapt,'pc',propertycolor,41,rotation=rot)
