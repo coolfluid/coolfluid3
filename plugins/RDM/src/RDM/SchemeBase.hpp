@@ -25,13 +25,14 @@
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/CellLoop.hpp"
@@ -47,7 +48,7 @@ namespace RDM {
 /// the physical variables
 /// @author Tiago Quintino
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public solver::actions::CLoopOperation {
+class RDM_API SchemeBase : public solver::actions::LoopOperation {
 
 public: // typedefs
 
@@ -80,7 +81,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates =
         elements().geometry_fields().coordinates().handle< mesh::Field >();
 
@@ -196,7 +197,7 @@ protected:
 
 template<typename SF, typename QD, typename PHYS>
 SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
-  CLoopOperation(name),
+  LoopOperation(name),
   m_quadrature( QD::instance() )
 {
   regist_typeinfo(this); // template class so must force type registration @ construction

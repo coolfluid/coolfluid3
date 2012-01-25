@@ -17,11 +17,14 @@
 #include "math/Consts.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
+
 #include "mesh/Integrators/Gauss.hpp"
+
 #include "mesh/LagrangeP1/Line2D.hpp"
 
 
@@ -264,8 +267,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // complete circle
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("surface_integral");
   create_circle_2d(mesh, 1., 100);
-  Table<Real>& coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
-  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
+  Table<Real>& coordinates = find_component_recursively<Dictionary>(mesh).coordinates();
+  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).geometry_space().connectivity();
 
 
   // Check the length, using the line integral of one times the norm of the tangent vector
@@ -285,8 +288,8 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("arc_integral");
   create_circle_2d(mesh, 1., 100, 0., Consts::pi());
-  Table<Real>& arc_coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
-  Table<Uint>& arc_connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
+  Table<Real>& arc_coordinates = find_component_recursively<Dictionary>(mesh).coordinates();
+  Table<Uint>& arc_connectivity = find_component_recursively<Elements>(mesh).geometry_space().connectivity();
   Real arc_flux = 0.;
   const ETYPE::CoordsT y_vector(0., 1.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
@@ -303,8 +306,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   // complete circle
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("rotating_cylinder");
   create_circle_2d(mesh, 1., segments);
-  Table<Real>& coordinates = find_component_recursively<SpaceFields>(mesh).coordinates();
-  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
+  Table<Real>& coordinates = find_component_recursively<Dictionary>(mesh).coordinates();
+  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).geometry_space().connectivity();
 
   // Rotating cylinder in uniform flow
   const Real u = 300.;

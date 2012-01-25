@@ -26,8 +26,8 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CModelSteady.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/ModelSteady.hpp"
+#include "solver/Solver.hpp"
 
 #include "RDM/SteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
@@ -46,12 +46,12 @@ using namespace cf3::mesh;
 using namespace cf3::physics;
 using namespace cf3::solver;
 
-common::ComponentBuilder < MySim, solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, solver::Wizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 MySim::MySim ( const std::string& name  ) :
-  solver::CWizard ( name )
+  solver::Wizard ( name )
 {
   // signals
 
@@ -84,7 +84,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
   std::string name  = options.value<std::string>("model_name");
 
-  CModel& model = wizard.create_model(name, "Scalar2D");
+  Model& model = wizard.create_model(name, "Scalar2D");
 
   Handle<Domain>     domain(model.get_child("Domain"));
   Handle<RDM::RDSolver> solver(model.get_child("Solver"));

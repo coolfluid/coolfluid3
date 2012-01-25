@@ -18,7 +18,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class SpaceFields;
+  class Dictionary;
   
   class Elements;
 
@@ -26,7 +26,7 @@ namespace mesh {
 
 struct RemoveNodes
 {
-  RemoveNodes(SpaceFields& nodes);
+  RemoveNodes(Dictionary& nodes);
 
   void operator() (const Uint idx);
 
@@ -81,7 +81,7 @@ struct PackUnpackNodes: common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackNodes(SpaceFields& nodes);
+  PackUnpackNodes(Dictionary& nodes);
 
   PackUnpackNodes& operator() (const Uint idx,const bool remove_after_pack = false);
 
@@ -93,7 +93,7 @@ struct PackUnpackNodes: common::PE::PackedObject
 
   void flush();
 
-  SpaceFields& m_nodes;
+  Dictionary& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
   common::List<Uint>::Buffer       glb_idx;

@@ -14,11 +14,11 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "solver/actions/CPeriodicWriteMesh.hpp"
-#include "solver/actions/CSynchronizeFields.hpp"
-#include "solver/actions/CCriterionMaxIterations.hpp"
-#include "solver/actions/CComputeLNorm.hpp"
-#include "solver/actions/CPrintIterationSummary.hpp"
+#include "solver/actions/PeriodicWriteMesh.hpp"
+#include "solver/actions/SynchronizeFields.hpp"
+#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/actions/ComputeLNorm.hpp"
+#include "solver/actions/PrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
@@ -59,11 +59,11 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // dynamic components
 
-  create_component<CCriterionMaxIterations>( "MaxIterations" );
+  create_component<CriterionMaxIterations>( "MaxIterations" );
 
-  CComputeLNorm& cnorm = *post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
-  post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
-  post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
+  ComputeLNorm& cnorm = *post_actions().create_component<ComputeLNorm>( "ComputeNorm" );
+  post_actions().create_component<PrintIterationSummary>( "IterationSummary" );
+  post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
   cnorm.options().configure_option("scale", true);
   cnorm.options().configure_option("order", 2u);
@@ -72,7 +72,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 bool IterativeSolver::stop_condition()
 {
   bool finish = false;
-  boost_foreach(CCriterion& stop_criterion, find_components<CCriterion>(*this))
+  boost_foreach(Criterion& stop_criterion, find_components<Criterion>(*this))
       finish |= stop_criterion();
   return finish;
 }

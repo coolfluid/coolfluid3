@@ -8,10 +8,10 @@
 #include "common/OptionList.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
 #include "TimeLoop.hpp"
@@ -34,7 +34,7 @@ struct TimeLoop::Implementation
   }
   
   Component& m_component;
-  Handle<CTime> m_time;
+  Handle<Time> m_time;
 };
 
 TimeLoop::TimeLoop(const std::string& name) :
@@ -53,7 +53,7 @@ void TimeLoop::execute()
   if(is_null(m_implementation->m_time))
     throw common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
 
-  solver::CTime& time = *m_implementation->m_time;
+  solver::Time& time = *m_implementation->m_time;
   const Real& t = time.current_time();
   const Real dt = time.dt();
   Uint iter = time.iter();

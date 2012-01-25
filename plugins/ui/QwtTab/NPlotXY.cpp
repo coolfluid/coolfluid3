@@ -32,7 +32,7 @@ namespace QwtTab {
 //////////////////////////////////////////////////////////////////////////////
 
 NPlotXY::NPlotXY(const std::string & name) :
-    CNode( name, "CPlotXY", CNode::STANDARD_NODE )
+    CNode( name, "PlotXY", CNode::STANDARD_NODE )
 {
 //  m_tabIndex = Graphics::TabBuilder::instance()->addTab(new Graph(), name.c_str());
 

@@ -25,11 +25,11 @@
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
 #include "Physics/LinEuler/LinEuler2D.hpp"
 
-#include "solver/CModelUnsteady.hpp"
-#include "solver/CTime.hpp"
+#include "solver/ModelUnsteady.hpp"
+#include "solver/Time.hpp"
 #include "RDM/Tags.hpp"
 
-#include "solver/actions/CCriterionTime.hpp"
+#include "solver/actions/CriterionTime.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -54,12 +54,12 @@ using namespace cf3::solver::actions;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < UnsteadyExplicit, cf3::solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
+common::ComponentBuilder < UnsteadyExplicit, cf3::solver::Wizard, LibRDM > UnsteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
-  cf3::solver::CWizard ( name )
+  cf3::solver::Wizard ( name )
 {
   // options
 
@@ -86,14 +86,14 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
 UnsteadyExplicit::~UnsteadyExplicit() {}
 
 
-CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
+Model& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
 
   const Uint rkorder = options().option("rkorder").value<Uint>();
 
   // (1) create the model
 
-  CModel& model = *common::Core::instance().root().create_component<CModelUnsteady>( model_name );
+  Model& model = *common::Core::instance().root().create_component<ModelUnsteady>( model_name );
 
   // (2) create the domain
 
@@ -115,7 +115,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4a) setup time step stop condition
 
-  CCriterionTime& time_limit = *solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
+  CriterionTime& time_limit = *solver.time_stepping().create_component<CriterionTime>("TimeLimit");
 
   time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<CTime>() /* .uri()*/ );
 
@@ -148,7 +148,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
-  solver.configure_option_recursively( RDM::Tags::solver(),         solver.handle<CSolver>() );
+  solver.configure_option_recursively( RDM::Tags::solver(),         solver.handle<Solver>() );
 
   return model;
 }

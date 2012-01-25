@@ -12,17 +12,14 @@
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PropertyList.hpp"
-#include "common/Link.hpp"
 
 #include "mesh/Space.hpp"
-#include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -39,17 +36,50 @@ Space::Space ( const std::string& name ) :
   mark_basic();
 
   properties()["brief"] = std::string("Spaces are other views of Entities, for instance a higher-order representation");
-  properties()["description"] = std::string("");
+
+  std::stringstream msg;
+  msg << "A Space component uniquely relates to 1 Entities component. \n"
+      << "The concept of \"space\" is here introduced as an invisible mesh parallel\n"
+      << "to the original mesh. It has exactly the same elements as the original mesh,\n"
+      << "but every element is defined by a different shape function.\n"
+      << "A default space that is always created is the \"geometry\" space, defined by\n"
+      << "the mesh (from mesh-readers / mesh-generators).\n"
+      << "Space is a concept that allows to create fields in the same mesh or parts of the\n"
+      << "mesh, with different shape functions than prescribed by the mesh.\n"
+      << "This is useful for e.g. high-order discretization methods, without having to\n"
+      << "generate a high-order mesh.\n"
+      << "A class Dictionary is responsible for managing multiple Space components.\n"
+      << "Fields are created in the dictionary. More than one field can be created in he same\n"
+      << "dictionary, ensuring they have the same space and other common definitions.\n"
+      << "A connectivity table which is held inside this Space component refers to entries\n"
+      << "in the dictionary.\n"
+      << "\n"
+      << "Example:\n"
+      << "The coordinates of mesh element vertices is e.g. a field in the dictionary \"geometry\",\n"
+      << "and the connectivity table of the space \"geometry\" refers to the\n"
+      << "vertices connected to the mesh-elements.\n"
+      << "\n"
+      << "Notes:\n"
+      << "- Newly created spaces always have a coordinates field in their dictionary.\n";
+
+  properties()["description"] = msg.str();
 
   options().add_option("shape_function", std::string())
       .description("Shape Function defined in this space")
       .pretty_name("Shape Function")
       .attach_trigger(boost::bind(&Space::configure_shape_function, this))
       .mark_basic();
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+Space& Space::initialize(Entities& support, Dictionary& dict)
+{
+  m_support = support.handle<Entities>();
+  m_dict = dict.handle<Dictionary>();
   m_connectivity = create_static_component<Connectivity>("connectivity");
-
-  m_fields = create_static_component<Link>("fields");
+  dict.add_space(this->handle<Space>());
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,49 +88,7 @@ Space::~Space()
 {
 }
 
-const ShapeFunction& Space::shape_function() const
-{
-  if(is_null(m_shape_function))
-    throw SetupError(FromHere(), "Shape function not configured for " + uri().string());
-  return *m_shape_function;
-}
-
-
-void Space::set_support(Entities& support)
-{
-  m_support = Handle<Entities>(support.handle<Component>());
-}
-
-Entities& Space::support()
-{
-  if(is_null(m_support))
-    throw SetupError(FromHere(), "Support not set for " + uri().string());
-
-  return *m_support;
-}
-
-const Entities& Space::support() const
-{
-  if(is_null(m_support))
-    throw SetupError(FromHere(), "Support not set for " + uri().string());
-
-  return *m_support;
-}
-
-ElementType& Space::element_type()
-{
-  return support().element_type();
-}
-
-const ElementType& Space::element_type() const
-{
-  return support().element_type();
-}
-
-Uint Space::nb_states() const
-{
-  return shape_function().nb_nodes();
-}
+////////////////////////////////////////////////////////////////////////////////
 
 Uint Space::size() const
 {
@@ -109,38 +97,36 @@ Uint Space::size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& Space::shape_function() const
+{
+  if(is_null(m_shape_function))
+    throw SetupError(FromHere(), "Shape function not configured for " + uri().string());
+  return *m_shape_function;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Space::configure_shape_function()
 {
+  if (is_null(m_dict))
+    throw SetupError(FromHere(), "Space "+uri().string()+" must be created using Entities::create_space()");
+
   const std::string sf_name = options().option("shape_function").value<std::string>();
   if (is_not_null(m_shape_function))
   {
-    remove_component(m_shape_function->name());
+    if (m_shape_function->derived_type_name() != sf_name)
+    {
+      if ( m_dict->size() !=0 )
+        throw NotImplemented(FromHere(), "Changing the shape-function will affect the dictionary, which is not yet supported");
+    }
   }
-  m_shape_function = create_component<ShapeFunction>(sf_name, sf_name);
-  m_shape_function->rename(m_shape_function->derived_type_name());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool Space::is_bound_to_fields() const
-{
-  return m_fields->is_linked();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SpaceFields& Space::fields() const
-{
-  cf3_assert(is_bound_to_fields());
-  return *Handle<SpaceFields>(follow_link(*m_fields));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Connectivity::ConstRow Space::indexes_for_element(const Uint elem_idx) const
-{
-  cf3_assert_desc(connectivity().uri().string()+"["+common::to_str(elem_idx)+"]",elem_idx<connectivity().size());
-  return connectivity()[elem_idx];
+  else
+  {
+    m_shape_function = create_component<ShapeFunction>(sf_name, sf_name);
+    m_shape_function->rename(m_shape_function->derived_type_name());
+    m_connectivity->set_row_size(m_shape_function->nb_nodes());
+    m_connectivity->resize(m_support->size());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,9 +135,9 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
 {
   const ShapeFunction& space_sf       = shape_function();
   const Entities&     geometry       = support();
-  const ElementType&   geometry_etype = element_type();
+  const ElementType&   geometry_etype = geometry.element_type();
   const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
-  RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
+  RealMatrix geometry_coordinates = geometry.geometry_space().get_coordinates(elem_idx);
   RealMatrix space_coordinates(space_sf.nb_nodes(),geometry_etype.dimension());
   for (Uint node=0; node<space_sf.nb_nodes(); ++node)
   {
@@ -164,8 +150,8 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
 
 void Space::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
-  Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-  Field& coordinates_field = fields().coordinates();
+  Connectivity::ConstRow indexes = connectivity()[elem_idx];
+  Field& coordinates_field = dict().coordinates();
 
   cf3_assert(coordinates.rows() == indexes.size());
   cf3_assert(coordinates.cols() == coordinates_field.row_size());
@@ -183,15 +169,15 @@ void Space::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 
 void Space::allocate_coordinates(RealMatrix& coordinates) const
 {
-  coordinates.resize(nb_states(),element_type().dimension());
+  coordinates.resize(shape_function().nb_nodes(),support().element_type().dimension());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RealMatrix Space::get_coordinates(const Uint elem_idx) const
 {
-  Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-  Field& coordinates_field = fields().coordinates();
+  Connectivity::ConstRow indexes = connectivity()[elem_idx];
+  Field& coordinates_field = dict().coordinates();
   RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
   for (Uint i=0; i<coordinates.rows(); ++i)
   {

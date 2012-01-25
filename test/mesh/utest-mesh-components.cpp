@@ -24,7 +24,7 @@
 #include "common/Table.hpp"
 #include "common/DynTable.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 using namespace boost;
@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Mesh& mesh = *root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(2,DIM_3D);
   BOOST_CHECK_EQUAL(mesh.geometry_fields().coordinates().row_size() , (Uint) DIM_3D);
 

@@ -16,19 +16,19 @@
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/Core.hpp"
-
+#include "common/Table.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/Field.hpp"
 
 
@@ -121,10 +121,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  SpaceFields& source_elem_fields = source.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
-  SpaceFields& target_elem_fields = target.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
-  SpaceFields& source_node_fields = source.geometry_fields();
-  SpaceFields& target_node_fields = target.geometry_fields();
+  Dictionary& source_elem_fields = source.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
+  Dictionary& target_elem_fields = target.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
+  Dictionary& source_node_fields = source.geometry_fields();
+  Dictionary& target_node_fields = target.geometry_fields();
 
   // Create empty fields
   Field& s_nodebased   = source_node_fields.create_field( "nodebased",     "rho_n[1],   V_n[3],   p_n[1]" );
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
     for (Uint elem_idx = 0; elem_idx<s_elements->size(); ++elem_idx)
     {
       coordinates = space.compute_coordinates( elem_idx );
-      cf3_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());
-      boost_foreach(const Uint state, space.indexes_for_element(elem_idx))
+      cf3_assert(space.connectivity()[elem_idx].size() == coordinates.rows());
+      boost_foreach(const Uint state, space.connectivity()[elem_idx])
       {
         const RealRowVector& coords = coordinates.row(0);
         s_elembased[state][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];

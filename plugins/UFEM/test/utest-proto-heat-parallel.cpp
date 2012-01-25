@@ -13,7 +13,10 @@
 #include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#endif
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
@@ -25,10 +28,10 @@
 #include "mesh/Domain.hpp"
 
 #include "mesh/LagrangeP1/Line1D.hpp"
-#include "solver/CModel.hpp"
+#include "solver/Model.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -89,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   const Uint nb_segments = 16 ;
 
   // Setup a model
-  CModel& model = *root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
 

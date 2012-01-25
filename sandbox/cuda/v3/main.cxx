@@ -89,11 +89,11 @@ int main(int argc, char * argv[])
   if (vm.count("cuda"))
   {
 
-    boost::timer ctimer;
+    boost::timer Timer;
 
     gpu_mat_mul(h_A, h_B, h_C);
 
-    printf("[cuda] time: %6.3f seconds\n", ctimer.elapsed() );
+    printf("[cuda] time: %6.3f seconds\n", Timer.elapsed() );
 
   }
 

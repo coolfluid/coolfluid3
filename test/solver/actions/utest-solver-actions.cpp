@@ -29,17 +29,18 @@
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"
-#include "solver/actions/CForAllElements.hpp"
-#include "solver/actions/CForAllElementsT.hpp"
-#include "solver/actions/CForAllNodes2.hpp"
-#include "solver/actions/CForAllFaces.hpp"
-#include "solver/actions/CLoopOperation.hpp"
-#include "solver/actions/CComputeVolume.hpp"
-#include "solver/actions/CComputeArea.hpp"
+#include "solver/actions/ForAllElements.hpp"
+#include "solver/actions/ForAllElementsT.hpp"
+#include "solver/actions/ForAllNodes2.hpp"
+#include "solver/actions/ForAllFaces.hpp"
+#include "solver/actions/LoopOperation.hpp"
+#include "solver/actions/ComputeVolume.hpp"
+#include "solver/actions/ComputeArea.hpp"
 
 using namespace boost::assign;
 
@@ -92,9 +93,9 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-  Handle<CLoop> node_loop2 = root.create_component< CForAllNodes2 >("node_loop");
+  Handle<Loop> node_loop2 = root.create_component< ForAllNodes2 >("node_loop");
 
-  node_loop2->create_loop_operation("cf3.TestActions.CDummyLoopOperation");
+  node_loop2->create_loop_operation("cf3.TestActions.DummyLoopOperation");
   node_loop2->options().configure_option("regions",regions);
 
   CFinfo << "\n\n\nNode loop 2 " << CFendl;
@@ -124,8 +125,8 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   //facebuilder->transform(mesh);
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-  Handle<CLoop> face_loop = root.create_component< CForAllFaces >("face_loop");
-  face_loop->create_loop_operation("cf3.TestActions.CDummyLoopOperation");
+  Handle<Loop> face_loop = root.create_component< ForAllFaces >("face_loop");
+  face_loop->create_loop_operation("cf3.TestActions.DummyLoopOperation");
   face_loop->options().configure_option("regions",regions);
   CFinfo << "\n\n\nFace loop" << CFendl;
 
@@ -154,7 +155,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   Field& field = mesh->geometry_fields().create_field("field");
 
-  Handle<CLoop> node_loop = root.create_component< CForAllNodes2 >("node_loop");
+  Handle<Loop> node_loop = root.create_component< ForAllNodes2 >("node_loop");
   node_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
 
 /// @todo CSetFieldValues no longer exists, find replacement for node_loop
@@ -166,19 +167,19 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
-  SpaceFields& cells_P0 = mesh->create_discontinuous_space("cells_P0","cf3.mesh.LagrangeP0");
+  Dictionary& cells_P0 = mesh->create_discontinuous_space("cells_P0","cf3.mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
 
   BOOST_CHECK(true);
 
 
-  SpaceFields& faces_P0 = mesh->create_discontinuous_space("faces_P0", "cf3.mesh.LagrangeP0");
+  Dictionary& faces_P0 = mesh->create_discontinuous_space("faces_P0", "cf3.mesh.LagrangeP0");
   Field& areas = faces_P0.create_field("area");
 
 
   BOOST_CHECK(true);
 
-  Handle<CComputeVolume> compute_volume = root.create_component<CComputeVolume>("compute_volume");
+  Handle<ComputeVolume> compute_volume = root.create_component<ComputeVolume>("compute_volume");
   BOOST_CHECK(true);
   Elements& elems = *root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag"))->handle<Elements>();
   BOOST_CHECK(true);
@@ -192,16 +193,16 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   const Space& P0_space = volumes.space(elems);
-  BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
+  BOOST_CHECK_EQUAL( volumes[P0_space.connectivity()[12][0]][0] , 0.0035918050864676932);
 
-  Handle<CLoop> elem_loop = root.create_component< CForAllElements >("elem_loop");
+  Handle<Loop> elem_loop = root.create_component< ForAllElements >("elem_loop");
   elem_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
 
-  elem_loop->create_loop_operation("cf3.solver.actions.CComputeVolume");
-  elem_loop->action("cf3.solver.actions.CComputeVolume").options().configure_option("volume",volumes.uri());
+  elem_loop->create_loop_operation("cf3.solver.actions.ComputeVolume");
+  elem_loop->action("cf3.solver.actions.ComputeVolume").options().configure_option("volume",volumes.uri());
 
-  elem_loop->create_loop_operation("cf3.solver.actions.CComputeArea");
-  elem_loop->action("cf3.solver.actions.CComputeArea").options().configure_option("area",areas.uri());
+  elem_loop->create_loop_operation("cf3.solver.actions.ComputeArea");
+  elem_loop->action("cf3.solver.actions.ComputeArea").options().configure_option("area",areas.uri());
 
   elem_loop->execute();
 
@@ -221,7 +222,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
+BOOST_AUTO_TEST_CASE ( test_ForAllElementsT )
 {
   Component& root = Core::instance().root();
   Handle< Mesh > mesh = root.get_child("mesh2")->handle<Mesh>();
@@ -229,14 +230,14 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->get_child("cells_P0")->handle<SpaceFields>()->create_field("test_CForAllElementsT","var[1]");
+  Field& field = mesh->get_child("cells_P0")->handle<Dictionary>()->create_field("test_ForAllElementsT","var[1]");
 
   BOOST_CHECK(true);
 
   std::vector<URI> topology = list_of(mesh->topology().uri());
 
-  Handle< CForAllElementsT<CComputeVolume> > compute_all_cell_volumes =
-    root.create_component< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
+  Handle< ForAllElementsT<ComputeVolume> > compute_all_cell_volumes =
+    root.create_component< ForAllElementsT<ComputeVolume> > ("compute_all_cell_volumes");
 
   BOOST_CHECK(true);
 
@@ -252,7 +253,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   fields.push_back(field.handle<Field>());
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
+  gmsh_writer->write_from_to(*mesh,"test_utest-actions_ForAllElementsT.msh");
 
   root.remove_component( *mesh );
 }

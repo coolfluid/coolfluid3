@@ -35,6 +35,7 @@ const char * Tags::interface ()    { return "interface"; }
 const char * Tags::cells ()  { return "cells"; }
 const char * Tags::inner_faces ()  { return "inner_faces"; }
 const char * Tags::outer_faces ()  { return "outer_faces"; }
+const char * Tags::bdry_faces ()  { return "bdry_faces"; }
 
 const char * Tags::connectivity_table () { return "connectivity_table"; }
 

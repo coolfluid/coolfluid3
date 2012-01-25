@@ -24,10 +24,11 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -202,14 +203,14 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (Handle< SpaceFields > nodes = Handle<SpaceFields>(comp))
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -235,7 +236,7 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Handle< SpaceFields > nodes = Handle<SpaceFields>(comp))
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -243,7 +244,7 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
@@ -271,7 +272,7 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Handle< SpaceFields > nodes = Handle<SpaceFields>(comp))
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -279,7 +280,7 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
