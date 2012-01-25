@@ -117,7 +117,7 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
 
   CriterionTime& time_limit = *solver.time_stepping().create_component<CriterionTime>("TimeLimit");
 
-  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<CTime>() /* .uri()*/ );
+  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<Time>() /* .uri()*/ );
 
   // (4b) setup iterative solver reset action
 
