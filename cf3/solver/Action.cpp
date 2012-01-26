@@ -18,9 +18,9 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/Action.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
 using namespace cf3::mesh;
@@ -88,9 +88,9 @@ Mesh& Action::mesh()
 }
 
 
-solver::CSolver& Action::solver()
+solver::Solver& Action::solver()
 {
-  Handle< solver::CSolver > s = m_solver;
+  Handle< solver::Solver > s = m_solver;
   if( is_null(s) )
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
@@ -123,11 +123,17 @@ void Action::config_regions()
       comp = access_component(region_uri);
     }
 
-    if ( Handle< Region > region = comp->handle<Region>() )
+    if ( is_null(comp) )
+    {
+      throw common::ValueNotFound ( FromHere(),
+                           "Could not find region with path [" + region_uri.path() +"]" );
+    }
+    Handle< Region > region = comp->handle<Region>();
+    if ( is_not_null(region) )
       m_loop_regions.push_back( region );
     else
       throw common::ValueNotFound ( FromHere(),
-                           "Could not find region with path [" + region_uri.path() +"]" );
+                           "Component [" + region_uri.path() +"] is not of type Region" );
   }
 }
 

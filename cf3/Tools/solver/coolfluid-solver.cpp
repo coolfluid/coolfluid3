@@ -18,7 +18,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/ListeningThread.hpp"
 
-#include "solver/CPlotter.hpp"
+#include "solver/Plotter.hpp"
 
 #include "Tools/solver/CWorker.hpp"
 #include "Tools/solver/LogForwarder.hpp"
@@ -36,7 +36,7 @@ using namespace cf3::Tools::solver;
 void setup_tree()
 {
   Handle< Component > tools = Core::instance().root().get_child("Tools");
-  CPlotter & plotter = *tools->create_component< CPlotter >("Plotter");
+  Plotter & plotter = *tools->create_component< Plotter >("Plotter");
   Table<Real> & table = *tools->create_component< Table<Real> >("MyTable");
   tools->create_component< Journal >("Journal");
 

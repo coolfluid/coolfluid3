@@ -24,8 +24,9 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 
@@ -83,7 +84,7 @@ BOOST_AUTO_TEST_CASE( FillVector )
 {
   const Elements& firstRegion = get_first_region();
   const Table<Real>& coords = firstRegion.geometry_fields().coordinates();
-  const Table<Uint>& conn = firstRegion.node_connectivity();
+  const Table<Uint>& conn = firstRegion.geometry_space().connectivity();
   const Uint element_count = conn.size();
   std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
   for(Uint element = 0; element != element_count; ++element)
@@ -103,7 +104,7 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 {
   const Elements& firstRegion = get_first_region();
   const Table<Real>& coords = firstRegion.geometry_fields().coordinates();
-  const Table<Uint>& conn = firstRegion.node_connectivity();
+  const Table<Uint>& conn = firstRegion.geometry_space().connectivity();
   const Uint element_count = conn.size();
   RealMatrix node_matrix(conn.row_size(), coords.row_size());
   for(Uint element = 0; element != element_count; ++element)
@@ -123,7 +124,7 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  boost::shared_ptr<SpaceFields> geometry = allocate_component<SpaceFields>("geometry_fieds");
+  boost::shared_ptr<Dictionary> geometry = allocate_component<Dictionary>("geometry_fieds");
   BOOST_CHECK( is_not_null(geometry) );
 
   Handle<Field> coords = geometry->create_component<Field>("coordinates");

@@ -66,23 +66,23 @@ int main(int argc, char * argv[])
 
   //------------------Measure boost creation ----------------------------------------------
 
-  boost::timer boost_ctimer;
+  boost::timer boost_Timer;
 
   // Create the boost array
   typedef boost::multi_array<double, 2> Array_t;
   Array_t boost_mat( boost::extents[nbrows][nbcols]  );
 //  Array_t boost_mat( boost::extents[nbrows][nbcols] , boost::fortran_storage_order() );
 
-  printf("[Boost]  Creation time: %6.3f seconds\n", boost_ctimer.elapsed() );
+  printf("[Boost]  Creation time: %6.3f seconds\n", boost_Timer.elapsed() );
 
   //------------------Measure boost creation ----------------------------------------------
 
-  boost::timer native_ctimer;
+  boost::timer native_Timer;
 
   // Create the native array
   double *native_mat = new double [nbrows * nbcols];
 
-  printf("[Native] Creation time: %6.3f seconds\n", native_ctimer.elapsed() );
+  printf("[Native] Creation time: %6.3f seconds\n", native_Timer.elapsed() );
 
   //------------------Measure boost----------------------------------------------
 

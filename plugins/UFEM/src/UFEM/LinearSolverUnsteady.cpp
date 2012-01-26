@@ -9,10 +9,10 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
 #include "LinearSolverUnsteady.hpp"
@@ -44,7 +44,7 @@ struct LinearSolverUnsteady::Implementation
     m_invdt = m_time->invdt();
   }
   
-  Handle<CTime> m_time;
+  Handle<Time> m_time;
   Real m_invdt;
 };
 

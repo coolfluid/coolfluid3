@@ -21,13 +21,14 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Faces.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/CellFaces.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;
@@ -276,7 +277,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
     Entity cell = face.cells()[0];
     CFinfo << cell << CFendl;
     RealMatrix cell_coordinates = cell.get_coordinates();
-    RealVector face_coordinates = wall_faces.get_coordinates(face.idx).row(0);
+    RealVector face_coordinates = wall_faces.geometry_space().get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -352,7 +353,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     Entity cell = face.cells()[0];
     CFinfo << cell.comp->parent()->parent()->name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]  <-->  ";
     RealMatrix cell_coordinates = cell.get_coordinates();
-    RealVector face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
+    RealVector face_coordinates = inner_faces.geometry_space().get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -368,7 +369,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     cell = face.cells()[0];
     CFinfo << cell.comp->parent()->parent()->name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]"<<CFendl;
     cell_coordinates = cell.get_coordinates();
-    face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
+    face_coordinates = inner_faces.geometry_space().get_coordinates(face.idx).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
       if (cell_coordinates.row(i) == face_coordinates.transpose())

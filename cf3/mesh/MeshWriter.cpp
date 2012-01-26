@@ -15,7 +15,7 @@
 
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshMetadata.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
 namespace cf3 {

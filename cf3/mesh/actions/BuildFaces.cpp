@@ -321,7 +321,10 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     else
       faces.add_tag(mesh::Tags::outer_faces());
 
-    FaceCellConnectivity& f2c = faces.cell_connectivity();
+
+    faces.connectivity_face2cell() = faces.create_component<FaceCellConnectivity>("cell_connectivity");
+    FaceCellConnectivity& f2c = *faces.connectivity_face2cell();
+
     ElementConnectivity& raw_table = *Handle< ElementConnectivity >(f2c.get_child(f2c.connectivity().name()));
     raw_table.set_row_size(is_inner?2:1);
     boost_foreach(Handle< Component > cells, face_to_cell.used())
@@ -358,16 +361,23 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     }
   }
 
-  boost_foreach( const std::string& face_type , face_types) {
+  boost_foreach( const std::string& face_type , face_types)
+  {
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
     bdry_buffer_map[face_type]->flush();
 
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CellFaces& faces = *Handle<CellFaces>(region.get_child(shape_name));
-    FaceCellConnectivity&  f2c  = faces.cell_connectivity();
-    faces.geometry_space().connectivity().set_row_size(faces.geometry_space().nb_states());
-    faces.resize(faces.size());
+    FaceCellConnectivity&  f2c  = *faces.connectivity_face2cell();
+
+    // Add shortcut to Entities component
+    cf3_assert(f2c.handle<FaceCellConnectivity>());
+    faces.connectivity_face2cell() = f2c.handle<FaceCellConnectivity>();
+    cf3_assert(faces.connectivity_face2cell());
+
+    faces.geometry_space().connectivity().set_row_size(faces.geometry_space().shape_function().nb_nodes());
+    faces.resize(f2c.size());
     for (Uint f=0; f<faces.size(); ++f)
     {
       if (PE::Comm::instance().size()==1)
@@ -376,10 +386,10 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
       }
       else
       {
-        if (faces.is_bdry(f) == false)
+        if (faces.connectivity_face2cell()->is_bdry_face()[f] == false)
         {
           faces.rank()[f] = math::Consts::uint_max();
-          /// @todo make restore following, when spacefields rank finding is done automatically for entire topology
+          /// @todo make restore following, when Dictionary rank finding is done automatically for entire topology
 //          if (f2c.connectivity()[f][LEFT].rank()  != PE::Comm::instance().rank() &&
 //              f2c.connectivity()[f][RIGHT].rank() != PE::Comm::instance().rank())
 //          {
@@ -402,9 +412,9 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 
     Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
     Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
-    cf3_assert(f2c.size() == fnb->size());
-    cf3_assert(fnb->size() == faces.size());
-    cf3_assert(bdry->size() == faces.size());
+    cf3_assert_desc(to_str(f2c.size())+"=="+to_str(fnb->size()),(f2c.size() == fnb->size()));
+    cf3_assert_desc(to_str(fnb->size())+"=="+to_str(faces.size()),fnb->size() == faces.size());
+    cf3_assert_desc(to_str(bdry->size())+"=="+to_str(faces.size()),bdry->size() == faces.size());
   }
 
   if (PE::Comm::instance().is_active())
@@ -551,11 +561,14 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 
   boost_foreach(Elements& bdry_faces, find_components<Elements>(bdry_region))
   {
+//    bdry_faces.add_tag(mesh::Tags::outer_faces());
     Handle< FaceCellConnectivity > bdry_face_to_cell = find_component_ptr<FaceCellConnectivity>(bdry_faces);
     if (is_null(bdry_face_to_cell))
     {
       bdry_face_to_cell = bdry_faces.create_component<FaceCellConnectivity>("cell_connectivity");
       bdry_face_to_cell->options().configure_option("face_building_algorithm",true);
+
+      bdry_faces.connectivity_face2cell() = bdry_face_to_cell;
     }
 
     ElementConnectivity& bdry_face_connectivity = bdry_face_to_cell->connectivity();
@@ -714,6 +727,9 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
     ElementConnectivity& c2f = *elements.create_component<ElementConnectivity>("face_connectivity");
     c2f.resize(elements.size());
     c2f.set_row_size(elements.element_type().nb_faces());
+
+    // Add shortcut to Entities component
+    elements.connectivity_cell2face() = c2f.handle<ElementConnectivity>();
   }
 
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )

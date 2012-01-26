@@ -24,7 +24,8 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/Dictionary.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -93,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks
-  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(const Handle<Entities>& elements_handle, elems_P0.entities_range())
@@ -102,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
     const Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      Uint field_idx = space.indexes_for_element(elem)[0];
+      Uint field_idx = space.connectivity()[elem][0];
       elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }

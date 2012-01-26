@@ -18,7 +18,7 @@
 #include "solver/actions/SolveLSS.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "NavierStokes.hpp"
@@ -33,7 +33,7 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
+ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
 {
@@ -74,11 +74,14 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
 
   *this
-    << create_proto_action("InitializePressure", nodes_expression(p = m_p0))
-    << create_proto_action("InitializeVelocity", nodes_expression(u = m_u0))
-    << create_proto_action("InitializeU1", nodes_expression(u1 = u))
-    << create_proto_action("InitializeU2", nodes_expression(u2 = u))
-    << create_proto_action("InitializeU3", nodes_expression(u3 = u))
+    << create_proto_action("Initialize", nodes_expression(group
+    (
+      p = m_p0,
+      u = m_u0,
+      u1 = u,
+      u2 = u,
+      u3 = u
+    )))
     <<
     ( // Time loop
       allocate_component<TimeLoop>("TimeLoop")
@@ -111,11 +114,14 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
       )
       << allocate_component<BoundaryConditions>("BoundaryConditions")
       << allocate_component<SolveLSS>("SolveLSS")
-      << create_proto_action("UpdateU3", nodes_expression(u3 = u2))
-      << create_proto_action("UpdateU2", nodes_expression(u2 = u1))
-      << create_proto_action("UpdateU1", nodes_expression(u1 = u))
-      << create_proto_action("IncrementU", nodes_expression(u += solution(u)))
-      << create_proto_action("IncrementP", nodes_expression(p += solution(p)))
+      << create_proto_action("Update", nodes_expression(group
+      (
+        u3 = u2,
+        u2 = u1,
+        u1 = u,
+        u += solution(u),
+        p += solution(p)
+      )))
     );
 }
 

@@ -31,7 +31,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -87,7 +87,7 @@ public:
 
   GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry_fields().coordinates()),
-    m_connectivity(elements.node_connectivity())
+    m_connectivity(elements.geometry_space().connectivity())
   {
   }
 
@@ -335,7 +335,7 @@ public:
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(elements.node_connectivity()),
+    m_connectivity(elements.geometry_space().connectivity()),
     m_support(support)
   {
     offset = m_field.descriptor().offset(placeholder.name());
@@ -483,7 +483,7 @@ public:
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_elements_begin(m_field.field_group().space(elements).connectivity()[0][0]),
+    m_elements_begin(m_field.dict().space(elements).connectivity()[0][0]),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }

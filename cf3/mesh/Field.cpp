@@ -21,7 +21,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -42,7 +42,7 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
 Field::Field ( const std::string& name  ) :
   common::Table<Real> ( name ),
-  m_basis(SpaceFields::Basis::INVALID)
+  m_basis(Dictionary::Basis::INVALID)
 {
   mark_basic();
 
@@ -146,17 +146,17 @@ Field::VarType Field::var_length ( const std::string& vname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_field_group(SpaceFields& field_group)
+void Field::set_dict(Dictionary& dict)
 {
-  m_field_group = Handle<SpaceFields>(field_group.handle<Component>());
+  m_dict = Handle<Dictionary>(dict.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Field::field_group() const
+Dictionary& Field::dict() const
 {
-  cf3_assert(is_null(m_field_group) == false);
-  return *m_field_group;
+  cf3_assert(is_null(m_dict) == false);
+  return *m_dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ void Field::resize(const Uint size)
 
 std::vector< Handle<Entities> > Field::entities_range()
 {
-  return field_group().entities_range();
+  return dict().entities_range();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 
 CommPattern& Field::parallelize()
 {
-  CommPattern& comm_pattern = field_group().comm_pattern();
+  CommPattern& comm_pattern = dict().comm_pattern();
 
   // Do nothing if parallel already
   if(is_not_null(comm_pattern.get_child(name())))

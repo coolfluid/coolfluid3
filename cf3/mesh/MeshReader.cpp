@@ -27,6 +27,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -130,7 +131,7 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Handle< Elements > >
-  MeshReader::create_cells_in_region (Region& parent_region, SpaceFields& nodes,
+  MeshReader::create_cells_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Handle< Elements > > cells_map;
@@ -150,7 +151,7 @@ std::map<std::string,Handle< Elements > >
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Handle< Elements > >
-  MeshReader::create_faces_in_region (Region& parent_region, SpaceFields& nodes,
+  MeshReader::create_faces_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Handle< Elements > > faces_map;
@@ -176,7 +177,7 @@ std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > >
   std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > buffermap;
   foreach_container((const std::string& etype)(Handle< Elements > elements), elems_map)
   {
-    buffermap[etype] = elements->node_connectivity().create_buffer_ptr();
+    buffermap[etype] = elements->geometry_space().connectivity().create_buffer_ptr();
   }
   return buffermap;
 }
@@ -188,7 +189,7 @@ void MeshReader::remove_empty_element_regions(Region& parent_region)
   boost_foreach(Elements& region, find_components_recursively<Elements>(parent_region))
   {
     // find the empty regions
-    Uint empty_on_this_rank = region.node_connectivity().array().empty();
+    Uint empty_on_this_rank = region.geometry_space().connectivity().array().empty();
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work

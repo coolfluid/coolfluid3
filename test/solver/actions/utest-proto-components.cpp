@@ -26,12 +26,12 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CModel.hpp"
-#include "solver/CSimpleSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/SimpleSolver.hpp"
 
 #include "solver/actions/Proto/ComponentWrapper.hpp"
 #include "solver/actions/Proto/ConfigurableConstant.hpp"
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 #include "solver/actions/Proto/Transforms.hpp"
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( UseConfigurableConstant )
 /// Set up a model
 BOOST_AUTO_TEST_CASE( SetupModel )
 {
-  CModel& model = *Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   model.create_physics("cf3.physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = *dom.create_component<Mesh>("mesh");
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
   // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
   boost::shared_ptr<Expression> expression = elements_expression(lit(result) += boost::proto::lit(a)[0]*volume);
 
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
 
   expression->add_options(model->options());
   BOOST_CHECK(model->options().check("a"));
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
 BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
 {
   const Uint nb_segments = 5;
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
   Handle<Mesh> mesh(model->domain().get_child("mesh"));
 
   // Declare a mesh variable
@@ -182,11 +182,11 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
-/// Test CProtoAction
-BOOST_AUTO_TEST_CASE( ProtoAction )
+/// Test ProtoAction
+BOOST_AUTO_TEST_CASE( ProtoActionTest )
 {
   const Uint nb_segments = 5;
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
   Handle<Mesh> mesh(model->domain().get_child("mesh"));
   Handle<FieldManager> field_manager(model->get_child("FieldManager"));
 
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   MeshTerm<0, ScalarField> T("Temperature2", "T2");
 
   // Create an action that can wrap an expression
-  CProtoAction& action = *Core::instance().root().create_component<CProtoAction>("Action");
+  ProtoAction& action = *Core::instance().root().create_component<ProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
   action.options().configure_option("physical_model", model->physics().handle<physics::PhysModel>());
   action.options().configure_option(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
@@ -212,17 +212,17 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
-/// Test CSimpleSolver
-BOOST_AUTO_TEST_CASE( SimpleSolver )
+/// Test SimpleSolver
+BOOST_AUTO_TEST_CASE( SimpleSolverTest )
 {
   const Uint nb_segments = 5;
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
   Handle<Mesh> mesh(model->domain().get_child("mesh"));
 
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature3", "T3");
 
-  CSolver& solver = *model->create_component<CSimpleSolver>("GenericSolver");
+  Solver& solver = *model->create_component<SimpleSolver>("GeneriSolver");
 
   // Storage for the result check
   Real temp_sum = 0.;
@@ -245,11 +245,11 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
 }
 
 /// Create a custom actiondomain
-class CustomProtoSolver : public CSimpleSolver
+class CustomProtoSolver : public SimpleSolver
 {
 public:
   CustomProtoSolver(const std::string& name) :
-    CSimpleSolver(name),
+    SimpleSolver(name),
     T("Temperature4", "T4"),
     temp_sum(0.)
   {
@@ -273,7 +273,7 @@ public:
 BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 {
   const Uint nb_segments = 5;
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
 
   Handle<CustomProtoSolver> solver = model->create_component<CustomProtoSolver>("CustomSolver");
   solver->configure_option_recursively(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 BOOST_AUTO_TEST_CASE( CopyExpression )
 {
   const Uint nb_segments = 5;
-  Handle<Mesh> mesh(Core::instance().root().get_child("Model")->handle<CModel>()->domain().get_child("mesh"));
+  Handle<Mesh> mesh(Core::instance().root().get_child("Model")->handle<Model>()->domain().get_child("mesh"));
 
   Real a = 1.;
   Real result = 0.;
@@ -333,7 +333,7 @@ struct SomeTag {};
 
 BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 {
-  Handle<CModel> model(Core::instance().root().get_child("Model"));
+  Handle<Model> model(Core::instance().root().get_child("Model"));
 
   BOOST_CHECK_EQUAL(model->physics().uri().string(), "cpath:/Model/DynamicModel");
 

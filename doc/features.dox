@@ -180,7 +180,7 @@ boost_foreach( const cf3::mesh::Entities& entities, velocity.entities_range() )
   const cf3::mesh::Space& space = velocity.space(entities);
   
   // get the number of points per element
-  const Uint nb_points_per_element = space.nb_states();
+  const Uint nb_points_per_element = space.shape_function().nb_nodes();
   
   // Loop over every element of this type
   for (Uint elem=0; elem<entities.size(); ++elem)
@@ -189,7 +189,7 @@ boost_foreach( const cf3::mesh::Entities& entities, velocity.entities_range() )
     cf3::mesh::Connectivity::ConstRow field_indexes = space.indexes_for_element(elem);
     
     // loop over every point of this element
-    for (Uint point=0; point<nb_states(); ++point)
+    for (Uint point=0; point<shape_function().nb_nodes(); ++point)
     {
       velocity[field_indexes[point]][XX] = 1.5;
       velocity[field_indexes[point]][YY] = 0.1;
