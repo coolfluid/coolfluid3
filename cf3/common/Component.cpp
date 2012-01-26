@@ -500,7 +500,7 @@ Handle< Component > Component::create_component (const std::string& name ,
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
   if(is_not_null(comp))
     add_component( comp );
-  
+
   return Handle<Component>(comp);
 }
 
@@ -700,33 +700,33 @@ void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
 
- Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
- for( ; it != properties().store.end() ; it++)
- {
-   std::string name = it->first;
-   boost::any value = it->second;
+  for( ; it != properties().store.end() ; it++)
+  {
+    std::string name = it->first;
+    boost::any value = it->second;
 
-   std::string type = class_name_from_typeinfo( value.type() );
+    std::string type = class_name_from_typeinfo( value.type() );
 
-   if(type == Protocol::Tags::type<std::string>())
-     options.set_value<std::string>( name, any_to_value<std::string>(value) );
-   else if(type == Protocol::Tags::type<bool>())
-     options.set_value<bool>( name, any_to_value<bool>(value) );
-   else if(type == Protocol::Tags::type<int>())
-     options.set_value<int>( name, any_to_value<int>(value) );
-   else if(type == Protocol::Tags::type<Uint>())
-     options.set_value<Uint>( name, any_to_value<Uint>(value) );
-   else if(type == Protocol::Tags::type<Real>())
-     options.set_value<Real>( name, any_to_value<Real>(value) );
-   else if(type == Protocol::Tags::type<URI>())
-     options.set_value<URI>( name, any_to_value<URI>(value) );
-   else if(type == Protocol::Tags::type<UUCount>())
-     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
-   else
-     throw ShouldNotBeHere(FromHere(),
-                           std::string("Don't know how the manage [" + type + "] type."));
- }
+    if(type == Protocol::Tags::type<std::string>())
+      options.set_value<std::string>( name, any_to_value<std::string>(value) );
+    else if(type == Protocol::Tags::type<bool>())
+      options.set_value<bool>( name, any_to_value<bool>(value) );
+    else if(type == Protocol::Tags::type<int>())
+      options.set_value<int>( name, any_to_value<int>(value) );
+    else if(type == Protocol::Tags::type<Uint>())
+      options.set_value<Uint>( name, any_to_value<Uint>(value) );
+    else if(type == Protocol::Tags::type<Real>())
+      options.set_value<Real>( name, any_to_value<Real>(value) );
+    else if(type == Protocol::Tags::type<URI>())
+      options.set_value<URI>( name, any_to_value<URI>(value) );
+    else if(type == Protocol::Tags::type<UUCount>())
+      options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
+    else
+      throw ShouldNotBeHere(FromHere(),
+                            std::string("Don't know how the manage [" + type + "] type."));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1204,8 +1204,8 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   // get the factory holding the builder
   Handle<Component> factory = factories->get_child( factory_type_name );
-  
-    
+
+
   if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
@@ -1213,7 +1213,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   }
 
   factory = factories->get_child( factory_type_name );
-  
+
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
@@ -1300,7 +1300,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
@@ -1327,7 +1327,7 @@ boost::shared_ptr< Component > build_component_nothrow(const std::string& builde
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       return boost::shared_ptr<Component>();
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 

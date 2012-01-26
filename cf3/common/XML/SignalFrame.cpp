@@ -37,7 +37,6 @@ Common_TEMPLATE template std::vector<T> SignalFrame::get_array<T>(const std::str
 namespace cf3 {
 namespace common {
 namespace XML {
-
 ////////////////////////////////////////////////////////////////////////////
 
 SignalFrame::SignalFrame ( XmlNode xml ) :
@@ -168,7 +167,7 @@ XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value,
 {
   cf3_assert ( node.is_valid() );
 
-  return options().main_map.set_value( name, value, descr );
+  return main_map.set_value( name, value, descr );
 }
 
 ////////////////////////////////////////////////////////////////////////////
