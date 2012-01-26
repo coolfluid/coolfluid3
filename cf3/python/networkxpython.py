@@ -142,6 +142,9 @@ class nx_event_connector:
   infotxt=plt.text(0.02,0.92,"",
     transform=ax.transAxes, family='monospace',size=10, weight='bold',
     color=titlecolor, ha='left', va='top',zorder=51)
+  seltxt=plt.text(0.,0.,"",
+    family='monospace',size=10, weight='bold',
+    color=titlecolor, ha='left', va='center',zorder=51)
   def on_pick(self, event):
       exec "key_orig= self." + event.artist.get_label() + "[" + str(event.ind[0]) + "]"
       key=deepcopy(key_orig)
@@ -149,23 +152,23 @@ class nx_event_connector:
         key=self.G.pred[key].keys()[0]
       comp=root.access_component(key)
       if (self.G.node[key_orig]['tag']=='component'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text(key)
+        self.seltxt.set_position(self.pos[key_orig])
       if (self.G.node[key_orig]['tag']=='option'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "option of " + key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text("option of " + key)
+        self.seltxt.set_position(self.pos[key_orig])
       if (self.G.node[key_orig]['tag']=='property'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "property of " + key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text("property of " + key)
+        self.seltxt.set_position(self.pos[key_orig])
       if (self.G.node[key_orig]['tag']=='signal'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "signal of " + key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text("signal of " + key)
+        self.seltxt.set_position(self.pos[key_orig])
       if (self.G.node[key_orig]['tag']=='field'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "field of " + key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text("field of " + key)
+        self.seltxt.set_position(self.pos[key_orig])
       if (self.G.node[key_orig]['tag']=='link'):
-        plt.text(self.pos[key_orig][0],self.pos[key_orig][1], "link to " + key, family='monspace',
-          size=10, weight='bold', color=titlecolor, ha='left', va='top',zorder=51)
+        self.seltxt.set_text("link to " + key)
+        self.seltxt.set_position(self.pos[key_orig])
       nxp=root.get_child('NetworkXPython')
       infostr=nxp.get_detailed_info(cf.URI(key))
       if 's' in self.printdestination:
@@ -178,8 +181,10 @@ class nx_event_connector:
 
 # draw text
 def draw_captions(G,pos,capt,label,color,zord,rotation=None):
+  for i in capt:
+    capt[i]= "  " + capt[i] + "  "
   txt=nx.draw_networkx_labels(G,pos,labels=capt,font_color=color)
-  if label is not None:
+  if txt is not None:
     for i in txt:
       if txt[i] is not None:
         txt[i].set_family('sans-serif')
@@ -188,7 +193,6 @@ def draw_captions(G,pos,capt,label,color,zord,rotation=None):
         txt[i].set_zorder(zord)
         txt[i].set_label(label)
         txt[i].set_rotation_mode('anchor')
-        print txt[i].bbox
         if rotation is not None:
           if (abs(rotation[i])<=90):
             txt[i].set_verticalalignment('center')

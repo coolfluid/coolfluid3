@@ -447,14 +447,35 @@ void NetworkXPython::signature_get_link_graph( SignalArgs& args )
 
 void NetworkXPython::append_link_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth, std::string printroot)
 {
-  /// @todo since depth limitation is now possible, its possible that link points on actual branch below the depth limit -> needs to be cured
+  // this is tricky, there are two reasons why a node needs to be added
+  // 1. target component is outside the subtree
+  // 2. target component is behind the depthlimit
   if (IsComponentType<common::Link>()(c))
   {
+    CFinfo << c.uri().path() << CFendl << "------------------" << CFendl << CFflush;
     const common::Link& l=dynamic_cast<const common::Link&>(c);
     std::string t=l.follow()->uri().path();
-    if (t.find(printroot)==t.npos) {
+    if (t.find(printroot)==t.npos)
+    {
       coll.append("G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
       coll.append("nodecaption.update({'" + t + "':'" + t + "'})\n");
+    }
+    else
+    {
+      Handle<const Component> d=l.follow();
+      for (int i=1; i>-1; ++i)
+      {
+        d=d->parent();
+        if (d==nullptr) break;
+        CFinfo << i << " " << depth << "    " << depthlimit << CFendl << CFflush;
+        if ((d->uri().path()==printroot)&&(i>depthlimit))
+        {
+          coll.append("G.add_node('" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='link')\n");
+          coll.append("nodecaption.update({'" + t + "':'" + t + "'})\n");
+          CFinfo << "BINGO!" << CFendl << CFflush;
+          break;
+        }
+      }
     }
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
