@@ -223,6 +223,7 @@ class nx_event_connector:
   le=None
   lcapt=None
   printdestination=None
+  hidden=None
   navi=None
 
   # constructor
@@ -252,6 +253,7 @@ class nx_event_connector:
     self.le=list()                       # list of edges to display for links
     self.lcapt=dict()                    # text to display for nodes of links
     self.printdestination='sc'           # where to print component info: 's' screen and/or 'c' console terminal
+    self.hidden='cfospl'                 # mask for which nodes marked as hidden not to display
 
   # helper members
   #######################################################################################
@@ -269,7 +271,7 @@ class nx_event_connector:
     nxp=root.get_child('NetworkXPython')
     naviax.clear()
     self.navi=nx_event_connector("navi")
-    self.navi=build_graph_with_lists(cf.URI(key),self.navi,nxp,1,'cspofl',depthlimit_sofpl=False,add_parent=True)
+    self.navi=build_graph_with_lists(cf.URI(key),self.navi,nxp,1,'cspofl',depthlimit_sofpl=False,add_parent=True,hidden=self.hidden)
     self.navi.pos=traditional_left2right_tree_layout_in_polar(self.navi.G,key)
     self.navi.pos=normalize_coordinates(key,self.navi.pos,cf3_img)
     self.navi.rot=compute_edge_angles_for_target_nodes(self.navi.G,self.navi.pos)
@@ -298,44 +300,47 @@ class nx_event_connector:
       exec event.artist.get_label() # this gives node_info
       if node_info[0]=="main": # this gives the key was picked
         exec "key_orig=self." + node_info[1] + "[" + str(event.ind[0]) + "]"
+        tG=self.G
       else:
         exec "key_orig=self.navi." + node_info[1] + "[" + str(event.ind[0]) + "]"
+        tG=self.navi.G
       key=deepcopy(key_orig)
 
-      # marionetting out the owner if its not a component
-      if ((self.G.node[key]['tag']=='signal') or (self.G.node[key]['tag']=='option') or (self.G.node[key]['tag']=='field') or (self.G.node[key]['tag']=='property')):
-        key=self.G.pred[key].keys()[0]
+      # marionetting out the owner if its not a component, first trying main and then navi
+      if ((tG.node[key]['tag']=='signal') or (tG.node[key]['tag']=='option') or (tG.node[key]['tag']=='field') or (tG.node[key]['tag']=='property')):
+        key=tG.pred[key].keys()[0]
       comp=root.access_component(key)
 
+      if node_info[0]=="navi":
+        key_orig=key
+
       # set string to display
-      if (self.G.node[key_orig]['tag']=='component'):
+      self.seltxt.set_text("")
+      if (tG.node[key_orig]['tag']=='component'):
         self.seltxt.set_text(key)
         self.seltxt.set_position(self.pos[key_orig])
-      if (self.G.node[key_orig]['tag']=='option'):
+      if (tG.node[key_orig]['tag']=='option'):
         self.seltxt.set_text("option of " + key)
         self.seltxt.set_position(self.pos[key_orig])
-      if (self.G.node[key_orig]['tag']=='property'):
+      if (tG.node[key_orig]['tag']=='property'):
         self.seltxt.set_text("property of " + key)
         self.seltxt.set_position(self.pos[key_orig])
-      if (self.G.node[key_orig]['tag']=='signal'):
+      if (tG.node[key_orig]['tag']=='signal'):
         self.seltxt.set_text("signal of " + key)
         self.seltxt.set_position(self.pos[key_orig])
-      if (self.G.node[key_orig]['tag']=='field'):
+      if (tG.node[key_orig]['tag']=='field'):
         self.seltxt.set_text("field of " + key)
         self.seltxt.set_position(self.pos[key_orig])
-      if (self.G.node[key_orig]['tag']=='link'):
+      if (tG.node[key_orig]['tag']=='link'):
         self.seltxt.set_text("link to " + key)
         self.seltxt.set_position(self.pos[key_orig])
 
       # and finally get and display detailed info of the actual component
       nxp=root.get_child('NetworkXPython')
       infostr=nxp.get_detailed_info(cf.URI(key))
-      if 's' in self.printdestination:
-        self.infotxt.set_text(infostr)
-      else:
-        self.infotxt.set_text("")
-      if 'c' in self.printdestination:
-        print infostr
+      self.infotxt.set_text("")
+      if 's' in self.printdestination: self.infotxt.set_text(infostr)
+      if 'c' in self.printdestination: print infostr
       self.plot_secondary_navigation(key)
 
       plt.draw()
@@ -389,7 +394,7 @@ def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,edgestyle,color,zord):
 #########################################################################################
 # query data from coolfluid and build graph and lists
 #########################################################################################
-def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=True,add_parent=False):
+def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=True,add_parent=False,hidden='cofpsl'):
 
   # getting the strings which holds the script to setup the graph
   components=nxp_.get_component_graph( uri = starturi_, depth = depth_ )
@@ -427,6 +432,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
   if 'l' in tree_:
     for line in StringIO(links     ): exec 'nec_.' + line
 
+  # if there is a parent node and add_parent is true, the make it mimic a regular component
   if add_parent==True:
     parn=[(u)   for (u,d)   in nec_.G.nodes(data=True) if d['tag']=='parent']
     for i in parn:
@@ -435,6 +441,16 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
     pare=[(u,v) for (u,v,d) in nec_.G.edges(data=True) if d['tag']=='parent']
     for i in pare:
       nec_.G.edge[i[0]][i[1]]['tag']='component'
+
+  # getting out hidden from the graph if required
+  dellist=list()
+  for i in nec_.G:
+    if nec_.G.node[i]['hidden']==True:
+      if nec_.G.node[i]['tag'][0] in hidden:
+        dellist.append(i)
+  nec_.G.remove_nodes_from(dellist)
+  for i in dellist:
+    nec_.nodecaption.pop(i)
 
   # separating lists
   nec_.cn=[(u)   for (u,d)   in nec_.G.nodes(data=True) if d['tag']=='component']
@@ -481,6 +497,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
 #  'c': console (terminal)
 # depthlimit_sofpl: bool option to include or exclude printing signals, options, fields,
 #   properties and links at depthlimit level
+# hidden: wether to display or not cospfl element which has tag 'hidden' set to true
 #
 # zorder numbers:
 #   1x:  edges
@@ -491,7 +508,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
 #   50:  title
 #   51:  component info
 #########################################################################################
-def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c'):
+def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',hidden='cospfl'):
 
   # create the collector component on coolfluid side
   nxp = root.create_component('NetworkXPython','cf3.python.NetworkXPython')
@@ -499,6 +516,7 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   # create and configure handler class in python side
   nec=nx_event_connector("main")
   nec.printdestination=printdestination
+  nec.hidden=hidden
   cid=fig.canvas.mpl_connect('pick_event', nec.on_pick)
 
   # get a string with a nice name of the component and show it in title
@@ -507,7 +525,7 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c')
   fig.canvas.set_window_title(start_key)
 
   # build the graph
-  nec=build_graph_with_lists(starturi,nec,nxp,depth,tree)
+  nec=build_graph_with_lists(starturi,nec,nxp,depth,tree,hidden=hidden)
 
   # computing the positions of the nodes via layouts
   #nec.pos=nx.graphviz_layout(nec.G,prog='twopi')
