@@ -105,6 +105,15 @@ class  NetworkXPython : public common::Component {
   void append_property_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
   /// going recursively on the tree and append to string the command to add the edges to the graph
   void append_property_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
+
+  private:
+
+  /// little helper function for mapping bool to python style string
+  std::string pybool(const bool &opt)
+  {
+    if (opt) return std::string("True");
+    return std::string("False");
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
