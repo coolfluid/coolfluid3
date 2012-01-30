@@ -6,6 +6,7 @@
 
 #include <QHBoxLayout>
 #include <QRegExpValidator>
+#include <QDebug>
 
 #include "math/Consts.hpp"
 
@@ -58,7 +59,7 @@ GraphicalValue::~GraphicalValue()
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > option,
-                                                  QWidget * parent)
+                                                  QWidget * parent )
 {
   GraphicalValue * value = nullptr;
 
@@ -66,6 +67,8 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
     return value;
 
   std::string tag(option->tag());
+
+  qDebug() << __FUNCTION__ << __LINE__ << option->name().c_str() << tag.c_str();
 
   if(tag != "array" )
   {

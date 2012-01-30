@@ -10,6 +10,8 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <QDebug>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -109,6 +111,7 @@ CNode::CNode( const std::string & name, const QString & component_type, Type typ
     .connect(boost::bind(&CNode::reply_list_content, this, _1));
 
   regist_signal("signal_signature")
+      .connect(boost::bind(&CNode::reply_signal_signature, this, _1))
       .hidden(true);
 
   properties().add_property( "original_component_type", m_component_type.toStdString() );
@@ -498,6 +501,7 @@ void CNode::reply_list_content( SignalArgs & node )
 
 void CNode::reply_signal_signature( SignalArgs & node )
 {
+  qDebug() << __FUNCTION__;
   m_notifier->notify_signal_signature( &node );
 }
 

@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QMutex>
+#include <QDebug>
 
 #include "ui/core/TreeThread.hpp"
 #include "ui/core/NetworkThread.hpp"
@@ -31,6 +32,8 @@ ThreadManager::ThreadManager() :
     m_network_thread(new NetworkThread()),
     m_tree_thread(new TreeThread())
 {
+  qDebug() << "Network" << m_network_thread;
+  qDebug() << "Tree" << m_tree_thread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

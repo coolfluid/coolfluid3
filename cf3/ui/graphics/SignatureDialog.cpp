@@ -8,10 +8,14 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
+#include <QDebug>
+#include <QApplication>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
+#include "common/XML/FileOperations.hpp"
 
 #include "ui/core/NLog.hpp"
 #include "ui/core/TreeThread.hpp"
@@ -62,15 +66,24 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 {
   cf3_assert( sig.is_valid() );
 
-  XmlNode node = sig.content->first_node();
+  qDebug() << __FUNCTION__ << __LINE__ << this->thread() << qApp->thread() << title << block;
+
+  XmlNode node( sig.content->first_node() );
   QString name;
+  std::string str;
+
+  XML::to_string( node, str );
+  qDebug() << __FUNCTION__ << __LINE__ << str.c_str() << title;
 
   m_ok_clicked = false;
 
+  qDebug() << __FUNCTION__ << __LINE__ << title;
   this->setWindowTitle(title);
 
+  qDebug() << __FUNCTION__ << __LINE__ << title;
   m_data_layout->clear_options();
 
+  qDebug() << __FUNCTION__ << __LINE__ << title;
   for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
     m_data_layout->add_option( SignalOptions::xml_to_option(node) );
@@ -79,17 +92,24 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 
     m_nodes[name] = node;
   }
+  qDebug() << __FUNCTION__ << __LINE__ << title;
 
  if( m_data_layout->has_options() )
   {
    if(block)
-   {
+   {  qDebug() << __FUNCTION__ << __LINE__ << title;
+
      m_is_blocking = true;
      this->exec();
+     qDebug() << __FUNCTION__ << __LINE__ << title;
+
    }
    else
    {
+     qDebug() << __FUNCTION__ << __LINE__ << title;
+
      m_is_blocking = false;
+     qDebug() << __FUNCTION__ << __LINE__ << title;
      this->setModal(true);
      this->setVisible(true);
    }

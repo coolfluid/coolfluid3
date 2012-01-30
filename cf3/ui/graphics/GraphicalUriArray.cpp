@@ -24,6 +24,8 @@
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/SelectPathDialog.hpp"
 
+#include <QApplication>
+
 using namespace cf3::common;
 using namespace cf3::ui::core;
 
@@ -38,40 +40,52 @@ namespace graphics {
 GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_group_box = new QGroupBox(parent);
+  qDebug() << __FUNCTION__ << __LINE__;
+  m_group_box = new QGroupBox(m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_edit_add = new QLineEdit(m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_model = new QStringListModel(m_group_box);
-  m_list_view = new QListView(m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__ << this->thread() << qApp->thread();
+  m_list_view = new QListView(/*m_group_box*/);// <==== bad?
+  qDebug() << __FUNCTION__ << __LINE__;
   m_bt_add = new QPushButton("+", m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_bt_remove = new QPushButton("-", m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_bt_up = new QPushButton("Up", m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_bt_down = new QPushButton("Down", m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__;
   m_combo_type = new QComboBox(m_group_box);
   m_separator = sep;
-
+qDebug() << __FUNCTION__ << __LINE__;
   m_buttons_layout = new QVBoxLayout();
   m_box_layout = new QGridLayout(m_group_box);
-
+qDebug() << __FUNCTION__ << __LINE__;
   m_list_view->setModel(m_model);
   m_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+
 //  m_listView->setDragDropMode(QAbstractItemView::InternalMove);
 //  m_listView->setDragEnabled(true);
 //  m_listView->setAcceptDrops(true);
 
-  set_protocols(std::vector<std::string>());
-
+qDebug() << __FUNCTION__ << __LINE__;
+  set_protocols(std::vector<std::string>()); // <==== bad?
+qDebug() << __FUNCTION__ << __LINE__;
   m_buttons_layout->addWidget(m_bt_up);
   m_buttons_layout->addWidget(m_bt_down);
-
+qDebug() << __FUNCTION__ << __LINE__;
   m_box_layout->addWidget(m_combo_type, 0, 0);
   m_box_layout->addWidget(m_edit_add, 0, 1);
   m_box_layout->addWidget(m_bt_add, 0, 2);
   m_box_layout->addWidget(m_bt_remove, 0, 3);
-  m_box_layout->addWidget(m_list_view, 1, 0, 1, 4);
+//  m_box_layout->addWidget(m_list_view, 1, 0, 1, 4);
   m_box_layout->addLayout(m_buttons_layout, 1, 4);
-
+qDebug() << __FUNCTION__ << __LINE__;
   m_layout->addWidget(m_group_box);
-
+qDebug() << __FUNCTION__ << __LINE__;
   selection_changed(QItemSelection(), QItemSelection());
 
   connect(m_bt_add, SIGNAL(clicked()), this, SLOT(bt_add_clicked()));
@@ -81,6 +95,8 @@ GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   connect(m_bt_down, SIGNAL(clicked()), this, SLOT(move_down()));
   connect(m_list_view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(selection_changed(QItemSelection,QItemSelection)));
+
+  qDebug() << __FUNCTION__ << __LINE__;
 }
 
 ////////////////////////////////////////////////////////////////////////////
