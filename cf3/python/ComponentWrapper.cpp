@@ -288,6 +288,8 @@ struct SignalWrapper
       SignalOptions reply_options(reply);
       if(reply_options.check("created_component"))
         return wrap_component(m_component->access_component(reply_options["created_component"].value< common::URI >()));
+      if(reply_options.check("return_value"))
+        return any_to_python(reply_options["return_value"].value());
     }
 
     return boost::python::object();
