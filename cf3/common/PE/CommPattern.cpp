@@ -558,8 +558,8 @@ void CommPattern::setup()
 
 void CommPattern::synchronize_all()
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
   {
     synchronize_this(pobj,sndbuf,rcvbuf);
@@ -570,8 +570,8 @@ void CommPattern::synchronize_all()
 
 void CommPattern::synchronize( const std::string& name )
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
   Handle<CommWrapper> pobj(get_child(name));
   synchronize_this(*pobj,sndbuf,rcvbuf);
 }
@@ -580,8 +580,8 @@ void CommPattern::synchronize( const std::string& name )
 
 void CommPattern::synchronize( const CommWrapper& pobj )
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
   synchronize_this(pobj,sndbuf,rcvbuf);
 }
 

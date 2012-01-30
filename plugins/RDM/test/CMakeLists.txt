@@ -51,7 +51,7 @@ coolfluid_add_test( ATEST     atest-rdm-lineardiff2d
 # RK atests
 
 coolfluid_add_test( ATEST     atest-rdm-rk-lineuler2d
-                    CFSCRIPT  atest-rdm-rk-lineuler2d.cfscript )
+                    PYTHON    atest-rdm-rk-lineuler2d.py )
 
 ##########################################################################
 # GPU  acceptance tests
