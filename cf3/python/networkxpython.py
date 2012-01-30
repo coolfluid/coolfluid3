@@ -134,9 +134,9 @@ def traverse_successors_recursive(G,key,pos,y) :
 
 def traditional_left2right_tree_layout(G,key) :
   pos=dict(zip(G,numpy.tile(-1,(G.number_of_nodes(),2))))
-  pos[key]=[G.node[key]['depth'],0]
-  y=traverse_successors_recursive(G,key,pos,1)
-  for i in G.pred[key]:
+  pos['c:'+key]=[G.node['c:'+key]['depth'],0]
+  y=traverse_successors_recursive(G,'c:'+key,pos,1)
+  for i in G.pred['c:'+key]:
     pos[i]=[G.node[i]['depth'],G.node[i]['depth']]
   return pos
 
@@ -177,7 +177,7 @@ def normalize_coordinates(key_,pos_,img_):
   zoomfact=40.
   imx=float(img_.size[0])
   imy=float(img_.size[1])
-  rootx,rooty=pos_[key_]
+  rootx,rooty=pos_['c:'+key_]
   xmin=float(min([i[0] for i in pos_.values()]))
   ymin=float(min([i[1] for i in pos_.values()]))
   xmax=float(max([i[0] for i in pos_.values()]))
