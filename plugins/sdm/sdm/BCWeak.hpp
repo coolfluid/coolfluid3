@@ -18,6 +18,7 @@
 #include "sdm/BC.hpp"
 #include "sdm/ShapeFunction.hpp"
 #include "sdm/Operations.hpp"
+#include "sdm/PhysDataBase.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -29,27 +30,19 @@ namespace sdm {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @todo this will be replaced eventually with physics properties
-template <Uint NEQS, Uint NDIM>
-struct BCPointData
-{
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  enum { _ndim = NDIM }; ///< number of dimensions
-  enum { _neqs = NEQS }; ///< number of independent variables or equations
-
-  Eigen::Matrix<Real,NEQS,1> solution;
-  Eigen::Matrix<Real,NDIM,1> coord;
-};
-
 /// @author Willem Deconinck
-template <typename POINTDATA>
+template <typename PHYSDATA>
 class sdm_API BCWeak : public BC
 {
 public: // typedefs
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  enum { NDIM = POINTDATA::_ndim }; ///< number of dimensions
-  enum { NEQS = POINTDATA::_neqs }; ///< number of independent variables or equations
+  enum { NDIM = PHYSDATA::NDIM }; ///< number of dimensions
+  enum { NEQS = PHYSDATA::NEQS }; ///< number of independent variables or equations
+  typedef PHYSDATA PhysData;
+  typedef Eigen::Matrix<Real,NDIM,1> RealVectorNDIM;
+  typedef Eigen::Matrix<Real,NEQS,1> RealVectorNEQS;
+
 public: // functions
 
   /// constructor
@@ -84,11 +77,11 @@ protected: // configuration
 
     inner_cell_face_data.resize(face_elem->get().sf->nb_nodes());
     for(Uint face_pt=0; face_pt<inner_cell_face_data.size(); ++face_pt)
-      inner_cell_face_data[face_pt] = boost::shared_ptr<POINTDATA>(new POINTDATA);
+      inner_cell_face_data[face_pt] = boost::shared_ptr<PHYSDATA>(new PHYSDATA);
 
     boundary_face_data.resize(face_elem->get().sf->nb_nodes());
     for(Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
-      boundary_face_data[face_pt] = boost::shared_ptr<POINTDATA>(new POINTDATA);
+      boundary_face_data[face_pt] = boost::shared_ptr<PHYSDATA>(new PHYSDATA);
 
   }
 
@@ -116,7 +109,7 @@ protected: // configuration
     inner_cell->get().unlock();
   }
 
-  virtual void compute_solution(const POINTDATA& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution) = 0;
+  virtual void compute_solution(const PHYSDATA& inner_cell_data, const RealVectorNDIM& boundary_face_normal, RealVectorNEQS& boundary_face_solution) = 0;
 
   void compute_face()
   {
@@ -131,7 +124,7 @@ protected: // configuration
     cf3_assert(inner_cell_face_data[0].get() != inner_cell_face_data[1].get());
     for (Uint face_pt=0; face_pt<inner_cell_face_pt_idx.size(); ++face_pt)
     {
-      reconstruct_flx_pt_data(inner_cell->get(),inner_cell_face_pt_idx[face_pt],*inner_cell_face_data[face_pt]);
+      compute_flx_pt_phys_data(inner_cell->get(),inner_cell_face_pt_idx[face_pt],*inner_cell_face_data[face_pt]);
     }
 
     // boundary face data
@@ -150,7 +143,7 @@ protected: // configuration
     }
 
 
-    boost::shared_ptr<POINTDATA> tmp_data;
+    boost::shared_ptr<PHYSDATA> tmp_data;
     Uint tmp_idx;
     for (Uint face_pt=0; face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++face_pt)
     {
@@ -201,11 +194,12 @@ protected: // configuration
 
   }
 
-  virtual void reconstruct_flx_pt_data(const SFDElement& elem, const Uint flx_pt, POINTDATA& point_data )
+  virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PHYSDATA& point_data )
   {
     mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
-    elem.reconstruct_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
-    elem.reconstruct_geometry_space_to_flux_points[flx_pt](elem.entities->geometry_space().get_coordinates(elem.idx),point_data.coord);
+    mesh::Field::View sol_pt_coords = solution_field().dict().coordinates().view(elem.space->connectivity()[elem.idx]);
+    elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_solution,point_data.solution);
+    elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_coords,point_data.coord);
 //    std::cout << "reconstruct \n" << elem.entities->get_coordinates(elem.idx) << "   to flx_pt " << flx_pt << "\n" << point_data.coord.transpose() << std::endl;
   }
 
@@ -213,8 +207,8 @@ protected: // configuration
 protected: // fast-access-data (for convenience no "m_" prefix)
 
   // Data
-std::vector<boost::shared_ptr< POINTDATA > > inner_cell_face_data;
-std::vector<boost::shared_ptr< POINTDATA > > boundary_face_data;
+std::vector<boost::shared_ptr< PHYSDATA > > inner_cell_face_data;
+std::vector<boost::shared_ptr< PHYSDATA > > boundary_face_data;
 std::vector<Uint> inner_cell_face_pt_idx;
 std::vector<Uint> boundary_face_pt_idx;
 
@@ -230,12 +224,15 @@ std::vector<Uint> boundary_face_pt_idx;
   Handle< CacheT<SFDElement> > inner_cell;
   Handle< CacheT<SFDElement> > face_elem;
 
+  RealVectorNDIM unit_normal;
+  RealVectorNEQS face_sol;
+
 }; // end BCWeak
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename POINTDATA>
-inline BCWeak<POINTDATA>::BCWeak( const std::string& name )
+template <typename PHYSDATA>
+inline BCWeak<PHYSDATA>::BCWeak( const std::string& name )
   : BC(name)
 {
   properties()["brief"] = std::string("Spectral Finite Difference BC");
@@ -244,17 +241,16 @@ inline BCWeak<POINTDATA>::BCWeak( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-template <typename POINTDATA>
-inline void BCWeak<POINTDATA>::execute()
+template <typename PHYSDATA>
+inline void BCWeak<PHYSDATA>::execute()
 {
   find_inner_cell(m_face_entities,m_face_elem_idx,cell_entities,cell_idx,cell_face_nb);
   set_inner_cell();
   compute_face();
   for(Uint face_pt=0; face_pt<boundary_face_pt_idx.size(); ++face_pt)
   { 
-    Eigen::Matrix<Real,NEQS,1> face_sol;
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
-    compute_solution(*inner_cell_face_data[face_pt],face_sol);
+    compute_solution(*inner_cell_face_data[face_pt],unit_normal,face_sol);
 //    common::TableConstRow<Uint>::type field_index = face_elem->get().space->connectivity()[m_face_elem_idx];
 
 //    std::cout << "boundary -- " << face_elem->get().entities->uri() << "[" << face_elem->get().idx << "]" << " : face_points = " << field_index[boundary_face_pt_idx[face_pt]] << "  ---> " ;
@@ -273,21 +269,22 @@ inline void BCWeak<POINTDATA>::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API BCNull : public BCWeak< BCPointData<4u,2u> >
+class sdm_API BCNull : public BCWeak< PhysDataBase<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCNull"; }
-  BCNull(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
+  BCNull(const std::string& name) : BCWeak< PhysDataBase<4u,2u> >(name)
   {
   }
   virtual ~BCNull() {}
 
-  virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
+  virtual void compute_solution(const PhysDataBase<4u,2u>& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     boundary_face_pt_data = inner_cell_data.solution;
   }
 };
 
+////////////////////////////////////////////////////////////////////////////////
 
 } // sdm
 } // cf3

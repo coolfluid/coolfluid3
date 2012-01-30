@@ -24,6 +24,7 @@ list( APPEND coolfluid_sdm_files
   InitialConditions.hpp
   IterativeSolver.cpp
   IterativeSolver.hpp
+  PhysDataBase.hpp
   RungeKuttaLowStorage2.hpp
   RungeKuttaLowStorage2.cpp
   RungeKuttaLowStorage3.hpp

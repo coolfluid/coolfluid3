@@ -21,16 +21,21 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API BCWallEuler2D : public BCWeak< BCPointData<4u,2u> >
+/// PhysData implements only solution and coords
+struct PhysData : PhysDataBase<4u,2u> {};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class sdm_navierstokes_API BCWallEuler2D : public BCWeak< PhysDataBase<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCWallEuler2D"; }
-  BCWallEuler2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
+  BCWallEuler2D(const std::string& name) : BCWeak< PhysData >(name)
   {
   }
   virtual ~BCWallEuler2D() {}
 
-  virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
+  virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     rhoU[XX] = inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU];
     rhoU[YY] = inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV];
@@ -51,24 +56,24 @@ private:
 
   virtual void initialize()
   {
-    BCWeak< BCPointData<4u,2u> >::initialize();
-    flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<2> >();
+    BCWeak< PhysData >::initialize();
+    flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
     flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
   virtual void set_inner_cell()
   {
-    BCWeak< BCPointData<4u,2u> >::set_inner_cell();
+    BCWeak< PhysData >::set_inner_cell();
     flx_pt_plane_jacobian_normal->cache(cell_entities,cell_idx);
   }
   virtual void unset_inner_cell()
   {
-    BCWeak< BCPointData<4u,2u> >::unset_inner_cell();
+    BCWeak< PhysData >::unset_inner_cell();
     flx_pt_plane_jacobian_normal->get().unlock();
   }
 
-  Handle<CacheT<FluxPointPlaneJacobianNormal<2> > > flx_pt_plane_jacobian_normal;
-  RealVector2 rhoU;
+  Handle<CacheT<FluxPointPlaneJacobianNormal<NDIM> > > flx_pt_plane_jacobian_normal;
+  RealVectorNDIM rhoU;
   Real rhoU_normal;
 };
 
