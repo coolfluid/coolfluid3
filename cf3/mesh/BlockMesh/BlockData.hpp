@@ -7,6 +7,8 @@
 #ifndef cf3_mesh_BlockMesh_BlockData_hpp
 #define cf3_mesh_BlockMesh_BlockData_hpp
 
+#include <boost/scoped_ptr.hpp>
+
 #include "common/CF.hpp"
 #include "common/Component.hpp"
 
@@ -62,6 +64,10 @@ public:
   /// Create the volume block mesh
   Handle<Mesh> create_block_mesh();
 
+  /// Create the refined mesh
+  /// @param mesh The mesh in which the output will be stored
+  void create_mesh(Mesh& mesh);
+
   /// @name SIGNALS
   //@{
 
@@ -76,19 +82,14 @@ public:
   void signature_create_patch_face_list(common::SignalArgs& args);
   void signal_create_patch_face_list(common::SignalArgs& args);
   void signal_create_block_mesh(common::SignalArgs& args);
+  void signature_create_mesh(common::SignalArgs& args);
+  void signal_create_mesh(common::SignalArgs& args);
 
   //@} END SIGNALS
 
 private:
-  Handle< common::Table<Real> > m_points;
-  Handle< common::Table<Uint> > m_blocks;
-  Handle< common::Table<Uint> > m_block_subdivisions;
-  Handle< common::Table<Real> > m_block_gradings;
-
-  Handle< common::Group > m_patches;
-
-  Handle<Mesh> m_block_mesh;
-  Handle<Connectivity> m_default_shell_connectivity;
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 };
 
 /// Storage for the information about blocks for structured grid generation
