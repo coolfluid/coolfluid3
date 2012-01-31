@@ -18,8 +18,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import coolfluid as cf
 
-import inspect
-
 #########################################################################################
 # color settings
 #########################################################################################
@@ -138,11 +136,18 @@ def traditional_left2right_tree_layout(G,key) :
   y=traverse_successors_recursive(G,'c:'+key,pos,1)
   for i in G.pred['c:'+key]:
     pos[i]=[G.node[i]['depth'],G.node[i]['depth']]
+  ctr=0
+  for i in pos:
+    if pos[i][0]==-1:
+      print "traditional_left2right_tree_layout: unplugged key: ", i, G.node[i]
+      pos[i][1]=ctr
+      ctr+=1
+  print ctr, G.number_of_nodes()
   return pos
 
 def traditional_left2right_tree_layout_in_polar(G,key) :
   pos=traditional_left2right_tree_layout(G,key)
-  ymax=-1.;
+  ymax=-1.
   for i in pos: ymax=max(float(pos[i][1]),float(ymax))
   for i in pos:
     x=float(pos[i][0])
@@ -271,9 +276,9 @@ class nx_event_connector:
     nxp=root.get_child('NetworkXPython')
     naviax.clear()
     self.navi=nx_event_connector("navi")
-    self.navi=build_graph_with_lists(cf.URI(key),self.navi,nxp,1,'cspofl',depthlimit_sofpl=False,add_parent=True,hidden=self.hidden)
-    self.navi.pos=traditional_left2right_tree_layout_in_polar(self.navi.G,key)
-    self.navi.pos=normalize_coordinates(key,self.navi.pos,cf3_img)
+    self.navi=build_graph_with_lists(cf.URI(key[2:]),self.navi,nxp,1,'cspofl',depthlimit_sofpl=False,add_parent=True,hidden=self.hidden)
+    self.navi.pos=traditional_left2right_tree_layout_in_polar(self.navi.G,key[2:])
+    self.navi.pos=normalize_coordinates(key[2:],self.navi.pos,cf3_img)
     self.navi.rot=compute_edge_angles_for_target_nodes(self.navi.G,self.navi.pos)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.se,'se',self.navi.sn,'sn','solid',signalcolor,10)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.pe,'pe',self.navi.pn,'pn','solid',propertycolor,11)
@@ -309,7 +314,7 @@ class nx_event_connector:
       # marionetting out the owner if its not a component, first trying main and then navi
       if ((tG.node[key]['tag']=='signal') or (tG.node[key]['tag']=='option') or (tG.node[key]['tag']=='field') or (tG.node[key]['tag']=='property')):
         key=tG.pred[key].keys()[0]
-      comp=root.access_component(key)
+      comp=root.access_component(key[2:])
 
       if node_info[0]=="navi":
         key_orig=key
@@ -317,27 +322,27 @@ class nx_event_connector:
       # set string to display
       self.seltxt.set_text("")
       if (tG.node[key_orig]['tag']=='component'):
-        self.seltxt.set_text(key)
+        self.seltxt.set_text(key[2:])
         self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='option'):
-        self.seltxt.set_text("option of " + key)
+        self.seltxt.set_text("option of " + key[2:])
         self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='property'):
-        self.seltxt.set_text("property of " + key)
+        self.seltxt.set_text("property of " + key[2:])
         self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='signal'):
-        self.seltxt.set_text("signal of " + key)
+        self.seltxt.set_text("signal of " + key[2:])
         self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='field'):
-        self.seltxt.set_text("field of " + key)
+        self.seltxt.set_text("field of " + key[2:])
         self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='link'):
-        self.seltxt.set_text("link to " + key)
+        self.seltxt.set_text("link to " + key[2:])
         self.seltxt.set_position(self.pos[key_orig])
 
       # and finally get and display detailed info of the actual component
       nxp=root.get_child('NetworkXPython')
-      infostr=nxp.get_detailed_info(cf.URI(key))
+      infostr=nxp.get_detailed_info(cf.URI(key[2:]))
       self.infotxt.set_text("")
       if 's' in self.printdestination: self.infotxt.set_text(infostr)
       if 'c' in self.printdestination: print infostr
@@ -394,6 +399,11 @@ def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,edgestyle,color,zord):
 #########################################################################################
 # query data from coolfluid and build graph and lists
 #########################################################################################
+def append_with_successors_recursive(G,key,to_append) :
+  to_append.append(key)
+  for i in G.successors(key):
+    append_with_successors_recursive(G,i,to_append)
+
 def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=True,add_parent=False,hidden='cofpsl'):
 
   # getting the strings which holds the script to setup the graph
@@ -447,9 +457,10 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
   for i in nec_.G:
     if nec_.G.node[i]['hidden']==True:
       if nec_.G.node[i]['tag'][0] in hidden:
-        dellist.append(i)
+        append_with_successors_recursive(nec_.G,i,dellist)
   nec_.G.remove_nodes_from(dellist)
   for i in dellist:
+    print i
     nec_.nodecaption.pop(i)
 
   # separating lists
@@ -531,8 +542,8 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',
   #nec.pos=nx.graphviz_layout(nec.G,prog='twopi')
   #nec.pos=nx.graphviz_layout(nec.G,prog='circo',root=start_key)
   #nec.pos=nx.spring_layout(nec.G,iterations=50)
-  #nec.pos=traditional_left2right_tree_layout(nec.G,start_key)
-  nec.pos=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
+  nec.pos=traditional_left2right_tree_layout(nec.G,start_key)
+  #nec.pos=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
   #pos2=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
   #nec.pos=nx.spring_layout(nec.G,pos=pos2,iterations=50)
 
