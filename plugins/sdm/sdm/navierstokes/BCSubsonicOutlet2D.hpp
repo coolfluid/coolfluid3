@@ -24,12 +24,12 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API BCSubsonicOutlet2D : public BCWeak< BCPointData<4u,2u> >
+class sdm_navierstokes_API BCSubsonicOutlet2D : public BCWeak< PhysDataBase<4u,2u> >
 {
   typedef physics::NavierStokes::Cons2D PHYS;
 public:
   static std::string type_name() { return "BCSubsonicOutlet2D"; }
-  BCSubsonicOutlet2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
+  BCSubsonicOutlet2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_p = 101300.;
     options().add_option("p",m_p).link_to(&m_p);
@@ -38,12 +38,12 @@ public:
 
   virtual void initialize()
   {
-    BCWeak< BCPointData<4u,2u> >::initialize();
+    BCWeak< PhysData >::initialize();
     m_gamma = physical_model().options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
-  virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
+  virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
 
     m_rho_inner  = inner_cell_data.solution[physics::NavierStokes::Cons2D::Rho];

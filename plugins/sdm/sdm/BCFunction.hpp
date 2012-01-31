@@ -22,11 +22,11 @@ namespace sdm {
 //////////////////////////////////////////////////////////////////////////////
 
 template <Uint NEQS, Uint NDIM>
-class BCFunction : public BCWeak< BCPointData<NEQS,NDIM> >
+class BCFunction : public BCWeak< PhysDataBase<NEQS,NDIM> >
 {
 public:
   static std::string type_name() { return "BCFunction<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
-  BCFunction(const std::string& name) : BCWeak<BCPointData<NEQS,NDIM> >(name)
+  BCFunction(const std::string& name) : BCWeak< PhysDataBase<NEQS,NDIM> >(name)
   {
     common::Component::options().add_option("functions", std::vector<std::string>())
         .description("math function applied as boundary condition (vars x,y,z)")
@@ -46,7 +46,7 @@ public:
 
   virtual ~BCFunction() {}
 
-  virtual void compute_solution(const BCPointData<NEQS,NDIM>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
+  virtual void compute_solution(const PhysDataBase<NEQS,NDIM>& inner_cell_data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
   {
     for (Uint d=0; d<NDIM; ++d)
       params[d] = inner_cell_data.coord[d];

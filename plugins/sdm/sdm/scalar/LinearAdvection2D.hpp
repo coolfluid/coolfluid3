@@ -20,13 +20,14 @@ namespace scalar {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_scalar_API LinearAdvection2D : public ConvectiveTerm< ConvectiveTermPointData<1u,2u> >
+class sdm_scalar_API LinearAdvection2D : public ConvectiveTerm< PhysDataBase<1u,2u> >
 {
 public:
+
   static std::string type_name() { return "LinearAdvection2D"; }
-  LinearAdvection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<1u,2u> >(name)
+  LinearAdvection2D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
-    m_advection_speed.resize(2u);
+    m_advection_speed.resize(NDIM);
     m_advection_speed[XX]= 1.;
     m_advection_speed[YY]= 1.;
 
@@ -34,14 +35,14 @@ public:
   }
   virtual ~LinearAdvection2D() {}
 
-  virtual void compute_analytical_flux(ConvectiveTermPointData<NEQS,NDIM>& data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
+  virtual void compute_analytical_flux(PhysData& data, const RealVectorNDIM& unit_normal, RealVectorNEQS& flux, Real& wave_speed)
   {
     Real A = (unit_normal[XX]*m_advection_speed[XX]+unit_normal[YY]*m_advection_speed[YY]);
     flux = A*data.solution;
     wave_speed = std::abs(A);
   }
 
-  virtual void compute_numerical_flux(ConvectiveTermPointData<NEQS,NDIM>& left, ConvectiveTermPointData<NEQS,NDIM>& right, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& flux, Real& wave_speed)
+  virtual void compute_numerical_flux(PhysData& left, PhysData& right, const RealVectorNDIM& unit_normal, RealVectorNEQS& flux, Real& wave_speed)
   {
     Real A = (m_advection_speed[XX]*unit_normal[XX]+m_advection_speed[YY]*unit_normal[YY]);
     flux = 0.5 * A*(left.solution + right.solution) - 0.5 * std::abs(A)*(right.solution - left.solution);

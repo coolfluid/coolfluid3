@@ -24,14 +24,14 @@ namespace lineuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_lineuler_API Convection2D : public ConvectiveTerm< ConvectiveTermPointData<4u,2u> >
+class sdm_lineuler_API Convection2D : public ConvectiveTerm< PhysDataBase<4u,2u> >
 {
 private:
   typedef physics::LinEuler::Cons2D PHYS;
 
 public:
   static std::string type_name() { return "Convection2D"; }
-  Convection2D(const std::string& name) : ConvectiveTerm< ConvectiveTermPointData<4u,2u> >(name)
+  Convection2D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
     p.gamma = 1.4;
     options().add_option("gamma",p.gamma)
@@ -77,8 +77,8 @@ public:
   virtual ~Convection2D() {}
 
 
-  virtual void compute_analytical_flux(ConvectiveTermPointData<4u,2u>& data, const PHYS::MODEL::GeoV& unit_normal,
-                                       PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_analytical_flux(PhysData& data, const RealVectorNDIM& unit_normal,
+                                       RealVectorNEQS& flux, Real& wave_speed)
   {
     PHYS::compute_properties(data.coord, data.solution , dummy_grads, p);
     PHYS::flux(p, unit_normal, flux);
@@ -86,8 +86,8 @@ public:
     wave_speed = eigenvalues.cwiseAbs().maxCoeff();
   }
 
-  virtual void compute_numerical_flux(ConvectiveTermPointData<4u,2u>& left, ConvectiveTermPointData<4u,2u>& right, const PHYS::MODEL::GeoV& unit_normal,
-                                      PHYS::MODEL::SolV& flux, Real& wave_speed)
+  virtual void compute_numerical_flux(PhysData& left, PhysData& right, const RealVectorNDIM& unit_normal,
+                                      RealVectorNEQS& flux, Real& wave_speed)
   {
     // Compute left and right fluxes
     PHYS::compute_properties(left.coord, left.solution, dummy_grads, p);

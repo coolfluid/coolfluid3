@@ -21,11 +21,11 @@ namespace navierstokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API BCSubsonicInletUT2D : public BCWeak< BCPointData<4u,2u> >
+class sdm_navierstokes_API BCSubsonicInletUT2D : public BCWeak< PhysDataBase<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCSubsonicInletUT2D"; }
-  BCSubsonicInletUT2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
+  BCSubsonicInletUT2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_U.resize(1.,0.);
     options().add_option("U",m_U).link_to(&m_U);
@@ -38,7 +38,15 @@ public:
   }
   virtual ~BCSubsonicInletUT2D() {}
 
-  virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
+  virtual void initialize()
+  {
+    BCWeak< PhysData >::initialize();
+    m_gamma = physical_model().options().option("gamma").value<Real>();
+    m_gamma_minus_1 = m_gamma - 1.;
+    m_R = physical_model().options().option("R").value<Real>();
+  }
+
+  virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     m_rho_inner  = inner_cell_data.solution[physics::NavierStokes::Cons2D::Rho];
     m_uuvv_inner = (inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU]*inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU] + inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV]*inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV])/(m_rho_inner*m_rho_inner);
@@ -76,11 +84,11 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_navierstokes_API BCSubsonicInletTtPtAlpha2D : public BCWeak< BCPointData<4u,2u> >
+class sdm_navierstokes_API BCSubsonicInletTtPtAlpha2D : public BCWeak< PhysDataBase<4u,2u> >
 {
 public:
   static std::string type_name() { return "BCSubsonicInletTtPtAlpha2D"; }
-  BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak< BCPointData<4u,2u> >(name)
+  BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_Tt=273.15 + 25; // 25 degrees Celcius
     options().add_option("Tt",m_Tt).description("Total Temperature").link_to(&m_Tt);
@@ -93,13 +101,13 @@ public:
 
   virtual void initialize()
   {
-    BCWeak< BCPointData<4u,2u> >::initialize();
+    BCWeak< PhysData >::initialize();
     m_gamma = physical_model().options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
     m_R = physical_model().options().option("R").value<Real>();
   }
 
-  virtual void compute_solution(const BCPointData<4u,2u>& inner_cell_data, Eigen::Matrix<Real,NEQS,1>& boundary_face_pt_data)
+  virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     m_rho_inner       = inner_cell_data.solution[physics::NavierStokes::Cons2D::Rho];
     m_uuvv_inner      = (inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU]*inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU] + inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV]*inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV])/(m_rho_inner*m_rho_inner);
