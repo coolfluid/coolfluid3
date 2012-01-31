@@ -142,7 +142,6 @@ def traditional_left2right_tree_layout(G,key) :
       print "traditional_left2right_tree_layout: unplugged key: ", i, G.node[i]
       pos[i][1]=ctr
       ctr+=1
-  print ctr, G.number_of_nodes()
   return pos
 
 def traditional_left2right_tree_layout_in_polar(G,key) :
