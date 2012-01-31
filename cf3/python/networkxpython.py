@@ -400,7 +400,7 @@ def draw_edges_nodes(G,pos,elist,elabel,nlist,nlabel,edgestyle,color,zord):
 # query data from coolfluid and build graph and lists
 #########################################################################################
 def append_with_successors_recursive(G,key,to_append) :
-  to_append.append(key)
+  to_append[key]=1
   for i in G.successors(key):
     append_with_successors_recursive(G,i,to_append)
 
@@ -452,15 +452,14 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
     for i in pare:
       nec_.G.edge[i[0]][i[1]]['tag']='component'
 
-  # getting out hidden from the graph if required
-  dellist=list()
+  # getting out hidden from the graph if required, using dict becuase some elements could end up in a list multiple times
+  dellist=dict()
   for i in nec_.G:
     if nec_.G.node[i]['hidden']==True:
       if nec_.G.node[i]['tag'][0] in hidden:
         append_with_successors_recursive(nec_.G,i,dellist)
-  nec_.G.remove_nodes_from(dellist)
-  for i in dellist:
-    print i
+  nec_.G.remove_nodes_from(dellist.keys())
+  for i in dellist.keys():
     nec_.nodecaption.pop(i)
 
   # separating lists
