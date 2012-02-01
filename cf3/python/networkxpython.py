@@ -23,12 +23,13 @@ import coolfluid as cf
 #########################################################################################
 titlecolor='white'
 bgcolor='black'
+navicolor='yellow'
 componentcolor='#aaaaaa'
 optioncolor='#2a83bd'
 signalcolor='#3a773a'
 fieldcolor='#3a3a77'
 linkcolor='#aaaaaa'
-propertycolor='yellow'
+propertycolor='#cc4444'
 
 #########################################################################################
 # base64 coded png image for root component
@@ -131,14 +132,14 @@ def traverse_successors_recursive(G,key,pos,y) :
   return y
 
 def traditional_left2right_tree_layout(G,key) :
-  pos=dict(zip(G,numpy.tile(-1,(G.number_of_nodes(),2))))
+  pos=dict(zip(G,numpy.tile(-999,(G.number_of_nodes(),2))))
   pos['c:'+key]=[G.node['c:'+key]['depth'],0]
   y=traverse_successors_recursive(G,'c:'+key,pos,1)
   for i in G.pred['c:'+key]:
     pos[i]=[G.node[i]['depth'],G.node[i]['depth']]
   ctr=0
   for i in pos:
-    if pos[i][0]==-1:
+    if pos[i][0]==-999:
       print "traditional_left2right_tree_layout: unplugged key: ", i, G.node[i]
       pos[i][1]=ctr
       ctr+=1
@@ -266,7 +267,7 @@ class nx_event_connector:
     color=titlecolor, ha='left', va='top',zorder=51)
   seltxt=plt.text(0.,0.,"",
     family='monospace',size=10, weight='bold',
-    color=titlecolor, ha='left', va='center',zorder=51)
+    color=navicolor, ha='left', va='center',zorder=51)
 
   # helper func for plotting the secondary navigator
   #######################################################################################
@@ -279,6 +280,19 @@ class nx_event_connector:
     self.navi.pos=traditional_left2right_tree_layout_in_polar(self.navi.G,key[2:])
     self.navi.pos=normalize_coordinates(key[2:],self.navi.pos,cf3_img)
     self.navi.rot=compute_edge_angles_for_target_nodes(self.navi.G,self.navi.pos)
+    for i in self.navi.G:
+      if self.navi.G.node[i]['depth']==-1:
+        self.navi.pos[i]=(-1.3,1.3)
+      else:
+        if self.navi.G.node[i]['depth']==0:
+          self.navi.pos[i]=(0.,0.)
+        else:
+          coord=self.navi.pos[i]
+          magnitude=math.sqrt(coord[0]*coord[0]+coord[1]*coord[1])
+          if magnitude!=0:
+            coord[0]/=magnitude
+            coord[1]/=magnitude
+            self.navi.pos[i]=coord
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.se,'se',self.navi.sn,'sn','solid',signalcolor,10)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.pe,'pe',self.navi.pn,'pn','solid',propertycolor,11)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.fe,'fe',self.navi.fn,'fn','solid',fieldcolor,12)
@@ -291,8 +305,8 @@ class nx_event_connector:
     draw_captions(self.navi.G,self.navi.pos,self.navi.ocapt,'oc',optioncolor,43,rotation=self.navi.rot,onlyalign=True)
     draw_captions(self.navi.G,self.navi.pos,self.navi.lcapt,'lc',linkcolor,44,rotation=self.navi.rot,onlyalign=True)
     draw_captions(self.navi.G,self.navi.pos,self.navi.ccapt,'cc',componentcolor,45,rotation=self.navi.rot,onlyalign=True)
-    zft=naviax.get_xbound()
-    naviax.set_xbound((0.5*(zft[0]+zft[1])-(zft[0]-zft[1]),0.5*(zft[0]+zft[1])+(zft[0]-zft[1])))
+    naviax.set_xbound((-3,3))
+    naviax.set_ybound((-1.2,1.5))
     naviax.set_visible(True)
     plt.sca(mainax)
 
@@ -320,24 +334,19 @@ class nx_event_connector:
 
       # set string to display
       self.seltxt.set_text("")
+      self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='component'):
         self.seltxt.set_text(key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='option'):
         self.seltxt.set_text("option of " + key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='property'):
         self.seltxt.set_text("property of " + key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='signal'):
         self.seltxt.set_text("signal of " + key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='field'):
         self.seltxt.set_text("field of " + key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
       if (tG.node[key_orig]['tag']=='link'):
         self.seltxt.set_text("link to " + key[2:])
-        self.seltxt.set_position(self.pos[key_orig])
 
       # and finally get and display detailed info of the actual component
       nxp=root.get_child('NetworkXPython')
@@ -446,7 +455,6 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
     parn=[(u)   for (u,d)   in nec_.G.nodes(data=True) if d['tag']=='parent']
     for i in parn:
       nec_.G.node[i]['tag']='component'
-      nec_.G.node[i]['depth']=-2.5
     pare=[(u,v) for (u,v,d) in nec_.G.edges(data=True) if d['tag']=='parent']
     for i in pare:
       nec_.G.edge[i[0]][i[1]]['tag']='component'
@@ -540,8 +548,8 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',
   #nec.pos=nx.graphviz_layout(nec.G,prog='twopi')
   #nec.pos=nx.graphviz_layout(nec.G,prog='circo',root=start_key)
   #nec.pos=nx.spring_layout(nec.G,iterations=50)
-  nec.pos=traditional_left2right_tree_layout(nec.G,start_key)
-  #nec.pos=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
+  #nec.pos=traditional_left2right_tree_layout(nec.G,start_key)
+  nec.pos=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
   #pos2=traditional_left2right_tree_layout_in_polar(nec.G,start_key)
   #nec.pos=nx.spring_layout(nec.G,pos=pos2,iterations=50)
 
