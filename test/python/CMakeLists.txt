@@ -16,3 +16,6 @@ coolfluid_add_test( UTEST  utest-python-table
 
 coolfluid_add_test( UTEST  utest-python-properties
                     PYTHON utest-python-properties.py )
+
+coolfluid_add_test( UTEST  utest-python-signal-return
+                    PYTHON utest-python-signal-return.py )

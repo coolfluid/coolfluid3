@@ -20,7 +20,8 @@ void def_uri()
   scope in_uri = class_<common::URI>("URI", "Coolfluid URI class wrapper")
     .def(init<std::string>())
     .def(init<std::string, common::URI::Scheme::Type>())
-    .def("__str__", &common::URI::string);
+    .def("__str__", &common::URI::string)
+    .def("path", (std::string(common::URI::*)()const)(&common::URI::path));
 
   enum_<common::URI::Scheme::Type>("Scheme")
     .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::HTTP).c_str(), common::URI::Scheme::HTTP)
