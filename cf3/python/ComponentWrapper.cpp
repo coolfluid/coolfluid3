@@ -438,6 +438,11 @@ common::URI uri(ComponentWrapper& self)
   return self.component().uri();
 }
 
+std::string derived_type_name(ComponentWrapper& self)
+{
+  return self.component().derived_type_name();
+}
+
 void print_timing_tree(ComponentWrapper& self)
 {
   cf3::common::print_timing_tree(self.component());
@@ -547,6 +552,7 @@ void def_component()
     .def("options", options, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("uri", uri)
+    .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)

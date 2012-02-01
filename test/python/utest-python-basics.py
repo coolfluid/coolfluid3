@@ -28,3 +28,5 @@ print len(a), a[0], a[1]
 
 action_director = root.create_component('director', 'cf3.common.ActionDirector')
 action_director.options().configure_option('disabled_actions', ['a', 'b', 'c'])
+
+print root.derived_type_name()

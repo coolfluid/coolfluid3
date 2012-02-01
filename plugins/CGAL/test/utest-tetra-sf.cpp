@@ -24,6 +24,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 #include "mesh/ElementTypes.hpp"
