@@ -56,7 +56,7 @@ namespace core {
     void notify_child_count_changed();
 
     /// Emits @c #signal_signature() signal.
-    void notify_signal_signature(common::SignalArgs * node);
+    void notify_signal_signature(common::SignalArgs &node);
 
   signals:
 

@@ -69,10 +69,14 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
   qDebug() << __FUNCTION__ << __LINE__ << this->thread() << qApp->thread() << title << block;
 
   XmlNode node( sig.content->first_node() );
+  qDebug() << __FUNCTION__ << __LINE__ << node.is_valid() << title;
   QString name;
   std::string str;
+  rapidxml::xml_node<> * n = sig.content->parent()->parent()->parent()->parent();
 
-  XML::to_string( node, str );
+  if(is_not_null(n))
+    XML::to_string( n, str );
+
   qDebug() << __FUNCTION__ << __LINE__ << str.c_str() << title;
 
   m_ok_clicked = false;

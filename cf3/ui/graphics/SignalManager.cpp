@@ -16,6 +16,8 @@
 
 #include "common/XML/Protocol.hpp"
 
+#include "common/XML/FileOperations.hpp"
+
 #include "ui/core/NetworkQueue.hpp"
 #include "ui/core/NLog.hpp"
 
@@ -144,7 +146,7 @@ void SignalManager::action_hovered()
 
 void SignalManager::signal_signature(SignalArgs * args)
 {
-  if(m_waiting_for_signature)
+  //if(m_waiting_for_signature)
   {
     URI path = m_node->uri();
     ActionInfo & info = m_signals[m_current_action];
@@ -155,6 +157,15 @@ void SignalManager::signal_signature(SignalArgs * args)
 
     if( args->has_map(tag) )
       args->map(tag).main_map.content.deep_copy( options.main_map.content );
+
+    std::string str ;
+
+    XML::to_string(args->map(tag).node/*args->node*/, str);
+
+    qDebug() << str.c_str() << args->has_reply();
+
+    XML::to_string(m_frame.node, str);
+    qDebug() << str.c_str();
 
     try
     {

@@ -131,6 +131,7 @@ void TreeThread::new_signal( SignalArgs & args)
   {
     SignalFrame real_frame;
 
+
     if( args.has_reply() )
       real_frame = args.get_reply();
     else

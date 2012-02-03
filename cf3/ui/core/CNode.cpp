@@ -75,9 +75,9 @@ void CNodeNotifier::notify_child_count_changed()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNodeNotifier::notify_signal_signature( SignalArgs * node )
+void CNodeNotifier::notify_signal_signature( SignalArgs & node )
 {
-  emit signal_signature( node );
+  emit signal_signature( &node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -502,7 +502,7 @@ void CNode::reply_list_content( SignalArgs & node )
 void CNode::reply_signal_signature( SignalArgs & node )
 {
   qDebug() << __FUNCTION__;
-  m_notifier->notify_signal_signature( &node );
+  m_notifier->notify_signal_signature( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
