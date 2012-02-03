@@ -264,7 +264,7 @@ class nx_event_connector:
   #######################################################################################
   infotxt=plt.text(0.02,0.92,"",
     transform=mainax.transAxes, family='monospace',size=10, weight='bold',
-    color=titlecolor, ha='left', va='top',zorder=51)
+    color=navicolor, ha='left', va='top',zorder=51)
   seltxt=plt.text(0.,0.,"",
     family='monospace',size=10, weight='bold',
     color=navicolor, ha='left', va='center',zorder=51)

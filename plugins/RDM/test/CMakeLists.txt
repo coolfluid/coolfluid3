@@ -24,13 +24,13 @@ coolfluid_add_test( ATEST     atest-rdm-burgers2d
                     CFSCRIPT  atest-rdm-burgers2d.cfscript )
 
 coolfluid_add_test( ATEST     atest-rdm-euler2d-uniform-flow
-                    CFSCRIPT  atest-rdm-euler2d-uniform-flow.cfscript )
+                    PYTHON    atest-rdm-euler2d-uniform-flow.py )
 
 coolfluid_add_test( ATEST     atest-rdm-euler3d-uniform-flow
-                    CFSCRIPT  atest-rdm-euler3d-uniform-flow.cfscript )
+                    PYTHON    atest-rdm-euler3d-uniform-flow.py )
 
 coolfluid_add_test( ATEST     atest-rdm-euler2d-riemann
-                    CFSCRIPT  atest-rdm-euler2d-riemann.cfscript )
+                    PYTHON    atest-rdm-euler2d-riemann.py )
 
 coolfluid_add_test( ATEST     atest-rdm-linearadv3d
                     CFSCRIPT  atest-rdm-linearadv3d.cfscript )

@@ -43,7 +43,7 @@ solver.get_child('IterativeSolver').get_child('Update').get_child('Step').option
 
 iconds = solver.get_child('InitialConditions')
 iconds.create_initial_condition(name='INIT')
-iconds.get_child('INIT').options().configure_option('functions', ['0.500','1.500','1.500','7.000'])
+iconds.get_child('INIT').options().configure_option('functions', ['0.500','1.500','1.500','1.500','7.000'])
 iconds.get_child('INIT').options().configure_option('regions', internal_regions)
 
 ### boundary conditions
