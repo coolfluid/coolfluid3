@@ -337,6 +337,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
   for (Uint f=0; f<face_to_cell.size(); ++f)
   {
     Entity element = face_to_cell.connectivity()[f][0];
+    if ( is_null(element.comp) )
+      throw InvalidStructure(FromHere(),"Face matching messed up in region "+region.uri().string());
     const Uint face_nb = face_number[f][0];
     const std::string face_type = element.element_type().face_type(face_nb).derived_type_name();
 
@@ -471,6 +473,7 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
 
     std::vector<Uint> face_nodes;
     std::vector<Entity> elems(2);
+    std::vector<Uint> face_nb(2);
     enum {LEFT=0,RIGHT=1};
     Uint nb_matches(0);
 
@@ -503,12 +506,14 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
               match_found = true;
               elems[LEFT]  = face1.cells()[0];
               elems[RIGHT] = face2.cells()[0];
-
+              face_nb[LEFT] = face1.face_nb_in_cells()[0];
+              face_nb[RIGHT] = face2.face_nb_in_cells()[0];
               CFdebug << PERank << "match found: " << elems[LEFT] << " <--> " << elems[RIGHT] << CFendl;
 
               // Remove matches from the 2 connectivity tables and add to the interface
               i2c.add_row(elems);
-              fnb.add_row(buf_fnb[face1.comp]->get_row(face1.idx));
+              fnb.add_row(face_nb);
+//              fnb.add_row(buf_fnb[face1.comp]->get_row(face1.idx));
               bdry.add_row(false);
 
               buf_f2c [face1.comp]->rm_row(face1.idx);
@@ -735,7 +740,7 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
 //    PECheckPoint(100,"building c2f for " << face_elements.uri());
-    //CFdebug << PERank << face_elements.uri().path() << CFendl;
+    CFdebug << PERank << face_elements.uri().path() << CFendl;
     FaceCellConnectivity& f2c = *face_elements.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
     const ElementConnectivity& connectivity = f2c.connectivity();
     const common::List<bool>& is_bdry       = f2c.is_bdry_face();
@@ -744,21 +749,25 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
     for (Uint idx=0; idx<face_elements.size(); ++idx)
     {
       Face2Cell face(f2c,idx);
-      //CFdebug << PERank << "    face["<<face_idx<<"]" << CFendl;;
-      //CFdebug << PERank << "        --->  cell["<<cell_idx<<"]"<< CFendl;
       Entity left_cell = face.cells()[LEFT];
+      CFdebug << PERank << "    face "<< face.comp->uri()<< "["<<face.idx<<"]" << CFendl;
+      CFdebug << PERank << "        --->  cell "<< left_cell.comp->uri() << "["<<left_cell.idx<<"]["<<face.face_nb_in_cells()[LEFT]<<"]"<< CFendl;
+
       ElementConnectivity& left_c2f = *left_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
       cf3_assert(left_cell.idx < left_c2f.size());
       cf3_assert(face.face_nb_in_cells()[LEFT] < left_c2f[left_cell.idx].size());
       left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = Entity(face_elements,idx);
+      cf3_assert(left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]].comp);
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
+        CFdebug << PERank << "        --->  cell" << right_cell.comp->uri() << "[" << right_cell.idx<<"]["<<face.face_nb_in_cells()[RIGHT]<<"]"<< CFendl;
+
         ElementConnectivity& right_c2f = *right_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
         cf3_assert(right_cell.idx < right_c2f.size());
         cf3_assert(face.face_nb_in_cells()[RIGHT] < right_c2f[right_cell.idx].size());
         right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = Entity(face_elements,idx);
-        //CFdebug << PERank << "        --->  cell[" << cell_idx<<"]"<< CFendl;
+        cf3_assert(right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]].comp);
       }
     }
 //    PECheckArrivePoint(100,"built " << face_elements.uri());
