@@ -12,7 +12,7 @@ env.options().configure_option('assertion_backtrace', True)
 env.options().configure_option('exception_backtrace', True)
 env.options().configure_option('exception_aborts', True)
 env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 4)
+env.options().configure_option('log_level', 3)
 env.options().configure_option('regist_signal_handlers', False)
 
 ### create model
@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+domain.load_mesh(file=cf.URI('circleP2.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -33,7 +33,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
 solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP1')
+solver.options().configure_option('solution_space', 'LagrangeP2')
 
 #solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
 
@@ -93,33 +93,44 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 
 iconds.execute()
 
-fields=[
-#  cf.URI('//Model/Domain/mesh/geometry_fields/solution'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/residual'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/wave_speed'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/dual_area')]
-  cf.URI('//Model/Domain/mesh/solution/solution'),
-  cf.URI('//Model/Domain/mesh/solution/residual'),
-  cf.URI('//Model/Domain/mesh/solution/wave_speed'),
-  cf.URI('//Model/Domain/mesh/solution/dual_area')]
+fgeo=[cf.URI('//Model/Domain/mesh/geometry/solution'),
+      cf.URI('//Model/Domain/mesh/geometry/residual'),
+      cf.URI('//Model/Domain/mesh/geometry/wave_speed'),
+      cf.URI('//Model/Domain/mesh/geometry/dual_area')]
+fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
+      cf.URI('//Model/Domain/mesh/solution/residual'),
+      cf.URI('//Model/Domain/mesh/solution/wave_speed'),
+      cf.URI('//Model/Domain/mesh/solution/dual_area')]
 
-#gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
-#gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-#gmsh_writer.options().configure_option('fields',fields)
-#gmsh_writer.options().configure_option('file',cf.URI('file:initial.msh'))
-#gmsh_writer.execute()
+gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
+gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+gmsh_writer.options().configure_option('fields',fgeo)
+gmsh_writer.options().configure_option('file',cf.URI('file:_geo_initial.msh'))
+gmsh_writer.execute()
+gmsh_writer.options().configure_option('fields',fsol)
+gmsh_writer.options().configure_option('file',cf.URI('file:_sol_initial.msh'))
+gmsh_writer.execute()
 
-tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-tecplot_writer.options().configure_option('fields',fields)
-tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
+#tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
+#tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+#tecplot_writer.options().configure_option('fields',fields)
+#tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
 #tecplot_writer.execute()
 
 model.simulate()
-   
-#gmsh_writer.options().configure_option('file',cf.URI('file:final.msh'))
-#gmsh_writer.execute()
+
+gmsh_writer.options().configure_option('fields',fgeo)
+gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final.msh'))
+gmsh_writer.execute()
+gmsh_writer.options().configure_option('fields',fsol)
+gmsh_writer.options().configure_option('file',cf.URI('file:_sol_final.msh'))
+gmsh_writer.execute()
 
 #tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
+
+import networkxpython as nx
+nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+
+
 
