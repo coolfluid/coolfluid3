@@ -15,6 +15,8 @@
 #include "common/List.hpp"
 
 #include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/Domain.hpp"
@@ -45,11 +47,11 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
-
-  boost::shared_ptr< MeshWriter > writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
+  cf3_assert(nb_procs==8);
+  
+  //PE::wait_for_debugger(0);
 
   Domain& domain = *Core::instance().root().create_component<Domain>("domain");
-  domain.add_component(writer);
 
   const Real length = 1.;
   const Real half_height = 1.;
@@ -57,41 +59,36 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint x_segs = 12;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
 
-  blocks.dimension = 2;
-  blocks.scaling_factor = 1.;
+  (*blocks.create_points(2, 6)) << 0.     << -half_height
+                                << length << -half_height
+                                << 0.     <<  0.
+                                << length <<  0.
+                                << 0.     <<  half_height
+                                << length <<  half_height;
 
-  blocks.points += list_of(0.    )(-half_height)
-                 , list_of(length)(-half_height)
-                 , list_of(0.    )( 0.         )
-                 , list_of(length)( 0.         )
-                 , list_of(0.    )( half_height)
-                 , list_of(length)( half_height);
+  (*blocks.create_blocks(2)) << 0 << 1 << 3 << 2
+                             << 2 << 3 << 5 << 4;
 
-  blocks.block_points += list_of(0)(1)(3)(2),
-                         list_of(2)(3)(5)(4);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs),
-                               list_of(x_segs)(y_segs);
-  blocks.block_gradings += list_of(1.)(1.)(1./ratio)(1./ratio),
-                           list_of(1.)(1.)(ratio)(ratio);
+  (*blocks.create_block_subdivisions()) << x_segs << y_segs
+                                        << x_segs << y_segs;
 
-  blocks.patch_names += "left", "right", "top",  "bottom";
-  blocks.patch_types += "wall", "wall",  "wall", "wall";
-  blocks.patch_points += list_of(2)(0)(4)(2),
-                         list_of(1)(3)(3)(5),
-                         list_of(5)(4),
-                         list_of(0)(1);
+  (*blocks.create_block_gradings()) << 1. << 1. << 1./ratio << 1./ratio
+                                    << 1. << 1. << ratio << ratio;
 
-  blocks.block_distribution += 0, 2;
+  *blocks.create_patch("left", 2) << 2 << 0 << 4 << 2;
+  *blocks.create_patch("right", 2) << 1 << 3 << 3 << 5;
+  *blocks.create_patch("top", 1) << 5 << 4;
+  *blocks.create_patch("bottom", 1) << 0 << 1;
 
-  // Test block partitioning
-  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
-  BlockMesh::partition_blocks(blocks, nb_procs, XX, parallel_blocks);
+  // Partition the blocks
+  blocks.partition_blocks(4, 1);
+  blocks.partition_blocks(2, 0);
 
   // Build the mesh
   Mesh& mesh = *domain.create_component<Mesh>("mesh");
-  BlockMesh::build_mesh(parallel_blocks, mesh);
+  blocks.create_mesh(mesh);
 
   // Store element ranks
   Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
@@ -109,11 +106,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   }
 
   // Write to disk
-  std::vector<Handle< Field > > fields;
-  fields.push_back(mesh.geometry_fields().coordinates().handle<Field>());
-  fields.push_back(elem_rank.handle<Field>());
-  writer->set_fields(fields);
-  writer->write_from_to(mesh, URI("utest-blockmesh-2d-mpi_output.pvtu"));
+  std::vector<URI> fields;
+  fields.push_back(elem_rank.uri());
+  mesh.write_mesh("utest-blockmesh-2d-mpi_output.pvtu", fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

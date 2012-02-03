@@ -14,6 +14,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/Table.hpp"
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
 #include "common/Timer.hpp"
@@ -75,8 +76,8 @@ ChannelGenerator::ChannelGenerator(const std::string& name): MeshGenerator(name)
 
 void ChannelGenerator::execute()
 {
-  if(is_not_null(get_child("BlockData")))
-    remove_component("BlockData");
+  if(is_not_null(get_child("BlockArrays")))
+    remove_component("BlockArrays");
 
   if(is_not_null(get_child("ParallelBlocks")))
     remove_component("ParallelBlocks");
@@ -90,40 +91,40 @@ void ChannelGenerator::execute()
   const Real width = options().option("width").value<Real>();
   const Real ratio = options().option("grading").value<Real>();
 
-  BlockData& blocks = *create_component<BlockData>("BlockData");
+  BlockArrays& blocks = *create_component<BlockArrays>("BlockArrays");
 
-  blocks.scaling_factor = 1.;
-  blocks.dimension = 3;
+  Table<Real>& points = *blocks.create_points(3, 12);
+  points  << 0.     << -half_height << 0.
+          << length << -half_height << 0.
+          << 0.     <<  0.          << 0.
+          << length <<  0.          << 0.
+          << 0.     <<  half_height << 0.
+          << length <<  half_height << 0.
+          << 0.     << -half_height << width
+          << length << -half_height << width
+          << 0.     <<  0.          << width
+          << length <<  0.          << width
+          << 0.     <<  half_height << width
+          << length <<  half_height << width;
 
-  blocks.points += list_of(0.    )(-half_height)(0.   )
-                 , list_of(length)(-half_height)(0.   )
-                 , list_of(0.    )( 0.         )(0.   )
-                 , list_of(length)( 0.         )(0.   )
-                 , list_of(0.    )( half_height)(0.   )
-                 , list_of(length)( half_height)(0.   )
-                 , list_of(0.    )(-half_height)(width)
-                 , list_of(length)(-half_height)(width)
-                 , list_of(0.    )( 0.         )(width)
-                 , list_of(length)( 0.         )(width)
-                 , list_of(0.    )( half_height)(width)
-                 , list_of(length)( half_height)(width);
+  Table<Uint>& block_nodes = *blocks.create_blocks(2);
+  block_nodes << 0 << 1 << 3 << 2 << 6 << 7 << 9 << 8
+              << 2 << 3 << 5 << 4 << 8 << 9 << 11 << 10;
 
-  blocks.block_points += list_of(0)(1)(3)(2)(6)(7)(9)(8)
-                       , list_of(2)(3)(5)(4)(8)(9)(11)(10);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs_half)(z_segs)
-                             , list_of(x_segs)(y_segs_half)(z_segs);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1./ratio)(1./ratio)(1./ratio)(1./ratio)(1.)(1.)(1.)(1.)
-                         , list_of(1.)(1.)(1.)(1.)(ratio   )(ratio   )(ratio   )(ratio   )(1.)(1.)(1.)(1.);
-  blocks.block_distribution += 0, 2;
+  Table<Uint>& block_subdivisions = *blocks.create_block_subdivisions();
+  block_subdivisions << x_segs << y_segs_half << z_segs
+                     << x_segs << y_segs_half << z_segs;
 
-  blocks.patch_names += "bottom", "top", "front", "back", "left", "right";
-  blocks.patch_types += "wall"      , "wall"   , "wall", "wall", "wall", "wall";
-  blocks.patch_points += list_of(0)(1)(7)(6),
-                         list_of(4)(10)(11)(5),
-                         list_of(0)(2)(3)(1)(2)(4)(5)(3),
-                         list_of(6)(7)(9)(8)(8)(9)(11)(10),
-                         list_of(0)(6)(8)(2)(2)(8)(10)(4),
-                         list_of(1)(3)(9)(7)(3)(5)(11)(9);
+  Table<Real>& block_gradings = *blocks.create_block_gradings();
+  block_gradings << 1. << 1. << 1. << 1. << 1./ratio << 1./ratio << 1./ratio << 1./ratio << 1. << 1. << 1. << 1.
+                 << 1. << 1. << 1. << 1. << ratio    << ratio    << ratio    << ratio    << 1. << 1. << 1. << 1.;
+
+  *blocks.create_patch("bottom", 1) << 0 << 1 << 7 << 6;
+  *blocks.create_patch("top", 1) << 4 << 10 << 11 << 5;
+  *blocks.create_patch("front", 2) << 0 << 2 << 3 << 1 << 2 << 4 << 5 << 3;
+  *blocks.create_patch("back", 2) << 6 << 7 << 9 << 8 << 8 << 9 << 11 << 10;
+  *blocks.create_patch("left", 2) << 0 << 6 << 8 << 2 << 2 << 8 << 10 << 4;
+  *blocks.create_patch("right", 2) << 1 << 3 << 9 << 7 << 3 << 5 << 11 << 9;
 
   const Uint nb_parts = options().option("nb_parts").value<Uint>();
 
@@ -132,16 +133,10 @@ void ChannelGenerator::execute()
   if(PE::Comm::instance().is_active() && nb_parts > 1)
   {
     const Uint cell_overlap = options().option("cell_overlap").value<Uint>();
-    BlockData& parallel_blocks = *create_component<BlockData>("ParallelBlocks");
-    partition_blocks(blocks, nb_parts, XX, parallel_blocks);
-    build_mesh(parallel_blocks, mesh, cell_overlap);
-  }
-  else
-  {
-    build_mesh(blocks, mesh);
+    blocks.options().configure_option("overlap", cell_overlap);
   }
 
-  mesh.raise_mesh_loaded();
+  blocks.create_mesh(mesh);
 }
 
 } // BlockMesh
