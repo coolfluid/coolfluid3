@@ -136,6 +136,7 @@ void ChannelGenerator::execute()
     blocks.options().configure_option("overlap", cell_overlap);
   }
 
+  blocks.partition_blocks(nb_parts, XX);
   blocks.create_mesh(mesh);
 }
 

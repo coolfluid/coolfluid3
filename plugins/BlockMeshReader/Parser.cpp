@@ -21,26 +21,66 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 
 #include "common/BasicExceptions.hpp"
+#include "common/Table.hpp"
 #include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Parser.hpp"
 
+namespace cf3 {
+namespace BlockMeshReader {
+
+/// Helper struct to read the data into vectors
+struct BlockData
+{
+  /// Type to store indices into another vector
+  typedef std::vector<Uint> IndicesT;
+  /// Data type for counts of data, i.e. number of points
+  typedef std::vector<Uint> CountsT;
+  /// Storage for a single point coordinate (STL vector for ease of use with boost::spirit)
+  typedef std::vector<Real> PointT;
+  /// Storage for a grading corresponding to a single block
+  typedef std::vector<Real> GradingT;
+  /// Storage for true/false flags
+  typedef std::vector<bool> BooleansT;
+
+  Real scaling_factor;
+
+  /// The coordinates for all the nodes
+  std::vector<PointT> points;
+
+  /// Points for each block, in terms of node indices
+  std::vector<IndicesT> block_points;
+  /// Subdivisions for each block, along X, Y and Z
+  std::vector<CountsT> block_subdivisions;
+  /// edgeGrading for each block
+  std::vector<GradingT> block_gradings;
+
+  std::vector<std::string> patch_types;
+  /// Name for each patch
+  std::vector<std::string> patch_names;
+  /// Point indices for each patch (grouped per 4)
+  std::vector<IndicesT> patch_points;
+};
+
+
+}
+}
 
 BOOST_FUSION_ADAPT_STRUCT(
-  cf3::mesh::BlockMesh::BlockData,
+  cf3::BlockMeshReader::BlockData,
   (cf3::Real, scaling_factor)
-  (std::vector<cf3::mesh::BlockMesh::BlockData::PointT>, points)
-  (std::vector<cf3::mesh::BlockMesh::BlockData::IndicesT>, block_points)
-  (std::vector<cf3::mesh::BlockMesh::BlockData::CountsT>, block_subdivisions)
-  (std::vector<cf3::mesh::BlockMesh::BlockData::GradingT>, block_gradings)
+  (std::vector<cf3::BlockMeshReader::BlockData::PointT>, points)
+  (std::vector<cf3::BlockMeshReader::BlockData::IndicesT>, block_points)
+  (std::vector<cf3::BlockMeshReader::BlockData::CountsT>, block_subdivisions)
+  (std::vector<cf3::BlockMeshReader::BlockData::GradingT>, block_gradings)
   (std::vector<std::string>, patch_types)
   (std::vector<std::string>, patch_names)
-  (std::vector<cf3::mesh::BlockMesh::BlockData::IndicesT>, patch_points)
+  (std::vector<cf3::BlockMeshReader::BlockData::IndicesT>, patch_points)
 )
 
 namespace cf3 {
 namespace BlockMeshReader {
-
+  
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::mesh::BlockMesh;
@@ -49,6 +89,8 @@ namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
+
+
 
 /// Grammar for white-space and comment skipping
 template<typename Iterator>
@@ -165,7 +207,7 @@ void expand_simple_gradings(std::vector<BlockData::GradingT>& Gradings)
   }
 }
 
-void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
+void parse_blockmesh_dict(std::istream& file, BlockArrays& blocks)
 {
   std::string storage; // We will read the contents here.
   file.unsetf(std::ios::skipws); // No white space skipping!
@@ -178,15 +220,43 @@ void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
   GrammarT blockMesh; // Our grammar
   WhiteSpace<std::string::const_iterator> ws; // whitespace skipper
 
+  BlockData block_data;
   std::string::const_iterator iter = storage.begin();
   std::string::const_iterator end = storage.end();
-  bool r = phrase_parse(iter, end, blockMesh, ws, blockData);
+  bool r = phrase_parse(iter, end, blockMesh, ws, block_data);
   if(!r)
     throw ParsingFailed(FromHere(), "Error parsing blockMeshDict file");
-  expand_simple_gradings(blockData.block_gradings);
+  expand_simple_gradings(block_data.block_gradings);
   
-  blockData.block_distribution.push_back(0);
-  blockData.block_distribution.push_back(blockData.block_points.size());
+  // Translate to the BlockArrays structure
+  const Uint nb_points = block_data.points.size();
+  Table<Real>& points = *blocks.create_points(3, nb_points);
+  for(Uint i = 0; i != nb_points; ++i)
+  {
+    points.set_row(i, block_data.points[i]);
+  }
+
+  const Uint nb_blocks = block_data.block_points.size();
+  Table<Uint>& block_nodes = *blocks.create_blocks(nb_blocks);
+  Table<Uint>& block_subdivisions = *blocks.create_block_subdivisions();
+  Table<Real>& block_gradings = *blocks.create_block_gradings();
+  for(Uint i = 0; i != nb_blocks; ++i)
+  {
+    block_nodes.set_row(i, block_data.block_points[i]);
+    block_subdivisions.set_row(i, block_data.block_subdivisions[i]);
+    block_gradings.set_row(i, block_data.block_gradings[i]);
+  }
+
+  const Uint nb_patches = block_data.patch_names.size();
+  for(Uint i = 0; i != nb_patches; ++i)
+  {
+    const Uint patch_nb_elems = block_data.patch_points[i].size();
+    Handle< Table<Uint> > patch_tbl = blocks.create_patch(block_data.patch_names[i], patch_nb_elems);
+    patch_tbl->seekp(0);
+    for(Uint j = 0; j != patch_nb_elems; ++j)
+      (*patch_tbl) << block_data.patch_points[i][j];
+    patch_tbl->seekp(0);
+  }
 }
 
 } // BlockMeshReader

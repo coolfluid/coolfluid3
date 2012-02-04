@@ -92,17 +92,13 @@ struct ProtoParallelFixture :
     Solver& solver = model.create_solver("cf3.solver.SimpleSolver");
 
     Mesh& mesh = *dom.create_component<Mesh>("mesh");
-    Mesh& serial_block_mesh = *dom.create_component<Mesh>("serial_block_mesh"); // temporary mesh used for paralellization
 
     const Real ratio = 0.1;
 
-    BlockMesh::BlockData& blocks = *dom.create_component<BlockMesh::BlockData>("blocks");
+    BlockMesh::BlockArrays& blocks = *dom.create_component<BlockMesh::BlockArrays>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
-
-    BlockMesh::BlockData& parallel_blocks = *dom.create_component<BlockMesh::BlockData>("parallel_blocks");
-    BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
-
-    BlockMesh::build_mesh(parallel_blocks, mesh);
+    blocks.partition_blocks(PE::Comm::instance().size(), XX);
+    blocks.create_mesh(mesh);
 
     // Set up variables
     phys_model.variable_manager().create_descriptor("variables", "CellVolume, CellRank");

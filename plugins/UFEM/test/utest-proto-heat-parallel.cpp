@@ -135,22 +135,20 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
-  blocks.dimension = 2;
-  blocks.scaling_factor = 1.;
-  blocks.points += list_of(0.)(0.), list_of(length)(0.), list_of(length)(length), list_of(0.)(length);
-  blocks.block_points += list_of(0)(1)(2)(3);
-  blocks.block_subdivisions += list_of(nb_segments)(nb_segments);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.);
-  blocks.patch_names += "bottom", "right", "top",  "left";
-  blocks.patch_types += "wall", "wall",  "wall", "wall";
-  blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
-  blocks.block_distribution += 0, 1;
+  BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
 
-  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
-  Mesh& serial_block_mesh = *model.create_component<Mesh>("serial_block_mesh");
-  BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
-  BlockMesh::build_mesh(parallel_blocks, mesh, 1);
+  *blocks.create_points(2, 4) << 0. << 0. << length << 0. << length << length << 0. << length;
+  *blocks.create_blocks(1) << 0 << 1 << 2 << 3;
+  *blocks.create_block_subdivisions() << nb_segments << nb_segments;
+  *blocks.create_block_gradings() << 1. << 1. << 1. << 1.;
+  
+  *blocks.create_patch("bottom", 1) << 0 << 1;
+  *blocks.create_patch("right", 1) << 1 << 2;
+  *blocks.create_patch("top", 1) << 2 << 3;
+  *blocks.create_patch("left", 1) << 3 << 0;
+  
+  blocks.partition_blocks(PE::Comm::instance().size(), XX);
+  blocks.create_mesh(mesh);
 
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
