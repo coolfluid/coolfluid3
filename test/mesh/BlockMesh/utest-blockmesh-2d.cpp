@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   mesh.write_mesh("grid-2d.msh");
 
   // Test block partitioning
-  blocks.partition_blocks(4, 0);
-  blocks.partition_blocks(2, 1);
+  blocks.partition_blocks(5, 0);
+  blocks.partition_blocks(3, 1);
   Handle<Mesh> block_mesh = blocks.create_block_mesh();
   std::vector<URI> fields;
   BOOST_FOREACH(const Field& field, find_components_recursively<Field>(*block_mesh))

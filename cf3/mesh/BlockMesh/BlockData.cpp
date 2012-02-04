@@ -863,7 +863,7 @@ struct BlockArrays::Implementation
     {
       const common::Table<Real>::ArrayT& block_coordinates = points->array();
       BlocksPartitioning blocks_to_partition = blocks_in;
-      BlocksPartitioning::IndicesT next_block_layer, added_blocks;
+      BlocksPartitioning::IndicesT next_block_layer, added_blocks, previous_block_layer;
       const Uint blocks_begin = block_distribution[existing_partition];
       const Uint blocks_end = block_distribution[existing_partition+1];
       for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
@@ -884,11 +884,9 @@ struct BlockArrays::Implementation
       for(Uint partition = 0; partition != nb_partitions; ++partition)
       {
         blocks_out.block_distribution.push_back(blocks_out.block_points.size());
-
-        const BlocksPartitioning::IndicesT current_block_layer = next_block_layer;
         // Get the total size of a slice of elements in the current direction
         Uint slice_size = 0;
-        BOOST_FOREACH(const Uint block_idx, current_block_layer)
+        BOOST_FOREACH(const Uint block_idx, next_block_layer)
         {
           const BlocksPartitioning::CountsT segments = blocks_to_partition.block_subdivisions[block_idx];
           Uint single_layer_size = 1;
@@ -897,7 +895,8 @@ struct BlockArrays::Implementation
           slice_size += single_layer_size;
         }
         cf3_assert(slice_size);
-        Uint partition_nb_slices = static_cast<Uint>( ceil( static_cast<Real>(partition_size) / static_cast<Real>(slice_size) ) );
+        Uint partition_nb_slices = static_cast<Uint>( floor( static_cast<Real>(partition_size) / static_cast<Real>(slice_size) ) );
+        cf3_assert(partition_nb_slices);
         if((nb_partitioned + (partition_nb_slices * slice_size)) > global_nb_elements)
         {
           cf3_assert(partition == nb_partitions-1);
@@ -909,11 +908,16 @@ struct BlockArrays::Implementation
         nb_partitioned += partition_nb_slices * slice_size;
         while(partition_nb_slices)
         {
-          const Uint block_nb_slices = blocks_to_partition.block_subdivisions[current_block_layer.front()][direction];
+          bool is_first_layer = false;
+          bool is_last_layer = false;
+          previous_block_layer = next_block_layer;
+          const Uint block_nb_slices = blocks_to_partition.block_subdivisions[next_block_layer.front()][direction];
           if(block_nb_slices > partition_nb_slices) // block is larger than the remaining number of slices
           {
+            if(block_layer_offset == 0)
+              is_first_layer = true;
             block_layer_offset += partition_nb_slices;
-            BOOST_FOREACH(const Uint block_idx, current_block_layer)
+            BOOST_FOREACH(const Uint block_idx, next_block_layer)
             {
               common::Table<Real>::ArrayT mapped_coords;
               detail::create_mapped_coords(blocks_in.block_subdivisions[block_idx][direction],
@@ -976,22 +980,17 @@ struct BlockArrays::Implementation
           }
           else // blocks fits entirely into the partition
           {
-            added_blocks.insert(added_blocks.end(), current_block_layer.begin(), current_block_layer.end());
-            next_block_layer.clear();
+            is_last_layer = true;
+            added_blocks.insert(added_blocks.end(), next_block_layer.begin(), next_block_layer.end());
             block_layer_offset = 0;
-            BOOST_FOREACH(const Uint block_idx, current_block_layer)
+            BOOST_FOREACH(const Uint block_idx, next_block_layer)
             {
               blocks_out.block_gradings.push_back(blocks_to_partition.block_gradings[block_idx]);
               blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
-
-              for(Uint i = 0; i != mapped_stride; ++i)
-              {
-                const Uint original_end_node_idx = blocks_in.block_points[block_idx][end_face_nodes[i]];
-                node_mapping[partition+1][original_end_node_idx] = original_end_node_idx;
-              }
             }
 
             // Update the next block layer
+            next_block_layer.clear();
             for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
               build_block_layer(block_idx, start_direction, existing_partition, transverse_directions, next_block_layer, added_blocks);
 
@@ -999,16 +998,21 @@ struct BlockArrays::Implementation
             partition_nb_slices -= block_nb_slices;
           }
 
-          BOOST_FOREACH(const Uint block_idx, current_block_layer)
+          // Set the block nodes of the previous layer
+          BOOST_FOREACH(const Uint block_idx, previous_block_layer)
           {
+            CFdebug << "start node mapping for block " << blocks_out.block_points.size() << ":" << CFendl;
             std::vector<Uint> new_block_points(2*mapped_stride);
             BOOST_FOREACH(const Uint i, start_face_nodes)
             {
-              new_block_points[i] = node_mapping[partition][blocks_in.block_points[block_idx][i]];
+              new_block_points[i] = is_first_layer ? blocks_in.block_points[block_idx][i] : node_mapping[partition][blocks_in.block_points[block_idx][i]];
+              CFdebug << "  " << blocks_in.block_points[block_idx][i] << " --> " << new_block_points[i] << CFendl;
             }
+            CFdebug << "end node mapping for block " << blocks_out.block_points.size() << ":" << CFendl;
             BOOST_FOREACH(const Uint i, end_face_nodes)
             {
-              new_block_points[i] = node_mapping[partition+1][blocks_in.block_points[block_idx][i]];
+              new_block_points[i] = is_last_layer ? blocks_in.block_points[block_idx][i] : node_mapping[partition+1][blocks_in.block_points[block_idx][i]];
+              CFdebug << "  " << blocks_in.block_points[block_idx][i] << " --> " << new_block_points[i] << CFendl;
             }
 
             blocks_out.block_points.push_back(new_block_points);
