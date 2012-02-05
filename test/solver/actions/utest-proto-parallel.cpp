@@ -98,6 +98,7 @@ struct ProtoParallelFixture :
     BlockMesh::BlockArrays& blocks = *dom.create_component<BlockMesh::BlockArrays>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     blocks.partition_blocks(PE::Comm::instance().size(), XX);
+    blocks.options().configure_option("overlap", 0u);
     blocks.create_mesh(mesh);
 
     // Set up variables
