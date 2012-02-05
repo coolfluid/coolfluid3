@@ -322,6 +322,7 @@ struct BlockArrays::Implementation
     }
 
     block_list.assign(nb_blocks, Block(dimensions));
+    patch_map.clear();
     const Table<Uint>& block_subdivs = *block_subdivisions;
     Uint block_start = 0;
     for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
@@ -351,7 +352,6 @@ struct BlockArrays::Implementation
       }
 
       // Add patches
-      patch_map.clear();
       for(Uint i = 0; i != dimensions; ++i)
       {
         const Elements* adj_elems[2];
@@ -742,7 +742,7 @@ struct BlockArrays::Implementation
     cf3_assert(block_idx < partition_end);
     cf3_assert(face_connectivity->has_adjacent_element(block_idx, direction));
     const CFaceConnectivity::ElementReferenceT adj_elem = face_connectivity->adjacent_element(block_idx, direction);
-    // If we have a volume element as neighbor in the main negative direcion, and the neighbor is part of the current partition,
+    // If we have a volume element as neighbor in the main negative direction, and the neighbor is part of the current partition,
     // and it is not in the previous layer, then we are not in the current layer.
     if(adj_elem.first->element_type().dimensionality() == adj_elem.first->element_type().dimension() &&
        adj_elem.second >= block_distribution[partition] && adj_elem.second < block_distribution[partition+1] &&
@@ -1041,13 +1041,13 @@ struct BlockArrays::Implementation
     const BlocksPartitioning::IndicesT start_end_directions = boost::assign::list_of(start_direction)(end_direction);
     for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
     {
-      BOOST_FOREACH(const Uint lengthwise_direcion, start_end_directions)
+      BOOST_FOREACH(const Uint lengthwise_direction, start_end_directions)
       {
-        const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direcion);
+        const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direction);
         if(adjacent_element.first->element_type().dimensionality() < dimensions)
         {
           const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
-          BOOST_FOREACH(const Uint i, etype_faces.nodes_range(lengthwise_direcion))
+          BOOST_FOREACH(const Uint i, etype_faces.nodes_range(lengthwise_direction))
           {
             blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
           }
@@ -1116,6 +1116,12 @@ BlockArrays::BlockArrays(const std::string& name) :
     .description("Create a mesh that only contains the inner blocks. Surface patches are in a single region and numbered for passing to create_patch.")
     .pretty_name("Create Inner Blocks");
 
+  regist_signal( "partition_blocks" )
+    .connect( boost::bind( &BlockArrays::signal_partition_blocks, this, _1 ) )
+    .description("Partition the blocks for parallel mesh generation")
+    .pretty_name("Create Mesh")
+    .signature( boost::bind(&BlockArrays::signature_partition_blocks, this, _1) );
+    
   regist_signal( "create_mesh" )
     .connect( boost::bind( &BlockArrays::signal_create_mesh, this, _1 ) )
     .description("Create the final mesh.")
@@ -1516,6 +1522,21 @@ void BlockArrays::create_mesh(Mesh& mesh)
   // Raise an event to indicate that a mesh was loaded happened
   mesh.raise_mesh_loaded();
 }
+
+void BlockArrays::signature_partition_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+  options.add_option("nb_partitions", PE::Comm::instance().size()).pretty_name("Nb. Partitions").description("Number of partitions");
+  options.add_option("direction", 0u).pretty_name("Direction").description("Partitioning direction (0=X, 1=Y, 2=Z)");
+}
+
+void BlockArrays::signal_partition_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+  partition_blocks(options["nb_partitions"].value<Uint>(), options["direction"].value<uint>());
+}
+
+
 
 void BlockArrays::signature_create_points(SignalArgs& args)
 {

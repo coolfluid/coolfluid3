@@ -46,6 +46,12 @@ block_arrays.create_patch_face_list(name = 'back', face_list = [1, 6])
 patched_blocks = block_arrays.create_block_mesh()
 patched_blocks.write_mesh('block_mesh02.msh')
 
+block_arrays.partition_blocks(nb_partitions = 5, direction = 0)
+patched_blocks = block_arrays.create_block_mesh()
+patched_blocks.write_mesh('block_mesh03.msh')
+
+block_arrays.options().configure_option("block_distribution", [0, 10])
+
 mesh = root.create_component('OutputMesh', 'cf3.mesh.Mesh')
 block_arrays.create_mesh(mesh.uri())
 mesh.write_mesh('meshed.msh')

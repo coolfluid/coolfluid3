@@ -89,6 +89,8 @@ public:
   void signature_create_patch_face_list(common::SignalArgs& args);
   void signal_create_patch_face_list(common::SignalArgs& args);
   void signal_create_block_mesh(common::SignalArgs& args);
+  void signature_partition_blocks(common::SignalArgs& args);
+  void signal_partition_blocks(common::SignalArgs& args);
   void signature_create_mesh(common::SignalArgs& args);
   void signal_create_mesh(common::SignalArgs& args);
 
