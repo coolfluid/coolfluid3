@@ -404,7 +404,7 @@ void NetworkXPython::append_field_nodes_recursive(const Component &c, std::strin
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
       coll.append("G.add_node('f:" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field',hidden=False)\n");
-      coll.append("nodecaption.update({'f:" + n + "':'" + f.name() + "/" + f.var_name(i) + "'})\n");
+      coll.append("nodecaption.update({'f:" + n + "':'" + f.name() + "/" + f.var_name(i) + "_" + boost::lexical_cast<std::string>(f.size()) + "'})\n");
     }
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )

@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('circleP2.msh', cf.URI.Scheme.file), name='mesh')
+domain.load_mesh(file=cf.URI('circleP1.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -33,7 +33,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
 solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP2')
+solver.options().configure_option('solution_space', 'LagrangeP2B')
 
 #solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
 
