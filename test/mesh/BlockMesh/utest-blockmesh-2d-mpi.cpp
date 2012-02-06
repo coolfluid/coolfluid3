@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
   cf3_assert(nb_procs==8);
-  
+
   //PE::wait_for_debugger(0);
 
   Domain& domain = *Core::instance().root().create_component<Domain>("domain");

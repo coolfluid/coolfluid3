@@ -389,7 +389,7 @@ struct BlockArrays::Implementation
     Uint last_block_nb_nodes = 1;
     for(Uint i = 0; i != last_block.dimensions; ++i)
       last_block_nb_nodes *= last_block.nb_points[i];
-    
+
     nodes_dist.push_back(nodes_dist.back() + last_block.start_index - block_list[block_distribution[nb_procs-1]].start_index + last_block_nb_nodes);
 
     local_nodes_begin = nodes_dist[rank];
@@ -759,14 +759,17 @@ struct BlockArrays::Implementation
         return false;
     }
 
-    output_block_layer.push_back(block_idx);
     return true;
   }
 
   void build_block_layer(const Uint block_idx, const Uint direction, const Uint partition, const std::vector<Uint>& transverse_directions, std::vector<Uint>& output_block_layer, const std::vector<Uint>& previous_layer)
   {
+    if(std::count(previous_layer.begin(), previous_layer.end(), block_idx) != 0)
+      return;
+
     std::set<Uint> recursed_blocks;
-    build_block_layer(block_idx, direction, partition, transverse_directions, output_block_layer, previous_layer, recursed_blocks);
+    if(build_block_layer(block_idx, direction, partition, transverse_directions, output_block_layer, previous_layer, recursed_blocks))
+      output_block_layer.push_back(block_idx);
   }
 
   void partition_blocks(const Uint nb_partitions, const Uint direction)
@@ -790,7 +793,7 @@ struct BlockArrays::Implementation
     const Uint end_direction = dimensions == 3 ? ( direction == XX ? Hexa::KSI_POS : (direction == YY ? Hexa::ETA_POS : Hexa::ZTA_POS) ) : (direction == XX ? XPOS_2D : YPOS_2D);
 
     const ElementTypeFaceConnectivity& etype_faces = dimensions == 3 ? Hexa3D::faces() : Quad2D::faces();
-    
+
     // Cache local node indices in the start direction
     BlocksPartitioning::IndicesT start_face_nodes;
     BOOST_FOREACH(const Uint face_node_idx, etype_faces.nodes_range(start_direction))
@@ -871,6 +874,8 @@ struct BlockArrays::Implementation
         build_block_layer(block_idx, start_direction, existing_partition, transverse_directions, next_block_layer, std::vector<Uint>());
       }
 
+      print_vector(CFdebug << "Examining block layer: ", next_block_layer); CFdebug << CFendl;
+
       // total number of elements
       Uint global_nb_elements = 0;
       for(Uint block = blocks_begin; block != blocks_end; ++block)
@@ -883,31 +888,33 @@ struct BlockArrays::Implementation
       Uint block_layer_offset = 0;
       for(Uint partition = 0; partition != nb_partitions; ++partition)
       {
+        // Update block distribution
         blocks_out.block_distribution.push_back(blocks_out.block_points.size());
-        // Get the total size of a slice of elements in the current direction
-        Uint slice_size = 0;
-        BOOST_FOREACH(const Uint block_idx, next_block_layer)
-        {
-          const BlocksPartitioning::CountsT segments = blocks_to_partition.block_subdivisions[block_idx];
-          Uint single_layer_size = 1;
-          for(Uint i = 0; i != (dimensions-1); ++i)
-            single_layer_size *= segments[transverse_axes[i]];
-          slice_size += single_layer_size;
-        }
-        cf3_assert(slice_size);
-        Uint partition_nb_slices = static_cast<Uint>( floor( static_cast<Real>(partition_size) / static_cast<Real>(slice_size) ) );
-        cf3_assert(partition_nb_slices);
-        if((nb_partitioned + (partition_nb_slices * slice_size)) > global_nb_elements)
-        {
-          cf3_assert(partition == nb_partitions-1);
-          const Uint nb_remaining_elements = global_nb_elements - nb_partitioned;
-          cf3_assert( (nb_remaining_elements % slice_size) == 0 );
-          partition_nb_slices = nb_remaining_elements / slice_size;
-        }
 
-        nb_partitioned += partition_nb_slices * slice_size;
-        while(partition_nb_slices)
+        Uint partition_remaining_size = partition_size;
+        while(partition_remaining_size)
         {
+          // Get the total size of a slice of elements in the current direction
+          Uint slice_size = 0;
+          BOOST_FOREACH(const Uint block_idx, next_block_layer)
+          {
+            const BlocksPartitioning::CountsT segments = blocks_in.block_subdivisions[block_idx];
+            Uint single_layer_size = 1;
+            for(Uint i = 0; i != (dimensions-1); ++i)
+              single_layer_size *= segments[transverse_axes[i]];
+            slice_size += single_layer_size;
+          }
+          cf3_assert(slice_size);
+          Uint partition_nb_slices = static_cast<Uint>( floor( static_cast<Real>(partition_remaining_size) / static_cast<Real>(slice_size) ) );
+          cf3_assert(partition_nb_slices);
+          if((nb_partitioned + (partition_nb_slices * slice_size)) > global_nb_elements)
+          {
+            cf3_assert(partition == nb_partitions-1);
+            const Uint nb_remaining_elements = global_nb_elements - nb_partitioned;
+            cf3_assert( (nb_remaining_elements % slice_size) == 0 );
+            partition_nb_slices = nb_remaining_elements / slice_size;
+          }
+
           bool is_first_layer = false;
           bool is_last_layer = false;
           previous_block_layer = next_block_layer;
@@ -950,7 +957,7 @@ struct BlockArrays::Implementation
                   Line1D::SF::ValueT sf_1d;
                   Line1D::SF::compute_value(mapped_coord, sf_1d);
                   const Line1D::CoordsT node_1d = sf_1d * block_nodes;
-                  
+
                   blocks_out.points.push_back(BlocksPartitioning::PointT(dimensions));
                   for(Uint i = 0; i != dimensions; ++i)
                   {
@@ -974,9 +981,11 @@ struct BlockArrays::Implementation
               blocks_out.block_gradings.push_back(new_gradings);
               blocks_out.block_subdivisions.push_back(new_block_subdivisions);
             }
-            
+
             // All slices are immediatly accounted for
-            partition_nb_slices = 0;
+            //partition_nb_slices = 0;
+            nb_partitioned += partition_nb_slices * slice_size;
+            partition_remaining_size = 0;
           }
           else // blocks fits entirely into the partition
           {
@@ -987,6 +996,16 @@ struct BlockArrays::Implementation
             {
               blocks_out.block_gradings.push_back(blocks_to_partition.block_gradings[block_idx]);
               blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
+              if(block_list[block_idx].nb_elems < partition_remaining_size)
+              {
+                nb_partitioned += block_list[block_idx].nb_elems;
+                partition_remaining_size -= block_list[block_idx].nb_elems;
+              }
+              else
+              {
+                nb_partitioned += partition_remaining_size;
+                partition_remaining_size = 0;
+              }
             }
 
             // Update the next block layer
@@ -994,8 +1013,10 @@ struct BlockArrays::Implementation
             for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
               build_block_layer(block_idx, start_direction, existing_partition, transverse_directions, next_block_layer, added_blocks);
 
+            print_vector(CFdebug << "Examining block layer: ", next_block_layer); CFdebug << CFendl;
+
             // deduct the number of slices this layer added
-            partition_nb_slices -= block_nb_slices;
+            //partition_nb_slices -= block_nb_slices;
           }
 
           // Set the block nodes of the previous layer
@@ -1121,7 +1142,7 @@ BlockArrays::BlockArrays(const std::string& name) :
     .description("Partition the blocks for parallel mesh generation")
     .pretty_name("Create Mesh")
     .signature( boost::bind(&BlockArrays::signature_partition_blocks, this, _1) );
-    
+
   regist_signal( "create_mesh" )
     .connect( boost::bind( &BlockArrays::signal_create_mesh, this, _1 ) )
     .description("Create the final mesh.")
@@ -1342,7 +1363,7 @@ void BlockArrays::partition_blocks(const Uint nb_partitions, const Uint directio
   create_block_mesh();
   m_implementation->create_blocks();
   m_implementation->partition_blocks(nb_partitions, direction);
-  
+
   // The algorithm just modifies the linked parameter, so we need to reset the option to keep it in sync
   options().configure_option("block_distribution", m_implementation->block_distribution);
 }
@@ -1419,7 +1440,7 @@ void BlockArrays::create_mesh(Mesh& mesh)
     if(dimensions == 2)
       m_implementation->fill_block_coordinates_2d<Quad2D>(coordinates, block_idx);
   }
-  
+
   // Add surface patches
   boost_foreach(const Component& patch_description, *m_implementation->patches)
   {
@@ -1429,10 +1450,10 @@ void BlockArrays::create_mesh(Mesh& mesh)
       mesh.topology().create_region(patch_description.name()).create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Quad3D" : "cf3.mesh.LagrangeP1.Line2D", geometry_dict)
     );
   }
-  
+
   // surface patches shouldn't have introduced new ghosts
   cf3_assert(coordinates.size() == nb_nodes_local + m_implementation->ghost_counter);
-  
+
   if(PE::Comm::instance().is_active())
   {
     common::List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_nodes_local + m_implementation->ghost_counter);
