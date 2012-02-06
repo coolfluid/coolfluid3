@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Faces.hpp"
 
@@ -37,7 +38,7 @@ Faces::~Faces()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Faces::initialize(const std::string& element_type_name, SpaceFields& nodes)
+void Faces::initialize(const std::string& element_type_name, Dictionary& nodes)
 {
   Elements::initialize(element_type_name,nodes);
   cf3_assert(element_type().dimensionality() == element_type().dimension() - 1);

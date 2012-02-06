@@ -25,8 +25,8 @@ class Mesh_API LoadMesh : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<LoadMesh> Ptr;
-  typedef boost::shared_ptr<LoadMesh const> ConstPtr;
+
+
 
 public: // functions
 
@@ -54,7 +54,7 @@ public: // functions
 
   /// Read the file into an existing mesh
   void load_mesh_into(const common::URI& file, Mesh& mesh);
-  
+
   /// function load the mesh
   boost::shared_ptr<Mesh> load_mesh(const common::URI& file);
 
@@ -65,7 +65,7 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<mesh::MeshReader::Ptr> > m_extensions_to_readers;
+  std::map<std::string,std::vector<Handle< mesh::MeshReader > > > m_extensions_to_readers;
 
 };
 

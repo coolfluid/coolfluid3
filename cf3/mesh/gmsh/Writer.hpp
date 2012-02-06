@@ -29,8 +29,8 @@ class gmsh_API Writer : public MeshWriter
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Writer> Ptr;
-    typedef boost::shared_ptr<Writer const> ConstPtr;
+
+
 
 public: // functions
 
@@ -48,15 +48,15 @@ public: // functions
 
 private: // functions
 
-  void write_header(std::fstream& file);
+  void write_header(std::fstream& file, const Mesh& mesh);
 
-  void write_coordinates(std::fstream& file);
+  void write_coordinates(std::fstream& file, const Mesh& mesh);
 
-  void write_connectivity(std::fstream& file);
+  void write_connectivity(std::fstream& file, const Mesh& mesh);
 
 //  void write_nodal_data(std::fstream& file);
 
-  void write_elem_nodal_data(std::fstream& file);
+  void write_elem_nodal_data(std::fstream& file, const Mesh& mesh);
 
 //  void write_element_data(std::fstream& file);
 
@@ -68,7 +68,7 @@ private: // data
 
   std::map<Entities const*,Uint> m_element_start_idx;
 
-  boost::shared_ptr< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
+  Handle< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
 }; // end Writer
 
 

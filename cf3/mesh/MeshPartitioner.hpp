@@ -24,10 +24,11 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -44,9 +45,9 @@ class Mesh_API MeshPartitioner : public MeshTransformer {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<MeshPartitioner> Ptr;
+
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<MeshPartitioner const> ConstPtr;
+
 
 public: // functions
 
@@ -123,7 +124,7 @@ protected: // functions
 
   boost::tuple<Uint,Uint> location_idx(const Uint glb_obj) const;
 
-  boost::tuple<common::Component::Ptr,Uint> location(const Uint glb_obj) const;
+  boost::tuple<Handle< common::Component >,Uint> location(const Uint glb_obj) const;
 
   Uint part_of_obj(const Uint obj) const
   {
@@ -153,7 +154,7 @@ private: // data
   Uint m_nb_owned_obj;
 
 
-  common::Map<Uint,Uint>::Ptr m_global_to_local;
+  Handle< common::Map<Uint,Uint> > m_global_to_local;
 
   std::vector<Uint> m_start_id_per_part;
   std::vector<Uint> m_end_id_per_part;
@@ -162,7 +163,7 @@ private: // data
   std::vector<Uint> m_start_elem_per_part;
   std::vector<Uint> m_end_elem_per_part;
 
-  UnifiedData::Ptr m_lookup;
+  Handle< UnifiedData > m_lookup;
 
 };
 
@@ -192,7 +193,7 @@ template <typename VectorT>
 Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const
 {
   // declaration for boost::tie
-  common::Component::Ptr comp;
+  Handle< common::Component > comp;
   Uint loc_idx;
   Uint size = 0;
   Uint idx = 0;
@@ -202,14 +203,14 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (SpaceFields::Ptr nodes = comp->as_ptr<SpaceFields>())
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
-      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
+      else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -226,7 +227,7 @@ template <typename VectorT>
 void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
 {
   // declaration for boost::tie
-  common::Component::Ptr comp;
+  Handle< common::Component > comp;
   Uint loc_idx;
 
   Uint idx = 0;
@@ -235,15 +236,15 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (SpaceFields::Ptr nodes = comp->as_ptr<SpaceFields>())
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_objects[idx++] = glb_elm;
       }
-      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
+      else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
@@ -262,7 +263,7 @@ template <typename VectorT>
 void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& connected_procs) const
 {
   // declaration for boost::tie
-  common::Component::Ptr comp;
+  Handle< common::Component > comp;
   Uint loc_idx;
 
   Uint idx = 0;
@@ -271,15 +272,15 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (SpaceFields::Ptr nodes = comp->as_ptr<SpaceFields>())
+      if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
       }
-      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
+      else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
-        const Connectivity& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!

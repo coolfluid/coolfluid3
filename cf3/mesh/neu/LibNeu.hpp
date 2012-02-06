@@ -39,8 +39,8 @@ class neu_API LibNeu : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibNeu> Ptr;
-  typedef boost::shared_ptr<LibNeu const> ConstPtr;
+  
+  
 
   /// Constructor
   LibNeu ( const std::string& name) : common::Library(name) {   }

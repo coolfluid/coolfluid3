@@ -12,9 +12,10 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_const.hpp>
 
-#include "common/URI.hpp"
-#include "common/OptionURI.hpp"
+#include "common/Option.hpp"
 #include "common/Component.hpp"
 
 #include "common/Core.hpp"
@@ -32,52 +33,48 @@ namespace common {
 /////////////////////////////////////////////////////////////////////////////
 
 template <typename T = Component>
-class Common_API OptionComponent : public OptionURI
+class Common_API OptionComponent : public Option
 {
-
 public:
 
-  typedef URI value_type;
-  typedef boost::weak_ptr<T> data_t;
-  typedef boost::shared_ptr<OptionComponent> Ptr;
-  typedef boost::shared_ptr<OptionComponent const> ConstPtr;
+  typedef Handle<T> value_type;
 
-  OptionComponent(const std::string & name, const URI & def)
-    : OptionURI(name, def)
+  OptionComponent(const std::string & name, const Handle<T> linked_component)
+    : Option(name, linked_component)
   {
-    Component::Ptr comp_ptr = Core::instance().root().access_component_ptr(def);
-    typename T::Ptr component = boost::dynamic_pointer_cast<T>(comp_ptr);
-    m_default = data_t(component);
-    m_value = m_default;
-    supported_protocol(URI::Scheme::CPATH);
-
-    TypeInfo::instance().regist<data_t>("cf3::common::OptionComponent<"+T::type_name()+">::data_t");
-  }
-
-  OptionComponent(const std::string & name, data_t* linked_component)
-    : OptionURI(name, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
-  {
-    m_default = data_t(*linked_component);
-    m_value = m_default;
-    supported_protocol(URI::Scheme::CPATH);
-
-    TypeInfo::instance().regist<data_t>("cf3::common::OptionComponent<"+T::type_name()+">::data_t");
-    m_linked_params.push_back(linked_component);
-  }
-
-  static Option::Ptr create(const std::string & name, data_t* linked_component)
-  {
-    return Option::Ptr ( new OptionComponent<T>(name, linked_component) );
+    TypeInfo::instance().regist<value_type>("handle<"+T::type_name()+">");
   }
 
   virtual ~OptionComponent() {}
 
-  /// @name VIRTUAL FUNCTIONS
-  //@{
+  virtual std::string type() const { return class_name<value_type>(); }
+  
+  virtual void change_value(const boost::any& value)
+  {
+    typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
+    const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
+    if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
+    {
+      // value passed as a handle to the component base class, so we need to dynamic cast
+      Handle<T> cast_value(*generic_handle);
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
+      m_value = Handle<T>(*generic_handle);
+    }
+    else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
+    {
+      m_value = value;
+    }
+    else
+    {
+      throw BadValue(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
+    }
+      
+    copy_to_linked_params(m_linked_params);
 
-  virtual std::string type() const { return Protocol::Tags::type<URI>(); }
-
-  virtual std::string data_type() const { return class_name<data_t>(); }
+    // call all trigger functors
+    trigger();
+  }
 
   /// @returns the xml tag for this option
   virtual const char * tag() const { return Protocol::Tags::type<URI>(); }
@@ -85,151 +82,46 @@ public:
   /// @returns the value as a std::string
   virtual std::string value_str () const
   {
-    try
-    {
-      data_t val = boost::any_cast< data_t >(m_value);
-      if (is_null(val.lock()))
-        return "cpath:";
-      return val.lock()->uri().string();
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+common::class_name<data_t>());
-    }
+    value_type comp = this->template value<value_type>();
+    if(is_null(comp))
+      return URI().string();
+
+    return comp->uri().string();
   }
 
-  /// @returns the default value as a sd::string
-  virtual std::string def_str () const
-  {
-    try
-    {
-      data_t val = boost::any_cast< data_t >(m_default);
-      if (is_null(val.lock()))
-        return "cpath:";
-      return val.lock()->uri().string();
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+common::class_name<data_t>());
-    }
-  }
+private:
 
   /// updates the option value using the xml configuration
   /// @param node XML node with data for this option
-  virtual void configure ( XmlNode& node )
+  virtual boost::any extract_configured_value(XML::XmlNode& node)
   {
-    URI val;
+    URI uri;
     XmlNode type_node(node.content->first_node(Protocol::Tags::type<URI>()));
 
     if( type_node.is_valid() )
-      to_value( type_node, val );
+      to_value( type_node, uri );
     else
       throw XmlError(FromHere(), "Could not find a value for this option.");
 
-    m_value = value_to_data(val);
+    value_type val(Core::instance().root().access_component(uri));
+    if(is_null(val))
+      throw SetupError(FromHere(), "Failed to find the component located at " + uri.string());
 
+    return val;
   }
 
-  //@} END VIRTUAL FUNCTIONS
-
-  /// Check if the stored component is valid
-  bool check() const
+  virtual void copy_to_linked_params(std::vector< boost::any >& linked_params)
   {
-    return !boost::any_cast<data_t>(m_value).expired();
-  }
+    if(linked_params.empty())
+      return;
 
-  /// Get a reference to the stored component
-  T& component()
-  {
-    try
+    value_type val = this->template value<value_type>();
+    BOOST_FOREACH ( boost::any& v, linked_params )
     {
-      data_t val = boost::any_cast< data_t >(m_value);
-      return *val.lock();
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<data_t>());
+      value_type* cv = boost::any_cast<value_type*>(v);
+      *cv = val;
     }
   }
-
-  T const& component() const
-  {
-    try
-    {
-      data_t val = boost::any_cast< data_t >(m_value);
-      return *val.lock();
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<data_t>());
-    }
-  }
-
-protected: // functions
-
-
-  virtual boost::any value_to_data( const boost::any& value) const
-  {
-    try
-    {
-      // try casting to a shared_ptr
-      return data_t (boost::any_cast< boost::shared_ptr<T> >(value) );
-    }
-    catch(boost::bad_any_cast&)
-    {
-      try
-      {
-        // try casting to a weak_ptr
-        return data_t (boost::any_cast< boost::weak_ptr<T> >(value) );
-      }
-      catch(boost::bad_any_cast&)
-      {
-        // finally try a URI
-        try
-        {
-          return data_t(Core::instance().root().access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
-        }
-        catch(boost::bad_any_cast& e)
-        {
-          throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+common::class_name<URI>());
-        }
-      }
-    }
-  }
-
-  virtual boost::any data_to_value( const boost::any& data) const
-  {
-    try
-    {
-      boost::shared_ptr<T> data_shared = boost::any_cast<data_t>(data).lock();
-      if ( is_null(data_shared) )
-        return URI("cpath:");
-      else
-        return data_shared->uri();
-    }
-    catch(boost::bad_any_cast& e)
-    {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+common::class_name<data_t>());
-    }
-  }
-
-  /// copy the configured update value to all linked parameters
-  virtual void copy_to_linked_params ( const boost::any& data )
-  {
-    BOOST_FOREACH ( void* v, this->m_linked_params )
-    {
-      data_t* cv = static_cast<data_t*>(v);
-      try
-      {
-        *cv = boost::any_cast<data_t>(data);
-      }
-      catch(boost::bad_any_cast& e)
-      {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+common::class_name<data_t>());
-      }
-    }
-  }
-
 }; // class OptionComponent
 
 /////////////////////////////////////////////////////////////////////////////

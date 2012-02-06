@@ -90,11 +90,11 @@ int main(int argc, char * argv[])
     CLEnv clenv;
     opencl_setup(clenv);
 
-    boost::timer ctimer;
+    boost::timer Timer;
 
     opencl_mat_mul(clenv, h_A, h_B, h_C);
 
-    printf("[opencl] time: %6.3f seconds\n", ctimer.elapsed() );
+    printf("[opencl] time: %6.3f seconds\n", Timer.elapsed() );
 
     opencl_unsetup(clenv);
 

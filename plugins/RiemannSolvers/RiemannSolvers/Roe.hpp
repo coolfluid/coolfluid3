@@ -21,8 +21,8 @@ namespace RiemannSolvers {
 class RiemannSolvers_API Roe : public RiemannSolver
 {
 public:
-  typedef boost::shared_ptr< Roe >       Ptr;
-  typedef boost::shared_ptr< Roe const > ConstPtr;
+  
+  
 
 public:
 
@@ -39,27 +39,27 @@ public:
   static std::string type_name() { return "Roe"; }
 
 
-  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                      RealVector& flux, RealVector& wave_speeds);
 
-  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                       RealVector& flux);
 
 private:
 
   void trigger_physical_model();
-  physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
+  physics::Variables& roe_vars() { return *m_roe_vars; }
 
 private:
 
-  boost::weak_ptr<physics::Variables> m_roe_vars;
+  Handle<physics::Variables> m_roe_vars;
   std::auto_ptr<physics::Properties> p_left;
   std::auto_ptr<physics::Properties> p_right;
   std::auto_ptr<physics::Properties> p_avg;
   RealVector coord;
   RealMatrix grads;
-  RealMatrix f_left;
-  RealMatrix f_right;
+  RealVector f_left;
+  RealVector f_right;
   RealVector roe_left;
   RealVector roe_right;
   RealVector roe_avg;

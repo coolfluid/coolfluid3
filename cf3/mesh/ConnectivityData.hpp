@@ -10,7 +10,8 @@
 #include <set>
 
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Connectivity.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,11 +27,11 @@ class Mesh_API CNodeConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<CNodeConnectivity> Ptr;
-  typedef boost::shared_ptr<CNodeConnectivity const> ConstPtr;
+
+
 
   /// Storage for a list of elements
-  typedef std::vector<Elements::ConstPtr> ElementsT;
+  typedef std::vector<Handle< Elements const > > ElementsT;
 
   /// Storage for counted numbers
   typedef std::vector<Uint> CountsT;
@@ -94,8 +95,8 @@ class Mesh_API CFaceConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<CFaceConnectivity> Ptr;
-  typedef boost::shared_ptr<CFaceConnectivity const> ConstPtr;
+
+
 
   /// Storage for a list of elements
   typedef CNodeConnectivity::ElementsT ElementsT;
@@ -175,7 +176,7 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
   BOOST_FOREACH(const Elements& elements, range)
   {
     celements_first_elements.push_back(sum);
-    sum += elements.node_connectivity().array().size();
+    sum += elements.geometry_space().connectivity().array().size();
   }
 }
 
@@ -217,13 +218,13 @@ void Mesh_API create_face_face_connectivity( const Elements& own_celements, cons
 template<typename RangeT>
 void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
-  std::set<const SpaceFields*> nodes_set;
+  std::set<const Dictionary*> nodes_set;
   BOOST_FOREACH(const Elements& elements, celements_range)
     nodes_set.insert(&elements.geometry_fields());
 
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const SpaceFields* nodes, nodes_set)
+  BOOST_FOREACH(const Dictionary* nodes, nodes_set)
     nb_nodes += nodes->size();
 
   initialize(nb_nodes, celements_range);

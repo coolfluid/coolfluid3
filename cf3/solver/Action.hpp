@@ -17,8 +17,8 @@ namespace mesh { class Region; class Mesh; }
 namespace physics { class PhysModel; }
 namespace solver {
 
-class CSolver;
-class CTime;
+class Solver;
+class Time;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +27,8 @@ class solver_API Action : public common::Action {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< Action > Ptr;
-  typedef boost::shared_ptr< Action const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -46,7 +46,7 @@ public: // functions
   //@{
 
   /// @returns the solver this action is part of
-  solver::CSolver& solver();
+  solver::Solver& solver();
 
   /// @returns the mesh this action is using
   mesh::Mesh& mesh();
@@ -55,7 +55,7 @@ public: // functions
   physics::PhysModel& physical_model();
 
   /// @returns the regions this action is operating on
-  boost::iterator_range<common::ComponentIterator<mesh::Region> > regions();
+  const std::vector< Handle< mesh::Region > >& regions() const;
 
   //@} END ACCESSORS
 
@@ -66,14 +66,14 @@ protected: // functions
 protected: // data
 
   /// link back to the solver
-  boost::weak_ptr< solver::CSolver > m_solver;
+  Handle< solver::Solver > m_solver;
   /// mesh where this action data resides
-  boost::weak_ptr< mesh::Mesh > m_mesh;
+  Handle< mesh::Mesh > m_mesh;
   /// physical model used by this action
-  boost::weak_ptr< physics::PhysModel > m_physical_model;
+  Handle< physics::PhysModel > m_physical_model;
 
   /// regions of the mesh to loop over
-  std::vector< boost::shared_ptr< mesh::Region > > m_loop_regions;
+  std::vector< Handle< mesh::Region > > m_loop_regions;
 
 };
 

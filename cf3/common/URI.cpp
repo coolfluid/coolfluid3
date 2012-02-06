@@ -289,7 +289,7 @@ void URI::split_path(const std::string & path, URI::Scheme::Type & protocol,
 std::string URI::extension() const
 {
   const boost::filesystem::path p(path());
-  return p.extension();
+  return p.extension().string();
 }
 
 std::string URI::base_name() const

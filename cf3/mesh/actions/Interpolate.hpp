@@ -36,8 +36,8 @@ class mesh_actions_API Interpolate : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Interpolate> Ptr;
-    typedef boost::shared_ptr<Interpolate const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -64,15 +64,13 @@ public: // functions
 private:
 
   /// source field
-  boost::weak_ptr<Field const> m_source;
-
-  std::string m_source_space;
+  Handle<Field const> m_source;
 
   /// target field
-  boost::weak_ptr<Field> m_target;
+  Handle<Field> m_target;
 
   /// source octtree
-  boost::shared_ptr<Octtree> m_octtree;
+  Handle<Octtree> m_octtree;
 
   void interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row);
 

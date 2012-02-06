@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_SUITE( Growl )
 /// Test creation of a 2D grid
 BOOST_AUTO_TEST_CASE( TestGrowl )
 {
-  Notifier& notifier = Core::instance().root().create_component<Notifier>("notifier");
-  notifier.notify("event","description");
+  Handle<Notifier> notifier = Core::instance().root().create_component<Notifier>("notifier");
+  notifier->notify("event","description");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

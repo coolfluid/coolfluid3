@@ -16,6 +16,7 @@ const char * Tags::area ()   { return "area"; }
 const char * Tags::volume () { return "volume"; }
 
 const char * Tags::geometry ()     { return "geometry"; }
+const char * Tags::topology ()     { return "topology"; }
 const char * Tags::coordinates ()  { return "coordinates"; }
 const char * Tags::nodes ()        { return "nodes"; }
 const char * Tags::nodes_used ()   { return "nodes_used"; }
@@ -31,12 +32,14 @@ const char * Tags::point_entity()  { return "point_entity"; }
 
 const char * Tags::interface ()    { return "interface"; }
 
+const char * Tags::cells ()  { return "cells"; }
 const char * Tags::inner_faces ()  { return "inner_faces"; }
 const char * Tags::outer_faces ()  { return "outer_faces"; }
+const char * Tags::bdry_faces ()  { return "bdry_faces"; }
 
 const char * Tags::connectivity_table () { return "connectivity_table"; }
 
-const char * Tags::geometry_elements () { return "geometry_elements"; }
+//const char * Tags::geometry_elements () { return "geometry_elements"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

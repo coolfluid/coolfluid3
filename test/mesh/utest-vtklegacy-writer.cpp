@@ -18,7 +18,7 @@
 
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 using namespace cf3;
 using namespace cf3::mesh;
@@ -34,10 +34,10 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
 {
   Component& root = Core::instance().root();
 
-  Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
+  Handle<Mesh> mesh = root.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
-  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer","meshwriter");
   vtk_writer->write_from_to(*mesh,"grid.vtk");
 
   BOOST_CHECK(true);

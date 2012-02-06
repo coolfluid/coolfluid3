@@ -9,10 +9,11 @@
 #include "math/Consts.hpp"
 
 #include "mesh/Manipulations.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -23,7 +24,7 @@ using namespace math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RemoveNodes::RemoveNodes(SpaceFields& nodes) :
+RemoveNodes::RemoveNodes(Dictionary& nodes) :
     glb_idx (nodes.glb_idx().create_buffer()),
     rank (nodes.rank().create_buffer()),
     coordinates (nodes.coordinates().create_buffer()),
@@ -59,7 +60,7 @@ void RemoveNodes::flush()
 RemoveElements::RemoveElements(Elements& elements) :
     glb_idx (elements.glb_idx().create_buffer()),
     rank (elements.rank().create_buffer()),
-    connected_nodes (elements.node_connectivity().create_buffer())
+    connected_nodes (elements.geometry_space().connectivity().create_buffer())
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,7 @@ PackUnpackElements::PackUnpackElements(Elements& elements) :
     m_idx(uint_max()),
     glb_idx (elements.glb_idx().create_buffer()),
     rank (elements.rank().create_buffer()),
-    connected_nodes (elements.node_connectivity().create_buffer())
+    connected_nodes (elements.geometry_space().connectivity().create_buffer())
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +129,7 @@ void PackUnpackElements::pack(PE::Buffer& buf)
   buf << m_elements.glb_idx()[m_idx]
       << m_elements.rank()[m_idx];
 
-  boost_foreach(const Uint connected_node, m_elements.node_connectivity()[m_idx])
+  boost_foreach(const Uint connected_node, m_elements.geometry_space().connectivity()[m_idx])
       buf << connected_node;
 
   //std::cout << PERank << "packed element    glb_idx = " << val << std::endl;
@@ -144,7 +145,7 @@ void PackUnpackElements::unpack(PE::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;
-  std::vector<Uint> connected_nodes_data(m_elements.node_connectivity().row_size());
+  std::vector<Uint> connected_nodes_data(m_elements.geometry_space().connectivity().row_size());
 
   buf >> glb_idx_data >> rank_data;
 
@@ -170,7 +171,7 @@ void PackUnpackElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes::PackUnpackNodes(SpaceFields& nodes) :
+PackUnpackNodes::PackUnpackNodes(Dictionary& nodes) :
   m_nodes(nodes),
   m_remove_after_pack(false),
   m_idx(uint_max()),
@@ -253,7 +254,7 @@ void PackUnpackNodes::unpack(PE::Buffer& buf)
   cf3_always_assert(coordinates.add_row(coordinates_data) == idx);
   cf3_always_assert(connected_elements.add_row(connected_elems_data) == idx);
 
-  //std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
+//  std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << to_str(coordinates_data) << "\t    connected_elem = " << to_str(connected_elems_data) << std::endl;
   m_idx = uint_max();
 }
 

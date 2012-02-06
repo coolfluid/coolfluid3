@@ -9,7 +9,7 @@
 
 #include "common/Table.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
 
@@ -37,10 +37,16 @@ class Mesh_API Field : public common::Table<Real> {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Field> Ptr;
-  typedef boost::shared_ptr<Field const> ConstPtr;
+
+
+
+  typedef ArrayT::array_view<2>::type View;
 
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
+
+private: // typedefs
+
+  typedef boost::multi_array_types::index_range range;
 
 public: // functions
 
@@ -54,9 +60,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Field"; }
 
-  SpaceFields::Basis::Type basis() const { return m_basis; }
+  Dictionary::Basis::Type basis() const { return m_basis; }
 
-  void set_basis(const SpaceFields::Basis::Type basis) { m_basis = basis;}
+  void set_basis(const Dictionary::Basis::Type basis) { m_basis = basis;}
 
   std::string var_name(Uint i=0) const;
 
@@ -80,35 +86,36 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
   VarType var_length(const Uint i=0) const;
 
-  void set_topology(Region& topology);
+  void set_dict(Dictionary& dict);
 
-  Region& topology() const;
-
-  void set_field_group(SpaceFields& field_group);
-
-  SpaceFields& field_group() const;
+  Dictionary& dict() const;
 
   virtual void resize(const Uint size);
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+  View view(const Uint start, const Uint size)
+  {
+    return array()[ boost::indices[range(start,start+size)][range()] ];
+  }
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  View view(common::Table<Uint>::ConstRow& indices)
+  {
+    return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
+  }
 
-  common::List<Uint>& glb_idx() const { return field_group().glb_idx(); }
+  common::List<Uint>& glb_idx() const { return dict().glb_idx(); }
 
-  common::List<Uint>& rank() const { return field_group().rank(); }
+  common::List<Uint>& rank() const { return dict().rank(); }
 
-  bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
+  bool is_ghost(const Uint idx) const { return dict().is_ghost(idx); }
 
-  const std::string& space() const { return field_group().space(); }
+//  const std::string& space() const { return dict().space(); }
 
-  Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
+  const Handle<Space const>& space(const Handle<Entities const>& entities) const { return dict().space(entities); }
+  const Space& space(const Entities& entities) const { return dict().space(entities); }
 
-  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
+  std::vector< Handle<Entities> > entities_range();
 
-  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
-
-  Field& coordinates() const { return field_group().coordinates(); }
+  Field& coordinates() const { return dict().coordinates(); }
 
   common::PE::CommPattern& parallelize_with( common::PE::CommPattern& comm_pattern );
 
@@ -116,9 +123,9 @@ public: // functions
 
   void synchronize();
 
-  UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+//  UnifiedData& elements_lookup() const { return dict().elements_lookup(); }
 
-  math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
+  math::VariablesDescriptor& descriptor() const { return *m_descriptor; }
 
   void set_descriptor(math::VariablesDescriptor& descriptor);
 
@@ -296,21 +303,18 @@ public: // functions
     // /// istream >> U
     // friend istream& operator >> (istream& in,  Field& U);
 
-
-
-
 private:
 
   void config_var_names();
   void config_var_types();
 
-  SpaceFields::Basis::Type m_basis;
-  boost::weak_ptr<Region> m_topology;
-  boost::weak_ptr<SpaceFields> m_field_group;
+  Dictionary::Basis::Type m_basis;
+//  Handle<Region> m_topology;
+  Handle<Dictionary> m_dict;
 
-  boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
+  Handle< common::PE::CommPattern > m_comm_pattern;
 
-  boost::weak_ptr< math::VariablesDescriptor > m_descriptor;
+  Handle< math::VariablesDescriptor > m_descriptor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

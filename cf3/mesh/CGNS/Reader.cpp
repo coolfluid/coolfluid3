@@ -12,7 +12,8 @@
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
@@ -20,9 +21,11 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Space.hpp"
+
 #include "mesh/CGNS/Reader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,8 +45,8 @@ common::ComponentBuilder< Reader, MeshReader, LibCGNS > aCGNSReader_Builder;
 Reader::Reader(const std::string& name)
 : MeshReader(name), Shared()
 {
-  options().add_option< OptionT<bool> >( "SectionsAreBCs", false )
-      ->description("Treat Sections of lower dimensionality as BC. "
+  options().add_option( "SectionsAreBCs", false )
+      .description("Treat Sections of lower dimensionality as BC. "
                         "This means no BCs from cgns will be read");
 
 }
@@ -62,7 +65,7 @@ std::vector<std::string> Reader::get_extensions()
 void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
   // Set the internal mesh pointer
-  m_mesh = mesh.as_ptr<Mesh>();
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   // open file in read mode
   CALL_CGNS(cg_open(file.path().c_str(),CG_MODE_READ,&m_file.idx));
@@ -75,13 +78,13 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Read every base (usually there is only 1)
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
-    read_base(*m_mesh.lock());
+    read_base(*m_mesh);
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
 
-  m_mesh.lock()->elements().update();
-  m_mesh.lock()->update_statistics();
+  m_mesh->elements().update();
+  m_mesh->update_statistics();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -97,7 +100,7 @@ void Reader::read_base(Mesh& parent_region)
   boost::algorithm::replace_all(m_base.name,".","_");
 
   // Create basic region structure
-  Region& base_region = m_mesh.lock()->topology();
+  Region& base_region = m_mesh->topology();
   m_base_map[m_base.idx] = &base_region;
 
   // check how many zones we have
@@ -258,7 +261,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
 
-  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -280,7 +283,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
   }
 
-  m_mesh.lock()->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
+  m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
 
   common::Table<Real>& coords = nodes.coordinates();
   common::List<Uint>& rank = nodes.rank();
@@ -317,7 +320,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
 void Reader::read_coordinates_structured(Region& parent_region)
 {
-  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
+  Dictionary& nodes = m_mesh->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -344,7 +347,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
   }
 
   common::Table<Real>& coords = nodes.coordinates();
-  m_mesh.lock()->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
+  m_mesh->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
   Uint n(0);
   switch (m_zone.coord_dim)
   {
@@ -400,7 +403,7 @@ void Reader::read_section(Region& parent_region)
   boost::algorithm::replace_all(m_section.name,".","_");
 
   BOOST_FOREACH(Region& existing_region, find_components<Region>(parent_region))
-  if (existing_region.follow())
+  if (follow_link(existing_region))
   {
     if (existing_region.properties().check("cgns_section_name"))
     {
@@ -416,14 +419,14 @@ void Reader::read_section(Region& parent_region)
   // Create a new region for this section
   Region& this_region = parent_region.create_region(m_section.name);
 
-  SpaceFields& all_nodes = *m_zone.nodes;
+  Dictionary& all_nodes = *m_zone.nodes;
   Uint start_idx = m_zone.nodes_start_idx;
 
   if (m_section.type == MIXED)
   {
     // Create Elements component for each element type.
-    std::map<std::string,Elements::Ptr> elements = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
-    std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,Handle< Elements > > elements = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
+    std::map<std::string, boost::shared_ptr< ArrayBufferT<Uint> > > buffer = create_connectivity_buffermap(elements);
 
     // Handle each element of this section separately to see in which Elements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -474,10 +477,10 @@ void Reader::read_section(Region& parent_region)
     // Create element component in this region for this CF element type, automatically creates connectivity_table
     this_region.create_elements(etype_CF,all_nodes);
 
-    Elements& element_region= *this_region.get_child_ptr("elements_"+etype_CF)->as_ptr<Elements>();
+    Elements& element_region= *Handle<Elements>(this_region.get_child("elements_"+etype_CF));
 
     // Create a buffer for this element component, to start filling in the elements we will read.
-    Connectivity& node_connectivity = element_region.node_connectivity();
+    Connectivity& node_connectivity = element_region.geometry_space().connectivity();
 
     // Create storage for element nodes
     int* elemNodes = new int [m_section.elemDataSize];
@@ -496,7 +499,7 @@ void Reader::read_section(Region& parent_region)
         node_connectivity[elem][node] = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0;
 
       // Store the global element number to a pair of (region , local element number)
-      m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<Elements>(element_region.shared_from_this()),elem));
+      m_global_to_region.push_back(Region_TableIndex_pair(element_region.handle<Elements>(),elem));
     } // for elem
 
 
@@ -525,7 +528,7 @@ void Reader::read_section(Region& parent_region)
 
 void Reader::create_structured_elements(Region& parent_region)
 {
-  SpaceFields& nodes = *m_zone.nodes;
+  Dictionary& nodes = *m_zone.nodes;
 
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -546,7 +549,7 @@ void Reader::create_structured_elements(Region& parent_region)
   Elements& element_region = this_region.create_elements(etype_CF,nodes);
 
   // Create a buffer for this element component, to start filling in the elements we will read.
-  Connectivity& node_connectivity = element_region.node_connectivity();
+  Connectivity& node_connectivity = element_region.geometry_space().connectivity();
   node_connectivity.resize(m_zone.total_nbElements);
   // --------------------------------------------- Fill connectivity table
 
@@ -628,17 +631,18 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
   switch (m_boco.ptset_type)
   {
+    case PointRange:
     case ElementRange : // all bc elements are within a range given by 2 global element numbers
     {
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementRange\" is only supported for Unstructured grids");
 
       // First do some simple checks to see if an entire region can be taken as a BC.
-      Elements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
-      Elements::Ptr last_elements = m_global_to_region[boco_elems[1]-1].first;
-      if (&first_elements->parent() == &last_elements->parent())
+      Handle< Elements > first_elements = m_global_to_region[boco_elems[0]-1].first;
+      Handle< Elements > last_elements = m_global_to_region[boco_elems[1]-1].first;
+      if (first_elements->parent() == last_elements->parent())
       {
-        Region::Ptr group_region = first_elements->parent().as_ptr<Region>();
+        Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
@@ -651,22 +655,22 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       Region& this_region = parent_region.create_region(m_boco.name);
-      SpaceFields& nodes = *m_zone.nodes;
+      Dictionary& nodes = *m_zone.nodes;
 
       // Create Elements components for every possible element type supported.
-      std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,Handle< Elements > > elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
+      std::map<std::string,boost::shared_ptr< ArrayBufferT<Uint > > > buffer = create_connectivity_buffermap(elements);
 
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
         // Check which region this global_element belongs to
-        Elements::Ptr element_region = m_global_to_region[global_element].first;
+        Handle< Elements > element_region = m_global_to_region[global_element].first;
 
         // Check the local element number in this region
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct Elements component through its buffer
-        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -677,17 +681,18 @@ void Reader::read_boco_unstructured(Region& parent_region)
       remove_empty_element_regions(this_region);
       break;
     }
+    case PointList:
     case ElementList : // all bc elements are listed as global element numbers
     {
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for Unstructured grids");
 
       // First do some simple checks to see if an entire region can be taken as a BC.
-      Elements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
-      Elements::Ptr last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
-      if (&first_elements->parent() == &last_elements->parent())
+      Handle< Elements > first_elements = m_global_to_region[boco_elems[0]-1].first;
+      Handle< Elements > last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
+      if (first_elements->parent() == last_elements->parent())
       {
-        Region::Ptr group_region = first_elements->parent().as_ptr<Region>();
+        Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
@@ -699,24 +704,24 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       Region& this_region = parent_region.create_region(m_boco.name);
-      SpaceFields& nodes = *m_zone.nodes;
+      Dictionary& nodes = *m_zone.nodes;
 
       // Create Elements components for every possible element type supported.
-      std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,Handle< Elements > > elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
+      std::map<std::string,boost::shared_ptr< ArrayBufferT<Uint > > > buffer = create_connectivity_buffermap(elements);
 
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
         Uint global_element = boco_elems[i]-1;
 
         // Check which region this global_element belongs to
-        Elements::Ptr element_region = m_global_to_region[global_element].first;
+        Handle< Elements > element_region = m_global_to_region[global_element].first;
 
         // Check the local element number in this region
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct Elements component through its buffer
-        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -728,12 +733,12 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       break;
     }
-    case PointRange : // bc elements are given by node index range
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"PointRange\" is only supported for Structured grids");
-    case PointList : // bc elements are given by node index list
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"PointList\" is only supported for Structured grids");
+//    case PointRange : // bc elements are given by node index range
+//    throw NotSupported(FromHere(),"CGNS: Boundary "+m_boco.name+" with pointset_type \"PointRange\" (="+to_str<int>(PointRange)+") is only supported for Structured grids");
+//    case PointList : // bc elements are given by node index list
+//    throw NotSupported(FromHere(),"CGNS: Boundary "+m_boco.name+"  with pointset_type \"PointList\" (="+to_str<int>(PointRange)+") is only supported for Structured grids");
     default :
-      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + to_str<int>(m_boco.ptset_type) + " supported in CF yet");
+      throw NotImplemented(FromHere(),"CGNS: pointset_type " + to_str<int>(m_boco.ptset_type) + " for boundary "+m_boco.name+" not supported in CF yet");
   }
 
   delete_ptr(boco_elems);
@@ -756,7 +761,7 @@ void Reader::read_boco_structured(Region& parent_region)
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   Region& this_region = parent_region.create_region(m_boco.name);
-  SpaceFields& nodes = *m_zone.nodes;
+  Dictionary& nodes = *m_zone.nodes;
 
   // Which BC_element type will we need?
   std::string etype_CF;
@@ -779,8 +784,8 @@ void Reader::read_boco_structured(Region& parent_region)
   }
 
   Elements& elements = this_region.create_elements(etypeBC_CF,nodes);
-  //common::Table<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->node_connectivity();
-  Connectivity& node_connectivity = elements.node_connectivity();
+  //common::Table<Uint>& source_elements = parent_region.get_child("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->geometry_space().connectivity();
+  Connectivity& node_connectivity = elements.geometry_space().connectivity();
 
 
 

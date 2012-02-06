@@ -26,8 +26,8 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CModelSteady.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/ModelSteady.hpp"
+#include "solver/Solver.hpp"
 
 #include "RDM/SteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
@@ -46,19 +46,19 @@ using namespace cf3::mesh;
 using namespace cf3::physics;
 using namespace cf3::solver;
 
-common::ComponentBuilder < MySim, solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, solver::Wizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 MySim::MySim ( const std::string& name  ) :
-  solver::CWizard ( name )
+  solver::Wizard ( name )
 {
   // signals
 
   regist_signal( "create_model" )
-    ->connect( boost::bind( &MySim::signal_create_model, this, _1 ) )
-    ->description("Creates a scalar advection model")
-    ->pretty_name("Create Model");
+    .connect( boost::bind( &MySim::signal_create_model, this, _1 ) )
+    .description("Creates a scalar advection model")
+    .pretty_name("Create Model");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -80,14 +80,14 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  SteadyExplicit& wizard = create_component<SteadyExplicit>("wizard");
+  SteadyExplicit& wizard = *create_component<SteadyExplicit>("wizard");
 
   std::string name  = options.value<std::string>("model_name");
 
-  CModel& model = wizard.create_model(name, "Scalar2D");
+  Model& model = wizard.create_model(name, "Scalar2D");
 
-  Domain&     domain = model.get_child("Domain").as_type<Domain>();
-  RDM::RDSolver& solver = model.get_child("Solver").as_type<RDM::RDSolver>();
+  Handle<Domain>     domain(model.get_child("Domain"));
+  Handle<RDM::RDSolver> solver(model.get_child("Solver"));
 
   // load the mesh
   {
@@ -102,15 +102,15 @@ void MySim::signal_create_model ( common::SignalArgs& node )
   //  URI file( "file:rectangle2x1-qd-p1-861.msh");
   //  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
-    options.add_option<OptionURI>("file", file );
-    options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
+    options.add_option("file", file );
+    options.add_option("name", std::string("Mesh") );
 
-    domain.signal_load_mesh( frame );
+    domain->signal_load_mesh( frame );
   }
 
   // setup solver
   {
-    solver.get_child("IterativeSolver").configure_option_recursively("MaxIter", 2250u);
+    solver->get_child("IterativeSolver")->configure_option_recursively("MaxIter", 2250u);
   }
 
   // boudnary term
@@ -119,28 +119,28 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"bottom"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(*domain,"bottom"))
       regions.push_back( region.uri() );
-    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"left"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(*domain,"left"))
       regions.push_back( region.uri() );
 
     cf3_assert( regions.size() == 2u);
 
     std::string name ("WEAK_INLET");
 
-    options.add_option< OptionT<std::string> >("Name",name);
-    options.add_option< OptionT<std::string> >("Type","cf3.RDM.BcDirichlet");
-    options.add_option< OptionArrayT<URI> >   ("Regions", regions);
+    options.add_option("Name",name);
+    options.add_option("Type","cf3.RDM.BcDirichlet");
+    options.add_option("Regions", regions);
 
-    solver.boundary_conditions().signal_create_boundary_condition(frame);
+    solver->boundary_conditions().signal_create_boundary_condition(frame);
 
-    Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
+    Handle< Component > inletbc = find_component_ptr_recursively_with_name( *solver, name );
     cf3_assert( is_not_null(inletbc) );
 
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
 
-    inletbc->configure_option("functions", fns);
+    inletbc->options().configure_option("functions", fns);
   }
 
   // initialization
@@ -150,9 +150,9 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     std::vector<std::string> functions(1);
     functions[0] = "0.";
-    options.add_option< OptionArrayT<std::string> >("functions", functions);
+    options.add_option("functions", functions);
 
-    solver.initial_conditions().signal_create_initial_condition( frame );
+    solver->initial_conditions().signal_create_initial_condition( frame );
   }
 
   // LDA scheme
@@ -160,7 +160,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     CFinfo << "solving with LDA scheme" << CFendl;
 
     // delete previous domain terms
-    Component& domain_terms = solver.get_child("compute_domain_terms");
+    Component& domain_terms = *solver->get_child("compute_domain_terms");
     boost_foreach( RDM::CellTerm& term, find_components_recursively<RDM::CellTerm>( domain_terms ))
     {
       const std::string name = term.name();
@@ -169,7 +169,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     cf3_assert( domain_terms.count_children() == 0 );
 
-    Mesh& mesh = find_component<Mesh>(domain);
+    Mesh& mesh = find_component<Mesh>(*domain);
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -180,11 +180,11 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     cf3_assert( regions.size() == 1u);
 
-    options.add_option< OptionT<std::string> >("Name","INTERNAL");
-    options.add_option< OptionT<std::string> >("Type","cf3.RDM.Schemes.LDA");
-    options.add_option< OptionArrayT<URI> >   ("Regions", regions);
+    options.add_option("Name","INTERNAL");
+    options.add_option("Type","cf3.RDM.Schemes.LDA");
+    options.add_option("Regions", regions);
 
-    solver.domain_discretization().signal_create_cell_term(frame);
+    solver->domain_discretization().signal_create_cell_term(frame);
 
     // solver->solve();
   }
@@ -197,8 +197,8 @@ void MySim::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("model_name", std::string())
-      ->description("Name for created model");
+  options.add_option("model_name", std::string())
+      .description("Name for created model");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

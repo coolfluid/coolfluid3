@@ -18,7 +18,7 @@ namespace solver {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Notifier::Notifier( boost::shared_ptr<common::PE::Manager> manager )
+Notifier::Notifier( const Handle<common::PE::Manager>& manager )
   : m_manager(manager)
 {
   cf3_assert( is_not_null(manager) );

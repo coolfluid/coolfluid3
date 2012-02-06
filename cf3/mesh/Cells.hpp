@@ -22,11 +22,6 @@ namespace mesh {
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 class Mesh_API Cells : public Elements {
 
-public: // typedefs
-
-  typedef boost::shared_ptr<Cells> Ptr;
-  typedef boost::shared_ptr<Cells const> ConstPtr;
-
 public: // functions
 
   /// Contructor
@@ -34,10 +29,7 @@ public: // functions
   Cells ( const std::string& name );
   
   /// Initialize the Cells using the given type
-  //void initialize(const std::string& element_type_name, common::Table<Real>& coordinates);
-
-  /// Initialize the Cells using the given type
-  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
+  virtual void initialize(const std::string& element_type_name, Dictionary& geometry);
     
   /// Virtual destructor
   virtual ~Cells();

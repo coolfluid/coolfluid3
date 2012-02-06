@@ -44,8 +44,8 @@ class mesh_ptscotch_API LibPTScotch : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibPTScotch> Ptr;
-  typedef boost::shared_ptr<LibPTScotch const> ConstPtr;
+  
+  
 
   /// Constructor
   LibPTScotch ( const std::string& name) : common::Library(name) { }

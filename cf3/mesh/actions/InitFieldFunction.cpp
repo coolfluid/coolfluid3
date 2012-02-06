@@ -14,6 +14,8 @@
 #include "common/Foreach.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/actions/InitFieldFunction.hpp"
 #include "mesh/Elements.hpp"
@@ -46,16 +48,17 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
     "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  options().add_option(OptionComponent<Field>::create("field", &m_field))
-      ->description("Field to initialize")
-      ->pretty_name("Field")
-      ->mark_basic();
+  options().add_option("field", m_field)
+      .description("Field to initialize")
+      .pretty_name("Field")
+      .link_to(&m_field)
+      .mark_basic();
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("math function applied as initial field (vars x,y,z)")
-      ->pretty_name("Functions definition")
-      ->attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as initial field (vars x,y,z)")
+      .pretty_name("Functions definition")
+      .attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 
@@ -79,16 +82,16 @@ void InitFieldFunction::config_function()
 
 void InitFieldFunction::execute()
 {
-  if (m_field.expired())
+  if (is_null(m_field))
     throw SetupError(FromHere(), "Option [field] was not set in ["+uri().path()+"]");
 
-  Field& field = *m_field.lock();
+  Field& field = *m_field;
 
   std::vector<Real> vars(3,0.);
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == SpaceFields::Basis::POINT_BASED)
+  if (field.basis() == Dictionary::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();
@@ -107,18 +110,18 @@ void InitFieldFunction::execute()
   }
   else
   {
-    boost_foreach( Entities& elements, field.entities_range() )
+    boost_foreach( const Handle<Entities>& elements_handle, field.entities_range() )
     {
-      Space& space = field.space(elements);
+      Entities& elements = *elements_handle;
+      const Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);
-
+      const Connectivity& field_connectivity = space.connectivity();
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         coordinates = space.compute_coordinates(elem_idx);
-        Connectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
         /// for each state of the field shape function
-        for (Uint iState=0; iState<space.nb_states(); ++iState)
+        for (Uint iState=0; iState<space.shape_function().nb_nodes(); ++iState)
         {
           /// evaluate the function using the physical coordinates
           for (Uint d=0; d<coordinates.cols(); ++d)
@@ -126,7 +129,7 @@ void InitFieldFunction::execute()
           m_function.evaluate(vars,return_val);
           /// put the return values in the field
           for (Uint i=0; i<field.row_size(); ++i)
-            field[field_idx[iState]][i] = return_val[i];
+            field[field_connectivity[elem_idx][iState]][i] = return_val[i];
         }
       }
     }

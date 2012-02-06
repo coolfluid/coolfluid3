@@ -1,0 +1,96 @@
+{
+   <rapidxml>
+   Memcheck:Cond
+   fun:*cf3*common*XML*XmlNode*set_attribute*
+   ...
+}
+{
+   <boost_uuid>
+   Memcheck:Cond
+   ...
+   fun:*boost*uuids*
+   ...
+}
+{
+   <boost_uuid_cf3_common_UUCount>
+   Memcheck:Cond
+   ...
+   fun:*cf3*common*UUCount*
+   ...
+}
+{
+   <cf3_common_UUCount>
+   Memcheck:Leak
+   ...
+   fun:*cf3*common*UUCount*
+   ...
+}
+{
+   <boost_regex_search>
+   Memcheck:Leak
+   ...
+   fun:*boost*regex_search*
+   ...
+}
+{
+   <boost_regex_replace>
+   Memcheck:Leak
+   ...
+   fun:*boost*regex_replace*
+}
+{
+   <boost_date_time>
+   Memcheck:Leak
+   ...
+   fun:*boost*date_time*
+   ...
+}
+{
+   <boost_posix_time_ostream>
+   Memcheck:Leak
+   ...
+   fun:*boost*posix_time*basic_ostream*
+   ...
+}
+{
+   <boost_gregorian_ostream>
+   Memcheck:Leak
+   ...
+   fun:*boost*gregorian*basic_ostream*
+   ...
+}
+{
+   <boost_unit_test_output>
+   Memcheck:Leak
+   ...
+   fun:*boost*unit_test*output*
+   ...
+}
+{
+   <boost_unit_test_log>
+   Memcheck:Cond
+   ...
+   fun:*boost*unit_test*unit_test_log*
+   ...
+}
+{
+   <python_initialize>
+   Memcheck:Leak
+   ...
+   fun:Py_InitializeEx
+   ...
+}
+{
+   <dyld_initializer>
+   Memcheck:Leak
+   ...
+   fun:libSystem_initializer
+   ...
+}
+{
+   <atexit_register>
+   Memcheck:Leak
+   fun:malloc
+   fun:atexit_register
+   ...
+}

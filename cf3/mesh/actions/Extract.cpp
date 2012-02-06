@@ -15,6 +15,8 @@
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
@@ -52,9 +54,9 @@ common::ComponentBuilder < mesh::actions::Extract, mesh::MeshTransformer, mesh::
 Extract::Extract( const std::string& name )
 : MeshTransformer(name)
 {
-  options().add_option<OptionArrayT<std::string> >("Regions", std::vector<std::string>())
-      ->description("Regions to extract, can be regular expression matched with the full path")
-      ->mark_basic();
+  options().add_option("Regions", std::vector<std::string>())
+      .description("Regions to extract, can be regular expression matched with the full path")
+      .mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -98,13 +100,13 @@ std::string Extract::help() const
 void Extract::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
 
   // Storage of regions to keep
   std::list<std::string> keep_region_paths;
 
-  std::vector<std::string> args;  option("Regions").put_value(args);
+  std::vector<std::string> args = options().option("Regions").value< std::vector<std::string> >();
 
   // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)
@@ -113,14 +115,14 @@ void Extract::execute()
     {
       BOOST_FOREACH( const Elements& elements, find_components_recursively_with_filter<Elements>(mesh,IsElementsSurface()))
       {
-        keep_region_paths.push_back(elements.parent().uri().path());
+        keep_region_paths.push_back(elements.parent()->uri().path());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
       BOOST_FOREACH( const Elements& elements, find_components_recursively_with_filter<Elements>(mesh,IsElementsVolume()))
       {
-        keep_region_paths.push_back(elements.parent().uri().path());
+        keep_region_paths.push_back(elements.parent()->uri().path());
       }
     }
   }
@@ -143,17 +145,16 @@ void Extract::execute()
 
   // Parse the list into individual regions that will not be removed
   std::set<std::string> keep_region;
-  BOOST_FOREACH(const boost::filesystem::path& region_path, keep_region_paths)
+  BOOST_FOREACH(const URI& region_path, keep_region_paths)
   {
-    BOOST_FOREACH(const std::string& region_name, region_path)
-      keep_region.insert(region_name);
+    keep_region.insert(region_path.name());
   }
 
   // Remove regions whose name doesn't appear in the parsed list "keep_region"
   BOOST_FOREACH( Region& region, find_components_recursively<Region>(mesh))
   {
     bool found = (std::find(keep_region.begin(),keep_region.end(),region.name()) != keep_region.end());
-    if (!found)  region.parent().remove_component(region.name());
+    if (!found)  region.parent()->remove_component(region.name());
   }
 
 
@@ -163,7 +164,7 @@ void Extract::execute()
     if (region.recursive_elements_count() == 0)
     {
       CFinfo << "removing empty element_region " << region.uri().string() << CFendl;
-      region.parent().remove_component(region.name());
+      region.parent()->remove_component(region.name());
     }
   }
 

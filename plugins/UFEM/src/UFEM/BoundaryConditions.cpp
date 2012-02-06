@@ -22,12 +22,10 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/actions/CSolveSystem.hpp"
-
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
 
@@ -56,21 +54,21 @@ struct BoundaryConditions::Implementation
   Implementation(ActionDirector& comp) :
     m_component(comp),
     m_physical_model(),
-    dirichlet(*m_component.options().add_option< OptionComponent<LSS::System> >("lss", URI())
-              ->pretty_name("LSS")
-              ->description("The referenced linear system solver"))
+    dirichlet(m_component.options().add_option("lss", Handle<LSS::System>())
+              .pretty_name("LSS")
+              .description("The referenced linear system solver"))
   {
-    m_component.options().add_option< OptionArrayT < URI > > (solver::Tags::regions())
-      ->pretty_name("Regions")
-      ->description("Regions the boundary condition applies to")
-      ->link_to(&m_region_uris);
-    m_component.options().add_option< OptionComponent<physics::PhysModel> >(solver::Tags::physical_model())
-      ->pretty_name("Physical Model")
-      ->description("Physical Model")
-      ->link_to(&m_physical_model);
+    m_component.options().add_option(solver::Tags::regions(), std::vector<URI>())
+      .pretty_name("Regions")
+      .description("Regions the boundary condition applies to")
+      .link_to(&m_region_uris);
+    m_component.options().add_option< Handle<physics::PhysModel> >(solver::Tags::physical_model())
+      .pretty_name("Physical Model")
+      .description("Physical Model")
+      .link_to(&m_physical_model);
   }
 
-  Action::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
+  boost::shared_ptr< Action > create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
   {
     MeshTerm<0, ScalarField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
@@ -78,7 +76,7 @@ struct BoundaryConditions::Implementation
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  Action::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
+  boost::shared_ptr< Action > create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
   {
     MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
@@ -90,24 +88,24 @@ struct BoundaryConditions::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option< OptionT<std::string> >("region_name", std::string())
-        ->description("Default region name for this BC");
+    options.add_option("region_name", std::string())
+        .description("Default region name for this BC");
 
-    options.add_option< OptionT<std::string> >("variable_name", std::string())
-        ->description("Variable name for this BC");
+    options.add_option("variable_name", std::string())
+        .description("Variable name for this BC");
   }
 
   // Checked access to the physical model
   physics::PhysModel& physical_model()
   {
-    if(m_physical_model.expired())
+    if(is_null(m_physical_model))
       throw SetupError(FromHere(), "Error accessing physical_model from " + m_component.uri().string());
 
-    return *m_physical_model.lock();
+    return *m_physical_model;
   }
 
   ActionDirector& m_component;
-  boost::weak_ptr<physics::PhysModel> m_physical_model;
+  Handle<physics::PhysModel> m_physical_model;
   DirichletBC dirichlet;
   std::vector<URI> m_region_uris;
 };
@@ -117,21 +115,21 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
   m_implementation( new Implementation(*this) )
 {
   regist_signal( "add_constant_bc" )
-    ->connect( boost::bind( &BoundaryConditions::signal_create_constant_bc, this, _1 ) )
-    ->description("Create a constant Dirichlet BC")
-    ->pretty_name("Add Constant BC")
-    ->signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
+    .connect( boost::bind( &BoundaryConditions::signal_create_constant_bc, this, _1 ) )
+    .description("Create a constant Dirichlet BC")
+    .pretty_name("Add Constant BC")
+    .signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
 }
 
 BoundaryConditions::~BoundaryConditions()
 {
 }
 
-void BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
+Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
-  Action::Ptr result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
+  boost::shared_ptr< common::Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
 
@@ -142,14 +140,14 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
   // find the URIs of all the regions that match the region_name
   boost_foreach(const URI& region_uri, m_implementation->m_region_uris)
   {
-    Component::Ptr region_comp = access_component_ptr(region_uri);
+    Handle< Component > region_comp = access_component(region_uri);
     if(!region_comp)
       throw SetupError(FromHere(), "No component found at " + region_uri.string() + " when reading regions from " + uri().string());
-    Region::Ptr root_region = boost::dynamic_pointer_cast<Region>(region_comp);
+    Handle< Region > root_region(region_comp);
     if(!root_region)
       throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + uri().string());
 
-    Region::Ptr region = find_component_ptr_recursively_with_name<Region>(*root_region, region_name);
+    Handle< Region > region = find_component_ptr_recursively_with_name<Region>(*root_region, region_name);
     if(region)
       bc_regions.push_back(region->uri());
   }
@@ -168,8 +166,10 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
     }
   }
 
-  result->configure_option(solver::Tags::regions(), bc_regions);
-  result->configure_option(solver::Tags::physical_model(), m_implementation->m_physical_model);
+  result->options().configure_option(solver::Tags::regions(), bc_regions);
+  result->options().configure_option(solver::Tags::physical_model(), m_implementation->m_physical_model);
+
+  return Handle<Action>(result);
 }
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
@@ -181,10 +181,16 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
+  Handle<Action> result;
+
   if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
-    add_constant_bc(region_name, variable_name, 0.);
+    result = add_constant_bc(region_name, variable_name, 0.);
   else
-    add_constant_bc(region_name, variable_name, RealVector());
+    result = add_constant_bc(region_name, variable_name, RealVector());
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", result->uri());
 }
 
 } // UFEM

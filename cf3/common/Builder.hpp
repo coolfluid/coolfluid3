@@ -29,13 +29,9 @@ namespace common {
 
 /// @brief Component that builds other components
 /// @author Tiago Quintino
-class Common_API Builder : public Component {
-
+class Common_API Builder : public Component
+{
 public:
-
-  typedef boost::shared_ptr< Builder > Ptr;
-  typedef boost::shared_ptr< Builder const> ConstPtr;
-
   /// @brief Contructor
   /// @param name of component
   Builder(const std::string& name);
@@ -55,7 +51,7 @@ public:
   virtual std::string builder_concrete_type_name() const = 0;
 
   /// @return the name of the type of what concrete type it builds
-  virtual Component::Ptr build ( const std::string& name ) const = 0;
+  virtual boost::shared_ptr<Component> build ( const std::string& name ) const = 0;
 
   /// @name SIGNALS
   //@{
@@ -90,9 +86,6 @@ class BuilderT : public Builder {
 
 public:
 
-  typedef boost::shared_ptr< BuilderT<BASE,CONCRETE> > Ptr;
-  typedef boost::shared_ptr< BuilderT<BASE,CONCRETE> const > ConstPtr;
-
   /// @brief Contructor
   /// @param name of component
   BuilderT(const std::string& name) : Builder(name)
@@ -114,9 +107,9 @@ public:
   static std::string type_name() { return "BuilderT<" + BASE::type_name() + "," + CONCRETE::type_name() + ">"; }
 
   /// builds the component cast to the correct base
-  typename BASE::Ptr create_component_typed ( const std::string& name ) const
+  boost::shared_ptr<BASE> create_component_typed ( const std::string& name ) const
   {
-    return typename BASE::Ptr ( allocate_component<CONCRETE>(name) );
+    return typename boost::shared_ptr<BASE> ( allocate_component<CONCRETE>(name) );
   }
 
   /// Returns the name of the type of what abstract type it builds.
@@ -127,7 +120,7 @@ public:
   /// @return the name of the type of this factory
   virtual std::string builder_concrete_type_name() const { return CONCRETE::type_name(); }
 
-  virtual Component::Ptr build ( const std::string& name ) const
+  virtual boost::shared_ptr<Component> build ( const std::string& name ) const
   {
     return this->create_component_typed(name);
   }
@@ -163,31 +156,30 @@ struct ComponentBuilder
         regist< BuilderT<BASE,CONCRETE> >(  BuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
-    common::Factory::Ptr factory =
-        common::Core::instance().factories().get_factory< BASE >();
+    Handle<Factory> factory(common::Core::instance().factories().get_factory< BASE >());
 
     cf3_assert ( is_not_null(factory) );
 
-    boost::shared_ptr< common::BuilderT<BASE,CONCRETE> > builder =
-        factory->create_component_ptr< BuilderT<BASE,CONCRETE> >( name );
+    Handle< common::BuilderT<BASE,CONCRETE> > builder =
+        factory->create_component< BuilderT<BASE,CONCRETE> >( name );
 
     // check that BuilderT can cast to Builder
     /// @note sanity check after weird bug on MacOSX
     ///       when including Builder.cpp instead of Builder.hpp
-    cf3_assert ( builder->template as_ptr<Builder>() );
+    cf3_assert ( is_not_null(Handle<Builder>(builder)) );
 
     // put a Link to the builder in the respective Library
-    Library::Ptr lib = Core::instance().libraries().library<LIB>();
+    Handle<Library> lib(Core::instance().libraries().library<LIB>());
     cf3_assert ( is_not_null(lib) );
 
-    Link::Ptr builder_link = lib->create_component_ptr<Link>( name );
+    Handle<Link> builder_link = lib->create_component<Link>( name );
     cf3_assert ( is_not_null(builder_link) );
 
-    builder_link->link_to(builder);
+    builder_link->link_to(*builder);
 
     cf3_assert ( is_not_null(builder_link->follow()) );
-    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<BuilderT<BASE,CONCRETE> >()) );
-    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<Builder>()) );
+    cf3_assert ( is_not_null(Handle< BuilderT<BASE,CONCRETE> >(builder_link->follow())) );
+    cf3_assert ( is_not_null(Handle<Builder>(builder_link->follow())) );
 
   }
 

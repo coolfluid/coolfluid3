@@ -4,19 +4,20 @@ import sys
 root = cf.Core.root()
 env = cf.Core.environment()
 
-env.configure_option('assertion_backtrace', False)
-env.configure_option('exception_backtrace', False)
-env.configure_option('regist_signal_handlers', False)
-env.configure_option('exception_log_level', 0)
-env.configure_option('log_level', 4)
-env.configure_option('exception_outputs', False)
+env.options().configure_option('assertion_backtrace', False)
+env.options().configure_option('exception_backtrace', False)
+env.options().configure_option('regist_signal_handlers', False)
+env.options().configure_option('exception_log_level', 0)
+env.options().configure_option('log_level', 4)
+env.options().configure_option('exception_outputs', False)
 
 table = root.create_component("table", "cf3.common.Table<unsigned>")
 
 if len(table) != 0:
   raise Exception('Created table was not size 0')
 
-table.resize([10, 2])
+table.set_row_size(2)
+table.resize(10)
 
 if len(table) != 10:
   raise Exception('Incorrect table size')

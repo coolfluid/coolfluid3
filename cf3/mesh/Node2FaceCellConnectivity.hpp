@@ -20,7 +20,7 @@ namespace common {
 namespace mesh {
 
   class Region;
-  class SpaceFields;
+  class Dictionary;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@ class Mesh_API Node2FaceCellConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<Node2FaceCellConnectivity> Ptr;
-  typedef boost::shared_ptr<Node2FaceCellConnectivity const> ConstPtr;
+  
+  
 
   /// Contructor
   /// @param name of the component
@@ -67,22 +67,22 @@ public:
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(SpaceFields& nodes);
+  void set_nodes(Dictionary& nodes);
 
-  std::vector<FaceCellConnectivity::Ptr> used();
-  void add_used (const FaceCellConnectivity& used_comp);
+  std::vector<Handle< FaceCellConnectivity > > used();
+  void add_used (FaceCellConnectivity& used_comp);
 
 
 private: // data
 
   /// unified view of the elements
-  boost::shared_ptr<common::Group> m_used_components;
+  Handle<common::Group> m_used_components;
 
   /// link to the nodes component
-  boost::shared_ptr<common::Link> m_nodes;
+  Handle<common::Link> m_nodes;
 
   /// Actual connectivity table
-  common::DynTable<Face2Cell>::Ptr m_connectivity;
+  Handle< common::DynTable<Face2Cell> > m_connectivity;
 
 }; // Node2FaceCellConnectivity
 

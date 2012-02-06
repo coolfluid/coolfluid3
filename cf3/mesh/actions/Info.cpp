@@ -9,6 +9,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
@@ -91,7 +92,7 @@ std::string Info::help() const
 void Info::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   CFinfo << "Element distribution:" << CFendl;
   boost_foreach( const Region& region, find_components_with_filter<Region>(mesh,IsComponentTrue()))
@@ -102,7 +103,7 @@ void Info::execute()
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const Field& field, find_components<Field>(mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << SpaceFields::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << Dictionary::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;

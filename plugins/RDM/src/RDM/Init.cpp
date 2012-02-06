@@ -8,12 +8,12 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionArray.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 #include "common/List.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -40,16 +40,17 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(OptionComponent<Field>::create( "field", &m_field ))
-      ->pretty_name("Solution Field")
-      ->description("The field to Initialize");
+  options().add_option("field", m_field )
+      .pretty_name("Solution Field")
+      .description("The field to Initialize")
+      .link_to(&m_field);
 
   // options
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
-      ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as Dirichlet boundary condition (vars x,y)")
+      .attach_trigger ( boost::bind ( &Init::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 }
@@ -67,11 +68,10 @@ void Init::config_function()
 
 void Init::execute()
 {
-  if( is_null( m_field.lock() ) )
-    m_field = solver().as_type<RDM::RDSolver>().fields()
-        .get_child( RDM::Tags::solution() ).as_ptr_checked<Field>();
+  if( is_null( m_field ) )
+    m_field = solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::solution() )->handle<Field>();
 
-  Field& field = *m_field.lock();
+  Field& field = *m_field;
 
   //  std::cout << "   field.size() == " << field.size() << std::endl;
   //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
@@ -80,11 +80,11 @@ void Init::execute()
 
   RealVector return_val( field.row_size() );
 
-  boost_foreach(Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< Region >& region, m_loop_regions)
   {
     /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    SpaceFields& nodes = mesh().geometry_fields();
+    Dictionary& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

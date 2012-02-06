@@ -17,8 +17,8 @@
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/LocalDispatcher.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/Foreach.hpp"
@@ -26,7 +26,7 @@
 #include "common/FindComponents.hpp"
 
 #include "common/Builder.hpp"
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"
@@ -50,11 +50,11 @@ BasicCommands::BasicCommands()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr BasicCommands::tree_root = Core::instance().root().self();
+Handle< Component > BasicCommands::tree_root = Core::instance().root().handle<Component>();
 
-Component::Ptr BasicCommands::current_component = BasicCommands::tree_root;
+Handle< Component > BasicCommands::current_component = BasicCommands::tree_root;
 
-Component& environment_component = Core::instance().root().create_component<Component>("env_vars");
+Component& environment_component = *Core::instance().root().create_component<Component>("env_vars");
 
 BasicCommands::commands_description BasicCommands::description()
 {
@@ -88,11 +88,11 @@ void BasicCommands::call(const std::vector<std::string>& params)
 
   std::string executable_path = params[0];
 
-  if ( Component::Ptr executable = current_component->access_component_ptr(executable_path) )
+  if ( Handle< Component > executable = current_component->access_component(executable_path) )
     dispatcher->dispatch_empty_signal( "execute", executable->uri() );
   else
   {
-    Component::Ptr signaling_component = current_component->access_component_ptr(URI(executable_path).base_path());
+    Handle< Component > signaling_component = current_component->access_component(URI(executable_path).base_path());
     if ( is_null(signaling_component) )
       throw ValueNotFound(FromHere(), "component " + URI(executable_path).base_path().path() + " was not found in " + current_component->uri().path());
 
@@ -119,9 +119,9 @@ void BasicCommands::unrecognized(std::vector<std::string>& unrecognized_commands
   Uint idx(0);
   boost_foreach(const std::string& command, unrecognized_commands)
   {
-    if ( Component::Ptr executable = current_component->access_component_ptr(command) )
+    if ( Handle< Component > executable = current_component->access_component(command) )
     {
-      if ( Action::Ptr action = executable->as_ptr<Action>() )
+      if ( Handle< Action > action = executable->handle<Action>() )
       {
         action->execute();
         unrecognized_commands.erase(unrecognized_commands.begin()+idx);
@@ -212,11 +212,11 @@ void BasicCommands::ls(const std::vector<std::string>& params)
 
       boost_foreach(Component& sub_comp, find_components(*current_component) )
       {
-        if (current_component->is_child_static(sub_comp.name()))
+        if(sub_comp.has_tag(common::Tags::static_component()))
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<Action>()) )
+        if ( is_null(sub_comp.handle<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -239,11 +239,11 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       // ls this_component
       boost_foreach(Component& sub_comp, find_components(*current_component) )
       {
-        if (current_component->is_child_static(sub_comp.name()))
+        if(sub_comp.has_tag(common::Tags::static_component()))
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<Action>()) )
+        if ( is_null(sub_comp.handle<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -268,8 +268,8 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       std::string cpath = params.back();
       if (!cpath.empty())
       {
-        Component& parent = current_component->access_component(URI(cpath));
-        boost_foreach(Component& sub_comp, find_components(parent))
+        Handle<Component> parent = current_component->access_component(URI(cpath));
+        boost_foreach(Component& sub_comp, find_components(*parent))
         {
           CFinfo << sub_comp.name() << CFendl;
         }
@@ -281,22 +281,22 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     // ls -x path
     std::string arg = params[0];
     std::string cpath = params.back();
-    Component& parent = current_component->access_component(URI(cpath));
+    Handle<Component> parent = current_component->access_component(URI(cpath));
 
     if (arg == "l")
     {
       // ls this_component
       Uint max_size(0);
-      boost_foreach(Component& sub_comp, find_components(parent) )
+      boost_foreach(Component& sub_comp, find_components(*parent) )
         max_size = std::max(Uint(max_size),Uint(sub_comp.derived_type_name().size()));
 
-      boost_foreach(Component& sub_comp, find_components(parent) )
+      boost_foreach(Component& sub_comp, find_components(*parent) )
       {
-        if (parent.is_child_static(sub_comp.name()))
+        if(sub_comp.has_tag(common::Tags::static_component()))
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<Action>()) )
+        if ( is_null(sub_comp.handle<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -317,13 +317,13 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     else if (arg == "a")
     {
       // ls this_component
-      boost_foreach(Component& sub_comp, find_components(parent) )
+      boost_foreach(Component& sub_comp, find_components(*parent) )
       {
-        if (parent.is_child_static(sub_comp.name()))
+        if(sub_comp.has_tag(common::Tags::static_component()))
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<Action>()) )
+        if ( is_null(sub_comp.handle<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -356,7 +356,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
 
 void BasicCommands::rm(const std::string& cpath)
 {
-  Component::Ptr to_delete = current_component->access_component_ptr_checked(cpath);
+  Handle< Component > to_delete = current_component->access_component_checked(cpath);
   dispatcher->dispatch_empty_signal( "delete_component", to_delete->uri() );
 }
 
@@ -367,7 +367,7 @@ void BasicCommands::cd(const std::string& cpath)
   if (cpath.empty())
     current_component = tree_root; //Core::instance().root().self();
   else
-    current_component = current_component->access_component_ptr_checked(cpath);
+    current_component = current_component->access_component_checked(cpath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -382,10 +382,10 @@ void BasicCommands::find(const std::vector<std::string>& params)
 
   boost::regex expression ( regexstr );
 
-  Component& start_comp = current_component->access_component( URI(path) );
+  Handle<Component> start_comp = current_component->access_component( URI(path) );
 
 
-  boost_foreach(Component& subcomp, find_components_recursively( start_comp ) )
+  boost_foreach(Component& subcomp, find_components_recursively( *start_comp ) )
   {
     if ( boost::regex_match(subcomp.name(),expression) )
       CFinfo << subcomp.uri().path() << CFendl;
@@ -397,7 +397,7 @@ void BasicCommands::find(const std::vector<std::string>& params)
 void BasicCommands::tree(const std::string& cpath)
 {
   if (!cpath.empty())
-    CFinfo << current_component->access_component(URI(cpath)).tree() << CFendl;
+    CFinfo << current_component->access_component(URI(cpath))->tree() << CFendl;
   else
     CFinfo << current_component->tree() << CFendl;
 }
@@ -409,7 +409,7 @@ void BasicCommands::option_list(const std::string& cpath)
   std::string option_list;
   if (!cpath.empty())
     option_list =
-        current_component->access_component(URI(cpath)).options().list_options();
+        current_component->access_component(URI(cpath))->options().list_options();
   else
     option_list = current_component->options().list_options();
   if (!option_list.empty())
@@ -427,7 +427,7 @@ void BasicCommands::configure(const std::vector<std::string>& params)
 
   std::string path = params[0];
 
-  if ( Component::Ptr comp = current_component->access_component_ptr(path) )
+  if ( Handle< Component > comp = current_component->access_component(path) )
   {
     std::vector<std::string> conf_options(params.size()-1);
     for (Uint i=0; i<conf_options.size(); ++i)
@@ -482,7 +482,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
     throw SetupError(FromHere(),"2 parameters needed for command [create name builder]");
   const URI new_component_path (params[0]);
 
-  Component::Ptr parent_component = current_component->access_component_ptr(URI(new_component_path).base_path());
+  Handle< Component > parent_component = current_component->access_component(URI(new_component_path).base_path());
   if ( is_null(parent_component) )
     throw ValueNotFound(FromHere(), "component " + new_component_path.base_path().path() + " was not found in " + current_component->uri().path());
 
@@ -491,8 +491,8 @@ void BasicCommands::create(const std::vector<std::string>& params)
 //  XML::SignalFrame frame("create_component", parent_component->uri(), parent_component->uri());
   //  XML::SignalOptions & options = frame.options();
 
-  options.add_option< OptionT<std::string> >( "name", new_component_path.name() );
-  options.add_option< OptionT<std::string> >( "type", params[1] );
+  options.add_option( "name", new_component_path.name() );
+  options.add_option( "type", params[1] );
 
   XML::SignalFrame frame = options.create_frame("create_component", parent_component->uri(), parent_component->uri());
   dispatcher->dispatch_signal( "create_component", parent_component->uri(), frame );
@@ -506,17 +506,17 @@ void BasicCommands::mv(const std::vector<std::string>& params)
     throw SetupError(FromHere(),"2 parameters needed for command [make cpath1 cpath2]");
   const URI cpath1(params[0]);
   const URI cpath2(params[1]);
-  Component& component_1 = current_component->access_component(cpath1);
-  Component& parent_2 = current_component->access_component(cpath2.base_path());
+  Handle<Component> component_1 = current_component->access_component(cpath1);
+  Handle<Component> parent_2 = current_component->access_component(cpath2.base_path());
 
   XML::SignalOptions options;
 //  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
 
-  options.add_option< OptionURI >( "Path", parent_2.uri() );
+  options.add_option( "Path", parent_2->uri() );
 
-  XML::SignalFrame frame = options.create_frame("move_component", component_1.uri(), component_1.uri() );
+  XML::SignalFrame frame = options.create_frame("move_component", component_1->uri(), component_1->uri() );
 
-  dispatcher->dispatch_signal( "move_component", component_1.uri(), frame );
+  dispatcher->dispatch_signal( "move_component", component_1->uri(), frame );
 
 //  component_1.move_to(parent_2);
 //  component_1.rename(cpath2.name());

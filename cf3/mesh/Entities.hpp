@@ -20,8 +20,10 @@ namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  class SpaceFields;
-
+  class Dictionary;
+  class Entity;
+  typedef common::Table<Entity> ElementConnectivity;
+  class FaceCellConnectivity;
   class ElementType;
   class Space;
 
@@ -30,13 +32,8 @@ namespace mesh {
 /// Entities component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API Entities : public common::Component {
-
-public: // typedefs
-
-  typedef boost::shared_ptr<Entities> Ptr;
-  typedef boost::shared_ptr<Entities const> ConstPtr;
-
+class Mesh_API Entities : public common::Component
+{
 public: // functions
 
   /// Contructor
@@ -44,13 +41,13 @@ public: // functions
   Entities ( const std::string& name );
 
   /// Initialize the Entities using the given type
-  virtual void initialize(const std::string& element_type_name);
+//  virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
+  virtual void initialize(const std::string& element_type_name, Dictionary& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(SpaceFields& geometry);
+  virtual void create_geometry_space(Dictionary& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -65,7 +62,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  SpaceFields& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
+  Dictionary& geometry_fields() const { cf3_assert(is_not_null(m_geometry_dict)); return *m_geometry_dict; }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -79,43 +76,61 @@ public: // functions
   bool is_ghost(const Uint idx) const;
 
   /// return the number of elements
-  virtual Uint size() const;
+  Uint size() const;
+
+  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
+  
+  /// return the number of elements across all processes;
+  Uint glb_size() const;
 
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
-
   Space& space (const std::string& space_name) const;
 
-  Space& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
+  Space& create_space(const std::string& shape_function_builder_name, Dictionary& space_fields);
 
-  Space& geometry_space() const { cf3_assert(!m_geometry_space.expired()); return *m_geometry_space.lock(); }
+  Space& geometry_space() const { cf3_assert(is_not_null(m_geometry_space)); return *m_geometry_space; }
 
   bool exists_space(const std::string& space_name) const;
 
-  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
+//  void allocate_coordinates(RealMatrix& coords) const;
 
-  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
+//  void signal_create_space ( common::SignalArgs& node );
 
-  void allocate_coordinates(RealMatrix& coords) const;
+//  void signature_create_space ( common::SignalArgs& node);
 
-  void signal_create_space ( common::SignalArgs& node );
-
-  void signature_create_space ( common::SignalArgs& node);
+  void resize(const Uint nb_elem);
 
 protected: // data
 
-  boost::shared_ptr<ElementType> m_element_type;
+  Handle<ElementType> m_element_type;
 
-  boost::weak_ptr<SpaceFields> m_geometry_fields;
+  Handle<Dictionary> m_geometry_dict;
 
-  boost::weak_ptr<Space> m_geometry_space;
+  Handle<Space> m_geometry_space;
 
-  boost::shared_ptr<common::List<Uint> > m_global_numbering;
+  Handle<common::List<Uint> > m_global_numbering;
 
-  boost::shared_ptr<common::Group> m_spaces_group;
+  Handle<common::Group> m_spaces_group;
 
-  boost::shared_ptr<common::List<Uint> > m_rank;
+  Handle<common::List<Uint> > m_rank;
+
+// shortcuts to connectivity tables, otherwise expensive to access in loops
+
+public:
+
+  Handle<ElementConnectivity>&  connectivity_cell2face() { return m_connectivity_cell2face; }
+  Handle<FaceCellConnectivity>& connectivity_face2cell() { return m_connectivity_face2cell; }
+  Handle<ElementConnectivity>&  connectivity_cell2cell() { return m_connectivity_cell2cell; }
+  const Handle<ElementConnectivity>&  connectivity_cell2face() const { return m_connectivity_cell2face; }
+  const Handle<FaceCellConnectivity>& connectivity_face2cell() const { return m_connectivity_face2cell; }
+  const Handle<ElementConnectivity>&  connectivity_cell2cell() const { return m_connectivity_cell2cell; }
+
+private:
+
+  Handle<ElementConnectivity>  m_connectivity_cell2face;
+  Handle<FaceCellConnectivity> m_connectivity_face2cell;
+  Handle<ElementConnectivity>  m_connectivity_cell2cell;
 
 };
 
@@ -130,15 +145,14 @@ public:
   Entity() : comp(NULL), idx(0) {}
   Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
 
-  template <typename ComponentT>
-  Entity(const ComponentT& component, const Uint index=0) :
-    comp( dynamic_cast<Entities const*>(&component) ),
+  Entity(Entities& entities, const Uint index=0) :
+    comp( &entities ),
     idx(index)
   {
     cf3_assert(idx<comp->size());
   }
 
-  Entities const* comp;
+  Entities* comp;
   Uint idx;
 
 
@@ -175,7 +189,7 @@ class IsElementsVolume
 public:
   IsElementsVolume () {}
 
-  bool operator()(const Entities::Ptr& component);
+  bool operator()(const Handle< Entities >& component);
   bool operator()(const Entities& component);
 };
 
@@ -184,7 +198,7 @@ class IsElementsSurface
 public:
   IsElementsSurface () {}
 
-  bool operator()(const Entities::Ptr& component);
+  bool operator()(const Handle< Entities >& component);
   bool operator()(const Entities& component);
 };
 

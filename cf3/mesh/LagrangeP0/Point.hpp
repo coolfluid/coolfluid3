@@ -19,6 +19,7 @@ namespace LagrangeP0 {
 struct Mesh_LagrangeP0_API Point_traits
 {
   enum { nb_nodes       = 1               };
+  enum { nb_faces       = 0               };
   enum { dimensionality = 0               };
   enum { order          = 0               };
   enum { shape          = GeoShape::POINT };
@@ -38,6 +39,7 @@ struct Mesh_LagrangeP0_API Point
   // ------------------------------
   static const GeoShape::Type shape          = (GeoShape::Type) Point_traits::shape;
   static const Uint           nb_nodes       = (Uint) Point_traits::nb_nodes;
+  static const Uint           nb_faces       = (Uint) Point_traits::nb_faces;
   static const Uint           dimensionality = (Uint) Point_traits::dimensionality;
   static const Uint           order          = (Uint) Point_traits::order;
 
@@ -52,6 +54,7 @@ struct Mesh_LagrangeP0_API Point
   // Not-implemented static functions
   // --------------------------------
   static const RealMatrix& local_coordinates();
+  static const RealMatrix& face_normals();
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 

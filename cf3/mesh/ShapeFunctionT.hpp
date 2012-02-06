@@ -32,13 +32,13 @@ namespace mesh {
 
 
 /// @brief Translation class to link concrete static implementations to the dynamic API
-template <typename SF>
-class ShapeFunctionT : public ShapeFunction
+template <typename Concrete, typename Abstract=ShapeFunction>
+class ShapeFunctionT : public Abstract
 {
 public: // typedefs
 
-  typedef boost::shared_ptr< ShapeFunctionT >        Ptr;
-  typedef boost::shared_ptr< ShapeFunctionT const > ConstPtr;
+  typedef Concrete SF;
+  
 
 public:
   /// @name Constructor / Destructor / Type name
@@ -46,13 +46,7 @@ public:
   //@{
 
   /// Default constructor without arguments
-  ShapeFunctionT( const std::string& name = type_name() ) : ShapeFunction(name)
-  {
-    m_dimensionality = SF::dimensionality;
-    m_nb_nodes = SF::nb_nodes;
-    m_order = SF::order;
-    m_shape = SF::shape;
-  }
+  ShapeFunctionT( const std::string& name = type_name() ) : Abstract(name) { }
 
   /// Default destructor
   virtual ~ShapeFunctionT() {}
@@ -70,6 +64,35 @@ public:
     return SF::local_coordinates();
   }
 
+  virtual const RealMatrix& face_normals() const
+  {
+    return SF::face_normals();
+  }
+
+  virtual Uint nb_nodes() const
+  {
+    return SF::nb_nodes;
+  }
+
+  virtual Uint nb_faces() const
+  {
+    return SF::nb_faces;
+  }
+
+  virtual Uint order() const
+  {
+    return SF::order;
+  }
+
+  virtual Uint dimensionality() const
+  {
+    return SF::dimensionality;
+  }
+
+  virtual GeoShape::Type shape() const
+  {
+    return SF::shape;
+  }
 
   // Computation functions
   // ---------------------------

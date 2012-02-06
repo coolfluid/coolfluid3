@@ -18,8 +18,8 @@ namespace physics { class PhysModel; }
 
 namespace solver {
 
-class CSolver;
-class CTime;
+class Solver;
+class Time;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,8 +28,8 @@ class solver_API ActionDirector : public common::ActionDirector {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< ActionDirector > Ptr;
-  typedef boost::shared_ptr< ActionDirector const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -47,7 +47,7 @@ public: // functions
   //@{
 
   /// @returns the solver this action is part of
-  solver::CSolver& solver();
+  solver::Solver& solver();
 
   /// @returns the mesh this action is using
   mesh::Mesh& mesh();
@@ -56,9 +56,9 @@ public: // functions
   physics::PhysModel& physical_model();
 
   /// @returns the time component
-  /// @deprecated CTime makes no sense in certain simulations
+  /// @deprecated Time makes no sense in certain simulations
   ///             This will eventually be removed
-  solver::CTime& time();
+  solver::Time& time();
 
   //@} END ACCESSORS
 
@@ -70,15 +70,15 @@ protected: // functions
 protected: // data
 
   /// link back to the solver
-  boost::weak_ptr< solver::CSolver > m_solver;
+  Handle< solver::Solver > m_solver;
   /// mesh where this action data resides
-  boost::weak_ptr< mesh::Mesh > m_mesh;
+  Handle< mesh::Mesh > m_mesh;
   /// physical model used by this action
-  boost::weak_ptr< physics::PhysModel > m_physical_model;
+  Handle< physics::PhysModel > m_physical_model;
 
   /// time used by this action
   /// @todo eventually removed time from Action
-  boost::weak_ptr< solver::CTime > m_time;
+  Handle< solver::Time > m_time;
 
 };
 

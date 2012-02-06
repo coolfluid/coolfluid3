@@ -7,17 +7,17 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionT.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "solver/CTime.hpp"
-#include "solver/actions/CCriterionTime.hpp"
-#include "solver/actions/CCriterionMaxIterations.hpp"
-#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/Time.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/actions/PeriodicWriteMesh.hpp"
 
 #include "RDM/FaceTerm.hpp"
 
@@ -46,45 +46,39 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property( "iteration", Uint(0) );
+  properties().add_property( "iteration", Uint(0) );
 
   // static components
 
-  m_time  = create_static_component_ptr<CTime>("Time");
+  m_time  = create_static_component<Time>("Time");
 
-  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
+  m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
-  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
+  m_post_actions = create_static_component<ActionDirector>("PostActions");
 
-  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
-  post_actions().append( cwriter );
+  post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
   // dyanmic components
-
-  CCriterionMaxIterations& maxiter =
-      create_component<CCriterionMaxIterations>( "MaxIterations" );
+  create_component<CriterionMaxIterations>( "MaxIterations" );
+  
+  configure_option_recursively( "Time",    m_time );
 }
 
 bool TimeStepping::stop_condition()
 {
   bool finish = false;
-  boost_foreach(CCriterion& stop_criterion, find_components<CCriterion>(*this))
+  boost_foreach(Criterion& stop_criterion, find_components<Criterion>(*this))
       finish |= stop_criterion();
   return finish;
 }
 
 void TimeStepping::execute()
 {
-  /// @todo these configurations sould be in constructor but does not work there
-  ///       becasue uri() is undefined on the constructor ( component is still free )
-
-  configure_option_recursively( "ctime",    m_time->uri() );
-  configure_option_recursively( "iterator", this->uri() );
-
+  configure_option_recursively( "iterator", handle<Component>() );
   // start loop - iterations start from 1 ( max iter zero will do nothing )
 
   Uint k = 1;
-  property("iteration") = k;
+  properties().property("iteration") = k;
 
   while( ! stop_condition() ) // time loop
   {
@@ -113,7 +107,7 @@ void TimeStepping::execute()
 
     m_time->current_time() += m_time->dt();
 
-    property("iteration") = ++k; // update the iteration number
+    properties().property("iteration") = ++k; // update the iteration number
 
   }
 }
@@ -122,9 +116,9 @@ void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add_option< OptionT<Uint> >( "time",  m_time->current_time() );
-  opts.add_option< OptionT<Uint> >( "dt",  m_time->dt() );
-  opts.add_option< OptionT<Uint> >( "iteration", properties().value<Uint>("iteration") );
+  opts.add_option( "time",  m_time->current_time() );
+  opts.add_option( "dt",  m_time->dt() );
+  opts.add_option( "iteration", properties().value<Uint>("iteration") );
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 

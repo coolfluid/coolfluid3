@@ -17,7 +17,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/CellTerm.hpp"
@@ -47,20 +47,20 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
   // signals
 
   regist_signal( "create_cell_term" )
-      ->connect  ( boost::bind( &DomainDiscretization::signal_create_cell_term, this, _1 ) )
-      ->signature( boost::bind( &DomainDiscretization::signature_signal_create_cell_term, this, _1))
-      ->description("creates a discretization term for cells")
-      ->pretty_name("Create Cell Term");
+      .connect  ( boost::bind( &DomainDiscretization::signal_create_cell_term, this, _1 ) )
+      .signature( boost::bind( &DomainDiscretization::signature_signal_create_cell_term, this, _1))
+      .description("creates a discretization term for cells")
+      .pretty_name("Create Cell Term");
 
   regist_signal( "create_face_term" )
-      ->connect  ( boost::bind( &DomainDiscretization::signal_create_face_term, this, _1 ) )
-      ->signature( boost::bind( &DomainDiscretization::signature_signal_create_face_term, this, _1))
-      ->description("creates a discretization term for faces")
-      ->pretty_name("Create Cell Term");
+      .connect  ( boost::bind( &DomainDiscretization::signal_create_face_term, this, _1 ) )
+      .signature( boost::bind( &DomainDiscretization::signature_signal_create_face_term, this, _1))
+      .description("creates a discretization term for faces")
+      .pretty_name("Create Cell Term");
 
 
-  m_face_terms = create_static_component_ptr<ActionDirector>("FaceTerms");
-  m_cell_terms = create_static_component_ptr<ActionDirector>("CellTerms");
+  m_face_terms = create_static_component<ActionDirector>("FaceTerms");
+  m_cell_terms = create_static_component<ActionDirector>("CellTerms");
 }
 
 
@@ -82,15 +82,13 @@ RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
                                                        const std::string& name,
                                                        const std::vector<URI>& regions )
 {
-  RDM::CellTerm::Ptr term = build_component_abstract_type<RDM::CellTerm>(type,name);
+  Handle<RDM::CellTerm> term(m_cell_terms->create_component(name, type));
 
-  m_cell_terms->append(term);
+  term->options().configure_option("regions" , regions);
 
-  term->configure_option("regions" , regions);
-
-  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
+  term->options().configure_option( RDM::Tags::solver() , m_solver );
+  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }
@@ -99,15 +97,13 @@ RDM::FaceTerm& DomainDiscretization::create_face_term( const std::string& type,
                                                        const std::string& name,
                                                        const std::vector<URI>& regions )
 {
-  RDM::FaceTerm::Ptr term = build_component_abstract_type<RDM::FaceTerm>(type,name);
+  Handle<FaceTerm> term(m_face_terms->create_component(name, type));
 
-  m_face_terms->append(term);
+  term->options().configure_option("regions" , regions);
 
-  term->configure_option("regions" , regions);
-
-  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
+  term->options().configure_option( RDM::Tags::solver() , m_solver );
+  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }
@@ -139,9 +135,7 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
   std::string name = options.value<std::string>("name");
   std::string type = options.value<std::string>("type");
 
-  RDM::FaceTerm::Ptr term = build_component_abstract_type<RDM::FaceTerm>(type,name);
-
-  m_face_terms->append(term);
+  Handle<RDM::FaceTerm> term(m_face_terms->create_component(name, type));
 
   // configure the regions
   // if user did not specify, then use the whole topology (all regions)
@@ -162,8 +156,8 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created volume term");
+  options.add_option("name", std::string() )
+      .description("Name for created volume term");
 
   // type
 
@@ -171,7 +165,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -180,8 +174,8 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the domain term");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the domain term");
 }
 
 
@@ -191,8 +185,8 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->description("Name for created volume term");
+  options.add_option("name", std::string() )
+      .description("Name for created volume term");
 
   // type
 
@@ -200,7 +194,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -209,8 +203,8 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   /// @todo create here the list of restricted face regions
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the domain term");
+  options.add_option("regions", dummy )
+      .description("Regions where to apply the domain term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

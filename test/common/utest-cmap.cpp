@@ -44,11 +44,11 @@ BOOST_FIXTURE_TEST_SUITE( MapTests, MapFixture )
 BOOST_AUTO_TEST_CASE ( test_Map )
 {
 
-  Map<std::string,Uint>::Ptr map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
+  boost::shared_ptr< Map<std::string,Uint> > map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
   Map<std::string,Uint>& map = *map_ptr;
-	
-	
-	BOOST_CHECK_EQUAL(map.type_name() , "Map<string,unsigned>");
+  
+  
+  BOOST_CHECK_EQUAL(map.type_name() , "Map<string,unsigned>");
   
   BOOST_CHECK(map.find("first") == map.end());
   
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE ( test_Map )
 BOOST_AUTO_TEST_CASE ( test_Map_looping )
 {
 
-  Map<std::string,Uint>::Ptr map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
+  boost::shared_ptr< Map<std::string,Uint> > map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
   Map<std::string,Uint>& map = *map_ptr;
   
   
@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_CASE ( test_Map_looping )
 BOOST_AUTO_TEST_CASE ( test_Map_exceptions )
 {
 
-  Map<int,int>::Ptr map_ptr ( allocate_component< Map<int,int> > ("map"));
+  boost::shared_ptr< Map<int, int> > map_ptr ( allocate_component< Map<int,int> > ("map"));
   Map<int,int>& map = *map_ptr;
-	
-	BOOST_CHECK_EQUAL(map.type_name() , "Map<integer,integer>");
+  
+  BOOST_CHECK_EQUAL(map.type_name() , "Map<integer,integer>");
   
   map.insert_blindly(1,1);
   map.insert_blindly(2,2);
@@ -138,10 +138,10 @@ BOOST_AUTO_TEST_CASE ( test_Map_exceptions )
 BOOST_AUTO_TEST_CASE ( test_Map_copy_std_map )
 {
 
-  Map<std::string,int>::Ptr map_ptr ( allocate_component< Map<std::string,int> > ("map"));
+  boost::shared_ptr< Map<std::string,int> > map_ptr ( allocate_component< Map<std::string,int> > ("map"));
   Map<std::string,int>& map = *map_ptr;
-	
-	BOOST_CHECK_EQUAL(map.type_name() , "Map<string,integer>");
+  
+  BOOST_CHECK_EQUAL(map.type_name() , "Map<string,integer>");
 
   
   std::map<std::string,int> stl_map;

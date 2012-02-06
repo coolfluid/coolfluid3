@@ -20,16 +20,18 @@
 #include "mesh/Domain.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
 
-#include "solver/CModel.hpp"
+#include "solver/Model.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "mesh/MeshGenerator.hpp"
 
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/SparsityBuilder.hpp"
 #include "UFEM/Tags.hpp"
+#include "solver/actions/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -62,7 +64,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Sparsity1D )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -70,15 +72,20 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   const Uint nb_nodes = nb_segments + 1;
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
+  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
+  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  Mesh& mesh = create_line->generate();
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
@@ -99,7 +106,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
 
 BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -107,14 +114,14 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   const Uint nb_nodes = (nb_segments+1) * (nb_segments+1);
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, length, nb_segments, nb_segments);
 
   // Setup sparsity
@@ -131,7 +138,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 
 BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -139,14 +146,14 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   const Uint nb_nodes = (nb_segments+1) * (nb_segments+1);
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
   // Setup sparsity
@@ -164,7 +171,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 // Single block, meshed with the blockmesher
 BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -172,15 +179,15 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   const Uint nb_nodes = (nb_segments+1) * (nb_segments+1) * (nb_segments+1);
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.scaling_factor = 1.;
   blocks.dimension = 3;
   blocks.points += list_of(0.    )(0.    )(0.    )
@@ -221,7 +228,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
 BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -229,15 +236,15 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   const Uint nb_nodes = (nb_segments+1) * (nb_segments+1) * (nb_segments+1);
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
   BlockMesh::build_mesh(blocks, mesh);
 
@@ -256,7 +263,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -264,9 +271,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   const Uint nb_nodes = nb_segments + 1;
 
   // Setup a model
-  CModel& model = root.create_component<CModel>("Model");
+  Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
+  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
@@ -282,7 +289,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       elements_expression
       (
         allowed_elements,
-        group <<
+        group
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
@@ -290,8 +297,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         )
       )
     )
-    << solver.boundary_conditions()
-    << solver.solve_action()
+    << allocate_component<UFEM::BoundaryConditions>("BoundaryConditions")
+    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
     << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
     << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"));
 
@@ -299,12 +306,12 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
-  LSS::System& lss = model.create_component<LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("Trilinos"));
-  solver.configure_option("lss", lss.uri());
+  LSS::System& lss = *model.create_component<LSS::System>("LSS");
+  lss.options().option("solver").change_value(std::string("Trilinos"));
+  solver.options().configure_option("lss", lss.handle<LSS::System>());
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_1DHeat.plt");

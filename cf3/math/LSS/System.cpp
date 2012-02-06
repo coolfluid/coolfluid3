@@ -56,13 +56,13 @@ common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builde
 LSS::System::System(const std::string& name) :
   Component(name)
 {
-  options().add_option< cf3::common::OptionT<std::string> >( "solver" , "Trilinos" );
+  options().add_option( "solver" , "Trilinos" );
 
   regist_signal("print_system")
-    ->connect(boost::bind( &System::signal_print, this, _1 ))
-    ->description("Write the system to disk as a tecplot file, for debugging purposes.")
-    ->pretty_name("Print System")
-    ->signature(boost::bind( &System::signature_print, this, _1 ));
+    .connect(boost::bind( &System::signal_print, this, _1 ))
+    .description("Write the system to disk as a tecplot file, for debugging purposes.")
+    .pretty_name("Print System")
+    .signature(boost::bind( &System::signature_print, this, _1 ));
 
   m_mat.reset();
   m_sol.reset();
@@ -78,16 +78,16 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
   std::string solvertype=options().option("solver").value_str();
 
   if (solvertype=="EmptyLSS"){
-      m_mat=create_component_ptr<LSS::EmptyLSSMatrix>("Matrix");
-      m_rhs=create_component_ptr<LSS::EmptyLSSVector>("RHS");
-      m_sol=create_component_ptr<LSS::EmptyLSSVector>("Solution");
+      m_mat=create_component<LSS::EmptyLSSMatrix>("Matrix");
+      m_rhs=create_component<LSS::EmptyLSSVector>("RHS");
+      m_sol=create_component<LSS::EmptyLSSVector>("Solution");
   }
 
   if (solvertype=="Trilinos"){
     #ifdef CF3_HAVE_TRILINOS
-    m_mat=create_component_ptr<LSS::TrilinosMatrix>("Matrix");
-    m_rhs=create_component_ptr<LSS::TrilinosVector>("RHS");
-    m_sol=create_component_ptr<LSS::TrilinosVector>("Solution");
+    m_mat=create_component<LSS::TrilinosMatrix>("Matrix");
+    m_rhs=create_component<LSS::TrilinosVector>("RHS");
+    m_sol=create_component<LSS::TrilinosVector>("Solution");
     #else
       throw common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif
@@ -95,14 +95,14 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
 
   m_rhs->create(cp,neq);
   m_sol->create(cp,neq);
-  m_mat->create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
+  m_mat->create(cp,neq,node_connectivity,starting_indices,*m_sol,*m_rhs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+void LSS::System::swap(const Handle<LSS::Matrix>& matrix, const Handle<LSS::Vector>& solution, const Handle<LSS::Vector>& rhs)
 {
-  if (m_mat->is_swappable(solution,rhs))
+  if (m_mat->is_swappable(*solution,*rhs))
   {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
     throw common::SetupError(FromHere(),"Inconsistent states.");
@@ -135,7 +135,7 @@ void LSS::System::destroy()
 void LSS::System::solve()
 {
   cf3_assert(is_created());
-  m_mat->solve(m_sol,m_rhs);
+  m_mat->solve(*m_sol,*m_rhs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,9 +312,9 @@ void LSS::System::signature_print(common::SignalArgs& args)
 {
   common::XML::SignalOptions options( args );
 
-  options.add_option< common::OptionT<std::string> >("file_name")
-    ->pretty_name("File name")
-    ->description("tecplot file to print the matrix to");
+  options.add_option<std::string>("file_name")
+    .pretty_name("File name")
+    .description("tecplot file to print the matrix to");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

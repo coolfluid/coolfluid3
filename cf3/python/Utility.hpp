@@ -7,10 +7,7 @@
 #ifndef CF3_Python_Utility_hpp
 #define CF3_Python_Utility_hpp
 
-#include <boost/python/import.hpp>
-#include <boost/python/make_function.hpp>
-#include <boost/python/object.hpp>
-#include <boost/python/str.hpp>
+#include "python/BoostPython.hpp"
 
 #include <string>
 

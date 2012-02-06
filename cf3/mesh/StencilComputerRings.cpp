@@ -14,6 +14,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 
 #include "mesh/Connectivity.hpp"
@@ -21,9 +22,10 @@
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,28 +44,28 @@ cf3::common::ComponentBuilder < StencilComputerRings, StencilComputer, LibMesh >
 StencilComputerRings::StencilComputerRings( const std::string& name )
   : StencilComputer(name), m_nb_rings(0)
 {
-  option("mesh").attach_trigger(boost::bind(&StencilComputerRings::configure_mesh,this));
+  options().option("mesh").attach_trigger(boost::bind(&StencilComputerRings::configure_mesh,this));
 
-  options().add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
-      ->description("Number of neighboring rings of elements in stencil")
-      ->pretty_name("Number of Rings")
-      ->link_to(&m_nb_rings);
+  options().add_option("nb_rings", m_nb_rings)
+      .description("Number of neighboring rings of elements in stencil")
+      .pretty_name("Number of Rings")
+      .link_to(&m_nb_rings);
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void StencilComputerRings::configure_mesh()
 {
-  if (m_mesh.expired())
+  if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  Mesh& mesh = *m_mesh.lock();
-  NodeElementConnectivity::Ptr node2cell_ptr = find_component_ptr<NodeElementConnectivity>(mesh);
+  Mesh& mesh = *m_mesh;
+  Handle< NodeElementConnectivity > node2cell_ptr = find_component_ptr<NodeElementConnectivity>(mesh);
   if (is_null(node2cell_ptr))
   {
-    node2cell_ptr = mesh.create_component_ptr<NodeElementConnectivity>("node_to_cell");
-    boost_foreach(boost::weak_ptr<Component> elements, unified_elements().components())
-      node2cell_ptr->elements().add(elements.lock()->as_type<Elements>());
+    node2cell_ptr = mesh.create_component<NodeElementConnectivity>("node_to_cell");
+    boost_foreach(Handle<Component> elements, unified_elements().components())
+      node2cell_ptr->elements().add(dynamic_cast<Elements&>(*elements));
     node2cell_ptr->build_connectivity();
   }
   m_node2cell = node2cell_ptr;
@@ -93,12 +95,12 @@ void StencilComputerRings::compute_neighbors(std::set<Uint>& included, const Uin
 
   if (level < m_nb_rings)
   {
-    Component::Ptr elements;
+    Handle< Component > elements;
     Uint elem_idx;
     std::set<Uint>::iterator it;
     bool inserted;
     boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
-    boost_foreach(Uint node_idx, elements->as_type<Elements>().node_connectivity()[elem_idx])
+    boost_foreach(Uint node_idx, dynamic_cast<Elements&>(*elements).geometry_space().connectivity()[elem_idx])
     {
       boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
       {

@@ -23,7 +23,7 @@
 #include "mesh/CNodes.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -36,13 +36,13 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public solver::actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::actions::LoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeLDAGPU > Ptr;
-  typedef boost::shared_ptr< SchemeLDAGPU const> ConstPtr;
+  
+  
 
   CLEnv env;
 
@@ -72,22 +72,22 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
-    coordinates = elements().nodes().coordinates().as_ptr< mesh::Field >();
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    coordinates = elements().nodes().coordinates().handle< mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );
 
     /// @todo modify these to option components configured from
 
-    mesh::CField::Ptr csolution = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "solution" );
+    Handle< mesh::CField > csolution = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    mesh::CField::Ptr cresidual = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "residual" );
+    Handle< mesh::CField > cresidual = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    mesh::CField::Ptr cwave_speed = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "wave_speed" );
+    Handle< mesh::CField > cwave_speed = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "wave_speed" );
     cf_assert( is_not_null( cwave_speed ) );
     wave_speed = cwave_speed->data_ptr();
   }
@@ -96,15 +96,15 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  common::Table<Uint>::Ptr connectivity;
+  Handle< common::Table<Uint> > connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  common::Table<Real>::Ptr coordinates;
+  Handle< common::Table<Real> > coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr solution;
+  Handle< common::Table<Real> > solution;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr residual;
+  Handle< common::Table<Real> > residual;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr wave_speed;
+  Handle< common::Table<Real> > wave_speed;
 
   const QD& m_quadrature;
 
@@ -124,7 +124,7 @@ private: // data
 
 template<typename SF, typename QD, typename PHYS>
 SchemeLDAGPU<SF,QD,PHYS>::SchemeLDAGPU ( const std::string& name ) :
-  CLoopOperation(name),
+  LoopOperation(name),
   m_quadrature( QD::instance() )
 {
   regist_typeinfo(this);
@@ -176,7 +176,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    std::cout<<"LDAGPU"<<std::endl;
 
 
-   //boost::timer ctimer;
+   //boost::timer Timer;
    Uint dim     = 2;
    Uint shape   = SF::nb_nodes;
    Uint quad    =  QD::nb_points;
@@ -349,7 +349,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
         (*wave_speed)[idx][0] = waveSpeed[idx];
    }
 
-  //std::cout<<ctimer.elapsed()<<std::endl;
+  //std::cout<<Timer.elapsed()<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

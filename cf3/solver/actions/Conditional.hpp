@@ -24,8 +24,8 @@ class solver_actions_API Conditional : public common::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Conditional> Ptr;
-  typedef boost::shared_ptr<Conditional const> ConstPtr;
+  
+  
 
 public: // functions
 

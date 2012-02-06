@@ -9,10 +9,10 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
 #include "LinearSolverUnsteady.hpp"
@@ -33,18 +33,18 @@ struct LinearSolverUnsteady::Implementation
 {
   void trigger_time()
   {
-    if(m_time.expired())
+    if(is_null(m_time))
       return;
     
-    m_time.lock()->option("time_step").attach_trigger(boost::bind(&Implementation::trigger_timestep, this));
+    m_time->options().option("time_step").attach_trigger(boost::bind(&Implementation::trigger_timestep, this));
   }
   
   void trigger_timestep()
   {
-    m_invdt = m_time.lock()->invdt();
+    m_invdt = m_time->invdt();
   }
   
-  boost::weak_ptr<CTime> m_time;
+  Handle<Time> m_time;
   Real m_invdt;
 };
 
@@ -52,10 +52,11 @@ LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
   LinearSolver(name),
   m_implementation( new Implementation() )
 {
-  options().add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_implementation->m_time))
-    ->pretty_name("Time")
-    ->description("Component that keeps track of time for this simulation")
-    ->attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()));
+  options().add_option(solver::Tags::time(), m_implementation->m_time)
+    .pretty_name("Time")
+    .description("Component that keeps track of time for this simulation")
+    .attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()))
+    .link_to(&m_implementation->m_time);
 }
 
 LinearSolverUnsteady::~LinearSolverUnsteady()

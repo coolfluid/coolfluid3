@@ -21,9 +21,9 @@ RegistTypeInfo<Builder,LibCommon> Builder_TypeRegistration();
 Builder::Builder ( const std::string& name) : Component ( name )
 {
   regist_signal( "create_component" )
-    ->connect( boost::bind( &Builder::signal_create_component, this, _1 ) )
-    ->description("builds a component")
-    ->pretty_name("Build component");
+    .connect( boost::bind( &Builder::signal_create_component, this, _1 ) )
+    .description("builds a component")
+    .pretty_name("Build component");
 
   signal("create_component")->
       signature(boost::bind(&Builder::signature_signal_create_component, this, _1));
@@ -40,18 +40,17 @@ void Builder::signal_create_component ( SignalArgs& args )
 
   URI path ( params.get_option<URI>("path") );
 
-  Component::Ptr comp = build ( path.name() );
-  Component::Ptr parent = access_component_ptr_checked( path.base_path() );
-  parent->add_component( comp );
+  boost::shared_ptr<Component> comp = build ( path.name() );
+  Handle<Component> parent = access_component_checked( path.base_path() );
+  parent->add_component(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Builder::signature_signal_create_component ( SignalArgs& args )
 {
-  XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
-
-  p.set_option<URI>("path", URI("cpath:"), "Full path for the created component" );
+  SignalOptions options( args );
+  options.add_option("path", URI("cpath:")).description("Full path for the created component" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

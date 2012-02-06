@@ -14,6 +14,8 @@
 #include "common/Foreach.hpp"
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 
 #include "common/PE/Comm.hpp"
@@ -26,8 +28,9 @@
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/actions/GrowOverlap.hpp"
 
@@ -45,77 +48,6 @@ namespace actions {
 common::ComponentBuilder < GrowOverlap, MeshTransformer, mesh::actions::LibActions> GrowOverlap_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> strides;
-  PE::Comm::instance().all_gather((int)send.size(),strides);
-  std::vector<int> displs(strides.size());
-  if (strides.size())
-  {
-    int sum_strides = strides[0];
-    displs[0] = 0;
-    for (Uint i=1; i<strides.size(); ++i)
-    {
-      displs[i] = displs[i-1] + strides[i-1];
-      sum_strides += strides[i];
-    }
-    std::vector<T> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::Comm::instance().communicator()));
-    recv.resize(strides.size());
-    for (Uint i=0; i<strides.size(); ++i)
-    {
-      recv[i].resize(strides[i]);
-      for (Uint j=0; j<strides[i]; ++j)
-      {
-        recv[i][j]=recv_linear[displs[i]+j];
-      }
-    }
-  }
-  else
-  {
-    recv.resize(0);
-  }
-}
-
-template <typename T>
-void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> send_strides(send.size());
-  std::vector<int> send_displs(send.size());
-  for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].size();
-
-  send_displs[0] = 0;
-  for (Uint i=1; i<send.size(); ++i)
-    send_displs[i] = send_displs[i-1] + send_strides[i-1];
-
-  std::vector<T> send_linear(send_displs.back()+send_strides.back());
-  for (Uint i=0; i<send.size(); ++i)
-    for (Uint j=0; j<send[i].size(); ++j)
-      send_linear[send_displs[i]+j] = send[i][j];
-
-  std::vector<int> recv_strides(PE::Comm::instance().size());
-  std::vector<int> recv_displs(PE::Comm::instance().size());
-  PE::Comm::instance().all_to_all(send_strides,recv_strides);
-  recv_displs[0] = 0;
-  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
-    recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
-
-  std::vector<T> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::Comm::instance().communicator()));
-
-  recv.resize(recv_strides.size());
-  for (Uint i=0; i<recv_strides.size(); ++i)
-  {
-    recv[i].resize(recv_strides[i]);
-    for (Uint j=0; j<recv_strides[i]; ++j)
-    {
-      recv[i][j]=recv_linear[recv_displs[i]+j];
-    }
-  }
-}
 
 void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 {
@@ -188,12 +120,12 @@ GrowOverlap::GrowOverlap( const std::string& name )
 void GrowOverlap::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
-  SpaceFields& nodes = mesh.geometry_fields();
+  Mesh& mesh = *m_mesh;
+  Dictionary& nodes = mesh.geometry_fields();
 
-  const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
+  const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
 
-  FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
+  FaceCellConnectivity& face2cell = *mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
 
@@ -215,11 +147,11 @@ void GrowOverlap::execute()
   std::map<Uint,Uint>::iterator glb_elem_not_found = glb_elem_2_loc_elem.end();
   for (Uint e=0; e<mesh.elements().size(); ++e)
   {
-    Component::Ptr comp;
+    Handle< Component > comp;
     Uint idx;
 
     boost::tie(comp,idx) = mesh.elements().location(e);
-    if ( Elements::Ptr elements = comp->as_ptr<Elements>() )
+    if ( Handle< Elements > elements = Handle<Elements>(comp) )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
       {
@@ -244,7 +176,7 @@ void GrowOverlap::execute()
   }
   boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
   {
-    boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
+    boost_foreach (Connectivity::Row face_nodes, faces.geometry_space().connectivity().array())
     {
       boost_foreach(const Uint node, face_nodes)
       {
@@ -265,7 +197,7 @@ void GrowOverlap::execute()
   boost_foreach(const Uint n, bdry_nodes)
     send_nodes.push_back(n);
   std::vector<std::vector<Uint> > recv_nodes;
-  my_all_gather(send_nodes,recv_nodes);
+  Comm::instance().all_gather(send_nodes,recv_nodes);
 
 
 
@@ -302,7 +234,7 @@ void GrowOverlap::execute()
               Uint elem_idx;
               boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
 
-              if (mesh_elements[elem_comp_idx].lock()->as_type<Elements>().is_ghost(elem_idx) == false)
+              if (dynamic_cast<Elements&>(*mesh_elements[elem_comp_idx]).is_ghost(elem_idx) == false)
               {
                 elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
               }
@@ -322,7 +254,7 @@ void GrowOverlap::execute()
 
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
+    if (Handle< Elements > elements_ptr = Handle<Elements>(mesh_elements[comp_idx]))
     {
       Elements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
@@ -339,7 +271,7 @@ void GrowOverlap::execute()
           elements_to_send[to_proc] << elements.glb_idx()[elem_idx]
                                     << elements.rank()[elem_idx];
 
-          boost_foreach(const Uint connected_node, elements.node_connectivity()[elem_idx])
+          boost_foreach(const Uint connected_node, elements.geometry_space().connectivity()[elem_idx])
               elements_to_send[to_proc] << nodes.glb_idx()[connected_node];
 
         }
@@ -376,7 +308,7 @@ void GrowOverlap::execute()
       std::set<Uint>::iterator not_found = bdry_nodes.end();
       for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
       {
-        boost_foreach(const Uint connected_glb_node, elements.node_connectivity()[e])
+        boost_foreach(const Uint connected_glb_node, elements.geometry_space().connectivity()[e])
         {
           if ( glb_node_2_loc_node.find(connected_glb_node) == glb_node_not_found)
             new_ghost_nodes.insert(connected_glb_node);
@@ -403,7 +335,7 @@ void GrowOverlap::execute()
       request_nodes.push_back(n);
 
   std::vector<std::vector<Uint> > recv_request_nodes;
-  my_all_gather(request_nodes,recv_request_nodes);
+  PE::Comm::instance().all_gather(request_nodes,recv_request_nodes);
 
 
   PackUnpackNodes copy_node(nodes);
@@ -464,13 +396,13 @@ void GrowOverlap::execute()
   }
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
+    if (Handle< Elements > elements_ptr = Handle<Elements>(mesh_elements[comp_idx]))
     {
       Elements& elements = *elements_ptr;
 
       for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
       {
-        Connectivity::Row connected_nodes = elements.node_connectivity()[e];
+        Connectivity::Row connected_nodes = elements.geometry_space().connectivity()[e];
 
         boost_foreach ( Uint& node, connected_nodes )
         {

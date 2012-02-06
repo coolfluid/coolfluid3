@@ -5,7 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Builder.hpp"
-#include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Foreach.hpp"
 #include "common/Link.hpp"
 #include "common/FindComponents.hpp"
@@ -14,7 +15,7 @@
 
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -42,12 +43,12 @@ SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::solv
 
 void SetupSingleSolution::execute()
 {
-  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
+  RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
 
-  if(m_mesh.expired())
+  if(is_null(m_mesh))
     throw SetupError(FromHere(), "SetupSingleSolution has no configured mesh in [" + uri().string() + "]" );
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   Group& fields = mysolver.fields();
 
@@ -55,28 +56,27 @@ void SetupSingleSolution::execute()
 
   // get the geometry field group
 
-  SpaceFields& geometry = mesh.geometry_fields();
+  Dictionary& geometry = mesh.geometry_fields();
 
-  const std::string solution_space = mysolver.option("solution_space").value<std::string>();
+  const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
 
   // check that the geometry belongs to the same space as selected by the user
 
-  SpaceFields::Ptr solution_group;
+  Handle< Dictionary > solution_group;
 
-  if( solution_space == geometry.space() )
-    solution_group = geometry.as_ptr<SpaceFields>();
+  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
+    solution_group = geometry.handle<Dictionary>();
   else
   {
     // check if solution space already exists
-    solution_group = find_component_ptr_with_name<SpaceFields>( mesh, RDM::Tags::solution() );
+    solution_group = find_component_ptr_with_name<Dictionary>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), SpaceFields::Basis::POINT_BASED, "cf3.mesh."+solution_space).as_ptr<SpaceFields>();
+      solution_group = mesh.create_continuous_space( RDM::Tags::solution(), "cf3.mesh."+solution_space).handle<Dictionary>();
     }
     else // not null so check that space is what user wants
     {
-      if( solution_space != solution_group->space() )
-        throw NotImplemented( FromHere(), "Changing solution space not supported" );
+      throw NotImplemented( FromHere(), "Changing solution space not supported" );
     }
   }
 
@@ -84,7 +84,7 @@ void SetupSingleSolution::execute()
 
   // configure solution
 
-  Field::Ptr solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
+  Handle< Field > solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
     std::string vars;
@@ -94,7 +94,7 @@ void SetupSingleSolution::execute()
      if( i != nbdofs-1 ) vars += ",";
     }
 
-    solution = solution_group->create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
+    solution = solution_group->create_field( RDM::Tags::solution(), vars ).handle<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }
@@ -104,31 +104,31 @@ void SetupSingleSolution::execute()
 
   // configure residual
 
-  Field::Ptr residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
+  Handle< Field > residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
+    residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).handle<Field>();
     residual->descriptor().prefix_variable_names("rhs_");
     residual->add_tag(Tags::residual());
   }
 
   // configure wave_speed
 
-  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
+  Handle< Field > wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = solution_group->create_field( Tags::wave_speed(), "ws[1]" ).as_ptr<Field>();
+    wave_speed = solution_group->create_field( Tags::wave_speed(), "ws[1]" ).handle<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
   // place link to the fields in the Fields group
 
-  if( ! fields.get_child_ptr( RDM::Tags::solution() ) )
-    fields.create_component<Link>( RDM::Tags::solution()   ).link_to(solution).add_tag(RDM::Tags::solution());
-  if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<Link>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
-  if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<Link>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+  if( ! fields.get_child( RDM::Tags::solution() ) )
+    fields.create_component<Link>( RDM::Tags::solution()   )->link_to(*solution).add_tag(RDM::Tags::solution());
+  if( ! fields.get_child( RDM::Tags::residual() ) )
+    fields.create_component<Link>( RDM::Tags::residual()   )->link_to(*residual).add_tag(RDM::Tags::residual());
+  if( ! fields.get_child( RDM::Tags::wave_speed() ) )
+    fields.create_component<Link>( RDM::Tags::wave_speed() )->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
 
 
   /// @todo apply here the bubble insertion if needed
@@ -139,7 +139,7 @@ void SetupSingleSolution::execute()
 
   std::vector<URI> sync_fields;
   sync_fields.push_back( solution->uri() );
-  mysolver.actions().get_child("Synchronize").configure_option("Fields", sync_fields);
+  mysolver.actions().get_child("Synchronize")->options().configure_option("Fields", sync_fields);
 
 }
 

@@ -35,8 +35,8 @@ class RDM_API LibRDM : public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibRDM> Ptr;
-  typedef boost::shared_ptr<LibRDM const> ConstPtr;
+  
+  
 
   /// Constructor
   LibRDM ( const std::string& name) : common::Library(name) {   }

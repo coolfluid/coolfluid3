@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/any.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/BasicExceptions.hpp"
@@ -81,7 +82,7 @@ void OptionList::erase( const std::string& name)
 
 Option & OptionList::operator [] (const std::string & pname)
 {
-  Option::Ptr opt;
+  boost::shared_ptr<Option> opt;
   OptionStorage_t::iterator itr = store.find(pname);
 
   if ( itr != store.end() )
@@ -103,7 +104,7 @@ Option & OptionList::operator [] (const std::string & pname)
 
 const Option & OptionList::operator [] (const std::string & pname) const
 {
-  Option::ConstPtr opt;
+  boost::shared_ptr<Option const> opt;
   OptionStorage_t::const_iterator itr = store.find(pname);
 
   if ( itr != store.end() )
@@ -137,7 +138,7 @@ void OptionList::configure_option(const std::string& pname, const boost::any& va
     }
     throw ValueNotFound(FromHere(),msg);
   }
-  Option::Ptr prop = itr->second;
+  boost::shared_ptr<Option> prop = itr->second;
 
   // update the value and trigger its actions
   prop->change_value(val);
@@ -145,27 +146,28 @@ void OptionList::configure_option(const std::string& pname, const boost::any& va
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OptionList::list_options()
+std::string OptionList::list_options() const
 {
   std::string opt_list="";
   Uint cnt(0);
-  foreach_container( (const std::string& name) (Option::Ptr option) , *this )
+  foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , *this )
   {
     if (cnt > 0)
+    {
       opt_list=opt_list+"\n";
+    }
 
-    if (option->tag() == XML::Protocol::Tags::node_array())
+    opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
+
+    if (option->has_restricted_list())
     {
-      OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
-      std::string values=array_option->value_str();
-      boost::algorithm::replace_all(values, array_option->separator(), ",");
-      opt_list = opt_list + name + ":array[" + array_option->elem_type() + "]=" + values;
+      std::string rest_list="";
+      std::vector<boost::any>::iterator ir = option->restricted_list().begin();
+      for( ; ir != option->restricted_list().end() ; ++ir )
+        rest_list= rest_list + " " + boost::any_cast<std::string>(*ir);
+      opt_list = opt_list + " restrictions:" + rest_list;
     }
-    else
-    {
-      opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
-    }
-//
+
     ++cnt;
   }
   return opt_list;
@@ -179,7 +181,7 @@ void set_option_to_list( const std::string & name,
                          OptionList & options )
 {
   if( !options.check(name) )
-    options.add_option< OPTION_TYPE >(name, value);
+    options.add_option(name, value);
   else
     options[name].change_value( value );
 }
@@ -197,7 +199,7 @@ void set_array_to_list( const std::string & name,
   boost_foreach( const std::string& str_val, values )
     vec.push_back( from_str<TYPE>(str_val) );
 
-  set_option_to_list< OptionArrayT<TYPE> >( name, vec, options);
+  set_option_to_list< OptionArray<TYPE> >( name, vec, options);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -270,7 +272,7 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
         else if (subtype == "real")
           set_array_to_list<Real>(name, array, *this);
         else if (subtype == "string")
-          set_option_to_list< OptionArrayT<std::string> >(name, array, *this);
+          set_option_to_list< OptionArray<std::string> >(name, array, *this);
         else if (subtype == "uri")
           set_array_to_list<URI>(name, array, *this);
 
@@ -305,7 +307,7 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
 //template<typename T>
 //struct OptionList::SelectOptionType< std::vector<T> >
 //{
-//  typedef OptionArrayT<T> type;
+//  typedef OptionArray<T> type;
 //};
 
 ///// Shortcut to choose the appropriate value type
@@ -320,7 +322,7 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
 //  const std::string& name, const typename SelectOptionType<T>::type::value_type & default_value)
 //{
 //  typedef typename OptionList::SelectOptionType<T>::type OptionType;
-//  return dynamic_cast<OptionType>(add_option<OptionType>(name, default_value));
+//  return dynamic_cast<OptionType>(add_option(name, default_value));
 //}
 
 //#define EXPLICIT_TEMPLATE_INSTANCIATION(T) \

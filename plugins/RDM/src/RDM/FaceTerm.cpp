@@ -6,6 +6,7 @@
 
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/Link.hpp"
 
 #include "mesh/Field.hpp"
 
@@ -29,39 +30,39 @@ FaceTerm::FaceTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(OptionComponent<Field>::create( RDM::Tags::solution(), &m_solution))
-      ->pretty_name("Solution Field");
+  options().add_option(RDM::Tags::solution(), m_solution)
+      .pretty_name("Solution Field")
+      .link_to(&m_solution);
 
-  options().add_option(OptionComponent<Field>::create( RDM::Tags::wave_speed(), &m_wave_speed))
-      ->pretty_name("Wave Speed Field");
+  options().add_option(RDM::Tags::wave_speed(), m_wave_speed)
+      .pretty_name("Wave Speed Field")
+      .link_to(&m_wave_speed);
 
-  options().add_option(OptionComponent<Field>::create( RDM::Tags::residual(), &m_residual))
-      ->pretty_name("Residual Field");
+  options().add_option(RDM::Tags::residual(), m_residual)
+      .pretty_name("Residual Field")
+      .link_to(&m_residual);
 }
 
 FaceTerm::~FaceTerm() {}
 
 void FaceTerm::link_fields()
 {
-  if( is_null( m_solution.lock() ) )
+  if( is_null( m_solution ) )
   {
-    m_solution = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( RDM::Tags::solution(), m_solution.lock()->uri() );
+    m_solution = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::solution() ))->handle<Field>();
+    configure_option_recursively( RDM::Tags::solution(), m_solution );
   }
 
-  if( is_null( m_residual.lock() ) )
+  if( is_null( m_residual ) )
   {
-    m_residual = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( RDM::Tags::residual(), m_residual.lock()->uri() );
+    m_residual = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::residual() ))->handle<Field>();
+    configure_option_recursively( RDM::Tags::residual(), m_residual );
   }
 
-  if( is_null( m_wave_speed.lock() ) )
+  if( is_null( m_wave_speed ) )
   {
-    m_wave_speed = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
-    configure_option_recursively( RDM::Tags::wave_speed(), m_wave_speed.lock()->uri() );
+    m_wave_speed = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::wave_speed() ))->handle<Field>();
+    configure_option_recursively( RDM::Tags::wave_speed(), m_wave_speed );
   }
 }
 
@@ -74,20 +75,16 @@ ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
 
   // get the element loop or create it if does not exist
 
-  ElementLoop::Ptr loop;
-  common::Component::Ptr cloop = get_child_ptr( "LOOP" );
-  if( is_null( cloop ) )
+  Handle< ElementLoop > loop(get_child( "LOOP" ));
+  if( is_null( loop ) )
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<physics::Variables>()
-                        .type();
+                        ->handle<physics::Variables>()
+                        ->type();
 
-    loop = build_component_abstract_type_reduced< FaceLoop >( "FaceLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");
-    add_component(loop);
+    loop = create_component<FaceLoop>("LOOP", "FaceLoopT<" + type_name + "," + update_vars_type + ">");
   }
-  else
-    loop = cloop->as_ptr_checked<ElementLoop>();
 
   return *loop;
 }

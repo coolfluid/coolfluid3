@@ -1,61 +1,63 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_solver_actions_files
-  CAdvanceTime.hpp
-  CAdvanceTime.cpp
-  CCriterion.hpp
-  CCriterion.cpp
-  CCriterionAbsResidual.hpp
-  CCriterionAbsResidual.cpp
-  CCriterionMaxIterations.hpp
-  CCriterionMaxIterations.cpp
-  CCriterionMilestoneIteration.hpp
-  CCriterionMilestoneIteration.cpp
-  CCriterionMilestoneTime.hpp
-  CCriterionMilestoneTime.cpp
-  CCriterionTime.hpp
-  CCriterionTime.cpp
-  CIterate.hpp
-  CIterate.cpp
-  CLoopOperation.hpp
-  CLoopOperation.cpp
-  CForAllCells.hpp
-  CForAllCells.cpp
-  CForAllElements.hpp
-  CForAllElements.cpp
-  CForAllElementsT.hpp
-  CForAllNodes2.hpp
-  CForAllNodes2.cpp
-  CForAllFaces.hpp
-  CForAllFaces.cpp
-  CLoop.hpp
-  CLoop.cpp
-  CPrintIterationSummary.hpp
-  CPrintIterationSummary.cpp
-  CSynchronizeFields.hpp
-  CSynchronizeFields.cpp
-  CComputeArea.hpp
-  CComputeArea.cpp
-  CComputeVolume.hpp
-  CComputeVolume.cpp
-  CComputeLNorm.hpp
-  CComputeLNorm.cpp
-  CPeriodicWriteMesh.hpp
-  CPeriodicWriteMesh.cpp
-  CSolveSystem.hpp
-  CSolveSystem.cpp
+  AdvanceTime.hpp
+  AdvanceTime.cpp
+  Criterion.hpp
+  Criterion.cpp
+  CriterionAbsResidual.hpp
+  CriterionAbsResidual.cpp
+  CriterionMaxIterations.hpp
+  CriterionMaxIterations.cpp
+  CriterionMilestoneIteration.hpp
+  CriterionMilestoneIteration.cpp
+  CriterionMilestoneTime.hpp
+  CriterionMilestoneTime.cpp
+  CriterionTime.hpp
+  CriterionTime.cpp
+  Iterate.hpp
+  Iterate.cpp
+  LoopOperation.hpp
+  LoopOperation.cpp
+  ForAllCells.hpp
+  ForAllCells.cpp
+  ForAllElements.hpp
+  ForAllElements.cpp
+  ForAllElementsT.hpp
+  ForAllNodes2.hpp
+  ForAllNodes2.cpp
+  ForAllFaces.hpp
+  ForAllFaces.cpp
+  Loop.hpp
+  Loop.cpp
+  PrintIterationSummary.hpp
+  PrintIterationSummary.cpp
+  SynchronizeFields.hpp
+  SynchronizeFields.cpp
+  ComputeArea.hpp
+  ComputeArea.cpp
+  ComputeVolume.hpp
+  ComputeVolume.cpp
+  ComputeLNorm.hpp
+  ComputeLNorm.cpp
+  PeriodicWriteMesh.hpp
+  PeriodicWriteMesh.cpp
+  SolveLSS.hpp
+  SolveLSS.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
+  ZeroLSS.hpp
+  ZeroLSS.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
     Proto/BlockAccumulator.hpp
     Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
-    Proto/CProtoAction.hpp
-    Proto/CProtoAction.cpp
+    Proto/ProtoAction.hpp
+    Proto/ProtoAction.cpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp

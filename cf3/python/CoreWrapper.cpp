@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/python.hpp>
-#include <boost/weak_ptr.hpp>
+#include "python/BoostPython.hpp"
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
@@ -17,21 +16,19 @@
 namespace cf3 {
 namespace python {
 
-using namespace boost::python;
-
 struct CoreWrapper
 {
-  static object root()
+  static boost::python::object root()
   {
-    return wrap_component(common::Core::instance().root());
+    return wrap_component(common::Core::instance().root().handle<common::Component>());
   }
 
-  static object environment()
+  static boost::python::object environment()
   {
-    return wrap_component(common::Core::instance().environment());
+    return wrap_component(common::Core::instance().environment().handle<common::Component>());
   }
 
-  static void initiate(list arglist)
+  static void initiate(boost::python::list arglist)
   {
     int argc = len(arglist);
     static char** argv = 0;
@@ -40,7 +37,7 @@ struct CoreWrapper
       argv = new char*[argc];
       for(Uint i = 0; i != argc; ++i)
       {
-        std::string arg_i = extract<std::string>(arglist[i]);
+        std::string arg_i = boost::python::extract<std::string>(arglist[i]);
         argv[i] = new char[arg_i.size()];
         arg_i.copy(argv[i], arg_i.size());
       }
@@ -49,7 +46,7 @@ struct CoreWrapper
       common::PE::Comm::instance().init(argc, argv);
     }
   }
-  
+
   static void terminate()
   {
     common::Core::instance().terminate();
@@ -58,7 +55,7 @@ struct CoreWrapper
 
 void def_core()
 {
-  class_<CoreWrapper>("Core", "Core class, the entry point to coolfluid", no_init)
+  boost::python::class_<CoreWrapper>("Core", "Core class, the entry point to coolfluid", boost::python::no_init)
     .def("root", CoreWrapper::root, "Access to the root of the component tree")
     .staticmethod("root")
     .def("environment", CoreWrapper::environment, "Access to the environment for setting global options")

@@ -13,7 +13,7 @@
 
 namespace cf3 {
 
-  namespace solver { class CTime; }
+  namespace solver { class Time; }
 
 namespace RDM {
 
@@ -24,8 +24,8 @@ class RDM_API TimeStepping : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<TimeStepping> Ptr;
-  typedef boost::shared_ptr<TimeStepping const> ConstPtr;
+
+
 
 public: // functions
   /// Contructor
@@ -44,7 +44,7 @@ public: // functions
   common::ActionDirector& pre_actions()  { return *m_pre_actions; }
   common::ActionDirector& post_actions() { return *m_post_actions; }
 
-  cf3::solver::CTime&       time()         { return *m_time; }
+  cf3::solver::Time&       time()         { return *m_time; }
 
   /// @name SIGNALS
   //@{
@@ -60,11 +60,11 @@ private: // functions
 
 private: // data
 
-  boost::shared_ptr< solver::CTime > m_time;   ///< component tracking time
+  Handle< solver::Time > m_time;   ///< component tracking time
 
-  common::ActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
+  Handle< common::ActionDirector > m_pre_actions;  ///< set of actions before non-linear solve
 
-  common::ActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
+  Handle< common::ActionDirector > m_post_actions; ///< set of actions after non-linear solve
 
 };
 

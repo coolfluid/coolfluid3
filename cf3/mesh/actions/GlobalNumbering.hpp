@@ -39,8 +39,8 @@ class mesh_actions_API GlobalNumbering : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<GlobalNumbering> Ptr;
-    typedef boost::shared_ptr<GlobalNumbering const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -60,7 +60,8 @@ public: // functions
 
 public: // functions
 
-  static std::size_t hash_value(const RealMatrix& coords);
+  static std::size_t elem_hash_value(const RealMatrix& coords);
+  static std::size_t node_hash_value(const RealMatrix& coords);
 
 private: // data
 

@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/python.hpp>
-#include <boost/weak_ptr.hpp>
+#include "python/BoostPython.hpp"
 
 #include "common/BasicExceptions.hpp"
 

@@ -10,6 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -24,7 +25,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/WriteMesh.hpp"
 
 using namespace std;
@@ -68,26 +69,26 @@ BOOST_FIXTURE_TEST_SUITE( TecWriterTests_TestSuite, TecWriterTests_Fixture )
 BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->configure_option("read_groups",true);
+  meshreader->options().configure_option("read_groups",true);
 
-  Domain& domain = Core::instance().root().create_component<Domain>("domain");
+  Domain& domain = *Core::instance().root().create_component<Domain>("domain");
   // the mesh to store in
-  Mesh& mesh = domain.create_component<Mesh>( "mesh" );
+  Mesh& mesh = *domain.create_component<Mesh>( "mesh" );
 
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
   Field& nodal = mesh.geometry_fields().create_field("nodal","nodal[vector]");
-  nodal.descriptor().configure_option(common::Tags::dimension(),mesh.dimension());
+  nodal.descriptor().options().configure_option(common::Tags::dimension(),mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)
       nodal[n][j] = n;
   }
 
-  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
 
   Field& cell_centred = elems_P0.create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
@@ -101,7 +102,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   fields.push_back(cell_centred.uri());
   fields.push_back(mesh.geometry_fields().coordinates().uri());
 
-  WriteMesh& write_mesh = Core::instance().root().create_component<WriteMesh>("write_mesh");
+  WriteMesh& write_mesh = *Core::instance().root().create_component<WriteMesh>("write_mesh");
   write_mesh.write_mesh(mesh,"quadtriag.plt",fields);
   write_mesh.write_mesh(mesh,"quadtriag.msh",fields);
 
@@ -116,18 +117,18 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
-  meshreader->configure_option("rank",(Uint) Comm::instance().rank());
-  meshreader->configure_option("Repartition",false);
-  meshreader->configure_option("OutputRank",(Uint) 2);
+  meshreader->options().configure_option("number_of_processors",(Uint) Comm::instance().size());
+  meshreader->options().configure_option("rank",(Uint) Comm::instance().rank());
+  meshreader->options().configure_option("Repartition",false);
+  meshreader->options().configure_option("OutputRank",(Uint) 2);
 
   // the file to read from
   boost::filesystem::path fp_in ("../../resources/hextet.neu");
 
   // the mesh to store in
-  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   CFinfo.setFilterRankZero(true);
 
   boost::filesystem::path fp_out ("hextet.msh");
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK(true);
@@ -147,16 +148,16 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->configure_option("Repartition",true);
-  meshreader->configure_option("OutputRank",(Uint) 0);
+  meshreader->options().configure_option("Repartition",true);
+  meshreader->options().configure_option("OutputRank",(Uint) 0);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -174,12 +175,12 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   CFinfo.setFilterRankZero(true);
   CFinfo << mesh->tree() << CFendl;
   CFinfo << meshreader->tree() << CFendl;
-  MeshTransformer::Ptr info  = build_component_abstract_type<MeshTransformer>("Info","info");
+  boost::shared_ptr< MeshTransformer > info  = build_component_abstract_type<MeshTransformer>("Info","info");
   info->transform(mesh);
 
 
   boost::filesystem::path fp_out ("quadtriag_mult.msh");
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK_EQUAL(1,1);

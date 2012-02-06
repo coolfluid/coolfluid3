@@ -8,6 +8,8 @@
 
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -30,8 +32,15 @@ common::ComponentBuilder < LoadBalance, MeshTransformer, mesh::actions::LibActio
 
 //////////////////////////////////////////////////////////////////////////////
 
-LoadBalance::LoadBalance( const std::string& name )
-: MeshTransformer(name)
+#ifndef CF3_HAVE_PTSCOTCH
+#ifndef CF3_HAVE_ZOLTAN
+#warning "There is no partitioner available (Zoltan or PT-Scotch). Load-balancing will not be possible."
+#define CF3_MESH_LOADBALANCE_PARTITIONER_UNAVAILABLE
+#endif
+#endif
+
+LoadBalance::LoadBalance( const std::string& name ) :
+  MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
@@ -41,12 +50,11 @@ LoadBalance::LoadBalance( const std::string& name )
   properties()["description"] = desc;
 
 #if defined (CF3_HAVE_PTSCOTCH)
-  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.ptscotch.Partitioner","partitioner");
+  m_partitioner = create_component("partitioner", "cf3.mesh.ptscotch.Partitioner")->handle<MeshTransformer>();
 #elif defined (CF3_HAVE_ZOLTAN)
-  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner");
-  m_partitioner->configure_option("graph_package", std::string("PHG"));
+  m_partitioner = create_component("partitioner", "cf3.mesh.zoltan.Partitioner")->handle<MeshTransformer>();
+  m_partitioner->options().configure_option("graph_package", std::string("PHG"));
 #endif
-  add_static_component(*m_partitioner);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +62,7 @@ LoadBalance::LoadBalance( const std::string& name )
 void LoadBalance::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   // balance if parallel run with multiple processors
   if( Comm::instance().is_active() && Comm::instance().size() > 1 )
@@ -62,23 +70,29 @@ void LoadBalance::execute()
 
     CFinfo << "loadbalancing mesh:" << CFendl;
 
+    Comm::instance().barrier();
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
     // build global numbering and connectivity of nodes and elements (necessary for partitioning)
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
 
+    Comm::instance().barrier();
     CFinfo << "  + building global node-element connectivity" << CFendl;
 
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_connectivity")->transform(mesh);
 
-
+    Comm::instance().barrier();
+#ifdef CF3_MESH_LOADBALANCE_PARTITIONER_UNAVAILABLE
+    CFwarn << "  Skipping mesh partitioning. (No partitioner available)" << CFendl;
+#else
     CFinfo << "  + partitioning and migrating" << CFendl;
     m_partitioner->transform(mesh);
-
+#endif
+    Comm::instance().barrier();
     CFinfo << "  + growing overlap layer" << CFendl;
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
 
-
+    Comm::instance().barrier();
     CFinfo << "  + deallocating unused connectivity" << CFendl;
 
     /// @todo check that this actually frees the memory

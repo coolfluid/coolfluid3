@@ -5,25 +5,28 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <ios>
-#include <set>
 
 #include <boost/assign/list_of.hpp>
 
 #include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
 #include "common/List.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/SignalOptions.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -42,26 +45,26 @@ Entities::Entities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  options().add_option(OptionT<std::string>::create("element_type", std::string("")))
-      ->description("Element type")
-      ->pretty_name("Element type")
-      ->attach_trigger(boost::bind(&Entities::configure_element_type, this));
+  options().add_option("element_type", "")
+      .description("Element type")
+      .pretty_name("Element type")
+      .attach_trigger(boost::bind(&Entities::configure_element_type, this));
 
-  m_global_numbering = create_static_component_ptr<common::List<Uint> >(mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
-  m_spaces_group = create_static_component_ptr<Group>("spaces");
+  m_spaces_group = create_static_component<Group>("spaces");
   m_spaces_group->mark_basic();
 
-  m_rank = create_static_component_ptr< common::List<Uint> >("rank");
+  m_rank = create_static_component< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  regist_signal ( "create_space" )
-      ->connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
-      ->description( "Create space for other interpretations of fields (e.g. high order)" )
-      ->pretty_name( "Create space" )
-      ->signature(boost::bind(&Entities::signature_create_space, this, _1));
+//  regist_signal ( "create_space" )
+//      .connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
+//      .description( "Create space for other interpretations of fields (e.g. high order)" )
+//      .pretty_name( "Create space" )
+//      .signature(boost::bind(&Entities::signature_create_space, this, _1));
 
 }
 
@@ -73,46 +76,47 @@ Entities::~Entities()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Entities::initialize(const std::string& element_type_name)
+//void Entities::initialize(const std::string& element_type_name)
+//{
+//}
+
+void Entities::initialize(const std::string& element_type_name, Dictionary& geometry_dict)
 {
-  configure_option("element_type",element_type_name);
+  options().configure_option("element_type",element_type_name);
   cf3_assert(is_not_null(m_element_type));
+  create_geometry_space(geometry_dict);
 }
 
-void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
+void Entities::create_geometry_space(Dictionary& geometry_dict)
 {
-  assign_geometry(geometry);
-  initialize(element_type_name);
-}
+  if ( is_null(m_element_type) )
+    throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
 
-void Entities::assign_geometry(SpaceFields& geometry)
-{
-  m_geometry_fields = geometry.as_ptr<SpaceFields>();
+  m_geometry_dict = Handle<Dictionary>(geometry_dict.handle<Component>());
+  if ( exists_space(mesh::Tags::geometry()) )
+  {
+    space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+  }
+  else
+  {
+    m_geometry_space = m_spaces_group->create_component<Space>(geometry_dict.name());
+    m_geometry_space->initialize(*this,geometry_dict);
+    m_geometry_space->options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    m_geometry_space->add_tag(mesh::Tags::geometry());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Entities::configure_element_type()
 {
-  const std::string etype_name = option("element_type").value<std::string>();
+  const std::string etype_name = options().option("element_type").value<std::string>();
   if (is_not_null(m_element_type))
   {
     remove_component(m_element_type->name());
   }
-  m_element_type = build_component_abstract_type<ElementType>( etype_name, etype_name );
+  m_element_type = Handle<ElementType>(create_component( etype_name, etype_name ) );
   m_element_type->rename(m_element_type->derived_type_name());
-  add_component( m_element_type );
-
-  if ( exists_space(mesh::Tags::geometry()) )
-  {
-    space(mesh::Tags::geometry()).configure_option("shape_function",m_element_type->shape_function().derived_type_name());
-  }
-  else
-  {
-    Space& geometry_space = create_space(mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
-    geometry_space.add_tag(mesh::Tags::geometry());
-    m_geometry_space = geometry_space.as_ptr<Space>();
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -125,9 +129,76 @@ ElementType& Entities::element_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& node_user, const std::string& space_name)
+{
+  boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
+
+  std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively<Entities>(node_user));
+  Handle<Entities const> self_entities(node_user.handle<Component>());
+  if(is_not_null(self_entities))
+    entities_vector.push_back(self_entities);
+
+  // No entities found, so the list of nodes is empty
+  if(entities_vector.empty())
+    return used_nodes;
+
+  const Uint all_nb_nodes = entities_vector.front()->space(space_name).dict().size();
+
+  std::vector<bool> node_is_used(all_nb_nodes, false);
+
+  // First count the number of unique nodes
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
+  {
+    const Space& space = entities->space(space_name);
+    const Uint nb_elems = entities->size();
+
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      cf3_assert(idx<space.connectivity().size());
+      boost_foreach(const Uint node, space.connectivity()[idx])
+      {
+        cf3_assert(node<node_is_used.size());
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          ++nb_nodes;
+        }
+      }
+    }
+  }
+
+  // reserve space for all unique nodes
+  used_nodes->resize(nb_nodes);
+  common::List<Uint>::ListT& nodes_array = used_nodes->array();
+
+  // Add the unique node indices
+  node_is_used.assign(all_nb_nodes, false);
+  Uint back = 0;
+  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
+  {
+    const Space& space = entities->space(space_name);
+    const Uint nb_elems = entities->size();
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      boost_foreach(const Uint node, space.connectivity()[idx])
+      {
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          nodes_array[back++] = node;
+        }
+      }
+    }
+  }
+
+  std::sort(used_nodes->array().begin(), used_nodes->array().end());
+  return used_nodes;
+}
+
 common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 {
-  common::List<Uint>::Ptr used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
+  Handle< common::List<Uint> > used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
   if (rebuild && is_not_null(used_nodes))
   {
     parent.remove_component(*used_nodes);
@@ -136,50 +207,13 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component_ptr<common::List<Uint> >(mesh::Tags::nodes_used());
+    boost::shared_ptr< List<Uint> > used_nodes_shr = Entities::create_used_nodes(parent,mesh::Tags::geometry());
+    used_nodes = Handle< List<Uint> >(used_nodes_shr);
+    parent.add_component(used_nodes_shr);
     used_nodes->add_tag(mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
-
-    // Assemble all unique node numbers in a set
-    std::set<Uint> node_set;
-
-    if ( Entities::Ptr elements = parent.as_ptr<Entities>() )
-    {
-      const Uint nb_elems = elements->size();
-      for (Uint idx=0; idx<nb_elems; ++idx)
-      {
-        boost_foreach(const Uint node, elements->get_nodes(idx))
-        {
-          node_set.insert(node);
-        }
-      }
-    }
-    else
-    {
-      boost_foreach(Entities& elements, find_components_recursively<Entities>(parent))
-      {
-        const Uint nb_elems = elements.size();
-        for (Uint idx=0; idx<nb_elems; ++idx)
-        {
-          boost_foreach(const Uint node, elements.get_nodes(idx))
-          {
-            node_set.insert(node);
-          }
-        }
-      }
-    }
-
-    // Copy the set to the node_list
-
-    used_nodes->resize(node_set.size());
-
-    common::List<Uint>::ListT& nodes_array = used_nodes->array();
-    Uint cnt=0;
-    boost_foreach(const Uint node, node_set)
-      nodes_array[cnt++] = node;
-
-
   }
+
   return *used_nodes;
 }
 
@@ -187,21 +221,39 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
 Uint Entities::size() const
 {
-  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
-}
-
-common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
-{
-  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
+  return geometry_space().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Space& Entities::create_space( const std::string& name, const std::string& shape_function_builder_name )
+Uint Entities::glb_size() const
 {
-  Space::Ptr space = m_spaces_group->create_component_ptr<Space>(name);
-  space->configure_option("shape_function",shape_function_builder_name);
-  space->set_support(*this);
+  if (PE::Comm::instance().is_active())
+  {
+    Uint glb_nb_elems(0);
+    const Uint loc_nb_elems(size() );
+    PE::Comm::instance().all_reduce(PE::plus(), &loc_nb_elems, 1, &glb_nb_elems);
+    return glb_nb_elems;
+  }
+  else
+  {
+    return size();
+  }
+}
+
+//common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
+//{
+//  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
+//}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_dict)
+{
+  /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
+  Handle<Space> space = m_spaces_group->create_component<Space>(space_dict.name());
+  space->initialize(*this,space_dict);
+  space->options().configure_option("shape_function",shape_function_builder_name);
   return *space;
 }
 
@@ -209,62 +261,62 @@ Space& Entities::create_space( const std::string& name, const std::string& shape
 
 Space& Entities::space (const std::string& space_name) const
 {
-  return m_spaces_group->get_child(space_name).as_type<Space>();
+  return *Handle<Space>(m_spaces_group->get_child(space_name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool Entities::exists_space(const std::string& name) const
 {
-  return is_not_null(m_spaces_group->get_child_ptr(name));
+  return is_not_null(m_spaces_group->get_child(name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix Entities::get_coordinates(const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-  return RealMatrix(1,1);
-}
+//RealMatrix Entities::get_coordinates(const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//  return RealMatrix(1,1);
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
+//{
+//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
+//}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//void Entities::allocate_coordinates(RealMatrix& coords) const
+//{
+//  coords.resize(element_type().nb_nodes(),element_type().dimension());
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
-{
-  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-}
+//void Entities::signature_create_space ( SignalArgs& node)
+//{
+//  XML::SignalOptions options( node );
+//  options.add_option("name" , std::string("new_space") )
+//      .description("Name to add to space");
 
-////////////////////////////////////////////////////////////////////////////////
+//  options.add_option("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
+//      .description("Shape Function to add as space");
+//}
 
-void Entities::allocate_coordinates(RealMatrix& coords) const
-{
-  coords.resize(element_type().nb_nodes(),element_type().dimension());
-}
+//////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
+//void Entities::signal_create_space ( SignalArgs& node )
+//{
+//  XML::SignalOptions options( node );
 
-void Entities::signature_create_space ( SignalArgs& node)
-{
-  XML::SignalOptions options( node );
-  options.add_option< OptionT<std::string> >("name" , std::string("new_space") )
-      ->description("Name to add to space");
+//  std::string name = options.value<std::string>("name");
 
-  options.add_option< OptionT<std::string> >("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
-      ->description("Shape Function to add as space");
-}
+//  std::string shape_function_builder = options.value<std::string>("shape_function");
 
-////////////////////////////////////////////////////////////////////////////////
-
-void Entities::signal_create_space ( SignalArgs& node )
-{
-  XML::SignalOptions options( node );
-
-  std::string name = options.value<std::string>("name");
-
-  std::string shape_function_builder = options.value<std::string>("shape_function");
-
-  Space& space = create_space(name, shape_function_builder);
-}
+//  Space& space = create_space(name, shape_function_builder);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -283,18 +335,19 @@ ElementType& Entity::element_type() const { return comp->element_type(); }
 Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
 Uint Entity::rank() const { return comp->rank()[idx]; }
 bool Entity::is_ghost() const { return comp->is_ghost(idx); }
-RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); }
-void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
-void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
-Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+RealMatrix Entity::get_coordinates() const { return comp->geometry_space().get_coordinates(idx); }
+void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().put_coordinates(coordinates,idx); }
+void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->geometry_space().allocate_coordinates(coordinates); }
+Connectivity::ConstRow Entity::get_nodes() const { return comp->geometry_space().connectivity()[idx]; }
 std::ostream& operator<<(std::ostream& os, const Entity& entity)
 {
+  cf3_assert(is_not_null(entity.comp));
   os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
   return os;
 }
 
 
-bool IsElementsVolume::operator()(const Entities::Ptr& component)
+bool IsElementsVolume::operator()(const Handle< Entities >& component)
 {
   return component->element_type().dimension() == component->element_type().dimensionality();
 }
@@ -304,7 +357,7 @@ bool IsElementsVolume::operator()(const Entities& component)
   return component.element_type().dimension() == component.element_type().dimensionality();
 }
 
-bool IsElementsSurface::operator()(const Entities::Ptr& component)
+bool IsElementsSurface::operator()(const Handle< Entities >& component)
 {
   return component->element_type().dimension() == component->element_type().dimensionality() + 1;
 }
@@ -313,6 +366,18 @@ bool IsElementsSurface::operator()(const Entities& component)
 {
   return component.element_type().dimension() == component.element_type().dimensionality() + 1;
 }
+
+
+void Entities::resize(const Uint nb_elem)
+{
+  rank().resize(nb_elem);
+  glb_idx().resize(nb_elem);
+  boost_foreach(Space& space, find_components_recursively<Space>(*m_spaces_group))
+  {
+    space.connectivity().resize(nb_elem);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 } // mesh

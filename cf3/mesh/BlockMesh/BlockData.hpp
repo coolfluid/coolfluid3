@@ -7,6 +7,8 @@
 #ifndef cf3_mesh_BlockMesh_BlockData_hpp
 #define cf3_mesh_BlockMesh_BlockData_hpp
 
+#include <boost/scoped_ptr.hpp>
+
 #include "common/CF.hpp"
 #include "common/Component.hpp"
 
@@ -14,21 +16,85 @@
 #include "mesh/BlockMesh/LibBlockMesh.hpp"
 
 namespace cf3 {
+  namespace common
+  {
+    template<typename T> class Table;
+    class Group;
+}
 namespace mesh {
 
 class Mesh;
+class Connectivity;
 
 namespace BlockMesh {
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class BlockArrays : public common::Component
+{
+public:
+
+  BlockArrays(const std::string& name);
+
+  static std::string type_name () { return "BlockArrays"; }
+
+  /// Create the table that holds the points for the blocks
+  Handle< common::Table<Real> > create_points(const Uint dimensions, const Uint nb_points);
+
+  /// Create the table that holds the blocks
+  Handle< common::Table<Uint> > create_blocks(const Uint nb_blocks);
+
+  /// Create the per-direction number of segments table.
+  /// @pre create_points and create_blocks have been called
+  Handle< common::Table<Uint> > create_block_subdivisions();
+
+  /// Create the gradings
+  /// @pre create_points and create_blocks have been called
+  Handle< common::Table<Real> > create_block_gradings();
+
+  /// Add a zero-filled patch, taking the number of faces in the patch as argument
+  /// @param nb_faces The number of faces (i.e. block sides) in the patch
+  Handle< common::Table<Uint> > create_patch(const std::string& name, const Uint nb_faces);
+
+  /// Add a patch, initialized to contain the faces referred to by face_indices
+  /// @param face_indices The indices of the faces, as they appear in default boundary region when no patches have been defined
+  Handle< common::Table<Uint> > create_patch(const std::string& name, const std::vector<Uint>& face_indices);
+
+  /// Create the volume block mesh
+  Handle<Mesh> create_block_mesh();
+
+  /// Create the refined mesh
+  /// @param mesh The mesh in which the output will be stored
+  void create_mesh(Mesh& mesh);
+
+  /// @name SIGNALS
+  //@{
+
+  void signature_create_points(common::SignalArgs& args);
+  void signal_create_points(common::SignalArgs& args);
+  void signature_create_blocks(common::SignalArgs& args);
+  void signal_create_blocks(common::SignalArgs& args);
+  void signal_create_block_subdivisions(common::SignalArgs& args);
+  void signal_create_block_gradings(common::SignalArgs& args);
+  void signature_create_patch_nb_faces(common::SignalArgs& args);
+  void signal_create_patch_nb_faces(common::SignalArgs& args);
+  void signature_create_patch_face_list(common::SignalArgs& args);
+  void signal_create_patch_face_list(common::SignalArgs& args);
+  void signal_create_block_mesh(common::SignalArgs& args);
+  void signature_create_mesh(common::SignalArgs& args);
+  void signal_create_mesh(common::SignalArgs& args);
+
+  //@} END SIGNALS
+
+private:
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
+};
+
 /// Storage for the information about blocks for structured grid generation
 struct BlockMesh_API BlockData : common::Component
 {
-  typedef boost::shared_ptr<BlockData> Ptr;
-  typedef boost::shared_ptr<BlockData const> ConstPtr;
-
   BlockData(const std::string& name);
 
   static std::string type_name () { return "BlockData"; }

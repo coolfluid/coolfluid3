@@ -69,13 +69,13 @@ BOOST_AUTO_TEST_CASE( system_solve )
   test_matrix m;
 
   // commpattern
-  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
   common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),m.irank_updatable);
+  cp.setup(Handle<common::PE::CommWrapper>(cp.get_child("gid")),m.irank_updatable);
 
   // system
-  LSS::System::Ptr sys_ptr = common::allocate_component<LSS::System>("system");
+  boost::shared_ptr<LSS::System> sys_ptr = common::allocate_component<LSS::System>("system");
   LSS::System& sys = *sys_ptr;
   sys.options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
   sys.create(cp,m.nbeqs,m.column_indices,m.rowstart_positions);
@@ -144,7 +144,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
     trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
     trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
     trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
     trilinos_xml << "        </ParameterList>\n";
     trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
     trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";

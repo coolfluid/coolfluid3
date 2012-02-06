@@ -23,8 +23,8 @@ cf3::common::ComponentBuilder < UnifiedData, cf3::common::Component, LibMesh > U
 
 UnifiedData::UnifiedData ( const std::string& name ) : common::Component(name)
 {
-  m_data_indices = create_static_component_ptr<common::List<Uint> >  ("data_indices");
-  m_data_links   = create_static_component_ptr<common::Group>("data_links");
+  m_data_indices = create_static_component<common::List<Uint> >  ("data_indices");
+  m_data_links   = create_static_component<common::Group>("data_links");
   m_data_indices->resize(1);
   m_data_indices->array()[0]=0;
   m_size=0;
@@ -34,15 +34,18 @@ UnifiedData::UnifiedData ( const std::string& name ) : common::Component(name)
 
 Uint UnifiedData::unified_idx(const common::Component& component, const Uint local_idx) const
 {
+  cf3_assert(contains(component));
   std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(&component);
   return it->second +local_idx;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint UnifiedData::unified_idx(const boost::tuple<common::Component::Ptr,Uint>& loc) const
+Uint UnifiedData::unified_idx(const boost::tuple<Handle< common::Component >,Uint>& loc) const
 {
+  cf3_assert(contains(*boost::get<0>(loc)));
   std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(boost::get<0>(loc).get());
+  cf3_assert(it!=m_start_idx.end());
   return it->second + boost::get<1>(loc);
 }
 
@@ -51,7 +54,7 @@ Uint UnifiedData::unified_idx(const boost::tuple<common::Component::Ptr,Uint>& l
 void UnifiedData::reset()
 {
   m_start_idx.clear();
-  boost_foreach(Component& data_link, m_data_links->children())
+  boost_foreach(Component& data_link, *m_data_links)
     m_data_links->remove_component(data_link);
   m_data_vector.resize(0);
   m_data_indices->resize(1);
@@ -71,8 +74,8 @@ bool UnifiedData::contains(const common::Component& data) const
 /// Get the component and local index in the component
 /// given a continuous index spanning multiple components
 /// @param [in] data_glb_idx continuous index covering multiple components
-/// @return boost::tuple<data_type::Ptr component, Uint idx_in_component>
-boost::tuple<common::Component::Ptr,Uint> UnifiedData::location(const Uint data_glb_idx)
+/// @return boost::tuple<data_Handle< type > component, Uint idx_in_component>
+boost::tuple<Handle< common::Component >,Uint> UnifiedData::location(const Uint data_glb_idx)
 {
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
@@ -82,12 +85,12 @@ boost::tuple<common::Component::Ptr,Uint> UnifiedData::location(const Uint data_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<common::Component::ConstPtr,Uint> UnifiedData::location(const Uint data_glb_idx) const
+boost::tuple<Handle< common::Component >,Uint> UnifiedData::location(const Uint data_glb_idx) const
 {
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::make_tuple(m_data_vector[data_vector_idx].lock()->as_const(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::make_tuple(m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +100,7 @@ boost::tuple<common::Component&,Uint> UnifiedData::location_v2(const Uint data_g
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::tuple<common::Component&,Uint>(*m_data_vector[data_vector_idx].lock(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::tuple<common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +110,7 @@ boost::tuple<const common::Component&,Uint> UnifiedData::location_v2(const Uint 
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::tuple<const common::Component&,Uint>(*m_data_vector[data_vector_idx].lock(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::tuple<const common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +147,7 @@ Uint UnifiedData::size() const
 
 /// non-const access to the unified data components
 /// @return vector of data components
-std::vector< boost::weak_ptr<common::Component> >& UnifiedData::components()
+std::vector< Handle<common::Component> >& UnifiedData::components()
 {
   return m_data_vector;
 }
@@ -153,7 +156,7 @@ std::vector< boost::weak_ptr<common::Component> >& UnifiedData::components()
 
 /// const access to the unified data components
 /// @return vector of data components
-const std::vector< boost::weak_ptr<common::Component> >& UnifiedData::components() const
+const std::vector< Handle<common::Component> >& UnifiedData::components() const
 {
   return m_data_vector;
 }

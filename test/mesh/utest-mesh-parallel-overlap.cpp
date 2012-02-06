@@ -13,6 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
@@ -32,7 +33,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
@@ -59,78 +60,6 @@ std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)
   if (v.size())
     out << v.back();
   return out;
-}
-
-
-template <typename T>
-void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> strides;
-  PE::Comm::instance().all_gather((int)send.size(),strides);
-  std::vector<int> displs(strides.size());
-  if (strides.size())
-  {
-    int sum_strides = strides[0];
-    displs[0] = 0;
-    for (Uint i=1; i<strides.size(); ++i)
-    {
-      displs[i] = displs[i-1] + strides[i-1];
-      sum_strides += strides[i];
-    }
-    std::vector<Uint> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::Comm::instance().communicator()));
-    recv.resize(strides.size());
-    for (Uint i=0; i<strides.size(); ++i)
-    {
-      recv[i].resize(strides[i]);
-      for (Uint j=0; j<strides[i]; ++j)
-      {
-        recv[i][j]=recv_linear[displs[i]+j];
-      }
-    }
-  }
-  else
-  {
-    recv.resize(0);
-  }
-}
-
-template <typename T>
-void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> send_strides(send.size());
-  std::vector<int> send_displs(send.size());
-  for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].size();
-
-  send_displs[0] = 0;
-  for (Uint i=1; i<send.size(); ++i)
-    send_displs[i] = send_displs[i-1] + send_strides[i-1];
-
-  std::vector<T> send_linear(send_displs.back()+send_strides.back());
-  for (Uint i=0; i<send.size(); ++i)
-    for (Uint j=0; j<send[i].size(); ++j)
-      send_linear[send_displs[i]+j] = send[i][j];
-
-  std::vector<int> recv_strides(PE::Comm::instance().size());
-  std::vector<int> recv_displs(PE::Comm::instance().size());
-  PE::Comm::instance().all_to_all(send_strides,recv_strides);
-  recv_displs[0] = 0;
-  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
-    recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
-
-  std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::Comm::instance().communicator()));
-
-  recv.resize(recv_strides.size());
-  for (Uint i=0; i<recv_strides.size(); ++i)
-  {
-    recv[i].resize(recv_strides[i]);
-    for (Uint j=0; j<recv_strides[i]; ++j)
-    {
-      recv[i][j]=recv_linear[recv_displs[i]+j];
-    }
-  }
 }
 
 void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
@@ -184,7 +113,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 }
 
 
-bool check_nodes_sanity(SpaceFields& nodes)
+bool check_nodes_sanity(Dictionary& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -214,7 +143,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      boost_foreach(Uint node, entities.get_nodes(e))
+      boost_foreach(Uint node, entities.geometry_space().connectivity()[e])
       {
         if (node >=max_node_idx)
         {
@@ -291,21 +220,21 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 {
   CFinfo << "ParallelOverlap_test" << CFendl;
-  Core::instance().environment().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
 
   // Create or read the mesh
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("parent",URI("/"));
-  meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
+  boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
+  meshgenerator->options().configure_option("parent",URI("/"));
+  meshgenerator->options().configure_option("name",std::string("test_mpinode_mesh"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 3;
   nb_cells[1] = 2;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
-  meshgenerator->configure_option("nb_cells",nb_cells);
-  meshgenerator->configure_option("lengths",lengths);
-  meshgenerator->configure_option("bdry",false);
+  meshgenerator->options().configure_option("nb_cells",nb_cells);
+  meshgenerator->options().configure_option("lengths",lengths);
+  meshgenerator->options().configure_option("bdry",false);
   meshgenerator->execute();
   Mesh& mesh = Core::instance().root().get_child("test_mpinode_mesh").as_type<Mesh>();
 
@@ -317,7 +246,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -338,7 +267,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelOverlap_test" << CFendl;
-  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
 
 
   // Create or read the mesh
@@ -346,46 +275,46 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//rect"));
+  boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
+  meshgenerator->options().configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 100;
   nb_cells[1] = 100;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
-  meshgenerator->configure_option("nb_cells",nb_cells);
-  meshgenerator->configure_option("lengths",lengths);
-  meshgenerator->configure_option("bdry",true);
+  meshgenerator->options().configure_option("nb_cells",nb_cells);
+  meshgenerator->options().configure_option("lengths",lengths);
+  meshgenerator->options().configure_option("bdry",true);
   Mesh& mesh = meshgenerator->generate();
 #endif
 
 #ifdef NEU
-  MeshReader::Ptr meshreader =
+  boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-//  meshreader->configure_option("read_boundaries",false);
-  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.neu");
+//  meshreader->options().configure_option("read_boundaries",false);
+  boost::shared_ptr< Mesh > mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
+//  Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.neu");
   Mesh& mesh = *mesh_ptr;
+  Core::instance().root().add_component(mesh_ptr);
 #endif
 
 #ifdef GMSH
-  MeshReader::Ptr meshreader =
+  boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
-  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/sinusbump-tg-p1.msh");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.msh");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/rectangle-tg-p1.msh");
+  boost::shared_ptr< Mesh > mesh_ptr = meshreader->create_mesh_from("../../resources/sinusbump-tg-p1.msh");
+//  Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.msh");
+//  Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("../../resources/rectangle-tg-p1.msh");
   Mesh& mesh = *mesh_ptr;
+  Core::instance().root().add_component(mesh_ptr);
 #endif
 
+  Dictionary& nodes = mesh.geometry_fields();
 
-  Core::instance().root().add_component(mesh);
-  SpaceFields& nodes = mesh.geometry_fields();
-
-  MeshWriter::Ptr tec_writer =
+  boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
 
-  MeshWriter::Ptr gmsh_writer =
+  boost::shared_ptr< MeshWriter > gmsh_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","gmsh_writer");
 
 
@@ -397,8 +326,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   CFinfo << "Global Numbering..." << CFendl;
 //  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering");
-//  glb_numbering->configure_option("debug",true);
+  boost::shared_ptr< MeshTransformer > glb_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering");
+//  glb_numbering->options().configure_option("debug",true);
   glb_numbering->transform(mesh);
   CFinfo << "Global Numbering... done" << CFendl;
 
@@ -407,9 +336,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "Global Connectivity... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
+  boost::shared_ptr< MeshPartitioner > partitioner_ptr = boost::dynamic_pointer_cast<MeshPartitioner>(build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner"));
   MeshPartitioner& p = *partitioner_ptr;
-  p.configure_option("graph_package", std::string("PHG"));
+  p.options().configure_option("graph_package", std::string("PHG"));
   p.initialize(mesh);
   p.partition_graph();
   //p.show_changes();
@@ -452,7 +381,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   /// @todo debug
-  const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
+  const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
 
   std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
 
@@ -477,7 +406,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       elems.clear();
 
 
-  FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
+  FaceCellConnectivity& face2cell = *mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
 //  std::cout << PERank << "nb_faces = " << face2cell.size() << std::endl;
@@ -500,11 +429,11 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   std::map<Uint,Uint>::iterator glb_elem_not_found = glb_elem_2_loc_elem.end();
   for (Uint e=0; e<mesh.elements().size(); ++e)
   {
-    Component::Ptr comp;
+    Handle< Component > comp;
     Uint idx;
 
     boost::tie(comp,idx) = mesh.elements().location(e);
-    if ( Elements::Ptr elements = comp->as_ptr<Elements>() )
+    if ( Handle< Elements > elements = comp->as_ptr<Elements>() )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
       {
@@ -544,7 +473,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     }
     boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
     {
-      boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
+      boost_foreach (Connectivity::Row face_nodes, faces.geometry_space().connectivity().array())
       {
         boost_foreach(const Uint node, face_nodes)
         {
@@ -573,7 +502,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   boost_foreach(const Uint n, bdry_nodes)
     send_nodes.push_back(n);
   std::vector<std::vector<Uint> > recv_nodes;
-  my_all_gather(send_nodes,recv_nodes);
+  PE::Comm::instance().all_gather(send_nodes,recv_nodes);
 
 
 
@@ -639,7 +568,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
+    if (Handle< Elements > elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
     {
       Elements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
@@ -656,14 +585,14 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
           elements_to_send[to_proc] << elements.glb_idx()[elem_idx]
                                     << elements.rank()[elem_idx];
 
-          boost_foreach(const Uint connected_node, elements.node_connectivity()[elem_idx])
+          boost_foreach(const Uint connected_node, elements.geometry_space().connectivity()[elem_idx])
               elements_to_send[to_proc] << nodes.glb_idx()[connected_node];
 
         }
       }
 
       // Communicate
-      my_all_to_all(elements_to_send,elements_to_recv);
+      Comm::instance().all_to_all(elements_to_send,elements_to_recv);
 
       // Save old_size
       old_elem_size[comp_idx] = elements.size();
@@ -696,7 +625,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       std::set<Uint>::iterator not_found = bdry_nodes.end();
       for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
       {
-        boost_foreach(const Uint connected_glb_node, elements.node_connectivity()[e])
+        boost_foreach(const Uint connected_glb_node, elements.geometry_space().connectivity()[e])
         {
           if ( glb_node_2_loc_node.find(connected_glb_node) == glb_node_not_found)
             new_ghost_nodes.insert(connected_glb_node);
@@ -735,7 +664,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       request_nodes.push_back(n);
 
     std::vector<std::vector<Uint> > recv_request_nodes;
-    my_all_gather(request_nodes,recv_request_nodes);
+    PE::Comm::instance().all_gather(request_nodes,recv_request_nodes);
 
 
     PackUnpackNodes copy_node(nodes);
@@ -802,13 +731,13 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     BOOST_CHECK(true);
     for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
     {
-      if (Elements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
+      if (Handle< Elements > elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
       {
         Elements& elements = *elements_ptr;
 
         for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
         {
-          Connectivity::Row connected_nodes = elements.node_connectivity()[e];
+          Connectivity::Row connected_nodes = elements.geometry_space().connectivity()[e];
 
           boost_foreach ( Uint& node, connected_nodes )
           {
@@ -852,27 +781,28 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
-    Entities& elements = mesh_elements[comp_idx].lock()->as_type<Entities>();
-    Space& space = glb_elem.space(elements);
+    Handle<Entities> elements_handle(mesh_elements[comp_idx]);
+    Entities& elements = *elements_handle;
+    const Space& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
-      Uint field_idx = space.indexes_for_element(elem)[0];
+      Uint field_idx = space.connectivity()[elem][0];
       glb_elem[field_idx][0] = 1.;
       elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }
 BOOST_CHECK(true);
 
-  std::vector<Field::Ptr> fields_to_output;
+  std::vector<Handle< Field > > fields_to_output;
 //  fields_to_output.push_back(glb_node.as_ptr<Field>());
 //  fields_to_output.push_back(glb_elem.as_ptr<Field>());
-  fields_to_output.push_back(elem_rank.as_ptr<Field>());
+  fields_to_output.push_back(Handle<Field>(elem_rank.handle<Component>()));
 BOOST_CHECK(true);
   tec_writer->set_fields(fields_to_output);
   tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);

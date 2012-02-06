@@ -19,25 +19,25 @@ class LinearSolver;
 class SUPGCoeffs;
 
 /// Parabolic velocity profile as boundary condition
-solver::actions::Proto::Expression::Ptr parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
+boost::shared_ptr< solver::actions::Proto::Expression > parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
 
 /// Parabolic velocity profile as initial condition
-solver::actions::Proto::Expression::Ptr parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
+boost::shared_ptr< solver::actions::Proto::Expression > parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
 
 /// Assembly for the Stokes equations, stabilized with artificial dissipation
-solver::actions::Proto::Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Stokes equations, stabilized with PSPG
-solver::actions::Proto::Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Navier-Stokes equations, stabilized with PSPG
-solver::actions::Proto::Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Navier-Stokes equations, stabilized with SUPG
-solver::actions::Proto::Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Navier-Stokes equations, stabilized with SUPG and bulk viscosity
-solver::actions::Proto::Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
 
 }

@@ -27,8 +27,8 @@ class GooglePerfTools_API GooglePerfProfiling : public common::CodeProfiler
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<GooglePerfProfiling> Ptr;
-  typedef boost::shared_ptr<GooglePerfProfiling const> ConstPtr;
+  
+  
 
 public: // functions
 

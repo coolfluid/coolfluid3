@@ -19,6 +19,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -33,7 +34,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -202,9 +203,9 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    options().add_option< OptionT<bool> >("distributed_files", false)
-    ->pretty_name("Distributed Files")
-    ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
+    options().add_option("distributed_files", false)
+    .pretty_name("Distributed Files")
+    .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -222,9 +223,9 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
-  boost::filesystem::path my_path(file_path.path());
-  const boost::filesystem::path my_dir = my_path.parent_path();
-  const std::string basename = boost::filesystem::basename(my_path);
+  URI my_path(file_path.path());
+  const URI my_dir = my_path.base_path();
+  const std::string basename = my_path.base_name();
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
@@ -299,7 +300,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const Connectivity& conn_table = elements.node_connectivity();
+      const Connectivity& conn_table = elements.geometry_space().connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {
@@ -361,26 +362,26 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
   std::set<std::string> added_fields;
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    const Field& field = *field_ptr.lock();
+    const Field& field = *field_ptr;
 
     if(!added_fields.insert(field.uri().string()).second)
       continue;
 
     // point-based field
-    if(!(field.basis() == SpaceFields::Basis::POINT_BASED || field.basis() == cf3::mesh::SpaceFields::Basis::ELEMENT_BASED))
+    if(!(field.basis() == Dictionary::Basis::POINT_BASED || field.basis() == cf3::mesh::Dictionary::Basis::ELEMENT_BASED))
       continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = SpaceFields::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
+      const Uint field_size = Dictionary::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
 
-      XmlNode data_array = SpaceFields::Basis::POINT_BASED == field.basis()
+      XmlNode data_array = Dictionary::Basis::POINT_BASED == field.basis()
         ? point_data.add_node("DataArray")
         : cell_data.add_node("DataArray");
 
@@ -392,7 +393,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::mesh::SpaceFields::Basis::POINT_BASED)
+      if(field.basis() == cf3::mesh::Dictionary::Basis::POINT_BASED)
       {
         if(dim == 2 && var_size == 2)
         {
@@ -416,18 +417,18 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
         {
-          const Uint elements_begin = field.field_group().space(elements).elements_begin();
+          const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
             const Uint n_elems = elements.size();
-            const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
             if(dim == 2 && var_size == 2)
             {
               for(Uint i = 0; i != n_elems; ++i)
               {
                 for(Uint j = var_begin; j != var_end; ++j)
                 {
-                  appended_data.push_back(field[i+elements_begin][j]);
+                  /// @bug the field values of the space should be interpolated to the cell-centre, similar to the tecplot writer
+                  appended_data.push_back(field[field_connectivity[i][0]][j]);
                 }
                 appended_data.push_back(0.);
               }
@@ -437,7 +438,10 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
               for(Uint i = 0; i != n_elems; ++i)
               {
                 for(Uint j = var_begin; j != var_end; ++j)
-                  appended_data.push_back(field[i+elements_begin][j]);
+                {
+                  /// @bug the field values of the space should be interpolated to the cell-centre, similar to the tecplot writer
+                  appended_data.push_back(field[field_connectivity[i][0]][j]);
+                }
               }
             }
           }
@@ -449,7 +453,8 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
   // Write to file, inserting the binary data at the end
-  boost::filesystem::fstream fout(my_path, std::ios_base::out | std::ios_base::binary);
+  std::cout << "writing file " << my_path.path() << std::endl;
+  boost::filesystem::fstream fout(my_path.path(), std::ios_base::out | std::ios_base::binary);
 
   // Remove the closing tag
   std::string xml_string;
@@ -468,9 +473,9 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(PE::Comm::instance().rank() == 0 || option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || options().option("distributed_files").value<bool>())
   {
-    boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
+    URI pvtu_path = my_dir / (basename + ".pvtu");
 
     XmlDoc pvtu_doc("1.0", "ISO-8859-1");
 

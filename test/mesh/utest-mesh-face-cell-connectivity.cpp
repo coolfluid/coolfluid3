@@ -11,6 +11,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 
@@ -18,7 +19,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
@@ -54,10 +55,10 @@ struct FaceCellConnectivity_Fixture //: public Testing::TimedTestFixture
 
 
   /// common values accessed by all tests goes here
-  static Mesh::Ptr m_mesh;
+  static Handle< Mesh > m_mesh;
 };
 
-Mesh::Ptr FaceCellConnectivity_Fixture::m_mesh;
+Handle< Mesh > FaceCellConnectivity_Fixture::m_mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( FaceCellConnectivity_TestSuite, FaceCellConnectivity_Fixture )
@@ -66,7 +67,7 @@ BOOST_FIXTURE_TEST_SUITE( FaceCellConnectivity_TestSuite, FaceCellConnectivity_F
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  FaceCellConnectivity::Ptr c = allocate_component<FaceCellConnectivity>("faces_to_cells");
+  boost::shared_ptr<FaceCellConnectivity> c = allocate_component<FaceCellConnectivity>("faces_to_cells");
   BOOST_CHECK_EQUAL(c->name(),"faces_to_cells");
   BOOST_CHECK_EQUAL(FaceCellConnectivity::type_name(), "FaceCellConnectivity");
 }
@@ -77,18 +78,18 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 {
 
  // create meshreader
- // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+ // boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
  // boost::filesystem::path fp_source ("quadtriag.neu");
  // m_mesh = meshreader->create_mesh_from(fp_source);
 
-  m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+  m_mesh = Core::instance().root().create_component<Mesh>("mesh");
   Uint scale = 2;
   std::vector<Real> lengths  = list_of(4.)(2.);
   std::vector<Uint> nb_cells = list_of(scale*2u)(scale*2u);
-  SimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
-  mesh_gen.configure_option("mesh",m_mesh->uri());
-  mesh_gen.configure_option("lengths",lengths);
-  mesh_gen.configure_option("nb_cells",nb_cells);
+  SimpleMeshGenerator& mesh_gen = *Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
+  mesh_gen.options().configure_option("mesh",m_mesh->uri());
+  mesh_gen.options().configure_option("lengths",lengths);
+  mesh_gen.options().configure_option("nb_cells",nb_cells);
   mesh_gen.execute();
   BOOST_CHECK(true);
 }
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
 {
 
   // create and setup node to elements connectivity
-  FaceCellConnectivity::Ptr c = m_mesh->create_component_ptr<FaceCellConnectivity>("face_cell_connectivity");
+  Handle<FaceCellConnectivity> c = m_mesh->create_component<FaceCellConnectivity>("face_cell_connectivity");
   c->setup( find_component<Region>(*m_mesh) );
 
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);

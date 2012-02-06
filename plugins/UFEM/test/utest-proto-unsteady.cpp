@@ -9,15 +9,22 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define BOOST_PROTO_MAX_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#endif
+
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
 #include "mesh/Domain.hpp"
+#include "mesh/MeshGenerator.hpp"
 
-#include "solver/CModelUnsteady.hpp"
-#include "solver/CTime.hpp"
+#include "solver/ModelUnsteady.hpp"
+#include "solver/Time.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -25,6 +32,8 @@
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/Tags.hpp"
 #include "UFEM/TimeLoop.hpp"
+#include "solver/actions/ZeroLSS.hpp"
+#include "solver/actions/SolveLSS.hpp"
 
 
 using namespace cf3;
@@ -132,17 +141,17 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 {
   // debug output
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Setup a model
-  CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
+  ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
+  UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
-  lss.configure_option("solver", std::string("Trilinos"));
-  solver.configure_option("lss", lss.uri());
+  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
+  lss.options().configure_option("solver", std::string("Trilinos"));
+  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
@@ -151,24 +160,27 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
+  // BCs
+  boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
+
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action("Initialize", nodes_expression(temperature = initial_temp))
     << create_proto_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp))
     <<
     (
-      solver.create_component<UFEM::TimeLoop>("TimeLoop")
-      << solver.zero_action()
+      allocate_component<UFEM::TimeLoop>("TimeLoop")
+      << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
       << create_proto_action
       (
         "Assembly",
         elements_expression
         (
           allowed_elements,
-          group <<
+          group
           (
             _A = _0, _T = _0,
-            element_quadrature <<
+            element_quadrature
             (
               _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
               _T(temperature) += solver.invdt() * transpose(N(temperature))*N(temperature)
@@ -178,8 +190,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
           )
         )
       )
-      << solver.boundary_conditions()
-      << solver.solve_action()
+      << bc
+      << allocate_component<solver::actions::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
     );
 
@@ -187,18 +199,23 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
-  
-  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
+  // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
+  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
+  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  Mesh& mesh = create_line->generate();
 
-  solver.boundary_conditions().add_constant_bc("xneg", "Temperature", ambient_temp);
-  solver.boundary_conditions().add_constant_bc("xpos", "Temperature", ambient_temp);
+  lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+
+  bc->add_constant_bc("xneg", "Temperature", ambient_temp);
+  bc->add_constant_bc("xpos", "Temperature", ambient_temp);
 
   // Configure timings
-  CTime& time = model.create_time();
-  time.configure_option("time_step", dt);
-  time.configure_option("end_time", end_time);
+  Time& time = model.create_time();
+  time.options().configure_option("time_step", dt);
+  time.options().configure_option("end_time", end_time);
 
   // Run the solver
   model.simulate();
@@ -212,6 +229,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     mesh.topology(),
     _check_close(temperature_analytical, temperature, 1.)
   );
+
+  std::cout << solver.tree() << std::endl;
 };
 
 BOOST_AUTO_TEST_SUITE_END()

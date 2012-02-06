@@ -6,11 +6,12 @@
 
 // coolfluid
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 #include "mesh/ptscotch/Partitioner.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -160,7 +161,7 @@ void Partitioner::partition_graph()
 
   //PECheckPoint(1,"  begin SCOTCH_dgraphPart()");
   if (SCOTCH_dgraphPart(&graph,
-                       option("nb_parts").value<Uint>(),
+                       options().option("nb_parts").value<Uint>(),
                        &stradat,
                        &partloctab[0]))
     throw BadValue (FromHere(), "Could not partition PT-scotch graph");

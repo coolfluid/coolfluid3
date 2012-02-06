@@ -7,10 +7,8 @@
 #ifndef cf3_common_BoostFilesystem_hpp
 #define cf3_common_BoostFilesystem_hpp
 
-/// @deprecated upgrade the code to filesystem3 because filesystem2 is deprecated
-
 // define the correct boost filesystem version
-#define BOOST_FILESYSTEM_VERSION 2
+#define BOOST_FILESYSTEM_VERSION 3
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/exception.hpp>

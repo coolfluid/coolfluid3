@@ -38,8 +38,8 @@ namespace cf3 {
 
   public:
 
-    typedef boost::shared_ptr<LibPython> Ptr;
-    typedef boost::shared_ptr<LibPython const> ConstPtr;
+    
+    
 
     /// Constructor
     LibPython ( const std::string& name) : common::Library(name) {   }

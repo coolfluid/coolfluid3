@@ -1,0 +1,86 @@
+namespace cf3{
+/**
+@page python_scripting Python scripting
+
+@section introduction Introduction
+The python scripting interface provides interaction with the component environment through python scripts, ran either in
+stand-alone mode or through the GUI. It provides access to the component tree and the signals, options and properties,
+as well as some explicitely exposed methods from the C++ interface.
+
+@section requirements Requirements
+Python scripting support requires at least Boost.Python 1.45.1 and Python 2.6.
+
+@section example An example script
+We dive right in, taking an example from the UFEM atests. This script sets up a solver for stready heat conduction, taking the input mesh as an argument
+from the command line.
+@code
+import sys
+import coolfluid as cf
+
+# Global configuration
+cf.Core.environment().options().configure_option('log_level', 4)
+
+# setup a model
+model = cf.Core.root().create_component('HotModel', 'cf3.solver.CModel')
+model.setup(solver_builder = 'cf3.UFEM.HeatConductionSteady', physics_builder = 'cf3.physics.DynamicModel')
+solver = model.get_child('HeatConductionSteady')
+domain = model.get_child('Domain')
+
+# load the mesh (passed as first argument to the script)
+domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
+
+# lss setup
+lss = model.create_component('LSS', 'cf3.math.LSS.System')
+lss.options().configure_option('solver', 'Trilinos');
+solver.options().configure_option('lss', lss)
+lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2]);
+
+# Boundary conditions
+bc = solver.get_child('BoundaryConditions')
+bc.add_constant_bc(region_name = 'inner', variable_name = 'Temperature').options().configure_option('value', 10)
+bc.add_constant_bc(region_name = 'outer', variable_name = 'Temperature').options().configure_option('value', 35)
+
+# run the simulation
+model.simulate()
+
+# Write result
+domain.write_mesh(cf.URI('atest-ufem-heat2d-disk.pvtu'))
+@endcode
+
+Let's step through the code. First, the import lines load the necessary modules. We load 'sys' here because we need access to command line arguments.
+Coolfluid is loaded as cf, to shorten the name and guard against any future changes in module naming. Note that both the coolfluid python library and
+the coolfluid.py wrapper script need to be in your PYTHONPATH environment variable. If you are working from a  custom build tree, you need to add the
+dso dir to PYTHONPATH.
+
+Next, the global environment is accessed through cf.Core.environment(), which returns a component. Calling options() returns the list of options, and configure_option
+is then used here to set the debug level.
+
+A generic solver model is now built directly under root (obtained with cf.Core.root()) using the cf3.solver.CModel builder. We then call the setup signal,
+passing builders for the solver and physics. Note that when calling signals with more than one argument, keywords must be provided to distinguish the
+signal parameters. On-line help can be obtained using 'help model.setup' from the python command line, which will list the valid keywords. Finally, we
+use the get_child method to obtain the solver and domain for further use.
+
+Next, boundary conditions are added using the BoundaryConditions component that is a child of solver. We chain together a call to the add_constant_bc signal
+followed with a configuration of the boundary condition value. Each new boundary condition is a component, so values can easily be altered later on.
+
+The last two steps call the signals to run the simulation and write the result to disk.
+
+@section implementation_details Implementation details
+This section covers some implementation details, mainly useful to component developers who want to expose functionality to python.
+
+@subsection signal_handling Signal handling
+Signals are wrapped automatically to member functions in python by querying the component signals at run time. One issue to keep in mind is that
+when you have a signal that creates a component, very often the user will need access to that component right away, for example to configure an option. The
+add_constant_bc signal in the example above demonstrates this. So how do we get a signal to return a component?
+
+The answer lies in the creation of a reply to the signal. Signal replies that contain an OptionURI named "created_component" are processed by the coolfluid python library
+to return the component referred to in the URI. It is the responsability of the component and signal authors to add the required code to the signal function in C++,
+if so desired. An example of the code that typically needs to be added:
+@code
+SignalFrame reply = args.create_reply(uri());
+SignalOptions reply_options(reply);
+reply_options.add_option("created_component", result->uri());
+@endcode
+Here, 'args' is the SignalArgs parameter for the signal, and 'result' is a handle to the newly created component.
+*/
+}

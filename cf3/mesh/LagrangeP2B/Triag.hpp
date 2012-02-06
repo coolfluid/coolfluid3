@@ -19,6 +19,7 @@ namespace LagrangeP2B {
 struct Mesh_LagrangeP2B_API Triag_traits
 {
   enum { nb_nodes       = 7               };
+  enum { nb_faces       = 3               };
   enum { dimensionality = 2               };
   enum { order          = 2               };
   enum { shape          = GeoShape::TRIAG };

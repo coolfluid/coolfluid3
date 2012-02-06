@@ -18,7 +18,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class SpaceFields;
+  class Dictionary;
   
 
   class Elements;
@@ -34,8 +34,8 @@ class Mesh_API Region : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Region> Ptr;
-  typedef boost::shared_ptr<Region const> ConstPtr;
+  
+  
 
   typedef common::ComponentIteratorRange<Entities const> ConstElementsRange;
   typedef common::ComponentIteratorRange<Entities>       ElementsRange;
@@ -62,13 +62,15 @@ public: // functions
   /// Set to refer to the supplied nodes
   /// @param element_type_name type of the elements
   /// @param nodes  location of the nodes the elements are linked with
-  Elements& create_elements (const std::string& element_type_name, SpaceFields& geometry);
-
-  /// Create a Elements with nodes unset
-  Elements& create_elements (const std::string& element_type_name);
+  Elements& create_elements (const std::string& element_type_name, Dictionary& geometry);
 
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
+
+  /// @return the number of elements stored in this region, including any subregions
+  ///         summed over all processors
+  /// @todo remove ghost nodes from the count
+  Uint global_elements_count() const;
 
   /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>
@@ -89,7 +91,7 @@ public: // functions
   Elements& elements (const std::string& element_type_name);
 
   /// @return nodes of the mesh
-  SpaceFields& geometry_fields() const;
+  Dictionary& geometry_fields() const;
 
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const Elements& elements, region.elements_range() )

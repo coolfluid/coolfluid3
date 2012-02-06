@@ -20,7 +20,7 @@ namespace common {
 namespace mesh {
 
   class ElementType;
-  class SpaceFields;
+  class Dictionary;
   class Region;
   class Cells;
   typedef common::Table<Entity> ElementConnectivity;
@@ -35,8 +35,8 @@ class Mesh_API FaceCellConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<FaceCellConnectivity> Ptr;
-  typedef boost::shared_ptr<FaceCellConnectivity const> ConstPtr;
+  
+  
 
   /// Contructor
   /// @param name of the component
@@ -82,9 +82,9 @@ public:
 
   std::vector<Uint> face_nodes(const Uint face) const;
 
-  std::vector<Component::Ptr> used();
+  std::vector<Handle< Component > > used();
 
-  void add_used (const Component& used_comp);
+  void add_used (Component& used_comp);
 
 private: // data
 
@@ -92,15 +92,15 @@ private: // data
   Uint m_nb_faces;
 
   /// unified view of the elements
-  boost::shared_ptr<common::Group> m_used_components;
+  Handle<common::Group> m_used_components;
 
   /// Actual connectivity table
-  boost::shared_ptr<ElementConnectivity> m_connectivity;
+  Handle<ElementConnectivity> m_connectivity;
 
-  boost::shared_ptr<common::Table<Uint> > m_face_nb_in_elem;
+  Handle<common::Table<Uint> > m_face_nb_in_elem;
 
   // @todo make a common::List<bool> (some bug prevents using common::List<bool>::Buffer with common::List<bool> )
-  boost::shared_ptr<common::List<bool> > m_is_bdry_face;
+  Handle<common::List<bool> > m_is_bdry_face;
 
   bool m_face_building_algorithm;
 

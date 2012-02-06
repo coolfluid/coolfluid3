@@ -40,7 +40,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Line2D::faces()
 
 const cf3::mesh::ElementType& Line2D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
+  static const boost::shared_ptr< ElementType > facetype( common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
   return *facetype;
 }
 
@@ -49,6 +49,13 @@ const cf3::mesh::ElementType& Line2D::face_type(const cf3::Uint face)
 Real Line2D::volume(const NodesT& nodes)
 {
   return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
+{
+  centroid = nodes.row(2);  // The middle point of a P2 line
 }
 
 ////////////////////////////////////////////////////////////////////////////////

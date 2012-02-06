@@ -9,6 +9,8 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
@@ -37,21 +39,22 @@ InitFieldConstant::InitFieldConstant( const std::string& name )
   m_constant(0.)
 {
 
-  m_properties["brief"] = std::string("Initialize a field with a constant value");
+  properties()["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
   desc = "  Usage: InitFieldConstant constant \n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
-  options().add_option(OptionComponent<Field>::create("field", &m_field))
-      ->description("Field to initialize")
-      ->pretty_name("Field")
-      ->mark_basic();
+  options().add_option("field", m_field)
+      .description("Field to initialize")
+      .pretty_name("Field")
+      .link_to(&m_field)
+      .mark_basic();
 
-  options().add_option< OptionT<Real> > ("constant", m_constant)
-      ->description("Constant applied as initial field")
-      ->pretty_name("Constant")
-      ->link_to( &m_constant )
-      ->mark_basic();
+  options().add_option("constant", m_constant)
+      .description("Constant applied as initial field")
+      .pretty_name("Constant")
+      .link_to( &m_constant )
+      .mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -73,10 +76,10 @@ std::string InitFieldConstant::help() const
 
 void InitFieldConstant::execute()
 {
-  if (m_field.expired())
+  if (is_null(m_field))
     throw SetupError(FromHere(), "option [field] was not set in ["+uri().path()+"]");
 
-  Field& field = *m_field.lock();
+  Field& field = *m_field;
   for (Uint i=0; i<field.size(); ++i)
     for (Uint j=0; j<field.row_size(); ++j)
       field[i][j] = m_constant;

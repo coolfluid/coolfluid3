@@ -28,8 +28,8 @@ class mesh_actions_API GlobalConnectivity : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<GlobalConnectivity> Ptr;
-    typedef boost::shared_ptr<GlobalConnectivity const> ConstPtr;
+    
+    
 
 public: // functions
   

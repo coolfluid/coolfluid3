@@ -77,11 +77,11 @@ int main(int argc, char * argv[])
 
   if (vm.count("opencl"))
   {
-    boost::timer ctimer;
+    boost::timer Timer;
 
     //mat_mul(h_A, h_B, h_C, 5 );
 
-    printf("[opencl] time: %6.3f seconds\n", ctimer.elapsed() );
+    printf("[opencl] time: %6.3f seconds\n", Timer.elapsed() );
   }
 
 

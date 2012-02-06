@@ -9,6 +9,7 @@
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Builder.hpp"
@@ -19,7 +20,7 @@
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
@@ -44,8 +45,8 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
 
-  options().add_option<OptionT<bool> >("cell_centred",false)
-    ->description("True if discontinuous fields are to be plotted as cell-centred fields");
+  options().add_option("cell_centred",true)
+    .description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -61,9 +62,6 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-
-  m_mesh = mesh.as_ptr<Mesh>().get();
-
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
@@ -80,7 +78,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
 
-  write_file(file);
+  write_file(file, mesh);
 
 
   file.close();
@@ -88,12 +86,12 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_file(std::fstream& file)
+void Writer::write_file(std::fstream& file, const Mesh& mesh)
 {
   file << "TITLE      = COOLFluiD Mesh Data" << "\n";
   file << "VARIABLES  = ";
 
-  Uint dimension = m_mesh->geometry_fields().coordinates().row_size();
+  Uint dimension = mesh.geometry_fields().coordinates().row_size();
   // write the coordinate variable names
   for (Uint i = 0; i < dimension ; ++i)
   {
@@ -102,9 +100,9 @@ void Writer::write_file(std::fstream& file)
 
   std::vector<Uint> cell_centered_var_ids;
   Uint zone_var_id(dimension);
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    Field& field = *field_ptr.lock();
+    Field& field = *field_ptr;
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
       Field::VarType var_type = field.var_length(iVar);
@@ -116,7 +114,7 @@ void Writer::write_file(std::fstream& file)
         {
           file << " \"" << var_name << "["<<i<<"]\"";
           ++zone_var_id;
-          if (field.basis() != SpaceFields::Basis::POINT_BASED)
+          if (field.basis() != Dictionary::Basis::POINT_BASED)
             cell_centered_var_ids.push_back(zone_var_id);
         }
       }
@@ -124,7 +122,7 @@ void Writer::write_file(std::fstream& file)
       {
         file << " \"" << var_name <<"\"";
         ++zone_var_id;
-        if (field.basis() != SpaceFields::Basis::POINT_BASED)
+        if (field.basis() != Dictionary::Basis::POINT_BASED)
           cell_centered_var_ids.push_back(zone_var_id);
       }
     }
@@ -134,9 +132,9 @@ void Writer::write_file(std::fstream& file)
 
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  std::map<Component::ConstPtr,Uint> zone_id;
+  std::map<Handle<Component const>,Uint> zone_id;
   Uint zone_idx=0;
-  boost_foreach (const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach (const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
   {
     const ElementType& etype = elements.element_type();
     if (etype.shape() == GeoShape::POINT)
@@ -146,9 +144,15 @@ void Writer::write_file(std::fstream& file)
     if (elements.size() == 0)
       continue;
 
-    zone_id[elements.self()] = zone_idx++;
+    if (etype.order() != 1)
+    {
+      throw NotImplemented(FromHere(), "Tecplot can only output P1 elements. A new P1 space should be created, and used as geometry space");
+    }
 
-    common::List<Uint>& used_nodes = Entities::used_nodes(*elements.as_non_const(),true); // VERY DIRTY HACK to remove constness!!!
+    zone_id[elements.handle<Component>()] = zone_idx++;
+
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements,mesh::Tags::geometry());
+    common::List<Uint>& used_nodes = *used_nodes_ptr;
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
       zone_node_idx[ used_nodes[n] ] = n+1;
@@ -165,7 +169,7 @@ void Writer::write_file(std::fstream& file)
          << ", E=" << elements.size()
          << ", DATAPACKING=BLOCK"
          << ", ZONETYPE=" << zone_type(etype);
-    if (cell_centered_var_ids.size() && option("cell_centred").value<bool>())
+    if (cell_centered_var_ids.size() && options().option("cell_centred").value<bool>())
     {
       file << ",VARLOCATION=(["<<cell_centered_var_ids[0];
       for (Uint i=1; i<cell_centered_var_ids.size(); ++i)
@@ -184,7 +188,7 @@ void Writer::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
+    const common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment
@@ -198,9 +202,9 @@ void Writer::write_file(std::fstream& file)
     file << "\n";
 
 
-    boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+    boost_foreach(Handle<Field> field_ptr, m_fields)
     {
-      Field& field = *field_ptr.lock();
+      Field& field = *field_ptr;
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
@@ -210,9 +214,9 @@ void Writer::write_file(std::fstream& file)
 
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          if (field.basis() == SpaceFields::Basis::POINT_BASED)
+          if (field.basis() == Dictionary::Basis::POINT_BASED)
           {
-            if ( &field.field_group() == &m_mesh->geometry_fields() )
+            if ( &field.dict() == &mesh.geometry_fields() )
             {
               boost_foreach(Uint n, used_nodes.array())
               {
@@ -223,14 +227,14 @@ void Writer::write_file(std::fstream& file)
             }
             else
             {
-              if (field.elements_lookup().contains(elements))
+              if (field.dict().defined_for_entities(elements.handle<Entities>()) )
               {
-                Space& field_space = field.space(elements);
-                RealVector field_data (field_space.nb_states());
+                const Space& field_space = field.space(elements);
+                RealVector field_data (field_space.shape_function().nb_nodes());
 
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
 
-                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                RealMatrix interpolation(elements.geometry_space().shape_function().nb_nodes(),field_space.shape_function().nb_nodes());
                 const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
                 const ShapeFunction& sf = field_space.shape_function();
                 for (Uint g=0; g<interpolation.rows(); ++g)
@@ -240,10 +244,10 @@ void Writer::write_file(std::fstream& file)
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
 
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
@@ -251,7 +255,7 @@ void Writer::write_file(std::fstream& file)
                   /// evaluate field shape function in P0 space
                   RealVector geometry_field_data = interpolation*field_data;
 
-                  Connectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  Connectivity::ConstRow geom_nodes = elements.geometry_space().connectivity()[e];
                   cf3_assert(geometry_field_data.size()==geom_nodes.size());
                   /// Average nodal values
                   for (Uint g=0; g<geom_nodes.size(); ++g)
@@ -274,20 +278,20 @@ void Writer::write_file(std::fstream& file)
           }
           else // element based
           {
-            if (field.elements_lookup().contains(elements))
+            if (field.dict().defined_for_entities(elements.handle<Entities>()))
             {
-              Space& field_space = field.space(elements);
-              RealVector field_data (field_space.nb_states());
+              const Space& field_space = field.space(elements);
+              RealVector field_data (field_space.shape_function().nb_nodes());
 
-              if (option("cell_centred").value<bool>())
+              if (options().option("cell_centred").value<bool>())
               {
-                ShapeFunction::Ptr P0_cell_centred = build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+                boost::shared_ptr< ShapeFunction > P0_cell_centred = boost::dynamic_pointer_cast<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
@@ -309,7 +313,7 @@ void Writer::write_file(std::fstream& file)
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
                 std::vector<Uint> nodal_data_count(used_nodes.size(),0u);
 
-                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                RealMatrix interpolation(elements.geometry_space().shape_function().nb_nodes(),field_space.shape_function().nb_nodes());
                 const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
                 const ShapeFunction& sf = field_space.shape_function();
                 for (Uint g=0; g<interpolation.rows(); ++g)
@@ -319,10 +323,10 @@ void Writer::write_file(std::fstream& file)
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {
-                  Connectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  Connectivity::ConstRow field_index = field_space.connectivity()[e];
 
                   /// set field data
-                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  for (Uint iState=0; iState<field_space.shape_function().nb_nodes(); ++iState)
                   {
                     field_data[iState] = field[field_index[iState]][var_idx];
                   }
@@ -330,7 +334,7 @@ void Writer::write_file(std::fstream& file)
                   /// evaluate field shape function in P0 space
                   RealVector geometry_field_data = interpolation*field_data;
 
-                  Connectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  Connectivity::ConstRow geom_nodes = elements.geometry_space().connectivity()[e];
                   cf3_assert(geometry_field_data.size()==geom_nodes.size());
                   /// Average nodal values
                   for (Uint g=0; g<geom_nodes.size(); ++g)
@@ -357,7 +361,7 @@ void Writer::write_file(std::fstream& file)
             else
             {
               // field not defined for this zone, so write zeros
-              if (option("cell_centred").value<bool>())
+              if (options().option("cell_centred").value<bool>())
                 file << elements.size() << "*" << 0.;
               else
                 file << used_nodes.size() << "*" << 0.;
@@ -371,7 +375,7 @@ void Writer::write_file(std::fstream& file)
 
     file << "\n### connectivity\n\n";
     // write connectivity
-    boost_foreach( Connectivity::ConstRow e_nodes, elements.node_connectivity().array() )
+    boost_foreach( Connectivity::ConstRow e_nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach ( Uint n, e_nodes)
       {

@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
@@ -19,19 +22,19 @@ using namespace solver::actions::Proto;
 
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
-Expression::Ptr parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
+boost::shared_ptr<Expression> parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   return nodes_expression(solver.dirichlet(u) = coordinates[1] * (height - coordinates[1]) * u_ref);
 }
 
-Expression::Ptr parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
+boost::shared_ptr<Expression> parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   return nodes_expression(u = coordinates[1] * (height - coordinates[1]) * u_ref);
 }
 
-Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -43,10 +46,10 @@ Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) += transpose(N(p)) * nabla(u)[_i],
         _A(p    , p)     += epsilon * transpose(nabla(p))*nabla(p),
@@ -60,7 +63,7 @@ Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs
   );
 }
 
-Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -72,11 +75,11 @@ Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i], // Continuity, standard
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -91,7 +94,7 @@ Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
   );
 }
 
-Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -103,11 +106,11 @@ Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -122,7 +125,7 @@ Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   );
 }
 
-Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -134,11 +137,11 @@ Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
@@ -153,7 +156,7 @@ Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   );
 }
 
-Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
     // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -165,11 +168,11 @@ Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   return elements_expression
   (
     AllowedElmsT(),
-    group <<
+    group
     (
       _A = _0, _T = _0,
       compute_tau(u, coefs),
-      element_quadrature <<
+      element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG

@@ -53,7 +53,7 @@ CommPattern::CommPattern(const std::string& name): Component(name), m_gid(alloca
   m_recvCount(PE::Comm::instance().size(),0),
   m_recvMap(0)
 {
-  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" ).connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
   m_isUpToDate=false;
   m_isFreeze=false;
 }
@@ -69,7 +69,7 @@ CommPattern::~CommPattern()
 // Commpattern handling
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
+void CommPattern::setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank)
 {
 //PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
@@ -87,7 +87,6 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
   if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
-  if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
@@ -121,7 +120,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
+void CommPattern::setup(const Handle<CommWrapper>& gid, boost::multi_array<Uint,1>& rank)
 {
 //PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
@@ -139,7 +138,6 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
   if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
-  if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
@@ -560,8 +558,8 @@ void CommPattern::setup()
 
 void CommPattern::synchronize_all()
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
   {
     synchronize_this(pobj,sndbuf,rcvbuf);
@@ -572,18 +570,18 @@ void CommPattern::synchronize_all()
 
 void CommPattern::synchronize( const std::string& name )
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
-  CommWrapper& pobj = get_child(name).as_type<CommWrapper>();
-  synchronize_this(pobj,sndbuf,rcvbuf);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
+  Handle<CommWrapper> pobj(get_child(name));
+  synchronize_this(*pobj,sndbuf,rcvbuf);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CommPattern::synchronize( const CommWrapper& pobj )
 {
-  std::vector<unsigned char> sndbuf(0);
-  std::vector<unsigned char> rcvbuf(0);
+  std::vector<unsigned char> sndbuf(1);
+  std::vector<unsigned char> rcvbuf(1);
   synchronize_this(pobj,sndbuf,rcvbuf);
 }
 

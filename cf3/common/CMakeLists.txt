@@ -20,6 +20,7 @@ list( APPEND coolfluid_common_files
     BoostAssertions.hpp
     BoostAssertions.cpp
     BoostArray.hpp
+    BoostArray.cpp
     Builder.hpp
     Builder.cpp
     BuildInfo.hpp
@@ -54,10 +55,9 @@ list( APPEND coolfluid_common_files
     Factories.cpp
     FindComponents.hpp
     Foreach.hpp
-    GroupActions.hpp
-    GroupActions.cpp
     Group.hpp
     Group.cpp
+    Handle.hpp
     IAction.hpp
     Journal.cpp
     Journal.hpp
@@ -103,6 +103,7 @@ list( APPEND coolfluid_common_files
     OptionT.cpp
     OptionList.cpp
     OptionList.hpp
+    OptionListDetail.hpp
     OptionURI.cpp
     OptionURI.hpp
     OptionComponent.hpp
@@ -137,6 +138,8 @@ list( APPEND coolfluid_common_files
     TypeInfo.hpp
     URI.hpp
     URI.cpp
+    UUCount.hpp
+    UUCount.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
 
@@ -255,7 +258,7 @@ coolfluid_mark_not_orphan(
 list( APPEND coolfluid_common_libs ${CF3_BOOST_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
-if( CF3_HAVE_RT )
+if( CF3_HAVE_REALTIME )
   list( APPEND coolfluid_common_libs ${RT_LIBRARIES})
 endif()
 

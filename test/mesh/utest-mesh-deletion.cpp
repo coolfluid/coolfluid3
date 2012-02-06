@@ -13,12 +13,13 @@
 #include "common/Environment.hpp"
 #include "common/EventHandler.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 
 #include "common/XML/SignalFrame.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -33,7 +34,7 @@ BOOST_AUTO_TEST_SUITE( MeshDeletion )
 BOOST_AUTO_TEST_CASE( DeleteMesh )
 {
   // debug output
-  Core::instance().environment().configure_option("log_level", 4u);
+  Core::instance().environment().options().configure_option("log_level", 4u);
 
   const Real length = 5.;
   const Real height = 2.;
@@ -43,26 +44,26 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   Component& root = Core::instance().root();
 
   // Setup a domain
-  Domain& domain = root.create_component<Domain>("Domain");
+  Domain& domain = *root.create_component<Domain>("Domain");
 
-  boost::weak_ptr<Mesh> mesh = domain.create_component_ptr<Mesh>("mesh_empty");
-  BOOST_CHECK(mesh.expired() == false);
+  Handle<Mesh> mesh = domain.create_component<Mesh>("mesh_empty");
+  BOOST_CHECK(is_null(mesh) == false);
 
   domain.remove_component("mesh_empty");
-  BOOST_CHECK(mesh.expired() == true);
+  BOOST_CHECK(is_null(mesh) == true);
 
 
-  mesh = domain.create_component_ptr<Mesh>("generated_rectangle");
-  Tools::MeshGeneration::create_rectangle(*mesh.lock(), length, height, x_segments, y_segments);
-  BOOST_CHECK(mesh.expired() == false);
+  mesh = domain.create_component<Mesh>("generated_rectangle");
+  Tools::MeshGeneration::create_rectangle(*mesh, length, height, x_segments, y_segments);
+  BOOST_CHECK(is_null(mesh) == false);
 
   domain.remove_component("generated_rectangle");
-  BOOST_CHECK(mesh.expired() == true);
+  BOOST_CHECK(is_null(mesh) == true);
 
-  if (mesh.expired())
+  if (is_null(mesh))
   {
     // Setup a new mesh
-    Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh2"), length, height, x_segments, y_segments);
+    Tools::MeshGeneration::create_rectangle(*domain.create_component<Mesh>("Mesh2"), length, height, x_segments, y_segments);
     domain.remove_component("Mesh2");
   }
 

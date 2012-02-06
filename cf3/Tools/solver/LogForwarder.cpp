@@ -30,7 +30,7 @@ namespace solver {
 
 LogForwarder::LogForwarder()
 {
-  m_manager = Core::instance().root().access_component_ptr_checked("//Tools/PEManager")->as_ptr<Manager>();
+  m_manager = Core::instance().root().access_component_checked("//Tools/PEManager")->handle<Manager>();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -42,8 +42,8 @@ void LogForwarder::message(const std::string &data)
   SignalOptions options(frame);
   std::string header = "Worker[" + to_str( Comm::instance().rank() ) + "] ";
 
-  options.add_option< OptionT<std::string> >("type", "Info");
-  options.add_option< OptionT<std::string> >("text", header + data);
+  options.add_option("type", "Info");
+  options.add_option("text", header + data);
 //  frame.set_option<std::string>("message", data);
 
   options.flush();

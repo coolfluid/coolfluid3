@@ -17,7 +17,7 @@ list( APPEND coolfluid_mesh_lagrangep2_files
   Triag2D.cpp
 )
 
-list( APPEND coolfluid_mesh_lagrangep2_cflibs coolfluid_mesh_lagrangep0 )
+list( APPEND coolfluid_mesh_lagrangep2_cflibs coolfluid_mesh_lagrangep1 )
 
 set( coolfluid_mesh_lagrangep2_kernellib TRUE )
 

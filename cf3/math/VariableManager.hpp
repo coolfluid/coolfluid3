@@ -25,11 +25,6 @@ class VariablesDescriptor;
 /// @author Tiago Quintino
 class Math_API VariableManager : public common::Component {
 
-public: //typedefs
-
-  typedef boost::shared_ptr<VariableManager> Ptr;
-  typedef boost::shared_ptr<VariableManager const> ConstPtr;
-
 public: // functions
 
   /// constructor

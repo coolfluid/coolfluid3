@@ -42,6 +42,23 @@ struct TableConstRow
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template<typename T, typename list_type>
+boost::multi_array<T,2> table_array(const Uint rows, const Uint cols, const list_type& vec)
+{
+  cf3_assert(vec.size() == rows*cols);
+  boost::multi_array<T,2> array(boost::extents[rows][cols]);
+  array.assign(vec.begin(),vec.end());
+  return array;
+}
+
+template<typename T, Uint ROWS, Uint COLS, typename list_type>
+boost::multi_array<T,2> table_array(const list_type& vec)
+{
+  return table_array<T>(ROWS,COLS,vec);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // common
 } // cf3
 

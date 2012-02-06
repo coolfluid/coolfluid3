@@ -45,9 +45,10 @@ public:
   // Information coming from Traits
   // ------------------------------
   static const GeoShape::Type shape          = (GeoShape::Type) TR::shape;
-  static const Uint           nb_nodes       = (Uint) TR::nb_nodes;
   static const Uint           dimensionality = (Uint) TR::dimensionality;
   static const Uint           order          = (Uint) TR::order;
+  static const Uint           nb_nodes       = (Uint) TR::nb_nodes;
+  static const Uint           nb_faces       = (Uint) TR::nb_faces;
 
   static std::string type_name() { return GeoShape::Convert::instance().to_str(shape); }
 
@@ -60,6 +61,7 @@ public:
   // Not-implemented static functions
   // --------------------------------
   static const RealMatrix& local_coordinates();
+  static const RealMatrix& face_normals();
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 
@@ -83,6 +85,9 @@ template <typename SF,typename TR>
 const Uint ShapeFunctionBase<SF,TR>::nb_nodes;
 
 template <typename SF,typename TR>
+const Uint ShapeFunctionBase<SF,TR>::nb_faces;
+
+template <typename SF,typename TR>
 const Uint ShapeFunctionBase<SF,TR>::dimensionality;
 
 template <typename SF,typename TR>
@@ -102,8 +107,18 @@ template <typename SF,typename TR>
 inline const RealMatrix& ShapeFunctionBase<SF,TR>::local_coordinates()
 {
   throw_not_implemented(FromHere());
-  const static RealMatrix real_matrix_obj;
-  return real_matrix_obj;
+  const static RealMatrix local_coords_obj;
+  return local_coords_obj;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename SF,typename TR>
+inline const RealMatrix& ShapeFunctionBase<SF,TR>::face_normals()
+{
+  throw_not_implemented(FromHere());
+  const static RealMatrix face_normal_obj;
+  return face_normal_obj;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

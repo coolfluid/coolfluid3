@@ -10,9 +10,8 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -32,7 +31,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -85,7 +84,7 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("rect");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("rect");
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
 
   RealVector center_coords(2);
@@ -114,7 +113,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
@@ -152,7 +151,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real circulation = 975.;
   const Real rho = 1.225;
 
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("circle");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
   typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
@@ -185,7 +184,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real circulation = 975.;
   const Real rho = 1.225;
 
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("circle");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
   mesh->geometry_fields().create_field( "Pressure", "Pressure" ).add_tag("solution");
@@ -249,7 +248,7 @@ MakeSFOp<CustomLaplacian>::type laplacian_cust = {};
 
 BOOST_AUTO_TEST_CASE( CustomOp )
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry_fields().create_field( "Temperature", "Temperature" ).add_tag("solution");
@@ -286,7 +285,7 @@ MakeSFOp<Counter>::type counter = {};
 /// Test a custom operator that modifies its arguments
 BOOST_AUTO_TEST_CASE( VoidOp )
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line2");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
 
   // Check if the counter really counts
@@ -302,7 +301,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry_fields().create_field("Temperature", "Temperature").add_tag("solution");
@@ -319,7 +318,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(result) = zero,
       element_quadrature( boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature) )
@@ -331,10 +330,10 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(result) = zero,
-      element_quadrature <<
+      element_quadrature
       (
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature),
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature)
@@ -348,7 +347,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
 BOOST_AUTO_TEST_CASE(GroupArity)
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry_fields().create_field("Temperature", "Temperature").add_tag("solution");
@@ -358,7 +357,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
       boost::proto::lit(total) += volume,
       boost::proto::lit(total) += volume
@@ -387,24 +386,9 @@ BOOST_AUTO_TEST_CASE(IntegralConstant)
   BOOST_CHECK_EQUAL(boost::proto::value(IntegralConstantGrammar<3>()(integral_const)), 3);
 }
 
-
-/// Custom op taking indices as argument
-struct IndexPrinter
-{
-  typedef void result_type;
-
-  template<typename I, typename J>
-  void operator()(const I, const J)
-  {
-    std::cout << "I is " << I::value << ", J is " << J::value << std::endl;
-  }
-};
-
-static MakeSFOp<IndexPrinter>::type const print_indices = {};
-
 BOOST_AUTO_TEST_CASE(IndexLooper)
 {
-  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("QuadGrid");
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("QuadGrid");
   Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
 
   const RealVector2 idx(1.,2.);
@@ -416,10 +400,8 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
     mesh->topology(),
-    group <<
+    group
     (
-      _cout << "i: " << _i << ", j: " << _j << "\n",
-      print_indices(_i, _j),
       boost::proto::lit(result_i) += boost::proto::lit(idx)[_i], // Loop with _i in (0, 1)
       boost::proto::lit(result_j) += boost::proto::lit(idx)[_j], // Loop with _j in (0, 1)
       boost::proto::lit(result_ij) += boost::proto::lit(idx)[_i] + boost::proto::lit(idx)[_j] // Nested loop forall(_i): forall(_j)
@@ -430,7 +412,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   BOOST_CHECK_EQUAL(result_j, 3);
   BOOST_CHECK_EQUAL(result_ij, 12);
 
-  Mesh& line = Core::instance().root().create_component<Mesh>("Line");
+  Mesh& line = *Core::instance().root().create_component<Mesh>("Line");
   Tools::MeshGeneration::create_line(line, 1., 1);
 
   MeshTerm<0, VectorField> u("Velocity", "solution");
@@ -446,7 +428,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     line.topology(),
-    group <<
+    group
     (
       _cout << "i: " << _i << ", j: " << _j << "\n",
       result1d += nabla(u, center)[_i]
@@ -461,19 +443,19 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
   MeshTerm<0, VectorField> u("Velocity", "solution");
 
-  CModel& model = Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   Domain& dom = model.create_domain("Domain");
-  Mesh& mesh = dom.create_component<Mesh>("QuadGrid2");
+  Mesh& mesh = *dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
   physics::PhysModel& physics = model.create_physics("cf3.physics.DynamicModel");
-  physics.configure_option(common::Tags::dimension(), 2u);
+  physics.options().configure_option(common::Tags::dimension(), 2u);
 
   // Create the initialization expression
-  Expression::Ptr init = nodes_expression(u = coordinates);
+  boost::shared_ptr< Expression > init = nodes_expression(u = coordinates);
 
-  FieldManager& field_manager = dom.create_component<FieldManager>("FieldManager");
-  field_manager.configure_option("variable_manager", physics.variable_manager().uri());
+  FieldManager& field_manager = *dom.create_component<FieldManager>("FieldManager");
+  field_manager.options().configure_option("variable_manager", physics.variable_manager().handle<math::VariableManager>());
 
   // set up fields
   init->register_variables(physics);
@@ -495,6 +477,32 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   std::cout << result << std::endl;
 }
 
+
+BOOST_AUTO_TEST_CASE( NodeExprGrouping )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
+  Tools::MeshGeneration::create_line(*mesh, 1., 4);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, ScalarField > T("Temperature", "solution");
+  Real total = 0.;
+  
+  boost::shared_ptr< Expression > test_expr = nodes_expression
+  (
+    group
+    (
+      T = 6.,
+      T += 4.,
+      _cout << T << "\n",
+      boost::proto::lit(total) += T
+    )
+  );
+  
+  test_expr->loop(mesh->topology());
+  
+  BOOST_CHECK_EQUAL(total, 50.);
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

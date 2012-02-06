@@ -7,14 +7,12 @@
 #ifndef cf3_common_PE_Manager_hpp
 #define cf3_common_PE_Manager_hpp
 
-#include <boost/thread/thread.hpp>
-
-#include "common/Signal.hpp"
-
 #include "common/PE/types.hpp"
 #include "common/PE/WorkerGroup.hpp"
 
 #include "common/Component.hpp"
+
+namespace boost { class thread; }
 
 namespace cf3 {
 namespace common {
@@ -30,11 +28,6 @@ class ListeningThread;
 
 class Manager : public Component
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<Manager> Ptr;
-  typedef boost::shared_ptr<const Manager> ConstPtr;
-
 public: // functions
 
   Manager( const std::string & name );
@@ -61,9 +54,7 @@ public: // functions
 
   void broadcast( const SignalArgs & args );
 
-  boost::thread & listening_thread();
-
-  common::Signal::signal_type signal_to_forward( SignalArgs & args );
+  boost::thread * listening_thread();
 
   common::NotificationQueue * notification_queue() { return m_queue; }
 

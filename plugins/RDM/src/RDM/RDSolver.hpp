@@ -9,7 +9,7 @@
 
 #include "common/Group.hpp"
 
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
@@ -18,7 +18,7 @@ namespace cf3 {
 
 namespace mesh    { class Field;    class Mesh; }
 namespace physics { class PhysModel; class Variables; }
-namespace solver  { namespace actions { class CSynchronizeFields; } }
+namespace solver  { namespace actions { class SynchronizeFields; } }
 
 namespace RDM {
 
@@ -38,12 +38,12 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public cf3::solver::CSolver {
+class RDM_API RDSolver : public cf3::solver::Solver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<RDSolver> Ptr;
-  typedef boost::shared_ptr<RDSolver const> ConstPtr;
+
+
 
 public: // functions
 
@@ -98,25 +98,25 @@ private: // helper functions
 
 private: // data
 
-  common::Group::Ptr m_actions;  ///< the group of shared actions
+  Handle< common::Group > m_actions;  ///< the group of shared actions
 
-  common::Group::Ptr m_fields;   ///< the group of fields
+  Handle< common::Group > m_fields;   ///< the group of fields
 
-  boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
+  Handle<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
-  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+  Handle<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
 
-  boost::shared_ptr<DomainDiscretization> m_domain_discretization; ///< subcomponent for domain terms
+  Handle<DomainDiscretization> m_domain_discretization; ///< subcomponent for domain terms
 
-  boost::shared_ptr<IterativeSolver>      m_iterative_solver;      ///< subcomponent for non linear iterative steps
+  Handle<IterativeSolver>      m_iterative_solver;      ///< subcomponent for non linear iterative steps
 
-  boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
+  Handle<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
-  boost::shared_ptr<ActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<ActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
 
-  boost::weak_ptr< physics::PhysModel >   m_physical_model;        ///< physical model
+  Handle< physics::PhysModel >   m_physical_model;        ///< physical model
 
-  boost::weak_ptr<mesh::Mesh> m_mesh; ///< mesh which this solver operates
+  Handle<mesh::Mesh> m_mesh; ///< mesh which this solver operates
 
 };
 

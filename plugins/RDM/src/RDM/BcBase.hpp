@@ -13,16 +13,17 @@
 #include <boost/bind.hpp>
 
 #include "common/Core.hpp"
-#include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
 #include "common/BasicExceptions.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/Space.hpp"
 
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/FaceLoop.hpp"
@@ -35,13 +36,13 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API BcBase : public solver::actions::CLoopOperation {
+class RDM_API BcBase : public solver::actions::LoopOperation {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< BcBase > Ptr;
-  typedef boost::shared_ptr< BcBase const> ConstPtr;
+
+
 
 public: // functions
 
@@ -62,16 +63,16 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
+        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates =
-        elements().geometry_fields().coordinates().as_ptr< mesh::Field >();
+        elements().geometry_fields().coordinates().handle< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock();
-    residual   = cresidual.lock();
-    wave_speed = cwave_speed.lock();
+    solution   = csolution;
+    residual   = cresidual;
+    wave_speed = cwave_speed;
   }
 
 protected: // typedefs
@@ -101,20 +102,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< mesh::Field > csolution;   ///< solution field
-  boost::weak_ptr< mesh::Field > cresidual;   ///< residual field
-  boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
+  Handle< mesh::Field > csolution;   ///< solution field
+  Handle< mesh::Field > cresidual;   ///< residual field
+  Handle< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::Connectivity::Ptr connectivity;
+  Handle< mesh::Connectivity > connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  common::Table<Real>::Ptr coordinates;
+  Handle< common::Table<Real> > coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr solution;
+  Handle< common::Table<Real> > solution;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr residual;
+  Handle< common::Table<Real> > residual;
   /// pointer to solution table, may reset when iterating over element types
-  common::Table<Real>::Ptr wave_speed;
+  Handle< common::Table<Real> > wave_speed;
 
   typename PHYS::MODEL::Properties phys_props; ///< physical properties
 
@@ -124,7 +125,7 @@ protected: // data
 
 template<typename SF, typename QD, typename PHYS>
 BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
-  solver::actions::CLoopOperation(name)
+  solver::actions::LoopOperation(name)
 {
   regist_typeinfo(this);
 

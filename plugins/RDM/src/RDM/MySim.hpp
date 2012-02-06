@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "solver/CWizard.hpp"
+#include "solver/Wizard.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -20,12 +20,12 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_API MySim : public solver::CWizard {
+class RDM_API MySim : public solver::Wizard {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<MySim> Ptr;
-  typedef boost::shared_ptr<MySim const> ConstPtr;
+  
+  
 
 public: // functions
 

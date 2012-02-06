@@ -24,8 +24,8 @@ class RiemannSolvers_API RiemannSolver : public common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<RiemannSolver> Ptr;
-  typedef boost::shared_ptr<RiemannSolver const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -40,20 +40,20 @@ public: // functions
   static std::string type_name () { return "RiemannSolver"; }
 
   /// Compute interface flux and wavespeeds
-  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                      RealVector& flux, RealVector& wave_speeds) = 0;
 
   /// Compute interface flux
-  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                       RealVector& flux) = 0;
 
 protected:
 
-  physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
-  physics::PhysModel& physical_model() const { return *m_physical_model.lock(); }
+  physics::Variables& solution_vars() const { return *m_solution_vars; }
+  physics::PhysModel& physical_model() const { return *m_physical_model; }
 
-  boost::weak_ptr<physics::PhysModel> m_physical_model;
-  boost::weak_ptr<physics::Variables> m_solution_vars;
+  Handle<physics::PhysModel> m_physical_model;
+  Handle<physics::Variables> m_solution_vars;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

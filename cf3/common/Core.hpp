@@ -10,9 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include "common/CommonAPI.hpp"
+#include "common/Handle.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +88,7 @@ public: // methods
 
   /// @brief Gives the current profiler
   /// @return Returns the current profiler
-  boost::shared_ptr<CodeProfiler> profiler() const;
+  Handle<CodeProfiler> profiler() const;
 
   /// Gets the network information.
   /// @return Returns the network information.
@@ -116,9 +116,9 @@ private: // data
   /// the Environment unique object
   boost::shared_ptr< common::Environment >         m_environment;
   /// the Libraries unique object
-  boost::weak_ptr< common::Libraries >   m_libraries;
+  Handle< common::Libraries >   m_libraries;
   /// the Factories unique object
-  boost::weak_ptr< common::Factories >   m_factories;
+  Handle< common::Factories >   m_factories;
   /// @brief The component tree root
   boost::shared_ptr< common::Group >        m_root;
   /// The network information

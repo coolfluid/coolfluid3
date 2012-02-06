@@ -30,8 +30,8 @@ public: //typedefs
 
   enum { Rho = 0, U = 1, V = 2, W=3, P = 4 };
 
-  typedef boost::shared_ptr<Prim3D> Ptr;
-  typedef boost::shared_ptr<Prim3D const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -89,7 +89,7 @@ public: // functions
           std::cout << "uuvvww  : " << p.uuvvww << std::endl;
 
 
-      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+      throw common::FailedToConverge( FromHere(), "Pressure is negative at coordinates ["
                                    + common::to_str(coord[XX]) + ","
                                    + common::to_str(coord[YY])
                                    + common::to_str(coord[ZZ])
@@ -124,6 +124,16 @@ public: // functions
   {
     throw common::NotImplemented(FromHere(), "flux not implemented for Prim3D");
   }
+
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "flux not implemented for Prim3D");
+  }
+
 
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >

@@ -22,12 +22,12 @@ namespace XML {
 
 /////////////////////////////////////////////////////////////////////////////
 
-XmlDoc::Ptr parse_string ( const std::string& str )
+boost::shared_ptr<XmlDoc> parse_string ( const std::string& str )
 {
   return parse_cstring(str.c_str(), str.length());
 }
 
-XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
+boost::shared_ptr<XmlDoc> parse_cstring ( const char* str, std::size_t length )
 {
   using namespace rapidxml;
 
@@ -56,17 +56,17 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
     throw XmlError(FromHere(), "Unknown error when parsing XML string");
   }
 
-  return XmlDoc::Ptr( new XmlDoc(xmldoc) );
+  return boost::shared_ptr<XmlDoc>( new XmlDoc(xmldoc) );
 }
 
 
-XmlDoc::Ptr parse_file ( const boost::filesystem::path& path )
+boost::shared_ptr<XmlDoc> parse_file ( const URI& file )
 {
   using namespace rapidxml;
 
   xml_document<>* xmldoc = new xml_document<>();
 
-  std::string filepath = path.string();
+  std::string filepath = file.path();
   FILE *filep = fopen( filepath.c_str(), "rb" );
 
   if (filep == NULL)
@@ -100,9 +100,9 @@ XmlDoc::Ptr parse_file ( const boost::filesystem::path& path )
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void to_file ( const XmlNode& node, const boost::filesystem::path& fpath )
+void to_file ( const XmlNode& node, const URI& file )
 {
-  std::ofstream fout ( fpath.string().c_str() );
+  std::ofstream fout ( file.path().c_str() );
 
   std::string xml_as_string;
 
@@ -113,6 +113,7 @@ void to_file ( const XmlNode& node, const boost::filesystem::path& fpath )
 
 void to_string ( const XmlNode& node, std::string& str )
 {
+  str.clear(); // back_inserter appends, so we need to clear the string before
   rapidxml::print(std::back_inserter(str), *node.content);
 }
 

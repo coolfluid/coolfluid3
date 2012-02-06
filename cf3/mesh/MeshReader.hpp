@@ -11,6 +11,7 @@
 
 #include "common/BoostFilesystem.hpp"
 
+#include "common/ArrayBufferT.hpp"
 #include "common/Component.hpp"
 #include "common/Table.hpp"
 
@@ -38,9 +39,9 @@ class Mesh_API MeshReader : public common::Component {
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<MeshReader> Ptr;
+
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<MeshReader const> ConstPtr;
+
 
 public: // functions
 
@@ -81,12 +82,12 @@ public: // functions
 //  /// Read a given file and create a mesh
 //  /// @param [in]   path    the file to read in
 //  /// @return mesh          the created mesh
-//  Mesh::Ptr create_mesh_from(const common::URI& path);
+//  Handle< Mesh > create_mesh_from(const common::URI& path);
 
 protected: // functions
 
   /// Map type from string to a common::Table<Uint>::Buffer
-  typedef std::map<std::string,common::Table<Uint>::Buffer::Ptr> BufferMap;
+  typedef std::map<std::string,boost::shared_ptr< common::ArrayBufferT<Uint > > > BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
@@ -94,13 +95,13 @@ protected: // functions
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  std::map<std::string,boost::shared_ptr<Elements> > create_cells_in_region(Region& parent_region, SpaceFields& nodes,
+  std::map<std::string,Handle<Elements> > create_cells_in_region(Region& parent_region, Dictionary& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,boost::shared_ptr<Elements> > create_faces_in_region(Region& parent_region, SpaceFields& nodes,
+  std::map<std::string,Handle<Elements> > create_faces_in_region(Region& parent_region, Dictionary& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,common::Table<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<Elements> >& elems_map);
+  std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > create_connectivity_buffermap (std::map<std::string,Handle<Elements> >& elems_map);
 
 
   /// remove all regions with empty connectivity tables inside a given region

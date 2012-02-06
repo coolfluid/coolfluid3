@@ -10,6 +10,7 @@
 
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
@@ -20,7 +21,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -41,21 +42,21 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
 Field::Field ( const std::string& name  ) :
   common::Table<Real> ( name ),
-  m_basis(SpaceFields::Basis::INVALID)
+  m_basis(Dictionary::Basis::INVALID)
 {
   mark_basic();
 
-//  options().add_option<OptionArrayT<std::string> >("var_names", std::vector<std::string>(1,name))
-//      ->description("Names of the variables")
-//      ->pretty_name("Variable Names")
-//      ->attach_trigger ( boost::bind ( &Field::config_var_names, this ) )
-//      ->mark_basic();
+//  options().add_option(1,name))
+//      .description("Names of the variables")
+//      .pretty_name("Variable Names")
+//      .attach_trigger ( boost::bind ( &Field::config_var_names, this ) )
+//      .mark_basic();
 //  config_var_names();
 
-//  options().add_option<OptionArrayT<std::string> >("var_types", std::vector<std::string>(1,"scalar"))
-//      ->description("Types of the variables")
-//      ->attach_trigger ( boost::bind ( &Field::config_var_types,   this ) )
-//      ->mark_basic()
+//  options().add_option(1,"scalar"))
+//      .description("Types of the variables")
+//      .attach_trigger ( boost::bind ( &Field::config_var_types,   this ) )
+//      .mark_basic()
 //      ->restricted_list() = boost::assign::list_of
 //        (std::string("scalar"))
 //        (std::string("vector2D"))
@@ -82,10 +83,10 @@ void Field::config_var_names()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_topology(Region& region)
-{
-  m_topology = region.as_ptr<Region>();
-}
+//void Field::set_topology(Region& region)
+//{
+//  m_topology = Handle<Region>(region.handle<Component>());
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -145,25 +146,17 @@ Field::VarType Field::var_length ( const std::string& vname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Region& Field::topology() const
+void Field::set_dict(Dictionary& dict)
 {
-  cf3_assert(m_topology.expired() == false);
-  return *m_topology.lock();
+  m_dict = Handle<Dictionary>(dict.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_field_group(SpaceFields& field_group)
+Dictionary& Field::dict() const
 {
-  m_field_group = field_group.as_ptr<SpaceFields>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SpaceFields& Field::field_group() const
-{
-  cf3_assert(m_field_group.expired() == false);
-  return *m_field_group.lock();
+  cf3_assert(is_null(m_dict) == false);
+  return *m_dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,70 +169,57 @@ void Field::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
+std::vector< Handle<Entities> > Field::entities_range()
 {
-  return field_group().indexes_for_element(elements,idx);
+  return dict().entities_range();
 }
 
-
-common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
-{
-  return field_group().indexes_for_element(unified_idx);
-}
-
-boost::iterator_range< common::ComponentIterator<Entities> > Field::entities_range()
-{
-  return field_group().entities_range();
-}
-
-boost::iterator_range< common::ComponentIterator<Elements> > Field::elements_range()
-{
-  return field_group().elements_range();
-}
-
+////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
-  m_comm_pattern = comm_pattern.as_ptr<CommPattern>();
+  m_comm_pattern = Handle<CommPattern>(comm_pattern.handle<Component>());
   comm_pattern.insert(name(), array(), true);
   return comm_pattern;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize()
 {
-  CommPattern& comm_pattern = field_group().comm_pattern();
+  CommPattern& comm_pattern = dict().comm_pattern();
 
   // Do nothing if parallel already
-  if(is_not_null(comm_pattern.get_child_ptr(name())))
+  if(is_not_null(comm_pattern.get_child(name())))
     return comm_pattern;
 
   return parallelize_with( comm_pattern );
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 void Field::synchronize()
 {
-  if ( !m_comm_pattern.expired() )
-    m_comm_pattern.lock()->synchronize( name() );
+  if ( is_not_null(m_comm_pattern) )
+    m_comm_pattern->synchronize( name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Field::set_descriptor(math::VariablesDescriptor& descriptor)
 {
-  if (math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
+  if (Handle< math::VariablesDescriptor > old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = descriptor.as_ptr<math::VariablesDescriptor>();
+  m_descriptor = Handle<math::VariablesDescriptor>(descriptor.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Field::create_descriptor(const std::string& description, const Uint dimension)
 {
-  if (math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
+  if (Handle< math::VariablesDescriptor > old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = create_component_ptr<math::VariablesDescriptor>("description");
+  m_descriptor = create_component<math::VariablesDescriptor>("description");
   descriptor().set_variables(description,dimension);
 }
 

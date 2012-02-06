@@ -15,7 +15,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/UnifiedData.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_SUITE( UnifiedData_TestSuite, UnifiedData_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  UnifiedData::Ptr unified_elems = allocate_component<UnifiedData>("unified_elems");
+  boost::shared_ptr<UnifiedData> unified_elems = allocate_component<UnifiedData>("unified_elems");
   BOOST_CHECK_EQUAL(unified_elems->name(),"unified_elems");
   BOOST_CHECK_EQUAL(UnifiedData::type_name(), "UnifiedData");
 }
@@ -67,16 +67,16 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( data_location )
 {
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 
-  Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh");
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("mesh");
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 
-  UnifiedData::Ptr unified_elems = allocate_component<UnifiedData>("unified_elems");
+  boost::shared_ptr<UnifiedData> unified_elems = allocate_component<UnifiedData>("unified_elems");
 
 
   boost_foreach(Elements& elements, find_components_recursively<Elements>(mesh))
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( data_location )
 
 
 
-  Component::Ptr elements;
+  Handle< Component > elements;
   Uint elem_idx;
 
   BOOST_CHECK_EQUAL( unified_elems->size() , 28u );
@@ -98,11 +98,11 @@ BOOST_AUTO_TEST_CASE( data_location )
     CFinfo << i << ": " << elements->uri().path() << "    ["<<elem_idx<<"]" << CFendl;
   }
 
-  UnifiedData::Ptr unified_nodes = allocate_component<UnifiedData>("unified_nodes");
-  boost_foreach(SpaceFields& nodes, find_components_recursively<SpaceFields>(mesh))
+  boost::shared_ptr<UnifiedData> unified_nodes = allocate_component<UnifiedData>("unified_nodes");
+  boost_foreach(Dictionary& nodes, find_components_recursively<Dictionary>(mesh))
     unified_nodes->add(nodes);
 
-  Component::Ptr nodes;
+  Handle< Component > nodes;
   Uint node_idx;
 
   BOOST_CHECK_EQUAL( unified_nodes->size() , 16u );

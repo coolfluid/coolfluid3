@@ -63,10 +63,10 @@ struct LDAGPU::ElementLoop
                   common::find_components_recursively_with_filter<mesh::Elements>(region,IsElementType<SF>()))
     {
       // get the scheme or create it if does not exist
-      Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
-      typename SchemeT::Ptr scheme;
+      Handle< Component > cscheme = comp.get_child( SchemeT::type_name() );
+      typename Handle< SchemeT > scheme;
       if( is_null( cscheme ) )
-        scheme = comp.create_component_ptr< SchemeT >( SchemeT::type_name() );
+        scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
       else
         scheme = cscheme->as_ptr_checked<SchemeT>();
 
@@ -74,9 +74,9 @@ struct LDAGPU::ElementLoop
       scheme->set_elements(elements);
 
       const Uint nb_elem = elements.size();
-//      boost::timer ctimer;
+//      boost::timer Timer;
       scheme->execute();
-//      std::cout<<ctimer.elapsed()<<std::endl;
+//      std::cout<<Timer.elapsed()<<std::endl;
     }
   }
 
@@ -94,11 +94,11 @@ LDAGPU::~LDAGPU() {}
 void LDAGPU::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  physics::PhysModel::Ptr pm = find_component_ptr_recursively<physics::PhysModel>( Core::instance().root() );
+  Handle< physics::PhysModel > pm = find_component_ptr_recursively<physics::PhysModel>( Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
-  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+  boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::string physics = pm->type();
 

@@ -91,6 +91,11 @@ public:
   /// @param name the name of the option
   bool has_entry ( const std::string& name ) const;
 
+  /// Checks whether a reply for this present as sibling node of this signal.
+  /// @return Returns @c true if a reply has been found; otherwise, returns
+  /// @c false.
+  bool has_reply () const;
+
   /// Returns a sub-frame with a specified name.
   /// If the frame does not exist yet, it is created.
   /// @param name The frame name.
@@ -123,6 +128,9 @@ public:
 
   /// Converts this signal to a string in the CF script format
   std::string to_script( int indentation = 0 ) const;
+
+  /// Flushes internal @c SignalOptions maps.
+  void flush_maps();
 
 public: // data
 

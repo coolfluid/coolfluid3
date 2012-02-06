@@ -10,9 +10,10 @@
 #include "common/Builder.hpp"
 
 #include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -28,9 +29,9 @@ ComponentBuilder< NodeElementConnectivity, Component, LibMesh > NodeElementConne
 NodeElementConnectivity::NodeElementConnectivity ( const std::string& name ) :
   Component(name)
 {
-  m_nodes = create_static_component_ptr<common::Link>(mesh::Tags::nodes());
-  m_elements = create_static_component_ptr<UnifiedData>("elements");
-  m_connectivity = create_static_component_ptr<DynTable<Uint> >(mesh::Tags::connectivity_table());
+  m_nodes = create_static_component<common::Link>(mesh::Tags::nodes());
+  m_elements = create_static_component<UnifiedData>("elements");
+  m_connectivity = create_static_component<DynTable<Uint> >(mesh::Tags::connectivity_table());
   mark_basic();
 }
 
@@ -45,9 +46,9 @@ void NodeElementConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NodeElementConnectivity::set_nodes(SpaceFields& nodes)
+void NodeElementConnectivity::set_nodes(Dictionary& nodes)
 {
-  m_nodes->link_to(nodes.self());
+  m_nodes->link_to(nodes);
   m_connectivity->resize(nodes.size());
 }
 
@@ -55,15 +56,15 @@ void NodeElementConnectivity::set_nodes(SpaceFields& nodes)
 
 void NodeElementConnectivity::build_connectivity()
 {
-  set_nodes(elements().components()[0].lock()->as_type<Elements>().geometry_fields());
-  SpaceFields const& nodes = *m_nodes->follow()->as_ptr<SpaceFields>();
+  set_nodes(Handle<Elements>(elements().components()[0])->geometry_fields());
+  Dictionary const& nodes = *Handle<Dictionary>(m_nodes->follow());
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(boost::weak_ptr<Component> elements_comp, m_elements->components() )
+  boost_foreach(Handle<Component> elements_comp, m_elements->components() )
   {
-    Elements& elements = elements_comp.lock()->as_type<Elements>();
-    boost_foreach (Connectivity::ConstRow nodes, elements.node_connectivity().array() )
+    Elements& elements = dynamic_cast<Elements&>(*elements_comp);
+    boost_foreach (Connectivity::ConstRow nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {
@@ -79,10 +80,10 @@ void NodeElementConnectivity::build_connectivity()
 
   // fill m_connectivity->array()
   Uint glb_elem_idx = 0;
-  boost_foreach(boost::weak_ptr<Component> elements_comp, m_elements->components() )
+  boost_foreach(Handle<Component> elements_comp, m_elements->components() )
   {
-    Elements& elements = elements_comp.lock()->as_type<Elements>();
-    boost_foreach (Connectivity::ConstRow nodes, elements.node_connectivity().array() )
+    Elements& elements = dynamic_cast<Elements&>(*elements_comp);
+    boost_foreach (Connectivity::ConstRow nodes, elements.geometry_space().connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {

@@ -57,10 +57,6 @@ public: // typedefs
   /// @brief const_iterator definition for use in stl algorithms
   typedef typename std::vector<value_type>::const_iterator   const_iterator;
 
-  /// shared pointer to this type
-  typedef boost::shared_ptr<Map> Ptr;
-  typedef boost::shared_ptr<Map const> ConstPtr;
-
 public: // functions
 
   /// Contructor

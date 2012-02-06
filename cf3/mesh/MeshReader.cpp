@@ -9,6 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/BoostFilesystem.hpp"
 #include "common/Signal.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
@@ -26,8 +27,10 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -44,9 +47,9 @@ MeshReader::MeshReader ( const std::string& name  ) :
 
   // signals
   regist_signal( "read" )
-    ->connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
-    ->description("reads a mesh")
-    ->pretty_name("Read mesh");
+    .connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
+    .description("reads a mesh")
+    .pretty_name("Read mesh");
   signal("read")->signature( boost::bind(&MeshReader::read_signature, this, _1) );
 }
 
@@ -68,7 +71,7 @@ void MeshReader::signal_read( SignalArgs& node  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the location component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  Component::Ptr location = access_component_ptr_checked( path );
+  Handle< Component > location = access_component_checked( path );
 
   std::vector<URI> files = options.array<URI>("files");
 
@@ -82,12 +85,12 @@ void MeshReader::signal_read( SignalArgs& node  )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    Mesh& mesh = location->create_component<Mesh>("Mesh");
+    Handle<Mesh> mesh = location->create_component<Mesh>("Mesh");
 
     // Get the file paths
     boost_foreach(const URI& file, files)
     {
-      do_read_mesh_into(file, mesh);
+      do_read_mesh_into(file, *mesh);
     }
   }
   else
@@ -104,21 +107,19 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 
   do_read_mesh_into(path, mesh);
 
+  // Fix global numbering
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
+
   // Raise an event to indicate that a mesh was loaded happened
-
-  SignalOptions options;
-  options.add_option< OptionURI >("mesh_uri", mesh.uri());
-
-  SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-//Mesh::Ptr MeshReader::create_mesh_from(const URI& file)
+//Handle< Mesh > MeshReader::create_mesh_from(const URI& file)
 //{
 //  // Create the mesh
-//  Mesh::Ptr mesh ( allocate_component<Mesh>("mesh") );
+//  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>("mesh") );
 
 //  // Call implementation
 //  do_read_mesh_into(file,*mesh);
@@ -129,19 +130,19 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,Elements::Ptr>
-  MeshReader::create_cells_in_region (Region& parent_region, SpaceFields& nodes,
+std::map<std::string,Handle< Elements > >
+  MeshReader::create_cells_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
-  std::map<std::string,Elements::Ptr> cells_map;
+  std::map<std::string,Handle< Elements > > cells_map;
   boost_foreach(const std::string& etype, etypes)
   {
-    ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
+    boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
-      Cells& etype_cells = *parent_region.create_component_ptr<Cells>(element_type->shape_name());
+      Cells& etype_cells = *parent_region.create_component<Cells>(element_type->shape_name());
       etype_cells.initialize(etype,nodes);
-      cells_map[etype] = etype_cells.as_ptr<Elements>();
+      cells_map[etype] = Handle<Elements>(etype_cells.handle<Component>());
     }
   }
   return cells_map;
@@ -149,19 +150,19 @@ std::map<std::string,Elements::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,Elements::Ptr>
-  MeshReader::create_faces_in_region (Region& parent_region, SpaceFields& nodes,
+std::map<std::string,Handle< Elements > >
+  MeshReader::create_faces_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)
 {
-  std::map<std::string,Elements::Ptr> faces_map;
+  std::map<std::string,Handle< Elements > > faces_map;
   boost_foreach(const std::string& etype, etypes)
   {
-    ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
+    boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
-      Faces& etype_faces = *parent_region.create_component_ptr<Faces>(element_type->shape_name());
+      Faces& etype_faces = *parent_region.create_component<Faces>(element_type->shape_name());
       etype_faces.initialize(etype,nodes);
-      faces_map[etype] = etype_faces.as_ptr<Elements>();
+      faces_map[etype] = Handle<Elements>(etype_faces.handle<Component>());
     }
   }
   return faces_map;
@@ -169,14 +170,14 @@ std::map<std::string,Elements::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,common::Table<Uint>::Buffer::Ptr>
-  MeshReader::create_connectivity_buffermap (std::map<std::string,Elements::Ptr>& elems_map)
+std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > >
+  MeshReader::create_connectivity_buffermap (std::map<std::string,Handle< Elements > >& elems_map)
 {
   // Create regions for each element type
-  std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffermap;
-  foreach_container((const std::string& etype)(Elements::Ptr elements), elems_map)
+  std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > buffermap;
+  foreach_container((const std::string& etype)(Handle< Elements > elements), elems_map)
   {
-    buffermap[etype] = elements->node_connectivity().create_buffer_ptr();
+    buffermap[etype] = elements->geometry_space().connectivity().create_buffer_ptr();
   }
   return buffermap;
 }
@@ -188,7 +189,7 @@ void MeshReader::remove_empty_element_regions(Region& parent_region)
   boost_foreach(Elements& region, find_components_recursively<Elements>(parent_region))
   {
     // find the empty regions
-    Uint empty_on_this_rank = region.node_connectivity().array().empty();
+    Uint empty_on_this_rank = region.geometry_space().connectivity().array().empty();
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work
@@ -197,7 +198,7 @@ void MeshReader::remove_empty_element_regions(Region& parent_region)
 
     if ( empty_on_all_ranks )
     {
-      Elements::Ptr removed = boost::dynamic_pointer_cast<Elements>(region.parent().remove_component(region.name()));
+      boost::shared_ptr< Elements > removed = boost::dynamic_pointer_cast<Elements>(region.parent()->remove_component(region.name()));
       removed.reset();
     }
   }
@@ -208,7 +209,7 @@ void MeshReader::remove_empty_element_regions(Region& parent_region)
     // find the empty regions
     if ( find_components<Region>(region).empty() && find_components<Elements>(region).empty() )
       {
-        Region::Ptr removed = boost::dynamic_pointer_cast<Region>(region.parent().remove_component(region.name()));
+        boost::shared_ptr< Region > removed = boost::dynamic_pointer_cast<Region>(region.parent()->remove_component(region.name()));
         removed.reset();
       }
   }
@@ -220,15 +221,13 @@ void MeshReader::read_signature( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::vector<URI> dummy;
+  options.add_option("location", URI() )
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Component to load mesh into");
 
-  options.add_option< OptionURI >("location", URI() )
-      ->description("Component to load mesh into")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
-
-  options.add_option< OptionURI >("files", URI("", URI::Scheme::FILE) )
-      ->description("Files to read")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::FILE );
+  options.add_option("files", URI("", URI::Scheme::FILE) )
+      .supported_protocol( URI::Scheme::FILE )
+      .description("Files to read");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

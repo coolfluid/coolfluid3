@@ -35,7 +35,7 @@ public:
   IsBuilderReducedName () : m_builder_reduced_name() {}
   IsBuilderReducedName (const std::string& name) : m_builder_reduced_name(name) {}
 
-  bool operator()(Component::ConstPtr component) const
+  bool operator()(const Handle<Component const>& component) const
   {
 //    std::cout << "checking [" << Builder::extract_reduced_name( component->name() )
 //              << "] == [" << m_builder_reduced_name << std::endl;
@@ -53,38 +53,9 @@ public:
 };
 
 
-Component& Factory::find_builder_with_reduced_name(const std::string& name)
+Builder& Factory::find_builder_with_reduced_name(const std::string& name)
 {
-  IsBuilderReducedName filter ( name );
-
-  std::vector<Component::Ptr> found;
-  boost_foreach( Component& comp, find_components_with_filter( (*this), filter ) )
-  {
-    Builder::Ptr builder = comp.as_ptr<Builder>();
-      if( is_not_null(builder) )
-        found.push_back( comp.self() );
-  }
-
-  if ( found.empty() )
-    throw ValueNotFound( FromHere(), "Builder with name \'" + name +
-                                     "\' not found in factory \'" + uri().string() + "\'" );
-
-  if ( found.size() > 1 )
-  {
-    std::ostringstream msg;
-
-    msg << "Multiple builders in factory \'" << uri().string()
-        << "\' match the reduced name \'" + name + "\'. Matching builders:";
-
-    boost_foreach(Component::Ptr comp, found)
-        msg << "\n  -  " << comp->name();
-
-    msg << "\nTry accessing the builder using its full name.";
-
-    throw BadValue( FromHere(), msg.str() );
-  }
-
-  return *(found[0]);
+  return find_component_with_filter<Builder>(*this, IsBuilderReducedName(name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

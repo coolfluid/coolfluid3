@@ -53,7 +53,7 @@ std::string CodeLocation::short_str() const
   std::string place;// = filesystem::path(m_file).end().;//(filesystem::path(m_file).parent_path().string());
 
   filesystem::path path(m_file);
-  std::list<std::string> parts;
+  std::list<filesystem::path> parts;
   copy(path.begin(), path.end(), back_inserter(parts));
 
   if (parts.size() < 2)
@@ -63,7 +63,7 @@ std::string CodeLocation::short_str() const
   else
   {
     boost::filesystem::path pathSub;
-    std::list<std::string>::iterator it = parts.end();
+    std::list<filesystem::path>::iterator it = parts.end();
 
     it--; it--;
     for ( ; it != parts.end(); ++it)

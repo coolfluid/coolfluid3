@@ -19,6 +19,7 @@ namespace LagrangeP1 {
 struct Mesh_LagrangeP1_API Quad_traits
 {
   enum { nb_nodes       = 4               };
+  enum { nb_faces       = 4               };
   enum { dimensionality = 2               };
   enum { order          = 1               };
   enum { shape          = GeoShape::QUAD  };

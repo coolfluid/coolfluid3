@@ -50,9 +50,20 @@ const RealMatrix& Point::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const RealMatrix& Point::face_normals()
+{
+  throw common::NotImplemented(FromHere(),"Point doesn't have faces");
+  static const RealMatrix normals;
+  return normals;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const GeoShape::Type Point::shape;
 
 const Uint Point::nb_nodes;
+
+const Uint Point::nb_faces;
 
 const Uint Point::dimensionality;
 
