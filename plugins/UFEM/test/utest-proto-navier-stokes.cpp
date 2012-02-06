@@ -85,8 +85,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   const Real rho = 100.;
   const Real epsilon = rho/mu;
 
-  RealVector u_wall(2);
-  u_wall.setZero();
+  const std::vector<Real> u_wall(2, 0.);
   const Real p0 = 5.;
   const Real p1 = 0.;
   const Real c = 0.5*(p0 - p1) / (rho * mu * length);

@@ -503,6 +503,36 @@ BOOST_AUTO_TEST_CASE( NodeExprGrouping )
   
   BOOST_CHECK_EQUAL(total, 50.);
 }
+
+BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line3");
+  Tools::MeshGeneration::create_line(*mesh, 4., 4);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, VectorField > T("Temperature", "solution");
+  RealVector total(1); total.setZero();
+  
+  math::VectorialFunction f;
+  f.variables("x");
+  f.functions(std::vector<std::string>(1, "x+1"));
+  f.parse();
+  
+  boost::shared_ptr< Expression > test_expr = nodes_expression
+  (
+    group
+    (
+      T = boost::proto::lit(f),
+      _cout << T << "\n",
+      boost::proto::lit(total) += T
+    )
+  );
+  
+  test_expr->loop(mesh->topology());
+  
+  BOOST_CHECK_EQUAL(total[0], 15.);
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

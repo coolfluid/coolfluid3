@@ -43,6 +43,11 @@ public: // functions
   /// Create constant dirichlet BC
   /// @param region_name Name of the boundary region. Must be unique in the problem region
   /// @param variable_name Name of the variable for which to set the BC
+  Handle<common::Action> add_constant_bc(const std::string& region_name, const std::string& variable_name);
+  
+  /// Create constant dirichlet BC
+  /// @param region_name Name of the boundary region. Must be unique in the problem region
+  /// @param variable_name Name of the variable for which to set the BC
   /// @param default_value Default value
   Handle<common::Action> add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
 

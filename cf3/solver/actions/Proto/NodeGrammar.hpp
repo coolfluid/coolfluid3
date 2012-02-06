@@ -11,6 +11,7 @@
 #include "EigenTransforms.hpp"
 #include "ElementOperations.hpp"
 #include "ExpressionGroup.hpp"
+#include "Functions.hpp"
 #include "NeumannBC.hpp"
 #include "NodeData.hpp"
 #include "SolutionVector.hpp"
@@ -144,7 +145,7 @@ struct NodeMath;
 struct NodeMath :
   boost::proto::or_
   <
-    MathTerminals, // Scalars and matrices
+    boost::proto::or_<MathTerminals, ParsedFunctionGrammar>, // Scalars and matrices
     // Value of numbered variables
     boost::proto::when
     <
