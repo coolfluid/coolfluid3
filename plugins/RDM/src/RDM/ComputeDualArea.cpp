@@ -7,6 +7,8 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "common/Log.hpp"
+
 #include "common/Builder.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
@@ -74,6 +76,9 @@ void ComputeDualArea::create_dual_area_field()
 void ComputeDualArea::execute()
 {
 
+  if (is_not_null(m_solution))
+    CFinfo << "CDA sol: " << m_solution->uri().path() << CFendl << CFflush;
+
   std::cout << "+++ Compute dual area +++" << std::endl;
 
   // ensure that the fields are present
@@ -105,6 +110,10 @@ void ComputeDualArea::execute()
 
     loop->execute();
   }
+
+  if (is_not_null(m_solution))
+    CFinfo << "CDA sol: " << m_solution->uri().path() << CFendl << CFflush;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

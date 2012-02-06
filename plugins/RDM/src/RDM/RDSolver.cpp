@@ -62,7 +62,8 @@ RDSolver::RDSolver ( const std::string& name  ) :
   options().add_option( RDM::Tags::update_vars(), "")
       .attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option( "solution_space", mesh::Tags::geometry() )
+//  options().add_option( "solution_space", mesh::Tags::geometry() )
+  options().add_option( "solution_space", RDM::Tags::solution() )
       .pretty_name("Solution Space")
       .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
