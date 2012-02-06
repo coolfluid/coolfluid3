@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iostream>
-
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -75,9 +73,8 @@ void Init::execute()
 
   Field& field = *m_field;
 
-    std::cout << "   field.name() == " << field.uri().path() << std::endl;
-    std::cout << "   field.size() == " << field.size() << std::endl;
-    std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
+  //  std::cout << "   field.size() == " << field.size() << std::endl;
+  //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 

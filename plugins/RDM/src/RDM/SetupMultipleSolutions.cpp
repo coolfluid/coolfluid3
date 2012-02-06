@@ -69,7 +69,7 @@ void SetupMultipleSolutions::execute()
 
   Handle< Dictionary > solution_group;
 
-  if( solution_space == RDM::Tags::solution() )
+  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
     solution_group = geometry.handle<Dictionary>();
   else
   {
@@ -152,23 +152,12 @@ void SetupMultipleSolutions::execute()
 
   // create links
 
-  CFinfo << "fields   " << fields.uri().path() << CFendl << CFflush;
-  CFinfo << "solucion " << solution->uri().path() << CFendl << CFflush;
-
   if( ! fields.get_child( solution->name() ) )
     fields.create_component<Link>( solution->name() )->link_to(*solution).add_tag(RDM::Tags::solution());
-  else
-    fields.get_child(RDM::Tags::solution())->handle<Link>()->link_to(*solution);
-
   if( ! fields.get_child( RDM::Tags::residual() ) )
     fields.create_component<Link>( RDM::Tags::residual() )->link_to(*residual).add_tag(RDM::Tags::residual());
-  else
-    fields.get_child(RDM::Tags::residual())->handle<Link>()->link_to(*residual);
-
   if( ! fields.get_child( RDM::Tags::wave_speed() ) )
     fields.create_component<Link>( RDM::Tags::wave_speed() )->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
-  else
-    fields.get_child(RDM::Tags::wave_speed())->handle<Link>()->link_to(*wave_speed);
 
   for( Uint step = 1; step < rk_steps.size(); ++step)
   {
@@ -192,16 +181,9 @@ void SetupMultipleSolutions::execute()
 
   mysolver.actions().get_child("Synchronize")->options().configure_option("Fields", parallel_fields);
 
-
-
-  CFinfo << "solution " << solution->uri().string() << "  " << solution->size() << CFendl << CFflush;
-  CFinfo << "residual " << residual->uri().string() << CFendl << CFflush;
-  CFinfo << "wave_speed " << wave_speed->uri().string() << CFendl << CFflush;
-
-//  Handle<common::Component> c=fields.get_child(RDM::Tags::solution());
-//  Handle<common::Link> l=c->handle
-
-  CFinfo << "---------- " << fields.get_child(RDM::Tags::solution())->handle<Link>()->follow()->uri().path() << CFendl << CFflush;
+//  std::cout << "solution " << solution->uri().string() << std::endl;
+//  std::cout << "residual " << residual->uri().string() << std::endl;
+//  std::cout << "wave_speed " << wave_speed->uri().string() << std::endl;
 
 }
 

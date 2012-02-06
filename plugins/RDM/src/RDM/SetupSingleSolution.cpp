@@ -64,7 +64,7 @@ void SetupSingleSolution::execute()
 
   Handle< Dictionary > solution_group;
 
-  if( solution_space == RDM::Tags::solution() )
+  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
     solution_group = geometry.handle<Dictionary>();
   else
   {

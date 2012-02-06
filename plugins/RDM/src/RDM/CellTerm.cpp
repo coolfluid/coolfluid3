@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/Log.hpp"
-
 #include "common/Link.hpp"
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
@@ -56,7 +54,6 @@ void CellTerm::link_fields()
                          .get_child( RDM::Tags::solution() ))->handle<Field>();
     configure_option_recursively( RDM::Tags::solution(), m_solution );
   }
-  CFinfo << "linkf sol: " << m_solution->uri().path() << CFendl << CFflush;
 
   if( is_null( m_residual ) )
   {
