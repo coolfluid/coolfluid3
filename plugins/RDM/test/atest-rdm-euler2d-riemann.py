@@ -58,8 +58,8 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 
 solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 100)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
-solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('saverate', 10)
-solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('filepath', cf.URI('file:periodic.plt'))
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('saverate', 10)
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('filepath', cf.URI('file:periodic.plt'))
 
 ### initial conditions
 
@@ -101,13 +101,23 @@ fields=[
 #  cf.URI('//Model/Domain/mesh/solution/residual'),
 #  cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
-tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-tecplot_writer.options().configure_option('fields',fields)
-tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
-tecplot_writer.execute()
+#tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
+#tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+#tecplot_writer.options().configure_option('fields',fields)
+#tecplot_writer.options().configure_option('file',cf.URI('file:initial_euler2d-riemann.plt'))
+#tecplot_writer.execute()
+
+gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
+gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+gmsh_writer.options().configure_option('fields',fields)
+gmsh_writer.options().configure_option('file',cf.URI('file:initial_euler2d-riemann.msh'))
+gmsh_writer.execute()
+
 
 model.simulate()
 
-tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
-tecplot_writer.execute()
+gmsh_writer.options().configure_option('file',cf.URI('file:final_euler2d-riemann.msh'))
+gmsh_writer.execute()
+
+#tecplot_writer.options().configure_option('file',cf.URI('file:final_euler2d-riemann.plt'))
+#tecplot_writer.execute()

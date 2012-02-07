@@ -81,7 +81,7 @@ void RK::execute()
     csolution_k = m_solution;
   else
   {
-    csolution_k = follow_link(mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ))->handle<Field>();
+    csolution_k = follow_link(mysolver.fields().get_child( std::string(RDM::Tags::solution()) + "-" + to_str(step) + "dt" ))->handle<Field>();
   }
 
   cf3_assert( is_not_null(csolution_k) );

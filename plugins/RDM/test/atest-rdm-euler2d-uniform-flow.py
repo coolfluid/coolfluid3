@@ -41,10 +41,10 @@ solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
 solver.options().configure_option('solution_space', 'LagrangeP1')
 
-solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 100)
+solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 5)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
-solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('saverate', 10)
-solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('filepath', cf.URI('file:periodic.plt'))
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('saverate', 10)
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('filepath', cf.URI('file:periodic.plt'))
 
 ### initial conditions
 

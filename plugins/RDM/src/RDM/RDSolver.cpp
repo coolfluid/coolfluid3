@@ -30,7 +30,6 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/RDSolver.hpp"
-#include "RDM/SetupSingleSolution.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -191,7 +190,6 @@ void RDSolver::config_mesh()
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
-
   prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), m_mesh ); // trigger config_mesh()
 
   prepare_mesh().execute();

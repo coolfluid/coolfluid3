@@ -7,6 +7,8 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "common/Log.hpp"
+
 #include "common/Builder.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
@@ -69,6 +71,8 @@ void ComputeDualArea::create_dual_area_field()
 
   if( ! fields.get_child( Tags::dual_area() ) )
     fields.create_component<Link>( Tags::dual_area() )->link_to(*field).add_tag( Tags::dual_area() );
+
+CFinfo << "DUAL AREA: " << cdual_area->uri().name() << "  " << cdual_area->size() << CFendl << CFflush;
 }
 
 void ComputeDualArea::execute()
@@ -88,6 +92,9 @@ void ComputeDualArea::execute()
   // get the element loop or create it if does not exist
 
   Handle< ElementLoop > loop(get_child( "LOOP" ));
+
+  CFinfo << "DDDDDDDDDDDDDDDDDDDDDD " << type_name() << "  " << loop->derived_type_name() << CFendl << CFflush;
+
   if( is_null( loop ) )
   {
     loop = create_component<CellLoop>("LOOP", "CellLoopT1<" + type_name() + ">");
@@ -105,6 +112,21 @@ void ComputeDualArea::execute()
 
     loop->execute();
   }
+
+//  Handle< mesh::Field > coord =  mesh().geometry_fields().coordinates().handle< mesh::Field >();
+//  CFinfo << "COOR: " << coord->uri().path() << "  " << coord->size() << CFflush << CFendl;
+//  mesh::Field& coord=mesh().access_component_checked(URI("//Model/Domain/mesh/solution/coordinates"))->handle();
+//  CFinfo << "COOR: " << coord.uri().path() << "  " << coord.size() << CFflush << CFendl;
+//  Field& daf=dual_area();
+//  CFinfo << "NAME: " << daf.uri().path() << "  " << daf.size() << CFflush << CFendl;
+//  for (Uint n=0; n<daf.size(); ++n)
+//    for (Uint j=0; j<daf.row_size(); ++j)
+//      CFinfo << daf[n][j] << CFendl << CFflush;
+//  Handle<Component> ccoord=root()->access_component_checked(URI("//Model/Domain/mesh/solution/coordinates"));
+//  Handle<mesh::Field> coord=ccoord->handle<mesh::Field>();
+//  CFinfo << "COOR: " << coord->uri().path() << "  " << coord->size() << CFflush << CFendl;
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,13 +12,13 @@ env.options().configure_option('assertion_backtrace', True)
 env.options().configure_option('exception_backtrace', True)
 env.options().configure_option('exception_aborts', True)
 env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 3)
+env.options().configure_option('log_level', 4)
 env.options().configure_option('regist_signal_handlers', False)
 
 ### create model
 
 wizard = root.create_component('Wizard',  'cf3.RDM.UnsteadyExplicit')
-wizard.options().configure_option('rkorder',1)
+wizard.options().configure_option('rkorder',2)
 wizard.create_model(model_name='Model', physical_model='cf3.physics.LinEuler.LinEuler2D')
 model = root.get_child('Model')
 
@@ -49,7 +49,7 @@ solver.options().configure_option('solution_space', 'LagrangeP2B')
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 50)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 30)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
 #solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
 
@@ -129,8 +129,10 @@ gmsh_writer.execute()
 #tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
 
+
 import networkxpython as nx
 nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+
 
 
 

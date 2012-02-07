@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+#include "common/Log.hpp"
+
 #include "common/PropertyList.hpp"
 #include "common/StringConversion.hpp"
 
@@ -98,6 +100,7 @@ protected: // helper function
 
   void config_coeffs()
   {
+
     using namespace common;
 
     RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
@@ -109,9 +112,10 @@ protected: // helper function
 
     ksolutions.clear();
     ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() ))->handle<mesh::Field>() );
+
     for ( Uint kstep = 1; kstep < rkorder; ++kstep)
     {
-      ksolutions.push_back( follow_link( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ))->handle<mesh::Field>() );
+      ksolutions.push_back( follow_link( mysolver.fields().get_child( std::string(Tags::solution()) + "-" + to_str(kstep) + "dt" ))->handle<mesh::Field>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;

@@ -25,7 +25,7 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/FwdEuler.hpp"
-#include "RDM/SetupSingleSolution.hpp"
+#include "RDM/SetupMultipleSolutions.hpp"
 #include "RDM/Reset.hpp"
 
 // supported physical models
@@ -111,7 +111,7 @@ Model& SteadyExplicit::create_model( const std::string& model_name, const std::s
   solver->iterative_solver().update().create_component<FwdEuler>("Step");
 
   // (4d) setup solver fields
-  solver->prepare_mesh().create_component<SetupSingleSolution>("SetupFields");
+  solver->prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields");
 
   // (5) configure domain, physical model and solver in all subcomponents
 
