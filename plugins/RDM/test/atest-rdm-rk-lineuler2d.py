@@ -131,7 +131,8 @@ gmsh_writer.execute()
 
 
 import networkxpython as nx
-nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+nx.show_graph(solver.uri(),depth=1000,tree='colf',caption='colf',printdestination='s',hidden='')
 
 
 
