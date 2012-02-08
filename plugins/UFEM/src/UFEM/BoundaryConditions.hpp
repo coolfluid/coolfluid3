@@ -24,11 +24,7 @@ namespace UFEM {
 /// BoundaryConditions for UFEM problems
 class UFEM_API BoundaryConditions : public common::ActionDirector
 {
-public: // typedefs
-
-
-
-
+    
 public: // functions
 
   /// Contructor
@@ -58,6 +54,7 @@ public: // functions
 
   /// Signal to create a constant BC and add it to the sequence of executed actions
   void signal_create_constant_bc(common::SignalArgs& node);
+  void signal_create_function_bc(common::SignalArgs& node);
 
 private:
   class Implementation;

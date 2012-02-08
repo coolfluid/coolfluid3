@@ -85,7 +85,7 @@ struct BoundaryConditions::Implementation
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  void add_constant_bc_signature(SignalArgs& node)
+  void add_bc_signature(SignalArgs& node)
   {
     SignalOptions options( node );
 
@@ -155,7 +155,13 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
     .connect( boost::bind( &BoundaryConditions::signal_create_constant_bc, this, _1 ) )
     .description("Create a constant Dirichlet BC")
     .pretty_name("Add Constant BC")
-    .signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
+    .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
+    
+  regist_signal( "add_function_bc" )
+    .connect( boost::bind( &BoundaryConditions::signal_create_function_bc, this, _1 ) )
+    .description("Create a Dirichlet BC that can be set using an analytical function")
+    .pretty_name("Add Function BC")
+    .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
 }
 
 BoundaryConditions::~BoundaryConditions()
@@ -205,6 +211,16 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", add_constant_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
 }
+
+void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", add_function_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
+}
+
 
 } // UFEM
 } // cf3
