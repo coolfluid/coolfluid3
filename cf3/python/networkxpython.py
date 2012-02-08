@@ -27,6 +27,7 @@ navicolor='yellow'
 componentcolor='#aaaaaa'
 optioncolor='#2a83bd'
 signalcolor='#3a773a'
+tagcolor='#lightbrown'
 fieldcolor='#3a3a77'
 linkcolor='#aaaaaa'
 propertycolor='#cc4444'
@@ -101,7 +102,14 @@ def traverse_successors_recursive(G,key,pos,y) :
         pos[i]=[G.node[i]['depth'],y]
         y+=1
         y=traverse_successors_recursive(G,i,pos,y)
+  for i in G.successors(key):
     if G.node[i]['tag']=='option':
+      if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
+        pos[i]=[G.node[i]['depth'],y]
+        y+=1
+        y=traverse_successors_recursive(G,i,pos,y)
+  for i in G.successors(key):
+    if G.node[i]['tag']=='tag':
       if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
         pos[i]=[G.node[i]['depth'],y]
         y+=1
@@ -124,6 +132,7 @@ def traverse_successors_recursive(G,key,pos,y) :
         pos[i]=[G.node[i]['depth'],y]
         y+=1
         y=traverse_successors_recursive(G,i,pos,y)
+  for i in G.successors(key):
     if G.node[i]['tag']=='component':
       if not ((G.edge[key][i]['tag']=='link') and (G.node[i]['tag']!='link')) :
         pos[i]=[G.node[i]['depth'],y]
@@ -227,6 +236,9 @@ class nx_event_connector:
   ln=None
   le=None
   lcapt=None
+  tn=None
+  te=None
+  tcapt=None
   printdestination=None
   hidden=None
   navi=None
@@ -257,6 +269,9 @@ class nx_event_connector:
     self.ln=list()                       # list of nodes to display for links
     self.le=list()                       # list of edges to display for links
     self.lcapt=dict()                    # text to display for nodes of links
+    self.tn=list()                       # list of nodes to display for tags
+    self.te=list()                       # list of edges to display for tags
+    self.tcapt=dict()                    # text to display for nodes of tags
     self.printdestination='sc'           # where to print component info: 's' screen and/or 'c' console terminal
     self.hidden='cfospl'                 # mask for which nodes marked as hidden not to display
 
@@ -276,7 +291,7 @@ class nx_event_connector:
     nxp=root.get_child('NetworkXPython')
     naviax.clear()
     self.navi=nx_event_connector("navi")
-    self.navi=build_graph_with_lists(cf.URI(key[2:]),self.navi,nxp,1,'cspofl',depthlimit_sofpl=False,add_parent=True,hidden=self.hidden)
+    self.navi=build_graph_with_lists(cf.URI(key[2:]),self.navi,nxp,1,'cspoflt',depthlimit_sofplt=False,add_parent=True,hidden=self.hidden)
     self.navi.pos=traditional_left2right_tree_layout_in_polar(self.navi.G,key[2:])
     self.navi.pos=normalize_coordinates(key[2:],self.navi.pos,cf3_img)
     self.navi.rot=compute_edge_angles_for_target_nodes(self.navi.G,self.navi.pos)
@@ -296,15 +311,17 @@ class nx_event_connector:
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.se,'se',self.navi.sn,'sn','solid',signalcolor,10)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.pe,'pe',self.navi.pn,'pn','solid',propertycolor,11)
     draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.fe,'fe',self.navi.fn,'fn','solid',fieldcolor,12)
-    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.oe,'oe',self.navi.on,'on','solid',optioncolor,13)
-    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.le,'le',self.navi.ln,'ln','dashed',linkcolor,14)
-    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.ce,'ce',self.navi.cn,'cn','solid',componentcolor,15)
+    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.te,'te',self.navi.tn,'tn','solid',tagcolor,13)
+    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.oe,'oe',self.navi.on,'on','solid',optioncolor,14)
+    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.le,'le',self.navi.ln,'ln','dashed',linkcolor,15)
+    draw_edges_nodes(self.navi.G,self.navi.pos,self.navi.ce,'ce',self.navi.cn,'cn','solid',componentcolor,16)
     draw_captions(self.navi.G,self.navi.pos,self.navi.scapt,'sc',signalcolor,40,rotation=self.navi.rot,onlyalign=True)
     draw_captions(self.navi.G,self.navi.pos,self.navi.pcapt,'pc',propertycolor,41,rotation=self.navi.rot,onlyalign=True)
     draw_captions(self.navi.G,self.navi.pos,self.navi.fcapt,'fc',fieldcolor,42,rotation=self.navi.rot,onlyalign=True)
-    draw_captions(self.navi.G,self.navi.pos,self.navi.ocapt,'oc',optioncolor,43,rotation=self.navi.rot,onlyalign=True)
-    draw_captions(self.navi.G,self.navi.pos,self.navi.lcapt,'lc',linkcolor,44,rotation=self.navi.rot,onlyalign=True)
-    draw_captions(self.navi.G,self.navi.pos,self.navi.ccapt,'cc',componentcolor,45,rotation=self.navi.rot,onlyalign=True)
+    draw_captions(self.navi.G,self.navi.pos,self.navi.tcapt,'tc',tagcolor,43,rotation=self.navi.rot,onlyalign=True)
+    draw_captions(self.navi.G,self.navi.pos,self.navi.ocapt,'oc',optioncolor,44,rotation=self.navi.rot,onlyalign=True)
+    draw_captions(self.navi.G,self.navi.pos,self.navi.lcapt,'lc',linkcolor,45,rotation=self.navi.rot,onlyalign=True)
+    draw_captions(self.navi.G,self.navi.pos,self.navi.ccapt,'cc',componentcolor,46,rotation=self.navi.rot,onlyalign=True)
     naviax.set_xbound((-3,3))
     naviax.set_ybound((-1.2,1.5))
     naviax.set_visible(True)
@@ -325,7 +342,7 @@ class nx_event_connector:
       key=deepcopy(key_orig)
 
       # marionetting out the owner if its not a component, first trying main and then navi
-      if ((tG.node[key]['tag']=='signal') or (tG.node[key]['tag']=='option') or (tG.node[key]['tag']=='field') or (tG.node[key]['tag']=='property')):
+      if ((tG.node[key]['tag']=='tag') or (tG.node[key]['tag']=='signal') or (tG.node[key]['tag']=='option') or (tG.node[key]['tag']=='field') or (tG.node[key]['tag']=='property')):
         key=tG.pred[key].keys()[0]
       comp=root.access_component(key[2:])
 
@@ -339,6 +356,8 @@ class nx_event_connector:
         self.seltxt.set_text(key[2:])
       if (tG.node[key_orig]['tag']=='option'):
         self.seltxt.set_text("option of " + key[2:])
+      if (tG.node[key_orig]['tag']=='tag'):
+        self.seltxt.set_text("tag of " + key[2:])
       if (tG.node[key_orig]['tag']=='property'):
         self.seltxt.set_text("property of " + key[2:])
       if (tG.node[key_orig]['tag']=='signal'):
@@ -412,18 +431,20 @@ def append_with_successors_recursive(G,key,to_append) :
   for i in G.successors(key):
     append_with_successors_recursive(G,i,to_append)
 
-def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=True,add_parent=False,hidden='cofpsl'):
+def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofplt=True,add_parent=False,hidden='cofpslt'):
 
   # getting the strings which holds the script to setup the graph
   components=nxp_.get_component_graph( uri = starturi_, depth = depth_ )
-  if depthlimit_sofpl==True:
+  if depthlimit_sofplt==True:
     options=nxp_.get_option_graph( uri = starturi_, depth = depth_ )
+    tags=nxp_.get_tag_graph( uri = starturi_, depth = depth_ )
     signals=nxp_.get_signal_graph( uri = starturi_, depth = depth_ )
     fields=nxp_.get_field_graph( uri = starturi_, depth = depth_ )
     links=nxp_.get_link_graph( uri = starturi_, depth = depth_ )
     properties=nxp_.get_property_graph( uri = starturi_, depth = depth_ )
   else:
     options=nxp_.get_option_graph( uri = starturi_, depth = depth_-1 )
+    tags=nxp_.get_tag_graph( uri = starturi_, depth = depth_-1 )
     signals=nxp_.get_signal_graph( uri = starturi_, depth = depth_-1 )
     fields=nxp_.get_field_graph( uri = starturi_, depth = depth_-1 )
     links=nxp_.get_link_graph( uri = starturi_, depth = depth_-1 )
@@ -431,6 +452,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
 
   #print components
   #print options
+  #print tags
   #print signals
   #print fields
   #print links
@@ -449,6 +471,8 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
     for line in StringIO(fields    ): exec 'nec_.' + line
   if 'l' in tree_:
     for line in StringIO(links     ): exec 'nec_.' + line
+  if 't' in tree_:
+    for line in StringIO(tags      ): exec 'nec_.' + line
 
   # if there is a parent node and add_parent is true, the make it mimic a regular component
   if add_parent==True:
@@ -494,6 +518,10 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
   nec_.le=[(u,v) for (u,v,d) in nec_.G.edges(data=True) if d['tag']=='link']
   nec_.lcapt=dict.fromkeys(nec_.nodecaption,'')
   for key in nec_.ln : nec_.lcapt[key]=nec_.nodecaption[key]
+  nec_.tn=[(u)   for (u,d)   in nec_.G.nodes(data=True) if d['tag']=='tag']
+  nec_.te=[(u,v) for (u,v,d) in nec_.G.edges(data=True) if d['tag']=='tag']
+  nec_.tcapt=dict.fromkeys(nec_.nodecaption,'')
+  for key in nec_.tn : nec_.tcapt[key]=nec_.nodecaption[key]
 
   return nec_
 
@@ -505,6 +533,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
 # caption: what to label in the tree. Combination of chars 'cosfl'
 #  'c': component
 #  'o': option
+#  't': tag
 #  'p': property
 #  's': signal
 #  'f': field
@@ -525,7 +554,7 @@ def build_graph_with_lists(starturi_,nec_,nxp_,depth_,tree_,depthlimit_sofpl=Tru
 #   50:  title
 #   51:  component info
 #########################################################################################
-def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',hidden='cospfl'):
+def show_graph(starturi,depth=1000,tree='cofl',caption='',printdestination='c',hidden='cospflt'):
 
   # create the collector component on coolfluid side
   nxp = root.create_component('NetworkXPython','cf3.python.NetworkXPython')
@@ -564,6 +593,7 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',
   print "--------------------------------"
   print "Components: %10d%10d" % ( len(nec.cn), len(nec.ce) )
   print "Options:    %10d%10d" % ( len(nec.on), len(nec.oe) )
+  print "Tags:       %10d%10d" % ( len(nec.tn), len(nec.te) )
   print "Properties: %10d%10d" % ( len(nec.pn), len(nec.pe) )
   print "Signals:    %10d%10d" % ( len(nec.sn), len(nec.se) )
   print "Fields:     %10d%10d" % ( len(nec.fn), len(nec.fe) )
@@ -574,17 +604,19 @@ def show_graph(starturi,depth=1000,tree='copfl',caption='',printdestination='c',
   if 's' in tree: draw_edges_nodes(nec.G,nec.pos,nec.se,'se',nec.sn,'sn','solid',signalcolor,10)
   if 'p' in tree: draw_edges_nodes(nec.G,nec.pos,nec.pe,'pe',nec.pn,'pn','solid',propertycolor,11)
   if 'f' in tree: draw_edges_nodes(nec.G,nec.pos,nec.fe,'fe',nec.fn,'fn','solid',fieldcolor,12)
-  if 'o' in tree: draw_edges_nodes(nec.G,nec.pos,nec.oe,'oe',nec.on,'on','solid',optioncolor,13)
-  if 'l' in tree: draw_edges_nodes(nec.G,nec.pos,nec.le,'le',nec.ln,'ln','dashed',linkcolor,14)
-  if 'c' in tree: draw_edges_nodes(nec.G,nec.pos,nec.ce,'ce',nec.cn,'cn','solid',componentcolor,15)
+  if 't' in tree: draw_edges_nodes(nec.G,nec.pos,nec.te,'te',nec.tn,'tn','solid',tagcolor,13)
+  if 'o' in tree: draw_edges_nodes(nec.G,nec.pos,nec.oe,'oe',nec.on,'on','solid',optioncolor,14)
+  if 'l' in tree: draw_edges_nodes(nec.G,nec.pos,nec.le,'le',nec.ln,'ln','dashed',linkcolor,15)
+  if 'c' in tree: draw_edges_nodes(nec.G,nec.pos,nec.ce,'ce',nec.cn,'cn','solid',componentcolor,16)
 
   # draw the
   if 's' in caption: draw_captions(nec.G,nec.pos,nec.scapt,'sc',signalcolor,40,rotation=rot)
   if 'p' in caption: draw_captions(nec.G,nec.pos,nec.pcapt,'pc',propertycolor,41,rotation=rot)
   if 'f' in caption: draw_captions(nec.G,nec.pos,nec.fcapt,'fc',fieldcolor,42,rotation=rot)
-  if 'o' in caption: draw_captions(nec.G,nec.pos,nec.ocapt,'oc',optioncolor,43,rotation=rot)
-  if 'l' in caption: draw_captions(nec.G,nec.pos,nec.lcapt,'lc',linkcolor,44,rotation=rot)
-  if 'c' in caption: draw_captions(nec.G,nec.pos,nec.ccapt,'cc',componentcolor,45,rotation=rot)
+  if 't' in caption: draw_captions(nec.G,nec.pos,nec.tcapt,'tc',tagcolor,43,rotation=rot)
+  if 'o' in caption: draw_captions(nec.G,nec.pos,nec.ocapt,'oc',optioncolor,44,rotation=rot)
+  if 'l' in caption: draw_captions(nec.G,nec.pos,nec.lcapt,'lc',linkcolor,45,rotation=rot)
+  if 'c' in caption: draw_captions(nec.G,nec.pos,nec.ccapt,'cc',componentcolor,46,rotation=rot)
 
   # showing the plot
   print "---------- SHOW ----------"

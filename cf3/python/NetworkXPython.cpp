@@ -86,6 +86,12 @@ NetworkXPython::NetworkXPython( const std::string& name ) :
       .signature( boost::bind( &NetworkXPython::signature_get_property_graph, this, _1))
       .description("Outputs the add_node and add_edge commands in order to build the graph if propertys for NetworkX as a string")
       .pretty_name("GetPropertyGraph");
+
+  regist_signal( "get_tag_graph" )
+      .connect  ( boost::bind( &NetworkXPython::signal_get_tag_graph, this,  _1 ))
+      .signature( boost::bind( &NetworkXPython::signature_get_tag_graph, this, _1))
+      .description("Outputs the add_node and add_edge commands in order to build the graph if tags for NetworkX as a string")
+      .pretty_name("GetTagGraph");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,6 +115,11 @@ void NetworkXPython::signal_get_detailed_info(SignalArgs& args)
   coll += "-----NAME---------------\n     " + c->name() + "\n";
   coll += "-----TYPE---------------\n     " + c->derived_type_name() + "\n";
   coll += "-----PATH---------------\n     " + c->uri().path() + "\n";
+
+  // tags
+  coll += "-----TAGS---------------\n";
+  BOOST_FOREACH(const std::string &t, c->get_tags())
+    coll += "     " + t + "\n";
 
   // options
   coll += "-----OPTIONS------------\n";
@@ -404,7 +415,7 @@ void NetworkXPython::append_field_nodes_recursive(const Component &c, std::strin
     for ( int i=0; i<(const int)f.nb_vars(); i++){
       std::string n=f.uri().path() + "/" + boost::lexical_cast<std::string>(i) + f.var_name(i);
       coll.append("G.add_node('f:" + n + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='field',hidden=False)\n");
-      coll.append("nodecaption.update({'f:" + n + "':'" + f.name() + "/" + f.var_name(i) + "_" + boost::lexical_cast<std::string>(f.size()) + "'})\n");
+      coll.append("nodecaption.update({'f:" + n + "':'" + f.var_name(i) + "_" + boost::lexical_cast<std::string>(f.size()) + "'})\n");
     }
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
@@ -562,6 +573,59 @@ void NetworkXPython::append_property_edges_recursive(const Component &c, std::st
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_property_edges_recursive(subc, coll, depthlimit, depth+1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::signal_get_tag_graph( SignalArgs& args )
+{
+  SignalOptions options( args );
+  Handle<Component> printroot = access_component_checked(options.option("uri").value<URI>());
+  const int depthlimit = options.option("depth").value<const int>();
+  std::string coll("");
+  append_tag_nodes_recursive(*printroot,coll,depthlimit,0);
+  append_tag_edges_recursive(*printroot,coll,depthlimit,0);
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("return_value", coll);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::signature_get_tag_graph( SignalArgs& args )
+{
+  SignalOptions options( args );
+  options.add_option( "uri", URI("//") )
+    .description("URI of the component to start from")
+    .pretty_name("uri");
+  options.add_option( "depth", 1000 )
+    .description("Level up to look into the subtree of the component")
+    .pretty_name("Depth");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::append_tag_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
+{
+  BOOST_FOREACH(const std::string &t, c.get_tags())
+  {
+    coll.append("G.add_node('t:" + c.uri().path() + "/" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='tag',hidden=" + pybool(!c.has_tag("basic")) + ")\n");
+    coll.append("nodecaption.update({'o:" + c.uri().path() + "/" + t + "':'" + t + "'})\n");
+  }
+  if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
+    append_tag_nodes_recursive(subc, coll, depthlimit, depth+1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NetworkXPython::append_tag_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
+{
+  BOOST_FOREACH(const std::string &t, c.get_tags())
+    coll.append("G.add_edge('c:" + c.uri().path() + "','o:" + c.uri().path() + "/" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='tag',hidden=" + pybool(!c.has_tag("basic")) + ")\n");
+  if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
+    append_tag_edges_recursive(subc, coll, depthlimit, depth+1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
