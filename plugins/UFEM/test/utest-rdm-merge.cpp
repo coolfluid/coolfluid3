@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   MeshTerm<1, VectorField> u_adv("AdvectionSpeed", "linearized_velocity");
-  RealVector2 u_ref(1.,0.);
+  RealVector u_ref(1.,0.);
 
   // add the top-level actions (assembly, BC and solve)
   solver

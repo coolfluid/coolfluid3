@@ -30,6 +30,7 @@
 #include "solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"
+#include "ParsedFunctionExpression.hpp"
 #include "Tags.hpp"
 
 namespace cf3 {
@@ -168,7 +169,7 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
   boost::shared_ptr< common::Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_constant_scalar_bc(region_name, variable_name) :
     m_implementation->create_constant_vector_bc(region_name, variable_name);
-    
+
 
   *this << result; // Append action
 
@@ -181,6 +182,18 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
 {
   Handle<common::Action> result =  add_constant_bc(region_name, variable_name);
   result->options().configure_option("value", default_value);
+  return result;
+}
+
+Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& region_name, const std::string& variable_name)
+{
+  Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
+
+  MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
+  result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->function() ) );
+
+  m_implementation->configure_bc(*result, region_name);
+
   return result;
 }
 

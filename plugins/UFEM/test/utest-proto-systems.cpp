@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
   std::vector<Real> outside_temp(2, 1.);
-  const RealVector2 initial_temp(100., 200.);
+  RealVector initial_temp(2); initial_temp << 100., 200.;
   const Uint nb_segments = 10;
   const Real end_time = 0.5;
   const Real dt = 0.1;

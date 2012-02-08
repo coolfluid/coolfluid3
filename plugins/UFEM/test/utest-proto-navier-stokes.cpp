@@ -28,6 +28,7 @@
 #include "UFEM/NavierStokesOps.hpp"
 #include "UFEM/Tags.hpp"
 #include "UFEM/TimeLoop.hpp"
+#include "UFEM/ParsedFunctionExpression.hpp"
 
 #include "NavierStokes.hpp"
 #include "solver/actions/ZeroLSS.hpp"
@@ -96,6 +97,13 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   coefs.mu = mu;
   coefs.rho = rho;
 
+  // Parabolic expression for the inlet
+  std::stringstream parabole_str;
+  parabole_str << "y*(" << height << "-y)*" << c;
+  std::vector<std::string> parabole_functions(2, "0");
+  parabole_functions[0] = parabole_str.str();
+
+
   // List of (Navier-)Stokes creation functions, with their names
   const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("navier_stokes_bulk");
   typedef boost::shared_ptr< Expression > (*FactoryT)(LinearSolverUnsteady&, SUPGCoeffs&);
@@ -118,14 +126,19 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Expression variables
     MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
     MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
-    
-    // BCs
+
+    // Velocity initial condition
+    boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
+    vel_init->set_expression(nodes_expression(u = vel_init->function()));
+    vel_init->options().configure_option("value", parabole_functions);
+
+    // BC
     boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
     // build up the solver out of different actions
     solver
       << create_proto_action("InitializePressure", nodes_expression(p = 0.))
-      << create_proto_action("InitializeVelocity", parabolic_field(solver, u_max, height))
+      << vel_init
       <<
       ( // Time loop
         allocate_component<TimeLoop>("TimeLoop")
@@ -144,8 +157,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     model.create_physics("cf3.physics.DynamicModel");
 
     // Setup mesh
-    // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-    // Tools::MeshGeneration::create_rectangle(mesh, length, height, x_segments, y_segments);
     boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
     create_rectangle->options().configure_option("mesh",domain.uri()/"Mesh");
     std::vector<Real> lengths(2);     lengths[XX] = length;            lengths[YY]  = height;
@@ -156,17 +167,13 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
+    // Boundary conditions
     bc->add_constant_bc("left", "Pressure", p0);
     bc->add_constant_bc("right", "Pressure", p1);
     bc->add_constant_bc("bottom", "Velocity", u_wall);
     bc->add_constant_bc("top", "Velocity", u_wall);
-    bc->add_component(create_proto_action("ParabolicBC", parabolic_dirichlet(solver, u_max, height)));
-
-    // Set the region of the parabolic inlet and outlet
-    const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<Region>(mesh.topology(), "left").uri())
-                                                          (find_component_recursively_with_name<Region>(mesh.topology(), "right").uri());
-
-    bc->get_child("ParabolicBC")->options().configure_option(solver::Tags::regions(), in_out);
+    bc->add_function_bc("left", "Velocity")->options().configure_option("value", parabole_functions);
+    //bc->add_function_bc("right", "Velocity")->options().configure_option("value", parabole_functions);
 
     // Configure timings
     Time& time = model.create_time();
@@ -175,6 +182,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // Run the solver
     model.simulate();
+
+    lss.matrix()->print("matrix-" + names[i] + ".plt");
+    lss.rhs()->print("rhs-" + names[i] + ".plt");
   }
 }
 
