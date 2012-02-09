@@ -612,7 +612,7 @@ void NetworkXPython::append_tag_nodes_recursive(const Component &c, std::string 
   BOOST_FOREACH(const std::string &t, c.get_tags())
   {
     coll.append("G.add_node('t:" + c.uri().path() + "/" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='tag',hidden=" + pybool(!c.has_tag("basic")) + ")\n");
-    coll.append("nodecaption.update({'o:" + c.uri().path() + "/" + t + "':'" + t + "'})\n");
+    coll.append("nodecaption.update({'t:" + c.uri().path() + "/" + t + "':'" + t + "'})\n");
   }
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_tag_nodes_recursive(subc, coll, depthlimit, depth+1);
@@ -623,7 +623,7 @@ void NetworkXPython::append_tag_nodes_recursive(const Component &c, std::string 
 void NetworkXPython::append_tag_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth)
 {
   BOOST_FOREACH(const std::string &t, c.get_tags())
-    coll.append("G.add_edge('c:" + c.uri().path() + "','o:" + c.uri().path() + "/" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='tag',hidden=" + pybool(!c.has_tag("basic")) + ")\n");
+    coll.append("G.add_edge('c:" + c.uri().path() + "','t:" + c.uri().path() + "/" + t + "',depth=" + boost::lexical_cast<std::string>(depth+1) + ",tag='tag',hidden=" + pybool(!c.has_tag("basic")) + ")\n");
   if (depth<depthlimit) BOOST_FOREACH(const Component& subc, c )
     append_tag_edges_recursive(subc, coll, depthlimit, depth+1);
 }

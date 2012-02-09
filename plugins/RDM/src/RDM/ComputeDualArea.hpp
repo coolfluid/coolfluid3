@@ -171,8 +171,8 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
 
-  options()["elements"]
-      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
+//  options()["elements"]
+//      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations
 

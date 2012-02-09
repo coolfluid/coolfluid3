@@ -4,6 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
+  #include <cxxabi.h>
+  #include <boost/algorithm/string.hpp>
+#endif // (__GNUC__ && __cplusplus && __GNUC__ >= 3)
+
 #include <cstdio>        // for printf()
 #include <cstdlib>       // for free() and abort()
 #include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
@@ -61,19 +66,55 @@ std::string OSystemLayer::dump_back_trace ()
   void *buffer[CF_BUFFER_SIZE];
   char **strings;
 
+  // get backtrace
   nptrs = backtrace(buffer, CF_BUFFER_SIZE);
   oss << "\nbacktrace() returned " << nptrs << " addresses\n";
-
   strings = backtrace_symbols(buffer, nptrs);
   if (strings == NULL)
+  {
     oss << "\nno backtrace_symbols found\n";
+    return oss.str();
+  }
+
+  // demangle names if gnu c, taken from:
+  // http://mykospark.net/2009/09/runtime-backtrace-in-c-with-name-demangling/
+  #if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
+    char *demangled=0;
+    std::vector<std::string> strs;
+    int status;
+    for (j = 0; j < nptrs; j++)
+    {
+      boost::split(strs,strings[j],boost::is_any_of("()+"));
+      if (strs[1].size()!=0)
+      {
+        demangled=__cxxabiv1::__cxa_demangle(strs[1].c_str(),0,0,&status);
+        if (demangled==0)
+        {
+          demangled=(char*)calloc(strs[1].size()+1,sizeof(char));
+          strcpy(demangled,strs[1].c_str());
+        }
+      }
+      if (status!=0)
+        oss << strings[j] << "\n";
+      else
+      {
+        oss << demangled << "+" << strs[2] << strs[0] << " " << strs[3] << "\n";
+        oss << "     " << strs[0] << " " << strs[3] << "\n";
+      }
+    }
+    free(strings);
+    oss << "\n... end backtrace\n";
+    return oss.str();
+  #endif // (__GNUC__ && __cplusplus && __GNUC__ >= 3)
+
+  // if nothing above, just print the raw backtrace
   for (j = 0; j < nptrs; j++)
     oss << strings[j] << "\n";
+  oss << "\n... end backtrace\n";
   free(strings);
+  return oss.str();
 
 #undef CF_BUFFER_SIZE
-
-  return oss.str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
