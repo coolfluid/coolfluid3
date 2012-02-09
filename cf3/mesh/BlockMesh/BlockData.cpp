@@ -63,7 +63,7 @@ namespace detail
   /// Create the first step length and expansion ratios in each direction (in the mapped space)
   void create_mapped_coords(const Uint segments, const Real* gradings, common::Table<Real>::ArrayT& mapped_coords, const Uint nb_edges)
   {
-    const Real eps = 150*std::numeric_limits<Real>::epsilon();
+    const Real eps = 1500*std::numeric_limits<Real>::epsilon();
     mapped_coords.resize(boost::extents[segments+1][nb_edges]);
     for(Uint edge = 0; edge != nb_edges; ++edge)
     {
