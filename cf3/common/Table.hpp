@@ -65,7 +65,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  Table ( const std::string& name )  : Component ( name )
+  Table ( const std::string& name )  : Component ( name ), m_pos(0)
   {  }
 
   /// Get the component type name
@@ -146,10 +146,25 @@ public: // functions
       row_to_set[j] = row[j];
   }
 
+  /// Set position for the next input by <<
+  Table<ValueT>& seekp(const Uint p)
+  {
+        m_pos = p;
+    return *this;
+  }
+
+  /// Get the current seek position as used by <<
+  Uint tellp() const
+  {
+    return m_pos;
+  }
+
 private: // data
 
   /// storage of the array
   ArrayT m_array;
+  /// position when used as output stream
+  Uint m_pos;
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +180,17 @@ std::ostream& operator<<(std::ostream& os, const Table<Uint>& table);
 std::ostream& operator<<(std::ostream& os, const Table<int>& table);
 std::ostream& operator<<(std::ostream& os, const Table<Real>& table);
 std::ostream& operator<<(std::ostream& os, const Table<std::string>& table);
+
+/// Insert values using <<
+template<typename ValueT, typename OtherT>
+Table<ValueT>& operator<<(Table<ValueT>& table, const OtherT value)
+{
+  const Uint row = table.tellp() / table.row_size();
+  const Uint col = table.tellp() % table.row_size();
+  table[row][col] = value;
+  table.seekp(table.tellp() + 1);
+  return table;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

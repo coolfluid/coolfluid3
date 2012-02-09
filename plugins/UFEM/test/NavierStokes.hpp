@@ -18,12 +18,6 @@ class LinearSolverUnsteady;
 class LinearSolver;
 class SUPGCoeffs;
 
-/// Parabolic velocity profile as boundary condition
-boost::shared_ptr< solver::actions::Proto::Expression > parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
-
-/// Parabolic velocity profile as initial condition
-boost::shared_ptr< solver::actions::Proto::Expression > parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height);
-
 /// Assembly for the Stokes equations, stabilized with artificial dissipation
 boost::shared_ptr< solver::actions::Proto::Expression > stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 

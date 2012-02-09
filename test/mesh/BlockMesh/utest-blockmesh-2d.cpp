@@ -11,13 +11,17 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
+#include "common/Environment.hpp"
+#include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 #include "common/List.hpp"
+#include "common/Table.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/MeshWriter.hpp"
+#include "mesh/Field.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -33,9 +37,9 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  boost::shared_ptr< MeshWriter > writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer", "writer");
+  Core::instance().environment().options().configure_option("log_level", 4u);
+
   Domain& domain = *Core::instance().root().create_component<Domain>("domain");
-  domain.add_component(writer);
 
   const Real length = 1.;
   const Real half_height = 1.;
@@ -43,50 +47,48 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint x_segs = 12;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
 
-  blocks.dimension = 2;
-  blocks.scaling_factor = 1.;
+  (*blocks.create_points(2, 6)) << 0.     << -half_height
+                                << length << -half_height
+                                << 0.     <<  0.
+                                << length <<  0.
+                                << 0.     <<  half_height
+                                << length <<  half_height;
 
-  blocks.points += list_of(0.    )(-half_height)
-                 , list_of(length)(-half_height)
-                 , list_of(0.    )( 0.         )
-                 , list_of(length)( 0.         )
-                 , list_of(0.    )( half_height)
-                 , list_of(length)( half_height);
+  (*blocks.create_blocks(2)) << 0 << 1 << 3 << 2
+                             << 2 << 3 << 5 << 4;
 
-  blocks.block_points += list_of(0)(1)(3)(2),
-                         list_of(2)(3)(5)(4);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs),
-                               list_of(x_segs)(y_segs);
-  blocks.block_gradings += list_of(1.)(1.)(1./ratio)(1./ratio),
-                           list_of(1.)(1.)(ratio)(ratio);
+  (*blocks.create_block_subdivisions()) << x_segs << y_segs
+                                        << x_segs << y_segs;
 
-  blocks.patch_names += "left", "right", "top",  "bottom";
-  blocks.patch_types += "wall", "wall",  "wall", "wall";
-  blocks.patch_points += list_of(2)(0)(4)(2),
-                         list_of(1)(3)(3)(5),
-                         list_of(5)(4),
-                         list_of(0)(1);
+  (*blocks.create_block_gradings()) << 1. << 1. << 1./ratio << 1./ratio
+                                    << 1. << 1. << ratio << ratio;
 
-  blocks.block_distribution += 0, 2;
+  *blocks.create_patch("left", 2) << 2 << 0 << 4 << 2;
+  *blocks.create_patch("right", 2) << 1 << 3 << 3 << 5;
+  *blocks.create_patch("top", 1) << 5 << 4;
+  *blocks.create_patch("bottom", 1) << 0 << 1;
 
-  domain.add_component(writer);
   Mesh& mesh = *domain.create_component<Mesh>("mesh");
 
-  BlockMesh::build_mesh(blocks, mesh);
+  blocks.create_mesh(mesh);
 
   BOOST_CHECK_EQUAL(mesh.dimension(), 2);
 
-  writer->write_from_to(mesh, URI("grid-2d.vtk"));
+  mesh.write_mesh("grid-2d.msh");
 
   // Test block partitioning
-  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
-  BlockMesh::partition_blocks(blocks, 4, XX, parallel_blocks);
-
-  Mesh& parallel_block_mesh = *domain.create_component<Mesh>("parallel_block_mesh");
-  BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
-  writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
+  blocks.partition_blocks(5, 0);
+  blocks.partition_blocks(3, 1);
+  Handle<Mesh> block_mesh = blocks.create_block_mesh();
+  std::vector<URI> fields;
+  BOOST_FOREACH(const Field& field, find_components_recursively<Field>(*block_mesh))
+  {
+    if(field.name() != "coordinates")
+      fields.push_back(field.uri());
+  }
+  block_mesh->write_mesh("grid-2d-parblocks.msh", fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

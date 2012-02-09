@@ -41,14 +41,14 @@ set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} ${CF_CONFIG_OPTIONS} \"-G${C
 # Dashboard execution
 ##########################################################################
 
-include("${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake")
-include("${CTEST_SOURCE_DIRECTORY}/cmake/SubProjects.cmake")
-
-ctest_submit(FILES "${CTEST_BINARY_DIRECTORY}/Project.xml")
-
 set(START_TIME ${CTEST_ELAPSED_TIME})
 ctest_start (${MODEL})
-# ctest_update(RETURN_VALUE HAD_UPDATES)
+ctest_update()
+
+include("${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake")
+include("${CTEST_SOURCE_DIRECTORY}/cmake/SubProjects.cmake")
+ctest_submit(FILES "${CTEST_BINARY_DIRECTORY}/Project.xml")
+
 ctest_submit(PARTS Update Notes)
 
 set_property(GLOBAL PROPERTY SubProject ${CF3_KERNEL_PROJECT})
