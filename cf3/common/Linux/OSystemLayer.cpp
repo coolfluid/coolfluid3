@@ -97,13 +97,11 @@ std::string OSystemLayer::dump_back_trace ()
       if (status!=0)
         oss << strings[j] << "\n";
       else
-      {
-        oss << demangled << "+" << strs[2] << strs[0] << " " << strs[3] << "\n";
-        oss << "     " << strs[0] << " " << strs[3] << "\n";
-      }
+        oss << demangled << "+" << strs[2] << " " << strs[0] << " " << strs[3] << "\n";
     }
     free(strings);
     oss << "\n... end backtrace\n";
+    oss.clear();
     return oss.str();
   #endif // (__GNUC__ && __cplusplus && __GNUC__ >= 3)
 

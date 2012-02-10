@@ -33,9 +33,6 @@ public: // typedefs
 
   template < typename SF, typename QD > class Term;
 
-
-
-
 public: // functions
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
@@ -70,12 +67,6 @@ private: // data
 
 template < typename SF, typename QD >
 class RDM_API ComputeDualArea::Term : public solver::actions::LoopOperation {
-
-public: // typedefs
-
-  /// pointers
-
-
 
 public: // functions
 
@@ -171,8 +162,11 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
 
-//  options()["elements"]
-//      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
+  options()["elements"]
+      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
+
+
+  cf3_assert(false);
 
   // initializations
 
@@ -211,53 +205,41 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
 //  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
 
-
   // get element connectivity
-
   const mesh::Connectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
-
   mesh::fill(X_n, *coordinates, nodes_idx );
 
   // interpolation of coordinates to quadrature points
-
   X_q  = Ni * X_n;
 
   // interpolation of gradients to quadrature points
-
   for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
     for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
       dX[dimx].col(dimksi) = dNdKSI[dimksi] * X_n.col(dimx);
 
   // sum @ each quadrature point
-
   wi.setZero();
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
 
     // jacobian of transformation phys -> ref:
-
     for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
       for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
         JM(dimksi,dimx) = dX[dimx](q,dimksi);
-
     jacob[q] = JM.determinant();
 
     // integration point weight
-
     wj[q] = jacob[q] * m_quadrature.weights[q];
-
     wi += Ni.row(q).transpose() * wj[q];
 
   } // loop qd points
 
   // sum contribution to global table of dual areas
-
   for (Uint n=0; n<SF::nb_nodes; ++n)
     (*dual_area)[nodes_idx[n]][0] += wi[n];
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

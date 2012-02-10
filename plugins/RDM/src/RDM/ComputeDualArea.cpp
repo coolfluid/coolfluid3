@@ -94,23 +94,15 @@ void ComputeDualArea::execute()
   Handle< ElementLoop > loop(get_child( "LOOP" ));
 
   if( is_null( loop ) )
-  {
     loop = create_component<CellLoop>("LOOP", "CellLoopT1<" + type_name() + ">");
-  }
-
-  CFinfo << "DDDDDDDDDDDDDDDDDDDDDD " << type_name() << "  " << loop->derived_type_name() << CFendl << CFflush;
-
 
   // loop on all regions configured by the user
 
   boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
   {
     std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
-
     loop->select_region( region );
-
     // loop all elements of this region
-
     loop->execute();
   }
 
