@@ -33,7 +33,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
 solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP2B')
+solver.options().configure_option('solution_space', 'LagrangeP1')
 
 #solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
 
@@ -47,9 +47,9 @@ solver.options().configure_option('solution_space', 'LagrangeP2B')
 #print("----------------------------------------------------------------------------------------------------------")
 
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
+solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', .13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 30)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 30) #30)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
 #solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
 
@@ -119,6 +119,10 @@ gmsh_writer.execute()
 
 model.simulate()
 
+interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+interpolator.interpolate(source=cf.URI('//Model/Domain/mesh/solution/solution'),
+                         target=cf.URI('//Model/Domain/mesh/geometry/solution'))
+
 gmsh_writer.options().configure_option('fields',fgeo)
 gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final.msh'))
 gmsh_writer.execute()
@@ -130,9 +134,12 @@ gmsh_writer.execute()
 #tecplot_writer.execute()
 
 
+
+
+
 import networkxpython as nx
-#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
-nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
+nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+#nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
 
 
 

@@ -408,7 +408,7 @@ void ComponentWrapper::bind_signals(boost::python::object& python_object)
 
 void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 {
-  CFdebug << "Wrapping signal " << signal->name() << CFendl;
+  // CFdebug << "Wrapping signal " << signal->name() << CFendl;
   m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal, m_implementation->m_component));
 }
 

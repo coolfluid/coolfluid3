@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @todo remove this include
+#include "common/Log.hpp"
+
 #include "common/Link.hpp"
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"

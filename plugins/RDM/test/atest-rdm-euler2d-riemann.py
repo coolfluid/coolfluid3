@@ -91,15 +91,15 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 iconds.execute()
 
 fields=[
-  cf.URI('//Model/Domain/mesh/geometry/solution'),
-  cf.URI('//Model/Domain/mesh/geometry/residual'),
-  cf.URI('//Model/Domain/mesh/geometry/wave_speed')]
+#  cf.URI('//Model/Domain/mesh/geometry/solution'),
+#  cf.URI('//Model/Domain/mesh/geometry/residual'),
+#  cf.URI('//Model/Domain/mesh/geometry/wave_speed')]
 #  cf.URI('//Model/Domain/mesh/geometry_fields/solution'),
 #  cf.URI('//Model/Domain/mesh/geometry_fields/residual'),
 #  cf.URI('//Model/Domain/mesh/geometry_fields/wave_speed')]
-#  cf.URI('//Model/Domain/mesh/solution/solution'),
-#  cf.URI('//Model/Domain/mesh/solution/residual'),
-#  cf.URI('//Model/Domain/mesh/solution/wave_speed')]
+  cf.URI('//Model/Domain/mesh/solution/solution'),
+  cf.URI('//Model/Domain/mesh/solution/residual'),
+  cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
 #tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
 #tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))

@@ -71,6 +71,9 @@ void ComputeDualArea::create_dual_area_field()
 
   if( ! fields.get_child( Tags::dual_area() ) )
     fields.create_component<Link>( Tags::dual_area() )->link_to(*field).add_tag( Tags::dual_area() );
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( Tags::dual_area() )->handle<Link>()->link_to(*field).add_tag( Tags::dual_area() );
 
 CFinfo << "DUAL AREA: " << cdual_area->uri().name() << "  " << cdual_area->size() << CFendl << CFflush;
 }

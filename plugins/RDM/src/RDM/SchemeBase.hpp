@@ -16,6 +16,9 @@
 #include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
+/// @todo remove when done
+#include "common/Log.hpp"
+
 #include "common/Core.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionComponent.hpp"
@@ -52,10 +55,6 @@ class RDM_API SchemeBase : public solver::actions::LoopOperation {
 
 public: // typedefs
 
-  /// pointers
-
-
-
 public: // functions
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
@@ -80,17 +79,26 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity =
-        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates =
-        elements().geometry_fields().coordinates().handle< mesh::Field >();
+    //Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
+    CFinfo << uri().path() << CFendl;
 
-    cf3_assert( is_not_null(connectivity) );
-    cf3_assert( is_not_null(coordinates) );
-
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    coordinates = elements().geometry_fields().coordinates().handle< mesh::Field >();
     solution   = csolution;
     residual   = cresidual;
     wave_speed = cwave_speed;
+
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(solution) );
+    cf3_assert( is_not_null(residual) );
+    cf3_assert( is_not_null(wave_speed) );
+
+    CFinfo << "PPPPPPPPPPPPPPP: " << connectivity->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPPP: " << coordinates->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPPP: " << solution->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPPP: " << residual->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPPP: " << wave_speed->uri().path() << CFendl;
   }
 
 protected: // typedefs

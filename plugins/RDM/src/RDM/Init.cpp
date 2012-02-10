@@ -82,15 +82,12 @@ void Init::execute()
 
   boost_foreach(Handle< Region >& region, m_loop_regions)
   {
-    /// @warning assumes that field maps one to one with mesh.geometry_fields()
-
-    Dictionary& nodes = mesh().geometry_fields();
-
+    Handle<Dictionary> nodes = mesh().geometry_fields().parent()->get_child(RDM::Tags::solution())->handle<Dictionary>();
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {
       cf3_assert(node < field.size());
 
-      Table<Real>::ConstRow coords = nodes.coordinates()[node];
+      Table<Real>::ConstRow coords = nodes->coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];

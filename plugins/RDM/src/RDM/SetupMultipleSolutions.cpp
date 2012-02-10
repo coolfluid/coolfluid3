@@ -65,8 +65,7 @@ void SetupMultipleSolutions::execute()
   const Uint nbdofs = physical_model().neqs();
 
   // get the geometry field group
-
-  Dictionary& geometry = mesh.geometry_fields();
+  Handle<Dictionary> geometry = mesh.geometry_fields().handle<Dictionary>();
 
   const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
 
@@ -74,8 +73,12 @@ void SetupMultipleSolutions::execute()
 
   Handle< Dictionary > solution_group;
 
-  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
-    solution_group = geometry.handle<Dictionary>();
+CFinfo << "WWWWWWWWWWWWWW: " << geometry->name() << solution_space << CFendl;
+
+  if( solution_space == geometry->name() || solution_space == RDM::Tags::solution() )
+  {
+    solution_group = geometry;
+  }
   else
   {
     // check if solution space already exists
@@ -153,15 +156,30 @@ void SetupMultipleSolutions::execute()
 
   if( ! fields.get_child( solution->name() ) )
     fields.create_component<Link>( solution->name() )->link_to(*solution).add_tag(RDM::Tags::solution());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( solution->name() )->handle<Link>()->link_to(*solution).add_tag(RDM::Tags::solution());
+
   if( ! fields.get_child( RDM::Tags::residual() ) )
     fields.create_component<Link>( RDM::Tags::residual() )->link_to(*residual).add_tag(RDM::Tags::residual());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( RDM::Tags::residual() )->handle<Link>()->link_to(*residual).add_tag(RDM::Tags::residual());
+
   if( ! fields.get_child( RDM::Tags::wave_speed() ) )
     fields.create_component<Link>( RDM::Tags::wave_speed() )->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( RDM::Tags::wave_speed() )->handle<Link>()->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
+
 
   for( Uint step = 1; step < steps.size(); ++step)
   {
     if( ! fields.get_child( steps[step]->name() ) )
       fields.create_component<Link>( steps[step]->name() )->link_to( *steps[step] ).add_tag("past_step");
+    else
+      if (mysolver.switch_to_sol)
+        fields.get_child( steps[step]->name() )->handle<Link>()->link_to( *steps[step] ).add_tag("past_step");
   }
 
 

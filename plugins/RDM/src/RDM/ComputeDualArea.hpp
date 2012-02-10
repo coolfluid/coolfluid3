@@ -7,6 +7,9 @@
 #ifndef cf3_RDM_ComputeDualArea_hpp
 #define cf3_RDM_ComputeDualArea_hpp
 
+/// @todo remove when ready
+#include "common/Log.hpp"
+
 #include "common/OptionComponent.hpp"
 
 #include "math/Checks.hpp"
@@ -14,6 +17,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "solver/actions/LoopOperation.hpp"
@@ -89,16 +93,27 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity =
-        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates =
-        elements().geometry_fields().coordinates().handle< mesh::Field >();
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    coordinates = elements().geometry_fields().coordinates().handle< mesh::Field >();
+    Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
+    solution   = fields->get_child(RDM::Tags::solution())->handle<mesh::Field>();
+    dual_area  = fields->get_child(RDM::Tags::dual_area())->handle<mesh::Field>();
+    coordinates = fields->get_child(mesh::Tags::coordinates())->handle<mesh::Field>();
+
+    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+    {
+      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+    }
+
+    //CFinfo << "CONNN: " << connectivity->uri().path() << CFendl;
+    //CFinfo << "COORD: " << coordinates->uri().path() << CFendl;
+    //CFinfo << "CCSOL: " << solution->uri().path() << CFendl;
+    //CFinfo << "DU_AR: " << dual_area->uri().path() << CFendl;
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
-
-    solution   = csolution;
-    dual_area  = parent()->handle<ComputeDualArea>()->dual_area().handle<mesh::Field>();
+    cf3_assert( is_not_null(solution) );
+    cf3_assert( is_not_null(dual_area) );
   }
 
 protected: // typedefs
@@ -164,9 +179,6 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   options()["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
-
-
-  cf3_assert(false);
 
   // initializations
 

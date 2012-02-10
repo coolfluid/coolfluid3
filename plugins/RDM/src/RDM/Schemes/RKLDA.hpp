@@ -100,8 +100,9 @@ protected: // helper function
 
   void config_coeffs()
   {
-
     using namespace common;
+
+    change_elements();
 
     RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
@@ -118,8 +119,8 @@ protected: // helper function
       ksolutions.push_back( follow_link( mysolver.fields().get_child( std::string(Tags::solution()) + "-" + to_str(kstep) + "dt" ))->handle<mesh::Field>() );
     }
 
-//    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
-//    std::cout << "RKLDA   step    : " << step    << std::endl;
+    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
+    std::cout << "RKLDA   step    : " << step    << std::endl;
 
     rkalphas.resize(rkorder,rkorder);
     rkbetas.resize(rkorder,rkorder);
