@@ -4,39 +4,33 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_NavierStokes_hpp
-#define cf3_UFEM_NavierStokes_hpp
-
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-
-#define BOOST_PROTO_MAX_ARITY 10
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#ifndef cf3_UFEM_NavierStokesSteady_hpp
+#define cf3_UFEM_NavierStokesSteady_hpp
 
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
-#include "LinearSolverUnsteady.hpp"
+#include "LinearSolver.hpp"
 #include "NavierStokesOps.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
 
-/// solver for the unsteady incompressible Navier-Stokes equations
-class UFEM_API NavierStokes : public LinearSolverUnsteady
+/// Solver for the steady incompressible Navier-Stokes equations
+class UFEM_API NavierStokesSteady : public LinearSolver
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  NavierStokes ( const std::string& name );
+  NavierStokesSteady ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "NavierStokes"; }
-
+  static std::string type_name () { return "NavierStokesSteady"; }
+  
 private:
+  
   /// Storage for stabilization coefficients
   SUPGCoeffs m_coeffs;
 
@@ -51,10 +45,13 @@ private:
 
   /// Trigger on initial condition for velocity
   void trigger_u();
+  
+  Real m_p_under_relaxation;
+  Real m_u_under_relaxation;
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_NavierStokes_hpp
+#endif // cf3_UFEM_NavierStokesSteady_hpp
