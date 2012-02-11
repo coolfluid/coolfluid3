@@ -102,7 +102,8 @@ protected: // helper function
   {
     using namespace common;
 
-    change_elements();
+//    CFinfo << "CHANGE ELEMS" << CFendl;
+    //change_elements();
 
     RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");

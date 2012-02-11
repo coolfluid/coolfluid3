@@ -12,7 +12,7 @@ env.options().configure_option('assertion_backtrace', True)
 env.options().configure_option('exception_backtrace', True)
 env.options().configure_option('exception_aborts', True)
 env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 4)
+env.options().configure_option('log_level', 3)
 env.options().configure_option('regist_signal_handlers', False)
 
 ### create model
@@ -49,7 +49,7 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', .13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 30) #30)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 100) #30)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
 #solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
 

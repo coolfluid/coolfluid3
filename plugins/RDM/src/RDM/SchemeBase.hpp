@@ -83,10 +83,15 @@ protected: // helper functions
     CFinfo << uri().path() << CFendl;
 
     connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates = elements().geometry_fields().coordinates().handle< mesh::Field >();
+    coordinates = csolution->parent()->get_child(mesh::Tags::coordinates())->handle< mesh::Field >();
     solution   = csolution;
     residual   = cresidual;
     wave_speed = cwave_speed;
+
+    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+    {
+      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+    }
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
@@ -94,11 +99,11 @@ protected: // helper functions
     cf3_assert( is_not_null(residual) );
     cf3_assert( is_not_null(wave_speed) );
 
-    CFinfo << "PPPPPPPPPPPPPPP: " << connectivity->uri().path() << CFendl;
-    CFinfo << "PPPPPPPPPPPPPPP: " << coordinates->uri().path() << CFendl;
-    CFinfo << "PPPPPPPPPPPPPPP: " << solution->uri().path() << CFendl;
-    CFinfo << "PPPPPPPPPPPPPPP: " << residual->uri().path() << CFendl;
-    CFinfo << "PPPPPPPPPPPPPPP: " << wave_speed->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP1: " << connectivity->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP2: " << coordinates->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP3: " << solution->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP4: " << residual->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed->uri().path() << CFendl;
   }
 
 protected: // typedefs
