@@ -155,7 +155,7 @@ std::string OptionList::list_options() const
     {
       opt_list=opt_list+"\n";
     }
-    opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
+    opt_list = "  - " + opt_list + name + ":" + option->type() + "=" + option->value_str();
     ++cnt;
   }
   return opt_list;
