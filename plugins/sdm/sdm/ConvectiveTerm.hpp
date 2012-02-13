@@ -377,7 +377,7 @@ void ConvectiveTerm<PHYSDATA>::set_connectivity()
       {
         bool m=true;
         for (Uint d=0; d<NDIM; ++d)
-          m = m && ( std::abs(cell_face_coords[left_face_pt][d] - right_face_pt_coord[d]) < 20*math::Consts::eps() );
+          m = m && ( std::abs(cell_face_coords[left_face_pt][d] - right_face_pt_coord[d]) < 100*math::Consts::eps() );
         if ( m )
         {
           matched=true;
