@@ -6,6 +6,8 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "common/Log.hpp"
+
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
@@ -141,7 +143,6 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
 
   // (4d) setup solver fields
   solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().configure_option( "nb_levels", rkorder );
-
   solver.prepare_mesh().create_component<ComputeDualArea>("ComputeDualArea");
 
   // (5) configure domain, physical model and solver in all subcomponents

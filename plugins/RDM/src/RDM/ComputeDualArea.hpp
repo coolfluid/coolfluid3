@@ -7,6 +7,9 @@
 #ifndef cf3_RDM_ComputeDualArea_hpp
 #define cf3_RDM_ComputeDualArea_hpp
 
+/// @todo remove when ready
+#include "common/Log.hpp"
+
 #include "common/OptionComponent.hpp"
 
 #include "math/Checks.hpp"
@@ -14,6 +17,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/ElementType.hpp"
 #include "solver/actions/LoopOperation.hpp"
@@ -32,9 +36,6 @@ class RDM_API ComputeDualArea : public RDM::CellTerm {
 public: // typedefs
 
   template < typename SF, typename QD > class Term;
-
-
-
 
 public: // functions
 
@@ -71,12 +72,6 @@ private: // data
 template < typename SF, typename QD >
 class RDM_API ComputeDualArea::Term : public solver::actions::LoopOperation {
 
-public: // typedefs
-
-  /// pointers
-
-
-
 public: // functions
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
@@ -98,16 +93,27 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity =
-        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates =
-        elements().geometry_fields().coordinates().handle< mesh::Field >();
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    coordinates = elements().geometry_fields().coordinates().handle< mesh::Field >();
+    Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
+    solution   = fields->get_child(RDM::Tags::solution())->handle<mesh::Field>();
+    dual_area  = fields->get_child(RDM::Tags::dual_area())->handle<mesh::Field>();
+    coordinates = fields->get_child(mesh::Tags::coordinates())->handle<mesh::Field>();
+
+    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+    {
+      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+    }
+
+    //CFinfo << "CONNN: " << connectivity->uri().path() << CFendl;
+    //CFinfo << "COORD: " << coordinates->uri().path() << CFendl;
+    //CFinfo << "CCSOL: " << solution->uri().path() << CFendl;
+    //CFinfo << "DU_AR: " << dual_area->uri().path() << CFendl;
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
-
-    solution   = csolution;
-    dual_area  = parent()->handle<ComputeDualArea>()->dual_area().handle<mesh::Field>();
+    cf3_assert( is_not_null(solution) );
+    cf3_assert( is_not_null(dual_area) );
   }
 
 protected: // typedefs
@@ -211,53 +217,41 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
 //  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
 
-
   // get element connectivity
-
   const mesh::Connectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
-
   mesh::fill(X_n, *coordinates, nodes_idx );
 
   // interpolation of coordinates to quadrature points
-
   X_q  = Ni * X_n;
 
   // interpolation of gradients to quadrature points
-
   for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
     for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
       dX[dimx].col(dimksi) = dNdKSI[dimksi] * X_n.col(dimx);
 
   // sum @ each quadrature point
-
   wi.setZero();
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
 
     // jacobian of transformation phys -> ref:
-
     for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
       for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
         JM(dimksi,dimx) = dX[dimx](q,dimksi);
-
     jacob[q] = JM.determinant();
 
     // integration point weight
-
     wj[q] = jacob[q] * m_quadrature.weights[q];
-
     wi += Ni.row(q).transpose() * wj[q];
 
   } // loop qd points
 
   // sum contribution to global table of dual areas
-
   for (Uint n=0; n<SF::nb_nodes; ++n)
     (*dual_area)[nodes_idx[n]][0] += wi[n];
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

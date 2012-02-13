@@ -39,7 +39,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-//  #define RDM_ALL_CELLS
+//#define RDM_ALL_CELLS
 
 #ifdef RDM_ALL_CELLS
 /// List of supported 2d cell shapefunctions
@@ -55,13 +55,17 @@ typedef boost::mpl::vector<
 
 /// List of supported 3d cell shapefunctions
 typedef boost::mpl::vector<
-  mesh::SF::Tetra3DLagrangeP1,
-  mesh::SF::Hexa3DLagrangeP1
+  mesh::LagrangeP1::Tetra3D,
+  mesh::LagrangeP1::Hexa3D
 > CellTypes3D;
 
 #else
 
-typedef boost::mpl::vector<mesh::LagrangeP1::Triag2D> CellTypes2D;
+typedef boost::mpl::vector<
+  mesh::LagrangeP2::Triag2D,
+  mesh::LagrangeP1::Triag2D,
+  mesh::LagrangeP2B::Triag2D
+> CellTypes2D;
 typedef boost::mpl::vector<mesh::LagrangeP1::Tetra3D> CellTypes3D;
 
 #endif

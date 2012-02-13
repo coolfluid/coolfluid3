@@ -30,7 +30,6 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/RDSolver.hpp"
-#include "RDM/SetupSingleSolution.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -52,6 +51,8 @@ common::ComponentBuilder < RDM::RDSolver, Solver, LibRDM > solver_Builder;
 RDSolver::RDSolver ( const std::string& name  ) :
   Solver ( name )
 {
+  switch_to_sol=true;
+
   // properties
 
   properties()["brief"] = std::string("Residual Distribution Solver");
@@ -62,7 +63,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
   options().add_option( RDM::Tags::update_vars(), "")
       .attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option( "solution_space", mesh::Tags::geometry() )
+  options().add_option( "solution_space", RDM::Tags::solution() )
       .pretty_name("Solution Space")
       .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
@@ -191,7 +192,6 @@ void RDSolver::config_mesh()
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
-
   prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), m_mesh ); // trigger config_mesh()
 
   prepare_mesh().execute();

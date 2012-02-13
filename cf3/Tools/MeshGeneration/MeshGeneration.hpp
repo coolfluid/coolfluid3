@@ -41,7 +41,7 @@ void MeshGeneration_API create_circle_2d(mesh::Mesh& mesh, const Real radius, co
 /// @param y_segs_half: HALF the number of segements between the flat plates
 /// @param z_segs: Number of segments in the Z-direction
 /// @param ratio: Ratio (smallest cell / largest cell) in the Y-direction
-void MeshGeneration_API create_channel_3d(mesh::BlockMesh::BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio);
+void MeshGeneration_API create_channel_3d(mesh::BlockMesh::BlockArrays& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio);
 
 ////////////////////////////////////////////////////////////////////////////////
 

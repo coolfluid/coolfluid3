@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @todo remove this include
+#include "common/Log.hpp"
+
 #include "common/Link.hpp"
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
@@ -85,7 +88,8 @@ ElementLoop& CellTerm::access_element_loop( const std::string& type_name )
         physical_model().get_child( RDM::Tags::update_vars() )
                         ->handle<physics::Variables>()
                         ->type();
-
+CFinfo << " *** type_name:        " << type_name << CFendl;
+CFinfo << " *** update_vars_type: " << update_vars_type << CFendl;
     loop = create_component<CellLoop>("LOOP", "CellLoopT<" + type_name + "," + update_vars_type + ">");
   }
 

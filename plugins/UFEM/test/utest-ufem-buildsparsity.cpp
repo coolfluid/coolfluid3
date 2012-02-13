@@ -187,30 +187,30 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
-  blocks.scaling_factor = 1.;
-  blocks.dimension = 3;
-  blocks.points += list_of(0.    )(0.    )(0.    )
-                 , list_of(length)(0.    )(0.    )
-                 , list_of(0.    )(length)(0.    )
-                 , list_of(length)(length)(0.    )
-                 , list_of(0.    )(0.    )(length)
-                 , list_of(length)(0.    )(length)
-                 , list_of(0.    )(length)(length)
-                 , list_of(length)(length)(length);
-  blocks.block_points += list_of(0)(1)(3)(2)(4)(5)(7)(6);
-  blocks.block_subdivisions += list_of(nb_segments)(nb_segments)(nb_segments);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.);
-  blocks.block_distribution += 0, 1;
-  blocks.patch_names += "bottomWall", "topWall", "side1", "side2", "side3", "side4";
-  blocks.patch_types += "wall" , "wall"   , "wall", "wall", "wall", "wall";
-  blocks.patch_points += list_of(0)(1)(3)(2),
-                         list_of(4)(5)(7)(6),
-                         list_of(1)(5)(7)(3),
-                         list_of(0)(4)(5)(1),
-                         list_of(6)(4)(0)(2),
-                         list_of(2)(3)(7)(6);
-  BlockMesh::build_mesh(blocks, mesh);
+  
+  BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
+
+  *blocks.create_points(3, 8) << 0.     << 0.     << 0.    
+                              << length << 0.     << 0.    
+                              << 0.     << length << 0.    
+                              << length << length << 0.    
+                              << 0.     << 0.     << length
+                              << length << 0.     << length
+                              << 0.     << length << length
+                              << length << length << length;
+  
+  *blocks.create_blocks(1) << 0 << 1 << 3 << 2 << 4 << 5 << 7 << 6;
+  *blocks.create_block_subdivisions() << nb_segments << nb_segments << nb_segments;
+  *blocks.create_block_gradings() << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1.;
+  
+  *blocks.create_patch("bottomWall", 1) << 0 << 1 << 3 << 2;
+  *blocks.create_patch("topWall", 1) << 4 << 5 << 7 << 6;
+  *blocks.create_patch("side1", 1) << 1 << 5 << 7 << 3;
+  *blocks.create_patch("side2", 1) << 0 << 4 << 5 << 1;
+  *blocks.create_patch("side3", 1) << 6 << 4 << 0 << 2;
+  *blocks.create_patch("side4", 1) << 2 << 3 << 7 << 6;
+  
+  blocks.create_mesh(mesh);
 
   BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry_fields().coordinates().size());
 
@@ -244,9 +244,9 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
-  BlockMesh::build_mesh(blocks, mesh);
+  blocks.create_mesh(mesh);
 
   BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry_fields().coordinates().size());
 

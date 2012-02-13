@@ -30,6 +30,7 @@
 #include "solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"
+#include "ParsedFunctionExpression.hpp"
 #include "Tags.hpp"
 
 namespace cf3 {
@@ -68,23 +69,23 @@ struct BoundaryConditions::Implementation
       .link_to(&m_physical_model);
   }
 
-  boost::shared_ptr< Action > create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
+  boost::shared_ptr< Action > create_constant_scalar_bc(const std::string& region_name, const std::string& variable_name)
   {
     MeshTerm<0, ScalarField> var(variable_name, UFEM::Tags::solution());
-    ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
+    ConfigurableConstant<Real> value("value", "Value for constant boundary condition");
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  boost::shared_ptr< Action > create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
+  boost::shared_ptr< Action > create_constant_vector_bc(const std::string& region_name, const std::string& variable_name)
   {
     MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
-    ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
+    ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition");
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  void add_constant_bc_signature(SignalArgs& node)
+  void add_bc_signature(SignalArgs& node)
   {
     SignalOptions options( node );
 
@@ -104,6 +105,42 @@ struct BoundaryConditions::Implementation
     return *m_physical_model;
   }
 
+  void configure_bc(Action& bc_action, const std::string& region_name)
+  {
+    std::vector<URI> bc_regions;
+    // find the URIs of all the regions that match the region_name
+    boost_foreach(const URI& region_uri, m_region_uris)
+    {
+      Handle< Component > region_comp = m_component.access_component(region_uri);
+      if(!region_comp)
+        throw SetupError(FromHere(), "No component found at " + region_uri.string() + " when reading regions from " + m_component.uri().string());
+      Handle< Region > root_region(region_comp);
+      if(!root_region)
+        throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + m_component.uri().string());
+
+      Handle< Region > region = find_component_ptr_recursively_with_name<Region>(*root_region, region_name);
+      if(region)
+        bc_regions.push_back(region->uri());
+    }
+
+    // debug output
+    if(bc_regions.empty())
+    {
+      CFdebug << "No default regions found for region name " << region_name << CFendl;
+    }
+    else
+    {
+      CFdebug << "Region name " << region_name << " resolved to:\n";
+      boost_foreach(const URI& uri, bc_regions)
+      {
+        CFdebug << "  " << uri.string() << CFendl;
+      }
+    }
+
+    bc_action.options().configure_option(solver::Tags::regions(), bc_regions);
+    bc_action.options().configure_option(solver::Tags::physical_model(), m_physical_model);
+  }
+
   ActionDirector& m_component;
   Handle<physics::PhysModel> m_physical_model;
   DirichletBC dirichlet;
@@ -118,80 +155,72 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
     .connect( boost::bind( &BoundaryConditions::signal_create_constant_bc, this, _1 ) )
     .description("Create a constant Dirichlet BC")
     .pretty_name("Add Constant BC")
-    .signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
+    .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
+    
+  regist_signal( "add_function_bc" )
+    .connect( boost::bind( &BoundaryConditions::signal_create_function_bc, this, _1 ) )
+    .description("Create a Dirichlet BC that can be set using an analytical function")
+    .pretty_name("Add Function BC")
+    .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
 }
 
 BoundaryConditions::~BoundaryConditions()
 {
 }
 
-Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
+Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name)
 {
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
   boost::shared_ptr< common::Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
-    m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
-    m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
+    m_implementation->create_constant_scalar_bc(region_name, variable_name) :
+    m_implementation->create_constant_vector_bc(region_name, variable_name);
+
 
   *this << result; // Append action
 
-  std::vector<URI> bc_regions;
-
-  // find the URIs of all the regions that match the region_name
-  boost_foreach(const URI& region_uri, m_implementation->m_region_uris)
-  {
-    Handle< Component > region_comp = access_component(region_uri);
-    if(!region_comp)
-      throw SetupError(FromHere(), "No component found at " + region_uri.string() + " when reading regions from " + uri().string());
-    Handle< Region > root_region(region_comp);
-    if(!root_region)
-      throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + uri().string());
-
-    Handle< Region > region = find_component_ptr_recursively_with_name<Region>(*root_region, region_name);
-    if(region)
-      bc_regions.push_back(region->uri());
-  }
-
-  // debug output
-  if(bc_regions.empty())
-  {
-    CFdebug << "No default regions found for region name " << region_name << CFendl;
-  }
-  else
-  {
-    CFdebug << "Region name " << region_name << " resolved to:\n";
-    boost_foreach(const URI& uri, bc_regions)
-    {
-      CFdebug << "  " << uri.string() << CFendl;
-    }
-  }
-
-  result->options().configure_option(solver::Tags::regions(), bc_regions);
-  result->options().configure_option(solver::Tags::physical_model(), m_implementation->m_physical_model);
+  m_implementation->configure_bc(*result, region_name);
 
   return Handle<Action>(result);
+}
+
+Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
+{
+  Handle<common::Action> result =  add_constant_bc(region_name, variable_name);
+  result->options().configure_option("value", default_value);
+  return result;
+}
+
+Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& region_name, const std::string& variable_name)
+{
+  Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
+
+  MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
+  result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->function() ) );
+
+  m_implementation->configure_bc(*result, region_name);
+
+  return result;
 }
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 {
   SignalOptions options( node );
 
-  const std::string region_name = options.value<std::string>("region_name");
-  const std::string variable_name = options.value<std::string>("variable_name");
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", add_constant_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
+}
 
-  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
-
-  Handle<Action> result;
-
-  if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
-    result = add_constant_bc(region_name, variable_name, 0.);
-  else
-    result = add_constant_bc(region_name, variable_name, RealVector());
+void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
+{
+  SignalOptions options( node );
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", result->uri());
+  reply_options.add_option("created_component", add_function_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
 }
+
 
 } // UFEM
 } // cf3

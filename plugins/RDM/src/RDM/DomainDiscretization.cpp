@@ -82,6 +82,11 @@ RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
                                                        const std::string& name,
                                                        const std::vector<URI>& regions )
 {
+//  CFinfo << "CREATE CELL TERM: " << name << " of type " << type << CFendl;
+//  CFinfo << "CREATE CELL TERM mesh: " << name << " of type " << m_mesh->uri().path() << CFendl;
+//  CFinfo << "CREATE CELL TERM solver: " << name << " of type " << m_solver->uri().path() << CFendl;
+//  CFinfo << "CREATE CELL TERM physmod: " << name << " of type " << m_physical_model->uri().path() << CFendl;
+
   Handle<RDM::CellTerm> term(m_cell_terms->create_component(name, type));
 
   term->options().configure_option("regions" , regions);

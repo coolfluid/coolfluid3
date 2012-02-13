@@ -60,6 +60,10 @@ void FwdEuler::execute()
   Field& wave_speed   = *m_wave_speed;
   Field& residual     = *m_residual;
 
+  CFinfo << "PPPPPPPPPPPPPP3: " << solution.uri().path() << CFendl;
+  CFinfo << "PPPPPPPPPPPPPP4: " << residual.uri().path() << CFendl;
+  CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed.uri().path() << CFendl;
+
   const Real CFL = options().option("cfl").value<Real>();
 
   const Uint nbdofs = solution.size();

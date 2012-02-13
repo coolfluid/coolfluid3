@@ -42,7 +42,9 @@ class RDM_API RDSolver : public cf3::solver::Solver {
 
 public: // typedefs
 
-
+  /// @todo temporary setting, remove when done
+  // false: geo, true: sol
+  bool switch_to_sol;
 
 
 public: // functions

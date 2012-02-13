@@ -22,6 +22,9 @@
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
 
+/// @todo remove when ready
+#include "mesh/Space.hpp"
+
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 

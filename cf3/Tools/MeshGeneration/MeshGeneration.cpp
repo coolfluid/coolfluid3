@@ -402,41 +402,40 @@ void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, cons
   mesh.raise_mesh_loaded();
 }
 
-void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
+void create_channel_3d(BlockArrays& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
 {
-  blocks.scaling_factor = 1.;
-  blocks.dimension = 3;
+  Table<Real>& points = *blocks.create_points(3, 12);
+  points  << 0.     << -half_height << 0.
+          << length << -half_height << 0.
+          << 0.     <<  0.          << 0.
+          << length <<  0.          << 0.
+          << 0.     <<  half_height << 0.
+          << length <<  half_height << 0.
+          << 0.     << -half_height << width
+          << length << -half_height << width
+          << 0.     <<  0.          << width
+          << length <<  0.          << width
+          << 0.     <<  half_height << width
+          << length <<  half_height << width;
 
-  blocks.points += list_of(0.    )(-half_height)(0.   )
-                 , list_of(length)(-half_height)(0.   )
-                 , list_of(0.    )( 0.         )(0.   )
-                 , list_of(length)( 0.         )(0.   )
-                 , list_of(0.    )( half_height)(0.   )
-                 , list_of(length)( half_height)(0.   )
-                 , list_of(0.    )(-half_height)(width)
-                 , list_of(length)(-half_height)(width)
-                 , list_of(0.    )( 0.         )(width)
-                 , list_of(length)( 0.         )(width)
-                 , list_of(0.    )( half_height)(width)
-                 , list_of(length)( half_height)(width);
+  Table<Uint>& block_nodes = *blocks.create_blocks(2);
+  block_nodes << 0 << 1 << 3 << 2 << 6 << 7 << 9 << 8
+              << 2 << 3 << 5 << 4 << 8 << 9 << 11 << 10;
 
-  blocks.block_points += list_of(0)(1)(3)(2)(6)(7)(9)(8)
-                       , list_of(2)(3)(5)(4)(8)(9)(11)(10);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs_half)(z_segs)
-                             , list_of(x_segs)(y_segs_half)(z_segs);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1./ratio)(1./ratio)(1./ratio)(1./ratio)(1.)(1.)(1.)(1.)
-                         , list_of(1.)(1.)(1.)(1.)(ratio   )(ratio   )(ratio   )(ratio   )(1.)(1.)(1.)(1.);
-  blocks.block_distribution += 0, 2;
+  Table<Uint>& block_subdivisions = *blocks.create_block_subdivisions();
+  block_subdivisions << x_segs << y_segs_half << z_segs
+                     << x_segs << y_segs_half << z_segs;
 
-  blocks.patch_names += "bottomWall", "topWall", "sides1", "sides2", "inout1", "inout2";
-  blocks.patch_types += "wall"      , "wall"   , "cyclic", "cyclic", "cyclic", "cyclic";
-  blocks.patch_points += list_of(0)(1)(7)(6),
-                         list_of(4)(10)(11)(5),
-                         list_of(0)(2)(3)(1)(6)(7)(9)(8),
-                         list_of(2)(4)(5)(3)(8)(9)(11)(10),
-                         list_of(0)(6)(8)(2)(1)(3)(9)(7),
-                         list_of(2)(8)(10)(4)(3)(5)(11)(9);
+  Table<Real>& block_gradings = *blocks.create_block_gradings();
+  block_gradings << 1. << 1. << 1. << 1. << 1./ratio << 1./ratio << 1./ratio << 1./ratio << 1. << 1. << 1. << 1.
+                 << 1. << 1. << 1. << 1. << ratio    << ratio    << ratio    << ratio    << 1. << 1. << 1. << 1.;
 
+  *blocks.create_patch("bottom", 1) << 0 << 1 << 7 << 6;
+  *blocks.create_patch("top", 1) << 4 << 10 << 11 << 5;
+  *blocks.create_patch("front", 2) << 0 << 2 << 3 << 1 << 2 << 4 << 5 << 3;
+  *blocks.create_patch("back", 2) << 6 << 7 << 9 << 8 << 8 << 9 << 11 << 10;
+  *blocks.create_patch("left", 2) << 0 << 6 << 8 << 2 << 2 << 8 << 10 << 4;
+  *blocks.create_patch("right", 2) << 1 << 3 << 9 << 7 << 3 << 5 << 11 << 9;
 }
 
 

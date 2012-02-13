@@ -20,8 +20,6 @@ list( APPEND coolfluid_rdm_files
   TimeStepping.cpp
   IterativeSolver.hpp
   IterativeSolver.cpp
-  SetupSingleSolution.hpp
-  SetupSingleSolution.cpp
   SetupMultipleSolutions.hpp
   SetupMultipleSolutions.cpp
 # wizards
