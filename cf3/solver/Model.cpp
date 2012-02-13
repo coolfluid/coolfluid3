@@ -150,22 +150,6 @@ void Model::simulate()
     CFerror << "simulation failed\n" << e.what() << CFendl;
   }
 
-  Handle<Space> gs=access_component(URI("//Model/Domain/mesh/topology/domain/Triag/spaces/geometry"))->handle<Space>();
-  Handle<Space> ss=access_component(URI("//Model/Domain/mesh/topology/domain/Triag/spaces/solution"))->handle<Space>();
-  CFinfo << gs << "  " << ss << CFendl;
-  CFinfo << gs->uri().path() << "  " << gs->size() << CFendl << ss->uri().path() << ss->size() << CFendl;
-  for(int i=0; i<gs->size(); ++i)
-  {
-//    CFinfo << i << CFendl;
-//    CFinfo << gs->get_coordinates(i) << CFendl;
-//    CFinfo << ss->get_coordinates(i) << CFendl;
-    RealMatrix gc=gs->get_coordinates(i);
-    RealMatrix sc=ss->get_coordinates(i);
-    RealMatrix dd=gc-sc;
-    CFinfo << dd.norm() << " ";
-  }
-  CFinfo << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -25,8 +25,8 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-#domain.load_mesh(file=cf.URI('file:trapezium1x1-tg-p1-508.msh'), name='mesh')
 domain.load_mesh(file=cf.URI('file:trapezium1x1-tg-p1-508.msh'), name='mesh')
+#domain.load_mesh(file=cf.URI('file:trapezium1x1-tg-p2-508.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('file:trapezium1x1-qd-p1-441.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('file:square1x1-tg-p2-2kn.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('trapezium1x1-tg-p2-508.msh', cf.URI.Scheme.file), name='mesh')
@@ -54,7 +54,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
 solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP1')
+solver.options().configure_option('solution_space', 'LagrangeP2')
 
 solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 100)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
@@ -90,33 +90,33 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 
 iconds.execute()
 
-fields=[
-#  cf.URI('//Model/Domain/mesh/geometry/solution'),
-#  cf.URI('//Model/Domain/mesh/geometry/residual'),
-#  cf.URI('//Model/Domain/mesh/geometry/wave_speed')]
-#  cf.URI('//Model/Domain/mesh/geometry_fields/solution'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/residual'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/wave_speed')]
-  cf.URI('//Model/Domain/mesh/solution/solution'),
-  cf.URI('//Model/Domain/mesh/solution/residual'),
-  cf.URI('//Model/Domain/mesh/solution/wave_speed')]
-
-#tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-#tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-#tecplot_writer.options().configure_option('fields',fields)
-#tecplot_writer.options().configure_option('file',cf.URI('file:initial_euler2d-riemann.plt'))
-#tecplot_writer.execute()
+fgeo=[cf.URI('//Model/Domain/mesh/geometry/solution'),
+      cf.URI('//Model/Domain/mesh/geometry/residual'),
+      cf.URI('//Model/Domain/mesh/geometry/wave_speed')]
+fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
+      cf.URI('//Model/Domain/mesh/solution/residual'),
+      cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
 gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-gmsh_writer.options().configure_option('fields',fields)
-gmsh_writer.options().configure_option('file',cf.URI('file:initial_euler2d-riemann.msh'))
+gmsh_writer.options().configure_option('fields',fgeo)
+gmsh_writer.options().configure_option('file',cf.URI('file:_geo_initial_riemann.msh'))
 gmsh_writer.execute()
-
+gmsh_writer.options().configure_option('fields',fsol)
+gmsh_writer.options().configure_option('file',cf.URI('file:_sol_initial_riemann.msh'))
+gmsh_writer.execute()
 
 model.simulate()
 
-gmsh_writer.options().configure_option('file',cf.URI('file:final_euler2d-riemann.msh'))
+import networkxpython as nx
+nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='sc',hidden='')
+#nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
+
+gmsh_writer.options().configure_option('fields',fgeo)
+gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final_riemann.msh'))
+gmsh_writer.execute()
+gmsh_writer.options().configure_option('fields',fsol)
+gmsh_writer.options().configure_option('file',cf.URI('file:_sol_final_riemann.msh'))
 gmsh_writer.execute()
 
 #tecplot_writer.options().configure_option('file',cf.URI('file:final_euler2d-riemann.plt'))

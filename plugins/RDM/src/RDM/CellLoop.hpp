@@ -9,6 +9,9 @@
 
 #include "mesh/Field.hpp"
 
+/// @todo remove when debugged
+#include "common/Log.hpp"
+
 #include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedCells.hpp"
 #include "RDM/CellTerm.hpp"
@@ -34,6 +37,9 @@ struct CellLoop : public ElementLoop
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
+
+CFinfo << "TERMT CREATION: " <<  uri().path() << " TYPE (name too): " << TermT::type_name() << CFendl;
+
     Handle<TermT> term( parent()->get_child( TermT::type_name() ) );
     if( is_null( term ) )
     {
@@ -115,7 +121,10 @@ template < typename ACTION, typename PHYS>
 struct CellLoopT : public CellLoop
 {
   /// Constructor
-  CellLoopT( const std::string& name ) : CellLoop(name) {  regist_typeinfo(this); }
+  CellLoopT( const std::string& name ) : CellLoop(name)
+  {
+    regist_typeinfo(this);
+  }
 
   /// Get the class name
   static std::string type_name () { return "CellLoopT<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
@@ -123,13 +132,18 @@ struct CellLoopT : public CellLoop
   /// execute the action
   virtual void execute ()
   {
-    boost::mpl::for_each< typename RDM::CellTypes< PHYS::MODEL::_ndim >::Cells >( boost::ref(*this) );
+    CFinfo << "WHOAMI: " << uri().path() << CFendl;
+    //boost::mpl::for_each< typename RDM::CellTypes< PHYS::MODEL::_ndim >::Cells >( boost::ref(*this) );
+
+    CFinfo << "WHOAMI: " << uri().path() << CFendl;
   }
 
   /// operator needed for the loop over element types (SF)
   template < typename SF >
   void operator() ( SF& )
   {
+CFinfo << "ERERERERER: " << SF::type_name() << "   " << ACTION::type_name() << "  "<< PHYS::type_name() << CFendl;
+
     if( is_null(parent()->handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
@@ -140,8 +154,38 @@ struct CellLoopT : public CellLoop
 
     // loop on the (sub)regions that hold elements of this type
 
+/*
+template<typename ETYPE>
+struct CheckSameEtype
+{
+  CheckSameEtype(mesh::Elements& elems) : elements(elems) {}
+
+  template <typename VarT>
+  void operator() ( const VarT& var ) const
+  {
+    // Find the field group for the variable
+    const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
+    const mesh::Dictionary& var_dict = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).dict();
+    const mesh::Space& space = var_dict.space(elements);
+
+    if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
+    {
+      throw common::SetupError(FromHere(), "Needed element type " + space.support().element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+    }
+  }
+
+  void operator() ( const boost::mpl::void_& ) const
+  {
+  }
+
+  mesh::Elements& elements;
+};
+*/
+
+//    boost_foreach(mesh::Elements& elements,
+//                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     boost_foreach(mesh::Elements& elements,
-                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
+                  common::find_components_recursively<mesh::Elements>(*current_region))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -150,6 +194,13 @@ struct CellLoopT : public CellLoop
       term.set_elements(elements);
 
       const Uint nb_elem = elements.size();
+
+CFinfo << " --- URI:  " << uri().path() << CFendl;
+CFinfo << " --- TERM: " << term.uri().path() << "  " << term.derived_type_name() << "  " << CFendl;
+CFinfo << " --- ELEM: " << elements.uri().path() << "  " << elements.derived_type_name() << "  " << nb_elem << CFendl;
+CFinfo << " --- TYPE: " << SF::type_name() << CFendl;
+//cf3_assert(false);
+
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {
         term.select_loop_idx(elem);

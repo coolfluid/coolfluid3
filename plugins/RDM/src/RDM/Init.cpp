@@ -7,6 +7,9 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+/// @todo remove when ready
+#include "common/Log.hpp"
+
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
@@ -83,7 +86,10 @@ void Init::execute()
   boost_foreach(Handle< Region >& region, m_loop_regions)
   {
     Handle<Dictionary> nodes = mesh().geometry_fields().parent()->get_child(RDM::Tags::solution())->handle<Dictionary>();
-    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
+//    Handle<Dictionary> coords = mesh().geometry_fields().parent()->get_child(mesh::Tags::coordinates())->handle<Dictionary>();
+
+//    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
+    for(Uint node=0; node<(const Uint)nodes->size(); node++)
     {
       cf3_assert(node < field.size());
 
@@ -97,6 +103,7 @@ void Init::execute()
       Table<Real>::Row data_row = field[node];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
+
     }
 
   }

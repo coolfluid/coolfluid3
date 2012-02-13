@@ -111,37 +111,28 @@ void IterativeSolver::execute()
   while( ! stop_condition() ) // non-linear loop
   {
     // (1) the pre actions - cleanup residual, pre-process something, etc
-
     pre_actions().execute();
 
     // (2) domain discretization
-
     domain_discretization.execute();
 
     // (3) apply boundary conditions
-
     boundary_conditions.execute();
 
     // (4) update
-
     update().execute();
 
     // (5) update
-
     synchronize.execute();
 
     // (6) the post actions - compute norm, post-process something, etc
-
     post_actions().execute();
 
     // raise signal that iteration is done
-
     raise_iteration_done();
 
     // increment iteration
-
     properties().property("iteration") = ++iter; // update the iteration number
-
   }
 }
 
