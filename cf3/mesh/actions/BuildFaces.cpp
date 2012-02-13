@@ -174,6 +174,8 @@ void BuildFaces::make_interfaces(Component& parent)
         //PECheckArrivePoint(100,"finished matching faces for "<< regions[i]->name() << " to " << regions[j]->name());
         CFdebug << PERank << "creating face elements inside " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
         build_face_elements(interface,*f2c,true);
+        boost_foreach(Entities& entities, find_components_recursively<Entities>(interface))
+            entities.add_tag( mesh::Tags::interface() );
         //PECheckArrivePoint(100,"finished creating face elements inside "<< regions[i]->name() << " to " << regions[j]->name());
       }
 
