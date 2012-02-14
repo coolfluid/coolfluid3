@@ -73,9 +73,9 @@ void CNodeNotifier::notify_child_count_changed()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNodeNotifier::notify_signal_signature( SignalArgs * node )
+void CNodeNotifier::notify_signal_signature( SignalArgs & node )
 {
-  emit signal_signature( node );
+  emit signal_signature( &node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -109,6 +109,7 @@ CNode::CNode( const std::string & name, const QString & component_type, Type typ
     .connect(boost::bind(&CNode::reply_list_content, this, _1));
 
   regist_signal("signal_signature")
+      .connect(boost::bind(&CNode::reply_signal_signature, this, _1))
       .hidden(true);
 
   properties().add_property( "original_component_type", m_component_type.toStdString() );
@@ -498,7 +499,7 @@ void CNode::reply_list_content( SignalArgs & node )
 
 void CNode::reply_signal_signature( SignalArgs & node )
 {
-  m_notifier->notify_signal_signature( &node );
+  m_notifier->notify_signal_signature( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -22,9 +22,6 @@
 #include "common/XML/SignalOptions.hpp"
 #include "common/XML/SignalFrame.hpp"
 
-#include "common/Log.hpp"
-#include "common/XML/FileOperations.hpp"
-
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
 Common_TEMPLATE template XmlNode SignalFrame::set_option<T>(const std::string&, const T&, const std::string&);\
@@ -37,7 +34,6 @@ Common_TEMPLATE template std::vector<T> SignalFrame::get_array<T>(const std::str
 namespace cf3 {
 namespace common {
 namespace XML {
-
 ////////////////////////////////////////////////////////////////////////////
 
 SignalFrame::SignalFrame ( XmlNode xml ) :
@@ -63,11 +59,12 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
         attr = value->first_attribute( Protocol::Tags::attr_key() );
         map = value->first_node( );
 
+
         // if the key attribute exists and its value is not empty
         if( attr != nullptr && attr->value()[0] != '\0' &&
             map != nullptr && std::strcmp(map->name(), Protocol::Tags::node_map()) == 0 )
         {
-          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
+          m_maps[attr->value()] = SignalFrame(value);
         }
       }
     }
@@ -121,7 +118,7 @@ SignalFrame::SignalFrame ( boost::shared_ptr<XmlDoc> doc )
         if( attr != nullptr && attr->value()[0] != '\0' &&
             map != nullptr && std::strcmp(map->name(), Protocol::Tags::node_map()) == 0 )
         {
-          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
+          m_maps[attr->value()] = SignalFrame(value);
         }
       }
     }
@@ -155,7 +152,9 @@ SignalFrame::SignalFrame ( const std::string& target,
 
 SignalFrame::~SignalFrame()
 {
-
+  // we need to flush so that Option are written as XML
+  // destroying a SignalFrame without flushing Option leads to loss of data
+  flush_maps();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -166,7 +165,7 @@ XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value,
 {
   cf3_assert ( node.is_valid() );
 
-  return options().main_map.set_value( name, value, descr );
+  return main_map.set_value( name, value, descr );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -414,12 +413,14 @@ void SignalFrame::flush_maps()
   std::map<std::string, SignalOptions>::iterator it_options = m_options.begin();
 
   // flush the maps
-  for( ; it_maps != m_maps.begin() ; ++it_maps )
+  for( ; it_maps != m_maps.end() ; ++it_maps )
     it_maps->second.flush_maps();
 
   // flush the options
-  for( ; it_options != m_options.begin() ; ++it_options )
+  for( ; it_options != m_options.end() ; ++it_options )
+  {
     it_options->second.flush();
+  }
 
 }
 
@@ -433,9 +434,7 @@ SignalOptions & SignalFrame::options( const std::string & name )
     tmp_name = Protocol::Tags::key_options();
 
   if( m_options.find(tmp_name) == m_options.end() )
-  {
     m_options[tmp_name] = SignalOptions( *this, tmp_name );
-  }
 
   return m_options[tmp_name];
 }

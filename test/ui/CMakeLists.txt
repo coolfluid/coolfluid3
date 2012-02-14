@@ -110,3 +110,11 @@
                       LIBS       coolfluid_ui_graphics
                       CONDITION  coolfluid_ui_graphics_builds )
 
+#
+# uTests for coolfluid_ui_network library
+#
+
+  coolfluid_add_test( UTEST      utest-ui-network-connection
+                      CPP        utest-ui-network-connection.cpp
+                      LIBS       coolfluid_ui_network  ${PTHREAD_LIBRARIES}
+                      CONDITION  coolfluid_ui_network_builds )

@@ -9,7 +9,6 @@
 # If a such header is missing here, linker returns a "missing vtable" error.
 list( APPEND coolfluid_ui_core_moc_classes
 CNode.hpp
-NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
 NLog.hpp
@@ -75,7 +74,7 @@ TreeThread.cpp
 TreeThread.hpp
 )
 
-list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_common coolfluid_shell )
+list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_network coolfluid_ui_common coolfluid_shell )
 
 # Use Qt Libraries
 list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES} )
