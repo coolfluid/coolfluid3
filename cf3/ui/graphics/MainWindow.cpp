@@ -516,6 +516,7 @@ void MainWindow::network_connected()
 void MainWindow::network_disconnected( SignalFrame & )
 {
   this->set_connected_state(false);
+  NLog::global()->add_message("Disconnected from the server.");
   NTree::global()->clear_tree();
 }
 

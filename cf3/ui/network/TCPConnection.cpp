@@ -154,6 +154,8 @@ void TCPConnection::disconnect()
     try
     {
       // shutdown both reading and writing async ops => "shutdown_both"
+      // node: this doesn't stop running async ops. It only prevents from
+      // running new ones.
       m_socket.shutdown( tcp::socket::shutdown_both );
       m_socket.close();
     }

@@ -158,7 +158,7 @@ void NetworkThread::send ( common::SignalArgs& signal )
 
 void NetworkThread::run()
 {
-  // [the thread execution starts here]
+  // [thread execution starts here]
 
   m_connection = TCPConnection::create( *m_io_service );
   m_connection->socket().async_connect( *m_endpoint,
@@ -177,7 +177,9 @@ void NetworkThread::run()
   // hence, we can disconnect from the server an destroy the endpoint object
   delete_ptr(m_endpoint);
 
-  // [the thread execution ends here]
+  m_connection.reset();
+
+  // [thread execution ends here]
 }
 
 
@@ -215,14 +217,37 @@ void NetworkThread::callback_connect( const boost::system::error_code & error )
 void NetworkThread::callback_read( const boost::system::error_code & error )
 {
   if( !error )
+  {
     call_signal( "network_new_frame", m_buffer );
-  else
+    init_read();
+  }
+//  else if ( (error == boost::asio::error::bad_descriptor ||
+//            error == boost::asio::error::operation_aborted) &&
+//            !m_request_disc )
+//  {
+//    NLog::global()->add_error( "Network connection with the server has been lost." );
+//  }
+  else if ( error == boost::asio::error::eof ) // occurs if server has been closed/killed
+  {
+    NLog::global()->add_error( "Network connection with the server has been lost." );
+  }
+  else if( !m_request_disc )
     NLog::global()->add_error( QString("Could not read data: %1").arg(error.message().c_str()) );
 
-  /// @todo in case of error, we should analyse the error code before initiating
-  /// a new read operation (i.e. if the connection has been lost, we could
-  /// have an endless loop issue here)
-  init_read();
+  // in case of error, we close the connection by stopping all asynchronous
+  // operation. The thread will then properly finish.
+  if( error )
+  {
+    m_io_service->stop();
+
+    if( !m_request_disc )
+      disconnect_from_server(false);
+
+    SignalFrame frame;
+    call_signal( "network_disconnected", frame );
+
+    m_request_disc = false;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
