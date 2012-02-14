@@ -1,26 +1,24 @@
-if( CF3_ENABLE_GUI )
+coolfluid_find_orphan_files()
 
-  coolfluid_find_orphan_files()
+add_subdirectory( network )
+add_subdirectory( uicommon )
+add_subdirectory( server )
 
-  add_subdirectory( network )
-  add_subdirectory( uicommon )
+#####################################################################
+# Server application
 
-  #####################################################################
-  # Server application
 
-  add_subdirectory( server )
+list( APPEND coolfluid-server_files server-main.cpp )
+list( APPEND coolfluid-server_cflibs coolfluid_ui_server)
 
-  list( APPEND coolfluid-server_files server-main.cpp )
-  list( APPEND coolfluid-server_cflibs coolfluid_ui_server)
+list( APPEND coolfluid-server_libs coolfluid_ui_server )
 
-  list( APPEND coolfluid-server_libs coolfluid_ui_server )
+coolfluid_add_application( coolfluid-server )
 
-  coolfluid_add_application( coolfluid-server )
+#####################################################################
+# Qt-dependent stuff
 
-  #####################################################################
-  # Qt-dependent stuff
-
-  if( QT4_FOUND )
+if( CF3_ENABLE_GUI AND QT4_FOUND )
 
     # deactivate some c++ warnings in Qt
     if( CMAKE_COMPILER_IS_GNUCC )
@@ -32,7 +30,6 @@ if( CF3_ENABLE_GUI )
 
     add_subdirectory( core  )
     add_subdirectory( graphics  )
-
 
     #####################################################################
     # Graphical application
@@ -51,7 +48,11 @@ if( CF3_ENABLE_GUI )
 
     coolfluid_add_application( coolfluid-gui )
 
-  endif( QT4_FOUND )
+else()
 
-endif()
+    file( GLOB_RECURSE UI_FIND_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*")
+
+    coolfluid_mark_not_orphan( ${UI_FIND_FILES} gui-main.cpp )
+
+endif( CF3_ENABLE_GUI AND QT4_FOUND )
 
