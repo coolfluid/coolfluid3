@@ -10,8 +10,6 @@
 #include <QStringList>
 #include <QVariant>
 
-#include <QDebug>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -501,7 +499,6 @@ void CNode::reply_list_content( SignalArgs & node )
 
 void CNode::reply_signal_signature( SignalArgs & node )
 {
-  qDebug() << __FUNCTION__;
   m_notifier->notify_signal_signature( node );
 }
 

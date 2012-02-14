@@ -9,7 +9,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QStatusBar>
-#include <QDebug>
 
 #include "common/Signal.hpp"
 #include "common/URI.hpp"
@@ -164,17 +163,10 @@ void SignalManager::signal_signature(SignalArgs * args)
 
     XML::to_string(frame.node, str);
 
-    qDebug() << str.c_str() << frame.has_reply() << frame.has_map(tag);
-
     XML::to_string(m_frame.node, str);
-    qDebug() << str.c_str();
 
     try
     {
-      qDebug() << "SignalManager thread -> " << this->thread()
-               << "Parent -> " << this->parent()->thread()
-               << "GUI thread " << qApp->thread();
-
       m_dialog->show(options.main_map.content, m_current_action->text());
     }
     catch( Exception & e)

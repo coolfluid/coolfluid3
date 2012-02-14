@@ -6,7 +6,6 @@
 
 #include <QMutexLocker>
 #include <QTcpSocket>
-#include <QDebug>
 
 #include <boost/regex.hpp>
 

@@ -8,7 +8,6 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
-#include <QDebug>
 #include <QApplication>
 
 #include "rapidxml/rapidxml.hpp"
@@ -66,10 +65,7 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 {
   cf3_assert( sig.is_valid() );
 
-  qDebug() << __FUNCTION__ << __LINE__ << this->thread() << qApp->thread() << title << block;
-
   XmlNode node( sig.content->first_node() );
-  qDebug() << __FUNCTION__ << __LINE__ << node.is_valid() << title;
   QString name;
   std::string str;
   rapidxml::xml_node<> * n = sig.content->parent()->parent()->parent()->parent();
@@ -77,17 +73,12 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
   if(is_not_null(n))
     XML::to_string( n, str );
 
-  qDebug() << __FUNCTION__ << __LINE__ << str.c_str() << title;
-
   m_ok_clicked = false;
 
-  qDebug() << __FUNCTION__ << __LINE__ << title;
   this->setWindowTitle(title);
 
-  qDebug() << __FUNCTION__ << __LINE__ << title;
   m_data_layout->clear_options();
 
-  qDebug() << __FUNCTION__ << __LINE__ << title;
   for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
     m_data_layout->add_option( SignalOptions::xml_to_option(node) );
@@ -96,27 +87,20 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 
     m_nodes[name] = node;
   }
-  qDebug() << __FUNCTION__ << __LINE__ << title;
 
- if( m_data_layout->has_options() )
+  if( m_data_layout->has_options() )
   {
-   if(block)
-   {  qDebug() << __FUNCTION__ << __LINE__ << title;
-
-     m_is_blocking = true;
-     this->exec();
-     qDebug() << __FUNCTION__ << __LINE__ << title;
-
-   }
-   else
-   {
-     qDebug() << __FUNCTION__ << __LINE__ << title;
-
-     m_is_blocking = false;
-     qDebug() << __FUNCTION__ << __LINE__ << title;
-     this->setModal(true);
-     this->setVisible(true);
-   }
+    if(block)
+    {
+      m_is_blocking = true;
+      this->exec();
+    }
+    else
+    {
+      m_is_blocking = false;
+      this->setModal(true);
+      this->setVisible(true);
+    }
   }
   else
   {
