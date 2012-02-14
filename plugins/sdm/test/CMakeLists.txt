@@ -40,4 +40,9 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-accousticpulse-2d
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 
+coolfluid_add_test( ATEST      atest-sdm-lineuler-accousticvorticitypulse-2d
+                    PYTHON     atest-sdm-lineuler-accousticvorticitypulse-2d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
 #########################################################################
