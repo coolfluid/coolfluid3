@@ -15,6 +15,8 @@
 
 #include "common/XML/Protocol.hpp"
 
+#include "common/XML/FileOperations.hpp"
+
 #include "ui/core/NetworkQueue.hpp"
 #include "ui/core/NLog.hpp"
 
@@ -42,6 +44,11 @@ SignalManager::SignalManager(QMainWindow *parent) :
     m_current_action(nullptr),
     m_waiting_for_signature(false)
 {
+  m_dialog = new SignatureDialog((QWidget*)this->parent());
+
+  connect(m_dialog, SIGNAL(finished(int)), this, SLOT(dialog_finished(int)));
+
+
   m_menu = new QMenu();
 }
 
@@ -68,11 +75,11 @@ void SignalManager::show_menu(const QPoint & pos, Handle< CNode > node,
   m_node = node;
   m_current_action = nullptr;
 
-  node->signal("signal_signature")
-      ->connect( boost::bind(&SignalManager::signal_signature, this, _1) );
+//  node->signal("signal_signature")
+//      ->connect( boost::bind(&SignalManager::signal_signature, this, _1) );
 
-//  connect(node->notifier(), SIGNAL(signalSignature(cf3::common::SignalArgs*)),
-//          this, SLOT(signalSignature(cf3::common::SignalArgs*)));
+  connect(node->notifier(), SIGNAL(signal_signature(cf3::common::SignalArgs*)),
+          this, SLOT(signal_signature(cf3::common::SignalArgs*)));
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -117,7 +124,7 @@ void SignalManager::action_triggered()
     {
       SignalFrame frame;
       m_node->local_signature(m_signals[action].name, frame);
-      signal_signature(frame);
+      signal_signature(&frame);
     }
   }
 }
@@ -136,10 +143,12 @@ void SignalManager::action_hovered()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::signal_signature(SignalArgs & args)
+void SignalManager::signal_signature(SignalArgs * args)
 {
   if(m_waiting_for_signature)
   {
+    SignalFrame frame(args->node);
+
     URI path = m_node->uri();
     ActionInfo & info = m_signals[m_current_action];
     const char * tag = Protocol::Tags::key_options();
@@ -147,16 +156,18 @@ void SignalManager::signal_signature(SignalArgs & args)
     m_frame = SignalFrame(info.name.toStdString(), path, path);
     SignalFrame& options = m_frame.map( Protocol::Tags::key_options() );
 
-    if( args.has_map(tag) )
-      args.map(tag).main_map.content.deep_copy( options.main_map.content );
+    if( frame.has_map(tag) )
+      frame.map(tag).main_map.content.deep_copy( options.main_map.content );
+
+    std::string str ;
+
+    XML::to_string(frame.node, str);
+
+    XML::to_string(m_frame.node, str);
 
     try
     {
-      SignatureDialog * sg = new SignatureDialog();
-
-      connect(sg, SIGNAL(finished(int)), this, SLOT(dialog_finished(int)));
-
-      sg->show(options.main_map.content, m_current_action->text());
+      m_dialog->show(options.main_map.content, m_current_action->text());
     }
     catch( Exception & e)
     {
@@ -167,11 +178,11 @@ void SignalManager::signal_signature(SignalArgs & args)
       NLog::global()->add_exception("Unknown exception caught");
     }
 
-
-
     m_waiting_for_signature = false;
-  }
 
+  }
+//  else
+//     NLog::global()->add_error("Not waiting for signals.");
 }
 
 ////////////////////////////////////////////////////////////////////////////
