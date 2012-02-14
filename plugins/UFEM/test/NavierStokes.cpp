@@ -22,18 +22,6 @@ using namespace solver::actions::Proto;
 
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
-boost::shared_ptr<Expression> parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
-{
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  return nodes_expression(solver.dirichlet(u) = coordinates[1] * (height - coordinates[1]) * u_ref);
-}
-
-boost::shared_ptr<Expression> parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
-{
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  return nodes_expression(u = coordinates[1] * (height - coordinates[1]) * u_ref);
-}
-
 boost::shared_ptr<Expression> stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables

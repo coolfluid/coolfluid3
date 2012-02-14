@@ -5,8 +5,6 @@ list( APPEND coolfluid_mesh_blockmesh_files
   ChannelGenerator.cpp
   LibBlockMesh.cpp
   LibBlockMesh.hpp
-  WriteDict.cpp
-  WriteDict.hpp
 )
 
 list( APPEND coolfluid_mesh_blockmesh_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )

@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_Transforms_hpp
 #define cf3_solver_actions_Proto_Transforms_hpp
 
+#include <boost/accumulators/accumulators_fwd.hpp>
+
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/mpl/max.hpp>
 #include <boost/mpl/range_c.hpp>
@@ -227,7 +229,8 @@ struct DefaultFunctions :
   boost::proto::or_
   <
     FunctionPointer,
-    ProtoDefaultFunction
+    ProtoDefaultFunction,
+    boost::proto::terminal< boost::accumulators::accumulator_set<boost::proto::_, boost::proto::_, boost::proto::_> >
   >
 {
 };
