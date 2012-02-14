@@ -144,7 +144,7 @@ MainWindow::MainWindow()
           SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(new_log_message(QString, uiCommon::LogMessage::Type)));
 
-//  connect(root, SIGNAL(connected()), this, SLOT(network_connected()));
+  connect(root, SIGNAL(connected()), this, SLOT(network_connected()));
 
   ThreadManager::instance().network().signal( "network_disconnected" )
       ->connect( boost::bind( &MainWindow::network_disconnected, this, _1));
@@ -506,7 +506,7 @@ void MainWindow::disconnect_from_server()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::network_connected( SignalFrame & )
+void MainWindow::network_connected()
 {
   this->set_connected_state(true);
 }

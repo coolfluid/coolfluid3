@@ -143,7 +143,7 @@ namespace graphics {
 
     void disconnect_from_server();
 
-    void network_connected( common::SignalArgs & args );
+    void network_connected();
 
     void network_disconnected( common::SignalArgs & args );
 
