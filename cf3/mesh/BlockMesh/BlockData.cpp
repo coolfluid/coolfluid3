@@ -693,7 +693,7 @@ struct BlockArrays::Implementation
     blocks->resize(nb_blocks);
     block_gradings->resize(nb_blocks);
     block_subdivisions->resize(nb_blocks);
-    CFdebug << "Partitioned blocks:" << CFendl;
+    CFdebug << "Partitioned blocks (subdivisions):" << CFendl;
     for(Uint i = 0; i != nb_blocks; ++i)
     {
       blocks->set_row(i, blocks_partitioning.block_points[i]);
@@ -701,7 +701,8 @@ struct BlockArrays::Implementation
       block_gradings->set_row(i, blocks_partitioning.block_gradings[i]);
 
       print_vector(CFdebug << "  " << i << ": ", blocks_partitioning.block_points[i]);
-      CFdebug << CFendl;
+      print_vector(CFdebug << " (", blocks_partitioning.block_subdivisions[i]);
+      CFdebug  << ")" << CFendl;
     }
 
     const Uint nb_patches = blocks_partitioning.patch_names.size();
@@ -861,6 +862,7 @@ struct BlockArrays::Implementation
     }
 
     // All the blocks at the start of the direction to partition in
+    Uint nb_elems_in = 0; // number of input elements
     const Uint nb_existing_partitions = block_distribution.size()-1;
     for(Uint existing_partition = 0; existing_partition != nb_existing_partitions; ++existing_partition)
     {
@@ -880,6 +882,7 @@ struct BlockArrays::Implementation
       Uint global_nb_elements = 0;
       for(Uint block = blocks_begin; block != blocks_end; ++block)
         global_nb_elements += block_list[block].nb_elems;
+      nb_elems_in += global_nb_elements;
 
       // Size of one partition
       const Uint partition_size = static_cast<Uint>( ceil( static_cast<Real>(global_nb_elements) / static_cast<Real>(nb_partitions) ) );
@@ -891,7 +894,7 @@ struct BlockArrays::Implementation
         // Update block distribution
         blocks_out.block_distribution.push_back(blocks_out.block_points.size());
 
-        Uint partition_remaining_size = partition_size;
+        Uint partition_remaining_size = partition == (nb_partitions-1) ? global_nb_elements-nb_partitioned : partition_size;
         while(partition_remaining_size)
         {
           // Get the total size of a slice of elements in the current direction
@@ -905,13 +908,13 @@ struct BlockArrays::Implementation
             slice_size += single_layer_size;
           }
           cf3_assert(slice_size);
-          Uint partition_nb_slices = static_cast<Uint>( floor( static_cast<Real>(partition_remaining_size) / static_cast<Real>(slice_size) ) );
+          Uint partition_nb_slices = static_cast<Uint>( ceil( static_cast<Real>(partition_remaining_size) / static_cast<Real>(slice_size) ) );
           cf3_assert(partition_nb_slices);
           if((nb_partitioned + (partition_nb_slices * slice_size)) > global_nb_elements)
           {
             cf3_assert(partition == nb_partitions-1);
             const Uint nb_remaining_elements = global_nb_elements - nb_partitioned;
-            cf3_assert( (nb_remaining_elements % slice_size) == 0 );
+            //cf3_assert( (nb_remaining_elements % slice_size) == 0 );
             partition_nb_slices = nb_remaining_elements / slice_size;
           }
 
@@ -919,10 +922,12 @@ struct BlockArrays::Implementation
           bool is_last_layer = false;
           previous_block_layer = next_block_layer;
           const Uint block_nb_slices = blocks_to_partition.block_subdivisions[next_block_layer.front()][direction];
+
+          if(block_layer_offset == 0)
+            is_first_layer = true;
+
           if(block_nb_slices > partition_nb_slices) // block is larger than the remaining number of slices
           {
-            if(block_layer_offset == 0)
-              is_first_layer = true;
             block_layer_offset += partition_nb_slices;
             BOOST_FOREACH(const Uint block_idx, next_block_layer)
             {
@@ -998,8 +1003,10 @@ struct BlockArrays::Implementation
               blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
               if(block_list[block_idx].nb_elems < partition_remaining_size)
               {
-                nb_partitioned += block_list[block_idx].nb_elems;
-                partition_remaining_size -= block_list[block_idx].nb_elems;
+                const Uint added_nb_elems = dimensions == 2 ? blocks_to_partition.block_subdivisions[block_idx][0]*blocks_to_partition.block_subdivisions[block_idx][1] :
+                                                        blocks_to_partition.block_subdivisions[block_idx][0]*blocks_to_partition.block_subdivisions[block_idx][1]*blocks_to_partition.block_subdivisions[block_idx][2];
+                nb_partitioned += added_nb_elems;
+                partition_remaining_size -= added_nb_elems;
               }
               else
               {
@@ -1067,6 +1074,7 @@ struct BlockArrays::Implementation
         const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direction);
         if(adjacent_element.first->element_type().dimensionality() < dimensions)
         {
+          CFdebug << "adding end patch " << adjacent_element.first->parent()->name() << " to block " << block_idx << CFendl;
           const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
           BOOST_FOREACH(const Uint i, etype_faces.nodes_range(lengthwise_direction))
           {
@@ -1075,6 +1083,16 @@ struct BlockArrays::Implementation
         }
       }
     }
+
+    Uint nb_elems_out = 0;
+    BOOST_FOREACH(const std::vector<Uint> segments, blocks_out.block_subdivisions)
+    {
+      if(dimensions == 2)
+        nb_elems_out += segments[0]*segments[1];
+      else
+        nb_elems_out += segments[0]*segments[1]*segments[2];
+    }
+    cf3_assert(nb_elems_out == nb_elems_in);
 
     update_blocks(blocks_out);
   }
