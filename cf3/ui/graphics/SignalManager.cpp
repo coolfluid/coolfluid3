@@ -146,8 +146,10 @@ void SignalManager::action_hovered()
 
 void SignalManager::signal_signature(SignalArgs * args)
 {
-  //if(m_waiting_for_signature)
+  if(m_waiting_for_signature)
   {
+    SignalFrame frame(args->node);
+
     URI path = m_node->uri();
     ActionInfo & info = m_signals[m_current_action];
     const char * tag = Protocol::Tags::key_options();
@@ -155,14 +157,14 @@ void SignalManager::signal_signature(SignalArgs * args)
     m_frame = SignalFrame(info.name.toStdString(), path, path);
     SignalFrame& options = m_frame.map( Protocol::Tags::key_options() );
 
-    if( args->has_map(tag) )
-      args->map(tag).main_map.content.deep_copy( options.main_map.content );
+    if( frame.has_map(tag) )
+      frame.map(tag).main_map.content.deep_copy( options.main_map.content );
 
     std::string str ;
 
-    XML::to_string(args->map(tag).node/*args->node*/, str);
+    XML::to_string(frame.node, str);
 
-    qDebug() << str.c_str() << args->has_reply();
+    qDebug() << str.c_str() << frame.has_reply() << frame.has_map(tag);
 
     XML::to_string(m_frame.node, str);
     qDebug() << str.c_str();
@@ -184,11 +186,11 @@ void SignalManager::signal_signature(SignalArgs * args)
       NLog::global()->add_exception("Unknown exception caught");
     }
 
-
-
     m_waiting_for_signature = false;
-  }
 
+  }
+//  else
+//     NLog::global()->add_error("Not waiting for signals.");
 }
 
 ////////////////////////////////////////////////////////////////////////////

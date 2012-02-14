@@ -40,14 +40,14 @@ namespace graphics {
 GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   : GraphicalValue(parent)
 {
-  qDebug() << __FUNCTION__ << __LINE__;
-  m_group_box = new QGroupBox(m_group_box);
+  qDebug() << __FUNCTION__ << __LINE__ << qApp->thread() << this->thread();
+  m_group_box = new QGroupBox();
   qDebug() << __FUNCTION__ << __LINE__;
   m_edit_add = new QLineEdit(m_group_box);
   qDebug() << __FUNCTION__ << __LINE__;
   m_model = new QStringListModel(m_group_box);
   qDebug() << __FUNCTION__ << __LINE__ << this->thread() << qApp->thread();
-  m_list_view = new QListView(/*m_group_box*/);// <==== bad?
+  m_list_view = new QListView(m_group_box);// <==== bad?
   qDebug() << __FUNCTION__ << __LINE__;
   m_bt_add = new QPushButton("+", m_group_box);
   qDebug() << __FUNCTION__ << __LINE__;
@@ -81,7 +81,7 @@ qDebug() << __FUNCTION__ << __LINE__;
   m_box_layout->addWidget(m_edit_add, 0, 1);
   m_box_layout->addWidget(m_bt_add, 0, 2);
   m_box_layout->addWidget(m_bt_remove, 0, 3);
-//  m_box_layout->addWidget(m_list_view, 1, 0, 1, 4);
+  m_box_layout->addWidget(m_list_view, 1, 0, 1, 4);
   m_box_layout->addLayout(m_buttons_layout, 1, 4);
 qDebug() << __FUNCTION__ << __LINE__;
   m_layout->addWidget(m_group_box);

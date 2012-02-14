@@ -142,12 +142,12 @@ void TreeThread::new_signal( SignalArgs & args)
 
     try
     {
-      Handle< Component > realRoot = root();
+      Handle< Component > real_root = root();
 
-      if(realRoot->uri().path() == URI(receiver).path())
+      if(real_root->uri().path() == URI(receiver).path())
         root()->call_signal(type, real_frame);
       else
-        realRoot->access_component(receiver)->call_signal(type, real_frame);
+        real_root->access_component(receiver)->call_signal(type, real_frame);
     }
     catch(cf3::common::Exception & cfe)
     {

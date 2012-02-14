@@ -22,7 +22,7 @@
 #include "common/XML/SignalOptions.hpp"
 #include "common/XML/SignalFrame.hpp"
 
-//#include "common/Log.hpp" // only used in commented code
+#include "common/Log.hpp" // only used in commented code
 #include "common/XML/FileOperations.hpp"
 
 // makes explicit instantiation for all template functions with a same type
@@ -62,12 +62,27 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
         attr = value->first_attribute( Protocol::Tags::attr_key() );
         map = value->first_node( );
 
+
         // if the key attribute exists and its value is not empty
         if( attr != nullptr && attr->value()[0] != '\0' &&
             map != nullptr && std::strcmp(map->name(), Protocol::Tags::node_map()) == 0 )
         {
-          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
+          CFinfo << " adding " << attr->value()<< " " << m_maps.size() << CFendl;
+          m_maps[attr->value()] = SignalFrame(value);
+
+          std::string str;
+
+          to_string( XmlNode(value), str);
+
+          CFinfo << "\n\n\n---------------------------------------\n\n"
+                 << str
+                 << "\n\n\n---------------------------------------\n\n" << CFflush;
+
+          CFinfo << " added " << attr->value()<< " " << m_maps.size() << CFendl;
+
+//          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
         }
+
       }
     }
   }
@@ -120,7 +135,9 @@ SignalFrame::SignalFrame ( boost::shared_ptr<XmlDoc> doc )
         if( attr != nullptr && attr->value()[0] != '\0' &&
             map != nullptr && std::strcmp(map->name(), Protocol::Tags::node_map()) == 0 )
         {
-          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
+          m_maps[attr->value()] = SignalFrame(value);
+
+//          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
         }
       }
     }

@@ -139,12 +139,15 @@ void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
 
 void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
 {
-  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
-  std::vector<std::string>::iterator it = favs.begin();
+
+  // temporarily not supported
+
+//  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
+//  std::vector<std::string>::iterator it = favs.begin();
   QStringList fav_dirs;
 
-  for(int i = 0 ; it != favs.end() ; ++it, ++i )
-    fav_dirs.append( QString::fromStdString(*it) );
+//  for(int i = 0 ; it != favs.end() ; ++it, ++i )
+//    fav_dirs.append( QString::fromStdString(*it) );
 
   fav_dirs.removeDuplicates();
 
