@@ -12,7 +12,6 @@
 #include "Physics/LinEuler/LinEuler2D.hpp"
 #include "sdm/BCWeak.hpp"
 #include "sdm/lineuler/LibLinEuler.hpp"
-#include "sdm/lineuler/NonReflectiveConvection2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
