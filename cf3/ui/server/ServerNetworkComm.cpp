@@ -265,9 +265,20 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
 
     init_read( info );
   }
-  else
+  else if( error != boost::asio::error::eof )
     CFerror << "Could not read from [" << conn->socket().remote_endpoint()
             << "]: " << error.message() << CFendl;
+
+  if( error )
+  {
+    std::string uuid = m_clients[conn].uuid;
+    conn->disconnect();
+    m_clients.erase( conn );
+
+    if( error == boost::asio::error::eof )
+      CFinfo << "Cliemt [" << uuid << "] has disconnected. ("
+             << m_clients.size() << " left)." << CFendl;
+  }
 
 }
 
@@ -281,10 +292,10 @@ void ServerNetworkComm::send_frame_to_client( SignalFrame & signal,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ServerNetworkComm::send_frame_rejected_to_client( const string clientid,
-                                                       const string & frameid,
-                                                       const URI & sender,
-                                                       const string &reason )
+void ServerNetworkComm::send_frame_rejected_to_client ( const string clientid,
+                                                         const string & frameid,
+                                                         const URI & sender,
+                                                         const string &reason )
 {
   send_frame_rejected( get_connection(clientid), frameid, sender, reason );
 }
