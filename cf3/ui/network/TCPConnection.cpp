@@ -79,7 +79,7 @@ void TCPConnection::prepare_write_buffers( SignalArgs & args,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::process_header( system::error_code & error )
+void TCPConnection::process_header( boost::system::error_code & error )
 {
   std::string header_str = std::string( m_incoming_header, HEADER_LENGTH );
 
