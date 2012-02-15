@@ -171,7 +171,7 @@ void ServerNetworkComm::init_read( ClientInfo & client )
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::callback_accept( TCPConnection::Ptr conn,
-                                         const system::error_code & error )
+                                         const boost::system::error_code & error )
 {
   if( !error )
   {
@@ -197,7 +197,7 @@ void ServerNetworkComm::callback_accept( TCPConnection::Ptr conn,
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::callback_send( TCPConnection::Ptr conn,
-                                       const system::error_code & error )
+                                       const boost::system::error_code & error )
 {
   if ( error )
     CFerror << "Data could not be sent to [" << conn->socket().remote_endpoint()
@@ -207,7 +207,7 @@ void ServerNetworkComm::callback_send( TCPConnection::Ptr conn,
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
-                                       const system::error_code & error )
+                                       const boost::system::error_code & error )
 {
   if( !error )
   {
