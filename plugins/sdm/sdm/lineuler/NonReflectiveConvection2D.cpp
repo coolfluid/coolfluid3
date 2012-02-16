@@ -43,6 +43,14 @@ void NonReflectiveConvection2D::compute_non_reflective_fluxes(std::vector<RealVe
 
     for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
     {
+
+      // Set BC, default extrapolation
+      if (m_face_nb == boundary_face_nb)
+      {
+        char_to_cons(left_face_data[face_pt]->solution,char_normal,char_sol);
+        cons_to_char(char_sol,char_normal,right_face_data[face_pt]->solution);
+      }
+
       Uint flx_pt = left_face_pt_idx[face_pt];
       compute_numerical_non_reflective_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
                                             char_normal,
@@ -55,6 +63,9 @@ void NonReflectiveConvection2D::compute_non_reflective_fluxes(std::vector<RealVe
 
 void NonReflectiveConvection2D::compute_fluxes(std::vector<RealVectorNEQS>& flux_in_flx_pts)
 {
+  RealVectorNEQS char_sol;
+  RealVector char_normal = characteristic_normal();
+
   boost_foreach(Uint flx_pt, elem->get().sf->interior_flx_pts())
   {
     compute_flx_pt_phys_data(elem->get(),flx_pt,*flx_pt_data);
@@ -88,19 +99,16 @@ void NonReflectiveConvection2D::compute_fluxes(std::vector<RealVectorNEQS>& flux
       {
         Uint flx_pt = left_face_pt_idx[face_pt];
 
+        // Set BC, default extrapolation
         if (m_face_nb == boundary_face_nb)
         {
-          right_face_data[face_pt]->solution = left_face_data[face_pt]->solution;
-          compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
-                                 flux_in_flx_pts[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-          flux_in_flx_pts[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
+          char_to_cons(left_face_data[face_pt]->solution,char_normal,char_sol);
+          cons_to_char(char_sol,char_normal,right_face_data[face_pt]->solution);
         }
-        else
-        {
-          compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
-                                 flux_in_flx_pts[flx_pt],flx_pt_wave_speed[flx_pt][0]);
-          flux_in_flx_pts[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
-        }
+
+        compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
+                               flux_in_flx_pts[flx_pt],flx_pt_wave_speed[flx_pt][0]);
+        flux_in_flx_pts[flx_pt] *= elem->get().sf->flx_pt_sign(flx_pt) * flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
         flx_pt_wave_speed[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
       }
     }
@@ -257,6 +265,18 @@ void NonReflectiveConvection2D::execute()
     }
   }
 
+#if defined(LILA)
+  RealVectorNEQS char_term;
+  RealVectorNEQS char_non_reflective_term;
+  for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
+  {
+    cons_to_char(non_reflective_term[sol_pt],char_normal,char_term);
+    cons_to_char(term[sol_pt],char_normal,char_non_reflective_term);
+    char_term[2]=char_non_reflective_term[2];
+    char_term[3]=char_non_reflective_term[3];
+    char_to_cons(char_term,char_normal,term[sol_pt]);
+  }
+#else
   /// Interpolate original term to flux points (of which some lie on the boundary)
   std::vector<RealVectorNEQS> flx_pt_term(elem->get().sf->nb_flx_pts());
   elem->get().reconstruct_from_solution_space_to_flux_points(term,flx_pt_term);
@@ -279,7 +299,7 @@ void NonReflectiveConvection2D::execute()
   /// Interpolate now back to the solution points, which may not lie on the boundary
   const Uint direction = elem->get().sf->flx_pt_dirs( elem->get().sf->face_flx_pts(boundary_face_nb)[0] )[0];
   elem->get().reconstruct_from_flux_points_to_solution_space(direction,flx_pt_term,term);
-
+#endif
   /// 4) Subtract this term from the residual field
   mesh::Field::View residual = residual_field().view(elem->get().space->connectivity()[m_elem_idx]);
   for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)

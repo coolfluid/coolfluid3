@@ -11,13 +11,82 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "math/Functions.hpp"
 
 #include "sdm/ConvectiveTerm.hpp"
 #include "sdm/lineuler/LibLinEuler.hpp"
 #include "Physics/LinEuler/Cons2D.hpp"
 
-//#define NON_REFL 1
-#undef NON_REFL
+/// If this is defined, then also the Aplus wave is modified!
+//#define LILA
+
+// ********* UNDEFINE THE EQUATION FOR Amin TO USE AT BC *************
+
+/// Normal characteristic equations:
+/// dS/dt     + U0n grad(S) = 0
+/// dOmega/dt + U0n grad(Omega) + 0.5 c0s grad(Aplus+Amin) = 0
+/// dAplus/dt + (U0n+c0n) grad(Aplus) + c0s grad(Omega) = 0
+/// dAmin/dt  + (U0n-c0n) grad(Aplus) + c0s grad(Omega) = 0
+
+/// The idea is to change the equation for Amin at the boundary nodes
+
+/// dAmin/dt + (U0n+c0n) grad(Amin) - c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     + (U0n+c0n) . grad(A) = 0
+///   domega/dt + (U0n+c0n) . grad(omega) + 2 c0s grad(Omega) = 0
+// Here all that is required is change the sign of soundspeed
+//#define AplusAmin -p.c
+// or equivalent:
+//#define Aomega -p.c
+
+// **** RECOMMENDED, seems better with 0 sound-speed *** //
+/// dAmin/dt + U0n grad(Amin) = 0
+/// This means:
+///   dA/dt     + U0n grad(A)     + c0n grad(Aplus) + c0s grad(Omega) = 0
+///   domega/dt + U0n grad(omega) + c0n grad(Aplus) + c0s grad(Omega) = 0
+// Here all that is required is set soundspeed to zero
+#define AplusAmin 0
+// or equivalent:
+//#define Aomega 0
+
+/// dAmin/dt + (U0n+c0n) grad(Amin) + c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     + (U0n+c0n) . grad(A) + 2 c0s grad(Omega) = 0
+///   domega/dt + (U0n+c0n) . grad(omega) = 0
+// Here new system is developed with correct sound-speed
+//#define Aminconvection p.c
+
+/// dAmin/dt + U0n grad(Amin) - c0n grad(Aplus) - c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     + (U0n) . grad(A) = 0
+///   domega/dt + (U0n+c0n) . grad(omega) + c0n grad(A) + 2 c0s grad(Omega) = 0
+// Here new system is developed with correct sound-speed
+//#define Aconvection p.c
+
+/// dAmin/dt = 0
+/// This means:
+///   dA/dt     = (U0n+c0n)/2 grad(A+omega) + c0s grad(Omega) = 0
+///   domega/dt = (U0n+c0n)/2 grad(A+omega) + c0s grad(Omega) = 0
+// Here we just set the flux to zero
+//#define Hedstrom 0.
+
+/// dAplus/dt + U0n grad(Aplus) + c0s grad(Omega) = 0
+/// dAmin/dt  + U0n grad(Amin)  + c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     = U0n grad(A) + 2 c0s grad(Omega) = 0
+///   domega/dt = U0n grad(omega) = 0
+//#define TwoWaves p.c
+
+// *******************************************************************
+
+#if defined(LILA)
+#undef AplusAmin
+#undef Aomega
+#undef Aminconvection
+#undef Aconvection
+#undef Hedstrom
+#define TwoWaves p.c
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -176,8 +245,10 @@ public:
     Real ncxn = unit_normal.transpose() * char_normal;
 
     /// This line is the hack that makes things not reflect
-    Real c0 = -p.c;
+    Real c0 = math::Consts::real_max();
 
+#if defined(Aomega)
+    c0 = Aomega;
     jacobian <<
          U0n,      0,               0,             0,
          0,        U0n,             0.5*c0*sxn,    0,
@@ -195,29 +266,177 @@ public:
                          0,  sxn,     0.5,   0.5*ncxn,
                          0,  sxn,    -0.5,   0.5*ncxn;
     eigenvalues <<
-        U0n, U0n, U0n+c0*ncxn, U0n-c0*ncxn;
-
-
+        U0n, U0n, U0n+c0, U0n-c0;
     abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
-
-
     cons_to_bc(left.solution,char_normal,bc_sol_left);
     cons_to_bc(right.solution,char_normal,bc_sol_right);
-
-    wave_speed = std::abs(U0n);
-
-    // flux = central flux - upwind flux
     bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
-
     bc_to_cons(bc_flux,char_normal,flux);
+#elif defined(AplusAmin)
+    c0=AplusAmin;
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,        c0*sxn,          0,             U0n-c0*ncxn;
 
+    right_eigenvectors <<
+        1,  0,          0,              0,
+        0,  0.5*ncxn,   0.5*sxn,       -0.5*sxn,
+        0, -0.5*sxn,    0.5*(1.+ncxn),  0.5*(1.-ncxn),
+        0,  0.5*sxn,    0.5*(1.-ncxn),  0.5*(1.+ncxn);
+    left_eigenvectors <<
+        1,   0,         0,              0,
+        0,   2*ncxn,   -sxn,            sxn,
+        0,   sxn,       0.5*(1.+ncxn),  0.5*(1.-ncxn),
+        0,  -sxn,       0.5*(1.-ncxn),  0.5*(1.+ncxn);
+    eigenvalues <<
+        U0n, U0n, U0n+c0, U0n-c0;
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(Aminconvection)
+
+    c0 = Aminconvection;
+
+    const Real dummy = 1.;// math::Consts::real_max();
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,        c0*sxn,          0,             U0n+c0*ncxn;
+
+    right_eigenvectors <<
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        0,      0,       1,      -1;
+
+    Real t = std::sqrt(1.+3.*sxn*sxn);
+    cf3_assert(t!=0);
+    left_eigenvectors <<
+        1,   0,       0,    0,
+        0,   0,       1,   -1,
+        0,   sxn/t,   0,    0.5*(1.+ncxn/t),
+        0,   sxn/t,   0,   -0.5*(1.-ncxn/t);
+    eigenvalues <<
+                   U0n,
+                   U0n + c0*ncxn,
+                   U0n + 0.5*c0*(ncxn+t),
+                   U0n + 0.5*c0*(ncxn-t);
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
+
+#elif defined(Aconvection)
+
+    c0 = Aconvection;
+
+    const Real dummy = 1.;// math::Consts::real_max();
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,       -c0*sxn,          -c0*ncxn,      U0n;
+
+    right_eigenvectors <<
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        0,      1,       0.5,     0.5;
+
+    Real t = std::sqrt(1.+3.*sxn*sxn);
+    cf3_assert(t!=0);
+    left_eigenvectors <<
+        1,   0,         0,    0,
+        0,   0,         0.5, -0.5,
+        0,  -2.*sxn/t,  -0.5*(3.*ncxn+t)/t,  0.5*(t-1.)/t,
+        0,   2.*sxn/t,   0.5*(3.*ncxn-t)/t,  0.5*(t+1.)/t;
+    eigenvalues <<
+                   U0n,
+                   U0n,
+                   U0n + 0.5*c0*(ncxn+t),
+                   U0n + 0.5*c0*(ncxn-t);
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(Hedstrom)
+
+    c0  = 0.;
+    U0n = 0.;
+    const Real dummy = 1.;// math::Consts::real_max();
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,       -c0*sxn,          -c0*ncxn,      U0n;
+
+    // Any zero-eigensystem will do (just copy from before)
+    right_eigenvectors <<
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        dummy,  dummy,   dummy,   dummy,
+        0,      1,       0.5,     0.5;
+
+    Real t = std::sqrt(1.+3.*sxn*sxn);
+    cf3_assert(t!=0);
+    left_eigenvectors <<
+        1,   0,         0,    0,
+        0,   0,         0.5, -0.5,
+        0,  -2.*sxn/t,  -0.5*(3.*ncxn+t)/t,  0.5*(t-1.)/t,
+        0,   2.*sxn/t,   0.5*(3.*ncxn-t)/t,  0.5*(t+1.)/t;
+    eigenvalues <<
+                   U0n,
+                   U0n,
+                   U0n + 0.5*c0*(ncxn+t),
+                   U0n + 0.5*c0*(ncxn-t);
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(TwoWaves)
+    c0=TwoWaves;
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n,           0,
+         0,        c0*sxn,          0,             U0n;
+    right_eigenvectors <<
+        1,  0,      0,    0,
+        0,  0,     -1,   -1,
+        0,  0.5,    1,   -1,
+        0, -0.5,    1,   -1;
+    left_eigenvectors <<
+        1,   0,     0,      0,
+        0,   0,     1,     -1,
+        0,  -0.5,   0.25,   0.25,
+        0,  -0.5,  -0.25,  -0.25;
+    eigenvalues <<
+        U0n, U0n, U0n-c0*sxn, U0n+c0*sxn;   // !!!!!!!!! <-- NOTICE multiplication with sxn!!!!!!
+
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
+#else
+#error nothing defined
+#endif
+    cf3_assert(c0!=math::Consts::real_max());
+    wave_speed = std::abs(U0n);
   }
 
   virtual void compute_analytical_non_reflective_flux(PhysData& data, const RealVectorNDIM& unit_normal, const RealVectorNDIM& char_normal,
                                                       RealVectorNEQS& flux, Real& wave_speed)
   {
     PHYS::compute_properties(data.coord, data.solution , dummy_grads, p);
-    cons_to_bc(data.solution,char_normal,bc_sol);
 
     Real nx = unit_normal[XX];
     Real ny = unit_normal[YY];
@@ -232,15 +451,84 @@ public:
     Real ncxn = unit_normal.transpose() * char_normal;
 
     /// This line is the hack that makes things not reflect
-    Real c0 = -p.c;
+    Real c0 = math::Consts::real_max();
+
+#if defined(Aomega)
+
+    c0 = Aomega;
+
     jacobian <<
          U0n,      0,               0,             0,
          0,        U0n,             0.5*c0*sxn,    0,
          0,        2.*c0*sxn,       U0n,           c0*ncxn,
          0,        0,               c0*ncxn,       U0n;
-
+    cons_to_bc(data.solution,char_normal,bc_sol);
     bc_flux = jacobian*bc_sol;
     bc_to_cons(bc_flux,char_normal,flux);
+#elif defined(AplusAmin)
+
+    c0 = AplusAmin;
+
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,        c0*sxn,          0,             U0n-c0*ncxn;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(Aminconvection)
+
+    c0 = Aminconvection;
+
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,        c0*sxn,          0,             U0n+c0*ncxn;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(Aconvection)
+
+    c0 = Aconvection;
+
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,       -c0*sxn,          -c0*ncxn,      U0n;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(Hedstrom)
+
+    c0  = 0.;
+    U0n = 0.;
+
+    // Any zero-matrix will do
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,       -c0*sxn,          -c0*ncxn,      U0n;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(TwoWaves)
+    c0 = TwoWaves;
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
+         0,        c0*sxn,          U0n,           0,
+         0,        c0*sxn,          0,             U0n;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#else
+#error nothing defined
+#endif
+    cf3_assert(c0!=math::Consts::real_max());
     wave_speed = p.u0.transpose()*char_normal;
   }
 
