@@ -1181,6 +1181,12 @@ BlockArrays::BlockArrays(const std::string& name) :
     .pretty_name("Create Mesh")
     .signature( boost::bind(&BlockArrays::signature_partition_blocks, this, _1) );
 
+  regist_signal( "extrude_blocks" )
+    .connect( boost::bind( &BlockArrays::signal_extrude_blocks, this, _1 ) )
+    .description("Extrude a 2D mesh in a number of spanwise (Z-direction) blocks. The number of spanwise blocks is determined by the size of the passed arguments")
+    .pretty_name("Extrude Blocks")
+    .signature( boost::bind(&BlockArrays::signature_extrude_blocks, this, _1) );
+
   regist_signal( "create_mesh" )
     .connect( boost::bind( &BlockArrays::signal_create_mesh, this, _1 ) )
     .description("Create the final mesh.")
@@ -1404,6 +1410,123 @@ void BlockArrays::partition_blocks(const Uint nb_partitions, const Uint directio
 
   // The algorithm just modifies the linked parameter, so we need to reset the option to keep it in sync
   options().configure_option("block_distribution", m_implementation->block_distribution);
+}
+
+void BlockArrays::extrude_blocks(const std::vector<Real>& positions, const std::vector< Uint >& nb_segments, const std::vector< Real >& gradings)
+{
+  if(m_implementation->points->row_size() != 2)
+    throw SetupError(FromHere(), "Only 2D block data cn be extuded");
+  const Uint nb_layers = positions.size();
+  if(nb_segments.size() != nb_layers || gradings.size() != nb_layers)
+    throw SetupError(FromHere(), "Arguments passed to extrude don't have the same size");
+
+  Table<Real>& points_3d = *m_implementation->points;
+  Table<Uint>& block_points_3d = *m_implementation->blocks;
+  Table<Uint>& subdivisions_3d = *m_implementation->block_subdivisions;
+  Table<Real>& gradings_3d = *m_implementation->block_gradings;
+  Table<Real>::ArrayT gradings_2d = gradings_3d.array(); // copy, since the ordering is not preserved
+
+  // Resize the original points
+  const Uint nb_points_2d = points_3d.size();
+  const Uint nb_points_3d = (nb_layers+1)*nb_points_2d;
+  points_3d.array().resize(boost::extents[nb_points_3d][3]);
+
+  // Convert original points to 3D
+  for(Uint i = 0; i != nb_points_2d; ++i)
+  {
+    points_3d[i][2] = 0.; // Old layer defaults at position 0
+  }
+
+  // Add new points
+  for(Uint layer = 0; layer != nb_layers; ++layer)
+  {
+    for(Uint i = 0; i != nb_points_2d; ++i)
+    {
+      const Uint new_point_idx = i+(layer+1)*nb_points_2d;
+      points_3d.set_row(new_point_idx, points_3d[i]);
+      points_3d[new_point_idx][2] = positions[layer];
+    }
+  }
+
+  // resize blocks
+  const Uint nb_blocks_2d = block_points_3d.size();
+  block_points_3d.array().resize(boost::extents[nb_blocks_2d*nb_layers][8]);
+  subdivisions_3d.array().resize(boost::extents[nb_blocks_2d*nb_layers][3]);
+  gradings_3d.array().resize(boost::extents[nb_blocks_2d*nb_layers][12]);
+
+  // Create new blocks
+  for(Uint layer = 0; layer != nb_layers; ++layer)
+  {
+    for(Uint i = 0; i != nb_blocks_2d; ++i)
+    {
+      const Uint new_block_idx = layer*nb_blocks_2d+i;
+      const Table<Uint>::ConstRow original_block_row = block_points_3d[i];
+      Table<Uint>::Row new_block_row = block_points_3d[new_block_idx];
+      const Uint first_layer_offset = nb_points_2d*layer;
+      const Uint second_layer_offset = first_layer_offset + nb_points_2d;
+      new_block_row[0] = original_block_row[0]+first_layer_offset;
+      new_block_row[1] = original_block_row[1]+first_layer_offset;
+      new_block_row[2] = original_block_row[2]+first_layer_offset;
+      new_block_row[3] = original_block_row[3]+first_layer_offset;
+      new_block_row[4] = original_block_row[0]+second_layer_offset;
+      new_block_row[5] = original_block_row[1]+second_layer_offset;
+      new_block_row[6] = original_block_row[2]+second_layer_offset;
+      new_block_row[7] = original_block_row[3]+second_layer_offset;
+
+      const Table<Uint>::ConstRow original_subdiv_row = subdivisions_3d[i];
+      Table<Uint>::Row new_subdiv_row = subdivisions_3d[new_block_idx];
+      new_subdiv_row[0] = original_subdiv_row[0];
+      new_subdiv_row[1] = original_subdiv_row[1];
+      new_subdiv_row[2] = nb_segments[layer];
+
+      const Table<Real>::ConstRow original_grading_row = gradings_2d[i];
+      Table<Real>::Row new_grading_row = gradings_3d[new_block_idx];
+      new_grading_row[0] = original_grading_row[0];
+      new_grading_row[1] = original_grading_row[0];
+      new_grading_row[2] = original_grading_row[1];
+      new_grading_row[3] = original_grading_row[1];
+      new_grading_row[4] = original_grading_row[2];
+      new_grading_row[5] = original_grading_row[3];
+      new_grading_row[6] = original_grading_row[2];
+      new_grading_row[7] = original_grading_row[3];
+      new_grading_row[8] = gradings[layer];
+      new_grading_row[9] = gradings[layer];
+      new_grading_row[10] = gradings[layer];
+      new_grading_row[11] = gradings[layer];
+    }
+  }
+
+  // Adjust side patches
+  BOOST_FOREACH(Table<Uint>& patch, find_components< Table<Uint> >(*m_implementation->patches))
+  {
+    const Uint patch_size_2d = patch.size();
+    patch.array().resize(boost::extents[patch_size_2d*nb_layers][4]);
+    for(Uint layer = 0; layer != nb_layers; ++layer)
+    {
+      for(Uint i = 0; i != patch_size_2d; ++i)
+      {
+        const Table<Uint>::ConstRow original_patch_row = patch[i];
+        Table<Uint>::Row new_patch_row = patch[patch_size_2d*layer + i];
+        const Uint first_layer_offset = nb_points_2d*layer;
+        const Uint second_layer_offset = first_layer_offset + nb_points_2d;
+        new_patch_row[0] = original_patch_row[0]+first_layer_offset;
+        new_patch_row[1] = original_patch_row[1]+first_layer_offset;
+        new_patch_row[2] = original_patch_row[1]+second_layer_offset;
+        new_patch_row[3] = original_patch_row[0]+second_layer_offset;
+      }
+    }
+  }
+
+  // add front and back patches
+  Table<Uint>& front_patch = *create_patch("front", nb_blocks_2d);
+  Table<Uint>& back_patch = *create_patch("back", nb_blocks_2d);
+  for(Uint i = 0; i != nb_blocks_2d; ++i)
+  {
+    std::reverse_copy(block_points_3d[i].begin(), block_points_3d[i].begin()+4, front_patch[i].begin());
+    std::copy(block_points_3d[(nb_layers-1)*nb_blocks_2d+i].begin()+4, block_points_3d[(nb_layers-1)*nb_blocks_2d+i].begin()+8, back_patch[i].begin());
+  }
+
+  m_implementation->trigger_block_distribution();
 }
 
 void BlockArrays::create_mesh(Mesh& mesh)
@@ -1667,6 +1790,31 @@ void BlockArrays::signal_create_patch_face_list(SignalArgs& args)
 void BlockArrays::signal_create_block_mesh(SignalArgs& args)
 {
   detail::create_reply(args, *create_block_mesh());
+}
+
+void BlockArrays::signature_extrude_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+
+  options.add_option("positions", std::vector<Real>())
+    .pretty_name("Positions")
+    .description("Spanwise coordinate for each new spanwise layer of points. Values must ne greater than 0");
+
+  options.add_option("nb_segments", std::vector<Uint>())
+    .pretty_name("Nb Segments")
+    .description("Number of spanwise segments for each block");
+
+  options.add_option("gradings", std::vector<Real>())
+    .pretty_name("Gradings")
+    .description("Uniform grading definition in the spanwise direction for each block");
+}
+
+void BlockArrays::signal_extrude_blocks(SignalArgs& args)
+{
+  SignalOptions options(args);
+  extrude_blocks(options["positions"].value< std::vector<Real> >(),
+                 options["nb_segments"].value< std::vector<Uint> >(),
+                 options["gradings"].value< std::vector<Real> >());
 }
 
 void BlockArrays::signature_create_mesh(SignalArgs& args)
