@@ -1178,7 +1178,7 @@ BlockArrays::BlockArrays(const std::string& name) :
   regist_signal( "partition_blocks" )
     .connect( boost::bind( &BlockArrays::signal_partition_blocks, this, _1 ) )
     .description("Partition the blocks for parallel mesh generation")
-    .pretty_name("Create Mesh")
+    .pretty_name("Partition Blocks")
     .signature( boost::bind(&BlockArrays::signature_partition_blocks, this, _1) );
 
   regist_signal( "extrude_blocks" )
