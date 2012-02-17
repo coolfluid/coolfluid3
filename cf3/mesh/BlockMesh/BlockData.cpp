@@ -1715,7 +1715,7 @@ void BlockArrays::signature_partition_blocks(SignalArgs& args)
 void BlockArrays::signal_partition_blocks(SignalArgs& args)
 {
   SignalOptions options(args);
-  partition_blocks(options["nb_partitions"].value<Uint>(), options["direction"].value<uint>());
+  partition_blocks(options["nb_partitions"].value<Uint>(), options["direction"].value<Uint>());
 }
 
 
