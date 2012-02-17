@@ -66,24 +66,6 @@ struct BockMesh3DFixture :
       m_domain = Handle<Domain>(root.get_child("domain"));
     }
 
-    if(!domain().get_child("writer"))
-    {
-      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
-    }
-    else
-    {
-      m_writer = Handle<MeshWriter>(domain().get_child("writer"));
-    }
-
-    if(!domain().get_child("block_mesh"))
-    {
-      m_block_mesh = domain().create_component<Mesh>("block_mesh");
-    }
-    else
-    {
-      m_block_mesh = Handle<Mesh>(domain().get_child("block_mesh"));
-    }
-
     if(!domain().get_child("mesh"))
     {
       m_mesh = domain().create_component<Mesh>("mesh");
@@ -92,28 +74,11 @@ struct BockMesh3DFixture :
     {
       m_mesh = Handle<Mesh>(domain().get_child("mesh"));
     }
-
-    if(argc == 5)
-    {
-      writer().options().configure_option("distributed_files", true);
-      base_dir = std::string(argv[4]) + "/";
-    }
-
   }
 
   Domain& domain()
   {
     return *m_domain;
-  }
-
-  MeshWriter& writer()
-  {
-    return *m_writer;
-  }
-
-  Mesh& block_mesh()
-  {
-    return *m_block_mesh;
   }
 
   Mesh& mesh()
@@ -124,11 +89,7 @@ struct BockMesh3DFixture :
   Uint x_segs, y_segs, z_segs;
 
   Handle<Domain> m_domain;
-  Handle<Mesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
-  Handle<Mesh> m_mesh; // Actual generated mesh
-  Handle<MeshWriter> m_writer;
-
-  std::string base_dir;
+  Handle<Mesh> m_mesh;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -136,6 +97,8 @@ struct BockMesh3DFixture :
 BOOST_FIXTURE_TEST_SUITE( BlockMesh3D, BockMesh3DFixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+std::vector<URI> fields;
 
 BOOST_AUTO_TEST_CASE( Setup )
 {
@@ -153,63 +116,38 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
   const Real width = 6.;
   const Real ratio = 0.1;
 
-  BlockMesh::BlockData& serial_blocks = *domain().create_component<BlockMesh::BlockData>("serial_blocks");
+  BlockMesh::BlockArrays& blocks = *domain().create_component<BlockMesh::BlockArrays>("BlockArrays");
 
   // Create blocks for a 3D channel
-  Tools::MeshGeneration::create_channel_3d(serial_blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
+  Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
 
   // Try partitioning in multiple directions for certain numbers of CPUS
-  Uint nb_x_partitions = 0;
-  Uint nb_z_partitions = 0;
-
   if(nb_procs == 16)
   {
-    nb_x_partitions = 4;
-    nb_z_partitions = 2;
+    blocks.partition_blocks(8, XX);
+    blocks.partition_blocks(2, ZZ);
   }
   else if(nb_procs == 32)
   {
-    nb_x_partitions = 8;
-    nb_z_partitions = 2;
+    blocks.partition_blocks(8, XX);
+    blocks.partition_blocks(4, ZZ);
   }
   else if(nb_procs == 64)
   {
-    nb_x_partitions = 8;
-    nb_z_partitions = 4;
+    blocks.partition_blocks(16, XX);
+    blocks.partition_blocks(4, ZZ);
   }
   else if(nb_procs == 128)
   {
-    nb_x_partitions = 16;
-    nb_z_partitions = 4;
-  }
-
-  if(nb_z_partitions != 0)
-  {
-    BlockMesh::BlockData& parallel_blocks_x = *domain().create_component<BlockMesh::BlockData>("parallel_blocks_x");
-    BlockMesh::BlockData& parallel_blocks_z = *domain().create_component<BlockMesh::BlockData>("parallel_blocks_z");
-
-    BlockMesh::partition_blocks(serial_blocks, nb_x_partitions, XX, parallel_blocks_x);
-    BlockMesh::partition_blocks(parallel_blocks_x, nb_z_partitions, ZZ, parallel_blocks_z);
-
-    BOOST_CHECK_EQUAL(parallel_blocks_z.block_points.size(), nb_procs);
-    parallel_blocks_z.block_distribution.resize(nb_procs+1);
-    for(Uint i = 0; i != nb_procs; ++i)
-      parallel_blocks_z.block_distribution[i] = i;
-    parallel_blocks_z.block_distribution[nb_procs] = nb_procs;
-
-    // Gnerate the actual mesh
-    BlockMesh::build_mesh(parallel_blocks_z, mesh());
+    blocks.partition_blocks(16, XX);
+    blocks.partition_blocks(8, ZZ);
   }
   else
   {
-    BlockMesh::BlockData& parallel_blocks = *domain().create_component<BlockMesh::BlockData>("parallel_blocks");
-    // partition blocks
-    BlockMesh::partition_blocks(serial_blocks, nb_procs, XX, parallel_blocks);
-
-    // Generate the actual mesh
-    BlockMesh::build_mesh(parallel_blocks, mesh());
-    std::cout << "done for " << rank << std::endl;
+    blocks.partition_blocks(nb_procs, XX);
   }
+  
+  blocks.create_mesh(mesh());
 }
 
 BOOST_AUTO_TEST_CASE( RankField )
@@ -228,17 +166,12 @@ BOOST_AUTO_TEST_CASE( RankField )
       elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }
-
-  // setup fields to write
-  std::vector<Handle< Field > > fields;
-  fields.push_back(mesh().geometry_fields().coordinates().handle<Field>());
-  fields.push_back(elem_rank.handle<Field>());
-  writer().set_fields(fields);
+  fields.push_back(elem_rank.uri());
 }
 
 BOOST_AUTO_TEST_CASE( WriteMesh )
 {
-  writer().write_from_to(mesh(), base_dir + "utest-blockmesh-3d-mpi_output.pvtu");
+  mesh().write_mesh("utest-blockmesh-3d-mpi_output.pvtu", fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

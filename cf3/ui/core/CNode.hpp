@@ -56,7 +56,7 @@ namespace core {
     void notify_child_count_changed();
 
     /// Emits @c #signal_signature() signal.
-    void notify_signal_signature(common::SignalArgs * node);
+    void notify_signal_signature(common::SignalArgs &node);
 
   signals:
 
@@ -64,7 +64,7 @@ namespace core {
     void child_count_changed();
 
     /// Signal emitted when a signal signature has been received.
-    void signal_signature(common::SignalArgs * node);
+    void signal_signature(cf3::common::SignalArgs * node);
 
   private:
 

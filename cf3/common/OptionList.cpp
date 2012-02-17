@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/any.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/BasicExceptions.hpp"
@@ -155,7 +156,18 @@ std::string OptionList::list_options() const
     {
       opt_list=opt_list+"\n";
     }
+
     opt_list = "  - " + opt_list + name + ":" + option->type() + "=" + option->value_str();
+
+    if (option->has_restricted_list())
+    {
+      std::string rest_list="";
+      std::vector<boost::any>::iterator ir = option->restricted_list().begin();
+      for( ; ir != option->restricted_list().end() ; ++ir )
+        rest_list= rest_list + " " + boost::any_cast<std::string>(*ir);
+      opt_list = opt_list + " restrictions:" + rest_list;
+    }
+
     ++cnt;
   }
   return opt_list;

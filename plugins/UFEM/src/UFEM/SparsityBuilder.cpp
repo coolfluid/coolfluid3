@@ -9,7 +9,6 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Region.hpp"
-#include "mesh/Cells.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
@@ -33,7 +32,7 @@ void build_sparsity(const Mesh& mesh, std::vector< Uint >& node_connectivity, st
   start_indices.assign(nb_nodes+1, 0);
 
   // Determine the number of connected nodes for each element
-  BOOST_FOREACH(const Elements& elements, find_components_recursively<Cells>(mesh.topology()))
+  BOOST_FOREACH(const Elements& elements, find_components_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume()))
   {
     const Connectivity& connectivity = elements.geometry_space().connectivity();
     const Uint nb_elems = connectivity.size();

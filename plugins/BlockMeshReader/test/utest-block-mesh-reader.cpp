@@ -18,7 +18,6 @@
 #include "mesh/MeshWriter.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
-#include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"

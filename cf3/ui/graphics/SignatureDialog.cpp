@@ -8,10 +8,13 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
+#include <QApplication>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
+#include "common/XML/FileOperations.hpp"
 
 #include "ui/core/NLog.hpp"
 #include "ui/core/TreeThread.hpp"
@@ -33,7 +36,7 @@ namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-SignatureDialog::SignatureDialog(QWidget *parent) :
+SignatureDialog::SignatureDialog( QWidget *parent ) :
     QDialog(parent),
     m_ok_clicked(false),
     m_is_blocking(false)
@@ -58,12 +61,17 @@ SignatureDialog::~SignatureDialog()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
+bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 {
   cf3_assert( sig.is_valid() );
 
-  XmlNode node = sig.content->first_node();
+  XmlNode node( sig.content->first_node() );
   QString name;
+  std::string str;
+  rapidxml::xml_node<> * n = sig.content->parent()->parent()->parent()->parent();
+
+  if(is_not_null(n))
+    XML::to_string( n, str );
 
   m_ok_clicked = false;
 
@@ -80,19 +88,19 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
     m_nodes[name] = node;
   }
 
- if( m_data_layout->has_options() )
+  if( m_data_layout->has_options() )
   {
-   if(block)
-   {
-     m_is_blocking = true;
-     this->exec();
-   }
-   else
-   {
-     m_is_blocking = false;
-     this->setModal(true);
-     this->setVisible(true);
-   }
+    if(block)
+    {
+      m_is_blocking = true;
+      this->exec();
+    }
+    else
+    {
+      m_is_blocking = false;
+      this->setModal(true);
+      this->setVisible(true);
+    }
   }
   else
   {

@@ -69,8 +69,14 @@ Component::Component ( const std::string& name ) :
       .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("lists the component tree inside this component")
+      .description("lists the component tree inside this component, printing results in XML format")
       .pretty_name("List tree");
+
+  regist_signal( "list_tree_recursive" )
+      .connect( boost::bind( &Component::signal_list_tree_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the component tree inside this component")
+      .pretty_name("List tree recursively");
 
   regist_signal( "print_tree" )
       .connect( boost::bind( &Component::signal_print_tree, this, _1 ) )
@@ -79,6 +85,7 @@ Component::Component ( const std::string& name ) :
       .description("Print the component tree inside this component")
       .pretty_name("Print tree")
       .signature( boost::bind(&Component::signature_print_tree, this, _1) );
+
 
   regist_signal( "list_properties" )
       .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
@@ -92,11 +99,23 @@ Component::Component ( const std::string& name ) :
       .description("lists the options of this component")
       .pretty_name("List options");
 
+  regist_signal( "list_options_recursive" )
+      .connect( boost::bind( &Component::signal_list_options_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component and its subcomponents")
+      .pretty_name("List options recursively");
+
   regist_signal( "list_signals" )
       .connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
       .hidden(true)
       .description("lists the options of this component")
       .pretty_name("List signals");
+
+  regist_signal( "list_signals_recursive" )
+      .connect( boost::bind( &Component::signal_list_signals_recursive, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component and its subcomponents")
+      .pretty_name("List signals recursively");
 
   regist_signal( "configure" )
       .connect( boost::bind( &Component::signal_configure, this, _1 ) )
@@ -674,6 +693,17 @@ void Component::signal_list_tree( SignalArgs& args ) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void Component::signal_list_tree_recursive( SignalArgs& args) const
+{
+  CFinfo << uri().path() << " [" << derived_type_name() << "]" << CFendl;
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_tree_recursive( args );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 std::string Component::tree(bool basic_mode, Uint depth, Uint recursion_level) const
 {
   std::string tree;
@@ -761,33 +791,33 @@ void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
 
- Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
- for( ; it != properties().store.end() ; it++)
- {
-   std::string name = it->first;
-   boost::any value = it->second;
+  for( ; it != properties().store.end() ; it++)
+  {
+    std::string name = it->first;
+    boost::any value = it->second;
 
-   std::string type = class_name_from_typeinfo( value.type() );
+    std::string type = class_name_from_typeinfo( value.type() );
 
-   if(type == Protocol::Tags::type<std::string>())
-     options.set_value<std::string>( name, any_to_value<std::string>(value) );
-   else if(type == Protocol::Tags::type<bool>())
-     options.set_value<bool>( name, any_to_value<bool>(value) );
-   else if(type == Protocol::Tags::type<int>())
-     options.set_value<int>( name, any_to_value<int>(value) );
-   else if(type == Protocol::Tags::type<Uint>())
-     options.set_value<Uint>( name, any_to_value<Uint>(value) );
-   else if(type == Protocol::Tags::type<Real>())
-     options.set_value<Real>( name, any_to_value<Real>(value) );
-   else if(type == Protocol::Tags::type<URI>())
-     options.set_value<URI>( name, any_to_value<URI>(value) );
-   else if(type == Protocol::Tags::type<UUCount>())
-     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
-   else
-     throw ShouldNotBeHere(FromHere(),
-                           std::string("Don't know how the manage [" + type + "] type."));
- }
+    if(type == Protocol::Tags::type<std::string>())
+      options.set_value<std::string>( name, any_to_value<std::string>(value) );
+    else if(type == Protocol::Tags::type<bool>())
+      options.set_value<bool>( name, any_to_value<bool>(value) );
+    else if(type == Protocol::Tags::type<int>())
+      options.set_value<int>( name, any_to_value<int>(value) );
+    else if(type == Protocol::Tags::type<Uint>())
+      options.set_value<Uint>( name, any_to_value<Uint>(value) );
+    else if(type == Protocol::Tags::type<Real>())
+      options.set_value<Real>( name, any_to_value<Real>(value) );
+    else if(type == Protocol::Tags::type<URI>())
+      options.set_value<URI>( name, any_to_value<URI>(value) );
+    else if(type == Protocol::Tags::type<UUCount>())
+      options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
+    else
+      throw ShouldNotBeHere(FromHere(),
+                            std::string("Don't know how the manage [" + type + "] type."));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -796,6 +826,25 @@ void Component::signal_list_options ( SignalArgs& args ) const
 {
   Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
   SignalOptions::add_to_map( options, *m_options );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_list_options_recursive ( SignalArgs& args ) const
+{
+  std::string comp = uri().path();
+  std::string opts = options().list_options();
+  if (opts!="")
+  {
+    boost::tokenizer< boost::char_separator<char> > tok(opts,boost::char_separator<char>("\n"));
+    for(boost::tokenizer< boost::char_separator<char> >::iterator opt=tok.begin(); opt!=tok.end();++opt){
+      CFinfo << comp << "/" << *opt << CFendl;
+    }
+  }
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_options_recursive( args );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -816,6 +865,21 @@ void Component::signal_list_signals( SignalArgs& args ) const
     signal_node.set_attribute( Protocol::Tags::attr_descr(), (*it)->description() );
     signal_node.set_attribute( "name", (*it)->pretty_name() );
     signal_node.set_attribute( "hidden", to_str( (*it)->is_hidden() ) );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_list_signals_recursive ( SignalArgs& args ) const
+{
+  std::string comp = uri().path();
+  for( SignalHandler::storage_t::const_iterator it = m_signals.begin(); it != m_signals.end(); ++it )
+  {
+    CFinfo << comp << "/" << (*it)->name() << " hidden:" << (*it)->is_hidden() << " " << (*it)->description() << CFendl;
+  }
+  BOOST_FOREACH(const Component& c, *this )
+  {
+    c.signal_list_signals_recursive( args );
   }
 }
 

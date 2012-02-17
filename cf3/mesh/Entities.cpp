@@ -48,7 +48,7 @@ Entities::Entities ( const std::string& name ) :
   options().add_option("element_type", "")
       .description("Element type")
       .pretty_name("Element type")
-      .attach_trigger(boost::bind(&Entities::configure_element_type, this)); 
+      .attach_trigger(boost::bind(&Entities::configure_element_type, this));
 
   m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
@@ -192,6 +192,7 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
     }
   }
 
+  std::sort(used_nodes->array().begin(), used_nodes->array().end());
   return used_nodes;
 }
 

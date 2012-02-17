@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 
   cf3::common::AssertionManager::instance().AssertionThrows = true;
   cf3::common::AssertionManager::instance().AssertionDumps = true;
+  cf3::common::ExceptionManager::instance().ExceptionDumps = true;
 
   // tell CF core that the client is running
   Core::instance().network_info().start_client();

@@ -314,14 +314,23 @@ public: // functions
   /// lists the sub components and puts them on the xml_tree
   void signal_list_tree( SignalArgs& args ) const;
 
+  ///  prints tree recursively
+  void signal_list_tree_recursive ( SignalArgs& args) const;
+
   /// lists the properties of this component
   void signal_list_properties ( SignalArgs& args ) const;
 
   /// lists the properties of this component
   void signal_list_options ( SignalArgs& args ) const;
 
+  ///  prints all options recursive
+  void signal_list_options_recursive ( SignalArgs& args ) const;
+
   /// lists the signals of this component
   void signal_list_signals ( SignalArgs& args ) const;
+
+  ///  prints all signals recursive
+  void signal_list_signals_recursive ( SignalArgs& args ) const;
 
   ///  gets info on this component
   void signal_print_info ( SignalArgs& args ) const;
