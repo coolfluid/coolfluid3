@@ -12,6 +12,9 @@
 #include <boost/accumulators/statistics/max.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+  #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#endif
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include <boost/scoped_ptr.hpp>
