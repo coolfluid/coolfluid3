@@ -8,6 +8,8 @@
 
 #include "common/Builder.hpp"
 
+#include "math/Consts.hpp"
+
 #include "mesh/ElementTypeT.hpp"
 
 #include "mesh/LagrangeP1/LibLagrangeP1.hpp"
@@ -60,9 +62,10 @@ void Line1D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 
 bool Line1D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 {
+  static const Real tolerance = 1e-12;
   MappedCoordsT mapped_coord = mapped_coordinate(coord,nodes);
-  if( (mapped_coord[KSI] >= -0.5) &&
-      (mapped_coord[KSI] <= 0.5) )
+  if( (mapped_coord[KSI] >= -0.5 - tolerance) &&
+      (mapped_coord[KSI] <= 0.5 + tolerance) )
   {
     return true;
   }
