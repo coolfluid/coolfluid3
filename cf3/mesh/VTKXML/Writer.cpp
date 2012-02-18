@@ -111,7 +111,7 @@ namespace detail
     void finish_array()
     {
       // Write the last block
-      cf3_assert(m_current_block.tellp() == m_header.last_blocksize);
+      cf3_assert(static_cast<Uint>(m_current_block.tellp()) == static_cast<Uint>(m_header.last_blocksize));
       compress_block();
 
       // go back to the header
