@@ -118,7 +118,7 @@ void TCPConnection::process_header( boost::system::error_code & error )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TCPConnection::parse_frame_data( SignalFrame & args, system::error_code & error )
+void TCPConnection::parse_frame_data( SignalFrame & args, boost::system::error_code & error )
 {
   try
   {
@@ -159,7 +159,7 @@ void TCPConnection::disconnect()
       m_socket.shutdown( tcp::socket::shutdown_both );
       m_socket.close();
     }
-    catch( system::error_code & e )
+    catch( boost::system::error_code & e )
     {
       notify_error("An error occured while the socket was shutting down: " + e.message());
     }
