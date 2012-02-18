@@ -51,14 +51,10 @@ public: //functions
     GraphOption(QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
-    /// @warning nasty fix !! resolves compilation with Boost 1.48.
-    /// should be removed Qt's moc tool will be fixed.
-#ifndef Q_MOC_RUN
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
     void set_data(NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
-#endif
 
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
