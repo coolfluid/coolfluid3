@@ -38,7 +38,7 @@ public:
 
   Action action;
   TCPConnection::ConstPtr connection;
-  system::error_code error_raised;
+  boost::system::error_code error_raised;
 
 }; // LastCallbackInfo
 
@@ -338,10 +338,10 @@ BOOST_AUTO_TEST_CASE( multi_client_connect_disconnect )
 
     // check everythings is OK
     BOOST_CHECK_EQUAL ( info.action, LastCallbackInfo::CONNECT );
-    BOOST_CHECK_EQUAL ( info.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info.error_raised, boost::system::errc::success );
 
     BOOST_CHECK_EQUAL ( info_server.action, LastCallbackInfo::ACCEPT );
-    BOOST_CHECK_EQUAL ( info_server.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info_server.error_raised, boost::system::errc::success );
 
     clients.push_back( client );
   }
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( multi_client_read )
 
     // check the right callback was called and the operation success state
     BOOST_CHECK_EQUAL ( info_server.action, LastCallbackInfo::READ );
-    BOOST_CHECK_EQUAL ( info_server.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info_server.error_raised, boost::system::errc::success );
 
     // init some variables
     Server::ClientInfo & client = server.m_clients[ info_server.connection ];
@@ -487,10 +487,10 @@ BOOST_AUTO_TEST_CASE( multi_client_send )
 
     // check everythings is OK
     BOOST_CHECK_EQUAL ( info.action, LastCallbackInfo::CONNECT );
-    BOOST_CHECK_EQUAL ( info.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info.error_raised, boost::system::errc::success );
 
     BOOST_CHECK_EQUAL ( info_server.action, LastCallbackInfo::ACCEPT );
-    BOOST_CHECK_EQUAL ( info_server.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info_server.error_raised, boost::system::errc::success );
 
     clients.push_back( client );
   }
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE( multi_client_send )
    std::cout << cnt << std::endl;
 
     BOOST_CHECK_EQUAL ( info_server.action, LastCallbackInfo::READ );
-    BOOST_CHECK_EQUAL ( info_server.error_raised, system::errc::success );
+    BOOST_CHECK_EQUAL ( info_server.error_raised, boost::system::errc::success );
 
 //    conn = info_server.connection;
 

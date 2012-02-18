@@ -81,7 +81,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( const system::error_code & error )
+  void callback_send( const boost::system::error_code & error )
   {
     if ( error )
       std::cerr << error.message() << std::endl;
@@ -91,7 +91,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_connect( const system::error_code & error )
+  void callback_connect( const boost::system::error_code & error )
   {
     if ( !error )
     {
@@ -105,7 +105,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( const system::error_code & error )
+  void callback_read( const boost::system::error_code & error )
   {
     if ( error )
       std::cerr << "Could not read: " << error.message() << std::endl;
