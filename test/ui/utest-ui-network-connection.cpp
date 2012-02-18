@@ -131,7 +131,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( const system::error_code & error )
+  void callback_send( const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::SEND;
@@ -139,7 +139,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_connect( const system::error_code & error )
+  void callback_connect( const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::CONNECT;
@@ -153,7 +153,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( const system::error_code & error )
+  void callback_read( const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::READ;
@@ -237,7 +237,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_accept( TCPConnection::Ptr conn, const system::error_code & error )
+  void callback_accept( TCPConnection::Ptr conn, const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::ACCEPT;
@@ -253,7 +253,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( TCPConnection::Ptr conn, const system::error_code & error )
+  void callback_send( TCPConnection::Ptr conn, const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::SEND;
@@ -266,7 +266,7 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( TCPConnection::Ptr conn, const system::error_code & error )
+  void callback_read( TCPConnection::Ptr conn, const boost::system::error_code & error )
   {
     last_callback_info.error_raised = error;
     last_callback_info.action = LastCallbackInfo::READ;
