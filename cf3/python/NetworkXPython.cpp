@@ -9,7 +9,7 @@
  * @author Tamas Banyai
 **/
 
-#include "boost/python.hpp"
+#include "python/BoostPython.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/tokenizer.hpp"
 

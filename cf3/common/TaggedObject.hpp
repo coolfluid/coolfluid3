@@ -32,7 +32,7 @@ public:
   void add_tag(const std::string& tag);
 
   /// @return tags in a vector
-  std::vector<std::string> get_tags();
+  std::vector<std::string> get_tags() const;
 
   /// removes tag
   /// @param tag to remove

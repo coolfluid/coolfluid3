@@ -25,7 +25,7 @@ namespace LinEuler {
 
 /// Conservative variables for Linearized Euler 2D
 /// @author Tiago Quintino
-/// @author
+/// @author Willem Deconinck
 class LinEuler_API Cons2D : public VariablesT<Cons2D> {
 
 public: //typedefs
@@ -102,21 +102,15 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-//  From coolfluid 2
-//    _fluxArray[varIDs[0]] = V0n*rho+un*rho0;
-//    _fluxArray[varIDs[1]] = rho0*V0n*u+p*nx;
-//    _fluxArray[varIDs[2]] = rho0*V0n*v+p*ny;
-//    _fluxArray[varIDs[3]] = V0n*p+un*gamma*P0;
-
     flux(0,XX) = p.u0[XX]*p.rho+p.rho0u;
-    flux(1,XX) = p.rho0*p.u0[XX]*p.u+p.p;
-    flux(2,XX) = p.rho0*p.u0[XX]*p.v;
-    flux(3,XX) = p.u0[XX]*p.p + p.u*p.gamma*p.P0;
+    flux(1,XX) = p.u0[XX]*p.rho0u+p.p;
+    flux(2,XX) = p.u0[XX]*p.rho0v;
+    flux(3,XX) = p.u0[XX]*p.p + p.rho0u*p.c*p.c;
 
     flux(0,YY) = p.u0[YY]*p.rho+p.rho0v;
-    flux(1,YY) = p.rho0*p.u0[YY]*p.u;
-    flux(2,YY) = p.rho0*p.u0[YY]*p.v+p.p;
-    flux(3,YY) = p.u0[YY]*p.p + p.v*p.gamma*p.P0;
+    flux(1,YY) = p.u0[YY]*p.rho0u;
+    flux(2,YY) = p.u0[YY]*p.rho0v+p.p;
+    flux(3,YY) = p.u0[YY]*p.p + p.rho0v*p.c*p.c;
   }
 
   /// compute the physical flux
@@ -131,10 +125,10 @@ public: // functions
     const Real un = p.u * direction[XX] +
                     p.v * direction[YY];
 
-    flux[0] = u0n*p.rho+p.rho0*un;
-    flux[1] = p.rho0*u0n*p.u+p.p*direction[XX];
-    flux[2] = p.rho0*u0n*p.v+p.p*direction[YY];
-    flux[3] = u0n*p.p+un*p.gamma*p.P0;
+    flux[0] = u0n*p.rho   + p.rho0*un;
+    flux[1] = u0n*p.rho0u + p.p*direction[XX];
+    flux[2] = u0n*p.rho0v + p.p*direction[YY];
+    flux[3] = u0n*p.p     + p.rho0*un*p.c*p.c;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -143,13 +137,13 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    const Real Vn = p.u0[XX] * direction[XX] +
-                    p.u0[YY] * direction[YY];
+    const Real u0n = p.u0[XX] * direction[XX] +
+                     p.u0[YY] * direction[YY];
 
-    Dv[0] = Vn;
-    Dv[1] = Vn;
-    Dv[2] = Vn + p.c;
-    Dv[3] = Vn - p.c;
+    Dv[0] = u0n;
+    Dv[1] = u0n;
+    Dv[2] = u0n + p.c;
+    Dv[3] = u0n - p.c;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -160,15 +154,15 @@ public: // functions
                                          OP& op )
 
   {
-    const Real Vn = p.u0[XX] * direction[XX] +
-                    p.u0[YY] * direction[YY];
+    const Real u0n = p.u0[XX] * direction[XX] +
+                     p.u0[YY] * direction[YY];
 
-    const Real op_um = op(Vn);
+    const Real op_u0n = op(u0n);
 
-    Dv[0] = op_um;
-    Dv[1] = op_um;
-    Dv[2] = op_um + p.c;
-    Dv[3] = op_um - p.c;
+    Dv[0] = op_u0n;
+    Dv[1] = op_u0n;
+    Dv[2] = op_u0n + p.c;
+    Dv[3] = op_u0n - p.c;
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -184,55 +178,27 @@ public: // functions
 
     // state is not used as Linearized Euler is, well, linear
 
-    const Real Vn = p.u0[XX] * direction[XX] +
-                    p.u0[YY] * direction[YY];
+    const Real u0n = p.u0[XX] * direction[XX] +
+                     p.u0[YY] * direction[YY];
 
-    const Real inv_c2  = p.inv_c / p.c;
+    const Real inv_c2  = p.inv_c*p.inv_c;
 
-    Rv(0,0) = 1.0;
-    Rv(0,1) = 0.0;
-    Rv(0,2) = 0.5*p.inv_c;
-    Rv(0,3) = 0.5*p.inv_c;
+    Rv <<
+          1.,      0.,      0.5*p.inv_c,  0.5*p.inv_c,
+          0.,      ny,      0.5*nx,      -0.5*nx,
+          0.,     -nx,      0.5*ny,      -0.5*ny,
+          0.,      0.,      0.5*p.c,      0.5*p.c;
 
-    Rv(1,0) = 0.0;
-    Rv(1,1) = ny;
-    Rv(1,2) = 0.5*nx;
-    Rv(1,3) = -0.5*nx;
+    Lv <<
+          1.,      0.,      0.,          -inv_c2,
+          0.,      ny,     -nx,           0,
+          0.,      nx,      ny,           p.inv_c,
+          0.,     -nx,     -ny,           p.inv_c;
 
-    Rv(2,0) = 0.0;
-    Rv(2,1) = -nx;
-    Rv(2,2) = 0.5*ny;
-    Rv(2,3) = -0.5*ny;
-
-    Rv(3,0) = 0.0;
-    Rv(3,1) = 0.0;
-    Rv(3,2) = 0.5*p.c;
-    Rv(3,3) = 0.5*p.c;
-
-    Lv(0,0) = 1.0;
-    Lv(0,1) = 0.0;
-    Lv(0,2) = 0.0;
-    Lv(0,3) = -inv_c2;
-
-    Lv(1,0) = 0.0;
-    Lv(1,1) = ny;
-    Lv(1,2) = -nx;
-    Lv(1,3) = 0.0;
-
-    Lv(2,0) = 0.0;
-    Lv(2,1) = nx;
-    Lv(2,2) = ny;
-    Lv(2,3) = p.inv_c;
-
-    Lv(3,0) = 0.0;
-    Lv(3,1) = -nx;
-    Lv(3,2) = -ny;
-    Lv(3,3) = p.inv_c;
-
-    Dv[0] = Vn;
-    Dv[1] = Vn;
-    Dv[2] = Vn + p.c;
-    Dv[3] = Vn - p.c;
+    Dv[0] = u0n;
+    Dv[1] = u0n;
+    Dv[2] = u0n + p.c;
+    Dv[3] = u0n - p.c;
   }
 
   /// compute the PDE residual

@@ -69,6 +69,16 @@ convection.options().configure_option('rho0',1.)
 convection.options().configure_option('U0',[0.,0.])
 convection.options().configure_option('p0',1.)
 
+BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
+BCs.options().configure_option('solver',solver)
+BCs.options().configure_option('mesh',mesh)
+BCs.options().configure_option('physical_model',physics)
+non_refl_bc = BCs.create_boundary_condition(name='non_refl_bc',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[mesh.access_component('topology/boundary').uri()]);
+non_refl_bc.get_child('non_reflective_convection').options().configure_option('gamma',gamma)
+non_refl_bc.get_child('non_reflective_convection').options().configure_option('rho0',1.)
+non_refl_bc.get_child('non_reflective_convection').options().configure_option('U0',[0.,0.])
+non_refl_bc.get_child('non_reflective_convection').options().configure_option('p0',1.)
+
 #######################################
 # SIMULATE
 #######################################

@@ -5,8 +5,16 @@ list( APPEND coolfluid_sdm_lineuler_files
   LibLinEuler.cpp
   Convection2D.hpp
   Convection2D.cpp
+  BCChar2D.hpp
+  BCChar2D.cpp
+  BCSubsonicOutlet2D.hpp
+  BCSubsonicOutlet2D.cpp
+  NonReflectiveConvection2D.hpp
+  NonReflectiveConvection2D.cpp
   InitAcousticVorticityPulse.hpp
   InitAcousticVorticityPulse.cpp
+  ComputeCharacteristicVariables.hpp
+  ComputeCharacteristicVariables.cpp
 )
 
 list( APPEND coolfluid_sdm_lineuler_cflibs coolfluid_sdm coolfluid_physics_lineuler )
