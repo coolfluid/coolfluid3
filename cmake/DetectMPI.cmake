@@ -1,6 +1,10 @@
 #######################################################################
 # find MPI compiler or libraries
 
+set(MPI_C_FIND_QUIETLY ON)
+set(MPI_CXX_FIND_QUIETLY ON)
+set(MPI_Fortran_FIND_QUIETLY ON)
+
 find_package( MPI QUIET ) # Use the standard CMake FindMPI
 
 if( MPI_CXX_COMPILER )
