@@ -25,7 +25,7 @@ void TaggedObject::add_tag(const std::string& tag)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<std::string> TaggedObject::get_tags()
+std::vector<std::string> TaggedObject::get_tags() const
 {
   std::vector<std::string> vec;
 

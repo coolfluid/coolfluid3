@@ -61,7 +61,7 @@ namespace core {
 CNodeNotifier::CNodeNotifier( CNode * parent )
   : m_parent( parent )
 {
-
+  qRegisterMetaType<SignalArgs>("cf3::common::SignalArgs&");
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ void CNodeNotifier::notify_child_count_changed()
 
 void CNodeNotifier::notify_signal_signature( SignalArgs & node )
 {
-  emit signal_signature( &node );
+  emit signal_signature( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////

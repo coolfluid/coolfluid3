@@ -255,6 +255,10 @@ int OSystemLayer::handleSIGFPE (int signal)
 
 int OSystemLayer::handleSIGSEGV(int signal)
 {
+  std::stringstream msg;
+  msg << "received signal SIGSEGV ["<<signal<<"] - 'Segmentation violation'";
+  throw common::SegmentationFault(FromHere(),msg.str());
+
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
   static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );

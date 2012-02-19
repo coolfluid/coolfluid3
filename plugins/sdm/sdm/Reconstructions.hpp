@@ -354,6 +354,77 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct DivergenceFromFluxPointsToFluxPoints
+{
+  void build_coefficients(const Handle<sdm::ShapeFunction const>& sf)
+  {
+    m_ndims = sf->dimensionality();
+    m_derivative_reconstruct_from_flx_pt.resize(sf->nb_flx_pts());
+    for (Uint pt=0; pt<sf->nb_flx_pts(); ++pt)
+    {
+      m_derivative_reconstruct_from_flx_pt[pt].resize(sf->dimensionality());
+      for (Uint d=0; d<m_ndims; ++d)
+        m_derivative_reconstruct_from_flx_pt[pt][d].build_coefficients(d,sf->flx_pts().row(pt),sf);
+    }
+  }
+
+  template <typename matrix_type>
+  void set_zero(matrix_type& m) const
+  {
+    for (Uint i=0; i<m.size(); ++i) {
+      for (Uint j=0; j<m[i].size(); ++j) {
+        m[i][j]=0.;
+      }
+    }
+  }
+  void set_zero(RealMatrix& m) const
+  {
+    m.setZero();
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from, typename matrix_type_to>
+  void operator()(const matrix_type_from& from, matrix_type_to& to) const
+  {
+    cf3_assert(m_derivative_reconstruct_from_flx_pt.size()==to.size());
+    set_zero(to);
+    for (Uint r=0; r<m_derivative_reconstruct_from_flx_pt.size(); ++r) {
+      for (Uint d=0; d<ndims(); ++d) {
+         m_derivative_reconstruct_from_flx_pt[r][d].add(from,to[r]);
+      }
+    }
+  }
+
+  /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
+  template <typename matrix_type_from>
+  void operator()(const matrix_type_from& from, RealMatrix& to) const
+  {
+    cf3_assert(m_derivative_reconstruct_from_flx_pt.size()==to.rows());
+    set_zero(to);
+    for (Uint r=0; r<m_derivative_reconstruct_from_flx_pt.size(); ++r) {
+      for (Uint d=0; d<ndims(); ++d) {
+        m_derivative_reconstruct_from_flx_pt[r][d].add(from,to.row(r));
+      }
+    }
+  }
+
+  template <typename matrix_type_from>
+  RealMatrix operator()(const matrix_type_from& from) const
+  {
+    RealMatrix to(m_derivative_reconstruct_from_flx_pt.size(),mesh::ReconstructBase::nb_vars(from));
+    operator()(from,to);
+    return to;
+  }
+
+  Uint ndims() const { return m_ndims; }
+
+private:
+  Uint m_ndims;
+  std::vector< std::vector<DerivativeReconstructFromFluxPoint> > m_derivative_reconstruct_from_flx_pt;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // sdm
 } // cf3
 

@@ -53,7 +53,7 @@ namespace graphics {
 
     void action_hovered();
 
-    void signal_signature(cf3::common::SignalArgs *node);
+    void signal_signature(cf3::common::SignalArgs &node);
 
     void dialog_finished(int result);
 
