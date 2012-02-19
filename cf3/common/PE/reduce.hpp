@@ -266,9 +266,9 @@ reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, 
 
   // call impl
   if (irank==root){
-    detail::reduce_impl(comm, op, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], root, stride);
+    detail::reduce_impl(comm, op, (T*)(&in_values[0]), in_map.size(), (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), (out_map.empty() ? nullptr : &out_map[0]), root, stride);
   } else {
-    detail::reduce_impl(comm, op, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)0, (int*)0, root, stride);
+    detail::reduce_impl(comm, op, (T*)(&in_values[0]), in_map.size(), (in_map.empty() ? nullptr : &in_map[0]), (T*)0, (int*)0, root, stride);
   }
 }
 
