@@ -21,8 +21,8 @@
 namespace cf3 {
 
 namespace common    { class Group; }
-namespace solver    { namespace actions { class SynchronizeFields; } }
-//namespace RiemannSolvers { class RiemannSolver; }
+namespace solver    { class Time;
+  namespace actions { class SynchronizeFields; } }
 namespace sdm {
 
 // Forward declarations
@@ -43,11 +43,6 @@ class SharedCaches;
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
 class sdm_API SDSolver : public solver::Solver {
-
-public: // typedefs
-
-  
-  
 
 public: // functions
 
@@ -72,6 +67,8 @@ public: // functions
   InitialConditions&    initial_conditions()     { return *m_initial_conditions; }
   /// @return subcomponent for domain terms
   DomainDiscretization& domain_discretization()  { return *m_domain_discretization; }
+  /// @return simulation time tracking component
+  solver::Time&         time()                   { return *m_time; }
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping()          { return *m_time_stepping; }
   /// @return subcomponent for non linear iterative steps
@@ -79,7 +76,7 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  common::Group&        actions()                 { return *m_actions; }
+  common::Group&        actions()                { return *m_actions; }
 
   /// @return shared caches
   SharedCaches& shared_caches()                  { return *m_shared_caches; }
@@ -101,6 +98,9 @@ private: // functions
   /// Triggered when regions is configured
   void config_regions();
 
+  /// Triggered when time component is configured
+  void config_time();
+
   /// Triggered when iterative_solver is configured
   void config_iterative_solver();
 
@@ -120,6 +120,7 @@ private: // data
   std::vector<Handle<mesh::Region> > m_regions;              ///< mesh which this solver operates
 
   Handle<PrepareMesh>                m_prepare_mesh;          ///< subcomponent that setups the fields
+  Handle<solver::Time>               m_time;                  ///< time of the simulation
   Handle<TimeStepping>               m_time_stepping;         ///< subcomponent for time stepping
   Handle<IterativeSolver>            m_iterative_solver;      ///< subcomponent for non linear iterative steps
   Handle<DomainDiscretization>       m_domain_discretization; ///< subcomponent for domain terms

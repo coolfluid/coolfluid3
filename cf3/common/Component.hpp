@@ -251,6 +251,15 @@ public: // functions
   /// @param [in] level       recursion parameter, should not be touched
   std::string tree(bool basic_mode=false, Uint depth=0, Uint recursion_level=0) const;
 
+  /// @returns info on this component
+  /// @param [in] what   every character of this string represents what to output:
+  ///                     c : sub components
+  ///                     o : options
+  ///                     s : signals
+  ///                     p : properties
+  ///                     t : tags
+  std::string info(const std::string& what = std::string("cospt")) const;
+
   /// @return Returns the number of children this component has.
   size_t count_children() const;
 

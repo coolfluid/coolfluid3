@@ -140,10 +140,8 @@ void ComputeUpdateCoefficient::execute()
     RealVector ws(wave_speed.row_size());
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      for (Uint j=0; j<wave_speed.row_size(); ++j)
-        ws[j] = wave_speed[i][j];
-      Real abs_ws = ws.norm();
-      update_coeff[i][0] = cfl/(abs_ws);
+      if (wave_speed[i][0] > 0)
+        update_coeff[i][0] = cfl/wave_speed[i][0];
     }
   }
 }

@@ -193,6 +193,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::assign, const VectorT& v)
   {
+    m_value = v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] = v[i];
   }
@@ -200,6 +201,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::plus_assign, const VectorT& v)
   {
+    m_value += v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] += v[i];
   }
@@ -207,6 +209,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::minus_assign, const VectorT& v)
   {
+    m_value -= v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
   }

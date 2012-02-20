@@ -13,14 +13,14 @@
 
 namespace cf3 {
   
-  namespace mesh { namespace BlockMesh { class BlockData; } }
+  namespace mesh { namespace BlockMesh { class BlockArrays; } }
   
 namespace BlockMeshReader {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Parse an OpenFoam blockMeshDict file to generate block data
-void BlockMeshReader_API parse_blockmesh_dict(std::istream& file, mesh::BlockMesh::BlockData& blockData);
+void BlockMeshReader_API parse_blockmesh_dict(std::istream& file, mesh::BlockMesh::BlockArrays& blocks);
 
 ////////////////////////////////////////////////////////////////////////////////
 

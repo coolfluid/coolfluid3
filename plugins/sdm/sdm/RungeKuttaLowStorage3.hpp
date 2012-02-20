@@ -22,6 +22,7 @@ namespace sdm {
 /// The order depends on the coefficients alpha and beta
 /// Algorithm 3S* with m = number of stages (not necessarily same as order)
 /// @code
+/// // Use convention indexes start at 1
 /// S1 := U(t=n)   S2 := 0   S3 := U(t=n)
 /// for i = 2:m+1 do
 ///     S2 := S2 + delta(i-1)*S1
@@ -32,21 +33,6 @@ namespace sdm {
 ///     S2 := 1/sum(delta) * (S2 + delta(m+1)*S1 + delta(m+2)*S3
 
 /// @endcode
-/*
-        S1=u[-1]+0. # by adding zero we get a copy; is there a better way?
-        S2=np.zeros(np.size(S1))
-        if self.lstype.startswith('3S*'): S3=S1+0.
-        for i in range(1,m+1):
-            S2 = S2 + self.delta[i-1]*S1
-            if self.lstype=='2S' or self.lstype=='2S*':
-                S1 = self.gamma[0][i]*S1 + self.gamma[1][i]*S2 \
-                     + self.betavec[i]*dt*f(t[-1]+self.c[i-1]*dt,S1)
-            elif self.lstype.startswith('3S*'):
-                S1 = self.gamma[0][i]*S1 + self.gamma[1][i]*S2 \
-                     + self.gamma[2][i]*S3 \
-                     + self.betavec[i]*dt*f(t[-1]+self.c[i-1]*dt,S1)
-        return S1
-        */
 /// @author Willem Deconinck
 class sdm_API RungeKuttaLowStorage3 : public IterativeSolver {
 

@@ -25,12 +25,6 @@ class Time;
 
 class solver_API ActionDirector : public common::ActionDirector {
 
-public: // typedefs
-
-  /// provider
-  
-  
-
 public: // functions
 
   /// Contructor
@@ -54,11 +48,6 @@ public: // functions
 
   /// @returns the physical model this action relies on
   physics::PhysModel& physical_model();
-
-  /// @returns the time component
-  /// @deprecated Time makes no sense in certain simulations
-  ///             This will eventually be removed
-  solver::Time& time();
 
   //@} END ACCESSORS
 

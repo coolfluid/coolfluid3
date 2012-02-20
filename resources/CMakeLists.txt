@@ -11,8 +11,11 @@ list( APPEND resources_files
    rectangle-qd-p2.msh
    rectangle-mix-p1.msh
    rectangle-mix-p2.msh
+   square100-quad-p2-40x40.msh
+   square100-quad-p2-50x50.msh
    sinusbump-tg-p1.msh
    circle-quad-p1-32.msh
+   cylinder-quad-p1-128x32.msh
    cylinder-quad-p2-16x4.msh
    cylinder-quad-p2-32x8.msh
    cylinder-quad-p2-64x16.msh

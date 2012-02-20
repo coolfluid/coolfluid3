@@ -46,7 +46,6 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 #root.list_tree_recursive()
 #print("----------------------------------------------------------------------------------------------------------")
 
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
 solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 50)

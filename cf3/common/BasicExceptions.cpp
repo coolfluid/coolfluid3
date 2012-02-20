@@ -68,6 +68,14 @@ FloatingPointError::~FloatingPointError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SegmentationFault::SegmentationFault ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "SegmentationFault")
+{}
+
+SegmentationFault::~SegmentationFault() throw()
+{}
+
+////////////////////////////////////////////////////////////////////////////////
 ValueExists::ValueExists ( const common::CodeLocation& where, const std::string& what)
 : common::Exception(where, what, "ValueExists")
 {}

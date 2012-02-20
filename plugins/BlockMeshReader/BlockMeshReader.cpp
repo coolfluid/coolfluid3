@@ -53,10 +53,9 @@ void BlockMeshReader::do_read_mesh_into(const cf3::common::URI& path_uri, cf3::m
                                                 boost::system::error_code() );
   }
 
-  BlockData& block_data = *create_component<BlockData>("block_data");
+  BlockArrays& block_data = *create_component<BlockArrays>("BlockArrays");
   parse_blockmesh_dict(file, block_data);
-  block_data.dimension = 3; // TODO add true 2D support
-  build_mesh(block_data, mesh);
+  block_data.create_mesh(mesh);
 }
 
 } // BlockMeshReader

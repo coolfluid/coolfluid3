@@ -583,29 +583,55 @@ void Component::signal_move_component ( SignalArgs& args  )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+std::string Component::info ( const std::string& what  ) const
+{
+  std::stringstream ss;
+  ss << "Info on component \'" << uri().path() << "\'" << std::endl;
+
+  boost_foreach(const char& character, what)
+  {
+    if (character == 'c')
+    {
+      ss << "  sub components:" << std::endl;
+      BOOST_FOREACH( const Component& c, *this )
+      {
+        if (c.has_tag(Tags::static_component()))
+          ss << "  + [static]  ";
+        else
+          ss << "  + [dynamic] ";
+
+        ss << c.name() << " / " << c.derived_type_name() << std::endl;
+      }
+    }
+    if (character == 'o')
+    {
+      ss << "  options:" << std::endl;
+      ss << options().list_options() << std::endl;
+    }
+    if (character == 's')
+    {
+      ss << "  signals: \n    TODO" << std::endl;
+    }
+    if (character == 'p')
+    {
+      ss << "  properties:" << std::endl;
+      typedef std::pair<const std::string,boost::any> Property_t;
+      boost_foreach(const Property_t& property, properties() )
+        ss <<  "  - " << property.first << "=" << properties().value_str(property.first) << std::endl;
+    }
+    if (character == 't')
+    {
+      ss << "  tags:" << std::endl;
+      boost_foreach(const std::string& tag, get_tags() )
+        ss << "  - " << tag << std::endl;
+    }
+  }
+  return ss.str();
+}
+
 void Component::signal_print_info ( SignalArgs& args  ) const
 {
-  CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
-
-  CFinfo << "  sub components:" << CFendl;
-  BOOST_FOREACH( const Component& c, *this )
-  {
-    if (c.has_tag(Tags::static_component()))
-      CFinfo << "  + [static]  ";
-    else
-      CFinfo << "  + [dynamic] ";
-
-    CFinfo << c.name() << " / " << c.derived_type_name() << CFendl;
-  }
-
-  CFinfo << "  options:" << CFendl;
-  CFinfo << options().list_options() << CFendl;
-
-  CFinfo << "  properties:" << CFendl;
-  typedef std::pair<const std::string,boost::any> Property_t;
-  boost_foreach(const Property_t& property, properties() )
-    CFinfo << property.first << "=" << properties().value_str(property.first) << CFendl;
-
+  CFinfo << info() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -765,33 +791,33 @@ void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
 
- Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
- for( ; it != properties().store.end() ; it++)
- {
-   std::string name = it->first;
-   boost::any value = it->second;
+  for( ; it != properties().store.end() ; it++)
+  {
+    std::string name = it->first;
+    boost::any value = it->second;
 
-   std::string type = class_name_from_typeinfo( value.type() );
+    std::string type = class_name_from_typeinfo( value.type() );
 
-   if(type == Protocol::Tags::type<std::string>())
-     options.set_value<std::string>( name, any_to_value<std::string>(value) );
-   else if(type == Protocol::Tags::type<bool>())
-     options.set_value<bool>( name, any_to_value<bool>(value) );
-   else if(type == Protocol::Tags::type<int>())
-     options.set_value<int>( name, any_to_value<int>(value) );
-   else if(type == Protocol::Tags::type<Uint>())
-     options.set_value<Uint>( name, any_to_value<Uint>(value) );
-   else if(type == Protocol::Tags::type<Real>())
-     options.set_value<Real>( name, any_to_value<Real>(value) );
-   else if(type == Protocol::Tags::type<URI>())
-     options.set_value<URI>( name, any_to_value<URI>(value) );
-   else if(type == Protocol::Tags::type<UUCount>())
-     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
-   else
-     throw ShouldNotBeHere(FromHere(),
-                           std::string("Don't know how the manage [" + type + "] type."));
- }
+    if(type == Protocol::Tags::type<std::string>())
+      options.set_value<std::string>( name, any_to_value<std::string>(value) );
+    else if(type == Protocol::Tags::type<bool>())
+      options.set_value<bool>( name, any_to_value<bool>(value) );
+    else if(type == Protocol::Tags::type<int>())
+      options.set_value<int>( name, any_to_value<int>(value) );
+    else if(type == Protocol::Tags::type<Uint>())
+      options.set_value<Uint>( name, any_to_value<Uint>(value) );
+    else if(type == Protocol::Tags::type<Real>())
+      options.set_value<Real>( name, any_to_value<Real>(value) );
+    else if(type == Protocol::Tags::type<URI>())
+      options.set_value<URI>( name, any_to_value<URI>(value) );
+    else if(type == Protocol::Tags::type<UUCount>())
+      options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
+    else
+      throw ShouldNotBeHere(FromHere(),
+                            std::string("Don't know how the manage [" + type + "] type."));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

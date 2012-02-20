@@ -175,7 +175,7 @@ public:
     {
       m_cache = it->second.get();
 
-      if (get().locked()) throw common::IllegalCall(FromHere(),"cache is locked to elem "+common::to_str(it->second->idx));
+      if (get().locked()) throw common::IllegalCall(FromHere(),"cache "+uri().string()+" is locked to elem "+common::to_str(it->second->idx));
 
       return get();
     }
@@ -201,8 +201,7 @@ public:
         return get();
       }
 
-      if ( get().locked() )
-        throw common::IllegalCall(FromHere(),"cache is locked to elem "+common::to_str(it->second->idx));
+      if (get().locked()) throw common::IllegalCall(FromHere(),"cache "+uri().string()+" is locked to elem "+common::to_str(it->second->idx));
 
       set_cache(elem);
       return get();

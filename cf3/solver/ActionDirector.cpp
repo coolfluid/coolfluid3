@@ -51,12 +51,6 @@ ActionDirector::ActionDirector ( const std::string& name ) :
       .pretty_name("Physical Model")
       .mark_basic()
       .link_to(&m_physical_model);
-
-  options().add_option(Tags::time(), m_time)
-      .description("Time tracking component")
-      .pretty_name("Time")
-      .mark_basic()
-      .link_to(&m_time);
 }
 
 ActionDirector::~ActionDirector() {}
@@ -68,15 +62,6 @@ physics::PhysModel& ActionDirector::physical_model()
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
   return *m_physical_model;
-}
-
-
-Time& ActionDirector::time()
-{
-  if( is_null(m_time) )
-    throw common::SetupError( FromHere(),
-                             "Time not yet set for component " + uri().string() );
-  return *m_time;
 }
 
 

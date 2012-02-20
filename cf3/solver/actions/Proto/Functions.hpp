@@ -10,6 +10,7 @@
 #include <boost/proto/core.hpp>
 
 #include "common/CF.hpp"
+#include "math/VectorialFunction.hpp"
 
 namespace cf3 {
 namespace solver {
@@ -47,6 +48,33 @@ pow(Arg const &arg)
     , boost::ref(arg)   // Second child (by reference)
   );
 }
+
+/// Primitive transform to evaluate a function with the function parser
+struct ParsedFunctionTransform :
+  boost::proto::transform< ParsedFunctionTransform >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<DataT>::type::CoordsT result_type;
+
+    result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      result_type result;
+      boost::proto::value(expr).evaluate(data.coordinates(), result);
+      return result;
+    }
+  };
+};
+
+struct ParsedFunctionGrammar :
+  boost::proto::when
+  <
+    boost::proto::terminal<math::VectorialFunction>,
+    ParsedFunctionTransform
+  >
+{
+};
 
 } // namespace Proto
 } // namespace actions

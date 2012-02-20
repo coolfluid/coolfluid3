@@ -163,7 +163,10 @@ void Octtree::create_octtree()
       elements.geometry_space().put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
+      {
+        cf3_assert((centroid[d] - m_bounding[MIN][d])/m_D[d] >= 0);
         octtree_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+      }
       m_octtree[octtree_idx[XX]][octtree_idx[YY]][octtree_idx[ZZ]].push_back(unif_elem_idx);
       ++unif_elem_idx;
     }
@@ -300,14 +303,16 @@ void Octtree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, st
 
 bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
+  static const Real tolerance = 100*math::Consts::eps();
   //CFinfo << "point " << coordinate << CFflush;
   cf3_assert(coordinate.size() == static_cast<int>(m_dim));
 
   for (Uint d=0; d<m_dim; ++d)
   {
-    if ( (coordinate[d] > m_bounding[MAX][d]) ||
-         (coordinate[d] < m_bounding[MIN][d]) )
+    if ( (coordinate[d] > m_bounding[MAX][d] + tolerance) ||
+         (coordinate[d] < m_bounding[MIN][d] - tolerance) )
     {
+      CFdebug << "coord " << coordinate.transpose() << " not found in bounding box" << CFendl;
       return false; // no index found
     }
     octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
@@ -472,6 +477,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
   // if arrived here, it means no element has been found. Give up.
   element_component.reset();
   cf3_assert(is_null(element_component));
+  CFinfo << "coord " << target_coord.transpose() << " has not been found in any cell registereed in the bounding box" << CFendl;
   return false;
 }
 

@@ -145,6 +145,35 @@ struct PythonListToAny
   bool& m_found;
 };
 
+/// Conversion from any to python for basic types
+struct AnyListToPython
+{
+  AnyListToPython(const boost::any& value, boost::python::object& result) :
+    m_value(value),
+    m_result(result)
+  {
+  }
+
+  template<typename T>
+  void operator()(T) const
+  {
+    if(typeid(std::vector<T>) != m_value.type())
+      return;
+    
+    boost::python::list result;
+    const std::vector<T> val = boost::any_cast< std::vector<T> >(m_value);
+    BOOST_FOREACH(const T& item, val)
+    {
+      result.append(boost::any_cast<T>(item));
+    }
+
+    m_result = result;
+  }
+
+  const boost::any& m_value;
+  boost::python::object& m_result;
+};
+
 struct OptionCreator
 {
   OptionCreator(common::OptionList& options, const boost::python::object& value, const std::string& name, bool& found) :
@@ -193,6 +222,8 @@ boost::python::object any_to_python(const boost::any& value)
 {
   boost::python::object result;
   boost::mpl::for_each<AnyTypes>(AnyToPython(value, result));
+  if(result.is_none()) // try lists if straight conversion failed
+    boost::mpl::for_each<AnyTypes>(AnyListToPython(value, result));
   if(result.is_none())
     throw common::CastingFailed(FromHere(), "Failed to convert boost any to a valid python object");
   return result;
@@ -274,10 +305,10 @@ struct SignalWrapper
 
     options.flush();
 
-    std::string node_contents;
-    common::XML::to_string(node.node, node_contents);
-
-    CFdebug << "Calling signal " << m_signal->name() << " with arguments:\n" << node_contents << CFendl;
+    CFdebug << "Calling signal " << m_signal->name() << " with arguments: ";
+    for(SignalOptions::const_iterator opt = options.begin(); opt != options.end(); ++opt)
+      CFdebug << opt->first << " = " << opt->second->value_str() << ", ";
+    CFdebug << CFendl;
 
     (*m_signal->signal())(node);
 
@@ -377,7 +408,6 @@ void ComponentWrapper::bind_signals(boost::python::object& python_object)
 
 void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 {
-  CFdebug << "Wrapping signal " << signal->name() << CFendl;
   m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal, m_implementation->m_component));
 }
 

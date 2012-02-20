@@ -7,6 +7,16 @@
 #ifndef cf3_UFEM_NavierStokes_hpp
 #define cf3_UFEM_NavierStokes_hpp
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/max.hpp>
+
+#define BOOST_PROTO_MAX_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+  #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#endif
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
@@ -20,11 +30,6 @@ namespace UFEM {
 /// solver for the incompressible Navier-Stokes equations
 class UFEM_API NavierStokes : public LinearSolverUnsteady
 {
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor
@@ -35,6 +40,8 @@ public: // functions
   static std::string type_name () { return "NavierStokes"; }
 
 private:
+  virtual void on_iteration_increment();
+  
   /// Storage for stabilization coefficients
   SUPGCoeffs m_coeffs;
 
@@ -49,6 +56,11 @@ private:
 
   /// Trigger on initial condition for velocity
   void trigger_u();
+  
+  /// Convergence statistics
+  typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::max> > StatsT;
+  StatsT m_u_stats, m_p_stats;
+  std::vector<Real> m_u_update_history, m_p_update_history;
 };
 
 } // UFEM

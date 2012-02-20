@@ -9,27 +9,29 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QAbstractSocket>
 #include <QThread>
 #include <QMutex>
 
-#include <boost/signals2/signal.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/system/error_code.hpp>
+
+#include "common/SignalHandler.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "ui/core/LibCore.hpp"
 
-class QTcpSocket;
+namespace boost { namespace asio { class io_service; } }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 
-namespace common {
-namespace XML {
-  class XmlDoc;
-}
-}
+namespace common { namespace XML { class XmlDoc; } }
 
 namespace ui {
+
+namespace network { class TCPConnection; class ErrorHandler; }
+
 namespace core {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,15 +40,15 @@ namespace core {
 ///
 /// @author Quentin Gasper.
 
-class Core_API NetworkThread : public QThread
+class Core_API NetworkThread :
+    public QThread,
+    public common::SignalHandler
 {
-  Q_OBJECT
 
 public:
 
   /// Constructor.
-  /// @param parent The thread parent. May be null.
-  NetworkThread(QObject *parent = 0);
+  NetworkThread(QObject * parent = nullptr);
 
   ~NetworkThread();
 
@@ -56,63 +58,48 @@ public:
   /// after.
   /// @param hostAddress Address of the host to connect to.
   /// @param port The port number to use.
-  bool connect_to_host(const QString& hostAddress, quint16 port);
+  bool connect_to_host( const std::string & hostAddress, unsigned short port );
 
   /// @brief Disconnects from the server, then closes.
 
   /// @param shutServer If @c true, a request to shut down the server is sent.
-  void disconnect_from_server(bool shutServer);
+  void disconnect_from_server( bool shutServer );
 
   bool is_connected() const;
 
   /// @brief Sends a signal frame to the server.
   /// The client UuiD is added to the frame.
   /// @param signal The signal to send.
-  /// @return Returns the number of bytes written.
-  int send(common::SignalArgs & signal);
+  void send( common::SignalArgs & signal );
 
   /// Executes the thread event loop.
   void run();
 
-public: // boost signals
+  void set_error_handler( boost::weak_ptr<network::ErrorHandler> handler );
 
-  /// Signal executed when a new frame arrived (given as parameter).
-  boost::signals2::signal< void ( boost::shared_ptr<common::XML::XmlDoc> ) > newSignal;
 
-private slots :
+private: // callback functions
 
-  /// @brief Slot called when there is an error on the socket.
-  void new_data();
+  void init_read();
 
-  /// @brief Slot called when the connection has been broken or closed.
-  /// If the thread is running, it is exited with error code 0 if
-  /// @c #disconnected() was called, or 1 if the disconnection is due to an
-  /// error code.
-  void disconnected();
+  void callback_connect( const boost::system::error_code & error );
 
-  /// @brief Slot called when there is an error on the m_socket.
+  void callback_read( const boost::system::error_code & error );
 
-  /// @param err Error that occured.
-  void socket_error(QAbstractSocket::SocketError err);
-
-signals:
-
-  /// The signal is not emitted if the user resquested a disconnection (if
-  /// @c #m_requestDisc is @c true ).
-  void disconnected_from_server(bool requested);
-
-  /// @brief Signal emitted when a connection has been successfully
-  /// established between the client and the server.
-
-  /// The signal is emitted exactly once when the first frame is
-  /// recieved from the server.
-  void connected();
+  void callback_send( const boost::system::error_code & error );
 
 private: // data
 
-  QTcpSocket * m_socket;
 
-  quint32 m_block_size;
+  boost::shared_ptr<network::TCPConnection> m_connection;
+
+  common::SignalArgs m_buffer;
+
+  boost::asio::io_service * m_io_service;
+
+  boost::asio::ip::tcp::endpoint * m_endpoint;
+
+  boost::shared_ptr<network::ErrorHandler> m_error_handler;
 
   bool m_request_disc;
 

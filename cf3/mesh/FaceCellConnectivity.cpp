@@ -22,7 +22,6 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Cells.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/ElementConnectivity.hpp"
 #include "mesh/Connectivity.hpp"
@@ -64,8 +63,10 @@ Uint FaceCellConnectivity::size() const { return connectivity().size(); }
 
 void FaceCellConnectivity::setup(Region& region)
 {
-  boost_foreach( Cells& cells,  find_components_recursively<Cells>(region) )
+  boost_foreach( Elements& cells,  find_components_recursively_with_filter<Elements>(region, IsElementsVolume()) )
+  {
     add_used(cells);
+  }
 
   build_connectivity();
 }

@@ -11,6 +11,9 @@
 #include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+  #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#endif
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include "common/Core.hpp"
@@ -106,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   MeshTerm<1, VectorField> u_adv("AdvectionSpeed", "linearized_velocity");
-  RealVector2 u_ref(1.,0.);
+  RealVector u_ref(2); u_ref << 1.,0.;
 
   // add the top-level actions (assembly, BC and solve)
   solver
