@@ -78,8 +78,8 @@ void SignalManager::show_menu(const QPoint & pos, Handle< CNode > node,
 //  node->signal("signal_signature")
 //      ->connect( boost::bind(&SignalManager::signal_signature, this, _1) );
 
-  connect(node->notifier(), SIGNAL(signal_signature(cf3::common::SignalArgs*)),
-          this, SLOT(signal_signature(cf3::common::SignalArgs*)));
+  connect(node->notifier(), SIGNAL(signal_signature(cf3::common::SignalArgs&)),
+          this, SLOT(signal_signature(cf3::common::SignalArgs&)) );
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -124,7 +124,7 @@ void SignalManager::action_triggered()
     {
       SignalFrame frame;
       m_node->local_signature(m_signals[action].name, frame);
-      signal_signature(&frame);
+      signal_signature(frame);
     }
   }
 }
@@ -143,12 +143,10 @@ void SignalManager::action_hovered()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::signal_signature(SignalArgs * args)
+void SignalManager::signal_signature(SignalArgs & args)
 {
   if(m_waiting_for_signature)
   {
-    SignalFrame frame(args->node);
-
     URI path = m_node->uri();
     ActionInfo & info = m_signals[m_current_action];
     const char * tag = Protocol::Tags::key_options();
@@ -156,14 +154,8 @@ void SignalManager::signal_signature(SignalArgs * args)
     m_frame = SignalFrame(info.name.toStdString(), path, path);
     SignalFrame& options = m_frame.map( Protocol::Tags::key_options() );
 
-    if( frame.has_map(tag) )
-      frame.map(tag).main_map.content.deep_copy( options.main_map.content );
-
-    std::string str ;
-
-    XML::to_string(frame.node, str);
-
-    XML::to_string(m_frame.node, str);
+    if( args.has_map(tag) )
+      args.map(tag).main_map.content.deep_copy( options.main_map.content );
 
     try
     {
