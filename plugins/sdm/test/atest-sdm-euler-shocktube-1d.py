@@ -45,10 +45,10 @@ solver.options().configure_option('solution_order',3)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
+solver.access_component('Time').options().configure_option('time_step',1.);
+solver.access_component('Time').options().configure_option('end_time',0.008);
 solver.access_component('TimeStepping').options().configure_option('time_accurate',True);
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
-solver.access_component('TimeStepping/Time').options().configure_option('time_step',1.);
-solver.access_component('TimeStepping/Time').options().configure_option('end_time',0.008);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)

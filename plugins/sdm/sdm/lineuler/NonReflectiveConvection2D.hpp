@@ -45,7 +45,7 @@
 ///   dA/dt     + U0n grad(A)     + c0n grad(Aplus) + c0s grad(Omega) = 0
 ///   domega/dt + U0n grad(omega) + c0n grad(Aplus) + c0s grad(Omega) = 0
 // Here all that is required is set soundspeed to zero
-#define AplusAmin 0
+//#define AplusAmin 0
 // or equivalent:
 //#define Aomega 0
 
@@ -73,9 +73,16 @@
 /// dAplus/dt + U0n grad(Aplus) + c0s grad(Omega) = 0
 /// dAmin/dt  + U0n grad(Amin)  + c0s grad(Omega) = 0
 /// This means:
-///   dA/dt     = U0n grad(A) + 2 c0s grad(Omega) = 0
-///   domega/dt = U0n grad(omega) = 0
+///   dA/dt     + U0n grad(A) + 2 c0s grad(Omega) = 0
+///   domega/dt + U0n grad(omega) = 0
 //#define TwoWaves p.c
+
+/// dAmin/dt + U0n grad(Amin) - c0n grad(Aplus) - c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     + U0n grad(A) = 0
+///   domega/dt + U0n grad(omega) + c0n grad(A) = 0
+#define ConvectATry2 0
+//p.c
 
 // *******************************************************************
 
@@ -85,6 +92,7 @@
 #undef Aminconvection
 #undef Aconvection
 #undef Hedstrom
+#undef ConvectATry2
 #define TwoWaves p.c
 #endif
 
@@ -426,6 +434,33 @@ public:
     cons_to_char(right.solution,char_normal,bc_sol_right);
     bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
     char_to_cons(bc_flux,char_normal,flux);
+#elif defined(ConvectATry2)
+    c0=ConvectATry2;
+    jacobian <<
+         U0n,      0,               0,             0,
+         0,        U0n,             0.5*c0*sxn,   -0.5*c0*sxn,
+         0,        c0*sxn,          U0n+c0*ncxn,   0,
+         0,       -c0*sxn,         -c0*ncxn,       U0n;
+    Real dummy=0.;
+    right_eigenvectors <<
+        dummy,   dummy,   dummy,   dummy,
+        dummy,   dummy,   dummy,   dummy,
+        0,       1,      -1,      -1,
+        0,       1,       1,       1;
+    Real t = std::sqrt(1+3*sxn*sxn);
+    left_eigenvectors <<
+        1,   0,       0,                   0,
+        0,   0,       0.5,                 0.5,
+        0,  -sxn/t,  -0.25*(1+3*ncxn/t),   0.25*(1-3*ncxn/t),
+        0,   sxn/t,  -0.25*(1-3*ncxn/t),   0.25*(1+3*ncxn/t);
+    eigenvalues <<
+        U0n,  U0n,  U0n+0.5*c0*(ncxn+t),  U0n+0.5*c0*(ncxn-t);
+
+    abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+    cons_to_char(left.solution,char_normal,bc_sol_left);
+    cons_to_char(right.solution,char_normal,bc_sol_right);
+    bc_flux.noalias() =  0.5*jacobian*(bc_sol_left+bc_sol_right) - 0.5*abs_jacobian*(bc_sol_right-bc_sol_left);
+    char_to_cons(bc_flux,char_normal,flux);
 #else
 #error nothing defined
 #endif
@@ -522,6 +557,16 @@ public:
          0,        U0n,             0.5*c0*sxn,    0.5*c0*sxn,
          0,        c0*sxn,          U0n,           0,
          0,        c0*sxn,          0,             U0n;
+    cons_to_char(data.solution,char_normal,bc_sol);
+    bc_flux = jacobian*bc_sol;
+    char_to_cons(bc_flux,char_normal,flux);
+#elif defined(ConvectATry2)
+    c0=ConvectATry2;
+    jacobian <<
+                U0n,      0,               0,             0,
+                0,        U0n,             0.5*c0*sxn,   -0.5*c0*sxn,
+                0,        c0*sxn,          U0n+c0*ncxn,   0,
+                0,       -c0*sxn,         -c0*ncxn,       U0n;
     cons_to_char(data.solution,char_normal,bc_sol);
     bc_flux = jacobian*bc_sol;
     char_to_cons(bc_flux,char_normal,flux);

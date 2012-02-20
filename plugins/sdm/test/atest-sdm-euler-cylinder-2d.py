@@ -29,11 +29,6 @@ mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p
 # mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
 # mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
 
-gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
-gmsh_writer.options().configure_option('file',coolfluid.URI('file:load.msh'))
-gmsh_writer.execute()
-
 ### Configure physics
 gamma = 1.4
 R = 287.05
@@ -55,11 +50,11 @@ solver.options().configure_option('solution_order',3)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
+solver.access_component('Time').options().configure_option('end_time',3000000)
+solver.access_component('Time').options().configure_option('time_step',1)
 solver.access_component('TimeStepping').options().configure_option('time_accurate',True);         # time accurate for initial stability
 solver.access_component('TimeStepping').options().configure_option('cfl','min(0.5,0.0001*i)');    # increasing cfl number
 solver.access_component('TimeStepping').options().configure_option('max_iteration',1000);           # limit the number of iterations (default = no limit)
-solver.access_component('TimeStepping/Time').options().configure_option('time_step',1.);          # timestep that must be reached
-solver.access_component('TimeStepping/Time').options().configure_option('end_time',3000000.0);    # limit the final time
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3) # Runge Kutta number of stages
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -172,38 +167,38 @@ gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
 gmsh_writer.execute()
 
-# Tecplot
-#########
-# Tecplot cannot write high-order meshes. A finer P1 mesh is loaded,
-# and fields are interpolated to the P1-mesh. The mesh is finer to visualize
-# the high-order solution better.
+## Tecplot
+##########
+## Tecplot cannot write high-order meshes. A finer P1 mesh is loaded,
+## and fields are interpolated to the P1-mesh. The mesh is finer to visualize
+## the high-order solution better.
 
-# Generate visualization mesh
-visualization_mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p1-128x32.msh'), name = 'visualization_mesh');
+## Generate visualization mesh
+#visualization_mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p1-128x32.msh'), name = 'visualization_mesh');
 
-# Interpolate fields using solution polynomial
-visualization_mesh.access_component('geometry').create_field(name='solution',  variables='rho[1],rhoU[2],rhoE[1]')
-visualization_mesh.access_component('geometry').create_field(name='wave_speed',variables='ws[1]')
-visualization_mesh.access_component('geometry').create_field(name='post_proc', variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
+## Interpolate fields using solution polynomial
+#visualization_mesh.access_component('geometry').create_field(name='solution',  variables='rho[1],rhoU[2],rhoE[1]')
+#visualization_mesh.access_component('geometry').create_field(name='wave_speed',variables='ws[1]')
+#visualization_mesh.access_component('geometry').create_field(name='post_proc', variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
 
-interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
-interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
-												 target=visualization_mesh.access_component("geometry/solution").uri())
-interpolator.interpolate(source=mesh.access_component("solution_space/wave_speed").uri(),
-													target=visualization_mesh.access_component("geometry/wave_speed").uri())
-interpolator.interpolate(source=mesh.access_component("solution_space/post_proc").uri(),
-												 target=visualization_mesh.access_component("geometry/post_proc").uri())
+#interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+#interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
+#												 target=visualization_mesh.access_component("geometry/solution").uri())
+#interpolator.interpolate(source=mesh.access_component("solution_space/wave_speed").uri(),
+#													target=visualization_mesh.access_component("geometry/wave_speed").uri())
+#interpolator.interpolate(source=mesh.access_component("solution_space/post_proc").uri(),
+#												 target=visualization_mesh.access_component("geometry/post_proc").uri())
 
-fields = [
-visualization_mesh.access_component('geometry/solution').uri(),
-visualization_mesh.access_component('geometry/wave_speed').uri(),
-visualization_mesh.access_component('geometry/post_proc').uri()
-]
+#fields = [
+#visualization_mesh.access_component('geometry/solution').uri(),
+#visualization_mesh.access_component('geometry/wave_speed').uri(),
+#visualization_mesh.access_component('geometry/post_proc').uri()
+#]
 
-# Write visualization mesh
-tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-tec_writer.options().configure_option('mesh',visualization_mesh.uri())
-tec_writer.options().configure_option('fields',fields)
-tec_writer.options().configure_option('cell_centred',True)
-tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
-tec_writer.execute()
+## Write visualization mesh
+#tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
+#tec_writer.options().configure_option('mesh',visualization_mesh.uri())
+#tec_writer.options().configure_option('fields',fields)
+#tec_writer.options().configure_option('cell_centred',True)
+#tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
+#tec_writer.execute()

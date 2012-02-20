@@ -61,7 +61,7 @@ void TimeLoop::execute()
   {
     ActionDirector::execute();
     time.options().configure_option("iteration", ++iter);
-    time.options().configure_option("time", dt * static_cast<Real>(iter));
+    time.options().configure_option("current_time", dt * static_cast<Real>(iter));
   }
 }
 

@@ -46,10 +46,10 @@ solver.options().configure_option('solution_order',4)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
+solver.access_component('Time').options().configure_option('time_step',30);
+solver.access_component('Time').options().configure_option('end_time',100);
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 #solver.access_component('TimeStepping').options().configure_option('max_iteration',1);
-solver.access_component('TimeStepping/Time').options().configure_option('time_step',30);
-solver.access_component('TimeStepping/Time').options().configure_option('end_time',100);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',4)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -110,11 +110,11 @@ mesh.access_component('topology/left').uri(),])
 impose.options().configure_option('constants',[0,0,0,0])
 
 ### Non-reflecting outlet boundary condition. Special treatment is required as it is used as a domain-term in boundary cells
-BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
-BCs.options().configure_option('solver',solver)
-BCs.options().configure_option('mesh',mesh)
-BCs.options().configure_option('physical_model',physics)
-non_refl_bc = BCs.create_boundary_condition(name='non_refl_bc',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
+modify_subsonic_outlet = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('modify_subsonic_outlet','cf3.sdm.BoundaryConditions')
+modify_subsonic_outlet.options().configure_option('solver',solver)
+modify_subsonic_outlet.options().configure_option('mesh',mesh)
+modify_subsonic_outlet.options().configure_option('physical_model',physics)
+non_refl_bc = modify_subsonic_outlet.create_boundary_condition(name='non_refl_bc',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
 mesh.access_component('topology/bottom').uri(),
 mesh.access_component('topology/top').uri(),
 mesh.access_component('topology/right').uri(),
