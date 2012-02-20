@@ -103,7 +103,7 @@ void Info::execute()
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const Field& field, find_components<Field>(mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << Dictionary::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << (field.continuous()? "continuous" : "discontinuous" ) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;

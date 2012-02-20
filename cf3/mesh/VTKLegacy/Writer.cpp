@@ -154,8 +154,8 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   {
     const Field& field = *field_ptr;
 
-    // must be point based
-    if(field.basis() != Dictionary::Basis::POINT_BASED)
+    // must be continuous
+    if( field.discontinuous() )
       continue;
 
     // size must be correct

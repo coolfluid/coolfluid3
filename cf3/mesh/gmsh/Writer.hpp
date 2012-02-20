@@ -13,6 +13,7 @@
 #include "mesh/GeoShape.hpp"
 
 #include "mesh/gmsh/LibGmsh.hpp"
+#include "mesh/gmsh/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +26,7 @@ namespace gmsh {
 
 /// This class defines gmsh mesh format writer
 /// @author Willem Deconinck
-class gmsh_API Writer : public MeshWriter
+class gmsh_API Writer : public MeshWriter, public gmsh::Shared
 {
 public: // typedefs
 

@@ -369,19 +369,15 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     if(!added_fields.insert(field.uri().string()).second)
       continue;
 
-    // point-based field
-    if(!(field.basis() == Dictionary::Basis::POINT_BASED || field.basis() == cf3::mesh::Dictionary::Basis::ELEMENT_BASED))
-      continue;
-
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = Dictionary::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
+      const Uint field_size = field.continuous() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
 
-      XmlNode data_array = Dictionary::Basis::POINT_BASED == field.basis()
+      XmlNode data_array = field.continuous()
         ? point_data.add_node("DataArray")
         : cell_data.add_node("DataArray");
 
@@ -393,7 +389,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::mesh::Dictionary::Basis::POINT_BASED)
+      if(field.continuous())
       {
         if(dim == 2 && var_size == 2)
         {

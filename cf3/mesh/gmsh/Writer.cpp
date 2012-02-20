@@ -15,13 +15,13 @@
 #include "common/Map.hpp"
 
 #include "mesh/gmsh/Writer.hpp"
-
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,36 +44,35 @@ Writer::Writer( const std::string& name )
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
-  m_elementTypes["cf3.mesh.LagrangeP0.Point1D"]=15;
-  m_elementTypes["cf3.mesh.LagrangeP0.Point2D"]=15;
-  m_elementTypes["cf3.mesh.LagrangeP0.Point3D"]=15;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point1D"]=P0POINT;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point2D"]=P0POINT;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point3D"]=P0POINT;
 
-  m_elementTypes["cf3.mesh.LagrangeP1.Line1D" ]=1;
-  m_elementTypes["cf3.mesh.LagrangeP1.Line2D" ]=1;
-  m_elementTypes["cf3.mesh.LagrangeP1.Line3D" ]=1;
-  m_elementTypes["cf3.mesh.LagrangeP1.Triag2D"]=2;
-  m_elementTypes["cf3.mesh.LagrangeP1.Triag3D"]=2;
-  m_elementTypes["cf3.mesh.LagrangeP1.Quad2D" ]=3;
-  m_elementTypes["cf3.mesh.LagrangeP1.Quad3D" ]=3;
-  m_elementTypes["cf3.mesh.LagrangeP1.Tetra3D"]=4;
-  m_elementTypes["cf3.mesh.LagrangeP1.Hexa3D" ]=5;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line1D" ]=P1LINE;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line2D" ]=P1LINE;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line3D" ]=P1LINE;
+  m_elementTypes["cf3.mesh.LagrangeP1.Triag2D"]=P1TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP1.Triag3D"]=P1TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP1.Quad2D" ]=P1QUAD;
+  m_elementTypes["cf3.mesh.LagrangeP1.Quad3D" ]=P1QUAD;
+  m_elementTypes["cf3.mesh.LagrangeP1.Tetra3D"]=P1TETRA;
+  m_elementTypes["cf3.mesh.LagrangeP1.Hexa3D" ]=P1HEXA;
 
-  m_elementTypes["cf3.mesh.LagrangeP2.Line1D" ]=8;
-  m_elementTypes["cf3.mesh.LagrangeP2.Line2D" ]=8;
-  m_elementTypes["cf3.mesh.LagrangeP2.Line3D" ]=8;
-  m_elementTypes["cf3.mesh.LagrangeP2.Triag2D"]=9;
-  m_elementTypes["cf3.mesh.LagrangeP2.Triag3D"]=9;
-  m_elementTypes["cf3.mesh.LagrangeP2.Quad2D" ]=10;
-  m_elementTypes["cf3.mesh.LagrangeP2.Quad3D" ]=10;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line1D" ]=P2LINE;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line2D" ]=P2LINE;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line3D" ]=P2LINE;
+  m_elementTypes["cf3.mesh.LagrangeP2.Triag2D"]=P2TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP2.Triag3D"]=P2TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP2.Quad2D" ]=P2QUAD;
+  m_elementTypes["cf3.mesh.LagrangeP2.Quad3D" ]=P2QUAD;
 
-  m_elementTypes["cf3.mesh.LagrangeP3.Line1D" ]=26;
-  m_elementTypes["cf3.mesh.LagrangeP3.Line2D" ]=26;
-  m_elementTypes["cf3.mesh.LagrangeP3.Line3D" ]=26;
-  m_elementTypes["cf3.mesh.LagrangeP3.Triag2D"]=21;
-  m_elementTypes["cf3.mesh.LagrangeP3.Triag3D"]=21;
-
-  m_elementTypes["cf3.mesh.LagrangeP3.Quad2D"] = 36;
-  m_elementTypes["cf3.mesh.LagrangeP3.Quad3D"] = 36;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line1D" ]=P3LINE;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line2D" ]=P3LINE;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line3D" ]=P3LINE;
+  m_elementTypes["cf3.mesh.LagrangeP3.Triag2D"]=P3TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP3.Triag3D"]=P3TRIAG;
+  m_elementTypes["cf3.mesh.LagrangeP3.Quad2D" ]=P3QUAD;
+  m_elementTypes["cf3.mesh.LagrangeP3.Quad3D" ]=P3QUAD;
 
   m_cf_2_gmsh_node = create_static_component<Map<Uint,Uint> >("to_gmsh_node");
 
@@ -288,7 +287,7 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
         boost::algorithm::replace_first(path,mesh.topology().uri().path(),"");
         field_topology << path << " ";
       }
-      const std::string field_basis = Dictionary::Basis::Convert::instance().to_str(field.basis());
+      const std::string field_basis = field.continuous() ? "continuous" : "discontinuous";
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities>& elements, field.entities_range())
       {
@@ -432,7 +431,7 @@ void Writer::write_nodal_data(std::fstream& file)
   {
     Field& field = *field_ptr;
 
-    if (field.basis() == Dictionary::Basis::POINT_BASED)
+    if (field.continuous())
     {
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();

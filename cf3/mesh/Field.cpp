@@ -41,52 +41,26 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Field::Field ( const std::string& name  ) :
-  common::Table<Real> ( name ),
-  m_basis(Dictionary::Basis::INVALID)
+  common::Table<Real> ( name )
 {
   mark_basic();
-
-//  options().add_option(1,name))
-//      .description("Names of the variables")
-//      .pretty_name("Variable Names")
-//      .attach_trigger ( boost::bind ( &Field::config_var_names, this ) )
-//      .mark_basic();
-//  config_var_names();
-
-//  options().add_option(1,"scalar"))
-//      .description("Types of the variables")
-//      .attach_trigger ( boost::bind ( &Field::config_var_types,   this ) )
-//      .mark_basic()
-//      ->restricted_list() = boost::assign::list_of
-//        (std::string("scalar"))
-//        (std::string("vector2D"))
-//        (std::string("vector3D"))
-//        (std::string("tensor2D"))
-//        (std::string("tensor3D"));
-//  config_var_types();
-
-
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 Field::~Field() {}
 
+////////////////////////////////////////////////////////////////////////////////
 
 void Field::config_var_types()
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 void Field::config_var_names()
 {
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//void Field::set_topology(Region& region)
-//{
-//  m_topology = Handle<Region>(region.handle<Component>());
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

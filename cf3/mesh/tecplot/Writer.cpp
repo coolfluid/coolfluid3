@@ -114,7 +114,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
         {
           file << " \"" << var_name << "["<<i<<"]\"";
           ++zone_var_id;
-          if (field.basis() != Dictionary::Basis::POINT_BASED)
+          if (field.discontinuous())
             cell_centered_var_ids.push_back(zone_var_id);
         }
       }
@@ -122,7 +122,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
       {
         file << " \"" << var_name <<"\"";
         ++zone_var_id;
-        if (field.basis() != Dictionary::Basis::POINT_BASED)
+        if (field.discontinuous())
           cell_centered_var_ids.push_back(zone_var_id);
       }
     }
@@ -214,7 +214,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          if (field.basis() == Dictionary::Basis::POINT_BASED)
+          if (field.continuous())
           {
             if ( &field.dict() == &mesh.geometry_fields() )
             {
