@@ -22,6 +22,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Functions.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -169,8 +170,12 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
   Uint prec = file.precision();
   file.precision(8);
 
-  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Elements::create_used_nodes(mesh.topology(),mesh::Tags::geometry());
+  // Assemble a list of all the coordinates that are used in this mesh
+  std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively_with_filter<Entities>(mesh,m_entities_filter));
+  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = create_used_nodes_list(entities_vector,mesh.geometry_fields());
   const common::List<Uint>& used_nodes = *used_nodes_ptr;
+
+  // Create a mapping between the actual node-numbering in the mesh, and the node-numbering to be written
   const Uint nb_nodes = used_nodes.size();
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
   to_gmsh_node.reserve(nb_nodes);
@@ -205,11 +210,14 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
 
 void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
 {
+  /// Elements section:
+  /// @code
+  /// $Elements
+  /// number-of-elements
+  /// elem-number   elem-type   number-of-tags(3)  tag1(group_number)  tag2(elementary_entity_index)  tag3(partition)  elem-node-list
+  /// $EndElements
+  /// @endcode
 
-  // file << "$Elements                                                               \n";
-  // file << "number-of-elements                                                      \n";
-  // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
-  // file << "$EndElements\n";
   Uint nbElems = mesh.topology().recursive_filtered_elements_count(m_entities_filter);
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
@@ -230,7 +238,6 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
 
     m_element_start_idx[&elements]=elm_number;
 
-    //file << "// Region " << elements.uri().string() << "\n";
     elm_type = m_elementTypes[elements.element_type().derived_type_name()];
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)

@@ -77,15 +77,21 @@ public: // functions
 
   /// return the number of elements
   Uint size() const;
-
-  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
   
   /// return the number of elements across all processes;
   Uint glb_size() const;
 
+  /// @deprecated Will be removed soon, use mesh/Functions.hpp --> create_used_nodes_list
+  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
+
+  /// @deprecated Will be removed soon, use mesh/Functions.hpp --> create_used_nodes_list
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
+  /// @note space(const Dictionary& dict) is faster to access a space
   Space& space (const std::string& space_name) const;
+
+  Space& space (const Dictionary& dict);
+  const Space& space (const Dictionary& dict) const;
 
   Space& create_space(const std::string& shape_function_builder_name, Dictionary& space_fields);
 

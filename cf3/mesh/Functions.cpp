@@ -1,0 +1,87 @@
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#include "common/FindComponents.hpp"
+#include "common/List.hpp"
+
+#include "mesh/Connectivity.hpp"
+#include "mesh/Dictionary.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Entities.hpp"
+
+namespace cf3 {
+namespace mesh {
+
+////////////////////////////////////////////////////////////////////////////////
+
+using namespace common;
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr< List< Uint > > create_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary)
+{
+  boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
+
+  if(entities_vector.empty())
+    return used_nodes;
+
+  const Uint all_nb_nodes = dictionary.size();
+
+  std::vector<bool> node_is_used(all_nb_nodes, false);
+
+  // First count the number of unique nodes
+  Uint nb_nodes = 0;
+  boost_foreach(const Handle<Entities const>& entities, entities_vector)
+  {
+    const Space& space = entities->space(dictionary);
+    const Uint nb_elems = space.size();
+
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      boost_foreach(const Uint node, space.connectivity()[idx])
+      {
+        cf3_assert(node<node_is_used.size());
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          ++nb_nodes;
+        }
+      }
+    }
+  }
+
+  // reserve space for all unique nodes
+  used_nodes->resize(nb_nodes);
+  common::List<Uint>::ListT& nodes_array = used_nodes->array();
+
+  // Add the unique node indices
+  node_is_used.assign(all_nb_nodes, false);
+  Uint back = 0;
+  boost_foreach(const Handle<Entities const>& entities, entities_vector)
+  {
+    const Space& space = entities->space(dictionary);
+    const Uint nb_elems = space.size();
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      boost_foreach(const Uint node, space.connectivity()[idx])
+      {
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          nodes_array[back++] = node;
+        }
+      }
+    }
+  }
+
+  std::sort(used_nodes->array().begin(), used_nodes->array().end());
+  return used_nodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // mesh
+} // cf3

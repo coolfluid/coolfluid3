@@ -97,6 +97,8 @@ list( APPEND coolfluid_mesh_files
   Tags.cpp
   WriteMesh.hpp
   WriteMesh.cpp
+  Functions.hpp
+  Functions.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
