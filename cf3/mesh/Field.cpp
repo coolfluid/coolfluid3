@@ -143,7 +143,7 @@ void Field::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector< Handle<Entities> > Field::entities_range()
+const std::vector< Handle<Entities> >& Field::entities_range() const
 {
   return dict().entities_range();
 }

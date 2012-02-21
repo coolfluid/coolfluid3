@@ -9,6 +9,7 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/CGNS/Writer.hpp"
 #include "mesh/Mesh.hpp"
@@ -158,7 +159,6 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
       }
     }
   }
-
 
   int cgns_coord_idx;
 

@@ -103,7 +103,7 @@ void Writer::write_headerData(std::fstream& file, const Mesh& mesh)
   const Uint node_counter = mesh.geometry_fields().size();
 
 
-  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
+  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
   {
     bool isGroupBC(false);
     boost_foreach(const Elements& elementregion, find_components_recursively<Elements>(group))
@@ -238,7 +238,7 @@ void Writer::write_groups(std::fstream& file, const Mesh& mesh)
 {
   Uint group_counter(0);
 
-  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
+  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
   {
     bool isBC(false);
     boost_foreach(const Elements& elementregion, find_components_recursively <Elements>(group))

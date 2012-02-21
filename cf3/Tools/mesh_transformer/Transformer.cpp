@@ -13,7 +13,7 @@
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
-
+#include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 
 #include "mesh/Mesh.hpp"

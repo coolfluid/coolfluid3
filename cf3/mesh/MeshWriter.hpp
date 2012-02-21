@@ -9,18 +9,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/FindComponents.hpp"
 #include "common/Action.hpp"
-
 #include "mesh/LibMesh.hpp"
-#include "mesh/Mesh.hpp"
-#include "mesh/Elements.hpp"
-#include "mesh/Dictionary.hpp"
 
 namespace cf3 {
 namespace common {  class URI;  }
 namespace mesh {
 
+  class Mesh;
+  class Region;
   class Field;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,12 +27,6 @@ namespace mesh {
 /// the mesh to a file
 /// @author Willem Deconinck
 class Mesh_API MeshWriter : public common::Action {
-
-public: // typedefs
-
-  /// pointer to this type
-
-
 
 public: // functions
 
@@ -51,8 +42,6 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_write( common::SignalArgs& node  );
-
   // --------- Direct access ---------
 
   virtual std::string get_format() = 0;
@@ -63,29 +52,40 @@ public: // functions
 
   virtual void execute();
 
+  /// @deprecated. Configure fields using uri's
   void set_fields(const std::vector<Handle<Field> >& fields);
 
 private: // functions
 
-  void config_fields();
+  void config_fields();  ///< configure fields from URI's
+  void config_regions(); ///< configure regions from URI's
 
-protected: // classes
+private:
 
-  class IsGroup
-  {
-   public:
-     IsGroup () {}
+  /// Predicate to check if a component directly contains any Entities component
+  struct RegionFilter {
+    bool enable_interior_faces;
+    bool enable_interior_cells;
+    bool enable_surfaces;
+    bool operator()(const Component& component);
+  };
 
-     bool operator()(const Component& component)
-     {
-       return count(common::find_components<Entities>(component));
-     }
+  /// Predicate to check if a Entities component is to be included
+  struct EntitiesFilter {
+    bool enable_interior_faces;
+    bool enable_interior_cells;
+    bool enable_surfaces;
+    bool operator()(const Component& component);
+  };
 
-  }; // IsGroup
 
 protected:
 
-  std::vector<Handle<Field> > m_fields;
+  RegionFilter                       m_region_filter;    ///< Filters regions
+  EntitiesFilter                     m_entities_filter;  ///< Filters entities
+  Handle<Mesh const>                 m_mesh;             ///< Handle to configured mesh
+  std::vector<Handle<Field const> >  m_fields;           ///< Handle to configured fields
+  std::vector<Handle<Region const> > m_regions;          ///< Handle to configured regions
 
 };
 

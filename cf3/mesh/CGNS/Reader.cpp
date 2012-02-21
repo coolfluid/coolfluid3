@@ -470,7 +470,6 @@ void Reader::read_section(Region& parent_region)
     // Calculate the number of elements
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
 
-
     // Convert the CGNS element type to the CF element type
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"D";
 

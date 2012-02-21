@@ -31,11 +31,6 @@ namespace CGNS {
 class Mesh_CGNS_API Writer : public MeshWriter, public Shared
 {
 
-public: // typedefs
-
-
-
-
 private : // typedefs
 
   typedef std::vector<Handle<Elements const> > GroupedElements;

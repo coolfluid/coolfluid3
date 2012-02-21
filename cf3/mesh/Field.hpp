@@ -37,9 +37,6 @@ class Mesh_API Field : public common::Table<Real> {
 
 public: // typedefs
 
-
-
-
   typedef ArrayT::array_view<2>::type View;
 
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
@@ -110,7 +107,7 @@ public: // functions
   const Handle<Space const>& space(const Handle<Entities const>& entities) const { return dict().space(entities); }
   const Space& space(const Entities& entities) const { return dict().space(entities); }
 
-  std::vector< Handle<Entities> > entities_range();
+  const std::vector< Handle<Entities> >& entities_range() const;
 
   Field& coordinates() const { return dict().coordinates(); }
 

@@ -20,6 +20,7 @@
 namespace cf3 {
 namespace common { template <typename KEY, typename DATA> class Map; }
 namespace mesh {
+  class Entities;
 namespace gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,10 +29,6 @@ namespace gmsh {
 /// @author Willem Deconinck
 class gmsh_API Writer : public MeshWriter, public gmsh::Shared
 {
-public: // typedefs
-
-
-
 
 public: // functions
 

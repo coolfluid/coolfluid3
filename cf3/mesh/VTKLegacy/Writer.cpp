@@ -150,7 +150,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_ptr, m_fields)
   {
     const Field& field = *field_ptr;
 

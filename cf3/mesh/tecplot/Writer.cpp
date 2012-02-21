@@ -100,9 +100,9 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
   std::vector<Uint> cell_centered_var_ids;
   Uint zone_var_id(dimension);
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_ptr, m_fields)
   {
-    Field& field = *field_ptr;
+    const Field& field = *field_ptr;
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
       Field::VarType var_type = field.var_length(iVar);
@@ -202,9 +202,9 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
     file << "\n";
 
 
-    boost_foreach(Handle<Field> field_ptr, m_fields)
+    boost_foreach(Handle<Field const> field_ptr, m_fields)
     {
-      Field& field = *field_ptr;
+      const Field& field = *field_ptr;
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {

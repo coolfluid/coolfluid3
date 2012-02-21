@@ -362,7 +362,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
   std::set<std::string> added_fields;
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_ptr, m_fields)
   {
     const Field& field = *field_ptr;
 
