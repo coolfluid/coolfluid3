@@ -28,7 +28,7 @@ const char* cf3::solver::Tags::regions()
 
 const char* cf3::solver::Tags::time()
 {
-  return "ctime";
+  return "time";
 }
 
 const char* cf3::solver::Tags::physical_model()

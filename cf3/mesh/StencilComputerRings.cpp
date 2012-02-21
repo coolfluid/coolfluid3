@@ -22,9 +22,10 @@
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ void StencilComputerRings::compute_neighbors(std::set<Uint>& included, const Uin
     std::set<Uint>::iterator it;
     bool inserted;
     boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
-    boost_foreach(Uint node_idx, dynamic_cast<Elements&>(*elements).node_connectivity()[elem_idx])
+    boost_foreach(Uint node_idx, dynamic_cast<Elements&>(*elements).geometry_space().connectivity()[elem_idx])
     {
       boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
       {

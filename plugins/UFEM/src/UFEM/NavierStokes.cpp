@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#define BOOST_PROTO_MAX_ARITY 10
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#include "NavierStokes.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -14,14 +13,15 @@
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
+#include "common/PropertyList.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/Time.hpp"
 
-#include "NavierStokes.hpp"
 #include "Tags.hpp"
 #include "TimeLoop.hpp"
 
@@ -33,10 +33,17 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
+ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
 
-NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
+NavierStokes::NavierStokes(const std::string& name) :
+  LinearSolverUnsteady(name)
 {
+  m_p_update_history.reserve(100000);
+  m_u_update_history.reserve(100000);
+
+  properties().add_property("p_update_history", m_p_update_history);
+  properties().add_property("u_update_history", m_u_update_history);
+
   options().add_option("initial_pressure", 0.)
     .description("Initial condition for the pressure")
     .pretty_name("Initial pressure")
@@ -74,11 +81,14 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
 
   *this
-    << create_proto_action("InitializePressure", nodes_expression(p = m_p0))
-    << create_proto_action("InitializeVelocity", nodes_expression(u = m_u0))
-    << create_proto_action("InitializeU1", nodes_expression(u1 = u))
-    << create_proto_action("InitializeU2", nodes_expression(u2 = u))
-    << create_proto_action("InitializeU3", nodes_expression(u3 = u))
+    << create_proto_action("Initialize", nodes_expression(group
+    (
+      p = m_p0,
+      u = m_u0,
+      u1 = u,
+      u2 = u,
+      u3 = u
+    )))
     <<
     ( // Time loop
       allocate_component<TimeLoop>("TimeLoop")
@@ -111,11 +121,16 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
       )
       << allocate_component<BoundaryConditions>("BoundaryConditions")
       << allocate_component<SolveLSS>("SolveLSS")
-      << create_proto_action("UpdateU3", nodes_expression(u3 = u2))
-      << create_proto_action("UpdateU2", nodes_expression(u2 = u1))
-      << create_proto_action("UpdateU1", nodes_expression(u1 = u))
-      << create_proto_action("IncrementU", nodes_expression(u += solution(u)))
-      << create_proto_action("IncrementP", nodes_expression(p += solution(p)))
+      << create_proto_action("Update", nodes_expression(group
+      (
+        u3 = u2,
+        u2 = u1,
+        u1 = u,
+        u += solution(u),
+        p += solution(p),
+        boost::proto::lit(m_p_stats)(solution(p)),
+        boost::proto::lit(m_u_stats)(_norm(solution(u)))
+      )))
     );
 }
 
@@ -133,6 +148,22 @@ void NavierStokes::trigger_u()
   for(Uint i = 0; i != nb_comps; ++i)
     m_u0[i] = u_vec[i];
 }
+
+void NavierStokes::on_iteration_increment()
+{
+  m_p_update_history.push_back(boost::accumulators::max(m_p_stats));
+  m_u_update_history.push_back(boost::accumulators::max(m_u_stats));
+
+  m_u_stats = StatsT();
+  m_p_stats = StatsT();
+
+  if((time().current_time() - time().end_time()) < time().dt())
+  {
+    properties()["p_update_history"] = m_p_update_history;
+    properties()["u_update_history"] = m_u_update_history;
+  }
+}
+
 
 } // UFEM
 } // cf3

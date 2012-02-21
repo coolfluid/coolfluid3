@@ -378,6 +378,29 @@ struct ColTag
 static boost::proto::terminal<RowTag>::type _row = {};
 static boost::proto::terminal<ColTag>::type _col = {};
 
+struct NormTag
+{
+};
+
+static boost::proto::terminal<NormTag>::type const _norm = {};
+
+/// Compute the norm of a matrix or a vector
+struct ComputeNorm :
+  boost::proto::transform< ComputeNorm >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef Real result_type;
+
+    template<typename MatrixT>
+    result_type operator ()(const MatrixT& expr, typename impl::state_param, typename impl::data_param) const
+    {
+      return expr.norm();
+    }
+  };
+};
+
 /// Indexing into Eigen expressions
 template<typename GrammarT, typename IntegersT>
 struct EigenIndexing :
@@ -433,6 +456,12 @@ struct EigenMath :
     <
       boost::proto::assign<GrammarT, boost::proto::terminal<ZeroTag> >,
       SetZero(GrammarT(boost::proto::_left))
+    >,
+    // Norm calculation
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
+      ComputeNorm(GrammarT(boost::proto::_right))
     >,
     MathOpDefault<GrammarT>
   >

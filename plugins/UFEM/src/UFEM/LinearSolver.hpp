@@ -10,7 +10,7 @@
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "solver/CSimpleSolver.hpp"
+#include "solver/SimpleSolver.hpp"
 
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
@@ -28,7 +28,7 @@ namespace UFEM {
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public solver::CSimpleSolver
+class UFEM_API LinearSolver : public solver::SimpleSolver
 {
 public: // functions
 

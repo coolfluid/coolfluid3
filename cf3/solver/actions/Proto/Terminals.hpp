@@ -36,7 +36,7 @@ void print_error(const T&)
 {
   T::print_error();
 }
-  
+
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
 struct Var : I
@@ -59,13 +59,13 @@ struct Var : I
 
   template<typename T1, typename T2>
   Var(T1& par1, T2& par2) : variable_value(par1, par2) {}
-  
+
   template<typename T1, typename T2, typename T3>
   Var(const T1& par1, const T2& par2, const T3& par3) : variable_value(par1, par2, par3) {}
 
   template<typename T1, typename T2, typename T3>
   Var(T1& par1, T2& par2, T3& par3) : variable_value(par1, par2, par3) {}
-  
+
   type variable_value;
 };
 
@@ -97,12 +97,12 @@ struct FieldBase
     m_field_tag(field_tag)
   {
   }
-  
+
   inline const std::string& name() const
   {
     return m_name;
   }
-  
+
   inline const std::string& field_tag() const
   {
     return m_field_tag;
@@ -193,12 +193,20 @@ inline Real atan_vec(const RealVector2& vec)
   return atan2(vec[1], vec[0]);
 }
 
+/// Maximum between two scalars
+inline Real max(const Real a, const Real b)
+{
+  return a > b ? a : b;
+}
+
 // Wrap some math functions
 static boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 static boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
 static boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = {&atan_vec};
 static boost::proto::terminal< double(*)(double) >::type const _exp = {&exp};
 static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
+static boost::proto::terminal< double(*)(double) >::type const _abs = {&fabs};
+static boost::proto::terminal< double(*)(double, double) >::type const _max = {&max};
 
 } // namespace Proto
 } // namespace actions

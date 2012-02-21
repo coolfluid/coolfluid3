@@ -17,7 +17,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 
 namespace cf3 {
@@ -51,7 +51,7 @@ Region& Region::create_region( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Elements& Region::create_elements(const std::string& element_type_name, SpaceFields& nodes)
+Elements& Region::create_elements(const std::string& element_type_name, Dictionary& nodes)
 {
   std::string name = "elements_" + element_type_name;
 
@@ -123,7 +123,7 @@ Elements& Region::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceFields& Region::geometry_fields() const
+Dictionary& Region::geometry_fields() const
 {
   return find_parent_component<Mesh>(*this).geometry_fields();
 }

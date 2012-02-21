@@ -13,9 +13,9 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CTime.hpp"
+#include "solver/Time.hpp"
 #include "solver/ActionDirector.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
 
@@ -51,12 +51,6 @@ ActionDirector::ActionDirector ( const std::string& name ) :
       .pretty_name("Physical Model")
       .mark_basic()
       .link_to(&m_physical_model);
-
-  options().add_option(Tags::time(), m_time)
-      .description("Time tracking component")
-      .pretty_name("Time")
-      .mark_basic()
-      .link_to(&m_time);
 }
 
 ActionDirector::~ActionDirector() {}
@@ -71,15 +65,6 @@ physics::PhysModel& ActionDirector::physical_model()
 }
 
 
-CTime& ActionDirector::time()
-{
-  if( is_null(m_time) )
-    throw common::SetupError( FromHere(),
-                             "Time not yet set for component " + uri().string() );
-  return *m_time;
-}
-
-
 Mesh& ActionDirector::mesh()
 {
   if( is_null(m_mesh) )
@@ -89,7 +74,7 @@ Mesh& ActionDirector::mesh()
 }
 
 
-solver::CSolver& ActionDirector::solver()
+solver::Solver& ActionDirector::solver()
 {
   if( is_null(m_solver) )
     throw common::SetupError( FromHere(),

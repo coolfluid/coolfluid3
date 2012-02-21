@@ -16,9 +16,8 @@
 #include "common/OptionList.hpp"
 
 #include "mesh/actions/BuildFaceNormals.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -26,7 +25,6 @@
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Faces.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -85,10 +83,10 @@ void BuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
-  SpaceFields& faces_P0 = *mesh.create_component<SpaceFields>("faces_P0");
+  Dictionary& faces_P0 = *mesh.create_component<Dictionary>("faces_P0");
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(mesh.topology(),mesh::Tags::face_entity()))
     faces.create_space("cf3.mesh.LagrangeP0."+faces.element_type().shape_name(),faces_P0);
-  faces_P0.options().configure_option("type",SpaceFields::Basis::to_str(SpaceFields::Basis::ELEMENT_BASED));
+  faces_P0.options().configure_option("type",Dictionary::Basis::to_str(Dictionary::Basis::ELEMENT_BASED));
   faces_P0.update();
 
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");

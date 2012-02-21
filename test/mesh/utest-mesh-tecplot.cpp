@@ -24,7 +24,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 using namespace std;
 using namespace boost;
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   }
 
 
-  SpaceFields& elems = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
 
   Field& cell_centred = elems.create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   }
 
 
-  SpaceFields& P2 = mesh.create_continuous_space("nodes_P2","cf3.mesh.LagrangeP2");
+  Dictionary& P2 = mesh.create_continuous_space("nodes_P2","cf3.mesh.LagrangeP2");
 
   Field& nodesP2 = P2.create_field("nodesP2","nodesP2[vector]");
   for (Uint e=0; e<nodesP2.size(); ++e)

@@ -11,7 +11,7 @@
 
 #include "mesh/MeshReader.hpp"
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/neu/LibNeu.hpp"
 #include "mesh/neu/Shared.hpp"

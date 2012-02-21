@@ -19,9 +19,10 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -59,7 +60,7 @@ void build_serial_gids(Mesh& mesh)
 void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 {
   Region& region = mesh.topology().create_region("fluid");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -70,7 +71,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
   Handle<Cells> cells = region.create_component<Cells>("Line");
   cells->initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
   cells->resize(x_segments);
-  Table<Uint>& connectivity = cells->node_connectivity();
+  Table<Uint>& connectivity = cells->geometry_space().connectivity();
   for(Uint i = 0; i < x_segments; ++i)
   {
     Table<Uint>::Row nodes = connectivity[i];
@@ -82,14 +83,14 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
   Handle<Faces> xneg = mesh.topology().create_region("xneg").create_component<Faces>("Point");
   xneg->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
   xneg->resize(1);
-  Table<Uint>& xneg_connectivity = xneg->node_connectivity();
+  Table<Uint>& xneg_connectivity = xneg->geometry_space().connectivity();
   xneg_connectivity[0][0] = 0;
 
   // right boundary point
   Handle<Faces> xpos = mesh.topology().create_region("xpos").create_component<Faces>("Point");
   xpos->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
   xpos->resize(1);
-  Table<Uint>& xpos_connectivity = xpos->node_connectivity();
+  Table<Uint>& xpos_connectivity = xpos->geometry_space().connectivity();
   xpos_connectivity[0][0] = x_segments;
 
   build_serial_gids(mesh);
@@ -100,7 +101,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -120,7 +121,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Cells> cells = region.create_component<Cells>("Quad");
   cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
   cells->resize(x_segments*y_segments);
-  Table<Uint>& connectivity = cells->node_connectivity();
+  Table<Uint>& connectivity = cells->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     for(Uint i = 0; i < x_segments; ++i)
@@ -136,7 +137,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
   left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   left->resize(y_segments);
-  Table<Uint>& left_connectivity = left->node_connectivity();
+  Table<Uint>& left_connectivity = left->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row crow = left_connectivity[j];
@@ -147,7 +148,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
   right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   right->resize(y_segments);
-  Table<Uint>& right_connectivity = right->node_connectivity();
+  Table<Uint>& right_connectivity = right->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row nodes = right_connectivity[j];
@@ -158,7 +159,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
   bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   bottom->resize(x_segments);
-  Table<Uint>& bottom_connectivity = bottom->node_connectivity();
+  Table<Uint>& bottom_connectivity = bottom->geometry_space().connectivity();
   for(Uint i = 0; i < x_segments; ++i)
   {
     Table<Uint>::Row nodes = bottom_connectivity[i];
@@ -169,7 +170,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
   top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   top->resize(x_segments);
-  Table<Uint>& top_connectivity = top->node_connectivity();
+  Table<Uint>& top_connectivity = top->geometry_space().connectivity();
   for(Uint i = 0; i < x_segments; ++i)
   {
     Table<Uint>::Row nodes = top_connectivity[i];
@@ -180,7 +181,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Faces> center = mesh.topology().create_region("center_line").create_component<Faces>("Line");
   center->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   center->resize(y_segments);
-  Table<Uint>& center_connectivity = center->node_connectivity();
+  Table<Uint>& center_connectivity = center->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row crow = center_connectivity[j];
@@ -191,13 +192,13 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
   Handle<Elements> corner = mesh.topology().create_region("corner").create_component<Elements>("Point");
   corner->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   corner->resize(1);
-  Table<Uint>& corner_connectivity = corner->node_connectivity();
+  Table<Uint>& corner_connectivity = corner->geometry_space().connectivity();
   corner_connectivity[0][0] = 0;
 
   Handle<Elements> center_point = mesh.topology().create_region("center_point").create_component<Elements>("Point");
   center_point->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   center_point->resize(1);
-  Table<Uint>& center_point_connectivity = center_point->node_connectivity();
+  Table<Uint>& center_point_connectivity = center_point->geometry_space().connectivity();
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
   build_serial_gids(mesh);
@@ -207,7 +208,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
 void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -227,7 +228,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Cells> cells = region.create_component<Cells>("Triag");
   cells->initialize("cf3.mesh.LagrangeP1.Triag2D",nodes);
   cells->resize(2*(x_segments)*(y_segments));
-  Table<Uint>& connectivity = cells->node_connectivity();
+  Table<Uint>& connectivity = cells->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     for(Uint i = 0; i < x_segments; ++i)
@@ -254,7 +255,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
   left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   left->resize(y_segments);
-  Table<Uint>& left_connectivity = left->node_connectivity();
+  Table<Uint>& left_connectivity = left->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row crow = left_connectivity[j];
@@ -265,7 +266,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
   right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   right->resize(y_segments);
-  Table<Uint>& right_connectivity = right->node_connectivity();
+  Table<Uint>& right_connectivity = right->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row nodes = right_connectivity[j];
@@ -276,7 +277,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
   bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   bottom->resize(x_segments);
-  Table<Uint>& bottom_connectivity = bottom->node_connectivity();
+  Table<Uint>& bottom_connectivity = bottom->geometry_space().connectivity();
   for(Uint i = 0; i < x_segments; ++i)
   {
     Table<Uint>::Row nodes = bottom_connectivity[i];
@@ -287,7 +288,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
   top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   top->resize(x_segments);
-  Table<Uint>& top_connectivity = top->node_connectivity();
+  Table<Uint>& top_connectivity = top->geometry_space().connectivity();
   for(Uint i = 0; i < x_segments; ++i)
   {
     Table<Uint>::Row nodes = top_connectivity[i];
@@ -298,7 +299,7 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Faces> center = mesh.topology().create_region("center_line").create_component<Faces>("Line");
   center->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
   center->resize(y_segments);
-  Table<Uint>& center_connectivity = center->node_connectivity();
+  Table<Uint>& center_connectivity = center->geometry_space().connectivity();
   for(Uint j = 0; j < y_segments; ++j)
   {
     Table<Uint>::Row crow = center_connectivity[j];
@@ -309,13 +310,13 @@ void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const
   Handle<Elements> corner = mesh.topology().create_region("corner").create_component<Elements>("Point");
   corner->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   corner->resize(1);
-  Table<Uint>& corner_connectivity = corner->node_connectivity();
+  Table<Uint>& corner_connectivity = corner->geometry_space().connectivity();
   corner_connectivity[0][0] = 0;
 
   Handle<Elements> center_point = mesh.topology().create_region("center_point").create_component<Elements>("Point");
   center_point->initialize("cf3.mesh.LagrangeP0.Point2D",nodes);
   center_point->resize(1);
-  Table<Uint>& center_point_connectivity = center_point->node_connectivity();
+  Table<Uint>& center_point_connectivity = center_point->geometry_space().connectivity();
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
   build_serial_gids(mesh);
@@ -364,12 +365,12 @@ void create_circle_2d(Table<Real>& coordinates, Table<Uint>& connectivity, const
 void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   Region& region = mesh.topology().create_region("region");
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
 
   Handle<Faces> cells = region.create_component<Faces>("Faces");
   cells->initialize("cf3.mesh.LagrangeP1.Line2D",nodes);
   cells->resize(segments);
-  Table<Uint>& connectivity = cells->node_connectivity();
+  Table<Uint>& connectivity = cells->geometry_space().connectivity();
 
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
 
@@ -401,41 +402,40 @@ void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, cons
   mesh.raise_mesh_loaded();
 }
 
-void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
+void create_channel_3d(BlockArrays& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
 {
-  blocks.scaling_factor = 1.;
-  blocks.dimension = 3;
+  Table<Real>& points = *blocks.create_points(3, 12);
+  points  << 0.     << -half_height << 0.
+          << length << -half_height << 0.
+          << 0.     <<  0.          << 0.
+          << length <<  0.          << 0.
+          << 0.     <<  half_height << 0.
+          << length <<  half_height << 0.
+          << 0.     << -half_height << width
+          << length << -half_height << width
+          << 0.     <<  0.          << width
+          << length <<  0.          << width
+          << 0.     <<  half_height << width
+          << length <<  half_height << width;
 
-  blocks.points += list_of(0.    )(-half_height)(0.   )
-                 , list_of(length)(-half_height)(0.   )
-                 , list_of(0.    )( 0.         )(0.   )
-                 , list_of(length)( 0.         )(0.   )
-                 , list_of(0.    )( half_height)(0.   )
-                 , list_of(length)( half_height)(0.   )
-                 , list_of(0.    )(-half_height)(width)
-                 , list_of(length)(-half_height)(width)
-                 , list_of(0.    )( 0.         )(width)
-                 , list_of(length)( 0.         )(width)
-                 , list_of(0.    )( half_height)(width)
-                 , list_of(length)( half_height)(width);
+  Table<Uint>& block_nodes = *blocks.create_blocks(2);
+  block_nodes << 0 << 1 << 3 << 2 << 6 << 7 << 9 << 8
+              << 2 << 3 << 5 << 4 << 8 << 9 << 11 << 10;
 
-  blocks.block_points += list_of(0)(1)(3)(2)(6)(7)(9)(8)
-                       , list_of(2)(3)(5)(4)(8)(9)(11)(10);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs_half)(z_segs)
-                             , list_of(x_segs)(y_segs_half)(z_segs);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1./ratio)(1./ratio)(1./ratio)(1./ratio)(1.)(1.)(1.)(1.)
-                         , list_of(1.)(1.)(1.)(1.)(ratio   )(ratio   )(ratio   )(ratio   )(1.)(1.)(1.)(1.);
-  blocks.block_distribution += 0, 2;
+  Table<Uint>& block_subdivisions = *blocks.create_block_subdivisions();
+  block_subdivisions << x_segs << y_segs_half << z_segs
+                     << x_segs << y_segs_half << z_segs;
 
-  blocks.patch_names += "bottomWall", "topWall", "sides1", "sides2", "inout1", "inout2";
-  blocks.patch_types += "wall"      , "wall"   , "cyclic", "cyclic", "cyclic", "cyclic";
-  blocks.patch_points += list_of(0)(1)(7)(6),
-                         list_of(4)(10)(11)(5),
-                         list_of(0)(2)(3)(1)(6)(7)(9)(8),
-                         list_of(2)(4)(5)(3)(8)(9)(11)(10),
-                         list_of(0)(6)(8)(2)(1)(3)(9)(7),
-                         list_of(2)(8)(10)(4)(3)(5)(11)(9);
+  Table<Real>& block_gradings = *blocks.create_block_gradings();
+  block_gradings << 1. << 1. << 1. << 1. << 1./ratio << 1./ratio << 1./ratio << 1./ratio << 1. << 1. << 1. << 1.
+                 << 1. << 1. << 1. << 1. << ratio    << ratio    << ratio    << ratio    << 1. << 1. << 1. << 1.;
 
+  *blocks.create_patch("bottom", 1) << 0 << 1 << 7 << 6;
+  *blocks.create_patch("top", 1) << 4 << 10 << 11 << 5;
+  *blocks.create_patch("front", 2) << 0 << 2 << 3 << 1 << 2 << 4 << 5 << 3;
+  *blocks.create_patch("back", 2) << 6 << 7 << 9 << 8 << 8 << 9 << 11 << 10;
+  *blocks.create_patch("left", 2) << 0 << 6 << 8 << 2 << 2 << 8 << 10 << 4;
+  *blocks.create_patch("right", 2) << 1 << 3 << 9 << 7 << 3 << 5 << 11 << 9;
 }
 
 

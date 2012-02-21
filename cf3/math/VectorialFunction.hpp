@@ -55,7 +55,7 @@ public: // functions
   /// @param vars values of the variables to substitute in the function.
   /// @param ret_value the placeholder vector for the result
   template <typename var_t, typename ret_t>
-  void evaluate( const var_t& var_values, const ret_t& ret_value) const;
+  void evaluate( const var_t& var_values, ret_t& ret_value) const;
 
   /// Evaluate the Vectorial Function given the values of the variables
   /// and return it in the stored result. This function allows this class to work
@@ -128,19 +128,17 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename var_t, typename ret_t>
-void VectorialFunction::evaluate( const var_t& var_values, const ret_t& ret_value) const
+void VectorialFunction::evaluate(const var_t& var_values, ret_t& ret_value) const
 {
   cf3_assert(m_is_parsed);
   cf3_assert(var_values.size() == m_nbvars);
 
-  ret_t& non_const_ret = const_cast<ret_t&>(ret_value);
-  var_t& non_const_var = const_cast<var_t&>(var_values);
   // evaluate and store the functions line by line in the vector
   std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
   std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
   Uint i = 0;
   for( ; parser != end ; ++parser, ++i )
-    non_const_ret[i] = (*parser)->Eval(&non_const_var[0]);
+    ret_value[i] = (*parser)->Eval(&var_values[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

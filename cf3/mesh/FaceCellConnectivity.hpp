@@ -20,7 +20,7 @@ namespace common {
 namespace mesh {
 
   class ElementType;
-  class SpaceFields;
+  class Dictionary;
   class Region;
   class Cells;
   typedef common::Table<Entity> ElementConnectivity;

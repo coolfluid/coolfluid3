@@ -150,14 +150,14 @@ std::string OptionList::list_options() const
 {
   std::string opt_list="";
   Uint cnt(0);
-  foreach_container( (const std::string& name) (boost::shared_ptr<Option> option) , *this )
+  foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , *this )
   {
     if (cnt > 0)
     {
       opt_list=opt_list+"\n";
     }
 
-    opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
+    opt_list = "  - " + opt_list + name + ":" + option->type() + "=" + option->value_str();
 
     if (option->has_restricted_list())
     {

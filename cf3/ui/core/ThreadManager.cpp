@@ -31,6 +31,7 @@ ThreadManager::ThreadManager() :
     m_network_thread(new NetworkThread()),
     m_tree_thread(new TreeThread())
 {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

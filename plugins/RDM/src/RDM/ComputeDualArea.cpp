@@ -17,6 +17,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
+#include "mesh/Space.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
@@ -51,7 +52,7 @@ void ComputeDualArea::create_dual_area_field()
 
   const std::string solution_space = rdsolver.options().option("solution_space").value<std::string>();
 
-  SpaceFields& solution_grp = find_component_with_tag<SpaceFields>( mymesh, solution_space );
+  Dictionary& solution_grp = find_component_with_tag<Dictionary>( mymesh, solution_space );
 
   // create if does not exist
   Handle< Field > field( solution_grp.get_child( Tags::dual_area() ) );

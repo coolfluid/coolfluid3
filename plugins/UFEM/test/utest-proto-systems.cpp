@@ -10,17 +10,20 @@
 #include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+ #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#endif
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
 #include "mesh/Domain.hpp"
 
-#include "solver/CModelUnsteady.hpp"
-#include "solver/CTime.hpp"
+#include "solver/ModelUnsteady.hpp"
+#include "solver/Time.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -56,16 +59,15 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
-  RealVector outside_temp(2);
-  outside_temp << 1., 1;
-  const RealVector2 initial_temp(100., 200.);
+  std::vector<Real> outside_temp(2, 1.);
+  RealVector initial_temp(2); initial_temp << 100., 200.;
   const Uint nb_segments = 10;
   const Real end_time = 0.5;
   const Real dt = 0.1;
   const boost::proto::literal<RealVector> alpha(RealVector2(1., 2.));
 
   // Setup a model
-  CModelUnsteady& model = *Core::instance().root().create_component<CModelUnsteady>("Model");
+  ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   bc->add_constant_bc("top", "VectorVariable", outside_temp);
 
   // Configure timings
-  CTime& time = model.create_time();
+  Time& time = model.create_time();
   time.options().configure_option("time_step", dt);
   time.options().configure_option("end_time", end_time);
 

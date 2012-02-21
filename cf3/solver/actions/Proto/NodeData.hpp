@@ -19,7 +19,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 
@@ -84,8 +84,8 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::SpaceFields& field_group =  mesh.geometry_fields();
-  return common::find_component_with_tag<mesh::Field>(field_group, tag);
+  mesh::Dictionary& dict =  mesh.geometry_fields();
+  return common::find_component_with_tag<mesh::Field>(dict, tag);
 }
 
 template<>
@@ -124,17 +124,20 @@ struct NodeVarData< ScalarField >
   /// Sets value
   void set_value(boost::proto::tag::assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] = v;
+    m_value = v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::plus_assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] += v;
+    m_value += v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::minus_assign, const Real v)
   {
-    m_field[m_idx][m_var_begin] -= v;
+    m_value -= v;
+    m_field[m_idx][m_var_begin] = m_value;
   }
 
   /// Offset for the variable in the field
@@ -190,6 +193,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::assign, const VectorT& v)
   {
+    m_value = v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] = v[i];
   }
@@ -197,6 +201,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::plus_assign, const VectorT& v)
   {
+    m_value += v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] += v[i];
   }
@@ -204,6 +209,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::minus_assign, const VectorT& v)
   {
+    m_value -= v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
@@ -409,7 +415,7 @@ inline void make_node_list(const mesh::Region& region, const common::Table<Real>
   Uint nb_nodes = 0;
   BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
   {
-    const common::Table<Uint>& conn_tbl = elements.node_connectivity();
+    const common::Table<Uint>& conn_tbl = elements.geometry_space().connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_elem_nodes = conn_tbl.row_size();
 
@@ -436,7 +442,7 @@ inline void make_node_list(const mesh::Region& region, const common::Table<Real>
   node_is_used.assign(coordinates.size(), false);
   BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
   {
-    const common::Table<Uint>& conn_tbl = elements.node_connectivity();
+    const common::Table<Uint>& conn_tbl = elements.geometry_space().connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_nodes = conn_tbl.row_size();
 

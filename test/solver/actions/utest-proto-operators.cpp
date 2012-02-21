@@ -7,11 +7,16 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for proto operators"
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/max.hpp>
+
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -31,7 +36,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -443,7 +448,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
   MeshTerm<0, VectorField> u("Velocity", "solution");
 
-  CModel& model = *Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = *dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
@@ -477,7 +482,85 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   std::cout << result << std::endl;
 }
 
+
+BOOST_AUTO_TEST_CASE( NodeExprGrouping )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
+  Tools::MeshGeneration::create_line(*mesh, 1., 4);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, ScalarField > T("Temperature", "solution");
+  Real total = 0.;
+
+  boost::shared_ptr< Expression > test_expr = nodes_expression
+  (
+    group
+    (
+      T = 6.,
+      T += 4.,
+      _cout << T << "\n",
+      boost::proto::lit(total) += T
+    )
+  );
+
+  test_expr->loop(mesh->topology());
+
+  BOOST_CHECK_EQUAL(total, 50.);
+}
+
+BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line3");
+  Tools::MeshGeneration::create_line(*mesh, 4., 4);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, VectorField > T("Temperature", "solution");
+  RealVector total(1); total.setZero();
+
+  math::VectorialFunction f;
+  f.variables("x");
+  f.functions(std::vector<std::string>(1, "x+1"));
+  f.parse();
+
+  boost::shared_ptr< Expression > test_expr = nodes_expression
+  (
+    group
+    (
+      T = boost::proto::lit(f),
+      _cout << T << "\n",
+      boost::proto::lit(total) += T
+    )
+  );
+
+  test_expr->loop(mesh->topology());
+
+  BOOST_CHECK_EQUAL(total[0], 15.);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ProtoAccumulators )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line4");
+  Tools::MeshGeneration::create_line(*mesh, 4., 400);
+
+  boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::max> > acc;
+  
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+  MeshTerm<0, VectorField > T("Temperature", "solution");
+
+  boost::shared_ptr<Expression> init_expr = nodes_expression(T = coordinates);
+  init_expr->loop(mesh->topology());
+  
+  boost::shared_ptr<Expression> test_expr = nodes_expression(boost::proto::lit(acc)(_norm(T)));
+
+  test_expr->loop(mesh->topology());
+
+  BOOST_CHECK_EQUAL(boost::accumulators::max(acc), 4.);
+  BOOST_CHECK_CLOSE(boost::accumulators::mean(acc), 2., 1e-6);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

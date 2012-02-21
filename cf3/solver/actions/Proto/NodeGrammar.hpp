@@ -10,6 +10,8 @@
 #include "DirichletBC.hpp"
 #include "EigenTransforms.hpp"
 #include "ElementOperations.hpp"
+#include "ExpressionGroup.hpp"
+#include "Functions.hpp"
 #include "NeumannBC.hpp"
 #include "NodeData.hpp"
 #include "SolutionVector.hpp"
@@ -143,7 +145,7 @@ struct NodeMath;
 struct NodeMath :
   boost::proto::or_
   <
-    MathTerminals, // Scalars and matrices
+    boost::proto::or_<MathTerminals, ParsedFunctionGrammar>, // Scalars and matrices
     // Value of numbered variables
     boost::proto::when
     <
@@ -159,17 +161,26 @@ struct NodeMath :
 };
   
 /// Matches and evaluates element-wise expressions
-struct NodeGrammar :
+struct SingleExprNodeGrammar :
   boost::proto::or_
   <
     DirichletBCGrammar<NodeMath>,
     NeumannBCGrammar<NodeMath>,
     NodeMath, // math expressions
-    StreamOutput<NodeGrammar>
+    StreamOutput<SingleExprNodeGrammar>
   >
 {
 };
-  
+
+struct NodeGrammar :
+  boost::proto::or_
+  <
+    SingleExprNodeGrammar,
+    GroupGrammar< SingleExprNodeGrammar >
+  >
+{
+};
+
 } // namespace Proto
 } // namespace actions
 } // namespace solver

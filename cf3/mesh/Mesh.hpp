@@ -11,7 +11,7 @@
 
 #include "common/Component.hpp"
 #include "mesh/LibMesh.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 namespace cf3 {
   namespace common {
@@ -20,7 +20,7 @@ namespace cf3 {
 namespace mesh {
 
   
-//  class SpaceFields;
+//  class Dictionary;
   class Region;
   class MeshElements;
   class MeshMetadata;
@@ -56,12 +56,12 @@ public: // functions
   /// @return the geometry topology
   Region& topology() const { return *m_topology; }
 
-//  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
-//  void create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
+//  void create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name);
+//  void create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name, Region& topology);
 
-//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base);
-//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space);
-//  SpaceFields& create_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space, const Region& topology);
+//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base);
+//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space);
+//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space, const Region& topology);
 
 //  /// @brief Create new space and field-group matching the space
 //  /// @param [in] name            Name to be given to the space, and the field group
@@ -69,7 +69,7 @@ public: // functions
 //  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
 //  /// @return newly created field group
 //  /// @note The topology this field group applies to is by default the entire mesh topology
-//  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name);
+//  Dictionary& create_space_and_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name);
 
 //  /// @brief Create new space and field-group matching the space
 //  /// @param [in] name            Name to be given to the space, and the field group
@@ -77,19 +77,19 @@ public: // functions
 //  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
 //  /// @param [in] topology        The topology of the mesh this field group applies to.
 //  /// @return newly created field group
-//  SpaceFields& create_space_and_field_group( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology);
+//  Dictionary& create_space_and_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name, Region& topology);
 
-  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
-  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
-  SpaceFields& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name);
-  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
-  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
-  SpaceFields& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
+  Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
+  Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
+  Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name);
+  Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
+  Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
+  Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
 
   void update_statistics();
 
   /// @return the nodes of the mesh
-  SpaceFields& geometry_fields() const;
+  Dictionary& geometry_fields() const;
 
   /// @return linearized view of all the entities in the mesh
   MeshElements& elements() const;
@@ -130,7 +130,7 @@ private: // data
 
   Handle<Region> m_topology;
 
-  Handle<SpaceFields> m_geometry_fields;
+  Handle<Dictionary> m_geometry_fields;
 
 };
 

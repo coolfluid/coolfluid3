@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 
 #include "common/Table.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Quad2D.hpp"
 #include "mesh/Elements.hpp"
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a Elements component
   boost::shared_ptr<Elements> comp = allocate_component<Elements>("comp");
-  boost::shared_ptr<SpaceFields> nodes = allocate_component<SpaceFields>("nodes");
+  boost::shared_ptr<Dictionary> nodes = allocate_component<Dictionary>("nodes");
   comp->initialize("cf3.mesh.LagrangeP1.Quad2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

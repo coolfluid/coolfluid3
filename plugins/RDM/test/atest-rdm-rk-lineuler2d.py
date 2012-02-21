@@ -35,22 +35,22 @@ solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
 solver.options().configure_option('solution_space', 'LagrangeP1')
 
-solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
+#solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
 
-print("----------------------------------------------------------------------------------------------------------")
+#print("----------------------------------------------------------------------------------------------------------")
 #solver.get_child('TimeStepping').list_options_recursive()
-root.list_options_recursive()
+#root.list_options_recursive()
 #print("----------------------------------------------------------------------------------------------------------")
 #solver.list_signals_recursive()
-print("----------------------------------------------------------------------------------------------------------")
-root.list_tree_recursive()
-print("----------------------------------------------------------------------------------------------------------")
+#print("----------------------------------------------------------------------------------------------------------")
+#root.list_tree_recursive()
+#print("----------------------------------------------------------------------------------------------------------")
 
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 1.)
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 10.)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
+solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
+solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 50)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
+#solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
 
 
 ### ??? configure Model/RDSolver  solution_space:string=LagrangeP1
@@ -92,12 +92,33 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 
 iconds.execute()
 
-domain.create_component('tecwriter', 'cf3.mesh.tecplot.Writer')
+fields=[
+#  cf.URI('//Model/Domain/mesh/geometry_fields/solution'),
+#  cf.URI('//Model/Domain/mesh/geometry_fields/residual'),
+#  cf.URI('//Model/Domain/mesh/geometry_fields/wave_speed'),
+#  cf.URI('//Model/Domain/mesh/geometry_fields/dual_area')]
+  cf.URI('//Model/Domain/mesh/solution/solution'),
+  cf.URI('//Model/Domain/mesh/solution/residual'),
+  cf.URI('//Model/Domain/mesh/solution/wave_speed'),
+  cf.URI('//Model/Domain/mesh/solution/dual_area')]
 
-domain.write_mesh(cf.URI('initial.msh'))
-domain.write_mesh(cf.URI('initial.plt'))
+#gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
+#gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+#gmsh_writer.options().configure_option('fields',fields)
+#gmsh_writer.options().configure_option('file',cf.URI('file:initial.msh'))
+#gmsh_writer.execute()
+
+tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
+tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+tecplot_writer.options().configure_option('fields',fields)
+tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
+#tecplot_writer.execute()
 
 model.simulate()
    
-domain.write_mesh(cf.URI('solution.msh'))
-domain.write_mesh(cf.URI('solution.plt'))
+#gmsh_writer.options().configure_option('file',cf.URI('file:final.msh'))
+#gmsh_writer.execute()
+
+#tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
+#tecplot_writer.execute()
+

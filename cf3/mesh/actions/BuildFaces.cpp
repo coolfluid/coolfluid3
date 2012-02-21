@@ -174,6 +174,8 @@ void BuildFaces::make_interfaces(Component& parent)
         //PECheckArrivePoint(100,"finished matching faces for "<< regions[i]->name() << " to " << regions[j]->name());
         CFdebug << PERank << "creating face elements inside " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
         build_face_elements(interface,*f2c,true);
+        boost_foreach(Entities& entities, find_components_recursively<Entities>(interface))
+            entities.add_tag( mesh::Tags::interface() );
         //PECheckArrivePoint(100,"finished creating face elements inside "<< regions[i]->name() << " to " << regions[j]->name());
       }
 
@@ -321,7 +323,10 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     else
       faces.add_tag(mesh::Tags::outer_faces());
 
-    FaceCellConnectivity& f2c = faces.cell_connectivity();
+
+    faces.connectivity_face2cell() = faces.create_component<FaceCellConnectivity>("cell_connectivity");
+    FaceCellConnectivity& f2c = *faces.connectivity_face2cell();
+
     ElementConnectivity& raw_table = *Handle< ElementConnectivity >(f2c.get_child(f2c.connectivity().name()));
     raw_table.set_row_size(is_inner?2:1);
     boost_foreach(Handle< Component > cells, face_to_cell.used())
@@ -334,6 +339,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
   for (Uint f=0; f<face_to_cell.size(); ++f)
   {
     Entity element = face_to_cell.connectivity()[f][0];
+    if ( is_null(element.comp) )
+      throw InvalidStructure(FromHere(),"Face matching messed up in region "+region.uri().string());
     const Uint face_nb = face_number[f][0];
     const std::string face_type = element.element_type().face_type(face_nb).derived_type_name();
 
@@ -358,16 +365,23 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     }
   }
 
-  boost_foreach( const std::string& face_type , face_types) {
+  boost_foreach( const std::string& face_type , face_types)
+  {
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
     bdry_buffer_map[face_type]->flush();
 
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CellFaces& faces = *Handle<CellFaces>(region.get_child(shape_name));
-    FaceCellConnectivity&  f2c  = faces.cell_connectivity();
-    faces.geometry_space().connectivity().set_row_size(faces.geometry_space().nb_states());
-    faces.resize(faces.size());
+    FaceCellConnectivity&  f2c  = *faces.connectivity_face2cell();
+
+    // Add shortcut to Entities component
+    cf3_assert(f2c.handle<FaceCellConnectivity>());
+    faces.connectivity_face2cell() = f2c.handle<FaceCellConnectivity>();
+    cf3_assert(faces.connectivity_face2cell());
+
+    faces.geometry_space().connectivity().set_row_size(faces.geometry_space().shape_function().nb_nodes());
+    faces.resize(f2c.size());
     for (Uint f=0; f<faces.size(); ++f)
     {
       if (PE::Comm::instance().size()==1)
@@ -376,10 +390,10 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
       }
       else
       {
-        if (faces.is_bdry(f) == false)
+        if (faces.connectivity_face2cell()->is_bdry_face()[f] == false)
         {
           faces.rank()[f] = math::Consts::uint_max();
-          /// @todo make restore following, when spacefields rank finding is done automatically for entire topology
+          /// @todo make restore following, when Dictionary rank finding is done automatically for entire topology
 //          if (f2c.connectivity()[f][LEFT].rank()  != PE::Comm::instance().rank() &&
 //              f2c.connectivity()[f][RIGHT].rank() != PE::Comm::instance().rank())
 //          {
@@ -402,9 +416,9 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 
     Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
     Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
-    cf3_assert(f2c.size() == fnb->size());
-    cf3_assert(fnb->size() == faces.size());
-    cf3_assert(bdry->size() == faces.size());
+    cf3_assert_desc(to_str(f2c.size())+"=="+to_str(fnb->size()),(f2c.size() == fnb->size()));
+    cf3_assert_desc(to_str(fnb->size())+"=="+to_str(faces.size()),fnb->size() == faces.size());
+    cf3_assert_desc(to_str(bdry->size())+"=="+to_str(faces.size()),bdry->size() == faces.size());
   }
 
   if (PE::Comm::instance().is_active())
@@ -461,6 +475,7 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
 
     std::vector<Uint> face_nodes;
     std::vector<Entity> elems(2);
+    std::vector<Uint> face_nb(2);
     enum {LEFT=0,RIGHT=1};
     Uint nb_matches(0);
 
@@ -493,12 +508,14 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
               match_found = true;
               elems[LEFT]  = face1.cells()[0];
               elems[RIGHT] = face2.cells()[0];
-
+              face_nb[LEFT] = face1.face_nb_in_cells()[0];
+              face_nb[RIGHT] = face2.face_nb_in_cells()[0];
               CFdebug << PERank << "match found: " << elems[LEFT] << " <--> " << elems[RIGHT] << CFendl;
 
               // Remove matches from the 2 connectivity tables and add to the interface
               i2c.add_row(elems);
-              fnb.add_row(buf_fnb[face1.comp]->get_row(face1.idx));
+              fnb.add_row(face_nb);
+//              fnb.add_row(buf_fnb[face1.comp]->get_row(face1.idx));
               bdry.add_row(false);
 
               buf_f2c [face1.comp]->rm_row(face1.idx);
@@ -551,11 +568,14 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 
   boost_foreach(Elements& bdry_faces, find_components<Elements>(bdry_region))
   {
+//    bdry_faces.add_tag(mesh::Tags::outer_faces());
     Handle< FaceCellConnectivity > bdry_face_to_cell = find_component_ptr<FaceCellConnectivity>(bdry_faces);
     if (is_null(bdry_face_to_cell))
     {
       bdry_face_to_cell = bdry_faces.create_component<FaceCellConnectivity>("cell_connectivity");
       bdry_face_to_cell->options().configure_option("face_building_algorithm",true);
+
+      bdry_faces.connectivity_face2cell() = bdry_face_to_cell;
     }
 
     ElementConnectivity& bdry_face_connectivity = bdry_face_to_cell->connectivity();
@@ -714,12 +734,15 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
     ElementConnectivity& c2f = *elements.create_component<ElementConnectivity>("face_connectivity");
     c2f.resize(elements.size());
     c2f.set_row_size(elements.element_type().nb_faces());
+
+    // Add shortcut to Entities component
+    elements.connectivity_cell2face() = c2f.handle<ElementConnectivity>();
   }
 
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
 //    PECheckPoint(100,"building c2f for " << face_elements.uri());
-    //CFdebug << PERank << face_elements.uri().path() << CFendl;
+    CFdebug << PERank << face_elements.uri().path() << CFendl;
     FaceCellConnectivity& f2c = *face_elements.get_child("cell_connectivity")->handle<FaceCellConnectivity>();
     const ElementConnectivity& connectivity = f2c.connectivity();
     const common::List<bool>& is_bdry       = f2c.is_bdry_face();
@@ -728,21 +751,25 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
     for (Uint idx=0; idx<face_elements.size(); ++idx)
     {
       Face2Cell face(f2c,idx);
-      //CFdebug << PERank << "    face["<<face_idx<<"]" << CFendl;;
-      //CFdebug << PERank << "        --->  cell["<<cell_idx<<"]"<< CFendl;
       Entity left_cell = face.cells()[LEFT];
+      CFdebug << PERank << "    face "<< face.comp->uri()<< "["<<face.idx<<"]" << CFendl;
+      CFdebug << PERank << "        --->  cell "<< left_cell.comp->uri() << "["<<left_cell.idx<<"]["<<face.face_nb_in_cells()[LEFT]<<"]"<< CFendl;
+
       ElementConnectivity& left_c2f = *left_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
       cf3_assert(left_cell.idx < left_c2f.size());
       cf3_assert(face.face_nb_in_cells()[LEFT] < left_c2f[left_cell.idx].size());
       left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = Entity(face_elements,idx);
+      cf3_assert(left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]].comp);
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
+        CFdebug << PERank << "        --->  cell" << right_cell.comp->uri() << "[" << right_cell.idx<<"]["<<face.face_nb_in_cells()[RIGHT]<<"]"<< CFendl;
+
         ElementConnectivity& right_c2f = *right_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
         cf3_assert(right_cell.idx < right_c2f.size());
         cf3_assert(face.face_nb_in_cells()[RIGHT] < right_c2f[right_cell.idx].size());
         right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = Entity(face_elements,idx);
-        //CFdebug << PERank << "        --->  cell[" << cell_idx<<"]"<< CFendl;
+        cf3_assert(right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]].comp);
       }
     }
 //    PECheckArrivePoint(100,"built " << face_elements.uri());

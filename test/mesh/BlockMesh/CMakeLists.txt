@@ -7,13 +7,10 @@ coolfluid_add_unit_test( utest-blockmesh-2d )
 
 ################################################################################
 
-list( APPEND utest-blockmesh-2d-mpi_cflibs coolfluid_mesh coolfluid_mesh_blockmesh )
-list( APPEND utest-blockmesh-2d-mpi_files  utest-blockmesh-2d-mpi.cpp )
-
-set(utest-blockmesh-2d-mpi_mpi_test TRUE)
-set(utest-blockmesh-2d-mpi_mpi_nprocs 4)
-
-coolfluid_add_unit_test( utest-blockmesh-2d-mpi )
+coolfluid_add_test( UTEST utest-blockmesh-2d-mpi
+                    CPP utest-blockmesh-2d-mpi.cpp
+                    LIBS coolfluid_mesh coolfluid_mesh_blockmesh
+                    MPI 8 )
 
 ################################################################################
 
@@ -32,5 +29,11 @@ coolfluid_add_unit_test( utest-blockmesh-3d-mpi )
 coolfluid_add_python_test(UTEST NAME utest-blockmesh-channelgenerator
                           SCRIPT utest-blockmesh-channelgenerator.py
                           MPI NBPROCS 4)
+
+################################################################################
+
+
+coolfluid_add_python_test(UTEST NAME utest-blockmesh-generation
+                          SCRIPT utest-blockmesh-generation.py)
 
 ################################################################################

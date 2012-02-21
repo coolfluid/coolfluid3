@@ -8,11 +8,12 @@
 #include <boost/bind.hpp>
 
 #include "common/Log.hpp"
+#include "common/Option.hpp"
+#include "common/OptionList.hpp"
 
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
-#include "solver/CTime.hpp"
 #include "solver/Tags.hpp"
 
 #include "LinearSolverUnsteady.hpp"
@@ -22,41 +23,15 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace mesh;
-using namespace solver;
-using namespace solver::actions;
-using namespace solver::actions::Proto;
-
-
-
-struct LinearSolverUnsteady::Implementation
-{
-  void trigger_time()
-  {
-    if(is_null(m_time))
-      return;
-    
-    m_time->options().option("time_step").attach_trigger(boost::bind(&Implementation::trigger_timestep, this));
-  }
-  
-  void trigger_timestep()
-  {
-    m_invdt = m_time->invdt();
-  }
-  
-  Handle<CTime> m_time;
-  Real m_invdt;
-};
 
 LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
-  LinearSolver(name),
-  m_implementation( new Implementation() )
+  LinearSolver(name)
 {
-  options().add_option(solver::Tags::time(), m_implementation->m_time)
+  options().add_option(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Component that keeps track of time for this simulation")
-    .attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()))
-    .link_to(&m_implementation->m_time);
+    .attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_time, this))
+    .link_to(&m_time);
 }
 
 LinearSolverUnsteady::~LinearSolverUnsteady()
@@ -65,9 +40,37 @@ LinearSolverUnsteady::~LinearSolverUnsteady()
 
 Real& LinearSolverUnsteady::invdt()
 {
-  return m_implementation->m_invdt;
+  return m_invdt;
 }
 
+const solver::Time& LinearSolverUnsteady::time() const
+{
+  return *m_time;
+}
+
+void LinearSolverUnsteady::trigger_time()
+{
+  if(is_null(m_time))
+      return;
+    
+  m_time->options().option("time_step").attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_timestep, this));
+  m_time->options().option("iteration").attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_iteration, this));
+}
+
+void LinearSolverUnsteady::trigger_timestep()
+{
+  m_invdt = m_time->invdt();
+}
+
+
+void LinearSolverUnsteady::on_iteration_increment()
+{
+}
+
+void LinearSolverUnsteady::trigger_iteration()
+{
+  on_iteration_increment();
+}
 
 
 } // UFEM

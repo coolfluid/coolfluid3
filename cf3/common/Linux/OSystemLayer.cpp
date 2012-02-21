@@ -13,6 +13,7 @@
 #include <sys/types.h>   // for getting the PID of the process
 #include <malloc.h>      //  for mallinfo
 
+
 #include "common/BasicExceptions.hpp"
 #include "common/Linux/OSystemLayer.hpp"
 #include "common/Log.hpp"
@@ -20,6 +21,12 @@
 #ifdef CF_HAVE_UNISTD_H
   #include <unistd.h>
 #endif
+
+#ifdef CF3_HAVE_CXXABI_H
+  #include <cxxabi.h>
+  #include <boost/regex.hpp>
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,26 +61,67 @@ std::string OSystemLayer::dump_back_trace ()
 {
 #define CF_BUFFER_SIZE 256
 
-  printf ("\n\ndumping backtrace ...\n");
+static int i = 0;
+++i;
 
-  std::ostringstream oss;
-  int j, nptrs;
-  void *buffer[CF_BUFFER_SIZE];
-  char **strings;
 
-  nptrs = backtrace(buffer, CF_BUFFER_SIZE);
-  oss << "\nbacktrace() returned " << nptrs << " addresses\n";
+std::ostringstream oss;
+int j, nptrs;
+void *buffer[CF_BUFFER_SIZE];
+char **strings;
 
-  strings = backtrace_symbols(buffer, nptrs);
-  if (strings == NULL)
-    oss << "\nno backtrace_symbols found\n";
-  for (j = 0; j < nptrs; j++)
-    oss << strings[j] << "\n";
-  free(strings);
+//printf ("dumping %d backtrace ...\n", i);
+oss << "dumping " << i << " backtrace ...\n";
+nptrs = backtrace(buffer, CF_BUFFER_SIZE);
+oss << "\nbacktrace() returned " << nptrs << " addresses\n";
 
+strings = backtrace_symbols(buffer, nptrs);
+if (strings == NULL)
+  oss << "\nno backtrace_symbols found\n";
+
+#ifdef CF3_HAVE_CXXABI_H
+
+boost::regex e("(.+)\\((_.+)(\\+.+)\\)");
+boost::match_results<std::string::const_iterator> what;
+
+// iterate over the returned symbol lines. skip the first, it is the
+// address of this function.
+for (j = 1; j < nptrs; j++)
+{
+  std::string trace(strings[j]);
+
+  // what[0] -> orginal string
+  // what[1] -> library name
+  // what[2] -> function name
+  // what[3] -> memory offset
+  if (boost::regex_search(trace,what,e))
+  {
+    trace = std::string(what[2].first,what[2].second);
+    size_t maxName = 1024;
+    int demangleStatus;  // will be assigned in abi::__cxa_demangle
+    char* demangledName; // will be allocated in abi::__cxa_demangle
+    if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
+                                             &demangleStatus)) && demangleStatus == 0)
+    {
+      trace = demangledName; // the demangled name is now in our trace string
+    }
+
+    delete_ptr_array(demangledName);
+  }
+  oss << trace << "\n";
+}
+#else
+for (j = 0; j < nptrs; j++)
+  oss << strings[j] << "\n";
+#endif
+
+free(strings);
 #undef CF_BUFFER_SIZE
 
-  return oss.str();
+oss << "\nexit dumping backtrace ...";
+
+return oss.str();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

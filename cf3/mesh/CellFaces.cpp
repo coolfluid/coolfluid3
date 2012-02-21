@@ -8,7 +8,7 @@
 #include "common/List.hpp"
 
 #include "mesh/CellFaces.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
@@ -24,14 +24,13 @@ common::ComponentBuilder < CellFaces, Entities, LibMesh > CellFaces_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CellFaces::CellFaces ( const std::string& name ) :
-  Entities ( name ),
-  m_proxy_nodes(new common::Table<Uint>::ArrayT)
+  Entities ( name )
 {
   properties()["brief"] = std::string("Holds information of faces of one element type");
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, and global numbering unique over all processors");
 
-  m_cell_connectivity = create_static_component<FaceCellConnectivity>("cell_connectivity");
+//  m_cell_connectivity = create_static_component<FaceCellConnectivity>("cell_connectivity");
 
   add_tag(mesh::Tags::face_entity());
 }
@@ -44,67 +43,10 @@ CellFaces::~CellFaces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint CellFaces::size() const
-{
-  return m_cell_connectivity->size();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool CellFaces::is_bdry(const Uint idx) const
-{
-  return m_cell_connectivity->is_bdry_face()[idx];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-common::Table<Uint>::ConstRow CellFaces::get_nodes(const Uint face_idx) const
-{
-  m_proxy_nodes->resize(boost::extents[1][element_type().nb_nodes()]);
-
-  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
-  for (Uint i=0; i<face_nodes.size(); ++i)
-    (*m_proxy_nodes)[0][i]=face_nodes[i];
-  return (*m_proxy_nodes)[0];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-RealMatrix CellFaces::get_coordinates(const Uint face_idx) const
-{
-  const Field& coords_table = geometry_fields().coordinates();
-  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
-
-  const Uint nb_nodes=face_nodes.size();
-  const Uint dim=coords_table.row_size();
-  RealMatrix elem_coords(nb_nodes,dim);
-
-  for(Uint node = 0; node != nb_nodes; ++node)
-    for (Uint d=0; d<dim; ++d)
-      elem_coords(node,d) = coords_table[face_nodes[node]][d];
-
-  return elem_coords;
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) const
-{
-  const Field& coords_table = geometry_fields().coordinates();
-  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
-
-  const Uint nb_nodes=elem_coords.rows();
-  const Uint dim=elem_coords.cols();
-
-  cf3_assert(nb_nodes == face_nodes.size());
-  cf3_assert(dim==coords_table.row_size());
-
-  for(Uint node = 0; node != nb_nodes; ++node)
-    for (Uint d=0; d<dim; ++d)
-      elem_coords(node,d) = coords_table[face_nodes[node]][d];
-
-}
+//bool CellFaces::is_bdry(const Uint idx) const
+//{
+//  return m_cell_connectivity->is_bdry_face()[idx];
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

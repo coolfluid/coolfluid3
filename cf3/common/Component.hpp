@@ -245,7 +245,20 @@ public: // functions
   void move_to ( Component& to_parent );
 
   /// @returns a string representation of the tree below this component
-  std::string tree(Uint level=0) const;
+  /// @param [in] basic_mode  if true, only components marked_basic will be printed
+  /// @param [in] depth       defines howmany recursions should maximally be performed
+  ///                         (default value depth=0 means full tree)
+  /// @param [in] level       recursion parameter, should not be touched
+  std::string tree(bool basic_mode=false, Uint depth=0, Uint recursion_level=0) const;
+
+  /// @returns info on this component
+  /// @param [in] what   every character of this string represents what to output:
+  ///                     c : sub components
+  ///                     o : options
+  ///                     s : signals
+  ///                     p : properties
+  ///                     t : tags
+  std::string info(const std::string& what = std::string("cospt")) const;
 
   /// @return Returns the number of children this component has.
   size_t count_children() const;
@@ -320,7 +333,13 @@ public: // functions
   void signal_list_signals_recursive ( SignalArgs& args ) const;
 
   ///  gets info on this component
-  void signal_print_info ( SignalArgs& args );
+  void signal_print_info ( SignalArgs& args ) const;
+
+  ///  signal to print the tree
+  void signal_print_tree ( SignalArgs& args ) const;
+
+  ///  signature to signal_print_tree
+  void signature_print_tree ( SignalArgs& args ) const;
 
   /// renames this component
   void signal_rename_component ( SignalArgs& args ) ;

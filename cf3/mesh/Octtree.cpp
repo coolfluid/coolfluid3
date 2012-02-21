@@ -29,7 +29,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -154,15 +154,19 @@ void Octtree::create_octtree()
   std::vector<Uint> octtree_idx(3);
   boost_foreach (const Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsVolume()))
   {
-    Uint nb_nodes_per_element = elements.node_connectivity().row_size();
-    RealMatrix coordinates(nb_nodes_per_element,m_dim);
+    Uint nb_nodes_per_element = elements.geometry_space().connectivity().row_size();
+    RealMatrix coordinates;
+    elements.geometry_space().allocate_coordinates(coordinates);
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
-      elements.put_coordinates(coordinates,elem_idx);
+      elements.geometry_space().put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
+      {
+        cf3_assert((centroid[d] - m_bounding[MIN][d])/m_D[d] >= 0);
         octtree_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+      }
       m_octtree[octtree_idx[XX]][octtree_idx[YY]][octtree_idx[ZZ]].push_back(unif_elem_idx);
       ++unif_elem_idx;
     }
@@ -299,14 +303,16 @@ void Octtree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, st
 
 bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
+  static const Real tolerance = 100*math::Consts::eps();
   //CFinfo << "point " << coordinate << CFflush;
   cf3_assert(coordinate.size() == static_cast<int>(m_dim));
 
   for (Uint d=0; d<m_dim; ++d)
   {
-    if ( (coordinate[d] > m_bounding[MAX][d]) ||
-         (coordinate[d] < m_bounding[MIN][d]) )
+    if ( (coordinate[d] > m_bounding[MAX][d] + tolerance) ||
+         (coordinate[d] < m_bounding[MIN][d] - tolerance) )
     {
+      CFdebug << "coord " << coordinate.transpose() << " not found in bounding box" << CFendl;
       return false; // no index found
     }
     octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
@@ -439,7 +445,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
       Elements& elements = dynamic_cast<Elements&>(*component);
-      const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      const RealMatrix elem_coordinates = elements.geometry_space().get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
         element_component = Handle<Elements>(elements.handle<Component>());
@@ -457,7 +463,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
       Elements& elements = dynamic_cast<Elements&>(*component);
-      const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      const RealMatrix elem_coordinates = elements.geometry_space().get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
         element_component = Handle<Elements>(elements.handle<Component>());
@@ -471,6 +477,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
   // if arrived here, it means no element has been found. Give up.
   element_component.reset();
   cf3_assert(is_null(element_component));
+  CFinfo << "coord " << target_coord.transpose() << " has not been found in any cell registereed in the bounding box" << CFendl;
   return false;
 }
 

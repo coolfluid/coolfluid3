@@ -56,8 +56,6 @@ NTree::NTree(Handle< NRoot > rootNode)
 
 void NTree::set_tree_root(Handle< NRoot > rootNode)
 {
-
-
   //QMutexLocker locker(m_mutex);
 
   // initiate the removing process
@@ -76,8 +74,6 @@ void NTree::set_tree_root(Handle< NRoot > rootNode)
 
 Handle< NRoot > NTree::tree_root() const
 {
-
-
   return m_root_node->node()->castTo<NRoot>();
 }
 
@@ -117,9 +113,9 @@ URI NTree::current_path() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NTree::list_node_options(const QModelIndex & index,
-                           QList<boost::shared_ptr< Option > > & options,
-                           bool * ok) const
+void NTree::list_node_options( const QModelIndex & index,
+                               QList<boost::shared_ptr< Option > > & options,
+                               bool * ok ) const
 {
 
 

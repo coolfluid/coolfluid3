@@ -18,11 +18,11 @@
 
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementConnectivity.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -63,8 +63,10 @@ Uint FaceCellConnectivity::size() const { return connectivity().size(); }
 
 void FaceCellConnectivity::setup(Region& region)
 {
-  boost_foreach( Cells& cells,  find_components_recursively<Cells>(region) )
+  boost_foreach( Elements& cells,  find_components_recursively_with_filter<Elements>(region, IsElementsVolume()) )
+  {
     add_used(cells);
+  }
 
   build_connectivity();
 }
@@ -123,7 +125,7 @@ void FaceCellConnectivity::build_connectivity()
   common::Table<Entity>::Buffer f2c = m_connectivity->create_buffer();
   common::Table<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
   common::List<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  SpaceFields& geometry_fields = find_parent_component<Mesh>(*used()[0]).geometry_fields();
+  Dictionary& geometry_fields = find_parent_component<Mesh>(*used()[0]).geometry_fields();
   Uint tot_nb_nodes = geometry_fields.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
@@ -190,7 +192,7 @@ void FaceCellConnectivity::build_connectivity()
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(Connectivity::ConstRow elem_nodes, elements.node_connectivity().array() )
+    boost_foreach(Connectivity::ConstRow elem_nodes, elements.geometry_space().connectivity().array() )
     {
       if ( is_not_null(is_bdry_elem) )
         if ( (*is_bdry_elem)[loc_elem_idx] == false )
@@ -353,7 +355,7 @@ std::vector<Uint> FaceCellConnectivity::face_nodes(const Uint face) const
   cf3_assert(face < m_connectivity->size());
   cf3_assert(face < m_face_nb_in_elem->size());
   Entity element = (*m_connectivity)[face][0];
-  cf3_assert(element.idx < element.comp->size())
+  cf3_assert(element.idx < element.comp->size());
 
   Connectivity::ConstRow element_nodes = element.get_nodes();
 

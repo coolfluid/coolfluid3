@@ -23,7 +23,7 @@
 #include "mesh/CNodes.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "solver/actions/CLoopOperation.hpp"
+#include "solver/actions/LoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -36,7 +36,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public solver::actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::actions::LoopOperation
 {
 public: // typedefs
 
@@ -72,7 +72,7 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().handle<mesh::Elements>()->node_connectivity().handle< mesh::Connectivity >();
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
     coordinates = elements().nodes().coordinates().handle< mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );
@@ -124,7 +124,7 @@ private: // data
 
 template<typename SF, typename QD, typename PHYS>
 SchemeLDAGPU<SF,QD,PHYS>::SchemeLDAGPU ( const std::string& name ) :
-  CLoopOperation(name),
+  LoopOperation(name),
   m_quadrature( QD::instance() )
 {
   regist_typeinfo(this);
@@ -176,7 +176,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    std::cout<<"LDAGPU"<<std::endl;
 
 
-   //boost::timer ctimer;
+   //boost::timer Timer;
    Uint dim     = 2;
    Uint shape   = SF::nb_nodes;
    Uint quad    =  QD::nb_points;
@@ -349,7 +349,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
         (*wave_speed)[idx][0] = waveSpeed[idx];
    }
 
-  //std::cout<<ctimer.elapsed()<<std::endl;
+  //std::cout<<Timer.elapsed()<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -43,16 +43,16 @@ struct AnyToPython
     m_result(result)
   {
   }
-  
+
   template<typename T>
   void operator()(T) const
   {
     if(typeid(T) != m_value.type())
       return;
-    
+
     m_result = boost::python::object(boost::any_cast<T>(m_value));
   }
-  
+
   const boost::any& m_value;
   boost::python::object& m_result;
 };
@@ -84,12 +84,12 @@ struct PythonToAny
       m_result = extracted_value();
     }
   }
-  
+
   void operator()(const Handle<common::Component>) const
   {
     if(!boost::starts_with(m_target_type, "handle"))
       return;
-    
+
     ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(m_value);
     m_result = wrapped.component().handle<common::Component>();
     m_found = true;
@@ -145,6 +145,35 @@ struct PythonListToAny
   bool& m_found;
 };
 
+/// Conversion from any to python for basic types
+struct AnyListToPython
+{
+  AnyListToPython(const boost::any& value, boost::python::object& result) :
+    m_value(value),
+    m_result(result)
+  {
+  }
+
+  template<typename T>
+  void operator()(T) const
+  {
+    if(typeid(std::vector<T>) != m_value.type())
+      return;
+    
+    boost::python::list result;
+    const std::vector<T> val = boost::any_cast< std::vector<T> >(m_value);
+    BOOST_FOREACH(const T& item, val)
+    {
+      result.append(boost::any_cast<T>(item));
+    }
+
+    m_result = result;
+  }
+
+  const boost::any& m_value;
+  boost::python::object& m_result;
+};
+
 struct OptionCreator
 {
   OptionCreator(common::OptionList& options, const boost::python::object& value, const std::string& name, bool& found) :
@@ -193,6 +222,8 @@ boost::python::object any_to_python(const boost::any& value)
 {
   boost::python::object result;
   boost::mpl::for_each<AnyTypes>(AnyToPython(value, result));
+  if(result.is_none()) // try lists if straight conversion failed
+    boost::mpl::for_each<AnyTypes>(AnyListToPython(value, result));
   if(result.is_none())
     throw common::CastingFailed(FromHere(), "Failed to convert boost any to a valid python object");
   return result;
@@ -225,8 +256,9 @@ boost::any python_to_any(const boost::python::object& val, const std::string& ta
 // Wrapper for signals
 struct SignalWrapper
 {
-  SignalWrapper(common::SignalPtr signal) :
-    m_signal(signal)
+  SignalWrapper(common::SignalPtr signal, const Handle<common::Component>& component) :
+    m_signal(signal),
+    m_component(component)
   {
   }
 
@@ -273,12 +305,23 @@ struct SignalWrapper
 
     options.flush();
 
-    std::string node_contents;
-    common::XML::to_string(node.node, node_contents);
-
-    CFdebug << "Calling signal " << m_signal->name() << " with arguments:\n" << node_contents << CFendl;
+    CFdebug << "Calling signal " << m_signal->name() << " with arguments: ";
+    for(SignalOptions::const_iterator opt = options.begin(); opt != options.end(); ++opt)
+      CFdebug << opt->first << " = " << opt->second->value_str() << ", ";
+    CFdebug << CFendl;
 
     (*m_signal->signal())(node);
+
+    // Process reply
+    SignalFrame reply = node.get_reply();
+    if(reply.node.is_valid())
+    {
+      SignalOptions reply_options(reply);
+      if(reply_options.check("created_component"))
+        return wrap_component(m_component->access_component(reply_options["created_component"].value< common::URI >()));
+      if(reply_options.check("return_value"))
+        return any_to_python(reply_options["return_value"].value());
+    }
 
     return boost::python::object();
   }
@@ -310,6 +353,7 @@ struct SignalWrapper
   }
 
   common::SignalPtr m_signal;
+  Handle<common::Component> m_component;
 };
 
 struct ComponentWrapper::Implementation
@@ -364,12 +408,14 @@ void ComponentWrapper::bind_signals(boost::python::object& python_object)
 
 void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 {
-  CFdebug << "Wrapping signal " << signal->name() << CFendl;
-  m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal));
+  m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal, m_implementation->m_component));
 }
 
 boost::python::object wrap_component(const Handle<common::Component>& component)
 {
+  if(is_null(component))
+    return boost::python::object();
+
   boost::python::object result = boost::python::object(ComponentWrapper(component));
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
   wrapped.bind_signals(result);
@@ -422,6 +468,11 @@ common::URI uri(ComponentWrapper& self)
   return self.component().uri();
 }
 
+std::string derived_type_name(ComponentWrapper& self)
+{
+  return self.component().derived_type_name();
+}
+
 void print_timing_tree(ComponentWrapper& self)
 {
   cf3::common::print_timing_tree(self.component());
@@ -469,14 +520,14 @@ std::string to_str(ComponentWrapper& self)
 //   OptionListWrapper(common::OptionList& option_list) : m_option_list(option_list)
 //   {
 //   }
-//   
+//
 //   OptionList& wrapped()
 //   {
 //     return m_option_list;
 //   }
-//   
+//
 // private:
-//   
+//
 //   common::OptionList* m_option_list;
 // };
 
@@ -531,15 +582,16 @@ void def_component()
     .def("options", options, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("uri", uri)
+    .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
     .def("__str__", to_str);
-    
+
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
     .def("value_str", option_value_str, "String value for an option");
-    
+
   boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
     .def("__len__", properties_get_len)
     .def("__getitem__", properties_get_item);

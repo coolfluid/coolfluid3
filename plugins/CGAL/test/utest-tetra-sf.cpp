@@ -22,8 +22,9 @@
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -87,7 +88,7 @@ struct LoopElems
     if( !IsElementType<EType>()(region.element_type()) )
       return;
 
-    typename Table<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
+    typename Table<Uint>::ArrayT const& conn_table = region.geometry_space().connectivity().array();
     const Table<Real>& coords = region.geometry_fields().coordinates();
     // loop on elements
     BOOST_FOREACH(const Table<Uint>::ConstRow& elem, conn_table)

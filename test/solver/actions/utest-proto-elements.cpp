@@ -24,7 +24,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -34,11 +34,11 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/CModel.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/Model.hpp"
+#include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
-#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Functions.hpp"
@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 BOOST_AUTO_TEST_CASE( ProtoElementField )
 {
   // Setup a model
-  CModel& model = *Core::instance().root().create_component<CModel>("Model");
+  Model& model = *Core::instance().root().create_component<Model>("Model");
   physics::PhysModel& phys_model = model.create_physics("cf3.physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
-  CSolver& solver = model.create_solver("cf3.solver.CSimpleSolver");
+  Solver& solver = model.create_solver("cf3.solver.SimpleSolver");
 
   Mesh& mesh = *dom.create_component<Mesh>("mesh");
 
@@ -82,20 +82,19 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   const Uint x_segs = 10;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = *dom.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockArrays& blocks = *dom.create_component<BlockMesh::BlockArrays>("blocks");
 
-  blocks.dimension = 2;
-  blocks.scaling_factor = 1.;
-  blocks.points += list_of(0.)(0.), list_of(length)(0.), list_of(length)(height), list_of(0.)(height);
-  blocks.block_points += list_of(0)(1)(2)(3);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs);
-  blocks.block_gradings += list_of(ratio)(ratio)(ratio)(ratio);
-  blocks.patch_names += "bottom", "right", "top",  "left";
-  blocks.patch_types += "wall", "wall",  "wall", "wall";
-  blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
-  blocks.block_distribution += 0, 1;
+  *blocks.create_points(2, 4) << 0. << 0. << length << 0. << length << height << 0. << height;
+  *blocks.create_blocks(1) << 0 << 1 << 2 << 3;
+  *blocks.create_block_subdivisions() << x_segs << y_segs;
+  *blocks.create_block_gradings() << ratio << ratio << ratio << ratio;
+  
+  *blocks.create_patch("bottom", 1) << 0 << 1;
+  *blocks.create_patch("right", 1) << 1 << 2;
+  *blocks.create_patch("top", 1) << 2 << 3;
+  *blocks.create_patch("left", 1) << 3 << 0;
 
-  BlockMesh::build_mesh(blocks, mesh);
+  blocks.create_mesh(mesh);
 
   mesh.check_sanity();
 
@@ -123,7 +122,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
     << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
 
   // Create the fields
-  SpaceFields& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   solver.field_manager().create_field("volumes", elems_P0);
 
   // Set the region of all children to the root region of the mesh

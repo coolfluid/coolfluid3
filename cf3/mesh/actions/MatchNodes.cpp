@@ -19,9 +19,8 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/MatchNodes.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"

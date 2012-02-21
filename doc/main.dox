@@ -4,7 +4,7 @@ namespace cf3 {
 
  @section _main_installing_coolfluid Installing COOLFluiD
  - \subpage installation
- 
+
  @section _main_features Features
  - \subpage mesh_datastructure
  - \subpage mesh_operations
@@ -13,31 +13,31 @@ namespace cf3 {
  - \subpage sfdm
  - \subpage rdm
  - \subpage ufem
- 
+
  @section _users Users
  There are several ways for users to interact with COOLFluiD and it's modules
  - Cross-platform Graphical User Interface, providing client-server interaction
- - Python scripting
+ - \subpage python_scripting
  - \subpage coolfluid-command for command-line interpretion and scripting
  - standalone executables
- 
+
  @section _getting_started Getting started
  This tutorial is divided in the following sections:
  - \subpage introducing_components
  - \subpage using_components
  - \subpage coding_components
  - \subpage understanding_options
- 
+
  <hr>
- 
+
  @section _more_info More information
  Take a look into the <a href="http://coolfluidsrv.vki.ac.be/trac/coolfluid">COOLFluiD homepage</a>, or the <a href="https://github.com/coolfluid/coolfluid3">github project page</a>.
- 
+
  Follow the current developments also on the <a href="http://coolfluidsrv.vki.ac.be/cdash/index.php?project=coolfluid">dashboard</a>.
 
  @subsection _license License
  This project is released under the <a href="http://www.gnu.org/licenses/lgpl.txt">LGPL v3 license</a>.
- 
+
  */
 
 }

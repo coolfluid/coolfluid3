@@ -22,9 +22,8 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/actions/GlobalConnectivity.hpp"
-#include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/SpaceFields.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -92,7 +91,7 @@ void GlobalConnectivity::execute()
 {
   Mesh& mesh = *m_mesh;
 
-  SpaceFields& nodes = mesh.geometry_fields();
+  Dictionary& nodes = mesh.geometry_fields();
   common::List<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time

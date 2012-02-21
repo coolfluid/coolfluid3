@@ -78,6 +78,15 @@ Component::Component ( const std::string& name ) :
       .description("lists the component tree inside this component")
       .pretty_name("List tree recursively");
 
+  regist_signal( "print_tree" )
+      .connect( boost::bind( &Component::signal_print_tree, this, _1 ) )
+      .hidden(false)
+      .read_only(true)
+      .description("Print the component tree inside this component")
+      .pretty_name("Print tree")
+      .signature( boost::bind(&Component::signature_print_tree, this, _1) );
+
+
   regist_signal( "list_properties" )
       .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
       .hidden(true)
@@ -518,7 +527,7 @@ Handle< Component > Component::create_component (const std::string& name ,
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
   if(is_not_null(comp))
     add_component( comp );
-  
+
   return Handle<Component>(comp);
 }
 
@@ -545,6 +554,10 @@ void Component::signal_create_component ( SignalArgs& args  )
   {
     comp->mark_basic();
   }
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", comp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -570,29 +583,55 @@ void Component::signal_move_component ( SignalArgs& args  )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_print_info ( SignalArgs& args  )
+std::string Component::info ( const std::string& what  ) const
 {
-  CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
+  std::stringstream ss;
+  ss << "Info on component \'" << uri().path() << "\'" << std::endl;
 
-  CFinfo << "  sub components:" << CFendl;
-  BOOST_FOREACH( const Component& c, *this )
+  boost_foreach(const char& character, what)
   {
-    if (c.has_tag(Tags::static_component()))
-      CFinfo << "  + [static]  ";
-    else
-      CFinfo << "  + [dynamic] ";
+    if (character == 'c')
+    {
+      ss << "  sub components:" << std::endl;
+      BOOST_FOREACH( const Component& c, *this )
+      {
+        if (c.has_tag(Tags::static_component()))
+          ss << "  + [static]  ";
+        else
+          ss << "  + [dynamic] ";
 
-    CFinfo << c.name() << " / " << c.derived_type_name() << CFendl;
+        ss << c.name() << " / " << c.derived_type_name() << std::endl;
+      }
+    }
+    if (character == 'o')
+    {
+      ss << "  options:" << std::endl;
+      ss << options().list_options() << std::endl;
+    }
+    if (character == 's')
+    {
+      ss << "  signals: \n    TODO" << std::endl;
+    }
+    if (character == 'p')
+    {
+      ss << "  properties:" << std::endl;
+      typedef std::pair<const std::string,boost::any> Property_t;
+      boost_foreach(const Property_t& property, properties() )
+        ss <<  "  - " << property.first << "=" << properties().value_str(property.first) << std::endl;
+    }
+    if (character == 't')
+    {
+      ss << "  tags:" << std::endl;
+      boost_foreach(const std::string& tag, get_tags() )
+        ss << "  - " << tag << std::endl;
+    }
   }
+  return ss.str();
+}
 
-  CFinfo << "  options:" << CFendl;
-  CFinfo << options().list_options() << CFendl;
-
-  CFinfo << "  properties:" << CFendl;
-  typedef std::pair<const std::string,boost::any> Property_t;
-  boost_foreach(const Property_t& property, properties() )
-    CFinfo << property.first << "=" << properties().value_str(property.first) << CFendl;
-
+void Component::signal_print_info ( SignalArgs& args  ) const
+{
+  CFinfo << info() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -665,26 +704,50 @@ void Component::signal_list_tree_recursive( SignalArgs& args) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Component::tree(Uint level) const
+std::string Component::tree(bool basic_mode, Uint depth, Uint recursion_level) const
 {
   std::string tree;
-  for (Uint i=0; i<level; i++)
-    tree += "  ";
-  tree += name() ;
-
-  if( is_not_null(dynamic_cast<Link const*>(this)) )
+  if (recursion_level<=depth || depth==0)
   {
-    Handle<Component const> linked = follow_link(*this);
-    tree += " -> " + (is_null(linked) ? "": linked->uri().string());
-  }
+    if ( !basic_mode || has_tag("basic") )
+    {
+      for (Uint i=0; i<recursion_level; i++)
+        tree += "  ";
+      tree += name() ;
 
-  tree += "\n";
+      if( is_not_null(dynamic_cast<Link const*>(this)) )
+      {
+        Handle<Component const> linked = follow_link(*this);
+        tree += " -> " + (is_null(linked) ? "": linked->uri().string());
+      }
 
-  boost_foreach( const Component& c, *this )
-  {
-    tree += c.tree(level+1);
+      tree += "\n";
+
+      boost_foreach( const Component& c, *this )
+      {
+        tree += c.tree(basic_mode,depth,recursion_level+1);
+      }
+    }
   }
   return tree;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_print_tree( SignalArgs& args ) const
+{
+  SignalOptions options( args );
+  CFinfo << tree(options.value<bool>("basic_mode"),options.value<Uint>("depth")) << CFendl;
+}
+
+void Component::signature_print_tree( SignalArgs& args ) const
+{
+  SignalOptions options( args );
+
+  options.add_option("basic_mode", false )
+      .description("If false, only components marked as basic will be printed");
+  options.add_option("depth", 0u )
+      .description("Define howmany levels will be printed");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,7 +763,6 @@ PropertyList& Component::properties()
 {
   return *m_properties;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -729,33 +791,33 @@ void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
 
- Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
- for( ; it != properties().store.end() ; it++)
- {
-   std::string name = it->first;
-   boost::any value = it->second;
+  for( ; it != properties().store.end() ; it++)
+  {
+    std::string name = it->first;
+    boost::any value = it->second;
 
-   std::string type = class_name_from_typeinfo( value.type() );
+    std::string type = class_name_from_typeinfo( value.type() );
 
-   if(type == Protocol::Tags::type<std::string>())
-     options.set_value<std::string>( name, any_to_value<std::string>(value) );
-   else if(type == Protocol::Tags::type<bool>())
-     options.set_value<bool>( name, any_to_value<bool>(value) );
-   else if(type == Protocol::Tags::type<int>())
-     options.set_value<int>( name, any_to_value<int>(value) );
-   else if(type == Protocol::Tags::type<Uint>())
-     options.set_value<Uint>( name, any_to_value<Uint>(value) );
-   else if(type == Protocol::Tags::type<Real>())
-     options.set_value<Real>( name, any_to_value<Real>(value) );
-   else if(type == Protocol::Tags::type<URI>())
-     options.set_value<URI>( name, any_to_value<URI>(value) );
-   else if(type == Protocol::Tags::type<UUCount>())
-     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
-   else
-     throw ShouldNotBeHere(FromHere(),
-                           std::string("Don't know how the manage [" + type + "] type."));
- }
+    if(type == Protocol::Tags::type<std::string>())
+      options.set_value<std::string>( name, any_to_value<std::string>(value) );
+    else if(type == Protocol::Tags::type<bool>())
+      options.set_value<bool>( name, any_to_value<bool>(value) );
+    else if(type == Protocol::Tags::type<int>())
+      options.set_value<int>( name, any_to_value<int>(value) );
+    else if(type == Protocol::Tags::type<Uint>())
+      options.set_value<Uint>( name, any_to_value<Uint>(value) );
+    else if(type == Protocol::Tags::type<Real>())
+      options.set_value<Real>( name, any_to_value<Real>(value) );
+    else if(type == Protocol::Tags::type<URI>())
+      options.set_value<URI>( name, any_to_value<URI>(value) );
+    else if(type == Protocol::Tags::type<UUCount>())
+      options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
+    else
+      throw ShouldNotBeHere(FromHere(),
+                            std::string("Don't know how the manage [" + type + "] type."));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1267,8 +1329,8 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   // get the factory holding the builder
   Handle<Component> factory = factories->get_child( factory_type_name );
-  
-    
+
+
   if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
@@ -1276,7 +1338,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   }
 
   factory = factories->get_child( factory_type_name );
-  
+
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
@@ -1363,7 +1425,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
@@ -1390,7 +1452,7 @@ boost::shared_ptr< Component > build_component_nothrow(const std::string& builde
   {
     if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
       return boost::shared_ptr<Component>();
-      
+
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 

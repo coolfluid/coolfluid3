@@ -17,8 +17,8 @@
 #include "mesh/Domain.hpp"
 #include "mesh/WriteMesh.hpp"
 
-#include "solver/CModelSteady.hpp"
-#include "solver/CSolver.hpp"
+#include "solver/ModelSteady.hpp"
+#include "solver/Solver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -47,12 +47,12 @@ using namespace cf3::mesh;
 using namespace cf3::physics;
 using namespace cf3::solver;
 
-common::ComponentBuilder < SteadyExplicit, cf3::solver::CWizard, LibRDM > SteadyExplicit_Builder;
+common::ComponentBuilder < SteadyExplicit, cf3::solver::Wizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  cf3::solver::CWizard ( name )
+  cf3::solver::Wizard ( name )
 {
   // signals
 
@@ -73,11 +73,11 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
 SteadyExplicit::~SteadyExplicit() {}
 
 
-CModel& SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
+Model& SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
   // (1) create the model
 
-  CModel& model = *common::Core::instance().root().create_component<CModelSteady>( model_name );
+  Model& model = *common::Core::instance().root().create_component<ModelSteady>( model_name );
 
   // (2) create the domain
 
@@ -100,7 +100,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
   // (4a) setup iterative solver reset action
 
   Handle<Reset> reset(solver->iterative_solver().pre_actions().create_component<Reset>("Reset"));
-  reset->options().configure_option( RDM::Tags::solver(), solver->handle<CSolver>() );
+  reset->options().configure_option( RDM::Tags::solver(), solver->handle<Solver>() );
 
   std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
                                                               ( RDM::Tags::wave_speed() );
@@ -117,7 +117,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   solver->configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver->configure_option_recursively( RDM::Tags::physical_model(), pm.handle<PhysModel>() );
-  solver->configure_option_recursively( RDM::Tags::solver(),         solver->handle<CSolver>() );
+  solver->configure_option_recursively( RDM::Tags::solver(),         solver->handle<Solver>() );
 
   CFinfo << tree() << CFendl;
   
