@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
 #include <boost/assign/list_of.hpp>
 
 #include "common/Builder.hpp"
@@ -82,10 +83,14 @@ bool Tetra3D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 
 void Tetra3D::compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mapped_coord)
 {
+  std::cout << "coord:\n" << coord << std::endl;
+  std::cout << "nodes:\n" << nodes << std::endl;
   RealMatrix3 M;
   M.col(0) = nodes.row(1) - nodes.row(0);
   M.col(1) = nodes.row(2) - nodes.row(0);
   M.col(2) = nodes.row(3) - nodes.row(0);
+  std::cout << "M:\n" << M << std::endl;
+  std::cout << "M.inverse():\n" << M.inverse() << std::endl;
 
   mapped_coord = M.inverse() * (coord - nodes.row(0).transpose());
 }
