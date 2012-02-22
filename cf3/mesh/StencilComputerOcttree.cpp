@@ -54,7 +54,7 @@ void StencilComputerOcttree::configure_mesh()
   if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  m_nb_elems_in_mesh = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
+  m_nb_elems_in_mesh = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
   m_dim = m_mesh->geometry_fields().coordinates().row_size();
 
   m_octtree->options().configure_option("mesh",m_mesh);

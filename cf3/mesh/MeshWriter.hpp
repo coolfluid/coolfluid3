@@ -9,19 +9,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/FindComponents.hpp"
 #include "common/Action.hpp"
-
 #include "mesh/LibMesh.hpp"
-#include "mesh/Mesh.hpp"
-#include "mesh/Elements.hpp"
-#include "mesh/Dictionary.hpp"
 
 namespace cf3 {
 namespace common {  class URI;  }
 namespace mesh {
 
+  class Mesh;
+  class Region;
   class Field;
+  class Entities;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,12 +28,6 @@ namespace mesh {
 /// the mesh to a file
 /// @author Willem Deconinck
 class Mesh_API MeshWriter : public common::Action {
-
-public: // typedefs
-
-  /// pointer to this type
-
-
 
 public: // functions
 
@@ -51,41 +43,58 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_write( common::SignalArgs& node  );
-
   // --------- Direct access ---------
 
   virtual std::string get_format() = 0;
 
   virtual std::vector<std::string> get_extensions() = 0;
 
-  virtual void write_from_to(const Mesh& mesh, const common::URI& filepath) = 0;
+//  virtual void write_from_to(const Mesh& mesh, const common::URI& filepath) = 0;
 
   virtual void execute();
 
+  /// @deprecated. Configure fields using uri's
   void set_fields(const std::vector<Handle<Field> >& fields);
+
+  /// @deprecated
+  virtual void write_from_to(const Mesh& mesh, const common::URI& file_path);
 
 private: // functions
 
-  void config_fields();
+  virtual void write() {};
 
-protected: // classes
+  void config_fields();  ///< configure fields from URI's
+  void config_regions(); ///< configure regions from URI's
 
-  class IsGroup
-  {
-   public:
-     IsGroup () {}
+private:
 
-     bool operator()(const Component& component)
-     {
-       return count(common::find_components<Entities>(component));
-     }
+  /// Predicate to check if a component directly contains any Entities component
+  struct RegionFilter {
+    bool enable_interior_faces;
+    bool enable_interior_cells;
+    bool enable_surfaces;
+    bool operator()(const Component& component);
+  };
 
-  }; // IsGroup
+  /// Predicate to check if a Entities component is to be included
+  struct EntitiesFilter {
+    bool enable_interior_faces;
+    bool enable_interior_cells;
+    bool enable_surfaces;
+    bool operator()(const Component& component);
+  };
+
 
 protected:
 
-  std::vector<Handle<Field> > m_fields;
+  common::URI                          m_file_path;          ///< File path to be configured
+  RegionFilter                         m_region_filter;      ///< Filters regions
+  EntitiesFilter                       m_entities_filter;    ///< Filters entities
+  Handle<Mesh const>                   m_mesh;               ///< Handle to configured mesh
+  std::vector<Handle<Field const> >    m_fields;             ///< Handle to configured fields
+  std::vector<Handle<Region const> >   m_regions;            ///< Handle to configured regions
+  std::vector<Handle<Entities const> > m_filtered_entities;  ///< Handle to selected entities
+  bool                                 m_enable_overlap;     ///< If true, writing of overlap will be enabled
 
 };
 

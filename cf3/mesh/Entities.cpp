@@ -219,6 +219,19 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Space& Entities::space (const Dictionary& dict)
+{
+  return const_cast<Space&>(dict.space(*this));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Space& Entities::space (const Dictionary& dict) const
+{
+  return dict.space(*this);
+}
+////////////////////////////////////////////////////////////////////////////////
+
 Uint Entities::size() const
 {
   return geometry_space().size();

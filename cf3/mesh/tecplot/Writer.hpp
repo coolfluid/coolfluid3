@@ -40,7 +40,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Writer"; }
 
-  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
+  virtual void write();
 
   virtual std::string get_format() { return "tecplot"; }
 
@@ -48,7 +48,7 @@ public: // functions
 
 private: // functions
 
-  void write_file(std::fstream& file, const Mesh& mesh);
+  void write_file(std::fstream& file);
 
   std::string zone_type(const ElementType& etype) const;
 
