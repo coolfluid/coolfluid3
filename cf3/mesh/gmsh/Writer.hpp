@@ -38,23 +38,23 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Writer"; }
 
-  virtual void write_from_to(const Mesh& mesh, const common::URI& file);
-
   virtual std::string get_format() { return "Gmsh"; }
 
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
 
-  void write_header(std::fstream& file, const Mesh& mesh);
+  virtual void write();
 
-  void write_coordinates(std::fstream& file, const Mesh& mesh);
+  void write_header(std::fstream& file);
 
-  void write_connectivity(std::fstream& file, const Mesh& mesh);
+  void write_coordinates(std::fstream& file);
+
+  void write_connectivity(std::fstream& file);
 
 //  void write_nodal_data(std::fstream& file);
 
-  void write_elem_nodal_data(std::fstream& file, const Mesh& mesh);
+  void write_elem_nodal_data(std::fstream& file);
 
 //  void write_element_data(std::fstream& file);
 
@@ -67,6 +67,8 @@ private: // data
   std::map<Entities const*,Uint> m_element_start_idx;
 
   Handle< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
+
+  std::vector< Handle<Entities const> > m_entities_vector;
 }; // end Writer
 
 

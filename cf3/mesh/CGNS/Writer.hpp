@@ -44,7 +44,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Writer"; }
 
-  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
+  virtual void write();
 
   virtual std::string get_format() { return "CGNS"; }
 

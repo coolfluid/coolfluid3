@@ -52,17 +52,17 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& path)
+void Writer::write()
 {
-  m_fileBasename = path.base_name(); // filename without extension
+  m_fileBasename = m_file_path.base_name(); // filename without extension
 
 
-  CFdebug << "Opening file " << path.path() << CFendl;
-  CALL_CGNS(cg_open(path.path().c_str(),CG_MODE_WRITE,&m_file.idx));
+  CFdebug << "Opening file " << m_file_path.path() << CFendl;
+  CALL_CGNS(cg_open(m_file_path.path().c_str(),CG_MODE_WRITE,&m_file.idx));
 
-  write_base(mesh);
+  write_base(*m_mesh);
 
-  CFdebug << "Closing file " << path.path() << CFendl;
+  CFdebug << "Closing file " << m_file_path.path() << CFendl;
   CALL_CGNS(cg_close(m_file.idx));
 
 }
@@ -97,7 +97,7 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
   BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(mesh.geometry_fields(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
-  m_zone.nbElements = region.recursive_elements_count();
+  m_zone.nbElements = region.recursive_elements_count(true);
 
   m_zone.nbBdryVertices = 0;
 
@@ -223,7 +223,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
     case MIXED:
     {
       CGNS_Section mixed_section;
-      int total_nbElems = section_region->recursive_elements_count();
+      int total_nbElems = section_region->recursive_elements_count(true);
       mixed_section.elemStartIdx = m_section.elemEndIdx + 1;
       mixed_section.elemEndIdx = m_section.elemEndIdx + total_nbElems;
       mixed_section.nbBdry = 0; // unsorted boundary

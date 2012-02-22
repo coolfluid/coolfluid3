@@ -230,13 +230,11 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
 
   Handle< MeshWriter > writer = m_extensions_to_writers[extension][0];
   writer->options().configure_option("fields",fields);
+  writer->options().configure_option("mesh",mesh.handle<Mesh>());
 
-  // write the mesh and notify output
-
-  writer->write_from_to(mesh, filepath );
+  writer->execute();
 
   CFinfo << "wrote mesh in file " << filepath.string() << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

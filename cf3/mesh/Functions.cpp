@@ -21,7 +21,7 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List< Uint > > create_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary)
+boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary, bool include_ghost_elems )
 {
   boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
 
@@ -41,13 +41,17 @@ boost::shared_ptr< List< Uint > > create_used_nodes_list( const std::vector< Han
 
     for (Uint idx=0; idx<nb_elems; ++idx)
     {
-      boost_foreach(const Uint node, space.connectivity()[idx])
+      // Don't include ghost-elements if not requested
+      if(include_ghost_elems || entities->is_ghost(idx) == false)
       {
-        cf3_assert(node<node_is_used.size());
-        if(!node_is_used[node])
+        boost_foreach(const Uint node, space.connectivity()[idx])
         {
-          node_is_used[node] = true;
-          ++nb_nodes;
+          cf3_assert(node<node_is_used.size());
+          if(!node_is_used[node])
+          {
+            node_is_used[node] = true;
+            ++nb_nodes;
+          }
         }
       }
     }
@@ -66,12 +70,16 @@ boost::shared_ptr< List< Uint > > create_used_nodes_list( const std::vector< Han
     const Uint nb_elems = space.size();
     for (Uint idx=0; idx<nb_elems; ++idx)
     {
-      boost_foreach(const Uint node, space.connectivity()[idx])
+      // Don't include ghost-elements if not requested
+      if(include_ghost_elems || entities->is_ghost(idx) == false)
       {
-        if(!node_is_used[node])
+        boost_foreach(const Uint node, space.connectivity()[idx])
         {
-          node_is_used[node] = true;
-          nodes_array[back++] = node;
+          if(!node_is_used[node])
+          {
+            node_is_used[node] = true;
+            nodes_array[back++] = node;
+          }
         }
       }
     }
@@ -79,6 +87,19 @@ boost::shared_ptr< List< Uint > > create_used_nodes_list( const std::vector< Han
 
   std::sort(used_nodes->array().begin(), used_nodes->array().end());
   return used_nodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component& node_user, const Dictionary& dictionary, bool include_ghost_elems )
+{
+  std::vector< Handle<Entities const> > entities_vector;
+  if (Handle<Entities const> entities_h = node_user.handle<Entities>())
+    entities_vector.push_back(entities_h);
+  else
+    entities_vector = range_to_const_vector( find_components_recursively<Entities>(node_user) );
+
+  return build_used_nodes_list(entities_vector,dictionary,include_ghost_elems);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -220,10 +220,10 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
+void Writer::write()
 {
   // Path for the file written by the current node
-  URI my_path(file_path.path());
+  URI my_path(m_file_path.path());
   const URI my_dir = my_path.base_path();
   const std::string basename = my_path.base_name();
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
@@ -239,7 +239,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
-  const Field& coords = mesh.topology().geometry_fields().coordinates();
+  const Field& coords = m_mesh->topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -253,7 +253,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   // Count number of elements
   Uint nb_elems = 0;
   Uint nb_conn_nodes = 0;
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -295,7 +295,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   connectivity.set_attribute("format", "appended");
   connectivity.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_conn_nodes, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -320,7 +320,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   offsets.set_attribute("offset", to_str(appended_data.offset()));
   boost::uint32_t offset = 0;
   appended_data.start_array(nb_elems, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -341,7 +341,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   types.set_attribute("format", "appended");
   types.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_elems, 1);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -411,7 +411,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       }
       else
       {
-        boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+        boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
         {
           const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))

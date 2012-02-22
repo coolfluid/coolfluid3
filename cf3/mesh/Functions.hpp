@@ -12,7 +12,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common { template <typename T> class List;}
+namespace common {
+class Component;
+template <typename T> class List;
+}
 namespace mesh {
 
   class Dictionary;
@@ -22,10 +25,19 @@ namespace mesh {
 
 /// create_used_nodes_list
 /// @brief Create a List<Uint> containing unique entries of all the nodes used by a vector of entities
-/// @param [in]  entities    vector of entities, that the unique nodes will be collected from
-/// @param [in]  dictionary  dictionary where the nodes are stored
+/// @param [in]  entities             vector of entities, that the unique nodes will be collected from
+/// @param [in]  dictionary           dictionary where the nodes are stored
+/// @param [in]  include_ghost_elems  if true, ghost elements will be included in the search
 /// @return used_nodes  List of used nodes
-boost::shared_ptr< common::List< Uint > > create_used_nodes_list( const std::vector< Handle<Entities const> >& entities, const Dictionary& dictionary);
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities, const Dictionary& dictionary, bool include_ghost_elems);
+
+/// create_used_nodes_list
+/// @brief Create a List<Uint> containing unique entries of all the nodes used by a vector of entities
+/// @param [in]  node_user   component being entities, or holding entities somewhere down in his tree
+/// @param [in]  dictionary  dictionary where the nodes are stored
+/// @param [in]  include_ghost_elems  if true, ghost elements will be included in the search
+/// @return used_nodes  List of used nodes
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const common::Component& node_user, const Dictionary& dictionary, bool include_ghost_elems);
 
 ////////////////////////////////////////////////////////////////////////////////
 

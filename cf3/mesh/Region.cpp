@@ -84,21 +84,46 @@ Elements& Region::create_elements(const std::string& element_type_name, Dictiona
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Region::global_elements_count() const
+Uint Region::global_elements_count(bool include_ghost_elems) const
 {
   Uint elem_count = 0;
-  boost_foreach (const Entities& elements, elements_range() )
-    elem_count += elements.glb_size();
+  if(include_ghost_elems)
+  {
+    boost_foreach (const Entities& elements, elements_range() )
+      elem_count += elements.glb_size();
+  }
+  else
+  {
+    throw NotImplemented(FromHere(),"TODO");
+  }
   return elem_count;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Region::recursive_elements_count() const
+Uint Region::recursive_elements_count(bool include_ghost_elems) const
 {
   Uint elem_count = 0;
-  boost_foreach (const Entities& elements, elements_range() )
-    elem_count += elements.size();
+  if(include_ghost_elems)
+  {
+    boost_foreach (const Entities& elements, elements_range() )
+      elem_count += elements.size();
+  }
+  else
+  {
+    Uint nb_ghost;
+    boost_foreach (const Entities& elements, elements_range() )
+    {
+      elem_count += elements.size();
+
+      // Count ghosts elements and subtract
+      nb_ghost = 0;
+      for (Uint e=0; e<elements.size(); ++e)
+        if (elements.is_ghost(e))
+          ++nb_ghost;
+      elem_count -= nb_ghost;
+    }
+  }
   return elem_count;
 }
 

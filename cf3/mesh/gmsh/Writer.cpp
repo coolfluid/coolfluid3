@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
+#include "common/Log.hpp"
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
@@ -92,11 +93,11 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
+void Writer::write()
 {
   // if the file is present open it
   boost::filesystem::fstream file;
-  boost::filesystem::path path (file_path.path());
+  boost::filesystem::path path (m_file_path.path());
   if (PE::Comm::instance().size() > 1)
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
@@ -109,12 +110,17 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
                                                 boost::system::error_code() );
   }
 
+  m_filtered_entities.clear();
+  boost_foreach(const Handle<Region const>& region, m_regions)
+    boost_foreach(const Entities& entities, find_components_recursively_with_filter<Entities>(*region,m_entities_filter))
+      m_filtered_entities.push_back(entities.handle<Entities>());
+
   // must be in correct order!
-  write_header(file, mesh);
+  write_header(file);
   m_cf_2_gmsh_node->clear();
-  write_coordinates(file, mesh);
-  write_connectivity(file, mesh);
-  write_elem_nodal_data(file, mesh);
+  write_coordinates(file);
+  write_connectivity(file);
+  write_elem_nodal_data(file);
   //write_nodal_data(file);
   //write_element_data(file);
   file.close();
@@ -122,7 +128,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_header(std::fstream& file, const Mesh& mesh)
+void Writer::write_header(std::fstream& file)
 {
   std::string version = "2";
   Uint file_type = 0; // ASCII
@@ -135,44 +141,57 @@ void Writer::write_header(std::fstream& file, const Mesh& mesh)
 
   m_groupnumber.clear();
 
-  // physical names
+  // Count the number of physical groups
   Uint phys_name_counter(0);
-  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
+  std::vector< Handle<Region const> > phys_group_regions;
+  cf3_assert(m_regions.size());
+  boost_foreach(const Handle<Region const>& region, m_regions)
   {
-    ++phys_name_counter;
+    // Just in case this region itself contains entities
+    if (m_region_filter(*region))
+    {
+      ++phys_name_counter;
+      phys_group_regions.push_back(region);
+    }
+    else // look inside this region for regions containing entities
+    {
+      boost_foreach(const Region& phys_group_region, find_components_recursively_with_filter<Region>(*region,m_region_filter))
+      {
+        ++phys_name_counter;
+        phys_group_regions.push_back(phys_group_region.handle<Region>());
+      }
+    }
   }
 
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
 
   phys_name_counter=0;
-  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
+  boost_foreach(const Handle<Region const>& phys_group_region, phys_group_regions)
   {
-    std::string name = groupRegion.uri().path();
-    boost::algorithm::replace_first(name,mesh.topology().uri().path()+"/","");
-    m_groupnumber[groupRegion.uri().path()] = ++phys_name_counter;
+    std::string name = phys_group_region->uri().path();
+    boost::algorithm::replace_first(name,m_mesh->topology().uri().path()+"/","");
+    m_groupnumber[phys_group_region->uri().path()] = ++phys_name_counter;
 
     Uint group_dimensionality(0);
-    boost_foreach(const Elements& elements, find_components<Elements>(groupRegion))
+    boost_foreach(const Elements& elements, find_components_with_filter<Elements>(*phys_group_region,m_entities_filter))
       group_dimensionality = std::max(group_dimensionality, elements.element_type().dimensionality());
 
     file << group_dimensionality << " " << phys_name_counter << " \"" << name << "\"\n";
-
   }
   file << "$EndPhysicalNames\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
+void Writer::write_coordinates(std::fstream& file)
 {
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
 
   // Assemble a list of all the coordinates that are used in this mesh
-  std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively_with_filter<Entities>(mesh,m_entities_filter));
-  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = create_used_nodes_list(entities_vector,mesh.geometry_fields());
+  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = build_used_nodes_list(m_filtered_entities,m_mesh->geometry_fields(),m_enable_overlap);
   const common::List<Uint>& used_nodes = *used_nodes_ptr;
 
   // Create a mapping between the actual node-numbering in the mesh, and the node-numbering to be written
@@ -183,8 +202,9 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
   file << "$Nodes\n";
   file << nb_nodes << "\n";
 
+  const Uint nb_dim = m_mesh->dimension();
   Uint node_number=0;
-  const common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
+  const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
@@ -193,7 +213,7 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
     file << ++node_number << " ";
     for (Uint d=0; d<3; d++)
     {
-      if (d<mesh.dimension())
+      if (d<nb_dim)
         file << coord[d] << " ";
       else
         file << 0 << " ";
@@ -208,7 +228,7 @@ void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
+void Writer::write_connectivity(std::fstream& file)
 {
   /// Elements section:
   /// @code
@@ -218,11 +238,14 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
   /// $EndElements
   /// @endcode
 
-  Uint nbElems = mesh.topology().recursive_filtered_elements_count(m_entities_filter);
+  Uint nb_elems = 0;
+  boost_foreach(const Handle<Region const>& region, m_regions)
+      nb_elems += region->recursive_filtered_elements_count(m_entities_filter,m_enable_overlap);
+
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Elements\n";
-  file << nbElems << "\n";
+  file << nb_elems << "\n";
   std::string group_name("");
   Uint group_number;
   Uint elm_type;
@@ -231,23 +254,26 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
   Uint partition_number = PE::Comm::instance().rank();
 
   Uint elementary_entity_index=1;
-  boost_foreach(const Entities& elements, find_components_recursively_with_filter<Entities>(mesh,m_entities_filter))
+  boost_foreach(const Handle<Entities const>& elements, m_filtered_entities)
   {
-    group_name = elements.parent()->uri().path();
+    group_name = elements->parent()->uri().path();
     group_number = m_groupnumber[group_name];
-
-    m_element_start_idx[&elements]=elm_number;
-
-    elm_type = m_elementTypes[elements.element_type().derived_type_name()];
-    const Uint nb_elem = elements.size();
-    for (Uint e=0; e<nb_elem; ++e, ++elm_number)
+    m_element_start_idx[elements.get()]=elm_number;
+    elm_type = m_elementTypes[elements->element_type().derived_type_name()];
+    const Connectivity& element_connectivity = elements->geometry_space().connectivity();
+    const Uint nb_elem = elements->size();
+    for (Uint e=0; e<nb_elem; ++e)
     {
-      file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
-      boost_foreach(const Uint node_idx, elements.geometry_space().connectivity()[e])
+      if( m_enable_overlap || !elements->is_ghost(e) )
       {
-        file << " " << to_gmsh_node[node_idx];
+        file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
+        boost_foreach(const Uint node_idx, element_connectivity[e])
+        {
+          file << " " << to_gmsh_node[node_idx];
+        }
+        file << "\n";
+        ++elm_number;
       }
-      file << "\n";
     }
     ++elementary_entity_index;
   }
@@ -257,7 +283,7 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
 //////////////////////////////////////////////////////////////////////
 
 
-void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
+void Writer::write_elem_nodal_data(std::fstream& file)
 {
 //  $ElementNodeData
 //  number-of-string-tags
@@ -290,10 +316,22 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
       const std::string field_name = field.name();
       const std::string field_basis = field.continuous() ? "continuous" : "discontinuous";
       Uint nb_elements = 0;
-      boost_foreach(const Handle<Entities>& elements, field.entities_range())
+      boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
-        if (m_entities_filter(*elements))
-          nb_elements += elements->size();
+        if (field.dict().defined_for_entities(elements_handle))
+        {
+          nb_elements += elements_handle->size();
+          if (m_enable_overlap==false)
+          {
+            Uint nb_ghost=0;
+            for(Uint e=0; e<elements_handle->size(); ++e)
+            {
+              if (elements_handle->is_ghost(e))
+                ++nb_ghost;
+            }
+            nb_elements -= nb_ghost;
+          }
+        }
       }
       // data_header
       Uint row_idx=0;
@@ -324,9 +362,9 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
         file << 1 << "\n" << field_time << "\n";
         file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
 
-        boost_foreach(const Handle<Entities const>& elements_handle, field.entities_range() )
+        boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
         {
-          if (m_entities_filter(*elements_handle))
+          if (field.dict().defined_for_entities(elements_handle))
           {
             const Entities& elements = *elements_handle;
             const Space& field_space = field.space(elements);
@@ -341,43 +379,46 @@ void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
             /// write element
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
-              file << ++elm_number << " " << nb_nodes << " ";
-
-              /// set field data
-              Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
-              for (Uint iState=0; iState<nb_states; ++iState)
+              if (m_enable_overlap || !elements.is_ghost(local_elm_idx))
               {
-                for (Uint j=0; j<var_type; ++j)
-                  field_data(iState,j) = field[field_indexes[iState]][row_idx+j];
-              }
+                file << ++elm_number << " " << nb_nodes << " ";
 
-              for (Uint iNode=0; iNode<nb_nodes; ++iNode)
-              {
-                /// get element_node local coordinates
-                RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
-
-                /// evaluate field shape function in element_node
-                RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
-                cf3_assert(node_data.size() == var_type);
-
-                if (var_type==Field::TENSOR_2D)
-                {
-                  data[0]=node_data[0];
-                  data[1]=node_data[1];
-                  data[3]=node_data[2];
-                  data[4]=node_data[3];
-                  for (Uint idx=0; idx<datasize; ++idx)
-                    file << " " << data[idx];
-                }
-                else
+                /// set field data
+                Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
+                for (Uint iState=0; iState<nb_states; ++iState)
                 {
                   for (Uint j=0; j<var_type; ++j)
-                    file << " " << node_data[j];
-                  if (var_type == Field::VECTOR_2D)
-                    file << " " << 0.0;
+                    field_data(iState,j) = field[field_indexes[iState]][row_idx+j];
                 }
+
+                for (Uint iNode=0; iNode<nb_nodes; ++iNode)
+                {
+                  /// get element_node local coordinates
+                  RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
+
+                  /// evaluate field shape function in element_node
+                  RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
+                  cf3_assert(node_data.size() == var_type);
+
+                  if (var_type==Field::TENSOR_2D)
+                  {
+                    data[0]=node_data[0];
+                    data[1]=node_data[1];
+                    data[3]=node_data[2];
+                    data[4]=node_data[3];
+                    for (Uint idx=0; idx<datasize; ++idx)
+                      file << " " << data[idx];
+                  }
+                  else
+                  {
+                    for (Uint j=0; j<var_type; ++j)
+                      file << " " << node_data[j];
+                    if (var_type == Field::VECTOR_2D)
+                      file << " " << 0.0;
+                  }
+                }
+                file << "\n";
               }
-              file << "\n";
             }
           }
         }

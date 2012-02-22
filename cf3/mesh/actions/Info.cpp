@@ -119,7 +119,7 @@ std::string Info::print_region_tree(const Region& region, Uint level)
 
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + to_str(region.recursive_elements_count()) +  ")\n";
+  tree += region.name() + " (" + to_str(region.recursive_elements_count(true)) +  ")\n";
 
   tree += print_elements(region,level+1);
 

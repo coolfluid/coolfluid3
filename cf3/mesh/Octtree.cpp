@@ -115,7 +115,7 @@ void Octtree::create_octtree()
     V*=L[d];
   }
 
-  const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
+  const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
 
   if (options().option("nb_cells").value<std::vector<Uint> >().size() > 0)
   {
