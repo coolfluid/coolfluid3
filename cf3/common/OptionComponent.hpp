@@ -14,6 +14,7 @@
 #include <boost/foreach.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
 #include "common/Option.hpp"
 #include "common/Component.hpp"
@@ -51,19 +52,32 @@ public:
   
   virtual void change_value(const boost::any& value)
   {
-    typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
-    const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
-    if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
-    {
-      // value passed as a handle to the component base class, so we need to dynamic cast
-      Handle<T> cast_value(*generic_handle);
-      if(is_null(cast_value))
-        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
-      m_value = Handle<T>(*generic_handle);
-    }
-    else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
+    typedef typename boost::remove_const<T>::type non_const_T;
+
+    if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
     {
       m_value = value;
+    }
+    else if (const Handle<non_const_T>* component_handle = boost::any_cast< Handle<non_const_T> >(&value) )
+    {
+      Handle<T> cast_value = const_cast<T&>( *(*component_handle) ).template handle<T>();
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
+      m_value = cast_value;
+    }
+    else if (const Handle<Component>* component_handle = boost::any_cast< Handle<Component> >(&value) )
+    {
+      Handle<T> cast_value(*component_handle);
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
+      m_value = cast_value;
+    }
+    else if (const Handle<Component const>* component_handle = boost::any_cast< Handle<Component const> >(&value) )
+    {
+      Handle<T> cast_value = const_cast<Component&>( *(*component_handle) ).template handle<T>();
+      if(is_null(cast_value))
+        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
+      m_value = cast_value;
     }
     else
     {

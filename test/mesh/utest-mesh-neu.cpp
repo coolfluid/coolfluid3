@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
-  CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
+  CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
   CFinfo << "nodes count    = " << find_component<Region>(mesh).recursive_nodes_count() << CFendl;
 
   Uint nb_ghosts=0;

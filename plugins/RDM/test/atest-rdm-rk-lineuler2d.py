@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+mesh = domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -109,7 +109,7 @@ fields=[
 #gmsh_writer.execute()
 
 tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+tecplot_writer.options().configure_option('mesh',mesh)
 tecplot_writer.options().configure_option('fields',fields)
 tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
 #tecplot_writer.execute()

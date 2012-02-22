@@ -54,7 +54,7 @@ solver.access_component('Time').options().configure_option('end_time',3000000)
 solver.access_component('Time').options().configure_option('time_step',1)
 solver.access_component('TimeStepping').options().configure_option('time_accurate',True);         # time accurate for initial stability
 solver.access_component('TimeStepping').options().configure_option('cfl','min(0.5,0.0001*i)');    # increasing cfl number
-solver.access_component('TimeStepping').options().configure_option('max_iteration',1000);           # limit the number of iterations (default = no limit)
+solver.access_component('TimeStepping').options().configure_option('max_iteration',100);           # limit the number of iterations (default = no limit)
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3) # Runge Kutta number of stages
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -105,7 +105,7 @@ mesh.access_component('solution_space/delta').uri()
 ]
 
 gmsh_writer = model.create_component('init_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:initial.msh'))
 gmsh_writer.execute()
@@ -162,7 +162,7 @@ mesh.access_component('solution_space/wave_speed').uri()
 # gmsh
 ######
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
 gmsh_writer.execute()
@@ -197,7 +197,7 @@ gmsh_writer.execute()
 
 ## Write visualization mesh
 #tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-#tec_writer.options().configure_option('mesh',visualization_mesh.uri())
+#tec_writer.options().configure_option('mesh',visualization_mesh)
 #tec_writer.options().configure_option('fields',fields)
 #tec_writer.options().configure_option('cell_centred',True)
 #tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
