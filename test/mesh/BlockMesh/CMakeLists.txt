@@ -23,14 +23,13 @@ coolfluid_add_test( UTEST     utest-blockmesh-3d-mpi
 
 ################################################################################
 
-coolfluid_add_python_test(UTEST NAME utest-blockmesh-channelgenerator
-                          SCRIPT utest-blockmesh-channelgenerator.py
-                          MPI NBPROCS 4)
+coolfluid_add_test( UTEST    utest-blockmesh-channelgenerator
+                    PYTHON   utest-blockmesh-channelgenerator.py
+                    MPI      4 )
 
 ################################################################################
 
-
-coolfluid_add_python_test(UTEST NAME utest-blockmesh-generation
-                          SCRIPT utest-blockmesh-generation.py)
+coolfluid_add_test( UTEST    utest-blockmesh-generation
+                    PYTHON   utest-blockmesh-generation.py )
 
 ################################################################################
