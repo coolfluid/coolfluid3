@@ -26,6 +26,7 @@
 
 //#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
+#include "solver/Time.hpp"
 #include "solver/actions/SynchronizeFields.hpp"
 #include "solver/actions/ComputeLNorm.hpp"
 
@@ -91,12 +92,13 @@ SDSolver::SDSolver ( const std::string& name  ) :
       .attach_trigger( boost::bind ( &SDSolver::config_iterative_solver, this ))
       .mark_basic();
 
+  m_time = create_component<Time>("Time");
+  options().add_option(Tags::time(), m_time)
+      .description("Time tracking component")
+      .pretty_name("Time")
+      .attach_trigger( boost::bind( &SDSolver::config_time, this) )
+      .mark_basic();
 
-//  options().add_option("riemann_solver", "cf3.RiemannSolvers.Roe")
-//    .description("The component to solve the Rieman Problem on cell-faces")
-//    .pretty_name("Riemann Solver")
-//    .mark_basic()
-//    .attach_trigger ( boost::bind ( &SDSolver::build_riemann_solver, this) );
  options().option(sdm::Tags::physical_model()).attach_trigger ( boost::bind ( &SDSolver::config_physics, this ) );
 
   m_shared_caches = create_component<SharedCaches>(Tags::shared_caches());
@@ -117,6 +119,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
   m_initial_conditions  = create_static_component< InitialConditions >( InitialConditions::type_name() );
 
   m_time_stepping    = create_static_component< TimeStepping >( TimeStepping::type_name() );
+  m_time_stepping->options().configure_option(Tags::time(),m_time);
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
   conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
@@ -159,6 +162,24 @@ void SDSolver::config_iterative_solver()
   m_iterative_solver = m_time_stepping->create_component("IterativeSolver",options().option("iterative_solver").value_str())->handle<IterativeSolver>();
   m_iterative_solver->pre_update().add_link(*m_domain_discretization);
   m_iterative_solver->post_update().add_link(*m_boundary_conditions);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SDSolver::config_time()
+{
+  Handle<Time> new_time_component = options().option(Tags::time()).value< Handle<Time> >();
+  if (is_null(new_time_component))
+    throw SetupError(FromHere(),"Time is not setup correctly");
+  if (new_time_component != m_time)
+  {
+    if (Handle<Component> owned_child = get_child(m_time->name()))
+      if (owned_child == m_time->handle<Component>())
+        remove_component(*m_time);
+    m_time = new_time_component;
+    m_time_stepping->options().configure_option(solver::Tags::time(),m_time);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

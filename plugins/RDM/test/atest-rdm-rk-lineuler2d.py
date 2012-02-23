@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+mesh = domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -46,7 +46,6 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 #root.list_tree_recursive()
 #print("----------------------------------------------------------------------------------------------------------")
 
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time', 0.)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
 solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 50)
@@ -110,7 +109,7 @@ fields=[
 #gmsh_writer.execute()
 
 tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+tecplot_writer.options().configure_option('mesh',mesh)
 tecplot_writer.options().configure_option('fields',fields)
 tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
 #tecplot_writer.execute()

@@ -28,7 +28,7 @@ domain  = model.create_domain()
 mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/circle-quad-p1-32.msh'), name = 'circle');
 
 gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:load.msh'))
 gmsh_writer.execute()
 
@@ -39,9 +39,9 @@ solver.options().configure_option('solution_order',4)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
+solver.access_component('Time').options().configure_option('time_step',1.);
+solver.access_component('Time').options().configure_option('end_time',0.3);
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
-solver.access_component('TimeStepping/Time').options().configure_option('time_step',1.);
-solver.access_component('TimeStepping/Time').options().configure_option('end_time',0.3);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -97,7 +97,7 @@ mesh.access_component('solution_space/residual').uri()
 # tecplot
 #########
 tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-tec_writer.options().configure_option('mesh',mesh.uri())
+tec_writer.options().configure_option('mesh',mesh)
 tec_writer.options().configure_option('fields',fields)
 tec_writer.options().configure_option('cell_centred',False)
 tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
@@ -106,7 +106,7 @@ tec_writer.execute()
 # gmsh
 ######
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
 gmsh_writer.execute()

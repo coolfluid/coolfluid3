@@ -6,10 +6,10 @@ coolfluid_add_test( UTEST utest-blockmesh-2d
 
 ################################################################################
 
-coolfluid_add_test( UTEST utest-blockmesh-2d-mpi
-                    CPP utest-blockmesh-2d-mpi.cpp
-                    LIBS coolfluid_mesh coolfluid_mesh_blockmesh
-                    MPI 8 )
+coolfluid_add_test( UTEST  utest-blockmesh-2d-mpi
+                    CPP    utest-blockmesh-2d-mpi.cpp
+                    LIBS   coolfluid_mesh coolfluid_mesh_blockmesh
+                    MPI    8 )
 
 ################################################################################
 

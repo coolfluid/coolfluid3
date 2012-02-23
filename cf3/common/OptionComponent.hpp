@@ -69,7 +69,7 @@ public:
     
     if(!success)
     {
-      throw BadValue(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
+      throw CastingFailed(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
     }
       
     copy_to_linked_params(m_linked_params);

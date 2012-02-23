@@ -103,7 +103,7 @@ void Info::execute()
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const Field& field, find_components<Field>(mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << Dictionary::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << (field.continuous()? "continuous" : "discontinuous" ) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;
@@ -119,7 +119,7 @@ std::string Info::print_region_tree(const Region& region, Uint level)
 
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + to_str(region.recursive_elements_count()) +  ")\n";
+  tree += region.name() + " (" + to_str(region.recursive_elements_count(true)) +  ")\n";
 
   tree += print_elements(region,level+1);
 

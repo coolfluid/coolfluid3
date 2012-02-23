@@ -53,7 +53,7 @@ public: // functions
   Time& create_time(const std::string& name = "Time");
   
   /// Signal to create time
-  void signal_create_time(common::SignalArgs node);
+  void signal_create_time(common::SignalArgs& node);
   
   /// Reference to the time
   Time& time();

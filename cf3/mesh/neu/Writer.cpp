@@ -64,11 +64,11 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
+void Writer::write()
 {
   // if the file is present open it
   boost::filesystem::fstream file;
-  boost::filesystem::path path(file_path.path());
+  boost::filesystem::path path(m_file_path.path());
   CFinfo <<  "Opening file " <<  path.string() << CFendl;
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
@@ -79,14 +79,13 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   m_fileBasename = boost::filesystem::basename(path);
 
   // must be in correct order!
-  write_headerData(file, mesh);
-  write_coordinates(file, mesh);
-  write_connectivity(file, mesh);
-  write_groups(file, mesh);
-  write_boundaries(file, mesh);
+  write_headerData(file, *m_mesh);
+  write_coordinates(file, *m_mesh);
+  write_connectivity(file, *m_mesh);
+  write_groups(file, *m_mesh);
+  write_boundaries(file, *m_mesh);
 
   file.close();
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -103,7 +102,7 @@ void Writer::write_headerData(std::fstream& file, const Mesh& mesh)
   const Uint node_counter = mesh.geometry_fields().size();
 
 
-  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
+  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
   {
     bool isGroupBC(false);
     boost_foreach(const Elements& elementregion, find_components_recursively<Elements>(group))
@@ -238,7 +237,7 @@ void Writer::write_groups(std::fstream& file, const Mesh& mesh)
 {
   Uint group_counter(0);
 
-  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
+  boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(mesh,m_region_filter))
   {
     bool isBC(false);
     boost_foreach(const Elements& elementregion, find_components_recursively <Elements>(group))
@@ -313,7 +312,7 @@ void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
     boost_foreach(Handle< Region const > group, bc_regions) // For each boundary condition
     {
       file << " BOUNDARY CONDITIONS 2.3.16\n";
-      file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count() << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
+      file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count(m_enable_overlap) << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
 
       boost_foreach(const Elements& elementregion, find_components_recursively<Elements>(*group))  // for each element type in this BC
       {

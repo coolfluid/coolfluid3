@@ -23,8 +23,6 @@
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 
-#include "solver/Time.hpp"
-#include "solver/Model.hpp"
 #include "solver/Solver.hpp"
 
 #include "physics/Variables.hpp"

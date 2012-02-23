@@ -56,11 +56,11 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
+void Writer::write()
 {
   // if the file is present open it
   boost::filesystem::fstream file;
-  boost::filesystem::path path(file_path.path());
+  boost::filesystem::path path(m_file_path.path());
   if (PE::Comm::instance().size() > 1)
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
@@ -79,7 +79,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const Field& coords = mesh.topology().geometry_fields().coordinates();
+  const Field& coords = m_mesh->topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -104,7 +104,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   // Count number of elements, and the total number of connectivity nodes
   Uint nb_elems = 0;
   Uint nb_nodes = 0;
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -115,7 +115,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   // Output connectivity data
   file << "\nCELLS " << nb_elems << " " << nb_nodes << "\n";
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -135,7 +135,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   // Output element types
   file << "\nCELL_TYPES " << nb_elems << "\n";
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -150,12 +150,12 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_ptr, m_fields)
   {
     const Field& field = *field_ptr;
 
-    // must be point based
-    if(field.basis() != Dictionary::Basis::POINT_BASED)
+    // must be continuous
+    if( field.discontinuous() )
       continue;
 
     // size must be correct

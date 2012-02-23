@@ -17,7 +17,7 @@
 
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Dictionary.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -83,10 +83,9 @@ void BuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
-  Dictionary& faces_P0 = *mesh.create_component<Dictionary>("faces_P0");
+  Dictionary& faces_P0 = *mesh.create_component<DiscontinuousDictionary>("faces_P0");
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(mesh.topology(),mesh::Tags::face_entity()))
     faces.create_space("cf3.mesh.LagrangeP0."+faces.element_type().shape_name(),faces_P0);
-  faces_P0.options().configure_option("type",Dictionary::Basis::to_str(Dictionary::Basis::ELEMENT_BASED));
   faces_P0.update();
 
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");

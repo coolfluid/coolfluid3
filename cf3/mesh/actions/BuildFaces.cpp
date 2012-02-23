@@ -249,7 +249,7 @@ void BuildFaces::build_faces_bottom_up(Component& parent)
       Region& outer_faces = region.create_region(mesh::Tags::outer_faces());
       outer_faces.add_tag(mesh::Tags::outer_faces());
       build_face_elements(outer_faces,face_to_cell, false);
-      if (outer_faces.global_elements_count() == 0)
+      if (outer_faces.global_elements_count(true) == 0)
         region.remove_component(outer_faces.name());
 
       region.remove_component(face_to_cell);
