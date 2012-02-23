@@ -66,7 +66,7 @@ void AdvanceTime::execute ()
 {
   Time& time = this->time();
   time.options().configure_option("iteration", time.iter() + 1);
-  time.options().configure_option("time", time.dt() * static_cast<Real>(time.iter()));
+  time.options().configure_option("current_time", time.dt() * static_cast<Real>(time.iter()));
 
   // TODO: this should really be handled in another way. Needing to configure a time advancement action with a mesh is too much hassle
   if(is_not_null(m_mesh))

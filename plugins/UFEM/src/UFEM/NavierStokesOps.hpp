@@ -26,7 +26,7 @@ struct SUPGCoeffs
 
   /// Density
   Real rho;
-  
+
   /// Inverse density
   Real one_over_rho;
 
@@ -34,52 +34,57 @@ struct SUPGCoeffs
   Real tau_ps, tau_su, tau_bulk;
 };
 
+/// Helper struct to get the face normals of an element
+template<typename ElementT>
+struct ElementNormals
+{
+  typedef Eigen::Matrix<Real, ElementT::nb_faces, ElementT::dimension> NormalsT;
+  
+  void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
+  {
+    const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
+    const mesh::ElementType& face_etype = ElementT::face_type(0);
+    const Uint nb_face_nodes = face_etype.nb_nodes();
+    RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
+    RealVector normal(ElementT::dimension);
+    for(Uint i = 0; i != ElementT::nb_faces; ++i)
+    {
+      for(Uint j = 0; j != nb_face_nodes; ++j)
+        face_nodes.row(j) = nodes.row(face_conn.nodes[nb_face_nodes*i+j]);
+      face_etype.compute_normal(face_nodes, normal);
+      normals.row(i) = face_etype.area(face_nodes) * normal;
+    }
+  }
+};
+
 struct ComputeTau
 {
-  /// Dummy result
   typedef void result_type;
 
   template<typename UT>
   void operator()(const UT& u, SUPGCoeffs& coeffs) const
   {
-    apply(boost::mpl::int_<UT::dimension>(), u, coeffs);
-  }
-  
-  /// Static dispatch for 1D case
-  template<typename UT>
-  void apply(const boost::mpl::int_<1>, const UT& u, SUPGCoeffs& coeffs) const
-  {
-    throw common::NotImplemented(FromHere(), "1D PSPG and SUPG stabilization is not implemented");
-  }
-  
-  /// Static dispatch for 2D case
-  template<typename UT>
-  void apply(const boost::mpl::int_<2>, const UT& u, SUPGCoeffs& coeffs) const
-  {
-    const Real he=sqrt(4./3.141592654*u.support().volume());
+    typedef typename UT::EtypeT ElementT;
+    
+    const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : pow(3./4./3.141592654*u.support().volume(),1./3.);
     const Real ree=coeffs.rho*coeffs.u_ref*he/(2.*coeffs.mu);
     const Real xi=std::max(0.,std::min(ree/3.,1.));
     coeffs.tau_ps = he*xi/(2.*coeffs.u_ref);
     coeffs.tau_bulk = he*coeffs.u_ref/xi;
 
     // Average cell velocity
-    const RealVector2 u_avg = u.value().colwise().mean();
+    const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
     const Real umag = u_avg.norm();
     coeffs.tau_su = 0.;
     if(umag > 1e-10)
     {
-      const Real h = 2. * u.support().volume() / (u.support().nodes() * (u_avg / umag)).array().abs().sum();
+      typename ElementNormals<ElementT>::NormalsT normals;
+      ElementNormals<ElementT>()(u.support().nodes(), normals);
+      const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
       Real ree=coeffs.rho*umag*h/(2.*coeffs.mu);
       Real xi=std::max(0.,std::min(ree/3.,1.));
       coeffs.tau_su = h*xi/(2.*umag);
     }
-  }
-  
-  /// Static dispatch for 3D case
-  template<typename UT>
-  void apply(const boost::mpl::int_<3>, const UT& u, SUPGCoeffs& coeffs) const
-  {
-    throw common::NotImplemented(FromHere(), "3D PSPG and SUPG stabilization is not implemented");
   }
 };
 

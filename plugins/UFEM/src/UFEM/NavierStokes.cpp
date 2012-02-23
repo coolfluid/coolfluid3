@@ -75,7 +75,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
   MeshTerm<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
-  
+
   boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
   time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
@@ -109,7 +109,7 @@ NavierStokes::NavierStokes(const std::string& name) :
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
+              _A(u[_i], u[_j]) += transpose(m_coeffs.tau_bulk*nabla(u)[_i] + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j], // Bulk viscosity and skew symmetric part
               _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u))         * N(u)          // Time, standard and SUPG
             ),

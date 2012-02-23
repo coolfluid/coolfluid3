@@ -10,6 +10,9 @@
 #include <boost/accumulators/statistics/count.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
+#ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
+#endif
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include <boost/bind.hpp>
@@ -173,7 +176,7 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j] // Bulk viscosity
+              _A(u[_i], u[_j]) += transpose(m_coeffs.tau_bulk*nabla(u)[_i] + 0.5*u_adv[_i]*N(u)) * nabla(u)[_j] // Bulk viscosity and skew symmetric part
             ),
             system_matrix += _A,
             system_rhs += -_A * _b
