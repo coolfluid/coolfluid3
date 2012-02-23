@@ -20,6 +20,15 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "python/ScriptEngine.hpp"
+#include <vector>
+#include <string>
+#include <stdio.h>
+
+#include <Python.h>
+#include <cStringIO.h>
+#include <compile.h>
+#include <eval.h>
+
 
 namespace cf3 {
 namespace python {
@@ -31,78 +40,284 @@ using namespace common::XML;
 
 ComponentBuilder < ScriptEngine, Component, LibPython > ScriptEngine_Builder;
 
+
+int ScriptEngine::python_close=0;
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
-  if(!Py_IsInitialized())
-  {
-    const boost::filesystem::path dso_dir = boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso");
-    OSystem::setenv("PYTHONPATH", dso_dir.string());
-    Py_Initialize();
-  }
-  
-  regist_signal( "execute_script" )
-    .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
-    .description("Execute a python script, passed as string")
-    .pretty_name("Execute Script")
-    .signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
+    python_close++;
+    if(!Py_IsInitialized())
+    {
+        const boost::filesystem::path dso_dir = boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso");
+        OSystem::setenv("PYTHONPATH", dso_dir.string());
+        Py_Initialize();
+        local_scope = boost::python::handle<>(PyDict_New());
+        global_scope = boost::python::handle<>(PyDict_New());
+        PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
+        execute_script("import sys\n"
+                       "import ctypes as dl\n"
+                       "from libcoolfluid_python import *\n"
+                       "class SimpleStringStack(object):\n"
+                       "\tdef __init__(self):\n"
+                       "\t\tself.data = ''\n"
+                       "\tdef write(self, ndata):\n"
+                       "\t\tself.data = self.data + ndata\n"
+                       "stdoutStack = SimpleStringStack()\n"
+                       "sys.stdout = stdoutStack\n"
+                       "stderrStack = SimpleStringStack()\n"
+                       "sys.stderr = stderrStack\n");
+        flush_python_stdout();
+        /*std::vector<std::string>glb;
+        read_dictionary(local_scope.get(),&glb);
+        for (int i=0;i<glb.size();i++)
+            CFinfo << glb[i] << CFendl;*/
+/*                       "root = Core.root()\n"
+                       "model = root.create_component('model', 'cf3.solver.Model')\n"
+                       "domain = model.create_domain()\n"
+                       "solver = model.create_solver('cf3.solver.SimpleSolver')\n"
+                       "phys_model = model.create_physics('cf3.physics.DynamicModel')\n");*/
+        //m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
+    }
+    regist_signal( "execute_script" )
+            .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
+            .description("Execute a python script, passed as string")
+            .pretty_name("Execute Script")
+            .signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
+    regist_signal( "get_complation" )
+            .connect( boost::bind( &ScriptEngine::signal_complation, this, _1 ) )
+            .description("Retrieve the complation list")
+            .pretty_name("Complation list");
+    signal("get_complation")->hidden(true);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
 ScriptEngine::~ScriptEngine()
 {
+    if (--python_close == 0){
+        Py_Finalize();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::execute_script(std::string script)
 {
-  //TODO: Redirect output
-  //PySys_SetObject(const_cast<char*>("stdout"), boost::python::object(*stdout_signal).ptr());
-  //PySys_SetObject(const_cast<char*>("stderr"), boost::python::object(*stderr_signal).ptr());
-
-
-  // Remove dos line endings
-  script.erase(std::remove(script.begin(), script.end(), '\r'), script.end());
-
-  boost::python::handle<> main_module(boost::python::borrowed( PyImport_AddModule("__main__") ));
-  boost::python::handle<> main_namespace(boost::python::borrowed( PyModule_GetDict(main_module.get()) ));
-
-  CFdebug << "Running script:\n" << script << CFendl;
-
-  boost::python::handle<> result;
-  try
-  {
-    result = boost::python::handle<>(PyRun_String(const_cast<char*>(script.c_str()), Py_file_input, main_namespace.get(), main_namespace.get()));
-  }
-  catch(...)
-  {
-    CFerror << "Error executing python script" << CFendl;
-  }
-  if(!result.get())
-  {
-    PyErr_Print();
-  }
+    std::istringstream str(script);
+    std::string line;
+    while (std::getline(str,line)){
+        execute_line(line);
+    }
 }
 
-void ScriptEngine::signal_execute_script(SignalArgs& node)
-{
-  SignalOptions options( node );
-  execute_script(options.option("script").value<std::string>());
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::execute_line(std::string line){
+    bool exec_code=true,need_next_exec=false;
+    if (current_instruction.size() > 0){
+        if (line[0]=='\t'){
+            current_instruction.append(1,'\n').append(line);
+            exec_code=false;
+        }else{
+            need_next_exec=true;
+        }
+    }else{
+        current_instruction=line;
+    }
+    try{
+        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(current_instruction.c_str(), "", Py_single_input)));
+        CFinfo << "Py compile : " << current_instruction << CFendl;
+        if (NULL != src && exec_code){//code compiled, we execute it
+            boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+            current_instruction.clear();
+        }
+        PyObject *exc,*val,*trb,*obj;
+        char* error;
+        PyErr_Fetch(&exc, &val, &trb);
+        if (NULL != exc && NULL != val){
+            if (PyArg_ParseTuple (val, "sO", &error, &obj)){
+                if (!strcmp (error, "unexpected EOF while parsing") || !strcmp(error,"expected an indented block")){
+                    //raised when a multi-line command is not terminated, must wait the next lines
+                    //CFinfo << "Python need next line" << CFendl;
+                    if(need_next_exec)
+                        current_instruction.clear();// to prevent infinite loop
+                }else{
+                    //CFinfo << "Python error : " << error << CFendl;
+                    emit_output(std::string(error));
+                    current_instruction.clear();
+                }
+            }else{
+                //CFinfo << "Python unknown error" << CFendl;
+                emit_output(std::string("Expression not found in the scope."));
+                current_instruction.clear();
+            }
+        }
+    } catch(...) {
+        CFinfo << "Error while executing Python" << CFendl;
+        current_instruction.clear();
+    }
+    PyErr_Clear();
+    if (need_next_exec)
+        execute_line(line);
 }
 
-void ScriptEngine::signature_execute_script(SignalArgs& node)
-{
-  SignalOptions options( node );
-  
-  options.add_option( "script", std::string() )
-    .description("Script to execute")
-    .pretty_name("Script");
+bool ScriptEngine::check_scope_difference(PyObject* dict){
+    PyObject *key, *value;
+    char* key_str;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(dict, &pos, &key, &value)) {
+        if (NULL != key && NULL != value){
+            key_str=PyString_AsString(key);
+            if (key_str[0] != '_'){
+                bool found=false;
+                for(int i=0;i<scope_diff.size();i++){
+                    if (value == scope_diff[i]){
+                        found=true;
+                    }
+                }
+                if (!found)
+                    return true;
+            }
+        }
+    }
+    return false;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // common
+void ScriptEngine::read_dictionary(PyObject* dict,std::vector<std::string> *word_list){
+    PyObject *key, *value;
+    char* key_str;
+    Py_ssize_t pos = 0;
+    scope_diff.clear();
+    while (PyDict_Next(dict, &pos, &key, &value)) {
+        if (NULL != key && NULL != value){
+            key_str=PyString_AsString(key);
+            if (key_str[0] != '_'){
+                scope_diff.push_back(value);
+                word_list->push_back(std::string(key_str));
+            }
+            if (strcmp(key_str,"__builtins__"))
+                read_objects(value,std::string(key_str)+".",word_list);
+            else//builtins members are avalaible without writing the __builtins__
+                read_objects(value,"",word_list);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::read_objects(PyObject* obj,std::string obj_name,std::vector<std::string> *word_list){
+    PyObject *key;
+    char* key_str;
+    boost::python::handle<> dir_list(boost::python::allow_null(PyObject_Dir(obj)));
+    if (NULL != dir_list.get()){
+        Py_ssize_t size=PyList_Size(dir_list.get());
+        for (Py_ssize_t i=0;i<size;i++){
+            key=PyList_GetItem(dir_list.get(),i);
+            if (NULL != key){
+                boost::python::handle<> value(boost::python::allow_null(PyObject_GetAttr(obj,key)));
+                key_str=PyString_AsString(key);
+                if (strlen(key_str) && key_str[0] != '_' && value.get() != NULL){
+                    if (PyCallable_Check(value.get()))
+                        word_list->push_back(obj_name+key_str+"(");
+                    else
+                        word_list->push_back(obj_name+key_str);
+                }
+            }
+        }
+    }
+}
+
+
+void ScriptEngine::flush_python_stdout(){
+    boost::python::handle<> py_stdout(boost::python::borrowed(boost::python::allow_null(PyDict_GetItemString(local_scope.get(),"stdoutStack"))));
+    if (py_stdout.get() != NULL){
+        boost::python::handle<> data(boost::python::allow_null(PyObject_GetAttrString(py_stdout.get(),"data")));
+        if (data.get() != NULL){
+            char * data_str=PyString_AsString(data.get());
+            if (data_str != NULL){
+                std::string out(data_str);
+                if (out.size()>0){
+                    //CFinfo << "flush emit output" << CFendl;
+                    emit_output(out);
+                    execute_line("sys.stdout.data=''");
+                }
+                //execute_line("sys.stdout.data=''");
+                //PyObject_SetAttrString(py_stdout,"data",PyString_FromString(""));
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::signal_execute_script(SignalArgs& node)
+{
+    SignalOptions options( node );
+    std::string code=options.option("script").value<std::string>();
+    code.erase(0,1);
+    std::replace(code.begin(),code.end(),' ','\t');
+    execute_script(code);
+    flush_python_stdout();
+    if (check_scope_difference(local_scope.get())){
+        emit_complation_list();
+    }
+    //return boost::python::object();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::signature_execute_script(SignalArgs& node)
+{
+    SignalOptions options( node );
+
+    options.add_option( "script", std::string() )
+            .description("Script to execute")
+            .pretty_name("Script");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::emit_output(std::string output){
+
+    /// @todo remove those hardcoded URIs
+    //CFinfo << "py:" << output << CFendl;
+    m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
+    SignalFrame frame("output", uri(), "cpath:/UI/ScriptEngine");
+    SignalOptions options(frame);
+    options.add_option("text", output);
+    options.flush();
+    m_manager->send_to_parent( frame );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::emit_complation_list(){
+
+    std::vector<std::string> word_list;
+    read_dictionary(local_scope.get(),&word_list);
+    /// @todo remove those hardcoded URIs
+    m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
+    SignalFrame frame("complation", uri(), "cpath:/UI/ScriptEngine");
+    SignalOptions options(frame);
+    options.add_option("words", word_list);
+    options.flush();
+    m_manager->send_to_parent( frame );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::signal_complation(SignalArgs& node){
+    emit_complation_list();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+
+} // python
 } // cf3

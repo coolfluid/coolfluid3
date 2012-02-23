@@ -47,6 +47,7 @@ namespace graphics {
   class TreeView;
   class AboutCFDialog;
   class TreeBrowser;
+  class PythonConsole;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -221,6 +222,9 @@ namespace graphics {
     QTextStream m_log_file;
 
     QSplitter * m_central_splitter;
+
+    /// @brief Simple console to execute python command on the server
+    PythonConsole * m_python_console;
 
     QTabWidget * m_tab_window;
 

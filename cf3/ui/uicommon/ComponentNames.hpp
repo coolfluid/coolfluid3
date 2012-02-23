@@ -11,6 +11,7 @@
 
 #define CLIENT_UI_DIR        "UI"
 #define CLIENT_LOG           "Log"
+#define CLIENT_SCRIPT_ENGINE "ScriptEngine"
 #define CLIENT_TREE          "Tree"
 #define CLIENT_BROWSERS      "Browsers"
 #define CLIENT_JOURNAL       "Local Journal"
@@ -21,6 +22,7 @@
 #define CLIENT_ROOT_PATH          "/"
 #define CLIENT_UI_DIR_PATH        "/" CLIENT_UI_DIR
 #define CLIENT_LOG_PATH           CLIENT_UI_DIR_PATH "/" CLIENT_LOG
+#define CLIENT_SCRIPT_ENGINE_PATH CLIENT_UI_DIR_PATH "/" CLIENT_SCRIPT_ENGINE
 #define CLIENT_TREE_PATH          CLIENT_UI_DIR_PATH "/" CLIENT_TREE
 #define CLIENT_BROWSERS_PATH      CLIENT_UI_DIR_PATH "/" CLIENT_BROWSERS
 #define CLIENT_JOURNAL_PATH       CLIENT_UI_DIR_PATH "/" CLIENT_JOURNAL

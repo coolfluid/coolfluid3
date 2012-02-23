@@ -28,6 +28,7 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   LoggingList.hpp
   MainWindow.hpp
   OptionLayout.hpp
+  PythonConsole.hpp
   SignalManager.hpp
   SignalInspectorDialog.hpp
   SignatureDialog.hpp
@@ -91,6 +92,10 @@ list( APPEND coolfluid_ui_graphics_files
   ModifiedOptionsDialog.hpp
   OptionLayout.cpp
   OptionLayout.hpp
+  PythonConsole.cpp
+  PythonConsole.hpp
+  PythonSyntaxeHighlighter.cpp
+  PythonSyntaxeHighlighter.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
   SignalInspectorDialog.cpp

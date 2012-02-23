@@ -40,6 +40,7 @@
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
+#include "ui/graphics/PythonConsole.hpp"
 #include "ui/graphics/SignatureDialog.hpp"
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/graphics/TreeBrowser.hpp"
@@ -86,9 +87,9 @@ MainWindow::MainWindow()
   m_property_model = new PropertyModel();
   m_property_view = new QTableView(m_tab_window);
   m_lab_description = new QLabel(m_tab_window);
+  m_python_console = new PythonConsole(m_tab_window);
   m_tree_browser = new TreeBrowser(m_tree_view, this);
   m_scroll_description = new QScrollArea(this);
-
   m_about_cf_dialog = new AboutCFDialog(this);
 
   boost::program_options::options_description desc;
@@ -114,6 +115,7 @@ MainWindow::MainWindow()
   m_tab_window->addTab(m_log_list, "Log");
   m_tab_window->addTab(m_property_view, "Properties");
   m_tab_window->addTab(m_scroll_description, "Description");
+  m_tab_window->addTab(m_python_console,"Python Console");
 
   TabBuilder::instance()->addTab(m_central_panel, "Options");
 

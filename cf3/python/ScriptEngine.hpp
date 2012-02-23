@@ -13,6 +13,12 @@
 
 #include "python/LibPython.hpp"
 
+#include <boost/python/handle.hpp>
+
+#include "common/PE/Manager.hpp"
+
+#include "common/CommonAPI.hpp"
+
 namespace cf3 {
 namespace python {
 
@@ -27,8 +33,8 @@ class Python_API ScriptEngine : public common::Component {
 public: // typedefs
 
   /// pointer to this type
-  
-  
+
+
 
 public: // functions
 
@@ -48,9 +54,33 @@ public: // functions
   /// Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
 
+  /// Signal to retrieve the completion list
+  void signal_complation(common::SignalArgs& node);
+
 private:
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
+
+  void emit_output(std::string output);
+
+  void emit_complation_list();
+
+  void execute_line(std::string script);
+
+  bool check_scope_difference(PyObject* dict);
+
+  void read_dictionary(PyObject* dict,std::vector<std::string> *word_list);
+
+  void read_objects(PyObject* obj,std::string obj_name,std::vector<std::string> *word_list);
+
+  void flush_python_stdout();
+
+  std::string current_instruction;
+  boost::python::handle<> global_scope, local_scope;
+  bool new_command;
+  Handle< common::PE::Manager > m_manager;
+  static int python_close;
+  std::vector<PyObject*> scope_diff;
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////
