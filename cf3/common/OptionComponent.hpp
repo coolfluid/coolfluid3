@@ -13,7 +13,10 @@
 
 #include <boost/foreach.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/for_each.hpp>
+#include <boost/mpl/vector.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
 #include "common/Option.hpp"
 #include "common/Component.hpp"
@@ -51,21 +54,20 @@ public:
   
   virtual void change_value(const boost::any& value)
   {
-    typedef Handle< typename boost::mpl::if_<boost::is_const<T>, Component const, Component>::type > GenericHandleT;
-    const GenericHandleT* generic_handle = boost::any_cast<GenericHandleT>(&value);
-    if(is_not_null(generic_handle)) // Accept a properly const qualified handle to Component
-    {
-      // value passed as a handle to the component base class, so we need to dynamic cast
-      Handle<T> cast_value(*generic_handle);
-      if(is_null(cast_value))
-        throw CastingFailed(FromHere(), "Could not cast OptionComponent value to type " + T::type_name() + " for option " + name());
-      m_value = Handle<T>(*generic_handle);
-    }
-    else if(is_not_null(boost::any_cast<value_type>(&value))) // Otherwise the handle type must match exactly (no other base class can be supported by boost::any)
-    {
-      m_value = value;
-    }
-    else
+    // Allowed types to be held by the any
+    typedef typename boost::mpl::if_
+    <
+      boost::is_const<T>,
+      // const and non-const may be assigned to a const handle
+      boost::mpl::vector4< Handle<Component>, Handle<Component const>, Handle<typename boost::remove_const<T>::type>, Handle<T> >,
+      // only non-const may be assigned to a non-const handle
+      boost::mpl::vector2< Handle<Component>, Handle<T> > 
+    >::type AllowedTypes;
+    
+    bool success = false;
+    boost::mpl::for_each<AllowedTypes>(ValueExtractor(name(), value, m_value, success));
+    
+    if(!success)
     {
       throw BadValue(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
     }
@@ -122,6 +124,47 @@ private:
       *cv = val;
     }
   }
+  
+  /// MPL functor to extract a value from an any
+  struct ValueExtractor
+  {
+    ValueExtractor(const std::string& opt_name, const boost::any& input_val, boost::any& output_val, bool& b) :
+      option_name(opt_name),
+      input_value(input_val),
+      output_value(output_val),
+      success(b)
+    {
+    }
+    
+    template<typename HandleT>
+    void operator()(const HandleT)
+    {
+      // Value was found, we're done
+      if(success)
+        return;
+      
+      const HandleT* any_handle = boost::any_cast< HandleT >(&input_value); // test any cast
+      if(is_not_null(any_handle)) // if we have a successful any-cast
+      {
+        Handle<T> result(*any_handle); // try to cast to concrete type
+        if(is_not_null(result) || is_null(*any_handle))
+        {
+          success = true;
+          output_value = result;
+        }
+        else
+        {
+          throw CastingFailed(FromHere(), "Could not cast OptionComponent value from type " + (*any_handle)->derived_type_name() + " to type " + T::type_name() + " for option " + option_name);
+        }
+      }
+    }
+    
+    
+    const std::string option_name;
+    const boost::any& input_value;
+    boost::any& output_value;
+    bool& success;
+  };
 }; // class OptionComponent
 
 /////////////////////////////////////////////////////////////////////////////
