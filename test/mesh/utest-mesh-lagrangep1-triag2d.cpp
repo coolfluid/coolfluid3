@@ -12,7 +12,7 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/Dictionary.hpp"
+#include "mesh/ContinuousDictionary.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
 #include "mesh/Elements.hpp"
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  boost::shared_ptr<Dictionary> nodes = allocate_component<Dictionary>("nodes") ;
+  boost::shared_ptr<Dictionary> nodes = allocate_component<ContinuousDictionary>("nodes") ;
   // Create a Elements component
   boost::shared_ptr<Elements> comp = allocate_component<Elements>("comp");
 

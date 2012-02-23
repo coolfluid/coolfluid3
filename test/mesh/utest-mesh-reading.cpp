@@ -110,18 +110,15 @@ BOOST_AUTO_TEST_CASE( quadtriag_readneu_writeGmsh_writeneu )
   Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "quadtriag" );
 
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
-
   BOOST_CHECK(true);
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->write_from_to(mesh,"quadtriag.msh");
-  BOOST_CHECK(true);
+  BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh,"quadtriag.msh"));
 
   boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
-  neu_writer->write_from_to(mesh,"quadtriag_write.neu");
-  BOOST_CHECK(true);
+  BOOST_CHECK_NO_THROW(neu_writer->write_from_to(mesh,"quadtriag_write.neu"));
 
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 16);
-  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 28);
+  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(true), (Uint) 28);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,12 +132,12 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_Newneu_writeGmsh )
   Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "quadtriag_write" );
 
   //CFinfo << "ready to read" << CFendl;
-  meshreader->read_mesh_into("quadtriag_write.neu",mesh);
+  BOOST_CHECK_NO_THROW(meshreader->read_mesh_into("quadtriag_write.neu",mesh));
 
   //CFinfo << "ready to write" << CFendl;
-  meshwriter->write_from_to(mesh,"quadtriag_write.msh");
+  BOOST_CHECK_NO_THROW(meshwriter->write_from_to(mesh,"quadtriag_write.msh"));
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 16);
-  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 28);
+  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(true), (Uint) 28);
 
 //  boost::shared_ptr< MeshTransformer > meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
@@ -155,14 +152,14 @@ BOOST_AUTO_TEST_CASE( hextet_readneu_writeGmsh_writeneu )
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "hextet" );
 
-  meshreader->read_mesh_into("../../resources/hextet.neu",mesh);
+  BOOST_CHECK_NO_THROW(meshreader->read_mesh_into("../../resources/hextet.neu",mesh));
 
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->write_from_to(mesh,"hextet.msh");
+  BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh,"hextet.msh"));
   boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
-  neu_writer->write_from_to(mesh,"hextet_write.neu");
+  BOOST_CHECK_NO_THROW(neu_writer->write_from_to(mesh,"hextet_write.neu"));
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
-  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
+  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(true), (Uint) 44);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +178,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_Newneu_writeGmsh )
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,"hextet_write.msh");
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
-  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
+  BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(true), (Uint) 44);
 
 //  boost::shared_ptr< MeshTransformer > meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
@@ -201,7 +198,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
   for (Uint count=1; count<=4; ++count)
   {
     meshreader->read_mesh_into(fp_in,mesh);
-    BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), count*28);
+    BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(true), count*28);
   }
 
   boost::shared_ptr< MeshTransformer > info  = build_component_abstract_type<MeshTransformer>("Info","info");

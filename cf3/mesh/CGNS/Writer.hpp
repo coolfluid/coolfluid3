@@ -31,11 +31,6 @@ namespace CGNS {
 class Mesh_CGNS_API Writer : public MeshWriter, public Shared
 {
 
-public: // typedefs
-
-
-
-
 private : // typedefs
 
   typedef std::vector<Handle<Elements const> > GroupedElements;
@@ -49,7 +44,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Writer"; }
 
-  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
+  virtual void write();
 
   virtual std::string get_format() { return "CGNS"; }
 

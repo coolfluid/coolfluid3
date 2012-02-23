@@ -7,6 +7,12 @@ list( APPEND coolfluid_mesh_files
   Cells.cpp
   Connectivity.hpp
   Connectivity.cpp
+  Dictionary.hpp
+  Dictionary.cpp
+  ContinuousDictionary.hpp
+  ContinuousDictionary.cpp
+  DiscontinuousDictionary.hpp
+  DiscontinuousDictionary.cpp
   Domain.hpp
   Domain.cpp
   Entities.hpp
@@ -22,8 +28,6 @@ list( APPEND coolfluid_mesh_files
   ElementTypes.hpp
   Field.hpp
   Field.cpp
-  Dictionary.hpp
-  Dictionary.cpp
   FieldManager.cpp
   FieldManager.hpp
   ParallelDistribution.hpp
@@ -93,6 +97,8 @@ list( APPEND coolfluid_mesh_files
   Tags.cpp
   WriteMesh.hpp
   WriteMesh.cpp
+  Functions.hpp
+  Functions.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
