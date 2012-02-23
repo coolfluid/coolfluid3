@@ -220,11 +220,6 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
     std::string clientid = buffer.node.attribute_value( "clientid" );
     std::string frameid = buffer.node.attribute_value( "frameid" );
 
-    std::string str;
-
-    XML::to_string( buffer.node, str);
-    std::cout << str << std::endl;
-
     // check if the client is attempting to register
     if( target == "client_registration" )
     {
