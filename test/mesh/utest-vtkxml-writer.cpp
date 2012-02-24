@@ -11,7 +11,10 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-
+#include "common/OptionList.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionURI.hpp"
 #include "mesh/MeshWriter.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -40,10 +43,11 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
 
   boost::shared_ptr< MeshWriter > vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer","meshwriter");
 
-  std::vector<Handle< Field > > fields; fields.push_back(mesh->geometry_fields().coordinates().handle<Field>());
-  vtk_writer->set_fields(fields);
-
-  vtk_writer->write_from_to(*mesh,"grid.vtu");
+  std::vector<URI> fields; fields.push_back(mesh->geometry_fields().coordinates().uri());
+  vtk_writer->options().configure_option("fields",fields);
+  vtk_writer->options().configure_option("mesh",mesh);
+  vtk_writer->options().configure_option("file",URI("grid.vtu"));
+  vtk_writer->execute();
 
   BOOST_CHECK(true);
 }

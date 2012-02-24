@@ -64,10 +64,6 @@ private: // data
 
   std::map<std::string,Uint> m_elementTypes;
 
-  std::map<Entities const*,Uint> m_element_start_idx;
-
-  Handle< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
-
   std::vector< Handle<Entities const> > m_entities_vector;
 }; // end Writer
 

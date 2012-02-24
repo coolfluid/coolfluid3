@@ -1,7 +1,6 @@
 import math
 import sys
 import string
-import numpy as np
 import coolfluid as cf
 
 # Some shortcuts

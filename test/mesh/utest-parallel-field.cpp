@@ -191,27 +191,31 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
 
   // Write the mesh with the fields
 
-  std::vector<Handle< Field > > fields;
-  fields.push_back(field.handle<Field>());
-  fields.push_back(P1_node_rank.handle<Field>());
-  fields.push_back(glb_elem_idx.handle<Field>());
-  fields.push_back(elem_rank.handle<Field>());
-  fields.push_back(glb_node_idx.handle<Field>());
+  std::vector<URI> fields;
+  fields.push_back(field.uri());
+  fields.push_back(P1_node_rank.uri());
+  fields.push_back(glb_elem_idx.uri());
+  fields.push_back(elem_rank.uri());
+  fields.push_back(glb_node_idx.uri());
 
   boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
 
-  tec_writer->set_fields(fields);
+  tec_writer->options().configure_option("fields",fields);
   tec_writer->options().configure_option("cell_centred",true);
-  tec_writer->write_from_to(mesh,"parallel_fields.plt");
+  tec_writer->options().configure_option("file",URI("parallel_fields.plt"));
+  tec_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  tec_writer->execute();
 
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
 
   boost::shared_ptr< MeshWriter > msh_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","msh_writer");
 
-  msh_writer->set_fields(fields);
-  msh_writer->write_from_to(mesh,"parallel_fields.msh");
+  msh_writer->options().configure_option("fields",fields);
+  msh_writer->options().configure_option("file",URI("parallel_fields.msh"));
+  msh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  msh_writer->execute();
 
   CFinfo << "parallel_fields_P*.msh written" << CFendl;
 
