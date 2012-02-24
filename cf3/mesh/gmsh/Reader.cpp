@@ -15,16 +15,15 @@
 #include "common/PropertyList.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
-
-
-#include "mesh/Mesh.hpp"
 #include "common/Table.hpp"
 #include "common/List.hpp"
+#include "common/DynTable.hpp"
+
 #include "mesh/Region.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Field.hpp"
@@ -79,6 +78,8 @@ Reader::Reader( const std::string& name )
   boost_foreach(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
   properties()["description"] = desc;
+
+  IO_rank = 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -121,7 +122,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   m_mesh->initialize_nodes(0, m_mesh_dimension);
 
-//  find_ghost_nodes();
+
   find_used_nodes();
 
   read_coordinates();
@@ -231,6 +232,7 @@ void Reader::get_file_positions()
       std::vector<Uint> num_obj(2);
       num_obj[0] = m_total_nb_nodes;
       num_obj[1] = m_total_nb_elements;
+      m_hash->options().configure_option("nb_parts",options().option("nb_parts").value<Uint>());
       m_hash->options().configure_option("nb_obj",num_obj);
 
 
@@ -294,15 +296,17 @@ Handle< Region > Reader::create_region(std::string const& relative_path)
 void Reader::find_used_nodes()
 {
   m_used_nodes.clear();
+  std::string line;
 
   m_file.seekg(m_elements_position,std::ios::beg);
   // skip next line
-  std::string line;
   getline(m_file,line);
-
+//  if (PE::Comm::instance().rank()==IO_rank)
+//    std::cout << "header = " << line << std::endl;
   //Skip the line containing the actual number of elements
   getline(m_file,line);
-
+//  if (PE::Comm::instance().rank()==IO_rank)
+//    std::cout << "nb_elems = " << line << std::endl;
 
   // read every line and store the connectivity in the correct region through the buffer
   Uint elementNumber, elementType, nbElementNodes;
@@ -310,9 +314,14 @@ void Reader::find_used_nodes()
 
   std::set<Uint>::iterator it=m_used_nodes.begin();
 
+//  if (PE::Comm::instance().rank()==IO_rank)
+//  {
+//    std::cout << "nb_obj = "   << m_hash->subhash(ELEMS).options()["nb_obj"].value<Uint>() << std::endl;
+//    std::cout << "nb_parts = " <<m_hash->subhash(ELEMS).options()["nb_parts"].value<Uint>() << std::endl;
+//  }
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
-//    if (m_total_nb_elements > 100000)
+    if (m_total_nb_elements > 100000)
     {
       if(i%(m_total_nb_elements/20)==0)
         CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
@@ -320,12 +329,12 @@ void Reader::find_used_nodes()
 
     if (m_hash->subhash(ELEMS).owns(i))
     {
-
       // element description
       m_file >> elementNumber >> elementType;
-      CFinfo << "element: " << elementNumber << CFendl;
       nbElementNodes = Shared::m_nodes_in_gmsh_elem[elementType];
 
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << i << ":  elem["<<m_hash->subhash(ELEMS).part_of_obj(i)<<"] " << elementNumber << " :    ";
       m_file >> nb_tags;
       m_file >> phys_tag;
       for(Uint itag = 0; itag < (nb_tags-1); ++itag)
@@ -335,18 +344,31 @@ void Reader::find_used_nodes()
       {
         m_file >> gmsh_node_number;
         it = m_used_nodes.insert(it,gmsh_node_number);
+//        if (PE::Comm::instance().rank()==IO_rank)
+//          std::cout << "  " << gmsh_node_number;
       }
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << "\n";
     }
+    getline(m_file,line); // finnish the line
   }
 
   // Now we have all nodes, used by the elements
 
   // Now add owned nodes
   m_file.seekg(m_coordinates_position,std::ios::beg);
+  //Skip the line with keyword '$Nodes':
+  getline(m_file,line);
+//  if (PE::Comm::instance().rank()==IO_rank)
+//    std::cout << "header = " << line << std::endl;
+  // skip one line, which says how many (total) nodes are  present in the mesh
+  getline(m_file,line);
+//  if (PE::Comm::instance().rank()==IO_rank)
+//    std::cout << "nb_nodes = " << line << std::endl;
 
   for (Uint node_idx=0; node_idx<m_total_nb_nodes; ++node_idx)
   {
-//    if (m_total_nb_nodes > 100000)
+    if (m_total_nb_nodes > 100000)
     {
       if(node_idx%(m_total_nb_nodes/20)==0)
         CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
@@ -356,24 +378,33 @@ void Reader::find_used_nodes()
     std::stringstream ss(line);
     ss >> gmsh_node_number;
     getline(ss,line);
-    std::cout << "node-number="<<gmsh_node_number<<std::endl;
     if (m_hash->subhash(NODES).owns(node_idx))
     {
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << "node " << gmsh_node_number << "\n";
+
       it = m_used_nodes.insert(it,gmsh_node_number);
     }
     else
     {
       it = m_used_nodes.find(gmsh_node_number);
       if (it != m_used_nodes.end())
+      {
         m_ghost_nodes.insert(node_idx);
+//        if (PE::Comm::instance().rank()==IO_rank)
+//          std::cout << "ghostnode " << gmsh_node_number << "\n";
+      }
     }
   }
+//  if (PE::Comm::instance().rank()==IO_rank)
+//    std::cout << std::flush;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void Reader::read_coordinates()
 {
+
   m_file.seekg(m_coordinates_position,std::ios::beg);
 
   // Find the region which has the highest dimensionality present in the mesh:
@@ -419,6 +450,9 @@ void Reader::read_coordinates()
       ss >> gmsh_node_number;
       m_node_idx_gmsh_to_cf[gmsh_node_number]=coord_idx;
 
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << gmsh_node_number << " --> " << coord_idx << std::endl;
+
       for (Uint dim=0; dim<m_mesh_dimension; ++dim)
         ss >> nodes.coordinates()[coord_idx][dim];
       if(m_mesh_dimension < DIM_3D) getline(ss,line); //Gmsh always stores 3 coordinates, even for 2D meshes
@@ -437,6 +471,9 @@ void Reader::read_coordinates()
         ss >> gmsh_node_number;
         m_node_idx_gmsh_to_cf[gmsh_node_number]=coord_idx;
 
+//        if (PE::Comm::instance().rank()==IO_rank)
+//          std::cout << gmsh_node_number << " --> " << coord_idx << std::endl;
+
         for (Uint dim=0; dim<m_mesh_dimension; ++dim)
         ss >> nodes.coordinates()[coord_idx][dim];
         if(m_mesh_dimension < DIM_3D) getline(ss, line);
@@ -445,10 +482,6 @@ void Reader::read_coordinates()
         nodes.glb_idx()[coord_idx] = gmsh_node_number-1;
 
         coord_idx++;
-      }
-      else
-      {
-//        getline(m_file,line);
       }
     }
 
@@ -586,6 +619,9 @@ void Reader::read_connectivity()
 //      CFinfo << "Reading element " << element_number << " of type " << gmsh_element_type;
 //      CFinfo << " in region " << phys_tag << " with " << nb_element_nodes << " nodes " << CFendl;
 
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << element_number << "   -->   ";
+
       cf_element.resize(nb_element_nodes);
       for (Uint j=0; j<nb_element_nodes; ++j)
       {
@@ -593,7 +629,12 @@ void Reader::read_connectivity()
         m_file >> gmsh_node_number;
         cf_node_number = m_node_idx_gmsh_to_cf[gmsh_node_number];
         cf_element[cf_idx] = cf_node_number;
+//        if (PE::Comm::instance().rank()==IO_rank)
+//          std::cout << "  " << gmsh_node_number << "("<<m_node_idx_gmsh_to_cf[gmsh_node_number]<<")";
       }
+//      if (PE::Comm::instance().rank()==IO_rank)
+//        std::cout << std::endl;
+
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
@@ -611,16 +652,6 @@ void Reader::read_connectivity()
 
       (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type]++;
 
-    }
-
-    else
-    {
-//      getline(m_file,line);
-
-      for (Uint j=0; j<nb_element_nodes; ++j)
-      {
-        m_file >> gmsh_node_number;
-      }
     }
 
     // finish the line

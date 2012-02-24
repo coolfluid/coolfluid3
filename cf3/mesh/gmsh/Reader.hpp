@@ -143,6 +143,7 @@ private: // data
 
   std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh);
 
+  Uint IO_rank;
 }; // end Reader
 
 ////////////////////////////////////////////////////////////////////////////////
