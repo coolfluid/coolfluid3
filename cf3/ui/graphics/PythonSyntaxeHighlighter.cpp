@@ -17,14 +17,6 @@ namespace graphics {
 PythonSyntaxeHighlighter::PythonSyntaxeHighlighter(QTextDocument* parent)
     :QSyntaxHighlighter(parent){
     HighlightingRule rule;
-    QStringList keyword_list;
-    keyword_list << "\\band\\b" << "\\belif\\b" << "\\bglobal\\b" << "\\bor\\b"
-                 << "\\bassert\\b" << "\\belse\\b" << "\\bif\\b" << "\\bpass\\b"
-                 << "\\bbreak\\b" << "\\bexcept\\b" << "\\bimport\\b" << "\\bprint\\b"
-                 << "\\bclass\\b" << "\\bexec\\b" << "\\bin\\b" << "\\braise\\b"
-                 << "\\bcontinue\\b" << "\\bfinally\\b" << "\\bis\\b" << "\\breturn\\b"
-                 << "\\bdef\\b" << "\\bfor\\b" << "\\blambda\\b" << "\\btry\\b"
-                 << "\\bdel\\b" << "\\bfrom\\b" << "\\bnot\\b" << "\\bwhile\\b";
     // keywords
     keyword_format.setForeground(QColor(0x20,0x4A,0x87));
     rule.pattern = QRegExp("\\b(and|elif|global|or|assert|else|if|pass|break|except|"

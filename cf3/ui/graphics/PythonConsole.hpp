@@ -42,6 +42,7 @@ private slots:
     void keywords_changed(const QStringList &keywords);
     void insert_completion(QString);
     void insert_output(const QString &output);
+    void insert_log(const QString &output);
 private:
     /// Start of prompt into the input block
     int prompt_position;

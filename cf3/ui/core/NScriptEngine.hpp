@@ -46,15 +46,15 @@ namespace core {
 
         void execute_line( const QString & line );
 
-        void get_complation_list();
+        void get_completion_list();
 
         /// @brief Boost slot called when python console output are sent from the server
         /// @param node Signal node
         void signal_output(common::SignalArgs & node);
 
-        /// @brief Boost slot called when the server send his complation list
+        /// @brief Boost slot called when the server send his completion list
         /// @param node Signal node
-        void signal_complation(common::SignalArgs & node);
+        void signal_completion(common::SignalArgs & node);
 
       signals:
 
@@ -64,7 +64,7 @@ namespace core {
 
         /// @brief Signal emitted when the server send the new console output.
         /// @param output Output message
-        void complation_list_received(const QStringList & word_list);
+        void completion_list_received(const QStringList & word_list);
 
       protected:
 
@@ -72,6 +72,9 @@ namespace core {
         /// @param localSignals Map of local signals. All values are set to true
         /// by default.
         virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
+
+      private:
+        int current_code_fragment;
 }; // class NScriptEngine
 
 ///////////////////////////////////////////////////////////////////////////

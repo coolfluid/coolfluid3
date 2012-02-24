@@ -45,6 +45,20 @@ int ScriptEngine::python_close=0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+int pytohn_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
+    if ( what == PyTrace_LINE ){
+        boost::python::handle<> frag_number(boost::python::allow_null(PyObject_Str(frame->f_code->co_filename)));
+        if (frag_number.get() != NULL){
+            int code_fragment=atoi(PyString_AsString(frag_number.get()));
+            if (code_fragment > 0)
+                CFinfo << "executing code fragment :" << code_fragment << " line :" << frame->f_lineno << CFendl;
+        }
+    }
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
     python_close++;
@@ -56,18 +70,19 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
         local_scope = boost::python::handle<>(PyDict_New());
         global_scope = boost::python::handle<>(PyDict_New());
         PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
-        execute_script("import sys\n"
-                       "import ctypes as dl\n"
-                       "from libcoolfluid_python import *\n"
-                       "class SimpleStringStack(object):\n"
+        PyEval_SetTrace(pytohn_trace,NULL);
+        execute_script("import sys\n",0);
+        execute_script("import ctypes as dl\n",0);
+        execute_script("from libcoolfluid_python import *\n",0);
+        execute_script("class SimpleStringStack(object):\n"
                        "\tdef __init__(self):\n"
                        "\t\tself.data = ''\n"
                        "\tdef write(self, ndata):\n"
-                       "\t\tself.data = self.data + ndata\n"
-                       "stdoutStack = SimpleStringStack()\n"
-                       "sys.stdout = stdoutStack\n"
-                       "stderrStack = SimpleStringStack()\n"
-                       "sys.stderr = stderrStack\n");
+                       "\t\tself.data = self.data + ndata\n",0);
+        execute_script("stdoutStack = SimpleStringStack()\n",0);
+        execute_script("sys.stdout = stdoutStack\n",0);
+        execute_script("stderrStack = SimpleStringStack()\n",0);
+        execute_script("sys.stderr = stderrStack\n",0);
         flush_python_stdout();
         /*std::vector<std::string>glb;
         read_dictionary(local_scope.get(),&glb);
@@ -85,11 +100,11 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
             .description("Execute a python script, passed as string")
             .pretty_name("Execute Script")
             .signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
-    regist_signal( "get_complation" )
-            .connect( boost::bind( &ScriptEngine::signal_complation, this, _1 ) )
-            .description("Retrieve the complation list")
-            .pretty_name("Complation list");
-    signal("get_complation")->hidden(true);
+    regist_signal( "get_completion" )
+            .connect( boost::bind( &ScriptEngine::signal_completion, this, _1 ) )
+            .description("Retrieve the completion list")
+            .pretty_name("Completion list");
+    signal("get_completion")->hidden(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,19 +118,41 @@ ScriptEngine::~ScriptEngine()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::execute_script(std::string script)
-{
-    std::istringstream str(script);
+void ScriptEngine::execute_script(std::string script,int code_fragment){
+    try{
+        std::stringstream ss;
+        ss << code_fragment;
+        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
+        if (NULL != src){//code compiled, we execute it
+            boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+        }
+        PyObject *exc,*val,*trb,*obj;
+        char* error;
+        PyErr_Fetch(&exc, &val, &trb);
+        if (NULL != exc && NULL != val){
+            if (PyArg_ParseTuple (val, "sO", &error, &obj)){
+                emit_output(std::string(error));
+            }else{
+                emit_output(std::string("Expression not found in the scope."));
+            }
+        }
+    } catch(...) {
+        CFinfo << "Error while executing Python" << CFendl;
+    }
+    PyErr_Clear();
+    //old code
+    /*std::istringstream str(script);
     std::string line;
     while (std::getline(str,line)){
         execute_line(line);
-    }
+    }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::execute_line(std::string line){
-    bool exec_code=true,need_next_exec=false;
+    //old code
+    /*bool exec_code=true,need_next_exec=false;
     if (current_instruction.size() > 0){
         if (line[0]=='\t'){
             current_instruction.append(1,'\n').append(line);
@@ -127,10 +164,13 @@ void ScriptEngine::execute_line(std::string line){
         current_instruction=line;
     }
     try{
-        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(current_instruction.c_str(), "", Py_single_input)));
+        std::stringstream ss;
+        ss << current_code_fragment;
+        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(current_instruction.c_str(), ss.str().c_str(), Py_single_input)));
         CFinfo << "Py compile : " << current_instruction << CFendl;
         if (NULL != src && exec_code){//code compiled, we execute it
             boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+            current_code_fragment++;
             current_instruction.clear();
         }
         PyObject *exc,*val,*trb,*obj;
@@ -160,7 +200,7 @@ void ScriptEngine::execute_line(std::string line){
     }
     PyErr_Clear();
     if (need_next_exec)
-        execute_line(line);
+        execute_line(line);*/
 }
 
 bool ScriptEngine::check_scope_difference(PyObject* dict){
@@ -259,12 +299,11 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
 {
     SignalOptions options( node );
     std::string code=options.option("script").value<std::string>();
-    code.erase(0,1);
-    std::replace(code.begin(),code.end(),' ','\t');
-    execute_script(code);
+    std::replace(code.begin(),code.end(),';','\t');
+    execute_script(code,options.option("fragment").value<int>());
     flush_python_stdout();
     if (check_scope_difference(local_scope.get())){
-        emit_complation_list();
+        emit_completion_list();
     }
     //return boost::python::object();
 }
@@ -278,6 +317,9 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
     options.add_option( "script", std::string() )
             .description("Script to execute")
             .pretty_name("Script");
+    options.add_option( "fragment", std::string() )
+            .description("Code fragment number")
+            .pretty_name("Code fragment");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,13 +338,13 @@ void ScriptEngine::emit_output(std::string output){
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::emit_complation_list(){
+void ScriptEngine::emit_completion_list(){
 
     std::vector<std::string> word_list;
     read_dictionary(local_scope.get(),&word_list);
     /// @todo remove those hardcoded URIs
     m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
-    SignalFrame frame("complation", uri(), "cpath:/UI/ScriptEngine");
+    SignalFrame frame("completion", uri(), "cpath:/UI/ScriptEngine");
     SignalOptions options(frame);
     options.add_option("words", word_list);
     options.flush();
@@ -312,11 +354,9 @@ void ScriptEngine::emit_complation_list(){
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::signal_complation(SignalArgs& node){
-    emit_complation_list();
+void ScriptEngine::signal_completion(SignalArgs& node){
+    emit_completion_list();
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////
 
 
 } // python

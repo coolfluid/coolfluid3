@@ -7,6 +7,7 @@
 
 #include "PythonConsole.hpp"
 #include "ui/core/NScriptEngine.hpp"
+#include "ui/core/NLog.hpp"
 #include "common/Log.hpp"
 #include <QStringListModel>
 #include <QMessageBox>
@@ -37,7 +38,10 @@ PythonConsole::PythonConsole(QWidget *parent) :
     connect(this,SIGNAL(cursorPositionChanged()),this,SLOT(cursor_position_changed()));
     connect(completer,SIGNAL(activated(QString)),this,SLOT(insert_completion(QString)));
     connect(core::NScriptEngine::global().get(),SIGNAL(new_output(QString)),this,SLOT(insert_output(QString)));
-    connect(core::NScriptEngine::global().get(),SIGNAL(complation_list_received(QStringList)),this,SLOT(keywords_changed(QStringList)));
+    connect(core::NScriptEngine::global().get(),SIGNAL(completion_list_received(QStringList)),
+            this,SLOT(keywords_changed(QStringList)));
+    connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
+            this, SLOT(insert_log(QString)));
 }
 
 PythonConsole::~PythonConsole(){
@@ -46,7 +50,6 @@ PythonConsole::~PythonConsole(){
 
 void PythonConsole::keyPressEvent(QKeyEvent *e){
     QTextCursor c=textCursor();
-    QString command;
     if (completer->popup()->isVisible()){
         switch(e->key()){
         case Qt::Key_Enter:
@@ -94,21 +97,23 @@ void PythonConsole::keyPressEvent(QKeyEvent *e){
                     QTextEdit::keyPressEvent(e);
                 break;
             case Qt::Key_Up:
-                history_index--;
-                if (history_index < 0)
-                    history_index=0;
-                document()->findBlockByNumber(input_block);
-                c.movePosition(QTextCursor::StartOfBlock);
-                c.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor,prompt_position);
-                c.movePosition(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
-                c.removeSelectedText();
-                c.insertText(history.at(history_index));
-                setTextCursor(c);
+                if (c.blockNumber() == input_block){
+                    history_index--;
+                    if (history_index < 0)
+                        history_index=0;
+                    c.movePosition(QTextCursor::StartOfBlock);
+                    c.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor,prompt_position);
+                    c.movePosition(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
+                    c.removeSelectedText();
+                    c.insertText(history.at(history_index));
+                    setTextCursor(c);
+                }else{
+                    QTextEdit::keyPressEvent(e);
+                }
                 break;
             case Qt::Key_Down:
-                if (history_index < history.size()-1){
+                if (c.blockNumber() == input_block && history_index < history.size()-1){
                     history_index++;
-                    document()->findBlockByNumber(input_block);
                     c.movePosition(QTextCursor::StartOfBlock);
                     c.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor,prompt_position);
                     c.movePosition(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
@@ -122,21 +127,33 @@ void PythonConsole::keyPressEvent(QKeyEvent *e){
                 c.movePosition(QTextCursor::StartOfBlock);
                 c.movePosition(QTextCursor::Right,QTextCursor::MoveAnchor,prompt_position);
                 //lol
-                ui::core::NScriptEngine::global()->get_complation_list();
+                ui::core::NScriptEngine::global()->get_completion_list();
 
                 setTextCursor(c);
                 break;
             case Qt::Key_Return:
-                command=(document()->findBlockByNumber(input_block).text().mid(prompt_position));
-                c.movePosition(QTextCursor::EndOfBlock);
-                setTextCursor(c);
-                ui::core::NScriptEngine::global()->execute_line(command);
-                if (command.length()){
-                    history.append(command);
-                    history_index=history.size();
+                if (e->modifiers() != Qt::ShiftModifier){
+                    QString command;
+                    for (int i=input_block;i<document()->blockCount();i++){
+                        command.append(document()->findBlockByNumber(i).text().mid(prompt_position));
+                        if (i<document()->blockCount()){
+                            command.append('\n');
+                        }
+                    }
+                    c.movePosition(QTextCursor::End);
+                    setTextCursor(c);
+                    ui::core::NScriptEngine::global()->execute_line(command);
+                    if (command.length()){
+                        history.append(command);
+                        history_index=history.size();
+                    }
+                    QTextEdit::keyPressEvent(e);
+                    print_next_prompt();
+                }else{
+                    c.movePosition(QTextCursor::End);
+                    c.insertText("\n... ");
+                    setTextCursor(c);
                 }
-                QTextEdit::keyPressEvent(e);
-                print_next_prompt();
                 break;
             default:
                 QTextEdit::keyPressEvent(e);
@@ -160,6 +177,18 @@ void PythonConsole::insert_output(const QString &output){
     cursor.setPosition(prompt_start_in_text);
     input_block=cursor.blockNumber();
     ensureCursorVisible();
+}
+
+void PythonConsole::insert_log(const QString &output){
+    static QRegExp log_frame("\\[[^\\]]*\\][^\\]]*\\[[^\\]]*\\]");
+    QString modified_output(output);
+    int start=log_frame.indexIn(modified_output);
+    while (start>=0){
+        int length=log_frame.matchedLength();
+        modified_output.remove(start,length);
+        start=log_frame.indexIn(modified_output,start+length);
+    }
+    insert_output(modified_output);
 }
 
 void PythonConsole::insert_completion(QString completion){

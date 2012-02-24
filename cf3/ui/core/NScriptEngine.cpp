@@ -34,12 +34,13 @@ namespace core {
 /////////////////////////////////////////////////////////////////////////////
 
 NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode::LOCAL_NODE) {
+    current_code_fragment=1;//0 is for hidden code
     regist_signal("output")
       .description("Output of the python console")
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_output, this, _1));
-    regist_signal("complation")
+    regist_signal("completion")
       .description("Return the avalaibles keywords in Python")
-      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_complation, this, _1));
+      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_completion, this, _1));
 }
 
 QString NScriptEngine::tool_tip() const {
@@ -58,7 +59,7 @@ void NScriptEngine::signal_output(common::SignalArgs & node){
     emit new_output(message.c_str());
 }
 
-void NScriptEngine::signal_complation(common::SignalArgs & node){
+void NScriptEngine::signal_completion(common::SignalArgs & node){
     SignalOptions options(node);
     std::vector<std::string> words;
     std::vector<std::string>::const_iterator it_words;
@@ -67,7 +68,7 @@ void NScriptEngine::signal_complation(common::SignalArgs & node){
     for (it_words=words.begin();it_words!=words.end();++it_words){
         word_list.append(QString(it_words->c_str()));
     }
-    emit complation_list_received(word_list);
+    emit completion_list_received(word_list);
 }
 
 
@@ -77,19 +78,19 @@ void NScriptEngine::execute_line ( const QString & line ){
     const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
     SignalOptions options;
     QString repl=QString(line);
-    repl.replace(QString("\t"),QString(" ")).prepend(QString(";"));
-    CFinfo << "call exec line:" << repl.toStdString() << CFendl;
+    repl.replace(QString("\t"),QString(";"));
     options.add_option("script", repl.toStdString());
+    options.add_option("fragment",current_code_fragment++);
     SignalFrame frame = options.create_frame("execute_script", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-void NScriptEngine::get_complation_list(){
+void NScriptEngine::get_completion_list(){
     const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
     SignalOptions options;
-    SignalFrame frame = options.create_frame("get_complation", uri(), script_engine_path);
+    SignalFrame frame = options.create_frame("get_completion", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 

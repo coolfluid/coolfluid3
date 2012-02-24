@@ -15,12 +15,16 @@
 
 #include <boost/python/handle.hpp>
 
+#include <frameobject.h>
+
 #include "common/PE/Manager.hpp"
 
 #include "common/CommonAPI.hpp"
 
 namespace cf3 {
 namespace python {
+
+int pytohn_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,21 +53,22 @@ public: // functions
   static std::string type_name () { return "ScriptEngine"; }
 
   /// Execute the script passed as a string
-  void execute_script(std::string script);
+  void execute_script(std::string script,int code_fragment);
 
   /// Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
 
   /// Signal to retrieve the completion list
-  void signal_complation(common::SignalArgs& node);
+  void signal_completion(common::SignalArgs& node);
 
 private:
+
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
 
   void emit_output(std::string output);
 
-  void emit_complation_list();
+  void emit_completion_list();
 
   void execute_line(std::string script);
 
