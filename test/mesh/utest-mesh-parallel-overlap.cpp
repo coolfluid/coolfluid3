@@ -805,10 +805,12 @@ BOOST_CHECK(true);
   fields_to_output.push_back(Handle<Field>(elem_rank.handle<Component>()));
 BOOST_CHECK(true);
   tec_writer->set_fields(fields_to_output);
+  tec_writer->options().configure_option("enable_overlap",true);
   tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);
   CFinfo << "parallel_overlap_P*"+tec_writer->get_extensions()[0]+" written" << CFendl;
 BOOST_CHECK(true);
   gmsh_writer->set_fields(fields_to_output);
+  gmsh_writer->options().configure_option("enable_overlap",true);
   gmsh_writer->write_from_to(mesh,"parallel_overlap"+gmsh_writer->get_extensions()[0]);
   CFinfo << "parallel_overlap_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;
 #endif
