@@ -193,23 +193,23 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK(true);
 
-  std::vector<Handle< Field > > s_fields;
+  std::vector<URI> s_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(source))
-    s_fields.push_back(Handle<Field>(field.handle<Component>()));
+    s_fields.push_back(field.uri());
 
-  meshwriter->set_fields(s_fields);
+  meshwriter->options().configure_option("fields",s_fields);
+  meshwriter->options().configure_option("file",URI("source.msh"));
+  meshwriter->options().configure_option("mesh",source.handle<Mesh>());
+  meshwriter->execute();
 
-  BOOST_CHECK(true);
-  meshwriter->write_from_to(source,"source.msh");
-  BOOST_CHECK(true);
-
-
-  std::vector<Handle< Field > > t_fields;
+  std::vector<URI> t_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(target))
-    t_fields.push_back(Handle<Field>(field.handle<Component>()));
+    t_fields.push_back(field.uri());
 
-  meshwriter->set_fields(t_fields);
-  meshwriter->write_from_to(target,"interpolated.msh");
+  meshwriter->options().configure_option("fields",t_fields);
+  meshwriter->options().configure_option("file",URI("interpolated.msh"));
+  meshwriter->options().configure_option("mesh",target.handle<Mesh>());
+  meshwriter->execute();
   BOOST_CHECK(true);
 
 }

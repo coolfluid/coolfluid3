@@ -5,9 +5,12 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/thread/thread.hpp>
 
 #include "common/Log.hpp"
 #include "common/BoostFilesystem.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionT.hpp"
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Builder.hpp"
@@ -43,7 +46,10 @@ common::ComponentBuilder < gmsh::Writer, MeshWriter, LibGmsh> aGmshWriter_Builde
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-
+  options().add_option("serial",false)
+      .pretty_name("Serial Format")
+      .description("All processors write in 1 file")
+      .mark_basic();
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
@@ -76,8 +82,6 @@ Writer::Writer( const std::string& name )
   m_elementTypes["cf3.mesh.LagrangeP3.Triag3D"]=P3TRIAG;
   m_elementTypes["cf3.mesh.LagrangeP3.Quad2D" ]=P3QUAD;
   m_elementTypes["cf3.mesh.LagrangeP3.Quad3D" ]=P3QUAD;
-
-  m_cf_2_gmsh_node = create_static_component<Map<Uint,Uint> >("to_gmsh_node");
 
 }
 
@@ -115,16 +119,38 @@ void Writer::write()
     boost_foreach(const Entities& entities, find_components_recursively_with_filter<Entities>(*region,m_entities_filter))
       m_filtered_entities.push_back(entities.handle<Entities>());
 
+
   // must be in correct order!
   write_header(file);
-  m_cf_2_gmsh_node->clear();
   write_coordinates(file);
   write_connectivity(file);
   write_elem_nodal_data(file);
   //write_nodal_data(file);
   //write_element_data(file);
+
   file.close();
-  m_cf_2_gmsh_node->clear();
+
+  // Write post-processing file, merging all parallel files
+  if (PE::Comm::instance().size() > 1 && PE::Comm::instance().rank() == 0)
+  {
+    boost::filesystem::fstream parallel_file;
+    boost::filesystem::path parallel_file_path (m_file_path.path());
+    parallel_file.open(parallel_file_path,std::ios_base::out);
+    if (!parallel_file) // didn't open so throw exception
+    {
+       throw boost::filesystem::filesystem_error( parallel_file_path.string() + " failed to open",
+                                                  boost::system::error_code() );
+    }
+
+    for (Uint r=0; r<PE::Comm::instance().size(); ++r)
+    {
+      boost::filesystem::path rank_file_path (m_file_path.path());
+      rank_file_path = boost::filesystem::basename(rank_file_path) + "_P" + to_str(r) + boost::filesystem::extension(rank_file_path);
+      parallel_file << "Merge \"" << rank_file_path.string() << "\";" << std::endl;
+    }
+    parallel_file.close();
+  }
+
 }
 /////////////////////////////////////////////////////////////////////////////
 
@@ -196,21 +222,19 @@ void Writer::write_coordinates(std::fstream& file)
 
   // Create a mapping between the actual node-numbering in the mesh, and the node-numbering to be written
   const Uint nb_nodes = used_nodes.size();
-  Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
-  to_gmsh_node.reserve(nb_nodes);
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
 
   const Uint nb_dim = m_mesh->dimension();
   Uint node_number=0;
-  const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
+  const Dictionary& geometry = m_mesh->geometry_fields();
+  const common::Table<Real>& coordinates = geometry.coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
-    to_gmsh_node.insert_blindly(node,gmsh_node++);
     common::Table<Real>::ConstRow coord = coordinates[node];
-    file << ++node_number << " ";
+    file << geometry.glb_idx()[node]+1 << " ";
     for (Uint d=0; d<3; d++)
     {
       if (d<nb_dim)
@@ -237,12 +261,11 @@ void Writer::write_connectivity(std::fstream& file)
   /// elem-number   elem-type   number-of-tags(3)  tag1(group_number)  tag2(elementary_entity_index)  tag3(partition)  elem-node-list
   /// $EndElements
   /// @endcode
+  /// @note partition number (tag3) is set to -1 for ghost elements (conforming Gmsh standard format)
 
   Uint nb_elems = 0;
   boost_foreach(const Handle<Region const>& region, m_regions)
       nb_elems += region->recursive_filtered_elements_count(m_entities_filter,m_enable_overlap);
-
-  Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Elements\n";
   file << nb_elems << "\n";
@@ -250,7 +273,6 @@ void Writer::write_connectivity(std::fstream& file)
   Uint group_number;
   Uint elm_type;
   Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
-  Uint elm_number=0;
   Uint partition_number = PE::Comm::instance().rank();
 
   Uint elementary_entity_index=1;
@@ -258,21 +280,21 @@ void Writer::write_connectivity(std::fstream& file)
   {
     group_name = elements->parent()->uri().path();
     group_number = m_groupnumber[group_name];
-    m_element_start_idx[elements.get()]=elm_number;
     elm_type = m_elementTypes[elements->element_type().derived_type_name()];
     const Connectivity& element_connectivity = elements->geometry_space().connectivity();
     const Uint nb_elem = elements->size();
+    bool ghost;
     for (Uint e=0; e<nb_elem; ++e)
     {
-      if( m_enable_overlap || !elements->is_ghost(e) )
+      ghost = elements->is_ghost(e);
+      if( m_enable_overlap || !ghost )
       {
-        file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << partition_number;
+        file << elements->glb_idx()[e]+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << elementary_entity_index << " " << (ghost? -1 : partition_number);
         boost_foreach(const Uint node_idx, element_connectivity[e])
         {
-          file << " " << to_gmsh_node[node_idx];
+          file << " " << elements->geometry_fields().glb_idx()[node_idx]+1;
         }
         file << "\n";
-        ++elm_number;
       }
     }
     ++elementary_entity_index;
@@ -285,19 +307,22 @@ void Writer::write_connectivity(std::fstream& file)
 
 void Writer::write_elem_nodal_data(std::fstream& file)
 {
-//  $ElementNodeData
-//  number-of-string-tags
-//  < "string-tag" >
-//  ...
-//  number-of-real-tags
-//  < real-tag >
-//  ...
-//  number-of-integer-tags
-//  < integer-tag >
-//  ...
-//  elm-number number-of-nodes-per-element value ...
-//  ...
-//  $ElementEndNodeData
+  /// Discontinuous fields section
+  /// @code
+  /// $ElementNodeData
+  ///  number-of-string-tags
+  ///  < "string-tag" >
+  ///  ...
+  ///  number-of-real-tags
+  ///  < real-tag >
+  ///  ...
+  ///  number-of-integer-tags
+  ///  < integer-tag >
+  ///  ...
+  ///  elm-number number-of-nodes-per-element value ...
+  ///  ...
+  ///  $ElementEndNodeData
+  /// @endcode
 
   // set precision for Real
   Uint prec = file.precision();
@@ -314,7 +339,6 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       const Real field_time = 0;//field.option("time").value<Real>();
       const Uint field_iter = 0;//field.option("iteration").value<Uint>();
       const std::string field_name = field.name();
-      const std::string field_basis = field.continuous() ? "continuous" : "discontinuous";
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
@@ -355,11 +379,14 @@ void Writer::write_elem_nodal_data(std::fstream& file)
         RealVector data(datasize); data.setZero();
 
         file << "$ElementNodeData\n";
-        file << 3 << "\n";
+
+        // add 2 string tags : var_name, field_name
+        file << 2 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
         file << "\"" << field_name << "\"\n";
-        file << "\"" << field_basis << "\"\n";
-        file << 1 << "\n" << field_time << "\n";
+        // add 1 real tag: time
+        file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
+        // add 3 integer tags: time_step, variable_type, nb elements
         file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
 
         boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
@@ -368,7 +395,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
           {
             const Entities& elements = *elements_handle;
             const Space& field_space = field.space(elements);
-            Uint elm_number = m_element_start_idx[&elements];
+//            Uint elm_number = m_element_start_idx[&elements];
             Uint local_nb_elms = elements.size();
 
             const Uint nb_states = field_space.shape_function().nb_nodes();
@@ -381,8 +408,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
             {
               if (m_enable_overlap || !elements.is_ghost(local_elm_idx))
               {
-                file << ++elm_number << " " << nb_nodes << " ";
-
+                file << elements.glb_idx()[local_elm_idx]+1 << " " << nb_nodes << " ";
                 /// set field data
                 Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
                 for (Uint iState=0; iState<nb_states; ++iState)

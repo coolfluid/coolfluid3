@@ -268,11 +268,13 @@ void Transformer::output( const std::vector<std::string>& params )
 
     CFinfo << "\nWriting " << outputfile.path() << " with " << writer->get_format() << CFendl;
 
-    std::vector<Handle< Field > > fields;
+    std::vector<URI> fields;
     boost_foreach ( Field& field, find_components<Field>(*mesh) )
-      fields.push_back(field.handle<Field>());
-    if (!dryrun) writer->set_fields(fields);
-    if (!dryrun) writer->write_from_to(*mesh,outputfile);
+      fields.push_back(field.uri());
+    if (!dryrun) writer->options().configure_option("fields",fields);
+    if (!dryrun) writer->options().configure_option("mesh",mesh);
+    if (!dryrun) writer->options().configure_option("file",outputfile);
+    if (!dryrun) writer->execute();
   }
 }
 

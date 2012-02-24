@@ -309,8 +309,11 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   boost::shared_ptr< MeshWriter > mesh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","writer");
 
-  mesh_writer->set_fields(std::vector<Handle< Field > >(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())));
-  mesh_writer->write_from_to(*mesh,"facenormals.msh");
+  std::vector<URI> fields(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())->uri());
+  mesh_writer->options().configure_option("fields",fields);
+  mesh_writer->options().configure_option("mesh",mesh);
+  mesh_writer->options().configure_option("file",URI("facenormals.msh"));
+  mesh_writer->execute();
   BOOST_CHECK(true);
 
 }

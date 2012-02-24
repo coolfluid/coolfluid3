@@ -142,17 +142,6 @@ void MeshWriter::config_regions()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshWriter::set_fields(const std::vector<Handle< Field > >& fields)
-{
-  CFwarn << "Deprecated function, configure using URI's" << CFendl;
-  m_fields.clear();
-  m_fields.reserve(fields.size());
-  boost_foreach( Handle< Field > field, fields )
-    m_fields.push_back(field);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 MeshWriter::~MeshWriter()
 {
 }
@@ -186,7 +175,6 @@ void MeshWriter::execute()
 
 void MeshWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  CFwarn << "Deprecated function, configure \"mesh\" and \"file\", then call execute()" << CFendl;
   options().configure_option("mesh",mesh.handle<Mesh const>());
   options().configure_option("file",file_path);
   execute();

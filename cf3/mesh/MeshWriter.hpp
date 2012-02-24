@@ -53,10 +53,6 @@ public: // functions
 
   virtual void execute();
 
-  /// @deprecated. Configure fields using uri's
-  void set_fields(const std::vector<Handle<Field> >& fields);
-
-  /// @deprecated
   virtual void write_from_to(const Mesh& mesh, const common::URI& file_path);
 
 private: // functions
