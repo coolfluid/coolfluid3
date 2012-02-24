@@ -292,7 +292,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   std::vector<URI> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
   writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh);
+  writer.options().configure_option("mesh",mesh.handle<Mesh>());
   writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
   writer.execute();
 }
