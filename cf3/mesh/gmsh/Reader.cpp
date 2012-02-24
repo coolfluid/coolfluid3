@@ -308,6 +308,8 @@ void Reader::find_used_nodes()
   Uint elementNumber, elementType, nbElementNodes;
   Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
 
+  std::set<Uint>::iterator it=m_used_nodes.begin();
+
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
 //    if (m_total_nb_elements > 100000)
@@ -332,7 +334,7 @@ void Reader::find_used_nodes()
       for (Uint j=0; j<nbElementNodes; ++j)
       {
         m_file >> gmsh_node_number;
-        m_used_nodes.insert(gmsh_node_number);
+        it = m_used_nodes.insert(it,gmsh_node_number);
       }
     }
   }
@@ -342,7 +344,6 @@ void Reader::find_used_nodes()
   // Now add owned nodes
   m_file.seekg(m_coordinates_position,std::ios::beg);
 
-  std::set<Uint>::const_iterator it;
   for (Uint node_idx=0; node_idx<m_total_nb_nodes; ++node_idx)
   {
 //    if (m_total_nb_nodes > 100000)
@@ -358,7 +359,7 @@ void Reader::find_used_nodes()
     std::cout << "node-number="<<gmsh_node_number<<std::endl;
     if (m_hash->subhash(NODES).owns(node_idx))
     {
-      m_used_nodes.insert(gmsh_node_number);
+      it = m_used_nodes.insert(it,gmsh_node_number);
     }
     else
     {
