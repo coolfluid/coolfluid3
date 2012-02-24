@@ -68,6 +68,16 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
 
   root.options().option("test_group_option").change_value(group);
   BOOST_CHECK(group == group_opt.value< Handle<Group> >());
+  
+  Handle<Group const> const_group(group);
+  BOOST_CHECK_THROW(root.options().option("test_group_option").change_value(const_group), CastingFailed);
+  
+  OptionComponent<Group const>& group_opt_const = root.options().add_option("test_const_group_option", Handle<Group const>());
+  root.options().option("test_const_group_option").change_value(group);
+  BOOST_CHECK(group == group_opt_const.value< Handle<Group const> >());
+  
+  root.options().option("test_const_group_option").change_value(Handle<Component>());
+  BOOST_CHECK(is_null(group_opt_const.value< Handle<Group const> >()));
 }
 
 BOOST_AUTO_TEST_CASE( TestOptionArray )

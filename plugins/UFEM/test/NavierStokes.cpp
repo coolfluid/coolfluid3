@@ -166,7 +166,7 @@ boost::shared_ptr<Expression> navier_stokes_bulk(LinearSolverUnsteady& solver, S
         _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
         _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + coefs.tau_su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
         _A(u[_i], p)     += 1./coefs.rho * transpose(N(u) + coefs.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-        _A(u[_i], u[_j]) += coefs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
+        _A(u[_i], u[_j]) += transpose(coefs.tau_bulk*nabla(u)[_i] + 0.5*u[_i]*N(u)) * nabla(u)[_j], // Bulk viscosity and skew symmetric part
         _T(p    , u[_i]) += coefs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
         _T(u[_i], u[_i]) += transpose(N(u) + coefs.tau_su*u*nabla(u))         * N(u)          // Time, standard
       ),

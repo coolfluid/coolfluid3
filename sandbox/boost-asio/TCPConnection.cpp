@@ -49,7 +49,7 @@ TCPConnection::~TCPConnection()
     m_socket.shutdown( tcp::socket::shutdown_both );
     m_socket.close();
   }
-  catch( system::error_code & e )
+  catch( boost::system::error_code & e )
   {
     error("An error occured while the socket was shutting down: " + e.message());
   }

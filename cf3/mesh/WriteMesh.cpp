@@ -231,6 +231,7 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
   Handle< MeshWriter > writer = m_extensions_to_writers[extension][0];
   writer->options().configure_option("fields",fields);
   writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  writer->options().configure_option("file", filepath);
 
   writer->execute();
 
