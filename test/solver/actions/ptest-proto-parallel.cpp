@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   writer.options().configure_option("fields",fields);
   writer.options().configure_option("mesh",mesh);
   writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
-  writer->execute();
+  writer.execute();
 }
 
 
