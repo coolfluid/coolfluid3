@@ -66,7 +66,7 @@ struct ComputeTau
   {
     typedef typename UT::EtypeT ElementT;
     
-    const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : pow(3./4./3.141592654*u.support().volume(),1./3.);
+    const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
     const Real ree=coeffs.rho*coeffs.u_ref*he/(2.*coeffs.mu);
     const Real xi=std::max(0.,std::min(ree/3.,1.));
     coeffs.tau_ps = he*xi/(2.*coeffs.u_ref);
@@ -82,7 +82,8 @@ struct ComputeTau
       ElementNormals<ElementT>()(u.support().nodes(), normals);
       const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
       Real ree=coeffs.rho*umag*h/(2.*coeffs.mu);
-      Real xi=std::max(0.,std::min(ree/3.,1.));
+      cf3_assert(ree > 0.);
+      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
       coeffs.tau_su = h*xi/(2.*umag);
     }
   }
