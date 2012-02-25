@@ -68,7 +68,8 @@ struct ComputeTau
     
     const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
     const Real ree=coeffs.rho*coeffs.u_ref*he/(2.*coeffs.mu);
-    const Real xi=std::max(0.,std::min(ree/3.,1.));
+    cf3_assert(ree > 0.);
+    const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
     coeffs.tau_ps = he*xi/(2.*coeffs.u_ref);
     coeffs.tau_bulk = he*coeffs.u_ref/xi;
 
