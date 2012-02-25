@@ -79,11 +79,6 @@ public: // functions
   /// @param [in,out] mesh  the mesh to write to
   void read_mesh_into(const common::URI& path, Mesh& mesh);
 
-//  /// Read a given file and create a mesh
-//  /// @param [in]   path    the file to read in
-//  /// @return mesh          the created mesh
-//  Handle< Mesh > create_mesh_from(const common::URI& path);
-
 protected: // functions
 
   /// Map type from string to a common::Table<Uint>::Buffer

@@ -119,14 +119,15 @@ Term& DomainDiscretization::create_term( const std::string& type,
 
   term->initialize();
 
-  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
+  const std::string option_name("regions");
+  boost_foreach(const URI& region_uri, term->options().option(option_name).value<std::vector<URI> >())
   {
     cf3_assert(mesh().access_component(region_uri));
     m_terms_per_region[mesh().access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
   }
 
   CFinfo << "Created term   " << name << "(" << type << ") for regions " << CFendl;
-  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
+  boost_foreach(const URI& region_uri, term->options().option(option_name).value<std::vector<URI> >())
   {
     cf3_assert(mesh().access_component(region_uri));
     CFinfo << "    - " << mesh().access_component(region_uri)->uri().path() << CFendl;

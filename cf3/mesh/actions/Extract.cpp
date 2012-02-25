@@ -161,7 +161,7 @@ void Extract::execute()
   // remove regions that have no elements
   BOOST_FOREACH( Region& region, find_components_recursively<Region>(mesh))
   {
-    if (region.recursive_elements_count() == 0)
+    if (region.recursive_elements_count(true) == 0)
     {
       CFinfo << "removing empty element_region " << region.uri().string() << CFendl;
       region.parent()->remove_component(region.name());

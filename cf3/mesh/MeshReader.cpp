@@ -116,20 +116,6 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-//Handle< Mesh > MeshReader::create_mesh_from(const URI& file)
-//{
-//  // Create the mesh
-//  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>("mesh") );
-
-//  // Call implementation
-//  do_read_mesh_into(file,*mesh);
-
-//  // return the mesh
-//  return mesh;
-//}
-
-//////////////////////////////////////////////////////////////////////////////
-
 std::map<std::string,Handle< Elements > >
   MeshReader::create_cells_in_region (Region& parent_region, Dictionary& nodes,
                                        const std::vector<std::string>& etypes)

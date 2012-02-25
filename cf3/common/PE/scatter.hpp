@@ -420,9 +420,9 @@ scatter(const Communicator& comm, const std::vector<T>& in_values, const std::ve
 
   // call vm_impl
   if (irank==root) {
-    detail::scattervm_impl(comm, (T*)(&in_values[0]), &in_n[0], &in_map[0], (T*)(&out_values[0]), out_n, &out_map[0], root, stride);
+    detail::scattervm_impl(comm, (T*)(&in_values[0]), &in_n[0], (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), out_n, (out_map.empty() ? nullptr : &out_map[0]), root, stride);
   } else {
-    detail::scattervm_impl(comm, (T*)0, &in_n[0], &in_map[0], (T*)(&out_values[0]), out_n, &out_map[0], root, stride);
+    detail::scattervm_impl(comm, (T*)0, &in_n[0], (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), out_n, (out_map.empty() ? nullptr : &out_map[0]), root, stride);
   }
 }
 

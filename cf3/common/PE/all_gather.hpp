@@ -416,7 +416,7 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, const int 
   }
 
   // call vm_impl
-  detail::all_gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
+  detail::all_gathervm_impl(comm, (T*)(&in_values[0]), in_n, (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), &out_n[0], (out_map.empty() ? nullptr : &out_map[0]), stride);
 }
 
 template <typename T>

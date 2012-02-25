@@ -47,7 +47,7 @@ solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStora
 
 ### Configure timestepping
 solver.access_component('Time').options().configure_option('time_step',30);
-solver.access_component('Time').options().configure_option('end_time',100);
+solver.access_component('Time').options().configure_option('end_time',5);
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 #solver.access_component('TimeStepping').options().configure_option('max_iteration',1);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',4)
@@ -153,7 +153,7 @@ mesh.access_component('solution_space/char').uri()
 # gmsh
 ######
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh.uri())
+gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('fields',fields)
 gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
 gmsh_writer.execute()
@@ -191,7 +191,7 @@ visualization_mesh.access_component('geometry/char').uri()
 
 # Write visualization mesh
 tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-tec_writer.options().configure_option('mesh',visualization_mesh.uri())
+tec_writer.options().configure_option('mesh',visualization_mesh)
 tec_writer.options().configure_option('fields',fields)
 tec_writer.options().configure_option('cell_centred',True)
 tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
@@ -226,7 +226,7 @@ probe_mesh.access_component('geometry/char').uri()
 
 # Write probe mesh
 tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-tec_writer.options().configure_option('mesh',probe_mesh.uri())
+tec_writer.options().configure_option('mesh',probe_mesh)
 tec_writer.options().configure_option('fields',fields)
 tec_writer.options().configure_option('cell_centred',True)
 tec_writer.options().configure_option('file',coolfluid.URI('file:probe_liney0.plt'))

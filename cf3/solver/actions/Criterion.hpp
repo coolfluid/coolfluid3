@@ -18,15 +18,10 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Criterion models a Unsteady PDE problem
+/// Criterion models a boolean criterion
 /// @author Tiago Quintino
-class solver_actions_API Criterion : public common::Component {
-
-public: // typedefs
-
-  
-  
-
+class solver_actions_API Criterion : public common::Component
+{
 public: // functions
 
   /// Contructor
@@ -39,7 +34,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Criterion"; }
 
-  /// Simulates this model
+  /// Return the state of the criterion
   virtual bool operator()() = 0;
 };
 

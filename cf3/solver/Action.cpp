@@ -109,7 +109,8 @@ void Action::config_regions()
 
   m_loop_regions.clear();
 
-  boost_foreach(const common::URI region_uri, options().option("regions").value< std::vector<common::URI> >())
+  const std::string regions_option_name("regions"); // for Intel Composer 2011...
+  boost_foreach(const common::URI region_uri, options().option(regions_option_name).value< std::vector<common::URI> >())
   {
     Handle<Component> comp;
     if (region_uri.is_relative())

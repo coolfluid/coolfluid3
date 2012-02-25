@@ -12,7 +12,6 @@
 #include <boost/mpl/or.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/remove_const.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include "common/Assertions.hpp"
@@ -47,7 +46,7 @@ public:
   template<typename Y>
   explicit Handle(const boost::shared_ptr<Y>& ptr)
   {
-    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y));
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y&));
     create_from_shared(ptr);
   }
 
@@ -55,7 +54,7 @@ public:
   template<typename Y>
   explicit Handle(const Handle<Y>& other)
   {
-    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y));
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<T, Y>::value), HANDLE_CONSTRUCTOR_REMOVES_CONSTNESS, (Y&));
 
     create_from_shared(other.m_weak_ptr.lock());
   }
@@ -86,7 +85,7 @@ public:
   template<typename Y>
   operator Handle<Y>() const
   {
-    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<Y, T>::value), HANDLE_CONVERSION_REMOVES_CONSTNESS, (Y));
+    BOOST_MPL_ASSERT_MSG((detail::is_const_comptible<Y, T>::value), HANDLE_CONVERSION_REMOVES_CONSTNESS, (Y&));
 
     Handle<Y> other;
     other.m_cached_ptr = m_cached_ptr;

@@ -95,7 +95,7 @@ mesh.access_component("solution_space/residual").uri()
 # tecplot
 #########
 tec_writer = model.get_child('tools').create_component("writer","cf3.mesh.tecplot.Writer")
-tec_writer.options().configure_option("mesh",mesh.uri())
+tec_writer.options().configure_option("mesh",mesh)
 tec_writer.options().configure_option("fields",fields)
 tec_writer.options().configure_option("cell_centred",False)
 tec_writer.options().configure_option("file",coolfluid.URI("file:sdm_output.plt"))
@@ -104,7 +104,8 @@ tec_writer.execute()
 # gmsh
 ######
 gmsh_writer = model.create_component("writer","cf3.mesh.gmsh.Writer")
-gmsh_writer.options().configure_option("mesh",mesh.uri())
+gmsh_writer.options().configure_option("mesh",mesh)
 gmsh_writer.options().configure_option("fields",fields)
 gmsh_writer.options().configure_option("file",coolfluid.URI("file:sdm_output.msh"))
+gmsh_writer.options().configure_option("enable_surfaces",False)
 gmsh_writer.execute()
