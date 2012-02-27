@@ -9,15 +9,13 @@
 
 #include "math/MatrixTypes.hpp"
 
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/LagrangeP1/Tetra3D.hpp"
+
 #include "solver/actions/Proto/ElementOperations.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
 namespace cf3 {
-
-namespace mesh { namespace LagrangeP1 {
-  struct Triag2D;
-  struct Tetra3D;
-} }
 
 namespace UFEM {
 
