@@ -245,14 +245,24 @@ coolfluid_add_test( UTEST    utest-mesh-simplemeshgenerator
                     LIBS     coolfluid_mesh
                     MPI      2 )
 
+############################################################################################
+
+set( partitioner_lib "" )
+if( coolfluid_mesh_zoltan_builds )
+    list( APPEND partitioner_lib coolfluid_mesh_zoltan )
+endif()
+if( coolfluid_mesh_ptscotch_builds )
+    list( APPEND partitioner_lib coolfluid_mesh_ptscotch )
+endif()
 
 coolfluid_add_test( UTEST     utest-mesh-parallel-overlap
                     CPP       utest-mesh-parallel-overlap.cpp
-                    LIBS       coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_actions coolfluid_mesh_zoltan coolfluid_mesh_gmsh coolfluid_mesh_neu coolfluid_mesh_tecplot
+                    LIBS      coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_actions ${partitioner_lib} coolfluid_mesh_gmsh coolfluid_mesh_neu coolfluid_mesh_tecplot
                     MPI       2
                     CONDITION coolfluid_mesh_zoltan_builds OR coolfluid_mesh_ptscotch_builds
                     DEPENDS   copy-resources )
 
+############################################################################################
 
 coolfluid_add_test( UTEST     utest-mesh-shapefunctions
                     CPP       utest-mesh-shapefunctions.cpp
