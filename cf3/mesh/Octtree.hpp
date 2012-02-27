@@ -12,6 +12,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "common/Component.hpp"
+#include "mesh/BoundingBox.hpp"
 #include "mesh/Elements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +95,7 @@ private: // data
   ArrayT m_octtree;
 
   Uint m_dim;
-  enum {MIN=0,MAX=1};
-  std::vector< RealVector3, Eigen::aligned_allocator<RealVector3> > m_bounding;
+  Handle<BoundingBox> m_bounding_box;
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
 

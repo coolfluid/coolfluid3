@@ -28,16 +28,9 @@ namespace mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Mesh component class
-/// Mesh now stores:
-///   - regions which subdivide in subregions
-///   - arrays containing coordinates, variables, ...
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Mesh_API Mesh : public common::Component {
-public: // typedefs
-
-  
-  
 
 public: // functions
 
