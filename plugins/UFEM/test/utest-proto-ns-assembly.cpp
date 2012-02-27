@@ -64,7 +64,7 @@ struct NavierStokesAssemblyFixture
     return *m_domain;
   }
 
-  void create_triangle(Mesh& mesh, const RealVector2& a, const RealVector2& b, const RealVector2& c)
+  const Field& create_triangle(Mesh& mesh, const RealVector2& a, const RealVector2& b, const RealVector2& c)
   {
     // coordinates
     mesh.initialize_nodes(3, 2);
@@ -79,6 +79,7 @@ struct NavierStokesAssemblyFixture
 
     Field& solution = mesh.geometry_fields().create_field("solution", "p[scalar],u[vector]");
     solution.add_tag("solution");
+    return solution;
   }
 
   void create_tetra(Mesh& mesh, const RealVector3& a, const RealVector3& b, const RealVector3& c, const RealVector3& d)
@@ -108,14 +109,14 @@ struct NavierStokesAssemblyFixture
         compute_tau(u, c),
         element_quadrature
         (
-          _A(p    , u[_i]) +=          transpose(N(p) + c.tau_ps*u*nabla(p)*0.5)       * nabla(u)[_i] + c.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
-          _A(p    , p)     += c.tau_ps * transpose(nabla(p))     * nabla(p) * c.one_over_rho,     // Continuity, PSPG
-          _A(u[_i], u[_i]) += c.mu     * transpose(nabla(u))     * nabla(u) * c.one_over_rho     + transpose(N(u) + c.tau_su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
+          _A(p    , u[_i]) += transpose(N(p) + c.tau_ps*u*nabla(p)*0.5) * nabla(u)[_i] + c.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
+          _A(p    , p)     += c.tau_ps * transpose(nabla(p)) * nabla(p) * c.one_over_rho, // Continuity, PSPG
+          _A(u[_i], u[_i]) += c.mu * transpose(nabla(u)) * nabla(u) * c.one_over_rho + transpose(N(u) + c.tau_su*u*nabla(u)) * u*nabla(u), // Diffusion + advection
           _A(u[_i], p)     += c.one_over_rho * transpose(N(u) + c.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
           _A(u[_i], u[_j]) += transpose((c.tau_bulk + 0.33333333333333*boost::proto::lit(c.mu)*c.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
                                           + 0.5*u[_i]*(N(u) + c.tau_su*u*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
-          _T(p    , u[_i]) += c.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
-          _T(u[_i], u[_i]) += transpose(N(u) + c.tau_su*u*nabla(u))         * N(u)          // Time, standard and SUPG
+          _T(p    , u[_i]) += c.tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
+          _T(u[_i], u[_i]) += transpose(N(u) + c.tau_su*u*nabla(u)) * N(u) // Time, standard and SUPG
         ),
         boost::proto::lit(A) = _A, boost::proto::lit(T) = _T
       )
@@ -123,7 +124,7 @@ struct NavierStokesAssemblyFixture
   }
 
   template<typename ElementT>
-  void runtest(Mesh& mesh)
+  void runtest(Mesh& mesh, const Real eps = 1e-12)
   {
     MeshTerm<0, ScalarField> p("p", "solution");
     MeshTerm<1, VectorField> u("u", "solution");
@@ -145,15 +146,15 @@ struct NavierStokesAssemblyFixture
 
     std::cout << "A:\n" << A << "\nT:\n" << T << std::endl;
 
-    check_close(A, A_spec);
-    check_close(T, T_spec);
+    check_close(A, A_spec, eps);
+    check_close(T, T_spec, eps);
   }
 
-  void check_close(const RealMatrix& a, const RealMatrix& b)
+  void check_close(const RealMatrix& a, const RealMatrix& b, const Real eps)
   {
     for(Uint i = 0; i != a.rows(); ++i)
       for(Uint j = 0; j != a.cols(); ++j)
-        BOOST_CHECK_CLOSE(a(i,j), b(i,j), 1e-12);
+        BOOST_CHECK_CLOSE(a(i,j), b(i,j), eps);
   }
 
   SUPGCoeffs c;
@@ -190,7 +191,7 @@ BOOST_AUTO_TEST_CASE( TetraUniform )
 
 BOOST_AUTO_TEST_CASE( GenericTriangleUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("TriangleUniform");
+  Mesh& mesh = *domain().create_component<Mesh>("GenericTriangleUniform");
   create_triangle(mesh, RealVector2(0.2, 0.1), RealVector2(0.75, -0.1), RealVector2(0.33, 0.83));
 
   // Initialize u
@@ -204,7 +205,7 @@ BOOST_AUTO_TEST_CASE( GenericTriangleUniform )
 
 BOOST_AUTO_TEST_CASE( GenericTetraUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("TriangleUniform");
+  Mesh& mesh = *domain().create_component<Mesh>("GenericTetraUniform");
   create_tetra(mesh, RealVector3(0.2, 0.1, -0.1), RealVector3(0.75, -0.1, 0.05), RealVector3(0.33, 0.83, 0.23), RealVector3(0.1, -0.1, 0.67));
 
   // Initialize u
@@ -213,6 +214,35 @@ BOOST_AUTO_TEST_CASE( GenericTetraUniform )
   for_each_node(mesh.topology(), u = u_init);
 
   runtest<LagrangeP1::Tetra3D>(mesh);
+}
+
+
+BOOST_AUTO_TEST_CASE( GenericTriangleVortex )
+{
+  Mesh& mesh = *domain().create_component<Mesh>("GenericTriangleVortex");
+  create_triangle(mesh, RealVector2(100.2, 100.1), RealVector2(100.75, 99.9), RealVector2(100.33, 100.83));
+
+  // Initialize u
+  RealMatrix2 n_op; n_op << 0., 100., -100., 0.; // Linear operator to create a normal vector in 2D
+  MeshTerm<0, VectorField> u("u", "solution");
+  for_each_node<2>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
+  for_each_node<2>(mesh.topology(), _cout << transpose(u) << "\n");
+
+  runtest<LagrangeP1::Triag2D>(mesh,0.05); // Tolerance must be higher due to the different interpolation of the advection speed
+}
+
+BOOST_AUTO_TEST_CASE( GenericTetraVortex )
+{
+  Mesh& mesh = *domain().create_component<Mesh>("GenericTetraVortex");
+  create_tetra(mesh, RealVector3(100.2, 100.1, 99.9), RealVector3(100.75, 99.9, 100.05), RealVector3(100.33, 100.83, 100.23), RealVector3(100.1, 99.9, 100.67));
+
+  // Initialize u
+  RealMatrix3 n_op; n_op << 0., 1., 0., -1., 0., 0., 0., 0., 0.; // Linear operator to create a normal vector
+  MeshTerm<0, VectorField> u("u", "solution");
+  for_each_node<3>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
+  for_each_node<3>(mesh.topology(), _cout << transpose(u) << "\n");
+
+  runtest<LagrangeP1::Tetra3D>(mesh,0.2); // Tolerance must be higher due to the different interpolation of the advection speed
 }
 
 BOOST_AUTO_TEST_SUITE_END()

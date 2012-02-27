@@ -250,7 +250,7 @@ struct MathOpDefaultCases
   template<int Dummy> struct case_<boost::proto::tag::plus, Dummy> : boost::proto::plus<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus, Dummy> : boost::proto::minus<GrammarT, GrammarT> {};
   //template<int Dummy> struct case_<boost::proto::tag::multiplies, Dummy> : boost::proto::multiplies<GrammarT, GrammarT> {};
-  template<int Dummy> struct case_<boost::proto::tag::divides, Dummy> : boost::proto::divides<GrammarT, Scalar> {};
+  template<int Dummy> struct case_<boost::proto::tag::divides, Dummy> : boost::proto::divides<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::function, Dummy> : boost::proto::function< DefaultFunctions, boost::proto::vararg<GrammarT> > {};
