@@ -73,4 +73,6 @@ coolfluid_add_test( UTEST      utest-rdm-merge
                     MPI        1
                     CONDITION  coolfluid_ufem_builds )
 
-coolfluid_mark_not_orphan(tris.cpp)
+coolfluid_add_test( UTEST      utest-proto-ns-assembly
+                    CPP        utest-proto-ns-assembly.cpp
+                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
