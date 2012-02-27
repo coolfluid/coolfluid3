@@ -65,16 +65,16 @@ public: // functions
   Elements& create_elements (const std::string& element_type_name, Dictionary& geometry);
 
   /// @return the number of elements stored in this region, including any subregions
-  Uint recursive_elements_count() const;
+  Uint recursive_elements_count(bool include_ghost_elems) const;
 
   /// @return the number of elements stored in this region, including any subregions
   ///         summed over all processors
   /// @todo remove ghost nodes from the count
-  Uint global_elements_count() const;
+  Uint global_elements_count(bool include_ghost_elems) const;
 
   /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>
-    Uint recursive_filtered_elements_count(const Predicate& pred) const;
+    Uint recursive_filtered_elements_count(const Predicate& pred, bool include_ghost_elems) const;
 
   Uint recursive_nodes_count();
 
@@ -108,12 +108,29 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename Predicate>
-inline Uint Region::recursive_filtered_elements_count(const Predicate& pred) const
+inline Uint Region::recursive_filtered_elements_count(const Predicate& pred, bool include_ghost_elems) const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const Entities& elements, common::find_components_recursively_with_filter<Entities>(*this,pred))
-    elem_count += elements.size();
+  if (include_ghost_elems)
+  {
+    BOOST_FOREACH(const Entities& elements, common::find_components_recursively_with_filter<Entities>(*this,pred))
+      elem_count += elements.size();
+  }
+  else
+  {
+    Uint nb_ghost;
+    BOOST_FOREACH (const Entities& elements, common::find_components_recursively_with_filter<Entities>(*this,pred) )
+    {
+      elem_count += elements.size();
 
+      // Count ghosts elements and subtract
+      nb_ghost = 0;
+      for (Uint e=0; e<elements.size(); ++e)
+        if (elements.is_ghost(e))
+          ++nb_ghost;
+      elem_count -= nb_ghost;
+    }
+  }
   return elem_count;
 }
 

@@ -37,9 +37,6 @@ class Mesh_API Field : public common::Table<Real> {
 
 public: // typedefs
 
-
-
-
   typedef ArrayT::array_view<2>::type View;
 
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
@@ -59,10 +56,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "Field"; }
-
-  Dictionary::Basis::Type basis() const { return m_basis; }
-
-  void set_basis(const Dictionary::Basis::Type basis) { m_basis = basis;}
 
   std::string var_name(Uint i=0) const;
 
@@ -108,12 +101,13 @@ public: // functions
 
   bool is_ghost(const Uint idx) const { return dict().is_ghost(idx); }
 
-//  const std::string& space() const { return dict().space(); }
+  bool continuous() const { return dict().continuous(); }
+  bool discontinuous() const { return dict().discontinuous(); }
 
   const Handle<Space const>& space(const Handle<Entities const>& entities) const { return dict().space(entities); }
   const Space& space(const Entities& entities) const { return dict().space(entities); }
 
-  std::vector< Handle<Entities> > entities_range();
+  const std::vector< Handle<Entities> >& entities_range() const;
 
   Field& coordinates() const { return dict().coordinates(); }
 
@@ -122,8 +116,6 @@ public: // functions
   common::PE::CommPattern& parallelize();
 
   void synchronize();
-
-//  UnifiedData& elements_lookup() const { return dict().elements_lookup(); }
 
   math::VariablesDescriptor& descriptor() const { return *m_descriptor; }
 
@@ -308,8 +300,6 @@ private:
   void config_var_names();
   void config_var_types();
 
-  Dictionary::Basis::Type m_basis;
-//  Handle<Region> m_topology;
   Handle<Dictionary> m_dict;
 
   Handle< common::PE::CommPattern > m_comm_pattern;

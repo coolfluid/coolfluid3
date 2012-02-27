@@ -107,7 +107,8 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
   }
 
   CFinfo << "Created BC   " << name << "(" << type << ") for regions " << CFendl;
-  boost_foreach(const URI& region_uri, bc->options().option("regions").value< std::vector<URI> >())
+  const std::string regions_option_name("regions");
+  boost_foreach(const URI& region_uri, bc->options().option(regions_option_name).value< std::vector<URI> >())
   {
     CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
   }

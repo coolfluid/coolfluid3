@@ -100,7 +100,7 @@ for (j = 1; j < nptrs; j++)
     size_t maxName = 1024;
     int demangleStatus;  // will be assigned in abi::__cxa_demangle
     char* demangledName; // will be allocated in abi::__cxa_demangle
-    if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
+    if ((demangledName = abi::__cxa_demangle(trace.c_str(), NULL, &maxName,
                                              &demangleStatus)) && demangleStatus == 0)
     {
       trace = demangledName; // the demangled name is now in our trace string

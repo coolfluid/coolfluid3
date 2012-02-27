@@ -54,22 +54,11 @@ void LinearSolverUnsteady::trigger_time()
       return;
     
   m_time->options().option("time_step").attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_timestep, this));
-  m_time->options().option("iteration").attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_iteration, this));
 }
 
 void LinearSolverUnsteady::trigger_timestep()
 {
   m_invdt = m_time->invdt();
-}
-
-
-void LinearSolverUnsteady::on_iteration_increment()
-{
-}
-
-void LinearSolverUnsteady::trigger_iteration()
-{
-  on_iteration_increment();
 }
 
 

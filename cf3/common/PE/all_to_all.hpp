@@ -400,7 +400,7 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
   }
 
   // call vm_impl
-  detail::all_to_allvm_impl(comm, (T*)(&in_values[0]), &in_n[0], &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
+  detail::all_to_allvm_impl(comm, (T*)(&in_values[0]), &in_n[0], (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), &out_n[0], (out_map.empty() ? nullptr : &out_map[0]), stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

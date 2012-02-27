@@ -23,6 +23,30 @@
 namespace cf3 {
 namespace common {
 
+/// Prevent a crash in the intel compiler
+struct StringConverter
+{
+  StringConverter(const std::string& str) : m_value(str.c_str())
+  {
+  }
+  
+  StringConverter(const char* c_str) : m_value(c_str)
+  {
+  }
+  
+  std::string str()
+  {
+    return std::string(m_value);
+  }
+  
+  operator char const*()
+  {
+    return m_value;
+  }
+  
+  const char* m_value;
+};
+  
 /// Reference to ComponentT, constness determined by the constness of ParentT
 template<typename ParentT, typename ComponentT=Component>
 struct ComponentReference {
@@ -104,7 +128,7 @@ private:
   std::string m_name;
 public:
   IsComponentName () : m_name("undefined") {}
-  IsComponentName (const std::string& name) : m_name(name) {}
+  IsComponentName (StringConverter name) : m_name(name) {}
 
   bool operator()(const Handle<Component const>& component) const
   { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component.get()); }
@@ -120,7 +144,7 @@ private:
   std::string m_tag;
 public:
   IsComponentTag () : m_tag("Component") {}
-  IsComponentTag (const std::string& tag) : m_tag(tag) {}
+  IsComponentTag (StringConverter tag) : m_tag(tag) {}
 
   bool operator()(const Handle<Component const>& component) const
   { return boost::bind( &Component::has_tag , _1 , m_tag )(component.get()); }
@@ -461,20 +485,20 @@ find_components_with_filter(ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRangeSelector<Component, Component, IsComponentName>::type
-find_components_with_name(Component& parent, const std::string& name)
+find_components_with_name(Component& parent, StringConverter name)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
 }
 
 inline ComponentIteratorRangeSelector<Component const, Component, IsComponentName>::type
-find_components_with_name(const Component& parent, const std::string& name)
+find_components_with_name(const Component& parent, StringConverter name)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT, IsComponentName>::type
-find_components_with_name(ParentT& parent, const std::string& name)
+find_components_with_name(ParentT& parent, StringConverter name)
 {
   return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent),IsComponentName(name));
 }
@@ -482,20 +506,20 @@ find_components_with_name(ParentT& parent, const std::string& name)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRangeSelector<Component, Component, IsComponentTag>::type
-find_components_with_tag(Component& parent, const std::string& tag)
+find_components_with_tag(Component& parent, StringConverter tag)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentTag(tag));
 }
 
 inline ComponentIteratorRangeSelector<Component const, Component, IsComponentTag>::type
-find_components_with_tag(const Component& parent, const std::string& tag)
+find_components_with_tag(const Component& parent, StringConverter tag)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentTag(tag));
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT, IsComponentTag>::type
-find_components_with_tag(ParentT& parent, const std::string& tag)
+find_components_with_tag(ParentT& parent, StringConverter tag)
 {
   return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent),IsComponentTag(tag));
 }
@@ -555,27 +579,27 @@ find_components_recursively_with_filter(const Component& parent, const Predicate
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRangeSelector<Component, Component, IsComponentName>::type
-find_components_recursively_with_name(Component& parent, const std::string& name)
+find_components_recursively_with_name(Component& parent, StringConverter name)
 {
   return find_components_recursively_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentIteratorRangeSelector<Component const, Component, IsComponentName>::type
-find_components_recursively_with_name(const Component& parent, const std::string& name)
+find_components_recursively_with_name(const Component& parent, StringConverter name)
 {
   return find_components_recursively_with_filter(parent,IsComponentName(name));
 }
 
 template <typename ComponentT>
 inline typename ComponentIteratorRangeSelector<Component, ComponentT, IsComponentName>::type
-find_components_recursively_with_name(Component& parent, const std::string& name)
+find_components_recursively_with_name(Component& parent, StringConverter name)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
 
 template <typename ComponentT>
 inline typename ComponentIteratorRangeSelector<Component const, ComponentT, IsComponentName>::type
-find_components_recursively_with_name(const Component& parent, const std::string& name)
+find_components_recursively_with_name(const Component& parent, StringConverter name)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -583,27 +607,27 @@ find_components_recursively_with_name(const Component& parent, const std::string
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRangeSelector<Component, Component, IsComponentTag>::type
-find_components_recursively_with_tag(Component& parent, const std::string& tag)
+find_components_recursively_with_tag(Component& parent, StringConverter tag)
 {
   return find_components_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
 inline ComponentIteratorRangeSelector<Component const, Component, IsComponentTag>::type
-find_components_recursively_with_tag(const Component& parent, const std::string& tag)
+find_components_recursively_with_tag(const Component& parent, StringConverter tag)
 {
   return find_components_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
 inline typename ComponentIteratorRangeSelector<Component, ComponentT, IsComponentTag>::type
-find_components_recursively_with_tag(Component& parent, const std::string& tag)
+find_components_recursively_with_tag(Component& parent, StringConverter tag)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
 inline typename ComponentIteratorRangeSelector<Component const, ComponentT, IsComponentTag>::type
-find_components_recursively_with_tag(const Component& parent, const std::string& tag)
+find_components_recursively_with_tag(const Component& parent, StringConverter tag)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
@@ -757,7 +781,7 @@ find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_name (Component& parent, const std::string& name)
+find_component_with_name (Component& parent, StringConverter name)
 {
   try
   {
@@ -765,49 +789,49 @@ find_component_with_name (Component& parent, const std::string& name)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name.str()+"\" not found in " + parent.uri().string());
   }
 }
 
 inline ComponentReference<Component const>::type
-find_component_with_name (const Component& parent, const std::string& name) {
+find_component_with_name (const Component& parent, StringConverter name) {
   try
   {
     return find_component_with_filter(parent, IsComponentName(name));
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name.str()+"\" not found in " + parent.uri().string());
   }
 }
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_with_name (ParentT& parent, const std::string& name) {
+find_component_with_name (ParentT& parent, StringConverter name) {
   try
   {
     return find_component_with_filter<ComponentT>(parent, IsComponentName(name));
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" and type " + ComponentT::type_name() + " not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name.str()+"\" and type " + ComponentT::type_name() + " not found in " + parent.uri().string());
   }
 }
 
 inline ComponentHandle<Component>::type
-find_component_ptr_with_name (Component& parent, const std::string& name)
+find_component_ptr_with_name (Component& parent, StringConverter name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentHandle<Component const>::type
-find_component_ptr_with_name (const Component& parent, const std::string& name)
+find_component_ptr_with_name (const Component& parent, StringConverter name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentHandle<ParentT, ComponentT>::type
-find_component_ptr_with_name (ParentT& parent, const std::string& name)
+find_component_ptr_with_name (ParentT& parent, StringConverter name)
 {
   return find_component_ptr_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -815,7 +839,7 @@ find_component_ptr_with_name (ParentT& parent, const std::string& name)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_tag (Component& parent, const std::string& tag)
+find_component_with_tag (Component& parent, StringConverter tag)
 {
   try
   {
@@ -823,12 +847,12 @@ find_component_with_tag (Component& parent, const std::string& tag)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag.str()+"\" not found in " + parent.uri().string());
   }
 }
 
 inline ComponentReference<Component const>::type
-find_component_with_tag (const Component& parent, const std::string& tag)
+find_component_with_tag (const Component& parent, StringConverter tag)
 {
   try
   {
@@ -836,13 +860,13 @@ find_component_with_tag (const Component& parent, const std::string& tag)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag.str()+"\" not found in " + parent.uri().string());
   }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_with_tag (ParentT& parent, const std::string& tag)
+find_component_with_tag (ParentT& parent, StringConverter tag)
 {
   try
   {
@@ -850,26 +874,26 @@ find_component_with_tag (ParentT& parent, const std::string& tag)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" and type " + ComponentT::type_name() + " not found in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag.str()+"\" and type " + ComponentT::type_name() + " not found in " + parent.uri().string());
   }
 
 }
 
 inline ComponentHandle<Component>::type
-find_component_ptr_with_tag (Component& parent, const std::string& tag)
+find_component_ptr_with_tag (Component& parent, StringConverter tag)
 {
   return find_component_ptr_with_filter(parent,IsComponentTag(tag));
 }
 
 inline ComponentHandle<Component const>::type
-find_component_ptr_with_tag (const Component& parent, const std::string& tag)
+find_component_ptr_with_tag (const Component& parent, StringConverter tag)
 {
   return find_component_ptr_with_filter(parent,IsComponentTag(tag));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentHandle<ParentT, ComponentT>::type
-find_component_ptr_with_tag (ParentT& parent, const std::string& tag)
+find_component_ptr_with_tag (ParentT& parent, StringConverter tag)
 {
   return find_component_ptr_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
@@ -1021,7 +1045,7 @@ find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pre
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_name(Component& parent, const std::string& name)
+find_component_recursively_with_name(Component& parent, StringConverter name)
 {
   try
   {
@@ -1029,12 +1053,12 @@ find_component_recursively_with_name(Component& parent, const std::string& name)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " + name + " in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " +name.str()+ " in " + parent.uri().string());
   }
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_name(const Component& parent, const std::string& name)
+find_component_recursively_with_name(const Component& parent, StringConverter name)
 {
   try
   {
@@ -1042,13 +1066,13 @@ find_component_recursively_with_name(const Component& parent, const std::string&
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " + name + " in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " +name.str()+ " in " + parent.uri().string());
   }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_name(ParentT& parent, const std::string& name)
+find_component_recursively_with_name(ParentT& parent, StringConverter name)
 {
   try
   {
@@ -1056,25 +1080,25 @@ find_component_recursively_with_name(ParentT& parent, const std::string& name)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with name \"" + name + "\" and with type " + ComponentT::type_name() + " in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name \"" +name.str()+ "\" and with type " + ComponentT::type_name() + " in " + parent.uri().string());
   }
 }
 
 inline ComponentHandle<Component>::type
-find_component_ptr_recursively_with_name(Component& parent, const std::string& name)
+find_component_ptr_recursively_with_name(Component& parent, StringConverter name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentHandle<Component const>::type
-find_component_ptr_recursively_with_name(const Component& parent, const std::string& name)
+find_component_ptr_recursively_with_name(const Component& parent, StringConverter name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentHandle<ParentT, ComponentT>::type
-find_component_ptr_recursively_with_name(ParentT& parent, const std::string& name)
+find_component_ptr_recursively_with_name(ParentT& parent, StringConverter name)
 {
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -1082,7 +1106,7 @@ find_component_ptr_recursively_with_name(ParentT& parent, const std::string& nam
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_tag(Component& parent, const std::string& tag)
+find_component_recursively_with_tag(Component& parent, StringConverter tag)
 {
   try
   {
@@ -1090,12 +1114,12 @@ find_component_recursively_with_tag(Component& parent, const std::string& tag)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" +tag.str()+ "\" in " + parent.uri().string());
   }
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_tag(const Component& parent, const std::string& tag)
+find_component_recursively_with_tag(const Component& parent, StringConverter tag)
 {
   try
   {
@@ -1103,13 +1127,13 @@ find_component_recursively_with_tag(const Component& parent, const std::string& 
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" +tag.str()+ "\" in " + parent.uri().string());
   }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_tag(ParentT& parent, const std::string& tag)
+find_component_recursively_with_tag(ParentT& parent, StringConverter tag)
 {
   try
   {
@@ -1117,25 +1141,25 @@ find_component_recursively_with_tag(ParentT& parent, const std::string& tag)
   }
   catch (ValueNotFound& e)
   {
-    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" and with type " + ComponentT::type_name() + " in " + parent.uri().string());
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" +tag.str()+ "\" and with type " + ComponentT::type_name() + " in " + parent.uri().string());
   }
 }
 
 inline ComponentHandle<Component>::type
-find_component_ptr_recursively_with_tag(Component& parent, const std::string& tag)
+find_component_ptr_recursively_with_tag(Component& parent, StringConverter tag)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
 inline ComponentHandle<Component const>::type
-find_component_ptr_recursively_with_tag(const Component& parent, const std::string& tag)
+find_component_ptr_recursively_with_tag(const Component& parent, StringConverter tag)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentHandle<ParentT, ComponentT>::type
-find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
+find_component_ptr_recursively_with_tag(ParentT& parent, StringConverter tag)
 {
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
@@ -1203,25 +1227,25 @@ Handle<ParentT> find_parent_component_ptr(ComponentT& comp)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
-ParentT& find_parent_component_with_name(ComponentT& comp, const std::string& name)
+ParentT& find_parent_component_with_name(ComponentT& comp, StringConverter name)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentName(name));
 }
 
 template <typename ParentT, typename ComponentT>
-Handle<ParentT> find_parent_component_with_name(ComponentT& comp, const std::string& name)
+Handle<ParentT> find_parent_component_with_name(ComponentT& comp, StringConverter name)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentName(name));
 }
 
 template <typename ComponentT>
-Component& find_parent_component_with_name(ComponentT& comp, const std::string& name)
+Component& find_parent_component_with_name(ComponentT& comp, StringConverter name)
 {
   return find_parent_component_with_filter(comp,IsComponentName(name));
 }
 
 template <typename ComponentT>
-Handle<Component> find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
+Handle<Component> find_parent_component_ptr_with_name(ComponentT& comp, StringConverter name)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentName(name));
 }
@@ -1229,25 +1253,25 @@ Handle<Component> find_parent_component_ptr_with_name(ComponentT& comp, const st
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
-ParentT& find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+ParentT& find_parent_component_with_tag(ComponentT& comp, StringConverter tag)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
 
 template <typename ParentT, typename ComponentT>
-Handle<ParentT> find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+Handle<ParentT> find_parent_component_ptr_with_tag(ComponentT& comp, StringConverter tag)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
-Component& find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+Component& find_parent_component_with_tag(ComponentT& comp, StringConverter tag)
 {
   return find_parent_component_with_filter(comp,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
-Handle<Component> find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+Handle<Component> find_parent_component_ptr_with_tag(ComponentT& comp, StringConverter tag)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentTag(tag));
 }

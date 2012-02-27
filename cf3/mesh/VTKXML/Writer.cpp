@@ -111,7 +111,7 @@ namespace detail
     void finish_array()
     {
       // Write the last block
-      cf3_assert(m_current_block.tellp() == m_header.last_blocksize);
+      cf3_assert(static_cast<Uint>(m_current_block.tellp()) == static_cast<Uint>(m_header.last_blocksize));
       compress_block();
 
       // go back to the header
@@ -220,10 +220,10 @@ std::vector<std::string> Writer::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
+void Writer::write()
 {
   // Path for the file written by the current node
-  URI my_path(file_path.path());
+  URI my_path(m_file_path.path());
   const URI my_dir = my_path.base_path();
   const std::string basename = my_path.base_name();
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
@@ -239,7 +239,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
-  const Field& coords = mesh.topology().geometry_fields().coordinates();
+  const Field& coords = m_mesh->topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -253,7 +253,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   // Count number of elements
   Uint nb_elems = 0;
   Uint nb_conn_nodes = 0;
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -295,7 +295,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   connectivity.set_attribute("format", "appended");
   connectivity.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_conn_nodes, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -320,7 +320,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   offsets.set_attribute("offset", to_str(appended_data.offset()));
   boost::uint32_t offset = 0;
   appended_data.start_array(nb_elems, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -341,7 +341,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   types.set_attribute("format", "appended");
   types.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_elems, 1);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
@@ -362,26 +362,22 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
   std::set<std::string> added_fields;
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_ptr, m_fields)
   {
     const Field& field = *field_ptr;
 
     if(!added_fields.insert(field.uri().string()).second)
       continue;
 
-    // point-based field
-    if(!(field.basis() == Dictionary::Basis::POINT_BASED || field.basis() == cf3::mesh::Dictionary::Basis::ELEMENT_BASED))
-      continue;
-
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = Dictionary::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
+      const Uint field_size = field.continuous() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
 
-      XmlNode data_array = Dictionary::Basis::POINT_BASED == field.basis()
+      XmlNode data_array = field.continuous()
         ? point_data.add_node("DataArray")
         : cell_data.add_node("DataArray");
 
@@ -393,7 +389,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::mesh::Dictionary::Basis::POINT_BASED)
+      if(field.continuous())
       {
         if(dim == 2 && var_size == 2)
         {
@@ -415,7 +411,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       }
       else
       {
-        boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
+        boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
         {
           const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))

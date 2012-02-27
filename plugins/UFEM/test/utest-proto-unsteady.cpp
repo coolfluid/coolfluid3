@@ -23,6 +23,9 @@
 
 #include "solver/ModelUnsteady.hpp"
 #include "solver/Time.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -31,7 +34,6 @@
 
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/Tags.hpp"
-#include "UFEM/TimeLoop.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 #include "solver/actions/SolveLSS.hpp"
 
@@ -152,6 +154,9 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
   lss.options().configure_option("solver", std::string("Trilinos"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  
+  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
@@ -169,7 +174,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     << create_proto_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp))
     <<
     (
-      allocate_component<UFEM::TimeLoop>("TimeLoop")
+      time_loop
       << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
       << create_proto_action
       (
@@ -193,6 +198,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
       << bc
       << allocate_component<solver::actions::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
+      << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
     );
 
   // Setup physics

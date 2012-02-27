@@ -20,6 +20,9 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "mesh/MeshGenerator.hpp"
@@ -27,12 +30,13 @@
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
 #include "UFEM/Tags.hpp"
-#include "UFEM/TimeLoop.hpp"
 #include "UFEM/ParsedFunctionExpression.hpp"
 
 #include "NavierStokes.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 #include "solver/actions/SolveLSS.hpp"
+
+
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -123,6 +127,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     lss.options().configure_option("solver", std::string("Trilinos"));
     solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
+    boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+    time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
+    
     // Expression variables
     MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
     MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
@@ -141,13 +148,14 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
       << vel_init
       <<
       ( // Time loop
-        allocate_component<TimeLoop>("TimeLoop")
+        time_loop
         << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
         << create_proto_action("Assembly", factories[i](solver, coefs))
         << bc
         << allocate_component<solver::actions::SolveLSS>("SolveLSS")
         << create_proto_action("IncrementU", nodes_expression(u += solver.solution(u)))
         << create_proto_action("IncrementP", nodes_expression(p += solver.solution(p)))
+        << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
       )
       << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 6e-3)))
       << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-2)))

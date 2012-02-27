@@ -19,13 +19,8 @@ namespace actions {
 /// Criterion for time limit
 /// @author Willem Deconinck
 /// @author Tiago Quintino
-class solver_actions_API CriterionTime : public Criterion {
-
-public: // typedefs
-
-  
-  
-
+class solver_actions_API CriterionTime : public Criterion
+{
 public: // functions
 
   /// Contructor
