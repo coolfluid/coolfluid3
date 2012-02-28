@@ -17,8 +17,12 @@ coolfluid_add_test( UTEST utest-mesh-stencilcomputerrings
 
 coolfluid_add_test( UTEST utest-mesh-boundingbox
                     CPP   utest-mesh-boundingbox.cpp
-                    LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1
+                    LIBS  coolfluid_mesh coolfluid_mesh_lagrangep1
                     MPI   2)
+
+coolfluid_add_test( UTEST utest-mesh-hilbertnumbering
+                    CPP   utest-mesh-hilbertnumbering.cpp
+                    LIBS  coolfluid_mesh )
 
 coolfluid_add_test( UTEST utest-mesh-interpolation
                     CPP   utest-mesh-interpolation.cpp
