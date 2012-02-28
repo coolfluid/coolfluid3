@@ -46,10 +46,6 @@ namespace Proto {
 class Expression
 {
 public:
-  /// Pointer typedefs
-  
-  
-
   /// Run the stored expression in a loop over the region
   virtual void loop(mesh::Region& region) = 0;
 

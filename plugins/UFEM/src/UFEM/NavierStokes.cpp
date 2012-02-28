@@ -109,7 +109,8 @@ NavierStokes::NavierStokes(const std::string& name) :
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += transpose(m_coeffs.tau_bulk*nabla(u)[_i] + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j], // Bulk viscosity and skew symmetric part
+              _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(m_coeffs.mu)*m_coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+                                             + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
               _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u))         * N(u)          // Time, standard and SUPG
             ),

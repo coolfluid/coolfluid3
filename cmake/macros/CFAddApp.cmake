@@ -102,21 +102,22 @@ macro( coolfluid_add_application APPNAME )
 
     # if mpi was found add it to the libraries
     if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
-#           message( STATUS
-    # if mpi was found ad"${APPNAME} links to ${MPI_LIBRARIES}" )
-          TARGET_LINK_LIBRARIES ( ${APPNAME} ${MPI_LIBRARIES} )
+      target_link_libraries( ${APPNAME} ${MPI_LIBRARIES} )
+      if( DEFINED MPI_CXX_LIBRARIES )
+          target_link_libraries( ${APPNAME} ${MPI_CXX_LIBRARIES} )
+      endif()
     endif()
 
     # add external dependency libraries if defined
     if( DEFINED ${APPNAME}_libs )
       #list(REMOVE_DUPLICATES ${APPNAME}_libs)
-      TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_libs} )
+      target_link_libraries( ${APPNAME} ${${APPNAME}_libs} )
     endif()
 
     # internal dependencies
     if( DEFINED ${APPNAME}_cflibs )
         list(REMOVE_DUPLICATES ${APPNAME}_cflibs)
-        TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
+        target_link_libraries( ${APPNAME} ${${APPNAME}_cflibs} )
     endif()
 
     if( ${APPNAME}_make_bundle )
