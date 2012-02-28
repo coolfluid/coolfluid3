@@ -83,6 +83,12 @@ coolfluid_add_test( UTEST utest-mesh-gmsh
                     CPP   utest-mesh-gmsh.cpp
                     LIBS  coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2
                     DEPENDS copy-resources )
+                    
+coolfluid_add_test( UTEST utest-mesh-gmsh-parallel
+                    CPP   utest-mesh-gmsh-parallel.cpp
+                    LIBS  coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2
+                    MPI   2
+                    DEPENDS copy-resources )
 
 
 coolfluid_add_test( UTEST utest-mesh-tecplot
