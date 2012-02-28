@@ -52,47 +52,47 @@ struct SteadyNSCriterion : Criterion
   {
     properties().add_property("p_update_history", p_update_history);
     properties().add_property("u_update_history", u_update_history);
-    
+
     p_update_history.reserve(100000);
     u_update_history.reserve(100000);
-    
+
     options().add_option("p_convergence", 1e-10)
       .pretty_name("Pressure convergence")
       .description("Maximum update over the whole field for the pressure")
       .link_to(&max_p_update);
-      
+
     options().add_option("u_convergence", 1e-10)
       .pretty_name("Velocity convergence")
       .description("Maximum update over the whole field for the velocity")
       .link_to(&max_u_update);;
   }
-  
+
   static std::string type_name() { return "SteadyNSCriterion"; }
-  
+
   virtual bool operator()()
   {
     if(boost::accumulators::count(p_stats) < 1)
       return false;
-    
+
     p_update_history.push_back(boost::accumulators::max(p_stats));
     u_update_history.push_back(boost::accumulators::max(u_stats));
 
     u_stats = StatsT();
     p_stats = StatsT();
-    
+
     if(p_update_history.back() < max_p_update && u_update_history.back() < max_u_update)
     {
       properties()["p_update_history"] = p_update_history;
       properties()["u_update_history"] = u_update_history;
-      
+
       return true;
     }
-    
+
     return false;
   }
-  
+
   Real max_p_update, max_u_update;
-  
+
   /// Convergence statistics
   typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::max, boost::accumulators::tag::count> > StatsT;
   StatsT u_stats, p_stats;
@@ -129,7 +129,7 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
     .description("Dynamic Viscosity (kg / m s)")
     .pretty_name("Dynamic Viscosity")
     .link_to(&m_coeffs.mu);
-    
+
   options().add_option("p_under_relaxation", m_p_under_relaxation).pretty_name("Pressure Under Relaxation").link_to(&m_p_under_relaxation);
   options().add_option("u_under_relaxation", m_u_under_relaxation).pretty_name("Velocity Under Relaxation").link_to(&m_u_under_relaxation);
 
@@ -176,7 +176,8 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += transpose(m_coeffs.tau_bulk*nabla(u)[_i] + 0.5*u_adv[_i]*N(u)) * nabla(u)[_j] // Bulk viscosity and skew symmetric part
+              _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(m_coeffs.mu)*m_coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+                                             + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j]  // skew symmetric part of advection (standard +SUPG)
             ),
             system_matrix += _A,
             system_rhs += -_A * _b

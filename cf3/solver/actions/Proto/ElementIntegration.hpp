@@ -123,8 +123,8 @@ public:
 };
 
 template<typename GrammarT>
-struct ElementQuadrature :
-  boost::proto::transform< ElementQuadrature<GrammarT> >
+struct ElementQuadratureEval :
+  boost::proto::transform< ElementQuadratureEval<GrammarT> >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -218,18 +218,19 @@ struct ElementMathImplicitIndexed :
 };
 
 struct ElementIntegration :
-  boost::proto::or_
+  boost::proto::when
   <
-    boost::proto::when
-    <
-      boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, ElementMathImplicit >,
-      GaussIntegral
-    >,
-    boost::proto::when // function call syntax, to integrate a single += expression
-    <
-      boost::proto::function< boost::proto::terminal<ElementQuadratureTag>, boost::proto::vararg<boost::proto::_> >,
-      ElementQuadrature< boost::proto::call< IndexLooper<ElementMathImplicitIndexed> > >
-    >
+    boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, ElementMathImplicit >,
+    GaussIntegral
+  >
+{
+};
+
+struct ElementQuadrature :
+  boost::proto::when
+  <
+    boost::proto::function< boost::proto::terminal<ElementQuadratureTag>, boost::proto::vararg<boost::proto::_> >,
+    ElementQuadratureEval< boost::proto::call< IndexLooper<ElementMathImplicitIndexed> > >
   >
 {
 };

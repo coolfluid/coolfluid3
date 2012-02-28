@@ -121,8 +121,10 @@ macro( coolfluid_add_library LIBNAME )
 
     # if mpi was found add it to the libraries
     if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
-    #           message( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
         target_link_libraries( ${LIBNAME} ${MPI_LIBRARIES} )
+        if( DEFINED MPI_CXX_LIBRARIES )
+             target_link_libraries( ${LIBNAME} ${MPI_CXX_LIBRARIES} )
+        endif()
     endif()
 
     # only add link in dso library if building shared libs
