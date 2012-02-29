@@ -16,9 +16,11 @@
 #include <QKeyEvent>
 #include <QStringList>
 #include <QCompleter>
+#include "ui/graphics/PythonCodeContainer.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
-#include "ui/graphics/PythonSyntaxeHighlighter.hpp"
+
+class QToolBar;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,40 +28,41 @@ namespace cf3 {
 namespace ui {
 namespace graphics {
 
-class Graphics_API PythonConsole : public QTextEdit
+class Graphics_API PythonConsole : public PythonCodeContainer
 {
     Q_OBJECT
 public:
     PythonConsole(QWidget *parent = 0);
     ~PythonConsole();
-    
-signals:
+    void key_press_event(QKeyEvent *);
+    void new_line(int indent_number);
 
-protected:
-    void keyPressEvent(QKeyEvent *e);
 private slots:
     void cursor_position_changed();
-    void keywords_changed(const QStringList &keywords);
-    void insert_completion(QString);
-    void insert_output(const QString &output);
-    void insert_log(const QString &output);
+    void insert_output(const QString &);
+    void insert_log(const QString &);
+    void line_by_line_activated(bool);
+    void stop_continue_pressed();
+    void execution_stopped();
 private:
-    /// Start of prompt into the input block
-    int prompt_position;
     /// Index of the block that contains the current prompt
     int input_block;
 
-    int prompt_start_in_text;
+    int input_start_in_text;
 
     void print_next_prompt();
+    void push_input();
+    void execute_input(QTextCursor &);
+    void set_input(const QString &);
+    void select_input(QTextCursor &);
+    void fix_prompt_history();
 
-    QString get_word_under_cursor();
-
-    PythonSyntaxeHighlighter* highlighter;
-    QAbstractItemModel* completer_model;
-    QCompleter* completer;
+    QAction* stop_continue;
     QStringList history;
     int history_index;
+    bool stopped;
+
+    int output_line_number;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

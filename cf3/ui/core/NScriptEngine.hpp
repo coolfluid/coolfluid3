@@ -35,6 +35,14 @@ namespace core {
 {
       Q_OBJECT
     public:
+      enum debug_command {
+          INVALID=-1,
+          BREAK=0,
+          CONTINUE=1,
+          LINE_BY_LINE_EXECUTION=2,
+          NORMAL_EXECUTION=3
+      };
+
         NScriptEngine();
 
 
@@ -44,7 +52,9 @@ namespace core {
 
         static Handle<NScriptEngine> global();
 
-        void execute_line( const QString & line );
+        void execute_line( const QString & line , int fragment_number);
+
+        void emit_debug_command(debug_command);
 
         void get_completion_list();
 
@@ -56,6 +66,10 @@ namespace core {
         /// @param node Signal node
         void signal_completion(common::SignalArgs & node);
 
+        /// @brief Boost slot called when the server send debugging information
+        /// @param node Signal node
+        void signal_debug_trace(common::SignalArgs & node);
+
       signals:
 
         /// @brief Signal emitted when the server send the new console output.
@@ -66,6 +80,8 @@ namespace core {
         /// @param output Output message
         void completion_list_received(const QStringList & word_list);
 
+        void debug_trace_received(int fragment,int line);
+
       protected:
 
         /// Disables the local signals that need to.
@@ -73,8 +89,6 @@ namespace core {
         /// by default.
         virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
-      private:
-        int current_code_fragment;
 }; // class NScriptEngine
 
 ///////////////////////////////////////////////////////////////////////////

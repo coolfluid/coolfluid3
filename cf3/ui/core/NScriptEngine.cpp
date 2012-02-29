@@ -34,13 +34,15 @@ namespace core {
 /////////////////////////////////////////////////////////////////////////////
 
 NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode::LOCAL_NODE) {
-    current_code_fragment=1;//0 is for hidden code
     regist_signal("output")
       .description("Output of the python console")
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_output, this, _1));
     regist_signal("completion")
       .description("Return the avalaibles keywords in Python")
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_completion, this, _1));
+    regist_signal("debug_trace")
+      .description("Debugging")
+      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_debug_trace, this, _1));
 }
 
 QString NScriptEngine::tool_tip() const {
@@ -71,17 +73,32 @@ void NScriptEngine::signal_completion(common::SignalArgs & node){
     emit completion_list_received(word_list);
 }
 
+void NScriptEngine::signal_debug_trace(common::SignalArgs & node){
+    SignalOptions options(node);
+    emit debug_trace_received(options.value<int>("fragment"),options.value<int>("line"));
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NScriptEngine::execute_line ( const QString & line ){
+void NScriptEngine::execute_line( const QString & line , int fragment_number){
     const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
     SignalOptions options;
     QString repl=QString(line);
     repl.replace(QString("\t"),QString(";"));
+    repl.replace(QString("\n"),QString("?"));
     options.add_option("script", repl.toStdString());
-    options.add_option("fragment",current_code_fragment++);
+    options.add_option("fragment",fragment_number);
     SignalFrame frame = options.create_frame("execute_script", uri(), script_engine_path);
+    NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void NScriptEngine::emit_debug_command(debug_command command){
+    const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
+    SignalOptions options;
+    options.add_option("command", static_cast<int>(command));
+    SignalFrame frame = options.create_frame("change_debug_state", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 

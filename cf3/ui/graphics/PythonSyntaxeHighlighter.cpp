@@ -21,7 +21,7 @@ PythonSyntaxeHighlighter::PythonSyntaxeHighlighter(QTextDocument* parent)
     keyword_format.setForeground(QColor(0x20,0x4A,0x87));
     rule.pattern = QRegExp("\\b(and|elif|global|or|assert|else|if|pass|break|except|"
                                "import|print|class|exec|in|raise|continue|finally|is|return|"
-                               "def|for|lambda|try|del|from|not|while)\\b");
+                               "def|for|lambda|try|del|from|not|while|True|False)\\b");
     rule.format = keyword_format;
     highlighting_rules.append(rule);
     // comment

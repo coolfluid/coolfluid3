@@ -4,5 +4,6 @@
         <file>Exception.png</file>
         <file>Info.png</file>
         <file>Warning.png</file>
+        <file>debug_arrow.png</file>
     </qresource>
 </RCC>

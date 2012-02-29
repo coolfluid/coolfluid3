@@ -42,16 +42,18 @@ ComponentBuilder < ScriptEngine, Component, LibPython > ScriptEngine_Builder;
 
 
 int ScriptEngine::python_close=0;
+ScriptEngine *script_engine=NULL;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-int pytohn_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
+int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
     if ( what == PyTrace_LINE ){
         boost::python::handle<> frag_number(boost::python::allow_null(PyObject_Str(frame->f_code->co_filename)));
         if (frag_number.get() != NULL){
             int code_fragment=atoi(PyString_AsString(frag_number.get()));
-            if (code_fragment > 0)
-                CFinfo << "executing code fragment :" << code_fragment << " line :" << frame->f_lineno << CFendl;
+            if (code_fragment > 0){
+                return script_engine->new_line_reached(code_fragment,frame->f_lineno);
+            }
         }
     }
     return 0;
@@ -62,15 +64,19 @@ int pytohn_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
     python_close++;
+    stoped=false;
     if(!Py_IsInitialized())
     {
         const boost::filesystem::path dso_dir = boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso");
         OSystem::setenv("PYTHONPATH", dso_dir.string());
         Py_Initialize();
+        PyEval_InitThreads();
         local_scope = boost::python::handle<>(PyDict_New());
         global_scope = boost::python::handle<>(PyDict_New());
         PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
-        PyEval_SetTrace(pytohn_trace,NULL);
+        script_engine=this;
+        PyEval_SetTrace(python_trace,NULL);
+        interpreter_mode=NORMAL_EXECUTION;
         execute_script("import sys\n",0);
         execute_script("import ctypes as dl\n",0);
         execute_script("from libcoolfluid_python import *\n",0);
@@ -84,22 +90,17 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
         execute_script("stderrStack = SimpleStringStack()\n",0);
         execute_script("sys.stderr = stderrStack\n",0);
         flush_python_stdout();
-        /*std::vector<std::string>glb;
-        read_dictionary(local_scope.get(),&glb);
-        for (int i=0;i<glb.size();i++)
-            CFinfo << glb[i] << CFendl;*/
-/*                       "root = Core.root()\n"
-                       "model = root.create_component('model', 'cf3.solver.Model')\n"
-                       "domain = model.create_domain()\n"
-                       "solver = model.create_solver('cf3.solver.SimpleSolver')\n"
-                       "phys_model = model.create_physics('cf3.physics.DynamicModel')\n");*/
-        //m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
     }
     regist_signal( "execute_script" )
             .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
             .description("Execute a python script, passed as string")
             .pretty_name("Execute Script")
             .signature( boost::bind( &ScriptEngine::signature_execute_script, this, _1 ) );
+    regist_signal( "change_debug_state" )
+            .connect( boost::bind( &ScriptEngine::signal_change_debug_state, this, _1 ) )
+            .description("Select the current debug state")
+            .pretty_name("Change debug state");
+    signal("change_debug_state")->hidden(true);
     regist_signal( "get_completion" )
             .connect( boost::bind( &ScriptEngine::signal_completion, this, _1 ) )
             .description("Retrieve the completion list")
@@ -122,9 +123,12 @@ void ScriptEngine::execute_script(std::string script,int code_fragment){
     try{
         std::stringstream ss;
         ss << code_fragment;
+        //CFinfo << script << CFendl;
         boost::python::handle<> src(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
         if (NULL != src){//code compiled, we execute it
             boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+            if (interpreter_state != NULL)
+                return;//must not make python call
         }
         PyObject *exc,*val,*trb,*obj;
         char* error;
@@ -284,7 +288,7 @@ void ScriptEngine::flush_python_stdout(){
                 if (out.size()>0){
                     //CFinfo << "flush emit output" << CFendl;
                     emit_output(out);
-                    execute_line("sys.stdout.data=''");
+                    execute_script("sys.stdout.data=''",0);
                 }
                 //execute_line("sys.stdout.data=''");
                 //PyObject_SetAttrString(py_stdout,"data",PyString_FromString(""));
@@ -300,6 +304,7 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
     SignalOptions options( node );
     std::string code=options.option("script").value<std::string>();
     std::replace(code.begin(),code.end(),';','\t');
+    std::replace(code.begin(),code.end(),'?','\n');
     execute_script(code,options.option("fragment").value<int>());
     flush_python_stdout();
     if (check_scope_difference(local_scope.get())){
@@ -317,9 +322,60 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
     options.add_option( "script", std::string() )
             .description("Script to execute")
             .pretty_name("Script");
-    options.add_option( "fragment", std::string() )
+    options.add_option( "fragment", int() )
             .description("Code fragment number")
             .pretty_name("Code fragment");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+int ScriptEngine::new_line_reached(int code_fragment,int line_number){
+    switch (interpreter_mode){
+    case BREAK:
+        interpreter_mode=NORMAL_EXECUTION;
+    case LINE_BY_LINE_EXECUTION:
+        interpreter_state=PyEval_SaveThread();
+        CFinfo << "p2" << CFendl;
+        PyEval_RestoreThread(interpreter_state);
+        CFinfo << "p3" << CFendl;
+        //PyEval_ReInitThreads();
+        //interpreter_state=PyEval_SaveThread();
+        emit_debug_trace(code_fragment,line_number);
+        return -1;
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void ScriptEngine::signal_change_debug_state(SignalArgs& node)
+{
+    SignalOptions options( node );
+    int commande=options.option("command").value<int>();
+    switch (commande){
+    case BREAK:
+        if (interpreter_mode==NORMAL_EXECUTION)
+            interpreter_mode=BREAK;
+        break;
+    case NORMAL_EXECUTION:
+    case LINE_BY_LINE_EXECUTION:
+        interpreter_mode=(debug_command)commande;
+        break;
+    case CONTINUE:
+        if (interpreter_state!=NULL){
+            CFinfo << "restoring interpreter lol" << CFendl;
+            PyEval_RestoreThread(interpreter_state);
+            CFinfo << "p1" << CFendl;
+            //PyEval_SetTrace(python_trace,NULL);
+            //PyEval_AcquireThread();
+            interpreter_state=NULL;
+        }
+    default:
+        break;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -348,9 +404,21 @@ void ScriptEngine::emit_completion_list(){
     SignalOptions options(frame);
     options.add_option("words", word_list);
     options.flush();
-    m_manager->send_to_parent( frame );
+    m_manager->send_to_parent(frame);
 }
 
+
+void ScriptEngine::emit_debug_trace(int fragment,int line){
+    /// @todo remove those hardcoded URIs
+    //CFinfo << "py:" << output << CFendl;
+    m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
+    SignalFrame frame("debug_trace", uri(), "cpath:/UI/ScriptEngine");
+    SignalOptions options(frame);
+    options.add_option("fragment", fragment);
+    options.add_option("line", line);
+    options.flush();
+    m_manager->send_to_parent(frame);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

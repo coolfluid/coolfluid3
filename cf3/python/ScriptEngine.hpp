@@ -24,9 +24,9 @@
 namespace cf3 {
 namespace python {
 
-int pytohn_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
-
 ////////////////////////////////////////////////////////////////////////////////
+
+int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
 
 /// @brief Executes python scripts passed as a string
 ///
@@ -58,10 +58,23 @@ public: // functions
   /// Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
 
+  /// Signal to change the current debugging state
+  void signal_change_debug_state(common::SignalArgs& node);
+
   /// Signal to retrieve the completion list
   void signal_completion(common::SignalArgs& node);
 
+  /// Called by the trace function when a new line is reached
+  int new_line_reached(int code_fragment,int line_number);
+
 private:
+  enum debug_command {
+      INVALID=-1,
+      BREAK=0,
+      CONTINUE=1,
+      LINE_BY_LINE_EXECUTION=2,
+      NORMAL_EXECUTION=3
+  };
 
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
@@ -69,6 +82,8 @@ private:
   void emit_output(std::string output);
 
   void emit_completion_list();
+
+  void emit_debug_trace(int fragment,int line);
 
   void execute_line(std::string script);
 
@@ -84,8 +99,12 @@ private:
   boost::python::handle<> global_scope, local_scope;
   bool new_command;
   Handle< common::PE::Manager > m_manager;
-  static int python_close;
   std::vector<PyObject*> scope_diff;
+  PyThreadState *interpreter_state;
+  debug_command interpreter_mode;
+  PyGILState_STATE gstate;
+  static int python_close;
+  bool stoped;
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////
