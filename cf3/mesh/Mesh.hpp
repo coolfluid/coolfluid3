@@ -24,6 +24,7 @@ namespace mesh {
   class Region;
   class MeshElements;
   class MeshMetadata;
+  class BoundingBox;
 
 ////////////////////////////////////////////////////////////////////////////////
 

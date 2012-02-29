@@ -47,6 +47,9 @@ public: // functions
   /// @param [in] coordinates  Coordinates to create bounding box for
   void build(const Field& coordinates);
 
+  /// @brief Update the properties
+  void update_properties();
+
 }; // end BoundingBox
 
 ////////////////////////////////////////////////////////////////////////////////

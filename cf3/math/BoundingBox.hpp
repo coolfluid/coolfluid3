@@ -42,11 +42,14 @@ public: // functions
   /// @brief Define bounding box with std::vector<Real>
   void define(const std::vector<Real>& min, const std::vector<Real>& max);
 
+  /// @brief Extend BoundingBox, given a point
+  void extend(const RealVector& point);
+
   /// @brief Expand bounding box to encompass all processors
   /// @note This function must be called on all processors
   void make_global();
 
-public: //functions
+public: // functions
 
   /// @brief Check if coordinate falls inside the bounding box
   bool contains(const RealVector& coordinate) const;

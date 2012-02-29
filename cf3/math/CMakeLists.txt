@@ -16,6 +16,7 @@ list( APPEND coolfluid_math_files
   Hilbert.cpp
   Integrate.hpp
   MatrixTypes.hpp
+  MatrixTypesConversion.hpp
   MathExceptions.hpp
   MathExceptions.cpp
   VariableManager.hpp

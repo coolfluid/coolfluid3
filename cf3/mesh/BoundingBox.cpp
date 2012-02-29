@@ -6,8 +6,10 @@
 
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 
 #include "math/Consts.hpp"
+#include "math/MatrixTypesConversion.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/BoundingBox.hpp"
@@ -69,13 +71,14 @@ void BoundingBox::build(const Region& region)
       }
     }
   }
+  update_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void BoundingBox::build(const Mesh& mesh)
 {
-  build(mesh.topology());
+  build(mesh.geometry_fields().coordinates());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +101,19 @@ void BoundingBox::build(const Field& coordinates)
       max()[d] = std::max(max()[d],  coords[d]);
     }
   }
+  update_properties();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BoundingBox::update_properties()
+{
+  std::vector<Real> min_vec(dim());
+  std::vector<Real> max_vec(dim());
+  math::copy(min(),min_vec);
+  math::copy(max(),max_vec);
+  properties()["minimum"]=min_vec;
+  properties()["maximum"]=max_vec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
