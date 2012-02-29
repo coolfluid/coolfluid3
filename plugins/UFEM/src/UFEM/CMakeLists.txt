@@ -14,6 +14,7 @@ list( APPEND coolfluid_ufem_files
   NavierStokesSteady.hpp
   NavierStokesSteady.cpp
   NavierStokesOps.hpp
+  NavierStokesOps.cpp
   ParsedFunctionExpression.hpp
   ParsedFunctionExpression.cpp
   SparsityBuilder.hpp
@@ -27,4 +28,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_ac
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
-set_source_files_properties(HeatConductionSteady.cpp NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(HeatConductionSteady.cpp NavierStokesOps.cpp NavierStokesSteady.cpp PROPERTIES COMPILE_FLAGS "-g0")

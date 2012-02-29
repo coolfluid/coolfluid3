@@ -30,10 +30,6 @@ boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_pspg(Linea
 /// Assembly for the Navier-Stokes equations, stabilized with SUPG
 boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
-/// Assembly for the Navier-Stokes equations, stabilized with SUPG and bulk viscosity
-boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
-
-
 }
 }
 

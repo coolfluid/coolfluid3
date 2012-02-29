@@ -336,9 +336,9 @@ public:
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_connectivity(elements.geometry_space().connectivity()),
-    m_support(support)
+    m_support(support),
+    offset(m_field.descriptor().offset(placeholder.name()))
   {
-    offset = m_field.descriptor().offset(placeholder.name());
   }
 
   /// Update nodes for the current element
@@ -412,9 +412,6 @@ public:
     return m_gradient;
   }
 
-  /// Index of where the variable we need is in the field data row
-  Uint offset;
-
 private:
   /// Precompute for non-volume EtypeT
   void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
@@ -451,6 +448,10 @@ private:
   mutable GradientT m_gradient;
 
   InterpolationImpl<Dim> m_eval;
+  
+public:
+  /// Index of where the variable we need is in the field data row
+  const Uint offset;
 };
 
 /// Data for element-based fields

@@ -35,7 +35,7 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
+ComponentBuilder < NavierStokes, solver::Solver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) :
   LinearSolverUnsteady(name)
@@ -66,10 +66,11 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Dynamic Viscosity")
     .link_to(&m_coeffs.mu);
 
-  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
+  // For these elements, faster, specialized code exists
+  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> specialized_elements;
 
-  MeshTerm<0, VectorField> u("Velocity", Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<0, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<1, VectorField> u("Velocity", Tags::solution());
 
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
@@ -95,25 +96,19 @@ NavierStokes::NavierStokes(const std::string& name) :
       << create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
       << create_proto_action
       (
-        "Assembly",
+        "GenericAssembly",
+        generic_ns_assembly(*this, m_coeffs)
+      )
+      << create_proto_action
+      (
+        "SpecializedAssembly",
         elements_expression
         (
-          allowed_elements,
+          specialized_elements,
           group
           (
-            _A = _0, _T = _0,
-            compute_tau(u, m_coeffs),
-            element_quadrature
-            (
-              _A(p    , u[_i]) += transpose(N(p) + m_coeffs.tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
-              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p)) * nabla(p) * m_coeffs.one_over_rho, // Continuity, PSPG
-              _A(u[_i], u[_i]) += m_coeffs.mu * transpose(nabla(u)) * nabla(u) * m_coeffs.one_over_rho + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
-              _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(m_coeffs.mu)*m_coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
-                                             + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
-              _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
-              _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
-            ),
+            _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
+            supg_specialized(p, u, u_adv, m_coeffs, _A, _T),
             system_matrix += invdt() * _T + 1.0 * _A,
             system_rhs += -_A * _b
           )

@@ -139,8 +139,8 @@ struct NavierStokesAssemblyFixture
       group
       (
         _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
-      supg_specialized(p, u, c, _A, _T),
-      boost::proto::lit(A_spec) = _A, boost::proto::lit(T_spec) = _T
+        supg_specialized(p, u, u, c, _A, _T),
+        boost::proto::lit(A_spec) = _A, boost::proto::lit(T_spec) = _T
       )
     );
 
