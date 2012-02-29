@@ -38,6 +38,10 @@ coolfluid_add_test( UTEST utest-math-integrate
                     CPP   utest-math-integrate.cpp
                     LIBS  coolfluid_math )
 
+coolfluid_add_test( UTEST utest-math-hilbert
+                    CPP   utest-math-hilbert.cpp
+                    LIBS  coolfluid_math )
+
 ################################################################################
 
 

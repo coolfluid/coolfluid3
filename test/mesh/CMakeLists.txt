@@ -20,10 +20,6 @@ coolfluid_add_test( UTEST utest-mesh-boundingbox
                     LIBS  coolfluid_mesh coolfluid_mesh_lagrangep1
                     MPI   2)
 
-coolfluid_add_test( UTEST utest-mesh-hilbertnumbering
-                    CPP   utest-mesh-hilbertnumbering.cpp
-                    LIBS  coolfluid_mesh )
-
 coolfluid_add_test( UTEST utest-mesh-interpolation
                     CPP   utest-mesh-interpolation.cpp
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
