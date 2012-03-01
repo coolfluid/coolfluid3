@@ -101,13 +101,6 @@ BOOST_AUTO_TEST_CASE( build )
       }
 
   )
-
-      RealVector coord1(2); coord1 << 2 , 8;
-      RealVector coord2(2); coord2 << 3 , 11;
-
-      std::size_t hash1 = GlobalNumbering::node_hash_value(coord1);
-      std::size_t hash2 = GlobalNumbering::node_hash_value(coord2);
-      BOOST_CHECK(hash1 != hash2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

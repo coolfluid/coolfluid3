@@ -20,8 +20,8 @@ coolfluid_add_test( UTEST utest-matrix-inverter
 
 # performance test
 add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
-coolfluid_add_test( PTEST utest-eigen-vs-matrixt
-                    CPP   utest-eigen-vs-matrixt.cpp
+coolfluid_add_test( PTEST ptest-eigen-vs-matrixt
+                    CPP   ptest-eigen-vs-matrixt.cpp
                     LIBS  coolfluid_math )
 
 
@@ -36,6 +36,10 @@ coolfluid_add_test( UTEST utest-math-variablemanager
 
 coolfluid_add_test( UTEST utest-math-integrate
                     CPP   utest-math-integrate.cpp
+                    LIBS  coolfluid_math )
+
+coolfluid_add_test( UTEST utest-math-hilbert
+                    CPP   utest-math-hilbert.cpp
                     LIBS  coolfluid_math )
 
 ################################################################################

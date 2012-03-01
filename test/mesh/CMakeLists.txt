@@ -15,6 +15,11 @@ coolfluid_add_test( UTEST utest-mesh-stencilcomputerrings
                     LIBS  coolfluid_mesh_lagrangep1 )
 
 
+coolfluid_add_test( UTEST utest-mesh-boundingbox
+                    CPP   utest-mesh-boundingbox.cpp
+                    LIBS  coolfluid_mesh coolfluid_mesh_lagrangep1
+                    MPI   2)
+
 coolfluid_add_test( UTEST utest-mesh-interpolation
                     CPP   utest-mesh-interpolation.cpp
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
@@ -77,6 +82,12 @@ coolfluid_add_test( UTEST   utest-mesh-neu
 coolfluid_add_test( UTEST utest-mesh-gmsh
                     CPP   utest-mesh-gmsh.cpp
                     LIBS  coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2
+                    DEPENDS copy-resources )
+                    
+coolfluid_add_test( UTEST utest-mesh-gmsh-parallel
+                    CPP   utest-mesh-gmsh-parallel.cpp
+                    LIBS  coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2
+                    MPI   2
                     DEPENDS copy-resources )
 
 
