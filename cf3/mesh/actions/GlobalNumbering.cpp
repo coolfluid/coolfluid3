@@ -65,7 +65,7 @@ common::ComponentBuilder < GlobalNumbering, MeshTransformer, mesh::actions::LibA
 
 GlobalNumbering::GlobalNumbering( const std::string& name )
 : MeshTransformer(name),
-  m_debug(true)
+  m_debug(false)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
