@@ -32,7 +32,7 @@ mesh                                                  |  cf3::mesh::Mesh
                 patch_2                               |  cf3::mesh::Region
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry_fields                                   |  cf3::mesh::SpaceFields
+    geometry                                          |  cf3::mesh::Dictionary
         coordinates                                   |  cf3::mesh::Field
 @endverbatim
 
@@ -51,7 +51,6 @@ tree                                                  |  type
                 geometry                              |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    fields --> mesh/geometry_fields   |  cf3::common::Link
                                                       |
         triags                                        |  cf3::mesh::Entities
             element_type                              |  cf3::mesh::ElementType
@@ -59,7 +58,6 @@ tree                                                  |  type
                 geometry                              |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    fields --> mesh/geometry_fields   |  cf3::common::Link
 ...                                                   |
 @endverbatim
 
@@ -70,11 +68,11 @@ The element_type provides all information needed to describe the element and tra
 The connectivity-table of the elements, which for each element describes which nodes it connects, is stored in the component "connectivity".
 It is essentially a table where each row describes one element, and the values of each row point to indexes in the geometry field-group at "mesh/geometry".
 
-@subsection spaces Spaces and SpaceFieldss
+@subsection spaces Spaces and Dictionaries
 The concept of "space" is here introduced as an invisible mesh completely overlapping the original mesh. 
 It has exactly the same elements as the original mesh, but every element is defined by a different set of nodes.
 
-One "space" that is always there is called "geometry". This name is not by coincidence the same as the SpaceFields "geometry", as this space and SpaceFields together describe the actual mesh geometry.
+One "space" that is always there is called "geometry". This name is not by coincidence the same as the Dictionary "geometry", as this space and dictionary together describe the actual mesh geometry.
 
 When a mesh is defined with Lagrange-P1 elements (nodes in vertices), but a field of a higher order P2 is desired, another "space" can be created a posteriori.
 Let's create the space "P2" in the same tree:
@@ -91,7 +89,6 @@ tree                                                  |  type
                 P2                                    |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    fields -->  ?                     |  cf3::common::Link
         triags                                        |  cf3::mesh::Entities
             ...                                       |
 ...                                                   |
@@ -121,10 +118,11 @@ mesh                                                  |  cf3::mesh::Mesh
             ...                                       |
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry_fields                                   |  cf3::mesh::SpaceFields
+    geometry                                          |  cf3::mesh::Dictionary
         coordinates                                   |  cf3::mesh::Field
                                                       |
-    P2                                                |  cf3::mesh::SpaceFields
+    P2                                                |  cf3::mesh::Dictionary
+        coordinates                                   |  cf3::mesh::Field
         pressure                                      |  cf3::mesh::Field
         velocity                                      |  cf3::mesh::Field
 @endverbatim
@@ -140,14 +138,9 @@ Discontinuous fields require a separate space.
 @note Following should go to different page for developers
 @section _mesh_elements Elements
 The component grouping elements of the same type and region are of the abstract type cf3::mesh::Entities.
-There is a further distinction between "cf3::mesh::Elements" and "ProxyElements".
-- cf3::mesh::Elements are fully defined by a node-connectivity table.\n
-  Derived types: 
   - cf3::mesh::Cells
   - cf3::mesh::Faces
-- ProxyElements are defined only as a connectivity with other elements, and don't store a node-connectivity table.\n
-  Derived types:
-  - cf3::mesh::CellFaces defined by a Cell and a face-number
+  - cf3::mesh::CellFaces (like Faces, but with Cell-connectivity)
 
 The distinction is made between cf3::mesh::Cells and cf3::mesh::Faces for the purpose of identification only. It is easier in algorithms to identify
 what is a cell or a face:
@@ -160,43 +153,60 @@ boost_foreach( const cf3::mesh::Faces& faces, find_components_recursively<cf3::m
 {
   // only face elements are looped over.
 }
-boost_foreach( const cf3::mesh::Elements& elements, find_components_recursively<cf3::mesh::Elements>(mesh) )
+boost_foreach( const cf3::mesh::Entities& elements, find_components_recursively<cf3::mesh::Elements>(mesh) )
 {
   // both face and volume elements are looped over.
-}
-boost_foreach( const cf3::mesh::Entities& entities, find_components_recursively<cf3::mesh::Entities>(mesh) )
-{
-  // both face and volume elements are looped over, as well as proxy-elements
 }
 @endcode
 
 @section _working_with_fields Working with fields
-Often one wants to loop over fields through the use of the elements:
+Often one wants to loop over fields through the use of the elements.
 @code
 // Assume we have a cf3::mesh::Field "mesh/P2/velocity" called velocity
-boost_foreach( const cf3::mesh::Entities& entities, velocity.entities_range() )
+
+// Get the dictionary this field is located in.
+const cf3::mesh::Dictionary& dict = velocity.dict();
+
+// Loop over all Entities that this dictionary is defined for
+boost_foreach( const Handle<cf3::mesh::Entities const>& entities, dict.entities_range() )
 {
-  // access to e.g. mesh/topology/body/spaces/P2
-  const cf3::mesh::Space& space = velocity.space(entities);
-  
-  // get the number of points per element
-  const Uint nb_points_per_element = space.shape_function().nb_nodes();
-  
+  // The dictionary specifies which space to use
+  const cf3::mesh::Space& space = entities.space(dict);
+
   // Loop over every element of this type
   for (Uint elem=0; elem<entities.size(); ++elem)
-  {
-    // find the indexes in the field (through the connectivity table)
-    cf3::mesh::Connectivity::ConstRow field_indexes = space.indexes_for_element(elem);
-    
+  {   
     // loop over every point of this element
     for (Uint point=0; point<shape_function().nb_nodes(); ++point)
     {
-      velocity[field_indexes[point]][XX] = 1.5;
-      velocity[field_indexes[point]][YY] = 0.1;
+      velocity[ space.connectivity()[elem][point] ][ XX ] = 1.5;
+      velocity[ space.connectivity()[elem][point] ][ YY ] = 0.1;
     }
   }
 }
 @endcode
+Notice that in this case the vertices that are shared between elements are visited multiple times.
+This is only the case for continuous spaces. For discontinuous spaces the vertices are never shared.
+
+You can also loop over the field directly:
+@code
+// Assume we have a cf3::mesh::Field "mesh/P2/velocity" called velocity,
+// and we want it to assign a rotational velocity around (0,0)
+
+// Get the dictionary this field is located in.
+const cf3::mesh::Dictionary& dict = velocity.dict();
+
+// A dictionary also has a coordinates field that can be used
+const cf3::mesh::Field& coordinates = dict.coordinates();
+
+// Loop over all field indices
+for (Uint point=0; point<dict.size(); ++point)
+{
+  velocity[point][XX] =  coordinates[point][YY];
+  velocity[point][YY] = -coordinates[point][XX];
+}
+@endcode
+
 
 */
 
@@ -226,6 +236,10 @@ The following mesh-formats are supported for reading:
    - Cartesian Line
    - Cartesian Rectangle using quadrilaterals, only uniform
    - Cartesian Box using hexahedrals, with grading
+  
+ A more advanced block-based mesh generation capability is provided
+   - combine cartesian blocks to form more complex geometries
+   - with grading
   
  @section _mesh_operations_transformations Mesh Transformations
   - Growth of overlap in parallel distributed meshes
