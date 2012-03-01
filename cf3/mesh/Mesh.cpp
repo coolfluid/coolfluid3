@@ -47,6 +47,7 @@
 #include "mesh/MeshMetadata.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
+#include "mesh/BoundingBox.hpp"
 
 namespace cf3 {
 namespace mesh {

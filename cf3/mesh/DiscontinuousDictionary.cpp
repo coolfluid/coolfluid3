@@ -19,6 +19,9 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 
+#include "math/BoundingBox.hpp"
+#include "math/Hilbert.hpp"
+
 #include "mesh/Field.hpp"
 #include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Region.hpp"
@@ -27,6 +30,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
+
 
 #include "math/Consts.hpp"
 #define UNKNOWN math::Consts::uint_max()
@@ -57,21 +61,23 @@ DiscontinuousDictionary::~DiscontinuousDictionary()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t DiscontinuousDictionary::hash_value(const RealMatrix& coords)
-{
-  std::size_t seed=0;
-  for (Uint i=0; i<coords.rows(); ++i)
-  for (Uint j=0; j<coords.cols(); ++j)
-  {
-    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-    boost::hash_combine(seed,1e-6*coords(i,j));
-  }
-  return seed;
-}
+//std::size_t DiscontinuousDictionary::hash_value(const RealMatrix& coords)
+//{
+//  std::size_t seed=0;
+//  for (Uint i=0; i<coords.rows(); ++i)
+//  for (Uint j=0; j<coords.cols(); ++j)
+//  {
+//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
+//    boost::hash_combine(seed,1e-6*coords(i,j));
+//  }
+//  return seed;
+//}
 
 
 void DiscontinuousDictionary::create_connectivity_in_space()
 {
+  math::BoundingBox bounding_box;
+
   // STEP 1: Assign the space connectivity table in the topology
   // -----------------------------------------------------------
   Uint field_idx = 0;
@@ -80,13 +86,22 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     const Space& entities_space = *space(entities);
     Connectivity& space_connectivity = const_cast<Connectivity&>(entities_space.connectivity());
     space_connectivity.resize(entities->size());
-    Uint nb_nodes = entities_space.shape_function().nb_nodes();
-    for (Uint elem=0; elem<entities->size(); ++elem)
+    RealMatrix elem_coords(entities->geometry_space().shape_function().nb_nodes(),entities->element_type().dimension());
+    RealVector centroid(entities->element_type().dimension());
+
+    Uint nb_nodes_per_elem = entities_space.shape_function().nb_nodes();
+    const Uint nb_elems = entities->size();
+    for (Uint elem=0; elem<nb_elems; ++elem)
     {
-      for (Uint node=0; node<nb_nodes; ++node)
+      entities->geometry_space().put_coordinates(elem_coords,elem);
+      entities->element_type().compute_centroid(elem_coords,centroid);
+      bounding_box.extend(centroid);
+
+      for (Uint node=0; node<nb_nodes_per_elem; ++node)
         space_connectivity[elem][node] = field_idx++;
     }
   }
+  bounding_box.make_global();
 
   // STEP 2: Resize this space
   // -------------------------
@@ -104,7 +119,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     {
       boost_foreach(const Uint idx, space_connectivity[e])
       {
-        //          cf3_assert(entities.rank()[e] < PE::Comm::instance().size());
+        // cf3_assert(entities.rank()[e] < PE::Comm::instance().size());
         rank()[idx] = entities.rank()[e];
       }
     }
@@ -112,9 +127,10 @@ void DiscontinuousDictionary::create_connectivity_in_space()
 
   // (3)
   std::map<size_t,Entity> hash_to_elements;
-
   std::deque<Entity> unknown_rank_elements;
   std::deque<size_t> unknown_rank_elements_hash_deque;
+
+  math::Hilbert compute_glb_idx(bounding_box,20);
 
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
@@ -127,13 +143,13 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     {
       entities.geometry_space().put_coordinates(elem_coords,e);
       entities.element_type().compute_centroid(elem_coords,centroid);
-      size_t hash = hash_value(centroid);
-      //        std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash;
+      size_t hash = compute_glb_idx(centroid);
+//      std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash << std::endl;
       bool inserted = hash_to_elements.insert( std::make_pair(hash, Entity(entities,e)) ).second;
       if (! inserted)
       {
         std::stringstream msg;
-        msg <<"Duplicate hash " << hash << " detected for element with centroid \n" << centroid;
+        msg <<"Duplicate hash " << hash << " detected for element " << entities.uri() << " with centroid (" << centroid.transpose() << ")\n";
         throw ValueExists(FromHere(), msg.str());
       }
       if(entities.rank()[e] == UNKNOWN)
@@ -312,7 +328,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     {
       entities.geometry_space().put_coordinates(elem_coords,e);
       entities.element_type().compute_centroid(elem_coords,centroid);
-      size_t hash = hash_value(centroid);
+      size_t hash = compute_glb_idx(centroid);
       //        std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash;
       if (rank()[entities_space.connectivity()[e][0]] != PE::Comm::instance().rank()) // if is ghost
       {

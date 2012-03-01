@@ -1,5 +1,6 @@
+#include "common/Component.hpp"
 namespace cf3 {
-
+namespace common {
 /*! @page introducing_components Introducing the %Component class
  @section _introduction Introduction
  The component object concept is the key of understanding COOLFluiD 3.
@@ -34,61 +35,160 @@ namespace cf3 {
 
  //-----------------------------------------------------------
 
+ /*! @page shared_ptr_and_handles Shared pointers and Handles
+ 
+ 
+ @section _shared_ptr boost::shared_ptr<T>
+ A boost::shared_ptr is a specialized pointer to the allocated object that keeps and shares ownership
+ with other boost::shared_ptr's to the same object. The allocated object is deleted from memory only when all boost::shared_ptr's are
+ deleted.
+ 
+ Following snippet shows the advantages of boost::shared_ptr, used for the Component environment
+ @code
+ // Allocate a component and store it in a boost::shared_ptr "ptr1"
+ boost::shared_ptr<ComponentType> ptr1 = common::allocate_component<ComponentType>("component_name");
+ 
+ // Share ownership of the component with another boost::shared_ptr "ptr2"
+ boost::shared_ptr<ComponentType> ptr2 = ptr1;
+
+ // Reset ptr1, telling the boost::shared_ptr that it no longer shares ownership to the component.
+ ptr1.reset();   // ptr1 gets deleted
+ 
+ // ptr2 still has ownership of the component
+ std::cout << ptr2->name() << std::endl; // print the name of the component
+ @endcode
+ More information on boost::shared_ptr can be found at <a href="http://www.boost.org/doc/libs/release/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr docs</a>.
+ 
+ @section _handle Handle<T>
+ 
+ The Handle class is a specialized pointer type, working together with boost::shared_ptr's.
+ Handle's don't share ownership as boost::shared_ptr's do.
+ Handle's have a mechanism to keep track if there are still
+ boost::shared_ptr's sharing ownership. If all boost::shared_ptr's are deleted, the boost::weak_ptr will know this.
+ 
+ A Handle can be created from any boost::shared_ptr or other handles:
+ @code
+ // Create a boost::shared_ptr
+ boost::shared_ptr<ComponentType> component_shared_ptr = common::allocate_component<ComponentType>("component_name");
+
+ // Create a handle from the boost::shared_ptr
+ Handle<ComponentType> component_handle ( component_shared_ptr );
+
+ // Create another handle using the first handle
+ Handle<ComponentType> another_handle = component_handle;
+ 
+ // Check if handles are valid
+ is_not_null(component_handle) // returns true
+ is_not_null(another_handle)   // returns true
+ 
+ // Delete the allocated_component
+ component_shared_ptr.reset()
+ 
+ is_not_null(component_handle) // returns false
+ is_not_null(another_handle)   // returns false
+ @endcode
+ 
+ When working with components it is generally advised to use Handles and not boost::shared_ptr's, as algorithms might
+ keep objects in memory, even though the user specifically meant to delete a component from memory.
+ 
+ @section _handle_mistake Common mistake
+ Do not use Handle as the return type for functions returning a boost::shared_ptr!
+ This shared_ptr will be deleted immediately, and thus delete the allocated object, without
+ transferring ownership to the handle. This mistake will not be caught by compilers!
+ 
+ */
+
+
+//-----------------------------------------------------------
  /*! @page using_components Using Components
- @section _when When to decide if your class should be a component?
- When it is any or more of the following:
- @li configurable
- @li data you want stored and easily accessible from anywhere in the code
- @li action
- @section _how How to create a component
 
- @subsection _add_using_code Using c++ code
- Say you have a component "myComp" of type Component.
- To create a subcomponent of type Group with name "group1" inside myComp , use @b Component::create_component<T>() function:
+ @section _allocate Allocating a standalone component
+ The most basic function to allocate a component is @b common::allocate_component<T>(). A component is always defined by a name.
  @code
- common::Group& myGroup = myComp->create_component<common::Group>("group1");
+ boost::shared_ptr<ComponentType> component_ptr = common::allocate_component<ComponentType>("component_name");
  @endcode
- @anchor using_build_component
- Say you want to create a component of the abstract type mesh::MeshReader, but with concrete implementation from a gmsh reader,
- use then the @b Component::build_component() function
- @code
- mesh::CMeshReader& mesh_reader = 
-     myComp->build_component("meshreader","cf3.mesh.gmsh.Reader").as_type<mesh::MeshReader>();
- @endcode
- Here @c "cf3.mesh.gmsh.Reader" is the name of the concrete class cf3::mesh::gmsh::Reader
- The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
+ The return value is a boost::shared_ptr, a specialized pointer to the allocated component that keeps and shares ownership.\n
+ More information on boost::shared_ptr and why it is used can be found on the page \ref shared_ptr_and_handles.
  
- @section _configure How to configure a component
+ @note
+ It is NOT ALLOWED to create a component the following way:
+ @code
+   ComponentType component("component_name");   // will not compile!
+ @endcode
+ This is not allowed because a boost::shared_ptr cannot be created from this object. 
+ It is always necessary to use an allocation with a boost::shared_ptr.
 
- @subsection _config_using_code Using c++ code
- Say the component "myComp" has a configuration option "My Integer Number" which is of the type "integer", then the value of option "My Integer Number" can be modified or configured using the code:
+\n
+
+ @note \ref _handle_mistake! Don't use a Handle as the return type for the common::allocate_component<T>() function!!!
+ @code
+ Handle<ComponentType> component_handle = common::allocate_component<ComponentType>("component_name");  // wrong! (but will compile)
+ @endcode
+ 
+ @section _handling Handling components
+  
+ @subsection _add_move_remove Adding, Renaming, Moving and Removing a component
+ 
+ If we want to nest a allocated component with name "component_name" in another existing component "parent_component", we can use the @b Component::add_component() function.
+ We want to rename the component first to "my_name";
+ @code
+ boost::shared_ptr<ComponentType> component_ptr = common::allocate_component<ComponentType>("component_name");
+ component_ptr->rename("my_name");
+ ParentComponentType& parent_component = ... ;
+ parent_component.add_component(component_ptr);
+ @endcode
+ This will add ownership of the allocated component stored in component_ptr to parent_component, so that when component_ptr gets deleted, the component still
+ exists, nested in parent_component.
+ It is possible to move a nested component from one parent to another:
+ @code
+ component_ptr->move_to(other_parent_component);
+ @endcode
+ It is also possible to remove a nested component (the reverse operation of @b Component::add_component() )
+ @code
+ component_ptr = other_parent_component.remove_component("my_name");
+ @endcode
+  
+ @section _access Accessing a component
+
+ @subsection _access_by_name Access through its name
+ When the name of the desired component is known, use the Component member function @b Component::get_child()
 
  @code
- myComp.configure_property( "my_integer_number" , int(2) ); 
+ Handle<Component> child_component = parent_component.get_child("my_component");
  @endcode
  
- It is important to statically cast the value to the type int. Similarly for another option "My Real Number" with value of type "real" , the code would have to be:
+ When the component needs to be cast to a known derived type (e.g. DerivedComponentType), use the Component member function Component::handle<T>()
  @code
- myComp.configure_property( "my_real_number" , Real(2) );
+ Handle<DerivedComponentType> child_component = parent_component.get_child("my_component")->handle<DerivedComponentType>();
  @endcode
  
- Accessing these properties occurs using the function property().
+ @subsection _access_by_path Access through its path
+ When the path of the desired component is known, use the Component member function @b Component::access_component()
+ Paths can be relative to the component, or global.
+
  @code
- int  my_integer = myComp.property("my_integer_number").value<int>();
- Real my_real    = myComp.property("my_real_number").value<Real>();
+ Handle<Component> relative_component = current_component.access_component("../../my_component");
+ Handle<Component> absolute_component = current_component.access_component("/absolute/path/to/my_component");
  @endcode
- Notice the @c value<int>() part in this code.
  
- @section _access How to access a component?
+ When the component needs to be cast to a known derived type (e.g. DerivedComponentType), use the Component member function Component::handle<T>() again
+ @code
+ Handle<DerivedComponentType> relative_component = current_component.access_component("../../my_component")->handle<DerivedComponentType>();
+ @endcode
+ 
+ 
+ 
+ 
+ 
  IMPORTANT: When to access a component?
  Accessing a component from the tree can be a costly operation and should be avoided in loops that need to be as efficient as possible.
  It is therefore highly recommended to access the desired component before the loop, and create a reference to it. Several ways are widely used:
  @code
- Component&     myComp_1 =  <function that returns the type "Component"> ;
- Component::Ptr myComp_2 =  <function that returns the type "Component">.self() ;
- Component&     myComp_3 = *<function that returns the type "Component::Ptr"> ;
- Component::Ptr myComp_4 =  <function that returns the type "Component::Ptr"> ;
- Component*     myComp_5 =  <function that returns the type "Component::Ptr">.get() ;
+ Component&        myComp_1 =  <function that returns the type "Component"> ;
+ Handle<Component> myComp_2 =  <function that returns the type "Component">.handle<Component>() ;
+ Component&        myComp_3 = *<function that returns the type "Handle<Component>" ;
+ Handle<Component> myComp_4 =  <function that returns the type "Handle<Component>"> ;
+
  for (int i=0; i<1000; ++i)
  {
    // make use of myComp_1, myComp_2, myComp_3, myComp_4, myComp_5
@@ -101,31 +201,48 @@ namespace cf3 {
  For myComp_3, a dereferenced version is obtained by using the asterisk to dereference the Component::Ptr. 
  For myComp_5, a direct pointer is obtained from the shared_pointer by calling the boost::shared_ptr member function get().
  Care must be taken for myComp_3 and myComp_5, if the shared_ptr is created inside the function that returns it, and if that function doesn't store the component in the component tree, as the shared_ptr will not stay alive. In that case, the component will be invalid.
-
- @subsection _access_by_name Access through its name
- When the name of the desired component is known, use the Component member function @b Component::get_child()
-
+ 
+ 
+ 
+ 
+ Say you have a component "myComp" of type Component.
+ To create a subcomponent of type Group with name "group1" inside myComp , use @b Component::create_component<T>() function:
  @code
- Component& child_component = parent_component.get_child("my_component");
+ Handle<common::Group> myGroup = myComp->create_component<common::Group>("group1");
  @endcode
- When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>()
+ @anchor using_build_component
+ Say you want to create a component of the abstract type mesh::MeshReader, but with concrete implementation from a gmsh reader,
+ use then the @b Component::build_component() function
  @code
- CDerived& child_component = parent_component.get_child("my_component").as_type<CDerived>();
+ Handle<mesh::CMeshReader> mesh_reader = 
+     myComp->build_component("meshreader","cf3.mesh.gmsh.Reader")->handle<mesh::MeshReader>();
+ @endcode
+ Here @c "cf3.mesh.gmsh.Reader" is the name of the concrete class cf3::mesh::gmsh::Reader
+ The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
+ 
+ 
+ 
+ @section _configure How to configure a component
+
+ @subsection _config_using_code Using c++ code
+ Say the component "myComp" has a configuration option "My Integer Number" which is of the type "integer", then the value of option "My Integer Number" can be modified or configured using the code:
+
+ @code
+ myComp.options().configure_option( "my_integer_number" , int(2) ); 
  @endcode
  
- @subsection _access_by_path Access through its path
- When the path of the desired component is known, use the Component member function @b Component::access_component()
- Paths can be relative to the component, or global.
-
+ It is important to statically cast the value to the type int. Similarly for another option "My Real Number" with value of type "real" , the code would have to be:
  @code
- Component& relative_component = current_component.access_component("../../my_component");
- Component& absolute_component = current_component.access_component("//my_component");
+ myComp.options().configure_option( "my_real_number" , Real(2) );
  @endcode
  
- When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>() again
+ Accessing these properties occurs using the function property().
  @code
- CDerived& relative_component = current_component.access_component("../../my_component").as_type<CDerived>();
+ int  my_integer = myComp.options().option("my_integer_number").value<int>();
+ Real my_real    = myComp.options().option("my_real_number").value<Real>();
  @endcode
+ Notice the @c value<int>() part in this code.
+ 
  
  @subsection _access_by_search Access through a search
  It is also possible to perform a search for components using predicates. What is returned from a search is a component iterator range. This is helpful as the iterator range can easily be used in a "boost_foreach" macro:
@@ -141,11 +258,11 @@ namespace cf3 {
  @verbatim
  root                      ( type = Root               ,  tags = )
      component1            ( type = Group              ,  tags = )
-         subcomponent1     ( type = CMyType             ,  tags = )
-         subcomponent2     ( type = CMyType             ,  tags = )
+         subcomponent1     ( type = MyType             ,  tags = )
+         subcomponent2     ( type = MyType             ,  tags = )
      component2            ( type = Group              ,  tags = special_tag )
-         subcomponent1     ( type = CMySpecializedType  ,  tags = )
-         subcomponent2     ( type = CMyType             ,  tags = special_tag )
+         subcomponent1     ( type = MySpecializedType  ,  tags = )
+         subcomponent2     ( type = MyType             ,  tags = special_tag )
  @endverbatim
  In the case we want to visit only the first level child components of root, use @b find_components() : 
  @code
@@ -185,37 +302,38 @@ namespace cf3 {
  }
  @endcode
  
- All components with tag "CMyType" :
+ All components with tag "MyType" :
  @code
- boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("CMyType") )
+ boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("MyType") )
  {
    // component will be in order:  
    //   component1/subcomponent1 , component1/subcomponent2 , component2/subcomponent1 , component2/subcomponent2
  }
  @endcode
  
- This last search is interesting as it allows to search by the type of the component. We would then of course like to use specialized functionality of that component, and it would have to be cast to the type we look for.
- To avoid this code, there is a templated-by-type version of every previously shown search function that automatically casts the component to the type. All you have to do is add @<TYPE@> after the find function, where
- "TYPE" is the type of the component you look for.
+ This last search is interesting as it allows to search by the type of the component.
+ We would then of course like to use specialized functionality of that component, and it would have to be cast to the type we look for.
+ To avoid this code, there is a templated-by-type version of every previously shown search function that automatically casts the component 
+ to the type. All you have to do is add @<TYPE@> after the find function, where "TYPE" is the type of the component you look for.
 
- The last example could be rewritten to give all components of type CMyType using @b find_components_recursively<CMyType>() :
+ The last example could be rewritten to give all components of type MyType using @b find_components_recursively<MyType>() :
  @code
- boost_foreach ( CMyType& component , find_components_recursively<CMyType>(root_component) )
+ boost_foreach ( MyType& component , find_components_recursively<MyType>(root_component) )
  {
-   // component is now of type CMyType and will be in order:  
+   // component is now of type MyType and will be in order:  
    //   component1/subcomponent1 , component1/subcomponent2 , component2/subcomponent1 , component2/subcomponent2
  }
  @endcode
  Note that it is no longer necessary to use the "filtered" version, as this happens under the hood.
  It is still possible to filter on tags or names or other predicates.
 
- To get the components of type CMyType with extra tag "special_tag", use @b find_components_recursively_with_tag<CMyType>() :
+ To get the components of type MyType with extra tag "special_tag", use @b find_components_recursively_with_tag<MyType>() :
  @code
- boost_foreach ( CMyType& component , 
-    find_components_recursively_with_tag<CMyType>( root_component , IsComponentTag("special_tag") ) )
+ boost_foreach ( MyType& component , 
+    find_components_recursively_with_tag<MyType>( root_component , IsComponentTag("special_tag") ) )
  {
-   // component is now of type CMyType , and will have the tag "special_tag", and will be in order:  
-   //   component2/subcomponent2     and NOT component2 as it is not of the type CMyType 
+   // component is now of type MyType , and will have the tag "special_tag", and will be in order:  
+   //   component2/subcomponent2     and NOT component2 as it is not of the type MyType 
    //   although it also meets the IsComponentTag("special_tag") predicate
  }
  @endcode
@@ -228,6 +346,13 @@ namespace cf3 {
 
 /*! \page coding_components Coding your own Components
 
+@section _when When to decide if your class should be a component?
+When it is any or more of the following:
+@li configurable
+@li data you want stored and easily accessible from anywhere in the code
+@li action
+
+@section _coding_example Example
 A new component always has to inherit from a parent class which is also a component.
 A simple example is the class common::Group, which adds actually no extra functionality.
 
@@ -237,14 +362,10 @@ namespace common {
 
 class Common_API Group : public Component 
 {
-
-public: // typedefs
-
-  /// pointer to this type
-  typedef boost::shared_ptr<Group> Ptr;
-  typedef boost::shared_ptr<Group const> ConstPtr;
-
 public: // functions
+
+  /// Get the class name
+  static std::string type_name () { return "Group"; }
 
   /// Contructor
   /// @param name of the component
@@ -253,8 +374,6 @@ public: // functions
   /// Virtual destructor
   virtual ~Group() {}
 
-  /// Get the class name
-  static std::string type_name () { return "Group"; }
 };
 
 } //namespace common
@@ -265,7 +384,6 @@ Noteworthy here is:
  - Group inherits from Component
  - The constructor of a Component takes only 1 std::string, i.e. the name the component gets
  - The component must have a @b static function Group::type_name() defined, returning the class name
- - The component must have the Ptr and ConstPtr typedefs defined as boost::shared_ptr
  - Following the class name is first the API macro related to this namespace (here Common_API). 
    This macro is usually defined in the library of this namespace. (LibNamespace.hpp)
 
@@ -294,9 +412,7 @@ purposes of use :
  <li> @c common::OptionT : single value options. Cannot be used with URI.
  <li> @c common::OptionURI : options with type @c common::URI. These class can be seen as an implementation of 
 @c OptionT<URI>. It allows to manage a list of supported protocols (see further for more information)
- <li> @c common::OptionComponent : options which point to components. The value type is @c common::URI (the CPATH 
-to the component) and the object holds a <a href="http://www.boost.org/doc/libs/release/libs/smart_ptr/weak_ptr.htm">boost::weak_ptr</a> 
-to the component.
+ <li> @c common::OptionComponent : options which point to components (configured using a Handle, or URI)
  <li> @c common::OptionArrayT : arrays of values. 
  <li> @c common::OptionEnum : acts as an @c OptionT<std::string> of which data is an enumeration. This class is not implemented yet.
 </ul>
@@ -323,4 +439,5 @@ When you build an option, default and current values are the same. The type is
 @section options_triggers Triggers
 */
 
+}
 }

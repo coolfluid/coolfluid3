@@ -33,6 +33,9 @@
 #include "mesh/Connectivity.hpp"
 
 #include "math/Consts.hpp"
+#include "math/MatrixTypesConversion.hpp"
+#include "math/Hilbert.hpp"
+#include "math/BoundingBox.hpp"
 #define UNKNOWN math::Consts::uint_max()
 
 namespace cf3 {
@@ -60,17 +63,17 @@ ContinuousDictionary::~ContinuousDictionary()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t ContinuousDictionary::hash_value(const RealMatrix& coords)
-{
-  std::size_t seed=0;
-  for (Uint i=0; i<coords.rows(); ++i)
-  for (Uint j=0; j<coords.cols(); ++j)
-  {
-    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-    boost::hash_combine(seed,1e-6*coords(i,j));
-  }
-  return seed;
-}
+//std::size_t ContinuousDictionary::hash_value(const RealMatrix& coords)
+//{
+//  std::size_t seed=0;
+//  for (Uint i=0; i<coords.rows(); ++i)
+//  for (Uint j=0; j<coords.cols(); ++j)
+//  {
+//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
+//    boost::hash_combine(seed,1e-6*coords(i,j));
+//  }
+//  return seed;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,8 +83,12 @@ void ContinuousDictionary::create_connectivity_in_space()
   RealMatrix elem_coordinates;
   Uint dim = DIM_0D;
 
+
   // step 1: collect nodes in a set
   // ------------------------------
+
+  // (a) Create bounding box of all coordinates, to define a space
+  math::BoundingBox bounding_box;
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
     Entities& entities = *entities_handle;
@@ -92,11 +99,31 @@ void ContinuousDictionary::create_connectivity_in_space()
       for (Uint node=0; node<shape_function.nb_nodes(); ++node)
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
-        std::size_t hash = hash_value(space_coordinates);
+        bounding_box.extend(space_coordinates);
+      }
+    }
+  }
+  bounding_box.make_global();
+
+  // (b) Create unique indices for every coordinate
+  math::Hilbert compute_glb_idx(bounding_box, 20);  // functor
+  boost_foreach(const Handle<Entities>& entities_handle, entities_range())
+  {
+    Entities& entities = *entities_handle;
+    const ShapeFunction& shape_function = space(entities).shape_function();
+    for (Uint elem=0; elem<entities.size(); ++elem)
+    {
+      elem_coordinates = entities.geometry_space().get_coordinates(elem);
+      for (Uint node=0; node<shape_function.nb_nodes(); ++node)
+      {
+        RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
+        std::size_t hash = compute_glb_idx(space_coordinates);
         points.insert( hash );
       }
     }
   }
+
+  // (c) Create the coordinates field
   Field& coordinates = create_field("coordinates","coords[vector]");
 
   // step 3: resize
@@ -123,7 +150,7 @@ void ContinuousDictionary::create_connectivity_in_space()
       for (Uint node=0; node<shape_function.nb_nodes(); ++node)
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
-        std::size_t hash = hash_value(space_coordinates);
+        std::size_t hash = compute_glb_idx(space_coordinates);
         Uint idx = std::distance(points.begin(), points.find(hash));
         connectivity[elem][node] = idx;
         coordinates.set_row(idx, space_coordinates);
@@ -159,9 +186,8 @@ void ContinuousDictionary::create_connectivity_in_space()
   Uint c(0);
   for (Uint i=0; i<size(); ++i)
   {
-    for (Uint d=0; d<coordinates.row_size(); ++d)
-      dummy[d] = coordinates[i][d];
-    size_t hash = hash_value(dummy);
+    math::copy(coordinates[i],dummy);
+    size_t hash = compute_glb_idx(dummy);
     hash_to_idx[hash] = i;
     coord_hash[c++]=hash;
   }
@@ -227,9 +253,8 @@ void ContinuousDictionary::create_connectivity_in_space()
   std::vector<size_t> ghosts_hashed(ghosts.size());
   for (Uint g=0; g<ghosts.size(); ++g)
   {
-    for (Uint d=0; d<coordinates.row_size(); ++d)
-      dummy[d] = coordinates[ghosts[g]][d];
-    ghosts_hashed[g] = hash_value(dummy);
+    math::copy(coordinates[ghosts[g]], dummy);
+    ghosts_hashed[g] = compute_glb_idx(dummy);
   }
   std::vector<Uint> nb_owned_per_proc(Comm::instance().size(),nb_owned);
   if( Comm::instance().is_active() )

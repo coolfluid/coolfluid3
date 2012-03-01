@@ -4,14 +4,19 @@ list( APPEND coolfluid_math_files
   LibMath.cpp
   LibMath.hpp
   BoostMath.hpp
+  BoundingBox.hpp
+  BoundingBox.cpp
   Checks.hpp
   Consts.hpp
   Defs.hpp
   FindMinimum.hpp
   FloatingPoint.hpp
   Functions.hpp
+  Hilbert.hpp
+  Hilbert.cpp
   Integrate.hpp
   MatrixTypes.hpp
+  MatrixTypesConversion.hpp
   MathExceptions.hpp
   MathExceptions.cpp
   VariableManager.hpp

@@ -33,10 +33,6 @@ public: // functions
 
   virtual void create_connectivity_in_space();
 
-private: // function
-
-  static std::size_t hash_value(const RealMatrix& coords);
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 #include "common/BoostFilesystem.hpp"
 
 #include "common/ArrayBufferT.hpp"
-#include "common/Component.hpp"
+#include "common/Action.hpp"
 #include "common/Table.hpp"
 
 
@@ -34,7 +34,7 @@ namespace mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API MeshReader : public common::Component {
+class Mesh_API MeshReader : public common::Action {
 
 public: // typedefs
 
@@ -79,6 +79,8 @@ public: // functions
   /// @param [in,out] mesh  the mesh to write to
   void read_mesh_into(const common::URI& path, Mesh& mesh);
 
+  virtual void execute();
+
 protected: // functions
 
   /// Map type from string to a common::Table<Uint>::Buffer
@@ -104,6 +106,9 @@ protected: // functions
   void remove_empty_element_regions(Region& parent_region);
 
 protected: // data
+
+  Handle<Mesh> m_mesh;
+  common::URI m_file_path;
 
 private:
   /// this function implements the concrete mesh reading algorithm and is called by read_mesh_into

@@ -60,8 +60,8 @@ public: // functions
 
 public: // functions
 
-  static std::size_t elem_hash_value(const RealMatrix& coords);
-  static std::size_t node_hash_value(const RealMatrix& coords);
+//  static std::size_t elem_hash_value(const RealMatrix& coords);
+//  static std::size_t node_hash_value(const RealMatrix& coords);
 
 private: // data
 

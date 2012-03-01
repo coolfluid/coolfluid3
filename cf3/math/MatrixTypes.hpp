@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef cf3_Math_MatrixTypes_hpp
-#define cf3_Math_MatrixTypes_hpp
+#ifndef cf3_math_MatrixTypes_hpp
+#define cf3_math_MatrixTypes_hpp
 
 #include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
@@ -51,4 +51,4 @@ typedef Eigen::Matrix<Real, 1, 4> RealRowVector4;  ///< Fixed size 1x4 row vecto
 
 } // cf3
 
-#endif // cf3_Math_MatrixTypes_hpp
+#endif // cf3_math_MatrixTypes_hpp
