@@ -136,7 +136,7 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
   boost::shared_ptr<solver::actions::Iterate> iteration_loop = allocate_component<solver::actions::Iterate>("Iteration");
   Handle<SteadyNSCriterion> criterion = iteration_loop->create_component<SteadyNSCriterion>("ConvergenceCriterion");
 
-  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
+  boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   MeshTerm<0, VectorField> u("Velocity", Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", Tags::solution());

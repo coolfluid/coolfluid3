@@ -162,7 +162,9 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
+    CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
     m_implementation->m_lss->create(mesh().geometry_fields().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
+    CFdebug << "Finished creating LSS" << CFendl;
   }
 
   configure_option_recursively("lss", options().option("lss").value< Handle<LSS::System> >());
