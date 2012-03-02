@@ -177,7 +177,7 @@ void PythonCodeContainer::resizeEvent(QResizeEvent *e){
 }
 
 void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
-    static QRegExp indent_case(":[\\s]*($|#[^$]*$)");
+    static QRegExp indent_case("^[^(#|:)]*:");
     QTextCursor c=textCursor();
     if (completer != NULL && completer->popup() != NULL && completer->popup()->isVisible()){
         switch(e->key()){

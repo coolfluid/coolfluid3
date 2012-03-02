@@ -16,6 +16,8 @@
 #include <QKeyEvent>
 #include <QStringList>
 #include <QCompleter>
+#include <QQueue>
+#include <QPair>
 #include "ui/graphics/PythonCodeContainer.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
@@ -57,9 +59,12 @@ private:
     void set_input(const QString &);
     void select_input(QTextCursor &);
     void fix_prompt_history();
+    void stream_next_command();
 
     QAction* stop_continue;
     QStringList history;
+
+    QQueue<QPair<QString,bool> > command_stack;
     int history_index;
     bool stopped;
 

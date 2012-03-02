@@ -173,9 +173,47 @@ void PythonConsole::execute_input(QTextCursor &c){
 }
 
 void PythonConsole::execute_code(QString code,bool immediate){
-    /*foreach (QString &line,code.split('\n')){
+    static QRegExp two_points("^[^(#|:)]*:");
+    static QRegExp extend_statement("^((catch|elif|else|finally)|[^#]* (catch|elif|else|finally))( |:)");
+    QString command;
+    QString line;
 
-    }*/
+    bool multi_line=false;
+
+    foreach (line,code.split('\n')){
+        if (!multi_line){
+label_1:    if (line.contains(two_points)){
+                multi_line=true;
+                command=line.append('\n');
+            }else{//simple command
+                command_stack.enqueue(QPair<QString,bool>(line,immediate));
+            }
+        }else{
+            int indent=0;
+            for (;line[indent]=='\t';indent++);
+            if (indent==0){
+                if (line.contains(extend_statement)){
+                    command.append(line).append('\n');
+                }else{//end of multi line commnd
+                    command_stack.enqueue(QPair<QString,bool>(command,immediate));
+                    command.clear();
+                    multi_line=false;
+                    //but we must interpret the next line as well
+                    goto label_1;
+                }
+            }else{
+                command.append(line).append('\n');
+            }
+        }
+    }
+    if (command_stack.size()){
+        stream_next_command();
+    }
+}
+
+void PythonConsole::stream_next_command(){
+    QPair<QString,bool> current_command=command_stack.dequeue();
+    //todo
 }
 
 void PythonConsole::insert_output(const QString &output){
