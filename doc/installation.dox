@@ -154,12 +154,17 @@ Available build types are:
 
 @subsubsection _installation_some_more_configuration_options Some more configuration options
 
-To force a specific compiler (MUST BE MPI), or in case the automatic CMake configuration fails
+To force a specific compiler:
 @verbatim
--DMPI_CC_COMPILER=$CF3/deps/bin/mpicc
+-DCMAKE_C_COMPILER=$CF3/deps/bin/mpicc
+-DCMAKE_CXX_COMPILER=$CF3/deps/bin/mpicxx
+@endverbatim
+If CMake cannot find the MPI environment:
+@verbatim
+-DMPI_C_COMPILER=$CF3/deps/bin/mpicc
 -DMPI_CXX_COMPILER=$CF3/deps/bin/mpicxx
 @endverbatim
-
+A few other options that can be used:
 @verbatim
 -DCF3_CXX_FLAGS="-march=Core2"       # Architecture optimization for Core2
 -DCF3_SKIP_FORTRAN=ON                # When you don't need or don't have fortran installed
