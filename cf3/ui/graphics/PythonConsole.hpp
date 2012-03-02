@@ -44,6 +44,7 @@ private slots:
     void line_by_line_activated(bool);
     void stop_continue_pressed();
     void execution_stopped();
+    void execute_code(QString,bool);
 private:
     /// Index of the block that contains the current prompt
     int input_block;

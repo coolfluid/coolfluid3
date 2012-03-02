@@ -58,24 +58,15 @@ void PythonCodeEditor::new_line(int indent_number){
 }
 
 void PythonCodeEditor::execute(){
-    static QRegExp two_point(":[\\s]*($|#[^$]*$)");
-    remove_fragments();
-    QTextBlock b=document()->firstBlock();
-    while (b.isValid()){
-        QString line=b.text();
-        if (line.contains())
-        //algorithme
-        //find ':'
-        b=b.next();
-    }
+
 }
 
 void PythonCodeEditor::open(){
-    remove_fragments();
+
 }
 
 void PythonCodeEditor::save(){
-    remove_fragments();
+
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -172,6 +172,12 @@ void PythonConsole::execute_input(QTextCursor &c){
     ensureCursorVisible();
 }
 
+void PythonConsole::execute_code(QString code,bool immediate){
+    /*foreach (QString &line,code.split('\n')){
+
+    }*/
+}
+
 void PythonConsole::insert_output(const QString &output){
     QTextCursor cursor=textCursor();
     if (input_start_in_text==0){//special case

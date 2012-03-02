@@ -279,10 +279,12 @@ void ScriptEngine::flush_python_stdout(){
             char * data_str=PyString_AsString(data.get());
             if (data_str != NULL){
                 std::string out(data_str);
-                if (out.size()>0){
+                if (strlen(data_str)>0){
                     //CFinfo << "flush emit output" << CFendl;
-                    CFinfo << out << CFendl;
-                    execute_script("sys.stdout.data=''",0);
+                    CFinfo << data_str << CFendl;
+                    PyObject_SetAttrString(py_stdout.get(),"data",PyString_FromString(""));
+
+                    //execute_script("sys.stdout.data=''",0);
                 }
                 //execute_line("sys.stdout.data=''");
                 //PyObject_SetAttrString(py_stdout,"data",PyString_FromString(""));
