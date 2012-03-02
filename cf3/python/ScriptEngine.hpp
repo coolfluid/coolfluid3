@@ -13,20 +13,26 @@
 
 #include "python/LibPython.hpp"
 
-#include <boost/python/handle.hpp>
-
-#include <frameobject.h>
-
 #include "common/PE/Manager.hpp"
 
 #include "common/CommonAPI.hpp"
+
+#include <Python.h>
+
+#include <frameobject.h>
 
 namespace cf3 {
 namespace python {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief python tracing function, used to
 int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
+
+/// @brief Threaded c function, used to contain the PyEval_CodeEval
+void python_execute_function();
+/// @brief Threaded c function, used to stop python execution with mutex
+void python_stop_function();
 
 /// @brief Executes python scripts passed as a string
 ///
@@ -67,6 +73,8 @@ public: // functions
   /// Called by the trace function when a new line is reached
   int new_line_reached(int code_fragment,int line_number);
 
+  void check_python_change();
+
 private:
   enum debug_command {
       INVALID=-1,
@@ -81,29 +89,27 @@ private:
 
   void emit_output(std::string output);
 
-  void emit_completion_list();
-
   void emit_debug_trace(int fragment,int line);
 
-  void execute_line(std::string script);
+  void emit_completion_list();
 
-  bool check_scope_difference(PyObject* dict);
+  bool check_scope_difference(PyObject* dict,std::vector<PyObject*>* diff);
 
-  void read_dictionary(PyObject* dict,std::vector<std::string> *word_list);
-
-  void read_objects(PyObject* obj,std::string obj_name,std::vector<std::string> *word_list);
+  void read_objects(PyObject* obj,std::string obj_name);
 
   void flush_python_stdout();
 
   std::string current_instruction;
-  boost::python::handle<> global_scope, local_scope;
   bool new_command;
   Handle< common::PE::Manager > m_manager;
-  std::vector<PyObject*> scope_diff;
-  PyThreadState *interpreter_state;
+  std::vector<PyObject*> local_scope_diff;
+  std::vector<PyObject*> global_scope_diff;
+  std::vector<std::string> completion_word_list;
   debug_command interpreter_mode;
-  PyGILState_STATE gstate;
+
   static int python_close;
+  int break_fragment;
+  int break_line;
   bool stoped;
 }; // ScriptEngine
 

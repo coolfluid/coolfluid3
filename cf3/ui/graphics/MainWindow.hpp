@@ -96,7 +96,9 @@ namespace graphics {
 
       ACTION_ABOUT_COOLFLuiD,
 
-      ACTION_ABOUT_QT
+      ACTION_ABOUT_QT,
+
+      ACTION_NEW_PYTHON_EDITOR
 
     }; // MainWinActions
 
@@ -157,6 +159,8 @@ namespace graphics {
     void open_file_remotely();
 
     void run_script();
+
+    void new_python_script_editor();
 
     void new_log_message(const QString & message, uiCommon::LogMessage::Type type);
 

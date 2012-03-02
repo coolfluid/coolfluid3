@@ -56,8 +56,6 @@ namespace core {
 
         void emit_debug_command(debug_command);
 
-        void get_completion_list();
-
         /// @brief Boost slot called when python console output are sent from the server
         /// @param node Signal node
         void signal_output(common::SignalArgs & node);
@@ -69,6 +67,8 @@ namespace core {
         /// @brief Boost slot called when the server send debugging information
         /// @param node Signal node
         void signal_debug_trace(common::SignalArgs & node);
+      public slots:
+        void get_completion_list();
 
       signals:
 

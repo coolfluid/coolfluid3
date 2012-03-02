@@ -40,6 +40,7 @@
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
+#include "ui/graphics/PythonCodeEditor.hpp"
 #include "ui/graphics/PythonConsole.hpp"
 #include "ui/graphics/SignatureDialog.hpp"
 #include "ui/graphics/TabBuilder.hpp"
@@ -215,6 +216,10 @@ void MainWindow::build_menus()
 
   action = m_mnu_file->addAction("&Run script", this,
                                 SLOT(run_script()), tr("ctrl+shift+R"));
+  m_actions[ACTION_RUN_SCRIPT] = action;
+
+  action = m_mnu_file->addAction("&New python editor", this,
+                                SLOT(new_python_script_editor()), tr("ctrl+shift+R"));
   m_actions[ACTION_RUN_SCRIPT] = action;
 
   m_mnu_file->addSeparator();
@@ -602,6 +607,10 @@ void MainWindow::run_script()
   {
     NLog::global()->add_exception( e.what() );
   }
+}
+
+void MainWindow::new_python_script_editor(){
+    TabBuilder::instance()->addTab(new PythonCodeEditor(this), "Python editor");
 }
 
 ////////////////////////////////////////////////////////////////////////////

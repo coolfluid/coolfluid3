@@ -54,7 +54,6 @@ PythonConsole::PythonConsole(QWidget *parent) :
     connect(core::NScriptEngine::global().get(),SIGNAL(new_output(QString)),this,SLOT(insert_output(QString)));
     connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
             this, SLOT(insert_log(QString)));
-    connect(core::NScriptEngine::global().get(), SIGNAL(debug_trace_received(int,int)), this,SLOT(display_debug_trace(int,int)));
 }
 
 PythonConsole::~PythonConsole(){
