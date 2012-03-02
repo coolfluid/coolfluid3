@@ -230,6 +230,7 @@ void PythonConsole::stop_continue_pressed(){
     if (stopped){
         ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::CONTINUE);
         stop_continue->setText("Stop");
+        reset_debug_trace();
     }else{
         ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::BREAK);
     }

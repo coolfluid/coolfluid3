@@ -144,6 +144,7 @@ void python_stop_function(){
             //CFinfo << "stop_lock" << CFendl;
             boost::this_thread::sleep(wait_a_little);
             python_mutex.lock();
+            script_engine->check_python_change();
             //CFinfo << "stop_lock_aquired" << CFendl;
         }else
             boost::this_thread::sleep(wait_a_little);
@@ -339,7 +340,7 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
         emit_debug_trace(code_fragment,line_number);
         python_mutex.unlock();
         boost::this_thread::sleep(wait_a_little);
-        check_python_change();
+        //check_python_change();
         python_mutex.lock();
         //wait for the script engine to unlock
         //CFinfo << "exec_lock_aquired" << CFendl;
