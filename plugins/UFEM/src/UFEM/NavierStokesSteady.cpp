@@ -74,8 +74,19 @@ struct SteadyNSCriterion : Criterion
     if(boost::accumulators::count(p_stats) < 1)
       return false;
 
-    p_update_history.push_back(boost::accumulators::max(p_stats));
-    u_update_history.push_back(boost::accumulators::max(u_stats));
+    const Real my_p = boost::accumulators::max(p_stats);
+    const Real my_u = boost::accumulators::max(u_stats);
+    Real global_p_max = my_p;
+    Real global_u_max = my_u;
+
+    if(PE::Comm::instance().is_active())
+    {
+      PE::Comm::instance().all_reduce(PE::max(), &my_p, 1, &global_p_max);
+      PE::Comm::instance().all_reduce(PE::max(), &my_u, 1, &global_u_max);
+    }
+
+    p_update_history.push_back(global_p_max);
+    u_update_history.push_back(global_u_max);
 
     u_stats = StatsT();
     p_stats = StatsT();
