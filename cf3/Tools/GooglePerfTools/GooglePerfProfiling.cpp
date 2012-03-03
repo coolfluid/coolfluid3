@@ -8,6 +8,7 @@
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 
 #include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
@@ -25,7 +26,7 @@ ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools > Googl
 GooglePerfProfiling::GooglePerfProfiling( const std::string& name) : CodeProfiler(name),
     m_profiling(false)
 {    
-  m_path = boost::filesystem::path("perftools-profile.pprof");
+  options().configure_option("file_path", URI("perftools-profile.pprof", cf3::common::URI::Scheme::FILE));
 }
 
 GooglePerfProfiling::~GooglePerfProfiling()
@@ -37,8 +38,9 @@ void GooglePerfProfiling::start_profiling()
 {
   if( !m_profiling )
   {
-    ProfilerStart(m_path.string().c_str());
-    CFinfo <<  type_name() << ": Saving profile data to: " << m_path.string() << CFendl;
+    const std::string file_path = options().option("file_path").value<URI>().path();
+    ProfilerStart(file_path.c_str());
+    CFinfo <<  type_name() << ": Saving profile data to: " << file_path << CFendl;
     m_profiling = true;
   }
   else
@@ -52,9 +54,4 @@ void GooglePerfProfiling::stop_profiling()
   ProfilerStop();
   m_profiling = false;
   CFinfo << type_name() << ": Stopping profiling" << CFendl;
-}
-
-void GooglePerfProfiling::set_file_path(const boost::filesystem::path & path)
-{
-  m_path = path;
 }

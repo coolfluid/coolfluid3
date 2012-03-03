@@ -22,6 +22,7 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionList.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
@@ -86,7 +87,7 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
   if( Core::instance().profiler() )
   {
     m_current_filename = m_prefix + "-" + unit.p_name.get() + job_suffix.str() + ".pprof";
-    Core::instance().profiler()->set_file_path(boost::filesystem::path(m_profile_dir / m_current_filename));
+    Core::instance().profiler()->options().configure_option("file_path", URI(boost::filesystem::path(m_profile_dir / m_current_filename).string(), URI::Scheme::FILE));
     Core::instance().profiler()->start_profiling();
   }
 }
