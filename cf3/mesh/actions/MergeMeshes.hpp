@@ -38,7 +38,9 @@ public: // functions
   virtual ~MergeMeshes() {};
 
   /// Merge meshes
-  boost::shared_ptr<Mesh> merge(const std::vector<Handle<Mesh const> >& meshes);
+  void merge_mesh(const Mesh& mesh, Mesh& merged_mesh);
+
+  void fix_ranks(Mesh& merged_mesh);
 
 }; // end MergeMeshes
 

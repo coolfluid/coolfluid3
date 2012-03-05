@@ -37,11 +37,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API GlobalNumbering : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
-
 public: // functions
 
   /// constructor
