@@ -24,6 +24,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshGenerator.hpp"
+#include "mesh/actions/MergeMeshes.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Entities.hpp"
@@ -115,15 +116,20 @@ BOOST_AUTO_TEST_CASE( test )
   CFinfo << "mesh1: nb_nodes = " << mesh1->properties().value_str("nb_nodes") << CFendl;
 
   // Merge both meshes into one mesh, regions with same name are merged, otherwise added
-  Handle<Mesh> merged_mesh = Core::instance().root().create_component<Mesh>("merged_mesh");
-
+  std::vector<Handle<Mesh const> > meshes;
+  meshes.push_back(mesh0);
+  meshes.push_back(mesh1);
+  boost::shared_ptr<Mesh> merged_mesh = allocate_component<mesh::actions::MergeMeshes>("merge_meshes")->merge(meshes);
+  Handle<Mesh const> merged_mesh_h = Core::instance().root().add_component(merged_mesh).handle<Mesh>();
 
 
   // Remove duplicate nodes (expensive step)
 
 
-
   // Write the merged mesh
+  write_mesh->options().configure_option("mesh",merged_mesh_h);
+  write_mesh->options().configure_option("file",URI("out-merged-utest-mesh-gmsh-parallel.msh"));
+  write_mesh->execute();
 
 }
 
