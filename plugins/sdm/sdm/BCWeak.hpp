@@ -157,8 +157,8 @@ protected: // configuration
           for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
             std::cout << bdry_face_coords.row(face_pt) << std::endl;
         }
+        cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
       }
-      cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
     }
   }
 
