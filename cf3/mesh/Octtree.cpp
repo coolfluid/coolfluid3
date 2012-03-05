@@ -454,7 +454,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
   // if arrived here, it means no element has been found. Give up.
   element_component.reset();
   cf3_assert(is_null(element_component));
-  CFinfo << "coord " << target_coord.transpose() << " has not been found in any cell registereed in the bounding box" << CFendl;
+  CFdebug << "coord " << target_coord.transpose() << " has not been found in any cell registered in the bounding box" << CFendl;
   return false;
 }
 
