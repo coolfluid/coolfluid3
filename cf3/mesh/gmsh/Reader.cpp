@@ -141,18 +141,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
 
-
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
-  {
-    elements.rank().resize(elements.size());
-    Uint my_rank = options().option("part").value<Uint>();
-    for (Uint e=0; e<elements.size(); ++e)
-    {
-      elements.rank()[e] = my_rank;
-    }
-  }
-
-
   m_mesh->elements().update();
   m_mesh->update_statistics();
 
@@ -569,6 +557,7 @@ void Reader::read_connectivity()
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
        elements->rank().resize(m_nb_gmsh_elem_in_region[ir][etype]);
+       elements->glb_idx().resize(m_nb_gmsh_elem_in_region[ir][etype]);
        conn_table_idx[ir].insert(std::pair<Uint,Entities*>(etype,elements.get()));
      }
 
@@ -649,6 +638,7 @@ void Reader::read_connectivity()
       }
 
       elements_region->rank()[row_idx] = part;
+      elements_region->glb_idx()[row_idx] = element_number-1;
 
       (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type]++;
 
@@ -820,7 +810,6 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
 {
   std::string line;
   std::string dummy;
-
 
   Uint nb_string_tags(0);
   std::string var_name("var");

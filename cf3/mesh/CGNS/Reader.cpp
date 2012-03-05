@@ -25,6 +25,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/CGNS/Reader.hpp"
 
@@ -85,6 +86,10 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   m_mesh->elements().update();
   m_mesh->update_statistics();
+
+  // Fix global numbering
+  /// @todo remove this and read glb_index ourself
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////

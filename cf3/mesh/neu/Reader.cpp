@@ -6,8 +6,6 @@
 
 #include <set>
 
-#include <boost/algorithm/string/erase.hpp>
-
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -30,6 +28,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -164,6 +163,10 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   cf3_assert(m_mesh->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
   cf3_assert(m_mesh->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
+
+  // Fix global numbering
+  /// @todo remove this and read glb_index ourself
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////
