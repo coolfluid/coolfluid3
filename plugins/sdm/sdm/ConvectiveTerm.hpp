@@ -362,30 +362,37 @@ void ConvectiveTerm<PHYSDATA>::set_connectivity()
   {
     neighbour_elem->cache(face_entities,face_idx);
 
-    mesh::Field::View cell_coords   = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
-    std::vector<RealVector> cell_face_coords(left_face_pt_idx.size(),RealVector(NDIM));
-    for (Uint face_pt=0; face_pt<left_face_pt_idx.size(); ++face_pt)
+    if (elem->get().sf->order() == 0)
     {
-      elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](cell_coords,cell_face_coords[face_pt]);
+      right_face_pt_idx[0] = 0;
     }
-    RealMatrix face_coords = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx);
-    for (Uint right_face_pt=0; right_face_pt<right_face_pt_idx.size(); ++right_face_pt)
+    else
     {
-      const RealVector& right_face_pt_coord = face_coords.row(right_face_pt);
-      bool matched = false;
-      for (Uint left_face_pt=0; left_face_pt<left_face_pt_idx.size(); ++left_face_pt)
+      mesh::Field::View cell_coords   = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
+      std::vector<RealVector> cell_face_coords(left_face_pt_idx.size(),RealVector(NDIM));
+      for (Uint face_pt=0; face_pt<left_face_pt_idx.size(); ++face_pt)
       {
-        bool m=true;
-        for (Uint d=0; d<NDIM; ++d)
-          m = m && ( std::abs(cell_face_coords[left_face_pt][d] - right_face_pt_coord[d]) < 100*math::Consts::eps() );
-        if ( m )
-        {
-          matched=true;
-          right_face_pt_idx[left_face_pt] = right_face_pt;
-          break;
-        }
+        elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](cell_coords,cell_face_coords[face_pt]);
       }
-      cf3_assert_desc(elem->get().space->uri().string()+"["+common::to_str(elem->get().idx)+"]",matched);
+      RealMatrix face_coords = neighbour_elem->get().space->get_coordinates(neighbour_elem->get().idx);
+      for (Uint right_face_pt=0; right_face_pt<right_face_pt_idx.size(); ++right_face_pt)
+      {
+        const RealVector& right_face_pt_coord = face_coords.row(right_face_pt);
+        bool matched = false;
+        for (Uint left_face_pt=0; left_face_pt<left_face_pt_idx.size(); ++left_face_pt)
+        {
+          bool m=true;
+          for (Uint d=0; d<NDIM; ++d)
+            m = m && ( std::abs(cell_face_coords[left_face_pt][d] - right_face_pt_coord[d]) < 100*math::Consts::eps() );
+          if ( m )
+          {
+            matched=true;
+            right_face_pt_idx[left_face_pt] = right_face_pt;
+            break;
+          }
+        }
+        cf3_assert_desc(elem->get().space->uri().string()+"["+common::to_str(elem->get().idx)+"]",matched);
+      }
     }
   }
 }
