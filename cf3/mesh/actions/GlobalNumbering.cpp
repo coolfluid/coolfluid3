@@ -4,17 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
-//#define BOOST_HASH_NO_IMPLICIT_CASTS
-#include <boost/functional/hash.hpp>
-
-#include <boost/static_assert.hpp>
 #include <set>
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
-
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
@@ -24,26 +17,25 @@
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
 #include "math/MatrixTypesConversion.hpp"
 #include "math/Hilbert.hpp"
+#include "math/Functions.hpp"
+#include "math/Consts.hpp"
 
-#include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FaceCellConnectivity.hpp"
-#include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/Node2FaceCellConnectivity.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/BoundingBox.hpp"
-#include "math/Functions.hpp"
-#include "math/Consts.hpp"
-#include "mesh/ElementData.hpp"
+
+#include "mesh/actions/GlobalNumbering.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +158,7 @@ void GlobalNumbering::execute()
     glb_node_hash.data()[i]=compute_glb_idx(coord_vec);
 
     if (m_debug)
-      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< coord_vec.transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
 
@@ -493,32 +485,6 @@ void GlobalNumbering::execute()
     elements.remove_component("glb_elem_hash");
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//boost::uint64_t GlobalNumbering::node_hash_value(const RealMatrix& coords)
-//{
-//  boost::uint64_t seed=0;
-//  for (Uint i=0; i<coords.rows(); ++i)
-//  for (Uint j=0; j<coords.cols(); ++j)
-//  {
-//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-//    boost::hash_combine(seed,1e-3*coords(i,j));
-//  }
-//  return seed;
-//}
-
-//boost::uint64_t GlobalNumbering::elem_hash_value(const RealMatrix& coords)
-//{
-//  boost::uint64_t seed=123456789;
-//  for (Uint i=0; i<coords.rows(); ++i)
-//  for (Uint j=0; j<coords.cols(); ++j)
-//  {
-//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-//    boost::hash_combine(seed,1e-3*coords(i,j));
-//  }
-//  return seed;
-//}
 
 //////////////////////////////////////////////////////////////////////////////
 
