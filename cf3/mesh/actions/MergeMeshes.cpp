@@ -85,7 +85,7 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
       merged.geometry_fields().coordinates()[node] = mesh.geometry_fields().coordinates()[n];
       merged.geometry_fields().glb_idx()[node] = mesh.geometry_fields().glb_idx()[n];
       merged.geometry_fields().rank()[node] = mesh.geometry_fields().rank()[n];
-      nodes_glb_2_loc.insert_blindly(mesh.geometry_fields().glb_idx()[n],node);
+      nodes_glb_2_loc.push_back(mesh.geometry_fields().glb_idx()[n],node);
       ++node;
     }
     else

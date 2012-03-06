@@ -52,10 +52,10 @@ BOOST_AUTO_TEST_CASE ( test_Map )
   
   BOOST_CHECK(map.find("first") == map.end());
   
-  map.insert_blindly(std::string("first"), (Uint) 1);
+  map.push_back(std::string("first"), (Uint) 1);
   BOOST_CHECK_EQUAL(map.size() , 1u);
   BOOST_CHECK_EQUAL(map["first"] , 1u);
-  map.insert_blindly(std::string("second"), (Uint) 2);
+  map.push_back(std::string("second"), (Uint) 2);
   BOOST_CHECK_EQUAL(map.size() , 2u);
   BOOST_CHECK_EQUAL(map["second"] , 2u);
   map["third"] = 3;
@@ -77,10 +77,10 @@ BOOST_AUTO_TEST_CASE ( test_Map_looping )
   Map<std::string,Uint>& map = *map_ptr;
   
   
-  map.insert_blindly(std::string("first"), (Uint) 1);
-  map.insert_blindly(std::string("second"), (Uint) 2);
-  map.insert_blindly(std::string("third"), (Uint) 3);
-  map.insert_blindly(std::string("fourth"), (Uint) 4);
+  map.push_back(std::string("first"), (Uint) 1);
+  map.push_back(std::string("second"), (Uint) 2);
+  map.push_back(std::string("third"), (Uint) 3);
+  map.push_back(std::string("fourth"), (Uint) 4);
   
   map.sort_keys();
   
@@ -118,10 +118,10 @@ BOOST_AUTO_TEST_CASE ( test_Map_exceptions )
   
   BOOST_CHECK_EQUAL(map.type_name() , "Map<integer,integer>");
   
-  map.insert_blindly(1,1);
-  map.insert_blindly(2,2);
-  map.insert_blindly(3,3);
-  map.insert_blindly(4,4);
+  map.push_back(1,1);
+  map.push_back(2,2);
+  map.push_back(3,3);
+  map.push_back(4,4);
   
   // const Map<int,int>& const_map = *map_ptr;
   // BOOST_CHECK_THROW(const_map.find(2),IllegalCall);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE ( test_Map_exceptions )
   map.sort_keys();
   // BOOST_CHECK_THROW(const_map[6],ValueNotFound);
     
-  map.insert_blindly(2,3);  // adding another entry with key 2 should not be allowed
+  map.push_back(2,3);  // adding another entry with key 2 should not be allowed
   // BOOST_CHECK_THROW(map.sort_keys(),ValueExists);
     
 }
