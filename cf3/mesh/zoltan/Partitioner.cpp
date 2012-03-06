@@ -329,6 +329,8 @@ void Partitioner::query_list_of_connected_objects(void *data, int sizeGID, int s
 
 //////////////////////////////////////////////////////////////////////////////
 
+#undef RANK
+
 } // zoltan
 } // mesh
 } // cf3
