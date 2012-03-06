@@ -56,7 +56,8 @@ std::pair<std::string,int> python_current_fragment;
 bool python_executing_fragment;
 bool python_should_wake_up;
 bool python_should_be_stopped;
-boost::posix_time::millisec wait_a_little(50);
+boost::posix_time::millisec wait_init(100);
+boost::posix_time::millisec wait_a_little(1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,6 +82,7 @@ void python_execute_function(){
     global_scope = boost::python::handle<>(PyDict_New());
     PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
     PyEval_SetTrace(python_trace,NULL);
+    boost::this_thread::sleep(wait_init);
     while(1){
         //CFinfo << "exec_lock" << CFendl;
         python_mutex.lock();//the stop function should have the lock so make this thread waiting at this point
@@ -91,7 +93,7 @@ void python_execute_function(){
                 ss << python_current_fragment.second;
                 //CFinfo << script << CFendl;
                 boost::python::handle<> src(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
-               if (NULL != src){//code compiled, we execute it
+                if (NULL != src){//code compiled, we execute it
                     boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
                 }
                 PyObject *exc,*val,*trb,*obj;
@@ -119,33 +121,23 @@ void python_execute_function(){
 }
 //weird will not be used I think
 void python_stop_function(){
-    //CFinfo << "stop_lock" << CFendl;
     python_mutex.lock();
-    //CFinfo << "stop_lock_aquired" << CFendl;
-    boost::this_thread::sleep(wait_a_little);
+    boost::this_thread::sleep(wait_init);
     while(1){
-        //CFinfo << python_executing_fragment << "," << python_code_queue.size() << CFendl;
         if (!python_executing_fragment && python_code_queue.size()){
             python_current_fragment=python_code_queue.front();
-            //CFinfo << "exec string:\n" << python_current_fragment.first << CFendl;
             python_code_queue.pop();
             python_executing_fragment=true;
-            //CFinfo << "stop_unlock" << CFendl;
             python_mutex.unlock();
             boost::this_thread::sleep(wait_a_little);
-            //CFinfo << "stop_lock" << CFendl;
             python_mutex.lock();
             script_engine->check_python_change();
-            //CFinfo << "stop_lock_aquired" << CFendl;
         }else if (python_should_wake_up){
             python_should_wake_up=false;
-            //CFinfo << "stop_unlock" << CFendl;
             python_mutex.unlock();
-            //CFinfo << "stop_lock" << CFendl;
             boost::this_thread::sleep(wait_a_little);
             python_mutex.lock();
             script_engine->check_python_change();
-            //CFinfo << "stop_lock_aquired" << CFendl;
         }else
             boost::this_thread::sleep(wait_a_little);
     }
@@ -175,9 +167,6 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
         execute_script("sys.stdout = stdoutStack\n",0);
         execute_script("stderrStack = SimpleStringStack()\n",0);
         execute_script("sys.stderr = stderrStack\n",0);
-        //interpreter_mode=LINE_BY_LINE_EXECUTION;
-        //execute_script("if ('lol').isalpha():\tprint 'alpha'\nelse:\n\tprint 'not alpha'\n",1);
-        //flush_python_stdout();
         regist_signal( "execute_script" )
                 .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
                 .description("Execute a python script, passed as string")
@@ -277,17 +266,12 @@ void ScriptEngine::flush_python_stdout(){
         boost::python::handle<> data(boost::python::allow_null(PyObject_GetAttrString(py_stdout.get(),"data")));
         if (data.get() != NULL){
             char * data_str=PyString_AsString(data.get());
-            if (data_str != NULL){
-                std::string out(data_str);
-                if (strlen(data_str)>0){
-                    //CFinfo << "flush emit output" << CFendl;
-                    CFinfo << data_str << CFendl;
-                    PyObject_SetAttrString(py_stdout.get(),"data",PyString_FromString(""));
-
-                    //execute_script("sys.stdout.data=''",0);
-                }
-                //execute_line("sys.stdout.data=''");
-                //PyObject_SetAttrString(py_stdout,"data",PyString_FromString(""));
+            if (strlen(data_str)>0){
+                //CFinfo << "flush emit output" << CFendl;
+                CFinfo << data_str << CFendl;
+                //Py_XDECREF(data.get());
+                PyObject_SetAttrString(py_stdout.get(),"data",PyString_FromString(""));
+                //execute_script("sys.stdout.data=''",0);
             }
         }
     }
@@ -336,16 +320,11 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
     case BREAK:
         interpreter_mode=NORMAL_EXECUTION;
     case LINE_BY_LINE_EXECUTION:
-        //PyEval_ReInitThreads();
-        //interpreter_state=PyEval_SaveThread();
         //we are in the interpreter thread at this point so unlocking the mutex will let the stop function go
         emit_debug_trace(code_fragment,line_number);
         python_mutex.unlock();
         boost::this_thread::sleep(wait_a_little);
-        //check_python_change();
         python_mutex.lock();
-        //wait for the script engine to unlock
-        //CFinfo << "exec_lock_aquired" << CFendl;
         break;
     default:
         break;
@@ -368,20 +347,7 @@ void ScriptEngine::signal_change_debug_state(SignalArgs& node){
         interpreter_mode=(debug_command)commande;
         break;
     case CONTINUE:
-        python_should_wake_up=true;//
-        //PyThreadState_Swap(&interpreter_thread_state);
-        //PyEval_RestoreThread(&interpreter_thread_state);
-        /*if (interpreter_thread_state.inte!=NULL){
-            state=interpreter_thread_state;
-            interpreter_thread_state=NULL;
-            PyEval_RestoreThread(state);
-            //execute_frame(state);
-            PyEval_SaveThread();
-            PyEval_RestoreThread(interpreter_state);
-
-            //PyEval_SetTrace(python_trace,NULL);
-            //PyEval_AcquireThread();
-        }*/
+        python_should_wake_up=true;
     default:
         break;
     }

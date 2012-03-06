@@ -35,7 +35,8 @@ public:
     void key_press_event(QKeyEvent *);
     void new_line(int indent_number);
 private slots:
-    void execute();
+    void execute_immediat();
+    void execute_stepped();
     void open();
     void save();
 };

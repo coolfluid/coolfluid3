@@ -26,10 +26,13 @@ namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
+PythonConsole* PythonConsole::main_console=NULL;
+
 
 PythonConsole::PythonConsole(QWidget *parent) :
     PythonCodeContainer(parent)
 {
+    main_console=this;
     document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
     history_index=0;
     input_start_in_text=0;
@@ -173,8 +176,8 @@ void PythonConsole::execute_input(QTextCursor &c){
 }
 
 void PythonConsole::execute_code(QString code,bool immediate){
-    static QRegExp two_points("^[^(#|:)]*:");
-    static QRegExp extend_statement("^((catch|elif|else|finally)|[^#]* (catch|elif|else|finally))( |:)");
+    static QRegExp two_points("^[^#:]*:");
+    static QRegExp extend_statement("^[^#:]*(catch|elif|else|finally)[^#:]*:");
     QString command;
     QString line;
 
@@ -190,7 +193,7 @@ label_1:    if (line.contains(two_points)){
             }
         }else{
             int indent=0;
-            for (;line[indent]=='\t';indent++);
+            for (int i=0;line[i]=='\t'|| (line[i]==' ' && line[++i]==' ');indent++);//match tabulation and double space
             if (indent==0){
                 if (line.contains(extend_statement)){
                     command.append(line).append('\n');
@@ -205,6 +208,9 @@ label_1:    if (line.contains(two_points)){
                 command.append(line).append('\n');
             }
         }
+    }
+    for (int i=0;i<command_stack.size();i++){
+        CFinfo << i << ":" << command_stack.at(i).first.toStdString() << CFendl;
     }
     if (command_stack.size()){
         stream_next_command();
@@ -243,7 +249,7 @@ void PythonConsole::insert_output(const QString &output){
 }
 
 void PythonConsole::insert_log(const QString &output){
-    static QRegExp log_frame("\\[ [^\\]]* \\]\\[ [^\\]]* \\] ");
+    static QRegExp log_frame("\\[ [^\\]]* \\]\\[ [^\\]]* \\] (Worker\\[0\\] )?");
     QString modified_output;
     int start=log_frame.indexIn(output);
     while (start>=0){

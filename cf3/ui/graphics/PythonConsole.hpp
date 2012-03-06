@@ -38,7 +38,8 @@ public:
     ~PythonConsole();
     void key_press_event(QKeyEvent *);
     void new_line(int indent_number);
-
+    static PythonConsole* main_console;
+    void execute_code(QString,bool);
 private slots:
     void cursor_position_changed();
     void insert_output(const QString &);
@@ -46,7 +47,6 @@ private slots:
     void line_by_line_activated(bool);
     void stop_continue_pressed();
     void execution_stopped();
-    void execute_code(QString,bool);
 private:
     /// Index of the block that contains the current prompt
     int input_block;

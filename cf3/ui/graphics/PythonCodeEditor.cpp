@@ -6,6 +6,7 @@
 
 
 #include "PythonCodeEditor.hpp"
+#include "PythonConsole.hpp"
 #include "ui/core/NScriptEngine.hpp"
 #include "ui/core/NLog.hpp"
 #include "common/Log.hpp"
@@ -16,6 +17,7 @@
 #include <QToolBar>
 #include <QAction>
 #include <QWidget>
+#include <QFileDialog>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +33,8 @@ PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
 {
     setUndoRedoEnabled(true);
     //Toolbar
-    connect(tool_bar->addAction("Execute"),SIGNAL(triggered()),this,SLOT(execute()));
+    connect(tool_bar->addAction("Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
+    connect(tool_bar->addAction("Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
     connect(tool_bar->addAction("Open"),SIGNAL(triggered()),this,SLOT(open()));
     connect(tool_bar->addAction("Save"),SIGNAL(triggered()),this,SLOT(save()));
 }
@@ -57,16 +60,52 @@ void PythonCodeEditor::new_line(int indent_number){
 
 }
 
-void PythonCodeEditor::execute(){
+void PythonCodeEditor::execute_immediat(){
+    PythonConsole::main_console->execute_code(toPlainText(),true);
+}
 
+void PythonCodeEditor::execute_stepped(){
+    PythonConsole::main_console->execute_code(toPlainText(),false);
 }
 
 void PythonCodeEditor::open(){
+    QFileDialog dlg;
 
+  #ifndef Q_WS_MAC
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+  #endif
+
+    dlg.setAcceptMode(QFileDialog::AcceptOpen);
+    dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
+    dlg.setDirectory( QDir::home() );
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    if( dlg.exec() == QFileDialog::Accepted ){
+      QFile f(dlg.selectedFiles().first());
+      f.open(QFile::ReadOnly);
+      clear();
+      insertPlainText(f.readAll());
+      f.close();
+    }
 }
 
 void PythonCodeEditor::save(){
+    QFileDialog dlg;
 
+  #ifndef Q_WS_MAC
+    dlg.setOption(QFileDialog::DontUseNativeDialog);
+  #endif
+
+    dlg.setAcceptMode(QFileDialog::AcceptSave);
+    dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
+    dlg.setDirectory( QDir::home() );
+    dlg.setFileMode(QFileDialog::AnyFile);
+
+    if( dlg.exec() == QFileDialog::Accepted ){
+      QFile f(dlg.selectedFiles().first());
+      f.open(QFile::WriteOnly);
+      f.write((const char*)toPlainText().constData());
+      f.close();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -9,10 +9,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if MAC_FRAMEWORK_PYTHON
+#include <Python/Python.h>
+#else
+#include <Python.h>
+#endif
 //python Py_ssize_t backward compatibility
+
 #if (PY_VERSION_HEX < 0x02050000)
     typedef int Py_ssize_t;
 #endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,8 +31,6 @@
 #include "common/PE/Manager.hpp"
 
 #include "common/CommonAPI.hpp"
-
-#include <Python.h>
 
 #include <frameobject.h>
 
