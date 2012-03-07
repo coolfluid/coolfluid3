@@ -103,7 +103,7 @@ void PythonCodeEditor::save(){
     if( dlg.exec() == QFileDialog::Accepted ){
       QFile f(dlg.selectedFiles().first());
       f.open(QFile::WriteOnly);
-      f.write((const char*)toPlainText().constData());
+      f.write(toPlainText().toStdString().c_str());
       f.close();
     }
 }

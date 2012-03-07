@@ -18,6 +18,7 @@
 #include <QCompleter>
 #include <QQueue>
 #include <QPair>
+#include <QTimer>
 #include "ui/graphics/PythonCodeContainer.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
@@ -47,6 +48,7 @@ private slots:
     void line_by_line_activated(bool);
     void stop_continue_pressed();
     void execution_stopped();
+    void stream_next_command();
 private:
     /// Index of the block that contains the current prompt
     int input_block;
@@ -59,12 +61,12 @@ private:
     void set_input(const QString &);
     void select_input(QTextCursor &);
     void fix_prompt_history();
-    void stream_next_command();
 
     QAction* stop_continue;
     QStringList history;
 
     QQueue<QPair<QString,bool> > command_stack;
+    QTimer auto_execution_timer;
     int history_index;
     bool stopped;
 

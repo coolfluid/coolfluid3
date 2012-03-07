@@ -48,7 +48,10 @@ PythonConsole::PythonConsole(QWidget *parent) :
     stop_continue=new QAction("Stop",this);
     stopped=false;
     tool_bar->addAction(stop_continue);
+    auto_execution_timer.setInterval(50);
+    auto_execution_timer.setSingleShot(true);
 
+    connect(&auto_execution_timer,SIGNAL(timeout()),this,SLOT(stream_next_command()));
     connect(line_by_line,SIGNAL(toggled(bool)),this,SLOT(line_by_line_activated(bool)));
     connect(stop_continue,SIGNAL(triggered()),this,SLOT(stop_continue_pressed()));
     connect(ui::core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(execution_stopped()));
@@ -173,27 +176,23 @@ void PythonConsole::execute_input(QTextCursor &c){
     input_start_in_text=c.position();
     output_line_number=1;
     ensureCursorVisible();
+    if (command_stack.size())
+        auto_execution_timer.start();
 }
 
 void PythonConsole::execute_code(QString code,bool immediate){
     static QRegExp two_points("^[^#:]*:");
     static QRegExp extend_statement("^[^#:]*(catch|elif|else|finally)[^#:]*:");
+    static QRegExp empty_line("^[ \\t]*($|#)");
     QString command;
     QString line;
 
     bool multi_line=false;
 
     foreach (line,code.split('\n')){
-        if (!multi_line){
-label_1:    if (line.contains(two_points)){
-                multi_line=true;
-                command=line.append('\n');
-            }else{//simple command
-                command_stack.enqueue(QPair<QString,bool>(line,immediate));
-            }
-        }else{
+        if (multi_line){
             int indent=0;
-            for (int i=0;line[i]=='\t'|| (line[i]==' ' && line[++i]==' ');indent++);//match tabulation and double space
+            for (int i=0;(line[i]=='\t'|| (line[i]==' ' && line[++i]==' '));indent++,i++);//match tabulation and double space
             if (indent==0){
                 if (line.contains(extend_statement)){
                     command.append(line).append('\n');
@@ -201,16 +200,20 @@ label_1:    if (line.contains(two_points)){
                     command_stack.enqueue(QPair<QString,bool>(command,immediate));
                     command.clear();
                     multi_line=false;
-                    //but we must interpret the next line as well
-                    goto label_1;
                 }
             }else{
                 command.append(line).append('\n');
             }
         }
-    }
-    for (int i=0;i<command_stack.size();i++){
-        CFinfo << i << ":" << command_stack.at(i).first.toStdString() << CFendl;
+        if (!multi_line){
+            if (line.contains(two_points)){
+                multi_line=true;
+                command=line.append('\n');
+            }else{//simple command
+                if (!line.contains(empty_line))
+                    command_stack.enqueue(QPair<QString,bool>(line,immediate));
+            }
+        }
     }
     if (command_stack.size()){
         stream_next_command();
@@ -219,7 +222,20 @@ label_1:    if (line.contains(two_points)){
 
 void PythonConsole::stream_next_command(){
     QPair<QString,bool> current_command=command_stack.dequeue();
-    //todo
+    QTextCursor c=textCursor();
+    select_input(c);
+    c.removeSelectedText();
+    QString line;
+    foreach (line,current_command.first.split('\n')){
+        c.insertText(line.append('\n'));
+        c.movePosition(QTextCursor::End);
+        document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_2);
+    }
+    setTextCursor(c);
+    ensureCursorVisible();
+    if (current_command.second){
+        execute_input(c);
+    }
 }
 
 void PythonConsole::insert_output(const QString &output){

@@ -19,6 +19,8 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
+#include "ui/uicommon/ComponentNames.hpp"
+
 #include "python/ScriptEngine.hpp"
 
 #include <boost/thread/thread.hpp>
@@ -46,18 +48,17 @@ ComponentBuilder < ScriptEngine, Component, LibPython > ScriptEngine_Builder;
 
 
 int ScriptEngine::python_close=0;
+bool ScriptEngine::inited=false;
 ScriptEngine *script_engine=NULL;
 boost::python::handle<> global_scope, local_scope;
-boost::thread python_thread(python_execute_function);
-boost::thread python_stop_thread(python_stop_function);
-boost::mutex python_mutex;
 std::queue< std::pair<std::string,int> > python_code_queue;
 std::pair<std::string,int> python_current_fragment;
+boost::thread* python_thread;
+boost::thread* python_stream_statement_thread;
+boost::posix_time::millisec wait_a_little(100);
 bool python_executing_fragment;
 bool python_should_wake_up;
 bool python_should_be_stopped;
-boost::posix_time::millisec wait_init(100);
-boost::posix_time::millisec wait_a_little(1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +76,38 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
 }
 
 void python_execute_function(){
+
+    try{
+        std::stringstream ss;
+        ss << python_current_fragment.second;
+        //CFinfo << python_current_fragment.first.c_str() << CFendl;
+        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
+        if (NULL != src){//code compiled, we execute it
+            boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+        }
+        PyObject *exc,*val,*trb,*obj;
+        char* error;
+        PyErr_Fetch(&exc, &val, &trb);
+        if (NULL != exc && NULL != val){
+            if (PyArg_ParseTuple (val, "sO", &error, &obj)){
+                CFinfo << error << CFendl;
+                //ScriptEngine::emit_output(std::string(error));
+            }else{
+                CFinfo << "Expression not found in the scope." << CFendl;
+                //ScriptEngine::emit_output(std::string("Expression not found in the scope."));
+            }
+        }
+    } catch(...) {
+        CFinfo << "Error while executing python code." << CFendl;
+    }
+    PyErr_Clear();
+}
+
+void python_stream_statement_function(){
+    boost::posix_time::millisec wait_init(500);//to wait that the component tree is created
+    //CFinfo << "stop_lock_aquired" << CFendl;
+    boost::this_thread::sleep(wait_init);
+    //init python
     const boost::filesystem::path dso_dir = boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso");
     OSystem::setenv("PYTHONPATH", dso_dir.string());
     Py_Initialize();
@@ -82,61 +115,14 @@ void python_execute_function(){
     global_scope = boost::python::handle<>(PyDict_New());
     PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
     PyEval_SetTrace(python_trace,NULL);
-    boost::this_thread::sleep(wait_init);
     while(1){
-        //CFinfo << "exec_lock" << CFendl;
-        python_mutex.lock();//the stop function should have the lock so make this thread waiting at this point
-        //CFinfo << "exec_lock_aquired" << CFendl;
-        if (python_executing_fragment){
-            try{
-                std::stringstream ss;
-                ss << python_current_fragment.second;
-                //CFinfo << script << CFendl;
-                boost::python::handle<> src(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
-                if (NULL != src){//code compiled, we execute it
-                    boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
-                }
-                PyObject *exc,*val,*trb,*obj;
-                char* error;
-                PyErr_Fetch(&exc, &val, &trb);
-                if (NULL != exc && NULL != val){
-                    if (PyArg_ParseTuple (val, "sO", &error, &obj)){
-                        CFinfo << error << CFendl;
-                        //ScriptEngine::emit_output(std::string(error));
-                    }else{
-                        CFinfo << "Expression not found in the scope." << CFendl;
-                        //ScriptEngine::emit_output(std::string("Expression not found in the scope."));
-                    }
-                }
-            } catch(...) {
-                CFinfo << "Error while executing python code." << CFendl;
-            }
-            PyErr_Clear();
-            python_executing_fragment=false;
-        }
-        //CFinfo << "exec_unlock" << CFendl;
-        python_mutex.unlock();
-        boost::this_thread::sleep(wait_a_little);
-    }
-}
-//weird will not be used I think
-void python_stop_function(){
-    python_mutex.lock();
-    boost::this_thread::sleep(wait_init);
-    while(1){
-        if (!python_executing_fragment && python_code_queue.size()){
+        if (python_code_queue.size()){
             python_current_fragment=python_code_queue.front();
             python_code_queue.pop();
             python_executing_fragment=true;
-            python_mutex.unlock();
-            boost::this_thread::sleep(wait_a_little);
-            python_mutex.lock();
-            script_engine->check_python_change();
-        }else if (python_should_wake_up){
-            python_should_wake_up=false;
-            python_mutex.unlock();
-            boost::this_thread::sleep(wait_a_little);
-            python_mutex.lock();
+            python_thread = new boost::thread(python_execute_function);
+            python_thread->join();
+            delete python_thread;
             script_engine->check_python_change();
         }else
             boost::this_thread::sleep(wait_a_little);
@@ -150,10 +136,9 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
     if (python_close++ == 0){//this class is instancied two times, don't known why
         stoped=false;
         python_should_wake_up=false;
-        python_executing_fragment=false;
-        python_should_be_stopped=false;
         script_engine=this;
         interpreter_mode=NORMAL_EXECUTION;
+        python_stream_statement_thread=new boost::thread(python_stream_statement_function);
         execute_script("import sys\n",0);
         execute_script("import ctypes as dl\n",0);
         execute_script("from libcoolfluid_python import *\n",0);
@@ -167,6 +152,7 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
         execute_script("sys.stdout = stdoutStack\n",0);
         execute_script("stderrStack = SimpleStringStack()\n",0);
         execute_script("sys.stderr = stderrStack\n",0);
+        inited=true;
         regist_signal( "execute_script" )
                 .connect( boost::bind( &ScriptEngine::signal_execute_script, this, _1 ) )
                 .description("Execute a python script, passed as string")
@@ -278,11 +264,9 @@ void ScriptEngine::flush_python_stdout(){
 }
 
 void ScriptEngine::check_python_change(){
-    if (script_engine != NULL){
-        flush_python_stdout();
-        if (check_scope_difference(local_scope.get(),&local_scope_diff) || check_scope_difference(global_scope.get(),&global_scope_diff)){
-            emit_completion_list();
-        }
+    flush_python_stdout();
+    if (check_scope_difference(local_scope.get(),&local_scope_diff) || check_scope_difference(global_scope.get(),&global_scope_diff)){
+        emit_completion_list();
     }
 }
 
@@ -315,16 +299,15 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 int ScriptEngine::new_line_reached(int code_fragment,int line_number){
-    //CFinfo << "new_line_reached:" << code_fragment << "," << line_number << CFendl;
     switch (interpreter_mode){
     case BREAK:
         interpreter_mode=NORMAL_EXECUTION;
     case LINE_BY_LINE_EXECUTION:
-        //we are in the interpreter thread at this point so unlocking the mutex will let the stop function go
+        python_should_wake_up=false;
         emit_debug_trace(code_fragment,line_number);
-        python_mutex.unlock();
-        boost::this_thread::sleep(wait_a_little);
-        python_mutex.lock();
+        check_python_change();
+        while (!python_should_wake_up)//sleep until the continue signal is received
+            boost::this_thread::sleep(wait_a_little);
         break;
     default:
         break;
@@ -355,12 +338,12 @@ void ScriptEngine::signal_change_debug_state(SignalArgs& node){
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::emit_output(std::string output){
+void ScriptEngine::emit_output(std::string output){//not used anymore
 
     /// @todo remove those hardcoded URIs
     //CFinfo << "py:" << output << CFendl;
-    m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
-    SignalFrame frame("output", uri(), "cpath:/UI/ScriptEngine");
+    m_manager=Core::instance().root().access_component("//Tools/PEManager")->handle<PE::Manager>();
+    SignalFrame frame("output", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
     options.add_option("text", output);
     options.flush();
@@ -372,7 +355,7 @@ void ScriptEngine::emit_output(std::string output){
 void ScriptEngine::emit_completion_list(){
     /// @todo remove those hardcoded URIs
     m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
-    SignalFrame frame("completion", uri(), "cpath:/UI/ScriptEngine");
+    SignalFrame frame("completion", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
     options.add_option("words", completion_word_list);
     options.flush();
@@ -383,7 +366,7 @@ void ScriptEngine::emit_completion_list(){
 void ScriptEngine::emit_debug_trace(int fragment,int line){
     /// @todo remove those hardcoded URIs
     m_manager=Core::instance().root().access_component_checked("//Tools/PEManager")->handle<PE::Manager>();
-    SignalFrame frame("debug_trace", uri(), "cpath:/UI/ScriptEngine");
+    SignalFrame frame("debug_trace", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
     options.add_option("fragment", fragment);
     options.add_option("line", line);

@@ -124,6 +124,7 @@ private:
   int break_fragment;
   int break_line;
   bool stoped;
+  static bool inited;
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////
