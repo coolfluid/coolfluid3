@@ -13,6 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
@@ -29,25 +30,25 @@ using namespace cf3::physics;
 
 BOOST_AUTO_TEST_SUITE( RiemannSolvers_Suite )
 
-BOOST_AUTO_TEST_CASE( NavierStokes2D_AUSMupplus )
+BOOST_AUTO_TEST_CASE( NavierStokes2D_AUSMplusUp )
 {
-  Component& model =  Core::instance().root().create_component<Component>("model2D");
+  Component& model =  *Core::instance().root().create_component<Component>("model2D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes2D","cf3.physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
-  physics.configure_option("gamma",1.4);
-  physics.configure_option("R", 287.05);
+  PhysModel& physics = *model.create_component("navierstokes2D","cf3.physics.NavierStokes.NavierStokes2D")->handle<PhysModel>();
+  physics.options().configure_option("gamma",1.4);
+  physics.options().configure_option("R", 287.05);
   Variables& sol_vars = *physics.create_variables("Cons2D","solution");
 
   // Creation + configuration of riemann solver
-  RiemannSolver& riemann = model.create_component("riemann","cf3.RiemannSolvers.AUSMupplus").as_type<RiemannSolver>();
-  riemann.configure_option("machinf", 0.5);
-  riemann.configure_option("Ku", 0.75);
-  riemann.configure_option("Kp", 0.25);
-  riemann.configure_option("sigma", 1.);
-  riemann.configure_option("beta", 1./8.);
-  riemann.configure_option("physical_model",physics.uri());
-  riemann.configure_option("solution_vars",sol_vars.uri());
+  RiemannSolver& riemann = *model.create_component("riemann","cf3.RiemannSolvers.AUSMplusUp")->handle<RiemannSolver>();
+  riemann.options().configure_option("machinf", 0.5);
+  riemann.options().configure_option("Ku", 0.75);
+  riemann.options().configure_option("Kp", 0.25);
+  riemann.options().configure_option("sigma", 1.);
+  riemann.options().configure_option("beta", 1./8.);
+  riemann.options().configure_option("physical_model",physics.handle<Component>());
+  riemann.options().configure_option("solution_vars",sol_vars.handle<Component>());
 
   std::cout << model.tree() << std::endl;
 
@@ -64,7 +65,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_AUSMupplus )
   left << 4., 1., 0, 1000000.;
   right << 1., 0.5, 0., 250000.;
 
-  riemann.compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann.compute_interface_flux_and_wavespeeds(left,right, normal, normal, flux, wave_speeds);
 
   std::cout << flux << "\n\n";
 

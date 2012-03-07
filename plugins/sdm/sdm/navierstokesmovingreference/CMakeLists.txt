@@ -7,7 +7,7 @@ list( APPEND coolfluid_sdm_navierstokesmovingreference_files
   Convection2D.cpp
 )
 
-list( APPEND coolfluid_sdm_navierstokes_cflibs coolfluid_sdm coolfluid_physics_navierstokes )
+list( APPEND coolfluid_sdm_navierstokesmovingreference_cflibs coolfluid_sdm coolfluid_physics_navierstokes )
 
 coolfluid_add_library( coolfluid_sdm_navierstokesmovingreference )
 

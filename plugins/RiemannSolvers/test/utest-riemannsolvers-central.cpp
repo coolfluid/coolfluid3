@@ -12,8 +12,8 @@
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
@@ -32,17 +32,17 @@ BOOST_AUTO_TEST_SUITE( RiemannSolvers_Suite )
 
 BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
 {
-  Component& model =  Core::instance().root().create_component<Component>("model1D");
+  Component& model =  *Core::instance().root().create_component<Component>("model1D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("scalar1D","cf3.physics.Scalar.Scalar1D").as_type<PhysModel>();
-  physics.configure_option("v",1.);
+  PhysModel& physics = *model.create_component("scalar1D","cf3.physics.Scalar.Scalar1D")->handle<PhysModel>();
+  physics.options().configure_option("v",1.);
   Variables& sol_vars = *physics.create_variables("LinearAdv1D","solution");
 
   // Creation + configuration of riemann solver
-  RiemannSolver& riemann = model.create_component("riemann","cf3.RiemannSolvers.Central").as_type<RiemannSolver>();
-  riemann.configure_option("physical_model",physics.uri());
-  riemann.configure_option("solution_vars",sol_vars.uri());
+  RiemannSolver& riemann = *model.create_component("riemann","cf3.RiemannSolvers.Central")->handle<RiemannSolver>();
+  riemann.options().configure_option("physical_model",physics.handle<Component>());
+  riemann.options().configure_option("solution_vars",sol_vars.handle<Component>());
 
   std::cout << model.tree() << std::endl;
 
@@ -58,10 +58,10 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   left << 2.;
   right << 4.;
 
-  riemann.compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  riemann.compute_interface_flux_and_wavespeeds(left,right, normal, normal, flux, wave_speeds);
 
   const Real tol (0.000001);
-  BOOST_CHECK_CLOSE(flux[0] ,1. , tol);
+  BOOST_CHECK_CLOSE(flux[0] , 3. , tol);
 
   BOOST_CHECK_CLOSE(wave_speeds[0],  1. , tol);
 
