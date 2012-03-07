@@ -22,7 +22,7 @@ if(CF3_HAVE_TRILINOS)
     Trilinos/TrilinosVector.hpp
     Trilinos/TrilinosVector.cpp
     )
-list(APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIRS})
+    list( APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIRS})
     list( APPEND coolfluid_math_lss_libs ${TRILINOS_LIBRARIES} )
     ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
 else()
