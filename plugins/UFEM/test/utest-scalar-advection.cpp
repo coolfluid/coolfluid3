@@ -25,6 +25,7 @@
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "solver/ModelUnsteady.hpp"
 
+#include "solver/actions/AdvanceTime.hpp"
 #include "solver/actions/CriterionTime.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/Time.hpp"
@@ -38,7 +39,7 @@
 
 #include "mesh/SimpleMeshGenerator.hpp"
 
-#include "UFEM/LinearSolver.hpp"
+#include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/Tags.hpp"
 
 #include "UFEM/NavierStokesOps.hpp"
@@ -81,11 +82,11 @@ struct ProtoHeatFixture
 
 BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
-//BOOST_AUTO_TEST_CASE( InitMPI )
-//{
-//  common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-//  BOOST_CHECK_EQUAL(common::PE::Comm::instance().size(), 1);
-//}
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+ common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+ BOOST_CHECK_EQUAL(common::PE::Comm::instance().size(), 1);
+}
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup a model
   ModelUnsteady& model = *root.create_component<ModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
+  UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
   lss.options().configure_option("solver", std::string("Trilinos"));
@@ -126,7 +127,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
-  RealVector initial_u(1); initial_u.setConstant(0.);
+  RealVector initial_u(1); initial_u.setConstant(1.);
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -174,6 +175,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   << bc
   << allocate_component<solver::actions::SolveLSS>("SolveLSS")
   << create_proto_action("Increment", nodes_expression(T += solver.solution(T)))
+  << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
   << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << T << "\n"));
 
   // Setup physics
