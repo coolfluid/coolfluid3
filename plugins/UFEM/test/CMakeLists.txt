@@ -49,7 +49,11 @@ set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
 coolfluid_add_test( ATEST     atest-ufem-heat2d-disk
                     PYTHON    atest-ufem-heat2d-disk.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )                    
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+
+coolfluid_add_test( ATEST     atest-ufem-heat2d-disk-st
+                    PYTHON    atest-ufem-heat2d-disk-st.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 
 coolfluid_add_test( ATEST     atest-ufem-heat3d-channel
                     PYTHON    atest-ufem-heat3d-channel.py
@@ -76,3 +80,9 @@ coolfluid_add_test( UTEST      utest-rdm-merge
 coolfluid_add_test( UTEST      utest-proto-ns-assembly
                     CPP        utest-proto-ns-assembly.cpp
                     LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
+
+coolfluid_add_test( UTEST      utest-scalar-advection
+                    CPP        utest-scalar-advection.cpp
+                    ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    CONDITION  coolfluid_ufem_builds )
