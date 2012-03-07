@@ -37,10 +37,10 @@ list(APPEND coolfluid_solver_cflibs coolfluid_physics coolfluid_mesh coolfluid_m
 
 if( CF3_HAVE_TRILINOS )
   list(APPEND coolfluid_solver_cflibs ${TRILINOS_LIBRARIES})
-  list(APPEND coolfluid_solver_includedirs ${TRILINOS_INCLUDE_DIR})
+  list(APPEND coolfluid_solver_includedirs ${TRILINOS_INCLUDE_DIRS})
 elseif( CF3_HAVE_SUPERLU )
   list(APPEND coolfluid_solver_cflibs ${SUPERLU_LIBRARIES})
-  list(APPEND coolfluid_solver_includedirs ${SUPERLU_INCLUDE_DIR})
+  list(APPEND coolfluid_solver_includedirs ${SUPERLU_INCLUDE_DIRS})
 endif()
 
 if( coolfluid_mesh_cgns3_builds )
