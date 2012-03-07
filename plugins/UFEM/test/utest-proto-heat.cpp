@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_PROTO_MAX_ARITY 10                        //explained in boost doc
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
  #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
  #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10

@@ -14,10 +14,13 @@
 
 #include "solver/actions/Proto/ElementOperations.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
+
+class LinearSolverUnsteady;
 
 /// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
 struct SUPGCoeffs
@@ -103,18 +106,18 @@ struct SUPGSpecialized
 {
   typedef void result_type;
 
-  template<typename PT, typename UT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename MatrixT>
+  void operator()(const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
-    apply(typename UT::EtypeT(), p, u, coeffs, A, T);
+    apply(typename UT::EtypeT(), p, u, u_adv, coeffs, A, T);
   }
 
   /// Specialization for triangles
-  template<typename PT, typename UT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename MatrixT>
+  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
-    const RealVector2 u_avg = u.value().colwise().mean();
+    const RealVector2 u_avg = u_adv.value().colwise().mean();
     const ElementT::NodesT& nodes = u.support().nodes();
     const Real volume = u.support().volume();
     const Real fc = 0.5;
@@ -243,11 +246,11 @@ struct SUPGSpecialized
   }
 
   /// Specialization for tetrahedra
-  template<typename PT, typename UT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename MatrixT>
+  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
     typedef mesh::LagrangeP1::Tetra3D ElementT;
-    const RealVector3 u_avg = u.value().colwise().mean();
+    const RealVector3 u_avg = u_adv.value().colwise().mean();
     const ElementT::NodesT& nodes = u.support().nodes();
     const Real volume = u.support().volume();
     const Real fc = 0.5;
@@ -414,6 +417,9 @@ struct SUPGSpecialized
 
 /// Placeholder for the specialized ops
 static solver::actions::Proto::MakeSFOp<SUPGSpecialized>::type const supg_specialized = {};
+
+/// Precompiled Navier-Stokes assembly expression
+boost::shared_ptr<solver::actions::Proto::Expression> generic_ns_assembly(LinearSolverUnsteady& solver, SUPGCoeffs& coeffs);
 
 } // UFEM
 } // cf3

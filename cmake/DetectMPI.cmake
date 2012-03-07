@@ -23,7 +23,7 @@ endif()
 ###############################################################################
 # check that MPI was found
 
-if(MPI_CXX_COMPILER)
+if(MPI_CXX_COMPILER OR MPI_COMPILER)
   set( CF3_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 else()
   if( MPI_CXX_FOUND )

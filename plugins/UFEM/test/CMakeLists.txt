@@ -41,6 +41,12 @@ coolfluid_add_test( UTEST      utest-ufem-buildsparsity
                     MPI        1
                     CONDITION  coolfluid_ufem_builds )
 
+coolfluid_add_test( UTEST      utest-scalar-advection
+                    CPP        utest-scalar-advection.cpp
+                    ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    CONDITION  coolfluid_ufem_builds )
+
 # Disable debugging on the compiled expressions, since this takes huge amounts of memory
 set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
 
@@ -78,12 +84,17 @@ coolfluid_add_test( UTEST      utest-proto-ns-assembly
                     LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver
                     CONDITION  CF3_ENABLE_PROTO )
 
+#<<<<<<< HEAD
 coolfluid_add_test( UTEST      utest-scalar-advection
                     CPP        utest-scalar-advection.cpp
                     ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
                     CONDITION  coolfluid_ufem_builds )
-=======
-                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver
-                    CONDITION  CF3_ENABLE_PROTO )
+#=======
+#                    LIBS       coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver
+#                    CONDITION  CF3_ENABLE_PROTO )
 
+coolfluid_add_test( ATEST     atest-quadtriag
+                    PYTHON    atest-quadtriag.py
+                    ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+#>>>>>>> a3f3b97ca96b2935ce9f18b6442fadf3f53f6d46

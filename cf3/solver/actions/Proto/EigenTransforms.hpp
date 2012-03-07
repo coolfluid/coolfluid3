@@ -258,7 +258,7 @@ struct MatrixSubscript :
     typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
     typedef typename boost::remove_const<typename boost::remove_reference<typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type>::type LeftT;
     typedef typename boost::proto::result_of::right<ExprT>::type IdxExprT;
-    
+
     // True if the passed expression for the index is a looping index
     typedef boost::proto::matches< IdxExprT, boost::proto::terminal< IndexTag<boost::proto::_> > > IsLoopingIdxT;
 
@@ -284,13 +284,13 @@ struct MatrixSubscript :
     {
       return matrix.row(idx);
     }
-    
+
     template<typename MatrixT, typename IndexT>
     inline result_type apply(boost::mpl::false_, MatrixT& matrix, const IndexT idx) const
     {
       return do_eval(boost::mpl::bool_<is_vector>(), matrix, idx);
     }
-    
+
     template<typename MatrixT, typename IndexT>
     inline result_type apply(boost::mpl::true_, MatrixT& matrix, const IndexT idx) const
     {
