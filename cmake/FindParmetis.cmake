@@ -33,9 +33,10 @@ option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
     set( PARMETIS_LIBRARIES NOT-FOUND )
   endif()
 
-coolfluid_add_package( PACKAGE Parmetis
+coolfluid_set_package( PACKAGE Parmetis
                        DESCRIPTION "parallel graph partitioning"
                        URL "http://glaros.dtc.umn.edu/gkhome/views/metis"
+                       TYPE OPTIONAL
                        VARS
                        PARMETIS_INCLUDE_DIRS
-                       PARMETIS_LIBRARIES PARMETIS_LIB_METIS PARMETIS_LIB_PARMETIS )
+                       PARMETIS_LIBRARIES)

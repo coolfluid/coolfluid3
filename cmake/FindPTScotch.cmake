@@ -71,9 +71,10 @@ option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
       list( APPEND PTSCOTCH_EXTRA_LIBRARIES ${ZLIB_LIBRARIES} )
   endif()
 
-coolfluid_add_package( PACKAGE PTScotch
+coolfluid_set_package( PACKAGE PTScotch
                        DESCRIPTION "parallel graph partitioning"
                        URL "http://www.labri.fr/perso/pelegrin/scotch"
+                       TYPE OPTIONAL
                        VARS
                        PTSCOTCH_INCLUDE_DIRS
                        PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )

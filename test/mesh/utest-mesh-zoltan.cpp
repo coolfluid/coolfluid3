@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Core::instance().initiate(m_argc,m_argv);
 
   //p.options().configure_option("nb_parts", (Uint) 4);
-  p.options().configure_option("graph_package", std::string("PARMETIS"));
+  p.options().configure_option("graph_package", std::string("PHG"));
   p.options().configure_option("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);

@@ -4,7 +4,7 @@ coolfluid_add_test( UTEST  utest-python-basics
 coolfluid_add_test( UTEST      utest-python-scriptengine
                     CPP        utest-python-scriptengine.cpp
                     ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py
-                    CONDITION  CF3_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND
+                    CONDITION  CF3_HAVE_PYTHON
                     LIBS       coolfluid_python )
 
 coolfluid_add_test( UTEST      utest-python-runscript

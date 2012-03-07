@@ -47,5 +47,8 @@ coolfluid_log_file( "     CF3_MPIRUN_PROGRAM : [${CF3_MPIRUN_PROGRAM}]" )
 
 mark_as_advanced( CF3_HAVE_MPI CF3_MPIRUN_PROGRAM )
 
-coolfluid_set_package( PACKAGE MPI DESCRIPTION "parallel communication" )
+coolfluid_set_package( PACKAGE MPI DESCRIPTION "parallel communication"
+                       TYPE REQUIRED
+                       QUIET
+                       )
 

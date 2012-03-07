@@ -42,7 +42,12 @@ endif()
 include_directories( ${Boost_INCLUDE_DIR} )
 
 # add boost libraries to list of third party libraries
-list( APPEND CF3_DEPS_LIBRARIES ${Boost_LIBRARIES} )
+coolfluid_set_package( PACKAGE Boost DESCRIPTION "C++ general productivity library"
+                       URL "http://www.boost.org"
+                       TYPE REQUIRED
+                       VARS Boost_INCLUDE_DIR Boost_LIBRARIES
+                       QUIET
+                     )
 
 # filter out the unit test libs from the boost libraries
 # only unit testslink to this

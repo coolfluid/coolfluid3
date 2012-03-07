@@ -19,8 +19,10 @@ option( CF3_SKIP_CURL "Skip search for Curl library" OFF )
   find_library(CURL_LIBRARIES curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CURL_LIBRARIES curl )
 
-coolfluid_add_package( PACKAGE Curl
+coolfluid_set_package( PACKAGE Curl
                        DESCRIPTION "URL data access"
                        URL "http://curl.haxx.se"
+                       PURPOSE "Runtime downloading"
+                       TYPE RUNTIME
                        VARS CURL_INCLUDE_DIRS CURL_LIBRARIES )
 

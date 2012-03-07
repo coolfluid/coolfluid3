@@ -1,4 +1,4 @@
-if( CF3_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
+if( CF3_HAVE_PYTHON )
 
 list( APPEND coolfluid_python_files
   BoostPython.hpp
