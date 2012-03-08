@@ -11,6 +11,7 @@
 
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/Foreach.hpp"
@@ -209,7 +210,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Core::instance().initiate(m_argc,m_argv);
 
   //p.options().configure_option("nb_parts", (Uint) 4);
-  p.options().configure_option("graph_package", std::string("PHG"));
+  p.options().configure_option("graph_package", std::string("PARMETIS"));
   p.options().configure_option("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
@@ -240,6 +241,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   boost::shared_ptr< MeshWriter > tecwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tecwriter->write_from_to(mesh,"rect_repartitioned.plt");
   meshwriter->write_from_to(mesh,"rect_repartitioned.msh");
+
+  CFinfo << "zoltan version:" << p.properties().value<Real>("Zoltan_version") << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

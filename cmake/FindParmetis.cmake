@@ -2,9 +2,9 @@
 # this module look for PARMETIS (http://hdf.ncsa.uiuc.edu) support
 # it will define the following values
 #
-# PARMETIS_INCLUDE_DIR  = where parmetis.h can be found
-# PARMETIS_LIBRARIES      = the library to link against (parmetis etc)
-# CF3_HAVE_PARMETIS        = set to true after finding the library
+# PARMETIS_INCLUDE_DIRS  = where parmetis.h can be found
+# PARMETIS_LIBRARIES     = the library to link against (parmetis etc)
+# CF3_HAVE_PARMETIS      = set to true after finding the library
 #
 
 option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
@@ -15,8 +15,8 @@ option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
   coolfluid_add_trial_include_path( ${PARMETIS_ROOT}/include )
   coolfluid_add_trial_include_path( $ENV{PARMETIS_ROOT}/include )
 
-  find_path(PARMETIS_INCLUDE_DIR parmetis.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  find_path(PARMETIS_INCLUDE_DIR parmetis.h )
+  find_path(PARMETIS_INCLUDE_DIRS parmetis.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(PARMETIS_INCLUDE_DIRS parmetis.h )
 
   coolfluid_add_trial_library_path(${PARMETIS_ROOT}/lib )
   coolfluid_add_trial_library_path($ENV{PARMETIS_ROOT}/lib )
@@ -37,4 +37,5 @@ coolfluid_add_package( PACKAGE Parmetis
                        DESCRIPTION "parallel graph partitioning"
                        URL "http://glaros.dtc.umn.edu/gkhome/views/metis"
                        VARS
-                       PARMETIS_INCLUDE_DIR PARMETIS_LIBRARIES PARMETIS_LIB_METIS PARMETIS_LIB_PARMETIS )
+                       PARMETIS_INCLUDE_DIRS
+                       PARMETIS_LIBRARIES PARMETIS_LIB_METIS PARMETIS_LIB_PARMETIS )

@@ -95,10 +95,17 @@ function( coolfluid_set_package )
 #  coolfluid_debug_var(  _P_DESCRIPTION )
 #  coolfluid_debug_var(  _P_URL )
 
-  if( COMMAND set_package_info )
+  if( COMMAND set_package_properties )
 
+    set_package_properties( ${_P_PACKAGE} PROPERTIES
+                            DESCRIPTION "${_P_DESCRIPTION}"
+                            URL "${_P_URL}"
+                            TYPE OPTIONAL
+                            PURPOSE "${_P_COMMENT}" )
+  # for older versions of cmake (<=2.8.5)
+  elseif( COMMAND set_package_info )
     set_package_info( ${_P_PACKAGE} "${_P_DESCRIPTION}" "${_P_URL}" "${_P_COMMENT}" )
-
+  # for even older versions of cmake
   else()
 
     if( DEFINED ${_P_PACKAGE}_FOUND )

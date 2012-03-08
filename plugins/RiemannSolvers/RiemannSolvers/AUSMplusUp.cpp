@@ -4,9 +4,11 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
-#include "AUSMupplus.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+
+#include "RiemannSolvers/AUSMplusUp.hpp"
 
 namespace cf3 {
 namespace RiemannSolvers {
@@ -14,11 +16,11 @@ namespace RiemannSolvers {
 using namespace common;
 using namespace physics;
 
-common::ComponentBuilder < AUSMupplus, RiemannSolver, LibRiemannSolvers > AUSMupplus_Builder;
+common::ComponentBuilder < AUSMplusUp, RiemannSolver, LibRiemannSolvers > AUSMplusUp_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-AUSMupplus::AUSMupplus ( const std::string& name ) :
+AUSMplusUp::AUSMplusUp ( const std::string& name ) :
     RiemannSolver(name),
     m_fa (0.0),
     m_CoeffKu(0.75),
@@ -27,39 +29,39 @@ AUSMupplus::AUSMupplus ( const std::string& name ) :
     m_Machinf(0.),
     m_Beta(1./8.)
 {
-  option("physical_model").attach_trigger( boost::bind( &AUSMupplus::trigger_physical_model, this) );
+  options().option("physical_model").attach_trigger( boost::bind( &AUSMplusUp::trigger_physical_model, this) );
 
-  options().add_option< OptionT<Real> >("Ku",m_CoeffKu)
-      ->description("Ku")
-      ->link_to(&m_CoeffKu);
+  options().add_option("Ku",m_CoeffKu)
+    .description("Ku")
+    .link_to(&m_CoeffKu);
 
-  options().add_option< OptionT<Real> >("Kp",m_CoeffKp)
-      ->description("Kp")
-      ->link_to(&m_CoeffKp);
+  options().add_option("Kp",m_CoeffKp)
+    .description("Kp")
+    .link_to(&m_CoeffKp);
 
-  options().add_option< OptionT<Real> >("sigma",m_Coeffsigma)
-      ->description("sigma")
-      ->link_to(&m_Coeffsigma);
+  options().add_option("sigma",m_Coeffsigma)
+    .description("sigma")
+    .link_to(&m_Coeffsigma);
 
-  options().add_option< OptionT<Real> >("machinf",m_Machinf)
-      ->description("machinf")
-      ->link_to(&m_Machinf);
+  options().add_option("machinf",m_Machinf)
+    .description("machinf")
+    .link_to(&m_Machinf);
 
-  options().add_option< OptionT<Real> >("beta",m_Beta)
-      ->description("beta")
-      ->link_to(&m_Beta);
+  options().add_option("beta",m_Beta)
+    .description("beta")
+    .link_to(&m_Beta);
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-AUSMupplus::~AUSMupplus()
+AUSMplusUp::~AUSMplusUp()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AUSMupplus::trigger_physical_model()
+void AUSMplusUp::trigger_physical_model()
 {
     if (physical_model().derived_type_name() != "cf3.physics.NavierStokes.NavierStokes2D")
         throw SetupError (FromHere(),"Physical model not correct");
@@ -86,15 +88,15 @@ void AUSMupplus::trigger_physical_model()
   abs_jacobian.resize(physical_model().neqs(),physical_model().neqs());
 
   // Try to configure solution_vars automatically
-  if (m_solution_vars.expired())
+  if (is_null(m_solution_vars))
   {
-    if (Component::Ptr found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
+    if (Handle<Component> found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
-      configure_option("solution_vars",found_solution_vars->uri());
+      options().configure_option("solution_vars",found_solution_vars->uri());
     }
     else
     {
-      CFwarn << "AUSMupplus RiemannSolver " << uri().string() << " could not auto-config \"solution_vars\".\n"
+      CFwarn << "AUSMplusUp RiemannSolver " << uri().string() << " could not auto-config \"solution_vars\".\n"
              << "Reason: component with name \"solution_vars\" not found in ["<<physical_model().uri().string() << "]\n"
              << "Configure manually" << CFendl;
     }
@@ -102,7 +104,7 @@ void AUSMupplus::trigger_physical_model()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Real AUSMupplus::M1(Real Mach, char chsign)
+Real AUSMplusUp::M1(Real Mach, char chsign)
 {
     Real sign;
     switch (chsign) {
@@ -118,7 +120,7 @@ Real AUSMupplus::M1(Real Mach, char chsign)
     return 0.5*(Mach + sign*abs(Mach));
 }
 
-Real AUSMupplus::M2(Real Mach, char chsign)
+Real AUSMplusUp::M2(Real Mach, char chsign)
 {
     Real sign;
     switch (chsign) {
@@ -134,7 +136,7 @@ Real AUSMupplus::M2(Real Mach, char chsign)
     return sign*0.25*(Mach + sign*1.)*(Mach + sign*1.);
 }
 
-Real AUSMupplus::M4(Real Mach, char chsign)
+Real AUSMplusUp::M4(Real Mach, char chsign)
 {
     Real sign;
     char invchsign = '+';
@@ -152,7 +154,7 @@ Real AUSMupplus::M4(Real Mach, char chsign)
     return abs(Mach) >= 1. ? M1(Mach, chsign) : M2(Mach, chsign)*(1.-sign*16. * m_Beta * M2(Mach, invchsign));
 }
 
-Real AUSMupplus::P5(Real Mach, Real alpha, char chsign)
+Real AUSMplusUp::P5(Real Mach, Real alpha, char chsign)
 {
     Real sign;
     char invchsign = '+';
@@ -172,10 +174,11 @@ Real AUSMupplus::P5(Real Mach, Real alpha, char chsign)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void AUSMupplus::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
-                                     RealVector& flux)
+
+void AUSMplusUp::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
+                                                       RealVector& flux)
 {
-    physics::Variables& sol_vars = *m_solution_vars.lock();
+    physics::Variables& sol_vars = *m_solution_vars;
     sol_vars.compute_properties(coord, left, grads, *p_left);
     sol_vars.compute_properties(coord, right, grads, *p_right);
 
@@ -236,15 +239,17 @@ void AUSMupplus::compute_interface_flux(const RealVector& left, const RealVector
     tmp /= p_right->P * P12;
     flux += (tmp*normal);
 
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AUSMupplus::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
-                                                RealVector& flux, RealVector& wave_speeds)
+void AUSMplusUp::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
+                                                      RealVector& flux, RealVector& wave_speeds)
 {
-  compute_interface_flux(left,right,normal,flux);
-//  wave_speeds = eigenvalues;
+  compute_interface_flux(left,right,coords,normal,flux);
+  /// @todo compute eigenvalues
+  wave_speeds = eigenvalues;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

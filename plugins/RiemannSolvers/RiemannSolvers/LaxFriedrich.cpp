@@ -4,8 +4,11 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
-#include "LaxFriedrich.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+
+#include "RiemannSolvers/LaxFriedrich.hpp"
+
 
 namespace cf3 {
 namespace RiemannSolvers {
@@ -19,7 +22,7 @@ common::ComponentBuilder < LaxFriedrich, RiemannSolver, LibRiemannSolvers > LaxF
 
 LaxFriedrich::LaxFriedrich ( const std::string& name ) : RiemannSolver(name)
 {
-  option("physical_model").attach_trigger( boost::bind( &LaxFriedrich::trigger_physical_model, this) );
+  options().option("physical_model").attach_trigger( boost::bind( &LaxFriedrich::trigger_physical_model, this) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,10 +55,11 @@ void LaxFriedrich::trigger_physical_model()
   upwind_flux.resize(physical_model().neqs());
 
   // Try to configure solution_vars automatically
-  if (m_solution_vars.expired())
+  if (is_null(m_solution_vars))
   {
-    if (Component::Ptr found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
+    if (Handle<Component> found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
+      options().
       configure_option("solution_vars",found_solution_vars->uri());
     }
     else
@@ -69,10 +73,10 @@ void LaxFriedrich::trigger_physical_model()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LaxFriedrich::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+void LaxFriedrich::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                      RealVector& flux)
 {
-  physics::Variables& sol_vars = *m_solution_vars.lock();
+  physics::Variables& sol_vars = *m_solution_vars;
   // Compute left and right properties
   sol_vars.compute_properties(coord,left,grads,*p_left);
   sol_vars.compute_properties(coord,right,grads,*p_right);
@@ -99,10 +103,10 @@ void LaxFriedrich::compute_interface_flux(const RealVector& left, const RealVect
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LaxFriedrich::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+void LaxFriedrich::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                 RealVector& flux, RealVector& wave_speeds)
 {
-  compute_interface_flux(left,right,normal,flux);
+  compute_interface_flux(left,right,coords,normal,flux);
   wave_speeds = eigenvalues;
 }
 

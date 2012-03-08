@@ -125,34 +125,40 @@ protected: // configuration
     {
       inner_cell->get().reconstruct_from_solution_space_to_flux_points[inner_cell_face_pt_idx[face_pt]](cell_coords,cell_face_coords[face_pt]);
     }
-    RealMatrix bdry_face_coords = face_elem->get().space->get_coordinates(face_elem->get().idx);
-    for (Uint bdry_face_pt=0; bdry_face_pt<nb_face_pts; ++bdry_face_pt)
+    if (inner_cell->get().sf->order() == 0)
     {
-      const RealVector& bdry_face_pt_coord = bdry_face_coords.row(bdry_face_pt);
-      bool matched = false;
-      for (Uint inner_cell_face_pt=0; inner_cell_face_pt<nb_face_pts; ++inner_cell_face_pt)
+      boundary_face_pt_idx[0] = 0;
+    }
+    else
+    {
+      RealMatrix bdry_face_coords = face_elem->get().space->get_coordinates(face_elem->get().idx);
+      for (Uint bdry_face_pt=0; bdry_face_pt<nb_face_pts; ++bdry_face_pt)
       {
-        bool m=true;
-        for (Uint d=0; d<NDIM; ++d)
-          m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 100*math::Consts::eps() );
-        if ( m )
+        const RealVector& bdry_face_pt_coord = bdry_face_coords.row(bdry_face_pt);
+        bool matched = false;
+        for (Uint inner_cell_face_pt=0; inner_cell_face_pt<nb_face_pts; ++inner_cell_face_pt)
         {
-          matched=true;
-          boundary_face_pt_idx[inner_cell_face_pt] = bdry_face_pt;
-          break;
+          bool m=true;
+          for (Uint d=0; d<NDIM; ++d)
+            m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 100*math::Consts::eps() );
+          if ( m )
+          {
+            matched=true;
+            boundary_face_pt_idx[inner_cell_face_pt] = bdry_face_pt;
+            break;
+          }
         }
+        if (!matched)
+        {
+          std::cout << "cell_face_pts:\n";
+          for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+            std::cout << cell_face_coords[face_pt].transpose() << std::endl;
+          std::cout << "bdry_face_pts:\n";
+          for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+            std::cout << bdry_face_coords.row(face_pt) << std::endl;
+        }
+        cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
       }
-      if (!matched)
-      {
-        std::cout << "cell_face_pts:\n";
-        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-          std::cout << cell_face_coords[face_pt].transpose() << std::endl;
-        std::cout << "bdry_face_pts:\n";
-        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-          std::cout << bdry_face_coords.row(face_pt) << std::endl;
-
-      }
-      cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
     }
   }
 

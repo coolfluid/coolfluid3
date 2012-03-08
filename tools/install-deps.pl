@@ -75,7 +75,7 @@ my %packages = (  #  version   default install priority      function
     "zlib"       => [ "1.2.5",    'off',   'off', $priority++,  sub { install_gnu("zlib") } ],
     "curl"       => [ "7.21.4",   'off',   'off', $priority++,  \&install_curl ],
     "lam"        => [ "7.1.4",    'off',   'off', $priority++,  \&install_lam ],
-    "openmpi"    => [ "1.5.3",    'off',   'off', $priority++,  \&install_openmpi ],
+    "openmpi"    => [ "1.5.3",    'on' ,   'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",  'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.3.2p1",  'off',   'off', $priority++,  \&install_mpich2 ],
     "boost-jam"  => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
@@ -948,6 +948,9 @@ sub install_petsc3 ()
 #==========================================================================
 
 sub install_trilinos() {
+
+  install_parmetis();
+
   my $lib = "trilinos";
   my $version = $packages{$lib}[$vrs];
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
@@ -965,6 +968,17 @@ sub install_trilinos() {
 
 	     $tri_mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
  }
+
+
+ my $tri_parmetis_opt = "-D Zoltan_ENABLE_ParMETIS:BOOL=ON \\
+-D ParMETIS_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D ParMETIS_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
+ my $tri_scotch_opt = "-D Zoltan_ENABLE_Scotch:BOOL=ON \\
+-D Scotch_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D Scotch_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
+ my $tri_patoh_opt = "-D Zoltan_ENABLE_PaToH:BOOL=ON \\
+-D PaToH_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D PaToH_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
 
  
  my $tri_fortran_opt = "";
@@ -1003,6 +1017,11 @@ sub install_trilinos() {
 -D Trilinos_ENABLE_ThyraCore:BOOL=ON \\
 -D Trilinos_ENABLE_Triutils:BOOL=ON \\
 -D Trilinos_ENABLE_Stratimikos:BOOL=ON \\
+-D Trilinos_ENABLE_Zoltan:BOOL=ON \\
+-D Zoltan_ENABLE_EXAMPLES:BOOL=ON \\
+-D Zoltan_ENABLE_TESTS:BOOL=ON \\
+-D Zoltan_ENABLE_ULLONG_IDS:Bool=ON \\
+$tri_parmetis_opt \\
 -D Trilinos_ENABLE_.:BOOL=OFF \\
 -D TPL_ENABLE_BLAS:BOOL=ON \\
 -D TPL_ENABLE_LAPACK:BOOL=ON \\
@@ -1260,6 +1279,8 @@ sub install_hdf5() {
 
 sub install_zoltan()
 {
+  install_parmetis();
+
   my $lib = "trilinos";
   my $version = "10.6.4";
   print my_colored("Installing Zoltan as part of $lib-$version\n",$HIGHLIGHTCOLOR);
@@ -1493,8 +1514,6 @@ sub set_install_recommended()
   $packages{"trilinos"}[$ins] = 'on';
   $packages{"hdf5"}[$ins] = 'on';
   $packages{"cgns"}[$ins] = 'on';
-  $packages{"parmetis"}[$ins] = 'on';
-  $packages{"zoltan"}[$ins] = 'on';
 }
 
 sub set_install_all()

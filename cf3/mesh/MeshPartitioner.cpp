@@ -214,7 +214,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
                 glb_idx <= m_end_node_per_part[PE::Comm::instance().rank()]);
     }
 
-    m_global_to_local->insert_blindly(glb_idx,loc_idx++);
+    m_global_to_local->push_back(glb_idx,loc_idx++);
   }
 
   //CFinfo << "adding elements " << CFendl;
@@ -225,7 +225,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
       cf3_assert_desc(to_str(glb_idx)+"<"+to_str(m_start_elem_per_part[PE::Comm::instance().rank()]),glb_idx >= m_start_elem_per_part[PE::Comm::instance().rank()]);
       cf3_assert_desc(to_str(glb_idx)+">="+to_str(m_end_elem_per_part[PE::Comm::instance().rank()]),glb_idx < m_end_elem_per_part[PE::Comm::instance().rank()]);
       cf3_assert_desc(to_str(glb_idx)+">="+to_str(m_end_id_per_part[PE::Comm::instance().rank()]),glb_idx < m_end_id_per_part[PE::Comm::instance().rank()]);
-      m_global_to_local->insert_blindly(glb_idx,loc_idx++);
+      m_global_to_local->push_back(glb_idx,loc_idx++);
       //CFinfo << "  adding element with glb " << glb_idx << CFendl;
     }
   }

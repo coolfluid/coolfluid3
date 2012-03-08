@@ -3,6 +3,12 @@ list( APPEND coolfluid_riemannsolvers_files
   LibRiemannSolvers.cpp
   RiemannSolver.hpp
   RiemannSolver.cpp
+  AUSMplusUp.hpp
+  AUSMplusUp.cpp
+  Central.hpp
+  Central.cpp
+  LaxFriedrich.hpp
+  LaxFriedrich.cpp
   Roe.hpp
   Roe.cpp
 )

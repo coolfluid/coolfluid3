@@ -107,33 +107,48 @@ coolfluid_log( "")
 
 if( COMMAND feature_summary )
 
-#  feature_summary( WHAT ENABLED_FEATURES
-#                   DESCRIPTION "Enabled Features:"
-#                   VAR CF3_ENABLED_FEATURES )
-#  coolfluid_log( "${CF3_ENABLED_FEATURES}" )
+    # In this case the packages are not shown in enabled features...
+    # Resort to a full summary of enabled features and packages
+#    feature_summary( WHAT ENABLED_FEATURES
+#                     DESCRIPTION " Enabled Features:"
+#                     VAR CF3_ENABLED_FEATURES )
+#    coolfluid_log( "${CF3_ENABLED_FEATURES}" )
 
-  set( list_features "" )
-  set( print_counter 0 )
-  get_property( CF3_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
-  foreach( feature ${CF3_ENABLED_FEATURES})
+    # In this case the packages are added inside the enabled features...
+    # The summary is made by ourself, and is shorter.
+    set( list_features "" )
+    set( print_counter 0 )
+    get_property( CF3_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
+    foreach( feature ${CF3_ENABLED_FEATURES})
 
-    set( list_features "${list_features} ${feature}")
+      set( list_features "${list_features} ${feature}")
 
-    # break line if necessary
-    math( EXPR print_counter '${print_counter}+1'  )
-    if( print_counter GREATER 5 )
-      set( print_counter 0 )
-      set( list_features "${list_features}\n\t\t " )
-    endif()
+      # break line if necessary
+      math( EXPR print_counter '${print_counter}+1'  )
+      if( print_counter GREATER 5 )
+        set( print_counter 0 )
+        set( list_features "${list_features}\n\t\t " )
+      endif()
+    endforeach()
 
-  endforeach()
-  coolfluid_log( " Features:    ${list_features}")
-  coolfluid_log( "")
+    get_property( CF3_ENABLED_PACKAGES  GLOBAL PROPERTY PACKAGES_FOUND   )
+    foreach( feature ${CF3_ENABLED_PACKAGES})
 
+      set( list_features "${list_features} ${feature}")
 
-  feature_summary(WHAT ALL
-                  FILENAME ${PROJECT_LOG_FILE} APPEND)
+      # break line if necessary
+      math( EXPR print_counter '${print_counter}+1'  )
+      if( print_counter GREATER 5 )
+        set( print_counter 0 )
+        set( list_features "${list_features}\n\t\t " )
+      endif()
+    endforeach()
 
+    coolfluid_log( " Features:    ${list_features}")
+    coolfluid_log( "")
+
+    feature_summary(WHAT ALL
+                    FILENAME ${PROJECT_LOG_FILE} APPEND)
 endif()
 
 foreach( utest ${CF3_ENABLED_UTESTS} )

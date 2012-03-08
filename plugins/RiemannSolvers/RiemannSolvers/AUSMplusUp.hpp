@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_RiemannSolvers_AUSMupplus_hpp
-#define cf3_RiemannSolvers_AUSMupplus_hpp
+#ifndef cf3_RiemannSolvers_AUSMplusUp_hpp
+#define cf3_RiemannSolvers_AUSMplusUp_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,11 +19,11 @@ namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class RiemannSolvers_API AUSMupplus : public RiemannSolver
+class RiemannSolvers_API AUSMplusUp : public RiemannSolver
 {
 public:
-  typedef boost::shared_ptr< AUSMupplus >       Ptr;
-  typedef boost::shared_ptr< AUSMupplus const > ConstPtr;
+  typedef boost::shared_ptr< AUSMplusUp >       Ptr;
+  typedef boost::shared_ptr< AUSMplusUp const > ConstPtr;
 
 public:
 
@@ -31,20 +31,20 @@ public:
 
   /// Contructor
   /// @param name of the component
-  AUSMupplus ( const std::string& name );
+  AUSMplusUp ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~AUSMupplus();
+  virtual ~AUSMplusUp();
 
   /// type name
-  static std::string type_name() { return "AUSMupplus"; }
+  static std::string type_name() { return "AUSMplusUp"; }
 
-
-  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                                      RealVector& flux, RealVector& wave_speeds);
 
-  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& coords, const RealVector& normal,
                                       RealVector& flux);
+
 public:
   Real M1(Real Mach, char chsign);
   Real M2(Real Mach, char chsign);

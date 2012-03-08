@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_files
+  BoundingBox.hpp
+  BoundingBox.cpp
   CellFaces.hpp
   CellFaces.cpp
   Cells.hpp
