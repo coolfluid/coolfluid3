@@ -18,7 +18,7 @@
 #include "Physics/LinEuler/Cons2D.hpp"
 
 /// If this is defined, then also the Aplus wave is modified!
-//#define LILA
+//#define LILLA
 
 // ********* UNDEFINE THE EQUATION FOR Amin TO USE AT BC *************
 
@@ -30,6 +30,7 @@
 
 /// The idea is to change the equation for Amin at the boundary nodes
 
+/// Try1
 /// dAmin/dt + (U0n+c0n) grad(Amin) - c0s grad(Omega) = 0
 /// This means:
 ///   dA/dt     + (U0n+c0n) . grad(A) = 0
@@ -40,14 +41,22 @@
 //#define Aomega -p.c
 
 // **** RECOMMENDED, seems better with 0 sound-speed *** //
+/// Try2
 /// dAmin/dt + U0n grad(Amin) = 0
 /// This means:
 ///   dA/dt     + U0n grad(A)     + c0n grad(Aplus) + c0s grad(Omega) = 0
 ///   domega/dt + U0n grad(omega) + c0n grad(Aplus) + c0s grad(Omega) = 0
 // Here all that is required is set soundspeed to zero
-//#define AplusAmin 0
+#define AplusAmin 0
 // or equivalent:
 //#define Aomega 0
+
+/// Try3
+/// dAmin/dt + U0n grad(Amin) - c0n grad(Aplus) - c0s grad(Omega) = 0
+/// This means:
+///   dA/dt     + U0n grad(A) = 0
+///   domega/dt + U0n grad(omega) + c0n grad(A) = 0
+//#define ConvectATry2 p.c
 
 /// dAmin/dt + (U0n+c0n) grad(Amin) + c0s grad(Omega) = 0
 /// This means:
@@ -77,16 +86,17 @@
 ///   domega/dt + U0n grad(omega) = 0
 //#define TwoWaves p.c
 
-/// dAmin/dt + U0n grad(Amin) - c0n grad(Aplus) - c0s grad(Omega) = 0
-/// This means:
-///   dA/dt     + U0n grad(A) = 0
-///   domega/dt + U0n grad(omega) + c0n grad(A) = 0
-#define ConvectATry2 0
-//p.c
+
+// This will not correct the physics, what is imposed on the right is what you get
+//#define NOTHING
+
+// Things that can be imposed on the right:
+//#define Extrapolation
+//#define Aminzero
 
 // *******************************************************************
 
-#if defined(LILA)
+#if defined(LILLA)
 #undef AplusAmin
 #undef Aomega
 #undef Aminconvection
@@ -108,6 +118,8 @@ class sdm_lineuler_API NonReflectiveConvection2D : public ConvectiveTerm< PhysDa
 {
 private:
   typedef physics::LinEuler::Cons2D PHYS;
+
+  enum {ENTR=0, SHEAR=1, APLUS=2, AMIN=3};
 
 public:
   static std::string type_name() { return "NonReflectiveConvection2D"; }

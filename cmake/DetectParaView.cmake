@@ -42,7 +42,7 @@ if( QT_FOUND )
 
    if( NOT "${ParaView_DIR}" STREQUAL "" )
      set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ParaView_DIR} )
-     find_package(ParaView)
+     find_package(ParaView QUIET)
    endif()
 
    if( NOT ${ParaView_FOUND} )
@@ -70,8 +70,9 @@ if( ParaView_FOUND )
   list( APPEND CF3_DEPS_LIBRARIES ${ParaView_LIBRARIES} )
 endif()
 
-coolfluid_add_package( PACKAGE ParaView
+coolfluid_set_package( PACKAGE ParaView
                        DESCRIPTION "Parallel visualization"
                        URL "http://www.paraview.org"
+                       TYPE OPTIONAL
                        VARS ParaView_FOUND PARAVIEW_LIBRARY_DIRS ParaView_LIBRARIES )
 

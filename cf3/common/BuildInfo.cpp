@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "coolfluid-svn-revision.hpp"
+#include "coolfluid-config.hpp"
 
 #include <sstream>
 
@@ -24,9 +24,16 @@ std::string BuildInfo::build_type () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string BuildInfo::svn_version () const
+std::string BuildInfo::git_commit_sha () const
 {
-  return CF3_SVNVERSION;
+  return CF3_GIT_COMMIT_SHA;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string BuildInfo::git_commit_date () const
+{
+  return CF3_GIT_COMMIT_DATE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 if( CF3_ENABLE_DOCS )
 
 find_package(Doxygen QUIET)
-coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" )
+coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" QUIET)
 
  if( DOXYGEN_FOUND )
 
@@ -15,7 +15,7 @@ coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" )
   set( DOXYFILE doxygen.config CACHE INTERNAL "Doxygen filename" )
 
   # we need latex for doxygen because of the formulas
-  find_package(LATEX)
+  find_package(LATEX QUIET)
   if(NOT LATEX_COMPILER)
     message(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user interaction on doxy run.")
   endif()

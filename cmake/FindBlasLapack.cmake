@@ -112,4 +112,5 @@ mark_as_advanced( CF3_HAVE_LAPACK CF3_HAVE_BLAS CF3_HAVE_BLASLAPACK BLASLAPACK_L
 #endif()
 
 set( BlasLapack_FOUND ${CF3_HAVE_BLASLAPACK} )
-coolfluid_set_package( PACKAGE BlasLapack DESCRIPTION "linear algebra" )
+coolfluid_set_package( PACKAGE BlasLapack DESCRIPTION "linear algebra"
+                       VARS BLASLAPACK_LIBRARIES)
