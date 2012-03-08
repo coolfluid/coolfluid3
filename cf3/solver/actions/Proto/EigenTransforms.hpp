@@ -45,6 +45,20 @@ struct EigenProductType<LeftT, Real>
   typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const LeftT> type;
 };
 
+/// Scalar on the left
+template<typename LeftT, typename RightT>
+struct EigenProductType<Real, Eigen::GeneralProduct<LeftT, RightT> >
+{
+  typedef Eigen::ScaledProduct< Eigen::GeneralProduct<LeftT, RightT> > type;
+};
+
+/// Scalar on the right
+template<typename LeftT, typename RightT>
+struct EigenProductType<Eigen::GeneralProduct<LeftT, RightT>, Real>
+{
+  typedef Eigen::ScaledProduct< Eigen::GeneralProduct<LeftT, RightT> > type;
+};
+
 /// Scalar - scalar
 template<>
 struct EigenProductType<Real, Real>
@@ -105,11 +119,24 @@ struct EigenProductEval :
     typedef typename boost::remove_const<typename boost::remove_reference<RightT>::type>::type UnRefRightT;
 
     typedef const typename ValueType< typename EigenProductType<UnRefLeftT, UnRefRightT>::type >::type& result_type;
+    //typedef typename EigenProductType<UnRefLeftT, UnRefRightT>::type result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      expr.value = GrammarT()(boost::proto::left(expr), state, data) * GrammarT()(boost::proto::right(expr), state, data);
+      store_result(expr.value, GrammarT()(boost::proto::left(expr), state, data) * GrammarT()(boost::proto::right(expr), state, data));
       return expr.value;
+    }
+
+    template<typename StoredT, typename ResultT>
+    void store_result(StoredT& stored, const ResultT& result) const
+    {
+      stored.noalias() = result;
+    }
+
+    template<typename ResultT>
+    void store_result(Real& stored, const ResultT& result) const
+    {
+      stored = result;
     }
   };
 };
@@ -155,8 +182,39 @@ struct EigenPlusAssignProductEval :
         >::type, typename impl::state_param, typename impl::data_param)
       >::type LeftT;
 
-      LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
+      StoreResult<typename boost::remove_reference<LeftT>::type>()(LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)), GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data));
+      //LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
     }
+    
+    template<typename T, int Dummy=0>
+    struct StoreResult
+    {
+      template<typename ResultT>
+      void operator()(T& stored, const ResultT& result)
+      {
+        stored.noalias() += result;
+      }
+    };
+    
+    template<int Dummy>
+    struct StoreResult<Real, Dummy>
+    {
+      template<typename ResultT>
+      void operator()(Real& stored, const ResultT& result)
+      {
+        stored += result;
+      }
+    };
+    
+    template<typename MatT, int R, int C, int Dummy>
+    struct StoreResult<Eigen::Block<MatT, R, C>, Dummy>
+    {
+      template<typename ResultT>
+      void operator()(Eigen::Block<MatT, R, C> stored, const ResultT& result)
+      {
+        stored.noalias() += result;
+      }
+    };
   };
 };
 
