@@ -38,7 +38,7 @@ private:
         cf3_assert(Omega_vec[1] == 0);
         Omega[0] = Omega_vec[0];
         Omega[1] = Omega_vec[1];
-        Omega[2] = Omega_vec[3];
+        Omega[2] = Omega_vec[2];
     }
 
     void config_Vtrans()
@@ -114,7 +114,7 @@ public:
 
       u     = rhou / rho;
       v     = rhov / rho;
-      P     = (gamma - 1) * (rhoE - 0.5 * rho *(u*u + v*v) + 0.5 * rho * ( Vt(0) * Vt(0) + Vt(1) * Vt(1)));
+      P     = (gamma - 1) * (rhoE - 0.5 * rho *(u*u + v*v) + 0.5 * rho * ( Vt.dot(Vt)));
       H     = rhoE / rho + P / rho;
 
       um    = u * unit_normal[XX] + v * unit_normal[YY];

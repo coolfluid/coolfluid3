@@ -21,8 +21,8 @@ coolfluid_add_test( UTEST      utest-sdm-transformation
                     CPP        utest-sdm-transformation.cpp
                     LIBS       coolfluid_sdm )
                     
-coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-source2d
-                    CPP        utest-sdm-navierstokesmovingreference-source2d.cpp
+coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-2d
+                    CPP        utest-sdm-navierstokesmovingreference-2d.cpp
                     LIBS       coolfluid_sdm )
 
 
