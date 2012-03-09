@@ -9,4 +9,4 @@
 
   + [Dashboard](http://coolfluidsrv.vki.ac.be/cdash/index.php?project=coolfluid)
   
-  + [COOLFluiD official homepage](http://coolfluidsrv.vki.ac.be)
+  + [COOLFluiD official homepage](http://coolfluid.github.com)
