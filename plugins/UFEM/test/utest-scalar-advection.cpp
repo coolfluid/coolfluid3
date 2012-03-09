@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
-  RealVector initial_u(1); initial_u.setConstant(1.);
+  RealVector initial_u(1); initial_u.setConstant(20.);
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 //       element_quadrature
 //       (
 //         _A(T,T) +=  transpose(N(T)) * u_adv * nabla(N(T)) + c.tau_su * transpose(nabla(N)) * u_adv * u_adv * nabla(N) +  alpha * transpose(nabla(N)) * N,
-//         _T(T,T) +=  transpose(T) * N + c.tau_su * transpose(nabla(N)) * u_adv * N
+//         _T(T,T) +=  transpose(N(T)) * N(T) + c.tau_su * transpose(nabla(T)) * u_adv * N
 //       ),
 //        solver.system_matrix += _A,
 //        solver.system_matrix += _T
@@ -165,10 +165,12 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
            allowed_elements,
            group
            (
-             _A = _0,
+             _A = _0, _T = _0,
              UFEM::compute_tau(u_adv, c),
-             element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + c.tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ),
-             solver.system_matrix += _A
+             element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + c.tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
+                   _T(T,T) +=  transpose(N(T) + c.tau_su * u_adv * nabla(T)) * N(T) ),
+                   solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
+                   solver.system_rhs += -_A * _b
            )
          )
        )
@@ -193,13 +195,13 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
-  bc->add_constant_bc("xneg", "Temperature", 10.);
-  bc->add_constant_bc("xpos", "Temperature", 35.);
+  bc->add_constant_bc("xneg", "Temperature", 1.);
+  bc->add_constant_bc("xpos", "Temperature", 0.);
 
   // Configure timings
   Time& time = model.create_time();
   time.options().configure_option("time_step", 1.);
-  time.options().configure_option("end_time", 1.);
+  time.options().configure_option("end_time", 100.);
 
   // Run the solver
   model.simulate();
