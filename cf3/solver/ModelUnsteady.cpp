@@ -11,6 +11,7 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/Signal.hpp"
 #include "common/XML/SignalFrame.hpp"
 #include "common/PropertyList.hpp"
 
@@ -64,6 +65,11 @@ ModelUnsteady::ModelUnsteady( const std::string& name  ) :
   "   The iterative solver delegates space discretization to a \"discretization method\"";
   properties()["description"] = description;
 
+  regist_signal( "create_time" )
+    .connect( boost::bind( &ModelUnsteady::signal_create_time, this, _1 ) )
+    .description("Create the time tracking component")
+    .pretty_name("Create Time");
+
 }
 
 ModelUnsteady::~ModelUnsteady() {}
@@ -84,6 +90,7 @@ void ModelUnsteady::simulate ()
 
 Time& ModelUnsteady::create_time(const std::string& name)
 {
+
   Handle<Time> time = create_component<Time>(name);
   m_implementation->m_time = time;
 
@@ -92,12 +99,14 @@ Time& ModelUnsteady::create_time(const std::string& name)
   return *time;
 }
 
-
-void ModelUnsteady::signal_create_time(SignalArgs node)
+void ModelUnsteady::signal_create_time ( common::SignalArgs& node )
 {
-  create_time();
-}
+  Time& time = create_time("Time");
 
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", time.uri());
+}
 
 Time& ModelUnsteady::time()
 {

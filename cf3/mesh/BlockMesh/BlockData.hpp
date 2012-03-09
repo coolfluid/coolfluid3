@@ -71,6 +71,13 @@ public:
   /// @param direction Direction to partition in (X = 0, Y = 1, Z = 2)
   void partition_blocks(const Uint nb_partitions, const Uint direction);
 
+  /// Extrude a 2D mesh in a number of spanwise (Z-direction) blocks. The number of spanwise blocks is determined by
+  /// the size of the passed arguments
+  /// @param positions Spanwise coordinate for each new spanwise layer of points. Values must ne greater than 0
+  /// @param nb_segments Number of spanwise segments for each block
+  /// @param gradings Uniform grading definition in the spanwise direction for each block
+  void extrude_blocks(const std::vector<Real>& positions, const std::vector<Uint>& nb_segments, const std::vector<Real>& gradings);
+
   /// Create the refined mesh
   /// @param mesh The mesh in which the output will be stored
   void create_mesh(Mesh& mesh);
@@ -92,6 +99,8 @@ public:
   void signature_partition_blocks(common::SignalArgs& args);
   void signal_partition_blocks(common::SignalArgs& args);
   void signature_create_mesh(common::SignalArgs& args);
+  void signature_extrude_blocks(common::SignalArgs& args);
+  void signal_extrude_blocks(common::SignalArgs& args);
   void signal_create_mesh(common::SignalArgs& args);
 
   //@} END SIGNALS

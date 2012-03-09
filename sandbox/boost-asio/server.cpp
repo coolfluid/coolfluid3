@@ -90,7 +90,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_accept( TCPConnection::Ptr conn, const system::error_code& error )
+  void callback_accept( TCPConnection::Ptr conn, const boost::system::error_code& error )
   {
     if ( !error )
     {
@@ -119,7 +119,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_send( TCPConnection::Ptr conn, const system::error_code & error )
+  void callback_send( TCPConnection::Ptr conn, const boost::system::error_code & error )
   {
     if ( error )
       std::cerr << "Data could not be sent to [" << conn->socket().remote_endpoint()
@@ -130,7 +130,7 @@ private: // functions
 
   /////////////////////////////////////////////////////////////////////////////
 
-  void callback_read( TCPConnection::Ptr conn, const system::error_code & error )
+  void callback_read( TCPConnection::Ptr conn, const boost::system::error_code & error )
   {
     std::map<TCPConnection::ConstPtr, ClientInfo>::iterator it = m_clients.find( conn );
 

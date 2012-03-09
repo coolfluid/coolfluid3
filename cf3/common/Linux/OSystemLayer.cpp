@@ -4,11 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
-  #include <cxxabi.h>
-  #include <boost/algorithm/string.hpp>
-#endif // (__GNUC__ && __cplusplus && __GNUC__ >= 3)
-
 #include <cstdio>        // for printf()
 #include <cstdlib>       // for free() and abort()
 #include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
@@ -18,6 +13,7 @@
 #include <sys/types.h>   // for getting the PID of the process
 #include <malloc.h>      //  for mallinfo
 
+
 #include "common/BasicExceptions.hpp"
 #include "common/Linux/OSystemLayer.hpp"
 #include "common/Log.hpp"
@@ -25,6 +21,12 @@
 #ifdef CF_HAVE_UNISTD_H
   #include <unistd.h>
 #endif
+
+#ifdef CF3_HAVE_CXXABI_H
+  #include <cxxabi.h>
+  #include <boost/regex.hpp>
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,60 +61,67 @@ std::string OSystemLayer::dump_back_trace ()
 {
 #define CF_BUFFER_SIZE 256
 
-  printf ("\n\ndumping backtrace ...\n");
+static int i = 0;
+++i;
 
-  std::ostringstream oss;
-  int j, nptrs;
-  void *buffer[CF_BUFFER_SIZE];
-  char **strings;
 
-  // get backtrace
-  nptrs = backtrace(buffer, CF_BUFFER_SIZE);
-  oss << "\nbacktrace() returned " << nptrs << " addresses\n";
-  strings = backtrace_symbols(buffer, nptrs);
-  if (strings == NULL)
+std::ostringstream oss;
+int j, nptrs;
+void *buffer[CF_BUFFER_SIZE];
+char **strings;
+
+//printf ("dumping %d backtrace ...\n", i);
+oss << "dumping " << i << " backtrace ...\n";
+nptrs = backtrace(buffer, CF_BUFFER_SIZE);
+oss << "\nbacktrace() returned " << nptrs << " addresses\n";
+
+strings = backtrace_symbols(buffer, nptrs);
+if (strings == NULL)
+  oss << "\nno backtrace_symbols found\n";
+
+#ifdef CF3_HAVE_CXXABI_H
+
+boost::regex e("(.+)\\((_.+)(\\+.+)\\)");
+boost::match_results<std::string::const_iterator> what;
+
+// iterate over the returned symbol lines. skip the first, it is the
+// address of this function.
+for (j = 1; j < nptrs; j++)
+{
+  std::string trace(strings[j]);
+
+  // what[0] -> orginal string
+  // what[1] -> library name
+  // what[2] -> function name
+  // what[3] -> memory offset
+  if (boost::regex_search(trace,what,e))
   {
-    oss << "\nno backtrace_symbols found\n";
-    return oss.str();
-  }
-
-  // demangle names if gnu c, taken from:
-  // http://mykospark.net/2009/09/runtime-backtrace-in-c-with-name-demangling/
-  #if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
-    char *demangled=0;
-    std::vector<std::string> strs;
-    int status;
-    for (j = 0; j < nptrs; j++)
+    trace = std::string(what[2].first,what[2].second);
+    size_t maxName = 1024;
+    int demangleStatus;  // will be assigned in abi::__cxa_demangle
+    char* demangledName; // will be allocated in abi::__cxa_demangle
+    if ((demangledName = abi::__cxa_demangle(trace.c_str(), NULL, &maxName,
+                                             &demangleStatus)) && demangleStatus == 0)
     {
-      boost::split(strs,strings[j],boost::is_any_of("()+"));
-      if (strs[1].size()!=0)
-      {
-        demangled=__cxxabiv1::__cxa_demangle(strs[1].c_str(),0,0,&status);
-        if (demangled==0)
-        {
-          demangled=(char*)calloc(strs[1].size()+1,sizeof(char));
-          strcpy(demangled,strs[1].c_str());
-        }
-      }
-      if (status!=0)
-        oss << strings[j] << "\n";
-      else
-        oss << demangled << "+" << strs[2] << " " << strs[0] << " " << strs[3] << "\n";
+      trace = demangledName; // the demangled name is now in our trace string
     }
-    free(strings);
-    oss << "\n... end backtrace\n";
-    oss.clear();
-    return oss.str();
-  #endif // (__GNUC__ && __cplusplus && __GNUC__ >= 3)
 
-  // if nothing above, just print the raw backtrace
-  for (j = 0; j < nptrs; j++)
-    oss << strings[j] << "\n";
-  oss << "\n... end backtrace\n";
-  free(strings);
-  return oss.str();
+    delete_ptr_array(demangledName);
+  }
+  oss << trace << "\n";
+}
+#else
+for (j = 0; j < nptrs; j++)
+  oss << strings[j] << "\n";
+#endif
 
+free(strings);
 #undef CF_BUFFER_SIZE
+
+oss << "\nexit dumping backtrace ...";
+
+return oss.str();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

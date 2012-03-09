@@ -173,7 +173,7 @@ void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDo
     if( Comm::instance().rank() == 0 )
     {
       /// @todo change the receiver path to be not hardcoded
-      SignalFrame frame("ack", uri(), "//UI/NetworkQueue");
+      SignalFrame frame("ack", uri(), "cpath:/UI/NetworkQueue");
       SignalOptions & options = frame.options();
       std::string frameid = signal_frame.node.attribute_value("frameid");
 

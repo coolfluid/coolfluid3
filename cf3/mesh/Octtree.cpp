@@ -49,7 +49,7 @@ cf3::common::ComponentBuilder < Octtree, Component, LibMesh > Octtree_Builder;
 //////////////////////////////////////////////////////////////////////////////
 
 Octtree::Octtree( const std::string& name )
-  : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
+  : Component(name), m_dim(0), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
   options().add_option("mesh", m_mesh)
@@ -69,53 +69,30 @@ Octtree::Octtree( const std::string& name )
       .pretty_name("Number of Cells");
 
   m_elements = create_component<UnifiedData>("elements");
-
+  m_bounding_box = create_component<BoundingBox>("bounding_box");
 }
 
-//////////////////////////////////////////////////////////////////////
-
-void Octtree::create_bounding_box()
-{
-  m_dim=0;
-
-  if (is_null(m_mesh))
-    throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
-
-  m_dim = m_mesh->geometry_fields().coordinates().row_size();
-
-  // find bounding box coordinates for region 1 and region 2
-  m_bounding[MIN].setConstant(real_max());
-  m_bounding[MAX].setConstant(real_min());
-
-  boost_foreach(Field::ConstRow coords, m_mesh->geometry_fields().coordinates().array())
-  {
-    for (Uint d=0; d<m_dim; ++d)
-    {
-      m_bounding[MIN][d] = std::min(m_bounding[MIN][d],  coords[d]);
-      m_bounding[MAX][d] = std::max(m_bounding[MAX][d],  coords[d]);
-    }
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Octtree::create_octtree()
 {
-  create_bounding_box();
-
   if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
+
+  m_bounding_box->build(*m_mesh);
+  m_dim = m_bounding_box->dim();
 
   std::vector<Real> L(3);
 
   Real V=1;
   for (Uint d=0; d<m_dim; ++d)
   {
-    L[d] = m_bounding[MAX][d] - m_bounding[MIN][d];
+    L[d] = m_bounding_box->max()[d] - m_bounding_box->min()[d];
     V*=L[d];
   }
 
-  const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
+  const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
 
   if (options().option("nb_cells").value<std::vector<Uint> >().size() > 0)
   {
@@ -139,7 +116,7 @@ void Octtree::create_octtree()
   CFdebug << "--------" << CFendl;
   for (Uint d=0; d<m_dim; ++d)
   {
-    CFdebug<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << CFendl;
+    CFdebug<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding_box->min()[d] << "    max = " << m_bounding_box->max()[d] << CFendl;
   }
   CFdebug << "V = " << V << CFendl;
 
@@ -163,7 +140,10 @@ void Octtree::create_octtree()
       elements.geometry_space().put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
-        octtree_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+      {
+        cf3_assert((centroid[d] - m_bounding_box->min()[d])/m_D[d] >= 0);
+        octtree_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding_box->min()[d])/m_D[d]), m_N[d]-1 );
+      }
       m_octtree[octtree_idx[XX]][octtree_idx[YY]][octtree_idx[ZZ]].push_back(unif_elem_idx);
       ++unif_elem_idx;
     }
@@ -300,17 +280,19 @@ void Octtree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, st
 
 bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
+  static const Real tolerance = 100*math::Consts::eps();
   //CFinfo << "point " << coordinate << CFflush;
   cf3_assert(coordinate.size() == static_cast<int>(m_dim));
 
   for (Uint d=0; d<m_dim; ++d)
   {
-    if ( (coordinate[d] > m_bounding[MAX][d]) ||
-         (coordinate[d] < m_bounding[MIN][d]) )
+    if ( (coordinate[d] > m_bounding_box->max()[d] + tolerance) ||
+         (coordinate[d] < m_bounding_box->min()[d] - tolerance) )
     {
+      CFdebug << "coord " << coordinate.transpose() << " not found in bounding box" << CFendl;
       return false; // no index found
     }
-    octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+    octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding_box->min()[d])/m_D[d]), m_N[d]-1 );
   }
 
   //CFinfo << " should be in box ("<<m_point_idx[0]<<","<<m_point_idx[1]<<","<<m_point_idx[2]<<")" << CFendl;
@@ -472,6 +454,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
   // if arrived here, it means no element has been found. Give up.
   element_component.reset();
   cf3_assert(is_null(element_component));
+  CFinfo << "coord " << target_coord.transpose() << " has not been found in any cell registereed in the bounding box" << CFendl;
   return false;
 }
 

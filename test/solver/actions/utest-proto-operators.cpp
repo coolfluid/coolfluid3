@@ -398,9 +398,9 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
   const RealVector2 idx(1.,2.);
 
-  int result_i = 0;
-  int result_j = 0;
-  int result_ij = 0;
+  Real result_i = 0;
+  Real result_j = 0;
+  Real result_ij = 0;
 
   for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
@@ -413,9 +413,9 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
     )
   );
 
-  BOOST_CHECK_EQUAL(result_i, 3);
-  BOOST_CHECK_EQUAL(result_j, 3);
-  BOOST_CHECK_EQUAL(result_ij, 12);
+  BOOST_CHECK_EQUAL(result_i, 3.);
+  BOOST_CHECK_EQUAL(result_j, 3.);
+  BOOST_CHECK_EQUAL(result_ij, 12.);
 
   Mesh& line = *Core::instance().root().create_component<Mesh>("Line");
   Tools::MeshGeneration::create_line(line, 1., 1);

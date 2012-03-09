@@ -56,7 +56,7 @@
 //#include "mesh/Domain.hpp"
 //#include "mesh/actions/InitFieldFunction.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
-//#include "solver/ModelUnsteady.hpp"
+//#include "solver/Model.hpp"
 //#include "solver/Solver.hpp"
 //#include "solver/CPhysicalModel.hpp"
 //#include "mesh/actions/BuildFaces.hpp"
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   Model& model   = *Core::instance().root().create_component<Model>("model");
   model.setup("cf3.sdm.SDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
-  SDSolver& solver  = *model.solver().handle<SDSolver>();
-  Domain&   domain  = model.domain();
+  SDSolver& solver   = *model.solver().handle<SDSolver>();
+  Domain&   domain   = model.domain();
 
 
   Uint DOF = 10;
@@ -213,8 +213,8 @@ BOOST_AUTO_TEST_CASE( solver1d_test )
   Real cfl_matteo = 1./(2.2*(sol_order-1.)+1.);
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time", 2.); // instead of 0.3
+  solver.time().options().configure_option("time_step",100.);
+  solver.time().options().configure_option("end_time", 2.); // instead of 0.3
   solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -382,8 +382,8 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Real cfl_matteo = 1./(std::pow(2.,1./(sol_order))) * cfl_1d;
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , lengths[XX]/3.); // instead of 0.3
+  solver.time().options().configure_option("time_step",100.);
+  solver.time().options().configure_option("end_time" , lengths[XX]/3.); // instead of 0.3
   solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////

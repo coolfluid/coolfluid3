@@ -11,6 +11,8 @@ list( APPEND coolfluid_ufem_files
   LinearSolverUnsteady.cpp
   NavierStokes.hpp
   NavierStokes.cpp
+  NavierStokesSteady.hpp
+  NavierStokesSteady.cpp
   NavierStokesOps.hpp
   ParsedFunctionExpression.hpp
   ParsedFunctionExpression.cpp
@@ -18,8 +20,6 @@ list( APPEND coolfluid_ufem_files
   SparsityBuilder.cpp
   Tags.hpp
   Tags.cpp
-  TimeLoop.hpp
-  TimeLoop.cpp
 )
 
 list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_actions coolfluid_physics)

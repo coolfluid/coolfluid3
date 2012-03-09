@@ -79,6 +79,7 @@ struct SingleExprElementGrammar :
       ElementMath,
       IndexLooper<ElementMathIndexed>
     >,
+    ElementQuadrature,
     boost::proto::when
     <
       StreamOutput<ElementMath>,

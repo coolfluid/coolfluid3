@@ -12,6 +12,7 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildArea.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -69,7 +70,8 @@ void BuildArea::execute()
 
   Mesh& mesh = *m_mesh;
 
-  Dictionary& faces_P0 = *mesh.create_component<Dictionary>("faces_P0");
+
+  Dictionary& faces_P0 = *mesh.create_component<DiscontinuousDictionary>("faces_P0");
   boost_foreach(Faces& faces, find_components_recursively<Faces>(mesh.topology()))
     faces.create_space("cf3.mesh.LagrangeP0"+faces.element_type().shape_name(),faces_P0);
   faces_P0.update();

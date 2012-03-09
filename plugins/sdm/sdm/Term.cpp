@@ -27,6 +27,7 @@
 #include "sdm/SDSolver.hpp"
 #include "sdm/ShapeFunction.hpp"
 #include "sdm/ElementCaching.hpp"
+#include "mesh/ElementConnectivity.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
@@ -118,7 +119,7 @@ void Term::set_face(const Handle<Entities const>& entities, const Uint elem_idx,
   cf3_assert(elem_idx < face_connectivity->size());
   cf3_assert(face_nb < (*face_connectivity)[elem_idx].size());
   Entity face = (*face_connectivity)[elem_idx][face_nb];
-  cf3_assert( is_not_null(face.comp) );
+  cf3_assert_desc("face "+entities->uri().string()+"["+to_str(elem_idx)+"]["+to_str(face_nb)+"] is null", is_not_null(face.comp) );
   face_entities = face.comp->handle<Entities>();
   face_idx = face.idx;
   const Handle<FaceCellConnectivity>& cell_connectivity = face.comp->connectivity_face2cell();

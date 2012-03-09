@@ -72,7 +72,7 @@ public:
     return Handle<NRoot>(m_root);
   }
 
-  void new_signal( boost::shared_ptr<common::XML::XmlDoc> doc);
+  void new_signal( common::SignalArgs &doc);
 
   void set_mutex(QMutex* mutex);
 

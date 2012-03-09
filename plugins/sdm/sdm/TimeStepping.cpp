@@ -10,6 +10,7 @@
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
+#include "common/OptionComponent.hpp"
 #include "common/PropertyList.hpp"
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
@@ -55,6 +56,11 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   properties().add_property( "iteration", Uint(0) );
 
+  options().add_option(Tags::time(), m_time)
+      .description("Time tracking component")
+      .pretty_name("Time")
+      .link_to(&m_time);
+
   options().add_option("max_iteration",math::Consts::uint_max()).mark_basic();
   options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
   parse_cfl();
@@ -62,20 +68,12 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // static components
 
-  m_time  = create_static_component<Time>("Time");
-
   m_pre_actions  = create_static_component<ActionDirector>("PreActions");
 
   m_post_actions = create_static_component<ActionDirector>("PostActions");
 
   post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
-  // dynamic components
-
-//  CriterionMaxIterations& maxiter =
-//      create_component<CriterionMaxIterations>( "MaxIterations" );
-
-  create_component<CriterionTime>( "EndTime" );
 }
 
 void TimeStepping::parse_cfl()
@@ -102,13 +100,14 @@ bool TimeStepping::stop_condition()
     finish |= stop_criterion();
     ++nb_criteria;
   }
-  if (nb_criteria == 0)
+
+  if (options().option("time_accurate").value<bool>())
   {
-    CFwarn << "No stop criteria available in [" << uri().string() << "]... exiting loop" << CFendl;
-    return true; // stop
+    if (m_time->current_time() + 1e-12 > m_time->end_time())
+      return true;
   }
 
-  if (properties().value<Uint>("iteration") > options().option("max_iteration").value<Uint>())
+  if (m_time->iter() >= options().option("max_iteration").value<Uint>())
     return true; // stop
 
   return finish;
@@ -120,8 +119,7 @@ void TimeStepping::execute()
   configure_option_recursively( "iterator", handle<Component>() );
   // start loop - iterations start from 1 ( max iter zero will do nothing )
 
-  Uint k = 1;
-  properties().property("iteration") = k;
+  properties().property("iteration") = m_time->iter();
 
   while( ! stop_condition() ) // time loop
   {
@@ -144,10 +142,10 @@ void TimeStepping::execute()
     // advance time & iteration
 
     m_time->current_time() += m_time->dt();
+    ++m_time->iter();
+    properties().property("iteration") = m_time->iter(); // update the iteration number
 
-    properties().property("iteration") = ++k; // update the iteration number
-
-    mesh().metadata()["iter"] = properties().property("iteration");
+    mesh().metadata()["iter"] = m_time->iter();
     mesh().metadata()["time"] = m_time->current_time();
 
     // (3) the post actions - compute norm, post-process something, etc
@@ -161,9 +159,9 @@ void TimeStepping::execute()
     Real norm = boost::any_cast<Real>(solver().handle<SDSolver>()->actions().get_child(Tags::L2norm())->properties().property("norm"));
 
     if (options().option("time_accurate").value<bool>())
-      CFinfo << "iter [" << std::setw(4) << k-1 << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm<<"]" << CFendl;
+      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm<<"]" << CFendl;
     else
-      CFinfo << "iter [" << std::setw(4) << k-1 << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm << "]" << CFendl;
+      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm << "]" << CFendl;
 
 
   }

@@ -99,6 +99,19 @@ struct Common_API FloatingPointError: public common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Exception thrown when a segmentation-fault is handled
+/// @author Willem Deconinck
+struct Common_API SegmentationFault: public common::Exception {
+
+  /// Constructor
+  SegmentationFault( const common::CodeLocation& where, const std::string& what);
+
+  virtual ~SegmentationFault() throw();
+
+}; //  SegmentationFault
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Exception thrown when a certain value already exists in a storage.
 /// @author Andrea Lani
 /// @author Tiago Quintino

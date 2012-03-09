@@ -799,17 +799,23 @@ BOOST_CHECK(true);
   }
 BOOST_CHECK(true);
 
-  std::vector<Handle< Field > > fields_to_output;
+  std::vector<URI> fields_to_output;
 //  fields_to_output.push_back(glb_node.as_ptr<Field>());
 //  fields_to_output.push_back(glb_elem.as_ptr<Field>());
-  fields_to_output.push_back(Handle<Field>(elem_rank.handle<Component>()));
+  fields_to_output.push_back(elem_rank.uri());
 BOOST_CHECK(true);
-  tec_writer->set_fields(fields_to_output);
-  tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);
+  tec_writer->options().configure_option("fields",fields_to_output);
+  tec_writer->options().configure_option("enable_overlap",true);
+  tec_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  tec_writer->options().configure_option("file",URI("parallel_overlap"+tec_writer->get_extensions()[0]));
+  tec_writer->execute();
   CFinfo << "parallel_overlap_P*"+tec_writer->get_extensions()[0]+" written" << CFendl;
 BOOST_CHECK(true);
-  gmsh_writer->set_fields(fields_to_output);
-  gmsh_writer->write_from_to(mesh,"parallel_overlap"+gmsh_writer->get_extensions()[0]);
+  gmsh_writer->options().configure_option("fields",fields_to_output);
+  gmsh_writer->options().configure_option("enable_overlap",true);
+  gmsh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  gmsh_writer->options().configure_option("file",URI("parallel_overlap"+gmsh_writer->get_extensions()[0]));
+  gmsh_writer->execute();
   CFinfo << "parallel_overlap_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;
 #endif
 

@@ -40,12 +40,9 @@ public: // functions
   const solver::Time& time() const;
   
 private:
-  /// Ran when the iteration number is incremented. Override this if you need to do something useful at that point
-  virtual void on_iteration_increment();
   
   void trigger_time();
   void trigger_timestep();
-  void trigger_iteration();
   
   Handle<solver::Time> m_time;
   Real m_invdt;

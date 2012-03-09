@@ -58,7 +58,7 @@ GraphicalValue::~GraphicalValue()
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > option,
-                                                  QWidget * parent)
+                                                  QWidget * parent )
 {
   GraphicalValue * value = nullptr;
 

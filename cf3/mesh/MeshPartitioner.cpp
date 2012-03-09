@@ -169,8 +169,6 @@ void MeshPartitioner::initialize(Mesh& mesh)
 
 void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
 {
-
-
   Dictionary& nodes = mesh.geometry_fields();
 
   m_lookup->add(nodes);

@@ -46,8 +46,6 @@ public: // functions
   common::ActionDirector& pre_actions()  { return *m_pre_actions; }
   common::ActionDirector& post_actions() { return *m_post_actions; }
 
-  cf3::solver::Time&       time()         { return *m_time; }
-
   /// @name SIGNALS
   //@{
 

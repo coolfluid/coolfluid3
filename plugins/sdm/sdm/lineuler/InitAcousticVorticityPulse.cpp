@@ -74,8 +74,14 @@ void InitAcousticVorticityPulse::execute()
 
 //    std::cout << i << ": " << coord.transpose() << "   p=" << compute_pressure(coord,time) << std::endl;
 
-    m_field->array()[i][3] = compute_pressure(coord,time);
-    m_field->array()[i][0] = compute_density(m_field->array()[i][3],coord,time);
+    RealVector velocity = compute_velocity(coord,time);
+    Real pressure = compute_pressure(coord,time);
+    Real density = compute_density(pressure,coord,time);
+
+    m_field->array()[i][0] = density;
+    m_field->array()[i][1] = velocity[XX];
+    m_field->array()[i][2] = velocity[YY];
+    m_field->array()[i][3] = pressure;
   }
 
 }
@@ -87,7 +93,7 @@ InitAcousticVorticityPulse::Data::Data()
     u0 = 0.5;
     alpha1 = std::log(2.)/9.;
     alpha2 = std::log(2.)/25.;
-
+    eta = 0;
     s0 = 0;
     s1 = 1;
     while (std::exp(-s1*s1/(4.*alpha1)) > 1e-60)
@@ -96,27 +102,54 @@ InitAcousticVorticityPulse::Data::Data()
     }
 }
 
-Real InitAcousticVorticityPulse::Func::eta(const RealVector& coord, const Real& t) const
+Real InitAcousticVorticityPulse::eta(const RealVector& coord, const Real& t) const
 {
   return std::sqrt( (coord[XX]-m_data.u0*t)*(coord[XX]-m_data.u0*t) + coord[YY]*coord[YY]);
 }
 
 /// Actual function to be integrated
-Real InitAcousticVorticityPulse::Func::operator()(Real lambda) const
+Real InitAcousticVorticityPulse::PressureIntegrand::operator()(Real lambda) const
 {
-  return std::exp(-lambda*lambda/(4.*m_data.alpha1))*std::cos(lambda*m_time)*j0(lambda*eta(m_coord,m_time))*lambda;
+  return std::exp(-lambda*lambda/(4.*m_data.alpha1))*std::cos(lambda*m_data.time)*j0(lambda*m_data.eta)*lambda;
+}
+
+/// Actual function to be integrated
+Real InitAcousticVorticityPulse::VelocityIntegrand::operator()(Real lambda) const
+{
+  return std::exp(-lambda*lambda/(4.*m_data.alpha1))*std::sin(lambda*m_data.time)*j1(lambda*m_data.eta)*lambda;
 }
 
 
+RealVector InitAcousticVorticityPulse::compute_velocity(const RealVector& coord, const Real& t)
+{
+  m_data.time = t;
+  m_data.eta = eta(coord,t);
+  Real x_vort = (coord[XX]-67.) - m_data.u0*t;
+  Real y_vort = coord[YY];
+
+  RealVector u(2);
+  Real integral = integrate( VelocityIntegrand(m_data), m_data.s0,m_data.s1);
+  u[XX] = (coord[XX]-m_data.u0*t)/(2.*m_data.alpha1*m_data.eta) * integral + 0.04*y_vort*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
+  u[YY] = (coord[YY]            )/(2.*m_data.alpha1*m_data.eta) * integral - 0.04*x_vort*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
+  return u;
+}
+
 Real InitAcousticVorticityPulse::compute_pressure(const RealVector& coord, const Real& t)
 {
-  return 1./(2.*m_data.alpha1) * integrate( Func(coord, t, m_data), m_data.s0,m_data.s1);
+  m_data.time = t;
+  m_data.eta = eta(coord,t);
+  Real x_vort = (coord[XX]-67.) - m_data.u0*t;
+  Real y_vort = coord[YY];
+  return 1./(2.*m_data.alpha1) * integrate( PressureIntegrand(m_data), m_data.s0,m_data.s1);
 }
 
 Real InitAcousticVorticityPulse::compute_density(const Real& pressure, const RealVector& coord, const Real& t)
 {
-  Real x = (coord[XX]-67.) - m_data.u0*t;
-  return pressure + 0.1*std::exp(-m_data.alpha2*(x*x+coord[YY]*coord[YY]));
+  m_data.time = t;
+  m_data.eta = eta(coord,t);
+  Real x_vort = (coord[XX]-67.) - m_data.u0*t;
+  Real y_vort = coord[YY];
+  return pressure + 0.1*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
 }
 
 

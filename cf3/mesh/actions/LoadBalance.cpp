@@ -32,15 +32,18 @@ common::ComponentBuilder < LoadBalance, MeshTransformer, mesh::actions::LibActio
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef CF3_HAVE_PTSCOTCH
-#ifndef CF3_HAVE_ZOLTAN
+LoadBalance::LoadBalance( const std::string& name ) :
+  MeshTransformer(name)
+#if (defined CF3_HAVE_PTSCOTCH)
+  ,m_partitioner(create_component("partitioner", "cf3.mesh.ptscotch.Partitioner"))
+#elif (defined CF3_HAVE_ZOLTAN)
+  ,m_partitioner(create_component("partitioner", "cf3.mesh.zoltan.Partitioner"))
+#endif
+
+#if ( !defined CF3_HAVE_PTSCOTCH ) && ( !defined CF3_HAVE_ZOLTAN )
 #warning "There is no partitioner available (Zoltan or PT-Scotch). Load-balancing will not be possible."
 #define CF3_MESH_LOADBALANCE_PARTITIONER_UNAVAILABLE
 #endif
-#endif
-
-LoadBalance::LoadBalance( const std::string& name ) :
-  MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
@@ -49,9 +52,9 @@ LoadBalance::LoadBalance( const std::string& name ) :
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
-#if defined (CF3_HAVE_PTSCOTCH)
+#if (defined CF3_HAVE_PTSCOTCH)
   m_partitioner = create_component("partitioner", "cf3.mesh.ptscotch.Partitioner")->handle<MeshTransformer>();
-#elif defined (CF3_HAVE_ZOLTAN)
+#elif (defined CF3_HAVE_ZOLTAN)
   m_partitioner = create_component("partitioner", "cf3.mesh.zoltan.Partitioner")->handle<MeshTransformer>();
   m_partitioner->options().configure_option("graph_package", std::string("PHG"));
 #endif

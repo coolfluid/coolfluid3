@@ -73,7 +73,7 @@ void Interpolator::configure_stencil_computer()
 {
   if (is_not_null(m_stencil_computer))
     remove_component(m_stencil_computer->name());
-  m_stencil_computer = make_handle(build_component_abstract_type<StencilComputer>(options().option("stencil_computer").value<std::string>(),"stencil_computer"));
+  m_stencil_computer = create_component<StencilComputer>(options().option("stencil_computer").value<std::string>(),"stencil_computer");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -40,9 +40,6 @@ namespace core {
 
   public:
 
-
-
-
     /// @brief Constructor
     /// @param name Node name
     NRoot(const std::string & name);
@@ -86,7 +83,7 @@ namespace core {
 
   private slots:
 
-    void disconnected(bool requested);
+    void network_disconnected( common::SignalArgs & args );
 
   protected:
 
@@ -98,7 +95,7 @@ namespace core {
   private slots:
 
     /// @brief Slot called when the client is connected to the server.
-    void connected_to_server();
+    void network_connected(common::SignalArgs &);
 
   private :
 
@@ -111,7 +108,7 @@ namespace core {
 
     /// @brief Method called when the server sends a shutdown event.
     /// @param node Signal parameters. This parameter is not used.
-    void shutdown(common::SignalArgs & node);
+    void shutdown(common::SignalArgs & args);
 
     /// @brief Method called when the server confirms/rejects the client
     /// registration.

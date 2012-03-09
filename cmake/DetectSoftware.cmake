@@ -6,7 +6,7 @@ include( DetectBoost )
 ##############################################################################
 # finding MPI (essential) must be after the GlobalOptions
 
-find_package( MPI QUIET )
+include( DetectMPI )
 
 coolfluid_set_package( PACKAGE MPI DESCRIPTION "parallel communication" )
 

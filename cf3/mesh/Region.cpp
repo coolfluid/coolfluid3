@@ -19,6 +19,8 @@
 #include "common/DynTable.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -58,8 +60,22 @@ Elements& Region::create_elements(const std::string& element_type_name, Dictiona
   Handle< Component > celems = get_child(name);
   if ( is_null(celems) )
   {
-    Handle<Elements> elements = create_component<Elements>(name);
+    Handle<Elements> elements;
+
+    boost::shared_ptr<ElementType> elem_type = boost::dynamic_pointer_cast<ElementType>(build_component( element_type_name, element_type_name ));
+
+    if(is_null(elem_type))
+      throw BadPointer(FromHere(),"");
+
+    if (elem_type->dimensionality() == elem_type->dimension())
+      elements = create_component<Cells>(name);
+    else if (elem_type->dimensionality() == elem_type->dimension()-1)
+      elements = create_component<Faces>(name);
+    else
+      throw NotImplemented(FromHere(), "Edge elements are not implemented yet");
+
     elements->initialize(element_type_name,nodes);
+
     return *elements;
   }
   else
@@ -68,21 +84,46 @@ Elements& Region::create_elements(const std::string& element_type_name, Dictiona
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Region::global_elements_count() const
+Uint Region::global_elements_count(bool include_ghost_elems) const
 {
   Uint elem_count = 0;
-  boost_foreach (const Entities& elements, elements_range() )
-    elem_count += elements.glb_size();
+  if(include_ghost_elems)
+  {
+    boost_foreach (const Entities& elements, elements_range() )
+      elem_count += elements.glb_size();
+  }
+  else
+  {
+    throw NotImplemented(FromHere(),"TODO");
+  }
   return elem_count;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Region::recursive_elements_count() const
+Uint Region::recursive_elements_count(bool include_ghost_elems) const
 {
   Uint elem_count = 0;
-  boost_foreach (const Entities& elements, elements_range() )
-    elem_count += elements.size();
+  if(include_ghost_elems)
+  {
+    boost_foreach (const Entities& elements, elements_range() )
+      elem_count += elements.size();
+  }
+  else
+  {
+    Uint nb_ghost;
+    boost_foreach (const Entities& elements, elements_range() )
+    {
+      elem_count += elements.size();
+
+      // Count ghosts elements and subtract
+      nb_ghost = 0;
+      for (Uint e=0; e<elements.size(); ++e)
+        if (elements.is_ghost(e))
+          ++nb_ghost;
+      elem_count -= nb_ghost;
+    }
+  }
   return elem_count;
 }
 

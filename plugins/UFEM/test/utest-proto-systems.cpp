@@ -25,12 +25,14 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "mesh/MeshGenerator.hpp"
 
 #include "UFEM/LinearSolverUnsteady.hpp"
-#include "UFEM/TimeLoop.hpp"
 #include "UFEM/Tags.hpp"
 #include "solver/actions/ZeroLSS.hpp"
 #include "solver/actions/SolveLSS.hpp"
@@ -75,6 +77,9 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
   lss.options().configure_option("solver", std::string("Trilinos"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  
+  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
@@ -90,7 +95,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
     << create_proto_action("Initialize", nodes_expression(v = initial_temp))
     <<
     (
-      allocate_component<UFEM::TimeLoop>("TimeLoop")
+      time_loop
       << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
       << create_proto_action
       (
@@ -114,6 +119,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
       << bc
       << allocate_component<solver::actions::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(v += solver.solution(v)))
+      << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
     );
 
   // Setup physics

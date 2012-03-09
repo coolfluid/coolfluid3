@@ -240,7 +240,8 @@ void Quad2D::compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, co
 
 bool Quad2D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 {
-  throw common::NotImplemented(FromHere(),"Implemented but untested");
+  //  throw common::NotImplemented(FromHere(),"Implemented but untested");
+
   LagrangeP1::Quad2D::NodesT nodes_p1;
   nodes_p1 << nodes(0,XX) , nodes(0,YY), nodes(1,XX) , nodes(1,YY), nodes(2,XX) , nodes(2,YY), nodes(3,XX) , nodes(3,YY);
   return LagrangeP1::Quad2D::is_coord_in_element(coord,nodes_p1);
@@ -250,7 +251,12 @@ bool Quad2D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 
 void Quad2D::compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mapped_coord)
 {
-  throw common::NotImplemented(FromHere(),"Implemented but untested");
+  //  throw common::NotImplemented(FromHere(),"Implemented but untested");
+  LagrangeP1::Quad2D::NodesT nodes_p1;
+  nodes_p1 << nodes(0,XX) , nodes(0,YY), nodes(1,XX) , nodes(1,YY), nodes(2,XX) , nodes(2,YY), nodes(3,XX) , nodes(3,YY);
+  LagrangeP1::Quad2D::compute_mapped_coordinate(coord,nodes_p1, mapped_coord);
+  return;
+
   // Axes of the local coordinate system, centered around the centroid and going through the center of each face
   SF::ValueT sf;
   SF::compute_value(CoordsT(1.,0.), sf);

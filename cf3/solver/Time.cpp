@@ -48,9 +48,9 @@ Time::Time ( const std::string& name  ) :
       .mark_basic();
 
 
-  options().add_option("time", m_current_time)
+  options().add_option("current_time", m_current_time)
       .description("Current time of the simulation")
-      .pretty_name("Time")
+      .pretty_name("Current Time")
       .link_to(&m_current_time)
       .mark_basic();
 

@@ -13,7 +13,10 @@
    )
 
   # Create the moc files
-  QT4_WRAP_CPP(coolfluid_ui_qwt_tab_moc_files ${coolfluid_ui_qwt_tab_moc_classes})
+  # -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -> fixes compilation of MOC files
+  # when Boost 1.48 is in use
+  QT4_WRAP_CPP(coolfluid_ui_qwt_tab_moc_files ${coolfluid_ui_qwt_tab_moc_classes}
+                 OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED )
 
   # Add the project files
   list( APPEND coolfluid_ui_qwt_tab_files

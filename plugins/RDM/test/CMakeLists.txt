@@ -3,10 +3,9 @@ set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTE
 ##########################################################################
 # unit tests
 
-list( APPEND utest-rdm-lda_cflibs coolfluid_rdm )
-list( APPEND utest-rdm-lda_files  utest-rdm-lda.cpp )
-
-coolfluid_add_unit_test( utest-rdm-lda )
+coolfluid_add_test( UTEST  utest-rdm-lda
+                    CPP    utest-rdm-lda.cpp
+                    LIBS   coolfluid_rdm )
 
 ##########################################################################
 # acceptance tests

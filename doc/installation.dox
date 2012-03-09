@@ -85,19 +85,23 @@ Other supported third party libraries of little use at the moment:
 
 @subsection _installation_install_deps Installation of dependencies
 To make life easier for you, we provide a script with the coolfluid sources that downloads and installs the
-required dependencies, but without any guarantee of success for your specific architecture.
+required dependencies, but without any guarantee of success for your specific architecture!
 It is also recommended to install the dependencies not in the system, but in your home directory where you have
 all the access-privileges (e.g. on high-performance computing clusters).
 
+@note
 Qt must be installed beforehand, (not through the script). Source code as well as pre-compiled binaries
 can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
 
 Continuing where we left off:
 @verbatim
 $> mkdir $CF3/deps
-$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=cmake,boost,openmpi,zoltan,trilinos,cgns,paraview
+$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=cmake,boost,openmpi,parmetis,zoltan,trilinos,cgns 
 @endverbatim
-It is self-explanatory that one can add or remove any of the arguments given after "openmpi".
+It is self-explanatory that one can add or remove any of the arguments given after "openmpi".\n
+\n
+Please check $CF3/kernel/tools/install-deps.pl --help for all available options of this script
+Use the option "--dry-run" to check what the script will do normally, without actually doing anything.
 
 
 @subsection _installation_export_dependencies Export dependencies
@@ -133,7 +137,7 @@ Unlike COOLFluiD 2, there is no prepare.pl script. The developer must now call C
 CMake is a cross platform configuration/build system. The developer is advised to read the <a href="http://www.cmake.org/cmake/help/documentation.html">CMake documentation</a> for advanced configuration.
 @verbatim
 $> cd $CF3/build
-$> cmake ../kernel -DDEPS_ROOT=$CF3/deps
+$> cmake -DDEPS_ROOT=$CF3/deps    $CF3/kernel
 @endverbatim
 
 @subsubsection _installation_build_type_options Build type options
@@ -150,12 +154,17 @@ Available build types are:
 
 @subsubsection _installation_some_more_configuration_options Some more configuration options
 
+To force a specific compiler (MUST BE MPI), or in case the automatic CMake configuration fails
 @verbatim
--DCF3_CXX_FLAGS="-march=Core2"
--DCF3_SKIP_FORTRAN=ON 
--DCF3_ENABLE_WARNINGS=OFF
--DCF3_ENABLE_SANDBOX=ON
--DCF3_ENABLE_GUI=OFF
+-DMPI_CC_COMPILER=$CF3/deps/bin/mpicc
+-DMPI_CXX_COMPILER=$CF3/deps/bin/mpicxx
+@endverbatim
+
+@verbatim
+-DCF3_CXX_FLAGS="-march=Core2"       # Architecture optimization for Core2
+-DCF3_SKIP_FORTRAN=ON                # When you don't need or don't have fortran installed
+-DCF3_ENABLE_WARNINGS=OFF            # For users that don't want to see all the warnings
+-DCF3_ENABLE_GUI=OFF                 # When the gui is not to be built
 @endverbatim
 
 @subsubsection _installation_customizing_configuration_further Customizing configuration further
@@ -165,7 +174,8 @@ Calling the command
 $> cd $CF3/build
 $> ccmake ./
 @endverbatim
-This will show the interactive CMake configuration, where all available options are visible and can be changed. Press 'c' to configure, and afterwards 'g' to generate the build files.
+This will show the interactive CMake configuration, where all available options are visible and can be changed. 
+Press 'c' to configure, and afterwards 'g' to generate the build files.
 
 @subsection _installation_compiling_coolfluid Compiling COOLFluiD
 
@@ -181,7 +191,7 @@ with the @c "-j2" assigning 2 processes to the compilation (e.g. for dual core)
 Alternately the CMake argument @c -G"Xcode" can be used:
 @verbatim
 $> cd $CF3/build
-$> cmake ../kernel -DDEPS_ROOT=$CF3/deps -G"Xcode"
+$> cmake -DDEPS_ROOT=$CF3/deps -G"Xcode"  $CF3/kernel
 @endverbatim 
 This will generate an <a href="http://developer.apple.com/xcode/">Xcode</a> project instead of  makefiles. Xcode comes with a debugger and other nice features to help developers.
 @note Xcode version 4 is found to be nearly unusable due to high memory requirements at the "indexing" stage, version 3 is recommended.

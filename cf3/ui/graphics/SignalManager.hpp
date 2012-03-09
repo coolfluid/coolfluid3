@@ -1,3 +1,4 @@
+
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
@@ -31,6 +32,8 @@ namespace graphics {
 
   //////////////////////////////////////////////////////////////////////////////
 
+  class SignatureDialog;
+
   class SignalManager : public QObject
   {
     Q_OBJECT
@@ -50,13 +53,15 @@ namespace graphics {
 
     void action_hovered();
 
-    void signal_signature(common::SignalArgs & node);
+    void signal_signature(cf3::common::SignalArgs &node);
 
     void dialog_finished(int result);
 
   private:
 
     QMenu * m_menu;
+
+    SignatureDialog * m_dialog;
 
     Handle< core::CNode > m_node;
 

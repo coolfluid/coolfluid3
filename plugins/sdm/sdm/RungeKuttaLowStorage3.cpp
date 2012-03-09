@@ -210,6 +210,7 @@ void RungeKuttaLowStorage3::execute()
     // - H
     // - time.dt()
 
+    /// // Use convention indexes start at 1
     /// S1 := U(t=n)   S2 := 0   S3 := U(t=n)
     /// for i = 2:m+1 do
     ///     S2 := S2 + delta(i-1)*S1

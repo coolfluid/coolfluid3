@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
   Mesh& mesh = meshgenerator->generate();
 
 
-  CFinfo << "elements count = " << mesh.topology().recursive_elements_count() << CFendl;
+  CFinfo << "elements count = " << mesh.topology().recursive_elements_count(true) << CFendl;
   CFinfo << "nodes count    = " << mesh.topology().recursive_nodes_count() << CFendl;
 
   Uint nb_ghosts=0;
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
   Mesh& mesh = meshgenerator->generate();
 
 
-  CFinfo << "elements count = " << mesh.topology().recursive_elements_count() << CFendl;
+  CFinfo << "elements count = " << mesh.topology().recursive_elements_count(true) << CFendl;
   CFinfo << "nodes count    = " << mesh.topology().recursive_nodes_count() << CFendl;
 
   Uint nb_ghosts=0;

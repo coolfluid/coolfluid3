@@ -259,10 +259,12 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
   }
 
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
-  std::vector<Handle< Field > > fields;
-  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
-  writer.set_fields(fields);
-  writer.write_from_to(mesh, URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  std::vector<URI> fields;
+  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
+  writer.options().configure_option("mesh",mesh.handle<Mesh>());
+  writer.options().configure_option("fields",fields);
+  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.execute();
 }
 
 // Check the volume results
@@ -287,10 +289,12 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   }
 
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
-  std::vector<Handle< Field > > fields;
-  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
-  writer.set_fields(fields);
-  writer.write_from_to(mesh, URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  std::vector<URI> fields;
+  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
+  writer.options().configure_option("fields",fields);
+  writer.options().configure_option("mesh",mesh.handle<Mesh>());
+  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.execute();
 }
 
 

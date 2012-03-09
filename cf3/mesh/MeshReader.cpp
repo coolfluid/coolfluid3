@@ -41,9 +41,21 @@ using namespace common::XML;
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshReader::MeshReader ( const std::string& name  ) :
-  Component ( name )
+  common::Action( name )
 {
   mark_basic();
+
+  options().add_option("mesh",m_mesh)
+      .pretty_name("Mesh")
+      .description("Mesh to read into")
+      .link_to(&m_mesh)
+      .mark_basic();
+
+  options().add_option("file",m_file_path)
+      .pretty_name("File")
+      .description("File to read")
+      .mark_basic()
+      .link_to(&m_file_path);
 
   // signals
   regist_signal( "read" )
@@ -57,6 +69,24 @@ MeshReader::MeshReader ( const std::string& name  ) :
 
 MeshReader::~MeshReader()
 {
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MeshReader::execute()
+{
+  if (is_null(m_mesh))
+    throw SetupError(FromHere(), "Mesh is not configured");
+
+  // Call the concrete implementation
+  do_read_mesh_into(m_file_path, *m_mesh);
+
+  // Fix global numbering
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
+
+  // Raise an event to indicate that a mesh was loaded happened
+  m_mesh->raise_mesh_loaded();
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -103,30 +133,11 @@ void MeshReader::signal_read( SignalArgs& node  )
 
 void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 {
-  // Call the concrete implementation
+  options().configure_option("file",path);
+  options().configure_option("mesh",mesh.handle<Mesh>());
 
-  do_read_mesh_into(path, mesh);
-
-  // Fix global numbering
-  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
-
-  // Raise an event to indicate that a mesh was loaded happened
-  mesh.raise_mesh_loaded();
+  execute();
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-//Handle< Mesh > MeshReader::create_mesh_from(const URI& file)
-//{
-//  // Create the mesh
-//  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>("mesh") );
-
-//  // Call implementation
-//  do_read_mesh_into(file,*mesh);
-
-//  // return the mesh
-//  return mesh;
-//}
 
 //////////////////////////////////////////////////////////////////////////////
 

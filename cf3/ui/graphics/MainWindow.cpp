@@ -21,6 +21,7 @@
 
 #include <boost/program_options.hpp>
 
+#include "common/Signal.hpp"
 #include "common/XML/SignalFrame.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
@@ -143,10 +144,13 @@ MainWindow::MainWindow()
           SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(new_log_message(QString, uiCommon::LogMessage::Type)));
 
-  connect(root, SIGNAL(connected()), this, SLOT(connected_to_server()));
+  connect(root, SIGNAL(connected()), this, SLOT(network_connected()));
 
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
-          this, SLOT(disconnected_from_server(bool)));
+  ThreadManager::instance().network().signal( "network_disconnected" )
+      ->connect( boost::bind( &MainWindow::network_disconnected, this, _1));
+
+//  connect(&ThreadManager::instance().network(), SIGNAL(network_disconnected(bool)),
+//          this, SLOT(network_disconnected(bool)));
 
   connect(NTree::global().get(),
           SIGNAL(current_index_changed(QModelIndex,QModelIndex)),
@@ -236,6 +240,14 @@ void MainWindow::build_menus()
   action = m_mnu_file->addAction("&Update tree", NTree::global().get(),
                                 SLOT(update_tree()), tr("ctrl+u") );
   m_actions[ACTION_UPDATE_TREE] = action;
+
+  m_mnu_file->addSeparator();
+
+  //-----------------------------------------------
+
+  action = m_mnu_file->addAction("&Quit", this,
+                                SLOT(quit()), tr("ctrl+Q"));
+  m_actions[ACTION_QUIT] = action;
 
   //-----------------------------------------------
   //-----------------------------------------------
@@ -407,7 +419,12 @@ void MainWindow::closeEvent(QCloseEvent * event)
 void MainWindow::quit()
 {
 //  NCore::globalCore()->disconnectFromServer(false);
-  qApp->exit(0);
+  QCloseEvent e;
+
+  closeEvent( &e );
+
+  if( e.isAccepted() )
+    qApp->exit(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -458,20 +475,25 @@ void MainWindow::new_exception(const QString & msg)
 void MainWindow::connect_to_server()
 {
   SignalFrame frame("connect", "", "");
-  SignatureDialog dlg(this);
+  SignalOptions options( frame );
+  SignatureDialog dlg( this );
 
-  frame.set_option("Hostname", std::string("localhost"),
-                   "Name of the computer that hosts the server.");
-  frame.set_option("Port number", cf3::Uint(62784),
-                   "The port number the server is listening to.");
+  options.add_option( "hostname", std::string("localhost") )
+      .pretty_name( "Hostname" )
+      .description( "Name of the computer that hosts the server.");
 
-  if(dlg.show(frame.main_map.content, "Connect to server", true))
+  options.add_option( "port_number",cf3::Uint(62784) )
+      .pretty_name( "Port Number" )
+      .description( "The port number the server is listening to." );
+
+  options.flush();
+
+  if( dlg.show( options.main_map.content, "Connect to server", true) )
   {
-    QString hostname = frame.get_option<std::string>("Hostname").c_str();
-    quint16 port = frame.get_option<cf3::Uint>("Port number");
+    std::string hostname = options.main_map.get_value<std::string>( "hostname" );
+    quint16 port = options.main_map.get_value<cf3::Uint>( "port_number" );
 
-
-    ThreadManager::instance().network().connect_to_host(hostname, port);
+    ThreadManager::instance().network().connect_to_host( hostname, port );
   }
 }
 
@@ -484,16 +506,17 @@ void MainWindow::disconnect_from_server()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::connected_to_server()
+void MainWindow::network_connected()
 {
   this->set_connected_state(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnected_from_server(bool requested)
+void MainWindow::network_disconnected( SignalFrame & )
 {
   this->set_connected_state(false);
+  NLog::global()->add_message("Disconnected from the server.");
   NTree::global()->clear_tree();
 }
 

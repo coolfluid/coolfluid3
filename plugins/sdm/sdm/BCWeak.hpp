@@ -63,7 +63,7 @@ protected: // configuration
 
     face_elem = shared_caches().template get_cache<SFDElement>("face_elem");
     face_elem->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
-    inner_cell = shared_caches().template get_cache<SFDElement>();
+    inner_cell = shared_caches().template get_cache<SFDElement>("inner_cell");
     inner_cell->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
     face_pt_solution              = shared_caches().template get_cache< SolutionPointField<NEQS,NDIM> >(sdm::Tags::solution());
     face_pt_solution->options().configure_option("field",solution_field().uri());
@@ -77,11 +77,11 @@ protected: // configuration
 
     inner_cell_face_data.resize(face_elem->get().sf->nb_nodes());
     for(Uint face_pt=0; face_pt<inner_cell_face_data.size(); ++face_pt)
-      inner_cell_face_data[face_pt] = boost::shared_ptr<PHYSDATA>(new PHYSDATA);
+      inner_cell_face_data[face_pt] = boost::shared_ptr<PhysData>(new PhysData);
 
     boundary_face_data.resize(face_elem->get().sf->nb_nodes());
     for(Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
-      boundary_face_data[face_pt] = boost::shared_ptr<PHYSDATA>(new PHYSDATA);
+      boundary_face_data[face_pt] = boost::shared_ptr<PhysData>(new PhysData);
 
   }
 
@@ -109,89 +109,63 @@ protected: // configuration
     inner_cell->get().unlock();
   }
 
-  virtual void compute_solution(const PHYSDATA& inner_cell_data, const RealVectorNDIM& boundary_face_normal, RealVectorNEQS& boundary_face_solution) = 0;
+  virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& boundary_face_normal, RealVectorNEQS& boundary_face_solution) = 0;
 
-  void compute_face()
+
+  void set_connectivity()
   {
-    // connectivity
-    inner_cell_face_pt_idx.resize(inner_cell->get().sf->face_flx_pts(cell_face_nb).size());
-    boundary_face_pt_idx.resize(inner_cell->get().sf->face_flx_pts(cell_face_nb).size());
+    Uint nb_face_pts = inner_cell->get().sf->face_flx_pts(cell_face_nb).size();
+
     inner_cell_face_pt_idx = inner_cell->get().sf->face_flx_pts(cell_face_nb);
-    for (Uint face_pt=0; face_pt<inner_cell_face_pt_idx.size(); ++face_pt)
-      boundary_face_pt_idx[face_pt] = face_pt;
+    boundary_face_pt_idx.resize(nb_face_pts);
 
-    // inner cell data
-    cf3_assert(inner_cell_face_data[0].get() != inner_cell_face_data[1].get());
-    for (Uint face_pt=0; face_pt<inner_cell_face_pt_idx.size(); ++face_pt)
+    mesh::Field::View cell_coords   = solution_field().dict().coordinates().view(inner_cell->get().space->connectivity()[inner_cell->get().idx]);
+    std::vector<RealVector> cell_face_coords(nb_face_pts,RealVector(NDIM));
+    for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
     {
-      compute_flx_pt_phys_data(inner_cell->get(),inner_cell_face_pt_idx[face_pt],*inner_cell_face_data[face_pt]);
+      inner_cell->get().reconstruct_from_solution_space_to_flux_points[inner_cell_face_pt_idx[face_pt]](cell_coords,cell_face_coords[face_pt]);
     }
-
-    // boundary face data
-    for (Uint face_pt=0; face_pt<boundary_face_data.size(); ++face_pt)
+    RealMatrix bdry_face_coords = face_elem->get().space->get_coordinates(face_elem->get().idx);
+    for (Uint bdry_face_pt=0; bdry_face_pt<nb_face_pts; ++bdry_face_pt)
     {
-//        common::TableConstRow<Uint>::type field_index = neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx];
-//        std::cout << "convective_term -- " << neighbour_elem->get().entities->uri() << "[" << neighbour_elem->get().idx << "]" << " : face_points = " << field_index[right_flx_pt_idx[face_pt]] << "  ---> " ;
-
-      boundary_face_pt_idx[face_pt] = face_pt;
-
-
-      mesh::Field::View boundary_face_pt_solution = solution_field().view(face_elem->get().space->connectivity()[face_elem->get().idx]);
-      for (Uint v=0; v<NEQS; ++v)
-        boundary_face_data[face_pt]->solution[v] = boundary_face_pt_solution[face_pt][v];
-      boundary_face_data[face_pt]->coord = face_elem->get().space->get_coordinates(face_elem->get().idx).row(face_pt);
-    }
-
-
-    boost::shared_ptr<PHYSDATA> tmp_data;
-    Uint tmp_idx;
-    for (Uint face_pt=0; face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++face_pt)
-    {
-      Uint bdry_face_pt=0;
-      bool matched=false;
-      for (; bdry_face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++bdry_face_pt)
+      const RealVector& bdry_face_pt_coord = bdry_face_coords.row(bdry_face_pt);
+      bool matched = false;
+      for (Uint inner_cell_face_pt=0; inner_cell_face_pt<nb_face_pts; ++inner_cell_face_pt)
       {
-//        RealMatrix coords = face_elem->get().space->get_coordinates(face_elem->get().idx);
-//        cf3_assert(bdry_face_pt<coords.rows());
-//        const RealVector2& coord = coords.row(bdry_face_pt);
         bool m=true;
         for (Uint d=0; d<NDIM; ++d)
-        {
-          m = m && ( std::abs(boundary_face_data[bdry_face_pt]->coord[d] - inner_cell_face_data[face_pt]->coord[d]) < 20*math::Consts::eps() );
-        }
+          m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 100*math::Consts::eps() );
         if ( m )
         {
           matched=true;
+          boundary_face_pt_idx[inner_cell_face_pt] = bdry_face_pt;
           break;
         }
       }
       if (!matched)
       {
-        std::cout << face_elem->get().entities->uri() << "["<<face_elem->get().idx << "] boundary_face_data[0]->coord = " << boundary_face_data[0]->coord.transpose() << std::endl;
-        std::cout << inner_cell->get().entities->uri() << "["<<inner_cell->get().idx << "] inner_cell_face_data[0]->coord = " << inner_cell_face_data[0]->coord.transpose() << std::endl;
+        std::cout << "cell_face_pts:\n";
+        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+          std::cout << cell_face_coords[face_pt].transpose() << std::endl;
+        std::cout << "bdry_face_pts:\n";
+        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+          std::cout << bdry_face_coords.row(face_pt) << std::endl;
+
       }
-      cf3_assert(matched);
-
-      tmp_data=boundary_face_data[face_pt];
-      tmp_idx=boundary_face_pt_idx[face_pt];
-      boundary_face_data[face_pt]=boundary_face_data[bdry_face_pt];
-      boundary_face_pt_idx[face_pt]=boundary_face_pt_idx[bdry_face_pt];
-      boundary_face_data[bdry_face_pt]=tmp_data;
-      boundary_face_pt_idx[bdry_face_pt]=tmp_idx;
+      cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
     }
-
-//    for (Uint face_pt=0; face_pt<inner_cell->get().sf->face_flx_pts(cell_face_nb).size(); ++face_pt)
-//    {
-//      cf3_assert(inner_cell_face_data[face_pt]->coord == boundary_face_data[face_pt]->coord);
-//    }
+  }
 
 
-//    std::cout << "check reconstruction:" << std::endl;
-//    for (Uint face_pt=0; face_pt<inner_cell_face_pt_idx.size(); ++face_pt)
-//    {
-//      std::cout << inner_cell_face_data[face_pt]->solution.transpose() << std::endl;
-//    }
+  void compute_face()
+  {
+    set_connectivity();
 
+    Uint nb_face_pts = inner_cell->get().sf->face_flx_pts(cell_face_nb).size();
+
+    // inner cell data
+    for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+      compute_flx_pt_phys_data(inner_cell->get(),inner_cell_face_pt_idx[face_pt],*inner_cell_face_data[face_pt]);
   }
 
   virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PHYSDATA& point_data )
@@ -207,8 +181,8 @@ protected: // configuration
 protected: // fast-access-data (for convenience no "m_" prefix)
 
   // Data
-std::vector<boost::shared_ptr< PHYSDATA > > inner_cell_face_data;
-std::vector<boost::shared_ptr< PHYSDATA > > boundary_face_data;
+std::vector<boost::shared_ptr< PhysData > > inner_cell_face_data;
+std::vector<boost::shared_ptr< PhysData > > boundary_face_data;
 std::vector<Uint> inner_cell_face_pt_idx;
 std::vector<Uint> boundary_face_pt_idx;
 

@@ -301,11 +301,16 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   }
   if(missing_cells.size())
   {
-    std::cout << PERank << "could not interpolate " << missing_cells.size() << " coordinates, most likely due to issue#130, or point not on source. Values set to zero for coordinates : ";
+    std::cout << PERank << "could not interpolate " << missing_cells.size() << " coordinates because point was not found on source mesh. Values set to zero for coordinates : ";
     for(Uint i=0; i<missing_cells.size(); ++i)
     {
+      std::cout << "(";
       for(Uint d=0; d<target_dim; ++d)
-        std::cout << coordinates[missing_cells[i]][d] << "  ";
+      {
+        if (d!=0) std::cout << " ";
+        std::cout << coordinates[missing_cells[i]][d];
+      }
+      std::cout << ")  ";
     }
     std::cout << std::endl;
   }

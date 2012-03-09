@@ -20,10 +20,12 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
 
 #include "Tags.hpp"
-#include "TimeLoop.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -38,12 +40,6 @@ ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
 NavierStokes::NavierStokes(const std::string& name) :
   LinearSolverUnsteady(name)
 {
-  m_p_update_history.reserve(100000);
-  m_u_update_history.reserve(100000);
-
-  properties().add_property("p_update_history", m_p_update_history);
-  properties().add_property("u_update_history", m_u_update_history);
-
   options().add_option("initial_pressure", 0.)
     .description("Initial condition for the pressure")
     .pretty_name("Initial pressure")
@@ -80,6 +76,9 @@ NavierStokes::NavierStokes(const std::string& name) :
   MeshTerm<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
 
+  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
+
   *this
     << create_proto_action("Initialize", nodes_expression(group
     (
@@ -91,7 +90,7 @@ NavierStokes::NavierStokes(const std::string& name) :
     )))
     <<
     ( // Time loop
-      allocate_component<TimeLoop>("TimeLoop")
+      time_loop
       << allocate_component<ZeroLSS>("ZeroLSS")
       << create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
       << create_proto_action
@@ -110,7 +109,8 @@ NavierStokes::NavierStokes(const std::string& name) :
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
+              _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(m_coeffs.mu)*m_coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+                                             + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
               _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u))         * N(u)          // Time, standard and SUPG
             ),
@@ -127,10 +127,9 @@ NavierStokes::NavierStokes(const std::string& name) :
         u2 = u1,
         u1 = u,
         u += solution(u),
-        p += solution(p),
-        boost::proto::lit(m_p_stats)(solution(p)),
-        boost::proto::lit(m_u_stats)(_norm(solution(u)))
+        p += solution(p)
       )))
+      << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
     );
 }
 
@@ -147,21 +146,6 @@ void NavierStokes::trigger_u()
   m_u0.resize(nb_comps);
   for(Uint i = 0; i != nb_comps; ++i)
     m_u0[i] = u_vec[i];
-}
-
-void NavierStokes::on_iteration_increment()
-{
-  m_p_update_history.push_back(boost::accumulators::max(m_p_stats));
-  m_u_update_history.push_back(boost::accumulators::max(m_u_stats));
-
-  m_u_stats = StatsT();
-  m_p_stats = StatsT();
-
-  if((time().current_time() - time().end_time()) < time().dt())
-  {
-    properties()["p_update_history"] = m_p_update_history;
-    properties()["u_update_history"] = m_u_update_history;
-  }
 }
 
 

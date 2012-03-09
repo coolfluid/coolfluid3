@@ -8,18 +8,22 @@ project( Physics CXX )
 
 coolfluid_define_plugin( Physics ${CMAKE_CURRENT_SOURCE_DIR} )
 
-coolfluid_find_orphan_files()
+if( CF3_PLUGIN_PHYSICS )
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+  coolfluid_find_orphan_files()
 
-# library NavierStokes
-add_subdirectory( NavierStokes )
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-# library Scalar
-add_subdirectory( Scalar )
+  # library NavierStokes
+  add_subdirectory( NavierStokes )
 
-# library LinEuler
-add_subdirectory( LinEuler )
+  # library Scalar
+  add_subdirectory( Scalar )
 
-# testing tree
-add_subdirectory( test )
+  # library LinEuler
+  add_subdirectory( LinEuler )
+
+  # testing tree
+  add_subdirectory( test )
+
+endif()

@@ -273,7 +273,8 @@ struct VariablesDescriptor::Implementation
 
   std::string variable_property_name(std::string var_name)
   {
-    boost::to_lower(var_name);
+    /// @note from Willem Deconinck: following line is commented because this forbids case sensitive variable names
+    // boost::to_lower(var_name);
     return var_name + "_variable_name";
   }
 

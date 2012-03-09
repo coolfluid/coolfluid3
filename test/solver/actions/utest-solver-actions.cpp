@@ -208,14 +208,15 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  std::vector<Handle< Field > > fields;
-  fields.push_back(volumes.handle<Field>());
-  fields.push_back(field.handle<Field>());
-  fields.push_back(areas.handle<Field>());
+  std::vector<URI> fields;
+  fields.push_back(volumes.uri());
+  fields.push_back(field.uri());
+  fields.push_back(areas.uri());
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
-
+  gmsh_writer->options().configure_option("fields",fields);
+  gmsh_writer->options().configure_option("mesh",mesh);
+  gmsh_writer->options().configure_option("file",URI("quadtriag.msh"));
+  gmsh_writer->execute();
 
   // root.remove_component( *mesh ); // mesh needed for next test
 }
@@ -249,11 +250,13 @@ BOOST_AUTO_TEST_CASE ( test_ForAllElementsT )
 
   compute_all_cell_volumes->execute();
 
-  std::vector<Handle< Field > > fields;
-  fields.push_back(field.handle<Field>());
+  std::vector<URI> fields;
+  fields.push_back(field.uri());
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(*mesh,"test_utest-actions_ForAllElementsT.msh");
+  gmsh_writer->options().configure_option("fields",fields);
+  gmsh_writer->options().configure_option("mesh",mesh);
+  gmsh_writer->options().configure_option("file",URI("test_utest-actions_ForAllElementsT.msh"));
+  gmsh_writer->execute();
 
   root.remove_component( *mesh );
 }

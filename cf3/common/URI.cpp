@@ -8,7 +8,6 @@
 
 #include <boost/assign/list_of.hpp> // for map_list_of
 #include <boost/tokenizer.hpp>
-#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -300,8 +299,20 @@ std::string URI::base_name() const
 
 void URI::cleanup()
 {
-  if(m_scheme == cf3::common::URI::Scheme::CPATH)
-    m_path = boost::regex_replace(m_path, boost::regex("//+"), "/");
+  // Regex crashes here on GCC 4.1, probably due to static variable cleanup inside boost. So we avoid using it.
+  if(m_scheme == cf3::common::URI::Scheme::CPATH && !m_path.empty())
+  {
+    const Uint path_size = m_path.size();
+    std::string cleaned_path;
+    cleaned_path.reserve(path_size);
+    cleaned_path.push_back(m_path[0]);
+    for(Uint i = 1; i != path_size; ++i)
+    {
+      if(m_path[i] != '/' || m_path[i-1] != '/')
+        cleaned_path.push_back(m_path[i]);
+    }
+    m_path = cleaned_path;
+  }
 }
 
 

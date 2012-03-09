@@ -12,11 +12,7 @@
 //header
 #include <boost/signals2/signal.hpp>
 
-/// @warning nasty fix !! resolves compilation with Boost 1.48.
-/// should be removed Qt's moc tool will be fixed.
-#ifndef Q_MOC_RUN
 #include "common/BoostArray.hpp"
-#endif
 
 #include "ui/core/CNode.hpp"
 #include "ui/QwtTab/LibQwtTab.hpp"
@@ -40,12 +36,8 @@ public: //typedefs
   typedef boost::shared_ptr<NPlotXY> Ptr;
   typedef boost::shared_ptr<NPlotXY const> ConstPtr;
 
-  /// @warning nasty fix !! resolves compilation with Boost 1.48.
-  /// should be removed Qt's moc tool will be fixed.
-#ifndef Q_MOC_RUN
   typedef boost::multi_array<Real, 2> PlotData;
   typedef boost::shared_ptr< PlotData > PlotDataPtr;
-#endif
 
 public:
 

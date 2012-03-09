@@ -77,6 +77,8 @@ namespace graphics {
 
       ACTION_RUN_SCRIPT,
 
+      ACTION_QUIT,
+
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
@@ -141,9 +143,9 @@ namespace graphics {
 
     void disconnect_from_server();
 
-    void connected_to_server();
+    void network_connected();
 
-    void disconnected_from_server(bool requested);
+    void network_disconnected( common::SignalArgs & args );
 
     void save_file_locally();
 

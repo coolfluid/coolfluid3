@@ -4,9 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QList>
-#include <QMutex>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/Signal.hpp"
@@ -17,8 +14,6 @@
 #include "common/XML/Protocol.hpp"
 
 #include "ui/uicommon/ComponentNames.hpp"
-
-#include "ui/server/ProcessingThread.hpp"
 
 #include "ui/server/ServerRoot.hpp"
 
@@ -35,22 +30,21 @@ namespace server {
 //////////////////////////////////////////////////////////////////////////////
 
 ServerRoot::ServerRoot()
-  : m_thread(nullptr),
-    m_root( Core::instance().root().handle<Component>() ),
+  : m_root( Core::instance().root().handle<Component>() ),
     m_core( new CCore() ),
-    m_manager( common::allocate_component<Manager>("PEManager") )
+    m_pe_manager( common::allocate_component<Manager>("PEManager") )
 {
   m_root->add_component(m_core);
 
   Handle< Component > tools = m_root->get_child("Tools");
 
-  tools->add_component( m_manager );
+  tools->add_component( m_pe_manager );
 
-  m_local_components << URI( SERVER_CORE_PATH, URI::Scheme::CPATH );
+  m_local_components.push_back( URI( SERVER_CORE_PATH, URI::Scheme::CPATH ) );
 
-  m_manager->mark_basic();
+  m_pe_manager->mark_basic();
 
-  m_manager->signal("signal_to_forward")
+  m_pe_manager->signal("signal_to_forward")
       ->connect( boost::bind(&ServerRoot::signal_to_forward, this, _1) );
 
 }
@@ -59,10 +53,7 @@ ServerRoot::ServerRoot()
 
 ServerRoot::~ServerRoot()
 {
-  if( is_not_null(m_thread) )
-    m_thread->quit();
 
-  delete m_thread;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -81,65 +72,49 @@ void ServerRoot::process_signal( const std::string & target,
                                  const std::string & frameid,
                                  SignalArgs & signal )
 {
-  if( m_local_components.contains(receiver) )
+  std::vector<URI>::iterator it;
+  it = std::find(m_local_components.begin(), m_local_components.end(), receiver);
+
+  if( it != m_local_components.end() ) // if the receiver is a local component
   {
-    if( m_mutex.tryLock() )
+    std::string message; // mesage for (N)ACK frame
+    bool success = false;
+
+    try
     {
-      m_doc.swap(signal.xml_doc);
-      m_current_client_id = clientid;
-      m_current_frame_id = frameid;
-      Handle< Component > receivingCompo = m_root->access_component_checked(receiver);
+      Handle< Component > comp = m_root->access_component_checked(receiver);
 
-      m_thread = new ProcessingThread(signal, target, receivingCompo);
-      QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
-      m_thread->start();
+      comp->call_signal(target, signal );
+
+      SignalFrame reply = signal.get_reply();
+
+      if( reply.node.is_valid() )
+      {
+        m_core->send_signal( signal );
+      }
+
+      success = true;
     }
-    else
+    catch(cf3::common::Exception & cfe)
     {
-      std::string message;
-      bool success = false;
-      //    bool
-
-      try
-      {
-        Handle< Component > comp = m_root->access_component_checked(receiver);
-
-        if( comp->signal(target)->is_read_only() )
-        {
-          comp->call_signal(target, signal );
-
-          SignalFrame reply = signal.get_reply();
-
-          if( reply.node.is_valid() )
-          {
-            m_core->send_signal( *signal.xml_doc.get() );
-          }
-
-          success = true;
-        }
-        else
-          message = "Server is busy.";
-      }
-      catch(cf3::common::Exception & cfe)
-      {
-        message = cfe.what();
-      }
-      catch(std::exception & stde)
-      {
-        message = stde.what();
-      }
-      catch(...)
-      {
-        message = "Unknown exception thrown during execution of action [" +
-            target + "] on component [" + receiver.path() + "].";
-      }
-
-      m_core->send_ack( clientid, frameid, success, message );
+      message = cfe.what();
     }
+    catch(std::exception & stde)
+    {
+      message = stde.what();
+    }
+    catch(...)
+    {
+      message = "Unknown exception thrown during execution of action [" +
+          target + "] on component [" + receiver.path() + "].";
+    }
+
+    m_core->send_ack( clientid, frameid, success, message );
+
   }
   else // the receiver is not a local component
   {
-    m_manager->send_to( "Workers", signal );
+    m_pe_manager->send_to( "Workers", signal );
   }
 }
 
@@ -147,39 +122,7 @@ void ServerRoot::process_signal( const std::string & target,
 
 void ServerRoot::signal_to_forward( common::SignalArgs & args )
 {
-  m_core->send_signal( *args.xml_doc.get() );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ServerRoot::finished ()
-{
-  XmlNode nodedoc = Protocol::goto_doc_node(*m_doc.get());
-  SignalFrame frame(nodedoc.content->first_node());
-  bool success = m_thread->success();
-  std::string message( m_thread->message() );
-
-  SignalFrame reply = frame.get_reply();
-
-  if( reply.node.is_valid() )
-  {
-    rapidxml::xml_attribute<>* attr = reply.node.content->first_attribute("type");
-    if( is_not_null(attr) && std::strcmp(attr->value(), Protocol::Tags::node_type_reply()) == 0)
-    {
-      m_core->send_signal(*m_doc.get());
-    }
-  }
-
-
-  // clean processing environment
-  delete m_thread;
-  m_thread = nullptr;
-  m_doc.reset();
-  m_mutex.unlock();
-
-  m_core->send_ack( m_current_client_id, m_current_frame_id, success, message );
-  m_current_client_id.clear();
-  m_current_frame_id.clear();
+  m_core->send_signal( args );
 }
 
 //////////////////////////////////////////////////////////////////////////////

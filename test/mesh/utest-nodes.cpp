@@ -24,7 +24,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/Dictionary.hpp"
+#include "mesh/ContinuousDictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  boost::shared_ptr<Dictionary> geometry = allocate_component<Dictionary>("geometry_fieds");
+  boost::shared_ptr<Dictionary> geometry = allocate_component<ContinuousDictionary>("geometry_fieds");
   BOOST_CHECK( is_not_null(geometry) );
 
   Handle<Field> coords = geometry->create_component<Field>("coordinates");

@@ -27,6 +27,9 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
+#include "math/MatrixTypesConversion.hpp"
+#include "math/Hilbert.hpp"
+
 #include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
@@ -37,6 +40,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/BoundingBox.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
@@ -101,6 +105,22 @@ void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh;
 
+  Handle<BoundingBox> global_bounding_box;
+
+  if (Handle<Component> found = mesh.get_child("global_bounding_box"))
+  {
+    global_bounding_box = found->handle<BoundingBox>();
+  }
+  if ( is_null(global_bounding_box)  )
+  {
+    global_bounding_box = mesh.create_component<BoundingBox>("global_bounding_box");
+    global_bounding_box->build(mesh);
+    global_bounding_box->make_global();
+    global_bounding_box->update_properties();
+  }
+
+  math::Hilbert compute_glb_idx(*global_bounding_box,20);
+
 //  PEProcessSortedExecute(-1,
 //    boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
 //    {
@@ -132,6 +152,7 @@ void GlobalNumbering::execute()
   }
 
   common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
+  RealVector coord_vec(coordinates.row_size());
 
   if ( is_null( mesh.geometry_fields().get_child("glb_node_hash") ) )
     mesh.geometry_fields().create_component<CVector_size_t>("glb_node_hash");
@@ -140,7 +161,10 @@ void GlobalNumbering::execute()
   Uint i(0);
   boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
   {
-    glb_node_hash.data()[i]=node_hash_value(to_vector(coords));
+//    glb_node_hash.data()[i]=node_hash_value(to_vector(coords));
+    math::copy(coords,coord_vec);
+    glb_node_hash.data()[i]=compute_glb_idx(coord_vec);
+
     if (m_debug)
       std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
@@ -160,7 +184,8 @@ void GlobalNumbering::execute()
       elements.geometry_space().put_coordinates(element_coordinates,elem_idx);
       RealVector centroid(elements.element_type().dimension());
       elements.element_type().compute_centroid(element_coordinates,centroid);
-      glb_elem_hash.data()[elem_idx]=elem_hash_value(element_coordinates);
+//      glb_elem_hash.data()[elem_idx]=elem_hash_value(element_coordinates);
+      glb_elem_hash.data()[elem_idx]=compute_glb_idx(centroid);
       if (m_debug)
         std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem "<< elements.uri().path() << "["<<elem_idx<<"] ("<<centroid.transpose()<<") to " << glb_elem_hash.data()[elem_idx] << std::endl;
 
@@ -179,6 +204,7 @@ void GlobalNumbering::execute()
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
 
+    glb_set.clear();
     boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
       CVector_size_t& glb_elem_hash = *Handle<CVector_size_t>(elements.get_child("glb_elem_hash"));
@@ -449,29 +475,29 @@ void GlobalNumbering::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t GlobalNumbering::node_hash_value(const RealMatrix& coords)
-{
-  std::size_t seed=0;
-  for (Uint i=0; i<coords.rows(); ++i)
-  for (Uint j=0; j<coords.cols(); ++j)
-  {
-    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-    boost::hash_combine(seed,1e-3*coords(i,j));
-  }
-  return seed;
-}
+//std::size_t GlobalNumbering::node_hash_value(const RealMatrix& coords)
+//{
+//  std::size_t seed=0;
+//  for (Uint i=0; i<coords.rows(); ++i)
+//  for (Uint j=0; j<coords.cols(); ++j)
+//  {
+//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
+//    boost::hash_combine(seed,1e-3*coords(i,j));
+//  }
+//  return seed;
+//}
 
-std::size_t GlobalNumbering::elem_hash_value(const RealMatrix& coords)
-{
-  std::size_t seed=123456789;
-  for (Uint i=0; i<coords.rows(); ++i)
-  for (Uint j=0; j<coords.cols(); ++j)
-  {
-    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-    boost::hash_combine(seed,1e-3*coords(i,j));
-  }
-  return seed;
-}
+//std::size_t GlobalNumbering::elem_hash_value(const RealMatrix& coords)
+//{
+//  std::size_t seed=123456789;
+//  for (Uint i=0; i<coords.rows(); ++i)
+//  for (Uint j=0; j<coords.cols(); ++j)
+//  {
+//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
+//    boost::hash_combine(seed,1e-3*coords(i,j));
+//  }
+//  return seed;
+//}
 
 //////////////////////////////////////////////////////////////////////////////
 

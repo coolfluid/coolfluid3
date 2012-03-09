@@ -410,7 +410,7 @@ void Reader::read_section(Region& parent_region)
       if (existing_region.properties().value<std::string>("cgns_section_name") == m_section.name)
       {
         existing_region.rename(properties().value<std::string>("cgns_section_name"));
-        existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count();
+        existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count(true);
         break;
       }
     }
@@ -469,7 +469,6 @@ void Reader::read_section(Region& parent_region)
 
     // Calculate the number of elements
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
-
 
     // Convert the CGNS element type to the CF element type
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"D";
@@ -644,7 +643,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
       {
         Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
-        if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
+        if (group_region->recursive_elements_count(true) == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
           group_region->rename(m_boco.name);
@@ -694,7 +693,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
       {
         Handle< Region > group_region = Handle<Region>(first_elements->parent());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
-        if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
+        if (group_region->recursive_elements_count(true) == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
           group_region->rename(m_boco.name);

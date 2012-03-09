@@ -41,8 +41,11 @@ public: // functions
 
   virtual void execute();
   
+  RealVector compute_velocity(const RealVector& coord, const Real& t);
   Real compute_pressure(const RealVector& coord, const Real& t);
   Real compute_density(const Real& pressure, const RealVector& coord, const Real& t);
+
+  Real eta(const RealVector& coord, const Real& t) const;
 
   struct Data
   {
@@ -50,30 +53,41 @@ public: // functions
     Real u0;            //!< advection speed
     Real alpha1;        //!< coefficient
     Real alpha2;        //!< coefficient
+    Real eta;
+    Real time;
 
     Real s0;  //!< integration lower bound
     Real s1;  //!< integration upper bound
   };
 
-  class Func
+  class PressureIntegrand
   {
   public:
-    Func(const RealVector& coord, const Real& time, const InitAcousticVorticityPulse::Data& data) :
-      m_coord(coord),
-      m_time(time),
+    PressureIntegrand(const InitAcousticVorticityPulse::Data& data) :
       m_data(data)
     {}
-
-    Real eta(const RealVector& coord, const Real& t) const;
 
     /// Actual function to be integrated
     Real operator()(Real lambda) const;
 
   private:
-    const RealVector& m_coord;
-    const Real& m_time;
     const InitAcousticVorticityPulse::Data& m_data;
   };
+
+  class VelocityIntegrand
+  {
+  public:
+    VelocityIntegrand(const InitAcousticVorticityPulse::Data& data) :
+      m_data(data)
+    {}
+
+    /// Actual function to be integrated
+    Real operator()(Real lambda) const;
+
+  private:
+    const InitAcousticVorticityPulse::Data& m_data;
+  };
+
 
 private: // data
 

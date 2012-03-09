@@ -35,8 +35,13 @@ coolfluid_add_test( ATEST      atest-sdm-euler-cylinder-2d
                     MPI        2
                     DEPENDS    copy-resources)
 
-coolfluid_add_test( ATEST      atest-sdm-lineuler-accousticpulse-2d
-                    PYTHON     atest-sdm-lineuler-accousticpulse-2d.py
+coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-2d
+                    PYTHON     atest-sdm-lineuler-acousticpulse-2d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
+coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticvorticityentropypulse-2d
+                    PYTHON     atest-sdm-lineuler-acousticvorticityentropypulse-2d.py
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 

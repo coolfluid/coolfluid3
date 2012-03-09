@@ -106,7 +106,7 @@ void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
     fileInfo->name = name;
     fileInfo->type = DIRECTORY;
 
-    fileInfo->date_modified = dir_dates[i].c_str();
+    fileInfo->date_modified = ""; //QString::fromStdString(dir_dates[i]);
 
     if(!m_current_path.isEmpty() && name != "..")
       name.prepend(m_current_path + (m_current_path.endsWith("/") ? "" : "/"));
@@ -139,12 +139,15 @@ void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
 
 void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
 {
-  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
-  std::vector<std::string>::iterator it = favs.begin();
+
+  // temporarily not supported
+
+//  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
+//  std::vector<std::string>::iterator it = favs.begin();
   QStringList fav_dirs;
 
-  for(int i = 0 ; it != favs.end() ; ++it, ++i )
-    fav_dirs.append( QString::fromStdString(*it) );
+//  for(int i = 0 ; it != favs.end() ; ++it, ++i )
+//    fav_dirs.append( QString::fromStdString(*it) );
 
   fav_dirs.removeDuplicates();
 

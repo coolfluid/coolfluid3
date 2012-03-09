@@ -89,6 +89,8 @@ void CreateSDFields::execute()
     {
       if (entities.has_tag(mesh::Tags::outer_faces())==true)
         cells_plus_bdry.push_back(entities.handle<Entities>());
+      if (entities.has_tag(mesh::Tags::interface())==true)
+        cells_plus_bdry.push_back(entities.handle<Entities>());
     }
     boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
     {
