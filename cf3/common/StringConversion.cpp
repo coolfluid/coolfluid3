@@ -34,24 +34,39 @@ namespace common {
   }
 
   template <>
+  Common_API std::string to_str<unsigned> (const unsigned & v)
+  {
+    return boost::lexical_cast<std::string>(v);
+  }
+
+  template <>
   Common_API std::string to_str<unsigned long> (const unsigned long & v)
   {
     return boost::lexical_cast<std::string>(v);
   }
 
   template <>
-  Common_API std::string to_str<Uint> (const Uint & v)
+  Common_API std::string to_str<unsigned long long> (const unsigned  long long & v)
   {
     return boost::lexical_cast<std::string>(v);
   }
 
   template <>
-  Common_API std::string to_str<Real> (const Real & v)
+  Common_API std::string to_str<float> (const float & v)
   {
     std::ostringstream oss;
     oss << v;
     return oss.str();
   }
+
+  template <>
+  Common_API std::string to_str<double> (const double & v)
+  {
+    std::ostringstream oss;
+    oss << v;
+    return oss.str();
+  }
+
 
   template <>
   Common_API std::string to_str<URI> (const URI & v)
@@ -201,21 +216,33 @@ namespace common {
   }
 
   template <>
+  Common_API unsigned from_str<unsigned> (const std::string& str)
+  {
+    return boost::lexical_cast<unsigned> ( str );
+  }
+
+  template <>
   Common_API unsigned long from_str<unsigned long> (const std::string& str)
   {
     return boost::lexical_cast<unsigned long> ( str );
   }
 
   template <>
-  Common_API Uint from_str<Uint> (const std::string& str)
+  Common_API unsigned long long from_str<unsigned long long> (const std::string& str)
   {
-    return boost::lexical_cast<Uint> ( str );
+    return boost::lexical_cast<unsigned long long> ( str );
   }
 
   template <>
-  Common_API Real from_str<Real> (const std::string& str)
+  Common_API float from_str<float> (const std::string& str)
   {
-    return boost::lexical_cast<Real> ( str );
+    return boost::lexical_cast<float> ( str );
+  }
+
+  template <>
+  Common_API double from_str<double> (const std::string& str)
+  {
+    return boost::lexical_cast<double> ( str );
   }
 
   template <>

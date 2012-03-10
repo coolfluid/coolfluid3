@@ -6,12 +6,6 @@
 
 #include <set>
 
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/regex.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/functional/hash.hpp>
-
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
@@ -26,37 +20,27 @@
 #include "common/StringConversion.hpp"
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
+#include "common/List.hpp"
+
 #include "common/XML/SignalOptions.hpp"
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
-#include "common/PE/debug.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/LibMesh.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/List.hpp"
-#include "mesh/UnifiedData.hpp"
-#include "mesh/Cells.hpp"
-#include "mesh/Faces.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Entities.hpp"
 #include "mesh/Connectivity.hpp"
 
 #include "math/Consts.hpp"
-#define UNKNOWN math::Consts::uint_max()
-
-#include "common/OptionList.hpp"
-
-#include "common/OptionList.hpp"
 
 namespace cf3 {
 namespace mesh {
-
-using namespace boost::assign;
 
 using namespace common;
 using namespace common::PE;
@@ -456,5 +440,3 @@ void Dictionary::signal_create_field( SignalArgs& node )
 
 } // mesh
 } // cf3
-
-#undef UNKNOWN

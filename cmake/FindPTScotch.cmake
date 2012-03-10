@@ -2,9 +2,9 @@
 # this module look for PTSCOTCH (http://hdf.ncsa.uiuc.edu) support
 # it will define the following values
 #
-# PTSCOTCH_INCLUDE_DIR  = where ptscotch.h can be found
-# PTSCOTCH_LIBRARY      = the library to link against (ptscotch etc)
-# CF3_HAVE_PTSCOTCH      = set to true after finding the library
+# PTSCOTCH_INCLUDE_DIRS = where ptscotch.h can be found
+# PTSCOTCH_LIBRARIES    = the library to link against (ptscotch etc)
+# CF3_HAVE_PTSCOTCH     = set to true after finding the library
 #
 
 option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
@@ -15,8 +15,8 @@ option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
   coolfluid_add_trial_include_path( ${PTSCOTCH_ROOT}/include )
   coolfluid_add_trial_include_path( $ENV{PTSCOTCH_ROOT}/include )
 
-  find_path(PTSCOTCH_INCLUDE_DIR ptscotch.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  find_path(PTSCOTCH_INCLUDE_DIR ptscotch.h )
+  find_path(PTSCOTCH_INCLUDE_DIRS ptscotch.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(PTSCOTCH_INCLUDE_DIRS ptscotch.h )
 
   coolfluid_add_trial_library_path(${PTSCOTCH_ROOT}/lib )
   coolfluid_add_trial_library_path($ENV{PTSCOTCH_ROOT}/lib )
@@ -71,8 +71,10 @@ option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
       list( APPEND PTSCOTCH_EXTRA_LIBRARIES ${ZLIB_LIBRARIES} )
   endif()
 
-coolfluid_add_package( PACKAGE PTScotch
+coolfluid_set_package( PACKAGE PTScotch
                        DESCRIPTION "parallel graph partitioning"
                        URL "http://www.labri.fr/perso/pelegrin/scotch"
+                       TYPE OPTIONAL
                        VARS
-                       PTSCOTCH_INCLUDE_DIR PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )
+                       PTSCOTCH_INCLUDE_DIRS
+                       PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )

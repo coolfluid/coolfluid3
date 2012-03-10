@@ -27,6 +27,8 @@ list( APPEND coolfluid_mesh_actions_files
   InitFieldFunction.cpp
   MatchNodes.hpp
   MatchNodes.cpp
+  MergeMeshes.hpp
+  MergeMeshes.cpp
   GrowOverlap.hpp
   GrowOverlap.cpp
   Interpolate.hpp
