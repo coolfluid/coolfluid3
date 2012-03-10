@@ -8,7 +8,6 @@
 
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
-#include <boost/functional/hash.hpp>
 
 #include "common/Log.hpp"
 #include "common/PropertyList.hpp"
@@ -61,9 +60,9 @@ DiscontinuousDictionary::~DiscontinuousDictionary()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//std::size_t DiscontinuousDictionary::hash_value(const RealMatrix& coords)
+//boost::uint64_t DiscontinuousDictionary::hash_value(const RealMatrix& coords)
 //{
-//  std::size_t seed=0;
+//  boost::uint64_t seed=0;
 //  for (Uint i=0; i<coords.rows(); ++i)
 //  for (Uint j=0; j<coords.cols(); ++j)
 //  {
@@ -126,9 +125,9 @@ void DiscontinuousDictionary::create_connectivity_in_space()
   }
 
   // (3)
-  std::map<size_t,Entity> hash_to_elements;
+  std::map<boost::uint64_t,Entity> hash_to_elements;
   std::deque<Entity> unknown_rank_elements;
-  std::deque<size_t> unknown_rank_elements_hash_deque;
+  std::deque<boost::uint64_t> unknown_rank_elements_hash_deque;
 
   math::Hilbert compute_glb_idx(bounding_box,20);
 
@@ -143,7 +142,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     {
       entities.geometry_space().put_coordinates(elem_coords,e);
       entities.element_type().compute_centroid(elem_coords,centroid);
-      size_t hash = compute_glb_idx(centroid);
+      boost::uint64_t hash = compute_glb_idx(centroid);
 //      std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash << std::endl;
       bool inserted = hash_to_elements.insert( std::make_pair(hash, Entity(entities,e)) ).second;
       if (! inserted)
@@ -162,7 +161,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
   }
 
   // copy deque in vector, delete deque
-  std::vector<size_t> unknown_rank_elements_hashed(unknown_rank_elements_hash_deque.size());
+  std::vector<boost::uint64_t> unknown_rank_elements_hashed(unknown_rank_elements_hash_deque.size());
   for (Uint g=0; g<unknown_rank_elements_hash_deque.size(); ++g)
   {
     unknown_rank_elements_hashed[g] = unknown_rank_elements_hash_deque[g];
@@ -171,15 +170,15 @@ void DiscontinuousDictionary::create_connectivity_in_space()
 
 
   // (4)
-  std::vector< std::vector<size_t> > recv_unknown_rank_elements_hashed(Comm::instance().size());
+  std::vector< std::vector<boost::uint64_t> > recv_unknown_rank_elements_hashed(Comm::instance().size());
   if (Comm::instance().is_active())
     Comm::instance().all_gather(unknown_rank_elements_hashed,recv_unknown_rank_elements_hashed);
   else
     recv_unknown_rank_elements_hashed[0] = unknown_rank_elements_hashed;
 
   // (5) Search if this process contains the elements with unknown ranks of other processes
-  std::map<size_t,Entity>::iterator hash_to_elements_iter;
-  std::map<size_t,Entity>::iterator hash_not_found = hash_to_elements.end();
+  std::map<boost::uint64_t,Entity>::iterator hash_to_elements_iter;
+  std::map<boost::uint64_t,Entity>::iterator hash_not_found = hash_to_elements.end();
   std::vector< std::vector<Uint> > send_found_on_rank(Comm::instance().size());
   for (Uint p=0; p<Comm::instance().size(); ++p)
   {
@@ -315,7 +314,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
 
   // (3)
   std::deque<Entity> ghosts;
-  std::deque<size_t> ghosts_hashed_deque;
+  std::deque<boost::uint64_t> ghosts_hashed_deque;
 
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
@@ -328,7 +327,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
     {
       entities.geometry_space().put_coordinates(elem_coords,e);
       entities.element_type().compute_centroid(elem_coords,centroid);
-      size_t hash = compute_glb_idx(centroid);
+      boost::uint64_t hash = compute_glb_idx(centroid);
       //        std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash;
       if (rank()[entities_space.connectivity()[e][0]] != PE::Comm::instance().rank()) // if is ghost
       {
@@ -342,7 +341,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
   }
 
   // copy deque in vector, delete deque
-  std::vector<size_t> ghosts_hashed(ghosts.size());
+  std::vector<boost::uint64_t> ghosts_hashed(ghosts.size());
   for (Uint g=0; g<ghosts.size(); ++g)
   {
     ghosts_hashed[g] = ghosts_hashed_deque[g];
@@ -350,7 +349,7 @@ void DiscontinuousDictionary::create_connectivity_in_space()
   ghosts_hashed_deque.clear();
 
   // (4)
-  std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
+  std::vector< std::vector<boost::uint64_t> > recv_ghosts_hashed(Comm::instance().size());
   if (Comm::instance().is_active())
     Comm::instance().all_gather(ghosts_hashed,recv_ghosts_hashed);
   else

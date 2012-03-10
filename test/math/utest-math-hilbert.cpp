@@ -10,15 +10,13 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/cstdint.hpp>
 #include "common/Log.hpp"
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 
-#include "math/Hilbert.hpp"
 #include "math/Consts.hpp"
-#include "math/Defs.hpp"
+#include "math/Hilbert.hpp"
 
 using namespace cf3;
 using namespace cf3::math;

@@ -7,7 +7,7 @@ list( APPEND coolfluid_tools_googleperftools_files
 
 list( APPEND coolfluid_tools_googleperftools_cflibs      coolfluid_common )
 list( APPEND coolfluid_tools_googleperftools_libs        ${GOOGLEPERFTOOLS_PROFILER_LIBRARY} )
-list( APPEND coolfluid_tools_googleperftools_includedirs ${GOOGLEPERFTOOLS_INCLUDE_DIR} )
+list( APPEND coolfluid_tools_googleperftools_includedirs ${GOOGLEPERFTOOLS_INCLUDE_DIRS} )
 
 set( coolfluid_tools_googleperftools_condition ${CF3_HAVE_GOOGLEPERFTOOLS} )
 

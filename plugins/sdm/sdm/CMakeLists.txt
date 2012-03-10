@@ -58,6 +58,7 @@ coolfluid_add_library( coolfluid_sdm )
 coolfluid_mark_not_orphan(
 )
 
-add_subdirectory( scalar       )  # library coolfluid_sdm_scalar
-add_subdirectory( navierstokes )  # library coolfluid_sdm_navierstokes
-add_subdirectory( lineuler     )  # library coolfluid_sdm_lineuler
+add_subdirectory( scalar       )                 # library coolfluid_sdm_scalar
+add_subdirectory( navierstokes )                 # library coolfluid_sdm_navierstokes
+add_subdirectory( navierstokesmovingreference )  # library coolfluid_sdm_navierstokesmovingreference
+add_subdirectory( lineuler     )                 # library coolfluid_sdm_lineuler

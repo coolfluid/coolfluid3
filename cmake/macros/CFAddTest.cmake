@@ -82,9 +82,6 @@ function( coolfluid_add_test )
     set(_TEST_FILES ${_PAR_CPP})
   elseif(_PAR_PYTHON)
     set(_TEST_FILES ${_PAR_PYTHON})
-    if( CF3_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
-      set( _PYTHON_AVAILABLE TRUE)
-    endif()
   elseif(_PAR_CFSCRIPT)
     set(_TEST_FILES ${_PAR_CFSCRIPT})
   endif()
@@ -221,7 +218,7 @@ function( coolfluid_add_test )
     endif( _PAR_CPP )
 
 
-    if( _PAR_PYTHON AND _PYTHON_AVAILABLE )
+    if( _PAR_PYTHON AND CF3_HAVE_PYTHON )
       set(SCRIPT_COMMAND ${PYTHON_EXECUTABLE})
       if(_RUN_MPI AND CF3_HAVE_MPI)
         set(SCRIPT_COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} ${SCRIPT_COMMAND})
@@ -236,7 +233,7 @@ function( coolfluid_add_test )
         set(_TEST_SCALING OFF)
       endif()
 
-    endif( _PAR_PYTHON AND _PYTHON_AVAILABLE )
+    endif( _PAR_PYTHON AND CF3_HAVE_PYTHON )
 
     if( _PAR_CFSCRIPT )
 

@@ -10,9 +10,9 @@
     CGNSExceptions.hpp
   )
 
-  list( APPEND coolfluid_mesh_cgns3_includedirs ${CGNS_INCLUDE_DIR} )
+  list( APPEND coolfluid_mesh_cgns3_includedirs ${CGNS_INCLUDE_DIRS} )
   list( APPEND coolfluid_mesh_cgns3_libs ${CGNS_LIBRARIES} )
-  list( APPEND coolfluid_mesh_cgns3_cflibs coolfluid_mesh )
+  list( APPEND coolfluid_mesh_cgns3_cflibs coolfluid_mesh_actions )
 
   set( coolfluid_mesh_cgns3_kernellib TRUE )
 

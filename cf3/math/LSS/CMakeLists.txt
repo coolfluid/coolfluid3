@@ -12,7 +12,7 @@ list( APPEND coolfluid_math_lss_files
   EmptyLSS/EmptyLSSMatrix.hpp
 )
 
-list( APPEND coolfluid_math_lss_libs coolfluid_common ${CF3_BOOST_LIBRARIES})
+list( APPEND coolfluid_math_lss_libs coolfluid_common)
 
 # happen to have trilinos
 if(CF3_HAVE_TRILINOS)
@@ -22,7 +22,7 @@ if(CF3_HAVE_TRILINOS)
     Trilinos/TrilinosVector.hpp
     Trilinos/TrilinosVector.cpp
     )
-list(APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIR})
+    list( APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIRS})
     list( APPEND coolfluid_math_lss_libs ${TRILINOS_LIBRARIES} )
     ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
 else()
