@@ -1,4 +1,4 @@
-![coolfluid logo](http://coolfluidsrv.vki.ac.be/trac/coolfluid/chrome/site/images/coolbanner.png width=5) 
+![coolfluid logo](https://github.com/coolfluid/coolfluid3/raw/master/tools/coolfluid-logo.png) 
 
 [**FULL DOCUMENTATION**](http://coolfluidsrv.vki.ac.be/webfiles/coolfluid3/api/nightly/index.html)
 
