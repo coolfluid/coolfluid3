@@ -72,9 +72,9 @@ acoustic_entropy_vortex = [
 
 # function describing entropy and vortex without acoustic pulse
 entropy_vortex = [
- '0.1*exp( -log(2.)*((x-95)^2 + y^2)/25. )',
- ' 0.04*y      *exp( -log(2.)*((x-95.)^2+y^2)/25. )',
- '-0.04*(x-95.)*exp( -log(2.)*((x-95.)^2+y^2)/25. )',
+ '0.1*exp( -log(2.)*((x-67)^2 + y^2)/25. )',
+ ' 0.04*y      *exp( -log(2.)*((x-67)^2+y^2)/25. )',
+ '-0.04*(x-67)*exp( -log(2.)*((x-67)^2+y^2)/25. )',
  '0'
 ]
 
