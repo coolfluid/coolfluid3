@@ -7,67 +7,31 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::sdm"
 
-#include <boost/flyweight.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-
 #include <boost/test/unit_test.hpp>
-#include <boost/assign/list_of.hpp>
+
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
-#include "common/OSystem.hpp"
-#include "common/OSystemLayer.hpp"
 #include "common/List.hpp"
-#include "common/Group.hpp"
 
 #include "common/PE/Comm.hpp"
 
 #include "math/Consts.hpp"
-#include "math/VariablesDescriptor.hpp"
-#include "math/VectorialFunction.hpp"
 
-#include "solver/Model.hpp"
-#include "solver/Tags.hpp"
-
-#include "physics/PhysModel.hpp"
-#include "physics/Variables.hpp"
-
-#include "mesh/Domain.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/SimpleMeshGenerator.hpp"
-#include "mesh/MeshTransformer.hpp"
-#include "mesh/Region.hpp"
-#include "mesh/LinearInterpolator.hpp"
-#include "mesh/Space.hpp"
-#include "mesh/Cells.hpp"
-#include "mesh/ElementConnectivity.hpp"
-#include "mesh/FaceCellConnectivity.hpp"
-#include "mesh/actions/BuildFaces.hpp"
-
-#include "sdm/ElementCaching.hpp"
-#include "sdm/Reconstructions.hpp"
-#include "sdm/SDSolver.hpp"
-#include "sdm/Term.hpp"
-#include "sdm/Tags.hpp"
-#include "sdm/ShapeFunction.hpp"
-#include "sdm/Operations.hpp"
 
 #include "sdm/navierstokesmovingreference/Convection2D.hpp"
 
-#include <common/Link.hpp>
-
-using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::mesh;
-using namespace cf3::physics;
 using namespace cf3::solver;
 using namespace cf3::sdm;
 
@@ -99,6 +63,7 @@ struct sdm_MPITests_Fixture
 namespace cf3{
 namespace sdm {
 namespace navierstokesmovingreference {
+
 ////////////////////////////////////////////////////////////////////////////////
 struct Datatype
 {
@@ -154,6 +119,7 @@ private:
     }
 
 public:
+  
     static std::string type_name() { return "Source2D"; }
     Source2D(const std::string& name) : common::Component(name)
     {
@@ -363,7 +329,6 @@ BOOST_AUTO_TEST_CASE( test_convection )
 {
     const Real tol (0.000001);
 
-    navierstokesmovingreference::Datatype d1;
     RealVector2 normal(1, 0);
     RealVector4 flux;
     Real wavespeed;
@@ -420,6 +385,7 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
     BOOST_CHECK_CLOSE(flux[3], 353875.6, tol);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
