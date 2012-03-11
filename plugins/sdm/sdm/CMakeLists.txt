@@ -37,10 +37,12 @@ list( APPEND coolfluid_sdm_files
   PrepareMesh.cpp
   PrepareMesh.hpp
   Reconstructions.hpp
-  ShapeFunction.hpp
-  ShapeFunction.cpp
   SDSolver.hpp
   SDSolver.cpp
+  SourceTerm.hpp
+  SourceTerm.cpp
+  ShapeFunction.hpp
+  ShapeFunction.cpp
   Tags.hpp
   Tags.cpp
   Term.cpp
