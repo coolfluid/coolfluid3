@@ -27,6 +27,7 @@
 #include "mesh/FieldManager.hpp"
 
 #include "sdm/navierstokesmovingreference/Convection2D.hpp"
+#include "sdm/navierstokesmovingreference/Source2D.hpp"
 
 using namespace cf3;
 using namespace cf3::math;
@@ -60,137 +61,6 @@ struct sdm_MPITests_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace cf3{
-namespace sdm {
-namespace navierstokesmovingreference {
-
-////////////////////////////////////////////////////////////////////////////////
-struct Datatype
-{
-    RealVector4 solution;
-    RealVector2 coordinates;
-};
-
-class  Source2D : public common::Component
-{
-private:
-    RealVector2 Vtrans;
-    RealVector3 Omega;
-    RealVector3 a0, dOmegadt;
-
-    void config_Omega()
-    {
-        std::vector<Real> Omega_vec= options().option("Omega").value< std::vector<Real> >();
-        cf3_assert(Omega_vec.size() == 3);
-        cf3_assert(Omega_vec[0] == 0);
-        cf3_assert(Omega_vec[1] == 0);
-        Omega[0] = Omega_vec[0];
-        Omega[1] = Omega_vec[1];
-        Omega[2] = Omega_vec[2];
-    }
-
-    void config_Vtrans()
-    {
-        std::vector<Real> Vtrans_vec= options().option("Vtrans").value< std::vector<Real> >();
-        cf3_assert(Vtrans_vec.size() == 2);
-        Vtrans[0] = Vtrans_vec[0];
-        Vtrans[1] = Vtrans_vec[1];
-    }
-
-    void config_a0()
-    {
-        std::vector<Real> a0_vec= options().option("a0").value< std::vector<Real> >();
-        cf3_assert(a0_vec.size() == 3);
-        cf3_assert(a0_vec[2] == 0);
-        a0[0] = a0_vec[0];
-        a0[1] = a0_vec[1];
-        a0[2] = a0_vec[2];
-    }
-
-    void config_dOmegadt()
-    {
-        std::vector<Real> dOmegadt_vec= options().option("dOmegadt").value< std::vector<Real> >();
-        cf3_assert(dOmegadt_vec.size() == 3);
-        cf3_assert(dOmegadt_vec[0] == 0);
-        cf3_assert(dOmegadt_vec[1] == 0);
-        dOmegadt[0] = dOmegadt_vec[0];
-        dOmegadt[1] = dOmegadt_vec[1];
-        dOmegadt[2] = dOmegadt_vec[2];
-    }
-
-public:
-  
-    static std::string type_name() { return "Source2D"; }
-    Source2D(const std::string& name) : common::Component(name)
-    {
-        std::vector<Real> OmegaDefault(3,0), VtransDefault(2,0), a0Default(3,0), dOmegadtDefault(3,0);
-        Omega    << 0., 0., 0.;
-        Vtrans   << 0., 0.;
-        a0       << 0., 0., 0.;
-        dOmegadt << 0., 0., 0.;
-
-        OmegaDefault[0] = Omega[0];
-        OmegaDefault[1] = Omega[1];
-        OmegaDefault[2] = Omega[2];
-
-        VtransDefault[0] = Vtrans[0];
-        VtransDefault[1] = Vtrans[1];
-
-        a0Default[0] = a0[0];
-        a0Default[1] = a0[1];
-        a0Default[2] = a0[2];
-
-        dOmegadtDefault[0] = dOmegadt[0];
-        dOmegadtDefault[1] = dOmegadt[1];
-        dOmegadtDefault[2] = dOmegadt[2];
-
-        options().add_option("Omega", OmegaDefault)
-            .description("Rotation vector")
-            .mark_basic()
-            .attach_trigger(boost::bind( &Source2D::config_Omega, this));
-
-        options().add_option("Vtrans", VtransDefault)
-            .description("Vector of the translation speeds")
-            .mark_basic()
-            .attach_trigger( boost::bind( &Source2D::config_Vtrans, this));
-
-        options().add_option("a0", a0Default)
-            .description("Total time derivative (in absolute reference frame)")
-            .mark_basic()
-            .attach_trigger( boost::bind( &Source2D::config_a0, this));
-
-        options().add_option("dOmegadt", dOmegadtDefault)
-            .description("Time derivative of rotation vector")
-            .mark_basic()
-            .attach_trigger( boost::bind( &Source2D::config_dOmegadt, this));
-    }
-    virtual ~Source2D() {}
-
-    void compute_source(const navierstokesmovingreference::Datatype& data, RealVector4& source)
-    {
-        RealVector3 r = RealVector3::Zero(3);
-        RealVector3 Vr = RealVector3::Zero(3);
-        RealVector3 V0 = RealVector3::Zero(3);
-        RealVector3 Vt = RealVector3::Zero(3);
-        RealVector3 at = RealVector3::Zero(3);
-
-        r.head(2).noalias() = data.coordinates;
-        Vr.head(2).noalias() = data.solution.block<2,1>(1,0)/data.solution[0];
-        V0.head(2).noalias() = Vtrans;
-        Vt.noalias() = V0 + Omega.cross(r);
-        at.noalias() = a0 + dOmegadt.cross(r) + 2*(Omega.cross(Vr)) + Omega.cross(Omega.cross(r));
-
-        source = RealVector4::Zero(4);
-        source.block<2,1>(1,0).noalias() = -data.solution[0]*at.head(2);
-
-        source[3] = -data.solution[0]*(Vr.dot(a0) + (Omega.cross(r)).dot(a0) + V0.dot(at - Omega.cross(Vt)) + Vr.dot(dOmegadt.cross(r)) + (Omega.cross(r)).dot(dOmegadt.cross(r)));
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-}
-}
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -209,7 +79,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( test_source )
 {
     const Real tol (0.000001);
-    navierstokesmovingreference::Datatype d0;
+    PhysDataBase<4, 2> d0;
     RealVector4 s0;
 
     std::vector<Real> Vtransoption(2,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
@@ -217,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_source )
     // Test without relative movement
 
     d0.solution << 1., 1., 0., 252754.; //P = 101101.4
-    d0.coordinates << 1., 1.;
+    d0.coord << 1., 1.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
@@ -239,11 +109,11 @@ BOOST_AUTO_TEST_CASE( test_source )
 
 
     // Test with relative movement, u only velocity component, no acceleration of the relative reference frame
-    navierstokesmovingreference::Datatype d1;
+    PhysDataBase<4, 2> d1;
     RealVector4 s1;
 
     d1.solution << 1., 2., 0., 252754.; //P = 101101.4
-    d1.coordinates << 1., 1.;
+    d1.coord << 1., 1.;
 
     Vtransoption[0] = 1.;
     Vtransoption[1] = 1.;
@@ -264,11 +134,11 @@ BOOST_AUTO_TEST_CASE( test_source )
     BOOST_CHECK_CLOSE(s1[3], -40., tol);
 
     // Test with relavite movement, u and v different from zero, no acceleration of the relative reference frame
-    navierstokesmovingreference::Datatype d2;
+    PhysDataBase<4, 2> d2;
     RealVector4 s2;
 
     d2.solution << 1., 2., 2., 252754.; //P = 101101.4
-    d2.coordinates << 1., 1.;
+    d2.coord << 1., 1.;
 
     Vtransoption[0] = 1.;
     Vtransoption[1] = 1.;
@@ -289,11 +159,11 @@ BOOST_AUTO_TEST_CASE( test_source )
     BOOST_CHECK_CLOSE(s2[3],   0., tol);
 
     // Test without initial relavite velocity, u and v zero, acceleration of the relative reference frame
-    navierstokesmovingreference::Datatype d3;
+    PhysDataBase<4, 2> d3;
     RealVector4 s3;
 
     d3.solution << 1., 2., 2., 252754.; //P = 101101.4
-    d3.coordinates << 1., 1.;
+    d3.coord << 1., 1.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
