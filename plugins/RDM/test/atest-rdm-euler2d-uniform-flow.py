@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('file:square1x1-tg-p1-7614.msh'), name='mesh')
+domain.load_mesh(file=cf.URI('square1x1-tg-p1-7614.msh'), name='mesh')
 #call Model/Domain/load_mesh file:uri=square1x1-tg-p1-7614.msh
 # square1x1-tg-p1-7614.msh         # problem
 # square1x1-skewed-qd-p2-14641.msh # none

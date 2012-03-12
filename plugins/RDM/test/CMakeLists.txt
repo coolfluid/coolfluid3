@@ -10,17 +10,17 @@ coolfluid_add_test( UTEST  utest-rdm-lda
 ##########################################################################
 # acceptance tests
 
-coolfluid_add_test(ATEST      atest-rdm-linearadv2d
-                   CFSCRIPT   atest-rdm-linearadv2d.cfscript)
+coolfluid_add_test( ATEST     atest-rdm-linearadv2d
+                    PYTHON    atest-rdm-linearadv2d.py)
 
 coolfluid_add_test( ATEST     atest-rdm-linearadv2d-uniform
-                    CFSCRIPT  atest-rdm-linearadv2d-uniform.cfscript )
+                    PYTHON    atest-rdm-linearadv2d-uniform.py )
 
-coolfluid_add_test(ATEST      atest-rdm-rotationadv2d
-                   PYTHON     atest-rdm-rotationadv2d.py)
+coolfluid_add_test( ATEST     atest-rdm-rotationadv2d
+                    PYTHON    atest-rdm-rotationadv2d.py)
 
 coolfluid_add_test( ATEST     atest-rdm-burgers2d
-                    CFSCRIPT  atest-rdm-burgers2d.cfscript )
+                    PYTHON    atest-rdm-burgers2d.py )
 
 coolfluid_add_test( ATEST     atest-rdm-euler2d-uniform-flow
                     PYTHON    atest-rdm-euler2d-uniform-flow.py )
@@ -32,19 +32,19 @@ coolfluid_add_test( ATEST     atest-rdm-euler2d-riemann
                     PYTHON    atest-rdm-euler2d-riemann.py )
 
 coolfluid_add_test( ATEST     atest-rdm-linearadv3d
-                    CFSCRIPT  atest-rdm-linearadv3d.cfscript )
+                    PYTHON    atest-rdm-linearadv3d.py )
 
 coolfluid_add_test( ATEST     atest-rdm-sinusbump
-                    CFSCRIPT  atest-rdm-sinusbump.cfscript )
+                    PYTHON   atest-rdm-sinusbump.py )
 
 coolfluid_add_test( ATEST     atest-rdm-ramp2d
-                    CFSCRIPT  atest-rdm-ramp2d.cfscript )
+                    PYTHON    atest-rdm-ramp2d.py )
 
 coolfluid_add_test( ATEST     atest-rdm-linearadvsys2d
-                    CFSCRIPT  atest-rdm-linearadvsys2d.cfscript )
+                    PYTHON    atest-rdm-linearadvsys2d.py )
 
 coolfluid_add_test( ATEST     atest-rdm-lineardiff2d
-                    CFSCRIPT  atest-rdm-lineardiff2d.cfscript )
+                    PYTHON    atest-rdm-lineardiff2d.py )
 
 ##########################################################################
 # RK atests

@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('file:trapezium1x1-tg-p1-508.msh'), name='mesh')
+domain.load_mesh(file=cf.URI('trapezium1x1-tg-p1-508.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('file:trapezium1x1-tg-p2-508.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('file:trapezium1x1-qd-p1-441.msh'), name='mesh')
 #domain.load_mesh(file=cf.URI('file:square1x1-tg-p2-2kn.msh'), name='mesh')
@@ -108,8 +108,8 @@ gmsh_writer.execute()
 
 model.simulate()
 
-import networkxpython as nx
-nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='sc',hidden='')
+#import networkxpython as nx
+#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='sc',hidden='')
 #nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
 
 gmsh_writer.options().configure_option('fields',fgeo)

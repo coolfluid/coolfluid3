@@ -25,7 +25,7 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('file:box-tet-p1-3112.msh'), name='mesh')
+domain.load_mesh(file=cf.URI('box-tet-p1-3112.msh'), name='mesh')
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
 ### solver
