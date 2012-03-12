@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( test_convection )
 
     RealVector2 normal(1, 0);
     RealVector4 flux;
-    Real wavespeed;
+    Real wavespeed = 0;
 
     PhysDataBase<4, 2> Data;
 
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
     BOOST_CHECK_CLOSE(flux[3], 353855.4, tol);
 
-
+    std::cout << "wavespeed analytical = " << wavespeed << std::endl;
 
     Omegaoption[0] = 0.;
     Omegaoption[1] = 0.;
@@ -248,12 +248,15 @@ BOOST_AUTO_TEST_CASE( test_convection )
     C2->options().configure_option("Vtrans", Vtransoption);
     C2->options().configure_option("gamma", 1.4);
 
+    wavespeed = 0;
     C2->compute_analytical_flux(Data, normal, flux, wavespeed);
 
     BOOST_CHECK_CLOSE(flux[0],      1. , tol);
     BOOST_CHECK_CLOSE(flux[1], 101122.6, tol);
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
     BOOST_CHECK_CLOSE(flux[3], 353875.6, tol);
+
+    std::cout << "wavespeed numerical = " << wavespeed << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
