@@ -10,24 +10,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "MeshGenerator.hpp"
-#include "common/PE/Comm.hpp"
+
 namespace cf3 {
 namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// SimpleMeshGenerator component class
-/// This class serves as a component that that will read
-/// the mesh format from file
+/// @brief Generate a simple carthesian P1 mesh without grading
+///
+/// Possible meshes to generate are 1D lines and 2D rectangles.
+/// Required is the number of cells in every direction, the length and an offset.
+/// The topology created for lines:
+///    topology/interior
+///    topology/xneg  (bdry)
+///    topology/xpos  (bdry)
+/// The topology created for rectangles:
+///    topology/interior
+///    topology/left    (bdry)
+///    topology/right   (bdry)
+///    topology/bottom  (bdry)
+///    topology/top     (bdry)
 /// @author Willem Deconinck
 class Mesh_API SimpleMeshGenerator : public MeshGenerator {
-
-public: // typedefs
-
-  /// type of pointer to Component
-  
-  /// type of pointer to constant Component
-  
 
 public: // functions
 
@@ -43,7 +47,7 @@ public: // functions
 
   virtual void execute();
 
-private:
+private: // functions
 
   /// Create a line
   void create_line();
@@ -53,9 +57,9 @@ private:
 
 protected: // data
 
-  std::vector<Uint> m_nb_cells;
-  std::vector<Real> m_lengths;
-  std::vector<Real> m_offsets;
+  std::vector<Uint> m_nb_cells;  ///< Number of cells in every direction
+  std::vector<Real> m_lengths;   ///< Lengths in every direction
+  std::vector<Real> m_offsets;   ///< Offset in every direction (coordinate of bottom-left point)
 
 };
 
