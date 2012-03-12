@@ -10,6 +10,10 @@
 #define CF3_CMAKE_VERSION    "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}"
 #define CF3_BUILD_PROCESSOR  "${CMAKE_SYSTEM_PROCESSOR}"
 
+#define CF3_GIT_COMMIT_SHA   "${coolfluid_git_revision_sha}"
+#define CF3_GIT_COMMIT_DATE  "${coolfluid_git_revision_date}"
+
+
 #cmakedefine CF3_OS_LINUX
 #cmakedefine CF3_OS_MACOSX
 #cmakedefine CF3_OS_WINDOWS

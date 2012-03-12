@@ -4,17 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
-//#define BOOST_HASH_NO_IMPLICIT_CASTS
-#include <boost/functional/hash.hpp>
-
-#include <boost/static_assert.hpp>
 #include <set>
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
-
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
@@ -24,26 +17,25 @@
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
 #include "math/MatrixTypesConversion.hpp"
 #include "math/Hilbert.hpp"
+#include "math/Functions.hpp"
+#include "math/Consts.hpp"
 
-#include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FaceCellConnectivity.hpp"
-#include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/Node2FaceCellConnectivity.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/BoundingBox.hpp"
-#include "math/Functions.hpp"
-#include "math/Consts.hpp"
-#include "mesh/ElementData.hpp"
+
+#include "mesh/actions/GlobalNumbering.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +47,7 @@ namespace actions {
   using namespace math::Functions;
   using namespace math::Consts;
 
-  create_component_data_type( std::vector<std::size_t> , mesh_actions_API , CVector_size_t , "CVector<size_t>" );
+  create_component_data_type( std::vector<boost::uint64_t> , mesh_actions_API , CVector_uint64 , "CVector<uint64>" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -155,8 +147,8 @@ void GlobalNumbering::execute()
   RealVector coord_vec(coordinates.row_size());
 
   if ( is_null( mesh.geometry_fields().get_child("glb_node_hash") ) )
-    mesh.geometry_fields().create_component<CVector_size_t>("glb_node_hash");
-  CVector_size_t& glb_node_hash = *Handle<CVector_size_t>(mesh.geometry_fields().get_child("glb_node_hash"));
+    mesh.geometry_fields().create_component<CVector_uint64>("glb_node_hash");
+  CVector_uint64& glb_node_hash = *Handle<CVector_uint64>(mesh.geometry_fields().get_child("glb_node_hash"));
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
@@ -166,7 +158,7 @@ void GlobalNumbering::execute()
     glb_node_hash.data()[i]=compute_glb_idx(coord_vec);
 
     if (m_debug)
-      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< coord_vec.transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
 
@@ -175,8 +167,8 @@ void GlobalNumbering::execute()
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
     if ( is_null( elements.get_child("glb_elem_hash") ) )
-      elements.create_component<CVector_size_t>("glb_elem_hash");
-    CVector_size_t& glb_elem_hash = *Handle<CVector_size_t>(elements.get_child("glb_elem_hash"));
+      elements.create_component<CVector_uint64>("glb_elem_hash");
+    CVector_uint64& glb_elem_hash = *Handle<CVector_uint64>(elements.get_child("glb_elem_hash"));
     glb_elem_hash.data().resize(elements.size());
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
@@ -197,7 +189,7 @@ void GlobalNumbering::execute()
   // In debug mode, check if no hashes are duplicated
   if (m_debug)
   {
-    std::set<std::size_t> glb_set;
+    std::set<boost::uint64_t> glb_set;
     for (Uint i=0; i<glb_node_hash.data().size(); ++i)
     {
       if (glb_set.insert(glb_node_hash.data()[i]).second == false)  // it was already in the set
@@ -207,14 +199,14 @@ void GlobalNumbering::execute()
     glb_set.clear();
     boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
-      CVector_size_t& glb_elem_hash = *Handle<CVector_size_t>(elements.get_child("glb_elem_hash"));
+      CVector_uint64& glb_elem_hash = *Handle<CVector_uint64>(elements.get_child("glb_elem_hash"));
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
       {
         if (glb_set.insert(glb_elem_hash.data()[i]).second == false)  // it was already in the set
           throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
       }
     }
-
+    std::cout << "["<<PE::Comm::instance().rank() << "]  start renumbering" << std::endl;
   }
 
 
@@ -223,12 +215,12 @@ void GlobalNumbering::execute()
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
   Dictionary& nodes = mesh.geometry_fields();
-  std::map<std::size_t,Uint> node_glb2loc;
+  std::map<boost::uint64_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
-  boost_foreach(std::size_t hash, glb_node_hash.data())
+  boost_foreach(boost::uint64_t hash, glb_node_hash.data())
     node_glb2loc[hash]=loc_node_idx++;
-  std::map<std::size_t,Uint>::iterator node_glb2loc_it;
-  std::map<std::size_t,Uint>::iterator hash_not_found = node_glb2loc.end();
+  std::map<boost::uint64_t,Uint>::iterator node_glb2loc_it;
+  std::map<boost::uint64_t,Uint>::iterator hash_not_found = node_glb2loc.end();
 
   // Check if all nodes have been added to the map
   cf3_assert(loc_node_idx==nodes.size());
@@ -276,10 +268,16 @@ void GlobalNumbering::execute()
     start_id += nb_ids_per_proc[p];
   }
 
+  if (m_debug)
+  {
+    std::cout << "["<<PE::Comm::instance().rank() << "]  start_ids gathered" << std::endl;
+  }
+
+
   //------------------------------------------------------------------------------
   // add glb_idx to owned nodes, broadcast/receive glb_idx for ghost nodes
 
-  std::vector<size_t> node_from(nb_owned_nodes);
+  std::vector<boost::uint64_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
   common::List<Uint>& nodes_glb_idx = mesh.geometry_fields().glb_idx();
@@ -304,10 +302,17 @@ void GlobalNumbering::execute()
 
   for (Uint root=0; root<PE::Comm::instance().size(); ++root)
   {
-    std::vector<std::size_t> rcv_node_from(0);
+
+    std::vector<boost::uint64_t> rcv_node_from(0);
     PE::Comm::instance().broadcast(node_from,rcv_node_from,root);
     std::vector<Uint>        rcv_node_to(0);
     PE::Comm::instance().broadcast(node_to,rcv_node_to,root);
+
+    if (m_debug)
+    {
+      std::cout << "["<<PE::Comm::instance().rank() << "]  received nodes from " << root << std::endl;
+    }
+
     if (PE::Comm::instance().rank() != root)
     {
       for (Uint p=0; p<PE::Comm::instance().size(); ++p)
@@ -315,14 +320,16 @@ void GlobalNumbering::execute()
         if (p == PE::Comm::instance().rank())
         {
           Uint rcv_idx(0);
-          boost_foreach(const std::size_t node_hash, rcv_node_from)
+          boost_foreach(const boost::uint64_t node_hash, rcv_node_from)
           {
             node_glb2loc_it = node_glb2loc.find(node_hash);
             if ( node_glb2loc_it != hash_not_found )
             {
               if (m_debug)
                 std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
+              cf3_assert(rcv_idx < rcv_node_to.size());
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
+              cf3_assert(node_glb2loc_it->second < nodes_rank.size());
               cf3_assert(nodes.is_ghost(node_glb2loc_it->second));
               nodes_rank[node_glb2loc_it->second]=root;
             }
@@ -332,10 +339,16 @@ void GlobalNumbering::execute()
         }
       }
     }
+    if (m_debug)
+    {
+      std::cout << "["<<PE::Comm::instance().rank() << "]  changed nodes based on " << root << std::endl;
+    }
+
   }
 
   if (m_debug)
   {
+    std::cout << "["<<PE::Comm::instance().rank() << "]  checking node validity" << std::endl;
     for (Uint i=0; i<nodes.size(); ++i)
     {
       cf3_assert(nodes.glb_idx()[i] != uint_max());
@@ -354,16 +367,16 @@ void GlobalNumbering::execute()
   {
     if (m_debug)
       std::cout << "give glb idx to elements " << elements.uri() << std::endl;
-    std::vector<std::size_t>& glb_elem_hash = Handle<CVector_size_t>(elements.get_child("glb_elem_hash"))->data();
+    std::vector<boost::uint64_t>& glb_elem_hash = Handle<CVector_uint64>(elements.get_child("glb_elem_hash"))->data();
     common::List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
     //------------------------------------------------------------------------------
     // create elem_glb2loc mapping
     Uint nb_owned_elems=0;
-    std::map<std::size_t,Uint> elem_glb2loc;
-    std::map<std::size_t,Uint>::iterator elem_glb2loc_it;
-    std::map<std::size_t,Uint>::iterator hash_not_found = elem_glb2loc.end();
+    std::map<boost::uint64_t,Uint> elem_glb2loc;
+    std::map<boost::uint64_t,Uint>::iterator elem_glb2loc_it;
+    std::map<boost::uint64_t,Uint>::iterator hash_not_found = elem_glb2loc.end();
 
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -373,7 +386,7 @@ void GlobalNumbering::execute()
     }
 
 
-    std::vector<size_t> send_hash(nb_owned_elems);
+    std::vector<boost::uint64_t> send_hash(nb_owned_elems);
     std::vector<Uint>   send_id(nb_owned_elems);
 
     common::List<Uint>& elements_glb_idx = elements.glb_idx();
@@ -403,7 +416,7 @@ void GlobalNumbering::execute()
 
     for (Uint root=0; root<PE::Comm::instance().size(); ++root)
     {
-      std::vector<std::size_t> recv_hash(0);
+      std::vector<boost::uint64_t> recv_hash(0);
       PE::Comm::instance().broadcast(send_hash,recv_hash,root);
       std::vector<Uint>        recv_id(0);
       PE::Comm::instance().broadcast(send_id,recv_id,root);
@@ -414,7 +427,7 @@ void GlobalNumbering::execute()
           if (p == PE::Comm::instance().rank())
           {
             Uint recv_idx(0);
-            boost_foreach(const std::size_t hash, recv_hash)
+            boost_foreach(const boost::uint64_t hash, recv_hash)
             {
               elem_glb2loc_it = elem_glb2loc.find(hash);
               if ( elem_glb2loc_it != hash_not_found )
@@ -472,32 +485,6 @@ void GlobalNumbering::execute()
     elements.remove_component("glb_elem_hash");
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//std::size_t GlobalNumbering::node_hash_value(const RealMatrix& coords)
-//{
-//  std::size_t seed=0;
-//  for (Uint i=0; i<coords.rows(); ++i)
-//  for (Uint j=0; j<coords.cols(); ++j)
-//  {
-//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-//    boost::hash_combine(seed,1e-3*coords(i,j));
-//  }
-//  return seed;
-//}
-
-//std::size_t GlobalNumbering::elem_hash_value(const RealMatrix& coords)
-//{
-//  std::size_t seed=123456789;
-//  for (Uint i=0; i<coords.rows(); ++i)
-//  for (Uint j=0; j<coords.cols(); ++j)
-//  {
-//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-//    boost::hash_combine(seed,1e-3*coords(i,j));
-//  }
-//  return seed;
-//}
 
 //////////////////////////////////////////////////////////////////////////////
 

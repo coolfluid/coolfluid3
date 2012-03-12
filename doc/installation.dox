@@ -96,13 +96,13 @@ can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
 Continuing where we left off:
 @verbatim
 $> mkdir $CF3/deps
-$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=cmake,boost,openmpi,parmetis,zoltan,trilinos,cgns 
+$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=recommended --no-fortran
 @endverbatim
-It is self-explanatory that one can add or remove any of the arguments given after "openmpi".\n
-\n
 Please check $CF3/kernel/tools/install-deps.pl --help for all available options of this script
-Use the option "--dry-run" to check what the script will do normally, without actually doing anything.
-
+Use the option "--dry-run" to check what the script will do normally, without actually doing anything.\n
+The "--install=recommended" argument is equivalent to "--install=cmake,boost,openmpi,parmetis,zoltan,trilinos,hdf5,cgns".
+It is self-explanatory that you can choose to omit or add extra libraries to install.
+The "--no-fortran" option is there because e.g. Mac OSX does not come with a Fortran compiler.
 
 @subsection _installation_export_dependencies Export dependencies
 
@@ -154,15 +154,20 @@ Available build types are:
 
 @subsubsection _installation_some_more_configuration_options Some more configuration options
 
-To force a specific compiler (MUST BE MPI), or in case the automatic CMake configuration fails
+To force a specific compiler:
 @verbatim
--DMPI_CC_COMPILER=$CF3/deps/bin/mpicc
+-DCMAKE_C_COMPILER=$CF3/deps/bin/mpicc
+-DCMAKE_CXX_COMPILER=$CF3/deps/bin/mpicxx
+@endverbatim
+If CMake cannot find the MPI environment:
+@verbatim
+-DMPI_C_COMPILER=$CF3/deps/bin/mpicc
 -DMPI_CXX_COMPILER=$CF3/deps/bin/mpicxx
 @endverbatim
-
+A few other options that can be used:
 @verbatim
 -DCF3_CXX_FLAGS="-march=Core2"       # Architecture optimization for Core2
--DCF3_SKIP_FORTRAN=ON                # When you don't need or don't have fortran installed
+-DCF3_SKIP_FORTRAN=ON                # When you don't need or don't have Fortran installed
 -DCF3_ENABLE_WARNINGS=OFF            # For users that don't want to see all the warnings
 -DCF3_ENABLE_GUI=OFF                 # When the gui is not to be built
 @endverbatim

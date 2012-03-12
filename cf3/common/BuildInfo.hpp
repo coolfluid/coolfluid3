@@ -20,10 +20,12 @@ namespace common {
 struct Common_API BuildInfo : public boost::noncopyable
 {
 
-  /// Return the subversion version string of this build
+  /// Return the version string of this build
   std::string version_header() const;
-  /// Return the subversion version string of this build
-  std::string svn_version() const;
+  /// Return the git_commit string of this build
+  std::string git_commit_sha() const;
+  /// Return the git_commit string of this build
+  std::string git_commit_date() const;
   /// Return the CF version string
   std::string release_version() const;
   /// Return the CF Kernel version string

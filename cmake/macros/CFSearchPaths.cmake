@@ -71,130 +71,132 @@ endfunction( coolfluid_set_feature )
 ##############################################################################
 
 ##############################################################################
-# documents the package search, for searches that return Package_FOUND
+# documents the feature search
 ##############################################################################
 function( coolfluid_set_package )
 # CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
-  set( options ) # none
-  set( oneValueArgs PACKAGE DESCRIPTION URL COMMENT )
-  set( multiValueArgs ) # none
+  set( options QUIET)
+  set( oneValueArgs PACKAGE DESCRIPTION URL TYPE PURPOSE)
+  set( multiValueArgs VARS )
 
-  cmake_parse_arguments(_P "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
+  cmake_parse_arguments(_PAR "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
 
-  if(_P_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "Unknown keywords given to coolfluid_set_package(): \"${_P_UNPARSED_ARGUMENTS}\"")
+  if(_PAR_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unknown keywords given to coolfluid_set_package(): \"${_PAR_UNPARSED_ARGUMENTS}\"")
   endif()
 
-  if(NOT _P_PACKAGE)
+  if(NOT _PAR_PACKAGE)
     message(FATAL_ERROR "The call to coolfluid_set_package() doesn't set the required PACKAGE argument.")
   endif()
 
-  string( TOUPPER ${_P_PACKAGE} PACKAGE )
+  string( TOUPPER ${_PAR_PACKAGE} PACKAGE_CAPS )
 
-#  coolfluid_debug_var(  _P_PACKAGE )
-#  coolfluid_debug_var(  _P_DESCRIPTION )
-#  coolfluid_debug_var(  _P_URL )
+  if( NOT CF3_SKIP_${PACKAGE_CAPS} )
 
-  if( COMMAND set_package_info )
+    set( CF3_HAVE_${PACKAGE_CAPS} 1 )
 
-    set_package_info( ${_P_PACKAGE} "${_P_DESCRIPTION}" "${_P_URL}" "${_P_COMMENT}" )
+    # all vars must be defined and found
+
+    if(_PAR_VARS)
+      foreach( LISTVAR ${_PAR_VARS} )
+
+        if(DEFINED ${LISTVAR}) # ignore variables that are not even defined (not searched for)
+
+          foreach( VAR ${${LISTVAR}} )
+            if( NOT VAR ) # found ?
+              set( CF3_HAVE_${PACKAGE_CAPS} 0 )
+            endif()
+          endforeach( VAR ) # var
+
+        endif(DEFINED ${LISTVAR})
+      endforeach(LISTVAR) # listvar
+    endif(_PAR_VARS)
+
+    # set CF3_HAVE in cache
+
+    if(CF3_HAVE_${PACKAGE_CAPS})
+      set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
+      if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
+        list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
+      endif()
+      if(DEFINED ${PACKAGE_CAPS}_EXTRA_LIBRARIES)
+        list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
+      endif()
+    else()
+      set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
+    endif()
+
+    # logging
+
+    coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: [${CF3_HAVE_${PACKAGE_CAPS}}]" )
+    if(CF3_HAVE_${PACKAGE_CAPS})
+      foreach( LISTVAR ${ARGN} ) # log to file
+        coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
+      endforeach()
+    endif()
 
   else()
 
-    if( DEFINED ${_P_PACKAGE}_FOUND )
-      coolfluid_log( "${_P_PACKAGE} [${${_P_PACKAGE}_FOUND}]" )
+    coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: - searched skipped" )
+    set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Skipped dependency ${PACKAGE_CAPS}")
+
+  endif() # skip
+
+  if( NOT ${_PAR_PACKAGE}_FOUND)
+    set( ${_PAR_PACKAGE}_FOUND ${CF3_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
+  endif()
+
+  if(NOT _PAR_TYPE)
+    set(_PAR_TYPE OPTIONAL)
+  endif()
+
+#  coolfluid_debug_var(  _PAR_PACKAGE )
+#  coolfluid_debug_var(  _PAR_DESCRIPTION )
+#  coolfluid_debug_var(  _PAR_URL )
+#  coolfluid_debug_var(  _PAR_TYPE )
+
+  if( COMMAND set_package_properties )
+
+    set_package_properties( ${_PAR_PACKAGE} PROPERTIES
+                            DESCRIPTION "${_PAR_DESCRIPTION}"
+                            URL "${_PAR_URL}"
+                            TYPE "${_PAR_TYPE}"
+                            PURPOSE "${_PAR_PURPOSE}" )
+
+  # for older versions of cmake (<=2.8.5)
+  elseif( COMMAND set_package_info )
+    set_package_info( ${_PAR_PACKAGE} "${_PAR_DESCRIPTION}" "${_PAR_URL}" "${_PAR_PURPOSE}" )
+  # for even older versions of cmake
+  else()
+
+    if( DEFINED ${_PAR_PACKAGE}_FOUND )
+      coolfluid_log_file( "${_PAR_PACKAGE} [${${_PAR_PACKAGE}_FOUND}]" )
     else()
-      if( DEFINED ${PACKAGE}_FOUND )
-        coolfluid_log( "${_P_PACKAGE} [${${PACKAGE}_FOUND}]" )
+      if( DEFINED ${PACKAGE_CAPS}_FOUND )
+        coolfluid_log_file( "${_PAR_PACKAGE} [${${PACKAGE_CAPS}_FOUND}]" )
       else()
-        if( DEFINED CF3_HAVE_${PACKAGE} )
-          coolfluid_log( "${_P_PACKAGE} [${CF3_HAVE_${PACKAGE}}]" )
+        if( DEFINED CF3_HAVE_${PACKAGE_CAPS} )
+          coolfluid_log_file( "${_PAR_PACKAGE} [${CF3_HAVE_${PACKAGE_CAPS}}]" )
         endif()
       endif()
     endif()
 
   endif()
 
-endfunction( coolfluid_set_package )
-##############################################################################
-
-
-##############################################################################
-# documents the feature search
-##############################################################################
-function( coolfluid_add_package )
-# CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
-  set( options ) # none
-  set( oneValueArgs PACKAGE DESCRIPTION URL )
-  set( multiValueArgs VARS ) # none
-
-  cmake_parse_arguments(_PAR "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
-
-  if(_PAR_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "Unknown keywords given to coolfluid_add_package(): \"${_PAR_UNPARSED_ARGUMENTS}\"")
-  endif()
-
-  if(NOT _PAR_PACKAGE)
-    message(FATAL_ERROR "The call to coolfluid_add_package() doesn't set the required PACKAGE argument.")
-  endif()
-
-  string( TOUPPER ${_PAR_PACKAGE} PACKAGE_CAPS )
-
-  mark_as_advanced( ${_PAR_VARS} ) # advanced marking
-
-  if( NOT CF3_SKIP_${PACKAGE_CAPS} )
-
-  set( CF3_HAVE_${PACKAGE_CAPS} 1 )
-
-  # all vars must be defined and found
-
-  foreach( LISTVAR ${_PAR_VARS} )
-
-    if(DEFINED ${LISTVAR}) # ignore variables that are not even defined (not searched for)
-
-      foreach( VAR ${${LISTVAR}} )
-        if( NOT VAR ) # found ?
-          set( CF3_HAVE_${PACKAGE_CAPS} 0 )
-        endif()
-      endforeach() # var
-
-    endif()
-
-  endforeach() # listvar
-
-  # set CF3_HAVE in cache
-
-  if(CF3_HAVE_${PACKAGE_CAPS})
-    set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
-    if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
-      list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
-    endif()
-    if(DEFINED ${PACKAGE_CAPS}_EXTRA_LIBRARIES)
-      list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
-    endif()
+  # override _CMAKE_${_PAR_PACKAGE}_QUIET
+  if(NOT _PAR_QUIET)
+    set_property(GLOBAL PROPERTY _CMAKE_${_PAR_PACKAGE}_QUIET FALSE )
   else()
-    set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
+    set_property(GLOBAL PROPERTY _CMAKE_${_PAR_PACKAGE}_QUIET TRUE )
   endif()
 
-  # logging
+  # get_property(_is_quiet GLOBAL PROPERTY _CMAKE_${_PAR_PACKAGE}_QUIET)
+  # coolfluid_log("${_PAR_PACKAGE}_is_quiet = ${_is_quiet}")
 
-  coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: [${CF3_HAVE_${PACKAGE_CAPS}}]" )
-  if(CF3_HAVE_${PACKAGE_CAPS})
-    foreach( LISTVAR ${ARGN} ) # log to file
-      coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
-    endforeach()
+  if(_PAR_VARS)
+    mark_as_advanced( ${_PAR_VARS} ) # advanced marking
   endif()
 
-else()
-
-    coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: - searched skipped" )
-    set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Skipped dependency ${PACKAGE_CAPS}")
-
-endif() # skip
-
-set( ${_PAR_PACKAGE}_FOUND ${CF3_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
-coolfluid_set_package( PACKAGE ${_PAR_PACKAGE} DESCRIPTION "${_PAR_DESCRIPTION}" URL "${_PAR_URL}" )
-
-endfunction( coolfluid_add_package )
+endfunction( coolfluid_set_package )
 ##############################################################################
 

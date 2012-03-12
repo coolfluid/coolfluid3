@@ -6,11 +6,17 @@ cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
 project( UI CXX )
 
-if( QT4_FOUND AND CF3_ENABLE_GUI )
+coolfluid_define_plugin( UI ${CMAKE_CURRENT_SOURCE_DIR} )
+
+if(${QT4_FOUND} AND ${CF3_ENABLE_GUI} AND ${CF3_PLUGIN_UI})
+  set(CF3_HAVE_GUI ON CACHE INTERNAL   "GUI can be built")
+else()
+  set(CF3_HAVE_GUI OFF CACHE INTERNAL   "GUI can be built")
+endif()
+
+if( CF3_HAVE_GUI )
 
   coolfluid_find_orphan_files()
-
-  coolfluid_define_plugin( UI ${CMAKE_CURRENT_SOURCE_DIR} )
 
   # deactivate some c++ warnings in Qt
   if( CMAKE_COMPILER_IS_GNUCC )

@@ -8,7 +8,6 @@
 
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
-#include <boost/functional/hash.hpp>
 
 #include "common/Log.hpp"
 #include "common/PropertyList.hpp"
@@ -63,9 +62,9 @@ ContinuousDictionary::~ContinuousDictionary()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//std::size_t ContinuousDictionary::hash_value(const RealMatrix& coords)
+//boost::uint64_t ContinuousDictionary::hash_value(const RealMatrix& coords)
 //{
-//  std::size_t seed=0;
+//  boost::uint64_t seed=0;
 //  for (Uint i=0; i<coords.rows(); ++i)
 //  for (Uint j=0; j<coords.cols(); ++j)
 //  {
@@ -79,7 +78,7 @@ ContinuousDictionary::~ContinuousDictionary()
 
 void ContinuousDictionary::create_connectivity_in_space()
 {
-  std::set<std::size_t> points;
+  std::set<boost::uint64_t> points;
   RealMatrix elem_coordinates;
   Uint dim = DIM_0D;
 
@@ -117,7 +116,7 @@ void ContinuousDictionary::create_connectivity_in_space()
       for (Uint node=0; node<shape_function.nb_nodes(); ++node)
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
-        std::size_t hash = compute_glb_idx(space_coordinates);
+        boost::uint64_t hash = compute_glb_idx(space_coordinates);
         points.insert( hash );
       }
     }
@@ -150,7 +149,7 @@ void ContinuousDictionary::create_connectivity_in_space()
       for (Uint node=0; node<shape_function.nb_nodes(); ++node)
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
-        std::size_t hash = compute_glb_idx(space_coordinates);
+        boost::uint64_t hash = compute_glb_idx(space_coordinates);
         Uint idx = std::distance(points.begin(), points.find(hash));
         connectivity[elem][node] = idx;
         coordinates.set_row(idx, space_coordinates);
@@ -177,23 +176,23 @@ void ContinuousDictionary::create_connectivity_in_space()
     }
   }
 
-  std::map<size_t,Uint> hash_to_idx;
-  std::map<size_t,Uint>::iterator hash_to_idx_iter;
-  std::map<size_t,Uint>::iterator hash_not_found = hash_to_idx.end();
+  std::map<boost::uint64_t,Uint> hash_to_idx;
+  std::map<boost::uint64_t,Uint>::iterator hash_to_idx_iter;
+  std::map<boost::uint64_t,Uint>::iterator hash_not_found = hash_to_idx.end();
 
-  std::vector<size_t> coord_hash(size());
+  std::vector<boost::uint64_t> coord_hash(size());
   RealVector dummy(coordinates.row_size());
   Uint c(0);
   for (Uint i=0; i<size(); ++i)
   {
     math::copy(coordinates[i],dummy);
-    size_t hash = compute_glb_idx(dummy);
+    boost::uint64_t hash = compute_glb_idx(dummy);
     hash_to_idx[hash] = i;
     coord_hash[c++]=hash;
   }
 
   // - Communicate unknown ranks to all processes
-  std::vector< std::vector<size_t> > recv_hash(Comm::instance().size());
+  std::vector< std::vector<boost::uint64_t> > recv_hash(Comm::instance().size());
   if (Comm::instance().is_active())
     Comm::instance().all_gather(coord_hash,recv_hash);
   else
@@ -250,7 +249,7 @@ void ContinuousDictionary::create_connectivity_in_space()
     else
       ++nb_owned;
   }
-  std::vector<size_t> ghosts_hashed(ghosts.size());
+  std::vector<boost::uint64_t> ghosts_hashed(ghosts.size());
   for (Uint g=0; g<ghosts.size(); ++g)
   {
     math::copy(coordinates[ghosts[g]], dummy);
@@ -277,7 +276,7 @@ void ContinuousDictionary::create_connectivity_in_space()
       glb_idx()[i] = UNKNOWN;
   }
 
-  std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
+  std::vector< std::vector<boost::uint64_t> > recv_ghosts_hashed(Comm::instance().size());
   if (Comm::instance().is_active())
     Comm::instance().all_gather(ghosts_hashed,recv_ghosts_hashed);
   else
