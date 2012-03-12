@@ -98,7 +98,7 @@ fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
       cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
 gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+gmsh_writer.options().configure_option('mesh',root.access_component('//Model/Domain/mesh'))
 gmsh_writer.options().configure_option('fields',fgeo)
 gmsh_writer.options().configure_option('file',cf.URI('file:_geo_initial_riemann.msh'))
 gmsh_writer.execute()

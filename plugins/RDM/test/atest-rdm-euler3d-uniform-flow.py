@@ -73,7 +73,7 @@ fields=[
 #  cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
 tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
+tecplot_writer.options().configure_option('mesh',root.access_component('//Model/Domain/mesh'))
 tecplot_writer.options().configure_option('fields',fields)
 tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
 tecplot_writer.execute()
