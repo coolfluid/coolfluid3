@@ -86,12 +86,12 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   const Uint write_interval = 5000;
   const Real invdt = 1. / dt;
 
-  const Real mu = 0.01;
-  const Real rho = 100.;
+  const Real mu = 1.;
+  const Real rho = 1.;
   const Real epsilon = rho/mu;
 
   const std::vector<Real> u_wall(2, 0.);
-  const Real p0 = 5.;
+  const Real p0 = 10.;
   const Real p1 = 0.;
   const Real c = 0.5*(p0 - p1) / (rho * mu * length);
   const RealVector2 u_max(c, 0.);
@@ -100,6 +100,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   coefs.u_ref = c;
   coefs.mu = mu;
   coefs.rho = rho;
+  coefs.one_over_rho = 1./rho;
 
   // Parabolic expression for the inlet
   std::stringstream parabole_str;
@@ -109,9 +110,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
 
   // List of (Navier-)Stokes creation functions, with their names
-  const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("navier_stokes_bulk");
+  const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("generic_ns_assembly");
   typedef boost::shared_ptr< Expression > (*FactoryT)(LinearSolverUnsteady&, SUPGCoeffs&);
-  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&navier_stokes_bulk);
+  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::generic_ns_assembly);
 
   // Loop over all model types
   for(Uint i = 0; i != names.size(); ++i)
@@ -129,10 +130,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
     time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
-    
+
     // Expression variables
     MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
     MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+    MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
 
     // Velocity initial condition
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
@@ -149,6 +151,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
       <<
       ( // Time loop
         time_loop
+        << create_proto_action("AdvectionVel", nodes_expression(u_adv = u))
         << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
         << create_proto_action("Assembly", factories[i](solver, coefs))
         << bc
@@ -157,8 +160,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
         << create_proto_action("IncrementP", nodes_expression(p += solver.solution(p)))
         << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
       )
-      << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 6e-3)))
-      << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-2)))
+      << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 5e-1)))
+      << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 5e-2)))
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
 
     // Setup physics
@@ -191,6 +194,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Run the solver
     model.simulate();
 
+    domain.write_mesh("ns-test-" + names[i] + ".pvtu");
+    
     lss.matrix()->print("matrix-" + names[i] + ".plt");
     lss.rhs()->print("rhs-" + names[i] + ".plt");
   }

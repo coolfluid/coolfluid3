@@ -74,8 +74,19 @@ struct SteadyNSCriterion : Criterion
     if(boost::accumulators::count(p_stats) < 1)
       return false;
 
-    p_update_history.push_back(boost::accumulators::max(p_stats));
-    u_update_history.push_back(boost::accumulators::max(u_stats));
+    const Real my_p = boost::accumulators::max(p_stats);
+    const Real my_u = boost::accumulators::max(u_stats);
+    Real global_p_max = my_p;
+    Real global_u_max = my_u;
+
+    if(PE::Comm::instance().is_active())
+    {
+      PE::Comm::instance().all_reduce(PE::max(), &my_p, 1, &global_p_max);
+      PE::Comm::instance().all_reduce(PE::max(), &my_u, 1, &global_u_max);
+    }
+
+    p_update_history.push_back(global_p_max);
+    u_update_history.push_back(global_u_max);
 
     u_stats = StatsT();
     p_stats = StatsT();
@@ -136,7 +147,7 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
   boost::shared_ptr<solver::actions::Iterate> iteration_loop = allocate_component<solver::actions::Iterate>("Iteration");
   Handle<SteadyNSCriterion> criterion = iteration_loop->create_component<SteadyNSCriterion>("ConvergenceCriterion");
 
-  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
+  boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   MeshTerm<0, VectorField> u("Velocity", Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
@@ -172,9 +183,9 @@ NavierStokesSteady::NavierStokesSteady(const std::string& name) :
             compute_tau(u, m_coeffs),
             element_quadrature
             (
-              _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
-              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
-              _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
+              _A(p    , u[_i]) += transpose(N(p) + m_coeffs.tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
+              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p)) * nabla(p) * m_coeffs.one_over_rho, // Continuity, PSPG
+              _A(u[_i], u[_i]) += m_coeffs.mu * transpose(nabla(u)) * nabla(u) * m_coeffs.one_over_rho + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
               _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(m_coeffs.mu)*m_coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
                                              + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j]  // skew symmetric part of advection (standard +SUPG)

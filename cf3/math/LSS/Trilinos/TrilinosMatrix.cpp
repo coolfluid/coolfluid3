@@ -130,7 +130,7 @@ void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vec
       TRILINOS_THROW(m_mat->EndSubmitEntries());
     }
   TRILINOS_THROW(m_mat->FillComplete());
-  TRILINOS_THROW(m_mat->OptimizeStorage()); // in theory fillcomplete calls optimizestorage from Trilinos 8.x+
+  //TRILINOS_THROW(m_mat->OptimizeStorage()); // in theory fillcomplete calls optimizestorage from Trilinos 8.x+
   delete[] gid;
 
   // set class properties
@@ -138,6 +138,7 @@ void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vec
   m_neq=neq;
   m_blockrow_size=nmyglobalelements;
   m_blockcol_size=cp.gid()->size();
+  CFdebug << "Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
