@@ -271,7 +271,7 @@ void TrilinosCrsMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
   linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
   Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
 /// @todo verbosity level from option
-  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)4); // set verbosity
+  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)1); // set verbosity
 
   // print back default and current settings
   if (false) {
