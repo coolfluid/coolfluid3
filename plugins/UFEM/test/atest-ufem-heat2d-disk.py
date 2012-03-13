@@ -15,7 +15,7 @@ domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # lss setup
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
-lss.options().configure_option('solver', 'Trilinos');
+lss.options().configure_option('matrix_builder', 'cf3.math.LSS.TrilinosFEVbrMatrix');
 solver.options().configure_option('lss', lss)
 lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2]);
 
