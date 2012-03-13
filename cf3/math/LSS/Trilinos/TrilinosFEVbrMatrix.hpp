@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Math_LSS_TrilinosMatrix_hpp
-#define cf3_Math_LSS_TrilinosMatrix_hpp
+#ifndef cf3_Math_LSS_TrilinosFEVbrMatrix_hpp
+#define cf3_Math_LSS_TrilinosFEVbrMatrix_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file TrilinosMatrix.hpp definition of LSS::TrilinosMatrix
+  @file TrilinosFEVbrMatrix.hpp definition of LSS::TrilinosFEVbrMatrix
   @author Tamas Banyai
 
   It is based on Trilinos's FEVbrMatrix.
@@ -35,14 +35,14 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosMatrix : public LSS::Matrix {
+class LSS_API TrilinosFEVbrMatrix : public LSS::Matrix {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
   /// name of the type
-  static std::string type_name () { return "TrilinosMatrix"; }
+  static std::string type_name () { return "TrilinosFEVbrMatrix"; }
 
   /// Accessor to solver type
   const std::string solvertype() { return "Trilinos"; }
@@ -51,10 +51,10 @@ public:
   const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) { return true; }
 
   /// Default constructor
-  TrilinosMatrix(const std::string& name);
+  TrilinosFEVbrMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -191,4 +191,4 @@ private:
 } // namespace math
 } // namespace cf3
 
-#endif // cf3_Math_LSS_TrilinosMatrix_hpp
+#endif // cf3_Math_LSS_TrilinosFEVbrMatrix_hpp

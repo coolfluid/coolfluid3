@@ -22,17 +22,19 @@
 #include "Teuchos_CommandLineProcessor.hpp"
 
 #include "common/Assertions.hpp"
+#include "common/Builder.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
-#include "math/LSS/Trilinos/TrilinosMatrix.hpp"
+#include "common/PropertyList.hpp"
+#include "math/LSS/Trilinos/TrilinosFEVbrMatrix.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file TrilinosMatrix.cpp implementation of LSS::TrilinosMatrix
+  @file TrilinosFEVbrMatrix.cpp implementation of LSS::TrilinosFEVbrMatrix
   @author Tamas Banyai
 
   It is based on Trilinos's FEVbrMatrix.
@@ -46,7 +48,9 @@ using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-TrilinosMatrix::TrilinosMatrix(const std::string& name) :
+common::ComponentBuilder < LSS::TrilinosFEVbrMatrix, LSS::Matrix, LSS::LibLSS > TrilinosFEVbrMatrix_Builder;
+
+TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
   LSS::Matrix(name),
   m_mat(0),
   m_is_created(false),
@@ -58,11 +62,12 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_comm(common::PE::Comm::instance().communicator())
 {
   options().add_option( "settings_file", "trilinos_settings.xml" );
+  properties().add_property("vector_type", std::string("cf3.math.LSS.TrilinosVector"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
@@ -143,7 +148,7 @@ void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vec
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::destroy()
+void TrilinosFEVbrMatrix::destroy()
 {
   if (m_is_created) m_mat.reset();
   m_p2m.resize(0);
@@ -156,7 +161,7 @@ void TrilinosMatrix::destroy()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::set_value(const Uint icol, const Uint irow, const Real value)
+void TrilinosFEVbrMatrix::set_value(const Uint icol, const Uint irow, const Real value)
 {
   cf3_assert(m_is_created);
   const int colblock=(int)m_p2m[icol/m_neq];
@@ -179,7 +184,7 @@ void TrilinosMatrix::set_value(const Uint icol, const Uint irow, const Real valu
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::add_value(const Uint icol, const Uint irow, const Real value)
+void TrilinosFEVbrMatrix::add_value(const Uint icol, const Uint irow, const Real value)
 {
   cf3_assert(m_is_created);
   const int colblock=(int)m_p2m[icol/m_neq];
@@ -202,7 +207,7 @@ void TrilinosMatrix::add_value(const Uint icol, const Uint irow, const Real valu
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::get_value(const Uint icol, const Uint irow, Real& value)
+void TrilinosFEVbrMatrix::get_value(const Uint icol, const Uint irow, Real& value)
 {
   cf3_assert(m_is_created);
   const int colblock=(int)m_p2m[icol/m_neq];
@@ -225,7 +230,7 @@ void TrilinosMatrix::get_value(const Uint icol, const Uint irow, Real& value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosFEVbrMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
 {
   cf3_assert(m_is_created);
   cf3_assert(solution.is_created());
@@ -300,7 +305,7 @@ void TrilinosMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::set_values(const BlockAccumulator& values)
+void TrilinosFEVbrMatrix::set_values(const BlockAccumulator& values)
 {
   cf3_assert(m_is_created);
   Epetra_SerialDenseMatrix **val;
@@ -326,10 +331,13 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
           if (colindices[j]==idxs[icol])
           {
             double *emv=val[j][0].A();
-            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
-            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+            int col_idx = icol*m_neq;
+            for (double* l=emv; emv<(const double*)(l+neqneq); ++col_idx)
+            {
+              int row_idx = irow*m_neq;
               for (double* m=emv; emv<(const double*)(m+m_neq);)
-                *emv++ = *bav++;
+                *emv++ = values.mat(row_idx++, col_idx);
+            }
 
             hits++;
             //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
@@ -342,7 +350,7 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::add_values(const BlockAccumulator& values)
+void TrilinosFEVbrMatrix::add_values(const BlockAccumulator& values)
 {
 /* TRILINOS-ADVICED
   cf3_assert(m_is_created);
@@ -411,10 +419,13 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
           if (colindices[j]==idxs[icol])
           {
             double *emv=val[j][0].A();
-            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
-            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+            int col_idx = icol*m_neq;
+            for (double* l=emv; emv<(const double*)(l+neqneq); ++col_idx)
+            {
+              int row_idx = irow*m_neq;
               for (double* m=emv; emv<(const double*)(m+m_neq);)
-                *emv++ += *bav++;
+                *emv++ += values.mat(row_idx++, col_idx);
+            }
 
             hits++;
             //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
@@ -427,7 +438,7 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::get_values(BlockAccumulator& values)
+void TrilinosFEVbrMatrix::get_values(BlockAccumulator& values)
 {
   cf3_assert(m_is_created);
   Epetra_SerialDenseMatrix **val;
@@ -454,10 +465,13 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
           if (colindices[j]==idxs[icol])
           {
             double *emv=val[j][0].A();
-            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
-            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+            int col_idx = icol*m_neq;
+            for (double* l=emv; emv<(const double*)(l+neqneq); ++col_idx)
+            {
+              int row_idx = irow*m_neq;
               for (double* m=emv; emv<(const double*)(m+m_neq);)
-                *bav++ = *emv++;
+                values.mat(row_idx++, col_idx) = *emv++;
+            }
 
             hits++;
             //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
@@ -470,7 +484,7 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval)
+void TrilinosFEVbrMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval)
 {
 /* TRILINOS ADVICED
   cf3_assert(m_is_created);
@@ -517,7 +531,7 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
+void TrilinosFEVbrMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
 {
   /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
   /// @attention COMPUTATIONALLY VERY EXPENSIVE!
@@ -547,7 +561,7 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
+void TrilinosFEVbrMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf3_assert(m_is_created);
   Epetra_SerialDenseMatrix **val_to,**val_from;
@@ -583,7 +597,7 @@ void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint ibl
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::set_diagonal(const std::vector<Real>& diag)
+void TrilinosFEVbrMatrix::set_diagonal(const std::vector<Real>& diag)
 {
   cf3_assert(m_is_created);
   int *dummy_rowcoldim;
@@ -605,7 +619,7 @@ void TrilinosMatrix::set_diagonal(const std::vector<Real>& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::add_diagonal(const std::vector<Real>& diag)
+void TrilinosFEVbrMatrix::add_diagonal(const std::vector<Real>& diag)
 {
   cf3_assert(m_is_created);
   int *dummy_rowcoldim;
@@ -627,7 +641,7 @@ void TrilinosMatrix::add_diagonal(const std::vector<Real>& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::get_diagonal(std::vector<Real>& diag)
+void TrilinosFEVbrMatrix::get_diagonal(std::vector<Real>& diag)
 {
   cf3_assert(m_is_created);
   int *dummy_rowcoldim;
@@ -650,7 +664,7 @@ void TrilinosMatrix::get_diagonal(std::vector<Real>& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::reset(Real reset_to)
+void TrilinosFEVbrMatrix::reset(Real reset_to)
 {
   cf3_assert(m_is_created);
   m_mat->PutScalar(reset_to);
@@ -658,7 +672,7 @@ void TrilinosMatrix::reset(Real reset_to)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::print(common::LogStream& stream)
+void TrilinosFEVbrMatrix::print(common::LogStream& stream)
 {
   if (m_is_created)
   {
@@ -693,7 +707,7 @@ void TrilinosMatrix::print(common::LogStream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::print(std::ostream& stream)
+void TrilinosFEVbrMatrix::print(std::ostream& stream)
 {
   if (m_is_created)
   {
@@ -728,7 +742,7 @@ void TrilinosMatrix::print(std::ostream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode mode )
+void TrilinosFEVbrMatrix::print(const std::string& filename, std::ios_base::openmode mode )
 {
   std::ofstream stream(filename.c_str(),mode);
   stream << "VARIABLES=COL,ROW,VAL\n" << std::flush;
@@ -739,7 +753,7 @@ void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
+void TrilinosFEVbrMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
 {
   cf3_assert(m_is_created);
   row_indices.clear();
