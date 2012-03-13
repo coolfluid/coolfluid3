@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
 
   // Setup mesh
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   LSS::System& lss = *model.create_component<LSS::System>("LSS");
-  lss.options().option("solver").change_value(std::string("Trilinos"));
+  lss.options().option("matrix_builder").change_value(std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
   solver.options().configure_option("lss", lss.handle<LSS::System>());
 
   // Write the matrix

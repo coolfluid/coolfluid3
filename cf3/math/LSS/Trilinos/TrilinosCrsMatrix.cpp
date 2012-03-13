@@ -135,7 +135,7 @@ void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq,
   my_global_elements.clear();
 
   // Create the graph, using static profile for performance
-  m_graph = Teuchos::rcp(new Epetra_CrsGraph(Copy, rowmap, colmap, &num_indices_per_row[0], true));
+  Epetra_CrsGraph graph(Copy, rowmap, colmap, &num_indices_per_row[0], true);
 
   // Fill the graph
   m_converted_indices.resize(max_nb_row_entries);
@@ -157,17 +157,18 @@ void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq,
       for(int k = 0; k != neq; ++k)
       {
         const int row = m_p2m[i*neq+k];
-        TRILINOS_THROW(m_graph->InsertMyIndices(row, static_cast<int>(neq*(columns_end - columns_begin)), &m_converted_indices[0]));
+        TRILINOS_THROW(graph.InsertMyIndices(row, static_cast<int>(neq*(columns_end - columns_begin)), &m_converted_indices[0]));
       }
     }
   }
 
-  TRILINOS_THROW(m_graph->FillComplete());
-  TRILINOS_THROW(m_graph->OptimizeStorage());
+  TRILINOS_THROW(graph.FillComplete());
+  TRILINOS_THROW(graph.OptimizeStorage());
 
   // create matrix
-  m_mat=Teuchos::rcp(new Epetra_CrsMatrix(Copy, *m_graph));
+  m_mat=Teuchos::rcp(new Epetra_CrsMatrix(Copy, graph));
   TRILINOS_THROW(m_mat->FillComplete());
+  TRILINOS_THROW(m_mat->OptimizeStorage());
 
   delete[] gid;
 
@@ -184,7 +185,6 @@ void TrilinosCrsMatrix::destroy()
   if (m_is_created)
   {
     m_mat.reset();
-    m_graph.reset();
   }
   m_p2m.resize(0);
   m_p2m.reserve(0);

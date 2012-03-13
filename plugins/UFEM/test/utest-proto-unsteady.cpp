@@ -152,9 +152,9 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-  lss.options().configure_option("solver", std::string("Trilinos"));
+  lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
-  
+
   boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
   time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 

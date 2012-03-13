@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
 
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-  lss.options().configure_option("solver", std::string("Trilinos"));
+  lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
   // Proto placeholders
@@ -141,12 +141,12 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   *blocks.create_blocks(1) << 0 << 1 << 2 << 3;
   *blocks.create_block_subdivisions() << nb_segments << nb_segments;
   *blocks.create_block_gradings() << 1. << 1. << 1. << 1.;
-  
+
   *blocks.create_patch("bottom", 1) << 0 << 1;
   *blocks.create_patch("right", 1) << 1 << 2;
   *blocks.create_patch("top", 1) << 2 << 3;
   *blocks.create_patch("left", 1) << 3 << 0;
-  
+
   blocks.partition_blocks(PE::Comm::instance().size(), XX);
   blocks.create_mesh(mesh);
 

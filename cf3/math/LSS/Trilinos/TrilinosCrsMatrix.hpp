@@ -160,14 +160,12 @@ public:
 
 private:
 
-  /// teuchos style smart pointer wrapping the sparsity graph
-  Teuchos::RCP<Epetra_CrsGraph> m_graph;
   /// teuchos style smart pointer wrapping the matrix
   Teuchos::RCP<Epetra_CrsMatrix> m_mat;
 
   /// epetra mpi environment
   Epetra_MpiComm m_comm;
-  
+
   /// state of creation
   bool m_is_created;
 

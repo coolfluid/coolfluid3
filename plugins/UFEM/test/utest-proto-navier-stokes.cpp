@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
     math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-    lss.options().configure_option("solver", std::string("Trilinos"));
+    lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
     solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     model.simulate();
 
     domain.write_mesh("ns-test-" + names[i] + ".pvtu");
-    
+
     lss.matrix()->print("matrix-" + names[i] + ".plt");
     lss.rhs()->print("rhs-" + names[i] + ".plt");
   }
