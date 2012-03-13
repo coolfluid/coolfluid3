@@ -120,7 +120,7 @@ void BuildFaces::execute()
   build_faces_bottom_up(mesh);
 
   // Add the new faces to the registry of mesh elements
-  mesh.elements().update();
+  mesh.mesh_elements().update();
 
   // Now build the cell to face connectivity using the new face indices
   if (m_store_cell2face)

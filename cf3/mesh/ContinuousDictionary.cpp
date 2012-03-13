@@ -128,7 +128,7 @@ void ContinuousDictionary::create_connectivity_in_space()
   // step 3: resize
   // --------------
   resize(points.size());
-  m_coordinates = Handle<Field>(coordinates.handle<Component>());
+  m_coordinates = coordinates.handle<Field>();
   for (Uint i=0; i<size(); ++i)
     rank()[i] = UNKNOWN;
 

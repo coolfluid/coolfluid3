@@ -158,7 +158,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the file
   m_file.close();
 
-  m_mesh->elements().update();
+  m_mesh->mesh_elements().update();
   m_mesh->update_statistics();
 
   cf3_assert(m_mesh->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);

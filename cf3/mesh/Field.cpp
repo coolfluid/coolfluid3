@@ -122,7 +122,7 @@ Field::VarType Field::var_length ( const std::string& vname ) const
 
 void Field::set_dict(Dictionary& dict)
 {
-  m_dict = Handle<Dictionary>(dict.handle<Component>());
+  m_dict = dict.handle<Dictionary>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ void Field::set_descriptor(math::VariablesDescriptor& descriptor)
 {
   if (Handle< math::VariablesDescriptor > old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = Handle<math::VariablesDescriptor>(descriptor.handle<Component>());
+  m_descriptor = descriptor.handle<math::VariablesDescriptor>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

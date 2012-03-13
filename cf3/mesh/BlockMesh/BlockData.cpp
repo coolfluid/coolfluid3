@@ -1684,7 +1684,7 @@ void BlockArrays::create_mesh(Mesh& mesh)
     element_offset += nb_elems;
   }
 
-  mesh.elements().update();
+  mesh.mesh_elements().update();
 
   mesh.update_statistics();
 

@@ -112,7 +112,7 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 
 void MeshPartitioner::initialize(Mesh& mesh)
 {
-  m_mesh = Handle<Mesh>(mesh.handle<Component>());
+  m_mesh = mesh.handle<Mesh>();
 
   Dictionary& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
@@ -300,7 +300,7 @@ void flex_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
   for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].packed_size();
+    send_strides[i] = send[i].size();
 
   if (send.size()) send_displs[0] = 0;
   for (Uint i=1; i<send.size(); ++i)
@@ -308,9 +308,9 @@ void flex_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 
   PE::Buffer send_linear;
 
-  send_linear.resize(send_displs.back()+send_strides.back());
+  send_linear.reserve(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
-    send_linear.pack(send[i].buffer(),send[i].packed_size());
+    send_linear.pack(send[i].buffer(),send[i].size());
 
   std::vector<int> recv_strides(PE::Comm::instance().size());
   std::vector<int> recv_displs(PE::Comm::instance().size());
@@ -320,8 +320,7 @@ void flex_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,8 +340,7 @@ void flex_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE:
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -412,7 +410,7 @@ void MeshPartitioner::migrate()
   const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->geometry_space().connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, elements.handle<Elements>()->geometry_space().connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -425,7 +423,7 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
 
-  std::vector< Handle<Component> > mesh_element_comps = mesh.elements().components();
+  std::vector< Handle<Component> > mesh_element_comps = mesh.mesh_elements().components();
 
   PE::Buffer send_to_proc;  std::vector<int> send_strides(PE::Comm::instance().size());
   PE::Buffer recv_from_all; std::vector<int> recv_strides(PE::Comm::instance().size());
@@ -443,10 +441,10 @@ void MeshPartitioner::migrate()
 
     for (Uint r=0; r<PE::Comm::instance().size(); ++r)
     {
-      Uint displs = send_to_proc.packed_size();
+      Uint displs = send_to_proc.size();
       for (Uint e=0; e<exported_elements()[i][r].size(); ++e)
         send_to_proc << migrate_element(exported_elements()[i][r][e],PackUnpackElements::MIGRATE);
-      send_strides[r] = send_to_proc.packed_size() - displs;
+      send_strides[r] = send_to_proc.size() - displs;
     }
 
     flex_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
@@ -464,12 +462,12 @@ void MeshPartitioner::migrate()
    std::set<Uint> packed_nodes;
    for (Uint r=0; r<PE::Comm::instance().size(); ++r)
    {
-     Uint displs = send_to_proc.packed_size();
+     Uint displs = send_to_proc.size();
      for (Uint n=0; n<exported_nodes()[r].size(); ++n)
      {
        send_to_proc << node_manipulation(exported_nodes()[r][n],PackUnpackNodes::MIGRATE);
      }
-     send_strides[r] = send_to_proc.packed_size() - displs;
+     send_strides[r] = send_to_proc.size() - displs;
    }
 
   // STILL DONT FLUSH!!! node_manipulation.flush();
@@ -623,8 +621,8 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
 
   mesh.update_statistics();
-  mesh.elements().reset();
-  mesh.elements().update();
+  mesh.mesh_elements().reset();
+  mesh.mesh_elements().update();
 
   Comm::instance().barrier();
   CFdebug << "        * migration complete" << CFendl;

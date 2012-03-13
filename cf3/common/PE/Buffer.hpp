@@ -34,6 +34,7 @@ namespace PE {
 class Common_API Buffer
 {
 public:
+  typedef char* iterator;
 
   /// @name Constructor/Destructor
   //@{
@@ -41,10 +42,10 @@ public:
   Buffer(const Uint size = 0u)
     : m_buffer(nullptr),
       m_size(0),
-      m_packed_size(0),
-      m_unpacked_size(0)
+      m_capacity(0),
+      m_unpacked_idx(0)
   {
-    resize(size);
+    reserve(size);
   }
 
   /// @brief Destructor, deallocates internal buffer
@@ -60,35 +61,43 @@ public:
   void* buffer() { return (void*)m_buffer; }
 
   /// @brief Allocated memory
+  int capacity() const { return m_capacity; }
+
+  /// @brief Size of valid parts of buffer
   int size() const { return m_size; }
 
-  /// @brief Packed memory
-  int packed_size() const { return m_packed_size; }
-
-  /// @brief Packed memory
-  int& packed_size() { return m_packed_size; }
+  /// @brief Unpacked memory
+  ///
+  /// Remains to unpack = packed - unpacked
+  int unpacked_idx() const { return m_unpacked_idx; }
 
   /// @brief Unpacked memory
   ///
   /// Remains to unpack = packed - unpacked
-  int unpacked_size() const { return m_unpacked_size; }
-
-  /// @brief Unpacked memory
-  ///
-  /// Remains to unpack = packed - unpacked
-  int& unpacked_size() { return m_unpacked_size; }
+  int& unpacked_idx() { return m_unpacked_idx; }
 
   /// @brief Tell if everything is unpacked
-  bool more_to_unpack() const { return m_unpacked_size < m_packed_size; }
+  bool more_to_unpack() const { return m_unpacked_idx < m_size; }
+
+  /// @brief reserve the buffer to fit memory "size".
+  /// The buffer gets allocated bigger than necessary in order to reduce future resizes.
+  void reserve(const Uint size);
 
   /// @brief resize the buffer to fit memory "size".
   /// The buffer gets resized bigger than necessary in order to reduce future resizes.
+  /// @post Calling pack() afterwards, will grow the buffer and push_back
   void resize(const Uint size);
 
   /// @brief reset the buffer, without resizing
   ///
   /// This is useful to reuse an already allocated buffer.
   void reset();
+
+  /// @brief begin iterator
+  const iterator begin() const { return m_buffer; }
+
+  /// @brief end iterator
+  const iterator end() const { return m_buffer+m_size; }
 
   /// @name Pack/Unpackfunctions for POD arrays
   //@{
@@ -216,29 +225,27 @@ private:
   char* m_buffer;
 
   /// @brief allocated memory in buffer
-  int m_size;
+  int m_capacity;
 
   /// @brief packed memory in buffer
-  int m_packed_size;
+  int m_size;
 
   /// @brief unpacked memory in buffer
-  int m_unpacked_size;
+  int m_unpacked_idx;
 
-  /// @brief index
-  std::vector<Uint> m_index;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void Buffer::resize(const Uint size)
+inline void Buffer::reserve(const Uint size)
 {
-  if(m_packed_size+static_cast<int>(size) > m_size)
+  if(m_size+static_cast<int>(size) > m_capacity)
   {
-    m_size = std::max(2*m_size,m_packed_size+static_cast<int>(size));
-    char* new_buffer = new char[m_size];
+    m_capacity = std::max(2*m_capacity,m_size+static_cast<int>(size));
+    char* new_buffer = new char[m_capacity];
     if (is_not_null(m_buffer))
     {
-      memcpy(new_buffer,m_buffer,m_packed_size);
+      memcpy(new_buffer,m_buffer,m_size);
       delete_ptr_array(m_buffer);
     }
     m_buffer = new_buffer;
@@ -247,10 +254,18 @@ inline void Buffer::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+inline void Buffer::resize(const Uint size)
+{
+  reserve(size);
+  m_size = size;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 inline void Buffer::reset()
 {
-  m_packed_size = 0;
-  m_unpacked_size = 0;
+  m_size = 0;
+  m_unpacked_idx = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,14 +279,14 @@ inline void Buffer::pack(const T* data, const Uint data_size)
     int size;
     MPI_Pack_size(data_size, get_mpi_datatype<T>() , Comm::instance().communicator() , &size);
 
-    // resize buffer to fit the package
-    resize(size);
+    // reserve buffer to fit the package
+    reserve(size);
 
     // pack the package in the buffer, and modify the packed_size
-    int index = static_cast<int>(m_packed_size);
-    MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_size, &index, Comm::instance().communicator());
-    m_packed_size = index;
-    cf3_assert(m_packed_size <= m_size);
+    int index = static_cast<int>(m_size);
+    MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_capacity, &index, Comm::instance().communicator());
+    m_size = index;
+    cf3_assert(m_size <= m_capacity);
   }
 }
 
@@ -283,10 +298,10 @@ inline void Buffer::unpack(T* data, const Uint data_size)
   if (data_size)
   {
     // unpack the package and modify the unpacked_size
-    int index=static_cast<int>(m_unpacked_size);
-    MPI_Unpack(m_buffer, m_size, &index, (void*)data, data_size, get_mpi_datatype<T>(), Comm::instance().communicator());
-    m_unpacked_size = index;
-    cf3_assert(m_unpacked_size <= m_packed_size);
+    int index=static_cast<int>(m_unpacked_idx);
+    MPI_Unpack(m_buffer, m_capacity, &index, (void*)data, data_size, get_mpi_datatype<T>(), Comm::instance().communicator());
+    m_unpacked_idx = index;
+    cf3_assert(m_unpacked_idx <= m_size);
   }
 }
 
@@ -410,18 +425,18 @@ inline void Buffer::unpack(std::string* data)         { unpack<std::string>(data
 inline void Buffer::broadcast(const Uint root)
 {
   // broadcast buffer size
-  int p = m_packed_size;
+  int p = m_size;
   MPI_Bcast( &p, 1, get_mpi_datatype(p), root, PE::Comm::instance().communicator() );
 
   // resize the buffer on receiving ranks
   if (Comm::instance().rank()!=root)
   {
-    resize(p);
-    m_packed_size=p;
+    reserve(p);
+    m_size = p;
   }
 
   // broadcast buffer as MPI_PACKED
-  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, PE::Comm::instance().communicator() );
+  MPI_Bcast( m_buffer, m_size, MPI_PACKED, root, PE::Comm::instance().communicator() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -429,7 +444,7 @@ inline void Buffer::broadcast(const Uint root)
 inline void Buffer::all_gather(Buffer& recv)
 {
   std::vector<int> strides;
-  Comm::instance().all_gather((int)packed_size(),strides);
+  Comm::instance().all_gather((int)size(),strides);
   std::vector<int> displs(strides.size());
   if (strides.size())
   {
@@ -442,8 +457,7 @@ inline void Buffer::all_gather(Buffer& recv)
     }
     recv.reset();
     recv.resize(displs.back()+strides.back());
-    MPI_CHECK_RESULT(MPI_Allgatherv, (buffer(), packed_size(), MPI_PACKED, recv.buffer(), &strides[0], &displs[0], MPI_PACKED, Comm::instance().communicator()));
-    recv.packed_size()=(displs.back()+strides.back());
+    MPI_CHECK_RESULT(MPI_Allgatherv, (begin(), size(), MPI_PACKED, recv.begin(), &strides[0], &displs[0], MPI_PACKED, Comm::instance().communicator()));
   }
   else
   {
@@ -616,7 +630,7 @@ inline Buffer& operator>> (Buffer& buffer, PackedObject& obj)
 
 inline std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
 {
-  const char* endPtr = buffer.buffer() + buffer.packed_size();
+  const char* endPtr = buffer.end();
   for(char* ptr = (char*)buffer.buffer(); (const char*) ptr < endPtr; ptr++)
     out << *ptr;
   return out;

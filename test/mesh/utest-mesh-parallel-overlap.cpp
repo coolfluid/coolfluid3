@@ -67,7 +67,7 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
   for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].packed_size();
+    send_strides[i] = send[i].size();
 
   if (send.size()) send_displs[0] = 0;
   for (Uint i=1; i<send.size(); ++i)
@@ -75,9 +75,9 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 
   PE::Buffer send_linear;
 
-  send_linear.resize(send_displs.back()+send_strides.back());
+  send_linear.reserve(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
-    send_linear.pack(send[i].buffer(),send[i].packed_size());
+    send_linear.pack(send[i].begin(),send[i].size());
 
   std::vector<int> recv_strides(PE::Comm::instance().size());
   std::vector<int> recv_displs(PE::Comm::instance().size());
@@ -87,8 +87,7 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +107,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 
@@ -381,7 +379,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   /// @todo debug
-  const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
+  const std::vector< Handle<Component> >& mesh_elements = mesh.mesh_elements().components();
 
   std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
 

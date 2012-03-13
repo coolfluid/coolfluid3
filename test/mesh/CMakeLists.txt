@@ -64,6 +64,9 @@ coolfluid_add_test( UTEST utest-mesh-components
                     CPP   utest-mesh-components.cpp
                     LIBS  coolfluid_mesh )
 
+coolfluid_add_test( UTEST utest-mesh-manipulations
+                    CPP   utest-mesh-manipulations.cpp
+                    LIBS  coolfluid_mesh )
 
 coolfluid_add_test( UTEST     utest-mesh-cgns
                     CPP       utest-mesh-cgns.cpp

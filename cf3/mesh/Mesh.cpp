@@ -48,6 +48,7 @@
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/BoundingBox.hpp"
+#include "mesh/Space.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -73,7 +74,7 @@ Mesh::Mesh ( const std::string& name  ) :
   properties().add_property("dimensionality",Uint(0));
   properties().add_property(common::Tags::dimension(),Uint(0));
 
-  m_elements   = create_static_component<MeshElements>("elements");
+  m_mesh_elements   = create_static_component<MeshElements>("elements");
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
 
@@ -120,8 +121,26 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 void Mesh::update_statistics()
 {
   cf3_assert(m_dimension == geometry_fields().coordinates().row_size() );
+  Uint entities_idx=0;
+  Uint dictionary_idx=0;
+  m_elements.clear();
+  m_dictionaries.clear();
+  std::set< Handle<Dictionary> > set_dicts;
   boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
+  {
+    m_elements.push_back(elements.handle<Entities>());
+    m_elements_idx[m_elements.back()] = entities_idx++;
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
+    boost_foreach(const Handle<Space>& space, elements.spaces())
+    {
+      set_dicts.insert(space->dict().handle<Dictionary>());
+    }
+  }
+  boost_foreach(const Handle<Dictionary>& dict, set_dicts)
+  {
+    m_dictionaries.push_back(dict);
+    m_dictionaries_idx[m_dictionaries.back()] = dictionary_idx++;
+  }
 
   Uint nb_cells = 0;
   boost_foreach ( Cells& elements, find_components_recursively<Cells>(topology()) )
@@ -228,9 +247,9 @@ Dictionary& Mesh::geometry_fields() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MeshElements& Mesh::elements() const
+MeshElements& Mesh::mesh_elements() const
 {
-  return *m_elements;
+  return *m_mesh_elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -370,7 +389,7 @@ void Mesh::raise_mesh_loaded()
 {
   geometry_fields().update();
   update_statistics();
-  elements().update();
+  mesh_elements().update();
   check_sanity();
 
   // Raise an event to indicate that a mesh was loaded happened
@@ -381,7 +400,7 @@ void Mesh::raise_mesh_loaded()
   Core::instance().event_handler().raise_event( "mesh_loaded", f );
 
   update_statistics();
-  elements().update();
+  mesh_elements().update();
   check_sanity();
 }
 

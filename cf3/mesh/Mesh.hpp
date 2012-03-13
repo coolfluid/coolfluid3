@@ -63,7 +63,13 @@ public: // functions
   Dictionary& geometry_fields() const;
 
   /// @return linearized view of all the entities in the mesh
-  MeshElements& elements() const;
+  /// @deprecated
+  MeshElements& mesh_elements() const;
+
+  const std::vector< Handle<Entities> >& elements() const { return m_elements; }
+  const Uint find_elements_idx(const Handle<Entities const>& entities) const { return m_elements_idx.find(entities)->second; }
+  const std::vector< Handle<Dictionary> >& dictionaries() const { return m_dictionaries; }
+  const Uint find_dictionary_idx(const Handle<Dictionary const>& dict) const { return m_dictionaries_idx.find(dict)->second; }
 
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }
@@ -95,7 +101,13 @@ private: // data
 
   Uint m_dimensionality;
 
-  Handle<MeshElements> m_elements;
+  std::vector< Handle<Entities> > m_elements;
+  std::map<Handle<Entities const>,Uint> m_elements_idx;
+
+  std::vector< Handle<Dictionary> > m_dictionaries;
+  std::map< Handle<Dictionary const>, Uint> m_dictionaries_idx;
+
+  Handle<MeshElements> m_mesh_elements;
 
   Handle<MeshMetadata> m_metadata;
 

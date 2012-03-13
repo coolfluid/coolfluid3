@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // ----------------------------------
 
-  BOOST_CHECK_EQUAL(buffer.packed_size(), expected_size);
+  BOOST_CHECK_EQUAL(buffer.size(), expected_size);
 
   if (Comm::instance().rank() != root)
   {

@@ -168,6 +168,19 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( NoChangeFlushTest )
+{
+  // create table
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
+  // initialize with number of columns
+  Uint nbCols = 2;
+  table->set_row_size(nbCols);
+  table->resize(6);
+  // create a buffer to interact with the table
+  Table<Uint>::Buffer buffer = table->create_buffer();
+  buffer.flush();
+}
+
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
@@ -696,9 +709,6 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   Dictionary& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(2,DIM_3D);
   BOOST_CHECK_EQUAL(mesh.geometry_fields().coordinates().row_size() , (Uint) DIM_3D);
-
-  BOOST_CHECK_EQUAL(&mesh.geometry_fields(), &region.geometry_fields() );
-
 }
 
 BOOST_AUTO_TEST_CASE( List_Uint_Test )

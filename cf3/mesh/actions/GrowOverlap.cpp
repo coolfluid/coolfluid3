@@ -54,7 +54,7 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
   for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].packed_size();
+    send_strides[i] = send[i].size();
 
   if (send.size()) send_displs[0] = 0;
   for (Uint i=1; i<send.size(); ++i)
@@ -62,9 +62,9 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 
   PE::Buffer send_linear;
 
-  send_linear.resize(send_displs.back()+send_strides.back());
+  send_linear.reserve(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
-    send_linear.pack(send[i].buffer(),send[i].packed_size());
+    send_linear.pack(send[i].begin(),send[i].size());
 
   std::vector<int> recv_strides(PE::Comm::instance().size());
   std::vector<int> recv_displs(PE::Comm::instance().size());
@@ -74,8 +74,7 @@ void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,8 +94,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
-  recv.packed_size()=recv_displs.back()+recv_strides.back();
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.begin(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.begin(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +121,7 @@ void GrowOverlap::execute()
   Mesh& mesh = *m_mesh;
   Dictionary& nodes = mesh.geometry_fields();
 
-  const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
+  const std::vector< Handle<Component> >& mesh_elements = mesh.mesh_elements().components();
 
   FaceCellConnectivity& face2cell = *mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
@@ -145,12 +143,12 @@ void GrowOverlap::execute()
 
   std::map<Uint,Uint> glb_elem_2_loc_elem;
   std::map<Uint,Uint>::iterator glb_elem_not_found = glb_elem_2_loc_elem.end();
-  for (Uint e=0; e<mesh.elements().size(); ++e)
+  for (Uint e=0; e<mesh.mesh_elements().size(); ++e)
   {
     Handle< Component > comp;
     Uint idx;
 
-    boost::tie(comp,idx) = mesh.elements().location(e);
+    boost::tie(comp,idx) = mesh.mesh_elements().location(e);
     if ( Handle< Elements > elements = Handle<Elements>(comp) )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
@@ -232,7 +230,7 @@ void GrowOverlap::execute()
 
               Uint elem_comp_idx;
               Uint elem_idx;
-              boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
+              boost::tie(elem_comp_idx,elem_idx) = mesh.mesh_elements().location_idx(unif_elem_idx);
 
               if (dynamic_cast<Elements&>(*mesh_elements[elem_comp_idx]).is_ghost(elem_idx) == false)
               {
@@ -415,8 +413,8 @@ void GrowOverlap::execute()
 
   }
 
-  mesh.elements().reset();
-  mesh.elements().update();
+  mesh.mesh_elements().reset();
+  mesh.mesh_elements().update();
   mesh.update_statistics();
 
 }

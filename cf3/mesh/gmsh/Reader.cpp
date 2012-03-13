@@ -141,7 +141,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
 
-  m_mesh->elements().update();
+  m_mesh->mesh_elements().update();
   m_mesh->update_statistics();
 
   // clean-up
