@@ -7,7 +7,9 @@
 #ifndef cf3_mesh_Dictionary_hpp
 #define cf3_mesh_Dictionary_hpp
 
-#include "common/Component.hpp"
+#include <boost/cstdint.hpp>
+
+#include "common/Map.hpp"
 
 #include "mesh/LibMesh.hpp"
 
@@ -65,10 +67,22 @@ public: // functions
   const Handle< Space const>& space(const Handle< Entities const>& entities) const;
 
   /// Return the global index of every field row
-  common::List<Uint>& glb_idx() const { return *m_glb_idx; }
+  common::List<Uint>& glb_idx() { return *m_glb_idx; }
+
+  /// Return the global index of every field row
+  const common::List<Uint>& glb_idx() const { return *m_glb_idx; }
 
   /// Return the rank of every field row
-  common::List<Uint>& rank() const { return *m_rank; }
+  common::List<Uint>& rank() { return *m_rank; }
+
+  /// Return the rank of every field row
+  const common::List<Uint>& rank() const { return *m_rank; }
+
+  /// Return a mapping between global and local indices
+  common::Map<boost::uint64_t,Uint>& glb_to_loc() { return *m_glb_to_loc; }
+
+  /// Return a mapping between global and local indices
+  const common::Map<boost::uint64_t,Uint>& glb_to_loc() const { return *m_glb_to_loc; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
   common::PE::CommPattern& comm_pattern();
@@ -87,6 +101,8 @@ public: // functions
   const Field& coordinates() const;
 
   Field& coordinates();
+
+  const std::vector< Handle<Field> >& fields() const { return m_fields; }
 
   common::DynTable<Uint>& glb_elem_connectivity();
 
@@ -132,6 +148,7 @@ protected:
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
+  Handle<common::Map<boost::uint64_t,Uint> > m_glb_to_loc;
   bool m_is_continuous;
 
 private:
@@ -139,6 +156,7 @@ private:
   std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
   std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
+  std::vector< Handle<Field> > m_fields;
 
 };
 

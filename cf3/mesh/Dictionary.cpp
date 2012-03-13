@@ -63,6 +63,9 @@ Dictionary::Dictionary ( const std::string& name  ) :
   m_glb_idx = create_static_component< common::List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
+  m_glb_to_loc = create_static_component< common::Map<boost::uint64_t,Uint> >(mesh::Tags::map_global_to_local());
+  m_glb_to_loc->add_tag(mesh::Tags::map_global_to_local());
+
   // Event handlers
   //  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &Dictionary::on_mesh_changed_event);
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &Dictionary::on_mesh_changed_event);
@@ -110,7 +113,7 @@ CommPattern& Dictionary::comm_pattern()
     PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
     comm_pattern.insert("gid",glb_idx().array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),rank().array());
-    m_comm_pattern = Handle<common::PE::CommPattern>(comm_pattern.handle<Component>());
+    m_comm_pattern = Handle<common::PE::CommPattern>(comm_pattern.handle());
   }
 
   return *m_comm_pattern;
@@ -146,17 +149,20 @@ const Handle< Space const>& Dictionary::space(const Handle<Entities const>& enti
 
 Field& Dictionary::create_field(const std::string &name, const std::string& variables_description)
 {
+  Handle<Field> field = create_component<Field>(name);
 
-  Field& field = *create_component<Field>(name);
-  field.set_dict(*this);
+  field->set_dict(*this);
 
   if (variables_description == "scalar_same_name")
-    field.create_descriptor(name+"[scalar]",Handle<Mesh>(parent())->dimension());
+    field->create_descriptor(name+"[scalar]",Handle<Mesh>(parent())->dimension());
   else
-    field.create_descriptor(variables_description,Handle<Mesh>(parent())->dimension());
+    field->create_descriptor(variables_description,Handle<Mesh>(parent())->dimension());
 
-  field.resize(m_size);
-  return field;
+  field->resize(m_size);
+
+  m_fields.push_back(field);
+
+  return *field;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,6 +306,14 @@ void Dictionary::update()
 
   if(has_tag(mesh::Tags::geometry()) == false)
     create_connectivity_in_space();
+
+  // Create global to local mapping
+  glb_to_loc().clear();
+  glb_to_loc().reserve(size());
+  for (Uint n=0; n<size(); ++n)
+    glb_to_loc().push_back(glb_idx()[n],n);
+  glb_to_loc().sort_keys();
+
   check_sanity();
 }
 
@@ -384,7 +398,7 @@ Field& Dictionary::create_coordinates()
     }
   }
 
-  m_coordinates = Handle<Field>(coordinates.handle<Component>());
+  m_coordinates = coordinates.handle<Field>();
   return coordinates;
 }
 
