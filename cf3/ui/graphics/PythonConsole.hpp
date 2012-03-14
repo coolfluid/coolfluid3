@@ -11,25 +11,30 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QWidget>
-#include <QLineEdit>
 #include <QTextEdit>
 #include <QKeyEvent>
 #include <QStringList>
 #include <QCompleter>
 #include <QQueue>
 #include <QPair>
-#include <QTimer>
+#include <QAbstractTableModel>
 #include "ui/graphics/PythonCodeContainer.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
 
 class QToolBar;
+class QStringListModel;
+class QHBoxLayout;
+class QTableWidget;
+class QScrollArea;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace ui {
 namespace graphics {
+
+class ListDebugValues;
 
 class Graphics_API PythonConsole : public PythonCodeContainer
 {
@@ -41,13 +46,15 @@ public:
     void new_line(int indent_number);
     static PythonConsole* main_console;
     void execute_code(QString,bool);
+    void display_debug_list(const QStringList &keys,const QStringList& values);
+    bool is_stopped();
 private slots:
     void cursor_position_changed();
     void insert_output(const QString &);
     void insert_log(const QString &);
     void line_by_line_activated(bool);
     void stop_continue_pressed();
-    void execution_stopped();
+    void execution_stopped(int fragment,int line,const QStringList& keys,const QStringList& values);
     void stream_next_command();
 private:
     /// Index of the block that contains the current prompt
@@ -62,6 +69,8 @@ private:
     void select_input(QTextCursor &);
     void fix_prompt_history();
 
+    ListDebugValues *debug_values_widget;
+
     QAction* stop_continue;
     QStringList history;
 
@@ -71,6 +80,19 @@ private:
     bool stopped;
 
     int output_line_number;
+};
+
+class Graphics_API ListDebugValues : public QWidget{
+  Q_OBJECT
+public:
+  ListDebugValues(ListDebugValues** ptr);
+  ~ListDebugValues();
+  void set_debug_values(const QStringList &keys,const QStringList &values);
+private:
+  QTableWidget *table;
+  //DebugValuesModel *model;
+  QScrollArea *scroll_area;
+  ListDebugValues **self_ptr;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

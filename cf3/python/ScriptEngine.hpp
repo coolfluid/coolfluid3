@@ -17,7 +17,7 @@
 //python Py_ssize_t backward compatibility
 
 #if (PY_VERSION_HEX < 0x02050000)
-    typedef int Py_ssize_t;
+typedef int Py_ssize_t;
 #endif
 
 
@@ -34,6 +34,9 @@
 
 #include <frameobject.h>
 
+#include <vector>
+#include <string>
+
 namespace cf3 {
 namespace python {
 
@@ -44,21 +47,12 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
 
 /// @brief Threaded c function, used to contain the PyEval_CodeEval
 void python_execute_function();
-/// @brief Threaded c function, used to stop python execution with mutex
-void python_stop_function();
 
 /// @brief Executes python scripts passed as a string
 ///
 /// Exposes an execute_script signal, taking as single argument the string containing the python script to run
 /// @author Bart Janssens
 class Python_API ScriptEngine : public common::Component {
-
-public: // typedefs
-
-  /// pointer to this type
-
-
-
 public: // functions
 
   /// Contructor
@@ -83,19 +77,39 @@ public: // functions
   /// Signal to retrieve the completion list
   void signal_completion(common::SignalArgs& node);
 
+  /// Signal to get the documentation of the symbol under the mouse in the gui
+  void signal_get_documentation(common::SignalArgs& node);
+
   /// Called by the trace function when a new line is reached
   int new_line_reached(int code_fragment,int line_number);
 
-  void check_python_change();
+  void check_python_change(int code_fragment);
+
+  void no_more_instruction();
 
 private:
   enum debug_command {
-      INVALID=-1,
-      BREAK=0,
-      CONTINUE=1,
-      LINE_BY_LINE_EXECUTION=2,
-      NORMAL_EXECUTION=3
+    INVALID=-1,
+    BREAK=0,
+    CONTINUE=1,
+    LINE_BY_LINE_EXECUTION=2,
+    NORMAL_EXECUTION=3
   };
+
+  class PythonDictEntry{
+  public:
+    PythonDictEntry(){}
+    PythonDictEntry(const PythonDictEntry &entry)
+      :py_ref(entry.py_ref)
+      ,name(entry.name)
+      ,entry_list(entry.entry_list){}
+    PyObject *py_ref;
+    std::string name;
+    std::vector<PythonDictEntry> entry_list;
+    bool is_module;
+  };
+
+  void getScopeValues(std::vector<std::string> &names,std::vector<std::string> &values);
 
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
@@ -104,27 +118,24 @@ private:
 
   void emit_debug_trace(int fragment,int line);
 
-  void emit_completion_list();
+  void emit_completion_list(std::vector<std::string> *add, std::vector<std::string> *sub);
 
-  bool check_scope_difference(PyObject* dict,std::vector<PyObject*>* diff);
+  void emit_documentation(std::string doc);
 
-  void read_objects(PyObject* obj,std::string obj_name);
+  void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0);
 
-  void flush_python_stdout();
+  void flush_python_stdout(int code_fragment);
 
   std::string current_instruction;
   bool new_command;
   Handle< common::PE::Manager > m_manager;
-  std::vector<PyObject*> local_scope_diff;
-  std::vector<PyObject*> global_scope_diff;
-  std::vector<std::string> completion_word_list;
+  PythonDictEntry local_scope_entry;
   debug_command interpreter_mode;
 
   static int python_close;
   int break_fragment;
   int break_line;
   bool stoped;
-  static bool inited;
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////
