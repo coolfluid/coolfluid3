@@ -120,6 +120,8 @@ public: // functions
 
   bool discontinuous() const { return !m_is_continuous; }
 
+  void rebuild_map_glb_to_loc();
+
 private: // functions
 
   void config_space();

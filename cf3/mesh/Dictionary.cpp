@@ -307,14 +307,21 @@ void Dictionary::update()
   if(has_tag(mesh::Tags::geometry()) == false)
     create_connectivity_in_space();
 
-  // Create global to local mapping
+  // Rebuild global to local mapping
+  rebuild_map_glb_to_loc();
+
+  check_sanity();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Dictionary::rebuild_map_glb_to_loc()
+{
   glb_to_loc().clear();
   glb_to_loc().reserve(size());
   for (Uint n=0; n<size(); ++n)
     glb_to_loc().push_back(glb_idx()[n],n);
   glb_to_loc().sort_keys();
-
-  check_sanity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
