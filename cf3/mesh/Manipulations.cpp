@@ -40,7 +40,6 @@ PackedElement::PackedElement(const mesh::Mesh& mesh, common::PE::Buffer& buffer)
 
 PackedElement::PackedElement(const mesh::Mesh& mesh, const Uint entities_idx, const Uint elem_loc_idx) : m_mesh(mesh)
 {
-  Uint nb_nodes;
   m_entities_idx = entities_idx;
   m_loc_idx = elem_loc_idx;
   cf3_assert(m_entities_idx < mesh.elements().size());
@@ -48,17 +47,16 @@ PackedElement::PackedElement(const mesh::Mesh& mesh, const Uint entities_idx, co
   cf3_assert(elem_loc_idx < entities->size());
   m_glb_idx = entities->glb_idx()[m_loc_idx];
   m_rank = entities->rank()[m_loc_idx];
-  m_glb_connectivity.resize(entities->spaces().size());
-  for (Uint space_idx=0; space_idx<m_glb_connectivity.size(); ++space_idx)
+  m_connectivity.resize(entities->spaces().size());
+  for (Uint space_idx=0; space_idx<m_connectivity.size(); ++space_idx)
   {
-    const Dictionary& dict = entities->spaces()[space_idx]->dict();
-    nb_nodes = entities->spaces()[space_idx]->shape_function().nb_nodes();
-    m_glb_connectivity[space_idx].resize(nb_nodes);
+    const Uint nb_nodes = entities->spaces()[space_idx]->shape_function().nb_nodes();
+    m_connectivity[space_idx].resize(nb_nodes);
     for (Uint node=0; node<nb_nodes; ++node)
     {
       cf3_assert(m_loc_idx < entities->spaces()[space_idx]->connectivity().size());
-      cf3_assert(entities->spaces()[space_idx]->connectivity()[m_loc_idx][node] < dict.size() );
-      m_glb_connectivity[space_idx][node] = dict.glb_idx()[ entities->spaces()[space_idx]->connectivity()[m_loc_idx][node] ];
+      cf3_assert(node<(entities->spaces()[space_idx]->connectivity()[m_loc_idx].size()));
+      m_connectivity[space_idx][node] =entities->spaces()[space_idx]->connectivity()[m_loc_idx][node];
     }
   }
 }
@@ -69,10 +67,10 @@ void PackedElement::unpack(PE::Buffer& buf)
 {
   Uint nb_spaces;
   buf >> m_entities_idx >> m_loc_idx >> m_glb_idx >> m_rank >> nb_spaces;
-  m_glb_connectivity.resize(nb_spaces);
+  m_connectivity.resize(nb_spaces);
   for (Uint space_idx=0; space_idx<nb_spaces; ++space_idx)
   {
-    buf >> m_glb_connectivity[space_idx];
+    buf >> m_connectivity[space_idx];
   }
   std::cout << PERank << "unpacked element    glb_idx = " << m_glb_idx << "\t    rank = " << m_rank << std::endl;
 }
@@ -81,10 +79,10 @@ void PackedElement::unpack(PE::Buffer& buf)
 
 void PackedElement::pack(PE::Buffer& buf)
 {
-  buf << m_entities_idx << m_loc_idx << m_glb_idx << m_rank << (Uint) m_glb_connectivity.size();
-  for (Uint space_idx=0; space_idx<m_glb_connectivity.size(); ++space_idx)
+  buf << m_entities_idx << m_loc_idx << m_glb_idx << m_rank << (Uint) m_connectivity.size();
+  for (Uint space_idx=0; space_idx<m_connectivity.size(); ++space_idx)
   {
-    buf << m_glb_connectivity[space_idx];
+    buf << m_connectivity[space_idx];
   }
   std::cout << PERank << "packed element    glb_idx = " << m_glb_idx << "\t    rank = " << m_rank << std::endl;
 }
@@ -160,9 +158,13 @@ MeshAdaptor::MeshAdaptor(mesh::Mesh &mesh)
 
 void MeshAdaptor::prepare()
 {
+  std::cout << PERank << "preparing mesh_adaptor" << std::endl;
   make_element_node_connectivity_global();
+  std::cout << PERank << "  - node_connectivity_global" << std::endl;
   create_element_buffers();
+  std::cout << PERank << "  - create_element_buffers" << std::endl;
   create_node_buffers();
+  std::cout << PERank << "  - create_node_buffers" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,13 +173,17 @@ void MeshAdaptor::finish()
 {
   flush_nodes();
   flush_elements();
+
+  // dictionary global_2_local map must be remade, so that
+  // restore_element_node_connectivity() will point to correct local nodes
+  boost_foreach(const Handle<Dictionary>& dict, m_mesh->dictionaries())
+  {
+    dict->rebuild_map_glb_to_loc();
+  }
+
   restore_element_node_connectivity();
   cf3_assert( ! is_node_connectivity_global );
 
-  /// @todo dictionary global_2_local map must be remade!
-
-  // Update the mesh
-  m_mesh->update_statistics();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -283,14 +289,15 @@ void MeshAdaptor::restore_element_node_connectivity()
 
 void MeshAdaptor::add_element(const PackedElement& packed_element)
 {
+  std::cout << PERank << " adding element " << packed_element.glb_idx() << std::endl;
   cf3_assert_desc("Forgot to call MeshAdaptor::create_element_buffers()",element_glb_idx.size());
   cf3_assert(is_node_connectivity_global);
   element_glb_idx[packed_element.entities_idx()]->add_row(packed_element.glb_idx());
   element_rank[packed_element.entities_idx()]->add_row(packed_element.rank());
   for (Uint space_idx=0; space_idx<element_connected_nodes[packed_element.entities_idx()].size(); ++space_idx)
   {
-    cf3_assert(packed_element.glb_connectivity()[space_idx].size() == element_connected_nodes[packed_element.entities_idx()][space_idx]->get_appointed().shape()[1]);
-    element_connected_nodes[packed_element.entities_idx()][space_idx]->add_row(packed_element.glb_connectivity()[space_idx]);
+    cf3_assert(packed_element.connectivity()[space_idx].size() == element_connected_nodes[packed_element.entities_idx()][space_idx]->get_appointed().shape()[1]);
+    element_connected_nodes[packed_element.entities_idx()][space_idx]->add_row(packed_element.connectivity()[space_idx]);
   }
 }
 
@@ -305,6 +312,7 @@ void MeshAdaptor::remove_element(const PackedElement& packed_element)
 
 void MeshAdaptor::remove_element(const Uint entities_idx, const Uint elem_loc_idx)
 {
+  std::cout << PERank << " removing element " << elem_loc_idx << std::endl;
   cf3_assert_desc("Forgot to call MeshAdaptor::create_element_buffers()",element_glb_idx.size());
   cf3_assert(entities_idx< element_glb_idx.size() );
   cf3_assert(elem_loc_idx < element_glb_idx[entities_idx]->total_allocated());
@@ -318,6 +326,7 @@ void MeshAdaptor::remove_element(const Uint entities_idx, const Uint elem_loc_id
 
 void MeshAdaptor::add_node(const PackedNode& packed_node)
 {
+  std::cout << PERank << " adding node " << packed_node.glb_idx() << std::endl;
   cf3_assert_desc("Forgot to call MeshAdaptor::create_element_buffers()",node_glb_idx.size());
   node_glb_idx[packed_node.dict_idx()]->add_row(packed_node.glb_idx());
   node_rank[packed_node.dict_idx()]->add_row(packed_node.rank());

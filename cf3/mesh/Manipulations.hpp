@@ -186,8 +186,8 @@ public:
   Uint loc_idx() const       { return m_loc_idx; }
   const boost::uint64_t& glb_idx() const       { return m_glb_idx; }
   Uint rank() const { return m_rank; }
-  const std::vector< std::vector<Real> >& glb_connectivity() const { return m_glb_connectivity; }
-  Uint nb_spaces() const { return m_glb_connectivity.size(); }
+  const std::vector< std::vector<Real> >& connectivity() const { return m_connectivity; }
+  Uint nb_spaces() const { return m_connectivity.size(); }
 
 private:
   const Mesh& m_mesh;
@@ -197,7 +197,7 @@ private:
   boost::uint64_t m_glb_idx;   ///< Global index of the element
   Uint m_rank;                 ///< Rank of the element
   /// Per available space, the node connectivity, in global indices
-  std::vector< std::vector<Real> > m_glb_connectivity;
+  std::vector< std::vector<Real> > m_connectivity;
 };
 
 

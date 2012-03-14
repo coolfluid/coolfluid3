@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_manipulations )
+BOOST_AUTO_TEST_CASE( test_element_node_connectivity_rebuilding )
 {
 
   // Generate a simple 1D line-mesh of 10 cells
@@ -131,20 +131,6 @@ BOOST_AUTO_TEST_CASE( test_manipulations )
     }
   }
 
-  // Restore the node-connectivity to normal
-  BOOST_CHECK_NO_THROW(mesh_adaptor.restore_element_node_connectivity());
-
-  if (PE::Comm::instance().size() == 2)
-  {
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->size(),4u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[0][0], 0u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[0][1], 1u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[1][0], 4u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[1][1], 5u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[2][0], 2u);
-    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[2][1], 3u);
-  }
-
   // entities_idx: index as it appears in mesh.elements() vector; can be found through mesh.find_elements_idx()
   const Uint entities_idx = mesh.find_elements_idx(mesh.access_component_checked("topology/interior/Line")->handle<Entities>() );
   const Uint elem_idx = 1u; // index local to entities component
@@ -171,9 +157,19 @@ BOOST_AUTO_TEST_CASE( test_manipulations )
   BOOST_CHECK_EQUAL(unpacked_node.rank(),      packed_node.rank());
   BOOST_CHECK(unpacked_node.field_values() ==  packed_node.field_values());
 
-  mesh_adaptor.create_node_buffers();
-  mesh_adaptor.remove_node(0,1);
-  mesh_adaptor.flush_nodes();
+  // Restore the node-connectivity to normal
+  BOOST_CHECK_NO_THROW(mesh_adaptor.restore_element_node_connectivity());
+
+  if (PE::Comm::instance().size() == 2)
+  {
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->size(),4u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[0][0], 0u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[0][1], 1u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[1][0], 4u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[1][1], 5u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[2][0], 2u);
+    BOOST_CHECK_EQUAL(mesh.elements()[0]->geometry_space().connectivity()[2][1], 3u);
+  }
 
 }
 
@@ -191,12 +187,36 @@ BOOST_AUTO_TEST_CASE( test_manipulations_general )
   // Create a MeshAdaptor object to manipulate the elements
   MeshAdaptor mesh_adaptor(mesh);
 
-  // More general way to do things, avoiding commands to create buffers, flush buffers, adapt connectivity
+  // Allocations (not important)
+  PE::Buffer buf;
+  PackedElement unpacked_elem(mesh);
+  PackedNode    unpacked_node(mesh);
 
+  // Prepare the mesh-adaptor, rebuilding element-node connectivity tables to become global
   BOOST_CHECK_NO_THROW(  mesh_adaptor.prepare()  );
-  BOOST_CHECK_NO_THROW(  mesh_adaptor.add_element( PackedElement(mesh,0,0) )  );
-  BOOST_CHECK_NO_THROW(  mesh_adaptor.add_node( PackedNode(mesh,0,0) ) );
+
+  // Pack an element and a node
+  PackedElement elem(mesh, /* entities_idx= */ 0, /* loc_elem_idx = */ 0);
+  PackedNode    node(mesh, /* dictionary_idx= */ 0, /* loc_node_idx = */ 0);
+
+  // Load the element and node into a buffer
+  buf << elem << node;
+
+  // Remove the element and node from the mesh (not applied until finish() is called)
+  BOOST_CHECK_NO_THROW(  mesh_adaptor.remove_element(elem)  );
+  BOOST_CHECK_NO_THROW(  mesh_adaptor.remove_node(node) );
+
+  // Unload the same element and node from the buffer
+  buf >> unpacked_elem >> unpacked_node;
+
+  // Add the same element and node back into the mesh (not applied until finish() is called)
+  BOOST_CHECK_NO_THROW(  mesh_adaptor.add_element(unpacked_elem)  );
+  BOOST_CHECK_NO_THROW(  mesh_adaptor.add_node(unpacked_node) );
+
+  // Finish the mesh-adaptor, applying all changes (in this case the changes cancel out),
+  // and restore the element-node connectivity tables to become local
   BOOST_CHECK_NO_THROW(  mesh_adaptor.finish()  );
+
 
 }
 
