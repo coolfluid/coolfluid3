@@ -10,16 +10,28 @@
 
 #include <boost/pointer_cast.hpp>
 
-#include "Stratimikos_DefaultLinearSolverBuilder.hpp"
-#include "Thyra_LinearOpWithSolveFactoryHelpers.hpp"
-#include "Thyra_EpetraThyraWrappers.hpp"
-#include "Thyra_EpetraLinearOp.hpp"
-#include "Epetra_MsrMatrix.h"
-#include "Epetra_Vector.h"
-#include "Teuchos_GlobalMPISession.hpp"
-#include "Teuchos_VerboseObject.hpp"
+#include "Teuchos_ConfigDefs.hpp"
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
-#include "Teuchos_CommandLineProcessor.hpp"
+
+#include "Epetra_CrsMatrix.h"
+#include "Epetra_Vector.h"
+#include "Epetra_LinearProblem.h"
+
+// EpetraExt includes
+#include "EpetraExt_CrsMatrixIn.h"
+#include "EpetraExt_VectorIn.h"
+
+// Teko-Package includes
+#include "Teko_Utilities.hpp"
+#include "Teko_InverseFactory.hpp"
+#include "Teko_InverseLibrary.hpp"
+#include "Teko_StridedEpetraOperator.hpp"
+#include "Teko_InverseFactoryOperator.hpp"
+
+// Aztec includes
+#include "AztecOO.h"
+#include "AztecOO_Operator.h"
 
 #include "common/Assertions.hpp"
 #include "common/Builder.hpp"
@@ -236,72 +248,51 @@ void TrilinosCrsMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
   cf3_assert(m_is_created);
   cf3_assert(solution.is_created());
   cf3_assert(rhs.is_created());
-
-  // general setup phase
-  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
-  /// @todo decouple from fancyostream to ostream or to C stdout when possible
-  Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-  Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
-  linearSolverBuilder.setupCLP(&clp); // not used, TODO: see if can be removed safely since not really used
-  /// @todo check whgats wrtong with input options via string
-  //clp.setOption( "tol",            &tol,            "Tolerance to check against the scaled residual norm." ); // input options via string, not working for some reason
-  int argc=0; char** argv=0; Teuchos::CommandLineProcessor::EParseCommandLineReturn parse_return = clp.parse(argc,argv);
-  if( parse_return != Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL ) throw common::ParsingFailed(FromHere(),"Emulated command line parsing for stratimikos failed");
-
-  // wrapping epetra to thyra
-  Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( m_mat );
+  
   LSS::TrilinosVector& tsol = dynamic_cast<LSS::TrilinosVector&>(solution);
-  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( tsol.epetra_vector() , A->domain() );
   LSS::TrilinosVector& trhs = dynamic_cast<LSS::TrilinosVector&>(rhs);
-  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs.epetra_vector() , A->range() );
+  
+  Teuchos::RCP<Teuchos::ParameterList> paramList = Teuchos::getParametersFromXmlFile(options().option("settings_file").value_str());
+  
+     // Break apart the strided linear system
+   /////////////////////////////////////////////////////////
 
-  // r = b - A*x, initial L2 norm
-  double norm2_in=0.;
-  {
-    Epetra_Vector epetra_r(*trhs.epetra_vector());
-    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
-    epetra_r.Update(-1.0,m_mat_x,1.0);
-    epetra_r.Norm2(&norm2_in);
-  }
+   // Block the linear system using a strided epetra operator
+   std::vector<int> vec(2); vec[0] = 3; vec[1] = 1; /*@ \label{lned:define-strided} @*/
+   Teuchos::RCP<const Epetra_Operator> strided_A
+         = Teuchos::rcp(new Teko::Epetra::StridedEpetraOperator(vec,m_mat));
 
-  // Reading in the solver parameters from the parameters file and/or from
-  // the command line.  This was setup by the command-line options
-  // set by the setupCLP(...) function above.
-  linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
-  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
-/// @todo verbosity level from option
-  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)1); // set verbosity
+   // Build the preconditioner /*@ \label{lned:construct-prec} @*/
+   /////////////////////////////////////////////////////////
 
-  // print back default and current settings
-  if (false) {
-    std::ofstream ofs("./trilinos_default.txt");
-    linearSolverBuilder.getValidParameters()->print(ofs,Teuchos::ParameterList::PrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
-    ofs.flush();ofs.close();
-    ofs.open("./trilinos_default.xml");
-    Teuchos::writeParameterListToXmlOStream(*linearSolverBuilder.getValidParameters(),ofs);
-    ofs.flush();ofs.close();
-  }
-  if (false) {
-    linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
-  }
+   // build an InverseLibrary and inverse factory
+   Teuchos::RCP<Teko::InverseLibrary> invLib
+          = Teko::InverseLibrary::buildFromParameterList(*paramList);
+   Teuchos::RCP<Teko::InverseFactory> inverse
+          = invLib->getInverseFactory("SIMPLE");
 
-  // solve the matrix
-  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);
-  lows->solve(Thyra::NOTRANS,*b,x.ptr());
+   // Create the initial preconditioner, and build it from strided_A
+   Teuchos::RCP<Teko::Epetra::InverseFactoryOperator> prec_A
+          = Teuchos::rcp(new Teko::Epetra::InverseFactoryOperator(inverse));
+   prec_A->initInverse();
+   prec_A->rebuildInverseOperator(strided_A.getConst());
 
-  // r = b - A*x, final L2 norm
-  double norm2_out=0.;
-  {
-    Epetra_Vector epetra_r(*trhs.epetra_vector());
-    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
-    epetra_r.Update(-1.0,m_mat_x,1.0);
-    epetra_r.Norm2(&norm2_out);
-  }
+   // Build and solve the linear system
+   /////////////////////////////////////////////////////////
 
-  // print in and out residuals
-  CFinfo << "Solver residuals: in " << norm2_in << ", out " << norm2_out << CFendl;
+   // Setup the linear solve: notice A is used directly 
+   Epetra_LinearProblem problem(&*m_mat,&*(tsol.epetra_vector()),&*(trhs.epetra_vector())); /*@ \label{lned:aztec-solve} @*/
+
+   // build the solver
+   AztecOO solver(problem);
+   solver.SetAztecOption(AZ_solver,AZ_gmres);
+   solver.SetAztecOption(AZ_precond,AZ_none);
+   solver.SetAztecOption(AZ_kspace,1000);
+   solver.SetAztecOption(AZ_output,10);
+   solver.SetPrecOperator(&*prec_A);
+
+   // solve the linear system
+   solver.Iterate(1000,1e-5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
