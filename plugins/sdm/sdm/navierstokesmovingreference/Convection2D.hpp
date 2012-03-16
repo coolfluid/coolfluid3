@@ -14,8 +14,6 @@
 
 #include "sdm/ConvectiveTerm.hpp"
 #include "sdm/navierstokesmovingreference/LibNavierStokesMovingReference.hpp"
-#include "Physics/NavierStokes/Cons2D.hpp"
-#include "Physics/NavierStokes/Roe2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,11 +26,6 @@ namespace navierstokesmovingreference {
 class sdm_navierstokes_API Convection2D : public ConvectiveTerm< PhysDataBase<4u,2u> >
 {
 private:
-  typedef physics::NavierStokes::Cons2D PHYS;
-  typedef physics::NavierStokes::Roe2D  ROE;
-
-//    Real rotationspeed, translationspeedx, translationspeedy;
-//    RealVector2 translationspeed;
     Real gamma;
     RealVector2 Vtrans;
     RealVector3 Omega;
@@ -45,7 +38,7 @@ private:
         cf3_assert(Omega_vec[1] == 0);
         Omega[0] = Omega_vec[0];
         Omega[1] = Omega_vec[1];
-        Omega[2] = Omega_vec[3];
+        Omega[2] = Omega_vec[2];
     }
 
     void config_Vtrans()
@@ -59,9 +52,6 @@ private:
 public:
   static std::string type_name() { return "Convection2D"; }
   Convection2D(const std::string& name) : ConvectiveTerm< PhysData >(name),
-//                                          rotationspeed(0.0),
-//                                          translationspeedx(0.0),
-//                                          translationspeedy(0.0),
                                           gamma(1.4)
   {
         std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0);
@@ -81,21 +71,6 @@ public:
             .description("Vector of the translation speeds")
             .mark_basic()
             .attach_trigger( boost::bind( &Convection2D::config_Vtrans, this));
-
-//      options().add_option("rotationspeed", rotationspeed)
-//          .description("The rotationspeed of the moving frame")
-//          .link_to(&rotationspeed);
-
-//      options().add_option("translationspeedx", translationspeedx)
-//          .description("The translationspeed of the moving frame in the x direction")
-//          .link_to(&translationspeedx);
-
-//      options().add_option("translationspeedy", translationspeedy)
-//          .description("The translationspeed of the moving frame in the y direction")
-//          .link_to(&translationspeedy);
-
-//      translationspeed[0] = translationspeedx;
-//      translationspeed[1] = translationspeedy;
 
       options().add_option("gamma", gamma)
           .description("The heat capacity ratio")
@@ -139,7 +114,7 @@ public:
 
       u     = rhou / rho;
       v     = rhov / rho;
-      P     = (gamma - 1) * (rhoE - 0.5 * rho *(u*u + v*v) + 0.5 * rho * ( Vt(0) * Vt(0) + Vt(1) * Vt(1)));
+      P     = (gamma - 1) * (rhoE - 0.5 * rho *(u*u + v*v) + 0.5 * rho * ( Vt.dot(Vt)));
       H     = rhoE / rho + P / rho;
 
       um    = u * unit_normal[XX] + v * unit_normal[YY];

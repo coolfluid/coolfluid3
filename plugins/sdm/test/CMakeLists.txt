@@ -20,10 +20,14 @@ coolfluid_add_test( UTEST      utest-sdm-convection
 coolfluid_add_test( UTEST      utest-sdm-transformation
                     CPP        utest-sdm-transformation.cpp
                     LIBS       coolfluid_sdm )
+
+coolfluid_add_test( UTEST      utest-sdm-lineuler-2d
+                    CPP        utest-sdm-lineuler-2d.cpp
+                    LIBS       coolfluid_sdm coolfluid_sdm_lineuler)
                     
-coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-source2d
-                    CPP        utest-sdm-navierstokesmovingreference-source2d.cpp
-                    LIBS       coolfluid_sdm )
+coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-2d
+                    CPP        utest-sdm-navierstokesmovingreference-2d.cpp
+                    LIBS       coolfluid_sdm coolfluid_sdm_navierstokesmovingreference)
 
 
 coolfluid_add_test( ATEST      atest-sdm-euler-shocktube-1d
