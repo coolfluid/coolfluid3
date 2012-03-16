@@ -81,9 +81,7 @@ void NScriptEngine::signal_completion(common::SignalArgs & node){
 
 void NScriptEngine::signal_debug_trace(common::SignalArgs & node){
   SignalOptions options(node);
-  QStringList scope_keys=convertsStdVectorToQStringList(options.array<std::string>("scope_keys"));
-  QStringList scope_values=convertsStdVectorToQStringList(options.array<std::string>("scope_values"));
-  emit debug_trace_received(options.value<int>("fragment"),options.value<int>("line"),scope_keys,scope_values);
+  emit debug_trace_received(options.value<int>("fragment"),options.value<int>("line"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -102,10 +100,14 @@ void NScriptEngine::execute_line( const QString & line , int fragment_number){
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NScriptEngine::emit_debug_command(debug_command command){
+void NScriptEngine::emit_debug_command(debug_command command, int fragment, int line){
   const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
   SignalOptions options;
   options.add_option("command", static_cast<int>(command));
+  if (command == TOGGLE_BREAK_POINT){
+    options.add_option("fragment", fragment);
+    options.add_option("line", line);
+  }
   SignalFrame frame = options.create_frame("change_debug_state", uri(), script_engine_path);
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }

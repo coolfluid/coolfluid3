@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QTreeView>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -31,26 +32,42 @@ namespace graphics {
 //////////////////////////////////////////////////////////////////////////
 
 QMap<int,int> PythonCodeContainer::fragment_container;
-QCompleter* PythonCodeContainer::completer=NULL;
-QPixmap* PythonCodeContainer::arrow_pixmap=NULL;
+QMap<int,int> PythonCodeContainer::blocks_fragment;
+QVector<int> PythonCodeContainer::break_points;
+PythonCompleter* PythonCodeContainer::completer=NULL;
 PythonCodeContainer* PythonCodeContainer::debug_arrow_container=NULL;
 PythonConsole* PythonCodeContainer::python_console=NULL;
+QTreeView* PythonCodeContainer::python_scope_values=NULL;
 int PythonCodeContainer::fragment_generator=0;
 QVector<PythonCodeContainer::PythonDict> PythonCodeContainer::dictionary;
-QStringList PythonCodeContainer::python_dictionary;
+QStandardItemModel PythonCodeContainer::python_dictionary;
+QPixmap* BorderArea::debug_arrow=NULL;
+QPixmap* BorderArea::break_point=NULL;
 
 
 PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
   QPlainTextEdit(parent)
 {
   if (completer==NULL){//init static member
-    completer=new QCompleter(this);
-    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+    QStringList headers;
+    headers << "Scope keys" << "Scope values";
+    python_dictionary.setHorizontalHeaderLabels(headers);
+    completer=new PythonCompleter(this);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setCaseSensitivity(Qt::CaseSensitive);
+    completer->setModel(&python_dictionary);
+    python_scope_values=new QTreeView(NULL);
+    python_scope_values->setModel(&python_dictionary);
+    python_scope_values->setWindowFlags(Qt::WindowStaysOnTopHint);
+    python_scope_values->setAttribute(Qt::WA_DeleteOnClose,false);
+    python_scope_values->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    python_scope_values->setColumnHidden(1,true);
     //fragment_container.push_back(QPair<PythonCodeContainer*,int>(NULL,0));//dummy fragment, fragment index start at 1
     connect(core::ThreadManager::instance().tree().root().get(),SIGNAL(connected()),core::NScriptEngine::global().get(),SLOT(get_completion_list()));
     connect(core::NScriptEngine::global().get(),SIGNAL(completion_list_received(QStringList,QStringList)),
             this,SLOT(keywords_changed(QStringList,QStringList)));
+    connect(core::NScriptEngine::global().get(), SIGNAL(debug_trace_received(int,int))
+            , this,SLOT(display_debug_trace(int,int)));
     //connect(core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(di)
   }
   highlighter=new PythonSyntaxeHighlighter(document());
@@ -73,12 +90,10 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
   offset_border.setX(border_width);
   offset_border.setY(tool_bar->height());
   //this border is used to display line number or the prompt
-  doc_timer.setInterval(1000);
+  doc_timer.setInterval(400);
   doc_timer.setSingleShot(true);
   setMouseTracking(true);
   connect(this,SIGNAL(updateRequest(QRect,int)),this,SLOT(update_border_area(QRect,int)));
-  connect(core::NScriptEngine::global().get(), SIGNAL(debug_trace_received(int,int,QStringList,QStringList))
-          , this,SLOT(display_debug_trace(int,int,QStringList,QStringList)));
   connect(&doc_timer,SIGNAL(timeout()),this,SLOT(request_documentation()));
   connect(core::NScriptEngine::global().get(), SIGNAL(documentation_received(QString)), this,SLOT(popup_documentation(QString)));
 }
@@ -97,22 +112,41 @@ void PythonCodeContainer::update_border_area(const QRect &rect,int dy){
 
 void PythonCodeContainer::register_fragment(QString code,int block_number){
   fragment_container.insert(++fragment_generator,block_number);
+  blocks_fragment.insert(block_number,fragment_generator);
   if (python_console==NULL)
     python_console=static_cast<PythonConsole*>(this);
   ui::core::NScriptEngine::global().get()->execute_line(code,fragment_generator);
 }
 
+void PythonCodeContainer::toggle_break_point(int fragment_block, int line_number){
+  //ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::TOGGLE_BREAK_POINT,blocks_fragment.value(fragment_block),line_number);
+  int block_number=fragment_block+line_number;
+  CFinfo << fragment_block << "," << line_number << CFendl;
+  int ind=break_points.indexOf(block_number);
+  if (ind > -1){
+    break_points.remove(ind);
+  }else{
+    int i;
+    for (i=0;i<break_points.size();i++)
+      if (break_points[i] > block_number)
+        break;
+    break_points.insert(i,block_number);
+  }
+  QTextBlock block=document()->findBlockByNumber(block_number);
+  block.setVisible(false);
+  block.setVisible(true);
+}
+
 void PythonCodeContainer::remove_fragments(){
 }
 
-void PythonCodeContainer::display_debug_trace(int fragment,int line,const QStringList &scope_keys,const QStringList &scope_values){
-  Q_UNUSED(scope_keys);
-  Q_UNUSED(scope_values);
+void PythonCodeContainer::display_debug_trace(int fragment,int line){
   if (fragment > 0){
     int fragment_bloc_number=fragment_container[fragment];
     if (python_console != NULL){
-      if (arrow_pixmap==NULL){
-        arrow_pixmap=new QPixmap(":/Icons/debug_arrow.png");
+      if (BorderArea::debug_arrow==NULL){
+        BorderArea::debug_arrow=new QPixmap(":/Icons/debug_arrow.png");
+        BorderArea::break_point=new QPixmap(":/Icons/break_point.png");
       }
       reset_debug_trace();
       python_console->debug_arrow=fragment_bloc_number+(line-1);
@@ -122,10 +156,11 @@ void PythonCodeContainer::display_debug_trace(int fragment,int line,const QStrin
       QTextCursor cursor(prev_cursor);
       cursor.setPosition(block.position());
       python_console->setTextCursor(cursor);
-      ensureCursorVisible();
-      python_console->setTextCursor(prev_cursor);
+      //python_console->centerCursor();
+      //python_console->setTextCursor(prev_cursor);
       block.setVisible(false);
       block.setVisible(true);
+      //python_scope_values->show();
     }
   }
 }
@@ -144,7 +179,7 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
   QPainter painter(border_area);
   painter.fillRect(event->rect(), Qt::lightGray);
   QTextBlock block = firstVisibleBlock();
-  int blockNumber = block.blockNumber();
+  int block_number = block.blockNumber();
   int vertical_displace=tool_bar->height();
   int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top()+vertical_displace;
   int bottom = top + (int) blockBoundingRect(block).height();
@@ -154,7 +189,7 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
       switch (block.userState()){
       case LINE_NUMBER://display bloc number
         painter.drawText(0, top, border_width-7, fontMetrics().height(),
-                         Qt::AlignRight, QString::number(blockNumber + 1));
+                         Qt::AlignRight, QString::number(block_number + 1));
         break;
       case PROMPT_1://display prompt 1
         painter.drawText(0, top, border_width-7, fontMetrics().height(),
@@ -168,14 +203,18 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
         painter.drawText(0, top, border_width-7, fontMetrics().height(),
                          Qt::AlignRight, QString::number(block.userState()));
       }
-      if (blockNumber == debug_arrow){
-        painter.drawPixmap(border_width-6,top+(fontMetrics().height()-10),5,10,*arrow_pixmap);
+      if (block_number == debug_arrow){
+        painter.drawPixmap(border_width-6,top+(fontMetrics().height()-10),5,10,*BorderArea::debug_arrow);
+      }
+      int break_point_index=break_points.indexOf(block_number);
+      if (break_point_index!=-1){
+        painter.drawPixmap(0,top+(fontMetrics().height()-10),10,10,*BorderArea::break_point);
       }
     }
     block = block.next();
     top = bottom;
     bottom = top + (int) blockBoundingRect(block).height();
-    blockNumber++;
+    block_number++;
   }
 }
 
@@ -200,67 +239,72 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
     default:
       QPlainTextEdit::keyPressEvent(e);
     }
-    QString word_under_cursor=get_word_under_cursor();
+    QString word_under_cursor=get_word_under_cursor(c);
     QAbstractItemView* popup=completer->popup();
     if (e->text().size()>=0){//text entered
-      completer->setModel(new QStringListModel(generate_dictionary(word_under_cursor)));
+      //completer->setModel(new QStringListModel(generate_dictionary(word_under_cursor)));
       completer->setCompletionPrefix(word_under_cursor);
       popup->setCurrentIndex(completer->completionModel()->index(0,0));
       QRect completer_rect=cursorRect(c);
-      completer_rect.moveTopLeft(offset_border);
+      completer_rect.moveTopLeft(completer_rect.topLeft()+offset_border);
       completer_rect.setWidth(popup->sizeHintForColumn(0)
                               +popup->verticalScrollBar()->sizeHint().width());
       completer->complete(completer_rect);
     }
   }else{
-    if (e->key()==Qt::Key_Return){//auto indentation
-      QTextCursor c=textCursor();
-      QString current_line=document()->findBlockByNumber(c.blockNumber()).text();
-      int tab_number=0;
-      for (int i=0;i<current_line.size();i++){
-        if (current_line[i]=='\t')
+    if (is_editable()){
+      if (e->key()==Qt::Key_Return){//auto indentation
+        QTextCursor c=textCursor();
+        QString current_line=document()->findBlockByNumber(c.blockNumber()).text();
+        int tab_number=0;
+        for (int i=0;i<current_line.size();i++){
+          if (current_line[i]=='\t')
+            tab_number++;
+          else
+            break;
+        }
+        if (indent_case.indexIn(current_line) > -1)
           tab_number++;
-        else
-          break;
-      }
-      if (indent_case.indexIn(current_line) > -1)
-        tab_number++;
-      c.movePosition(QTextCursor::EndOfBlock);
-      c.insertText("\n");
-      if (tab_number>0){
-        for (int i=0;i<tab_number;i++)
-          c.insertText("\t");
-      }
-      setTextCursor(c);
-      new_line(tab_number);
-    }else if (e->modifiers()==Qt::ControlModifier && e->key()==Qt::Key_Space){
-      QString word_under_cursor=get_word_under_cursor();
-      if (word_under_cursor.length() >= 0){
-        c.movePosition(QTextCursor::EndOfWord);
+        c.movePosition(QTextCursor::EndOfBlock);
+        c.insertText("\n");
+        if (tab_number>0){
+          for (int i=0;i<tab_number;i++)
+            c.insertText("\t");
+        }
         setTextCursor(c);
-        if (static_cast<PythonCodeContainer*>(completer->widget()) != NULL)
-          disconnect(completer,SIGNAL(activated(QString)),static_cast<PythonCodeContainer*>(completer->widget()),SLOT(insert_completion(QString)));
-        completer->setWidget(this);
-        completer->setModel(new QStringListModel(generate_dictionary(word_under_cursor)));
-        completer->setCompletionPrefix(word_under_cursor);
-        QAbstractItemView* popup=completer->popup();
-        popup->setCurrentIndex(completer->completionModel()->index(0,0));
-        QRect completer_rect=cursorRect();
-        completer_rect.moveTopLeft(offset_border);
-        completer_rect.setWidth(popup->sizeHintForColumn(0)
-                                +popup->verticalScrollBar()->sizeHint().width());
-        completer->complete(completer_rect);
-        connect(completer,SIGNAL(activated(QString)),this,SLOT(insert_completion(QString)));
+        new_line(tab_number);
+      }else if (e->modifiers()==Qt::ControlModifier && e->key()==Qt::Key_Space){
+        QString word_under_cursor=get_word_under_cursor(c);
+        if (word_under_cursor.length() >= 0){
+          c.movePosition(QTextCursor::EndOfWord);
+          setTextCursor(c);
+          if (static_cast<PythonCodeContainer*>(completer->widget()) != NULL)
+            disconnect(completer,SIGNAL(activated(QString)),static_cast<PythonCodeContainer*>(completer->widget()),SLOT(insert_completion(QString)));
+          completer->setWidget(this);
+          //completer->setModel(new QStringListModel(generate_dictionary(word_under_cursor)));
+          completer->setCompletionPrefix(word_under_cursor);
+          QAbstractItemView* popup=completer->popup();
+          popup->setCurrentIndex(completer->completionModel()->index(0,0));
+          QRect completer_rect=cursorRect();
+          completer_rect.moveTopLeft(completer_rect.topLeft()+offset_border);
+          completer_rect.setWidth(popup->sizeHintForColumn(0)
+                                  +popup->verticalScrollBar()->sizeHint().width());
+          completer->complete(completer_rect);
+          connect(completer,SIGNAL(activated(QString)),this,SLOT(insert_completion(QString)));
+        }
+      }else{
+        key_press_event(e);
       }
-    }else{
-      key_press_event(e);
     }
   }
+  ensureCursorVisible();
 }
 
 void PythonCodeContainer::mouseMoveEvent(QMouseEvent *e){
+  doc_timer.stop();
   doc_timer.start();
   last_mouse_pos=e->pos();
+  QToolTip::hideText();
   QPlainTextEdit::mouseMoveEvent(e);
 }
 
@@ -284,63 +328,86 @@ void PythonCodeContainer::insert_completion(QString completion){
 }
 
 void PythonCodeContainer::keywords_changed(const QStringList &add, const QStringList &sub){
+  /*CFinfo << "add" << CFendl;
+  for (int i=0;i<add.size();i++){
+    CFinfo << add.at(i).toStdString() << CFendl;
+  }
+  CFinfo << "sub" << CFendl;
+  for (int i=0;i<sub.size();i++){
+    CFinfo << sub.at(i).toStdString() << CFendl;
+  }*/
   for (int i=0;i<sub.size();i++){
     if (sub[i]=="*"){
-      python_dictionary.clear();
+      python_dictionary.removeRows(0,python_dictionary.rowCount());
     }else{
-      for (int j=0;j<python_dictionary.size();j++){
-        if (python_dictionary[i].startsWith(sub[i])){
-          python_dictionary[i]=python_dictionary[python_dictionary.size()-1];
-          python_dictionary.pop_back();
-        }
-      }
+      remove_dictionary_item(sub[i],python_dictionary.invisibleRootItem());
     }
   }
   int i=0;
-  add_to_dictionary(i,add,QString(""));
-  for (i=0;i<add.size();i++)
-    CFinfo << add[i].toStdString() << CFendl;
-  for (i=0;i<python_dictionary.size();i++){
-    CFinfo << python_dictionary[i].toStdString() << CFendl;
-  }
+  add_to_dictionary(i,add,python_dictionary.invisibleRootItem());
 }
 
-void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QString prefix){
+void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStandardItem *item){
   while(i<add.size()){
     QString s=add[i];
     QChar c=s[s.size()-1];
-    if (c=='{'){
+    if (c=='{' || c=='[' || c==':'){
       s.chop(1);
-      python_dictionary.push_back(prefix+s);
+      int two_point=s.indexOf(':');
+      QStandardItem *n_item=new QStandardItem(s.mid(0,two_point));
+      QStandardItem *n_value=new QStandardItem(s.mid(two_point+1));
+      //n_item->setData(QVariant(s.mid(two_point)),Qt::DisplayRole);
+      item->appendRow(n_item);
+      item->setChild(n_item->row(),1,n_value);
+      if (c=='[')
+        python_scope_values->setExpanded(n_item->index(),true);
       i++;
-      add_to_dictionary(i,add,prefix+s+".");
-    }else if (c=='}'){
+      if (c!=':')
+        add_to_dictionary(i,add,n_item);
+    }else if (c=='}' || c==']'){
       i++;
       return;
     }else{
-      python_dictionary.push_back(prefix+s);
+      QStandardItem *n_item=new QStandardItem(s);
+      item->appendRow(n_item);
       i++;
     }
   }
 }
 
-QStringList PythonCodeContainer::generate_dictionary(QString prefix){
-  QStringList current_dictionary;
-  for (int i=0;i<python_dictionary.size();i++){
-    if (python_dictionary[i].startsWith(prefix)){
-      current_dictionary.push_back(python_dictionary[i]);
+void PythonCodeContainer::remove_dictionary_item(QString name,QStandardItem* item){
+  int p=name.indexOf('.');
+  if (p > -1){
+    QString start=name.mid(0,p);
+    QString end=name.mid(p+1);
+    for (int i=0;i<item->rowCount();i++){
+      QStandardItem *n_item=item->child(i);
+      QString t_str=n_item->text();
+      if (t_str.size() && t_str[t_str.size()-1] == '('){
+        t_str.chop(1);
+      }
+      if (n_item->text()==start){
+        remove_dictionary_item(end,n_item);
+      }
+    }
+  }else{
+    for (int i=0;i<item->rowCount();i++){
+      QStandardItem *n_item=item->child(i);
+      QString t_str=n_item->text();
+      if (t_str.size() && t_str[t_str.size()-1] == '('){
+        t_str.chop(1);
+      }
+      if (t_str==name){
+        item->removeRow(n_item->row());
+        i--;
+      }
     }
   }
-  return current_dictionary;
 }
 
 void PythonCodeContainer::request_documentation(){
   if (!PythonConsole::main_console->is_stopped()){
-    QTextCursor lastCursor=textCursor();
-    QTextCursor mouseCursor=cursorForPosition(last_mouse_pos);
-    setTextCursor(mouseCursor);
-    QString word=get_word_under_cursor();
-    setTextCursor(lastCursor);
+    QString word=get_word_under_cursor(cursorForPosition(last_mouse_pos));
     if (word.size() > 1){
       if (word != last_documented_word){
         last_documented_word=word;
@@ -356,12 +423,11 @@ void PythonCodeContainer::popup_documentation(const QString & documentation){
   if (documentation.size()){
     last_documentation=documentation;
     last_documentation.replace("\\n","\n");
-    QToolTip::showText(mapToGlobal(last_mouse_pos)+offset_border,last_documentation,this);
+    QToolTip::showText(mapToGlobal(last_mouse_pos+offset_border),last_documentation,this);
   }
 }
 
-QString PythonCodeContainer::get_word_under_cursor(){
-  QTextCursor c=textCursor();
+QString PythonCodeContainer::get_word_under_cursor(QTextCursor c){
   QString block=c.block().text();
   static QRegExp complete_word("[\\w\\.]+");
   int position_in_block=c.positionInBlock();

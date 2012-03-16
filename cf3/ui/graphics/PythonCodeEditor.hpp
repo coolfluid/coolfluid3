@@ -28,17 +28,19 @@ namespace graphics {
 
 class Graphics_API PythonCodeEditor: public PythonCodeContainer
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    PythonCodeEditor(QWidget *parent = 0);
-    ~PythonCodeEditor();
-    void key_press_event(QKeyEvent *);
-    void new_line(int indent_number);
+  PythonCodeEditor(QWidget *parent = 0);
+  ~PythonCodeEditor();
+  void key_press_event(QKeyEvent *);
+  void new_line(int indent_number);
+  bool is_editable();
+  void border_click(const QPoint &pos);
 private slots:
-    void execute_immediat();
-    void execute_stepped();
-    void open();
-    void save();
+  void execute_immediat();
+  void execute_stepped();
+  void open();
+  void save();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

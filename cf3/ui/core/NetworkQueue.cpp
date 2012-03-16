@@ -88,7 +88,8 @@ Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
   std::string python_repr=args.to_python_script();
   if (python_repr.size()){
     NScriptEngine::global().get()->append_command_to_python_console(python_repr);
-  }else{
+  }
+  {
     if( priority == IMMEDIATE ){
       ThreadManager::instance().network().send( args );
     }else

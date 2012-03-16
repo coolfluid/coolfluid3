@@ -37,10 +37,12 @@ class Core_API NScriptEngine :
 public:
   enum debug_command {
     INVALID=-1,
-    BREAK=0,
+    STOP=0,
     CONTINUE=1,
     LINE_BY_LINE_EXECUTION=2,
-    NORMAL_EXECUTION=3
+    NORMAL_EXECUTION=3,
+    BREAK=4,
+    TOGGLE_BREAK_POINT=5
   };
 
   NScriptEngine();
@@ -54,7 +56,7 @@ public:
 
   void execute_line( const QString & line , int fragment_number);
 
-  void emit_debug_command(debug_command);
+  void emit_debug_command(debug_command command,int fragment=0,int line=0);
 
   void request_documentation(QString &doc);
 
@@ -89,7 +91,7 @@ signals:
   /// @param doc_list entry documentation (__doc__ membre)
   void completion_list_received(const QStringList & add,const QStringList & sub);
 
-  void debug_trace_received(int fragment,int line,const QStringList & scope_keys,const QStringList & scope_values);
+  void debug_trace_received(int fragment,int line);
 
   void documentation_received(const QString & documentation);
 

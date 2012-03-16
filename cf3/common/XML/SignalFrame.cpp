@@ -501,6 +501,8 @@ std::string SignalFrame::to_python_script( int indentation ) const
 {
   std::string str="Root";
   std::string target = node.attribute_value("target");
+  if (target=="signal_signature" || target=="list_tree")
+    return "";
   std::string receiver = node.attribute_value("receiver").substr(7);//without the 'cpath:/'
   boost::char_separator<char> sep("/");
   boost::tokenizer< boost::char_separator<char> > tokens(receiver, sep);
@@ -515,44 +517,99 @@ std::string SignalFrame::to_python_script( int indentation ) const
       }
     }
   }
-  str+="."+target+"(";
-  SignalFrame frame( *this );
-  SignalOptions opts( frame );
+  if (target=="configure"){
+    str+=".options().configure_option(";
+    std::string str_start=str;
+    str="";
+    SignalFrame frame( *this );
+    SignalOptions opts( frame );
 
-  OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+    OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
 
-  for (; it != opts.store.end() ; it++ )
-  {
-    boost::shared_ptr<Option const> option = it->second;
-
-    std::string opt = option->name() + '=';
-    std::string tag = option->tag();
-    if(tag == Protocol::Tags::node_array()){
-      opt += '[';
-      std::string array_tag=option->element_type();
-      if (array_tag == "string"){
-        boost::char_separator<char> sep(",");
-        boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
-        BOOST_FOREACH(std::string t, tokens){
-          opt+= "'"+t+"',";
+    for (; it != opts.store.end() ; it++ ){
+      boost::shared_ptr<Option const> option = it->second;
+      str+=str_start;
+      std::string opt = "'"+option->name()+"',";
+      std::string tag = option->tag();
+      if(tag == Protocol::Tags::node_array()){
+        opt += '[';
+        std::string array_tag=option->element_type();
+        if (array_tag == "string"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+= "'"+t+"',";
+          }
+          opt.resize(opt.size()-1);//to remove the laste ,
+        }else if(tag == "bool"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+=std::string(t=="true"?"True":"False")+",";
+          }
+          opt.resize(opt.size()-1);
+        }else{
+          opt+=option->value_str();
         }
-        opt.resize(opt.size()-1);//to remove the laste ,
+        opt += ']';
+      }else if(tag == "string"){
+        opt += "'" + option->value_str() + "'";
+      }else if(tag == "bool"){
+        opt += boost::any_cast<bool>(option->value())?"True":"False";
       }else{
-        opt+=option->value_str();
+        opt += option->value_str();
       }
-      opt += ']';
-    }else if(tag == "string"){
-      opt += "'" + option->value_str() + "'";
-    }else{
-      opt += option->value_str();
+      str+=opt+")\n";
     }
+  }else{
+    str+="."+target+"(";
+    SignalFrame frame( *this );
+    SignalOptions opts( frame );
 
-    if( it == opts.store.begin() )
-      str += opt;
-    else
-      str += "," + opt;
+    OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+
+    for (; it != opts.store.end() ; it++ )
+    {
+      boost::shared_ptr<Option const> option = it->second;
+
+      std::string opt = option->name() + '=';
+      std::string tag = option->tag();
+      if(tag == Protocol::Tags::node_array()){
+        opt += '[';
+        std::string array_tag=option->element_type();
+        if (array_tag == "string"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+= "'"+t+"',";
+          }
+          opt.resize(opt.size()-1);//to remove the laste ,
+        }else if(tag == "bool"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+=std::string(t=="true"?"True":"False")+",";
+          }
+          opt.resize(opt.size()-1);
+        }else{
+          opt+=option->value_str();
+        }
+        opt += ']';
+      }else if(tag == "string"){
+        opt += "'" + option->value_str() + "'";
+      }else if(tag == "bool"){
+        opt += boost::any_cast<bool>(option->value())?"True":"False";
+      }else{
+        opt += option->value_str();
+      }
+
+      if( it == opts.store.begin() )
+        str += opt;
+      else
+        str += "," + opt;
+    }
+    str+=")";
   }
-  str+=")";
   return str;
 }
 

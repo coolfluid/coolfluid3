@@ -26,7 +26,7 @@ PythonSyntaxeHighlighter::PythonSyntaxeHighlighter(QTextDocument* parent)
     highlighting_rules.append(rule);
     // comment
     comment_format.setForeground(QColor(0x8F,0x59,0x02));
-    rule.pattern = QRegExp("#.*$");
+    rule.pattern = QRegExp("#[^\\r\\n]*");
     rule.format = comment_format;
     highlighting_rules.append(rule);
 

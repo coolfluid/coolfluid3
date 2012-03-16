@@ -29,14 +29,14 @@ namespace graphics {
 
 
 PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
-    PythonCodeContainer(parent)
+  PythonCodeContainer(parent)
 {
-    setUndoRedoEnabled(true);
-    //Toolbar
-    connect(tool_bar->addAction("Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
-    connect(tool_bar->addAction("Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
-    connect(tool_bar->addAction("Open"),SIGNAL(triggered()),this,SLOT(open()));
-    connect(tool_bar->addAction("Save"),SIGNAL(triggered()),this,SLOT(save()));
+  setUndoRedoEnabled(true);
+  //Toolbar
+  connect(tool_bar->addAction("Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
+  connect(tool_bar->addAction("Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
+  connect(tool_bar->addAction("Open"),SIGNAL(triggered()),this,SLOT(open()));
+  connect(tool_bar->addAction("Save"),SIGNAL(triggered()),this,SLOT(save()));
 }
 
 PythonCodeEditor::~PythonCodeEditor(){
@@ -44,68 +44,76 @@ PythonCodeEditor::~PythonCodeEditor(){
 }
 
 void PythonCodeEditor::key_press_event(QKeyEvent *e){
-    QTextCursor c=textCursor();
-    switch(e->key()){
-    case Qt::Key_Home:
-        c.movePosition(QTextCursor::StartOfBlock);
-        c.movePosition(QTextCursor::WordRight);
-        setTextCursor(c);
-        break;
-    default:
-        QPlainTextEdit::keyPressEvent(e);
-    }
+  QTextCursor c=textCursor();
+  switch(e->key()){
+  case Qt::Key_Home:
+    c.movePosition(QTextCursor::StartOfBlock);
+    c.movePosition(QTextCursor::WordRight);
+    setTextCursor(c);
+    break;
+  default:
+    QPlainTextEdit::keyPressEvent(e);
+  }
 }
 
 void PythonCodeEditor::new_line(int indent_number){
 
 }
 
+bool PythonCodeEditor::is_editable(){
+  return true;
+}
+
+void PythonCodeEditor::border_click(const QPoint &pos){
+
+}
+
 void PythonCodeEditor::execute_immediat(){
-    PythonConsole::main_console->execute_code(toPlainText(),true);
+  PythonConsole::main_console->execute_code(toPlainText(),true);
 }
 
 void PythonCodeEditor::execute_stepped(){
-    PythonConsole::main_console->execute_code(toPlainText(),false);
+  PythonConsole::main_console->execute_code(toPlainText(),false);
 }
 
 void PythonCodeEditor::open(){
-    QFileDialog dlg;
+  QFileDialog dlg;
 
-  #ifndef Q_WS_MAC
-    dlg.setOption(QFileDialog::DontUseNativeDialog);
-  #endif
+#ifndef Q_WS_MAC
+  dlg.setOption(QFileDialog::DontUseNativeDialog);
+#endif
 
-    dlg.setAcceptMode(QFileDialog::AcceptOpen);
-    dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
-    dlg.setDirectory( QDir::home() );
-    dlg.setFileMode(QFileDialog::ExistingFile);
-    if( dlg.exec() == QFileDialog::Accepted ){
-      QFile f(dlg.selectedFiles().first());
-      f.open(QFile::ReadOnly);
-      clear();
-      insertPlainText(f.readAll());
-      f.close();
-    }
+  dlg.setAcceptMode(QFileDialog::AcceptOpen);
+  dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
+  dlg.setDirectory( QDir::home() );
+  dlg.setFileMode(QFileDialog::ExistingFile);
+  if( dlg.exec() == QFileDialog::Accepted ){
+    QFile f(dlg.selectedFiles().first());
+    f.open(QFile::ReadOnly);
+    clear();
+    insertPlainText(f.readAll());
+    f.close();
+  }
 }
 
 void PythonCodeEditor::save(){
-    QFileDialog dlg;
+  QFileDialog dlg;
 
-  #ifndef Q_WS_MAC
-    dlg.setOption(QFileDialog::DontUseNativeDialog);
-  #endif
+#ifndef Q_WS_MAC
+  dlg.setOption(QFileDialog::DontUseNativeDialog);
+#endif
 
-    dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
-    dlg.setDirectory( QDir::home() );
-    dlg.setFileMode(QFileDialog::AnyFile);
+  dlg.setAcceptMode(QFileDialog::AcceptSave);
+  dlg.setNameFilters( QStringList() << "Python script (*.py)" << "All files (*.*)" );
+  dlg.setDirectory( QDir::home() );
+  dlg.setFileMode(QFileDialog::AnyFile);
 
-    if( dlg.exec() == QFileDialog::Accepted ){
-      QFile f(dlg.selectedFiles().first());
-      f.open(QFile::WriteOnly);
-      f.write(toPlainText().toStdString().c_str());
-      f.close();
-    }
+  if( dlg.exec() == QFileDialog::Accepted ){
+    QFile f(dlg.selectedFiles().first());
+    f.open(QFile::WriteOnly);
+    f.write(toPlainText().toStdString().c_str());
+    f.close();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

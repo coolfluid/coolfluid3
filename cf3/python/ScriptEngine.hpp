@@ -90,10 +90,12 @@ public: // functions
 private:
   enum debug_command {
     INVALID=-1,
-    BREAK=0,
+    STOP=0,
     CONTINUE=1,
     LINE_BY_LINE_EXECUTION=2,
-    NORMAL_EXECUTION=3
+    NORMAL_EXECUTION=3,
+    BREAK=4,
+    TOGGLE_BREAK_POINT=5
   };
 
   class PythonDictEntry{
@@ -102,14 +104,14 @@ private:
     PythonDictEntry(const PythonDictEntry &entry)
       :py_ref(entry.py_ref)
       ,name(entry.name)
+      ,value(entry.value)
       ,entry_list(entry.entry_list){}
+
     PyObject *py_ref;
     std::string name;
+    std::string value;
     std::vector<PythonDictEntry> entry_list;
-    bool is_module;
   };
-
-  void getScopeValues(std::vector<std::string> &names,std::vector<std::string> &values);
 
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
@@ -122,7 +124,7 @@ private:
 
   void emit_documentation(std::string doc);
 
-  void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0);
+  void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0,bool child=false);
 
   void flush_python_stdout(int code_fragment);
 
@@ -131,7 +133,7 @@ private:
   Handle< common::PE::Manager > m_manager;
   PythonDictEntry local_scope_entry;
   debug_command interpreter_mode;
-
+  std::vector<std::vector<bool> >break_points;
   static int python_close;
   int break_fragment;
   int break_line;

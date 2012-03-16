@@ -20,6 +20,7 @@
 #include <QLabel>
 #include <QToolTip>
 #include <QTimer>
+#include <QStandardItemModel>
 
 #include "ui/graphics/LibGraphics.hpp"
 #include "ui/graphics/PythonSyntaxeHighlighter.hpp"
@@ -27,6 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class QToolBar;
+class QTreeView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +40,7 @@ namespace graphics {
 class BorderArea;
 class DebugArrow;
 class PythonConsole;
+class PythonCompleter;
 
 class Graphics_API PythonCodeContainer : public QPlainTextEdit
 {
@@ -52,11 +55,13 @@ public:
   PythonCodeContainer(QWidget *parent = 0);
   ~PythonCodeContainer();
   void register_fragment(QString code,int block_number);
+  void toggle_break_point(int fragment_block, int line_number);
   void remove_fragments();
   virtual void key_press_event(QKeyEvent *e) = 0;
   virtual void new_line(int indent_number){}
+  virtual bool is_editable() = 0;
+  virtual void border_click(const QPoint & pos) = 0;
   void repaint_border_area(QPaintEvent *event);
-  QStringList generate_dictionary(QString prefix);
 protected:
   void keyPressEvent(QKeyEvent *e);
   void resizeEvent(QResizeEvent *e);
@@ -66,7 +71,7 @@ protected slots:
   void update_border_area(const QRect &,int);
   void keywords_changed(const QStringList &add,const QStringList &sub);
   void insert_completion(QString);
-  void display_debug_trace(int fragment,int line, const QStringList &scope_keys, const QStringList &scope_values);
+  void display_debug_trace(int fragment,int line);
   void reset_debug_trace();
   void request_documentation();
   void popup_documentation(const QString & documentation);
@@ -80,25 +85,30 @@ private:
     QString name;
     QVector<QString> attribute;
   };
-  void add_to_dictionary(int &i,const QStringList &add,QString prefix);
-  QString get_word_under_cursor();
+  void add_to_dictionary(int &i,const QStringList &add,QStandardItem *item);
+  void remove_dictionary_item(QString name,QStandardItem* item);
+  QString get_word_under_cursor(QTextCursor c);
   PythonSyntaxeHighlighter* highlighter;
   BorderArea *border_area;
   int border_width;
   int debug_arrow;//block number of the debug arrow, -1 for no arrow
   QPoint last_mouse_pos;
-  QPoint offset_border;
   QTimer doc_timer;
   QString last_documented_word;
   QString last_documentation;
   static QMap<int,int> fragment_container;
+  static QMap<int,int> blocks_fragment;
+  static QVector<int> break_points;
   static int fragment_generator;
-  static QCompleter *completer;
-  static QPixmap *arrow_pixmap;
+  static PythonCompleter *completer;
   static PythonCodeContainer *debug_arrow_container;
   static QVector<PythonDict> dictionary;
-  static QStringList python_dictionary;
+  //static QStringList python_dictionary;
   static PythonConsole *python_console;
+protected:
+  QPoint offset_border;
+  static QStandardItemModel python_dictionary;
+  static QTreeView *python_scope_values;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,11 +118,16 @@ class BorderArea : public QWidget
 public:
   BorderArea(PythonCodeContainer *container,int width)
     : QWidget(container) , container(container) , width(width) {}
-
-  static QPixmap* arrow_pixmap;
+  void  toogle_break_point(int line_number);
+  static QPixmap* debug_arrow;
+  static QPixmap* break_point;
 protected:
   void paintEvent(QPaintEvent *event) {
     container->repaint_border_area(event);
+  }
+
+  void mousePressEvent(QMouseEvent *e){
+    container->border_click(e->pos());
   }
 
 private:
@@ -130,6 +145,27 @@ public:
     setWordWrap(true);
     setFixedWidth(400);
     setBackgroundRole(QPalette::ToolTipBase);
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class PythonCompleter : public QCompleter
+{
+public:
+  PythonCompleter(PythonCodeContainer*parent)
+    : QCompleter(parent) {
+  }
+ protected:
+  QStringList splitPath(const QString &path) const{
+    return path.split('.');
+  }
+  QString pathFromIndex(const QModelIndex &index) const{
+    QStringList dataList;
+    for (QModelIndex i = index; i.isValid(); i = i.parent()) {
+      dataList.prepend(model()->data(i, completionRole()).toString());
+    }
+    return dataList.join(".");
   }
 };
 

@@ -59,6 +59,7 @@ boost::condition_variable python_code_queue_condition;
 boost::mutex python_break_mutex;
 boost::condition_variable python_break_condition;
 bool python_should_wake_up;
+bool python_should_break;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +69,7 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
     if (frag_number.get() != NULL){
       int code_fragment=atoi(PyString_AsString(frag_number.get()));
       if (code_fragment > 0){
-        script_engine->new_line_reached(code_fragment,frame->f_lineno);
+        return script_engine->new_line_reached(code_fragment,frame->f_lineno);
       }
     }
   }
@@ -130,6 +131,7 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
   if (python_close++ == 0){//this class is instancied two times, don't known why
     stoped=false;
     python_should_wake_up=false;
+    python_should_break=false;
     script_engine=this;
     interpreter_mode=NORMAL_EXECUTION;
     //init python
@@ -141,16 +143,15 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
     PyDict_SetItemString (global_scope.get(), "__builtins__", PyEval_GetBuiltins());
     PyEval_SetTrace(python_trace,NULL);
     local_scope_entry.py_ref=local_scope.get();
-    local_scope_entry.is_module=true;
     python_stream_statement_thread=new boost::thread(python_execute_function);
     execute_script("import sys\n",0);
     //execute_script("import ctypes as dl\n",0);
     execute_script("from libcoolfluid_python import *\n",0);
     execute_script("class SimpleStringStack(object):\n"
-            "\tdef __init__(self):\n"
-            "\t\tself.data = ''\n"
-            "\tdef write(self, ndata):\n"
-            "\t\tself.data = self.data + ndata\n",0);
+                   "\tdef __init__(self):\n"
+                   "\t\tself.data = ''\n"
+                   "\tdef write(self, ndata):\n"
+                   "\t\tself.data = self.data + ndata\n",0);
     execute_script("stdoutStack = SimpleStringStack()\n",0);
     execute_script("sys.stdout = stdoutStack\n",0);
     execute_script("stderrStack = SimpleStringStack()\n",0);
@@ -200,46 +201,92 @@ void ScriptEngine::execute_script(std::string script,int code_fragment){
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add,std::vector<std::string> *sub, int rec){
+void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add,std::vector<std::string> *sub, int rec,bool child){
   if (rec > 2)//max recusivity
     return;
   PyObject *key, *value;
   char* key_str;
+  bool fetch_values=interpreter_mode==STOP || interpreter_mode==LINE_BY_LINE_EXECUTION;
   Py_ssize_t pos = 0;
-  std::vector<bool> revers_found;
+  std::vector<bool> reverse_found;
   std::string c_name;
   if (entry.name.size()){
     c_name=(name.size()>0?name+".":"")+entry.name;
   }
-  revers_found.resize(entry.entry_list.size(),false);
-  if (entry.is_module){
+  if (c_name == "sys.stdin" || c_name =="sys.stdout" || c_name == "sys.stderr")
+    return;
+  reverse_found.resize(entry.entry_list.size(),false);
+  if (rec==0){//scope level
     while (PyDict_Next(entry.py_ref, &pos, &key, &value)) {
       if (NULL != key && NULL != value){
         key_str=PyString_AsString(key);
         if (key_str[0] != '_'){
           bool found=false;
-          for(int i=0;i<entry.entry_list.size();i++){
-            if (value == entry.entry_list[i].py_ref){
-              found=true;
-              revers_found[i]=true;
+          int i;
+          for(i=0;i<entry.entry_list.size();i++){
+            if (entry.entry_list[i].py_ref==value ){
+              if (fetch_values && !PyCallable_Check(value)){
+                if (entry.entry_list[i].value==PyString_AsString(PyObject_Str(value))){
+                  found=true;
+                  reverse_found[i]=true;
+                  break;
+                }
+              }else{
+                found=true;
+                reverse_found[i]=true;
+                break;
+              }
             }
           }
           if (!found){
             PythonDictEntry n_entry;
             n_entry.py_ref=value;
             n_entry.name=key_str;
-            n_entry.is_module=false;//!strcmp(n_entry.py_ref->ob_type->tp_name,"module");
             if (PyCallable_Check(value))
               add->push_back(n_entry.name+"(");
             else{
-              add->push_back(n_entry.name+"{");
-              check_scope_difference(n_entry,c_name,add,sub,rec+1);
+              if (fetch_values)
+                n_entry.value=PyString_AsString(PyObject_Str(value));
+              add->push_back(n_entry.name+":"+n_entry.value+"{");
+              check_scope_difference(n_entry,c_name,add,sub,rec+1,true);
               add->push_back("}");
             }
             entry.entry_list.push_back(n_entry);
-            revers_found.push_back(true);
+            reverse_found.push_back(true);
+          }else{
+            if (!PyCallable_Check(value)){
+              PythonDictEntry n_entry=entry.entry_list[i];
+              check_scope_difference(n_entry,c_name,add,sub,rec+1,false);
+              entry.entry_list[i]=n_entry;
+            }
           }
         }
+      }
+    }
+    //PyEval_GetFrame()->f_code->;
+    if (PyEval_GetFrame() != NULL){
+      //CFinfo << PyString_AsString(PyEval_GetFrame()->f_code->co_name) << CFendl;
+      std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
+      if (target != "<module>"){
+        PythonDictEntry n_entry;
+        n_entry.name=target;
+        n_entry.py_ref=NULL;//will be destroyed at the next check
+        for (int i=0;i<entry.entry_list.size();i++){
+          if (entry.entry_list[i].name==target){
+            reverse_found[i]=false;
+          }
+        }
+        entry.entry_list.push_back(n_entry);
+        reverse_found.push_back(true);
+        add->push_back(target+":[");
+        PyObject* locals=PyEval_GetLocals();
+        pos=0;
+        while (PyDict_Next(locals, &pos, &key, &value)) {
+          if (key != NULL && value != NULL){
+            add->push_back(std::string(PyString_AsString(key))+":"+PyString_AsString(PyObject_Str(value))+":");
+          }
+        }
+        add->push_back("]");
       }
     }
   }else{
@@ -247,44 +294,60 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
     boost::python::handle<> dir_list(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
     if (NULL != dir_list.get()){
       Py_ssize_t size=PyList_Size(dir_list.get());
-      for (Py_ssize_t i=0;i<size;i++){
-        boost::python::handle<> key(boost::python::borrowed(boost::python::allow_null(PyList_GetItem(dir_list.get(),i))));
+      for (Py_ssize_t ind=0;ind<size;ind++){
+        boost::python::handle<> key(boost::python::borrowed(boost::python::allow_null(PyList_GetItem(dir_list.get(),ind))));
         if (NULL != key.get()){
           boost::python::handle<> value(boost::python::allow_null(PyObject_GetAttr(entry.py_ref,key.get())));
           key_str=PyString_AsString(key.get());
           if (key_str!=NULL && strlen(key_str) && key_str[0] != '_' && value.get() != NULL){
             bool found=false;
-            for(int i=0;i<entry.entry_list.size();i++){
-              if (value.get() == entry.entry_list[i].py_ref){
-                found=true;
-                revers_found[i]=true;
+            int i;
+            for(i=0;i<entry.entry_list.size();i++){
+              if (entry.entry_list[i].py_ref==value.get() ){
+                if (fetch_values && !PyCallable_Check(value.get())){
+                  if (entry.entry_list[i].value==PyString_AsString(PyObject_Str(value.get()))){
+                    found=true;
+                    reverse_found[i]=true;
+                    break;
+                  }
+                }else{
+                  found=true;
+                  reverse_found[i]=true;
+                  break;
+                }
               }
             }
             if (!found){
               PythonDictEntry n_entry;
               n_entry.py_ref=value.get();
+              n_entry.name=key_str;
               if (PyCallable_Check(value.get())){
-                n_entry.name=std::string(key_str)+"(";
-                add->push_back(n_entry.name);
+                add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+"(");
               }else{
-                n_entry.is_module=false;//!strcmp(value.get()->ob_type->tp_name,"module");
-                n_entry.name=key_str;
-                add->push_back(n_entry.name+"{");
-                check_scope_difference(n_entry,c_name,add,sub,rec+1);
+                if (fetch_values)
+                  n_entry.value=PyString_AsString(PyObject_Str(value.get()));
+                add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+":"+n_entry.value+"{");
+                check_scope_difference(n_entry,c_name,add,sub,rec+1,true);
                 add->push_back("}");
               }
               entry.entry_list.push_back(n_entry);
-              revers_found.push_back(true);
+              reverse_found.push_back(true);
+            }else{
+              if (!PyCallable_Check(value.get())){
+                PythonDictEntry n_entry=entry.entry_list[i];
+                check_scope_difference(n_entry,c_name,add,sub,rec+1,false);
+                entry.entry_list[i]=n_entry;
+              }
             }
           }
         }
       }
     }
   }
-  for (int i=0;i<revers_found.size();i++){
-    if (!revers_found[i]){
-      revers_found[i]=revers_found[revers_found.size()-1];
-      revers_found.pop_back();
+  for (int i=0;i<reverse_found.size();i++){
+    if (!reverse_found[i]){
+      reverse_found[i]=reverse_found[reverse_found.size()-1];
+      reverse_found.pop_back();
       sub->push_back((c_name.size()>0?c_name+".":"")+entry.entry_list[i].name);
       entry.entry_list[i]=entry.entry_list[entry.entry_list.size()-1];
       entry.entry_list.pop_back();
@@ -293,27 +356,6 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void ScriptEngine::getScopeValues(std::vector<std::string> &names,std::vector<std::string> &values){
-  PyObject *key, *value;
-  char* key_str;
-  Py_ssize_t pos = 0;
-  if (local_scope.get() != NULL){
-    while (PyDict_Next(local_scope.get(), &pos, &key, &value)) {
-      if (NULL != key && NULL != value){
-        key_str=PyString_AsString(key);
-        if (key_str[0] != '_'){
-          boost::python::handle<> value_str_obj(boost::python::allow_null(PyObject_Str(value)));
-          if (value_str_obj.get() != NULL){
-            names.push_back(std::string(key_str));
-            values.push_back(std::string(PyString_AsString(value_str_obj.get())));
-          }
-        }
-      }
-    }
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -352,7 +394,7 @@ void ScriptEngine::check_python_change(int code_fragment){
 
 void ScriptEngine::no_more_instruction(){
   switch (interpreter_mode){
-  case BREAK:
+  case STOP:
     interpreter_mode=NORMAL_EXECUTION;
   case LINE_BY_LINE_EXECUTION:
     emit_debug_trace(0,0);//end of execution trace
@@ -402,18 +444,29 @@ void ScriptEngine::signal_get_documentation(SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 int ScriptEngine::new_line_reached(int code_fragment,int line_number){
+  if (interpreter_mode==NORMAL_EXECUTION
+      && break_points.size() > code_fragment
+      && break_points[code_fragment].size() > line_number
+      && break_points[code_fragment][line_number]){
+    interpreter_mode=STOP;
+  }
   switch (interpreter_mode){
-  case BREAK:
-    interpreter_mode=NORMAL_EXECUTION;
+  case STOP:
   case LINE_BY_LINE_EXECUTION:
     python_should_wake_up=false;
     emit_debug_trace(code_fragment,line_number);
-    flush_python_stdout(code_fragment);
+    check_python_change(code_fragment);
   {
     boost::unique_lock<boost::mutex> lock(python_break_mutex);
     while (!python_should_wake_up)
       python_break_condition.wait(lock);
   }
+    if (interpreter_mode==STOP)
+      interpreter_mode=NORMAL_EXECUTION;
+    if (python_should_break){
+      python_should_break=false;
+      return -1;
+    }
     break;
   default:
     break;
@@ -426,21 +479,37 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
 void ScriptEngine::signal_change_debug_state(SignalArgs& node){
   SignalOptions options( node );
   int commande=options.option("command").value<int>();
+  int fragment,line;
   switch (commande){
-  case BREAK:
+  case STOP:
     if (interpreter_mode==NORMAL_EXECUTION)
-      interpreter_mode=BREAK;
+      interpreter_mode=STOP;
     break;
   case NORMAL_EXECUTION:
   case LINE_BY_LINE_EXECUTION:
     interpreter_mode=(debug_command)commande;
     break;
+  case BREAK:
+    python_should_break=true;
   case CONTINUE:
   {
     boost::lock_guard<boost::mutex> lock(python_break_mutex);
     python_should_wake_up=true;
   }
     python_break_condition.notify_one();
+    break;
+  case TOGGLE_BREAK_POINT:
+    fragment=options.option("fragment").value<int>();
+    line=options.option("line").value<int>();
+    if (break_points.size() < fragment){
+      break_points.resize(fragment);
+    }
+    if (break_points[fragment].size() > line){
+      break_points[fragment][line]=!break_points[fragment][line];
+    }else{
+      break_points[fragment].resize(line,false);
+      break_points[fragment][line]=true;
+    }
   default:
     break;
   }
@@ -492,10 +561,6 @@ void ScriptEngine::emit_debug_trace(int fragment,int line){
   SignalOptions options(frame);
   options.add_option("fragment", fragment);
   options.add_option("line", line);
-  std::vector<std::string> keys,values;
-  getScopeValues(keys,values);
-  options.add_option("scope_keys",keys);
-  options.add_option("scope_values",values);
   options.flush();
   m_manager->send_to_parent(frame);
 }

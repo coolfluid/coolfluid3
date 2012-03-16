@@ -48,6 +48,7 @@ namespace graphics {
   class AboutCFDialog;
   class TreeBrowser;
   class PythonConsole;
+  class PythonCodeEditor;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,6 +115,10 @@ namespace graphics {
 
     /// Frees the allocated memory.
     ~MainWindow();
+
+
+    ///
+    PythonCodeEditor* create_new_python_editor();
 
   protected:
     /// @brief Overrides @c QWidget::closeEvent().

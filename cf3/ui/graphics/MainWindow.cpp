@@ -88,7 +88,7 @@ MainWindow::MainWindow()
   m_property_model = new PropertyModel();
   m_property_view = new QTableView(m_tab_window);
   m_lab_description = new QLabel(m_tab_window);
-  m_python_console = new PythonConsole(m_tab_window);
+  m_python_console = new PythonConsole(m_tab_window, this);
   m_tree_browser = new TreeBrowser(m_tree_view, this);
   m_scroll_description = new QScrollArea(this);
   m_about_cf_dialog = new AboutCFDialog(this);
@@ -116,7 +116,7 @@ MainWindow::MainWindow()
   m_tab_window->addTab(m_log_list, "Log");
   m_tab_window->addTab(m_property_view, "Properties");
   m_tab_window->addTab(m_scroll_description, "Description");
-  m_tab_window->addTab(m_python_console,"Python Console");
+  m_python_console->create_splitter(m_tab_window);
 
   TabBuilder::instance()->addTab(m_central_panel, "Options");
 
@@ -611,6 +611,12 @@ void MainWindow::run_script()
 
 void MainWindow::new_python_script_editor(){
     TabBuilder::instance()->addTab(new PythonCodeEditor(this), "Python editor");
+}
+
+PythonCodeEditor* MainWindow::create_new_python_editor(){
+  PythonCodeEditor *editor=new PythonCodeEditor(this);
+  TabBuilder::instance()->addTab(editor, "Python editor");
+  return editor;
 }
 
 ////////////////////////////////////////////////////////////////////////////

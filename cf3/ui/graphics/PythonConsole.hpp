@@ -27,6 +27,7 @@ class QStringListModel;
 class QHBoxLayout;
 class QTableWidget;
 class QScrollArea;
+class QTabWidget;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,64 +36,60 @@ namespace ui {
 namespace graphics {
 
 class ListDebugValues;
+class MainWindow;
 
 class Graphics_API PythonConsole : public PythonCodeContainer
 {
-    Q_OBJECT
-public:
-    PythonConsole(QWidget *parent = 0);
-    ~PythonConsole();
-    void key_press_event(QKeyEvent *);
-    void new_line(int indent_number);
-    static PythonConsole* main_console;
-    void execute_code(QString,bool);
-    void display_debug_list(const QStringList &keys,const QStringList& values);
-    bool is_stopped();
-private slots:
-    void cursor_position_changed();
-    void insert_output(const QString &);
-    void insert_log(const QString &);
-    void line_by_line_activated(bool);
-    void stop_continue_pressed();
-    void execution_stopped(int fragment,int line,const QStringList& keys,const QStringList& values);
-    void stream_next_command();
-private:
-    /// Index of the block that contains the current prompt
-    int input_block;
-
-    int input_start_in_text;
-
-    void print_next_prompt();
-    void push_input();
-    void execute_input(QTextCursor &);
-    void set_input(const QString &);
-    void select_input(QTextCursor &);
-    void fix_prompt_history();
-
-    ListDebugValues *debug_values_widget;
-
-    QAction* stop_continue;
-    QStringList history;
-
-    QQueue<QPair<QString,bool> > command_stack;
-    QTimer auto_execution_timer;
-    int history_index;
-    bool stopped;
-
-    int output_line_number;
-};
-
-class Graphics_API ListDebugValues : public QWidget{
   Q_OBJECT
 public:
-  ListDebugValues(ListDebugValues** ptr);
-  ~ListDebugValues();
-  void set_debug_values(const QStringList &keys,const QStringList &values);
+  PythonConsole(QWidget *parent,MainWindow* main_window);
+  ~PythonConsole();
+  void key_press_event(QKeyEvent *);
+  void new_line(int indent_number);
+  bool is_editable();
+  void border_click(const QPoint &pos);
+  static PythonConsole* main_console;
+  void execute_code(QString,bool);
+  bool is_stopped();
+  void create_splitter(QTabWidget *tab_widget);
+private slots:
+  void cursor_position_changed();
+  void insert_output(const QString &);
+  void insert_log(const QString &);
+  void line_by_line_activated(bool);
+  void stop_continue_pressed();
+  void break_pressed();
+  void execution_stopped(int fragment,int line);
+  void stream_next_command();
+  void push_history_to_script_editor();
+  void scope_double_click(const QModelIndex & index);
 private:
-  QTableWidget *table;
-  //DebugValuesModel *model;
-  QScrollArea *scroll_area;
-  ListDebugValues **self_ptr;
+  /// Index of the block that contains the current prompt
+  int input_block;
+
+  int input_start_in_text;
+
+  void print_next_prompt();
+  void push_input();
+  void execute_input(QTextCursor &);
+  void set_input(const QString &);
+  void select_input(QTextCursor &);
+  void fix_prompt_history();
+
+  QAction* line_by_line;
+  QAction* stop_continue;
+  QAction* break_action;
+  QStringList history;
+  QString tmp_command;
+
+  QQueue<QPair<QString,bool> > command_stack;
+  QTimer auto_execution_timer;
+  int history_index;
+  bool stopped;
+
+  int output_line_number;
+
+  MainWindow *main_window;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
