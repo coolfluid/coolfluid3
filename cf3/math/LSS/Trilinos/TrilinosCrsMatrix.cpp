@@ -23,15 +23,10 @@
 #include "EpetraExt_VectorIn.h"
 
 // Teko-Package includes
-#include "Teko_Utilities.hpp"
-#include "Teko_InverseFactory.hpp"
-#include "Teko_InverseLibrary.hpp"
-#include "Teko_StridedEpetraOperator.hpp"
-#include "Teko_InverseFactoryOperator.hpp"
+#include "Teko_StratimikosFactory.hpp"
 
-// Aztec includes
-#include "AztecOO.h"
-#include "AztecOO_Operator.h"
+#include "Thyra_LinearOpWithSolveBase.hpp"
+#include "Thyra_VectorBase.hpp"
 
 #include "common/Assertions.hpp"
 #include "common/Builder.hpp"
@@ -254,45 +249,25 @@ void TrilinosCrsMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
   
   Teuchos::RCP<Teuchos::ParameterList> paramList = Teuchos::getParametersFromXmlFile(options().option("settings_file").value_str());
   
-     // Break apart the strided linear system
-   /////////////////////////////////////////////////////////
+  // Build Thyra linear algebra objects
+  Teuchos::RCP<const Thyra::LinearOpBase<double> > th_mat = Thyra::epetraLinearOp(m_mat);
+  Teuchos::RCP<const Thyra::VectorBase<double> > th_rhs = Thyra::create_Vector(trhs.epetra_vector(),th_mat->range());
+  Teuchos::RCP<Thyra::VectorBase<double> > th_sol = Thyra::create_Vector(tsol.epetra_vector(),th_mat->domain());
 
-   // Block the linear system using a strided epetra operator
-   std::vector<int> vec(2); vec[0] = 3; vec[1] = 1; /*@ \label{lned:define-strided} @*/
-   Teuchos::RCP<const Epetra_Operator> strided_A
-         = Teuchos::rcp(new Teko::Epetra::StridedEpetraOperator(vec,m_mat));
+  // Build stratimikos solver
+  /////////////////////////////////////////////////////////
 
-   // Build the preconditioner /*@ \label{lned:construct-prec} @*/
-   /////////////////////////////////////////////////////////
+  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder;
 
-   // build an InverseLibrary and inverse factory
-   Teuchos::RCP<Teko::InverseLibrary> invLib
-          = Teko::InverseLibrary::buildFromParameterList(*paramList);
-   Teuchos::RCP<Teko::InverseFactory> inverse
-          = invLib->getInverseFactory("SIMPLE");
+  Teko::addTekoToStratimikosBuilder(linearSolverBuilder);
+  linearSolverBuilder.setParameterList(paramList);
 
-   // Create the initial preconditioner, and build it from strided_A
-   Teuchos::RCP<Teko::Epetra::InverseFactoryOperator> prec_A
-          = Teuchos::rcp(new Teko::Epetra::InverseFactoryOperator(inverse));
-   prec_A->initInverse();
-   prec_A->rebuildInverseOperator(strided_A.getConst());
+  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = Thyra::createLinearSolveStrategy(linearSolverBuilder);
+  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > th_invA = Thyra::linearOpWithSolve(*lowsFactory, th_mat);
 
-   // Build and solve the linear system
-   /////////////////////////////////////////////////////////
-
-   // Setup the linear solve: notice A is used directly 
-   Epetra_LinearProblem problem(&*m_mat,&*(tsol.epetra_vector()),&*(trhs.epetra_vector())); /*@ \label{lned:aztec-solve} @*/
-
-   // build the solver
-   AztecOO solver(problem);
-   solver.SetAztecOption(AZ_solver,AZ_gmres);
-   solver.SetAztecOption(AZ_precond,AZ_none);
-   solver.SetAztecOption(AZ_kspace,1000);
-   solver.SetAztecOption(AZ_output,10);
-   solver.SetPrecOperator(&*prec_A);
-
-   // solve the linear system
-   solver.Iterate(1000,1e-5);
+  Thyra::assign(th_sol.ptr(), 0.0);
+  Thyra::SolveStatus<double> status = Thyra::solve<double>(*th_invA, Thyra::NOTRANS, *th_rhs, th_sol.ptr());
+  CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
