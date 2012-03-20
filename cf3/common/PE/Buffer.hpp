@@ -93,6 +93,16 @@ public:
   /// This is useful to reuse an already allocated buffer.
   void reset();
 
+  /// @brief Create a separation, defining different parts of the buffer
+  /// This is useful for parallel communication, so that you can avoid the use
+  /// of std::vector<PE::Buffer> in e.g. all_to_all communication
+  int mark_pid_start();
+
+  std::vector<int>& strides() { return m_strides; }
+  std::vector<int>& displs() { return m_displs; }
+  const std::vector<int>& strides() const { return m_strides; }
+  const std::vector<int>& displs() const { return m_displs; }
+
   /// @brief begin iterator
   const iterator begin() const { return m_buffer; }
 
@@ -205,17 +215,29 @@ public:
 
   /// @name MPI collective operations
   //@{
-  /// @brief Broadcast the buffer from the root process
+
+  /// @brief Broadcast the buffer from the root process.
+  ///
   /// The buffer on all receiving ranks gets resized and overwritten
   /// with the buffer from the broadcasting rank.
   /// @param [in] root  The broadcasting rank
   void broadcast(const Uint root);
 
-  /// @brief Broadcast the buffer from the root process
-  /// The buffer on all receiving ranks gets resized and overwritten
-  /// with the buffer from the broadcasting rank.
+  /// @brief All Gather collective operation for buffers.
+  ///
+  /// The received buffer contains all sent buffers from all ranks
   /// @param [out] recv output buffer
   inline void all_gather(Buffer& recv);
+
+  /// @brief All To All collective operation for buffers.
+  ///
+  /// @pre This buffer needs to have separations inserted for each pid,
+  ///      to mark chunks that need to be sent to each pid.
+  ///
+  /// The received buffer contains those chunks from the sent buffer, that
+  /// were marked for the receiving pid.
+  /// @param [out] recv output buffer
+  inline void all_to_all(Buffer& recv);
 
   //@}
 
@@ -232,6 +254,10 @@ private:
 
   /// @brief unpacked memory in buffer
   int m_unpacked_idx;
+
+  /// @brief markers for separation
+  std::vector<int> m_displs;
+  std::vector<int> m_strides;
 
 };
 
@@ -266,6 +292,17 @@ inline void Buffer::reset()
 {
   m_size = 0;
   m_unpacked_idx = 0;
+  m_strides.clear();
+  m_displs.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline int Buffer::mark_pid_start()
+{
+  m_displs.push_back(m_size);
+  m_strides.push_back(0);
+  return m_size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +324,8 @@ inline void Buffer::pack(const T* data, const Uint data_size)
     MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_capacity, &index, Comm::instance().communicator());
     m_size = index;
     cf3_assert(m_size <= m_capacity);
+    if (m_strides.size())
+      m_strides.back()=m_size-m_displs.back();
   }
 }
 
@@ -463,6 +502,20 @@ inline void Buffer::all_gather(Buffer& recv)
   {
     recv.reset();
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline void Buffer::all_to_all(PE::Buffer& recv)
+{
+  recv.reset();
+  Comm::instance().all_to_all(strides(),recv.strides());
+  recv.displs().resize(recv.strides().size());
+  recv.displs()[0]=0;
+  for (Uint pid=1; pid<Comm::instance().size(); ++pid)
+    recv.displs()[pid] = recv.displs()[pid-1] + recv.strides()[pid-1];
+  recv.resize(recv.displs().back()+recv.strides().back());
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)begin(), &strides()[0], &displs()[0], MPI_PACKED, (void*)recv.begin(), &recv.strides()[0], &recv.displs()[0], MPI_PACKED, Comm::instance().communicator()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
