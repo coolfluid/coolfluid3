@@ -165,14 +165,13 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     RealMatrix elem_coordinates;
     const Field& source_coords = source.coordinates();
 
-    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
+    boost_foreach( const Handle<Space>& t_space_handle, target.spaces() )
     {
-      Elements& t_elements = *t_elements_handle->handle<Elements>();
-      const Space& t_space = target.space(t_elements);
+      const Space& t_space = *t_space_handle;
       t_space.allocate_coordinates(elem_coordinates);
-      for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
+      for (Uint t_elm_idx=0; t_elm_idx<t_space.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
+        Connectivity::ConstRow t_field_indexes = t_space.connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
@@ -209,15 +208,14 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes;
     Handle< Component > component;
-    boost_foreach( const Handle<Entities>& t_elements_handle, target.entities_range() )
+    boost_foreach( const Handle<Space>& t_space_handle, target.spaces() )
     {
-      const Elements& t_elements = *t_elements_handle->handle<Elements>();
-      const Space& t_space = target.space(t_elements);
+      const Space& t_space = *t_space_handle;
       t_space.allocate_coordinates(elem_coordinates);
       RealVector t_node(m_dim);  t_node.setZero();
-      for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
+      for (Uint t_elm_idx=0; t_elm_idx<t_space.size(); ++t_elm_idx)
       {
-        Connectivity::ConstRow t_field_indexes = target.space(t_elements).connectivity()[t_elm_idx];
+        Connectivity::ConstRow t_field_indexes = t_space.connectivity()[t_elm_idx];
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {

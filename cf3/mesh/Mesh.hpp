@@ -57,6 +57,7 @@ public: // functions
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
 
+  void update_structures();
   void update_statistics();
 
   /// @return the nodes of the mesh
@@ -67,9 +68,7 @@ public: // functions
   MeshElements& mesh_elements() const;
 
   const std::vector< Handle<Entities> >& elements() const { return m_elements; }
-  const Uint find_elements_idx(const Handle<Entities const>& entities) const { return m_elements_idx.find(entities)->second; }
   const std::vector< Handle<Dictionary> >& dictionaries() const { return m_dictionaries; }
-  const Uint find_dictionary_idx(const Handle<Dictionary const>& dict) const { return m_dictionaries_idx.find(dict)->second; }
 
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }
@@ -102,10 +101,8 @@ private: // data
   Uint m_dimensionality;
 
   std::vector< Handle<Entities> > m_elements;
-  std::map<Handle<Entities const>,Uint> m_elements_idx;
 
   std::vector< Handle<Dictionary> > m_dictionaries;
-  std::map< Handle<Dictionary const>, Uint> m_dictionaries_idx;
 
   Handle<MeshElements> m_mesh_elements;
 

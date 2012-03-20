@@ -186,6 +186,7 @@ Space& Entities::create_space(const std::string& shape_function_builder_name, Di
 {
   /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
   Handle<Space> space = m_spaces_group->create_component<Space>(space_dict.name());
+  m_spaces_vector.push_back(space);
   space->initialize(*this,space_dict);
   space->options().configure_option("shape_function",shape_function_builder_name);
   return *space;

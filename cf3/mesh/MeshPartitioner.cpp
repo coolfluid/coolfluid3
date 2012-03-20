@@ -27,7 +27,7 @@
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Manipulations.hpp"
+#include "mesh/MeshAdaptor.hpp"
 #include "mesh/MeshElements.hpp"
 
 namespace cf3 {
@@ -70,7 +70,7 @@ void MeshPartitioner::execute()
   Comm::instance().barrier();
   CFdebug << "    -partitioning" << CFendl;
   partition_graph();
-  //show_changes();
+//  show_changes();
   Comm::instance().barrier();
   CFdebug << "    -migrating" << CFendl;
   migrate();
@@ -113,7 +113,6 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 void MeshPartitioner::initialize(Mesh& mesh)
 {
   m_mesh = mesh.handle<Mesh>();
-
   Dictionary& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
   for (Uint i=0; i<nodes.size(); ++i)
@@ -157,12 +156,18 @@ void MeshPartitioner::initialize(Mesh& mesh)
   }
 
   m_nodes_to_export.resize(m_nb_parts);
-  m_elements_to_export.resize(find_components_recursively<Elements>(mesh.topology()).size());
-  for (Uint c=0; c<m_elements_to_export.size(); ++c)
-    m_elements_to_export[c].resize(m_nb_parts);
+  m_elements_to_export.resize(m_nb_parts,std::vector< std::vector<Uint> >(mesh.elements().size()));
 
   build_global_to_local_index(mesh);
   build_graph();
+
+//  mesh.update_statistics();
+//  mesh.mesh_elements().update();
+//  cf3_assert(m_mesh->elements().size() == m_mesh->mesh_elements().components().size());
+//  for (Uint c=0; c<m_mesh->mesh_elements().components().size(); ++c)
+//  {
+//    cf3_assert(m_mesh->elements()[c]->handle() == m_mesh->mesh_elements().components()[c]);
+//  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -172,8 +177,8 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
   Dictionary& nodes = mesh.geometry_fields();
 
   m_lookup->add(nodes);
-  boost_foreach ( Entities& elements, mesh.topology().elements_range() )
-    m_lookup->add(elements);
+  boost_foreach ( const Handle<Entities>& elements, mesh.elements() )
+    m_lookup->add(*elements);
 
   m_nb_owned_obj = 0;
   common::List<Uint>& node_glb_idx = nodes.glb_idx();
@@ -186,9 +191,9 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
     }
   }
 
-  boost_foreach ( Entities& elements, mesh.topology().elements_range() )
+  boost_foreach ( const Handle<Entities>& elements, mesh.elements() )
   {
-    m_nb_owned_obj += elements.size();
+    m_nb_owned_obj += elements->size();
   }
 
   Uint tot_nb_obj = m_lookup->size();
@@ -218,9 +223,9 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
   }
 
   //CFinfo << "adding elements " << CFendl;
-  boost_foreach ( Elements& elements, find_components_recursively<Elements>(mesh))
+  boost_foreach ( const Handle<Entities>& elements, mesh.elements() )
   {
-    boost_foreach (Uint glb_idx, elements.glb_idx().array())
+    boost_foreach (Uint glb_idx, elements->glb_idx().array())
     {
       cf3_assert_desc(to_str(glb_idx)+"<"+to_str(m_start_elem_per_part[PE::Comm::instance().rank()]),glb_idx >= m_start_elem_per_part[PE::Comm::instance().rank()]);
       cf3_assert_desc(to_str(glb_idx)+">="+to_str(m_end_elem_per_part[PE::Comm::instance().rank()]),glb_idx < m_end_elem_per_part[PE::Comm::instance().rank()]);
@@ -241,9 +246,9 @@ void MeshPartitioner::show_changes()
   boost_foreach(std::vector<Uint>& export_nodes_to_part, m_nodes_to_export)
     nb_changes += export_nodes_to_part.size();
 
-  boost_foreach(std::vector<std::vector<Uint> >& export_elems_from_region, m_elements_to_export)
-    boost_foreach(std::vector<Uint>& export_elems_from_region_to_part, export_elems_from_region)
-      nb_changes += export_elems_from_region_to_part.size();
+  boost_foreach(std::vector<std::vector<Uint> >& export_elems_to_part, m_elements_to_export)
+    boost_foreach(std::vector<Uint>& export_elems_to_part_from_region, export_elems_to_part)
+      nb_changes += export_elems_to_part_from_region.size();
 
   if (nb_changes > 0)
   {
@@ -255,14 +260,15 @@ void MeshPartitioner::show_changes()
           std::cout << m_nodes_to_export[to_part][n] << " ";
         std::cout << "\n";
       }
-      for (Uint comp=0; comp<m_elements_to_export.size(); ++comp)
+      for (Uint to_part=0; to_part<m_elements_to_export.size(); ++to_part)
       {
-        std::string elements = m_lookup->components()[comp+1]->uri().path();
-        for (Uint to_part=0; to_part<m_elements_to_export[comp].size(); ++to_part)
+        for (Uint comp=0; comp<m_elements_to_export[to_part].size(); ++comp)
         {
+          cf3_assert(comp+1 < m_lookup->components().size());
+          std::string elements = m_lookup->components()[comp+1]->uri().path();
           std::cout << "[" << PE::Comm::instance().rank() << "] export " << elements << " to part " << to_part << ":  ";
-          for (Uint e=0; e<m_elements_to_export[comp][to_part].size(); ++e)
-            std::cout << m_elements_to_export[comp][to_part][e] << " ";
+          for (Uint e=0; e<m_elements_to_export[to_part][comp].size(); ++e)
+            std::cout << m_elements_to_export[to_part][comp][e] << " ";
           std::cout << "\n";
         }
       }
@@ -350,282 +356,10 @@ void MeshPartitioner::migrate()
   if (PE::Comm::instance().is_active() == false)
     return;
 
-  Uint nb_changes(0);
-  boost_foreach(std::vector<Uint>& export_nodes_to_part, m_nodes_to_export)
-    nb_changes += export_nodes_to_part.size();
-
-  boost_foreach(std::vector<std::vector<Uint> >& export_elems_from_region, m_elements_to_export)
-    boost_foreach(std::vector<Uint>& export_elems_from_region_to_part, export_elems_from_region)
-      nb_changes += export_elems_from_region_to_part.size();
-
-  Uint glb_changes;
-  PE::Comm::instance().all_reduce( PE::plus(), &nb_changes,1,&glb_changes);
-
-  if ( glb_changes == 0)
-    return;
-
-
-  Mesh& mesh = *m_mesh;
-  Dictionary& nodes = mesh.geometry_fields();
-
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  //                            MIGRATION ALGORITHM
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-
-  PackUnpackNodes node_manipulation(nodes);
-
-  // -----------------------------------------------------------------------------
-  // REMOVE GHOST NODES AND GHOST ELEMENTS
-
-  for (Uint n=0; n<nodes.size(); ++n)
-  {
-    if (nodes.is_ghost(n))
-      node_manipulation.remove(n);
-  }
-
-  // DONT FLUSH YET!!! node_manipulation.flush()
-
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
-  {
-    PackUnpackElements element_manipulation(elements);
-
-    if (elements.rank().size() != elements.size())
-      throw ValueNotFound(FromHere(),elements.uri().string()+" --> mismatch in element sizes (rank.size() = "+to_str(elements.rank().size())+" , elements.size() = "+to_str(elements.size())+")");
-    for (Uint e=0; e<elements.size(); ++e)
-    {
-      if (elements.rank()[e] != PE::Comm::instance().rank())
-        element_manipulation.remove(e);
-    }
-    /// @todo mechanism not to flush element_manipulation until during real migration
-  }
-
-  Comm::instance().barrier();
-  CFdebug << "        * removed ghost elements and ghost nodes" << CFendl;
-
-  // -----------------------------------------------------------------------------
-  // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
-
-  const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
-  boost_foreach (Entities& elements, mesh.topology().elements_range())
-  {
-    boost_foreach ( common::Table<Uint>::Row nodes, elements.handle<Elements>()->geometry_space().connectivity().array() )
-    {
-      boost_foreach ( Uint& node, nodes )
-      {
-        node = global_node_indices[node];
-      }
-    }
-  }
-
-
-  // -----------------------------------------------------------------------------
-  // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
-
-  std::vector< Handle<Component> > mesh_element_comps = mesh.mesh_elements().components();
-
-  PE::Buffer send_to_proc;  std::vector<int> send_strides(PE::Comm::instance().size());
-  PE::Buffer recv_from_all; std::vector<int> recv_strides(PE::Comm::instance().size());
-
-  // Move elements
-  for(Uint i=0; i<mesh_element_comps.size(); ++i)
-  {
-    Elements& elements = dynamic_cast<Elements&>(*mesh_element_comps[i]);
-
-    send_to_proc.reset();
-    recv_from_all.reset();
-
-    PackUnpackElements migrate_element(elements);
-    std::vector<Uint> nb_elems_to_send(PE::Comm::instance().size());
-
-    for (Uint r=0; r<PE::Comm::instance().size(); ++r)
-    {
-      Uint displs = send_to_proc.size();
-      for (Uint e=0; e<exported_elements()[i][r].size(); ++e)
-        send_to_proc << migrate_element(exported_elements()[i][r][e],PackUnpackElements::MIGRATE);
-      send_strides[r] = send_to_proc.size() - displs;
-    }
-
-    flex_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
-
-    while(recv_from_all.more_to_unpack())
-      recv_from_all >> migrate_element;
-    migrate_element.flush();
-  }
-
-
-  // Move nodes
-   send_to_proc.reset();
-   recv_from_all.reset();
-
-   std::set<Uint> packed_nodes;
-   for (Uint r=0; r<PE::Comm::instance().size(); ++r)
-   {
-     Uint displs = send_to_proc.size();
-     for (Uint n=0; n<exported_nodes()[r].size(); ++n)
-     {
-       send_to_proc << node_manipulation(exported_nodes()[r][n],PackUnpackNodes::MIGRATE);
-     }
-     send_strides[r] = send_to_proc.size() - displs;
-   }
-
-  // STILL DONT FLUSH!!! node_manipulation.flush();
-
-   flex_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
-
-
-   while (recv_from_all.more_to_unpack())
-    recv_from_all >> node_manipulation;
-
-   // FINALLY FLUSH NODES
-   node_manipulation.flush();
-
-   nodes.check_sanity();
-
-
-   // -----------------------------------------------------------------------------
-   // MARK EVERYTHING AS OWNED
-
-   for (Uint n=0; n<nodes.size(); ++n)
-     nodes.rank()[n] = PE::Comm::instance().rank();
-
-   boost_foreach(Entities& elements, mesh.topology().elements_range())
-   {
-     for (Uint e=0; e<elements.size(); ++e)
-       elements.rank()[e] = PE::Comm::instance().rank();
-   }
-
-
-  // -----------------------------------------------------------------------------
-  // ELEMENTS AND NODES HAVE BEEN MOVED
-  // -----------------------------------------------------------------------------
-
-   Comm::instance().barrier();
-   CFdebug << "        * elements and nodes migrated, request ghost nodes" << CFendl;
-
-  // -----------------------------------------------------------------------------
-  // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
-
-  std::set<Uint> owned_nodes;
-  for (Uint n=0; n<nodes.size(); ++n)
-    owned_nodes.insert(nodes.glb_idx()[n]);
-
-  std::set<Uint> ghost_nodes;
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()))
-  {
-    boost_foreach(Connectivity::ConstRow connected_nodes, elements.geometry_space().connectivity().array())
-    {
-      boost_foreach(const Uint node, connected_nodes)
-      {
-        if (owned_nodes.find(node) == owned_nodes.end())
-          ghost_nodes.insert(node);
-      }
-    }
-  }
-
-  std::vector<Uint> request_nodes;  request_nodes.reserve(ghost_nodes.size());
-  boost_foreach(const Uint node, ghost_nodes)
-    request_nodes.push_back(node);
-
-
-  // -----------------------------------------------------------------------------
-  // SEARCH FOR REQUESTED NODES
-  // in  : requested nodes                std::vector<Uint>
-  // out : buffer with packed nodes       PE::Buffer(nodes)
-
-  // COMMUNICATE NODES TO LOOK FOR
-
-  std::vector<std::vector<Uint> > recv_request_nodes;
-  Comm::instance().all_gather(request_nodes,recv_request_nodes);
-
-  PackUnpackNodes copy_node(nodes);
-  std::vector<PE::Buffer> nodes_to_send(Comm::instance().size());
-  for (Uint proc=0; proc<Comm::instance().size(); ++proc)
-  {
-    if (proc != Comm::instance().rank())
-    {
-
-      for (Uint n=0; n<recv_request_nodes[proc].size(); ++n)
-      {
-        Uint find_glb_idx = recv_request_nodes[proc][n];
-
-        // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-        /// @todo THIS ALGORITHM HAS TO BE IMPROVED (BRUTE FORCE)
-        Uint loc_idx=0;
-        bool found=false;
-        boost_foreach(const Uint glb_idx, nodes.glb_idx().array())
-        {
-
-          cf3_assert(loc_idx < nodes.size());
-          if (glb_idx == find_glb_idx)
-          {
-            //std::cout << PERank << "copying node " << glb_idx << " from loc " << loc_idx << std::flush;
-            nodes_to_send[proc] << copy_node(loc_idx,PackUnpackNodes::COPY);
-
-            break;
-          }
-          ++loc_idx;
-        }
-        // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-      }
-    }
-  }
-
-  // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
-
-  PE::Buffer received_nodes_buffer;
-  flex_all_to_all(nodes_to_send,received_nodes_buffer);
-
-  // out: buffer containing requested nodes
-  // -----------------------------------------------------------------------------
-
-  // ADD GHOST NODES
-
-  PackUnpackNodes add_node(nodes);
-  while (received_nodes_buffer.more_to_unpack())
-    received_nodes_buffer >> add_node;
-  add_node.flush();
-
-  // -----------------------------------------------------------------------------
-  // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
-  // -----------------------------------------------------------------------------
-
-  Comm::instance().barrier();
-  CFdebug << "        * requested ghost nodes added" << CFendl;
-
-  // -----------------------------------------------------------------------------
-  // FIX NODE CONNECTIVITY
-  std::map<Uint,Uint> glb_to_loc;
-  std::map<Uint,Uint>::iterator it;
-  bool inserted;
-  for (Uint n=0; n<nodes.size(); ++n)
-  {
-    boost::tie(it,inserted) = glb_to_loc.insert(std::make_pair(nodes.glb_idx()[n],n));
-    if (! inserted)
-      throw ValueExists(FromHere(), std::string(nodes.is_ghost(n)? "ghost " : "" ) + "node["+to_str(n)+"] with glb_idx "+to_str(nodes.glb_idx()[n])+" already exists as "+to_str(glb_to_loc[n]));
-  }
-  boost_foreach (Entities& elements, mesh.topology().elements_range())
-  {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->geometry_space().connectivity().array() )
-    {
-      boost_foreach ( Uint& node, nodes )
-      {
-        node = glb_to_loc[node];
-      }
-    }
-  }
-
-  // -----------------------------------------------------------------------------
-  // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
-  // -----------------------------------------------------------------------------
-
-  mesh.update_statistics();
-  mesh.mesh_elements().reset();
-  mesh.mesh_elements().update();
-
-  Comm::instance().barrier();
-  CFdebug << "        * migration complete" << CFendl;
+  MeshAdaptor mesh_adaptor(*m_mesh);
+  mesh_adaptor.prepare();
+  mesh_adaptor.move_elements(m_elements_to_export);
+  mesh_adaptor.finish();
 
 }
 

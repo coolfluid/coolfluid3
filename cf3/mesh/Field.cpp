@@ -148,6 +148,13 @@ const std::vector< Handle<Entities> >& Field::entities_range() const
   return dict().entities_range();
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+
+const std::vector< Handle<Space> >& Field::spaces() const
+{
+  return dict().spaces();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)

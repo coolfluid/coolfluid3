@@ -28,6 +28,7 @@
 #include "common/Tags.hpp"
 
 #include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
@@ -89,8 +90,7 @@ Mesh::Mesh ( const std::string& name  ) :
   Handle< Field > coord_field = m_geometry_fields->create_static_component< Field >(mesh::Tags::coordinates());
   coord_field->add_tag(mesh::Tags::coordinates());
   coord_field->create_descriptor("coord[vector]");
-
-
+  m_geometry_fields->m_fields.push_back(coord_field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,28 +118,54 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::update_statistics()
+void Mesh::update_structures()
 {
-  cf3_assert(m_dimension == geometry_fields().coordinates().row_size() );
   Uint entities_idx=0;
-  Uint dictionary_idx=0;
+  Uint dict_idx=0;
   m_elements.clear();
   m_dictionaries.clear();
-  std::set< Handle<Dictionary> > set_dicts;
+  std::set< Handle<Dictionary> > dicts_set;
   boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
   {
     m_elements.push_back(elements.handle<Entities>());
-    m_elements_idx[m_elements.back()] = entities_idx++;
-    m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
     boost_foreach(const Handle<Space>& space, elements.spaces())
     {
-      set_dicts.insert(space->dict().handle<Dictionary>());
+      dicts_set.insert(space->dict().handle<Dictionary>());
     }
   }
-  boost_foreach(const Handle<Dictionary>& dict, set_dicts)
+  m_dictionaries.reserve(dicts_set.size());
+  boost_foreach(const Handle<Dictionary>& dict, dicts_set)
   {
     m_dictionaries.push_back(dict);
-    m_dictionaries_idx[m_dictionaries.back()] = dictionary_idx++;
+  }
+
+  // Set private member m_entities_idx in each Entities
+  for (entities_idx=0; entities_idx<m_elements.size(); ++entities_idx)
+  {
+    m_elements[entities_idx]->m_entities_idx = entities_idx;
+  }
+
+  // Set private member m_dict_idx in each Space
+  for (dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
+  {
+    m_dictionaries[dict_idx]->update();
+
+    boost_foreach(const Handle<Space>& space, m_dictionaries[dict_idx]->spaces())
+    {
+      space->m_dict_idx = dict_idx;
+    }
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::update_statistics()
+{
+  cf3_assert(m_dimension == geometry_fields().coordinates().row_size() );
+  boost_foreach ( const Entities& elements, find_components_recursively<Entities>(topology()) )
+  {
+    m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
   }
 
   Uint nb_cells = 0;
@@ -194,7 +220,7 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
-  space_fields.update();
+  update_structures();
   return space_fields;
 }
 
@@ -235,6 +261,7 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
+  update_structures();
   return space_fields;
 }
 
@@ -387,9 +414,9 @@ bool Mesh::check_sanity() const
 
 void Mesh::raise_mesh_loaded()
 {
-  geometry_fields().update();
   update_statistics();
-  mesh_elements().update();
+  update_structures();
+
   check_sanity();
 
   // Raise an event to indicate that a mesh was loaded happened

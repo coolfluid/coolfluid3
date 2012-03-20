@@ -34,6 +34,7 @@ namespace mesh {
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 class Mesh_API Entities : public common::Component
 {
+  friend class Mesh;
 public: // functions
 
   /// Contructor
@@ -94,6 +95,8 @@ public: // functions
 
   void resize(const Uint nb_elem);
 
+  Uint entities_idx() const { return m_entities_idx; }
+
 protected: // data
 
   Handle<ElementType> m_element_type;
@@ -126,6 +129,8 @@ private:
   Handle<FaceCellConnectivity> m_connectivity_face2cell;
   Handle<ElementConnectivity>  m_connectivity_cell2cell;
 
+  /// @brief index as it appears in mesh.elements()
+  Uint m_entities_idx;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

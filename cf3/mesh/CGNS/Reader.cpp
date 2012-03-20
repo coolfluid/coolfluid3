@@ -84,9 +84,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
 
-  m_mesh->mesh_elements().update();
-  m_mesh->update_statistics();
-
   // Fix global numbering
   /// @todo remove this and read glb_index ourself
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);

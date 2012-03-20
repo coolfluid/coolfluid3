@@ -141,7 +141,7 @@ protected: // data
   /// nodes_to_export[part][loc_node_idx]
   std::vector< std::vector<Uint> >                m_nodes_to_export;
 
-  /// elements_to_export[elements_comp_idx][part][loc_elem_idx]
+  /// elements_to_export[part][elements_comp_idx][loc_elem_idx]
   std::vector< std::vector< std::vector<Uint> > > m_elements_to_export;
 
 private: // data
