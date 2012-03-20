@@ -117,7 +117,11 @@ void MeshReader::signal_read( SignalArgs& node  )
     // Get the file paths
     boost_foreach(const URI& file, files)
     {
+      // Call the concrete implementation
       do_read_mesh_into(file, *mesh);
+
+      // Raise an event to indicate that a mesh was loaded happened
+      mesh->raise_mesh_loaded();
     }
   }
   else

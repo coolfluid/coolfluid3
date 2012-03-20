@@ -108,6 +108,7 @@ public: // functions
   const Space& space(const Entities& entities) const { return dict().space(entities); }
 
   const std::vector< Handle<Entities> >& entities_range() const;
+  const std::vector< Handle<Space> >& spaces() const;
 
   Field& coordinates() const { return dict().coordinates(); }
 

@@ -22,6 +22,8 @@ namespace mesh {
   class ShapeFunction;
   class Dictionary;
   class Entities;
+  class ElementType;
+  class SpaceElem;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +57,7 @@ namespace mesh {
 /// @author Willem Deconinck
 
 class Mesh_API Space : public common::Component {
-
+  friend class Mesh;
 public: // functions
 
   /// @brief Get the class name
@@ -148,6 +150,9 @@ public: // functions
   /// @param [out] coordinates  empty coordinates (nb_nodes x dimension)
   void allocate_coordinates(RealMatrix& coordinates) const;
 
+  /// @brief index as the dictionary appears in mesh.dictionaries() vector
+  const Uint dict_idx() const { return m_dict_idx; }
+
 private: // functions
 
   /// @brief Configuration option trigger for the shape function
@@ -169,7 +174,58 @@ private: // data
 
   /// Handle to the supporting Entities component
   Handle<Entities> m_support;
+
+  Uint m_dict_idx;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API SpaceElem
+{
+public: // data
+
+  Space* comp;
+  Uint idx;
+
+public:
+
+  /// Type name
+  static std::string type_name() { return "SpaceElem"; }
+
+  /// Constructor, taking component and index
+  SpaceElem(Space& space, const Uint index);
+
+  /// Default constructor for container-allocations
+  SpaceElem();
+
+  /// Constructor, taking other SpaceElem
+  SpaceElem(const SpaceElem& other);
+
+  /// @name Shortcut functions
+  //@{
+  /// return the elementType
+  const ShapeFunction& shape_function() const;
+  Uint glb_idx() const;
+  Uint rank() const;
+  bool is_ghost() const;
+  RealMatrix get_coordinates() const;
+  void put_coordinates(RealMatrix& coordinates) const;
+  void allocate_coordinates(RealMatrix& coordinates) const;
+  common::TableConstRow<Uint>::type nodes() const;
+  //@}
+
+  /// @name Comparison functions
+  //@{
+  bool operator==(const SpaceElem& other) const;
+  bool operator!=(const SpaceElem& other) const;
+  //@}
+
+  // Output of the form  cpath:/path/to/space[elem_idx]
+  friend std::ostream& operator<<(std::ostream& os, const SpaceElem& space_elem);
+
+};
+
+std::ostream& operator<<(std::ostream& os, const SpaceElem& elem);
 
 ////////////////////////////////////////////////////////////////////////////////
 

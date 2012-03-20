@@ -718,28 +718,6 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
-{
-
-  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","meshreader");
-  boost::shared_ptr< MeshTransformer > info = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info", "info");
-
-
-  // the mesh to store in
-  Mesh& mesh = *Core::instance().root().create_component<Mesh>("mesh_multiple");
-
-  for (Uint count=0; count<4; ++count)
-  {
-    meshreader->read_mesh_into("grid_c.cgns",mesh);
-    //info->transform(mesh);
-    BOOST_CHECK_EQUAL(find_component<Region>(mesh).recursive_elements_count(true), (1+count)*3776);
-  }
-  info->transform(mesh);
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 {
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","meshreader");
