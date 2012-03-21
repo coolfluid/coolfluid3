@@ -207,21 +207,21 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
 
 Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  Dictionary& space_fields = *create_component<ContinuousDictionary>(space_name);
+  Dictionary& dict = *create_component<ContinuousDictionary>(space_name);
 
-  boost_foreach(const Handle<Entities>& entities_handle, entities )
-  {
-    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
-  }
-  space_fields.update();
-
-  CFinfo << "Continuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  CFinfo << "Creating Continuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
+  }
+  dict.update();
   update_structures();
-  return space_fields;
+  return dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,21 +248,22 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
 
 Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  Dictionary& space_fields = *create_component<DiscontinuousDictionary>(space_name);
+  Dictionary& dict = *create_component<DiscontinuousDictionary>(space_name);
 
-  boost_foreach(const Handle<Entities>& entities_handle, entities )
-  {
-    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
-  }
-  space_fields.update();
-
-  CFinfo << "Discontinuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  CFinfo << "Creating Disontinuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
+  }
+  dict.update();
+
   update_structures();
-  return space_fields;
+  return dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

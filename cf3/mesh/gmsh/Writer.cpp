@@ -102,10 +102,10 @@ void Writer::write()
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path (m_file_path.path());
-  if (PE::Comm::instance().size() > 1)
-  {
+//  if (PE::Comm::instance().size() > 1)
+//  {
     path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
-  }
+//  }
 //  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
@@ -131,7 +131,7 @@ void Writer::write()
   file.close();
 
   // Write post-processing file, merging all parallel files
-  if (PE::Comm::instance().size() > 1 && PE::Comm::instance().rank() == 0)
+  if (PE::Comm::instance().rank() == 0)
   {
     boost::filesystem::fstream parallel_file;
     boost::filesystem::path parallel_file_path (m_file_path.path());
@@ -332,125 +332,119 @@ void Writer::write_elem_nodal_data(std::fstream& file)
   {
     cf3_assert(is_null(field_h) == false);
     const Field& field = *field_h;
-//    if (field.basis() == Dictionary::Basis::ELEMENT_BASED ||
-//        field.basis() == Dictionary::Basis::CELL_BASED    ||
-//        field.basis() == Dictionary::Basis::FACE_BASED    )
+    const Real field_time = 0;//field.option("time").value<Real>();
+    const Uint field_iter = 0;//field.option("iteration").value<Uint>();
+    const std::string field_name = field.name();
+    Uint nb_elements = 0;
+    boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
     {
-      const Real field_time = 0;//field.option("time").value<Real>();
-      const Uint field_iter = 0;//field.option("iteration").value<Uint>();
-      const std::string field_name = field.name();
-      Uint nb_elements = 0;
+      if (field.dict().defined_for_entities(elements_handle))
+      {
+        nb_elements += elements_handle->size();
+        if (m_enable_overlap==false)
+        {
+          Uint nb_ghost=0;
+          for(Uint e=0; e<elements_handle->size(); ++e)
+          {
+            if (elements_handle->is_ghost(e))
+              ++nb_ghost;
+          }
+          nb_elements -= nb_ghost;
+        }
+      }
+    }
+    // data_header
+    Uint row_idx=0;
+    for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
+    {
+      Field::VarType var_type = field.var_length(iVar);
+      std::string var_name = field.var_name(iVar);
+
+      Uint datasize(var_type);
+      switch (var_type)
+      {
+      case Field::VECTOR_2D:
+        datasize=Uint(Field::VECTOR_3D);
+        break;
+      case Field::TENSOR_2D:
+        datasize=Uint(Field::TENSOR_3D);
+        break;
+      default:
+        break;
+      }
+      RealVector data(datasize); data.setZero();
+
+      file << "$ElementNodeData\n";
+
+      // add 2 string tags : var_name, field_name
+      file << 2 << "\n";
+      file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+      file << "\"" << field_name << "\"\n";
+      // add 1 real tag: time
+      file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
+      // add 3 integer tags: time_step, variable_type, nb elements
+      file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
+
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
         if (field.dict().defined_for_entities(elements_handle))
         {
-          nb_elements += elements_handle->size();
-          if (m_enable_overlap==false)
+          const Entities& elements = *elements_handle;
+          const Space& field_space = field.space(elements);
+          Uint local_nb_elms = elements.size();
+
+          const Uint nb_states = field_space.shape_function().nb_nodes();
+          RealMatrix field_data (nb_states,var_type);
+
+          const Uint nb_nodes = elements.element_type().nb_nodes();
+
+          /// write element
+          for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
           {
-            Uint nb_ghost=0;
-            for(Uint e=0; e<elements_handle->size(); ++e)
+            if (m_enable_overlap || !elements.is_ghost(local_elm_idx))
             {
-              if (elements_handle->is_ghost(e))
-                ++nb_ghost;
-            }
-            nb_elements -= nb_ghost;
-          }
-        }
-      }
-      // data_header
-      Uint row_idx=0;
-      for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
-      {
-        Field::VarType var_type = field.var_length(iVar);
-        std::string var_name = field.var_name(iVar);
-
-        Uint datasize(var_type);
-        switch (var_type)
-        {
-          case Field::VECTOR_2D:
-            datasize=Uint(Field::VECTOR_3D);
-            break;
-          case Field::TENSOR_2D:
-            datasize=Uint(Field::TENSOR_3D);
-            break;
-          default:
-            break;
-        }
-        RealVector data(datasize); data.setZero();
-
-        file << "$ElementNodeData\n";
-
-        // add 2 string tags : var_name, field_name
-        file << 2 << "\n";
-        file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-        file << "\"" << field_name << "\"\n";
-        // add 1 real tag: time
-        file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
-        // add 3 integer tags: time_step, variable_type, nb elements
-        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
-
-        boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
-        {
-          if (field.dict().defined_for_entities(elements_handle))
-          {
-            const Entities& elements = *elements_handle;
-            const Space& field_space = field.space(elements);
-//            Uint elm_number = m_element_start_idx[&elements];
-            Uint local_nb_elms = elements.size();
-
-            const Uint nb_states = field_space.shape_function().nb_nodes();
-            RealMatrix field_data (nb_states,var_type);
-
-            const Uint nb_nodes = elements.element_type().nb_nodes();
-
-            /// write element
-            for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
-            {
-              if (m_enable_overlap || !elements.is_ghost(local_elm_idx))
+              file << elements.glb_idx()[local_elm_idx]+1 << " " << nb_nodes << " ";
+              /// set field data
+              Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
+              for (Uint iState=0; iState<nb_states; ++iState)
               {
-                file << elements.glb_idx()[local_elm_idx]+1 << " " << nb_nodes << " ";
-                /// set field data
-                Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
-                for (Uint iState=0; iState<nb_states; ++iState)
+                for (Uint j=0; j<var_type; ++j)
+                  field_data(iState,j) = field[field_indexes[iState]][row_idx+j];
+              }
+
+              for (Uint iNode=0; iNode<nb_nodes; ++iNode)
+              {
+                /// get element_node local coordinates
+                RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
+
+                /// evaluate field shape function in element_node
+                RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
+                cf3_assert(node_data.size() == var_type);
+
+                if (var_type==Field::TENSOR_2D)
+                {
+                  data[0]=node_data[0];
+                  data[1]=node_data[1];
+                  data[3]=node_data[2];
+                  data[4]=node_data[3];
+                  for (Uint idx=0; idx<datasize; ++idx)
+                    file << " " << data[idx];
+                }
+                else
                 {
                   for (Uint j=0; j<var_type; ++j)
-                    field_data(iState,j) = field[field_indexes[iState]][row_idx+j];
+                    file << " " << node_data[j];
+                  if (var_type == Field::VECTOR_2D)
+                    file << " " << 0.0;
                 }
-
-                for (Uint iNode=0; iNode<nb_nodes; ++iNode)
-                {
-                  /// get element_node local coordinates
-                  RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
-
-                  /// evaluate field shape function in element_node
-                  RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
-                  cf3_assert(node_data.size() == var_type);
-
-                  if (var_type==Field::TENSOR_2D)
-                  {
-                    data[0]=node_data[0];
-                    data[1]=node_data[1];
-                    data[3]=node_data[2];
-                    data[4]=node_data[3];
-                    for (Uint idx=0; idx<datasize; ++idx)
-                      file << " " << data[idx];
-                  }
-                  else
-                  {
-                    for (Uint j=0; j<var_type; ++j)
-                      file << " " << node_data[j];
-                    if (var_type == Field::VECTOR_2D)
-                      file << " " << 0.0;
-                  }
-                }
-                file << "\n";
               }
+              file << "\n";
             }
           }
         }
-        file << "$EndElementNodeData\n";
-        row_idx += Uint(var_type);
       }
+      file << "$EndElementNodeData\n";
+      row_idx += Uint(var_type);
     }
   }
   // restore precision

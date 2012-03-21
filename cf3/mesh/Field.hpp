@@ -298,9 +298,6 @@ public: // functions
 
 private:
 
-  void config_var_names();
-  void config_var_types();
-
   Handle<Dictionary> m_dict;
 
   Handle< common::PE::CommPattern > m_comm_pattern;

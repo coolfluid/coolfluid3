@@ -16,7 +16,7 @@
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/BoostAnyConversion.hpp"
-
+#include "common/List.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
   Core::instance().environment().options().configure_option("regist_signal_handlers",true);
 }
 
@@ -85,19 +85,26 @@ BOOST_AUTO_TEST_CASE( test )
   // Generate a mesh
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("mesh");
   boost::shared_ptr< MeshGenerator > generate_mesh = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","meshgenerator");
-  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,400));
+  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,10));
   generate_mesh->options().configure_option("lengths",std::vector<Real>(dim,2.));
   generate_mesh->options().configure_option("mesh",mesh->uri());
-  generate_mesh->options().configure_option("bdry",false);
+//  generate_mesh->options().configure_option("bdry",false);
   generate_mesh->execute();
 
   PE::Comm::instance().barrier();
+
+  // Create a P2 space and some fields
+  Dictionary& P2 = mesh->create_continuous_space("P2","cf3.mesh.LagrangeP2");
+  Field& glb_idx = P2.create_field("glb_node_idx");
+  for (Uint n=0; n<P2.size(); ++n)
+    glb_idx[n][0] = P2.glb_idx()[n];
 
   // Write a distributed mesh:
   // -  out-utest-mesh-gmsh-parallel_P0.msh
   // -  out-utest-mesh-gmsh-parallel_P1.msh
   boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   write_mesh->options().configure_option("mesh",mesh);
+  write_mesh->options().configure_option("fields",std::vector<URI>(1,glb_idx.uri()));
   write_mesh->options().configure_option("file",URI("out-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
 
@@ -105,6 +112,7 @@ BOOST_AUTO_TEST_CASE( test )
 
   // Read the two mesh-files created previously
   boost::shared_ptr< MeshReader > read_mesh = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
+  read_mesh->options().configure_option("read_fields",true);
 
   std::vector< Handle<Mesh> > meshes(PE::Comm::instance().size());
   for (Uint p=0; p<PE::Comm::instance().size(); ++p)
@@ -118,6 +126,10 @@ BOOST_AUTO_TEST_CASE( test )
 
     PE::Comm::instance().barrier();
 
+    write_mesh->options().configure_option("mesh",meshes[p]);
+    write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"discontinuous_geometry/glb_node_idx"));
+    write_mesh->options().configure_option("file",URI("out-P"+to_str(p)+"-utest-mesh-gmsh-parallel.msh"));
+    write_mesh->execute();
   }
 
   // Merge both meshes into one mesh, regions with same name are merged, otherwise added

@@ -132,11 +132,14 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   fix_negative_volumes(*m_mesh);
 
   if (options().option("read_fields").value<bool>())
-  {
-    read_element_data();
+    read_element_node_data();
 
-    read_node_data();
-  }
+//  if (options().option("read_fields").value<bool>())
+//  {
+//    read_element_data();
+
+//    read_node_data();
+//  }
 
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
@@ -250,16 +253,13 @@ void Reader::get_file_positions()
     {
       m_node_data_positions.push_back(p);
     }
-    else if (line.find(element_data)!=std::string::npos)
+    else if (line.find(element_node_data)!=std::string::npos)
     {
       m_element_node_data_positions.push_back(p);
     }
 
   }
   m_file.clear();
-
-  if (m_element_node_data_positions.size())
-    CFwarn << "ElementNodeData record(s) found. The gmsh reader has not implemented reading this record yet. They will be ignored" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -631,7 +631,7 @@ void Reader::read_connectivity()
       Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle<Component>());
       Connectivity::Row element_nodes = elements_region->geometry_space().connectivity()[row_idx];
 
-      m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
+      m_elem_idx_gmsh_to_cf[element_number] = std::make_pair( elements_region , row_idx);
 
       for(Uint node = 0; node < nb_element_nodes; ++node)
       {
@@ -653,8 +653,104 @@ void Reader::read_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Reader::read_element_node_data()
+{
+  /// Discontinuous fields section
+  /// @code
+  /// $ElementNodeData
+  ///  number-of-string-tags
+  ///  < "string-tag" >
+  ///  ...
+  ///  number-of-real-tags
+  ///  < real-tag >
+  ///  ...
+  ///  number-of-integer-tags
+  ///  < integer-tag >
+  ///  ...
+  ///  elm-number number-of-nodes-per-element value ...
+  ///  ...
+  ///  $ElementEndNodeData
+  /// @endcode
+
+  std::map<std::string,Reader::Field> gmsh_fields;
+
+  boost_foreach(Uint element_node_data_position, m_element_node_data_positions)
+  {
+    m_file.seekg(element_node_data_position,std::ios::beg);
+    read_variable_header(gmsh_fields);
+  }
+
+
+  if (gmsh_fields.size())
+  {
+    // FIXME this is not LagrangeP1, but should be different for every element type
+    Dictionary& dict = m_mesh->create_discontinuous_space("discontinuous_geometry","cf3.mesh.LagrangeP1",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
+
+    // 1) Find which elements regions this field is defined in.
+    foreach_container( (const std::string& field_name) (const Reader::Field& gmsh_field) , gmsh_fields)
+    {
+      if (gmsh_field.nb_entries != m_total_nb_elements)
+      {
+        CFwarn << "Skipping field " << field_name << ": it has " << gmsh_field.nb_entries << " entries while the total number of elements is " << m_total_nb_elements << CFendl;
+        continue;
+      }
+
+      mesh::Field& field = dict.create_field(field_name,gmsh_field.description());
+
+      for (Uint var=0; var<field.nb_vars(); ++var)
+      {
+
+        CFdebug << "Reading " << field.name() << "/" << field.var_name(var) <<"["<<static_cast<Uint>(field.var_length(var))<<"]" << CFendl;
+        Uint var_begin = field.var_index(var);
+        Uint var_end = var_begin + static_cast<Uint>(field.var_length(var));
+        m_file.seekg(gmsh_field.file_data_positions[var]);
+
+        std::string line;
+        Uint gmsh_elem_idx;
+        Uint gmsh_nb_elem_nodes;
+        Uint cf_idx;
+        Handle< Elements > elements;
+        Handle< Space > space;
+        Uint d,n;
+        std::vector<Real> data(gmsh_field.var_types[var]);
+        std::map<Uint, std::pair<Handle< Elements >,Uint> >::iterator it;
+        for (Uint e=0; e<gmsh_field.nb_entries; ++e)
+        {
+          m_file >> gmsh_elem_idx >> gmsh_nb_elem_nodes;
+
+          it = m_elem_idx_gmsh_to_cf.find(gmsh_elem_idx);
+          if (it != m_elem_idx_gmsh_to_cf.end())
+          {
+            boost::tie(elements,cf_idx) = it->second;
+            const Space& space = elements->space(dict);
+
+            cf3_assert(elements->element_type().nb_nodes() == gmsh_nb_elem_nodes);
+
+            for (n=0; n<gmsh_nb_elem_nodes; ++n)
+            {
+
+              for (d=0; d<data.size(); ++d)
+                m_file >> data[d];
+
+              mesh::Field::Row field_data = field[space.connectivity()[cf_idx][n]] ;
+
+              d=0;
+              for(Uint v=var_begin; v<var_end; ++v)
+                field_data[v] = data[d++];
+            }
+          }
+          getline(m_file,line); // finish line
+        }
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Reader::read_element_data()
 {
+
   //  $ElementData
   //  1              // 1 string tag:
   //  "a_string_tag" //   the name of the view
@@ -687,8 +783,8 @@ void Reader::read_element_data()
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
       std::vector<std::string> var_types_str;
-      boost_foreach(const Uint var_type, gmsh_field.var_types)
-          var_types_str.push_back(var_type_gmsh_to_cf(var_type));
+      //boost_foreach(const Uint var_type, gmsh_field.var_types)
+      //    var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
       mesh::Field& field = dict.create_field(gmsh_field.name);
       field.options().configure_option("var_names",gmsh_field.var_names);
@@ -714,7 +810,7 @@ void Reader::read_element_data()
           for (d=0; d<data.size(); ++d)
             m_file >> data[d];
 
-          std::map<Uint, boost::tuple<Handle< Elements >,Uint> >::iterator it = m_elem_idx_gmsh_to_cf.find(gmsh_elem_idx);
+          std::map<Uint, std::pair<Handle< Elements >,Uint> >::iterator it = m_elem_idx_gmsh_to_cf.find(gmsh_elem_idx);
           if (it != m_elem_idx_gmsh_to_cf.end())
           {
             boost::tie(elements,cf_idx) = it->second;
@@ -764,8 +860,8 @@ void Reader::read_node_data()
   foreach_container((const std::string& name) (Field& gmsh_field) , fields)
   {
     std::vector<std::string> var_types_str;
-    boost_foreach(const Uint var_type, gmsh_field.var_types)
-      var_types_str.push_back(var_type_gmsh_to_cf(var_type));
+    //boost_foreach(const Uint var_type, gmsh_field.var_types)
+    //  var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
     mesh::Field& field = m_mesh->geometry_fields().create_field(gmsh_field.name);
     field.options().configure_option("var_names",gmsh_field.var_names);
@@ -876,26 +972,8 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   field.time_step=field_time_step;
   field.nb_entries=nb_entries;
   field.file_data_positions.push_back(m_file.tellg());
-}
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
-{
-  std::string dim = to_str(m_mesh->geometry_fields().coordinates().row_size());
-  switch (var_type_gmsh)
-  {
-    case 1:
-      return "scalar";
-    case 3:
-      return "vector"+dim+"D";
-    case 9:
-      return "tensor"+dim+"D";
-    default:
-      throw FileFormatError(FromHere(),"Gmsh variable type should be either 1(scalar), 3(vector), 9(tensor). Found: "+to_str(var_type_gmsh));
-  }
-  return 0;
+  CFinfo << "    - found variable " << var_name << " from discontinuous field " << field_name << " at time " << field_time << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

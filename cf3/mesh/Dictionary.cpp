@@ -190,7 +190,7 @@ Field& Dictionary::create_field(const std::string &name, const std::string& vari
   CFinfo << "Created field " << field->uri() << " with variables \n";
   for (Uint var=0; var<field->descriptor().nb_vars(); ++var)
   {
-    CFinfo << "    - " << field->descriptor().user_variable_name(var) << "[" << field->descriptor().var_length(var) << "]\n";
+    CFinfo << "    - " << field->descriptor().user_variable_name(var) << " [" << field->descriptor().var_length(var) << "]\n";
   }
   CFinfo << CFflush;
 
