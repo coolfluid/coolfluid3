@@ -93,16 +93,15 @@ void BuildFaceNormals::execute()
 
   Handle< Component > component;
   Uint cell_idx(0);
-  boost_foreach( const Handle<Entities>& faces_handle, face_normals.entities_range() )
+  boost_foreach( const Handle<Space>& space, face_normals.spaces() )
   {
-    Entities& faces = *faces_handle;
-    Handle< FaceCellConnectivity > face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
+    Handle< FaceCellConnectivity > face2cell_ptr = find_component_ptr<FaceCellConnectivity>(space->support());
     if (is_not_null(face2cell_ptr))
     {
       FaceCellConnectivity& face2cell = *face2cell_ptr;
       common::Table<Uint>& face_nb = face2cell.face_number();
-      RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
-      RealVector normal(faces.element_type().dimension());
+      RealMatrix face_coordinates(space->support().element_type().nb_nodes(),space->support().element_type().dimension());
+      RealVector normal(space->support().element_type().dimension());
       for (Face2Cell face(face2cell); face.idx<face2cell.size(); ++face.idx)
       {
         // The normal will be outward to the first connected element
@@ -127,12 +126,12 @@ void BuildFaceNormals::execute()
           RealVector normal(1);
           normal = face_coordinates.row(0) - cell_centroid;
           normal.normalize();
-          face_normals[face_normals.space(faces).connectivity()[face.idx][0]][XX]=normal[XX];
+          face_normals[space->connectivity()[face.idx][0]][XX]=normal[XX];
         }
         else
         {
           face.element_type().compute_normal(face_coordinates,normal);
-          Uint field_index = face_normals.space(faces).connectivity()[face.idx][0];
+          Uint field_index = space->connectivity()[face.idx][0];
           cf3_assert(field_index    < face_normals.size()    );
           cf3_assert(normal.size() == face_normals.row_size());
           for (Uint i=0; i<normal.size(); ++i)

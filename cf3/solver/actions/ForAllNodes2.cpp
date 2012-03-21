@@ -37,7 +37,7 @@ void ForAllNodes2::execute()
   {
     boost_foreach(LoopOperation& op, find_components<LoopOperation>(*this))
     {
-     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
+      boost_foreach(const Uint node, Elements::used_nodes(*region).array())
       {
         op.select_loop_idx(node);
         op.execute();

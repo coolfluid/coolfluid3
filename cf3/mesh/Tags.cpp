@@ -24,6 +24,7 @@ const char * Tags::nodes_used ()   { return "nodes_used"; }
 const char * Tags::global_elem_indices ()  { return "gelemidx"; }
 const char * Tags::global_node_indices ()  { return "gnodeidx"; }
 const char * Tags::global_indices ()  { return "global_indices"; }
+const char * Tags::map_global_to_local ()  { return "map_global_to_local"; }
 
 const char * Tags::cell_entity ()  { return "cell_entity"; }
 const char * Tags::face_entity ()  { return "face_entity"; }

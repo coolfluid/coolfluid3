@@ -123,11 +123,12 @@ void GlobalNumbering::execute()
   if (PE::Comm::instance().size()==1)
   {
     Uint glb_idx=0;
-    mesh.geometry_fields().rank().resize(mesh.geometry_fields().size());
-    mesh.geometry_fields().glb_idx().resize(mesh.geometry_fields().size());
+    cf3_assert(mesh.geometry_fields().size() > 0);
     for (Uint n=0; n<mesh.geometry_fields().size(); ++n)
     {
+      cf3_assert(n<mesh.geometry_fields().rank().size());
       mesh.geometry_fields().rank()[n]=PE::Comm::instance().rank();
+      cf3_assert(n<mesh.geometry_fields().glb_idx().size());
       mesh.geometry_fields().glb_idx()[n]=glb_idx++;
     }
     boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
@@ -140,6 +141,9 @@ void GlobalNumbering::execute()
         elements.glb_idx()[e]=glb_idx++;
       }
     }
+    mesh.update_structures();
+    mesh.update_statistics();
+
     return;
   }
 
@@ -484,6 +488,9 @@ void GlobalNumbering::execute()
   {
     elements.remove_component("glb_elem_hash");
   }
+
+  mesh.update_statistics();
+  mesh.update_structures();
 }
 
 //////////////////////////////////////////////////////////////////////////////

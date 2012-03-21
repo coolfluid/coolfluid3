@@ -140,9 +140,15 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   std::vector<int> fifth(3,first);
 
 
-  //Uint expected_size = sizeof(first) + sizeof(second) + sizeof(Uint) + sizeof(char)*fourth.size() + sizeof(first)*fifth.size() + 2*sizeof(int);
-  //std::cout << "expected size is " << expected_size << std::endl;
-  Uint expected_size = 51;
+  Uint expected_size =
+         sizeof(int) // first
+      +  sizeof(Real) // second
+      +  sizeof(Uint) // third
+      +  sizeof(Uint)+sizeof(char)*fourth.size() // fourth
+      +  sizeof(size_t)+sizeof(int)*fifth.size(); // fifth
+
+  std::cout << "expected size is " << expected_size << std::endl;
+//  Uint expected_size = 51;
 
   // ----------------------------------
 
@@ -163,16 +169,11 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // ----------------------------------
 
-  BOOST_CHECK_EQUAL(buffer.packed_size(), expected_size);
+  BOOST_CHECK_EQUAL(buffer.size(), expected_size);
 
   if (Comm::instance().rank() != root)
   {
-    BOOST_CHECK_EQUAL(buffer.size(), expected_size);
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
-  }
-  else
-  {
-    BOOST_CHECK_EQUAL(buffer.size(), 96);
   }
 
   // The data on every processor should be from rank root

@@ -27,6 +27,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Functions.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -60,12 +61,6 @@ Entities::Entities ( const std::string& name ) :
   m_rank = create_static_component< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-//  regist_signal ( "create_space" )
-//      .connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
-//      .description( "Create space for other interpretations of fields (e.g. high order)" )
-//      .pretty_name( "Create space" )
-//      .signature(boost::bind(&Entities::signature_create_space, this, _1));
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,10 +70,6 @@ Entities::~Entities()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-//void Entities::initialize(const std::string& element_type_name)
-//{
-//}
 
 void Entities::initialize(const std::string& element_type_name, Dictionary& geometry_dict)
 {
@@ -92,14 +83,15 @@ void Entities::create_geometry_space(Dictionary& geometry_dict)
   if ( is_null(m_element_type) )
     throw SetupError(FromHere(),"option 'element_type' needs to be configured first");
 
-  m_geometry_dict = Handle<Dictionary>(geometry_dict.handle<Component>());
-  if ( exists_space(mesh::Tags::geometry()) )
+  m_geometry_dict = geometry_dict.handle<Dictionary>();
+  if ( is_not_null(m_spaces_group->get_child(mesh::Tags::geometry())) )
   {
-    space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    space(geometry_dict).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   }
   else
   {
     m_geometry_space = m_spaces_group->create_component<Space>(geometry_dict.name());
+    m_spaces_vector.push_back(m_geometry_space);
     m_geometry_space->initialize(*this,geometry_dict);
     m_geometry_space->options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
     m_geometry_space->add_tag(mesh::Tags::geometry());
@@ -129,73 +121,6 @@ ElementType& Entities::element_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& node_user, const std::string& space_name)
-{
-  boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
-
-  std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively<Entities>(node_user));
-  Handle<Entities const> self_entities(node_user.handle<Component>());
-  if(is_not_null(self_entities))
-    entities_vector.push_back(self_entities);
-
-  // No entities found, so the list of nodes is empty
-  if(entities_vector.empty())
-    return used_nodes;
-
-  const Uint all_nb_nodes = entities_vector.front()->space(space_name).dict().size();
-
-  std::vector<bool> node_is_used(all_nb_nodes, false);
-
-  // First count the number of unique nodes
-  Uint nb_nodes = 0;
-  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
-  {
-    const Space& space = entities->space(space_name);
-    const Uint nb_elems = entities->size();
-
-    for (Uint idx=0; idx<nb_elems; ++idx)
-    {
-      cf3_assert(idx<space.connectivity().size());
-      boost_foreach(const Uint node, space.connectivity()[idx])
-      {
-        cf3_assert(node<node_is_used.size());
-        if(!node_is_used[node])
-        {
-          node_is_used[node] = true;
-          ++nb_nodes;
-        }
-      }
-    }
-  }
-
-  // reserve space for all unique nodes
-  used_nodes->resize(nb_nodes);
-  common::List<Uint>::ListT& nodes_array = used_nodes->array();
-
-  // Add the unique node indices
-  node_is_used.assign(all_nb_nodes, false);
-  Uint back = 0;
-  BOOST_FOREACH(const Handle<Entities const>& entities, entities_vector)
-  {
-    const Space& space = entities->space(space_name);
-    const Uint nb_elems = entities->size();
-    for (Uint idx=0; idx<nb_elems; ++idx)
-    {
-      boost_foreach(const Uint node, space.connectivity()[idx])
-      {
-        if(!node_is_used[node])
-        {
-          node_is_used[node] = true;
-          nodes_array[back++] = node;
-        }
-      }
-    }
-  }
-
-  std::sort(used_nodes->array().begin(), used_nodes->array().end());
-  return used_nodes;
-}
-
 common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 {
   Handle< common::List<Uint> > used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
@@ -207,7 +132,8 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    boost::shared_ptr< List<Uint> > used_nodes_shr = Entities::create_used_nodes(parent,mesh::Tags::geometry());
+    const Dictionary& dict = find_components_recursively<Entities>(parent).begin()->geometry_fields();
+    boost::shared_ptr< List<Uint> > used_nodes_shr = build_used_nodes_list(parent, dict, true);
     used_nodes = Handle< List<Uint> >(used_nodes_shr);
     parent.add_component(used_nodes_shr);
     used_nodes->add_tag(mesh::Tags::nodes_used());
@@ -254,82 +180,17 @@ Uint Entities::glb_size() const
   }
 }
 
-//common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
-//{
-//  throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
-//}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 Space& Entities::create_space(const std::string& shape_function_builder_name, Dictionary& space_dict)
 {
   /// @note Everything for a space is set-up, except the filling of the connectivity table (size=0xnb_states)
   Handle<Space> space = m_spaces_group->create_component<Space>(space_dict.name());
+  m_spaces_vector.push_back(space);
   space->initialize(*this,space_dict);
   space->options().configure_option("shape_function",shape_function_builder_name);
   return *space;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-Space& Entities::space (const std::string& space_name) const
-{
-  return *Handle<Space>(m_spaces_group->get_child(space_name));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool Entities::exists_space(const std::string& name) const
-{
-  return is_not_null(m_spaces_group->get_child(name));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//RealMatrix Entities::get_coordinates(const Uint elem_idx) const
-//{
-//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-//  return RealMatrix(1,1);
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-//void Entities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
-//{
-//  throw common::NotImplemented(FromHere(),"Should implement in derived class");
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-//void Entities::allocate_coordinates(RealMatrix& coords) const
-//{
-//  coords.resize(element_type().nb_nodes(),element_type().dimension());
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//void Entities::signature_create_space ( SignalArgs& node)
-//{
-//  XML::SignalOptions options( node );
-//  options.add_option("name" , std::string("new_space") )
-//      .description("Name to add to space");
-
-//  options.add_option("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
-//      .description("Shape Function to add as space");
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-//void Entities::signal_create_space ( SignalArgs& node )
-//{
-//  XML::SignalOptions options( node );
-
-//  std::string name = options.value<std::string>("name");
-
-//  std::string shape_function_builder = options.value<std::string>("shape_function");
-
-//  Space& space = create_space(name, shape_function_builder);
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -104,6 +104,7 @@ void GlobalConnectivity::execute()
   // 5) create the node to glb_elem_connectivity, as the combination of (2) and (4)
 
 
+
   //1)
   std::map<Uint,Uint> node_glb2loc;
   Uint loc_node_idx(0);
@@ -111,8 +112,14 @@ void GlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
+  Handle<Component> node2elem_handle = mesh.geometry_fields().get_child("node2elem");
+  if (node2elem_handle)
+    mesh.geometry_fields().remove_component("node2elem");
+
+
   NodeElementConnectivity& node2elem = *mesh.geometry_fields().create_component<NodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
+
 
   // 3)
   Uint nb_ghost(0);
@@ -185,23 +192,32 @@ void GlobalConnectivity::execute()
 
 
   DynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry_fields().glb_elem_connectivity();
+//  CFinfo << "nodes_glb_elem_connectivity = " << nodes_glb_elem_connectivity.uri() << CFendl;
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {
+//    CFinfo << "i = " << i << CFendl;
+    cf3_assert(i<node2elem.connectivity().size());
     DynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
+    cf3_assert(i<nodes_glb_elem_connectivity.size());
+    cf3_assert(i<glb_elem_connectivity.size());
     nodes_glb_elem_connectivity[i].resize(glb_elem_connectivity[i].size() + elems.size());
     cnt = 0;
     boost_foreach(const Uint e, elems)
     {
+      cf3_assert(e<node2elem.elements().size());
       boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-      nodes_glb_elem_connectivity[i][cnt++] = dynamic_cast<Elements&>(*elem_comp).glb_idx()[elem_idx];
+      cf3_assert(elem_idx < Handle<Elements>(elem_comp)->glb_idx().size());
+      nodes_glb_elem_connectivity[i][cnt++] = Handle<Elements>(elem_comp)->glb_idx()[elem_idx];
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)
     {
+      cf3_assert(cnt < nodes_glb_elem_connectivity[i].size());
       nodes_glb_elem_connectivity[i][cnt++] = glb_elem_connectivity[i][j];
     }
 
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
