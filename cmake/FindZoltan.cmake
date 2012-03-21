@@ -10,6 +10,10 @@
 #
 option( CF3_SKIP_ZOLTAN "Skip search for Zoltan library" OFF )
 
+# take trilinos home as zoltan home
+if( DEFINED TRILINOS_HOME AND NOT DEFINED ZOLTAN_HOME )
+    set( ZOLTAN_HOME ${TRILINOS_HOME} )
+endif()
 
 # Try to find Zoltan using Trilinos recommendations
 find_package(Zoltan PATHS ${ZOLTAN_HOME}/lib/cmake/Zoltan ${ZOLTAN_HOME}/include ${DEPS_ROOT}/lib/cmake/Zoltan ${DEPS_ROOT}/include)
