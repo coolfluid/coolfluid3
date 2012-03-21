@@ -121,7 +121,9 @@ struct NodeLooperDim
   void operator()() const
   {
     // Create data used for the evaluation
-    DataT node_data(m_variables, m_region, m_region.geometry_fields().coordinates(), m_expr);
+#warning Call to find_parent_component in node-loop exposed (used to be in now removed "Region::geometry_fields()" )
+    const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
+    DataT node_data(m_variables, m_region, coordinates, m_expr);
     
     // Wrap things up so that we can store the intermediate product results
     do_run(WrapExpression()(m_expr, 0, node_data), node_data);
@@ -134,7 +136,8 @@ private:
     NodeGrammar grammar;
     
     std::vector<Uint> nodes;
-    make_node_list(m_region, m_region.geometry_fields().coordinates(), nodes);
+    const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
+    make_node_list(m_region, coordinates, nodes);
     
     const Uint nb_nodes = nodes.size();
     for(Uint i = 0; i != nb_nodes; ++i)
@@ -166,7 +169,7 @@ struct NodeLooper
   template<typename NbDimsT>
   void operator()(const NbDimsT&)
   {
-    common::Table<Real>& coords = m_region.geometry_fields().coordinates();
+    common::Table<Real>& coords = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
   

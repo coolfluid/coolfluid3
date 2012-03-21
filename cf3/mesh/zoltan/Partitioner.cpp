@@ -105,7 +105,7 @@ void Partitioner::partition_graph()
     }
     else // if is element
     {
-      m_elements_to_export[comp-1][exportToPart[i]].push_back(loc_idx);
+      m_elements_to_export[exportToPart[i]][comp-1].push_back(loc_idx);
     }
   }
 
@@ -122,7 +122,6 @@ void Partitioner::partition_graph()
 void Partitioner::set_partitioning_params()
 {
   /// zoltan general parameters
-
   zoltan_handle().Set_Param( "DEBUG_LEVEL", to_str( options()["debug_level"].value<Uint>() ));
   //  0 Quiet mode; no output unless an error or warning is produced.
   //  1 Values of all parameters set by Zoltan_Set_Param and used by zoltan.
@@ -246,8 +245,8 @@ void Partitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
 
   // for debugging
 #if 0
-  std::vector<Uint> glbID(p.nb_owned_objects());
-  p.list_of_owned_objects(glbID);
+  std::vector<Uint> glbID(p.nb_objects_owned_by_part(PE::Comm::instance().rank()));
+  p.list_of_objects_owned_by_part(PE::Comm::instance().rank(),glbID);
 
   CFdebug << RANK << "glbID =";
   boost_foreach(const Uint g, glbID)

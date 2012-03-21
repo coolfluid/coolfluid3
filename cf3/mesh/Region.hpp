@@ -78,20 +78,8 @@ public: // functions
 
   Uint recursive_nodes_count();
 
-  /// @return the subregion with given name
-  const Region& subregion(const std::string& name) const;
-
-  /// @return the subregion with given name
-  Region& subregion(const std::string& name);
-
-  /// @return the elements with given name
-  const Elements& elements (const std::string& element_type_name) const;
-
-  /// @return the elements with given name
-  Elements& elements (const std::string& element_type_name);
-
   /// @return nodes of the mesh
-  Dictionary& geometry_fields() const;
+//  Dictionary& geometry_fields() const;
 
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const Elements& elements, region.elements_range() )

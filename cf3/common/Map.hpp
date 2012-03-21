@@ -63,7 +63,7 @@ public: // functions
   /// @param[in] name of the component
   Map ( const std::string& name ) : Component(name)
   {
-		regist_typeinfo(this);
+    regist_typeinfo(this);
   }
 
   /// Virtual destructor
@@ -168,6 +168,9 @@ public: // functions
 
   /// @brief Get the number of pairs already inserted
   size_t size() const;
+
+  /// @brief Get the capacity of the map (memory allocated)
+  size_t capacity() const;
 
   /// @brief Overloading of the operator"[]" for assignment AND insertion
   /// @note WARNING: This procedure will call the costly sort_keys() if the map is not sorted
@@ -290,6 +293,7 @@ inline void Map<KEY,DATA>::reserve (size_t max_size)
 template <typename KEY, typename DATA>
 void Map<KEY,DATA>::copy_std_map (std::map<key_type,data_type>& map)
 {
+  clear();
   reserve(map.size());
   
   typename std::map<key_type,data_type>::iterator itr = map.begin();
@@ -304,7 +308,7 @@ template <typename KEY, typename DATA>
 inline Uint Map<KEY,DATA>::push_back(const key_type& key, const data_type& data)
 {
   m_sorted = false;
-  m_vectorMap.push_back(value_type(key,data));
+  m_vectorMap.push_back(std::make_pair(key,data));
   return m_vectorMap.size()-1;
 } 
 
@@ -387,6 +391,14 @@ template <typename KEY, typename DATA>
 inline void Map<KEY,DATA>::clear()
 {
   std::vector<value_type>().swap(m_vectorMap);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename KEY, typename DATA>
+size_t Map<KEY,DATA>::capacity() const
+{
+  return m_vectorMap.capacity();
 }
 
 //////////////////////////////////////////////////////////////////////////////
