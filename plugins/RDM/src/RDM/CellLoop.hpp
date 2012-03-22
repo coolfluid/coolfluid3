@@ -133,7 +133,7 @@ struct CellLoopT : public CellLoop
   virtual void execute ()
   {
     CFinfo << "WHOAMI: " << uri().path() << CFendl;
-    //boost::mpl::for_each< typename RDM::CellTypes< PHYS::MODEL::_ndim >::Cells >( boost::ref(*this) );
+    boost::mpl::for_each< typename RDM::CellTypes< PHYS::MODEL::_ndim >::Cells >( boost::ref(*this) );
 
     CFinfo << "WHOAMI: " << uri().path() << CFendl;
   }
@@ -181,11 +181,10 @@ struct CheckSameEtype
   mesh::Elements& elements;
 };
 */
-
-//    boost_foreach(mesh::Elements& elements,
-//                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     boost_foreach(mesh::Elements& elements,
-                  common::find_components_recursively<mesh::Elements>(*current_region))
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
+//    boost_foreach(mesh::Elements& elements,
+//                  common::find_components_recursively<mesh::Elements>(*current_region))
     {
 
       TermT& term = this->access_term<TermT>();

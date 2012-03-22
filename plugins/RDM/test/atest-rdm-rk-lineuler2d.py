@@ -12,7 +12,7 @@ env.options().configure_option('assertion_backtrace', True)
 env.options().configure_option('exception_backtrace', True)
 env.options().configure_option('exception_aborts', True)
 env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 4)
+env.options().configure_option('log_level', 5)
 env.options().configure_option('regist_signal_handlers', False)
 
 ### create model
@@ -25,7 +25,8 @@ model = root.get_child('Model')
 ### read mesh
 
 domain = model.get_child('Domain')
-mesh = domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+#mesh = domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+mesh = domain.load_mesh(file=cf.URI('circle.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -34,8 +35,6 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 solver = model.get_child('RDSolver')
 solver.options().configure_option('update_vars', 'Cons2D')
 solver.options().configure_option('solution_space', 'LagrangeP1')
-
-#solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 10)
 
 #print("----------------------------------------------------------------------------------------------------------")
 #solver.get_child('TimeStepping').list_options_recursive()
@@ -46,15 +45,12 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 #root.list_tree_recursive()
 #print("----------------------------------------------------------------------------------------------------------")
 
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
+solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 10.13)
 solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 50)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 5)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
-#solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
 
-
-### ??? configure Model/RDSolver  solution_space:string=LagrangeP1
-### ??? configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1 end_time:real=50
 
 ### initial conditions
 
@@ -118,9 +114,9 @@ gmsh_writer.execute()
 
 model.simulate()
 
-interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
-interpolator.interpolate(source=cf.URI('//Model/Domain/mesh/solution/solution'),
-                         target=cf.URI('//Model/Domain/mesh/geometry/solution'))
+#interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+#interpolator.interpolate(source=cf.URI('//Model/Domain/mesh/solution/solution'),
+                         #target=cf.URI('//Model/Domain/mesh/geometry/solution'))
 
 gmsh_writer.options().configure_option('fields',fgeo)
 gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final_lineuler.msh'))
@@ -131,10 +127,6 @@ gmsh_writer.execute()
 
 #tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
-
-
-
-
 
 #import networkxpython as nx
 #nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')#

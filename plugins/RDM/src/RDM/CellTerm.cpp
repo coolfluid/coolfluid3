@@ -48,27 +48,23 @@ CellTerm::CellTerm ( const std::string& name ) :
 
 CellTerm::~CellTerm() {}
 
-
 void CellTerm::link_fields()
 {
   if( is_null( m_solution ) )
   {
-    m_solution = follow_link( solver().handle<RDM::RDSolver>()->fields()
-                         .get_child( RDM::Tags::solution() ))->handle<Field>();
+    m_solution = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::solution() ))->handle<Field>();
     configure_option_recursively( RDM::Tags::solution(), m_solution );
   }
 
   if( is_null( m_residual ) )
   {
-    m_residual = follow_link( solver().handle<RDM::RDSolver>()->fields()
-                         .get_child( RDM::Tags::residual() ))->handle<Field>();
+    m_residual = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::residual() ))->handle<Field>();
     configure_option_recursively( RDM::Tags::residual(), m_residual );
   }
 
   if( is_null( m_wave_speed ) )
   {
-    m_wave_speed = follow_link( solver().handle<RDM::RDSolver>()->fields()
-                         .get_child( RDM::Tags::wave_speed() ))->handle<Field>();
+    m_wave_speed = follow_link( solver().handle<RDM::RDSolver>()->fields().get_child( RDM::Tags::wave_speed() ))->handle<Field>();
     configure_option_recursively( RDM::Tags::wave_speed(), m_wave_speed );
   }
 }
