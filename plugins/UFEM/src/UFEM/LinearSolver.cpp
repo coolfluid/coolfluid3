@@ -71,6 +71,8 @@ LinearSolver::LinearSolver(const std::string& name) :
   solution(m_implementation->solution)
 {
   options().option("lss").attach_trigger(boost::bind(&LinearSolver::trigger_lss, this));
+
+  m_solution_tag = UFEM::Tags::solution();
 }
 
 LinearSolver::~LinearSolver()
@@ -157,7 +159,7 @@ void LinearSolver::trigger_lss()
   // Create the LSS if the mesh is set
   if(is_not_null(m_mesh) && !m_implementation->m_lss->is_created())
   {
-    VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
+    VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), m_solution_tag);
 
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
