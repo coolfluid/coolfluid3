@@ -100,7 +100,7 @@ void python_execute_function(){
           PyObject *exc,*val,*trb,*obj;
           char* error;
           PyErr_Fetch(&exc, &val, &trb);
-          if (NULL != exc && NULL != val){
+          if (NULL != val){
             if (PyArg_ParseTuple (val, "sO", &error, &obj)){
               CFinfo << error << CFendl;
               //ScriptEngine::emit_output(std::string(error));
@@ -202,31 +202,60 @@ void ScriptEngine::execute_script(std::string script,int code_fragment){
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add,std::vector<std::string> *sub, int rec,bool child){
-  if (rec > 2)//max recusivity
-    return;
-  PyObject *key, *value;
+  static char value_limiter[105];//100 character limit (+ ...\0)
+  PyObject *py_key, *py_value;
   char* key_str;
   bool fetch_values=interpreter_mode==STOP || interpreter_mode==LINE_BY_LINE_EXECUTION;
-  Py_ssize_t pos = 0;
+  Py_ssize_t pos = 0,dir_size;
   std::vector<bool> reverse_found;
   std::string c_name;
+  std::string value_string;
+  //CFinfo << (c_name.size()>0?c_name+".":"")+entry.name << CFendl;
   if (entry.name.size()){
     c_name=(name.size()>0?name+".":"")+entry.name;
   }
   if (c_name == "sys.stdin" || c_name =="sys.stdout" || c_name == "sys.stderr")
     return;
   reverse_found.resize(entry.entry_list.size(),false);
-  if (rec==0){//scope level
-    while (PyDict_Next(entry.py_ref, &pos, &key, &value)) {
-      if (NULL != key && NULL != value){
-        key_str=PyString_AsString(key);
+  bool loop=true;
+  if (entry.py_ref != NULL){
+    boost::python::handle<> dir_list;
+    if (rec > 0){
+      //dir_list=boost::python::handle<>(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
+      dir_list=boost::python::handle<>(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
+      if (dir_list.get() != NULL)
+        dir_size=PyList_Size(dir_list.get());
+      else
+        loop=false;
+    }
+    while (loop) {
+      boost::python::handle<> key;
+      boost::python::handle<> value;
+
+      if (rec==0){//scope fetch
+        loop=PyDict_Next(entry.py_ref, &pos, &py_key, &py_value);
+        key=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_key)));
+        value=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_value)));
+      }else{
+        key=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(PyList_GetItem(dir_list.get(),pos++))));
+        if (NULL != key.get())
+          value=boost::python::handle<>(boost::python::allow_null(PyObject_GetAttr(entry.py_ref,key.get())));
+        if (pos >= dir_size)
+          loop=false;
+      }
+
+      if (NULL != key.get() && NULL != value.get()){
+        key_str=PyString_AsString(key.get());
         if (key_str[0] != '_'){
           bool found=false;
-          int i;
-          for(i=0;i<entry.entry_list.size();i++){
-            if (entry.entry_list[i].py_ref==value ){
-              if (fetch_values && !PyCallable_Check(value)){
-                if (entry.entry_list[i].value==PyString_AsString(PyObject_Str(value))){
+          if (fetch_values)
+            value_string=PyString_AsString(PyObject_Str(value.get()));
+          bool callable=PyCallable_Check(value.get());
+          int i=0;
+          for(;i<entry.entry_list.size();i++){
+            if (entry.entry_list[i].py_ref==value.get() && entry.entry_list[i].name == key_str){
+              if (fetch_values && !callable){
+                if (entry.entry_list[i].value==value_string){
                   found=true;
                   reverse_found[i]=true;
                   break;
@@ -240,104 +269,32 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
           }
           if (!found){
             PythonDictEntry n_entry;
-            n_entry.py_ref=value;
+            n_entry.py_ref=value.get();
             n_entry.name=key_str;
-            if (PyCallable_Check(value))
-              add->push_back(n_entry.name+"(");
-            else{
-              if (fetch_values)
-                n_entry.value=PyString_AsString(PyObject_Str(value));
-              add->push_back(n_entry.name+":"+n_entry.value+"{");
-              check_scope_difference(n_entry,c_name,add,sub,rec+1,true);
+            if (PyCallable_Check(value.get())){
+              add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+"(");
+            }else{
+              if (fetch_values){
+                /*char* value_str=PyString_AsString(PyObject_Str(value.get()));
+                strncpy(value_limiter,value_str,101);
+                if (strlen(value_limiter) == 100){
+                  strcpy(value_limiter+100,"...");
+                }*/
+                n_entry.value=value_string;
+              }
+              add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+":"+n_entry.value+"{");
+              if (rec < 2)
+                check_scope_difference(n_entry,c_name,add,sub,rec+1,true);
               add->push_back("}");
             }
             entry.entry_list.push_back(n_entry);
             reverse_found.push_back(true);
           }else{
-            if (!PyCallable_Check(value)){
+            if (!PyCallable_Check(value.get())){
               PythonDictEntry n_entry=entry.entry_list[i];
-              check_scope_difference(n_entry,c_name,add,sub,rec+1,false);
-              entry.entry_list[i]=n_entry;
-            }
-          }
-        }
-      }
-    }
-    //PyEval_GetFrame()->f_code->;
-    if (PyEval_GetFrame() != NULL){
-      //CFinfo << PyString_AsString(PyEval_GetFrame()->f_code->co_name) << CFendl;
-      std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
-      if (target != "<module>"){
-        PythonDictEntry n_entry;
-        n_entry.name=target;
-        n_entry.py_ref=NULL;//will be destroyed at the next check
-        for (int i=0;i<entry.entry_list.size();i++){
-          if (entry.entry_list[i].name==target){
-            reverse_found[i]=false;
-          }
-        }
-        entry.entry_list.push_back(n_entry);
-        reverse_found.push_back(true);
-        add->push_back(target+":[");
-        PyObject* locals=PyEval_GetLocals();
-        pos=0;
-        while (PyDict_Next(locals, &pos, &key, &value)) {
-          if (key != NULL && value != NULL){
-            add->push_back(std::string(PyString_AsString(key))+":"+PyString_AsString(PyObject_Str(value))+":");
-          }
-        }
-        add->push_back("]");
-      }
-    }
-  }else{
-    char *key_str;
-    boost::python::handle<> dir_list(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
-    if (NULL != dir_list.get()){
-      Py_ssize_t size=PyList_Size(dir_list.get());
-      for (Py_ssize_t ind=0;ind<size;ind++){
-        boost::python::handle<> key(boost::python::borrowed(boost::python::allow_null(PyList_GetItem(dir_list.get(),ind))));
-        if (NULL != key.get()){
-          boost::python::handle<> value(boost::python::allow_null(PyObject_GetAttr(entry.py_ref,key.get())));
-          key_str=PyString_AsString(key.get());
-          if (key_str!=NULL && strlen(key_str) && key_str[0] != '_' && value.get() != NULL){
-            bool found=false;
-            int i;
-            for(i=0;i<entry.entry_list.size();i++){
-              if (entry.entry_list[i].py_ref==value.get() ){
-                if (fetch_values && !PyCallable_Check(value.get())){
-                  if (entry.entry_list[i].value==PyString_AsString(PyObject_Str(value.get()))){
-                    found=true;
-                    reverse_found[i]=true;
-                    break;
-                  }
-                }else{
-                  found=true;
-                  reverse_found[i]=true;
-                  break;
-                }
-              }
-            }
-            if (!found){
-              PythonDictEntry n_entry;
-              n_entry.py_ref=value.get();
-              n_entry.name=key_str;
-              if (PyCallable_Check(value.get())){
-                add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+"(");
-              }else{
-                if (fetch_values)
-                  n_entry.value=PyString_AsString(PyObject_Str(value.get()));
-                add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+":"+n_entry.value+"{");
-                check_scope_difference(n_entry,c_name,add,sub,rec+1,true);
-                add->push_back("}");
-              }
-              entry.entry_list.push_back(n_entry);
-              reverse_found.push_back(true);
-            }else{
-              if (!PyCallable_Check(value.get())){
-                PythonDictEntry n_entry=entry.entry_list[i];
+              if (rec < 2)
                 check_scope_difference(n_entry,c_name,add,sub,rec+1,false);
-                entry.entry_list[i]=n_entry;
-              }
+              entry.entry_list[i]=n_entry;
             }
           }
         }
@@ -355,7 +312,6 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
     }
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -385,6 +341,45 @@ void ScriptEngine::check_python_change(int code_fragment){
   flush_python_stdout(code_fragment);
   std::vector<std::string> add,sub;
   check_scope_difference(local_scope_entry,"",&add,&sub);
+  stack_scope_entry.py_ref=NULL;
+  stack_scope_entry.name="";
+  if (PyEval_GetFrame() != NULL){
+    //CFinfo << PyString_AsString(PyEval_GetFrame()->f_code->co_name) << CFendl;
+    std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
+    if (target != "<module>"){
+      stack_scope_entry.py_ref=PyEval_GetLocals();
+      stack_scope_entry.name=target+"(";
+    }
+  }
+  check_scope_difference(stack_scope_entry,"",&add,&sub,0,false);
+
+  /*PythonDictEntry n_entry;
+      n_entry.name=target;
+      n_entry.py_ref=NULL;//will be destroyed at the next check
+      for (int i=0;i<entry.entry_list.size();i++){
+        if (entry.entry_list[i].name==target){
+          reverse_found[i]=false;
+        }
+      }
+      entry.entry_list.push_back(n_entry);
+      reverse_found.push_back(true);
+      add->push_back(target+":[");
+      PyObject* locals=PyEval_GetLocals();
+      pos=0;
+      while (PyDict_Next(locals, &pos, &key, &value)) {
+        if (key != NULL && value != NULL){
+          add->push_back(std::string(PyString_AsString(key))+":"+PyString_AsString(PyObject_Str(value))+":");
+        }
+      }
+      add->push_back("]");
+    }
+  }*/
+  /*CFinfo << "add" << CFendl;
+  for (int i=0;i<add.size();i++)
+    CFinfo << add[i] << CFendl;
+  CFinfo << "sub" << CFendl;
+  for (int i=0;i<sub.size();i++)
+    CFinfo << sub[i] << CFendl;*/
   if (add.size() || sub.size()){
     emit_completion_list(&add,&sub);
   }
@@ -412,7 +407,12 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
   std::string code=options.option("script").value<std::string>();
   std::replace(code.begin(),code.end(),';','\t');
   std::replace(code.begin(),code.end(),'?','\n');
-  execute_script(code,options.option("fragment").value<int>());
+  std::vector<int> break_lines=options.array<int>("breakpoints");
+  int fragment=options.option("fragment").value<int>();
+  for (int i=0;i<break_lines.size();i++){
+    break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
+  }
+  execute_script(code,fragment);
   //return boost::python::object();
 }
 
@@ -444,12 +444,10 @@ void ScriptEngine::signal_get_documentation(SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 int ScriptEngine::new_line_reached(int code_fragment,int line_number){
-  if (interpreter_mode==NORMAL_EXECUTION
-      && break_points.size() > code_fragment
-      && break_points[code_fragment].size() > line_number
-      && break_points[code_fragment][line_number]){
-    interpreter_mode=STOP;
-  }
+  if (interpreter_mode==NORMAL_EXECUTION)
+    for (int i=0;i<break_points.size();i++)
+      if (break_points[i].first == code_fragment && break_points[i].second == line_number-1)
+        interpreter_mode=STOP;
   switch (interpreter_mode){
   case STOP:
   case LINE_BY_LINE_EXECUTION:
@@ -479,7 +477,8 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
 void ScriptEngine::signal_change_debug_state(SignalArgs& node){
   SignalOptions options( node );
   int commande=options.option("command").value<int>();
-  int fragment,line;
+  std::pair<int,int> fragment;
+  bool push;
   switch (commande){
   case STOP:
     if (interpreter_mode==NORMAL_EXECUTION)
@@ -499,17 +498,18 @@ void ScriptEngine::signal_change_debug_state(SignalArgs& node){
     python_break_condition.notify_one();
     break;
   case TOGGLE_BREAK_POINT:
-    fragment=options.option("fragment").value<int>();
-    line=options.option("line").value<int>();
-    if (break_points.size() < fragment){
-      break_points.resize(fragment);
+    fragment=std::pair<int,int>(options.option("fragment").value<int>(),options.option("line").value<int>());
+    push=true;
+    for (int i=0;i<break_points.size();i++){
+      if (break_points[i].first == fragment.first && break_points[i].second == fragment.second){
+        break_points[i]=break_points[break_points.size()-1];
+        break_points.pop_back();
+        push=false;
+        break;
+      }
     }
-    if (break_points[fragment].size() > line){
-      break_points[fragment][line]=!break_points[fragment][line];
-    }else{
-      break_points[fragment].resize(line,false);
-      break_points[fragment][line]=true;
-    }
+    if (push)
+      break_points.push_back(fragment);
   default:
     break;
   }
@@ -569,6 +569,7 @@ void ScriptEngine::emit_debug_trace(int fragment,int line){
 
 void ScriptEngine::signal_completion(SignalArgs& node){
   local_scope_entry.entry_list.clear();
+  stack_scope_entry.entry_list.clear();
   std::vector<std::string> add,sub;
   sub.push_back("*");//to clear the dictionary client-side
   check_scope_difference(local_scope_entry,"",&add,&sub);

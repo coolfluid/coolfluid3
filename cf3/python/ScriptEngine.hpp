@@ -132,8 +132,10 @@ private:
   bool new_command;
   Handle< common::PE::Manager > m_manager;
   PythonDictEntry local_scope_entry;
+  PythonDictEntry stack_scope_entry;
   debug_command interpreter_mode;
-  std::vector<std::vector<bool> >break_points;
+  //std::vector<std::vector<bool> >break_points;
+  std::vector<std::pair<int,int> >break_points;
   static int python_close;
   int break_fragment;
   int break_line;

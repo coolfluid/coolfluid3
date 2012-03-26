@@ -46,14 +46,13 @@ public:
   ~PythonConsole();
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
-  bool is_editable();
   void border_click(const QPoint &pos);
-  static PythonConsole* main_console;
-  void execute_code(QString,bool);
+  bool editable_zone(const QTextCursor &cursor);
   bool is_stopped();
   void create_splitter(QTabWidget *tab_widget);
+public slots:
+  void execute_code(QString code,bool immediate,QVector<int> &break_lines);
 private slots:
-  void cursor_position_changed();
   void insert_output(const QString &);
   void insert_log(const QString &);
   void line_by_line_activated(bool);
@@ -81,8 +80,21 @@ private:
   QAction* break_action;
   QStringList history;
   QString tmp_command;
+  QIcon icon_stop,icon_continue;
 
-  QQueue<QPair<QString,bool> > command_stack;
+  class python_command{
+  public:
+    python_command(QString command,bool imediate,QVector<int> break_lines)
+      : command(command)
+      , imediate(imediate)
+      , break_lines(break_lines) {}
+    QString command;
+    bool imediate;
+    QVector<int> break_lines;
+  };
+
+  QQueue<python_command> command_stack;
+  QVector<int> temporary_break_points;//store the break points of the input, in order to send them to the server before executing the command.
   QTimer auto_execution_timer;
   int history_index;
   bool stopped;

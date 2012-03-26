@@ -30,15 +30,12 @@ namespace cf3 {
 namespace ui {
 namespace graphics {
 
-//////////////////////////////////////////////////////////////////////////
-
-PythonConsole* PythonConsole::main_console=NULL;
-
+////////////////////////////////////////////////////////////////////////////
 
 PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   PythonCodeContainer(parent),main_window(main_window)
 {
-  main_console=this;
+  python_console=this;
   document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
   history_index=0;
   input_start_in_text=0;
@@ -48,29 +45,36 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   setUndoRedoEnabled(false);
 
   //Toolbar
-  line_by_line=new QAction("Line by line",this);
+  line_by_line=new QAction(QIcon(":/Icons/action_line_by_line.png"),"Line by line",this);
   line_by_line->setCheckable(true);
   tool_bar->addAction(line_by_line);
-  stop_continue=new QAction("Stop",this);
+  stop_continue=new QAction(QIcon(":/Icons/debug_arrow.png"),"Continue",this);
+  stop_continue->setEnabled(false);
   stopped=false;
   tool_bar->addAction(stop_continue);
   auto_execution_timer.setInterval(0);
   auto_execution_timer.setSingleShot(true);
-  break_action=new QAction("Break",this);
-  QAction* history_to_text_editor=new QAction("Create script from history",this);
+  break_action=new QAction(QIcon(":/Icons/action_break.png"),"Break",this);
+  tool_bar->addAction(break_action);
+  QAction* history_to_text_editor=new QAction(QIcon(":/Icons/action_new_script_from_history")
+                                              ,"Create script from history",this);
   tool_bar->addAction(history_to_text_editor);
-
   connect(&auto_execution_timer,SIGNAL(timeout()),this,SLOT(stream_next_command()));
   connect(line_by_line,SIGNAL(toggled(bool)),this,SLOT(line_by_line_activated(bool)));
   connect(stop_continue,SIGNAL(triggered()),this,SLOT(stop_continue_pressed()));
   connect(break_action,SIGNAL(triggered()),this,SLOT(break_pressed()));
   connect(history_to_text_editor,SIGNAL(triggered()),this,SLOT(push_history_to_script_editor()));
   connect(ui::core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(execution_stopped(int,int)));
-  connect(this,SIGNAL(cursorPositionChanged()),this,SLOT(cursor_position_changed()));
   connect(core::NScriptEngine::global().get(),SIGNAL(new_output(QString)),this,SLOT(insert_output(QString)));
   connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(insert_log(QString)));
+  connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString,bool,QVector<int>&)),this,SLOT(execute_code(QString,bool,QVector<int>&)));
+  setViewportMargins(border_width,tool_bar->height(),0,0);
+  offset_border.setX(border_width);
+  offset_border.setY(tool_bar->height());
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 PythonConsole::~PythonConsole(){
 
@@ -83,6 +87,8 @@ void PythonConsole::create_splitter(QTabWidget* tab_widget){
   tab_widget->addTab(splitter,"Python Console");
   connect(python_scope_values,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(scope_double_click(QModelIndex)));
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::key_press_event(QKeyEvent *e){
   QTextCursor c=textCursor();
@@ -150,19 +156,19 @@ void PythonConsole::key_press_event(QKeyEvent *e){
     fix_prompt_history();
 }
 
-bool PythonConsole::is_editable(){
-  return textCursor().blockNumber() >= input_block;
+////////////////////////////////////////////////////////////////////////////
+
+bool PythonConsole::editable_zone(const QTextCursor &cursor){
+  return cursor.anchor() >= input_start_in_text && cursor.position() >= input_start_in_text;
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 bool PythonConsole::is_stopped(){
   return stopped;
 }
 
-void PythonConsole::cursor_position_changed(){
-  QTextCursor cursor=textCursor();
-  setReadOnly(cursor.anchor() < input_start_in_text
-              || cursor.position() < input_start_in_text);
-}
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::fix_prompt_history(){
   QTextBlock block=document()->findBlockByNumber(input_block);
@@ -174,6 +180,7 @@ void PythonConsole::fix_prompt_history(){
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::new_line(int indent_number){
   if (indent_number==0){//single line statement
@@ -184,22 +191,41 @@ void PythonConsole::new_line(int indent_number){
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::border_click(const QPoint &pos){
   QTextBlock b=cursorForPosition(pos-offset_border).block();
   int current_block=b.blockNumber();
-  if (b.userState() < PROMPT_1 || current_block >= input_block)
+  if (b.userState() < PROMPT_1)
     return;
+  document()->markContentsDirty(b.position(),1);
   while (b.isValid() && b.userState() > PROMPT_1){
     b=b.previous();
   }
   int first_block=b.blockNumber();
-  toggle_break_point(first_block,current_block-first_block);
+  int line_number=current_block-first_block;
+  if (current_block >= input_block){
+    int ind=temporary_break_points.indexOf(line_number);
+    if (ind > -1){
+      temporary_break_points.remove(ind);
+    }else{
+      int i;
+      for (i=0;i<temporary_break_points.size();i++)
+        if (temporary_break_points[i] > line_number)
+          break;
+      temporary_break_points.insert(i,line_number);
+    }
+  }
+  toggle_break_point(first_block,line_number,current_block<input_block);
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::execute_input(QTextCursor &c){
   select_input(c);
   QString command=c.selectedText();
-  register_fragment(command,input_block);
+  register_fragment(command,input_block,temporary_break_points);
+  temporary_break_points.clear();
   command.chop(1);
   history.append(command);
   history_index=history.size();
@@ -213,16 +239,25 @@ void PythonConsole::execute_input(QTextCursor &c){
     auto_execution_timer.start();//to avoid cross call with stream_next_command
 }
 
-void PythonConsole::execute_code(QString code,bool immediate){
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::execute_code(QString code,bool immediate,QVector<int> &break_lines){
   static QRegExp two_points("^[^#:]*:");
   static QRegExp extend_statement("^[^#:]*(catch|elif|else|finally)[^#:]*:");
   static QRegExp empty_line("^[ \\t]*($|#)");
   QString command;
   QString line;
+  QVector<int> current_break;
+  int line_number=0;
+  int block_number=0;
+  int ind=-1;
 
   bool multi_line=false;
 
   foreach (line,code.split('\n')){
+    if (ind=break_lines.indexOf(line_number) > -1){
+      current_break.push_back(line_number-block_number);
+    }
     if (multi_line){
       int indent=0;
       for (int i=0;(line[i]=='\t'|| (line[i]==' ' && line[++i]==' '));indent++,i++);//match tabulation and double space
@@ -230,7 +265,9 @@ void PythonConsole::execute_code(QString code,bool immediate){
         if (line.contains(extend_statement)){
           command.append(line).append('\n');
         }else{//end of multi line commnd
-          command_stack.enqueue(QPair<QString,bool>(command,immediate));
+          command_stack.enqueue(python_command(command,immediate,current_break));
+          block_number=line_number;
+          current_break.clear();
           command.clear();
           multi_line=false;
         }
@@ -243,33 +280,45 @@ void PythonConsole::execute_code(QString code,bool immediate){
         multi_line=true;
         command=line.append('\n');
       }else{//simple command
-        if (!line.contains(empty_line))
-          command_stack.enqueue(QPair<QString,bool>(line,immediate));
+        if (!line.contains(empty_line)){
+          command_stack.enqueue(python_command(line,immediate,current_break));
+          block_number=line_number;
+          current_break.clear();
+        }
       }
     }
+    line_number++;
   }
   if (command_stack.size()){
     stream_next_command();
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::stream_next_command(){
-  QPair<QString,bool> current_command=command_stack.dequeue();
+  python_command current_command=command_stack.dequeue();
   QTextCursor c=textCursor();
   select_input(c);
   c.removeSelectedText();
+  temporary_break_points=current_command.break_lines;
+  for (int i=0;i<temporary_break_points.size();i++){
+    toggle_break_point(input_block,temporary_break_points[i],false);
+  }
   QString line;
-  foreach (line,current_command.first.split('\n')){
+  foreach (line,current_command.command.split('\n')){
     c.insertText(line.append('\n'));
     c.movePosition(QTextCursor::End);
     document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_2);
   }
   setTextCursor(c);
   //centerCursor();
-  if (current_command.second){
+  if (current_command.imediate){
     execute_input(c);
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::insert_output(const QString &output){
   QTextCursor cursor=textCursor();
@@ -297,6 +346,8 @@ void PythonConsole::insert_output(const QString &output){
   ensureCursorVisible();
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::insert_log(const QString &output){
   static QRegExp log_frame("\\[ [^\\]]* \\]\\[ [^\\]]* \\] (Worker\\[0\\] )?");
   QString modified_output;
@@ -314,56 +365,67 @@ void PythonConsole::insert_log(const QString &output){
   insert_output(modified_output);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::select_input(QTextCursor &cursor){
   cursor.setPosition(input_start_in_text);
   cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::line_by_line_activated(bool activated){
-  if (activated)
+  CFinfo << (activated?"true":"false") << CFendl;
+  if (activated){
     ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::LINE_BY_LINE_EXECUTION);
-  else{
+    if (python_scope_values->isColumnHidden(1)){
+      python_scope_values->setColumnHidden(1,false);
+      python_scope_values->setColumnWidth(0,python_scope_values->columnWidth(0)-150);
+    }
+  }else{
     ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::NORMAL_EXECUTION);
     python_scope_values->setColumnHidden(1,true);
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::stop_continue_pressed(){
-  if (stopped){
-    ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::CONTINUE);
-    stop_continue->setText("Stop");
-    reset_debug_trace();
-    stopped=false;
-    if (!line_by_line->isChecked())
-      python_scope_values->setColumnHidden(1,true);
-  }else{
-    ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::STOP);
-  }
-  stop_continue->setEnabled(false);
+  ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::CONTINUE);
+  reset_debug_trace();
   break_action->setEnabled(false);
+  stop_continue->setEnabled(false);
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::break_pressed(){
-  if (stopped){
-    ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::BREAK);
-  }
+  ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::BREAK);
+  reset_debug_trace();
+  break_action->setEnabled(false);
+  stop_continue->setEnabled(false);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::execution_stopped(int fragment,int line){
-  stop_continue->setEnabled(true);
+  Q_UNUSED(fragment);Q_UNUSED(line);
   break_action->setEnabled(true);
-  stop_continue->setText("Continue");
-  stopped=true;
+  stop_continue->setEnabled(true);
   if (python_scope_values->isColumnHidden(1)){
     python_scope_values->setColumnHidden(1,false);
     python_scope_values->setColumnWidth(0,python_scope_values->columnWidth(0)-150);
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonConsole::push_history_to_script_editor(){
   PythonCodeEditor * editor=main_window->create_new_python_editor();
   editor->setPlainText(history.join("\n"));
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::scope_double_click(const QModelIndex & index){
   QStandardItem* item=python_dictionary.itemFromIndex(index);
@@ -375,6 +437,8 @@ void PythonConsole::scope_double_click(const QModelIndex & index){
   }
   textCursor().insertText(command);
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 } // Graphics
 } // ui

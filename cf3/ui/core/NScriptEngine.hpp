@@ -54,7 +54,7 @@ public:
 
   static Handle<NScriptEngine> global();
 
-  void execute_line( const QString & line , int fragment_number);
+  void execute_line( const QString & line, int fragment_number, QVector<int> break_points);
 
   void emit_debug_command(debug_command command,int fragment=0,int line=0);
 
@@ -78,7 +78,7 @@ public:
 
   void append_command_to_python_console(std::string & command);
 public slots:
-  void get_completion_list();
+  void client_connected();
 
 signals:
 
@@ -95,6 +95,8 @@ signals:
 
   void documentation_received(const QString & documentation);
 
+  void execute_code_request(QString,bool,QVector<int>&);
+
 protected:
 
   /// Disables the local signals that need to.
@@ -102,7 +104,8 @@ protected:
   /// by default.
   virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 private:
-  QStringList convertsStdVectorToQStringList(std::vector<std::string> vector);
+  QStringList std_vector_to_QStringList(std::vector<std::string> vector);
+  bool connected;
 }; // class NScriptEngine
 
 ///////////////////////////////////////////////////////////////////////////

@@ -54,13 +54,13 @@ public:
 
   PythonCodeContainer(QWidget *parent = 0);
   ~PythonCodeContainer();
-  void register_fragment(QString code,int block_number);
-  void toggle_break_point(int fragment_block, int line_number);
+  void register_fragment(QString code,int block_number,QVector<int> break_point);
+  void toggle_break_point(int fragment_block, int line_number,bool send=true);
   void remove_fragments();
   virtual void key_press_event(QKeyEvent *e) = 0;
   virtual void new_line(int indent_number){}
-  virtual bool is_editable() = 0;
   virtual void border_click(const QPoint & pos) = 0;
+  virtual bool editable_zone(const QTextCursor &cursor) = 0;
   void repaint_border_area(QPaintEvent *event);
 protected:
   void keyPressEvent(QKeyEvent *e);
@@ -90,7 +90,6 @@ private:
   QString get_word_under_cursor(QTextCursor c);
   PythonSyntaxeHighlighter* highlighter;
   BorderArea *border_area;
-  int border_width;
   int debug_arrow;//block number of the debug arrow, -1 for no arrow
   QPoint last_mouse_pos;
   QTimer doc_timer;
@@ -98,17 +97,17 @@ private:
   QString last_documentation;
   static QMap<int,int> fragment_container;
   static QMap<int,int> blocks_fragment;
-  static QVector<int> break_points;
   static int fragment_generator;
   static PythonCompleter *completer;
-  static PythonCodeContainer *debug_arrow_container;
   static QVector<PythonDict> dictionary;
   //static QStringList python_dictionary;
-  static PythonConsole *python_console;
 protected:
+  int border_width;
   QPoint offset_border;
+  static PythonConsole *python_console;
   static QStandardItemModel python_dictionary;
   static QTreeView *python_scope_values;
+  QVector<int> break_points;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

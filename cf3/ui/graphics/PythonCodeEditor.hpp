@@ -34,8 +34,8 @@ public:
   ~PythonCodeEditor();
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
-  bool is_editable();
   void border_click(const QPoint &pos);
+  bool editable_zone(const QTextCursor &cursor);
 private slots:
   void execute_immediat();
   void execute_stepped();

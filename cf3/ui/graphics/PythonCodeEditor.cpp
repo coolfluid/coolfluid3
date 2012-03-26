@@ -27,7 +27,6 @@ namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-
 PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
   PythonCodeContainer(parent)
 {
@@ -35,13 +34,20 @@ PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
   //Toolbar
   connect(tool_bar->addAction("Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
   connect(tool_bar->addAction("Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
-  connect(tool_bar->addAction("Open"),SIGNAL(triggered()),this,SLOT(open()));
-  connect(tool_bar->addAction("Save"),SIGNAL(triggered()),this,SLOT(save()));
+  connect(tool_bar->addAction(QIcon(":/Icons/action_open.png"),"Open"),SIGNAL(triggered()),this,SLOT(open()));
+  connect(tool_bar->addAction(QIcon(":/Icons/action_save.png"),"Save"),SIGNAL(triggered()),this,SLOT(save()));
+  setViewportMargins(border_width,tool_bar->height(),0,0);
+  offset_border.setX(border_width);
+  offset_border.setY(tool_bar->height());
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 PythonCodeEditor::~PythonCodeEditor(){
 
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonCodeEditor::key_press_event(QKeyEvent *e){
   QTextCursor c=textCursor();
@@ -56,25 +62,40 @@ void PythonCodeEditor::key_press_event(QKeyEvent *e){
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonCodeEditor::new_line(int indent_number){
 
 }
 
-bool PythonCodeEditor::is_editable(){
+////////////////////////////////////////////////////////////////////////////
+
+void PythonCodeEditor::border_click(const QPoint &pos){
+  QTextBlock b=cursorForPosition(pos-offset_border).block();
+  int current_block=b.blockNumber();
+  document()->markContentsDirty(b.position(),1);
+  toggle_break_point(0,current_block,false);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+bool PythonCodeEditor::editable_zone(const QTextCursor &cursor){
   return true;
 }
 
-void PythonCodeEditor::border_click(const QPoint &pos){
-
-}
+////////////////////////////////////////////////////////////////////////////
 
 void PythonCodeEditor::execute_immediat(){
-  PythonConsole::main_console->execute_code(toPlainText(),true);
+  python_console->execute_code(toPlainText(),true,break_points);
 }
 
+////////////////////////////////////////////////////////////////////////////
+
 void PythonCodeEditor::execute_stepped(){
-  PythonConsole::main_console->execute_code(toPlainText(),false);
+  python_console->execute_code(toPlainText(),false,break_points);
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonCodeEditor::open(){
   QFileDialog dlg;
@@ -95,6 +116,8 @@ void PythonCodeEditor::open(){
     f.close();
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 void PythonCodeEditor::save(){
   QFileDialog dlg;

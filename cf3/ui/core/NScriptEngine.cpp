@@ -35,6 +35,7 @@ namespace core {
 /////////////////////////////////////////////////////////////////////////////
 
 NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode::LOCAL_NODE) {
+  connected=false;
   regist_signal("output")
       .description("Output of the python console")
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_output, this, _1));
@@ -74,8 +75,8 @@ void NScriptEngine::signal_documentation(common::SignalArgs & node){
 
 void NScriptEngine::signal_completion(common::SignalArgs & node){
   SignalOptions options(node);
-  QStringList add=convertsStdVectorToQStringList(options.array<std::string>("add"));
-  QStringList sub=convertsStdVectorToQStringList(options.array<std::string>("sub"));
+  QStringList add=std_vector_to_QStringList(options.array<std::string>("add"));
+  QStringList sub=std_vector_to_QStringList(options.array<std::string>("sub"));
   emit completion_list_received(add,sub);
 }
 
@@ -86,35 +87,41 @@ void NScriptEngine::signal_debug_trace(common::SignalArgs & node){
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NScriptEngine::execute_line( const QString & line , int fragment_number){
-  const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
-  SignalOptions options;
-  QString repl=QString(line);
-  repl.replace(QString("\t"),QString(";"));
-  repl.replace(QString("\n"),QString("?"));
-  options.add_option("script", repl.toStdString());
-  options.add_option("fragment",fragment_number);
-  SignalFrame frame = options.create_frame("execute_script", uri(), script_engine_path);
-  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+void NScriptEngine::execute_line( const QString & line , int fragment_number, QVector<int> break_points){
+  if (connected){
+    const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
+    SignalOptions options;
+    QString repl=QString(line);
+    repl.replace(QString("\t"),QString(";"));
+    repl.replace(QString("\n"),QString("?"));
+    options.add_option("script", repl.toStdString());
+    options.add_option("fragment",fragment_number);
+    options.add_option("breakpoints",break_points.toStdVector());
+    SignalFrame frame = options.create_frame("execute_script", uri(), script_engine_path);
+    NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void NScriptEngine::emit_debug_command(debug_command command, int fragment, int line){
-  const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
-  SignalOptions options;
-  options.add_option("command", static_cast<int>(command));
-  if (command == TOGGLE_BREAK_POINT){
-    options.add_option("fragment", fragment);
-    options.add_option("line", line);
+  if (connected){
+    const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
+    SignalOptions options;
+    options.add_option("command", static_cast<int>(command));
+    if (command == TOGGLE_BREAK_POINT){
+      options.add_option("fragment", fragment);
+      options.add_option("line", line);
+    }
+    SignalFrame frame = options.create_frame("change_debug_state", uri(), script_engine_path);
+    NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
   }
-  SignalFrame frame = options.create_frame("change_debug_state", uri(), script_engine_path);
-  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-void NScriptEngine::get_completion_list(){
+void NScriptEngine::client_connected(){
+  connected=true;
   const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
   SignalOptions options;
   SignalFrame frame = options.create_frame("get_completion", uri(), script_engine_path);
@@ -124,16 +131,18 @@ void NScriptEngine::get_completion_list(){
 ///////////////////////////////////////////////////////////////////////////
 
 void NScriptEngine::request_documentation(QString &doc){
-  const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
-  SignalOptions options;
-  options.add_option("expression", doc.toStdString());
-  SignalFrame frame = options.create_frame("get_documentation", uri(), script_engine_path);
-  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+  if (connected){
+    const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
+    SignalOptions options;
+    options.add_option("expression", doc.toStdString());
+    SignalFrame frame = options.create_frame("get_documentation", uri(), script_engine_path);
+    NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-QStringList NScriptEngine::convertsStdVectorToQStringList(std::vector<std::string> vector){
+QStringList NScriptEngine::std_vector_to_QStringList(std::vector<std::string> vector){
   std::vector<std::string>::const_iterator itt=vector.begin();
   QStringList list;
   for (;itt!=vector.end();itt++){
@@ -143,7 +152,8 @@ QStringList NScriptEngine::convertsStdVectorToQStringList(std::vector<std::strin
 }
 
 void NScriptEngine::append_command_to_python_console(std::string & command){
-  ui::graphics::PythonConsole::main_console->execute_code(QString(command.c_str()),true);
+  QVector<int> breaks;
+  emit execute_code_request(QString(command.c_str()),true,breaks);
 }
 
 } // Core
