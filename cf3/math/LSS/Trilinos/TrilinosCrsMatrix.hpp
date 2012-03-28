@@ -55,7 +55,7 @@ public:
   TrilinosCrsMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -173,7 +173,7 @@ private:
   Uint m_neq;
 
   /// number of local elements (rows)
-  Uint m_num_my_elements;
+  int m_num_my_elements;
 
   /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
   std::vector<int> m_p2m;

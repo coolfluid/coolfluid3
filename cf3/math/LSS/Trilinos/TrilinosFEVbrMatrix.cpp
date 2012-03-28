@@ -67,7 +67,7 @@ TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent

@@ -54,7 +54,7 @@ public:
   TrilinosFEVbrMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
