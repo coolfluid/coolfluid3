@@ -152,8 +152,7 @@ QStringList NScriptEngine::std_vector_to_QStringList(std::vector<std::string> ve
 }
 
 void NScriptEngine::append_command_to_python_console(std::string & command){
-  QVector<int> breaks;
-  emit execute_code_request(QString(command.c_str()),true,breaks);
+  emit execute_code_request(QString(command.c_str()));
 }
 
 } // Core

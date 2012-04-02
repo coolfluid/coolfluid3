@@ -92,7 +92,11 @@ void python_execute_function(){
         std::stringstream ss;
         ss << python_current_fragment.second;
         //CFinfo << python_current_fragment.first.c_str() << CFendl;
-        boost::python::handle<> src(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
+        boost::python::handle<> src;
+        if (python_current_fragment.second == -1)//entire script 'flag'
+          src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_file_input)));
+        else//single input compilation
+          src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
         if (NULL != src){//code compiled, we execute it
           boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
         }
@@ -103,10 +107,8 @@ void python_execute_function(){
           if (NULL != val){
             if (PyArg_ParseTuple (val, "sO", &error, &obj)){
               CFinfo << error << CFendl;
-              //ScriptEngine::emit_output(std::string(error));
             }else{
-              CFinfo << "Expression not found in the scope." << CFendl;
-              //ScriptEngine::emit_output(std::string("Expression not found in the scope."));
+              CFinfo << PyString_AsString(PyObject_Str(val)) << CFendl;
             }
           }
         }
@@ -144,9 +146,7 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
     PyEval_SetTrace(python_trace,NULL);
     local_scope_entry.py_ref=local_scope.get();
     python_stream_statement_thread=new boost::thread(python_execute_function);
-    execute_script("import sys\n",0);
-    //execute_script("import ctypes as dl\n",0);
-    execute_script("from libcoolfluid_python import *\n",0);
+    execute_script("from coolfluid import *\n",0);
     execute_script("class SimpleStringStack(object):\n"
                    "\tdef __init__(self):\n"
                    "\t\tself.data = ''\n"
@@ -210,7 +210,6 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
   std::vector<bool> reverse_found;
   std::string c_name;
   std::string value_string;
-  //CFinfo << (c_name.size()>0?c_name+".":"")+entry.name << CFendl;
   if (entry.name.size()){
     c_name=(name.size()>0?name+".":"")+entry.name;
   }
@@ -221,7 +220,6 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
   if (entry.py_ref != NULL){
     boost::python::handle<> dir_list;
     if (rec > 0){
-      //dir_list=boost::python::handle<>(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
       dir_list=boost::python::handle<>(boost::python::allow_null(PyObject_Dir(entry.py_ref)));
       if (dir_list.get() != NULL)
         dir_size=PyList_Size(dir_list.get());
@@ -272,15 +270,15 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
             n_entry.py_ref=value.get();
             n_entry.name=key_str;
             if (PyCallable_Check(value.get())){
-              add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+"(");
+              add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+"(:");
             }else{
               if (fetch_values){
-                /*char* value_str=PyString_AsString(PyObject_Str(value.get()));
-                strncpy(value_limiter,value_str,101);
-                if (strlen(value_limiter) == 100){
-                  strcpy(value_limiter+100,"...");
-                }*/
-                n_entry.value=value_string;
+                char* value_str=PyString_AsString(PyObject_Str(value.get()));
+                strncpy(value_limiter,value_str,100);
+                if (strlen(value_limiter) > 99){
+                  strcpy(value_limiter+99,"...");
+                }
+                n_entry.value=value_limiter;
               }
               add->push_back((c_name.size()>0&&!child?c_name+".":"")+n_entry.name+":"+n_entry.value+"{");
               if (rec < 2)
@@ -341,39 +339,23 @@ void ScriptEngine::check_python_change(int code_fragment){
   flush_python_stdout(code_fragment);
   std::vector<std::string> add,sub;
   check_scope_difference(local_scope_entry,"",&add,&sub);
-  stack_scope_entry.py_ref=NULL;
-  stack_scope_entry.name="";
+  builtin_scope_entry.py_ref=PyEval_GetBuiltins();
+  check_scope_difference(builtin_scope_entry,"",&add,&sub);
   if (PyEval_GetFrame() != NULL){
     //CFinfo << PyString_AsString(PyEval_GetFrame()->f_code->co_name) << CFendl;
     std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
     if (target != "<module>"){
-      stack_scope_entry.py_ref=PyEval_GetLocals();
-      stack_scope_entry.name=target+"(";
+      local_frame_scope_entry.py_ref=PyEval_GetLocals();
+      local_frame_scope_entry.name=target+"(";
+      global_frame_scope_entry.py_ref=PyEval_GetGlobals();
+      global_frame_scope_entry.name=target+"(";
     }
+  }else{
+    local_frame_scope_entry.py_ref=NULL;
+    global_frame_scope_entry.py_ref=NULL;
   }
-  check_scope_difference(stack_scope_entry,"",&add,&sub,0,false);
-
-  /*PythonDictEntry n_entry;
-      n_entry.name=target;
-      n_entry.py_ref=NULL;//will be destroyed at the next check
-      for (int i=0;i<entry.entry_list.size();i++){
-        if (entry.entry_list[i].name==target){
-          reverse_found[i]=false;
-        }
-      }
-      entry.entry_list.push_back(n_entry);
-      reverse_found.push_back(true);
-      add->push_back(target+":[");
-      PyObject* locals=PyEval_GetLocals();
-      pos=0;
-      while (PyDict_Next(locals, &pos, &key, &value)) {
-        if (key != NULL && value != NULL){
-          add->push_back(std::string(PyString_AsString(key))+":"+PyString_AsString(PyObject_Str(value))+":");
-        }
-      }
-      add->push_back("]");
-    }
-  }*/
+  check_scope_difference(local_frame_scope_entry,"",&add,&sub);
+  check_scope_difference(global_frame_scope_entry,"",&add,&sub);
   /*CFinfo << "add" << CFendl;
   for (int i=0;i<add.size();i++)
     CFinfo << add[i] << CFendl;
@@ -407,10 +389,15 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
   std::string code=options.option("script").value<std::string>();
   std::replace(code.begin(),code.end(),';','\t');
   std::replace(code.begin(),code.end(),'?','\n');
-  std::vector<int> break_lines=options.array<int>("breakpoints");
-  int fragment=options.option("fragment").value<int>();
-  for (int i=0;i<break_lines.size();i++){
-    break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
+  int fragment=-1;
+  if (options.check("fragment")){
+    fragment=options.option("fragment").value<int>();
+  }
+  if (options.check("breakpoints")){
+    std::vector<int> break_lines=options.array<int>("breakpoints");
+    for (int i=0;i<break_lines.size();i++){
+      break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
+    }
   }
   execute_script(code,fragment);
   //return boost::python::object();
@@ -569,10 +556,13 @@ void ScriptEngine::emit_debug_trace(int fragment,int line){
 
 void ScriptEngine::signal_completion(SignalArgs& node){
   local_scope_entry.entry_list.clear();
-  stack_scope_entry.entry_list.clear();
+  local_frame_scope_entry.entry_list.clear();
+  global_frame_scope_entry.entry_list.clear();
+  builtin_scope_entry.entry_list.clear();
   std::vector<std::string> add,sub;
   sub.push_back("*");//to clear the dictionary client-side
   check_scope_difference(local_scope_entry,"",&add,&sub);
+  check_scope_difference(builtin_scope_entry,"",&add,&sub);
   if (add.size() || sub.size()){
     emit_completion_list(&add,&sub);
   }

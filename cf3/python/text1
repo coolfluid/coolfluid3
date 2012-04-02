@@ -1,0 +1,3 @@
+execute line by line send command by command to the python console, and then it's up to the user to press enter or modify that command.
+or 
+execute wich send all the script to the console statement by statement but don't let the user modifie or press enter.

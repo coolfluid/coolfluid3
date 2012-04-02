@@ -48,10 +48,10 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg);
 /// @brief Threaded c function, used to contain the PyEval_CodeEval
 void python_execute_function();
 
-/// @brief Executes python scripts passed as a string
+/// @brief Manage a python interpreter
 ///
 /// Exposes an execute_script signal, taking as single argument the string containing the python script to run
-/// @author Bart Janssens
+/// @author Bolsee Vivian
 class Python_API ScriptEngine : public common::Component {
 public: // functions
 
@@ -59,32 +59,37 @@ public: // functions
   /// @param name of the component
   ScriptEngine ( const std::string& name );
 
-  /// Virtual destructor
   virtual ~ScriptEngine();
 
   /// Get the class name
   static std::string type_name () { return "ScriptEngine"; }
 
-  /// Execute the script passed as a string
-  void execute_script(std::string script,int code_fragment);
+  /// Execute the script passed as a string, code fragment is used for traceability
+  void execute_script(std::string script,int code_fragment=-1);
 
   /// Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
 
-  /// Signal to change the current debugging state
+  /// Modify the debug state the first argument is the debug_command named command, if the debug command is
+  /// equal to TOGGLE_BREAK_POINT fragment and line argument must be defined (both int)
   void signal_change_debug_state(common::SignalArgs& node);
 
-  /// Signal to retrieve the completion list
+  /// Signal to retrieve the completion list; no argument
   void signal_completion(common::SignalArgs& node);
 
   /// Signal to get the documentation of the symbol under the mouse in the gui
+  /// takes one argument, expression, must be a string containing the symbol
   void signal_get_documentation(common::SignalArgs& node);
 
   /// Called by the trace function when a new line is reached
   int new_line_reached(int code_fragment,int line_number);
 
+  /// Verify if the python scope has changed, or if there is some data on the python sys.out
+  /// code_fragment allow to redirect correctly the output if this was a documentation request
   void check_python_change(int code_fragment);
 
+  /// Called when the interpreter have no more instruction avalaible
+  /// used in debug to clear the debug trace at the end of the code
   void no_more_instruction();
 
 private:
@@ -116,7 +121,9 @@ private:
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
 
+  ///
   void emit_output(std::string output);
+
 
   void emit_debug_trace(int fragment,int line);
 
@@ -132,7 +139,9 @@ private:
   bool new_command;
   Handle< common::PE::Manager > m_manager;
   PythonDictEntry local_scope_entry;
-  PythonDictEntry stack_scope_entry;
+  PythonDictEntry builtin_scope_entry;
+  PythonDictEntry local_frame_scope_entry;
+  PythonDictEntry global_frame_scope_entry;
   debug_command interpreter_mode;
   //std::vector<std::vector<bool> >break_points;
   std::vector<std::pair<int,int> >break_points;

@@ -81,9 +81,11 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
   tool_bar->setMovable(false);
   tool_bar->setFloatable(false);
   tool_bar->setIconSize(QSize(16,16));
-  tool_bar->layout()->setContentsMargins(0,0,0,0);
-  QProxyStyle().polish(tool_bar);
+  //tool_bar->setLayout(new QHBoxLayout());
+  //tool_bar->layout()->setContentsMargins(0,0,0,0);
+  //tool_bar->setFixedHeight(42);
   QHBoxLayout *layout=new QHBoxLayout;
+  layout->setContentsMargins(0,0,0,0);
   //tool_bar->setFixedHeight(tool_bar->height());
   layout->addSpacerItem(new QSpacerItem(border_width,0));
   layout->addWidget(tool_bar);
@@ -143,11 +145,6 @@ void PythonCodeContainer::toggle_break_point(int fragment_block, int line_number
         break;
     break_points.insert(i,block_number);
   }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PythonCodeContainer::remove_fragments(){
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -241,9 +238,18 @@ void PythonCodeContainer::resizeEvent(QResizeEvent *e){
 void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
   static QRegExp indent_case("^[^#:]*:");
   QTextCursor c=textCursor();
+  QTextCursor temp;
   if (editable_zone(c)){
     if (completer != NULL && completer->popup() != NULL && completer->popup()->isVisible()){
       switch(e->key()){
+      case Qt::Key_Backspace:
+        if (editable_zone(c)){
+          temp=c;temp.movePosition(QTextCursor::Left);
+          if (editable_zone(temp)){
+            QPlainTextEdit::keyPressEvent(e);
+            break;
+          }
+        }
       case Qt::Key_Enter:
       case Qt::Key_Escape:
       case Qt::Key_Tab:
@@ -267,6 +273,7 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         completer->complete(completer_rect);
       }
     }else{
+
       if (e->key()==Qt::Key_Return){//auto indentation
         QTextCursor c=textCursor();
         QString current_line=document()->findBlockByNumber(c.blockNumber()).text();
@@ -310,8 +317,8 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         key_press_event(e);
       }
     }
-    ensureCursorVisible();
   }
+  ensureCursorVisible();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -336,27 +343,21 @@ void PythonCodeContainer::leaveEvent(QEvent *e){
 
 void PythonCodeContainer::insert_completion(QString completion){
   QTextCursor cursor=textCursor();
-  if (completer->completionPrefix().length() > 0){
-    cursor.movePosition(QTextCursor::Left);
-    cursor.movePosition(QTextCursor::EndOfWord);
-    cursor.insertText(completion.right(completion.length()
-                                       -completer->completionPrefix().length()));
-  }else{
-    cursor.insertText(completion.right(completion.length()));
-  }
+  cursor.insertText(completion.right(completion.length()-completer->completionPrefix().length()));
   setTextCursor(cursor);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void PythonCodeContainer::keywords_changed(const QStringList &add, const QStringList &sub){
-  /*CFinfo << "add" << CFendl;
+
+  /*std::cout << "add" << std::endl;
   for (int i=0;i<add.size();i++){
-    CFinfo << add.at(i).toStdString() << CFendl;
+    std::cout << add.at(i).toStdString() << std::endl;
   }
-  CFinfo << "sub" << CFendl;
+  std::cout << "sub" << std::endl;
   for (int i=0;i<sub.size();i++){
-    CFinfo << sub.at(i).toStdString() << CFendl;
+    std::cout << sub.at(i).toStdString() << std::endl;
   }*/
   for (int i=0;i<sub.size();i++){
     if (sub[i]=="*"){
@@ -367,6 +368,7 @@ void PythonCodeContainer::keywords_changed(const QStringList &add, const QString
   }
   int i=0;
   add_to_dictionary(i,add,python_dictionary.invisibleRootItem());
+  python_dictionary.sort(0);
 }
 
 void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStandardItem *item){
@@ -377,7 +379,11 @@ void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStand
       s.chop(1);
       int two_point=s.indexOf(':');
       QString item_path=s.mid(0,two_point);
-      QStandardItem *n_value=new QStandardItem(s.mid(two_point+1));
+      QStandardItem *n_value;
+      if (two_point != -1)
+        n_value=new QStandardItem(s.mid(two_point+1));
+      else
+        n_value=new QStandardItem("");
       //n_item->setData(QVariant(s.mid(two_point)),Qt::DisplayRole);
       QStandardItem *current_item=item;
       QStringList path_list=item_path.split('.');

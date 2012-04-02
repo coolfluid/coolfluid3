@@ -41,6 +41,7 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   input_start_in_text=0;
   output_line_number=1;
   input_block=0;
+  text_being_entered=false;
 
   setUndoRedoEnabled(false);
 
@@ -68,7 +69,8 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   connect(core::NScriptEngine::global().get(),SIGNAL(new_output(QString)),this,SLOT(insert_output(QString)));
   connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(insert_log(QString)));
-  connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString,bool,QVector<int>&)),this,SLOT(execute_code(QString,bool,QVector<int>&)));
+  connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString)),this,SLOT(execute_code(QString)));
+  connect(this,SIGNAL(cursorPositionChanged()),this,SLOT(cursor_position_changed()));
   setViewportMargins(border_width,tool_bar->height(),0,0);
   offset_border.setX(border_width);
   offset_border.setY(tool_bar->height());
@@ -88,13 +90,49 @@ void PythonConsole::create_splitter(QTabWidget* tab_widget){
   connect(python_scope_values,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(scope_double_click(QModelIndex)));
 }
 
+void PythonConsole::cursor_position_changed(){
+  if (text_being_entered){
+    QTextCursor c=textCursor();
+    if (!editable_zone(c)){
+      c.setPosition(input_start_in_text);
+      setTextCursor(c);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::mousePressEvent(QMouseEvent *e){
+  if (e->button() == Qt::MidButton){
+    QTextCursor c=textCursor();
+    if (!editable_zone(c)){
+      c.setPosition(input_start_in_text);
+      setTextCursor(c);
+    }
+    text_being_entered=true;
+    QPlainTextEdit::mousePressEvent(e);
+    text_being_entered=false;
+    fix_prompt();
+  }else{
+    QPlainTextEdit::mousePressEvent(e);
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::key_press_event(QKeyEvent *e){
   QTextCursor c=textCursor();
+  if (e->text().length() > 0 && !(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_C) && !editable_zone(c)){
+    c.setPosition(input_start_in_text);
+    setTextCursor(c);
+  }
   int block_count=blockCount();
   switch(e->key()){
   case Qt::Key_Backspace:
+    if (c.selectedText().length() > 0 && (c.position() == input_start_in_text || c.anchor() == input_start_in_text)){//special case
+      c.removeSelectedText();
+      break;
+    }
   case Qt::Key_Left:
     if (c.positionInBlock() > 0 || c.blockNumber() > input_block){
       QPlainTextEdit::keyPressEvent(e);
@@ -108,7 +146,7 @@ void PythonConsole::key_press_event(QKeyEvent *e){
     }
     break;
   case Qt::Key_Up:
-    if (c.blockNumber() == input_block){
+    if (c.blockNumber() == input_block && history.size()){
       if (history_index==history.size()){
         select_input(c);
         tmp_command=c.selectedText();
@@ -120,13 +158,13 @@ void PythonConsole::key_press_event(QKeyEvent *e){
       c.removeSelectedText();
       c.insertText(history.at(history_index));
       //centerCursor();
-      fix_prompt_history();
+      fix_prompt();
     }else{
       QPlainTextEdit::keyPressEvent(e);
     }
     break;
   case Qt::Key_Down:
-    if (c.blockNumber() == document()->blockCount()-1){
+    if (c.blockNumber() == document()->blockCount()-1 && history.size()){
       if (history_index < history.size()){
         history_index++;
         select_input(c);
@@ -138,7 +176,7 @@ void PythonConsole::key_press_event(QKeyEvent *e){
           c.insertText(history.at(history_index));
         }
         setTextCursor(c);
-        fix_prompt_history();
+        fix_prompt();
       }
     }else{
       QPlainTextEdit::keyPressEvent(e);
@@ -153,7 +191,7 @@ void PythonConsole::key_press_event(QKeyEvent *e){
     QPlainTextEdit::keyPressEvent(e);
   }
   if (blockCount() != block_count)
-    fix_prompt_history();
+    fix_prompt();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -170,7 +208,7 @@ bool PythonConsole::is_stopped(){
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PythonConsole::fix_prompt_history(){
+void PythonConsole::fix_prompt(){
   QTextBlock block=document()->findBlockByNumber(input_block);
   block.setUserState(PythonCodeContainer::PROMPT_1);
   block=block.next();
@@ -187,7 +225,7 @@ void PythonConsole::new_line(int indent_number){
     QTextCursor c=textCursor();
     execute_input(c);
   }else{//multi line
-    fix_prompt_history();
+    fix_prompt();
   }
 }
 
@@ -241,7 +279,7 @@ void PythonConsole::execute_input(QTextCursor &c){
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PythonConsole::execute_code(QString code,bool immediate,QVector<int> &break_lines){
+void PythonConsole::execute_code(QString code,bool immediate,QVector<int> break_lines){
   static QRegExp two_points("^[^#:]*:");
   static QRegExp extend_statement("^[^#:]*(catch|elif|else|finally)[^#:]*:");
   static QRegExp empty_line("^[ \\t]*($|#)");
@@ -292,6 +330,10 @@ void PythonConsole::execute_code(QString code,bool immediate,QVector<int> &break
   if (command_stack.size()){
     stream_next_command();
   }
+}
+
+void PythonConsole::execute_code(QString code){
+  execute_code(code,true,QVector<int>());
 }
 
 ////////////////////////////////////////////////////////////////////////////

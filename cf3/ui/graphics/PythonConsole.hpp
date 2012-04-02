@@ -19,6 +19,7 @@
 #include <QPair>
 #include <QAbstractTableModel>
 #include "ui/graphics/PythonCodeContainer.hpp"
+#include "ui/core/NScriptEngine.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
 
@@ -38,20 +39,30 @@ namespace graphics {
 class ListDebugValues;
 class MainWindow;
 
+/// @brief Python console
 class Graphics_API PythonConsole : public PythonCodeContainer
 {
   Q_OBJECT
 public:
   PythonConsole(QWidget *parent,MainWindow* main_window);
   ~PythonConsole();
+  /// @brief called by the parent to create the splitter with the scope values
+  void create_splitter(QTabWidget *tab_widget);
+  /// @brief to check if the console can execute command (like for documentation request)
+  bool is_stopped();
+protected:
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
   void border_click(const QPoint &pos);
   bool editable_zone(const QTextCursor &cursor);
-  bool is_stopped();
-  void create_splitter(QTabWidget *tab_widget);
+  void mousePressEvent(QMouseEvent *e);
 public slots:
-  void execute_code(QString code,bool immediate,QVector<int> &break_lines);
+  /// @brief parse and append the code to the console
+  /// @param code The code to execute, can be a single command or a complete script
+  /// @param immediate determine if the console must execute immediatly the command or let the user press enter after each commmands
+  void execute_code(QString code,bool immediate,QVector<int> break_lines);
+  /// @brief reduiced call, used in signal conversion
+  void execute_code(QString code);
 private slots:
   void insert_output(const QString &);
   void insert_log(const QString &);
@@ -62,6 +73,7 @@ private slots:
   void stream_next_command();
   void push_history_to_script_editor();
   void scope_double_click(const QModelIndex & index);
+  void cursor_position_changed();
 private:
   /// Index of the block that contains the current prompt
   int input_block;
@@ -73,7 +85,7 @@ private:
   void execute_input(QTextCursor &);
   void set_input(const QString &);
   void select_input(QTextCursor &);
-  void fix_prompt_history();
+  void fix_prompt();
 
   QAction* line_by_line;
   QAction* stop_continue;
@@ -84,7 +96,7 @@ private:
 
   class python_command{
   public:
-    python_command(QString command,bool imediate,QVector<int> break_lines)
+    python_command(QString& command,bool imediate,QVector<int>& break_lines)
       : command(command)
       , imediate(imediate)
       , break_lines(break_lines) {}
@@ -99,7 +111,10 @@ private:
   int history_index;
   bool stopped;
 
+  bool text_being_entered;
+
   int output_line_number;
+  int block_count;
 
   MainWindow *main_window;
 };

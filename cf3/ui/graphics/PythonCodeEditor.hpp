@@ -26,12 +26,14 @@ namespace cf3 {
 namespace ui {
 namespace graphics {
 
+/// @brief Used in python code editor windows
 class Graphics_API PythonCodeEditor: public PythonCodeContainer
 {
   Q_OBJECT
 public:
   PythonCodeEditor(QWidget *parent = 0);
   ~PythonCodeEditor();
+protected:
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
   void border_click(const QPoint &pos);

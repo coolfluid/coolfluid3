@@ -42,10 +42,13 @@ class DebugArrow;
 class PythonConsole;
 class PythonCompleter;
 
+
+/// @brief This class contains common code for python editors
 class Graphics_API PythonCodeContainer : public QPlainTextEdit
 {
   Q_OBJECT
 public:
+  /// @brief Use to manage userData in a QTextBlock
   enum line_type{
     LINE_NUMBER = -1,
     PROMPT_1 = 100000,
@@ -54,19 +57,23 @@ public:
 
   PythonCodeContainer(QWidget *parent = 0);
   ~PythonCodeContainer();
+
+  /// @brief called by the border area on repaint event
+  void repaint_border_area(QPaintEvent *event);
+  /// @brief called by the border area on click event
+  virtual void border_click(const QPoint & pos) = 0;
+protected:
+  /// @brief Send the python code fragment
   void register_fragment(QString code,int block_number,QVector<int> break_point);
   void toggle_break_point(int fragment_block, int line_number,bool send=true);
-  void remove_fragments();
-  virtual void key_press_event(QKeyEvent *e) = 0;
-  virtual void new_line(int indent_number){}
-  virtual void border_click(const QPoint & pos) = 0;
-  virtual bool editable_zone(const QTextCursor &cursor) = 0;
-  void repaint_border_area(QPaintEvent *event);
-protected:
   void keyPressEvent(QKeyEvent *e);
   void resizeEvent(QResizeEvent *e);
   void mouseMoveEvent(QMouseEvent *e);
   void leaveEvent(QEvent *);
+  virtual void key_press_event(QKeyEvent *e) = 0;
+  virtual void new_line(int indent_number){}
+  virtual bool editable_zone(const QTextCursor &cursor) = 0;
+
 protected slots:
   void update_border_area(const QRect &,int);
   void keywords_changed(const QStringList &add,const QStringList &sub);
@@ -112,12 +119,12 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Used to display the the line number and the prompt on a PythonCodeContainer
 class BorderArea : public QWidget
 {
 public:
   BorderArea(PythonCodeContainer *container,int width)
     : QWidget(container) , container(container) , width(width) {}
-  void  toogle_break_point(int line_number);
   static QPixmap* debug_arrow;
   static QPixmap* break_point;
 protected:
@@ -136,6 +143,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief display the documentation of a python symbole
 class PopupDocumentation : public QLabel
 {
 public:
@@ -149,6 +157,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Dervied QCompleter to allow the use of a tree model for completion model
 class PythonCompleter : public QCompleter
 {
 public:

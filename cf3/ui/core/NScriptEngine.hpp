@@ -14,8 +14,7 @@
 #include <QHash>
 
 #include "ui/core/CNode.hpp"
-
-class QString;
+#include "QVector"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +25,7 @@ namespace core {
 
 /////////////////////////////////////////////////////////////////////////////
 
-/// @brief Log component
+/// @brief
 /// @author Bolsee Vivian.
 
 class Core_API NScriptEngine :
@@ -95,7 +94,7 @@ signals:
 
   void documentation_received(const QString & documentation);
 
-  void execute_code_request(QString,bool,QVector<int>&);
+  void execute_code_request(QString);
 
 protected:
 
@@ -106,6 +105,7 @@ protected:
 private:
   QStringList std_vector_to_QStringList(std::vector<std::string> vector);
   bool connected;
+  int vector_int_type;
 }; // class NScriptEngine
 
 ///////////////////////////////////////////////////////////////////////////
