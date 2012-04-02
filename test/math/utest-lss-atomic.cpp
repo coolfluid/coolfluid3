@@ -18,6 +18,7 @@
 
 #include "common/Log.hpp"
 #include "math/LSS/System.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 /// @todo remove when finished debugging
 #include "common/PE/debug.hpp"
@@ -969,6 +970,131 @@ BOOST_AUTO_TEST_CASE( solve_system )
   for (int i=0; i<vals.size(); i++)
     if (cp.isUpdatable()[i/neq])
       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
+
+  sys->matrix()->print("atomic-mat-neq.plt");
+  std::ofstream matfile("atomic-mat-neq-native.txt", std::ios::app);
+  sys->matrix()->print_native(matfile);
+  matfile.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( solve_system_blocked )
+{
+
+// THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+// A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+// b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+// inv(A)*b
+// WHICH RESULTS IN GID ORDER:
+
+  std::vector<Real> refvals(0);
+  refvals +=
+   1.00000000000000e+00,
+   1.00000000000000e+00,
+  -1.35789473684210e+01,
+  -1.35789473684210e+01,
+  -7.78947368421052e+00,
+  -7.78947368421052e+00,
+   9.68421052631579e+00,
+   9.68421052631579e+00,
+   1.26315789473684e+01,
+   1.26315789473684e+01,
+  -3.36842105263158e+00,
+  -3.36842105263158e+00,
+  -1.43157894736842e+01,
+  -1.43157894736842e+01,
+  -3.78947368421053e+00,
+  -3.78947368421052e+00,
+   1.24210526315789e+01,
+   1.24210526315789e+01,
+   1.00000000000000e+01,
+   1.00000000000000e+01;
+
+  // commpattern
+  if (irank==0)
+  {
+    gid += 0,1,2,3,4;
+    rank_updatable += 0,0,0,0,1;
+  } else {
+    gid += 3,4,5,6,7,8,9;
+    rank_updatable += 0,1,1,1,1,1,1;
+  }
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  cp.insert("gid",gid,1,false);
+  cp.setup(Handle<common::PE::CommWrapper>(cp.get_child("gid")),rank_updatable);
+
+  // lss
+  if (irank==0)
+  {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    starting_indices += 0,2,5,8,11,13;
+  } else {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
+    starting_indices +=  0,2,5,8,11,14,17,19;
+  }
+  boost::shared_ptr<System> sys(common::allocate_component<System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  boost::shared_ptr<math::VariablesDescriptor> vars = common::allocate_component<math::VariablesDescriptor>("vars");
+  vars->options().configure_option("dimension", 1u);
+  
+  vars->push_back("var1", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
+  vars->push_back("var2", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
+  sys->create_blocked(cp,*vars,node_connectivity,starting_indices);
+
+  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  if (irank==0)
+  {
+    std::ofstream trilinos_xml("trilinos_settings.xml");
+    trilinos_xml << "<ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
+    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
+    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
+    trilinos_xml << "        </ParameterList>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
+    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    </ParameterList>\n";
+    trilinos_xml << "  </ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+    trilinos_xml << "</ParameterList>\n";
+    trilinos_xml.close();
+  }
+  common::PE::Comm::instance().barrier();
+
+  // set intital values and boundary conditions
+  sys->matrix()->reset(-0.5);
+  sys->solution()->reset(1.);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(10,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,1.);
+    sys->dirichlet(0,1,1.);
+  } else {
+    std::vector<Real> diag(14,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(6,0,10.);
+    sys->dirichlet(6,1,10.);
+  }
+
+  // solve and check
+  sys->solve();
+  std::vector<Real> vals;
+  sys->solution()->debug_data(vals);
+  for (int i=0; i<vals.size(); i++)
+    if (cp.isUpdatable()[i/neq])
+      BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
+
+  sys->matrix()->print("atomic-mat-blocked.plt");
+  std::ofstream matfile("atomic-mat-blocked-native.txt", std::ios::app);
+  sys->matrix()->print_native(matfile);
+  matfile.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

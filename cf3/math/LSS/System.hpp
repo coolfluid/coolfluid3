@@ -49,6 +49,8 @@
 
 namespace cf3 {
 namespace math {
+
+class VariablesDescriptor;
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +70,10 @@ public:
   /// Setup sparsity structure
   /// @todo action for it
   void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+
+  /// Create a blocked system, where the unknowns for each physical variable are stored together. Note that this only changes the internal ordering,
+  /// the interface is not affected.
+  void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it

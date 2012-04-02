@@ -27,6 +27,8 @@
 
 namespace cf3 {
 namespace math {
+
+class VariablesDescriptor;
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +50,9 @@ public:
 
   /// Setup sparsity structure
   virtual void create(common::PE::CommPattern& cp, Uint neq) = 0;
+
+  /// Vector is split up keeping entries related to the same variable continuously
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;

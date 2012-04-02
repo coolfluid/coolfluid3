@@ -14,6 +14,7 @@
 #include "math/LSS/LibLSS.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "math/LSS/Vector.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +64,15 @@ public:
     m_blockrow_size=cp.gid()->size();
     m_is_created=true;
   }
+  
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars)
+  {
+    destroy();
+    m_neq=vars.size();
+    m_blockrow_size=cp.gid()->size();
+    m_is_created=true;
+  }
+  
 
   /// Deallocate underlying data
   void destroy()

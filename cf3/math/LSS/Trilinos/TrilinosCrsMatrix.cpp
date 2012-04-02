@@ -14,7 +14,7 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
 
-#include "Epetra_CrsMatrix.h"
+#include "Epetra_CrsGraph.h"
 #include "Epetra_Vector.h"
 #include "Epetra_LinearProblem.h"
 
@@ -22,7 +22,7 @@
 #include "EpetraExt_CrsMatrixIn.h"
 #include "EpetraExt_VectorIn.h"
 
-// Teko-Package includes
+// Teko-age includes
 #include "Teko_StratimikosFactory.hpp"
 
 #include "Thyra_LinearOpWithSolveBase.hpp"
@@ -36,6 +36,7 @@
 #include "common/OptionT.hpp"
 #include "common/PropertyList.hpp"
 #include "math/LSS/Trilinos/TrilinosCrsMatrix.hpp"
+#include "math/LSS/Trilinos/TrilinosDetail.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
 #include "math/VariablesDescriptor.hpp"
 
@@ -56,26 +57,17 @@ using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void create_map_data(cf3::common::PE::CommPattern& cp,
+void create_nb_indices_per_row(cf3::common::PE::CommPattern& cp,
                      const VariablesDescriptor& variables,
-                     const std::vector<Uint>& node_connectivity,
                      const std::vector<Uint>& starting_indices,
-                     std::vector<int>& p2m,
-                     std::vector<int>& num_indices_per_row,
-                     std::vector<int>& my_global_elements,
-                     int& num_my_elements
+                     std::vector<int>& num_indices_per_row
                     )
 {
-  // get global ids vector
-  int *gid=(int*)cp.gid()->pack();
-  num_my_elements = 0;
-
   const Uint nb_vars = variables.nb_vars();
   const Uint total_nb_eq = variables.size();
 
   const Uint nb_nodes_for_rank = cp.isUpdatable().size();
   cf3_assert(nb_nodes_for_rank+1 == starting_indices.size());
-  my_global_elements.reserve(nb_nodes_for_rank*total_nb_eq);
   num_indices_per_row.reserve(nb_nodes_for_rank*total_nb_eq);
 
   for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
@@ -86,57 +78,10 @@ void create_map_data(cf3::common::PE::CommPattern& cp,
     {
       if (cp.isUpdatable()[i])
       {
-        num_my_elements += neq;
-        const int start_gid = gid[i]*total_nb_eq + var_offset;
         for(int j = 0; j != neq; ++j)
         {
-          my_global_elements.push_back(start_gid+j);
           num_indices_per_row.push_back(total_nb_eq*(starting_indices[i+1]-starting_indices[i]));
         }
-      }
-    }
-  }
-
-  // process local to matrix local numbering mapper
-  cf3_assert(num_my_elements % total_nb_eq == 0);
-  const int nb_local_nodes = num_my_elements / total_nb_eq;
-  const int nb_ghosts = nb_nodes_for_rank - nb_local_nodes;
-  p2m.resize(nb_nodes_for_rank*total_nb_eq);
-  for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
-  {
-    const Uint neq = variables.var_length(var_idx);
-    const Uint var_offset = variables.offset(var_idx);
-    int iupd=nb_local_nodes*var_offset;
-    int ighost=num_my_elements + nb_ghosts*var_offset;
-    int p_idx = 0;
-    for (int i=0; i<nb_nodes_for_rank; ++i)
-    {
-      const int p_start = i*total_nb_eq+var_offset;
-      if (cp.isUpdatable()[i])
-      {
-        for(Uint j = 0; j != neq; ++j)
-          p2m[p_start + j] = iupd++;
-      }
-      else
-      {
-        for(Uint j = 0; j != neq; ++j)
-          p2m[p_start + j] = ighost++;
-      }
-    }
-  }
-
-  // append the ghosts at the end of the element list
-  for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
-  {
-    const Uint neq = variables.var_length(var_idx);
-    const Uint var_offset = variables.offset(var_idx);
-    for (int i=0; i<nb_nodes_for_rank; i++)
-    {
-      if (!cp.isUpdatable()[i])
-      {
-        const int start_gid = gid[i]*total_nb_eq + var_offset;
-        for(int j = 0; j != total_nb_eq; ++j)
-          my_global_elements.push_back(start_gid+j);
       }
     }
   }
@@ -162,21 +107,27 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
 
 void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
-  // if already created
-  if (m_is_created) destroy();
+  boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
+  single_var_descriptor->options().configure_option(common::Tags::dimension(), neq);
+  single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
+  create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs);
+}
 
-  // get global ids vector
-  int *gid=(int*)cp.gid()->pack();
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+{
+    // if already created
+  if (m_is_created) destroy();
+  
+  const Uint neq = vars.size();
 
   // prepare intermediate data
   std::vector<int> num_indices_per_row;
   std::vector<int> my_global_elements;
 
-  boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
-  single_var_descriptor->options().configure_option(common::Tags::dimension(), neq);
-  single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
-
-  create_map_data(cp, *single_var_descriptor, node_connectivity, starting_indices, m_p2m, num_indices_per_row, my_global_elements, m_num_my_elements);
+  create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements);
+  create_nb_indices_per_row(cp, vars, starting_indices, num_indices_per_row);
 
   // rowmap, ghosts not present
   Epetra_Map rowmap(-1,m_num_my_elements,&my_global_elements[0],0,m_comm);
@@ -228,13 +179,10 @@ void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq,
   TRILINOS_THROW(m_mat->FillComplete());
   TRILINOS_THROW(m_mat->OptimizeStorage());
 
-  delete[] gid;
-
   // set class properties
   m_is_created=true;
   m_neq=neq;
   CFdebug << "Rank " << common::PE::Comm::instance().rank() << ": Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements and " << m_num_my_elements << " local rows" << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -636,6 +584,13 @@ void TrilinosCrsMatrix::print(const std::string& filename, std::ios_base::openmo
   stream << "ZONE T=\"" << type_name() << "::" << name() <<  "\"\n" << std::flush;
   print(stream);
   stream.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::print_native(ostream& stream)
+{
+  m_mat->Print(stream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

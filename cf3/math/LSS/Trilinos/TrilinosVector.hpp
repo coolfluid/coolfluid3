@@ -63,6 +63,7 @@ public:
 
   /// Setup sparsity structure
   void create(common::PE::CommPattern& cp, Uint neq);
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars);
 
   /// Deallocate underlying data
   void destroy();

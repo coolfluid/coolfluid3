@@ -75,14 +75,14 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
 {
   if (is_created())
     destroy();
-  
+
   const std::string matrix_builder = options().option("matrix_builder").value_str();
   m_mat = create_component<LSS::Matrix>("Matrix", matrix_builder);
-  
+
   std::string vector_builder = options().option("vector_builder").value_str();
   if(vector_builder.empty())
     vector_builder = m_mat->properties().value_str("vector_type");
-  
+
   m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
   m_sol = create_component<LSS::Vector>("Solution", vector_builder);
 
@@ -90,6 +90,29 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
   m_sol->create(cp,neq);
   m_mat->create(cp,neq,node_connectivity,starting_indices,*m_sol,*m_rhs);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector< Uint >& node_connectivity, std::vector< Uint >& starting_indices)
+{
+  if (is_created())
+    destroy();
+
+  const std::string matrix_builder = options().option("matrix_builder").value_str();
+  m_mat = create_component<LSS::Matrix>("Matrix", matrix_builder);
+
+  std::string vector_builder = options().option("vector_builder").value_str();
+  if(vector_builder.empty())
+    vector_builder = m_mat->properties().value_str("vector_type");
+
+  m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
+  m_sol = create_component<LSS::Vector>("Solution", vector_builder);
+
+  m_rhs->create_blocked(cp,vars);
+  m_sol->create_blocked(cp,vars);
+  m_mat->create_blocked(cp,vars,node_connectivity,starting_indices,*m_sol,*m_rhs);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
