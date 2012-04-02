@@ -74,7 +74,7 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_u, this));
 
   // For these elements, faster, specialized code exists
-  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
   m_solution_tag = "scalar_advection_solution";
 
