@@ -80,3 +80,4 @@ coolfluid_add_test( ATEST     atest-quadtriag
                     ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
 endif()
+

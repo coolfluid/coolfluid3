@@ -53,6 +53,9 @@ private:
   /// Trigerred when the LSS is set
   void trigger_lss();
 
+protected:
+  std::string m_solution_tag;
+
 public:
   /// Proto placeholder for the system matrix
   const solver::actions::Proto::SystemMatrix& system_matrix;

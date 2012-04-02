@@ -56,9 +56,13 @@ public: // functions
   void signal_create_constant_bc(common::SignalArgs& node);
   void signal_create_function_bc(common::SignalArgs& node);
 
+  void set_solution_tag(const std::string& solution_tag);
+
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
+
+  std::string m_solution_tag;
 };
 
 } // UFEM
