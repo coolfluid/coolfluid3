@@ -61,8 +61,6 @@ public: // functions
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
-
-  std::string m_solution_tag;
 };
 
 } // UFEM

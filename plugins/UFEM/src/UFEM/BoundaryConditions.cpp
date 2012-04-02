@@ -145,6 +145,7 @@ struct BoundaryConditions::Implementation
   Handle<physics::PhysModel> m_physical_model;
   DirichletBC dirichlet;
   std::vector<URI> m_region_uris;
+  std::string m_solution_tag;
 };
 
 BoundaryConditions::BoundaryConditions(const std::string& name) :
@@ -172,7 +173,7 @@ BoundaryConditions::~BoundaryConditions()
 
 Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name)
 {
-  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), m_solution_tag);
+  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), m_implementation->m_solution_tag);
 
   boost::shared_ptr< common::Action > result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_constant_scalar_bc(region_name, variable_name) :
@@ -197,7 +198,7 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
 {
   Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
 
-  MeshTerm<0, VectorField> var(variable_name, m_solution_tag);
+  MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
   result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->function() ) );
 
   m_implementation->configure_bc(*result, region_name);
@@ -225,7 +226,7 @@ void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
 
 void BoundaryConditions::set_solution_tag(const std::string& solution_tag)
 {
-  m_solution_tag = solution_tag;
+  m_implementation->m_solution_tag = solution_tag;
 }
 
 
