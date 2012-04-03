@@ -305,17 +305,19 @@ struct SignalWrapper
 
     options.flush();
 
-    CFdebug << "Calling signal " << m_signal->name() << " with arguments: ";
+    CFinfo << "Calling signal " << m_signal->name() << " with arguments: ";
     for(SignalOptions::const_iterator opt = options.begin(); opt != options.end(); ++opt)
-      CFdebug << opt->first << " = " << opt->second->value_str() << ", ";
-    CFdebug << CFendl;
+      CFinfo << opt->first << " = " << opt->second->value_str() << ", ";
+    CFinfo << CFendl;//debug
 
     (*m_signal->signal())(node);
-
+    CFinfo << node.to_python_script() << CFendl;
     // Process reply
     SignalFrame reply = node.get_reply();
+    CFinfo << reply.to_python_script() << CFendl;
     if(reply.node.is_valid())
     {
+      CFinfo << "valid_reply" << CFendl;
       SignalOptions reply_options(reply);
       if(reply_options.check("created_component"))
         return wrap_component(m_component->access_component(reply_options["created_component"].value< common::URI >()));

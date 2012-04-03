@@ -297,7 +297,6 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
       }else if (e->modifiers()==Qt::ControlModifier && e->key()==Qt::Key_Space){
         QString word_under_cursor=get_word_under_cursor(c);
         if (word_under_cursor.length() >= 0){
-          c.movePosition(QTextCursor::EndOfWord);
           setTextCursor(c);
           if (static_cast<PythonCodeContainer*>(completer->widget()) != NULL)
             disconnect(completer,SIGNAL(activated(QString)),static_cast<PythonCodeContainer*>(completer->widget()),SLOT(insert_completion(QString)));
@@ -317,6 +316,11 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         key_press_event(e);
       }
     }
+  }else{//allow copy in uneditable zones
+    if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_C)
+      QPlainTextEdit::keyPressEvent(e);
+    else
+      key_press_event(e);
   }
   ensureCursorVisible();
 }
@@ -448,7 +452,8 @@ void PythonCodeContainer::remove_dictionary_item(QString name,QStandardItem* ite
 
 void PythonCodeContainer::request_documentation(){
   if (!python_console->is_stopped()){
-    QString word=get_word_under_cursor(cursorForPosition(last_mouse_pos));
+    QTextCursor c=cursorForPosition(last_mouse_pos);
+    QString word=get_word_under_cursor(c);
     if (word.size() > 1){
       if (word != last_documented_word){
         last_documented_word=word;
@@ -472,15 +477,17 @@ void PythonCodeContainer::popup_documentation(const QString & documentation){
 
 //////////////////////////////////////////////////////////////////////////
 
-QString PythonCodeContainer::get_word_under_cursor(QTextCursor c){
+QString PythonCodeContainer::get_word_under_cursor(QTextCursor &c){
   QString block=c.block().text();
   static QRegExp complete_word("[\\w\\.]+");
   int position_in_block=c.positionInBlock();
   int index = complete_word.indexIn(block);
   while (index >= 0) {
     int length = complete_word.matchedLength();
-    if (index < position_in_block && index+length >= position_in_block)
+    if (index < position_in_block && index+length >= position_in_block){
+      c.setPosition(c.block().position()+index+length);
       return block.mid(index,length);
+    }
     index = complete_word.indexIn(block, index + length);
   }
   return "";

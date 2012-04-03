@@ -34,6 +34,8 @@ typedef int Py_ssize_t;
 
 #include <frameobject.h>
 
+#include <boost/thread/mutex.hpp>
+
 #include <vector>
 #include <string>
 
@@ -93,16 +95,18 @@ public: // functions
   void no_more_instruction();
 
 private:
+  /// @brief debugging commands
   enum debug_command {
-    INVALID=-1,
-    STOP=0,
-    CONTINUE=1,
-    LINE_BY_LINE_EXECUTION=2,
-    NORMAL_EXECUTION=3,
-    BREAK=4,
-    TOGGLE_BREAK_POINT=5
+    INVALID=-1, /// do nothing
+    STOP=0, /// put the interpreter in stop state, he will stop before the next line
+    CONTINUE=1, /// continue the execution, if the interpreter was in line by line state he will stay in this state, if he was in stop state he will go back normal execution state
+    LINE_BY_LINE_EXECUTION=2, /// the interpreter will stop before each line
+    NORMAL_EXECUTION=3,  /// the interpreter execute normaly the python code
+    BREAK=4, /// the interpreter go out of the current execution frame
+    TOGGLE_BREAK_POINT=5 /// ask to toggle the the break point (used in signal_change_debug_state)
   };
-
+  /// @brief Allow to make a tree representation of the python scope.
+  /// the root of the tree is supposed to be a python dictionnary, children are simple python objects
   class PythonDictEntry{
   public:
     PythonDictEntry(){}
@@ -121,18 +125,19 @@ private:
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
 
-  ///
-  void emit_output(std::string output);
-
-
+  /// Emit when the interpreter stop on a line
   void emit_debug_trace(int fragment,int line);
 
+  /// Send the list of known keywords to the client
   void emit_completion_list(std::vector<std::string> *add, std::vector<std::string> *sub);
 
+  /// Send the documentation string to the client, documntation strings are emitted when a fragment 0 code prints output. (so documentation request must be in fragment 0)
   void emit_documentation(std::string doc);
 
+  /// Recursive function that checks for scope modification,
   void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0,bool child=false);
 
+  /// Look if there are no output in python sys.out (replaced with a simple storing class), output are then sendend throught CFinfo
   void flush_python_stdout(int code_fragment);
 
   std::string current_instruction;
@@ -149,6 +154,7 @@ private:
   int break_fragment;
   int break_line;
   bool stoped;
+  boost::mutex compile_mutex;
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////

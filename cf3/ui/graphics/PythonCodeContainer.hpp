@@ -82,8 +82,6 @@ protected slots:
   void reset_debug_trace();
   void request_documentation();
   void popup_documentation(const QString & documentation);
-protected:
-  QToolBar *tool_bar;
 private:
   class PythonDict {
   public:
@@ -94,7 +92,7 @@ private:
   };
   void add_to_dictionary(int &i,const QStringList &add,QStandardItem *item);
   void remove_dictionary_item(QString name,QStandardItem* item);
-  QString get_word_under_cursor(QTextCursor c);
+  QString get_word_under_cursor(QTextCursor &c);
   PythonSyntaxeHighlighter* highlighter;
   BorderArea *border_area;
   int debug_arrow;//block number of the debug arrow, -1 for no arrow
@@ -102,8 +100,6 @@ private:
   QTimer doc_timer;
   QString last_documented_word;
   QString last_documentation;
-  static QMap<int,int> fragment_container;
-  static QMap<int,int> blocks_fragment;
   static int fragment_generator;
   static PythonCompleter *completer;
   static QVector<PythonDict> dictionary;
@@ -111,6 +107,9 @@ private:
 protected:
   int border_width;
   QPoint offset_border;
+  QToolBar *tool_bar;
+  static QMap<int,int> blocks_fragment;
+  static QMap<int,int> fragment_container;
   static PythonConsole *python_console;
   static QStandardItemModel python_dictionary;
   static QTreeView *python_scope_values;

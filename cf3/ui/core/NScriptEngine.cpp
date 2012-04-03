@@ -36,9 +36,6 @@ namespace core {
 
 NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode::LOCAL_NODE) {
   connected=false;
-  regist_signal("output")
-      .description("Output of the python console")
-      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_output, this, _1));
   regist_signal("documentation")
       .description("Documentation about a python expression")
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_documentation, this, _1));
@@ -60,18 +57,11 @@ Handle< NScriptEngine > NScriptEngine::global() {
   return scr;
 }
 
-void NScriptEngine::signal_output(common::SignalArgs & node){
-  SignalOptions options(node);
-  std::string message = options.value<std::string>("text");
-  emit new_output(message.c_str());
-}
-
 void NScriptEngine::signal_documentation(common::SignalArgs & node){
   SignalOptions options(node);
   std::string documentation = options.value<std::string>("text");
   emit documentation_received(QString(documentation.c_str()));
 }
-
 
 void NScriptEngine::signal_completion(common::SignalArgs & node){
   SignalOptions options(node);

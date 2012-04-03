@@ -64,7 +64,7 @@ public slots:
   /// @brief reduiced call, used in signal conversion
   void execute_code(QString code);
 private slots:
-  void insert_output(const QString &);
+  void insert_output(QString output, int fragment=-1);
   void insert_log(const QString &);
   void line_by_line_activated(bool);
   void stop_continue_pressed();
@@ -113,7 +113,6 @@ private:
 
   bool text_being_entered;
 
-  int output_line_number;
   int block_count;
 
   MainWindow *main_window;

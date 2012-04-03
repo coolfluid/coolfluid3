@@ -32,8 +32,8 @@ PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
 {
   setUndoRedoEnabled(true);
   //Toolbar
-  connect(tool_bar->addAction("Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
-  connect(tool_bar->addAction("Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
+  connect(tool_bar->addAction(QIcon(":/Icons/action_execute_script.png"),"Execute all"),SIGNAL(triggered()),this,SLOT(execute_immediat()));
+  connect(tool_bar->addAction(QIcon(":/Icons/action_execute_script_edit.png"),"Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
   connect(tool_bar->addAction(QIcon(":/Icons/action_open.png"),"Open"),SIGNAL(triggered()),this,SLOT(open()));
   connect(tool_bar->addAction(QIcon(":/Icons/action_save.png"),"Save"),SIGNAL(triggered()),this,SLOT(save()));
   setViewportMargins(border_width,tool_bar->height(),0,0);

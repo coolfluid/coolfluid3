@@ -39,7 +39,6 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
   history_index=0;
   input_start_in_text=0;
-  output_line_number=1;
   input_block=0;
   text_being_entered=false;
 
@@ -66,7 +65,6 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   connect(break_action,SIGNAL(triggered()),this,SLOT(break_pressed()));
   connect(history_to_text_editor,SIGNAL(triggered()),this,SLOT(push_history_to_script_editor()));
   connect(ui::core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(execution_stopped(int,int)));
-  connect(core::NScriptEngine::global().get(),SIGNAL(new_output(QString)),this,SLOT(insert_output(QString)));
   connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(insert_log(QString)));
   connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString)),this,SLOT(execute_code(QString)));
@@ -122,8 +120,8 @@ void PythonConsole::mousePressEvent(QMouseEvent *e){
 
 void PythonConsole::key_press_event(QKeyEvent *e){
   QTextCursor c=textCursor();
-  if (e->text().length() > 0 && !(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_C) && !editable_zone(c)){
-    c.setPosition(input_start_in_text);
+  if (e->text().length() > 0 && !editable_zone(c)){
+    c.movePosition(QTextCursor::End);
     setTextCursor(c);
   }
   int block_count=blockCount();
@@ -270,7 +268,6 @@ void PythonConsole::execute_input(QTextCursor &c){
   c.movePosition(QTextCursor::End);
   input_block=c.blockNumber();
   input_start_in_text=c.position();
-  output_line_number=1;
   //centerCursor();
   document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
   if (command_stack.size())
@@ -362,28 +359,75 @@ void PythonConsole::stream_next_command(){
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PythonConsole::insert_output(const QString &output){
+void PythonConsole::insert_output(QString output, int fragment){
+  output.replace("\\n","\n");
   QTextCursor cursor=textCursor();
-  if (input_start_in_text==0){//special case
-    cursor.setPosition(0);
-    cursor.insertText("\n");
-    document()->findBlockByNumber(0).setUserState(-1);
-    document()->findBlockByNumber(1).setUserState(PythonCodeContainer::PROMPT_1);
-    cursor.setPosition(0);
+  if (fragment < 0){
+    if (input_start_in_text==0){//special case
+      cursor.setPosition(0);
+      cursor.insertText("\n");
+      document()->findBlockByNumber(0).setUserState(-1);
+      document()->findBlockByNumber(1).setUserState(PythonCodeContainer::PROMPT_1);
+      cursor.setPosition(0);
+    }else{
+      cursor.setPosition(input_start_in_text);
+      cursor.movePosition(QTextCursor::Left);
+      cursor.insertBlock();
+    }
   }else{
-    cursor.setPosition(input_start_in_text);
-    cursor.movePosition(QTextCursor::Left);
-    cursor.insertBlock();
+    int b=fragment_container[fragment];
+    QTextBlock bl=document()->findBlockByNumber(b);
+    bl=bl.next();
+    while (bl.isValid()){
+      if (bl.userState() == PROMPT_1){
+        cursor.setPosition(bl.position());
+        cursor.movePosition(QTextCursor::Left);
+        cursor.insertBlock();
+        break;
+      }
+      bl=bl.next();
+    }
   }
+  QTextCursor insert_cursor(cursor);
+  int pos_c=cursor.position();
   cursor.insertText(output);
+  cursor.movePosition(QTextCursor::Right);
   input_start_in_text+=output.size()+1;
-  cursor.setPosition(input_start_in_text);
-  QTextBlock block=document()->findBlockByNumber(input_block-1);
-  input_block=cursor.blockNumber();
-  while (block.isValid()){
+  insert_cursor.setPosition(pos_c);
+  //cursor.setPosition(insert_cursor.position()+);
+  int block_diff=(cursor.blockNumber()-insert_cursor.blockNumber());
+  input_block+=block_diff;
+  QTextBlock block=insert_cursor.block().previous();
+  int output_line_number;
+  if (!block.isValid()){
+    output_line_number=1;
+  }else{
+    output_line_number=block.userState()+1;
+    if (output_line_number > PROMPT_1 || output_line_number == 0)
+      output_line_number=1;
+  }
+  block=insert_cursor.block();
+  while (block.blockNumber() < cursor.blockNumber()){
     if (block.userState() < 0)
       block.setUserState(output_line_number++);
     block=block.next();
+  }
+  if (fragment > 0){
+    QMap<int, int>::const_iterator itt_fragment=fragment_container.begin();
+    while (itt_fragment != fragment_container.end()){
+      if (itt_fragment.key() > fragment){
+        fragment_container[itt_fragment.key()]=itt_fragment.value()+block_diff;
+        blocks_fragment.remove(itt_fragment.value());
+      }
+      ++itt_fragment;
+    }
+    itt_fragment=fragment_container.begin();
+    while (itt_fragment != fragment_container.end()){
+      if (itt_fragment.key() > fragment){
+        blocks_fragment.insert(itt_fragment.value(),itt_fragment.key());
+      }
+      ++itt_fragment;
+    }
   }
   ensureCursorVisible();
 }
@@ -392,19 +436,27 @@ void PythonConsole::insert_output(const QString &output){
 
 void PythonConsole::insert_log(const QString &output){
   static QRegExp log_frame("\\[ [^\\]]* \\]\\[ [^\\]]* \\] (Worker\\[0\\] )?");
-  QString modified_output;
+  static QRegExp fragment_frame(":[0-9]+:");
   int start=log_frame.indexIn(output);
+  int fragment=-1;
+  QString insert_string;
   while (start>=0){
     int rstart=start+log_frame.matchedLength();
     start=log_frame.indexIn(output,rstart);
-    if (start >=0){
-      modified_output.append(output.mid(rstart,start-rstart));
-    }else{
-      modified_output.append(output.mid(rstart));
-    }
+    QString modified_output;
+    if (start >=0)
+      modified_output=output.mid(rstart,start-rstart);
+    else
+      modified_output=output.mid(rstart);
+    int st=fragment_frame.indexIn(modified_output);
+    int ml;
+    if ((ml=fragment_frame.matchedLength()) != -1){
+      fragment=modified_output.mid(st+1,ml-2).toInt();
+      insert_string.append(modified_output.mid(st+ml));
+    }else
+      insert_string.append(modified_output);
   }
-  modified_output.replace("\\n","\n");
-  insert_output(modified_output);
+  insert_output(insert_string,fragment);
 }
 
 ////////////////////////////////////////////////////////////////////////////

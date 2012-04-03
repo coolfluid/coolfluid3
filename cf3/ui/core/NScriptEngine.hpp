@@ -59,19 +59,15 @@ public:
 
   void request_documentation(QString &doc);
 
-  /// @brief Boost slot called when python console output are sent from the server
-  /// @param node Signal node
-  void signal_output(common::SignalArgs & node);
-
-  /// @brief Boost slot called when the server send new documentation about an expression
+  /// @brief Called when the server send new documentation about an expression
   /// @param node Signal node
   void signal_documentation(common::SignalArgs & node);
 
-  /// @brief Boost slot called when the server send his completion list
+  /// @brief Called when the server send his completion list
   /// @param node Signal node
   void signal_completion(common::SignalArgs & node);
 
-  /// @brief Boost slot called when the server send debugging information
+  /// @brief Called when the server send debugging information
   /// @param node Signal node
   void signal_debug_trace(common::SignalArgs & node);
 
@@ -80,11 +76,6 @@ public slots:
   void client_connected();
 
 signals:
-
-  /// @brief Signal emitted when the server send the new console output.
-  /// @param output Output message
-  void new_output(const QString & output);
-
   /// @brief Signal emitted when the server find new entries in the python scope.
   /// @param word_list scope entry name
   /// @param doc_list entry documentation (__doc__ membre)

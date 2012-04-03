@@ -24,7 +24,6 @@
 #include "python/ScriptEngine.hpp"
 
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/python/handle.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -51,7 +50,7 @@ ComponentBuilder < ScriptEngine, Component, LibPython > ScriptEngine_Builder;
 int ScriptEngine::python_close=0;
 ScriptEngine *script_engine=NULL;
 boost::python::handle<> global_scope, local_scope;
-std::queue< std::pair<std::string,int> > python_code_queue;
+std::queue< std::pair<boost::python::handle<>,int> > python_code_queue;
 boost::thread* python_thread;
 boost::thread* python_stream_statement_thread;
 boost::mutex python_code_queue_mutex;
@@ -83,32 +82,22 @@ void python_execute_function(){
   //CFinfo << "stop_lock_aquired" << CFendl;
   boost::this_thread::sleep(wait_init);
   while(1){
-    python_code_queue_mutex.lock();
+    boost::unique_lock<boost::mutex> lock(python_code_queue_mutex);
     if (python_code_queue.size()){
-      std::pair<std::string,int> python_current_fragment=python_code_queue.front();
+      std::pair<boost::python::handle<>,int> python_current_fragment=python_code_queue.front();
       python_code_queue.pop();
       python_code_queue_mutex.unlock();
       try{
-        std::stringstream ss;
-        ss << python_current_fragment.second;
-        //CFinfo << python_current_fragment.first.c_str() << CFendl;
-        boost::python::handle<> src;
-        if (python_current_fragment.second == -1)//entire script 'flag'
-          src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_file_input)));
-        else//single input compilation
-          src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(python_current_fragment.first.c_str(), ss.str().c_str(), Py_single_input)));
-        if (NULL != src){//code compiled, we execute it
-          boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
-        }
+        boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)python_current_fragment.first.get(), global_scope.get(), local_scope.get())));
         if (python_current_fragment.second){//we don't check errors on internal request (fragment code = 0)
           PyObject *exc,*val,*trb,*obj;
           char* error;
           PyErr_Fetch(&exc, &val, &trb);
           if (NULL != val){
             if (PyArg_ParseTuple (val, "sO", &error, &obj)){
-              CFinfo << error << CFendl;
+              CFinfo << ":" << python_current_fragment.second << ":" << error << CFendl;
             }else{
-              CFinfo << PyString_AsString(PyObject_Str(val)) << CFendl;
+              CFinfo << ":" << python_current_fragment.second << ":" << PyString_AsString(PyObject_Str(val)) << CFendl;
             }
           }
         }
@@ -118,9 +107,7 @@ void python_execute_function(){
       PyErr_Clear();
       script_engine->check_python_change(python_current_fragment.second);
     }else{
-      python_code_queue_mutex.unlock();
       script_engine->no_more_instruction();
-      boost::unique_lock<boost::mutex> lock(python_code_queue_mutex);
       python_code_queue_condition.wait(lock);
     }
   }
@@ -191,10 +178,32 @@ ScriptEngine::~ScriptEngine()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::execute_script(std::string script,int code_fragment){
+void ScriptEngine::execute_script(std::string script,int code_fragment){// must not be called twice at the same time.
   {
     boost::lock_guard<boost::mutex> lock(python_code_queue_mutex);
-    python_code_queue.push(std::pair<std::string,int>(script,code_fragment));
+    // we compile the received fragment
+    std::stringstream ss;
+    ss << code_fragment;
+    //CFinfo << python_current_fragment.first.c_str() << CFendl;
+    boost::python::handle<> src;
+    if (code_fragment == -1)//entire script 'flag'
+      src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_file_input)));
+    else//single input compilation
+      src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
+    if (NULL != src.get())
+      python_code_queue.push(std::pair<boost::python::handle<>,int>(src,code_fragment));
+    if (code_fragment){//we don't check errors on internal request (fragment code = 0)
+      PyObject *exc,*val,*trb,*obj;
+      char* error;
+      PyErr_Fetch(&exc, &val, &trb);
+      if (NULL != val){
+        if (PyArg_ParseTuple (val, "sO", &error, &obj)){
+          CFinfo << ":" << code_fragment << ":" << error << CFendl;
+        }else{
+          CFinfo << ":" << code_fragment << ":" << PyString_AsString(PyObject_Str(val)) << CFendl;
+        }
+      }
+    }
   }
   python_code_queue_condition.notify_one();
 }
@@ -322,7 +331,7 @@ void ScriptEngine::flush_python_stdout(int code_fragment){
       if (strlen(data_str)>0){
         //CFinfo << "flush emit output" << CFendl;
         if (code_fragment)
-          CFinfo << data_str << CFendl;
+          CFinfo << ":" << code_fragment << ":" << data_str << CFendl;
         else//must be a documentation request
           emit_documentation(data_str);
         //Py_XDECREF(data.get());
@@ -399,7 +408,10 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
       break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
     }
   }
-  execute_script(code,fragment);
+  {
+    boost::lock_guard<boost::mutex> lock(compile_mutex);
+    execute_script(code,fragment);
+  }
   //return boost::python::object();
 }
 
@@ -500,18 +512,6 @@ void ScriptEngine::signal_change_debug_state(SignalArgs& node){
   default:
     break;
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void ScriptEngine::emit_output(std::string output){//not used anymore
-  /// @todo remove those hardcoded URIs
-  m_manager=Core::instance().root().access_component("//Tools/PEManager")->handle<PE::Manager>();
-  SignalFrame frame("output", uri(), CLIENT_SCRIPT_ENGINE_PATH);
-  SignalOptions options(frame);
-  options.add_option("text", output);
-  options.flush();
-  m_manager->send_to_parent( frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
