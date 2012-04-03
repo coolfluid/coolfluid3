@@ -374,6 +374,8 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       }
       RealVector data(datasize); data.setZero();
 
+      CFdebug << "Writing discontinuous field " << field.uri() << " with " << nb_elements << " elements" << CFendl;
+
       file << "$ElementNodeData\n";
 
       // add 2 string tags : var_name, field_name
