@@ -13,7 +13,6 @@
 #include <QSyntaxHighlighter>
 
 #include "ui/graphics/LibGraphics.hpp"
-#include <QColor>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,22 +25,26 @@ class Graphics_API PythonSyntaxeHighlighter
         : public QSyntaxHighlighter
 {
 public:
-    PythonSyntaxeHighlighter(QTextDocument* parent);
+  /// @brief allocate the syntaxe rules on first init
+  PythonSyntaxeHighlighter(QTextDocument* parent);
+  /// @brief free the syntaxe rules on last delete
+  ~PythonSyntaxeHighlighter();
 protected:
-    void highlightBlock(const QString &text);
+  void highlightBlock(const QString &text);
 private:
-    struct HighlightingRule
-    {
-        QRegExp pattern;
-        QTextCharFormat format;
-    };
-    QVector<HighlightingRule> highlighting_rules;
-    QTextCharFormat comment_format;
-    QTextCharFormat keyword_format;
-    QTextCharFormat number_format;
-    QTextCharFormat operator_format;
-    QTextCharFormat string_format;
-    QTextCharFormat single_quote_string_format;
+  struct HighlightingRule
+  {
+      QRegExp pattern;
+      QTextCharFormat *format;
+  };
+  static int instance_count;
+  static QVector<HighlightingRule> *highlighting_rules;
+  static QTextCharFormat *comment_format;
+  static QTextCharFormat *keyword_format;
+  static QTextCharFormat *number_format;
+  static QTextCharFormat *operator_format;
+  static QTextCharFormat *string_format;
+  static QTextCharFormat *single_quote_string_format;
 }; // PythonSyntaxeHighlighter
 
 ////////////////////////////////////////////////////////////////////////////////

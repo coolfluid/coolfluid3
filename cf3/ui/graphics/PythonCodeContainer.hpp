@@ -12,13 +12,9 @@
 
 #include <QWidget>
 #include <QPlainTextEdit>
-#include <QKeyEvent>
 #include <QStringList>
 #include <QCompleter>
-#include <QHash>
-#include <QPainter>
 #include <QLabel>
-#include <QToolTip>
 #include <QTimer>
 #include <QStandardItemModel>
 
@@ -29,6 +25,7 @@
 
 class QToolBar;
 class QTreeView;
+class QKeyEvent;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -55,11 +52,10 @@ public:
     PROMPT_1 = 100000,
     PROMPT_2 = 100001
   };
-
+  /// @brief constructor
   PythonCodeContainer(QWidget *parent = 0);
-  ~PythonCodeContainer();
 
-  /// @brief called by the border area on repaint event
+  /// @brief called by the border area on repaint event, display the line numbers from QTextBlock::userState
   void repaint_border_area(QPaintEvent *event);
   /// @brief called by the border area on click event
   virtual void border_click(const QPoint & pos) = 0;
@@ -84,9 +80,12 @@ protected:
   virtual void key_press_event(QKeyEvent *e) = 0;
   /// @brief allow the console to known when execute a inputed code
   virtual void new_line(int indent_number){}
+  /// @brief allow the python container to known if the position of the cursor is writable, used for the python console
   virtual bool editable_zone(const QTextCursor &cursor) = 0;
+  /// @brief ask a text insertion to the inherited class
   virtual void insert_text(const QString & text) = 0;
 protected slots:
+  /// @brief connected to the scrollbar signal of the code zone, ask to the border area to do a repaint
   void update_border_area(const QRect &,int);
   void keywords_changed(const QStringList &add,const QStringList &sub);
   void insert_completion(QString);
@@ -150,20 +149,6 @@ protected:
 private:
   PythonCodeContainer *container;
   int width;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief display the documentation of a python symbole
-class PopupDocumentation : public QLabel
-{
-public:
-  PopupDocumentation(PythonCodeContainer*parent,QString text)
-    : QLabel(text,parent) {
-    setWordWrap(true);
-    setFixedWidth(400);
-    setBackgroundRole(QPalette::ToolTipBase);
-  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -24,6 +24,9 @@
 #include <QTreeView>
 #include <QProxyStyle>
 #include <QListWidget>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QToolTip>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +60,7 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setCaseSensitivity(Qt::CaseSensitive);
     completer->setModel(&python_dictionary);
-    python_scope_values=new QTreeView(NULL);
+    python_scope_values=new QTreeView(this);
     python_scope_values->setModel(&python_dictionary);
     python_scope_values->setWindowFlags(Qt::WindowStaysOnTopHint);
     python_scope_values->setAttribute(Qt::WA_DeleteOnClose,false);
@@ -105,12 +108,6 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
   connect(this,SIGNAL(updateRequest(QRect,int)),this,SLOT(update_border_area(QRect,int)));
   connect(&doc_timer,SIGNAL(timeout()),this,SLOT(request_documentation()));
   connect(core::NScriptEngine::global().get(), SIGNAL(documentation_received(QString)), this,SLOT(popup_documentation(QString)));
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-PythonCodeContainer::~PythonCodeContainer(){
-  //remove_fragments();
 }
 
 //////////////////////////////////////////////////////////////////////////

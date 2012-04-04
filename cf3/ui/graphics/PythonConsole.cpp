@@ -24,6 +24,8 @@
 #include <QSplitter>
 #include <QTabWidget>
 #include <QListWidget>
+#include <QWidget>
+#include <QKeyEvent>
 
 ////////////////////////////////////////////////////////////////////////////
 

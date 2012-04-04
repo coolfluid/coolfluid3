@@ -26,7 +26,7 @@ namespace cf3 {
 namespace ui {
 namespace graphics {
 
-/// @brief Used in python code editor windows
+/// @brief simple python editor
 class Graphics_API PythonCodeEditor: public PythonCodeContainer
 {
   Q_OBJECT

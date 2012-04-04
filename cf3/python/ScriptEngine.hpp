@@ -57,40 +57,40 @@ void python_execute_function();
 class Python_API ScriptEngine : public common::Component {
 public: // functions
 
-  /// Contructor
+  /// @brief Contructor
   /// @param name of the component
   ScriptEngine ( const std::string& name );
 
   virtual ~ScriptEngine();
 
-  /// Get the class name
+  /// @brief Get the class name
   static std::string type_name () { return "ScriptEngine"; }
 
-  /// Execute the script passed as a string, code fragment is used for traceability
+  /// @brief Execute the script passed as a string, code fragment is used for traceability
   void execute_script(std::string script,int code_fragment=-1);
 
-  /// Signal to execute a script
+  /// @brief Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
 
-  /// Modify the debug state the first argument is the debug_command named command, if the debug command is
+  /// @brief Modify the debug state the first argument is the debug_command named command, if the debug command is
   /// equal to TOGGLE_BREAK_POINT fragment and line argument must be defined (both int)
   void signal_change_debug_state(common::SignalArgs& node);
 
-  /// Signal to retrieve the completion list; no argument
+  /// @brief Signal to retrieve the completion list; no argument
   void signal_completion(common::SignalArgs& node);
 
-  /// Signal to get the documentation of the symbol under the mouse in the gui
+  /// @brief Signal to get the documentation of the symbol under the mouse in the gui
   /// takes one argument, expression, must be a string containing the symbol
   void signal_get_documentation(common::SignalArgs& node);
 
-  /// Called by the trace function when a new line is reached
+  /// @brief Called by the trace function when a new line is reached
   int new_line_reached(int code_fragment,int line_number);
 
-  /// Verify if the python scope has changed, or if there is some data on the python sys.out
+  /// @brief Verify if the python scope has changed, or if there is some data on the python sys.out
   /// code_fragment allow to redirect correctly the output if this was a documentation request
   void check_python_change(int code_fragment);
 
-  /// Called when the interpreter have no more instruction avalaible
+  /// @brief Called when the interpreter have no more instruction avalaible
   /// used in debug to clear the debug trace at the end of the code
   void no_more_instruction();
 
@@ -122,22 +122,22 @@ private:
     std::vector<PythonDictEntry> entry_list;
   };
 
-  /// Signature for the execute_script signal
+  /// @brief Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
 
-  /// Emit when the interpreter stop on a line
+  /// @brief Emit when the interpreter stop on a line
   void emit_debug_trace(int fragment,int line);
 
-  /// Send the list of known keywords to the client
+  /// @brief Send the list of known keywords to the client
   void emit_completion_list(std::vector<std::string> *add, std::vector<std::string> *sub);
 
-  /// Send the documentation string to the client, documntation strings are emitted when a fragment 0 code prints output. (so documentation request must be in fragment 0)
+  /// @brief Send the documentation string to the client, documntation strings are emitted when a fragment 0 code prints output. (so documentation request must be in fragment 0)
   void emit_documentation(std::string doc);
 
-  /// Recursive function that checks for scope modification,
+  /// @brief Recursive function that checks for scope modification,
   void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0,bool child=false);
 
-  /// Look if there are no output in python sys.out (replaced with a simple storing class), output are then sendend throught CFinfo
+  /// @brief Look if there are no outputs in python sys.out (replaced with a simple storing class), output are then sendend throught CFinfo
   void flush_python_stdout(int code_fragment);
 
   std::string current_instruction;

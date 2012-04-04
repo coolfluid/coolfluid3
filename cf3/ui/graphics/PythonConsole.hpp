@@ -10,17 +10,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QWidget>
-#include <QTextEdit>
-#include <QKeyEvent>
 #include <QStringList>
-#include <QCompleter>
 #include <QQueue>
-#include <QPair>
-#include <QAbstractTableModel>
-#include <QStaticText>
 #include "ui/graphics/PythonCodeContainer.hpp"
-#include "ui/core/NScriptEngine.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
 
@@ -32,6 +24,8 @@ class QScrollArea;
 class QTabWidget;
 class QListWidget;
 class QListWidgetItem;
+class QWidget;
+class QKeyEvent;
 
 ////////////////////////////////////////////////////////////////////////////////
 
