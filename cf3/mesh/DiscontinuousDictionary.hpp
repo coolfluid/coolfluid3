@@ -21,6 +21,8 @@ class Mesh_API DiscontinuousDictionary : public mesh::Dictionary {
 
 public: // functions
 
+  static std::string type_name () { return "DiscontinuousDictionary"; }
+
   /// Contructor
   /// @param name of the component
   DiscontinuousDictionary ( const std::string& name );

@@ -63,10 +63,6 @@ public: // functions
   /// @return the nodes of the mesh
   Dictionary& geometry_fields() const;
 
-  /// @return linearized view of all the entities in the mesh
-  /// @deprecated
-  MeshElements& mesh_elements() const;
-
   const std::vector< Handle<Entities> >& elements() const { return m_elements; }
   const std::vector< Handle<Dictionary> >& dictionaries() const { return m_dictionaries; }
 
@@ -94,6 +90,8 @@ public: // functions
 
   void raise_mesh_loaded();
 
+  void raise_mesh_changed();
+
 private: // data
 
   Uint m_dimension;
@@ -103,8 +101,6 @@ private: // data
   std::vector< Handle<Entities> > m_elements;
 
   std::vector< Handle<Dictionary> > m_dictionaries;
-
-  Handle<MeshElements> m_mesh_elements;
 
   Handle<MeshMetadata> m_metadata;
 

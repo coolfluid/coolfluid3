@@ -75,7 +75,6 @@ Mesh::Mesh ( const std::string& name  ) :
   properties().add_property("dimensionality",Uint(0));
   properties().add_property(common::Tags::dimension(),Uint(0));
 
-  m_mesh_elements   = create_static_component<MeshElements>("elements");
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
 
@@ -114,6 +113,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   m_dimension = dimension;
   properties().property(common::Tags::dimension()) = m_dimension;
   properties().property("nb_nodes")  = geometry_fields().size();
+  update_structures();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,19 +124,20 @@ void Mesh::update_structures()
   Uint dict_idx=0;
   m_elements.clear();
   m_dictionaries.clear();
-  std::set< Handle<Dictionary> > dicts_set;
+  std::map<std::string,Handle<Dictionary> > dicts_map; // sorted by string
   boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
   {
     m_elements.push_back(elements.handle<Entities>());
     boost_foreach(const Handle<Space>& space, elements.spaces())
     {
-      dicts_set.insert(space->dict().handle<Dictionary>());
+      dicts_map[space->dict().uri().string()]=space->dict().handle<Dictionary>();
     }
   }
-  m_dictionaries.reserve(dicts_set.size());
-  boost_foreach(const Handle<Dictionary>& dict, dicts_set)
+  m_dictionaries.reserve(dicts_map.size());
+  foreach_container( (const std::string& uri) (const Handle<Dictionary>& dict), dicts_map)
   {
     m_dictionaries.push_back(dict);
+    dict->update_structures();
   }
 
   // Set private member m_entities_idx in each Entities
@@ -145,11 +146,24 @@ void Mesh::update_structures()
     m_elements[entities_idx]->m_entities_idx = entities_idx;
   }
 
+  bool found=false;
+  boost_foreach (const Handle<Dictionary> dict, m_dictionaries)
+  {
+    if (dict == m_geometry_fields)
+    {
+      found = true;
+      break;
+    }
+  }
+  if (!found)
+  {
+    if (m_geometry_fields)
+      m_dictionaries.push_back(m_geometry_fields);
+  }
+
   // Set private member m_dict_idx in each Space
   for (dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
   {
-    m_dictionaries[dict_idx]->update();
-
     boost_foreach(const Handle<Space>& space, m_dictionaries[dict_idx]->spaces())
     {
       space->m_dict_idx = dict_idx;
@@ -193,15 +207,19 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
 
 Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  std::set< Handle<Entities> > entities_set;
+  std::map< std::string, Handle<Entities> > entities_set; // sorted by uri
   boost_foreach(const Handle<Region>& region, regions)
   {
     boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
     {
-      entities_set.insert(entities.handle<Entities>());
+      entities_set[entities.uri().string()]=entities.handle<Entities>();
     }
   }
-  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  std::vector< Handle<Entities> > entities_vec;
+  foreach_container( (const std::string& uri)(const Handle<Entities>& entities), entities_set )
+  {
+    entities_vec.push_back(entities);
+  }
   return create_continuous_space(space_name, space_lib_name, entities_vec);
 }
 
@@ -219,7 +237,7 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
   {
     entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
   }
-  dict.update();
+  dict.build();
   update_structures();
   return dict;
 }
@@ -234,15 +252,19 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
 
 Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  std::set< Handle<Entities> > entities_set;
+  std::map< std::string, Handle<Entities> > entities_set; // sorted by uri
   boost_foreach(const Handle<Region>& region, regions)
   {
     boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
     {
-      entities_set.insert(entities.handle<Entities>());
+      entities_set[entities.uri().string()]=entities.handle<Entities>();
     }
   }
-  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  std::vector< Handle<Entities> > entities_vec;
+  foreach_container( (const std::string& uri)(const Handle<Entities>& entities), entities_set )
+  {
+    entities_vec.push_back(entities);
+  }
   return create_discontinuous_space(space_name, space_lib_name, entities_vec);
 }
 
@@ -260,8 +282,7 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
   {
     entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
   }
-  dict.update();
-
+  dict.build();
   update_structures();
   return dict;
 }
@@ -271,13 +292,6 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
 Dictionary& Mesh::geometry_fields() const
 {
   return *m_geometry_fields;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-MeshElements& Mesh::mesh_elements() const
-{
-  return *m_mesh_elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -415,21 +429,54 @@ bool Mesh::check_sanity() const
 
 void Mesh::raise_mesh_loaded()
 {
-  update_statistics();
   update_structures();
+  update_statistics();
+
+  for (Uint dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
+  {
+    m_dictionaries[dict_idx]->rebuild_map_glb_to_loc();
+    m_dictionaries[dict_idx]->rebuild_node_to_element_connectivity();
+  }
 
   check_sanity();
 
-  // Raise an event to indicate that a mesh was loaded happened
+  // Raise an event to indicate that this mesh was loaded
   SignalOptions options;
   options.add_option("mesh_uri", uri());
 
   SignalArgs f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  Core::instance().event_handler().raise_event( Tags::event_mesh_loaded(), f );
 
   update_statistics();
-  mesh_elements().update();
   check_sanity();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::raise_mesh_changed()
+{
+  update_structures();
+  update_statistics();
+
+  for (Uint dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
+  {
+    m_dictionaries[dict_idx]->rebuild_map_glb_to_loc();
+    m_dictionaries[dict_idx]->rebuild_node_to_element_connectivity();
+  }
+
+  check_sanity();
+
+  // Raise an event to indicate that this mesh was changed
+  SignalOptions options;
+  options.add_option("mesh_uri", uri());
+
+  SignalArgs f= options.create_frame();
+  Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+
+  update_statistics();
+  check_sanity();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

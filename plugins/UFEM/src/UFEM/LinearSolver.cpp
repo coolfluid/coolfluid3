@@ -117,7 +117,7 @@ void LinearSolver::mesh_changed(Mesh& mesh)
     if(is_not_null(field))
     {
       CFdebug << "Removing existing field " << field->uri().string() << CFendl;
-      field->parent()->remove_component(field->name());
+      field->dict().remove_component(field->name());
       field.reset();
     }
 
@@ -141,6 +141,7 @@ void LinearSolver::mesh_changed(Mesh& mesh)
   configure_option_recursively(solver::Tags::regions(), root_regions);
 
   trigger_lss();
+  CFdebug << "LSS updated" << CFendl;
 }
 
 void LinearSolver::trigger_lss()

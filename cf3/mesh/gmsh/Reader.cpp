@@ -119,6 +119,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Read file once and store positions
   get_file_positions();
+  cf3_assert(m_hash);
 
   m_mesh->initialize_nodes(0, m_mesh_dimension);
 
@@ -144,9 +145,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
 
-  m_mesh->update_statistics();
-  m_mesh->update_structures();
-
   // clean-up
   m_ghost_nodes.clear();
   m_used_nodes.clear();
@@ -157,6 +155,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the file
   m_file.close();
 
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +173,7 @@ void Reader::get_file_positions()
   m_element_data_positions.clear();
   m_node_data_positions.clear();
   m_element_node_data_positions.clear();
-
+  m_elements_position=0;
   int p;
   std::string line;
   while (!m_file.eof())
@@ -259,6 +258,7 @@ void Reader::get_file_positions()
     }
 
   }
+  cf3_assert(m_elements_position>0);
   m_file.clear();
 }
 
@@ -317,6 +317,7 @@ void Reader::find_used_nodes()
         CFinfo << 100*i/m_total_nb_elements << "% " << CFflush;
     }
 
+    cf3_assert(m_hash);
     if (m_hash->subhash(ELEMS).owns(i))
     {
       // element description

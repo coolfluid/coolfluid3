@@ -1684,23 +1684,15 @@ void BlockArrays::create_mesh(Mesh& mesh)
     element_offset += nb_elems;
   }
 
-  mesh.update_statistics();
-  mesh.update_structures();
-
   const Uint overlap = options().option("overlap").value<Uint>();
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    MeshTransformer& global_conn = *Handle<MeshTransformer>(create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity"));
-    global_conn.transform(mesh);
-
     MeshTransformer& grow_overlap = *Handle<MeshTransformer>(create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
     mesh.geometry_fields().remove_component("CommPattern");
   }
-
-  // Raise an event to indicate that a mesh was loaded happened
   mesh.raise_mesh_loaded();
 }
 

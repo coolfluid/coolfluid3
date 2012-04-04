@@ -27,11 +27,6 @@ namespace CGNS {
 /// @author Willem Deconinck
   class Mesh_CGNS_API Reader : public MeshReader, public CGNS::Shared
 {
-public: // typedefs
-
-  
-  
-
 private: // typedefs
 
   typedef std::pair<Handle<Elements>,Uint> Region_TableIndex_pair;

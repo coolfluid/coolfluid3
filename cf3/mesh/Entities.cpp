@@ -51,8 +51,8 @@ Entities::Entities ( const std::string& name ) :
       .pretty_name("Element type")
       .attach_trigger(boost::bind(&Entities::configure_element_type, this));
 
-  m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_elem_indices());
-  m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_indices());
+  m_global_numbering->add_tag(mesh::Tags::global_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
   m_spaces_group = create_static_component<Group>("spaces");

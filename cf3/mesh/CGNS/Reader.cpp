@@ -87,6 +87,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // Fix global numbering
   /// @todo remove this and read glb_index ourself
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
+
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -119,6 +119,12 @@ public:
   /// @brief Creates buffers for node changes
   void create_node_buffers();
 
+  /// @brief Creates buffers for element changes
+  void clear_element_buffers();
+
+  /// @brief Creates buffers for node changes
+  void clear_node_buffers();
+
   /// @brief Element-node connectivity is replaced with global indices
   ///
   /// This is to allow elements from other ranks to be added, in which case local indices are meaningless
@@ -157,6 +163,12 @@ public:
   ///       Call finish() to notify the mesh of updates.
   void grow_overlap();
 
+  /// @brief Add another mesh to this mesh
+  void combine_mesh(const Mesh& other_mesh);
+
+  /// @brief Add another mesh to this mesh
+  void remove_duplicate_elements_and_nodes();
+
   //@}
 
   /// @name Low-level API
@@ -192,6 +204,8 @@ public:
   /// @brief remove ghost elements
   /// @post Elements are not flushed yet, so additional operations can be performed
   void remove_ghost_elements();
+
+  void assign_partition_agnostic_global_indices_to_dict( Dictionary& dict );
 
   // @}
 
@@ -239,6 +253,10 @@ private:
 
   /// @brief bookkeeping of added and removed nodes
   std::vector< std::set<boost::uint64_t> > added_nodes;
+
+  bool has_element_buffers;
+
+  bool has_node_buffers;
 
 #if 0
   void fix_node_ranks(const std::vector< std::vector<boost::uint64_t> >& nodes);

@@ -124,13 +124,15 @@ public: // functions
 
   void add_space(const Handle<Space>& space);
 
-  void update();
+  void update_structures();
 
   bool continuous() const { return m_is_continuous; }
 
   bool discontinuous() const { return !m_is_continuous; }
 
   void rebuild_map_glb_to_loc();
+
+  void build();
 
   /// @note This is a function only for non-geometry spaces.
   virtual void rebuild_spaces_from_geometry() = 0;
@@ -146,9 +148,6 @@ private: // functions
   void config_regions();
 
   void config_type();
-
-  /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( common::SignalArgs& args );
 
 protected: // functions
 
@@ -175,7 +174,6 @@ private:
   std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
   std::vector< Handle<Field> > m_fields;
-  bool m_new_spaces_added;
 
 };
 

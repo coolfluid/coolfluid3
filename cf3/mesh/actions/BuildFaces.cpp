@@ -125,6 +125,8 @@ void BuildFaces::execute()
 
   mesh.update_statistics();
   mesh.update_structures();
+  /// @post The newly created faces have unknown global index and rank!
+  ///       This means that a mesh.check_sanity() will fail.
 }
 
 //////////////////////////////////////////////////////////////////////////////

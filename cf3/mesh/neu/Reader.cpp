@@ -163,6 +163,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // Fix global numbering
   /// @todo remove this and read glb_index ourself
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
+
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -513,7 +515,7 @@ void Reader::read_groups()
 
 void Reader::read_boundaries()
 {
-  cf3_assert(m_boundary_condition_positions.size() == m_headerData.NBSETS)
+  cf3_assert_desc(to_str(m_boundary_condition_positions.size())+"=="+to_str(m_headerData.NBSETS),m_boundary_condition_positions.size() == m_headerData.NBSETS);
 
   std::string line;
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {

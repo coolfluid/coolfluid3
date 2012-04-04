@@ -80,10 +80,6 @@ void MeshReader::execute()
 
   // Call the concrete implementation
   do_read_mesh_into(m_file_path, *m_mesh);
-
-  // Raise an event to indicate that a mesh was loaded happened
-  m_mesh->raise_mesh_loaded();
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

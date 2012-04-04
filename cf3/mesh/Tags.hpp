@@ -32,8 +32,6 @@ public:
   static const char * nodes ();
   static const char * nodes_used ();
 
-  static const char * global_elem_indices ();
-  static const char * global_node_indices ();
   static const char * global_indices ();
   static const char * map_global_to_local ();
 
@@ -51,6 +49,9 @@ public:
   static const char * bdry_faces ();
 
   static const char * connectivity_table ();
+
+  static const char * event_mesh_loaded();
+  static const char * event_mesh_changed();
 
 //  static const char * geometry_elements ();
 
