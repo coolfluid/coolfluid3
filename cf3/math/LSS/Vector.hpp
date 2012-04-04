@@ -123,6 +123,9 @@ public:
 
   /// Print to wherever
   virtual void print(std::ostream& stream) = 0;
+  
+  /// Use the native printing functionality of the vector implementation
+  virtual void print_native(std::ostream& stream) = 0;
 
   /// Print to file given by filename
   virtual void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) = 0;

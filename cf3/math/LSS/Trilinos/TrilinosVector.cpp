@@ -331,6 +331,13 @@ void TrilinosVector::print(const std::string& filename, std::ios_base::openmode 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosVector::print_native(ostream& stream)
+{
+  m_vec->Print(stream);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosVector::debug_data(std::vector<Real>& values)
 {
   cf3_assert(m_is_created);

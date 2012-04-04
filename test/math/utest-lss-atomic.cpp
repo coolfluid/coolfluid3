@@ -923,24 +923,19 @@ BOOST_AUTO_TEST_CASE( solve_system )
   sys->options().option("matrix_builder").change_value(matrix_builder);
   sys->create(cp,2,node_connectivity,starting_indices);
 
-  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  // write a settings file for trilinos, using a direct solve
   if (irank==0)
   {
     std::ofstream trilinos_xml("trilinos_settings.xml");
     trilinos_xml << "<ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
     trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
-    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
-    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
-    trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
-    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
-    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
+    trilinos_xml << "    <ParameterList name=\"Amesos Settings\">\n";
+    trilinos_xml << "        <Parameter name=\"Reindex\" type=\"bool\" value=\"true\"/>\n";
+    trilinos_xml << "    </ParameterList>\n";
     trilinos_xml << "    </ParameterList>\n";
     trilinos_xml << "  </ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
@@ -970,11 +965,6 @@ BOOST_AUTO_TEST_CASE( solve_system )
   for (int i=0; i<vals.size(); i++)
     if (cp.isUpdatable()[i/neq])
       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
-
-  sys->matrix()->print("atomic-mat-neq.plt");
-  std::ofstream matfile("atomic-mat-neq-native.txt", std::ios::app);
-  sys->matrix()->print_native(matfile);
-  matfile.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1038,29 +1028,24 @@ BOOST_AUTO_TEST_CASE( solve_system_blocked )
   sys->options().option("matrix_builder").change_value(matrix_builder);
   boost::shared_ptr<math::VariablesDescriptor> vars = common::allocate_component<math::VariablesDescriptor>("vars");
   vars->options().configure_option("dimension", 1u);
-  
+
   vars->push_back("var1", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
   vars->push_back("var2", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
   sys->create_blocked(cp,*vars,node_connectivity,starting_indices);
 
-  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  // write a settings file for trilinos, using a direct solve
   if (irank==0)
   {
     std::ofstream trilinos_xml("trilinos_settings.xml");
     trilinos_xml << "<ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
     trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
-    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
-    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
-    trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
-    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
-    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
+    trilinos_xml << "    <ParameterList name=\"Amesos Settings\">\n";
+    trilinos_xml << "        <Parameter name=\"Reindex\" type=\"bool\" value=\"true\"/>\n";
+    trilinos_xml << "    </ParameterList>\n";
     trilinos_xml << "    </ParameterList>\n";
     trilinos_xml << "  </ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
@@ -1090,11 +1075,6 @@ BOOST_AUTO_TEST_CASE( solve_system_blocked )
   for (int i=0; i<vals.size(); i++)
     if (cp.isUpdatable()[i/neq])
       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
-
-  sys->matrix()->print("atomic-mat-blocked.plt");
-  std::ofstream matfile("atomic-mat-blocked-native.txt", std::ios::app);
-  sys->matrix()->print_native(matfile);
-  matfile.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

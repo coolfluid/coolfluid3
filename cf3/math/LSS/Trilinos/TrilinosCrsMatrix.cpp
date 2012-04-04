@@ -119,8 +119,8 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
 {
     // if already created
   if (m_is_created) destroy();
-  
-  const Uint neq = vars.size();
+
+  const Uint total_nb_eq = vars.size();
 
   // prepare intermediate data
   std::vector<int> num_indices_per_row;
@@ -134,7 +134,7 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
 
   // colmap, has ghosts at the end
   const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  Epetra_Map colmap(-1,nb_nodes_for_rank*neq,&my_global_elements[0],0,m_comm);
+  Epetra_Map colmap(-1,nb_nodes_for_rank*total_nb_eq,&my_global_elements[0],0,m_comm);
   my_global_elements.clear();
 
   // Create the graph, using static profile for performance
@@ -147,7 +147,7 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
     const int nb_row_nodes = starting_indices[i+1] - starting_indices[i];
     max_nb_row_entries = nb_row_nodes > max_nb_row_entries ? nb_row_nodes : max_nb_row_entries;
   }
-  m_converted_indices.resize(max_nb_row_entries*neq);
+  m_converted_indices.resize(max_nb_row_entries*total_nb_eq);
   for(int i = 0; i != nb_nodes_for_rank; ++i)
   {
     if(cp.isUpdatable()[i])
@@ -157,16 +157,16 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
       for(Uint j = columns_begin; j != columns_end; ++j)
       {
         const Uint column = j-columns_begin;
-        const Uint node_idx = node_connectivity[j]*neq;
-        for(int k = 0; k != neq; ++k)
+        const Uint node_idx = node_connectivity[j]*total_nb_eq;
+        for(int k = 0; k != total_nb_eq; ++k)
         {
-          m_converted_indices[column*neq+k] = m_p2m[node_idx+k];
+          m_converted_indices[column*total_nb_eq+k] = m_p2m[node_idx+k];
         }
       }
-      for(int k = 0; k != neq; ++k)
+      for(int k = 0; k != total_nb_eq; ++k)
       {
-        const int row = m_p2m[i*neq+k];
-        TRILINOS_THROW(graph.InsertMyIndices(row, static_cast<int>(neq*(columns_end - columns_begin)), &m_converted_indices[0]));
+        const int row = m_p2m[i*total_nb_eq+k];
+        TRILINOS_THROW(graph.InsertMyIndices(row, static_cast<int>(total_nb_eq*(columns_end - columns_begin)), &m_converted_indices[0]));
       }
     }
   }
@@ -181,7 +181,7 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
 
   // set class properties
   m_is_created=true;
-  m_neq=neq;
+  m_neq=total_nb_eq;
   CFdebug << "Rank " << common::PE::Comm::instance().rank() << ": Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements and " << m_num_my_elements << " local rows" << CFendl;
 }
 
