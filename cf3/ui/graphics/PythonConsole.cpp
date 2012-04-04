@@ -82,10 +82,6 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
 
 ////////////////////////////////////////////////////////////////////////////
 
-PythonConsole::~PythonConsole(){
-
-}
-
 void PythonConsole::create_splitter(QTabWidget* tab_widget){
   QSplitter *splitter=new QSplitter(tab_widget);
   QSplitter *scope_history_splitter=new QSplitter(splitter);
@@ -142,7 +138,7 @@ void PythonConsole::key_press_event(QKeyEvent *e){
       break;
     }
   case Qt::Key_Left:
-    if (c.positionInBlock() > 0 || c.blockNumber() > input_block){
+    if ((c.position() - c.block().position()) > 0 || c.blockNumber() > input_block){
       QPlainTextEdit::keyPressEvent(e);
       c=textCursor();
       if (c.block().length() == 0

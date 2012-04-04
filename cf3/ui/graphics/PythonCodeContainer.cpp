@@ -512,7 +512,7 @@ void PythonCodeContainer::popup_documentation(const QString & documentation){
 QString PythonCodeContainer::get_word_under_cursor(QTextCursor &c){
   QString block=c.block().text();
   static QRegExp complete_word("[\\w\\.]+");
-  int position_in_block=c.positionInBlock();
+  int position_in_block=c.position() - c.block().position();
   int index = complete_word.indexIn(block);
   while (index >= 0) {
     int length = complete_word.matchedLength();
