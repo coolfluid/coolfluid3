@@ -66,7 +66,7 @@ std::vector<std::string> Reader::get_extensions()
 void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
   // Set the internal mesh pointer
-  m_mesh = Handle<Mesh>(mesh.handle<Component>());
+  m_mesh = Handle<Mesh>(mesh.handle());
 
   // open file in read mode
   CALL_CGNS(cg_open(file.path().c_str(),CG_MODE_READ,&m_file.idx));
@@ -83,9 +83,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
-
-  m_mesh->elements().update();
-  m_mesh->update_statistics();
 
   // Fix global numbering
   /// @todo remove this and read glb_index ourself

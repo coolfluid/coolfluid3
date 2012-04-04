@@ -141,8 +141,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
 
-  m_mesh->elements().update();
   m_mesh->update_statistics();
+  m_mesh->update_structures();
 
   // clean-up
   m_ghost_nodes.clear();
@@ -314,7 +314,7 @@ void Reader::find_used_nodes()
     if (m_total_nb_elements > 100000)
     {
       if(i%(m_total_nb_elements/20)==0)
-        CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
+        CFinfo << 100*i/m_total_nb_elements << "% " << CFflush;
     }
 
     if (m_hash->subhash(ELEMS).owns(i))
@@ -361,7 +361,9 @@ void Reader::find_used_nodes()
     if (m_total_nb_nodes > 100000)
     {
       if(node_idx%(m_total_nb_nodes/20)==0)
-        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
+        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFflush;
+      if (node_idx == m_total_nb_nodes-1)
+        CFinfo << CFendl;
     }
     getline(m_file,line);
 

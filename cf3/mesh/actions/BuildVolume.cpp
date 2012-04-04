@@ -79,16 +79,15 @@ void BuildVolume::execute()
   Field& volume = cells_P0.create_field("volume");
   volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach( const Handle<Entities>& elements_handle, volume.entities_range() )
+  boost_foreach( const Handle<Space>& space, volume.spaces() )
   {
-    Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
+    RealMatrix coordinates;  space->support().geometry_space().allocate_coordinates(coordinates);
 
-    const Connectivity& space_connectivity = cells_P0.space(elements).connectivity();
-    for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
+    const Connectivity& space_connectivity = space->connectivity();
+    for (Uint cell_idx = 0; cell_idx<space->size(); ++cell_idx)
     {
-      elements.geometry_space().put_coordinates( coordinates, cell_idx );
-      volume[space_connectivity[cell_idx][0]][0] = elements.element_type().volume( coordinates );
+      space->support().geometry_space().put_coordinates( coordinates, cell_idx );
+      volume[space_connectivity[cell_idx][0]][0] = space->support().element_type().volume( coordinates );
     }
   }
 

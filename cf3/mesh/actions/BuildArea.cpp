@@ -79,15 +79,14 @@ void BuildArea::execute()
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 
-  boost_foreach(const Handle<Entities>& elements_handle, area.entities_range() )
+  boost_foreach(const Handle<Space>& space, area.spaces() )
   {
-    const Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
-    const Connectivity& field_connectivity = area.space(elements).connectivity();
-    for (Uint face_idx = 0; face_idx<elements.size(); ++face_idx)
+    RealMatrix coordinates;  space->support().geometry_space().allocate_coordinates(coordinates);
+    const Connectivity& field_connectivity = space->connectivity();
+    for (Uint face_idx = 0; face_idx<space->size(); ++face_idx)
     {
-      elements.geometry_space().put_coordinates( coordinates, face_idx );
-      area[field_connectivity[face_idx][0]][0] = elements.element_type().area( coordinates );
+      space->support().geometry_space().put_coordinates( coordinates, face_idx );
+      area[field_connectivity[face_idx][0]][0] = space->support().element_type().area( coordinates );
     }
   }
 }

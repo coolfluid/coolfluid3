@@ -88,8 +88,8 @@ list( APPEND coolfluid_mesh_files
   LibMesh.cpp
   LoadMesh.hpp
   LoadMesh.cpp
-  Manipulations.hpp
-  Manipulations.cpp
+  MeshAdaptor.hpp
+  MeshAdaptor.cpp
   MeshMetadata.hpp
   MeshMetadata.cpp
   ShapeFunction.hpp
