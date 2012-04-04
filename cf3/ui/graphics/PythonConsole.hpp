@@ -51,16 +51,17 @@ class Graphics_API PythonConsole : public PythonCodeContainer
 {
   Q_OBJECT
 public:
+  /// @brief Construct a python console
+  /// @param parent Parent widget.
+  /// @param main_window Used to create a new script editor from the console
   PythonConsole(QWidget *parent,MainWindow* main_window);
-  ~PythonConsole();
   /// @brief called by the parent to create the splitter with the scope values
   void create_splitter(QTabWidget *tab_widget);
   /// @brief to check if the console can execute command (like for documentation request)
   bool is_stopped();
-
+  /// @brief give acces to history_list_widget used in PythonCodeContainer to retrieve history from drag and drop
   const QListWidget* get_history_list_widget();
 protected:
-  /// @brief called at each keys that
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
   void border_click(const QPoint &pos);

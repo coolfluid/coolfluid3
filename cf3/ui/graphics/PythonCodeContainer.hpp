@@ -64,16 +64,25 @@ public:
   /// @brief called by the border area on click event
   virtual void border_click(const QPoint & pos) = 0;
 protected:
-  /// @brief Send the python code fragment
+  /// @brief Send the python code fragment to the script engine
   void register_fragment(QString code,int block_number,QVector<int> break_point);
+  /// @brief Send a toggle break command to the script engine
   void toggle_break_point(int fragment_block, int line_number,bool send=true);
+  /// @brief manage some typing behaviour then call key_press_event to propagate the event to the inherited class
   void keyPressEvent(QKeyEvent *e);
+  /// @brief repaint the border area
   void resizeEvent(QResizeEvent *e);
+  /// @brief start a timer when the mouse is on a word, the timer will make a request_documentation for this word
   void mouseMoveEvent(QMouseEvent *e);
+  /// @brief stop the documentation timer
   void leaveEvent(QEvent *);
+  /// @brief allow to drop text mimeData and QListWidgetItem mimeData
   bool canInsertFromMimeData(const QMimeData *source) const;
+  /// @brief call insert_text with the extracted mimeData
   void insertFromMimeData(const QMimeData *source);
+  /// @brief call after the the common text
   virtual void key_press_event(QKeyEvent *e) = 0;
+  /// @brief allow the console to known when execute a inputed code
   virtual void new_line(int indent_number){}
   virtual bool editable_zone(const QTextCursor &cursor) = 0;
   virtual void insert_text(const QString & text) = 0;
