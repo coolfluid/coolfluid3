@@ -23,6 +23,7 @@
 #include <QVBoxLayout>
 #include <QTreeView>
 #include <QProxyStyle>
+#include <QListWidget>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +72,7 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
             , this,SLOT(display_debug_trace(int,int)));
     //connect(core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(di)
   }
+  setAcceptDrops(true);
   highlighter=new PythonSyntaxeHighlighter(document());
   setFont(QFont("Monospace"));
   border_width=fontMetrics().width(QLatin1Char('>'))*3+20;
@@ -236,7 +238,7 @@ void PythonCodeContainer::resizeEvent(QResizeEvent *e){
 //////////////////////////////////////////////////////////////////////////
 
 void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
-  static QRegExp indent_case("^[^#:]*:");
+  static QRegExp indent_case("^[^#:]*:[ ]*(#[^$]*)?$");
   QTextCursor c=textCursor();
   QTextCursor temp;
   if (editable_zone(c)){
@@ -345,6 +347,37 @@ void PythonCodeContainer::leaveEvent(QEvent *e){
 
 //////////////////////////////////////////////////////////////////////////
 
+bool PythonCodeContainer::canInsertFromMimeData(const QMimeData *source) const{
+  if (source->hasText() || source->hasFormat("application/x-qabstractitemmodeldatalist"))
+    return true;
+  return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonCodeContainer::insertFromMimeData(const QMimeData *source){
+  if (source->hasText())
+    insert_text(source->text());
+  if (source->hasFormat("application/x-qabstractitemmodeldatalist")){
+    QString text;
+    QList<const QListWidgetItem*> sorted_items;
+    foreach (const QListWidgetItem* item, python_console->get_history_list_widget()->selectedItems()){
+      QList<const QListWidgetItem*>::iterator itt=sorted_items.begin();
+      for (;itt != sorted_items.end();itt++){
+        if ((*itt)->type() > item->type())
+          break;
+      }
+      sorted_items.insert(itt,item);
+    }
+    foreach (const QListWidgetItem* item, sorted_items){
+      text.append(item->text()+"\n");
+    }
+    insert_text(text);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void PythonCodeContainer::insert_completion(QString completion){
   QTextCursor cursor=textCursor();
   cursor.insertText(completion.right(completion.length()-completer->completionPrefix().length()));
@@ -367,15 +400,15 @@ void PythonCodeContainer::keywords_changed(const QStringList &add, const QString
     if (sub[i]=="*"){
       python_dictionary.removeRows(0,python_dictionary.rowCount());
     }else{
-      remove_dictionary_item(sub[i],python_dictionary.invisibleRootItem());
+      remove_dictionary_item(sub[i],(CustomStandardItem*)python_dictionary.invisibleRootItem());
     }
   }
   int i=0;
-  add_to_dictionary(i,add,python_dictionary.invisibleRootItem());
+  add_to_dictionary(i,add,(CustomStandardItem*)python_dictionary.invisibleRootItem());
   python_dictionary.sort(0);
 }
 
-void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStandardItem *item){
+void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,CustomStandardItem *item){
   while(i<add.size()){
     QString s=add[i];
     QChar c=s[s.size()-1];
@@ -383,23 +416,22 @@ void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStand
       s.chop(1);
       int two_point=s.indexOf(':');
       QString item_path=s.mid(0,two_point);
-      QStandardItem *n_value;
+      CustomStandardItem *n_value;
       if (two_point != -1)
-        n_value=new QStandardItem(s.mid(two_point+1));
+        n_value=new CustomStandardItem(s.mid(two_point+1));
       else
-        n_value=new QStandardItem("");
-      //n_item->setData(QVariant(s.mid(two_point)),Qt::DisplayRole);
-      QStandardItem *current_item=item;
+        n_value=new CustomStandardItem("");
+      CustomStandardItem *current_item=item;
       QStringList path_list=item_path.split('.');
       for (int j=0;j<path_list.size()-1;j++){
         for (int k=0;k<current_item->rowCount();k++){
-          QStandardItem *n_item=item->child(k);
+          CustomStandardItem *n_item=(CustomStandardItem*)item->child(k);
           if (n_item->text()==path_list[j]){
             current_item=n_item;
           }
         }
       }
-      QStandardItem *n_item=new QStandardItem(path_list.last());
+      CustomStandardItem *n_item=new CustomStandardItem(path_list.last());
       current_item->appendRow(n_item);
       current_item->setChild(n_item->row(),1,n_value);
       i++;
@@ -409,7 +441,7 @@ void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStand
       i++;
       return;
     }else{
-      QStandardItem *n_item=new QStandardItem(s);
+      CustomStandardItem *n_item=new CustomStandardItem(s);
       item->appendRow(n_item);
       i++;
     }
@@ -418,13 +450,13 @@ void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,QStand
 
 //////////////////////////////////////////////////////////////////////////
 
-void PythonCodeContainer::remove_dictionary_item(QString name,QStandardItem* item){
+void PythonCodeContainer::remove_dictionary_item(QString name,CustomStandardItem *item){
   int p=name.indexOf('.');
   if (p > -1){
     QString start=name.mid(0,p);
     QString end=name.mid(p+1);
     for (int i=0;i<item->rowCount();i++){
-      QStandardItem *n_item=item->child(i);
+      CustomStandardItem *n_item=(CustomStandardItem*)item->child(i);
       QString t_str=n_item->text();
       if (t_str.size() && t_str[t_str.size()-1] == '('){
         t_str.chop(1);
@@ -435,7 +467,7 @@ void PythonCodeContainer::remove_dictionary_item(QString name,QStandardItem* ite
     }
   }else{
     for (int i=0;i<item->rowCount();i++){
-      QStandardItem *n_item=item->child(i);
+      CustomStandardItem *n_item=(CustomStandardItem*)item->child(i);
       QString t_str=n_item->text();
       if (t_str.size() && t_str[t_str.size()-1] == '('){
         t_str.chop(1);

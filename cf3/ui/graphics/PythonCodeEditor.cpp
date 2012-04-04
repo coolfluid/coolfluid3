@@ -85,6 +85,12 @@ bool PythonCodeEditor::editable_zone(const QTextCursor &cursor){
 
 ////////////////////////////////////////////////////////////////////////////
 
+void PythonCodeEditor::insert_text(const QString &text){
+  textCursor().insertText(text);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void PythonCodeEditor::execute_immediat(){
   python_console->execute_code(toPlainText(),true,break_points);
 }

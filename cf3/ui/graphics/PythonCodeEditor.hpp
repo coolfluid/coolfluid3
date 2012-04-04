@@ -38,6 +38,7 @@ protected:
   void new_line(int indent_number);
   void border_click(const QPoint &pos);
   bool editable_zone(const QTextCursor &cursor);
+  void insert_text(const QString &text);
 private slots:
   void execute_immediat();
   void execute_stepped();

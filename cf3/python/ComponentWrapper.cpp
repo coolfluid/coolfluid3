@@ -305,16 +305,16 @@ struct SignalWrapper
 
     options.flush();
 
-    CFinfo << "Calling signal " << m_signal->name() << " with arguments: ";
+    CFdebug << "Calling signal " << m_signal->name() << " with arguments: ";
     for(SignalOptions::const_iterator opt = options.begin(); opt != options.end(); ++opt)
-      CFinfo << opt->first << " = " << opt->second->value_str() << ", ";
-    CFinfo << CFendl;//debug
+      CFdebug << opt->first << " = " << opt->second->value_str() << ", ";
+    CFdebug << CFendl;
 
     (*m_signal->signal())(node);
-    CFinfo << node.to_python_script() << CFendl;
+    CFinfo << "node:" << node.to_python_script() << CFendl;
     // Process reply
     SignalFrame reply = node.get_reply();
-    CFinfo << reply.to_python_script() << CFendl;
+    CFinfo << "reply:" << reply.to_python_script() << CFendl;
     if(reply.node.is_valid())
     {
       CFinfo << "valid_reply" << CFendl;

@@ -1,8 +1,7 @@
-import coolfluid as cf
-import sys
+from coolfluid import *
 
-root = cf.Core.root()
-env = cf.Core.environment()
+root = Core.root()
+env = Core.environment()
 
 env.options().configure_option('assertion_backtrace', False)
 env.options().configure_option('exception_backtrace', False)

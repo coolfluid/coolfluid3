@@ -538,9 +538,10 @@ boost::shared_ptr<TSQUAREMATRIX > vector_as_diagonal(boost::shared_ptr<TMATRIX >
   return p;
 }
 
-template<int rows, int cols>
-void matrix_resize_like(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
+template<int rows, int cols,int rows_other, int cols_other>
+void matrix_resize_like(boost::shared_ptr<TMATRIX > self,const TOTHERMATRIX& other){
   (*self).resizeLike(other);
+  (*self)=TMATRIX::Constant(self->rows(),self->cols(),0.0);
 }
 
 template<int rows, int cols>
@@ -936,6 +937,7 @@ void def_common_static(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
 template<int rows, int cols>
 void def_common_dynamic(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
   matrix_class->def("__init__", make_constructor(&realmatrix_init_copy_dyn<rows,cols>));
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,rows,cols>, "resizeLike(other) resize the dynamic RealMatrix or RealVector to the size of other.");
 }
 
 /** @brief these definitions are only applied on a matrix
@@ -1008,7 +1010,6 @@ void def_common_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
   matrix_class->def("__isub__", matrix_scalar_isub<rows,cols>);
   matrix_class->def("__imul__",matrix_scalar_imul<rows,cols>);
   matrix_class->def("__idiv__",matrix_scalar_idiv<rows,cols>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols>);
   matrix_class->def("norm", vector_norm<rows,cols>, "norm() return the squareroot of the sum of the square of all components.");
   matrix_class->def("squaredNorm", vector_squared_norm<rows,cols>, "squaredNorm() return the sum of the square of all components.");
   matrix_class->def("normalized", vector_normalized<rows,cols>, "normalized() return a same sized object where of the components are divided by the norm.");
@@ -1074,6 +1075,10 @@ void def_dynamic_vector(const char* name,const char* doc){
   matrix_class->def("setLinSpaced", dynamic_vector_set_lin_spaced_default<rows,cols>);
   matrix_class->def("resize", vector_resize<rows,cols>, "resize(n) resize the vector to have the size n, all the components of the vectors are set to zero after this operation.");
   matrix_class->def("conservativeResize", vector_conservative_resize<rows,cols>, "conservativeResize(n) resize the vector to have the size n without erasing the common components.");
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,1,cols>);
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,2,cols>);
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,3,cols>);
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,4,cols>);
   matrix_class->def("mul", matrix_by_matrix_left<rows,cols,rows,rows,rows,1>);
   matrix_class->def("mul", matrix_by_matrix_left<rows,cols,4,4,4,1>);
   matrix_class->def("mul", matrix_by_matrix_left<rows,cols,3,3,3,1>);
@@ -1097,7 +1102,6 @@ void def_static_matrix(const char* name,const char* doc){
   matrix_class->def("mul", matrix_by_matrix_right<rows,cols,rows,1,rows,1>);
   matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>);
   matrix_class->def("mul", matrix_by_matrix_right<rows,cols,Eigen::Dynamic,1,rows,1>);
-
   //matrix_class->def("mul", matrix_by_matrix<rows,cols>);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_static<rows,cols>(matrix_class);
@@ -1120,6 +1124,9 @@ void def_dynamic_matrix(const char* name,const char* doc){
   matrix_class->def("setConstant", dynamic_matrix_set_constant_default<rows,cols>);
   matrix_class->def("setRandom", dynamic_matrix_set_random_default<rows,cols>);
   matrix_class->def("resize", matrix_resize<rows,cols>, "resize(row_num,col_num) resize the matrix to have the size (row_num,col_num), after this operation all the components of the matrix are set to zero.");
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,2,2>);
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,3,3>);
+  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,4,4>);
   matrix_class->def("conservativeResize", matrix_conservative_resize<rows,cols>, "conservativeResize(row_num,col_num) resize the matrix to have the size (row_num,col_num) without erasing the commmon components.");
   matrix_class->def("setIdentity", matrix_identity_dynamic<rows,cols>, "setIdentity() fill the components of the matrix to be an identity matrix.");
   matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,rows,cols>);

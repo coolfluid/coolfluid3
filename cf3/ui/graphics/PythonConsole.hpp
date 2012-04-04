@@ -18,6 +18,7 @@
 #include <QQueue>
 #include <QPair>
 #include <QAbstractTableModel>
+#include <QStaticText>
 #include "ui/graphics/PythonCodeContainer.hpp"
 #include "ui/core/NScriptEngine.hpp"
 
@@ -29,6 +30,8 @@ class QHBoxLayout;
 class QTableWidget;
 class QScrollArea;
 class QTabWidget;
+class QListWidget;
+class QListWidgetItem;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +42,11 @@ namespace graphics {
 class ListDebugValues;
 class MainWindow;
 
-/// @brief Python console
+/// @brief The python console send python command to the server in form of python "fragment"
+/// the term "fragment" is used to describe a single python statement wich mean one instruction without tabulation (that instruction may have children instruction)
+/// Example of python fragment:
+/// for i in range(0,5):
+///   print i
 class Graphics_API PythonConsole : public PythonCodeContainer
 {
   Q_OBJECT
@@ -50,12 +57,16 @@ public:
   void create_splitter(QTabWidget *tab_widget);
   /// @brief to check if the console can execute command (like for documentation request)
   bool is_stopped();
+
+  const QListWidget* get_history_list_widget();
 protected:
+  /// @brief called at each keys that
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);
   void border_click(const QPoint &pos);
   bool editable_zone(const QTextCursor &cursor);
   void mousePressEvent(QMouseEvent *e);
+  void insert_text(const QString &text);
 public slots:
   /// @brief parse and append the code to the console
   /// @param code The code to execute, can be a single command or a complete script
@@ -73,6 +84,7 @@ private slots:
   void stream_next_command();
   void push_history_to_script_editor();
   void scope_double_click(const QModelIndex & index);
+  void history_double_click(const QModelIndex & index);
   void cursor_position_changed();
 private:
   /// Index of the block that contains the current prompt
@@ -86,13 +98,7 @@ private:
   void set_input(const QString &);
   void select_input(QTextCursor &);
   void fix_prompt();
-
-  QAction* line_by_line;
-  QAction* stop_continue;
-  QAction* break_action;
-  QStringList history;
-  QString tmp_command;
-  QIcon icon_stop,icon_continue;
+  void add_history_draggable_item(const QString & text);
 
   class python_command{
   public:
@@ -105,6 +111,13 @@ private:
     QVector<int> break_lines;
   };
 
+  QAction* line_by_line;
+  QAction* stop_continue;
+  QAction* break_action;
+  QStringList history;
+  QString tmp_command;
+  QIcon icon_stop,icon_continue;
+
   QQueue<python_command> command_stack;
   QVector<int> temporary_break_points;//store the break points of the input, in order to send them to the server before executing the command.
   QTimer auto_execution_timer;
@@ -116,6 +129,7 @@ private:
   int block_count;
 
   MainWindow *main_window;
+  QListWidget *history_list_widget;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
