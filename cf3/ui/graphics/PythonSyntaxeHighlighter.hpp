@@ -21,7 +21,7 @@ namespace cf3 {
 namespace ui {
 namespace graphics {
 
-/// @brief simple syntaxe high lighter
+/// @brief simple syntaxe highlighter
 class Graphics_API PythonSyntaxeHighlighter
         : public QSyntaxHighlighter
 {

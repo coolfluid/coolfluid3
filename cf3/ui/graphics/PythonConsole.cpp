@@ -23,6 +23,7 @@
 #include <QTreeView>
 #include <QSplitter>
 #include <QTabWidget>
+#include <QListWidget>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,11 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   QAction* history_to_text_editor=new QAction(QIcon(":/Icons/action_new_script_from_history")
                                               ,"Create script from history",this);
   tool_bar->addAction(history_to_text_editor);
+  //history list
+  history_list_widget=new QListWidget(this);
+  history_list_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  history_list_widget->setDragDropMode(QAbstractItemView::DragOnly);
+
   connect(&auto_execution_timer,SIGNAL(timeout()),this,SLOT(stream_next_command()));
   connect(line_by_line,SIGNAL(toggled(bool)),this,SLOT(line_by_line_activated(bool)));
   connect(stop_continue,SIGNAL(triggered()),this,SLOT(stop_continue_pressed()));
@@ -82,10 +88,14 @@ PythonConsole::~PythonConsole(){
 
 void PythonConsole::create_splitter(QTabWidget* tab_widget){
   QSplitter *splitter=new QSplitter(tab_widget);
+  QSplitter *scope_history_splitter=new QSplitter(splitter);
+  scope_history_splitter->addWidget(python_scope_values);
+  scope_history_splitter->addWidget(history_list_widget);
   splitter->addWidget(this);
-  splitter->addWidget(python_scope_values);
+  splitter->addWidget(scope_history_splitter);
   tab_widget->addTab(splitter,"Python Console");
   connect(python_scope_values,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(scope_double_click(QModelIndex)));
+  connect(history_list_widget,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(history_double_click(QModelIndex)));
 }
 
 void PythonConsole::cursor_position_changed(){
@@ -148,6 +158,7 @@ void PythonConsole::key_press_event(QKeyEvent *e){
       if (history_index==history.size()){
         select_input(c);
         tmp_command=c.selectedText();
+        tmp_command.replace(8233,'\n');
       }
       history_index--;
       if (history_index < 0)
@@ -196,6 +207,12 @@ void PythonConsole::key_press_event(QKeyEvent *e){
 
 bool PythonConsole::editable_zone(const QTextCursor &cursor){
   return cursor.anchor() >= input_start_in_text && cursor.position() >= input_start_in_text;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::insert_text(const QString &text){
+  execute_code(text,false,QVector<int>());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -260,24 +277,31 @@ void PythonConsole::border_click(const QPoint &pos){
 void PythonConsole::execute_input(QTextCursor &c){
   select_input(c);
   QString command=c.selectedText();
-  register_fragment(command,input_block,temporary_break_points);
+  command.replace(QChar(8233),'\n');
+  while (command[command.size()-1] == '\n')
+    command.chop(1);
+  if (command.size()){
+    register_fragment(command,input_block,temporary_break_points);
+    history.append(command);
+    add_history_draggable_item(command);
+    history_index=history.size();
+    c.movePosition(QTextCursor::End);
+    input_block=c.blockNumber();
+    input_start_in_text=c.position();
+    //centerCursor();
+    document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
+    if (command_stack.size())
+      auto_execution_timer.start();//to avoid cross call with stream_next_command
+  }else{
+    c.removeSelectedText();
+  }
   temporary_break_points.clear();
-  command.chop(1);
-  history.append(command);
-  history_index=history.size();
-  c.movePosition(QTextCursor::End);
-  input_block=c.blockNumber();
-  input_start_in_text=c.position();
-  //centerCursor();
-  document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
-  if (command_stack.size())
-    auto_execution_timer.start();//to avoid cross call with stream_next_command
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::execute_code(QString code,bool immediate,QVector<int> break_lines){
-  static QRegExp two_points("^[^#:]*:");
+  static QRegExp two_points("^[^#:]*:[ ]*(#[^$]*)?$");
   static QRegExp extend_statement("^[^#:]*(catch|elif|else|finally)[^#:]*:");
   static QRegExp empty_line("^[ \\t]*($|#)");
   QString command;
@@ -352,6 +376,7 @@ void PythonConsole::stream_next_command(){
   }
   setTextCursor(c);
   //centerCursor();
+  fix_prompt();
   if (current_command.imediate){
     execute_input(c);
   }
@@ -529,7 +554,28 @@ void PythonConsole::scope_double_click(const QModelIndex & index){
     command.prepend(item->text()+".");
     item=item->parent();
   }
+
   textCursor().insertText(command);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::add_history_draggable_item(const QString & text){
+  QListWidgetItem* item=new QListWidgetItem(text,history_list_widget,history_list_widget->count());
+  item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
+  history_list_widget->addItem(item);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::history_double_click(const QModelIndex & index){
+  execute_code(history_list_widget->item(index.row())->text(),false,QVector<int>());
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+const QListWidget* PythonConsole::get_history_list_widget(){
+  return history_list_widget;
 }
 
 ////////////////////////////////////////////////////////////////////////////

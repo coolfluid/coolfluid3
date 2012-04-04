@@ -25,7 +25,7 @@ namespace core {
 
 /////////////////////////////////////////////////////////////////////////////
 
-/// @brief
+/// @brief Make the link between ScriptEngine server side and the python console client side
 /// @author Bolsee Vivian.
 
 class Core_API NScriptEngine :
@@ -51,6 +51,7 @@ public:
   /// @return The name of the class.
   virtual QString tool_tip() const;
 
+  /// @brief Acces to the "singelton" instance
   static Handle<NScriptEngine> global();
 
   void execute_line( const QString & line, int fragment_number, QVector<int> break_points);
@@ -71,8 +72,10 @@ public:
   /// @param node Signal node
   void signal_debug_trace(common::SignalArgs & node);
 
+  /// @brief Allow to execute script on the console (used in signal conversion)
   void append_command_to_python_console(std::string & command);
 public slots:
+  /// @brief Called when the client is connected to the server, this allow NScriptEngine to send signal to the server.
   void client_connected();
 
 signals:
@@ -81,10 +84,13 @@ signals:
   /// @param doc_list entry documentation (__doc__ membre)
   void completion_list_received(const QStringList & add,const QStringList & sub);
 
+  /// @brief Send the debug trace to the python console
   void debug_trace_received(int fragment,int line);
 
+  /// @brief Emitted when a documentation string is sent fromthe server.
   void documentation_received(const QString & documentation);
 
+  /// @brief Send a command to execute to the python console
   void execute_code_request(QString);
 
 protected:

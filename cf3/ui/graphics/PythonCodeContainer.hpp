@@ -41,6 +41,7 @@ class BorderArea;
 class DebugArrow;
 class PythonConsole;
 class PythonCompleter;
+class CustomStandardItem;
 
 
 /// @brief This class contains common code for python editors
@@ -70,10 +71,12 @@ protected:
   void resizeEvent(QResizeEvent *e);
   void mouseMoveEvent(QMouseEvent *e);
   void leaveEvent(QEvent *);
+  bool canInsertFromMimeData(const QMimeData *source) const;
+  void insertFromMimeData(const QMimeData *source);
   virtual void key_press_event(QKeyEvent *e) = 0;
   virtual void new_line(int indent_number){}
   virtual bool editable_zone(const QTextCursor &cursor) = 0;
-
+  virtual void insert_text(const QString & text) = 0;
 protected slots:
   void update_border_area(const QRect &,int);
   void keywords_changed(const QStringList &add,const QStringList &sub);
@@ -90,8 +93,8 @@ private:
     QString name;
     QVector<QString> attribute;
   };
-  void add_to_dictionary(int &i,const QStringList &add,QStandardItem *item);
-  void remove_dictionary_item(QString name,QStandardItem* item);
+  void add_to_dictionary(int &i,const QStringList &add,CustomStandardItem* item);
+  void remove_dictionary_item(QString name,CustomStandardItem* item);
   QString get_word_under_cursor(QTextCursor &c);
   PythonSyntaxeHighlighter* highlighter;
   BorderArea *border_area;
@@ -173,6 +176,18 @@ public:
       dataList.prepend(model()->data(i, completionRole()).toString());
     }
     return dataList.join(".");
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Dervied QStandardItem to allow case insensitive sorting
+class CustomStandardItem : public QStandardItem
+{
+public:
+  CustomStandardItem(const QString &text) : QStandardItem(text) {}
+  bool operator< ( const QStandardItem & other ) const{
+    return text().toUpper() < other.text().toUpper();
   }
 };
 

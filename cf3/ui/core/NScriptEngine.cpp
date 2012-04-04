@@ -47,9 +47,20 @@ NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode:
       .pretty_name("").connect(boost::bind(&NScriptEngine::signal_debug_trace, this, _1));
 }
 
+
+///////////////////////////////////////////////////////////////////////////
+
+void NScriptEngine::append_command_to_python_console(std::string & command){
+  emit execute_code_request(QString(command.c_str()));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 QString NScriptEngine::tool_tip() const {
   return this->component_type();
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 Handle< NScriptEngine > NScriptEngine::global() {
   static Handle< NScriptEngine > scr = ThreadManager::instance().tree().root_child<NScriptEngine>(CLIENT_SCRIPT_ENGINE);
@@ -57,11 +68,15 @@ Handle< NScriptEngine > NScriptEngine::global() {
   return scr;
 }
 
+///////////////////////////////////////////////////////////////////////////
+
 void NScriptEngine::signal_documentation(common::SignalArgs & node){
   SignalOptions options(node);
   std::string documentation = options.value<std::string>("text");
   emit documentation_received(QString(documentation.c_str()));
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 void NScriptEngine::signal_completion(common::SignalArgs & node){
   SignalOptions options(node);
@@ -69,6 +84,8 @@ void NScriptEngine::signal_completion(common::SignalArgs & node){
   QStringList sub=std_vector_to_QStringList(options.array<std::string>("sub"));
   emit completion_list_received(add,sub);
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 void NScriptEngine::signal_debug_trace(common::SignalArgs & node){
   SignalOptions options(node);
@@ -139,10 +156,6 @@ QStringList NScriptEngine::std_vector_to_QStringList(std::vector<std::string> ve
     list.push_back(QString(itt->c_str()));
   }
   return list;
-}
-
-void NScriptEngine::append_command_to_python_console(std::string & command){
-  emit execute_code_request(QString(command.c_str()));
 }
 
 } // Core
