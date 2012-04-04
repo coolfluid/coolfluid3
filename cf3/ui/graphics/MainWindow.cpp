@@ -40,6 +40,8 @@
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
+#include "ui/graphics/PythonCodeEditor.hpp"
+#include "ui/graphics/PythonConsole.hpp"
 #include "ui/graphics/SignatureDialog.hpp"
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/graphics/TreeBrowser.hpp"
@@ -86,9 +88,9 @@ MainWindow::MainWindow()
   m_property_model = new PropertyModel();
   m_property_view = new QTableView(m_tab_window);
   m_lab_description = new QLabel(m_tab_window);
+  m_python_console = new PythonConsole(m_tab_window, this);
   m_tree_browser = new TreeBrowser(m_tree_view, this);
   m_scroll_description = new QScrollArea(this);
-
   m_about_cf_dialog = new AboutCFDialog(this);
 
   boost::program_options::options_description desc;
@@ -114,6 +116,7 @@ MainWindow::MainWindow()
   m_tab_window->addTab(m_log_list, "Log");
   m_tab_window->addTab(m_property_view, "Properties");
   m_tab_window->addTab(m_scroll_description, "Description");
+  m_python_console->create_splitter(m_tab_window);
 
   TabBuilder::instance()->addTab(m_central_panel, "Options");
 
@@ -213,6 +216,10 @@ void MainWindow::build_menus()
 
   action = m_mnu_file->addAction("&Run script", this,
                                 SLOT(run_script()), tr("ctrl+shift+R"));
+  m_actions[ACTION_RUN_SCRIPT] = action;
+
+  action = m_mnu_file->addAction("&New python editor", this,
+                                SLOT(new_python_script_editor()), tr("ctrl+shift+R"));
   m_actions[ACTION_RUN_SCRIPT] = action;
 
   m_mnu_file->addSeparator();
@@ -600,6 +607,16 @@ void MainWindow::run_script()
   {
     NLog::global()->add_exception( e.what() );
   }
+}
+
+void MainWindow::new_python_script_editor(){
+    TabBuilder::instance()->addTab(new PythonCodeEditor(this), "Python editor");
+}
+
+PythonCodeEditor* MainWindow::create_new_python_editor(){
+  PythonCodeEditor *editor=new PythonCodeEditor(this);
+  TabBuilder::instance()->addTab(editor, "Python editor");
+  return editor;
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@ NLog.hpp
 NRemoteFSBrowser.hpp
 NRoot.hpp
 NTree.hpp
+NScriptEngine.hpp
 PropertyModel.hpp
 RemoteDispatcher.hpp
 TreeNode.hpp
@@ -62,6 +63,8 @@ NRoot.cpp
 NRoot.hpp
 NTree.cpp
 NTree.hpp
+NScriptEngine.cpp
+NScriptEngine.hpp
 PropertyModel.cpp
 PropertyModel.hpp
 RemoteDispatcher.cpp

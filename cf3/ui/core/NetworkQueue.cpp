@@ -20,6 +20,7 @@
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 
+#include "ui/core/NScriptEngine.hpp"
 #include "ui/core/NetworkThread.hpp"
 #include "ui/core/NLog.hpp"
 
@@ -29,6 +30,7 @@
 #include "ui/uicommon/ComponentNames.hpp"
 
 #include "ui/core/NetworkQueue.hpp"
+
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -83,17 +85,20 @@ QString NetworkQueue::tool_tip() const
 Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
 {
   Transaction * transaction = nullptr;
-
-  if( priority == IMMEDIATE )
-    ThreadManager::instance().network().send( args );
-  else
-  {
-    QString uuid = start_transaction();
-    transaction = m_new_transactions[uuid];
-    add_to_transaction( uuid, args );
-    insert_transaction( uuid, priority );
+  std::string python_repr=args.to_python_script();
+  if (python_repr.size()){
+    NScriptEngine::global().get()->append_command_to_python_console(python_repr);
+  }else{
+    if( priority == IMMEDIATE ){
+      ThreadManager::instance().network().send( args );
+    }else
+    {
+      QString uuid = start_transaction();
+      transaction = m_new_transactions[uuid];
+      add_to_transaction( uuid, args );
+      insert_transaction( uuid, priority );
+    }
   }
-
   return transaction;
 }
 

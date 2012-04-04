@@ -47,6 +47,8 @@ namespace graphics {
   class TreeView;
   class AboutCFDialog;
   class TreeBrowser;
+  class PythonConsole;
+  class PythonCodeEditor;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +97,9 @@ namespace graphics {
 
       ACTION_ABOUT_COOLFLuiD,
 
-      ACTION_ABOUT_QT
+      ACTION_ABOUT_QT,
+
+      ACTION_NEW_PYTHON_EDITOR
 
     }; // MainWinActions
 
@@ -111,6 +115,10 @@ namespace graphics {
 
     /// Frees the allocated memory.
     ~MainWindow();
+
+
+    ///
+    PythonCodeEditor* create_new_python_editor();
 
   protected:
     /// @brief Overrides @c QWidget::closeEvent().
@@ -156,6 +164,8 @@ namespace graphics {
     void open_file_remotely();
 
     void run_script();
+
+    void new_python_script_editor();
 
     void new_log_message(const QString & message, uiCommon::LogMessage::Type type);
 
@@ -221,6 +231,9 @@ namespace graphics {
     QTextStream m_log_file;
 
     QSplitter * m_central_splitter;
+
+    /// @brief Simple console to execute python command on the server
+    PythonConsole * m_python_console;
 
     QTabWidget * m_tab_window;
 
