@@ -67,7 +67,7 @@ TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
@@ -145,6 +145,12 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   m_blockcol_size=cp.gid()->size();
   CFdebug << "Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements." << CFendl;
 }
+
+void TrilinosFEVbrMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+{
+  throw common::NotImplemented(FromHere(), "create_blocked is not implemented for TrilinosFEVbrMatrix");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -749,6 +755,13 @@ void TrilinosFEVbrMatrix::print(const std::string& filename, std::ios_base::open
   stream << "ZONE T=\"" << type_name() << "::" << name() <<  "\"\n" << std::flush;
   print(stream);
   stream.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosFEVbrMatrix::print_native(ostream& stream)
+{
+  m_mat->Print(stream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

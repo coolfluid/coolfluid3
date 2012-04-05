@@ -27,6 +27,8 @@
 
 namespace cf3 {
 namespace math {
+
+class VariablesDescriptor;
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +50,9 @@ public:
 
   /// Setup sparsity structure
   virtual void create(common::PE::CommPattern& cp, Uint neq) = 0;
+
+  /// Vector is split up keeping entries related to the same variable continuously
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -118,6 +123,9 @@ public:
 
   /// Print to wherever
   virtual void print(std::ostream& stream) = 0;
+  
+  /// Use the native printing functionality of the vector implementation
+  virtual void print_native(std::ostream& stream) = 0;
 
   /// Print to file given by filename
   virtual void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) = 0;

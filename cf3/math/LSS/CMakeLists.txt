@@ -21,6 +21,8 @@ if(CF3_HAVE_TRILINOS)
   list( APPEND coolfluid_math_lss_files
     Trilinos/TrilinosCrsMatrix.hpp
     Trilinos/TrilinosCrsMatrix.cpp
+    Trilinos/TrilinosDetail.hpp
+    Trilinos/TrilinosDetail.cpp
     Trilinos/TrilinosFEVbrMatrix.hpp
     Trilinos/TrilinosFEVbrMatrix.cpp
     Trilinos/TrilinosVector.hpp

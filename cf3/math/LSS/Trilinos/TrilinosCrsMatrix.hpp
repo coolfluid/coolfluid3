@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <Epetra_MpiComm.h>
-#include <Epetra_CrsGraph.h>
 #include <Epetra_CrsMatrix.h>
 #include <Teuchos_RCP.hpp>
 
@@ -55,7 +54,8 @@ public:
   TrilinosCrsMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -134,6 +134,8 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
+  
+  void print_native(ostream& stream);
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; }
@@ -173,7 +175,7 @@ private:
   Uint m_neq;
 
   /// number of local elements (rows)
-  Uint m_num_my_elements;
+  int m_num_my_elements;
 
   /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
   std::vector<int> m_p2m;

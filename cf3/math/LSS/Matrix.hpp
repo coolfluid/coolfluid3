@@ -56,7 +56,10 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
+  virtual void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
+  
+  /// Keep the equations for one variable together, forming big subsystems in the global matrix
+  virtual void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -136,6 +139,9 @@ public:
 
   /// Print to file given by filename
   virtual void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) = 0;
+  
+  /// Use the native printing functionality of the matrix implementation
+  virtual void print_native(std::ostream& stream) = 0;
 
   /// Accessor to the state of create
   virtual const bool is_created() = 0;

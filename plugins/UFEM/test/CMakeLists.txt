@@ -82,6 +82,5 @@ coolfluid_add_test( ATEST atest-quadtriag
 coolfluid_add_test( ATEST atest-flatplate2d
                     PYTHON atest-flatplate2d.py
                     ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
-
 endif()
 
