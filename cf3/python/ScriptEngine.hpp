@@ -67,7 +67,7 @@ public: // functions
   static std::string type_name () { return "ScriptEngine"; }
 
   /// @brief Execute the script passed as a string, code fragment is used for traceability
-  void execute_script(std::string script,int code_fragment=-1);
+  int execute_script(std::string script,int code_fragment=-1);
 
   /// @brief Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
@@ -153,6 +153,7 @@ private:
   static int python_close;
   int break_fragment;
   int break_line;
+  int fragment_generator;
   bool stoped;
   boost::mutex compile_mutex;
 }; // ScriptEngine

@@ -24,6 +24,7 @@ namespace graphics {
 class Graphics_API PythonSyntaxeHighlighter
         : public QSyntaxHighlighter
 {
+    Q_OBJECT
 public:
   /// @brief allocate the syntaxe rules on first init
   PythonSyntaxeHighlighter(QTextDocument* parent);

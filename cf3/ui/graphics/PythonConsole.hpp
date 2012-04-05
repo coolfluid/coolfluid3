@@ -12,9 +12,12 @@
 
 #include <QStringList>
 #include <QQueue>
+#include <QPainter>
+#include <QListWidget>
 #include "ui/graphics/PythonCodeContainer.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
+#include <iostream>
 
 class QToolBar;
 class QStringListModel;
@@ -22,7 +25,6 @@ class QHBoxLayout;
 class QTableWidget;
 class QScrollArea;
 class QTabWidget;
-class QListWidget;
 class QListWidgetItem;
 class QWidget;
 class QKeyEvent;
@@ -35,6 +37,7 @@ namespace graphics {
 
 class ListDebugValues;
 class MainWindow;
+class CustomListWidget;
 
 /// @brief The python console send python command to the server in form of python "fragment"
 /// the term "fragment" is used to describe a single python statement wich mean one instruction without tabulation (that instruction may have children instruction)
@@ -124,7 +127,29 @@ private:
   int block_count;
 
   MainWindow *main_window;
-  QListWidget *history_list_widget;
+  CustomListWidget *history_list_widget;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class CustomListWidget : public QListWidget {
+public:
+  CustomListWidget(QWidget* parent=0) : QListWidget(parent) {}
+protected:
+  QMimeData* mimeData(const QList<QListWidgetItem *> items) const {
+    //QRect max_rect;
+    //bool first=true;
+    QMimeData* default_data=QListWidget::mimeData(items);
+    /*const QStringList &format_list=default_data->formats();
+    for (int i=0;i<format_list.size();i++){
+      default_data->setData(format_list.at(i),QByteArray());// remove all the data's
+    }*/
+    return default_data;
+  }
+
+  Qt::DropActions	supportedDropActions() const {
+    return Qt::IgnoreAction;
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

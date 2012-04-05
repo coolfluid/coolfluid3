@@ -37,14 +37,21 @@ namespace core {
 NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode::LOCAL_NODE) {
   connected=false;
   regist_signal("documentation")
-      .description("Documentation about a python expression")
-      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_documentation, this, _1));
+      .hidden(true)
+      .pretty_name("documentation signal")
+      .connect(boost::bind(&NScriptEngine::signal_documentation, this, _1));
   regist_signal("completion")
-      .description("Return the avalaibles keywords in Python")
-      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_completion, this, _1));
+      .hidden(true)
+      .pretty_name("completion signal")
+      .connect(boost::bind(&NScriptEngine::signal_completion, this, _1));
   regist_signal("debug_trace")
-      .description("Debugging")
-      .pretty_name("").connect(boost::bind(&NScriptEngine::signal_debug_trace, this, _1));
+      .hidden(true)
+      .pretty_name("debug trace signal")
+      .connect(boost::bind(&NScriptEngine::signal_debug_trace, this, _1));
+  regist_signal("execute_script")// reply signal
+      .hidden(true)
+      .pretty_name("execute script reply")
+      .connect(boost::bind(&NScriptEngine::signal_execute_script_reply, this, _1));
 }
 
 
@@ -90,6 +97,13 @@ void NScriptEngine::signal_completion(common::SignalArgs & node){
 void NScriptEngine::signal_debug_trace(common::SignalArgs & node){
   SignalOptions options(node);
   emit debug_trace_received(options.value<int>("fragment"),options.value<int>("line"));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void NScriptEngine::signal_execute_script_reply(common::SignalArgs & node){
+  SignalOptions options(node);
+  emit change_fragment_request(options.value<int>("fragment"),options.value<int>("new_fragment"));
 }
 
 //////////////////////////////////////////////////////////////////////////////

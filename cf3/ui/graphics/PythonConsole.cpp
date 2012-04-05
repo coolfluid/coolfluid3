@@ -63,7 +63,7 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
                                               ,"Create script from history",this);
   tool_bar->addAction(history_to_text_editor);
   //history list
-  history_list_widget=new QListWidget(this);
+  history_list_widget=new CustomListWidget(this);
   history_list_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
   history_list_widget->setDragDropMode(QAbstractItemView::DragOnly);
 

@@ -1209,6 +1209,6 @@ void def_matrix_types(){
                          "str(vec) return the string representation of the vector, you can also directly call 'print vec' to display the vector\n"
                          "len(vec) return the size of the vector.");
 }
-
+ /// add .array() -> return the same pointer
 } // python
 } // cf3

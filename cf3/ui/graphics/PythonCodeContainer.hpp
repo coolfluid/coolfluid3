@@ -90,6 +90,7 @@ protected slots:
   void keywords_changed(const QStringList &add,const QStringList &sub);
   void insert_completion(QString);
   void display_debug_trace(int fragment,int line);
+  void change_code_fragment(int fragment,int new_fragment);
   void reset_debug_trace();
   void request_documentation();
   void popup_documentation(const QString & documentation);

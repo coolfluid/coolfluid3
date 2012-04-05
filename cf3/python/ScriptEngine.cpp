@@ -16,6 +16,9 @@
 #include "common/OSystem.hpp"
 #include "common/Signal.hpp"
 
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
+
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
@@ -118,6 +121,7 @@ void python_execute_function(){
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
   if (python_close++ == 0){//this class is instancied two times, don't known why
+    fragment_generator=10;
     stoped=false;
     python_should_wake_up=false;
     python_should_break=false;
@@ -171,18 +175,20 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 
 ScriptEngine::~ScriptEngine()
 {
-  if (--python_close == 0){
+  /*if (--python_close == 0){
     Py_Finalize();
-  }
+  }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::execute_script(std::string script,int code_fragment){// must not be called twice at the same time.
+int ScriptEngine::execute_script(std::string script,int code_fragment){
   {
     boost::lock_guard<boost::mutex> lock(python_code_queue_mutex);
     // we compile the received fragment
     std::stringstream ss;
+    if (code_fragment > 0)
+      code_fragment=fragment_generator++;
     ss << code_fragment;
     //CFinfo << python_current_fragment.first.c_str() << CFendl;
     boost::python::handle<> src;
@@ -191,7 +197,7 @@ void ScriptEngine::execute_script(std::string script,int code_fragment){// must 
     else//single input compilation
       src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
     if (NULL != src.get())
-      python_code_queue.push(std::pair<boost::python::handle<>,int>(src,code_fragment));
+        python_code_queue.push(std::pair<boost::python::handle<>,int>(src,code_fragment));
     if (code_fragment){//we don't check errors on internal request (fragment code = 0)
       PyObject *exc,*val,*trb,*obj;
       char* error;
@@ -206,6 +212,7 @@ void ScriptEngine::execute_script(std::string script,int code_fragment){// must 
     }
   }
   python_code_queue_condition.notify_one();
+  return code_fragment;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,9 +415,19 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
       break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
     }
   }
+  int new_fragment=0;
   {
     boost::lock_guard<boost::mutex> lock(compile_mutex);
-    execute_script(code,fragment);
+    new_fragment=execute_script(code,fragment);
+  }
+  if (new_fragment > 0 && fragment != new_fragment){
+    SignalFrame reply=node.create_reply(URI(node.node.attribute_value("sender")));
+    SignalOptions options(reply);
+    options.add_option("fragment", fragment);
+    options.add_option("new_fragment", new_fragment);
+    options.flush();
+    //reply.set_option("fragment",fragment);
+    //reply.set_option("new_fragment",new_fragment);
   }
   //return boost::python::object();
 }

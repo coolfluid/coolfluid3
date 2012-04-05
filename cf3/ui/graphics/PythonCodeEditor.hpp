@@ -32,7 +32,6 @@ class Graphics_API PythonCodeEditor: public PythonCodeContainer
   Q_OBJECT
 public:
   PythonCodeEditor(QWidget *parent = 0);
-  ~PythonCodeEditor();
 protected:
   void key_press_event(QKeyEvent *);
   void new_line(int indent_number);

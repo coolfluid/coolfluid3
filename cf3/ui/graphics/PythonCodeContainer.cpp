@@ -73,6 +73,7 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
             this,SLOT(keywords_changed(QStringList,QStringList)));
     connect(core::NScriptEngine::global().get(), SIGNAL(debug_trace_received(int,int))
             , this,SLOT(display_debug_trace(int,int)));
+    connect(core::NScriptEngine::global().get(),SIGNAL(change_fragment_request(int,int)),this,SLOT(change_code_fragment(int,int)));
     //connect(core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(di)
   }
   setAcceptDrops(true);
@@ -175,6 +176,15 @@ void PythonCodeContainer::reset_debug_trace(){
           python_console->document()->findBlockByNumber(python_console->debug_arrow).position(),1);
     python_console->debug_arrow=-1;
   }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonCodeContainer::change_code_fragment(int fragment,int new_fragment){
+  int block_number=fragment_container.value(fragment);
+  fragment_container.remove(fragment);
+  fragment_container.insert(new_fragment,block_number);
+  blocks_fragment.insert(block_number,new_fragment);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -293,7 +303,7 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         }
         setTextCursor(c);
         new_line(tab_number);
-      }else if (e->modifiers()==Qt::ControlModifier && e->key()==Qt::Key_Space){
+      }else if (e->modifiers()==Qt::AltModifier && e->key()==Qt::Key_Space){
         QString word_under_cursor=get_word_under_cursor(c);
         if (word_under_cursor.length() >= 0){
           setTextCursor(c);

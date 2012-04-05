@@ -70,6 +70,10 @@ public:
   /// @param node Signal node
   void signal_debug_trace(common::SignalArgs & node);
 
+  /// @brief Called after an execute reply to give the real fragment number
+  /// @param node Signal node
+  void signal_execute_script_reply(common::SignalArgs & node);
+
   /// @brief Allow to execute script on the console (used in signal conversion)
   void append_command_to_python_console(std::string & command);
 public slots:
@@ -87,6 +91,9 @@ signals:
 
   /// @brief Emitted when a documentation string is sent fromthe server.
   void documentation_received(const QString & documentation);
+
+  /// @brief Emitted when the server compile a fragment and send the real fragment number, for multi client execution
+  void change_fragment_request(int old_fragment,int new_fragment);
 
   /// @brief Send a command to execute to the python console
   void execute_code_request(QString);
