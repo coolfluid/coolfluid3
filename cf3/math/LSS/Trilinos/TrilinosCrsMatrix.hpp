@@ -4,13 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Math_LSS_TrilinosMatrix_hpp
-#define cf3_Math_LSS_TrilinosMatrix_hpp
+#ifndef cf3_Math_LSS_TrilinosCrsMatrix_hpp
+#define cf3_Math_LSS_TrilinosCrsMatrix_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <Epetra_MpiComm.h>
-#include <Epetra_FEVbrMatrix.h>
+#include <Epetra_CrsGraph.h>
+#include <Epetra_CrsMatrix.h>
 #include <Teuchos_RCP.hpp>
 
 #include "math/LSS/LibLSS.hpp"
@@ -21,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file TrilinosMatrix.hpp definition of LSS::TrilinosMatrix
+  @file TrilinosCrsMatrix.hpp definition of LSS::TrilinosCrsMatrix
   @author Tamas Banyai
 
   It is based on Trilinos's FEVbrMatrix.
@@ -35,14 +36,14 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosMatrix : public LSS::Matrix {
+class LSS_API TrilinosCrsMatrix : public LSS::Matrix {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
   /// name of the type
-  static std::string type_name () { return "TrilinosMatrix"; }
+  static std::string type_name () { return "TrilinosCrsMatrix"; }
 
   /// Accessor to solver type
   const std::string solvertype() { return "Trilinos"; }
@@ -51,10 +52,10 @@ public:
   const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) { return true; }
 
   /// Default constructor
-  TrilinosMatrix(const std::string& name);
+  TrilinosCrsMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -141,10 +142,10 @@ public:
   const Uint neq() { cf3_assert(m_is_created); return m_neq; }
 
   /// Accessor to the number of block rows
-  const Uint blockrow_size() {  cf3_assert(m_is_created); return m_blockrow_size; }
+  const Uint blockrow_size() {  cf3_assert(m_is_created); return m_num_my_elements/neq(); }
 
   /// Accessor to the number of block columns
-  const Uint blockcol_size() {  cf3_assert(m_is_created); return m_blockcol_size; }
+  const Uint blockcol_size() {  cf3_assert(m_is_created); return m_p2m.size()/neq(); }
 
   //@} END MISCELLANEOUS
 
@@ -159,8 +160,8 @@ public:
 
 private:
 
-  /// teuchos style smart pointer wrapping an epetra fevbrmatrix
-  Teuchos::RCP<Epetra_FEVbrMatrix> m_mat;
+  /// teuchos style smart pointer wrapping the matrix
+  Teuchos::RCP<Epetra_CrsMatrix> m_mat;
 
   /// epetra mpi environment
   Epetra_MpiComm m_comm;
@@ -171,18 +172,14 @@ private:
   /// number of equations
   Uint m_neq;
 
-  /// number of block rows
-  Uint m_blockrow_size;
-
-  /// number of block columns
-  Uint m_blockcol_size;
+  /// number of local elements (rows)
+  Uint m_num_my_elements;
 
   /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
   std::vector<int> m_p2m;
 
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
-
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,4 +188,4 @@ private:
 } // namespace math
 } // namespace cf3
 
-#endif // cf3_Math_LSS_TrilinosMatrix_hpp
+#endif // cf3_Math_LSS_TrilinosCrsMatrix_hpp

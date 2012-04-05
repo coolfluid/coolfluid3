@@ -147,7 +147,7 @@ public:
   const bool is_created();
 
   /// Accessor to string option describing the type of the solver
-  const std::string solvertype() { return options().option("solver").value_str(); }
+  const std::string solvertype() { return m_mat->solvertype(); }
 
   //@} END MISCELLANEOUS
 

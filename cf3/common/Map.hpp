@@ -72,25 +72,28 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Map<"+common::class_name<KEY>()+","+common::class_name<DATA>()+">"; }
 
-  /// Reserve memory
+  /// @brief Reserve memory
   /// @param[in] max_size of the map to be set before starting inserting pairs in the  map
   /// @post  the memory corresponding to the given size will be reserved for
   ///        the future insertions
   void reserve (size_t max_size);
 
-  /// Copy a std::map into the Map
+  /// @brief Copy a std::map into the Map
   /// @param[in] map The map to copy
   void copy_std_map (std::map<key_type,data_type>& map);
   
-  /// Insert pair
+  /// @brief Insert pair without any checks if it is already present
+  ///
+  /// This is the recommended way to add entries to the map, if you are
+  /// sure that no entries will be duplicated
   /// @param[in] key   new key to be inserted
   /// @param[in] data  new data to be inserted, corresponding to the given key
   /// @post a new std::pair<KEY, DATA> will be created and pushed back in the map
   /// @post the capacity of the map will increase only if the memory hasn't been
   ///       reserved properly at start up.
-  Uint insert_blindly(const key_type& key, const data_type& data);
+  Uint push_back(const key_type& key, const data_type& data);
 
-  /// Insert pair the same way a std::map would.
+  /// @brief Insert pair the same way a std::map would.
   /// @note WARNING: this will cause a costly std::sort on the internal structure
   ///                if sorting did not happen yet.
   /// @param[in] v   std::pair<KEY,DATA> type to 
@@ -104,7 +107,7 @@ public: // functions
   ///       reserved properly at start up.
   std::pair<iterator,bool> insert(const value_type& v);
 
-  /// Find the iterator matching with the given KEY
+  /// @brief Find the iterator matching with the given KEY
   /// @param[in] key  key to be looked-up
   /// @pre Before using find() the Map has to be sorted with sort_keys()
   ///      This happens automatically
@@ -113,7 +116,7 @@ public: // functions
   ///         if no match is found
   iterator find(const key_type& key);
   
-  /// Find the iterator matching with the given KEY
+  /// @brief Find the iterator matching with the given KEY
   /// @param[in] key  key to be looked-up
   /// @pre Before using find() the Map has to be sorted with sort_keys()
   ///      This cannot happen automatically in this const version
@@ -122,7 +125,7 @@ public: // functions
   ///         if no match is found
   const_iterator find(const key_type& key) const;
   
-  /// Erase the given iterator from the map
+  /// @brief Erase the given iterator from the map
   /// @param[in] itr The iterator to delete
   /// @pre the map must be sorted
   void erase (iterator itr)
@@ -132,7 +135,7 @@ public: // functions
     m_sorted = false;
   }
   
-  /// Erase the entry wit given key from the map
+  /// @brief Erase the entry wit given key from the map
   /// @note WARNING: This operation will call the costly sort_keys() function
   ///                if it the internal structure is not sorted.
   /// @param[in] key The iterator to delete
@@ -147,40 +150,40 @@ public: // functions
     return true;
   }
   
-  /// Check if the given KEY is existing in the Map
+  /// @brief Check if the given KEY is existing in the Map
   /// @param[in] key  key to be looked-up
   /// @pre Before using exists() the CFMap has to be sorted with sort_keys().
   ///      This happens automatically
   /// @return flag to know if key exists
   bool exists(const key_type& key);
   
-  /// Check if the given KEY is existing in the Map
+  /// @brief Check if the given KEY is existing in the Map
   /// @param[in] key  key to be looked-up
   /// @pre before using exists() the CFMap has to be sorted with sort_keys()
   /// @return flag to know if key exists
   bool exists(const key_type& key) const;
 
-  /// Clear the content of the map
+  /// @brief Clear the content of the map
   void clear();
 
-  /// Get the number of pairs already inserted
+  /// @brief Get the number of pairs already inserted
   size_t size() const;
 
-  /// Overloading of the operator"[]" for assignment AND insertion
+  /// @brief Overloading of the operator"[]" for assignment AND insertion
   /// @note WARNING: This procedure will call the costly sort_keys() if the map is not sorted
   /// @param[in] key The key to look for. If the key is not found,
-  ///               it is inserted using insert_blindly().
+  ///               it is inserted using push_back().
   /// @return modifiable data. In case the key did not exist, this will assign the newly created data.
   data_type& operator[] (const key_type& key);
 
-  /// Overloading of the operator"[]" for assignment AND insertion
+  /// @brief Overloading of the operator"[]" for assignment AND insertion
   /// @note WARNING: This procedure will call the costly sort_keys() if the map is not sorted
   /// @param[in] key The key to look for. If the key is not found,
-  ///               it is inserted using insert_blindly().
+  ///               it is inserted using push_back().
   /// @return non-modifiable data for the given key
   const data_type& operator[] (const key_type& key) const;
 
-  /// Sort all the pairs in the map by key
+  /// @brief Sort all the pairs in the map by key
   void sort_keys();
   
   /// @return the iterator pointing at the first element
@@ -214,7 +217,7 @@ private: // nested classes
     ///       their keys
     /// @post sortKeys() uses these function to order the inserted pairs
     bool operator() (const std::pair<KEY,DATA>& p1,
-                       const std::pair<KEY,DATA>& p2) const
+                     const std::pair<KEY,DATA>& p2) const
     {
       return (p1.first < p2.first) ? true : false;
     }
@@ -292,13 +295,13 @@ void Map<KEY,DATA>::copy_std_map (std::map<key_type,data_type>& map)
   typename std::map<key_type,data_type>::iterator itr = map.begin();
   typename std::map<key_type,data_type>::iterator map_end = map.end();
   for(; itr != map_end; ++itr)
-    insert_blindly(itr->first,itr->second);
+    push_back(itr->first,itr->second);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline Uint Map<KEY,DATA>::insert_blindly(const key_type& key, const data_type& data)
+inline Uint Map<KEY,DATA>::push_back(const key_type& key, const data_type& data)
 {
   m_sorted = false;
   m_vectorMap.push_back(value_type(key,data));
@@ -314,7 +317,7 @@ inline std::pair<typename Map<KEY,DATA>::iterator,bool> Map<KEY,DATA>::insert(co
   iterator itr = find(v.first);
   if (itr == end())
   {
-    insert_blindly(v.first,v.second);
+    push_back(v.first,v.second);
     return std::make_pair(find(v.first),true);
   }
   else
@@ -404,7 +407,7 @@ inline typename Map<KEY,DATA>::data_type& Map<KEY,DATA>::operator[] (const key_t
     return itr->second;
   else
   {
-    return m_vectorMap[insert_blindly(key,data_type())].second;
+    return m_vectorMap[push_back(key,data_type())].second;
   }
 }
 

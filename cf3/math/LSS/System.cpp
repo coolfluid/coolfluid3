@@ -19,6 +19,7 @@
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
+#include <common/PropertyList.hpp>
 
 #include "math/LSS/System.hpp"
 #include "math/LSS/Matrix.hpp"
@@ -39,13 +40,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef CF3_HAVE_TRILINOS
-  #include "math/LSS/Trilinos/TrilinosMatrix.hpp"
-  #include "math/LSS/Trilinos/TrilinosVector.hpp"
-#endif // cf3_HAVE_TRILINOS
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
 using namespace cf3;
 using namespace cf3::math;
 
@@ -56,7 +50,13 @@ common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builde
 LSS::System::System(const std::string& name) :
   Component(name)
 {
-  options().add_option( "solver" , "Trilinos" );
+  options().add_option( "matrix_builder" , "cf3.math.LSS.TrilinosFEVbrMatrix")
+    .pretty_name("Matrix Builder")
+    .description("Name for the builder used to create the LSS matrix");
+
+  options().add_option( "vector_builder" , "")
+    .pretty_name("Vector Builder")
+    .description("Name for the builder used for the vectors. If left empty, this is obtained from the vector_type property of the matrix");
 
   regist_signal("print_system")
     .connect(boost::bind( &System::signal_print, this, _1 ))
@@ -73,25 +73,18 @@ LSS::System::System(const std::string& name) :
 
 void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
 {
-
-  if (is_created()) destroy();
-  std::string solvertype=options().option("solver").value_str();
-
-  if (solvertype=="EmptyLSS"){
-      m_mat=create_component<LSS::EmptyLSSMatrix>("Matrix");
-      m_rhs=create_component<LSS::EmptyLSSVector>("RHS");
-      m_sol=create_component<LSS::EmptyLSSVector>("Solution");
-  }
-
-  if (solvertype=="Trilinos"){
-    #ifdef CF3_HAVE_TRILINOS
-    m_mat=create_component<LSS::TrilinosMatrix>("Matrix");
-    m_rhs=create_component<LSS::TrilinosVector>("RHS");
-    m_sol=create_component<LSS::TrilinosVector>("Solution");
-    #else
-      throw common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
-    #endif
-  }
+  if (is_created())
+    destroy();
+  
+  const std::string matrix_builder = options().option("matrix_builder").value_str();
+  m_mat = create_component<LSS::Matrix>("Matrix", matrix_builder);
+  
+  std::string vector_builder = options().option("vector_builder").value_str();
+  if(vector_builder.empty())
+    vector_builder = m_mat->properties().value_str("vector_type");
+  
+  m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
+  m_sol = create_component<LSS::Vector>("Solution", vector_builder);
 
   m_rhs->create(cp,neq);
   m_sol->create(cp,neq);
@@ -115,7 +108,7 @@ void LSS::System::swap(const Handle<LSS::Matrix>& matrix, const Handle<LSS::Vect
   if (m_mat!=matrix) m_mat=matrix;
   if (m_rhs!=rhs) m_rhs=rhs;
   if (m_sol!=solution) m_sol=solution;
-  options().option("solver").change_value(matrix->solvertype());
+  options().option("matrix_builder").change_value(matrix->solvertype());
   } else {
     throw common::NotSupported(FromHere(),"System of '" + matrix->name() + "' x '" + solution->name() + "' = '" + rhs->name() + "' is incompatible." );
   }

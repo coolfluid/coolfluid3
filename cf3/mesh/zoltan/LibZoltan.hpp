@@ -18,7 +18,7 @@
 
 /// Define the macro mesh_zoltan_API
 /// @note build system defines COOLFLUID_ZOLTAN_EXPORTS when compiling zoltan files
-#ifdef COOLFLUID_NEU_EXPORTS
+#ifdef COOLFLUID_ZOLTAN_EXPORTS
 #   define mesh_zoltan_API      CF3_EXPORT_API
 #   define mesh_zoltan_TEMPLATE
 #else

@@ -69,8 +69,8 @@ NavierStokes::NavierStokes(const std::string& name) :
   // For these elements, faster, specialized code exists
   boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> specialized_elements;
 
-  MeshTerm<0, ScalarField> p("Pressure", Tags::solution());
-  MeshTerm<1, VectorField> u("Velocity", Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<0, VectorField> u("Velocity", Tags::solution());
 
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)

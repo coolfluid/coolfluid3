@@ -50,16 +50,10 @@ public:
   virtual const bool is_swappable(const LSS::Vector& solution, const LSS::Vector& rhs) { return true; };
 
   /// Default constructor
-  EmptyLSSMatrix(const std::string& name) :
-    LSS::Matrix(name),
-    m_blockcol_size(0),
-    m_blockrow_size(0),
-    m_neq(0),
-    m_is_created(false)
-  { }
+  EmptyLSSMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
   {
     destroy();
     m_neq=neq;

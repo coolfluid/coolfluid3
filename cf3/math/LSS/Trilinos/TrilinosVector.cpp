@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Assertions.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
@@ -28,6 +29,8 @@
 using namespace cf3;
 using namespace cf3::math;
 using namespace cf3::math::LSS;
+
+common::ComponentBuilder < LSS::TrilinosVector, LSS::Vector, LSS::LibLSS > TrilinosVector_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

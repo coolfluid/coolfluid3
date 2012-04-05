@@ -28,7 +28,7 @@ struct SUPGCoeffs
   /// Reference velocity magnitude
   Real u_ref;
 
-  /// Kinematic viscosity
+  /// Dynamic viscosity
   Real mu;
 
   /// Density

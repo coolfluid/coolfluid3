@@ -7,7 +7,7 @@ list( APPEND coolfluid_mesh_zoltan_files
 
 list( APPEND coolfluid_mesh_zoltan_cflibs coolfluid_mesh )
 list( APPEND coolfluid_mesh_zoltan_libs ${ZOLTAN_LIBRARIES} ${ZOLTAN_EXTRA_LIBRARIES} )
-list( APPEND coolfluid_mesh_zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EXTRA_INCLUDE_DIR} )
+list( APPEND coolfluid_mesh_zoltan_includedirs ${ZOLTAN_INCLUDE_DIRS} ${ZOLTAN_EXTRA_INCLUDE_DIRS} )
 
 set( coolfluid_mesh_zoltan_kernellib TRUE )
 

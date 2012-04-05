@@ -29,10 +29,6 @@ public: // functions
   virtual ~DiscontinuousDictionary();
 
   virtual void create_connectivity_in_space();
-
-protected:
-
-  static std::size_t hash_value(const RealMatrix& coords);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

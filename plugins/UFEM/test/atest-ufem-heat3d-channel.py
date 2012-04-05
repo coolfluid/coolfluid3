@@ -27,7 +27,7 @@ generator.execute()
 
 # lss setup
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
-lss.options().configure_option('solver', 'Trilinos');
+lss.options().configure_option('matrix_builder', 'cf3.math.LSS.TrilinosFEVbrMatrix');
 solver.options().configure_option('lss', lss)
 lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1]);
 

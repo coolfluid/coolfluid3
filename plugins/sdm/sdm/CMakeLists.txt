@@ -37,10 +37,12 @@ list( APPEND coolfluid_sdm_files
   PrepareMesh.cpp
   PrepareMesh.hpp
   Reconstructions.hpp
-  ShapeFunction.hpp
-  ShapeFunction.cpp
   SDSolver.hpp
   SDSolver.cpp
+  SourceTerm.hpp
+  SourceTerm.cpp
+  ShapeFunction.hpp
+  ShapeFunction.cpp
   Tags.hpp
   Tags.cpp
   Term.cpp
@@ -58,6 +60,7 @@ coolfluid_add_library( coolfluid_sdm )
 coolfluid_mark_not_orphan(
 )
 
-add_subdirectory( scalar       )  # library coolfluid_sdm_scalar
-add_subdirectory( navierstokes )  # library coolfluid_sdm_navierstokes
-add_subdirectory( lineuler     )  # library coolfluid_sdm_lineuler
+add_subdirectory( scalar       )                 # library coolfluid_sdm_scalar
+add_subdirectory( navierstokes )                 # library coolfluid_sdm_navierstokes
+add_subdirectory( navierstokesmovingreference )  # library coolfluid_sdm_navierstokesmovingreference
+add_subdirectory( lineuler     )                 # library coolfluid_sdm_lineuler

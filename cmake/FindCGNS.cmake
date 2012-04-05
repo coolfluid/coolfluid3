@@ -4,7 +4,7 @@
 # Needs environmental variables
 #   CGNS_HOME
 # Sets
-#   CGNS_INCLUDE_DIR
+#   CGNS_INCLUDE_DIRS
 #   CGNS_LIBRARIES
 #   CF3_HAVE_CGNS
 #
@@ -17,8 +17,8 @@ option( CF3_SKIP_CGNS "Skip search for CGNS library" OFF )
     coolfluid_add_trial_include_path( ${CGNS_HOME}/include )
     coolfluid_add_trial_include_path( $ENV{CGNS_HOME}/include )
 
-    find_path( CGNS_INCLUDE_DIR cgnslib.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
-    find_path( CGNS_INCLUDE_DIR cgnslib.h )
+    find_path( CGNS_INCLUDE_DIRS cgnslib.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
+    find_path( CGNS_INCLUDE_DIRS cgnslib.h )
 
     coolfluid_add_trial_library_path(${CGNS_HOME}/lib )
     coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
@@ -33,5 +33,9 @@ option( CF3_SKIP_CGNS "Skip search for CGNS library" OFF )
         set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
     endif()
 
-coolfluid_add_package( PACKAGE CGNS DESCRIPTION "CFD General Notation System" URL "http://cgns.sourceforge.net"
-                       VARS CGNS_INCLUDE_DIR CGNS_LIBRARIES )
+coolfluid_set_package( PACKAGE CGNS
+                       DESCRIPTION "CFD General Notation System"
+                       URL "http://cgns.sourceforge.net"
+                       PURPOSE "For CGNS format IO"
+                       TYPE OPTIONAL
+                       VARS CGNS_INCLUDE_DIRS CGNS_LIBRARIES )

@@ -1,5 +1,5 @@
 # Sets:
-# GOOGLEPERFTOOLS_INCLUDE_DIR  = where google/profiler.h can be found
+# GOOGLEPERFTOOLS_INCLUDE_DIRS  = where google/profiler.h can be found
 # GOOGLEPERFTOOLS_LIBRARIES      = the library to link against
 # CF3_HAVE_GOOGLEPERFTOOLS      = set to true after finding the library
 
@@ -11,8 +11,8 @@ option( CF3_SKIP_GOOGLEPERFTOOLS "Skip search for google-perftools" OFF )
   coolfluid_add_trial_include_path( ${GOOGLEPERFTOOLS_ROOT}/include )
   coolfluid_add_trial_include_path( $ENV{GOOGLEPERFTOOLS_ROOT}/include )
 
-  find_path(GOOGLEPERFTOOLS_INCLUDE_DIR google/profiler.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  find_path(GOOGLEPERFTOOLS_INCLUDE_DIR google/profiler.h )
+  find_path(GOOGLEPERFTOOLS_INCLUDE_DIRS google/profiler.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(GOOGLEPERFTOOLS_INCLUDE_DIRS google/profiler.h )
 
   coolfluid_add_trial_library_path(    ${GOOGLEPERFTOOLS_ROOT}/lib )
   coolfluid_add_trial_library_path( $ENV{GOOGLEPERFTOOLS_ROOT}/lib )
@@ -31,9 +31,13 @@ option( CF3_SKIP_GOOGLEPERFTOOLS "Skip search for google-perftools" OFF )
 
   mark_as_advanced( CF3_PPROF_COMMAND CF3_DOT_COMMAND )
 
-coolfluid_add_package( PACKAGE GooglePerftools DESCRIPTION "memory and performance analysis tools" URL "http://code.google.com/p/google-perftools"
+coolfluid_set_package( PACKAGE GooglePerftools
+                       DESCRIPTION "memory and performance analysis tools"
+                       URL "http://code.google.com/p/google-perftools"
+                       TYPE OPTIONAL
                        VARS
-                       GOOGLEPERFTOOLS_INCLUDE_DIR
+                       GOOGLEPERFTOOLS_INCLUDE_DIRS
                        GOOGLEPERFTOOLS_LIBRARIES
                        GOOGLEPERFTOOLS_PROFILER_LIBRARY
-                       GOOGLEPERFTOOLS_TCMALLOC_LIBRARY )
+                       GOOGLEPERFTOOLS_TCMALLOC_LIBRARY
+                       QUIET )

@@ -15,8 +15,8 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 coolfluid_log( " coolfluid configuration summary " )
 coolfluid_log( "---------------------------------------------------------" )
 coolfluid_log( " version & kernel      : [${CF3_VERSION}] @ [${CF3_KERNEL_VERSION}]" )
-if(coolfluid_svn_revision)
-  coolfluid_log( " coolfluid revision    : [${coolfluid_svn_revision}]" )
+if(coolfluid_git_revision_sha)
+  coolfluid_log( " coolfluid revision    : [${coolfluid_git_revision_sha}] @ [${coolfluid_git_revision_date}]" )
 endif()
 coolfluid_log( " hostname & date       : [${CF3_BUILD_HOSTNAME}] @ [${CF3_BUILD_DATE}]" )
 coolfluid_log( " operating system      : [${CMAKE_SYSTEM}] @ [${CF3_OS_BITS}] bits" )
@@ -31,18 +31,25 @@ coolfluid_log( " boost version         : [${Boost_LIB_VERSION}]" )
 
 # print the compiler information ( put to the log file )
 
-coolfluid_log_file( "---------------------------------------------------------" )
-coolfluid_log_file( " compiler id & version : [${CMAKE_CXX_COMPILER_ID} ${CF3_CXX_COMPILER_VERSION}]" )
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " enabled languages     : [${CF3_LANGUAGES}]")
+foreach( lang ${CF3_LANGUAGES} )
+  set(_spaces "          ")
+  if(${lang} STREQUAL "CXX")
+    set(_spaces "        ")
+  elseif(${lang} STREQUAL "Fortran")
+    set(_spaces "    ")
+  endif()
+  coolfluid_log( " ${lang} compiler ${_spaces} : [${CMAKE_${lang}_COMPILER}]" )
+  coolfluid_log_file( " ${lang}  flags         : [${CMAKE_${lang}_FLAGS} ${CMAKE_${lang}_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+  coolfluid_log_file( " ${lang}  link flags    : [${CMAKE_CXX_LINK_FLAGS}]" )
+endforeach()
+
+coolfluid_log( " compiler id & version : [${CMAKE_CXX_COMPILER_ID} ${CF3_CXX_COMPILER_VERSION}]" )
 coolfluid_log_file( " common linker flags   : [${LINK_FLAGS}]" )
 coolfluid_log_file( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
 coolfluid_log_file( " link libraries        : [${LINK_LIBRARIES}]" )
-coolfluid_log( " enabled languages     : [${CF3_LANGUAGES}]")
-foreach( lang ${CF3_LANGUAGES} )
-  coolfluid_log_file( " language ${lang} " )
-  coolfluid_log_file( "    compiler           : [${CMAKE_${lang}_COMPILER}]" )
-  coolfluid_log_file( "    flags              : [${CMAKE_${lang}_FLAGS} ${CMAKE_${lang}_FLAGS_${CMAKE_BUILD_TYPE}}]" )
-  coolfluid_log_file( "    link flags         : [${CMAKE_CXX_LINK_FLAGS}]" )
-endforeach()
+
 
 # print most important build options
 
@@ -50,10 +57,12 @@ coolfluid_log( "---------------------------------------------------------" )
 coolfluid_log( " Documentation         : [${CF3_ENABLE_DOCS}]")
 coolfluid_log( " Unit Tests            : [${CF3_ENABLE_UNIT_TESTS}]")
 coolfluid_log( " Acceptance Tests      : [${CF3_ENABLE_ACCEPTANCE_TESTS}]")
-coolfluid_log( " GUI                   : [${CF3_ENABLE_GUI}]")
+coolfluid_log( " Performance Tests     : [${CF3_ENABLE_PERFORMANCE_TESTS}]")
+coolfluid_log( " GUI                   : [${CF3_HAVE_GUI}]")
+coolfluid_log( " Python                : [${CF3_HAVE_PYTHON}]")
 coolfluid_log( " Sandbox               : [${CF3_ENABLE_SANDBOX}]")
 coolfluid_log( " Code coverage         : [${CF3_ENABLE_CODECOVERAGE}]")
-coolfluid_log( " Explicit Templates    : [${CF3_HAVE_CXX_EXPLICIT_TEMPLATES}]")
+coolfluid_log_file( " Explicit Templates    : [${CF3_HAVE_CXX_EXPLICIT_TEMPLATES}]")
 
 # print install path
 
@@ -107,33 +116,43 @@ coolfluid_log( "")
 
 if( COMMAND feature_summary )
 
-#  feature_summary( WHAT ENABLED_FEATURES
-#                   DESCRIPTION "Enabled Features:"
-#                   VAR CF3_ENABLED_FEATURES )
-#  coolfluid_log( "${CF3_ENABLED_FEATURES}" )
+    # In this case the packages are not shown in enabled features...
+    # Resort to a full summary of enabled features and packages
+#    feature_summary( WHAT ENABLED_FEATURES
+#                     DESCRIPTION " Enabled Features:"
+#                     VAR CF3_ENABLED_FEATURES )
+#    coolfluid_log( "${CF3_ENABLED_FEATURES}" )
 
-  set( list_features "" )
-  set( print_counter 0 )
-  get_property( CF3_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
-  foreach( feature ${CF3_ENABLED_FEATURES})
+    # In this case the packages are added inside the enabled features...
+    # The summary is made by ourself, and is shorter.
+    set( list_features "" )
+    set( print_counter 0 )
+    get_property( CF3_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
+    get_property( CF3_PACKAGES_FOUND  GLOBAL PROPERTY PACKAGES_FOUND )
+    list( APPEND CF3_ENABLED_FEATURES ${CF3_PACKAGES_FOUND})
+    list( REMOVE_DUPLICATES CF3_ENABLED_FEATURES)
 
-    set( list_features "${list_features} ${feature}")
+    foreach( feature ${CF3_ENABLED_FEATURES})
 
-    # break line if necessary
-    math( EXPR print_counter '${print_counter}+1'  )
-    if( print_counter GREATER 5 )
-      set( print_counter 0 )
-      set( list_features "${list_features}\n\t\t " )
-    endif()
+      get_property(_is_quiet GLOBAL PROPERTY _CMAKE_${feature}_QUIET)
+      if(NOT _is_quiet)
 
-  endforeach()
-  coolfluid_log( " Features:    ${list_features}")
-  coolfluid_log( "")
+        set( list_features "${list_features} ${feature}")
 
+        # break line if necessary
+        math( EXPR print_counter '${print_counter}+1'  )
+        if( print_counter GREATER 5 )
+          set( print_counter 0 )
+          set( list_features "${list_features}\n\t\t " )
+        endif()
+      endif(NOT _is_quiet)
+    endforeach()
 
-  feature_summary(WHAT ALL
-                  FILENAME ${PROJECT_LOG_FILE} APPEND)
+    coolfluid_log( " Features:    ${list_features}")
+    coolfluid_log( "")
 
+    feature_summary(WHAT ALL
+                    FILENAME ${PROJECT_LOG_FILE} APPEND)
 endif()
 
 foreach( utest ${CF3_ENABLED_UTESTS} )
