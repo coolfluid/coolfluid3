@@ -88,22 +88,34 @@ protected: // helper functions
     residual   = cresidual;
     wave_speed = cwave_speed;
 
-    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
-    {
-      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
-    }
-
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
     cf3_assert( is_not_null(solution) );
     cf3_assert( is_not_null(residual) );
     cf3_assert( is_not_null(wave_speed) );
+//    cf3_assert( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) );
 
-//    CFinfo << "PPPPPPPPPPPPPP1: " << connectivity->uri().path() << CFendl;
-//    CFinfo << "PPPPPPPPPPPPPP2: " << coordinates->uri().path() << CFendl;
-//    CFinfo << "PPPPPPPPPPPPPP3: " << solution->uri().path() << CFendl;
-//    CFinfo << "PPPPPPPPPPPPPP4: " << residual->uri().path() << CFendl;
-//    CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed->uri().path() << CFendl;
+    if( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) )
+    {
+      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>();
+      cf3_assert( is_not_null(space) );
+      connectivity = space->connectivity().handle<mesh::Connectivity>();
+      coordinates  = space->dict().coordinates().handle<mesh::Field>();
+    }
+
+//    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+//    {
+//      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+//    }
+
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
+
+    CFinfo << "PPPPPPPPPPPPPP1: " << connectivity->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPP2: " << coordinates->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPP3: " << solution->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPP4: " << residual->uri().path() << CFendl;
+    CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed->uri().path() << CFendl;
   }
 
 protected: // typedefs

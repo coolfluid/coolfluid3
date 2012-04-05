@@ -100,10 +100,29 @@ protected: // helper functions
     dual_area  = fields->get_child(RDM::Tags::dual_area())->handle<mesh::Field>();
     coordinates = fields->get_child(mesh::Tags::coordinates())->handle<mesh::Field>();
 
-    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+    CFinfo << elements().tree() << CFendl;
+
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(solution) );
+//    cf3_assert( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) );
+
+
+    if( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) )
     {
-      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>();
+      cf3_assert( is_not_null(space) );
+      connectivity = space->connectivity().handle<mesh::Connectivity>();
+      coordinates  = space->dict().coordinates().handle<mesh::Field>();
     }
+
+//    connectivity =elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>()->connectivity();
+//    coordinates = elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>()->dict().coord();
+
+//    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+//    {
+//      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+//    }
 
     //CFinfo << "CONNN: " << connectivity->uri().path() << CFendl;
     //CFinfo << "COORD: " << coordinates->uri().path() << CFendl;
