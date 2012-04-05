@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create or read the mesh
 
-#define GEN
+#define GMSH
 
 #ifdef GEN
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #endif
 
 #ifdef NEU
-  Handle< MeshReader > meshreader =
+  boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
   Mesh& mesh = *mesh_ptr;
@@ -118,22 +118,31 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #endif
 
 #ifdef GMSH
-  Handle< MeshReader > meshreader =
+  boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
-  Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  Handle< Mesh > mesh_ptr = Core::instance().root().create_component<Mesh>("mesh");
+  meshreader->options().configure_option("mesh",mesh_ptr);
+  meshreader->options().configure_option("file",URI("../../resources/rectangle-tg-p1.msh"));
+  meshreader->execute();
   Mesh& mesh = *mesh_ptr;
-  Core::instance().root().add_component(mesh_ptr):
+
+  boost::shared_ptr< MeshWriter > mesh_writer =
+      build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","msh_writer");
+
+//  mesh_writer->options().configure_option("fields",fields);
+  mesh_writer->options().configure_option("file",URI("parallel_fields.msh"));
+  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  mesh_writer->execute();
+
 #endif
 
 build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);
-
- // Core::instance().tools().get_child("LoadBalancer").as_type<MeshTransformer>().transform(mesh);
 
   // create a field and assign it to the comm pattern
 
   Field& field = mesh.geometry_fields().create_field("node_rank");
 
-  field.parallelize();
+  BOOST_CHECK_NO_THROW( field.parallelize() );
 
   for (Uint n=0; n<field.size(); ++n)
     for (Uint j=0; j<field.row_size(); ++j)

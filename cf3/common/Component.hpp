@@ -175,6 +175,9 @@ public: // functions
   Handle<Component const> access_component_checked ( const URI& path ) const;
 
   /// Get a handle to the component
+  Handle<Component> handle() { return Handle<Component>(shared_from_this()); }
+  Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
+
   template<typename ComponentT>
   Handle<ComponentT> handle() { return Handle<ComponentT>(shared_from_this()); }
   template<typename ComponentT>

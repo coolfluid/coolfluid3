@@ -35,6 +35,7 @@ public:
   static const char * global_elem_indices ();
   static const char * global_node_indices ();
   static const char * global_indices ();
+  static const char * map_global_to_local ();
 
   static const char * cell_entity ();
   static const char * face_entity ();

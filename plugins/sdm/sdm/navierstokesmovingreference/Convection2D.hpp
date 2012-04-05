@@ -205,54 +205,51 @@ public:
 
       // matrix of right eigen vectors R
 
-      Eigen::Matrix<Real, NEQS, NEQS> righteigenvectors, lefteigenvectors;
-      RealVectorNEQS matrixeigenvalues;
-
-      righteigenvectors(0,0) = 1.;
-      righteigenvectors(0,1) = 0.;
-      righteigenvectors(0,2) = ra;
-      righteigenvectors(0,3) = ra;
-      righteigenvectors(1,0) = u;
-      righteigenvectors(1,1) = rho * ny;
-      righteigenvectors(1,2) = ra*(u + a*nx);
-      righteigenvectors(1,3) = ra*(u - a*nx);
-      righteigenvectors(2,0) = v;
-      righteigenvectors(2,1) = -rho*nx;
-      righteigenvectors(2,2) = ra*(v + a*ny);
-      righteigenvectors(2,3) = ra*(v - a*ny);
-      righteigenvectors(3,0) = 0.5 * uuvv;
-      righteigenvectors(3,1) = rho * (u*ny - v*nx);
-      righteigenvectors(3,2) = ra*(H + a*um);
-      righteigenvectors(3,3) = ra*(H - a*um);
+      right_eigenvectors(0,0) = 1.;
+      right_eigenvectors(0,1) = 0.;
+      right_eigenvectors(0,2) = ra;
+      right_eigenvectors(0,3) = ra;
+      right_eigenvectors(1,0) = u;
+      right_eigenvectors(1,1) = rho * ny;
+      right_eigenvectors(1,2) = ra*(u + a*nx);
+      right_eigenvectors(1,3) = ra*(u - a*nx);
+      right_eigenvectors(2,0) = v;
+      right_eigenvectors(2,1) = -rho*nx;
+      right_eigenvectors(2,2) = ra*(v + a*ny);
+      right_eigenvectors(2,3) = ra*(v - a*ny);
+      right_eigenvectors(3,0) = 0.5 * uuvv;
+      right_eigenvectors(3,1) = rho * (u*ny - v*nx);
+      right_eigenvectors(3,2) = ra*(H + a*um);
+      right_eigenvectors(3,3) = ra*(H - a*um);
 
       // matrix of left eigen vectors L = R.inverse();
 
-      lefteigenvectors(0,0) = 1.- coeffM2;
-      lefteigenvectors(0,1) = uDivA*inv_a;
-      lefteigenvectors(0,2) = vDivA*inv_a;
-      lefteigenvectors(0,3) = -gamma_minus_1 * inv_a2;
-      lefteigenvectors(1,0) = inv_rho * (v*nx - u*ny);
-      lefteigenvectors(1,1) = inv_rho * ny;
-      lefteigenvectors(1,2) = -inv_rho * nx;
-      lefteigenvectors(1,3) = 0.0;
-      lefteigenvectors(2,0) = a*inv_rho * (coeffM2 - um*inv_a);
-      lefteigenvectors(2,1) = inv_rho * (nx - uDivA);
-      lefteigenvectors(2,2) = inv_rho * (ny - vDivA);
-      lefteigenvectors(2,3) = gm1_ov_rhoa;
-      lefteigenvectors(3,0) = a*inv_rho*(coeffM2 + um*inv_a);
-      lefteigenvectors(3,1) = -inv_rho*(nx + uDivA);
-      lefteigenvectors(3,2) = -inv_rho*(ny + vDivA);
-      lefteigenvectors(3,3) = gm1_ov_rhoa;
+      left_eigenvectors(0,0) = 1.- coeffM2;
+      left_eigenvectors(0,1) = uDivA*inv_a;
+      left_eigenvectors(0,2) = vDivA*inv_a;
+      left_eigenvectors(0,3) = -gamma_minus_1 * inv_a2;
+      left_eigenvectors(1,0) = inv_rho * (v*nx - u*ny);
+      left_eigenvectors(1,1) = inv_rho * ny;
+      left_eigenvectors(1,2) = -inv_rho * nx;
+      left_eigenvectors(1,3) = 0.0;
+      left_eigenvectors(2,0) = a*inv_rho * (coeffM2 - um*inv_a);
+      left_eigenvectors(2,1) = inv_rho * (nx - uDivA);
+      left_eigenvectors(2,2) = inv_rho * (ny - vDivA);
+      left_eigenvectors(2,3) = gm1_ov_rhoa;
+      left_eigenvectors(3,0) = a*inv_rho*(coeffM2 + um*inv_a);
+      left_eigenvectors(3,1) = -inv_rho*(nx + uDivA);
+      left_eigenvectors(3,2) = -inv_rho*(ny + vDivA);
+      left_eigenvectors(3,3) = gm1_ov_rhoa;
 
       // diagonal matrix of eigen values
 
-      matrixeigenvalues[0] = um;
-      matrixeigenvalues[1] = um;
-      matrixeigenvalues[2] = um + a;
-      matrixeigenvalues[3] = um - a;
+      eigenvalues[0] = um;
+      eigenvalues[1] = um;
+      eigenvalues[2] = um + a;
+      eigenvalues[3] = um - a;
 
       //abs_jacobian nog te definieren
-      abs_jacobian.noalias() = righteigenvectors * matrixeigenvalues.cwiseAbs().asDiagonal() * lefteigenvectors;
+      abs_jacobian.noalias() = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
       // Compute left and right fluxes
       RealVectorNEQS flux_left, flux_right;
@@ -276,7 +273,6 @@ public:
       flux.noalias() = 0.5*(flux_left + flux_right);
       flux.noalias() -= 0.5*abs_jacobian*(right.solution-left.solution);
       wave_speed = eigenvalues.cwiseAbs().maxCoeff();
-
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -74,8 +74,7 @@ public: // functions
   void show_changes();
 
   /// Migrate the elements and nodes to corresponding processors
-  /// @todo this is now virtual because zoltan is used.
-  virtual void migrate();
+  void migrate();
 
   void load_balance ( common::SignalArgs& args );
 
@@ -142,7 +141,7 @@ protected: // data
   /// nodes_to_export[part][loc_node_idx]
   std::vector< std::vector<Uint> >                m_nodes_to_export;
 
-  /// elements_to_export[elements_comp_idx][part][loc_elem_idx]
+  /// elements_to_export[part][elements_comp_idx][loc_elem_idx]
   std::vector< std::vector< std::vector<Uint> > > m_elements_to_export;
 
 private: // data

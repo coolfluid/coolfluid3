@@ -59,107 +59,107 @@ std::ostream& operator<<(std::ostream& os, DynTable<std::string>::ConstRow row)
 
 std::ostream& operator<<(std::ostream& os, const DynTable<bool>& table)
 {
-	if (table.size())
-		os << "\n";
+  if (table.size())
+    os << "\n";
   Uint i=0;
   boost_foreach(DynTable<bool>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		if (row.size() == 0)
-			os << "~";
-		else
-		{
-			boost_foreach(const bool entry, row)
-			os << entry << " ";
-		}
-		os << "\n";
+  {
+    os << "  " << i << ":  ";
+    if (row.size() == 0)
+      os << "~";
+    else
+    {
+      boost_foreach(const bool entry, row)
+      os << entry << " ";
+    }
+    os << "\n";
     ++i;
-	}
-	return os;
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DynTable<Uint>& table)
 {
-	if (table.size())
-		os << "\n";
+  if (table.size())
+    os << "\n";
   Uint i=0;
   boost_foreach(DynTable<Uint>::ConstRow row, table.array())
   {
-		os << "  " << i << ":  ";
-		if (row.size() == 0)
-			os << "~";
-		else
-		{
-			boost_foreach(const Uint entry, row)
-				os << entry << " ";
-		}
-		os << "\n";
+    os << "  " << i << ":  ";
+    if (row.size() == 0)
+      os << "~";
+    else
+    {
+      boost_foreach(const Uint entry, row)
+        os << entry << " ";
+    }
+    os << "\n";
     ++i;
-	}
-	return os;
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DynTable<int>& table)
 {
-	if (table.size())
-		os << "\n";
+  if (table.size())
+    os << "\n";
   Uint i=0;
   boost_foreach(DynTable<int>::ConstRow row, table.array())
   {
-		os << "  " << i << ":  ";
-		if (row.size() == 0)
-			os << "~";
-		else
-		{
-			boost_foreach(const int entry, row)
-				os << entry << " ";
-		}
-		os << "\n";
+    os << "  " << i << ":  ";
+    if (row.size() == 0)
+      os << "~";
+    else
+    {
+      boost_foreach(const int entry, row)
+        os << entry << " ";
+    }
+    os << "\n";
     ++i;
-	}
-	return os;
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DynTable<Real>& table)
 {
-	if (table.size())
-		os << "\n";
+  if (table.size())
+    os << "\n";
   Uint i=0;
   boost_foreach(DynTable<Real>::ConstRow row, table.array())
   {
-		os << "  " << i << ":  ";
-		if (row.size() == 0)
-			os << "~";
-		else
-		{
-			boost_foreach(const Real& entry, row)
-				os << entry << " ";
-		}
-		os << "\n";
+    os << "  " << i << ":  ";
+    if (row.size() == 0)
+      os << "~";
+    else
+    {
+      boost_foreach(const Real& entry, row)
+        os << entry << " ";
+    }
+    os << "\n";
     ++i;
-	}
-	return os;
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const DynTable<std::string>& table)
 {
-	if (table.size())
-		os << "\n";
+  if (table.size())
+    os << "\n";
   Uint i=0;
   boost_foreach(DynTable<std::string>::ConstRow row, table.array())
   {
-		os << "  " << i << ":  ";
-		if (row.size() == 0)
-			os << "~";
-		else
-		{
-			boost_foreach(const std::string& entry, row)
-				os << entry << " ";
-		}
-		os << "\n";
+    os << "  " << i << ":  ";
+    if (row.size() == 0)
+      os << "~";
+    else
+    {
+      boost_foreach(const std::string& entry, row)
+        os << entry << " ";
+    }
+    os << "\n";
     ++i;
-	}
-	return os;
+  }
+  return os;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

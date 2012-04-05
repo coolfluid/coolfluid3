@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
   Core::instance().environment().options().configure_option("regist_signal_handlers",true);
 }
 
@@ -85,10 +85,13 @@ BOOST_AUTO_TEST_CASE( test )
   // Generate a mesh
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("mesh");
   boost::shared_ptr< MeshGenerator > generate_mesh = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","meshgenerator");
-  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,100));
+  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,400));
   generate_mesh->options().configure_option("lengths",std::vector<Real>(dim,2.));
   generate_mesh->options().configure_option("mesh",mesh->uri());
+  generate_mesh->options().configure_option("bdry",false);
   generate_mesh->execute();
+
+  PE::Comm::instance().barrier();
 
   // Write a distributed mesh:
   // -  out-utest-mesh-gmsh-parallel_P0.msh
@@ -98,6 +101,7 @@ BOOST_AUTO_TEST_CASE( test )
   write_mesh->options().configure_option("file",URI("out-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
 
+  PE::Comm::instance().barrier();
 
   // Read the two mesh-files created previously
   boost::shared_ptr< MeshReader > read_mesh = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
@@ -111,6 +115,9 @@ BOOST_AUTO_TEST_CASE( test )
     read_mesh->execute();
     CFinfo << "mesh["<<p<<"]: nb_cells = " << meshes[p]->properties().value_str("nb_cells") << CFendl;
     CFinfo << "mesh["<<p<<"]: nb_nodes = " << meshes[p]->properties().value_str("nb_nodes") << CFendl;
+
+    PE::Comm::instance().barrier();
+
   }
 
   // Merge both meshes into one mesh, regions with same name are merged, otherwise added
@@ -119,22 +126,36 @@ BOOST_AUTO_TEST_CASE( test )
   boost_foreach( const Handle<Mesh>& mesh, meshes)
   {
     mesh_merger->merge_mesh(*mesh,*merged_mesh);
+
+    PE::Comm::instance().barrier();
   }
   mesh_merger->fix_ranks(*merged_mesh);
   CFinfo << "merged_mesh: nb_cells = " << merged_mesh->properties().value_str("nb_cells") << CFendl;
   CFinfo << "merged_mesh: nb_nodes = " << merged_mesh->properties().value_str("nb_nodes") << CFendl;
+  merged_mesh->geometry_fields().update();
+
+  PE::Comm::instance().barrier();
 
   // Write the merged mesh
+  CFinfo << "Write file \"out-merged-utest-mesh-gmsh-parallel.msh\" " << CFendl;
   write_mesh->options().configure_option("mesh",merged_mesh);
   write_mesh->options().configure_option("file",URI("out-merged-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
 
+  PE::Comm::instance().barrier();
+
   // Loadbalance the merged mesh
   boost::shared_ptr<mesh::actions::LoadBalance> load_balancer = allocate_component<mesh::actions::LoadBalance>("load_balance");
   load_balancer->transform(*merged_mesh);
+  CFinfo << "loadbalanced_mesh: nb_cells = " << merged_mesh->properties().value_str("nb_cells") << CFendl;
+  CFinfo << "loadbalanced_mesh: nb_nodes = " << merged_mesh->properties().value_str("nb_nodes") << CFendl;
+
+  PE::Comm::instance().barrier();
 
   // Write the loadbalanced mesh
+  CFinfo << "Write file \"out-loadbalanced-utest-mesh-gmsh-parallel.msh\" " << CFendl;
   write_mesh->options().configure_option("file",URI("out-loadbalanced-utest-mesh-gmsh-parallel.msh"));
+  write_mesh->options().configure_option("enable_overlap",true);
   write_mesh->execute();
 }
 
