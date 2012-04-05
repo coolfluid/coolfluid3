@@ -129,6 +129,9 @@ public:
   /// Converts this signal to a string in the CF script format
   std::string to_script( int indentation = 0 ) const;
 
+  /// Converts this signal to a string in the CF python script format
+  std::string to_python_script( int indentation = 0 ) const;
+
   /// Flushes internal @c SignalOptions maps.
   void flush_maps();
 
