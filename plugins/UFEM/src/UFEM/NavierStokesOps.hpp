@@ -16,30 +16,13 @@
 #include "solver/actions/Proto/Terminals.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
+#include "NavierStokesPhysics.hpp"
+
 namespace cf3 {
 
 namespace UFEM {
 
-class LinearSolverUnsteady;
-
-/// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
-struct SUPGCoeffs
-{
-  /// Reference velocity magnitude
-  Real u_ref;
-
-  /// Dynamic viscosity
-  Real mu;
-
-  /// Density
-  Real rho;
-
-  /// Inverse density
-  Real one_over_rho;
-
-  /// Model coefficients
-  Real tau_ps, tau_su, tau_bulk;
-};
+class LSSActionUnsteady;
 
 /// Helper struct to get the face normals of an element
 template<typename ElementT>
@@ -419,7 +402,7 @@ struct SUPGSpecialized
 static solver::actions::Proto::MakeSFOp<SUPGSpecialized>::type const supg_specialized = {};
 
 /// Precompiled Navier-Stokes assembly expression
-boost::shared_ptr<solver::actions::Proto::Expression> generic_ns_assembly(LinearSolverUnsteady& solver, SUPGCoeffs& coeffs);
+boost::shared_ptr<solver::actions::Proto::Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
 
 } // UFEM
 } // cf3

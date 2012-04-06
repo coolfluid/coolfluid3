@@ -25,8 +25,11 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+
 #include "solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"

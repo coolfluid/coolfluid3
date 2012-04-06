@@ -26,7 +26,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
-#include "LinearSolverUnsteady.hpp"
+#include "LSSActionUnsteady.hpp"
 
 #include "NavierStokesOps.hpp"
 
@@ -35,7 +35,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// solver for scalar transport
-class UFEM_API ScalarAdvection : public LinearSolverUnsteady
+class UFEM_API ScalarAdvection : public LSSActionUnsteady
 {
 public: // functions
 
@@ -47,25 +47,14 @@ public: // functions
   static std::string type_name () { return "ScalarAdvection"; }
 
 private:
-  /// Storage for stabilization coefficients
+  /// Update the copy of the physics coefficients when the physical model changes
+  void trigger_physical_model();
+  
+  /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;
-
-  /// Initial condition for p
-  Real m_p0;
-
-  /// Initial condition for scalar
-  Real m_Phi0;
-
+  
+  /// Scalar diffusivity
   Real m_alpha;
-
-  /// Initial condition for v
-  RealVector m_u0;
-
-  /// Trigger for rho
-  void trigger_rho();
-
-  /// Trigger on initial condition for velocity
-  void trigger_u();
 };
 
 } // UFEM

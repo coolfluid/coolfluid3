@@ -9,6 +9,8 @@
 
 #include "common/ActionDirector.hpp"
 
+#include "mesh/Region.hpp"
+
 #include "solver/LibSolver.hpp"
 
 namespace cf3 {
@@ -68,6 +70,12 @@ protected: // data
   /// time used by this action
   /// @todo eventually removed time from Action
   Handle< solver::Time > m_time;
+  
+  /// regions of the mesh to loop over
+  std::vector< Handle< mesh::Region > > m_loop_regions;
+  
+  /// Called after the regions have been set
+  virtual void on_regions_set();
 
 };
 

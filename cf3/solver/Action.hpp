@@ -27,8 +27,8 @@ class solver_API Action : public common::Action {
 public: // typedefs
 
   /// provider
-  
-  
+
+
 
 public: // functions
 
@@ -74,6 +74,9 @@ protected: // data
 
   /// regions of the mesh to loop over
   std::vector< Handle< mesh::Region > > m_loop_regions;
+
+  /// Called after the regions have been set
+  virtual void on_regions_set();
 
 };
 

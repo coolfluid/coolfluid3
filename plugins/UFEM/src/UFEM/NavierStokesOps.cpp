@@ -14,7 +14,7 @@
 
 #include "solver/Time.hpp"
 
-#include "LinearSolverUnsteady.hpp"
+#include "LSSActionUnsteady.hpp"
 #include "Tags.hpp"
 
 namespace cf3 {
@@ -25,7 +25,7 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-boost::shared_ptr<Expression> generic_ns_assembly(LinearSolverUnsteady& solver, SUPGCoeffs& coeffs)
+boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs)
 {
   // Elements for which no specialized implementation exists
   boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D> generic_elements;
