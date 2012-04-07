@@ -12,8 +12,6 @@ env.options().configure_option('exception_backtrace', False)
 env.options().configure_option('regist_signal_handlers', False)
 env.options().configure_option('log_level', 4)
 
-physics = root.create_component('test','cf3.math.LSS.TrilinosFEVbrMatrix')
-
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()

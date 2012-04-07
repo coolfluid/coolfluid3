@@ -75,7 +75,8 @@ Handle< common::Action > Solver::add_direct_solver(const std::string& builder_na
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle<common::Action> result(create_component(builder_parts.back(), builder_name));
   
-  configure_option_recursively(solver::Tags::physical_model(), m_physics);
+  if(is_not_null(m_physics))
+    configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
 }
 
@@ -103,7 +104,8 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
 
   timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
   
-  configure_option_recursively(solver::Tags::physical_model(), m_physics);
+  if(is_not_null(m_physics))
+    configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
 }
 

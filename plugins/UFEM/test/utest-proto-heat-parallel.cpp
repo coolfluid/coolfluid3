@@ -36,7 +36,8 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "UFEM/LinearSolver.hpp"
+#include "UFEM/LSSAction.hpp"
+#include "UFEM/Solver.hpp"
 #include "UFEM/Tags.hpp"
 
 using namespace cf3;
@@ -94,11 +95,9 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   // Setup a model
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
-
-  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-  lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
-  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
+  
+  Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
@@ -110,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   // add the top-level actions (assembly, BC and solve)
-  solver
+  *lss_action
     << create_proto_action
     (
       "Assembly",
@@ -121,13 +120,13 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
-          solver.system_matrix += _A
+          lss_action->system_matrix += _A
         )
       )
     )
     << bc
     << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-    << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
+    << create_proto_action("Increment", nodes_expression(temperature += lss_action->solution(temperature)))
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
@@ -150,7 +149,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   blocks.partition_blocks(PE::Comm::instance().size(), XX);
   blocks.create_mesh(mesh);
 
-  lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("left", "Temperature", 10.);

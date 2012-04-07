@@ -7,8 +7,7 @@
 #define BOOST_PROTO_MAX_ARITY 10
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
-#include "UFEM/LinearSolver.hpp"
-#include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/LSSActionUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
 #include "UFEM/Tags.hpp"
 
@@ -22,7 +21,7 @@ using namespace solver::actions::Proto;
 
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
-boost::shared_ptr<Expression> stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -51,7 +50,7 @@ boost::shared_ptr<Expression> stokes_artifdiss(LinearSolverUnsteady& solver, SUP
   );
 }
 
-boost::shared_ptr<Expression> stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -82,7 +81,7 @@ boost::shared_ptr<Expression> stokes_pspg(LinearSolverUnsteady& solver, SUPGCoef
   );
 }
 
-boost::shared_ptr<Expression> navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
@@ -113,7 +112,7 @@ boost::shared_ptr<Expression> navier_stokes_pspg(LinearSolverUnsteady& solver, S
   );
 }
 
-boost::shared_ptr<Expression> navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
+boost::shared_ptr<Expression> navier_stokes_supg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());

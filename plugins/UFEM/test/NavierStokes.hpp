@@ -14,21 +14,20 @@
 namespace cf3 {
 namespace UFEM {
 
-class LinearSolverUnsteady;
-class LinearSolver;
+class LSSActionUnsteady;
 class SUPGCoeffs;
 
 /// Assembly for the Stokes equations, stabilized with artificial dissipation
-boost::shared_ptr< solver::actions::Proto::Expression > stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > stokes_artifdiss(LSSActionUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Stokes equations, stabilized with PSPG
-boost::shared_ptr< solver::actions::Proto::Expression > stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Navier-Stokes equations, stabilized with PSPG
-boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs);
 
 /// Assembly for the Navier-Stokes equations, stabilized with SUPG
-boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
+boost::shared_ptr< solver::actions::Proto::Expression > navier_stokes_supg(LSSActionUnsteady& solver, SUPGCoeffs& coefs);
 
 }
 }
