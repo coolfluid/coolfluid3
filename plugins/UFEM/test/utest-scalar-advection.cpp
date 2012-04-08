@@ -39,7 +39,8 @@
 
 #include "mesh/SimpleMeshGenerator.hpp"
 
-#include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/LSSActionUnsteady.hpp"
+#include "UFEM/Solver.hpp"
 #include "UFEM/Tags.hpp"
 
 #include "UFEM/NavierStokesOps.hpp"
@@ -99,11 +100,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup a model
   ModelUnsteady& model = *root.create_component<ModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
-
-  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-  lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
-  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
+  Handle<UFEM::LSSActionUnsteady> lss_action(solver.add_unsteady_solver("cf3.UFEM.LSSActionUnsteady"));
+  Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
   // Proto placeholders
   MeshTerm<0, ScalarField> T("Temperature", UFEM::Tags::solution());
@@ -120,43 +119,16 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
-  // creating time loop
-  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
-  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
-
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   RealVector initial_u(1); initial_u.setConstant(20.);
 
   // add the top-level actions (assembly, BC and solve)
-  solver
-      << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u)))
-      << time_loop;
+  *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u)));
 
-  time_loop
+  *lss_action
     << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
-//    << create_proto_action
-//    (
-//    "Assembly",
-//    elements_expression
-//    (
-//      allowed_elements,
-//      group
-//      (
-//        _A = _0, _T = 0,
-//        UFEM::compute_tau(u_adv, c),
-//       //Gaussian quadrature:
-//       element_quadrature
-//       (
-//         _A(T,T) +=  transpose(N(T)) * u_adv * nabla(N(T)) + c.tau_su * transpose(nabla(N)) * u_adv * u_adv * nabla(N) +  alpha * transpose(nabla(N)) * N,
-//         _T(T,T) +=  transpose(N(T)) * N(T) + c.tau_su * transpose(nabla(T)) * u_adv * N
-//       ),
-//        solver.system_matrix += _A,
-//        solver.system_matrix += _T
-//      )
-//    )
-//  )
     << create_proto_action
        (
          "Assembly",
@@ -169,14 +141,14 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
              UFEM::compute_tau(u_adv, c),
              element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + c.tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
                    _T(T,T) +=  transpose(N(T) + c.tau_su * u_adv * nabla(T)) * N(T) ),
-                   solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-                   solver.system_rhs += -_A * _b
+                   lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
+                   lss_action->system_rhs += -_A * _b
            )
          )
        )
   << bc
   << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-  << create_proto_action("Increment", nodes_expression(T += solver.solution(T)))
+  << create_proto_action("Increment", nodes_expression(T += lss_action->solution(T)))
   << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
   << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << T << "\n"));
 
@@ -192,7 +164,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
 
-  lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("xneg", "Temperature", 1.);

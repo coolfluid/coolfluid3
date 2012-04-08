@@ -123,7 +123,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>(names[i]);
     Domain& domain = model.create_domain("Domain");
     UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
-    Handle<UFEM::LSSActionUnsteady> lss_action(solver.add_direct_solver("cf3.UFEM.LSSActionUnsteady"));
+    Handle<UFEM::LSSActionUnsteady> lss_action(solver.add_unsteady_solver("cf3.UFEM.LSSActionUnsteady"));
+    Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
     time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
@@ -137,26 +138,22 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
     vel_init->set_expression(nodes_expression(u = vel_init->function()));
     vel_init->options().configure_option("value", parabole_functions);
+    
+    *ic << create_proto_action("InitializePressure", nodes_expression(p = 0.)) << vel_init;
 
     // BC
     boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
-
+    
     // build up the solver out of different actions
     *lss_action
-      << create_proto_action("InitializePressure", nodes_expression(p = 0.))
-      << vel_init
-      <<
-      ( // Time loop
-        time_loop
         << create_proto_action("AdvectionVel", nodes_expression(u_adv = u))
         << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
         << create_proto_action("Assembly", factories[i](*lss_action, coefs))
         << bc
         << allocate_component<solver::actions::SolveLSS>("SolveLSS")
         << create_proto_action("IncrementU", nodes_expression(u += lss_action->solution(u)))
-        << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)))
-        << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
-      )
+        << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)));
+    solver
       << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 5e-1)))
       << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 5e-2)))
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
