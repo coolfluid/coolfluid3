@@ -76,6 +76,24 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 }
 
+
+
+BOOST_AUTO_TEST_CASE( sandbox )
+{
+
+  PEProcessSortedExecute(-1,
+  for (Uint pid=0; pid<PE::Comm::instance().size(); ++pid)
+  {
+    const unsigned int procup = (PE::Comm::instance().rank() + pid) %
+                                         PE::Comm::instance().size();
+    const unsigned int procdown = (PE::Comm::instance().size() +
+                                           PE::Comm::instance().rank() - pid) %
+                                           PE::Comm::instance().size();
+
+    std::cout << PERank << procup << " / " << procdown << std::endl;
+  }
+                 )
+}
 ////////////////////////////////////////////////////////////////////////////////
 /*
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )

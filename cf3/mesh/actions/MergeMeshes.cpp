@@ -59,7 +59,7 @@ MergeMeshes::MergeMeshes( const std::string& name )
 
 void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
 {
-//  CFinfo << "merging mesh " << mesh.uri() << CFendl;
+  CFinfo << "merging mesh " << mesh.uri() << CFendl;
   // 1) Initialize nodes
   Uint total_nb_nodes=merged.geometry_fields().size();
   Uint node=total_nb_nodes;
@@ -68,29 +68,25 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
   dimension = std::max(mesh.dimension(),dimension);
 
   merged.initialize_nodes(total_nb_nodes,dimension);
-
-  Handle< Component > found_nodes_glb_2_loc = merged.geometry_fields().get_child("glb_to_loc");
-  Handle< Map<Uint,Uint> > nodes_glb_2_loc_handle;
-  if (found_nodes_glb_2_loc)
-    nodes_glb_2_loc_handle = found_nodes_glb_2_loc->handle< Map<Uint,Uint> >();
-  else
-    nodes_glb_2_loc_handle = merged.geometry_fields().create_component< Map<Uint,Uint> >("glb_to_loc");
-  Map<Uint,Uint>& nodes_glb_2_loc = *nodes_glb_2_loc_handle;
-
+  Map<boost::uint64_t,Uint>& merged_glb_to_loc_comp = *merged.geometry_fields().get_child(mesh::Tags::map_global_to_local())->handle< Map<boost::uint64_t,Uint> >();
+  CFdebug << "  - adding nodes" << CFendl;
   // 2) add all nodes
+
+  //  - copy to std::map for inclusion
+  std::map<boost::uint64_t,Uint> merged_glb_to_loc(merged_glb_to_loc_comp.begin(),merged_glb_to_loc_comp.end());
   for (Uint n=0; n<mesh.geometry_fields().size(); ++n)
   {
-    if (nodes_glb_2_loc.find(mesh.geometry_fields().glb_idx()[n]) == nodes_glb_2_loc.end())
+    if (merged_glb_to_loc.find(mesh.geometry_fields().glb_idx()[n]) == merged_glb_to_loc.end())
     {
       merged.geometry_fields().coordinates()[node] = mesh.geometry_fields().coordinates()[n];
       merged.geometry_fields().glb_idx()[node] = mesh.geometry_fields().glb_idx()[n];
       merged.geometry_fields().rank()[node] = mesh.geometry_fields().rank()[n];
-      nodes_glb_2_loc.push_back(mesh.geometry_fields().glb_idx()[n],node);
+      merged_glb_to_loc[mesh.geometry_fields().glb_idx()[n]] = node;
       ++node;
     }
     else
     {
-      Uint loc_idx = nodes_glb_2_loc[mesh.geometry_fields().glb_idx()[n]];
+      Uint loc_idx = merged_glb_to_loc[mesh.geometry_fields().glb_idx()[n]];
       for (Uint d=0; d<dimension; ++d)
       {
         if (merged.geometry_fields().coordinates()[loc_idx][d] != mesh.geometry_fields().coordinates()[n][d])
@@ -99,7 +95,10 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
     }
   }
 
+  merged_glb_to_loc_comp.copy_std_map(merged_glb_to_loc);
+
   // 3) add all regions and elements
+  CFdebug << "  - adding elements" << CFendl;
   boost_foreach(const Region& mesh_region, find_components_recursively<Region>(mesh.topology()))
   {
     std::string mesh_region_relative_path = mesh_region.uri().path();
@@ -134,9 +133,9 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
       else
         merged_entities = merged_region->create_elements(mesh_region_entities.element_type().derived_type_name(),merged.geometry_fields()).handle<Entities>();
 
-      Connectivity::Buffer merged_connectivity = merged_entities->geometry_space().connectivity().create_buffer();
-      List<Uint>::Buffer merged_rank = merged_entities->rank().create_buffer();
-      List<Uint>::Buffer merged_glb_idx = merged_entities->glb_idx().create_buffer();
+      Connectivity::Buffer merged_connectivity = merged_entities->geometry_space().connectivity().create_buffer(mesh_region_entities.size());
+      List<Uint>::Buffer merged_rank = merged_entities->rank().create_buffer(mesh_region_entities.size());
+      List<Uint>::Buffer merged_glb_idx = merged_entities->glb_idx().create_buffer(mesh_region_entities.size());
 
       Connectivity& mesh_connectivity = mesh_region_entities.geometry_space().connectivity();
       std::vector<Uint> merged_connectivity_row(merged_entities->geometry_space().shape_function().nb_nodes());
@@ -145,7 +144,7 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
       for (Uint e=0; e<nb_elem; ++e)
       {
         for (Uint n=0; n<merged_connectivity_row.size(); ++n)
-          merged_connectivity_row[n] = nodes_glb_2_loc[mesh.geometry_fields().glb_idx()[mesh_connectivity[e][n]]];
+          merged_connectivity_row[n] = merged_glb_to_loc[mesh.geometry_fields().glb_idx()[mesh_connectivity[e][n]]];
         merged_connectivity.add_row(merged_connectivity_row);
 
         merged_rank.add_row(mesh_region_entities.rank()[e]);
@@ -159,6 +158,8 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
   // After merging all meshes, a call to "fix_ranks" must be done.
 
   merged.update_statistics();
+  merged.update_structures();
+
   merged.check_sanity();
 
 }
@@ -167,19 +168,12 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
 
 void MergeMeshes::fix_ranks(Mesh& merged)
 {
-//  CFinfo << "fixing ranks" << CFendl;
+  CFdebug << "MergeMeshes: Fixing ranks" << CFendl;
   ///so recompute ranks
   // Lower cpu's hold all nodes, higher cpu's try to see if lower cpu's have
   // the same node
 
-  Handle< Component > found_nodes_glb_2_loc = merged.geometry_fields().get_child("glb_to_loc");
-  Handle< Map<Uint,Uint> > nodes_glb_2_loc_handle;
-  if (found_nodes_glb_2_loc)
-    nodes_glb_2_loc_handle = found_nodes_glb_2_loc->handle< Map<Uint,Uint> >();
-  else
-    nodes_glb_2_loc_handle = merged.geometry_fields().create_component< Map<Uint,Uint> >("glb_to_loc");
-  Map<Uint,Uint>& nodes_glb_2_loc = *nodes_glb_2_loc_handle;
-
+  Map<boost::uint64_t,Uint>& merged_glb_to_loc = *merged.geometry_fields().get_child(mesh::Tags::map_global_to_local())->handle< Map<boost::uint64_t,Uint> >();
 
   // nodes to send to other cpu's
   std::vector<Uint> glb_nodes(merged.geometry_fields().size());
@@ -207,9 +201,9 @@ void MergeMeshes::fix_ranks(Mesh& merged)
 
       boost_foreach(const Uint glb_node, glb_nodes_from_root)
       {
-        if (nodes_glb_2_loc.find(glb_node) != nodes_glb_2_loc.end())
+        if (merged_glb_to_loc.exists(glb_node))
         {
-          Uint loc_node = nodes_glb_2_loc[glb_node];
+          Uint loc_node = merged_glb_to_loc[glb_node];
 
           // if the rank is yourself, it means that the glb_node has not been found
           // before. Change then the rank to the broacasting cpu.

@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Entity entity(quadRegion,0);
 
 
-  SpaceElement space_elem(quadRegion.space(mesh::Tags::geometry()),0);
+  SpaceElement space_elem(quadRegion.space(nodes),0);
   BOOST_CHECK_EQUAL( space_elem.field_indices()[0] , 0 );
 
   RealMatrix geom_coords  = space_elem.support().get_coordinates();
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   BOOST_CHECK( geom_coords == space_coords );
 
 
-  for(SpaceElement elem(quadRegion.space(mesh::Tags::geometry())); elem.idx<quadRegion.size(); ++elem.idx)
+  for(SpaceElement elem(quadRegion.space(nodes)); elem.idx<quadRegion.size(); ++elem.idx)
   {
     CFinfo << "indices = ";
     boost_foreach(Uint field_idx, elem.field_indices())

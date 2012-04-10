@@ -285,7 +285,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:../../resources/hextet.neu" );
-  files.push_back( "file:../../resources/quadtriag.neu" );
+ // more than 1 file no longer supported
+//  files.push_back( "file:../../resources/quadtriag.neu" );
   options.add_option("location", URI("cpath:/MyDom"));
   options.add_option("files", files);
 

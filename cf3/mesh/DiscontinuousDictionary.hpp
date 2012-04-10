@@ -28,7 +28,9 @@ public: // functions
   /// Virtual destructor
   virtual ~DiscontinuousDictionary();
 
-  virtual void create_connectivity_in_space();
+  virtual void rebuild_spaces_from_geometry();
+
+  virtual void rebuild_node_to_element_connectivity();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
