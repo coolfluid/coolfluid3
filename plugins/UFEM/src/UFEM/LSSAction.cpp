@@ -145,7 +145,7 @@ void LSSAction::on_regions_set()
 
     CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
     
-    m_implementation->m_lss->create(m_loop_regions.front()->geometry_fields().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss->create(common::find_parent_component<mesh::Mesh>(*m_loop_regions.front()).geometry_fields().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
     CFdebug << "Finished creating LSS" << CFendl;
   }
 

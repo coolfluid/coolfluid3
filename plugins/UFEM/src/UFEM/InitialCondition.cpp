@@ -120,7 +120,7 @@ void InitialCondition::execute()
   BOOST_FOREACH(const Handle<Region>& region, m_loop_regions)
   {
     std::vector<Uint> nodes;
-    make_node_list(*region, region->geometry_fields().coordinates(), nodes);
+    make_node_list(*region, common::find_parent_component<mesh::Mesh>(*region).geometry_fields().coordinates(), nodes);
     Field& field = find_field(*region, field_tag);
     BOOST_FOREACH(const Uint node, nodes)
     {
