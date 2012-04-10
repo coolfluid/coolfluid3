@@ -50,10 +50,13 @@ public: // functions
   /// @param builder_names List of builders for the actions to add
   Handle<common::Action> add_unsteady_solver(const std::string& builder_name);
   
-
+  /// Create an initial conditions component
+  Handle<common::ActionDirector> create_initial_conditions();
+  
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);
   void signal_add_unsteady_solver(common::SignalArgs& args);
+  void signal_create_initial_conditions(common::SignalArgs& args);
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);

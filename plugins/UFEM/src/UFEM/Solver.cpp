@@ -55,9 +55,14 @@ Solver::Solver(const std::string& name) :
     
   regist_signal( "add_unsteady_solver" )
     .connect( boost::bind( &Solver::signal_add_unsteady_solver, this, _1 ) )
-    .description("Create a an unsteady solver, solving LSS once every time step")
+    .description("Create an unsteady solver, solving a linear system once every time step")
     .pretty_name("Create Unsteady Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
+    
+  regist_signal( "create_initial_conditions" )
+    .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
+    .description("Create initial conditions.")
+    .pretty_name("Create Initial Conditions");
 }
 
 Solver::~Solver()
@@ -109,6 +114,22 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   return result;
 }
 
+Handle< common::ActionDirector > Solver::create_initial_conditions()
+{
+  Handle<common::ActionDirector> result(get_child("InitialConditions"));
+  if(is_not_null(result))
+  {
+    CFwarn << "InitialConditions were created already, returning handle to previously created component" << CFendl;
+    return result;
+  }
+  
+  result = create_component<InitialConditions>("InitialConditions");
+  if(is_not_null(m_physics))
+    result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
+  
+  return result;
+}
+
 void Solver::signature_add_solver(SignalArgs& args)
 {
   SignalOptions options(args);
@@ -137,6 +158,14 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
   reply_options.add_option("created_component", result->uri());
 }
 
+void Solver::signal_create_initial_conditions(SignalArgs& args)
+{
+  Handle<common::ActionDirector> ic = create_initial_conditions();
+  
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", ic->uri());
+}
 
 void Solver::mesh_loaded(Mesh& mesh)
 {

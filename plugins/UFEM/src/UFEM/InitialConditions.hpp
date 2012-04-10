@@ -7,7 +7,7 @@
 #ifndef cf3_UFEM_InitialConditions_hpp
 #define cf3_UFEM_InitialConditions_hpp
 
-#include "common/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
 #include "solver/Solver.hpp"
@@ -20,7 +20,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// InitialConditions for UFEM problems
-class UFEM_API InitialConditions : public common::ActionDirector
+class UFEM_API InitialConditions : public solver::ActionDirector
 {
 
 public: // functions

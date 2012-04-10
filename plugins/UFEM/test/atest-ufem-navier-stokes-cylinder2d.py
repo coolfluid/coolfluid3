@@ -17,6 +17,11 @@ model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
+
+# Create a component to manage initial conditions
+ic = solver.create_initial_conditions()
+
+# Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
 #Load mesh
@@ -28,10 +33,21 @@ lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2])
 
 u_in = [2., 0.]
 
+# Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
+ic_ns = ic.create_initial_condition('solution')
+# Initial advection velocity and its previous values, using linearized_velocity as tag
+ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
+
+ic_ns.options().configure_option('Velocity', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
+
+
 #initial conditions and properties
 physics.options().configure_option('density', 1000.)
 physics.options().configure_option('dynamic_viscosity', 10.)
-#solver.options().configure_option('initial_velocity', u_in)
 physics.options().configure_option('reference_velocity', u_in[0])
 
 # Boundary conditions

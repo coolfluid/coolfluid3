@@ -41,12 +41,17 @@ using namespace solver;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < InitialConditions, ActionDirector, LibUFEM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, common::ActionDirector, LibUFEM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-InitialConditions::InitialConditions ( const std::string& name ) : ActionDirector ( name )
+InitialConditions::InitialConditions ( const std::string& name ) : solver::ActionDirector ( name )
 {
+  regist_signal( "create_initial_condition" )
+    .connect( boost::bind( &InitialConditions::signal_create_initial_condition, this, _1 ) )
+    .description("Create an initial condition")
+    .pretty_name("Create Initial Condition")
+    .signature( boost::bind ( &InitialConditions::signature_create_initial_condition, this, _1) );
 }
 
 InitialConditions::~InitialConditions()
@@ -57,6 +62,7 @@ Handle<InitialCondition> InitialConditions::create_initial_condition(const std::
 {
   Handle<InitialCondition> ic = create_component<InitialCondition>(tag);
 
+  ic->options().configure_option(solver::Tags::physical_model(), options().option(solver::Tags::physical_model()).value());
   ic->options().configure_option(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   ic->options().configure_option("field_tag", tag);
 
