@@ -10,7 +10,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
-#include "LinearSolver.hpp"
+#include "LSSAction.hpp"
 
 namespace cf3 {
 
@@ -18,15 +18,15 @@ namespace UFEM {
 
 /// Special case of steady FEM problems: only one LSS solve is needed to get the solution of the problem
 /// Useful for i.e. linear heat conduction
-class UFEM_API HeatConductionSteady : public LinearSolver
+class UFEM_API HeatConductionSteady : public LSSAction
 {
 public: // typedefs
 
-  
-  
+
+
 
 public: // functions
-  
+
   /// Contructor
   /// @param name of the component
   HeatConductionSteady ( const std::string& name );

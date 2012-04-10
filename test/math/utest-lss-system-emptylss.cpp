@@ -63,8 +63,8 @@ struct LSSSystem_EmptyLSSFixture
   void build_system()
   {
     sys = common::allocate_component<LSS::System>("system");
-    std::string solvertype("EmptyLSS");
-    sys->options().option("solver").change_value(solvertype);
+    std::string solvertype("cf3.math.LSS.EmptyLSSMatrix");
+    sys->options().option("matrix_builder").change_value(solvertype);
     BOOST_CHECK_EQUAL(sys->is_created(),false);
     sys->create(*cp,4u,conn,startidx);
     ba.resize(2,4);
@@ -251,8 +251,8 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
   build_system();
 
   boost::shared_ptr<LSS::System> sys2 = common::allocate_component<LSS::System>("system2");
-  std::string solvertype("EmptyLSS");
-  sys2->options().option("solver").change_value(solvertype);
+  std::string solvertype("cf3.math.LSS.EmptyLSSMatrix");
+  sys2->options().option("matrix_builder").change_value(solvertype);
   sys2->create(*cp,4u,conn,startidx);
   sys2->matrix()->rename("Matrix2");
   sys2->rhs()->rename("RHS2");

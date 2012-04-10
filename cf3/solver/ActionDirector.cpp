@@ -4,12 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "common/Foreach.hpp"
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionList.hpp"
+#include "common/Signal.hpp"
 
 #include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -51,6 +54,12 @@ ActionDirector::ActionDirector ( const std::string& name ) :
       .pretty_name("Physical Model")
       .mark_basic()
       .link_to(&m_physical_model);
+      
+  std::vector< common::URI > dummy;
+  options().add_option(Tags::regions(), dummy)
+      .description("Regions this action is applied to")
+      .pretty_name("Regions")
+      .attach_trigger ( boost::bind ( &ActionDirector::config_regions,   this ) );
 }
 
 ActionDirector::~ActionDirector() {}
@@ -80,6 +89,45 @@ solver::Solver& ActionDirector::solver()
     throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
   return *m_solver;
+}
+
+void ActionDirector::config_regions()
+{
+  m_loop_regions.clear();
+
+  const std::string regions_option_name("regions"); // for Intel Composer 2011...
+  boost_foreach(const common::URI region_uri, options().option(regions_option_name).value< std::vector<common::URI> >())
+  {
+    Handle<Component> comp;
+    if (region_uri.is_relative())
+    {
+      if ( is_null(m_mesh) )
+        throw common::SetupError(FromHere(), "First configure the mesh");
+      comp = m_mesh->access_component(region_uri);
+    }
+    else
+    {
+      comp = access_component(region_uri);
+    }
+
+    if ( is_null(comp) )
+    {
+      throw common::ValueNotFound ( FromHere(),
+                           "Could not find region with path [" + region_uri.path() +"]" );
+    }
+    Handle< Region > region = comp->handle<Region>();
+    if ( is_not_null(region) )
+      m_loop_regions.push_back( region );
+    else
+      throw common::ValueNotFound ( FromHere(),
+                           "Component [" + region_uri.path() +"] is not of type Region" );
+  }
+  
+  on_regions_set();
+}
+
+void ActionDirector::on_regions_set()
+{
 }
 
 

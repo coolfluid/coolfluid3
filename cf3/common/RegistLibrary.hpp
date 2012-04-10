@@ -11,6 +11,7 @@
 
 #include "common/Core.hpp"
 #include "common/Libraries.hpp"
+#include "common/Log.hpp"
 
 namespace cf3 {
 namespace common {
@@ -25,7 +26,7 @@ struct RegistLibrary
   /// @brief Registers the library LIB in the registry.
   RegistLibrary()
   {
-    //CFinfo << "Library [" << Core::instance().libraries().library<LIB>()->type_name() << "] loaded." << CFendl;
+    CFdebug << "Library [" << Core::instance().libraries().library<LIB>()->type_name() << "] loaded." << CFendl;
 
 //    Core::instance().libraries().library<LIB>()->initiate();
 

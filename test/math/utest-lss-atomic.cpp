@@ -18,9 +18,11 @@
 
 #include "common/Log.hpp"
 #include "math/LSS/System.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 /// @todo remove when finished debugging
 #include "common/PE/debug.hpp"
+#include "common/Environment.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +57,10 @@ struct LSSAtomicFixture
     }
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
+
+    if(m_argc != 2)
+      throw common::ParsingFailed(FromHere(), "Failed to parse command line arguments: expected one argument: builder name for the matrix");
+    matrix_builder = m_argv[1];
   }
 
   /// common tear-down for each test case
@@ -97,6 +103,7 @@ struct LSSAtomicFixture
 
   /// main solver selector
   std::string solvertype;
+  std::string matrix_builder;
 
   /// constructor builds
   int irank;
@@ -128,6 +135,10 @@ BOOST_AUTO_TEST_CASE( init_mpi )
   common::PE::Comm::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
+  common::Core::instance().environment().options().configure_option("log_level", 4u);
+  common::Core::instance().environment().options().configure_option("exception_backtrace", false);
+  common::Core::instance().environment().options().configure_option("exception_outputs", false);
+  //common::PE::wait_for_debugger(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +151,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
   boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
-  sys->options().option("solver").change_value(solvertype);
+  sys->options().option("matrix_builder").change_value(matrix_builder);
   build_system(*sys,cp);
   Handle<LSS::Matrix> mat=sys->matrix();
   BOOST_CHECK_EQUAL(mat->is_created(),true);
@@ -166,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,1.);
-  mat->reset();
+  mat->reset(0.);
   mat->debug_data(rows,cols,vals);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,0.);
 
@@ -238,7 +249,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     ba.indices[2]=8;
     mat->get_values(ba);
 
-  mat->print("test_ba_assembly_" + boost::lexical_cast<std::string>(irank) + ".plt");
+    mat->print("test_ba_assembly_" + boost::lexical_cast<std::string>(irank) + ".plt");
 
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
@@ -336,37 +347,44 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   }
 
   // bc-related: symmetricizing a dirichlet
-  mat->reset(1.);
-  if (irank==0)
+  try
   {
-    mat->set_value(11,4,5.);
-    mat->set_value(11,5,6.);
-    mat->set_value(11,6,7.);
-    mat->set_value(11,7,8.);
-    mat->set_value(11,10,11.);
-    mat->set_value(11,11,12.);
-    mat->set_value(11,12,13.);
-    mat->set_value(11,13,14.);
-    mat->get_column_and_replace_to_zero(5,1,vals);
-    vals[0]+=1.;
-    vals[1]+=2.;
-    vals[2]+=3.;
-    vals[3]+=4.;
-    vals[8]+=9.;
-    vals[9]+=10.;
-    vals[14]+=15.;
-    vals[15]+=16.;
-    for(int i=0; i<vals.size(); i++) BOOST_CHECK_EQUAL(vals[i],(double)(i+1));
-    mat->debug_data(rows,cols,vals);
-    for (int i=0; i<(const int)vals.size(); i++)
+    mat->reset(1.);
+    if (irank==0)
     {
-      if (cols[i]==11)
+      mat->set_value(11,4,5.);
+      mat->set_value(11,5,6.);
+      mat->set_value(11,6,7.);
+      mat->set_value(11,7,8.);
+      mat->set_value(11,10,11.);
+      mat->set_value(11,11,12.);
+      mat->set_value(11,12,13.);
+      mat->set_value(11,13,14.);
+      mat->get_column_and_replace_to_zero(5,1,vals);
+      vals[0]+=1.;
+      vals[1]+=2.;
+      vals[2]+=3.;
+      vals[3]+=4.;
+      vals[8]+=9.;
+      vals[9]+=10.;
+      vals[14]+=15.;
+      vals[15]+=16.;
+      for(int i=0; i<vals.size(); i++) BOOST_CHECK_EQUAL(vals[i],(double)(i+1));
+      mat->debug_data(rows,cols,vals);
+      for (int i=0; i<(const int)vals.size(); i++)
       {
-        BOOST_CHECK_EQUAL(vals[i],0.);
-      } else {
-        BOOST_CHECK_EQUAL(vals[i],1.);
+        if (cols[i]==11)
+        {
+          BOOST_CHECK_EQUAL(vals[i],0.);
+        } else {
+          BOOST_CHECK_EQUAL(vals[i],1.);
+        }
       }
     }
+  }
+  catch(common::NotImplemented&)
+  {
+    CFinfo << "skipping symmetric dirichlet test" << CFendl;
   }
 
   // bc-related: periodicity
@@ -461,7 +479,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
   boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
-  sys->options().option("solver").change_value(solvertype);
+  sys->options().option("matrix_builder").change_value(matrix_builder);
   build_system(*sys,cp);
   Handle<LSS::Vector> sol=sys->solution();
   Handle<LSS::Vector> rhs=sys->rhs();
@@ -588,7 +606,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
   boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
-  sys->options().option("solver").change_value(solvertype);
+  sys->options().option("matrix_builder").change_value(matrix_builder);
   build_system(*sys,cp);
   BOOST_CHECK_EQUAL(sys->is_created(),true);
   BOOST_CHECK_EQUAL(sys->solvertype(),solvertype);
@@ -635,7 +653,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   sys->rhs()->reset(4.);
   if (irank==0)
   {
-    sys->dirichlet(3,1,5.,true);
+    sys->dirichlet(3,1,5.,false);
     sys->matrix()->debug_data(rows,cols,vals);
     for (int i=0; i<vals.size(); i++)
     {
@@ -644,8 +662,14 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
         if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],1.); }
         else { BOOST_CHECK_EQUAL(vals[i],0.); }
       } else {
-        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],0.); }
-        else { BOOST_CHECK_EQUAL(vals[i],2.); }
+        if (cols[i]==7)
+        {
+          //BOOST_CHECK_EQUAL(vals[i],0.); // only works for symmetric Dirichlet BC
+        }
+        else
+        {
+          BOOST_CHECK_EQUAL(vals[i],2.);
+        }
       }
     }
     sys->solution()->debug_data(vals);
@@ -656,10 +680,10 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     }
     sys->rhs()->debug_data(vals);
     for (int i=0; i<4; i++) BOOST_CHECK_EQUAL(vals[i],4.);
-    for (int i=4; i<7; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
+    for (int i=4; i<7; i++) BOOST_CHECK_EQUAL(vals[i],4.);
     for (int i=7; i<8; i++) BOOST_CHECK_EQUAL(vals[i],5.);
     for (int i=8; i<10; i++) BOOST_CHECK_EQUAL(vals[i],4.);
-    for (int i=10; i<14; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
+    for (int i=10; i<14; i++) BOOST_CHECK_EQUAL(vals[i],4.);
     for (int i=14; i<16; i++) BOOST_CHECK_EQUAL(vals[i],4.);
   }
 
@@ -819,7 +843,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
   // test swapping rhs and sol
   boost::shared_ptr<LSS::System> sys2(common::allocate_component<LSS::System>("sys2"));
-  sys->options().option("solver").change_value(solvertype);
+  sys->options().option("matrix_builder").change_value(matrix_builder);
   build_system(*sys2,cp);
   BOOST_CHECK_EQUAL(sys2->is_created(),true);
   BOOST_CHECK_EQUAL(sys2->solvertype(),solvertype);
@@ -842,13 +866,13 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
 BOOST_AUTO_TEST_CASE( solve_system )
 {
-/*
-THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
-A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
-inv(A)*b
-WHICH RESULTS IN GID ORDER:
-*/
+
+// THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+// A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+// b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+// inv(A)*b
+// WHICH RESULTS IN GID ORDER:
+
   std::vector<Real> refvals(0);
   refvals +=
    1.00000000000000e+00,
@@ -896,10 +920,10 @@ WHICH RESULTS IN GID ORDER:
     starting_indices +=  0,2,5,8,11,14,17,19;
   }
   boost::shared_ptr<System> sys(common::allocate_component<System>("sys"));
-  sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
   sys->create(cp,2,node_connectivity,starting_indices);
 
-  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  // write a settings file for trilinos, using GMRES
   if (irank==0)
   {
     std::ofstream trilinos_xml("trilinos_settings.xml");
@@ -909,7 +933,7 @@ WHICH RESULTS IN GID ORDER:
     trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
     trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
     trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
     trilinos_xml << "        </ParameterList>\n";
     trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
     trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
@@ -946,6 +970,129 @@ WHICH RESULTS IN GID ORDER:
   for (int i=0; i<vals.size(); i++)
     if (cp.isUpdatable()[i/neq])
       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( solve_system_blocked )
+{
+
+// THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+// A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+// b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+// inv(A)*b
+// WHICH RESULTS IN GID ORDER:
+
+  try
+  {
+  std::vector<Real> refvals(0);
+  refvals +=
+   1.00000000000000e+00,
+   1.00000000000000e+00,
+  -1.35789473684210e+01,
+  -1.35789473684210e+01,
+  -7.78947368421052e+00,
+  -7.78947368421052e+00,
+   9.68421052631579e+00,
+   9.68421052631579e+00,
+   1.26315789473684e+01,
+   1.26315789473684e+01,
+  -3.36842105263158e+00,
+  -3.36842105263158e+00,
+  -1.43157894736842e+01,
+  -1.43157894736842e+01,
+  -3.78947368421053e+00,
+  -3.78947368421052e+00,
+   1.24210526315789e+01,
+   1.24210526315789e+01,
+   1.00000000000000e+01,
+   1.00000000000000e+01;
+
+  // commpattern
+  if (irank==0)
+  {
+    gid += 0,1,2,3,4;
+    rank_updatable += 0,0,0,0,1;
+  } else {
+    gid += 3,4,5,6,7,8,9;
+    rank_updatable += 0,1,1,1,1,1,1;
+  }
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  cp.insert("gid",gid,1,false);
+  cp.setup(Handle<common::PE::CommWrapper>(cp.get_child("gid")),rank_updatable);
+
+  // lss
+  if (irank==0)
+  {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    starting_indices += 0,2,5,8,11,13;
+  } else {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
+    starting_indices +=  0,2,5,8,11,14,17,19;
+  }
+  boost::shared_ptr<System> sys(common::allocate_component<System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  boost::shared_ptr<math::VariablesDescriptor> vars = common::allocate_component<math::VariablesDescriptor>("vars");
+  vars->options().configure_option("dimension", 1u);
+
+  vars->push_back("var1", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
+  vars->push_back("var2", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
+  sys->create_blocked(cp,*vars,node_connectivity,starting_indices);
+
+  // write a settings file for trilinos, using GMRES
+  if (irank==0)
+  {
+    std::ofstream trilinos_xml("trilinos_settings.xml");
+    trilinos_xml << "<ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
+    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
+    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
+    trilinos_xml << "        </ParameterList>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
+    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    </ParameterList>\n";
+    trilinos_xml << "  </ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+    trilinos_xml << "</ParameterList>\n";
+    trilinos_xml.close();
+  }
+  common::PE::Comm::instance().barrier();
+
+  // set intital values and boundary conditions
+  sys->matrix()->reset(-0.5);
+  sys->solution()->reset(1.);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(10,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,1.);
+    sys->dirichlet(0,1,1.);
+  } else {
+    std::vector<Real> diag(14,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(6,0,10.);
+    sys->dirichlet(6,1,10.);
+  }
+
+  // solve and check
+  sys->solve();
+  std::vector<Real> vals;
+  sys->solution()->debug_data(vals);
+  for (int i=0; i<vals.size(); i++)
+    if (cp.isUpdatable()[i/neq])
+      BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
+  }
+  catch(common::NotImplemented&)
+  {
+    CFinfo << "skipping blocked solve" << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

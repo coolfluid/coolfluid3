@@ -38,9 +38,14 @@ namespace common {
 
     /// sttop profiling
     virtual void stop_profiling() = 0;
-
-    /// define the path of the file where to dump profiling information
-    virtual void set_file_path(const boost::filesystem::path & path) = 0;
+    
+    /// @name SIGNALS
+    //@{
+      
+    void signal_start_profiling(common::SignalArgs& args);
+    void signal_stop_profiling(common::SignalArgs& args);
+      
+    //@} END SIGNALS
 
   }; // class CodeProfiler
 
