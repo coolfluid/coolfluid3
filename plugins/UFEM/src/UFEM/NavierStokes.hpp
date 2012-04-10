@@ -20,15 +20,15 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
-#include "LinearSolverUnsteady.hpp"
-#include "NavierStokesOps.hpp"
+#include "LSSActionUnsteady.hpp"
+#include "NavierStokesPhysics.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
 
 /// solver for the unsteady incompressible Navier-Stokes equations
-class UFEM_API NavierStokes : public LinearSolverUnsteady
+class UFEM_API NavierStokes : public LSSActionUnsteady
 {
 public: // functions
 
@@ -38,22 +38,13 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "NavierStokes"; }
-
+  
 private:
-  /// Storage for stabilization coefficients
+  /// Update the copy of the physics coefficients when the physical model changes
+  void trigger_physical_model();
+  
+  /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;
-
-  /// Initial condition for p
-  Real m_p0;
-
-  /// Initial condition for v
-  RealVector m_u0;
-
-  /// Trigger for rho
-  void trigger_rho();
-
-  /// Trigger on initial condition for velocity
-  void trigger_u();
 };
 
 } // UFEM

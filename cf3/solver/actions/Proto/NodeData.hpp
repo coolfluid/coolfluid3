@@ -22,6 +22,7 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 
 #include "Transforms.hpp"
 

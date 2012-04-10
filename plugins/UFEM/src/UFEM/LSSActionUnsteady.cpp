@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/Option.hpp"
 #include "common/OptionList.hpp"
@@ -16,47 +17,49 @@
 
 #include "solver/Tags.hpp"
 
-#include "LinearSolverUnsteady.hpp"
+#include "LSSActionUnsteady.hpp"
 
 
 namespace cf3 {
 namespace UFEM {
-
+  
 using namespace common;
 
-LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
-  LinearSolver(name)
+common::ComponentBuilder < LSSActionUnsteady, common::ActionDirector, LibUFEM > LSSActionUnsteady_Builder;
+
+LSSActionUnsteady::LSSActionUnsteady(const std::string& name) :
+  LSSAction(name)
 {
   options().add_option(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Component that keeps track of time for this simulation")
-    .attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_time, this))
+    .attach_trigger(boost::bind(&LSSActionUnsteady::trigger_time, this))
     .link_to(&m_time);
 }
 
-LinearSolverUnsteady::~LinearSolverUnsteady()
+LSSActionUnsteady::~LSSActionUnsteady()
 {
 }
 
-Real& LinearSolverUnsteady::invdt()
+Real& LSSActionUnsteady::invdt()
 {
   return m_invdt;
 }
 
-const solver::Time& LinearSolverUnsteady::time() const
+const solver::Time& LSSActionUnsteady::time() const
 {
   return *m_time;
 }
 
-void LinearSolverUnsteady::trigger_time()
+void LSSActionUnsteady::trigger_time()
 {
   if(is_null(m_time))
       return;
-    
-  m_time->options().option("time_step").attach_trigger(boost::bind(&LinearSolverUnsteady::trigger_timestep, this));
+
+  m_time->options().option("time_step").attach_trigger(boost::bind(&LSSActionUnsteady::trigger_timestep, this));
 }
 
-void LinearSolverUnsteady::trigger_timestep()
+void LSSActionUnsteady::trigger_timestep()
 {
   m_invdt = m_time->invdt();
 }

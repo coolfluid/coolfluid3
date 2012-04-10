@@ -16,14 +16,14 @@ endif()
 
 coolfluid_log_file( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
 coolfluid_log_file( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
-if( DEFINED MPI_CXX_LIBRARIES )
+if( MPI_CXX_LIBRARIES )
     coolfluid_log_file( "     MPI_CXX_LIBRARIES      : [${MPI_CXX_LIBRARIES}]")
 endif()
 
 ###############################################################################
 # check that MPI was found
 
-if(MPI_CXX_COMPILER)
+if(MPI_CXX_COMPILER OR MPI_COMPILER)
   set( CF3_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 else()
   if( MPI_CXX_FOUND )

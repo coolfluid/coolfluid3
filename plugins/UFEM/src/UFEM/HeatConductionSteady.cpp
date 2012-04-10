@@ -25,9 +25,9 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < HeatConductionSteady, Solver, LibUFEM > HeatConductionSteady_builder;
+ComponentBuilder < HeatConductionSteady, LSSAction, LibUFEM > HeatConductionSteady_builder;
 
-HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolver(name)
+HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(name)
 {
   MeshTerm<0, ScalarField> temperature("Temperature", Tags::solution());
   MeshTerm<1, ScalarField> heat("Heat", Tags::source_terms());
