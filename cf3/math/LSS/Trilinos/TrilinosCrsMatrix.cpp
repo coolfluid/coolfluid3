@@ -23,10 +23,14 @@
 #include "EpetraExt_VectorIn.h"
 
 // Teko-age includes
-#include "Teko_StratimikosFactory.hpp"
+//#include "Teko_StratimikosFactory.hpp"
 
+#include "Thyra_EpetraLinearOp.hpp"
+#include "Thyra_EpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveBase.hpp"
 #include "Thyra_VectorBase.hpp"
+
+#include "Stratimikos_DefaultLinearSolverBuilder.hpp"
 
 #include "common/Assertions.hpp"
 #include "common/Builder.hpp"
@@ -259,7 +263,7 @@ void TrilinosCrsMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
 
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder;
 
-  Teko::addTekoToStratimikosBuilder(linearSolverBuilder);
+  //Teko::addTekoToStratimikosBuilder(linearSolverBuilder);
   linearSolverBuilder.setParameterList(paramList);
 
   Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = Thyra::createLinearSolveStrategy(linearSolverBuilder);
