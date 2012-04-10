@@ -8,108 +8,164 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-#env.options().configure_option('assertion_throws', False)
-#env.options().configure_option('assertion_backtrace', False)
-#env.options().configure_option('exception_backtrace', False)
-#env.options().configure_option('regist_signal_handlers', False)
-#env.options().configure_option('log_level', 4)
+env.options().configure_option('assertion_throws', False)
+env.options().configure_option('assertion_backtrace', False)
+env.options().configure_option('exception_backtrace', False)
+env.options().configure_option('regist_signal_handlers', False)
+env.options().configure_option('log_level', 4)
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
+domain = model.create_domain()
+physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
+solver = model.create_solver('cf3.UFEM.Solver')
 
-model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.physics.DynamicModel')
+# Create a component to manage initial conditions
+ic = solver.create_initial_conditions()
 
-solver = model.get_child('NavierStokes')
-#advection_solver = model.create_component('ScalarAdvection', 'cf3.UFEM.ScalarAdvection')
-model.print_tree()
+# Add the Navier-Stokes solver as an unsteady solver
+nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
-phys_model = model.get_child('DynamicModel')
-#advection_solver.configure_option_recursively('physical_model', phys_model)
+# Add the scalar advection solver as an unsteady solver
+scalaradv = solver.add_unsteady_solver('cf3.UFEM.ScalarAdvection')
 
-domain = model.get_child('Domain')
-domain.create_component('neuReader', 'cf3.mesh.neu.Reader')
+# Generate mesh
+blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
+points = blocks.create_points(dimensions = 2, nb_points = 12)
+points[0]  = [0, 0.]
+points[1]  = [1, 0.]
+points[2]  = [0.,0.2]
+points[3]  = [1, 0.2]
+points[4]  = [0.,2.1]
+points[5]  = [1, 2.2]
 
-# Load mesh
-domain.load_mesh(file = cf.URI('flatplate2d.neu'), name = 'mesh')
+points[6]  = [2.,0.]
+points[7]  = [2, 0.2]
+points[8]  = [2, 2.3]
 
-# domain.load_mesh(file = cf.URI('/home/sebastian/gmsh/flatplate1.msh'), name = 'Mesh')
-# domain.load_mesh(file = cf.URI('/home/sebastian/gmsh/ring2d-tris.neu'), name = 'mesh')
+points[9]  = [-1.,0.]
+points[10]  = [-1, 0.2]
+points[11]  = [-1, 2.]
 
-# lss setup
-lss = model.create_component('LSS', 'cf3.math.LSS.System')
-lss.options().configure_option('solver', 'Trilinos')
-solver.options().configure_option('lss', lss)
-lss.get_child('Matrix').options().configure_option('settings_file','solver.xml')
+block_nodes = blocks.create_blocks(6)
+block_nodes[0] = [0, 1, 3, 2]
+block_nodes[1] = [2, 3, 5, 4]
 
-# lss setup
-#advection_lss = advection_solver.create_component('LSS', 'cf3.math.LSS.System')
-#advection_lss.options().configure_option('solver', 'Trilinos')
-#advection_solver.options().configure_option('lss', lss)
-#lss.get_child('Matrix').options().configure_option('settings_file','solver.xml')
+block_nodes[2] = [1, 6, 7, 3]
+block_nodes[3] = [3, 7, 8, 5]
+block_nodes[4] = [9, 0, 2, 10]
+block_nodes[5] = [10, 2, 4, 11]
 
-u_in = [2., 0.]
-u_ref = [2., 0.]
+block_subdivs = blocks.create_block_subdivisions()
+block_subdivs[0] = [40, 20]
+block_subdivs[1] = [40, 20]
+
+block_subdivs[2] = [40, 20]
+block_subdivs[3] = [40, 20]
+block_subdivs[4] = [40, 20]
+block_subdivs[5] = [40, 20]
+
+gradings = blocks.create_block_gradings()
+gradings[0] = [1., 1., 5., 5.]
+gradings[1] = [1., 1., 10., 10.]
+gradings[2] = [1., 1., 5., 5.]
+gradings[3] = [1., 1., 10., 10.]
+gradings[4] = [1., 1., 5., 5.]
+gradings[5] = [1., 1., 10., 10.]
+
+# fluid block
+inlet_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 2)
+inlet_patch[0] = [9, 10]
+inlet_patch[1] = [10, 11]
+
+bottom_patch1 = blocks.create_patch_nb_faces(name = 'bottom1', nb_faces = 1)
+bottom_patch1[0] = [0, 1]
+
+bottom_patch2 = blocks.create_patch_nb_faces(name = 'bottom2', nb_faces = 1)
+bottom_patch2[0] = [1, 6]
+
+bottom_patch3 = blocks.create_patch_nb_faces(name = 'bottom3', nb_faces = 1)
+bottom_patch3[0] = [9, 0]
+
+outlet_patch = blocks.create_patch_nb_faces(name = 'outlet', nb_faces = 2)
+outlet_patch[0] = [6, 7]
+outlet_patch[1] = [7, 8]
+
+top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
+top_patch[0] = [5, 4]
+top_patch[1] = [5, 8]
+top_patch[2] = [11, 4]
+
+mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
+blocks.create_mesh(mesh.uri())
+
+# LSS for Navier-Stokes
+ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
+ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+#LSS for scalar advection
+sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
+sa_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+
+u_in = [0.5, 0.]
 u_wall = [0., 0.]
-#phi_in = 100
-#phi_ref = 100
-#phi_wall = 200
+phi_in = 100
+phi_wall = 200
 
-#initial conditions and properties for Navier-Stokes
-solver.options().configure_option('density', 1000.)
-solver.options().configure_option('dynamic_viscosity', 10.)
-solver.options().configure_option('initial_velocity', u_in)
-solver.options().configure_option('reference_velocity', u_in[0])
+# Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
+ic_ns = ic.create_initial_condition('solution')
+# Initial advection velocity and its previous values, using linearized_velocity as tag
+ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
+# Initial conditions for the scalar advection solver
+ic_phi = ic.create_initial_condition('scalar_advection_solution')
 
-#initial conditions and properties for Scalar-Advection
-#advection_solver.options().configure_option('initial_scalar', 0.)
-#advection_solver.options().configure_option('density', 1.2)
-#advection_solver.options().configure_option('initial_velocity', u_in)
-#advection_solver.options().configure_option('reference_velocity', u_ref[0])
-#advection_solver.options().configure_option('dynamic_viscosity', 1.7894e-5)
-#advection_solver.options().configure_option('scalar_coefficient', 1.)
+#initial conditions
+ic_ns.options().configure_option('Velocity', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
+ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
+ic_phi.options().configure_option('Scalar', phi_in)
 
-# Boundary conditions
-bc = solver.get_child('TimeLoop').get_child('BoundaryConditions')
+#properties for Navier-Stokes
+physics.options().configure_option('density', 1.2)
+physics.options().configure_option('dynamic_viscosity', 1.7894e-5)
+physics.options().configure_option('reference_velocity', u_in[0])
+scalaradv.options().configure_option('scalar_coefficient', 1.)
+
+# Boundary conditions for Navier-Stokes
+bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().configure_option('value', u_in)
 bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().configure_option('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().configure_option('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Velocity').options().configure_option('value',  u_in)
-bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 1)
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
 
-# Boundary conditions
-#bc = advection_solver.get_child('TimeLoop').get_child('BoundaryConditions')
-#bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().configure_option('value', phi_in)
-#bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Scalar').options().configure_option('value',  phi_wall)
-#bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Scalar').options().configure_option('value',  phi_in)
-#bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().configure_option('value',  phi_in)
-##bc.add_constant_bc(region_name = 'outlet', variable_name = 'Scalar').options().configure_option('value', 1)
-#bc.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().configure_option('value', phi_in)
-
-#bc.add_constant_bc(region_name = 'solid', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-
-#bc.get_child('BCinVelocity').options().configure_option('value', u_in)
-#bc.get_child('BCsymmVelocity').options().configure_option('value', u_in)
-#bc.get_child('BCwallVelocity').options().configure_option('value', [0., 0.])
-#bc.get_child('BCoutPressure').options().configure_option('value', 0.)
+# Boundary conditions for ScalarAdvection
+bc = scalaradv.get_child('BoundaryConditions')
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().configure_option('value', phi_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Scalar').options().configure_option('value',  phi_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Scalar').options().configure_option('value',  phi_in)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().configure_option('value',  phi_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().configure_option('value', phi_in)
 
 # Time setup
-time = model.get_child('Time')
-time.options().configure_option('time_step', 0.1)
+time = model.create_time()
+time.options().configure_option('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 10.
-save_interval = 1.
+final_end_time = 1.
+save_interval = 0.1
 current_end_time = 0.
 iteration = 0
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().configure_option('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-ufem-flatplate2d_output-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d_output-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
-    solver.options().configure_option('disabled_actions', ['Initialize'])
+    solver.options().configure_option('disabled_actions', ['InitialConditions'])
 
 # print timings
 model.print_timing_tree()
