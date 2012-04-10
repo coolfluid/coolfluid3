@@ -71,6 +71,15 @@ static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_cl
 struct ProtoHeatFixture
 {
   ProtoHeatFixture() :
+    length(1.),
+    Pe(0.0001),
+    Pe2(1.),
+    left_temp(1.),
+    right_temp(0.),
+    nb_segments(10),
+    alpha(1.),
+
+
     root( Core::instance().root() )
   {
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
@@ -79,7 +88,32 @@ struct ProtoHeatFixture
   Component& root;
   std::string solver_config;
 
+  /// Write the analytical solution
+  void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
+  {
+    MeshTerm<0, ScalarField > Temp(field_name, var_name);
+
+      // Zero the field
+      for_each_node
+      (
+        region,
+            Temp = (_exp(Pe2*coordinates[0])-1.)/(_exp(Pe)-1.) + 1.
+      );
+
+    }
+
+  const Real length;
+  const Real Pe;
+  const Real Pe2;
+  const Uint nb_segments;
+  const Real alpha;
+  const Real left_temp;
+  const Real right_temp;
+
+  Real t;
+
 };
+
 
 BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
@@ -94,8 +128,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Core::instance().environment().options().configure_option("log_level", 4u);
 
   // Parameters
-  Real length            = 5.;
-  const Uint nb_segments = 5 ;
+  Real length            = 1.;
+  const Uint nb_segments = 100 ;
 
   // Setup a model
   ModelUnsteady& model = *root.create_component<ModelUnsteady>("Model");
@@ -107,6 +141,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Proto placeholders
   MeshTerm<0, ScalarField> T("Temperature", UFEM::Tags::solution());
   MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  MeshTerm<2, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   UFEM::SUPGCoeffs c;
   c.mu = 1.7894e-5;
@@ -122,11 +157,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
-  RealVector initial_u(1); initial_u.setConstant(20.);
+  RealVector initial_u(1); initial_u.setConstant(1.);
 
   // add the top-level actions (assembly, BC and solve)
   *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u)));
-
   *lss_action
     << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
     << create_proto_action
@@ -177,6 +211,16 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Run the solver
   model.simulate();
+
+  // Check result
+  t = model.time().current_time();
+  std::cout << "Checking solution at time " << t << std::endl;
+  for_each_node
+  (
+    mesh.topology(),
+        _check_close(-(_exp(Pe2 * coordinates[0])-1.)/(_exp(Pe2)-1.)+1, T, 1.)
+  );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
