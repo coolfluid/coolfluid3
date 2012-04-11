@@ -82,9 +82,12 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void python_execute_function(){
-  boost::posix_time::millisec wait_init(500);//to wait that the component tree is created
-  //CFinfo << "stop_lock_aquired" << CFendl;
-  boost::this_thread::sleep(wait_init);
+  {//to be sure that no code is trying to execute while init phase
+    boost::lock_guard<boost::mutex> lock(python_code_queue_mutex);
+    boost::posix_time::millisec wait_init(500);//to wait that the component tree is created
+    //CFinfo << "stop_lock_aquired" << CFendl;
+    boost::this_thread::sleep(wait_init);
+  }
   while(1){
     boost::unique_lock<boost::mutex> lock(python_code_queue_mutex);
     if (python_code_queue.size()){

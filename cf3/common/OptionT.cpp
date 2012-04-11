@@ -13,6 +13,7 @@
 #include "common/OptionT.hpp"
 #include "common/StringConversion.hpp"
 #include "common/URI.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/XML/Protocol.hpp"
 
@@ -75,6 +76,9 @@ Common_TEMPLATE template class OptionT< std::string >;
 Common_TEMPLATE template class OptionT< cf3::Uint >;
 Common_TEMPLATE template class OptionT< cf3::Real >;
 Common_TEMPLATE template class OptionT< cf3::common::URI >;
+
+//vivian bolsee
+Common_TEMPLATE template class OptionT< cf3::common::UUCount >;
 
 ////////////////////////////////////////////////////////////////////////////////
 

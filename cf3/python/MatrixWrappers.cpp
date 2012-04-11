@@ -37,7 +37,7 @@ struct null_deleter{
 template<int rows, int cols>
 class matrix_array_mapper{
 public:
-  matrix_array_mapper(boost::shared_ptr<TMATRIX >in){m=boost::shared_ptr<TMATRIX >(new TMATRIX(*in));}
+  matrix_array_mapper(boost::shared_ptr<TMATRIX >in) : m(in){}
   void scalar_iadd(Real a){m->array()+=a;}
   void scalar_isub(Real a){m->array()-=a;}
   void scalar_imul(Real a){m->array()*=a;}
@@ -887,7 +887,8 @@ bool matrix_is_zero(boost::shared_ptr<TMATRIX > self , const Real prec){
 
 template<int rows, int cols>
 boost::shared_ptr<matrix_array_mapper<rows,cols> > matrix_array_get(boost::shared_ptr<TMATRIX > self){
-  boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(self));
+  boost::shared_ptr<TMATRIX >m(new TMATRIX(*self));
+  boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(m));
   return p;
 }
 
