@@ -19,13 +19,8 @@ namespace actions {
 
 /// AdvanceTime
 /// @author Willem Deconinck
-class solver_actions_API AdvanceTime : public solver::Action {
-
-public: // typedefs
-
-  
-  
-
+class solver_actions_API AdvanceTime : public solver::Action
+{
 public: // functions
 
   /// Contructor

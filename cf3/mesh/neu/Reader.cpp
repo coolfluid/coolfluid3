@@ -6,8 +6,6 @@
 
 #include <set>
 
-#include <boost/algorithm/string/erase.hpp>
-
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -30,9 +28,9 @@
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/neu/Reader.hpp"
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -159,11 +157,12 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the file
   m_file.close();
 
-  m_mesh->elements().update();
-  m_mesh->update_statistics();
-
   cf3_assert(m_mesh->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
   cf3_assert(m_mesh->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
+
+  // Fix global numbering
+  /// @todo remove this and read glb_index ourself
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -386,7 +385,9 @@ void Reader::read_connectivity()
       {
         cf_idx = m_nodes_neu_to_cf[elementType][j];
         m_file >> neu_node_number;
+        cf3_assert(m_node_to_coord_idx.count(neu_node_number));
         cf_node_number = m_node_to_coord_idx[neu_node_number];
+        cf3_assert(cf_node_number < nodes.size());
         cf_element[cf_idx] = cf_node_number;
       }
       etype_CF = element_type(elementType,nbElementNodes);
@@ -566,13 +567,15 @@ void Reader::read_boundaries()
         std::vector<Uint> row;
         row.reserve(face_connectivity.stride[faceIdx]);
         boost_foreach(const Uint& node, face_connectivity.nodes_range(faceIdx))
+        {
+          cf3_assert(node < nodes.size());
           row.push_back(elem_nodes[node]);
+        }
 
         // add the row to the buffer of the face region
         std::string face_type = etype.face_type(faceIdx).derived_type_name();
         cf3_assert_desc(to_str(row.size())+"!="+to_str(buffer[face_type]->get_appointed().shape()[1]),row.size() == buffer[face_type]->get_appointed().shape()[1]);
         buffer[face_type]->add_row(row);
-
       }
       getline(m_file,line);  // finish the line (read new line)
     }

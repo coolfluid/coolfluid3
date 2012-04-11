@@ -268,9 +268,9 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
 
   // call impl
   if (irank==root){
-    detail::broadcast_impl(comm, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], root, stride);
+    detail::broadcast_impl(comm, (T*)(&in_values[0]), in_map.size(), (in_map.empty() ? nullptr : &in_map[0]), (T*)(&out_values[0]), (out_map.empty() ? nullptr : &out_map[0]), root, stride);
   } else {
-    detail::broadcast_impl(comm, (T*)0,  in_map.size(), (int*)0, (T*)(&out_values[0]), &out_map[0], root, stride);
+    detail::broadcast_impl(comm, (T*)0,  in_map.size(), (int*)0, (T*)(&out_values[0]), (out_map.empty() ? nullptr : &out_map[0]), root, stride);
   }
 }
 

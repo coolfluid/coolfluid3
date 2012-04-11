@@ -398,9 +398,9 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
   const RealVector2 idx(1.,2.);
 
-  int result_i = 0;
-  int result_j = 0;
-  int result_ij = 0;
+  Real result_i = 0;
+  Real result_j = 0;
+  Real result_ij = 0;
 
   for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
@@ -413,9 +413,9 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
     )
   );
 
-  BOOST_CHECK_EQUAL(result_i, 3);
-  BOOST_CHECK_EQUAL(result_j, 3);
-  BOOST_CHECK_EQUAL(result_ij, 12);
+  BOOST_CHECK_EQUAL(result_i, 3.);
+  BOOST_CHECK_EQUAL(result_j, 3.);
+  BOOST_CHECK_EQUAL(result_ij, 12.);
 
   Mesh& line = *Core::instance().root().create_component<Mesh>("Line");
   Tools::MeshGeneration::create_line(line, 1., 1);
@@ -560,6 +560,27 @@ BOOST_AUTO_TEST_CASE( ProtoAccumulators )
 
   BOOST_CHECK_EQUAL(boost::accumulators::max(acc), 4.);
   BOOST_CHECK_CLOSE(boost::accumulators::mean(acc), 2., 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE( AssignMatrix )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line5");
+  Tools::MeshGeneration::create_line(*mesh, 1., 1);
+
+  mesh->geometry_fields().create_field( "Temperature", "Temperature" ).add_tag("solution");
+
+  MeshTerm<0, ScalarField > T("Temperature", "solution");
+
+  RealMatrix tmp;
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  (
+    mesh->topology(),
+    boost::proto::lit(tmp) = integral<1>(transpose(nabla(T))*nabla(T))
+  );
+
+  std::cout << "tmp=\n" << tmp << std::endl;
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -21,6 +21,14 @@ void assertion_failed( char const * expr,
                        char const * function,
                        char const * file,
                        long line);
+
+/// @brief Callback function to provide our own boost_assertion handling
+void assertion_failed_msg( char const * expr,
+                           char const * msg,
+                           char const * function,
+                           char const * file,
+                           long line);
+
 } // namespace boost
 
 ////////////////////////////////////////////////////////////////////////////////

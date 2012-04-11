@@ -34,14 +34,12 @@ namespace mesh {
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 class Mesh_API Entities : public common::Component
 {
+  friend class Mesh;
 public: // functions
 
   /// Contructor
   /// @param name of the component
   Entities ( const std::string& name );
-
-  /// Initialize the Entities using the given type
-//  virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
   virtual void initialize(const std::string& element_type_name, Dictionary& geometry);
@@ -77,29 +75,27 @@ public: // functions
 
   /// return the number of elements
   Uint size() const;
-
-  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user, const std::string& space_name);
   
   /// return the number of elements across all processes;
   Uint glb_size() const;
 
+  /// @deprecated Will be removed soon, use mesh/Functions.hpp --> create_used_nodes_list
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  Space& space (const std::string& space_name) const;
+  Space& space (const Dictionary& dict);
+  const Space& space (const Dictionary& dict) const;
+
+  std::vector< Handle<Space> > spaces() { return m_spaces_vector; }
+
+  const std::vector< Handle<Space> > spaces() const { return m_spaces_vector; }
 
   Space& create_space(const std::string& shape_function_builder_name, Dictionary& space_fields);
 
   Space& geometry_space() const { cf3_assert(is_not_null(m_geometry_space)); return *m_geometry_space; }
 
-  bool exists_space(const std::string& space_name) const;
-
-//  void allocate_coordinates(RealMatrix& coords) const;
-
-//  void signal_create_space ( common::SignalArgs& node );
-
-//  void signature_create_space ( common::SignalArgs& node);
-
   void resize(const Uint nb_elem);
+
+  Uint entities_idx() const { return m_entities_idx; }
 
 protected: // data
 
@@ -112,6 +108,7 @@ protected: // data
   Handle<common::List<Uint> > m_global_numbering;
 
   Handle<common::Group> m_spaces_group;
+  std::vector< Handle<Space> > m_spaces_vector;
 
   Handle<common::List<Uint> > m_rank;
 
@@ -132,6 +129,8 @@ private:
   Handle<FaceCellConnectivity> m_connectivity_face2cell;
   Handle<ElementConnectivity>  m_connectivity_cell2cell;
 
+  /// @brief index as it appears in mesh.elements()
+  Uint m_entities_idx;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

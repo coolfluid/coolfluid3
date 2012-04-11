@@ -108,17 +108,27 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   }
 
 
-  std::vector<Handle< Field > > fields;
-  fields.push_back(nodal.handle<Field>());
-  fields.push_back(cell_centred.handle<Field>());
-  fields.push_back(nodesP2.handle<Field>());
+  std::vector<URI> fields;
+  fields.push_back(nodal.uri());
+  fields.push_back(cell_centred.uri());
+  fields.push_back(nodesP2.uri());
   boost::shared_ptr< MeshWriter > tec_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tec_writer->options().configure_option("cell_centred",true);
-  tec_writer->set_fields(fields);
-  tec_writer->write_from_to(mesh,"quadtriag.plt");
+  tec_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
+  tec_writer->options().configure_option("fields",fields);
+  tec_writer->options().configure_option("file",URI("quadtriag.plt"));
+  tec_writer->execute();
+
+  std::vector<URI> regions;
+  regions.push_back(mesh.uri()/"topology/quadtriag/inlet");
+  regions.push_back(mesh.uri()/"topology/quadtriag/outlet");
+  regions.push_back(mesh.uri()/"topology/quadtriag/wall");
+  regions.push_back(mesh.uri()/"topology/quadtriag/liquid");
+  tec_writer->options().configure_option("regions",regions);
+  tec_writer->options().configure_option("file",URI("quadtriag_filtered.plt"));
+  tec_writer->execute();
 
   BOOST_CHECK(true);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

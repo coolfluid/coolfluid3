@@ -6,8 +6,8 @@
 
 #include <set>
 
-// coolfluid
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/StringConversion.hpp"
@@ -53,8 +53,7 @@ Partitioner::Partitioner ( const std::string& name ) :
   cf3_assert_desc("Could not initialize zoltan", error_code == ZOLTAN_OK);
   m_zoltan_version = version;
 
-  //CFdebug << "zoltan version = " << version << CFendl;
-
+  properties().add_property("Zoltan_version",m_zoltan_version);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,7 +105,7 @@ void Partitioner::partition_graph()
     }
     else // if is element
     {
-      m_elements_to_export[comp-1][exportToPart[i]].push_back(loc_idx);
+      m_elements_to_export[exportToPart[i]][comp-1].push_back(loc_idx);
     }
   }
 
@@ -123,7 +122,6 @@ void Partitioner::partition_graph()
 void Partitioner::set_partitioning_params()
 {
   /// zoltan general parameters
-
   zoltan_handle().Set_Param( "DEBUG_LEVEL", to_str( options()["debug_level"].value<Uint>() ));
   //  0 Quiet mode; no output unless an error or warning is produced.
   //  1 Values of all parameters set by Zoltan_Set_Param and used by zoltan.
@@ -191,14 +189,13 @@ void Partitioner::set_partitioning_params()
   // ParMETIS          http://www.cs.sandia.gov/zoltan/ug_html/ug_alg_parmetis.html
   // Scotch/PT-Scotch  http://www.cs.sandia.gov/zoltan/ug_html/ug_alg_ptscotch.html
 
-  /// @todo test this functionality
   if (m_zoltan_version >= 3.5)
   {
     zoltan_handle().Set_Param( "GRAPH_BUILD_TYPE","FAST_NO_DUP" );
     // Allow some optimizations in the graph building process:
-    //   NORMAL = graph is generic, no optimization can be performed
-    //   FAST = graph global IDs are in the interval [0,n-1], with IDs [0,a] on process 0, IDs [a+1, b] on process 1, IDs [b+1, c] on process 2, etc.
-    //   FAST_NO_DUP = graph global IDs are in the interval [0,n-1] with IDs [0,a] on process 0, IDs [a+1, b] on process 1, IDs [b+1, c] on process 2, etc., and there are no duplicate edges and no need of symmetrization.
+    //   NORMAL      = graph is generic, no optimization can be performed
+    //   FAST        = graph global IDs are in the interval [0,n-1], with IDs [0,a] on process 0, IDs [a+1, b] on process 1, IDs [b+1, c] on process 2, etc.
+    //   FAST_NO_DUP = graph global IDs are in the interval [0,n-1], with IDs [0,a] on process 0, IDs [a+1, b] on process 1, IDs [b+1, c] on process 2, etc., and there are no duplicate edges and no need of symmetrization.
     //           See GRAPH_FAST_BUILD_BASE below to allow IDs to that are one-based instead of zero-based.
     // Default : NORMAL
 
@@ -210,7 +207,7 @@ void Partitioner::set_partitioning_params()
   }
 
 
-  zoltan_handle().Set_Param( "CHECK_GRAPH", to_str(std::max(2u,                                       options()["debug_level"].value<Uint>() )));
+  zoltan_handle().Set_Param( "CHECK_GRAPH", to_str(std::max(2u, options()["debug_level"].value<Uint>() )));
   // Level of error checking for graph input:
   // 0 = no checking,
   // 1 = on-processor checking,
@@ -248,8 +245,8 @@ void Partitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
 
   // for debugging
 #if 0
-  std::vector<Uint> glbID(p.nb_owned_objects());
-  p.list_of_owned_objects(glbID);
+  std::vector<Uint> glbID(p.nb_objects_owned_by_part(PE::Comm::instance().rank()));
+  p.list_of_objects_owned_by_part(PE::Comm::instance().rank(),glbID);
 
   CFdebug << RANK << "glbID =";
   boost_foreach(const Uint g, glbID)
@@ -328,6 +325,8 @@ void Partitioner::query_list_of_connected_objects(void *data, int sizeGID, int s
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+#undef RANK
 
 } // zoltan
 } // mesh

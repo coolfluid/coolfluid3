@@ -21,6 +21,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Dictionary.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 
@@ -91,7 +92,7 @@ void InitFieldFunction::execute()
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == Dictionary::Basis::POINT_BASED)
+  if (field.continuous())
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();

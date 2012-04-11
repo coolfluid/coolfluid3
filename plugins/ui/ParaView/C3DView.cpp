@@ -10,6 +10,7 @@
 #include <QFileInfo>
 
 // header
+#include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 #include "common/EventHandler.hpp"
 #include "common/Builder.hpp"

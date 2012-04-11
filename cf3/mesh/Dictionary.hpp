@@ -7,11 +7,9 @@
 #ifndef cf3_mesh_Dictionary_hpp
 #define cf3_mesh_Dictionary_hpp
 
-#include <set>
+#include <boost/cstdint.hpp>
 
-#include "common/Table_fwd.hpp"
-#include "common/EnumT.hpp"
-#include "common/Component.hpp"
+#include "common/Map.hpp"
 
 #include "mesh/LibMesh.hpp"
 
@@ -25,13 +23,13 @@ namespace common {
 namespace math { class VariablesDescriptor; }
 namespace mesh {
 
-  class UnifiedData;
   class Mesh;
   class Field;
   class Region;
   class Elements;
   class Entities;
   class Space;
+  class SpaceElem;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,39 +37,9 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API Dictionary : public common::Component {
 
-public: // typedefs
-
-
-
-
-  class Mesh_API Basis
-  {
-  public:
-
-    /// Enumeration of the Shapes recognized in CF
-    enum Type { INVALID=-1, POINT_BASED=0,  ELEMENT_BASED=1, CELL_BASED=2, FACE_BASED=3 };
-
-    typedef common::EnumT< Basis > ConverterBase;
-
-    struct Mesh_API Convert : public ConverterBase
-    {
-      /// constructor where all the converting maps are built
-      Convert();
-      /// get the unique instance of the converter class
-      static Convert& instance();
-    };
-
-    static std::string to_str(Type type)
-    {
-      return Convert::instance().to_str(type);
-    }
-
-    static Type to_enum(const std::string& type)
-    {
-      return Convert::instance().to_enum(type);
-    }
-
-  };
+ /// @todo find workaround for following hack
+friend class Mesh; // dirty (but harmless) hack, because geometry coordinates field
+                   // needs to be initialized differently and added to m_fields
 
 public: // functions
 
@@ -92,7 +60,7 @@ public: // functions
   Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
   /// Number of rows of contained fields
-  virtual Uint size() const { return m_size; }
+  Uint size() const;
 
   /// Resize the contained fields
   void resize(const Uint size);
@@ -104,10 +72,25 @@ public: // functions
   const Handle< Space const>& space(const Handle< Entities const>& entities) const;
 
   /// Return the global index of every field row
-  common::List<Uint>& glb_idx() const { return *m_glb_idx; }
+  common::List<Uint>& glb_idx() { return *m_glb_idx; }
+
+  /// Return the global index of every field row
+  const common::List<Uint>& glb_idx() const { return *m_glb_idx; }
 
   /// Return the rank of every field row
-  common::List<Uint>& rank() const { return *m_rank; }
+  common::List<Uint>& rank() { return *m_rank; }
+
+  /// Return the rank of every field row
+  const common::List<Uint>& rank() const { return *m_rank; }
+
+  /// Return a mapping between global and local indices
+//  common::Map<boost::uint64_t,Uint>& glb_to_loc() { return *m_glb_to_loc; }
+
+  /// Return a mapping between global and local indices
+  const common::Map<boost::uint64_t,Uint>& glb_to_loc() const { return *m_glb_to_loc; }
+
+  /// Node to space-element connectivity
+  const common::DynTable<SpaceElem>& connectivity() const { return *m_connectivity; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
   common::PE::CommPattern& comm_pattern();
@@ -119,26 +102,19 @@ public: // functions
   bool check_sanity(std::vector<std::string>& messages) const;
   bool check_sanity() const;
 
-  std::vector<Handle< Entities > > entities_range();
+  const std::vector<Handle< Entities > >& entities_range() const;
+
+  const std::vector<Handle< Space > >& spaces() const;
 
   Field& field(const std::string& name);
-
-//  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
-
-  void create_connectivity_in_space();
-
-// deprecated
-//  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
-// deprecated
-//  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
 
   const Field& coordinates() const;
 
   Field& coordinates();
 
-  common::DynTable<Uint>& glb_elem_connectivity();
+  const std::vector< Handle<Field> >& fields() const { return m_fields; }
 
-  Basis::Type basis() const { return m_basis; }
+  common::DynTable<Uint>& glb_elem_connectivity();
 
   void signal_create_field ( common::SignalArgs& node );
 
@@ -147,13 +123,21 @@ public: // functions
   bool defined_for_entities(const Handle<Entities const>& entities) const;
 
   void add_space(const Handle<Space>& space);
+
   void update();
 
+  bool continuous() const { return m_is_continuous; }
+
+  bool discontinuous() const { return !m_is_continuous; }
+
+  void rebuild_map_glb_to_loc();
+
+  /// @note This is a function only for non-geometry spaces.
+  virtual void rebuild_spaces_from_geometry() = 0;
+
+  virtual void rebuild_node_to_element_connectivity() = 0;
+
 private: // functions
-
-  bool has_coordinates() const;
-
-  Field& create_coordinates();
 
   void config_space();
 
@@ -166,25 +150,33 @@ private: // functions
   /// Triggered when the event mesh_changed
   void on_mesh_changed_event( common::SignalArgs& args );
 
+protected: // functions
+
+  bool has_coordinates() const;
+
+  Field& create_coordinates();
+
 protected:
-
-  Basis::Type m_basis;
-
-  Uint m_size;
-
-  Handle<common::Link> m_topology;
   Handle<common::List<Uint> > m_glb_idx;
   Handle<common::List<Uint> > m_rank;
-  Handle<UnifiedData> m_elements_lookup;
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
+  Handle<common::Map<boost::uint64_t,Uint> > m_glb_to_loc;
+  bool m_is_continuous;
+
+  /// Connectivity with the element of the space
+  Handle<common::DynTable<SpaceElem> > m_connectivity;
+
 
 private:
 
   std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
   std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
+  std::vector< Handle<Field> > m_fields;
+  bool m_new_spaces_added;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

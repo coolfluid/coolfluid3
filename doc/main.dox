@@ -31,7 +31,7 @@ namespace cf3 {
  <hr>
 
  @section _more_info More information
- Take a look into the <a href="http://coolfluidsrv.vki.ac.be/trac/coolfluid">COOLFluiD homepage</a>, or the <a href="https://github.com/coolfluid/coolfluid3">github project page</a>.
+ Take a look into the <a href="http://coolfluid.github.com">COOLFluiD homepage</a>, or the <a href="https://github.com/coolfluid/coolfluid3">github project page</a>.
 
  Follow the current developments also on the <a href="http://coolfluidsrv.vki.ac.be/cdash/index.php?project=coolfluid">dashboard</a>.
 

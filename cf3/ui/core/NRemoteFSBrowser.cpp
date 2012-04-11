@@ -106,7 +106,7 @@ void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
     fileInfo->name = name;
     fileInfo->type = DIRECTORY;
 
-    fileInfo->date_modified = dir_dates[i].c_str();
+    fileInfo->date_modified = ""; //QString::fromStdString(dir_dates[i]);
 
     if(!m_current_path.isEmpty() && name != "..")
       name.prepend(m_current_path + (m_current_path.endsWith("/") ? "" : "/"));

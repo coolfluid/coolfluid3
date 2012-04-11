@@ -24,20 +24,14 @@ namespace mesh {
   class Region;
   class MeshElements;
   class MeshMetadata;
+  class BoundingBox;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Mesh component class
-/// Mesh now stores:
-///   - regions which subdivide in subregions
-///   - arrays containing coordinates, variables, ...
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Mesh_API Mesh : public common::Component {
-public: // typedefs
-
-  
-  
 
 public: // functions
 
@@ -56,29 +50,6 @@ public: // functions
   /// @return the geometry topology
   Region& topology() const { return *m_topology; }
 
-//  void create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name);
-//  void create_space( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name, Region& topology);
-
-//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base);
-//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space);
-//  Dictionary& create_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space, const Region& topology);
-
-//  /// @brief Create new space and field-group matching the space
-//  /// @param [in] name            Name to be given to the space, and the field group
-//  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
-//  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
-//  /// @return newly created field group
-//  /// @note The topology this field group applies to is by default the entire mesh topology
-//  Dictionary& create_space_and_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name);
-
-//  /// @brief Create new space and field-group matching the space
-//  /// @param [in] name            Name to be given to the space, and the field group
-//  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
-//  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. cf3Mesh.LagrangeP1)
-//  /// @param [in] topology        The topology of the mesh this field group applies to.
-//  /// @return newly created field group
-//  Dictionary& create_space_and_dict( const std::string& name, const Dictionary::Basis::Type base, const std::string& space_lib_name, Region& topology);
-
   Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities);
   Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
   Dictionary& create_continuous_space   ( const std::string& space_name, const std::string& space_lib_name);
@@ -86,13 +57,18 @@ public: // functions
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
 
+  void update_structures();
   void update_statistics();
 
   /// @return the nodes of the mesh
   Dictionary& geometry_fields() const;
 
   /// @return linearized view of all the entities in the mesh
-  MeshElements& elements() const;
+  /// @deprecated
+  MeshElements& mesh_elements() const;
+
+  const std::vector< Handle<Entities> >& elements() const { return m_elements; }
+  const std::vector< Handle<Dictionary> >& dictionaries() const { return m_dictionaries; }
 
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }
@@ -124,7 +100,11 @@ private: // data
 
   Uint m_dimensionality;
 
-  Handle<MeshElements> m_elements;
+  std::vector< Handle<Entities> > m_elements;
+
+  std::vector< Handle<Dictionary> > m_dictionaries;
+
+  Handle<MeshElements> m_mesh_elements;
 
   Handle<MeshMetadata> m_metadata;
 

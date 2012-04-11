@@ -47,8 +47,18 @@ void NonReflectiveConvection2D::compute_non_reflective_fluxes(std::vector<RealVe
       // Set BC, default extrapolation
       if (m_face_nb == boundary_face_nb)
       {
-        char_to_cons(left_face_data[face_pt]->solution,char_normal,char_sol);
-        cons_to_char(char_sol,char_normal,right_face_data[face_pt]->solution);
+        cons_to_char(left_face_data[face_pt]->solution,char_normal,char_sol);
+#ifdef Aminzero
+//        if( std::abs(char_sol[AMIN]) > 1e-10 )
+//        {
+//          std::stringstream ss;
+//          ss<< "char_sol[AMIN] = " << char_sol[AMIN] << std::endl;
+//          throw common::BadValue(FromHere(),ss.str());
+//        }
+        char_sol[AMIN] = 0.;
+//        char_to_cons(char_sol,char_normal,left_face_data[face_pt]->solution);
+#endif
+        char_to_cons(char_sol,char_normal,right_face_data[face_pt]->solution);
       }
 
       Uint flx_pt = left_face_pt_idx[face_pt];
@@ -102,8 +112,18 @@ void NonReflectiveConvection2D::compute_fluxes(std::vector<RealVectorNEQS>& flux
         // Set BC, default extrapolation
         if (m_face_nb == boundary_face_nb)
         {
-          char_to_cons(left_face_data[face_pt]->solution,char_normal,char_sol);
-          cons_to_char(char_sol,char_normal,right_face_data[face_pt]->solution);
+          cons_to_char(left_face_data[face_pt]->solution,char_normal,char_sol);
+#ifdef Aminzero
+//          if( std::abs(char_sol[AMIN]) > 1e-10 )
+//          {
+//            std::stringstream ss;
+//            ss<< "char_sol[AMIN] = " << char_sol[AMIN] << std::endl;
+//            throw common::BadValue(FromHere(),ss.str());
+//          }
+        char_sol[AMIN] = 0.;
+//        char_to_cons(char_sol,char_normal,left_face_data[face_pt]->solution);
+#endif
+        char_to_cons(char_sol,char_normal,right_face_data[face_pt]->solution);
         }
 
         compute_numerical_flux(*left_face_data[face_pt],*right_face_data[face_pt],flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt] * elem->get().sf->flx_pt_sign(flx_pt),
@@ -127,6 +147,43 @@ void NonReflectiveConvection2D::execute()
 //    inspect = true;
 //  }
 
+  RealVectorNDIM char_normal = characteristic_normal();
+  RealVectorNDIM char_s; char_s << char_normal[YY],-char_normal[XX];
+  RealVectorNEQS char_sol;
+  const Uint direction = elem->get().sf->flx_pt_dirs( elem->get().sf->face_flx_pts(boundary_face_nb)[0] )[0];
+
+
+  /// Strong BC
+  /// ---------
+
+//  /// Interpolate original term to flux points (of which some lie on the boundary)
+//  std::vector<RealVectorNEQS> flx_pt_sol(elem->get().sf->nb_flx_pts());
+//  mesh::Field::View solution = solution_field().view(elem->get().space->connectivity()[m_elem_idx]);
+//  elem->get().reconstruct_from_solution_space_to_flux_points(solution,flx_pt_sol);
+
+//  boost_foreach(const Uint flx_pt, elem->get().sf->face_flx_pts(boundary_face_nb))
+//  {
+//    cons_to_char(flx_pt_sol[flx_pt],char_normal,char_sol);
+//#ifdef Aminzero
+//    char_sol[AMIN] = 0;
+//#endif
+//    char_to_cons(char_sol,char_normal,flx_pt_sol[flx_pt]);
+//  }
+//  elem->get().reconstruct_from_flux_points_to_solution_space(direction,flx_pt_sol,solution);
+
+//  // check
+//  elem->get().reconstruct_from_solution_space_to_flux_points(solution,flx_pt_sol);
+//  boost_foreach(const Uint flx_pt, elem->get().sf->face_flx_pts(boundary_face_nb))
+//  {
+//    cons_to_char(flx_pt_sol[flx_pt],char_normal,char_sol);
+//#ifdef Aminzero
+//    if (std::abs(char_sol[AMIN]) > 1e-10)
+//      throw common::BadValue(FromHere(),"");
+//#endif
+//  }
+
+
+
   /// (A) Compute reflective term in flux points
   /// ------------------------------------------
   std::vector<RealVectorNEQS> cons_non_reflective_flux(elem->get().sf->nb_flx_pts());
@@ -134,8 +191,6 @@ void NonReflectiveConvection2D::execute()
   std::vector<RealVectorNEQS> cons_reflective_flux(elem->get().sf->nb_flx_pts());
   compute_fluxes(cons_reflective_flux);
 
-  RealVectorNDIM char_normal = characteristic_normal();
-  RealVectorNDIM char_s; char_s << char_normal[YY],-char_normal[XX];
 
 
 //  // Initial values for non_reflective_deriv are the same ones as the reflective, values will be changed further
@@ -265,18 +320,8 @@ void NonReflectiveConvection2D::execute()
     }
   }
 
-#if defined(LILA)
-  RealVectorNEQS char_term;
-  RealVectorNEQS char_non_reflective_term;
-  for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
-  {
-    cons_to_char(non_reflective_term[sol_pt],char_normal,char_term);
-    cons_to_char(term[sol_pt],char_normal,char_non_reflective_term);
-    char_term[2]=char_non_reflective_term[2];
-    char_term[3]=char_non_reflective_term[3];
-    char_to_cons(char_term,char_normal,term[sol_pt]);
-  }
-#else
+#ifndef NOTHING
+
   /// Interpolate original term to flux points (of which some lie on the boundary)
   std::vector<RealVectorNEQS> flx_pt_term(elem->get().sf->nb_flx_pts());
   elem->get().reconstruct_from_solution_space_to_flux_points(term,flx_pt_term);
@@ -292,14 +337,19 @@ void NonReflectiveConvection2D::execute()
   {
     cons_to_char(flx_pt_term[flx_pt],char_normal,char_term);
     cons_to_char(flx_pt_non_reflective_term[flx_pt],char_normal,char_non_reflective_term);
-    char_term[3]=char_non_reflective_term[3];
+
+    char_term[AMIN]=char_non_reflective_term[AMIN];
+#ifdef LILLA
+    char_term[APLUS]=char_non_reflective_term[APLUS];
+#endif
     char_to_cons(char_term,char_normal,flx_pt_term[flx_pt]);
   }
 
   /// Interpolate now back to the solution points, which may not lie on the boundary
-  const Uint direction = elem->get().sf->flx_pt_dirs( elem->get().sf->face_flx_pts(boundary_face_nb)[0] )[0];
   elem->get().reconstruct_from_flux_points_to_solution_space(direction,flx_pt_term,term);
-#endif
+
+#endif // ifndef NOTHING
+
   /// 4) Subtract this term from the residual field
   mesh::Field::View residual = residual_field().view(elem->get().space->connectivity()[m_elem_idx]);
   for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)

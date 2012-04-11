@@ -1,6 +1,0 @@
-#ifndef coolfluid_svn_revision_hpp
-#define coolfluid_svn_revision_hpp
-
-#define CF3_SVNVERSION "${coolfluid_svn_revision}"
- 
-#endif // !coolfluid_svn_revision_hpp

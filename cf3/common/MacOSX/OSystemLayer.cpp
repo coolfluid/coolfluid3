@@ -34,8 +34,8 @@
 using namespace std;
 
 namespace cf3 {
-  namespace common {
-    namespace MacOSX {
+namespace common {
+namespace MacOSX {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,10 +71,10 @@ std::string OSystemLayer::dump_back_trace ()
   void *buffer[BUFFER_SIZE];
   char **strings;
 
-	//printf ("dumping %d backtrace ...\n", i);
-	oss << "dumping " << i << " backtrace ...\n";
-	nptrs = backtrace(buffer, BUFFER_SIZE);
-	oss << "\nbacktrace() returned " << nptrs << " addresses\n";
+  //printf ("dumping %d backtrace ...\n", i);
+  oss << "dumping " << i << " backtrace ...\n";
+  nptrs = backtrace(buffer, BUFFER_SIZE);
+  oss << "\nbacktrace() returned " << nptrs << " addresses\n";
 
   strings = backtrace_symbols(buffer, nptrs);
   if (strings == NULL)
@@ -82,33 +82,33 @@ std::string OSystemLayer::dump_back_trace ()
 
 #ifdef CF3_HAVE_CXXABI_H
 
-	boost::regex e("([0-9]+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+\\+[[:space:]]+(.+)");
-	boost::match_results<std::string::const_iterator> what;
+  boost::regex e("([0-9]+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+\\+[[:space:]]+(.+)");
+  boost::match_results<std::string::const_iterator> what;
 
-	// iterate over the returned symbol lines. skip the first, it is the
-	// address of this function.
-	for (j = 1; j < nptrs; j++)
-	{
-		std::string trace(strings[j]);
+  // iterate over the returned symbol lines. skip the first, it is the
+  // address of this function.
+  for (j = 1; j < nptrs; j++)
+  {
+    std::string trace(strings[j]);
 
-		if (boost::regex_search(trace,what,e))
-		{
-			trace = std::string(what[4].first,what[4].second);
-			size_t maxName = 1024;
-			int demangleStatus;  // will be assigned in abi::__cxa_demangle
-			char* demangledName; // will be allocated in abi::__cxa_demangle
-			if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
-																							 &demangleStatus)) && demangleStatus == 0)
-			{
-				trace = demangledName; // the demangled name is now in our trace string
-			}
-			delete_ptr_array(demangledName);
-		}
-		oss << trace << "\n";
-	}
+    if (boost::regex_search(trace,what,e))
+    {
+      trace = std::string(what[4].first,what[4].second);
+      size_t maxName = 1024;
+      int demangleStatus;  // will be assigned in abi::__cxa_demangle
+      char* demangledName; // will be allocated in abi::__cxa_demangle
+      if ((demangledName = abi::__cxa_demangle(trace.c_str(), NULL, NULL,
+                                               &demangleStatus)) && demangleStatus == 0)
+      {
+        trace = demangledName; // the demangled name is now in our trace string
+      }
+      delete_ptr_array(demangledName);
+    }
+    oss << trace << "\n";
+  }
 #else
-	for (j = 0; j < nptrs; j++)
-		oss << strings[j] << "\n";
+  for (j = 0; j < nptrs; j++)
+    oss << strings[j] << "\n";
 #endif
 
   free(strings);
@@ -277,7 +277,7 @@ int OSystemLayer::handleSIGABRT(int signal)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // MacOSX
-  } // common
+} // MacOSX
+} // common
 } // cf3
 

@@ -69,7 +69,7 @@ Component::Component ( const std::string& name ) :
       .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("lists the component tree inside this component, printing results in XML format")
+      .description("lists the component tree inside this component")
       .pretty_name("List tree");
 
   regist_signal( "list_tree_recursive" )
@@ -739,6 +739,8 @@ void Component::signal_print_tree( SignalArgs& args ) const
   SignalOptions options( args );
   CFinfo << tree(options.value<bool>("basic_mode"),options.value<Uint>("depth")) << CFendl;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_print_tree( SignalArgs& args ) const
 {

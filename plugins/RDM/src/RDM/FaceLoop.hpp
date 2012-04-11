@@ -140,6 +140,7 @@ struct FaceLoopT : public FaceLoop
 
     boost_foreach(mesh::Elements& elements,
                   common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
+//                  common::find_components_recursively<mesh::Elements>(*current_region))
     {
       TermT& term = this->access_term<TermT>();
 
@@ -151,6 +152,7 @@ struct FaceLoopT : public FaceLoop
       {
         term.select_loop_idx(elem);
         term.executeT();
+//        term.execute();
       }
     }
   }

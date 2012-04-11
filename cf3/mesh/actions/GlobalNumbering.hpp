@@ -37,11 +37,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API GlobalNumbering : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
-
 public: // functions
 
   /// constructor
@@ -60,8 +55,8 @@ public: // functions
 
 public: // functions
 
-  static std::size_t elem_hash_value(const RealMatrix& coords);
-  static std::size_t node_hash_value(const RealMatrix& coords);
+//  static std::size_t elem_hash_value(const RealMatrix& coords);
+//  static std::size_t node_hash_value(const RealMatrix& coords);
 
 private: // data
 

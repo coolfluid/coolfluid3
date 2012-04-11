@@ -12,6 +12,7 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildArea.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -69,7 +70,8 @@ void BuildArea::execute()
 
   Mesh& mesh = *m_mesh;
 
-  Dictionary& faces_P0 = *mesh.create_component<Dictionary>("faces_P0");
+
+  Dictionary& faces_P0 = *mesh.create_component<DiscontinuousDictionary>("faces_P0");
   boost_foreach(Faces& faces, find_components_recursively<Faces>(mesh.topology()))
     faces.create_space("cf3.mesh.LagrangeP0"+faces.element_type().shape_name(),faces_P0);
   faces_P0.update();
@@ -77,15 +79,14 @@ void BuildArea::execute()
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 
-  boost_foreach(const Handle<Entities>& elements_handle, area.entities_range() )
+  boost_foreach(const Handle<Space>& space, area.spaces() )
   {
-    const Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
-    const Connectivity& field_connectivity = area.space(elements).connectivity();
-    for (Uint face_idx = 0; face_idx<elements.size(); ++face_idx)
+    RealMatrix coordinates;  space->support().geometry_space().allocate_coordinates(coordinates);
+    const Connectivity& field_connectivity = space->connectivity();
+    for (Uint face_idx = 0; face_idx<space->size(); ++face_idx)
     {
-      elements.geometry_space().put_coordinates( coordinates, face_idx );
-      area[field_connectivity[face_idx][0]][0] = elements.element_type().area( coordinates );
+      space->support().geometry_space().put_coordinates( coordinates, face_idx );
+      area[field_connectivity[face_idx][0]][0] = space->support().element_type().area( coordinates );
     }
   }
 }

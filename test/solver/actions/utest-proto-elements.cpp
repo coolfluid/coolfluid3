@@ -137,10 +137,12 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   // Write mesh
   MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
-  std::vector<Handle< Field > > fields;
-  fields.push_back(Handle<Field>(elems_P0.get_child("volumes")));
-  writer.set_fields(fields);
-  writer.write_from_to(mesh, "utest-proto-elements_output.pvtu");
+  std::vector<URI> fields;
+  fields.push_back(elems_P0.uri()/"volumes");
+  writer.options().configure_option("fields",fields);
+  writer.options().configure_option("mesh",mesh.handle<Mesh>());
+  writer.options().configure_option("file",URI("utest-proto-elements_output.pvtu"));
+  writer.execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

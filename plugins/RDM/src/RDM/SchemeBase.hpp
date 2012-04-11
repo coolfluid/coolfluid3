@@ -16,6 +16,9 @@
 #include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
+/// @todo remove when done
+#include "common/Log.hpp"
+
 #include "common/Core.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionComponent.hpp"
@@ -52,10 +55,6 @@ class RDM_API SchemeBase : public solver::actions::LoopOperation {
 
 public: // typedefs
 
-  /// pointers
-
-
-
 public: // functions
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
@@ -80,17 +79,31 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity =
-        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates =
-        elements().geometry_fields().coordinates().handle< mesh::Field >();
+    //Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
+    CFinfo << uri().path() << CFendl;
 
-    cf3_assert( is_not_null(connectivity) );
-    cf3_assert( is_not_null(coordinates) );
-
+    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    coordinates = csolution->parent()->get_child(mesh::Tags::coordinates())->handle< mesh::Field >();
     solution   = csolution;
     residual   = cresidual;
     wave_speed = cwave_speed;
+
+    if (elements().handle<mesh::Elements>()->exists_space(std::string(RDM::Tags::solution())))
+    {
+      connectivity = elements().handle<mesh::Elements>()->space(std::string(RDM::Tags::solution())).connectivity().handle< mesh::Connectivity >();
+    }
+
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(solution) );
+    cf3_assert( is_not_null(residual) );
+    cf3_assert( is_not_null(wave_speed) );
+
+//    CFinfo << "PPPPPPPPPPPPPP1: " << connectivity->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP2: " << coordinates->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP3: " << solution->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP4: " << residual->uri().path() << CFendl;
+//    CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed->uri().path() << CFendl;
   }
 
 protected: // typedefs

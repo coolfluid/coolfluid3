@@ -14,7 +14,6 @@
 
 #include "sdm/BCWeak.hpp"
 #include "sdm/navierstokes/LibNavierStokes.hpp"
-#include "Physics/NavierStokes/Cons2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,35 +25,42 @@ namespace navierstokes {
 
 class sdm_navierstokes_API BCSubsonicOutlet2D : public BCWeak< PhysDataBase<4u,2u> >
 {
-  typedef physics::NavierStokes::Cons2D PHYS;
+  enum {Rho=0, RhoUx=1, RhoUy=2, RhoE=3};
+
 public:
   static std::string type_name() { return "BCSubsonicOutlet2D"; }
   BCSubsonicOutlet2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_p = 101300.;
     options().add_option("p",m_p).link_to(&m_p);
+
+    m_gamma=1.4;
+    m_gamma_minus_1=m_gamma-1.;
+
+    options().add_option("gamma", m_gamma)
+        .description("The heat capacity ratio")
+        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) );
   }
   virtual ~BCSubsonicOutlet2D() {}
 
-  virtual void initialize()
+  void config_gamma()
   {
-    BCWeak< PhysData >::initialize();
-    m_gamma = physical_model().options().option("gamma").value<Real>();
+    m_gamma = options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
 
-    m_rho_inner  = inner_cell_data.solution[physics::NavierStokes::Cons2D::Rho];
-    m_u_inner    = inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU]/m_rho_inner;
-    m_v_inner    = inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV]/m_rho_inner;
+    m_rho_inner  = inner_cell_data.solution[Rho];
+    m_u_inner    = inner_cell_data.solution[RhoUx]/m_rho_inner;
+    m_v_inner    = inner_cell_data.solution[RhoUy]/m_rho_inner;
     m_uuvv_inner = m_u_inner*m_u_inner + m_v_inner*m_v_inner;
 
-    boundary_face_pt_data[physics::NavierStokes::Cons2D::Rho ]=inner_cell_data.solution[physics::NavierStokes::Cons2D::Rho];
-    boundary_face_pt_data[physics::NavierStokes::Cons2D::RhoU]=inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoU];
-    boundary_face_pt_data[physics::NavierStokes::Cons2D::RhoV]=inner_cell_data.solution[physics::NavierStokes::Cons2D::RhoV];
-    boundary_face_pt_data[physics::NavierStokes::Cons2D::RhoE]=m_p/m_gamma_minus_1 + 0.5 * m_rho_inner * m_uuvv_inner;
+    boundary_face_pt_data[Rho  ]=inner_cell_data.solution[Rho];
+    boundary_face_pt_data[RhoUx]=inner_cell_data.solution[RhoUx];
+    boundary_face_pt_data[RhoUy]=inner_cell_data.solution[RhoUy];
+    boundary_face_pt_data[RhoE ]=m_p/m_gamma_minus_1 + 0.5 * m_rho_inner * m_uuvv_inner;
   }
 
 

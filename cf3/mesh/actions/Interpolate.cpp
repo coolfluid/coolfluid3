@@ -91,7 +91,7 @@ void Interpolate::execute()
   if(find_parent_component_ptr<Mesh>(source) == find_parent_component_ptr<Mesh>(target))
   {
     /// Loop over Regions
-    boost_foreach(const Handle<Entities>& elements_handle, target.entities_range())
+    boost_foreach(const Handle<Entities>& elements_handle, target.dict().entities_range())
     {
       Entities& elements = *elements_handle;
       if (source.dict().defined_for_entities(elements_handle) == false)

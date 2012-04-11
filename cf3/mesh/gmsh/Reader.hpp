@@ -62,7 +62,9 @@ private: // functions
 
   Handle<Region> create_region(std::string const& relative_path);
 
-  void find_ghost_nodes();
+  void find_used_nodes();
+
+//  void find_ghost_nodes();
 
   void read_coordinates();
 
@@ -107,8 +109,8 @@ private: // data
 
   std::set<Uint> m_ghost_nodes;
   //std::set<Uint> m_ghost_elems;
-  std::set<Uint> m_nodes_to_read;
-
+  std::set<Uint> m_used_nodes;
+  
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 
   //Markers for important places in the file to be read
@@ -128,8 +130,6 @@ private: // data
   {
     std::string name;
     std::vector<std::string> var_names;
-    std::string topology;
-    std::string basis;
     Real time;
     Uint time_step;
     std::vector<Uint> var_types;
@@ -143,6 +143,7 @@ private: // data
 
   std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh);
 
+  Uint IO_rank;
 }; // end Reader
 
 ////////////////////////////////////////////////////////////////////////////////

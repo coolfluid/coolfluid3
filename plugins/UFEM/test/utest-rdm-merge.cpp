@@ -28,6 +28,9 @@
 #include "solver/Time.hpp"
 
 #include "solver/actions/SolveLSS.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -36,7 +39,6 @@
 
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/Tags.hpp"
-#include "UFEM/TimeLoop.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -98,6 +100,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
   lss.options().configure_option("solver", std::string("Trilinos"));
   solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  
+  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   // Proto placeholders
   MeshTerm<0, ScalarField> fi("FI", UFEM::Tags::solution());
@@ -129,7 +134,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         u_adv = coordinates[1] * u_ref
       )
     )
-    << ( allocate_component<UFEM::TimeLoop>("TimeLoop")
+    << ( time_loop
       << create_proto_action
       (
         "Assembly",
@@ -152,6 +157,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       << bc
       << allocate_component<solver::actions::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(fi += solver.solution(fi)))
+      << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
     );
 //    << create_proto_action("CheckResult", nodes_expression(_check_close(fi, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 

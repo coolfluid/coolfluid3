@@ -34,8 +34,6 @@ namespace common {
 
     virtual void stop_profiling() {}
 
-    virtual void set_file_path(const boost::filesystem::path & path) {}
-
   }; // class NoProfiling
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -146,7 +146,8 @@ void SDSolver::execute()
   m_boundary_conditions->execute();
   // Start time stepping
   m_time_stepping->execute();
-  boost_foreach(mesh::Field& field,  find_components_recursively<Field>(*mesh().get_child("solution_space")))
+  Component& solution_space = *mesh().get_child("solution_space");
+  boost_foreach(mesh::Field& field,  find_components_recursively<Field>(solution_space))
     field.synchronize();
 }
 
@@ -232,7 +233,8 @@ void SDSolver::config_regions()
   if ( is_null(m_mesh) )
     throw SetupError(FromHere(), "First configure the mesh");
   m_regions.clear();
-  boost_foreach(const URI& region_uri, options().option("regions").value< std::vector<URI> >())
+  const std::vector<URI> regions = options().option("regions").value< std::vector<URI> >();
+  boost_foreach(const URI& region_uri, regions)
   {
     Handle<Component> comp = m_mesh->access_component(region_uri);
 

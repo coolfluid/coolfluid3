@@ -20,10 +20,12 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Iterate.hpp"
+#include "solver/actions/CriterionTime.hpp"
+#include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
 
 #include "Tags.hpp"
-#include "TimeLoop.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -33,17 +35,11 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-ComponentBuilder < NavierStokes, Solver, LibUFEM > NavierStokes_builder;
+ComponentBuilder < NavierStokes, solver::Solver, LibUFEM > NavierStokes_builder;
 
 NavierStokes::NavierStokes(const std::string& name) :
   LinearSolverUnsteady(name)
 {
-  m_p_update_history.reserve(100000);
-  m_u_update_history.reserve(100000);
-
-  properties().add_property("p_update_history", m_p_update_history);
-  properties().add_property("u_update_history", m_u_update_history);
-
   options().add_option("initial_pressure", 0.)
     .description("Initial condition for the pressure")
     .pretty_name("Initial pressure")
@@ -70,15 +66,19 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Dynamic Viscosity")
     .link_to(&m_coeffs.mu);
 
-  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D> allowed_elements;
+  // For these elements, faster, specialized code exists
+  boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> specialized_elements;
 
-  MeshTerm<0, VectorField> u("Velocity", Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<0, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<1, VectorField> u("Velocity", Tags::solution());
 
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
   MeshTerm<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
+
+  boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
+  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   *this
     << create_proto_action("Initialize", nodes_expression(group
@@ -91,29 +91,24 @@ NavierStokes::NavierStokes(const std::string& name) :
     )))
     <<
     ( // Time loop
-      allocate_component<TimeLoop>("TimeLoop")
+      time_loop
       << allocate_component<ZeroLSS>("ZeroLSS")
       << create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
       << create_proto_action
       (
-        "Assembly",
+        "GenericAssembly",
+        generic_ns_assembly(*this, m_coeffs)
+      )
+      << create_proto_action
+      (
+        "SpecializedAssembly",
         elements_expression
         (
-          allowed_elements,
+          specialized_elements,
           group
           (
-            _A = _0, _T = _0,
-            compute_tau(u, m_coeffs),
-            element_quadrature
-            (
-              _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
-              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
-              _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
-              _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-              _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
-              _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
-              _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u))         * N(u)          // Time, standard and SUPG
-            ),
+            _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
+            supg_specialized(p, u, u_adv, m_coeffs, _A, _T),
             system_matrix += invdt() * _T + 1.0 * _A,
             system_rhs += -_A * _b
           )
@@ -127,10 +122,9 @@ NavierStokes::NavierStokes(const std::string& name) :
         u2 = u1,
         u1 = u,
         u += solution(u),
-        p += solution(p),
-        boost::proto::lit(m_p_stats)(solution(p)),
-        boost::proto::lit(m_u_stats)(_norm(solution(u)))
+        p += solution(p)
       )))
+      << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
     );
 }
 
@@ -147,21 +141,6 @@ void NavierStokes::trigger_u()
   m_u0.resize(nb_comps);
   for(Uint i = 0; i != nb_comps; ++i)
     m_u0[i] = u_vec[i];
-}
-
-void NavierStokes::on_iteration_increment()
-{
-  m_p_update_history.push_back(boost::accumulators::max(m_p_stats));
-  m_u_update_history.push_back(boost::accumulators::max(m_u_stats));
-
-  m_u_stats = StatsT();
-  m_p_stats = StatsT();
-
-  if((time().current_time() - time().end_time()) < time().dt())
-  {
-    properties()["p_update_history"] = m_p_update_history;
-    properties()["u_update_history"] = m_u_update_history;
-  }
 }
 
 

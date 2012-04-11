@@ -33,7 +33,7 @@ common::ComponentBuilder < Iterate, common::Action, LibActions > Iterate_Builder
 ////////////////////////////////////////////////////////////////////////////////
 
 Iterate::Iterate( const std::string& name  ) :
-  Action ( name ),
+  ActionDirector(name),
   m_iter(0),
   m_verbose(false),
   m_max_iter(uint_max())
@@ -84,12 +84,7 @@ void Iterate::execute ()
     if (m_verbose)
       CFinfo << uri().path() << "[" << m_iter << "]" << CFendl;
 
-    // call all actions and action links inside this component
-    boost_foreach(Component& child, *this)
-    {
-      if (Handle< Action > action = follow_link(child)->handle<Action>())
-        action->execute();
-    }
+    ActionDirector::execute();
 
     // update the iteration
     ++m_iter;

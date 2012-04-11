@@ -15,6 +15,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   InitAcousticVorticityPulse.cpp
   ComputeCharacteristicVariables.hpp
   ComputeCharacteristicVariables.cpp
+  SourceMonopole2D.hpp
+  SourceMonopole2D.cpp
 )
 
 list( APPEND coolfluid_sdm_lineuler_cflibs coolfluid_sdm coolfluid_physics_lineuler )

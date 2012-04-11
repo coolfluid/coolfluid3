@@ -12,6 +12,7 @@
 #include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildVolume.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -69,7 +70,7 @@ void BuildVolume::execute()
 
   Mesh& mesh = *m_mesh;
 
-  Dictionary& cells_P0 = *mesh.create_component<Dictionary>("cells_P0");
+  Dictionary& cells_P0 = *mesh.create_component<DiscontinuousDictionary>("cells_P0");
   boost_foreach(Cells& cells, find_components_recursively<Cells>(mesh.topology()))
     cells.create_space("cf3.mesh.LagrangeP0"+cells.element_type().shape_name(),cells_P0);
   cells_P0.update();
@@ -78,16 +79,15 @@ void BuildVolume::execute()
   Field& volume = cells_P0.create_field("volume");
   volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach( const Handle<Entities>& elements_handle, volume.entities_range() )
+  boost_foreach( const Handle<Space>& space, volume.spaces() )
   {
-    Entities& elements = *elements_handle;
-    RealMatrix coordinates;  elements.geometry_space().allocate_coordinates(coordinates);
+    RealMatrix coordinates;  space->support().geometry_space().allocate_coordinates(coordinates);
 
-    const Connectivity& space_connectivity = cells_P0.space(elements).connectivity();
-    for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
+    const Connectivity& space_connectivity = space->connectivity();
+    for (Uint cell_idx = 0; cell_idx<space->size(); ++cell_idx)
     {
-      elements.geometry_space().put_coordinates( coordinates, cell_idx );
-      volume[space_connectivity[cell_idx][0]][0] = elements.element_type().volume( coordinates );
+      space->support().geometry_space().put_coordinates( coordinates, cell_idx );
+      volume[space_connectivity[cell_idx][0]][0] = space->support().element_type().volume( coordinates );
     }
   }
 

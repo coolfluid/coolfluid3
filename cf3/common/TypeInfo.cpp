@@ -48,6 +48,8 @@ TypeInfo::TypeInfo()
 {
   regist<int>("integer");
   regist<cf3::Uint>("unsigned");
+  regist<unsigned long>("unsigned_long");
+  regist<unsigned long long>("unsigned_long_long");
   regist<std::string>("string");
   regist<bool>("bool");
   regist<cf3::Real>("real");
