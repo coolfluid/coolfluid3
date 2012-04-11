@@ -18,7 +18,6 @@
 #include <QQueue>
 #include <QPair>
 #include <QAbstractTableModel>
-#include <QStaticText>
 #include "ui/graphics/PythonCodeContainer.hpp"
 #include "ui/core/NScriptEngine.hpp"
 
