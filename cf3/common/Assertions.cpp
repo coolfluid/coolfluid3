@@ -66,6 +66,7 @@ void AssertionManager::do_assert ( bool condition,
     }
     else
     {
+      CFerror.setFilterRankZero(false);
       CFerror << oss.str() << CFendl;
       CFerror << "aborting..." << CFendl;
       abort ();

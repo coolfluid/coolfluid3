@@ -50,18 +50,19 @@ public:
 
   void resize(const Uint new_size)
   {
-    Uint difference = new_size - size();
-    if (difference > 0)
-    {
-      for (Uint i=0; i<difference; ++i)
-        m_array.push_back(std::vector<T>());
-    }
-    else
-    {
-      difference = -difference;
-      for (Uint i=0; i<difference; ++i)
-        m_array.pop_back();
-    }
+    m_array.resize(new_size);
+//    Uint difference = new_size - size();
+//    if (difference > 0)
+//    {
+//      for (Uint i=0; i<difference; ++i)
+//        m_array.push_back(std::vector<T>());
+//    }
+//    else
+//    {
+//      difference = -difference;
+//      for (Uint i=0; i<difference; ++i)
+//        m_array.pop_back();
+//    }
   }
 
   Uint row_size(const Uint i) const {return m_array[i].size();}

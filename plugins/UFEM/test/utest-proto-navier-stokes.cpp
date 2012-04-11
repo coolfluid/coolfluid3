@@ -27,7 +27,8 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "mesh/MeshGenerator.hpp"
 
-#include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/LSSActionUnsteady.hpp"
+#include "UFEM/Solver.hpp"
 #include "UFEM/NavierStokesOps.hpp"
 #include "UFEM/Tags.hpp"
 #include "UFEM/ParsedFunctionExpression.hpp"
@@ -111,7 +112,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
   // List of (Navier-)Stokes creation functions, with their names
   const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("generic_ns_assembly");
-  typedef boost::shared_ptr< Expression > (*FactoryT)(LinearSolverUnsteady&, SUPGCoeffs&);
+  typedef boost::shared_ptr< Expression > (*FactoryT)(LSSActionUnsteady&, SUPGCoeffs&);
   std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::generic_ns_assembly);
 
   // Loop over all model types
@@ -121,12 +122,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Setup a model
     ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>(names[i]);
     Domain& domain = model.create_domain("Domain");
-    LinearSolverUnsteady& solver = *model.create_component<LinearSolverUnsteady>("Solver");
-
-    // Linear system setup (TODO: sane default config for this, so this can be skipped)
-    math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-    lss.options().configure_option("matrix_builder", std::string("cf3.math.LSS.TrilinosFEVbrMatrix"));
-    solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+    UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
+    Handle<UFEM::LSSActionUnsteady> lss_action(solver.add_unsteady_solver("cf3.UFEM.LSSActionUnsteady"));
+    Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
     time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
@@ -140,26 +138,22 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
     vel_init->set_expression(nodes_expression(u = vel_init->function()));
     vel_init->options().configure_option("value", parabole_functions);
+    
+    *ic << create_proto_action("InitializePressure", nodes_expression(p = 0.)) << vel_init;
 
     // BC
     boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
-
+    
     // build up the solver out of different actions
-    solver
-      << create_proto_action("InitializePressure", nodes_expression(p = 0.))
-      << vel_init
-      <<
-      ( // Time loop
-        time_loop
+    *lss_action
         << create_proto_action("AdvectionVel", nodes_expression(u_adv = u))
         << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
-        << create_proto_action("Assembly", factories[i](solver, coefs))
+        << create_proto_action("Assembly", factories[i](*lss_action, coefs))
         << bc
         << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-        << create_proto_action("IncrementU", nodes_expression(u += solver.solution(u)))
-        << create_proto_action("IncrementP", nodes_expression(p += solver.solution(p)))
-        << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
-      )
+        << create_proto_action("IncrementU", nodes_expression(u += lss_action->solution(u)))
+        << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)));
+    solver
       << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 5e-1)))
       << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 5e-2)))
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
@@ -176,7 +170,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     create_rectangle->options().configure_option("nb_cells",nb_cells);
     Mesh& mesh = create_rectangle->generate();
 
-    lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+    lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
     // Boundary conditions
     bc->add_constant_bc("left", "Pressure", p0);
@@ -195,9 +189,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     model.simulate();
 
     domain.write_mesh("ns-test-" + names[i] + ".pvtu");
-
-    lss.matrix()->print("matrix-" + names[i] + ".plt");
-    lss.rhs()->print("rhs-" + names[i] + ".plt");
   }
 }
 

@@ -12,9 +12,6 @@
 
 #include "solver/Solver.hpp"
 
-#include "solver/actions/Proto/BlockAccumulator.hpp"
-#include "solver/actions/Proto/DirichletBC.hpp"
-
 #include "LibUFEM.hpp"
 
 namespace cf3 {

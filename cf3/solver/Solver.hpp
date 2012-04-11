@@ -66,6 +66,11 @@ protected:
 
   /// Checked access to the physical model
   physics::PhysModel& physics();
+  
+  /// Raw access to the physics
+  Handle<physics::PhysModel> m_physics;
+  
+  void trigger_physical_model();
 
 private:
   class Implementation;

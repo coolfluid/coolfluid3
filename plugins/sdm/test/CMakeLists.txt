@@ -54,4 +54,9 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticvorticityentropypulse-
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 
+coolfluid_add_test( ATEST      atest-sdm-channelflow-movingref-2d
+                    PYTHON     atest-sdm-channelflow-movingref-2d.py
+                    LIBS       coolfluid_sdm_navierstokes coolfluid_sdm_navierstokesmovingreference
+                    MPI        1 )
+
 #########################################################################

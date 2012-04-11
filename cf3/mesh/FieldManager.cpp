@@ -110,6 +110,8 @@ void FieldManager::create_field(const std::string& tag, Dictionary& dict)
     }
 
     dict.create_field(tag, descriptor).add_tag(tag);
+    
+    CFdebug << "Creating field with tag " << tag << ": " << descriptor.description() << CFendl;
   }
 }
 

@@ -60,20 +60,7 @@ DiscontinuousDictionary::~DiscontinuousDictionary()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//boost::uint64_t DiscontinuousDictionary::hash_value(const RealMatrix& coords)
-//{
-//  boost::uint64_t seed=0;
-//  for (Uint i=0; i<coords.rows(); ++i)
-//  for (Uint j=0; j<coords.cols(); ++j)
-//  {
-//    // multiply with 1e-5 (arbitrary) to avoid hash collisions
-//    boost::hash_combine(seed,1e-6*coords(i,j));
-//  }
-//  return seed;
-//}
-
-
-void DiscontinuousDictionary::create_connectivity_in_space()
+void DiscontinuousDictionary::rebuild_spaces_from_geometry()
 {
   math::BoundingBox bounding_box;
 
@@ -434,6 +421,29 @@ void DiscontinuousDictionary::create_connectivity_in_space()
 
   create_coordinates();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void DiscontinuousDictionary::rebuild_node_to_element_connectivity()
+{
+  // Reserve memory in m_connectivity->array()
+  m_connectivity->array().resize(size());
+  for (Uint n=0; n<size(); ++n)
+  {
+    m_connectivity->set_row_size(n,1);
+  }
+  boost_foreach (const Handle<Space>& space, spaces())
+  {
+    for (Uint elem_idx=0; elem_idx<space->size(); ++elem_idx)
+    {
+      boost_foreach (const Uint node_idx, space->connectivity()[elem_idx])
+      {
+        m_connectivity->array()[node_idx][0]=SpaceElem(*space,elem_idx);
+      }
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // mesh

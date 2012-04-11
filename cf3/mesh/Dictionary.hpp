@@ -7,7 +7,9 @@
 #ifndef cf3_mesh_Dictionary_hpp
 #define cf3_mesh_Dictionary_hpp
 
-#include "common/Component.hpp"
+#include <boost/cstdint.hpp>
+
+#include "common/Map.hpp"
 
 #include "mesh/LibMesh.hpp"
 
@@ -27,12 +29,17 @@ namespace mesh {
   class Elements;
   class Entities;
   class Space;
+  class SpaceElem;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Component that holds Fields of the same type (topology and space)
 /// @author Willem Deconinck
 class Mesh_API Dictionary : public common::Component {
+
+ /// @todo find workaround for following hack
+friend class Mesh; // dirty (but harmless) hack, because geometry coordinates field
+                   // needs to be initialized differently and added to m_fields
 
 public: // functions
 
@@ -53,7 +60,7 @@ public: // functions
   Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
   /// Number of rows of contained fields
-  virtual Uint size() const { return m_size; }
+  Uint size() const;
 
   /// Resize the contained fields
   void resize(const Uint size);
@@ -65,10 +72,25 @@ public: // functions
   const Handle< Space const>& space(const Handle< Entities const>& entities) const;
 
   /// Return the global index of every field row
-  common::List<Uint>& glb_idx() const { return *m_glb_idx; }
+  common::List<Uint>& glb_idx() { return *m_glb_idx; }
+
+  /// Return the global index of every field row
+  const common::List<Uint>& glb_idx() const { return *m_glb_idx; }
 
   /// Return the rank of every field row
-  common::List<Uint>& rank() const { return *m_rank; }
+  common::List<Uint>& rank() { return *m_rank; }
+
+  /// Return the rank of every field row
+  const common::List<Uint>& rank() const { return *m_rank; }
+
+  /// Return a mapping between global and local indices
+//  common::Map<boost::uint64_t,Uint>& glb_to_loc() { return *m_glb_to_loc; }
+
+  /// Return a mapping between global and local indices
+  const common::Map<boost::uint64_t,Uint>& glb_to_loc() const { return *m_glb_to_loc; }
+
+  /// Node to space-element connectivity
+  const common::DynTable<SpaceElem>& connectivity() const { return *m_connectivity; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
   common::PE::CommPattern& comm_pattern();
@@ -82,11 +104,15 @@ public: // functions
 
   const std::vector<Handle< Entities > >& entities_range() const;
 
+  const std::vector<Handle< Space > >& spaces() const;
+
   Field& field(const std::string& name);
 
   const Field& coordinates() const;
 
   Field& coordinates();
+
+  const std::vector< Handle<Field> >& fields() const { return m_fields; }
 
   common::DynTable<Uint>& glb_elem_connectivity();
 
@@ -104,6 +130,13 @@ public: // functions
 
   bool discontinuous() const { return !m_is_continuous; }
 
+  void rebuild_map_glb_to_loc();
+
+  /// @note This is a function only for non-geometry spaces.
+  virtual void rebuild_spaces_from_geometry() = 0;
+
+  virtual void rebuild_node_to_element_connectivity() = 0;
+
 private: // functions
 
   void config_space();
@@ -119,26 +152,30 @@ private: // functions
 
 protected: // functions
 
-  virtual void create_connectivity_in_space() = 0;
-
   bool has_coordinates() const;
 
   Field& create_coordinates();
 
 protected:
-  Uint m_size;
   Handle<common::List<Uint> > m_glb_idx;
   Handle<common::List<Uint> > m_rank;
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
+  Handle<common::Map<boost::uint64_t,Uint> > m_glb_to_loc;
   bool m_is_continuous;
+
+  /// Connectivity with the element of the space
+  Handle<common::DynTable<SpaceElem> > m_connectivity;
+
 
 private:
 
   std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
   std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
+  std::vector< Handle<Field> > m_fields;
+  bool m_new_spaces_added;
 
 };
 
