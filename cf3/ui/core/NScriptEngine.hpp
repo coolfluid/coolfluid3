@@ -74,8 +74,11 @@ public:
   /// @param node Signal node
   void signal_execute_script_reply(common::SignalArgs & node);
 
-  /// @brief Allow to execute script on the console (used in signal conversion)
+  /// @brief Allow to execute script on the console (not used anymore)
   void append_command_to_python_console(std::string & command);
+
+  /// @brief Allow to append command that are juste display on the console (used in signal conversion)
+  void append_false_command_to_python_console(std::string & command);
 public slots:
   /// @brief Called when the client is connected to the server, this allow NScriptEngine to send signal to the server.
   void client_connected();
@@ -97,6 +100,9 @@ signals:
 
   /// @brief Send a command to execute to the python console
   void execute_code_request(QString);
+
+  /// @brief Send a command to execute to the python console
+  void append_false_command_request(QString);
 
 protected:
 

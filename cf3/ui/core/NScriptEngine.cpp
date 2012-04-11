@@ -54,11 +54,16 @@ NScriptEngine::NScriptEngine():CNode(CLIENT_SCRIPT_ENGINE,"NScriptEngine",CNode:
       .connect(boost::bind(&NScriptEngine::signal_execute_script_reply, this, _1));
 }
 
-
 ///////////////////////////////////////////////////////////////////////////
 
 void NScriptEngine::append_command_to_python_console(std::string & command){
   emit execute_code_request(QString(command.c_str()));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void NScriptEngine::append_false_command_to_python_console(std::string & command){
+  emit append_false_command_request(QString(command.c_str()));
 }
 
 ///////////////////////////////////////////////////////////////////////////

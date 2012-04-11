@@ -501,7 +501,6 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
 {
   std::string str="Root";
   std::string target = node.attribute_value("target");
-  std::string sender = node.attribute_value("sender");
   std::string receiver = node.attribute_value("receiver").substr(7);//without the 'cpath:/'
   boost::char_separator<char> sep("/");
   boost::tokenizer< boost::char_separator<char> > tokens(receiver, sep);
@@ -569,7 +568,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
     {
       boost::shared_ptr<Option const> option = it->second;
       if (option->name() == "name"){
-        str+="."+option->value_str()+"(uri=URI(\'"+sender+"\')";
+        str+="."+option->value_str()+"(";
       }
     }
     it = opts.store.begin();
@@ -617,13 +616,11 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
     }
     str+=')';
   }else{
-    str+="."+target+"(uri=\""+sender+'"';
+    str+="."+target+"(";
     SignalFrame frame( *this );
     SignalOptions opts( frame );
 
     OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
-    if (it != opts.store.end())
-      str+=',';
     for (; it != opts.store.end() ; it++ )
     {
       boost::shared_ptr<Option const> option = it->second;
@@ -666,7 +663,6 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
     }
     str+=')';
   }
-  str+="\n";
   return str;
 }
 

@@ -232,6 +232,8 @@ namespace graphics {
 
     QSplitter * m_central_splitter;
 
+    QSplitter * m_python_tab_splitter;
+
     /// @brief Simple console to execute python command on the server
     PythonConsole * m_python_console;
 

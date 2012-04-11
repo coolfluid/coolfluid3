@@ -282,7 +282,6 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         completer->complete(completer_rect);
       }
     }else{
-
       if (e->key()==Qt::Key_Return){//auto indentation
         QTextCursor c=textCursor();
         QString current_line=document()->findBlockByNumber(c.blockNumber()).text();
@@ -295,15 +294,8 @@ void PythonCodeContainer::keyPressEvent(QKeyEvent *e){
         }
         if (indent_case.indexIn(current_line) > -1)
           tab_number++;
-        c.movePosition(QTextCursor::EndOfBlock);
-        c.insertText("\n");
-        if (tab_number>0){
-          for (int i=0;i<tab_number;i++)
-            c.insertText("\t");
-        }
-        setTextCursor(c);
         new_line(tab_number);
-      }else if (e->modifiers()==Qt::AltModifier && e->key()==Qt::Key_Space){
+      }else if (e->key()==Qt::Key_Escape){
         QString word_under_cursor=get_word_under_cursor(c);
         if (word_under_cursor.length() >= 0){
           setTextCursor(c);
@@ -432,7 +424,7 @@ void PythonCodeContainer::add_to_dictionary(int &i,const QStringList &add,Custom
       QStringList path_list=item_path.split('.');
       for (int j=0;j<path_list.size()-1;j++){
         for (int k=0;k<current_item->rowCount();k++){
-          CustomStandardItem *n_item=(CustomStandardItem*)item->child(k);
+          CustomStandardItem *n_item=(CustomStandardItem*)current_item->child(k);
           if (n_item->text()==path_list[j]){
             current_item=n_item;
           }

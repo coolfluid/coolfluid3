@@ -86,18 +86,16 @@ Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
 {
   Transaction * transaction = nullptr;
   std::string python_repr=args.to_python_script();
-  if (python_repr.size()){
-    NScriptEngine::global().get()->append_command_to_python_console(python_repr);
-  }else{
-    if( priority == IMMEDIATE ){
-      ThreadManager::instance().network().send( args );
-    }else
-    {
-      QString uuid = start_transaction();
-      transaction = m_new_transactions[uuid];
-      add_to_transaction( uuid, args );
-      insert_transaction( uuid, priority );
-    }
+  if (python_repr.size())
+    NScriptEngine::global().get()->append_false_command_to_python_console(python_repr);
+  if( priority == IMMEDIATE ){
+    ThreadManager::instance().network().send( args );
+  }else
+  {
+    QString uuid = start_transaction();
+    transaction = m_new_transactions[uuid];
+    add_to_transaction( uuid, args );
+    insert_transaction( uuid, priority );
   }
   return transaction;
 }

@@ -23,6 +23,7 @@
 #include "common/TimedComponent.hpp"
 #include "common/TypeInfo.hpp"
 #include "common/Signal.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/XML/FileOperations.hpp"
 
@@ -33,7 +34,7 @@ namespace cf3 {
 namespace python {
 
 // Types that can be held by any
-typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, common::URI, Handle<common::Component> > AnyTypes;
+typedef boost::mpl::vector8<std::string, Real, Uint, int, bool, common::URI, Handle<common::Component>, common::UUCount > AnyTypes;
 
 /// Conversion from any to python for basic types
 struct AnyToPython
@@ -554,6 +555,29 @@ std::string option_value_str(const common::OptionList* self, const std::string& 
   return self->option(optname).value_str();
 }
 
+boost::python::object option_get_item(const common::OptionList* self, const std::string& optname){
+  return any_to_python(self->operator [](optname).value());
+}
+
+boost::python::list option_keys(const common::OptionList* self){
+  boost::python::list list;
+  common::OptionList::const_iterator it=self->begin();
+  for (;it!=self->end();it++){
+    list.append(boost::python::str(it->first.c_str()));
+  }
+  return list;
+}
+
+
+boost::python::dict option_dict(const common::OptionList* self){
+  boost::python::dict dict;
+  common::OptionList::const_iterator it=self->begin();
+  for (;it!=self->end();it++){
+    dict[boost::python::str(it->first.c_str())]=any_to_python(self->operator [](it->first).value());
+  }
+  return dict;
+}
+
 //////////////////// PropertyList /////////////////////////////////////////////////////////////
 
 common::PropertyList* properties(ComponentWrapper& self)
@@ -568,7 +592,59 @@ Uint properties_get_len(common::PropertyList* self)
 
 boost::python::object properties_get_item(common::PropertyList* self, const std::string& name)
 {
+  std::cout << "get_item value type:" << self->type(name) << std::endl;
   return any_to_python(self->property(name));
+}
+
+void properties_set_item(common::PropertyList* self, const std::string& name, const boost::python::object& val)
+{
+  if (self->check(name)){
+    self->property(name)=python_to_any(val,self->type(name));
+    std::cout << "set_item value type:" << self->type(name) << std::endl;
+  }
+}
+
+void properties_add_property(common::PropertyList* self, const std::string& name, const std::string& type, const boost::python::object& val)
+{
+  self->add_property(name, python_to_any(val,type));
+}
+
+boost::python::list properties_keys(const common::PropertyList* self){
+  boost::python::list list;
+  common::PropertyList::const_iterator it=self->begin();
+  for (;it!=self->end();it++){
+    list.append(boost::python::str(it->first.c_str()));
+  }
+  return list;
+}
+
+
+boost::python::dict properties_dict(const common::PropertyList* self){
+  boost::python::dict dict;
+  common::PropertyList::const_iterator it=self->begin();
+  for (;it!=self->end();it++){
+    dict[boost::python::str(it->first.c_str())]=any_to_python(self->property(it->first));
+  }
+  return dict;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+boost::python::str uucount_str(const common::UUCount* self){
+  return boost::python::str(self->string().c_str());
+}
+
+boost::python::list uucount_uuid(const common::UUCount* self){
+  boost::python::list list;
+  const boost::uuids::uuid& uuid=self->uuid();
+  for (int i=0,e=uuid.static_size();i<e;i++){
+    list.append(uuid.data[i]);
+  }
+  return list;
+}
+
+Uint uucount_count(const common::UUCount* self){
+  return self->count();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -588,15 +664,30 @@ void def_component()
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
-    .def("__str__", to_str);
+    .def("__str__", to_str)
+    .def("__repr__", to_str);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
-    .def("value_str", option_value_str, "String value for an option");
+    .def("value_str", option_value_str, "String value for an option")
+    .def("__getitem__", option_get_item, "")
+    .def("__setitem__", configure_option, "")
+    .def("keys", option_keys, "")
+    .def("dict", option_dict, "");
 
   boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
     .def("__len__", properties_get_len)
-    .def("__getitem__", properties_get_item);
+    .def("__getitem__", properties_get_item)
+    .def("__setitem__", properties_set_item, "")
+    .def("add_property", properties_add_property,"")
+    .def("keys", properties_keys, "")
+    .def("dict", properties_dict, "");
+
+  boost::python::class_<common::UUCount>("UUCount", boost::python::no_init)
+    .def("__str__", uucount_str)
+    .def("__repr__", uucount_str)
+    .def("uuid", uucount_uuid)
+    .def("count", uucount_count);
 }
 
 } // python

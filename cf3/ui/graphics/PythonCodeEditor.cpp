@@ -59,7 +59,13 @@ void PythonCodeEditor::key_press_event(QKeyEvent *e){
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonCodeEditor::new_line(int indent_number){
-  Q_UNUSED(indent_number);
+  QTextCursor c=textCursor();
+  c.insertText("\n");
+  if (indent_number>0){
+    for (int i=0;i<indent_number;i++)
+      c.insertText("\t");
+  }
+  setTextCursor(c);
 }
 
 ////////////////////////////////////////////////////////////////////////////

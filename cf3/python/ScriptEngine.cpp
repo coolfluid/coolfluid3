@@ -29,6 +29,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/python/handle.hpp>
+#include <boost/python/object.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
@@ -100,7 +101,9 @@ void python_execute_function(){
             if (PyArg_ParseTuple (val, "sO", &error, &obj)){
               CFinfo << ":" << python_current_fragment.second << ":" << error << CFendl;
             }else{
-              CFinfo << ":" << python_current_fragment.second << ":" << PyString_AsString(PyObject_Str(val)) << CFendl;
+              const char* val_str=PyString_AsString(PyObject_Str(val));
+              if (strcmp(val_str,"basic_string::substr"))//some weird values apprear sometimes (like in signal calls)
+                CFinfo << ":" << python_current_fragment.second << ":" << val_str << CFendl;
             }
           }
         }
@@ -121,7 +124,7 @@ void python_execute_function(){
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
   if (python_close++ == 0){//this class is instancied two times, don't known why
-    fragment_generator=10;
+    fragment_generator=1;
     stoped=false;
     python_should_wake_up=false;
     python_should_break=false;
@@ -206,7 +209,9 @@ int ScriptEngine::execute_script(std::string script,int code_fragment){
         if (PyArg_ParseTuple (val, "sO", &error, &obj)){
           CFinfo << ":" << code_fragment << ":" << error << CFendl;
         }else{
-          CFinfo << ":" << code_fragment << ":" << PyString_AsString(PyObject_Str(val)) << CFendl;
+          const char* val_str=PyString_AsString(PyObject_Str(val));
+          if (strcmp(val_str,"basic_string::substr"))//some weird values apprear sometimes (like in signal calls)
+            CFinfo << ":" << code_fragment << ":" << val_str << CFendl;
         }
       }
     }
@@ -330,9 +335,11 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::flush_python_stdout(int code_fragment){
+  boost::python::handle<> name(PyString_FromString("data"));
+  boost::python::handle<> blank(PyString_FromString(""));
   boost::python::handle<> py_stdout(boost::python::borrowed(boost::python::allow_null(PyDict_GetItemString(local_scope.get(),"stdoutStack"))));
   if (py_stdout.get() != NULL){
-    boost::python::handle<> data(boost::python::allow_null(PyObject_GetAttrString(py_stdout.get(),"data")));
+    boost::python::handle<> data(boost::python::allow_null(PyObject_GetAttr(py_stdout.get(),name.get())));
     if (data.get() != NULL){
       char * data_str=PyString_AsString(data.get());
       if (strlen(data_str)>0){
@@ -342,7 +349,7 @@ void ScriptEngine::flush_python_stdout(int code_fragment){
         else//must be a documentation request
           emit_documentation(data_str);
         //Py_XDECREF(data.get());
-        PyObject_SetAttrString(py_stdout.get(),"data",PyString_FromString(""));
+        PyObject_SetAttr(py_stdout.get(),name.get(),blank.get());
         //execute_script("sys.stdout.data=''",0);
       }
     }
@@ -421,7 +428,7 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
     new_fragment=execute_script(code,fragment);
   }
   if (new_fragment > 0 && fragment != new_fragment){
-    SignalFrame reply=node.create_reply(URI(node.node.attribute_value("sender")));
+    SignalFrame reply=node.create_reply();
     SignalOptions options(reply);
     options.add_option("fragment", fragment);
     options.add_option("new_fragment", new_fragment);

@@ -53,7 +53,7 @@ public:
   /// @param main_window Used to create a new script editor from the console
   PythonConsole(QWidget *parent,MainWindow* main_window);
   /// @brief called by the parent to create the splitter with the scope values
-  void create_splitter(QTabWidget *tab_widget);
+  void create_python_area(QWidget *widget);
   /// @brief to check if the console can execute command (like for documentation request)
   bool is_stopped();
   /// @brief give acces to history_list_widget used in PythonCodeContainer to retrieve history from drag and drop
@@ -84,6 +84,7 @@ private slots:
   void scope_double_click(const QModelIndex & index);
   void history_double_click(const QModelIndex & index);
   void cursor_position_changed();
+  void append_false_code(QString code);
 private:
   /// Index of the block that contains the current prompt
   int input_block;

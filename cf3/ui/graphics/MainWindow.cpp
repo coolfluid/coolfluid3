@@ -83,6 +83,7 @@ MainWindow::MainWindow()
   m_tree_view = new TreeView(m_central_panel, this);
   m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
   m_central_splitter = new QSplitter(Qt::Vertical/*, this*/);
+  m_python_tab_splitter = new QSplitter(this);
   m_tab_window = new QTabWidget(m_central_panel);
   m_log_list = new LoggingList(m_tab_window);
   m_property_model = new PropertyModel();
@@ -116,7 +117,7 @@ MainWindow::MainWindow()
   m_tab_window->addTab(m_log_list, "Log");
   m_tab_window->addTab(m_property_view, "Properties");
   m_tab_window->addTab(m_scroll_description, "Description");
-  m_python_console->create_splitter(m_tab_window);
+  m_tab_window->addTab(m_python_console,"Python Console");
 
   TabBuilder::instance()->addTab(m_central_panel, "Options");
 
@@ -124,10 +125,19 @@ MainWindow::MainWindow()
   // add the components to the splitter
   m_splitter->addWidget(m_tree_browser);
 
+  QWidget* m_python_tab_widget=new QWidget(this);
+
   m_central_splitter->addWidget(TabBuilder::instance());
   m_central_splitter->addWidget(m_tab_window);
 
-  m_splitter->addWidget(m_central_splitter);
+  m_python_tab_splitter->addWidget(m_central_splitter);
+  m_python_tab_splitter->addWidget(m_python_tab_widget);
+
+  m_python_tab_splitter->setStretchFactor(0,10);
+
+  m_python_console->create_python_area(m_python_tab_widget);
+
+  m_splitter->addWidget(m_python_tab_splitter);
 
   m_central_splitter->setStretchFactor(0, 10);
   m_splitter->setStretchFactor(1, 10);

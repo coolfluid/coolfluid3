@@ -24,6 +24,75 @@ using namespace boost::python;
 #define TSQUAREMATRIX Eigen::Matrix<Real,rows,rows>
 #define TDYNVECTOR Eigen::Matrix<Real,-1,1>
 #define MIN(x,y) ((x)>(y)?(y):(x))
+#define TARRAY Eigen::ArrayWrapper<Eigen::Matrix<Real,rows,cols> >
+
+//allow to have shared_ptr that doesn't delete his containts
+struct null_deleter{
+    void operator()(void const *) const{
+    }
+};
+
+
+//allow to store a matrix reference and use it to do the array operations
+template<int rows, int cols>
+class matrix_array_mapper{
+public:
+  matrix_array_mapper(boost::shared_ptr<TMATRIX >in){m=boost::shared_ptr<TMATRIX >(new TMATRIX(*in));}
+  void scalar_iadd(Real a){m->array()+=a;}
+  void scalar_isub(Real a){m->array()-=a;}
+  void scalar_imul(Real a){m->array()*=a;}
+  void scalar_idiv(Real a){m->array()/=a;}
+  void iadd(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()+=a->m->array();}
+  void isub(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()-=a->m->array();}
+  void imul(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()*=a->m->array();}
+  void idiv(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()/=a->m->array();}
+#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a) \
+                                                         {boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().func(a->m->array()))); \
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(min,min)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(max,max)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(add,operator+)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(sub,operator-)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(mul,operator*)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(div,operator/)
+#undef GENERIC_ARRAY_MAPPER_OPERATION_CALL
+#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a) \
+  {boost::shared_ptr<TMATRIX > mat(new TMATRIX((m->array().func(a->m->array())).template cast<Real>())); \
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(larger_equal,operator>=)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(larger,operator>)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(smaller_equal,operator<=)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(smaller,operator<)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(equal,operator==)
+  GENERIC_ARRAY_MAPPER_OPERATION_CALL(not_equal,operator!=)
+#undef GENERIC_ARRAY_MAPPER_OPERATION_CALL
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_add(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()+a));
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_sub(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()-a));
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_mul(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()*a));
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_div(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()/a));
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > pow(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().pow(a)));
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+#define GENERIC_ARRAY_MAPPER_FUNCTION_CALL(x) boost::shared_ptr<matrix_array_mapper<rows,cols> > x(){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().x())); \
+                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(abs)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(abs2)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(acos)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(asin)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(cos)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(sin)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(square)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(cwiseSqrt)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(exp)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(inverse)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(log)
+  GENERIC_ARRAY_MAPPER_FUNCTION_CALL(tan)
+#undef GENERIC_ARRAY_MAPPER_FUNCTION_CALL
+  boost::shared_ptr<TMATRIX > m;
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // init with size/value
@@ -312,33 +381,7 @@ void dynamic_vector_unit(boost::shared_ptr<TMATRIX > self, Uint size, Uint i){
 }*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Matrix op
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_scalar_add(boost::shared_ptr<TMATRIX > self,const Real value){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self).array()+value));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_scalar_iadd(boost::shared_ptr<TMATRIX > self,const Real value){
-  (*self)=(*self).array()+value;
-  boost::shared_ptr<TMATRIX >p(self);
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_scalar_sub(boost::shared_ptr<TMATRIX > self,const Real value){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self).array()-value));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_scalar_isub(boost::shared_ptr<TMATRIX > self,const Real value){
-  (*self)=(*self).array()-value;
-  boost::shared_ptr<TMATRIX >p(self);
-  return p;
-}
 
 template<int rows, int cols>
 boost::shared_ptr<TMATRIX > matrix_scalar_mul(boost::shared_ptr<TMATRIX > self,const Real value){
@@ -366,38 +409,6 @@ boost::shared_ptr<TMATRIX > matrix_scalar_idiv(boost::shared_ptr<TMATRIX > self,
   return p;
 }
 
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_add(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self)+other));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_iadd(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  (*self)+=other;
-  boost::shared_ptr<TMATRIX >p(self);
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_sub(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self)-other));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_isub(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  (*self)-=other;
-  boost::shared_ptr<TMATRIX >p(self);
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_mul(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self).array()*other.array()));
-  return p;
-}
-
 template<int rows, int cols, int rows_other, int cols_other, int rows_return, int cols_return>
 boost::shared_ptr<TRETURNMATRIX > matrix_by_matrix_left(boost::shared_ptr<TMATRIX > self,const TOTHERMATRIX& other){
   boost::shared_ptr<TRETURNMATRIX >p(new TRETURNMATRIX(other*(*self)));
@@ -417,26 +428,6 @@ boost::shared_ptr<TDYNMATRIX > matrix_by_matrix_dyn(boost::shared_ptr<TMATRIX > 
     return p;
   }
   boost::shared_ptr<TDYNMATRIX >p(new TDYNMATRIX((*self)*other));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_imul(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  (*self)=(*self).array()*other.array();
-  boost::shared_ptr<TMATRIX >p(self);
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_div(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  boost::shared_ptr<TMATRIX >p(new TMATRIX((*self).array()/other.array()));
-  return p;
-}
-
-template<int rows, int cols>
-boost::shared_ptr<TMATRIX > matrix_idiv(boost::shared_ptr<TMATRIX > self,const TMATRIX& other){
-  (*self)=(*self).array()/other.array();
-  boost::shared_ptr<TMATRIX >p(self);
   return p;
 }
 
@@ -894,24 +885,37 @@ bool matrix_is_zero(boost::shared_ptr<TMATRIX > self , const Real prec){
   return (*self).isZero(prec);
 }
 
+template<int rows, int cols>
+boost::shared_ptr<matrix_array_mapper<rows,cols> > matrix_array_get(boost::shared_ptr<TMATRIX > self){
+  boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(self));
+  return p;
+}
+
+template<int rows, int cols>
+void matrix_array_set(boost::shared_ptr<TMATRIX > self, boost::shared_ptr<matrix_array_mapper<rows,cols> > other){
+  self.swap(other->m);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /** @brief these definitions are only applied on a vector
   */
 template<int rows, int cols>
 void def_common_vector(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
-  matrix_class->def("__getitem__", vector_get_item<rows,cols>);
-  matrix_class->def("__setitem__", vector_set_item<rows,cols>);
-  matrix_class->def("__len__", vector_size<rows,cols>);
-  matrix_class->def("__str__", vector_str<rows,cols>);
-  matrix_class->def("head", vector_head<rows,cols>, "head(n) return a vector of size (n) filled with the n first components of the vector.");
-  matrix_class->def("tail", vector_tail<rows,cols>, "tail(n) return a vector of size (n) filled with the n last components of the vector.");
-  matrix_class->def("segment", vector_segment<rows,cols>, "segment(pos,n) return a vector of size (n) filled with the n components from the pos component of the vector.");
-  matrix_class->def("setZero", dynamic_vector_set_zero<rows,cols>, "setZero() fill all the component of the vector with zeros. You can also call setZero(n) which fill only the n first component of the vector.");
-  matrix_class->def("setOnes", dynamic_vector_set_ones<rows,cols>, "setOnes() fill all the component of the vector with ones. You can also call setOnes(n) which fill only the n first component of the vector.");
-  matrix_class->def("setConstant", dynamic_vector_set_constant<rows,cols>, "setConstant(c) fill all the component of the vector with the given constant. You can also call setConstant(n) which fill only the n first component of the vector.");
-  matrix_class->def("setRandom", dynamic_vector_set_random<rows,cols>, "setRandom() fill all the component of the vector with random values. You can also call setRandom(n) which fill only the n first component of the vector.");
-  matrix_class->def("setLinSpaced", dynamic_vector_set_lin_spaced<rows,cols>, "setLinSpaced(a,b) fill the components of the vector with a linear interpolation from a to b. You can also call setLinSpaced(n,a,b) which fill only the n first component of the vector.");
-  matrix_class->def("innerStride", matrix_inner_stride<rows,cols>);
-  matrix_class->def("asDiagonal", vector_as_diagonal<rows,cols>, "asDigonal() give a matrix of the size of the vector with his diagonal filled with the values of the vector.");
+  matrix_class->def("__getitem__", vector_get_item<rows,cols>)
+      .def("__setitem__", vector_set_item<rows,cols>)
+      .def("__len__", vector_size<rows,cols>)
+      .def("__str__", vector_str<rows,cols>)
+      .def("head", vector_head<rows,cols>, "head(n) return a vector of size (n) filled with the n first components of the vector.")
+      .def("tail", vector_tail<rows,cols>, "tail(n) return a vector of size (n) filled with the n last components of the vector.")
+      .def("segment", vector_segment<rows,cols>, "segment(pos,n) return a vector of size (n) filled with the n components from the pos component of the vector.")
+      .def("setZero", dynamic_vector_set_zero<rows,cols>, "setZero() fill all the component of the vector with zeros. You can also call setZero(n) which fill only the n first component of the vector.")
+      .def("setOnes", dynamic_vector_set_ones<rows,cols>, "setOnes() fill all the component of the vector with ones. You can also call setOnes(n) which fill only the n first component of the vector.")
+      .def("setConstant", dynamic_vector_set_constant<rows,cols>, "setConstant(c) fill all the component of the vector with the given constant. You can also call setConstant(n) which fill only the n first component of the vector.")
+      .def("setRandom", dynamic_vector_set_random<rows,cols>, "setRandom() fill all the component of the vector with random values. You can also call setRandom(n) which fill only the n first component of the vector.")
+      .def("setLinSpaced", dynamic_vector_set_lin_spaced<rows,cols>, "setLinSpaced(a,b) fill the components of the vector with a linear interpolation from a to b. You can also call setLinSpaced(n,a,b) which fill only the n first component of the vector.")
+      .def("innerStride", matrix_inner_stride<rows,cols>)
+      .def("asDiagonal", vector_as_diagonal<rows,cols>, "asDigonal() give a matrix of the size of the vector with his diagonal filled with the values of the vector.");
   //matrix_class->def("mul", vector_by_matrix<rows,cols>);
 }
 
@@ -919,105 +923,136 @@ void def_common_vector(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
   */
 template<int rows, int cols>
 void def_common_static(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
-  matrix_class->def("__init__", make_constructor(&realmatrix_init_static_default<rows,cols>));
-  matrix_class->def("__init__", make_constructor(&realmatrix_init_static_value<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,rows,cols>));
-  matrix_class->def("setZero", static_set_zero<rows,cols>);
-  matrix_class->def("setOnes", static_set_ones<rows,cols>);
-  matrix_class->def("setConstant", static_set_constant<rows,cols>);
-  matrix_class->def("setRandom", static_set_random<rows,cols>);
-  matrix_class->def("max",matrix_max<rows,cols>);
-  matrix_class->def("mean",matrix_mean<rows,cols>);
-  matrix_class->def("min",matrix_min<rows,cols>);
-  //matrix_class->def("setLinSpaced", static_set_lin_spaced<rows,cols>);
+  matrix_class->def("__init__", make_constructor(&realmatrix_init_static_default<rows,cols>))
+      .def("__init__", make_constructor(&realmatrix_init_static_value<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,rows,cols>))
+      .def("setZero", static_set_zero<rows,cols>)
+      .def("setOnes", static_set_ones<rows,cols>)
+      .def("setConstant", static_set_constant<rows,cols>)
+      .def("setRandom", static_set_random<rows,cols>)
+      .def("max",matrix_max<rows,cols>)
+      .def("mean",matrix_mean<rows,cols>)
+      .def("min",matrix_min<rows,cols>);
 }
 
 /** @brief these definitions are only applied on dynamic matrixs and dynamic vectors
   */
 template<int rows, int cols>
 void def_common_dynamic(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
-  matrix_class->def("__init__", make_constructor(&realmatrix_init_copy_dyn<rows,cols>));
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,rows,cols>, "resizeLike(other) resize the dynamic RealMatrix or RealVector to the size of other.");
+  matrix_class->def("__init__", make_constructor(&realmatrix_init_copy_dyn<rows,cols>))
+      .def("resizeLike", matrix_resize_like<rows,cols,rows,cols>, "resizeLike(other) resize the dynamic RealMatrix or RealVector to the size of other.");
 }
 
 /** @brief these definitions are only applied on a matrix
   */
 template<int rows, int cols>
 void def_common_pure_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
-  matrix_class->def("__getitem__", matrix_get_item<rows,cols>);
-  matrix_class->def("__setitem__", matrix_set_item<rows,cols>);
-  matrix_class->def("__len__", matrix_size<rows,cols>);
-  matrix_class->def("__str__", matrix_str<rows,cols>);
-  matrix_class->def("col", matrix_get_col<rows,cols>, "col(col_number) give the asked column as a RealMatrix.");
-  matrix_class->def("row", matrix_get_row<rows,cols>, "row(row_number) give the asked row as a RealMatrix.");
-  matrix_class->def("colVector", matrix_get_col_vector<rows,cols>, "colVector(col_number) give the asked colum as a RealVector.");
-  matrix_class->def("rowVector", matrix_get_row_vector<rows,cols>, "rowVector(row_number) give the asked row as a RealVector.");
-  matrix_class->def("setCol", matrix_set_col<rows,cols>, "setCol(col_number, RealMatrix(n,1)|RealMatrix(1,n)|RealVector(n))  assign the asked column with the given data.");
-  matrix_class->def("setRow", matrix_set_row<rows,cols>, "setRow(row_number, RealMatrix(n,1)|RealMatrix(1,n)|RealVector(n)) assign the asked row with the given data.");
-  matrix_class->def("setCol", matrix_set_col_vector<rows,cols>);
-  matrix_class->def("setRow", matrix_set_row_vector<rows,cols>);
-  matrix_class->def("block", matrix_block<rows,cols>, "block(row, col, row_number,col_number) give the submatrix of size (row_number, col_number) filled with the value of the parent taken from row,col.");
-  matrix_class->def("topLeftCorner", matrix_top_left_corner<rows,cols>, "topLeftCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the top left corner.");
-  matrix_class->def("topRightCorner", matrix_top_right_corner<rows,cols>, "topLeftRight(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the top right corner.");
-  matrix_class->def("bottomLeftCorner", matrix_bottom_left_corner<rows,cols>, "bottomLeftCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the bottom left corner.");
-  matrix_class->def("bottomRightCorner", matrix_bottom_right_corner<rows,cols>, "bottomRightCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the bottom right corner.");
-  matrix_class->def("topRows", matrix_top_rows<rows,cols>, "topRows(row_number) give the submatrix of size (row_number,parent.col_number) filled with the value of the parent taken from the top.");
-  matrix_class->def("bottomRows", matrix_bottom_rows<rows,cols>, "bottomRows(row_number) give the submatrix of size (row_number,parent.col_number) filled with the value of the parent taken from the bottom.");
-  matrix_class->def("leftCols", matrix_left_cols<rows,cols>, "leftCols(col_number) give the submatrix of size (parent.row_number,col_number) filled with the value of the parent taken from the left.");
-  matrix_class->def("rightCols", matrix_right_cols<rows,cols>, "rightCols(col_number) give the submatrix of size (parent.row_number,col_number) filled with the value of the parent taken from the right.");
-  matrix_class->def("setZero", dynamic_matrix_set_zero<rows,cols>, "setZero() fill the matrix with zeros.");
-  matrix_class->def("setOnes", dynamic_matrix_set_ones<rows,cols>, "setOnes() fill the matrix with ones.");
-  matrix_class->def("setConstant", dynamic_matrix_set_constant<rows,cols>, "setConstan() fill the matrix with the constant give in argument.");
-  matrix_class->def("setRandom", dynamic_matrix_set_random<rows,cols>, "setRandom() fill the matrix with random numbers.");
-  matrix_class->def("rows", matrix_rows<rows,cols>, "rows() give the number of rows of the matrix.");
-  matrix_class->def("cols", matrix_cols<rows,cols>, "cols() give the number of columns of the matrix.");
-  matrix_class->def("innerSize", matrix_inner_size<rows,cols>);
-  matrix_class->def("outerSize", matrix_outer_size<rows,cols>);
-  matrix_class->def("innerStride", matrix_inner_stride<rows,cols>);
-  matrix_class->def("outerStride", matrix_outer_stride<rows,cols>);
-  matrix_class->def("adjoint", matrix_adjoint<rows,cols>);
-  matrix_class->def("transposed", matrix_transpose<rows,cols>, "transposed() give the transposed matrix.");
-  matrix_class->def("adjointInPlace", matrix_iadjoint<rows,cols>);
-  matrix_class->def("transpose", matrix_itranspose<rows,cols>, "transpose() transpose the matrix.");
-  matrix_class->def("getDiagonal", matrix_get_diagonal_default<rows,cols>, "getDiagonal() give a vector filled with the value of the diagonal of the matrix, you can specify wich diagonal you want by calling getDiagonal(n), default value of n is 0.");
-  matrix_class->def("setDiagonal", matrix_set_diagonal_default<rows,cols,rows,1>, "setDiagonal(vec) fill the diagonal of the matrix with the values of the vector given in argument, you can specify wich diagonal you want to assign by calling setDiagonal(n,vec), default value of n is 0.");
-  matrix_class->def("getDiagonal", matrix_get_diagonal_ind<rows,cols>);
-  matrix_class->def("setDiagonal", matrix_set_diagonal_ind<rows,cols,rows,1>);
-  matrix_class->def("determinant", matrix_determinant<rows,cols>, "determinant() give the determinant of the matrix.");
-  matrix_class->def("trace", matrix_trace<rows,cols>);
-  matrix_class->def("inverse", matrix_inverse<rows,cols>, "inverse() compute the invert matrix and return it.");
-  matrix_class->def("isDiagonal",matrix_is_diagonal<rows,cols>, "isDiagonal(prec) return True if the matrix can be concidered as a diagonal matrix, you must specify the precision (real number).");
-  matrix_class->def("isIdentity",matrix_is_identity<rows,cols>, "isIdentity(prec) return True if the matrix can be concidered as an identity matrix, you must specify the precision (real number).");
+  matrix_class->def("__getitem__", matrix_get_item<rows,cols>)
+      .def("__setitem__", matrix_set_item<rows,cols>)
+      .def("__len__", matrix_size<rows,cols>)
+      .def("__str__", matrix_str<rows,cols>)
+      .def("col", matrix_get_col<rows,cols>, "col(col_number) give the asked column as a RealMatrix.")
+      .def("row", matrix_get_row<rows,cols>, "row(row_number) give the asked row as a RealMatrix.")
+      .def("colVector", matrix_get_col_vector<rows,cols>, "colVector(col_number) give the asked colum as a RealVector.")
+      .def("rowVector", matrix_get_row_vector<rows,cols>, "rowVector(row_number) give the asked row as a RealVector.")
+      .def("setCol", matrix_set_col<rows,cols>, "setCol(col_number, RealMatrix(n,1)|RealMatrix(1,n)|RealVector(n))  assign the asked column with the given data.")
+      .def("setRow", matrix_set_row<rows,cols>, "setRow(row_number, RealMatrix(n,1)|RealMatrix(1,n)|RealVector(n)) assign the asked row with the given data.")
+      .def("setCol", matrix_set_col_vector<rows,cols>)
+      .def("setRow", matrix_set_row_vector<rows,cols>)
+      .def("block", matrix_block<rows,cols>, "block(row, col, row_number,col_number) give the submatrix of size (row_number, col_number) filled with the value of the parent taken from row,col.")
+      .def("topLeftCorner", matrix_top_left_corner<rows,cols>, "topLeftCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the top left corner.")
+      .def("topRightCorner", matrix_top_right_corner<rows,cols>, "topLeftRight(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the top right corner.")
+      .def("bottomLeftCorner", matrix_bottom_left_corner<rows,cols>, "bottomLeftCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the bottom left corner.")
+      .def("bottomRightCorner", matrix_bottom_right_corner<rows,cols>, "bottomRightCorner(row_number,col_number) give the submatrix of size (row_number,col_number) filled with the value of the parent taken from the bottom right corner.")
+      .def("topRows", matrix_top_rows<rows,cols>, "topRows(row_number) give the submatrix of size (row_number,parent.col_number) filled with the value of the parent taken from the top.")
+      .def("bottomRows", matrix_bottom_rows<rows,cols>, "bottomRows(row_number) give the submatrix of size (row_number,parent.col_number) filled with the value of the parent taken from the bottom.")
+      .def("leftCols", matrix_left_cols<rows,cols>, "leftCols(col_number) give the submatrix of size (parent.row_number,col_number) filled with the value of the parent taken from the left.")
+      .def("rightCols", matrix_right_cols<rows,cols>, "rightCols(col_number) give the submatrix of size (parent.row_number,col_number) filled with the value of the parent taken from the right.")
+      .def("setZero", dynamic_matrix_set_zero<rows,cols>, "setZero() fill the matrix with zeros.")
+      .def("setOnes", dynamic_matrix_set_ones<rows,cols>, "setOnes() fill the matrix with ones.")
+      .def("setConstant", dynamic_matrix_set_constant<rows,cols>, "setConstan() fill the matrix with the constant give in argument.")
+      .def("setRandom", dynamic_matrix_set_random<rows,cols>, "setRandom() fill the matrix with random numbers.")
+      .def("rows", matrix_rows<rows,cols>, "rows() give the number of rows of the matrix.")
+      .def("cols", matrix_cols<rows,cols>, "cols() give the number of columns of the matrix.")
+      .def("innerSize", matrix_inner_size<rows,cols>)
+      .def("outerSize", matrix_outer_size<rows,cols>)
+      .def("innerStride", matrix_inner_stride<rows,cols>)
+      .def("outerStride", matrix_outer_stride<rows,cols>)
+      .def("adjoint", matrix_adjoint<rows,cols>)
+      .def("transposed", matrix_transpose<rows,cols>, "transposed() give the transposed matrix.")
+      .def("adjointInPlace", matrix_iadjoint<rows,cols>)
+      .def("transpose", matrix_itranspose<rows,cols>, "transpose() transpose the matrix.")
+      .def("getDiagonal", matrix_get_diagonal_default<rows,cols>, "getDiagonal() give a vector filled with the value of the diagonal of the matrix, you can specify wich diagonal you want by calling getDiagonal(n), default value of n is 0.")
+      .def("setDiagonal", matrix_set_diagonal_default<rows,cols,rows,1>, "setDiagonal(vec) fill the diagonal of the matrix with the values of the vector given in argument, you can specify wich diagonal you want to assign by calling setDiagonal(n,vec), default value of n is 0.")
+      .def("getDiagonal", matrix_get_diagonal_ind<rows,cols>)
+      .def("setDiagonal", matrix_set_diagonal_ind<rows,cols,rows,1>)
+      .def("determinant", matrix_determinant<rows,cols>, "determinant() give the determinant of the matrix.")
+      .def("trace", matrix_trace<rows,cols>)
+      .def("inverse", matrix_inverse<rows,cols>, "inverse() compute the invert matrix and return it.")
+      .def("isDiagonal",matrix_is_diagonal<rows,cols>, "isDiagonal(prec) return True if the matrix can be concidered as a diagonal matrix, you must specify the precision (real number).")
+      .def("isIdentity",matrix_is_identity<rows,cols>, "isIdentity(prec) return True if the matrix can be concidered as an identity matrix, you must specify the precision (real number).");
 }
 
 /** @brief these definitions are applied to all types
   */
 template<int rows, int cols>
 void def_common_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class){
-  matrix_class->def("__add__", matrix_add<rows,cols>);
-  matrix_class->def("__sub__", matrix_sub<rows,cols>);
-  matrix_class->def("__iadd__", matrix_iadd<rows,cols>);
-  matrix_class->def("__isub__", matrix_isub<rows,cols>);
-  matrix_class->def("__mul__", matrix_mul<rows,cols>);
-  matrix_class->def("__div__", matrix_div<rows,cols>);
-  matrix_class->def("__imul__", matrix_imul<rows,cols>);
-  matrix_class->def("__idiv__", matrix_idiv<rows,cols>);
-  matrix_class->def("__add__", matrix_scalar_add<rows,cols>);
-  matrix_class->def("__sub__", matrix_scalar_sub<rows,cols>);
-  matrix_class->def("__mul__",matrix_scalar_mul<rows,cols>);
-  matrix_class->def("__div__",matrix_scalar_div<rows,cols>);
-  matrix_class->def("__iadd__", matrix_scalar_iadd<rows,cols>);
-  matrix_class->def("__isub__", matrix_scalar_isub<rows,cols>);
-  matrix_class->def("__imul__",matrix_scalar_imul<rows,cols>);
-  matrix_class->def("__idiv__",matrix_scalar_idiv<rows,cols>);
-  matrix_class->def("norm", vector_norm<rows,cols>, "norm() return the squareroot of the sum of the square of all components.");
-  matrix_class->def("squaredNorm", vector_squared_norm<rows,cols>, "squaredNorm() return the sum of the square of all components.");
-  matrix_class->def("normalized", vector_normalized<rows,cols>, "normalized() return a same sized object where of the components are divided by the norm.");
-  matrix_class->def("normalize", vector_normalize<rows,cols>, "nromalize() divide all the components with the norm.");
-  matrix_class->def("__eq__",matrix_is_equal<rows,cols>);
-  matrix_class->def("isZero",matrix_is_zero<rows,cols>, "isZero(prec) return True if all the components are equals to zero with a precision of prec.");
-  matrix_class->def("isConstant",matrix_is_constant<rows,cols>, "isConstant(constant,prec) return True if al the components are equals to the given constant with a precision of prec.");
-  matrix_class->def("isApprox",matrix_is_approx<rows,cols>, "isApprox(other,prec) return True if all components taken two by two are equals to each other with a precision of prec.");
+  matrix_class->def("__mul__",matrix_scalar_mul<rows,cols>)
+    .def("__div__",matrix_scalar_div<rows,cols>)
+    .def("__imul__",matrix_scalar_imul<rows,cols>)
+    .def("__idiv__",matrix_scalar_idiv<rows,cols>)
+    .def("norm", vector_norm<rows,cols>, "norm() return the squareroot of the sum of the square of all components.")
+    .def("squaredNorm", vector_squared_norm<rows,cols>, "squaredNorm() return the sum of the square of all components.")
+    .def("normalized", vector_normalized<rows,cols>, "normalized() return a same sized object where of the components are divided by the norm.")
+    .def("normalize", vector_normalize<rows,cols>, "nromalize() divide all the components with the norm.")
+    .def("__eq__",matrix_is_equal<rows,cols>)
+    .def("isZero",matrix_is_zero<rows,cols>, "isZero(prec) return True if all the components are equals to zero with a precision of prec.")
+    .def("isConstant",matrix_is_constant<rows,cols>, "isConstant(constant,prec) return True if al the components are equals to the given constant with a precision of prec.")
+    .def("isApprox",matrix_is_approx<rows,cols>, "isApprox(other,prec) return True if all components taken two by two are equals to each other with a precision of prec.")
+    .add_property("array",matrix_array_get<rows,cols>, matrix_array_set<rows,cols>, "reference to the array of the matrix");
+
+      //.def("array", matrix_array<rows,cols>, return_internal_reference<>(), "return a reference to the array representation of the matrix.");
+  char r=rows>0?'0'+rows:'X';
+  char c=cols>0?'0'+cols:'X';
+  class_<matrix_array_mapper<rows,cols> , boost::noncopyable, boost::shared_ptr<matrix_array_mapper<rows,cols> > >*array_class =
+      new class_<matrix_array_mapper<rows,cols> , boost::noncopyable, boost::shared_ptr<matrix_array_mapper<rows,cols> > >(((std::string("RealArray")+r)+c).c_str(),"array", no_init);
+  array_class->def("__iadd__",&matrix_array_mapper<rows,cols>::scalar_iadd)
+    .def("__isub__",&matrix_array_mapper<rows,cols>::scalar_isub)
+    .def("__imul__",&matrix_array_mapper<rows,cols>::scalar_imul)
+    .def("__idiv__",&matrix_array_mapper<rows,cols>::scalar_idiv)
+    .def("__iadd__",&matrix_array_mapper<rows,cols>::iadd)
+    .def("__isub__",&matrix_array_mapper<rows,cols>::isub)
+    .def("__imul__",&matrix_array_mapper<rows,cols>::imul)
+    .def("__idiv__",&matrix_array_mapper<rows,cols>::idiv)
+    .def("__add__",&matrix_array_mapper<rows,cols>::add)
+    .def("__sub__",&matrix_array_mapper<rows,cols>::sub)
+    .def("__mul__",&matrix_array_mapper<rows,cols>::mul)
+    .def("__div__",&matrix_array_mapper<rows,cols>::div)
+    .def("__add__",&matrix_array_mapper<rows,cols>::scalar_add)
+    .def("__sub__",&matrix_array_mapper<rows,cols>::scalar_sub)
+    .def("__mul__",&matrix_array_mapper<rows,cols>::scalar_mul)
+    .def("__div__",&matrix_array_mapper<rows,cols>::scalar_div)
+    .def("min",&matrix_array_mapper<rows,cols>::min)
+    .def("max",&matrix_array_mapper<rows,cols>::max)
+    .def("__le__",&matrix_array_mapper<rows,cols>::larger_equal)
+    .def("__lt__",&matrix_array_mapper<rows,cols>::larger)
+    .def("__se__",&matrix_array_mapper<rows,cols>::smaller_equal)
+    .def("__st__",&matrix_array_mapper<rows,cols>::smaller)
+    .def("__eq__",&matrix_array_mapper<rows,cols>::equal)
+    .def("__ne__",&matrix_array_mapper<rows,cols>::not_equal)
+    .def("abs",&matrix_array_mapper<rows,cols>::abs)
+    .def("abs2",&matrix_array_mapper<rows,cols>::abs2)
+    .def("acos",&matrix_array_mapper<rows,cols>::acos)
+    .def("asin",&matrix_array_mapper<rows,cols>::asin)
+    .def("cos",&matrix_array_mapper<rows,cols>::cos)
+    .def("sin",&matrix_array_mapper<rows,cols>::sin)
+    .def("sqr",&matrix_array_mapper<rows,cols>::square)
+    .def("sqrt",&matrix_array_mapper<rows,cols>::cwiseSqrt)
+    .def("exp",&matrix_array_mapper<rows,cols>::exp)
+    .def("inverse",&matrix_array_mapper<rows,cols>::inverse)
+    .def("log",&matrix_array_mapper<rows,cols>::log)
+    .def("tan",&matrix_array_mapper<rows,cols>::tan)
+    .def("pow",&matrix_array_mapper<rows,cols>::pow);
 }
 
 /** @brief wrap the Eigen::Matrix<n,1>
@@ -1025,15 +1060,14 @@ void def_common_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
 template<int rows, int cols>
 void def_static_vector(const char* name,const char* doc){
   class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class = new class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >(name,doc);
-  matrix_class->def("__init__",make_constructor(&realvector_init_static_tab<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_static_default<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,cols>));
-  matrix_class->def("__init__",make_constructor(&realvector_init_copy_static_dyn<rows,cols>));
-  matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,rows,rows,rows,cols>);
-  matrix_class->def("setLinSpaced", static_set_lin_spaced<rows,cols>);
-  //matrix_class->def("cross", vector_cross<rows,cols>);
-  matrix_class->def("dot", vector_dot<rows,cols>);
+  matrix_class->def("__init__",make_constructor(&realvector_init_static_tab<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_static_default<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,cols>))
+      .def("__init__",make_constructor(&realvector_init_copy_static_dyn<rows,cols>))
+      .def("__mul__", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,rows,rows,rows,cols>)
+      .def("setLinSpaced", static_set_lin_spaced<rows,cols>)
+      .def("dot", vector_dot<rows,cols>);
   def_common_vector<rows,cols>(matrix_class);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_static<rows,cols>(matrix_class);
@@ -1044,13 +1078,13 @@ void def_static_vector(const char* name,const char* doc){
 template<int rows, int cols>
 void def_static_vector1(const char* name,const char* doc){
   class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class = new class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >(name,doc);
-  matrix_class->def("__init__",make_constructor(&realvector_init_static_tab<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_static_default<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,cols>));
-  matrix_class->def("__init__",make_constructor(&realvector_init_copy_static_dyn<rows,cols>));
-  matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,rows,rows,rows,cols>);
-  matrix_class->def("setLinSpaced", static_set_lin_spaced<rows,cols>);
+  matrix_class->def("__init__",make_constructor(&realvector_init_static_tab<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_static_default<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,cols>))
+      .def("__init__",make_constructor(&realvector_init_copy_static_dyn<rows,cols>))
+      .def("__mul__", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,rows,rows,rows,cols>)
+      .def("setLinSpaced", static_set_lin_spaced<rows,cols>);
   def_common_vector<rows,cols>(matrix_class);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_static<rows,cols>(matrix_class);
@@ -1061,28 +1095,28 @@ void def_static_vector1(const char* name,const char* doc){
 template<int rows, int cols>
 void def_dynamic_vector(const char* name,const char* doc){
   class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class = new class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >(name,doc);
-  matrix_class->def("__init__",make_constructor(&realvector_init_size_default<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realvector_init_size_value<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realvector_init_tab<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<4,1>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<3,1>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<2,1>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<1,1>));
-  matrix_class->def("setZero", dynamic_vector_set_zero_default<rows,cols>);
-  matrix_class->def("setOnes", dynamic_vector_set_ones_default<rows,cols>);
-  matrix_class->def("setConstant", dynamic_vector_set_constant_default<rows,cols>);
-  matrix_class->def("setRandom", dynamic_vector_set_random_default<rows,cols>);
-  matrix_class->def("setLinSpaced", dynamic_vector_set_lin_spaced_default<rows,cols>);
-  matrix_class->def("resize", vector_resize<rows,cols>, "resize(n) resize the vector to have the size n, all the components of the vectors are set to zero after this operation.");
-  matrix_class->def("conservativeResize", vector_conservative_resize<rows,cols>, "conservativeResize(n) resize the vector to have the size n without erasing the common components.");
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,1,cols>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,2,cols>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,3,cols>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,4,cols>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,rows,rows,rows,1>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,4,4,4,1>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,3,3,3,1>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,2,2,2,1>);
+  matrix_class->def("__init__",make_constructor(&realvector_init_size_default<rows,cols>))
+      .def("__init__",make_constructor(&realvector_init_size_value<rows,cols>))
+      .def("__init__",make_constructor(&realvector_init_tab<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<4,1>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<3,1>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<2,1>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<1,1>))
+      .def("setZero", dynamic_vector_set_zero_default<rows,cols>)
+      .def("setOnes", dynamic_vector_set_ones_default<rows,cols>)
+      .def("setConstant", dynamic_vector_set_constant_default<rows,cols>)
+      .def("setRandom", dynamic_vector_set_random_default<rows,cols>)
+      .def("setLinSpaced", dynamic_vector_set_lin_spaced_default<rows,cols>)
+      .def("resize", vector_resize<rows,cols>, "resize(n) resize the vector to have the size n, all the components of the vectors are set to zero after this operation.")
+      .def("conservativeResize", vector_conservative_resize<rows,cols>, "conservativeResize(n) resize the vector to have the size n without erasing the common components.")
+      .def("resizeLike", matrix_resize_like<rows,cols,1,cols>)
+      .def("resizeLike", matrix_resize_like<rows,cols,2,cols>)
+      .def("resizeLike", matrix_resize_like<rows,cols,3,cols>)
+      .def("resizeLike", matrix_resize_like<rows,cols,4,cols>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,rows,rows,rows,1>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,4,4,4,1>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,3,3,3,1>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,2,2,2,1>);
   def_common_vector<rows,cols>(matrix_class);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_dynamic<rows,cols>(matrix_class);
@@ -1093,15 +1127,15 @@ void def_dynamic_vector(const char* name,const char* doc){
 template<int rows, int cols>
 void def_static_matrix(const char* name,const char* doc){
   class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class = new class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >(name,doc);
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_static_tab<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,Eigen::Dynamic>));
-  matrix_class->def("setDiagonal", matrix_set_diagonal_default<rows,cols,Eigen::Dynamic,1>);
-  matrix_class->def("setDiagonal", matrix_set_diagonal_ind<rows,cols,Eigen::Dynamic,1>);
-  matrix_class->def("setIdentity", matrix_identity_static<rows,cols>, "setIdentity() fill the components of the matrix to be an identity matrix.");
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,rows,cols,rows,cols>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,rows,1,rows,1>);
-  matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,Eigen::Dynamic,1,rows,1>);
+  matrix_class->def("__init__",make_constructor(&realmatrix_init_static_tab<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_static<rows,cols,Eigen::Dynamic,Eigen::Dynamic>))
+      .def("setDiagonal", matrix_set_diagonal_default<rows,cols,Eigen::Dynamic,1>)
+      .def("setDiagonal", matrix_set_diagonal_ind<rows,cols,Eigen::Dynamic,1>)
+      .def("setIdentity", matrix_identity_static<rows,cols>, "setIdentity() fill the components of the matrix to be an identity matrix.")
+      .def("__mul__", matrix_by_matrix_left<rows,cols,rows,cols,rows,cols>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,rows,1,rows,1>)
+      .def("__mul__", matrix_by_matrix_dyn<rows,cols,Eigen::Dynamic,Eigen::Dynamic>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,Eigen::Dynamic,1,rows,1>);
   //matrix_class->def("mul", matrix_by_matrix<rows,cols>);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_static<rows,cols>(matrix_class);
@@ -1113,30 +1147,30 @@ void def_static_matrix(const char* name,const char* doc){
 template<int rows, int cols>
 void def_dynamic_matrix(const char* name,const char* doc){
   class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >*matrix_class = new class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMATRIX > >(name,doc);
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_size_default<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_size_value<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_tab<rows,cols>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<4,4>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<3,3>));
-  matrix_class->def("__init__",make_constructor(&realmatrix_init_copy_dyn<2,2>));
-  matrix_class->def("setZero", dynamic_matrix_set_zero_default<rows,cols>);
-  matrix_class->def("setOnes", dynamic_matrix_set_ones_default<rows,cols>);
-  matrix_class->def("setConstant", dynamic_matrix_set_constant_default<rows,cols>);
-  matrix_class->def("setRandom", dynamic_matrix_set_random_default<rows,cols>);
-  matrix_class->def("resize", matrix_resize<rows,cols>, "resize(row_num,col_num) resize the matrix to have the size (row_num,col_num), after this operation all the components of the matrix are set to zero.");
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,2,2>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,3,3>);
-  matrix_class->def("resizeLike", matrix_resize_like<rows,cols,4,4>);
-  matrix_class->def("conservativeResize", matrix_conservative_resize<rows,cols>, "conservativeResize(row_num,col_num) resize the matrix to have the size (row_num,col_num) without erasing the commmon components.");
-  matrix_class->def("setIdentity", matrix_identity_dynamic<rows,cols>, "setIdentity() fill the components of the matrix to be an identity matrix.");
-  matrix_class->def("mul", matrix_by_matrix_dyn<rows,cols,rows,cols>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,4,4,4,4>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,3,3,3,3>);
-  matrix_class->def("mul", matrix_by_matrix_left<rows,cols,2,2,2,2>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,2,1,2,1>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,3,1,3,1>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,4,1,4,1>);
-  matrix_class->def("mul", matrix_by_matrix_right<rows,cols,rows,1,rows,1>);
+  matrix_class->def("__init__",make_constructor(&realmatrix_init_size_default<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_size_value<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_tab<rows,cols>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<4,4>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<3,3>))
+      .def("__init__",make_constructor(&realmatrix_init_copy_dyn<2,2>))
+      .def("setZero", dynamic_matrix_set_zero_default<rows,cols>)
+      .def("setOnes", dynamic_matrix_set_ones_default<rows,cols>)
+      .def("setConstant", dynamic_matrix_set_constant_default<rows,cols>)
+      .def("setRandom", dynamic_matrix_set_random_default<rows,cols>)
+      .def("resize", matrix_resize<rows,cols>, "resize(row_num,col_num) resize the matrix to have the size (row_num,col_num), after this operation all the components of the matrix are set to zero.")
+      .def("resizeLike", matrix_resize_like<rows,cols,2,2>)
+      .def("resizeLike", matrix_resize_like<rows,cols,3,3>)
+      .def("resizeLike", matrix_resize_like<rows,cols,4,4>)
+      .def("conservativeResize", matrix_conservative_resize<rows,cols>, "conservativeResize(row_num,col_num) resize the matrix to have the size (row_num,col_num) without erasing the commmon components.")
+      .def("setIdentity", matrix_identity_dynamic<rows,cols>, "setIdentity() fill the components of the matrix to be an identity matrix.")
+      .def("__mul__", matrix_by_matrix_dyn<rows,cols,rows,cols>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,4,4,4,4>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,3,3,3,3>)
+      .def("__mul__", matrix_by_matrix_left<rows,cols,2,2,2,2>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,2,1,2,1>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,3,1,3,1>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,4,1,4,1>)
+      .def("__mul__", matrix_by_matrix_right<rows,cols,rows,1,rows,1>);
   def_common_matrix<rows,cols>(matrix_class);
   def_common_pure_matrix<rows,cols>(matrix_class);
   def_common_dynamic<rows,cols>(matrix_class);
@@ -1208,6 +1242,7 @@ void def_matrix_types(){
                          "You can acces to a component of the vector with the [] operator called with index of the component ex: vec[1] to get the second component of the vector.\n"
                          "str(vec) return the string representation of the vector, you can also directly call 'print vec' to display the vector\n"
                          "len(vec) return the size of the vector.");
+
 }
  /// add .array() -> return the same pointer
 } // python

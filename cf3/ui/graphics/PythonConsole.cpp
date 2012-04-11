@@ -39,7 +39,7 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   PythonCodeContainer(parent),main_window(main_window)
 {
   python_console=this;
-  document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
+  document()->lastBlock().setUserState(PROMPT_1);
   history_index=0;
   input_start_in_text=0;
   input_block=0;
@@ -76,6 +76,7 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(insert_log(QString)));
   connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString)),this,SLOT(execute_code(QString)));
+  connect(core::NScriptEngine::global().get(),SIGNAL(append_false_command_request(QString)),this,SLOT(append_false_code(QString)));
   connect(this,SIGNAL(cursorPositionChanged()),this,SLOT(cursor_position_changed()));
   setViewportMargins(border_width,tool_bar->height(),0,0);
   offset_border.setX(border_width);
@@ -84,14 +85,29 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PythonConsole::create_splitter(QTabWidget* tab_widget){
-  QSplitter *splitter=new QSplitter(tab_widget);
-  QSplitter *scope_history_splitter=new QSplitter(splitter);
-  scope_history_splitter->addWidget(python_scope_values);
-  scope_history_splitter->addWidget(history_list_widget);
-  splitter->addWidget(this);
-  splitter->addWidget(scope_history_splitter);
-  tab_widget->addTab(splitter,"Python Console");
+void PythonConsole::create_python_area(QWidget* widget){
+  QHBoxLayout *main_layout=new QHBoxLayout(widget);
+  widget->setLayout(main_layout);
+  QSplitter *splitter=new QSplitter(Qt::Vertical,widget);
+  main_layout->addWidget(splitter);
+  QToolBar *tool_bar=new QToolBar(widget);
+  tool_bar->setOrientation(Qt::Vertical);
+  tool_bar->setAllowedAreas(Qt::RightToolBarArea);
+  tool_bar->setFloatable(false);
+  tool_bar->setMovable(false);
+  main_layout->addWidget(tool_bar);
+  QAction *python_scope_action=tool_bar->addAction("S\nc\no\np\ne");
+  QAction *python_history_action=tool_bar->addAction("H\ni\ns\nt\no\nr\ny");
+  python_scope_action->setCheckable(true);
+  python_history_action->setCheckable(true);
+  python_scope_action->setChecked(true);
+  python_history_action->setChecked(true);
+  connect(python_scope_action,SIGNAL(toggled(bool)),python_scope_values,SLOT(setVisible(bool)));
+  connect(python_history_action,SIGNAL(toggled(bool)),history_list_widget,SLOT(setVisible(bool)));
+  splitter->addWidget(python_scope_values);
+  splitter->addWidget(history_list_widget);
+  python_scope_values->setHidden(false);
+  history_list_widget->setHidden(false);
   connect(python_scope_values,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(scope_double_click(QModelIndex)));
   connect(history_list_widget,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(history_double_click(QModelIndex)));
 }
@@ -112,7 +128,7 @@ void PythonConsole::mousePressEvent(QMouseEvent *e){
   if (e->button() == Qt::MidButton){
     QTextCursor c=textCursor();
     if (!editable_zone(c)){
-      c.setPosition(input_start_in_text);
+      c.movePosition(QTextCursor::End);
       setTextCursor(c);
     }
     text_being_entered=true;
@@ -223,10 +239,10 @@ bool PythonConsole::is_stopped(){
 
 void PythonConsole::fix_prompt(){
   QTextBlock block=document()->findBlockByNumber(input_block);
-  block.setUserState(PythonCodeContainer::PROMPT_1);
+  block.setUserState(PROMPT_1);
   block=block.next();
   while (block.isValid()){
-    block.setUserState(PythonCodeContainer::PROMPT_2);
+    block.setUserState(PROMPT_2);
     block=block.next();
   }
 }
@@ -234,11 +250,21 @@ void PythonConsole::fix_prompt(){
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::new_line(int indent_number){
-  if (indent_number==0){//single line statement
-    QTextCursor c=textCursor();
-    execute_input(c);
-  }else{//multi line
-    fix_prompt();
+  QTextCursor c=textCursor();
+  c.movePosition(QTextCursor::EndOfBlock);
+  if (c.block().userState() != PROMPT_1 || c.block().length() > 1){
+    c.insertText("\n");
+    if (indent_number>0){
+      for (int i=0;i<indent_number;i++)
+        c.insertText("\t");
+    }
+    setTextCursor(c);
+    if (indent_number==0){//single line statement
+      QTextCursor c=textCursor();
+      execute_input(c);
+    }else{//multi line
+      fix_prompt();
+    }
   }
 }
 
@@ -290,8 +316,6 @@ void PythonConsole::execute_input(QTextCursor &c){
     document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_1);
     if (command_stack.size())
       auto_execution_timer.start();//to avoid cross call with stream_next_command
-  }else{
-    c.removeSelectedText();
   }
   temporary_break_points.clear();
 }
@@ -368,9 +392,10 @@ void PythonConsole::stream_next_command(){
   }
   QString line;
   foreach (line,current_command.command.split('\n')){
-    c.insertText(line.append('\n'));
+    c.insertText(line);
     c.movePosition(QTextCursor::End);
-    document()->lastBlock().setUserState(PythonCodeContainer::PROMPT_2);
+    if (document()->lastBlock().userState() != PROMPT_1)
+      document()->lastBlock().setUserState(PROMPT_2);
   }
   setTextCursor(c);
   //centerCursor();
@@ -399,8 +424,13 @@ void PythonConsole::insert_output(QString output, int fragment){
     }
   }else{
     int b=fragment_container[fragment];
-    QTextBlock bl=document()->findBlockByNumber(b);
-    bl=bl.next();
+    QTextBlock bl;
+    if (b == 0){
+      bl=document()->findBlockByNumber(input_block);
+    }else{
+      bl=document()->findBlockByNumber(b);
+      bl=bl.next();
+    }
     while (bl.isValid()){
       if (bl.userState() == PROMPT_1){
         cursor.setPosition(bl.position());
@@ -480,6 +510,23 @@ void PythonConsole::insert_log(const QString &output){
       insert_string.append(modified_output);
   }
   insert_output(insert_string,fragment);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::append_false_code(QString code){
+  QTextCursor c(document());
+  c.setPosition(input_start_in_text);
+  c.insertBlock();
+  c.movePosition(QTextCursor::Left);
+  c.insertText(code);
+  c.block().setUserState(PROMPT_1);
+  input_start_in_text+=code.size()+1;
+  input_block+=1;
+  history.append(code);
+  add_history_draggable_item(code);
+  history_index=history.size();
+  fix_prompt();
 }
 
 ////////////////////////////////////////////////////////////////////////////
