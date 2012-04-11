@@ -30,7 +30,7 @@ domain = model.get_child('Domain')
 domain.create_component('neuReader', 'cf3.mesh.neu.Reader')
 
 # Load mesh
-domain.load_mesh(file = cf.URI('flatplate2d.neu'), name = 'mesh')
+domain.load_mesh(file = cf.URI((sys.argv[1]), name = 'mesh')
 
 # domain.load_mesh(file = cf.URI('/home/sebastian/gmsh/flatplate1.msh'), name = 'Mesh')
 # domain.load_mesh(file = cf.URI('/home/sebastian/gmsh/ring2d-tris.neu'), name = 'mesh')
@@ -39,7 +39,7 @@ domain.load_mesh(file = cf.URI('flatplate2d.neu'), name = 'mesh')
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.options().configure_option('solver', 'Trilinos')
 solver.options().configure_option('lss', lss)
-lss.get_child('Matrix').options().configure_option('settings_file','solver.xml')
+lss.get_child('Matrix').options().configure_option('settings_file',(sys.argv[2]))
 
 # lss setup
 #advection_lss = advection_solver.create_component('LSS', 'cf3.math.LSS.System')
