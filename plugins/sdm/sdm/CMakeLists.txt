@@ -13,6 +13,8 @@ list( APPEND coolfluid_sdm_files
   ComputeUpdateCoefficient.cpp
   ConvectiveTerm.hpp
   ConvectiveTerm.cpp
+  DiffusiveTerm.hpp
+  DiffusiveTerm.cpp
   CreateSDFields.hpp
   CreateSDFields.cpp
   DomainDiscretization.cpp

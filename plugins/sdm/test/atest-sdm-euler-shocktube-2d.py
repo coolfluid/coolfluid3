@@ -43,12 +43,12 @@ physics.options().configure_option('R',287.05)
 solver.options().configure_option('time',time)
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('solution_vars','cf3.physics.NavierStokes.Cons2D')
-solver.options().configure_option('solution_order',3)
+solver.options().configure_option('solution_order',2)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
 time.options().configure_option('time_step',1.);
-time.options().configure_option('end_time',0.008);
+time.options().configure_option('end_time',0.001);
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
@@ -68,6 +68,7 @@ solver.get_child('InitialConditions').execute();
 
 ### Create convection term
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
+diffusion  = solver.get_child('DomainDiscretization').create_term(name = 'diffusion' , type = 'cf3.sdm.navierstokes.Diffusion2D')
 
 nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.sdm.BCNull',
 regions=[
@@ -89,7 +90,9 @@ model.simulate()
 fields = [
 mesh.access_component("solution_space/solution").uri(),
 mesh.access_component("solution_space/wave_speed").uri(),
-mesh.access_component("solution_space/residual").uri()
+mesh.access_component("solution_space/residual").uri(),
+mesh.access_component("solution_space/convection").uri(),
+mesh.access_component("solution_space/diffusion").uri(),
 ]
 
 # tecplot
@@ -106,6 +109,6 @@ tec_writer.execute()
 gmsh_writer = model.create_component("writer","cf3.mesh.gmsh.Writer")
 gmsh_writer.options().configure_option("mesh",mesh)
 gmsh_writer.options().configure_option("fields",fields)
-gmsh_writer.options().configure_option("file",coolfluid.URI("file:sdm_output.msh"))
+gmsh_writer.options().configure_option("file",coolfluid.URI("file:sdm_output_diff.msh"))
 gmsh_writer.options().configure_option("enable_surfaces",False)
 gmsh_writer.execute()

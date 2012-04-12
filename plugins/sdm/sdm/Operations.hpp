@@ -82,6 +82,8 @@ private:
     cf3_assert(sf);
     reconstruct_from_geometry_space_to_flux_points.build_coefficients(entities->element_type().shape_function().handle<mesh::ShapeFunction>(),sf);
     reconstruct_from_solution_space_to_flux_points.build_coefficients(sf,sf);
+    reconstruct_gradient_from_solution_space_to_flux_points.build_coefficients(sf,sf);
+    reconstruct_gradient_from_solution_space_to_solution_space.build_coefficients(sf,sf);
     reconstruct_from_flux_points_to_solution_space.build_coefficients(sf);
     reconstruct_divergence_from_flux_points_to_solution_space.build_coefficients(sf);
     reconstruct_divergence_from_flux_points_to_flux_points.build_coefficients(sf);
@@ -95,10 +97,13 @@ public:
   Handle< sdm::ShapeFunction const > sf;
 
   ReconstructToFluxPoints              reconstruct_from_solution_space_to_flux_points;
+  GradientReconstructToFluxPoints      reconstruct_gradient_from_solution_space_to_flux_points;
+  mesh::GradientReconstruct            reconstruct_gradient_from_solution_space_to_solution_space;
   ReconstructToFluxPoints              reconstruct_from_geometry_space_to_flux_points;
   ReconstructFromFluxPoints            reconstruct_from_flux_points_to_solution_space;
   DivergenceReconstructFromFluxPoints  reconstruct_divergence_from_flux_points_to_solution_space;
   DivergenceFromFluxPointsToFluxPoints reconstruct_divergence_from_flux_points_to_flux_points;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
