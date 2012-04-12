@@ -10,6 +10,7 @@
 
 #include "math/MatrixTypes.hpp"
 #include "python/MatrixWrappers.hpp"
+#include "iostream"
 
 namespace cf3 {
 namespace python {
@@ -37,7 +38,8 @@ struct null_deleter{
 template<int rows, int cols>
 class matrix_array_mapper{
 public:
-  matrix_array_mapper(boost::shared_ptr<TMATRIX >in) : m(in){}
+  matrix_array_mapper(boost::shared_ptr<TMATRIX >in){m=in;}
+  matrix_array_mapper(const matrix_array_mapper<rows,cols> &other){m=other.m;}
   void scalar_iadd(Real a){m->array()+=a;}
   void scalar_isub(Real a){m->array()-=a;}
   void scalar_imul(Real a){m->array()*=a;}
@@ -153,11 +155,7 @@ boost::shared_ptr<TMATRIX > realmatrix_init_copy_static(const TOTHERMATRIX& othe
   boost::shared_ptr<TMATRIX >p(new TMATRIX(TMATRIX::Constant(0.0)));
   int rownum=MIN(rows,other.rows());
   int colnum=MIN(cols,other.cols());
-  for (int i=0;i<rownum;i++){
-    for (int j=0;j<colnum;j++){
-      (*p)(i,j)=other(i,j);
-    }
-  }
+  p->block(0,0,rownum,colnum)=other.block(0,0,rownum,colnum);
   return p;
 }
 
@@ -166,11 +164,7 @@ boost::shared_ptr<TMATRIX > realmatrix_init_copy_static_dyn(const TDYNMATRIX& ot
   boost::shared_ptr<TMATRIX >p(new TMATRIX(TMATRIX::Constant(0.0)));
   int rownum=MIN(rows,other.rows());
   int colnum=MIN(cols,other.cols());
-  for (int i=0;i<rownum;i++){
-    for (int j=0;j<colnum;j++){
-      (*p)(i,j)=other(i,j);
-    }
-  }
+  p->block(0,0,rownum,colnum)=other.block(0,0,rownum,colnum);
   return p;
 }
 
@@ -894,7 +888,11 @@ boost::shared_ptr<matrix_array_mapper<rows,cols> > matrix_array_get(boost::share
 
 template<int rows, int cols>
 void matrix_array_set(boost::shared_ptr<TMATRIX > self, boost::shared_ptr<matrix_array_mapper<rows,cols> > other){
-  self.swap(other->m);
+  std::cout << (*self) << std::endl;
+  if (other.get() != 0){
+    std::cout << (*(other->m)) << std::endl;
+    (*self)=(*(other->m));
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

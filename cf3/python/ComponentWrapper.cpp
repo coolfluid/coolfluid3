@@ -312,13 +312,10 @@ struct SignalWrapper
     CFdebug << CFendl;
 
     (*m_signal->signal())(node);
-    CFinfo << "node:" << node.to_python_script() << CFendl;
     // Process reply
     SignalFrame reply = node.get_reply();
-    CFinfo << "reply:" << reply.to_python_script() << CFendl;
     if(reply.node.is_valid())
     {
-      CFinfo << "valid_reply" << CFendl;
       SignalOptions reply_options(reply);
       if(reply_options.check("created_component"))
         return wrap_component(m_component->access_component(reply_options["created_component"].value< common::URI >()));

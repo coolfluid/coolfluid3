@@ -1,6 +1,6 @@
 from coolfluid import *
 
-root = cf.Core.root()
+root = Core.root()
 
 print root.properties()['brief']
 

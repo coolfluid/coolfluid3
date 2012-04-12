@@ -140,6 +140,8 @@ private:
   /// @brief Look if there are no outputs in python sys.out (replaced with a simple storing class), output are then sendend throught CFinfo
   void flush_python_stdout(int code_fragment);
 
+  void access_pe_manager();
+
   std::string current_instruction;
   bool new_command;
   Handle< common::PE::Manager > m_manager;

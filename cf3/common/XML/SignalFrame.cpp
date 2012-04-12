@@ -501,14 +501,18 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
 {
   std::string str="Root";
   std::string target = node.attribute_value("target");
-  std::string receiver = node.attribute_value("receiver").substr(7);//without the 'cpath:/'
+  std::string receiver = node.attribute_value("receiver");
+  if (receiver.length() > 7)
+    receiver=receiver.substr(7);//without the 'cpath:/'
+  else
+    return "";
   boost::char_separator<char> sep("/");
   boost::tokenizer< boost::char_separator<char> > tokens(receiver, sep);
   BOOST_FOREACH(std::string t, tokens){
     if (t.length()){
-      if (t=="Core"){//special case I guess
+      if (t=="Core"){//special case
         return "";
-      }else if (t=="ScriptEngine"){//we don't want to record them I guess
+      }else if (t=="ScriptEngine"){//we don't want to record them
         return "";
       }else{
         str+=".get_child('"+t+"')";
