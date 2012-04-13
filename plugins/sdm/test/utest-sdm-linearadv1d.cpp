@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 
 
   Uint DOF = 10;
-  Uint order = 3;
+  Uint order = 2;
 
   Uint res = 10;//DOF/order;
 
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   // Time stepping
   solver.time().options().configure_option("time_step",100.);
   solver.time().options().configure_option("end_time",1.0); // instead of 0.3
-  solver.time_stepping().options().configure_option("max_iteration" , 1000u );
+  solver.time_stepping().options().configure_option("max_iteration" , 1u );
   solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   for (Uint i=0; i<exact_diffusion.size(); ++i)
   {
     exact_diffusion[i].first=i*static_cast<Real>(lengths[XX])/(exact_diffusion.size()-1);
-    exact_diffusion[i].second = 4.;//- std::sin(Consts::pi()*exact_diffusion[i].first/lengths[XX])*Consts::pi()/lengths[XX]*Consts::pi()/lengths[XX];
+    exact_diffusion[i].second = - std::sin(Consts::pi()*exact_diffusion[i].first/lengths[XX])*Consts::pi()/lengths[XX]*Consts::pi()/lengths[XX];
   }
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));

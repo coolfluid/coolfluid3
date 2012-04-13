@@ -7,6 +7,10 @@
 #ifndef cf3_sdm_DiffusiveTerm_hpp
 #define cf3_sdm_DiffusiveTerm_hpp
 
+//#ifdef GNUPLOT_FOUND
+// Uncomment to output gnuplot plot for the flux. only for 1D simulations!!!
+//  #define SDM_OUTPUT_FLUX_GNUPLOT
+//#endif
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/PropertyList.hpp"
@@ -82,16 +86,18 @@ protected: // configuration
   /// @brief Set caches for element with given index
   virtual void set_element(const Uint elem_idx);
 
+  void compute_sol_pt_gradients(const SFDElement& elem, std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient);
+
   /// @brief Standard computation of solution and coordinates in flux point
   ///
   /// This function NEEDS to be overloaded for terms thar require more data to be set in phys_data
-  virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PHYSDATA& phys_data );
+  virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, const std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient, PHYSDATA& phys_data );
 
   /// @brief Standard computation of solution and coordinates in a solution point
   ///
   /// This function has to be used for boundaries, where the neighbour-element is a face entities
   /// The physical data is then located inside the face itself.
-  virtual void compute_sol_pt_phys_data(const SFDElement& elem, const Uint sol_pt, PHYSDATA& phys_data );
+  virtual void compute_sol_pt_phys_data(const SFDElement& elem, const Uint sol_pt, const std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient, PHYSDATA& phys_data );
 
   /// @brief Compute the average physical data, given a left physical data and a right physical data
   /// @param [in]  left_phys_data   left physical data
@@ -135,14 +141,16 @@ protected: // fast-access-data (for convenience no "m_" prefix)
   std::vector< RealVector1 >   flx_pt_wave_speed;               ///< Storage of wave speeds in flux points
   std::vector< std::vector<RealVector1> > sol_pt_wave_speed;   ///< Storage of wave speeds in solution points in every direction
 
-#ifdef GNUPLOT_FOUND
+  std::vector< Eigen::Matrix<Real,NDIM,NEQS> > m_sol_pt_gradient;
+  std::vector< Eigen::Matrix<Real,NDIM,NEQS> > m_neighbour_sol_pt_gradient;
+
+#ifdef SDM_OUTPUT_FLUX_GNUPLOT
   Gnuplot m_gp;
   Uint m_gp_counter;
   Uint m_dump_count;
 #endif
 
   Real m_alpha;
-  Real m_avg_coeff;
 }; // end DiffusiveTerm
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +158,7 @@ protected: // fast-access-data (for convenience no "m_" prefix)
 template <typename PHYSDATA>
 DiffusiveTerm<PHYSDATA>::DiffusiveTerm( const std::string& name )
   : Term(name)
-  #ifdef GNUPLOT_FOUND
+  #ifdef SDM_OUTPUT_FLUX_GNUPLOT
   , m_gp(std::string(GNUPLOT_COMMAND))
   #endif
 {
@@ -159,25 +167,23 @@ DiffusiveTerm<PHYSDATA>::DiffusiveTerm( const std::string& name )
                                             "wave-speed contribution of a Diffusive term");
 
 
-#ifdef GNUPLOT_FOUND
+#ifdef SDM_OUTPUT_FLUX_GNUPLOT
   m_gp << "set terminal png\n";
   m_gp << "set output 'diffusive_flux.png'\n";
   //  gp << "set yrange [-1.2:1.2]\n";
-  m_gp << "set xrange [0:0.3]\n";
+//  m_gp << "set xrange [0:0.3]\n";
   m_gp << "set grid\n";
   m_gp << "set xlabel 'x'\n";
   m_gp << "set ylabel 'U'\n";
   m_gp << "set title 'flux'\n";
-#endif
   m_gp_counter=0;
-  m_dump_count=16;
+  m_dump_count=1;
+#endif
 
   m_alpha=0.;
-  options().add_option("alpha",m_alpha).link_to(&m_alpha);
-
-  m_avg_coeff=1.;
-  options().add_option("avg_coeff",m_avg_coeff).link_to(&m_avg_coeff);
-
+  options().add_option("alpha",m_alpha)
+      .description("Coefficient for lifting-operator in the second approach of Bassi-Rebay")
+      .link_to(&m_alpha);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -190,7 +196,7 @@ void DiffusiveTerm<PHYSDATA>::execute()
   /// 1) Calculate flux in interior flux points
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {
-    compute_flx_pt_phys_data(elem->get(),flx_pt,*flx_pt_data);
+    compute_flx_pt_phys_data(elem->get(),flx_pt,m_sol_pt_gradient,*flx_pt_data);
     compute_flux(*flx_pt_data,flx_pt_plane_jacobian_normal->get().plane_unit_normal[flx_pt],
                   flx_pt_flux[flx_pt],flx_pt_wave_speed[flx_pt][0]);
     flx_pt_flux[flx_pt] *= flx_pt_plane_jacobian_normal->get().plane_jacobian[flx_pt];
@@ -259,12 +265,13 @@ void DiffusiveTerm<PHYSDATA>::execute()
     wave_speed[sol_pt][0] = std::max(wave_speed[sol_pt][0],term_wave[sol_pt][0]);
   }
 
-#ifdef GNUPLOT_FOUND
+#ifdef SDM_OUTPUT_FLUX_GNUPLOT
   if (m_gp_counter == m_dump_count)
   {
-    mesh::Field::View sol_pt_coords    = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
+//    mesh::Field::View sol_pt_coords    = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
     RealMatrix flx_pt_coords; flx_pt_coords.resize(elem->get().sf->nb_flx_pts(),NDIM);
-    elem->get().reconstruct_from_solution_space_to_flux_points(sol_pt_coords,flx_pt_coords);
+    elem->get().reconstruct_from_geometry_space_to_flux_points(elem->get().entities->geometry_space().get_coordinates(elem->get().idx),flx_pt_coords);
+//    elem->get().reconstruct_from_solution_space_to_flux_points(sol_pt_coords,flx_pt_coords);
     std::vector< std::pair<Real,Real> > flux(20);
     for (Uint i=0; i<flux.size(); ++i)
     {
@@ -281,7 +288,6 @@ void DiffusiveTerm<PHYSDATA>::execute()
     }
     m_gp.send( flux );
   }
-
 #endif
 }
 
@@ -335,15 +341,17 @@ void DiffusiveTerm<PHYSDATA>::set_entities(const mesh::Entities& entities)
 
   allocate_flx_pt_data();
 
+#ifdef SDM_OUTPUT_FLUX_GNUPLOT
   m_gp_counter++;
   if (m_gp_counter==m_dump_count)
   {
-    std::cout << "\n\n\n\n\n\n\n\nYES\n\n\n\n\n\n\n\n" << std::endl;
+    std::cout << "\n\n\n\n\n\n\n\nYES YES YES AND AGAIN YES\n\n\n\n\n\n\n\n" << std::endl;
     m_gp << "plot ";
     for (Uint e=0; e<entities.size()-1; ++e)
     m_gp << "'-' with lines title 'cell"<<e<<"', ";
     m_gp << "'-' with lines title 'cell"<<entities.size()-1<<"'\n";
   }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -354,12 +362,14 @@ void DiffusiveTerm<PHYSDATA>::set_element(const Uint elem_idx)
   Term::set_element(elem_idx);
   elem->set_cache(m_elem_idx);
   flx_pt_plane_jacobian_normal->set_cache(m_elem_idx);
+
+  compute_sol_pt_gradients(elem->get(),m_sol_pt_gradient);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename PHYSDATA>
-void DiffusiveTerm<PHYSDATA>::compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PHYSDATA& phys_data )
+void DiffusiveTerm<PHYSDATA>::compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, const std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient, PHYSDATA& phys_data )
 {
 //  std::cout << "    " << elem.entities->uri() << "["<<elem.idx<<"]   flx_pt[" <<flx_pt<<"]"<<std::endl;
   mesh::Field::View sol_pt_solution  = solution_field().view(elem.space->connectivity()[elem.idx]);
@@ -410,33 +420,13 @@ void DiffusiveTerm<PHYSDATA>::compute_flx_pt_phys_data(const SFDElement& elem, c
   // reconstruct the gradients now to this flux point
   // elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_solution_gradient,phys_data.solution_gradient);
 
-  // COMPUTE GRADIENTS IN SOLUTION POINTS
-  RealMatrix geom_coord_matrix = elem.entities->geometry_space().get_coordinates(elem.idx);
-  std::vector<RealMatrix> sol_pt_gradient(nb_sol_pts);
-  RealMatrix J; J.resize(NDIM,NDIM);
-  for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
-  {
-    // compute gradient of solution in local coordinates (dQ/dxi, dQ/deta, dQ/dzeta)
-    sol_pt_gradient[sol_pt].resize(NEQS,NDIM);
-    for (Uint d=0; d<NDIM; ++d)
-    {
-      elem.reconstruct_gradient_from_solution_space_to_solution_space[d][sol_pt](sol_pt_solution,sol_pt_gradient[sol_pt].row(d));
-    }
-    // transform to physical space: (dQ/dx, dQ/dy, dQ/dz)
-    elem.entities->element_type().compute_jacobian(elem.sf->sol_pts().row(sol_pt),geom_coord_matrix,J);
-    sol_pt_gradient[sol_pt] = J.inverse() * sol_pt_gradient[sol_pt];
-  }
-
   // INTERPOLATE GRADIENT TO THIS FLUX POINT
   RealMatrix sol_pt_derivative; sol_pt_derivative.resize(nb_sol_pts,NEQS);
   for (Uint d=0; d<NDIM; ++d)
   {
     for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
     {
-      for (Uint v=0; v<NEQS; ++v)
-      {
-        sol_pt_derivative.row(sol_pt) = sol_pt_gradient[sol_pt].row(d);
-      }
+      sol_pt_derivative.row(sol_pt) = sol_pt_gradient[sol_pt].row(d);
     }
     elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_derivative,phys_data.solution_gradient.row(d));
   }
@@ -445,7 +435,43 @@ void DiffusiveTerm<PHYSDATA>::compute_flx_pt_phys_data(const SFDElement& elem, c
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename PHYSDATA>
-void DiffusiveTerm<PHYSDATA>::compute_sol_pt_phys_data(const SFDElement& elem, const Uint sol_pt, PHYSDATA& phys_data )
+void DiffusiveTerm<PHYSDATA>::compute_sol_pt_gradients(const SFDElement& elem, std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient)
+{
+  const Uint nb_sol_pts = elem.sf->nb_sol_pts();
+  sol_pt_gradient.resize(nb_sol_pts);
+
+  // COMPUTE GRADIENTS IN SOLUTION POINTS
+  RealMatrix geom_coord_matrix = elem.entities->geometry_space().get_coordinates(elem.idx);
+  RealMatrix J; J.resize(NDIM,NDIM);
+  RealMatrix sf_grad; sf_grad.resize(NDIM,nb_sol_pts);
+
+  mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
+  for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+  {
+    sol_pt_gradient[sol_pt].setZero();
+
+    // compute gradient of solution in local coordinates (dQ/dxi, dQ/deta, dQ/dzeta)
+    elem.sf->compute_gradient(elem.sf->sol_pts().row(sol_pt), sf_grad);
+    for (Uint pt=0; pt<nb_sol_pts; ++pt)
+    {
+      for (Uint v=0; v<NEQS; ++v)
+      {
+        for (Uint d=0; d<NDIM; ++d)
+        {
+          sol_pt_gradient[sol_pt](d,v) += sol_pt_solution[pt][v] * sf_grad(d,pt);
+        }
+      }
+    }
+    // transform to physical space: (dQ/dx, dQ/dy, dQ/dz)
+    elem.entities->element_type().compute_jacobian(elem.sf->sol_pts().row(sol_pt),geom_coord_matrix,J);
+    sol_pt_gradient[sol_pt] = J.inverse() * sol_pt_gradient[sol_pt];
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename PHYSDATA>
+void DiffusiveTerm<PHYSDATA>::compute_sol_pt_phys_data(const SFDElement& elem, const Uint sol_pt, const std::vector< Eigen::Matrix<Real,NDIM,NEQS> >& sol_pt_gradient, PHYSDATA& phys_data)
 {
   mesh::Field::View sol_pt_solution = solution_field().view(elem.space->connectivity()[elem.idx]);
   mesh::Field::View sol_pt_coords   = solution_field().dict().coordinates().view(elem.space->connectivity()[elem.idx]);
@@ -537,43 +563,75 @@ void DiffusiveTerm<PHYSDATA>::compute_face()
            neighbour_entities,neighbour_elem_idx,neighbour_face_nb,
            face_entities,face_idx,face_side);
 
-//  std::cout << "    face_nb = " << m_face_nb << std::endl;
   /// 2) Set connectivity from face points on the left side to face points on the right side
   set_connectivity();
 
   const Uint nb_face_pts = elem->get().sf->face_flx_pts(m_face_nb).size();
   /// 3) Compute physical data in left face points
   for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-    compute_flx_pt_phys_data(elem->get(),left_face_pt_idx[face_pt],*left_face_data[face_pt]);
-//  std::cout << "  left sol_grad = " << left_face_data[0]->solution_gradient << std::endl;
+    compute_flx_pt_phys_data(elem->get(),left_face_pt_idx[face_pt],m_sol_pt_gradient,*left_face_data[face_pt]);
 
   /// 4) Compute physical data in right face points
-  std::vector<RealVectorNEQS> LambdaL(nb_face_pts);
-  std::vector<RealVectorNEQS> LambdaR(nb_face_pts);
-  boost_foreach (RealVectorNEQS& lambda, LambdaL)
-      lambda.setZero();
-  boost_foreach (RealVectorNEQS& lambda, LambdaR)
-      lambda.setZero();
+  std::vector< Eigen::Matrix<Real,NDIM,NEQS> > LambdaL(nb_face_pts);
+  std::vector< Eigen::Matrix<Real,NDIM,NEQS> > LambdaR(nb_face_pts);
+  for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+  {
+    LambdaL[face_pt].setZero();
+    LambdaR[face_pt].setZero();
+  }
 
 
   ///  * Case there is a neighbour cell
   if ( is_not_null(neighbour_entities) )
   {
+    compute_sol_pt_gradients(neighbour_elem->get(),m_neighbour_sol_pt_gradient);
     for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-      compute_flx_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
+      compute_flx_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],m_neighbour_sol_pt_gradient,*right_face_data[face_pt]);
+  }
+  /// * Case there is no neighbour, but physical data inside the face solution points
+  else
+  {
+    neighbour_elem->cache(face_entities,face_idx);
+    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
+      compute_sol_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],m_sol_pt_gradient,*right_face_data[face_pt]);
+    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
+    {
+      right_face_data[face_pt]->solution_gradient = left_face_data[face_pt]->solution_gradient;
+    }
+  }
 
 
-    // COMPUTE LEFT LIFTING OPERATOR
-    std::vector<RealVectorNEQS> dQL(elem->get().sf->nb_flx_pts());
+  // COMPUTE LEFT LIFTING OPERATOR
+  {
+    std::vector< RealVectorNEQS > dQL(elem->get().sf->nb_flx_pts());
     boost_foreach(RealVectorNEQS& dql, dQL)
         dql.setZero();
+
+    RealRowVector interpol_coeffs(elem->get().sf->nb_sol_pts());
+    RealVector flux_derivative_coeffs(dQL.size());
+
+
+//    RealMatrix geom_coord_matrix = elem->get().entities->geometry_space().get_coordinates(elem->get().idx);
     for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
     {
-      dQL[ left_face_pt_idx[face_pt]] = (right_face_data[face_pt]->solution - left_face_data[face_pt]->solution) * flx_pt_plane_jacobian_normal->get().plane_jacobian_normal[left_face_pt_idx[face_pt]];
+      dQL[left_face_pt_idx[face_pt]] = (right_face_data[face_pt]->solution - left_face_data[face_pt]->solution)
+                                       * flx_pt_plane_jacobian_normal->get().plane_jacobian_normal[left_face_pt_idx[face_pt]].cwiseAbs().transpose()
+                                       * flx_pt_plane_jacobian_normal->get().plane_unit_normal[left_face_pt_idx[face_pt]];
     }
-//    std::cout << "dQL = " << dQL[left_face_pt_idx[0]] << std::endl;
-    std::vector<RealVectorNEQS> sol_pt_LambdaL(elem->get().sf->nb_sol_pts());
-    elem->get().reconstruct_divergence_from_flux_points_to_solution_space(dQL,sol_pt_LambdaL);
+    std::vector< Eigen::Matrix<Real,NDIM,NEQS> > sol_pt_LambdaL(elem->get().sf->nb_sol_pts());
+//    neighbour_elem->get().reconstruct_divergence_from_flux_points_to_solution_space(dQR,sol_pt_LambdaR);
+
+    for (Uint sol_pt=0; sol_pt<sol_pt_LambdaL.size(); ++sol_pt)
+    {
+      for (Uint d=0; d<NDIM; ++d)
+      {
+        elem->get().sf->compute_flux_derivative(d, elem->get().sf->sol_pts().row(sol_pt), flux_derivative_coeffs);
+        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+        {
+          sol_pt_LambdaL[sol_pt].row(d) += flux_derivative_coeffs[left_face_pt_idx[face_pt]] * dQL[left_face_pt_idx[face_pt]].transpose();
+        }
+      }
+    }
 
     // left side
     {
@@ -581,25 +639,54 @@ void DiffusiveTerm<PHYSDATA>::compute_face()
       for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
       {
         sol_pt_LambdaL[sol_pt]/=sol_pt_jacob_det[sol_pt][0];
-//        std::cout << "sol_pt_LambdaL = " << sol_pt_LambdaL[sol_pt] << std::endl;
       }
       for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
       {
-        elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](sol_pt_LambdaL,LambdaL[face_pt]);
-//        std::cout << "LambdaL = " << LambdaL[face_pt] << std::endl;
+        elem->get().sf->compute_value(elem->get().sf->flx_pts().row(left_face_pt_idx[face_pt]), interpol_coeffs);
+        for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
+        {
+          LambdaL[face_pt] += interpol_coeffs[sol_pt] * sol_pt_LambdaL[sol_pt];
+        }
       }
+//      elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](sol_pt_LambdaL,LambdaL[face_pt]);
     }
+  }
 
-    // COMPUTE RIGHT LIFTING OPERATOR
+
+  // COMPUTE RIGHT LIFTING OPERATOR
+  if (is_null(neighbour_entities)) // if boundary face
+  {
+    LambdaR = LambdaL;
+  }
+  else // if interior face
+  {
     std::vector<RealVectorNEQS> dQR(neighbour_elem->get().sf->nb_flx_pts());
     boost_foreach(RealVectorNEQS& dqr, dQR)
         dqr.setZero();
+    RealVector flux_derivative_coeffs(dQR.size());
+    RealRowVector interpol_coeffs(neighbour_elem->get().sf->nb_sol_pts());
+
     for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
     {
-      dQR[right_face_pt_idx[face_pt]] = -(right_face_data[face_pt]->solution - left_face_data[face_pt]->solution) * flx_pt_plane_jacobian_normal->get().plane_jacobian_normal[left_face_pt_idx[face_pt]];
+      dQR[right_face_pt_idx[face_pt]] = -(right_face_data[face_pt]->solution - left_face_data[face_pt]->solution)
+                                        * flx_pt_plane_jacobian_normal->get().plane_jacobian_normal[left_face_pt_idx[face_pt]].cwiseAbs().transpose()
+                                        * flx_pt_plane_jacobian_normal->get().plane_unit_normal[left_face_pt_idx[face_pt]];
     }
-    std::vector<RealVectorNEQS> sol_pt_LambdaR(neighbour_elem->get().sf->nb_sol_pts());
-    neighbour_elem->get().reconstruct_divergence_from_flux_points_to_solution_space(dQR,sol_pt_LambdaR);
+
+    std::vector< Eigen::Matrix<Real,NDIM,NEQS> > sol_pt_LambdaR(neighbour_elem->get().sf->nb_sol_pts());
+//    neighbour_elem->get().reconstruct_divergence_from_flux_points_to_solution_space(dQR,sol_pt_LambdaR);
+
+    for (Uint sol_pt=0; sol_pt<sol_pt_LambdaR.size(); ++sol_pt)
+    {
+      for (Uint d=0; d<NDIM; ++d)
+      {
+        neighbour_elem->get().sf->compute_flux_derivative(d, neighbour_elem->get().sf->sol_pts().row(sol_pt), flux_derivative_coeffs);
+        for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
+        {
+          sol_pt_LambdaR[sol_pt].row(d) += flux_derivative_coeffs[right_face_pt_idx[face_pt]] * dQR[right_face_pt_idx[face_pt]];
+        }
+      }
+    }
 
     // right side
     {
@@ -607,76 +694,23 @@ void DiffusiveTerm<PHYSDATA>::compute_face()
       for (Uint sol_pt=0; sol_pt<neighbour_elem->get().sf->nb_sol_pts(); ++sol_pt)
       {
         sol_pt_LambdaR[sol_pt]/=sol_pt_jacob_det[sol_pt][0];
-//        std::cout << "sol_pt_LambdaR = " << sol_pt_LambdaR[sol_pt] << std::endl;
       }
       for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
       {
-        neighbour_elem->get().reconstruct_from_solution_space_to_flux_points[right_face_pt_idx[face_pt]](sol_pt_LambdaR,LambdaR[face_pt]);
-//        std::cout << "LambdaR = " << LambdaR[face_pt] << std::endl;
+
+        elem->get().sf->compute_value(neighbour_elem->get().sf->flx_pts().row(right_face_pt_idx[face_pt]), interpol_coeffs);
+        for (Uint sol_pt=0; sol_pt<neighbour_elem->get().sf->nb_sol_pts(); ++sol_pt)
+        {
+          LambdaR[face_pt] += interpol_coeffs[sol_pt] * sol_pt_LambdaR[sol_pt];
+        }
       }
     }
   }
-  /// * Case there is no neighbour, but physical data inside the face solution points
-  else
-  {
-//    std::cout << "no neighbour" << std::endl;
-    neighbour_elem->cache(face_entities,face_idx);
-//  Ignore boundary for now, and interpolate from inside
-    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
-      compute_sol_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
-    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
-    {
-      right_face_data[face_pt]->solution_gradient = left_face_data[face_pt]->solution_gradient;
-    }
-
-    // COMPUTE LEFT LIFTING OPERATOR
-    std::vector<RealVectorNEQS> dQL(elem->get().sf->nb_flx_pts());
-    boost_foreach(RealVectorNEQS& dql, dQL)
-        dql.setZero();
-    for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-    {
-      dQL[ left_face_pt_idx[face_pt]] = (right_face_data[face_pt]->solution - left_face_data[face_pt]->solution) * flx_pt_plane_jacobian_normal->get().plane_jacobian_normal[left_face_pt_idx[face_pt]];
-    }
-//    std::cout << "dQL = " << dQL[left_face_pt_idx[0]] << std::endl;
-    std::vector<RealVectorNEQS> sol_pt_LambdaL(elem->get().sf->nb_sol_pts());
-    elem->get().reconstruct_divergence_from_flux_points_to_solution_space(dQL,sol_pt_LambdaL);
-
-    // left side
-    {
-      mesh::Field::View sol_pt_jacob_det = jacob_det_field().view(elem->get().space->connectivity()[elem->get().idx]);
-      for (Uint sol_pt=0; sol_pt<elem->get().sf->nb_sol_pts(); ++sol_pt)
-      {
-        sol_pt_LambdaL[sol_pt]/=sol_pt_jacob_det[sol_pt][0];
-//        std::cout << "sol_pt_LambdaL = " << sol_pt_LambdaL[sol_pt] << std::endl;
-      }
-      for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-      {
-        elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](sol_pt_LambdaL,LambdaL[face_pt]);
-//        std::cout << "LambdaL = " << LambdaL[face_pt] << std::endl;
-      }
-    }
-
-    LambdaR = LambdaL;
-
-  }
-
-//  std::cout << "face " << face_entities->uri()<<"["<<face_idx<<"]" << std::endl;
-//  std::cout << "  coord          = " << left_face_data[0]->coord << std::endl;
-//  std::cout << "  left sol_grad  = " << left_face_data[0]->solution_gradient << std::endl;
-//  std::cout << "  right sol_grad = " << right_face_data[0]->solution_gradient << std::endl;
-
-
   for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
   {
     compute_average_phys_data(*left_face_data[face_pt],*right_face_data[face_pt], *left_face_data[face_pt]);
     left_face_data[face_pt]->solution_gradient += m_alpha * 0.5*(LambdaL[face_pt]+LambdaR[face_pt]);
   }
-
-//  std::cout << "  avg sol_grad   = " << left_face_data[0]->solution_gradient << std::endl;
-//  std::cout << "  left flx_pt    = " << left_face_pt_idx[0] << std::endl;
-//  std::cout << "  right flx_pt   = " << right_face_pt_idx[0] << std::endl;
-//    std::cout << "  lifting   = " << 0.5*(LambdaL[0]+LambdaR[0]) << std::endl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
