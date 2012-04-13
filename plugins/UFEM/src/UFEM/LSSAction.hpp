@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_LinearSolver_hpp
-#define cf3_UFEM_LinearSolver_hpp
+#ifndef cf3_UFEM_LSSAction_hpp
+#define cf3_UFEM_LSSAction_hpp
 
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "solver/SimpleSolver.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
@@ -23,35 +23,43 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// LinearSolver for UFEM problems, allowing dynamic configuration and providing access to
+/// LSSAction for UFEM problems, allowing dynamic configuration and providing access to
 /// * Linear system solver
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public solver::SimpleSolver
+class UFEM_API LSSAction : public solver::ActionDirector
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  LinearSolver ( const std::string& name );
+  LSSAction ( const std::string& name );
 
-  virtual ~LinearSolver();
+  virtual ~LSSAction();
 
   /// Get the class name
-  static std::string type_name () { return "LinearSolver"; }
+  static std::string type_name () { return "LSSAction"; }
 
   virtual void execute();
-
-  virtual void mesh_loaded(mesh::Mesh& mesh);
-  virtual void mesh_changed(mesh::Mesh& mesh);
+  
+  /// Create the LSS to use
+  /// @param matrix_builder Name of the matrix builder to use for the LSS
+  math::LSS::System& create_lss(const std::string& matrix_builder);
 
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
+  
+  /// Signals
+  void signature_create_lss( common::SignalArgs& node );
+  void signal_create_lss( common::SignalArgs& node );
 
-  /// Trigerred when the LSS is set
-  void trigger_lss();
+protected:
+  /// tag used to keep track of what field stores the solution to the LSS
+  std::string m_solution_tag;
+  
+  void on_regions_set();
 
 public:
   /// Proto placeholder for the system matrix
@@ -68,4 +76,4 @@ public:
 } // cf3
 
 
-#endif // cf3_UFEM_LinearSolver_hpp
+#endif // cf3_UFEM_LSSAction_hpp

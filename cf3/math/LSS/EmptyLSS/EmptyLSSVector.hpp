@@ -14,6 +14,7 @@
 #include "math/LSS/LibLSS.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "math/LSS/Vector.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +64,15 @@ public:
     m_blockrow_size=cp.gid()->size();
     m_is_created=true;
   }
+  
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars)
+  {
+    destroy();
+    m_neq=vars.size();
+    m_blockrow_size=cp.gid()->size();
+    m_is_created=true;
+  }
+  
 
   /// Deallocate underlying data
   void destroy()
@@ -154,6 +164,8 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) { cf3_assert(m_is_created); }
+  
+  void print_native(std::ostream& stream) {}
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; }

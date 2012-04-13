@@ -84,7 +84,7 @@ my %packages = (  #  version   default install priority      function
     "qt"         => [ "4.7.4",    'off',   'off', $priority++,  \&install_qt ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
-    "trilinos"   => [ "10.8.2",   'off',   'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "10.10.1",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p8",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.1.3-2",  'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
@@ -1006,6 +1006,7 @@ sub install_trilinos() {
       -D Trilinos_ENABLE_Epetra:BOOL=ON \\
       -D Trilinos_ENABLE_EpetraExt:BOOL=ON \\
       -D Trilinos_ENABLE_Tpetra:BOOL=ON \\
+      -D Trilinos_ENABLE_Teko:BOOL=ON \\
       -D Trilinos_ENABLE_TpetraExt:BOOL=ON \\
       -D Trilinos_ENABLE_Ifpack:BOOL=ON \\
       -D Trilinos_ENABLE_Meros:BOOL=ON \\

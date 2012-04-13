@@ -61,7 +61,8 @@ public:
   Uint block_size() const { return indices.size(); };
 
   /// accessor to blockaccumulator's RealMatrix
-  RealMatrix mat;
+  /// Note: TrilinosCrsMatrix assumes row-major storage order here!
+  Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> mat;
 
   /// accessor to blockaccumulator's solution vector
   RealVector sol;
