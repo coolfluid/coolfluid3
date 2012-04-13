@@ -14,7 +14,7 @@ list( APPEND coolfluid_math_lss_files
   EmptyLSS/EmptyLSSMatrix.cpp
 )
 
-list( APPEND coolfluid_math_lss_libs coolfluid_common)
+list( APPEND coolfluid_math_lss_libs coolfluid_math)
 
 # happen to have trilinos
 if(CF3_HAVE_TRILINOS)
