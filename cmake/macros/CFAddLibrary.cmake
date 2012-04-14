@@ -4,6 +4,8 @@
 
 macro( coolfluid_add_library LIBNAME )
 
+  set( ${LIBNAME}_is_coolfluid_library TRUE CACHE INTERNAL "" )
+
   # option to build it or not (option is advanced and does not appear in the cmake gui)
   option( CF3_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
   mark_as_advanced( CF3_BUILD_${LIBNAME} )

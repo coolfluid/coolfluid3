@@ -50,28 +50,30 @@ coolfluid_add_test( UTEST utest-lss-system-emptylss
                     LIBS  coolfluid_math_lss coolfluid_math
                     MPI   1 )
 
-if(CF3_HAVE_TRILINOS)
 
 coolfluid_add_test( UTEST utest-lss-atomic
                     CPP   utest-lss-atomic.cpp
                     LIBS  coolfluid_math_lss coolfluid_math
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
-                    MPI   2)
+                    MPI   2
+                    CONDITION CF3_HAVE_TRILINOS)
 
+if( CF3_HAVE_TRILINOS )
 # reuse the same test executable for the CrsMatrix
 add_test(utest-lss-atomic-crs ${CF3_MPIRUN_PROGRAM} -np 2 utest-lss-atomic cf3.math.LSS.TrilinosCrsMatrix)
-
+endif()
 
 coolfluid_add_test( UTEST utest-lss-distributed-matrix
                     CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
                     LIBS  coolfluid_math_lss coolfluid_math
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
-                    MPI   4)
+                    MPI   4
+                    CONDITION CF3_HAVE_TRILINOS)
 
+if( CF3_HAVE_TRILINOS )
 # reuse the same test executable for the CrsMatrix
 add_test(utest-lss-distributed-matrix-crs ${CF3_MPIRUN_PROGRAM} -np 4 utest-lss-distributed-matrix cf3.math.LSS.TrilinosCrsMatrix)
-
-endif(CF3_HAVE_TRILINOS)
+endif()
 
 ################################################################################
 

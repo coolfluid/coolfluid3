@@ -1,5 +1,4 @@
 # UFEM tests
-if(coolfluid_ufem_builds)
 coolfluid_add_test( UTEST utest-proto-heat
                     CPP utest-proto-heat.cpp
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
@@ -58,29 +57,34 @@ set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
 coolfluid_add_test( ATEST atest-ufem-heat2d-disk
                     PYTHON atest-ufem-heat2d-disk.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    CONDITION coolfluid_ufem_builds )
 
 coolfluid_add_test( ATEST atest-ufem-heat3d-channel
                     PYTHON atest-ufem-heat3d-channel.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 4 )
+                    MPI 4
+                    CONDITION coolfluid_ufem_builds )
 
 coolfluid_add_test( ATEST atest-ufem-heat3d-sphere
                     PYTHON atest-ufem-heat3d-sphere.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring3d-tetras.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 4 )
+                    MPI 4
+                    CONDITION coolfluid_ufem_builds )
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
                     PYTHON atest-ufem-navier-stokes-cylinder2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 4)
+                    MPI 4
+                    CONDITION coolfluid_ufem_builds )
 
 coolfluid_add_test( ATEST atest-quadtriag
                     PYTHON atest-quadtriag.py
-                    ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+                    ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    CONDITION coolfluid_ufem_builds )
 
 coolfluid_add_test( ATEST atest-flatplate2d
                     PYTHON atest-flatplate2d.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
-endif()
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    CONDITION coolfluid_ufem_builds )
 

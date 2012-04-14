@@ -82,10 +82,6 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/Transforms.hpp
 )
 
-option( CF3_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
-
-coolfluid_set_feature( Proto CF3_ENABLE_PROTO "boost proto expressions" )
-
 if( CF3_ENABLE_PROTO )
   list( APPEND coolfluid_solver_actions_files ${coolfluid_solver_actions_proto_files} )
 else()

@@ -33,12 +33,14 @@ if(CF3_HAVE_TRILINOS)
     ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
 else()
   coolfluid_mark_not_orphan(
-  Trilinos/TrilinosCrsMatrix.hpp
-  Trilinos/TrilinosCrsMatrix.cpp
-  Trilinos/TrilinosMatrix.hpp
-  Trilinos/TrilinosMatrix.cpp
-  Trilinos/TrilinosVector.hpp
-  Trilinos/TrilinosVector.cpp
+    Trilinos/TrilinosCrsMatrix.hpp
+    Trilinos/TrilinosCrsMatrix.cpp
+    Trilinos/TrilinosDetail.hpp
+    Trilinos/TrilinosDetail.cpp
+    Trilinos/TrilinosFEVbrMatrix.hpp
+    Trilinos/TrilinosFEVbrMatrix.cpp
+    Trilinos/TrilinosVector.hpp
+    Trilinos/TrilinosVector.cpp
   )
 endif()
 
