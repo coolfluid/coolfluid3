@@ -13,7 +13,7 @@
 #include <boost/function.hpp>
 
 #include "sdm/DiffusiveTerm.hpp"
-#include "sdm/scalar/Libscalar.hpp"
+#include "sdm/scalar/LibScalar.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
