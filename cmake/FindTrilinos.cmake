@@ -9,9 +9,8 @@
 #   CF3_HAVE_TRILINOS
 #
 option( CF3_SKIP_TRILINOS "Skip search for Trilinos library" OFF )
-coolfluid_debug_var(CF3_SKIP_TRILINOS)
+
 if( NOT CF3_SKIP_TRILINOS )
-coolfluid_debug_var(CF3_SKIP_TRILINOS)
 # Try to find Trilinos using Trilinos recommendations
 find_package(Trilinos PATHS ${TRILINOS_HOME}/lib/cmake/Trilinos ${TRILINOS_HOME}/include ${DEPS_ROOT}/lib/cmake/Trilinos ${DEPS_ROOT}/include)
 if(Trilinos_FOUND)
