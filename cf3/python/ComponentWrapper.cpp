@@ -74,7 +74,7 @@ struct PythonToAny
     if(m_found)
       return;
 
-    if(common::class_name_from_typeinfo(typeid(T)) != m_target_type)
+    if(!m_target_type.empty() && common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
 
     boost::python::extract<T> extracted_value(m_value);
@@ -87,7 +87,7 @@ struct PythonToAny
 
   void operator()(const Handle<common::Component>) const
   {
-    if(!boost::starts_with(m_target_type, "handle"))
+    if(!m_target_type.empty() && !boost::starts_with(m_target_type, "handle"))
       return;
 
     ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(m_value);
@@ -478,6 +478,11 @@ void print_timing_tree(ComponentWrapper& self)
   cf3::common::print_timing_tree(self.component());
 }
 
+void configure_option_recursively(ComponentWrapper& self, const std::string& option_name, const boost::python::object& value)
+{
+    self.component().configure_option_recursively(option_name, python_to_any(value, ""));
+}
+
 Uint get_len(ComponentWrapper& self)
 {
   if(is_null(self.get_list_interface()))
@@ -583,6 +588,7 @@ void def_component()
     .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("uri", uri)
     .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
+    .def("configure_option_recursively", configure_option_recursively, "Configure the given option recursively")
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)

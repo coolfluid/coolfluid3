@@ -42,14 +42,9 @@ public: // functions
 
     virtual void stop_profiling();
 
-    virtual void set_file_path(const boost::filesystem::path & path);
-
 private:
 
     bool m_profiling;
-
-    boost::filesystem::path m_path;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

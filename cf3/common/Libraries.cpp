@@ -113,6 +113,7 @@ Handle<Library> Libraries::autoload_library_with_namespace( const std::string& l
   }
   catch(const std::exception& e)
   {
+    CFwarn << "Library " << lib_name << " failed to load with error " << e.what() << CFendl;
     return Handle<Library>();
   }
 }

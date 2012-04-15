@@ -12,9 +12,6 @@
 
 #include "solver/Solver.hpp"
 
-#include "solver/actions/Proto/BlockAccumulator.hpp"
-#include "solver/actions/Proto/DirichletBC.hpp"
-
 #include "LibUFEM.hpp"
 
 namespace cf3 {
@@ -55,6 +52,8 @@ public: // functions
   /// Signal to create a constant BC and add it to the sequence of executed actions
   void signal_create_constant_bc(common::SignalArgs& node);
   void signal_create_function_bc(common::SignalArgs& node);
+
+  void set_solution_tag(const std::string& solution_tag);
 
 private:
   class Implementation;

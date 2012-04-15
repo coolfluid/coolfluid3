@@ -136,7 +136,16 @@ void Action::config_regions()
       throw common::ValueNotFound ( FromHere(),
                            "Component [" + region_uri.path() +"] is not of type Region" );
   }
+  
+  on_regions_set();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Action::on_regions_set()
+{
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

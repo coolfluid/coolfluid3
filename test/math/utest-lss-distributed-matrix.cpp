@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( system_solve )
   // system
   boost::shared_ptr<LSS::System> sys_ptr = common::allocate_component<LSS::System>("system");
   LSS::System& sys = *sys_ptr;
-  sys.options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
+  sys.options().option("matrix_builder").change_value(boost::lexical_cast<std::string>(m_argv[1]));
   sys.create(cp,m.nbeqs,m.column_indices,m.rowstart_positions);
   sys.reset();
 
