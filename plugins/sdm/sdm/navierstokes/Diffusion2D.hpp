@@ -50,6 +50,34 @@ public:
   static std::string type_name() { return "Diffusion2D"; }
   Diffusion2D(const std::string& name) : DiffusiveTerm< PhysData >(name)
   {
+
+    m_gamma = 1.4;
+    m_gamma_minus_1 = m_gamma-1.;
+    options().add_option("gamma",m_gamma)
+        .description("Heat capacity ratio")
+        .attach_trigger( boost::bind( &Diffusion2D::config_gamma, this) );
+
+    m_R = 287.05;
+    options().add_option("R",m_R)
+        .description("Gas constant")
+        .link_to(&m_R);
+
+    m_k = 2.601e-2;
+    options().add_option("k",m_k)
+        .description("Heat conduction")
+        .link_to(&m_k);
+
+    m_mu = 1.806e-5;
+    options().add_option("mu",m_mu)
+        .description("Dynamic viscosity")
+        .link_to(&m_mu);
+
+  }
+
+  void config_gamma()
+  {
+    m_gamma = options().option("gamma").value<Real>();
+    m_gamma_minus_1 = m_gamma-1.;
   }
 
   virtual ~Diffusion2D() {}
@@ -57,13 +85,6 @@ public:
   virtual void compute_flux(PhysData& data, const RealVectorNDIM& unit_normal,
                             RealVectorNEQS& flux, Real& wave_speed)
   {
-    /// @todo to be configured
-    const Real gamma_minus_1 = 0.4;
-    const Real R = 287.05;
-    const Real k = 2.601e-2;
-    const Real mu = 1.806e-5;
-
-
     const Real& nx = unit_normal[XX];
     const Real& ny = unit_normal[YY];
 
@@ -77,22 +98,21 @@ public:
     const RealVectorNDIM& grad_rhov = data.solution_gradient.col(2);
     const RealVectorNDIM& grad_rhoE = data.solution_gradient.col(3);
 
-    /// @todo to be preallocated
-    const Real rho2 = rho*rho;
-    const Real rho3 = rho2*rho;
-    const RealVectorNDIM grad_u = (rho*grad_rhou-rhou*grad_rho)/rho2;
-    const RealVectorNDIM grad_v = (rho*grad_rhov-rhov*grad_rho)/rho2;
-    const RealVectorNDIM grad_T = gamma_minus_1/(R*rho3) * (grad_rho*(-rho*rhoE+rhou*rhou+rhov*rhov)
+    rho2 = rho*rho;
+    rho3 = rho2*rho;
+    grad_u = (rho*grad_rhou-rhou*grad_rho)/rho2;
+    grad_v = (rho*grad_rhov-rhov*grad_rho)/rho2;
+    grad_T = m_gamma_minus_1/(m_R*rho3) * (grad_rho*(-rho*rhoE+rhou*rhou+rhov*rhov)
                                                             + rho*(rho*grad_rhoE-rhou*grad_rhou-rhov*grad_rhov));
-    const Real two_third_divergence_U = 2./3.*(grad_u[XX] + grad_v[YY]);
+    two_third_divergence_U = 2./3.*(grad_u[XX] + grad_v[YY]);
 
     // Viscous stress tensor
-    const Real tau_xx = mu*(2.*grad_u[XX] - two_third_divergence_U);
-    const Real tau_yy = mu*(2.*grad_v[YY] - two_third_divergence_U);
-    const Real tau_xy = mu*(grad_u[YY] + grad_v[XX]);
+    tau_xx = m_mu*(2.*grad_u[XX] - two_third_divergence_U);
+    tau_yy = m_mu*(2.*grad_v[YY] - two_third_divergence_U);
+    tau_xy = m_mu*(grad_u[YY] + grad_v[XX]);
 
     // Heat flux
-    const Real heat_flux = -k*(grad_T[XX]*nx + grad_T[YY] *ny);
+    heat_flux = -m_k*(grad_T[XX]*nx + grad_T[YY] *ny);
 
     flux[0] = 0.;
     flux[1] = tau_xx*nx + tau_xy*ny;
@@ -103,6 +123,31 @@ public:
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+private:
+  Real m_gamma;
+  Real m_gamma_minus_1;
+  Real m_R;
+  Real m_k;
+  Real m_mu;
+
+
+  // allocations
+  Real rho2;
+  Real rho3;
+  RealVectorNDIM grad_u;
+  RealVectorNDIM grad_v;
+  RealVectorNDIM grad_T;
+  Real two_third_divergence_U;
+
+  // Viscous stress tensor
+  Real tau_xx;
+  Real tau_yy;
+  Real tau_xy;
+
+  // Heat flux
+  Real heat_flux;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
