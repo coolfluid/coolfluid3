@@ -47,7 +47,8 @@ coolfluid_add_test( UTEST utest-rdm-merge
 
 coolfluid_add_test( UTEST utest-proto-ns-assembly
                     CPP utest-proto-ns-assembly.cpp
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver
+                    CONDITION CF3_ENABLE_PROTO)
 
 # Disable debugging on the compiled expressions, since this takes huge amounts of memory
 set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
