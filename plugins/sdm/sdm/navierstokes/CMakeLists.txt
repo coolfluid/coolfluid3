@@ -9,6 +9,8 @@ list( APPEND coolfluid_sdm_navierstokes_files
   BCSubsonicOutlet2D.cpp
   BCWallEuler2D.hpp
   BCWallEuler2D.cpp
+  BCWall2D.hpp
+  BCWall2D.cpp
   Convection1D.hpp
   Convection1D.cpp
   Convection2D.hpp
