@@ -49,9 +49,9 @@ macro( coolfluid_add_application APPNAME )
   endif()
 
   if( CF3_BUILD_${APPNAME} AND ${APPNAME}_has_all_plugins AND ${APPNAME}_condition )
-    set( ${APPNAME}_builds YES CACHE INTERNAL "" )
+    set( ${APPNAME}_builds YES CACHE INTERNAL "" FORCE )
   else()
-    set( ${APPNAME}_builds NO  CACHE INTERNAL "" )
+    set( ${APPNAME}_builds NO  CACHE INTERNAL "" FORCE )
   endif()
 
   # compile if selected and all required modules are present

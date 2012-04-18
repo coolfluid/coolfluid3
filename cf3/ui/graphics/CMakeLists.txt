@@ -114,6 +114,13 @@ list( APPEND coolfluid_ui_graphics_cflibs coolfluid_ui_core )
 # Use Qt Libraries
 list( APPEND coolfluid_ui_graphics_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser)
 
-QT4_ADD_RESOURCES(coolfluid_ui_graphics_RCC Resources/coolfluid-client.qrc)
+if( CF3_ENABLE_GUI AND QT4_FOUND )
+
+    QT4_ADD_RESOURCES(coolfluid_ui_graphics_RCC Resources/coolfluid-client.qrc)
+
+    set( coolfluid_ui_graphics_condition TRUE )
+else()
+    set( coolfluid_ui_graphics_condition FALSE )
+endif()
 
 coolfluid_add_library(coolfluid_ui_graphics)
