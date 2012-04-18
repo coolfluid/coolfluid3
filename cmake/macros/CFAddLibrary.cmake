@@ -49,9 +49,9 @@ macro( coolfluid_add_library LIBNAME )
   endif()
 
   if(CF3_BUILD_${LIBNAME} AND ${LIBNAME}_has_all_plugins AND ${LIBNAME}_condition)
-    set( ${LIBNAME}_builds YES CACHE INTERNAL "" )
+    set( ${LIBNAME}_builds YES CACHE INTERNAL "" FORCE )
   else()
-    set( ${LIBNAME}_builds NO  CACHE INTERNAL "" )
+    set( ${LIBNAME}_builds NO  CACHE INTERNAL "" FORCE )
   endif()
 
   # compile if selected and all required modules are present
