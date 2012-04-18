@@ -1201,6 +1201,10 @@ BlockArrays::BlockArrays(const std::string& name) :
 
   options().add_option("overlap", 1u).pretty_name("Overlap")
     .description("Number of cell layers to overlap across parallel partitions. Ignored in serial runs");
+    
+  options().add_option("block_regions", std::vector<std::string>())
+    .pretty_name("Block Regions")
+    .description("For each block, the region it belongs to. Leave empty to assign each block to the region \"interior\"");
 }
 
 BlockArrays::~BlockArrays()
@@ -1555,10 +1559,20 @@ void BlockArrays::create_mesh(Mesh& mesh)
 
   m_implementation->create_nodes_distribution(nb_procs, rank);
 
-  // Element distribution among CPUs
-  std::vector<Uint> elements_dist;
-  elements_dist.reserve(nb_procs+1);
-  elements_dist.push_back(0);
+  // Element distribution among CPUs and per region
+  const Uint nb_blocks = m_implementation->blocks->size();
+  std::vector<std::string> block_regions = options().option("block_regions").value< std::vector<std::string> >();
+  if(block_regions.size() && block_regions.size() != nb_blocks)
+  {
+    const Uint nb_block_regions = block_regions.size();
+    block_regions.clear();
+    throw SetupError(FromHere(), "Wrong number of regions for blocks, expected: " + boost::lexical_cast<std::string>(nb_blocks) + ", obtained: " + boost::lexical_cast<std::string>(nb_block_regions));
+  }
+  if(block_regions.empty())
+    block_regions.assign(nb_blocks, "interior");
+  
+  typedef std::map< std::string, std::vector<Uint> > ElementsDistT;
+  ElementsDistT elements_dist;
   for(Uint proc = 0; proc != nb_procs; ++proc)
   {
     const Uint proc_begin = m_implementation->block_distribution[proc];
@@ -1566,23 +1580,34 @@ void BlockArrays::create_mesh(Mesh& mesh)
     Uint nb_elements = 0;
     for(Uint block = proc_begin; block != proc_end; ++block)
     {
-      nb_elements += m_implementation->block_list[block].nb_elems;
+      std::vector<Uint>& region_elements_dist = elements_dist[block_regions[block]];
+      if(region_elements_dist.empty())
+        region_elements_dist.push_back(0);
+      if(region_elements_dist.size() < proc + 2)
+        region_elements_dist.push_back(region_elements_dist.back());
+      region_elements_dist.back() += m_implementation->block_list[block].nb_elems;
     }
-    elements_dist.push_back(elements_dist.back() + nb_elements);
   }
 
   const Uint blocks_begin = m_implementation->block_distribution[rank];
   const Uint blocks_end = m_implementation->block_distribution[rank+1];
 
   Dictionary& geometry_dict = mesh.geometry_fields();
-  Elements& volume_elements = mesh.topology().create_region("interior").create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Hexa3D" : "cf3.mesh.LagrangeP1.Quad2D", geometry_dict);
-  volume_elements.resize(elements_dist[rank+1]-elements_dist[rank]);
+  
+  std::map<std::string, Elements*> elements_map;
+  for(ElementsDistT::const_iterator it = elements_dist.begin(); it != elements_dist.end(); ++it)
+  {
+    const std::vector<Uint>& region_elements_dist = it->second;
+    Elements& volume_elements = mesh.topology().create_region(it->first).create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Hexa3D" : "cf3.mesh.LagrangeP1.Quad2D", geometry_dict);
+    volume_elements.resize(region_elements_dist[rank+1]-region_elements_dist[rank]);
+    elements_map[it->first] = &volume_elements;
+  }
 
   // Set the connectivity, this also updates ghost node indices
-  Uint element_idx = 0; // global element index
+  std::map<std::string, Uint> element_idx_map; // global element index per region
   for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
   {
-    m_implementation->add_block(block_subdivisions[block_idx], block_idx, volume_elements.geometry_space().connectivity(), element_idx);
+    m_implementation->add_block(block_subdivisions[block_idx], block_idx, elements_map[block_regions[block_idx]]->geometry_space().connectivity(), element_idx_map[block_regions[block_idx]]);
   }
 
   const Uint nodes_begin = m_implementation->nodes_dist[rank];
