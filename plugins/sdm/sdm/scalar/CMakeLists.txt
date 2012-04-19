@@ -11,6 +11,8 @@ list( APPEND coolfluid_sdm_scalar_files
 # scalar 2D
   LinearAdvection2D.hpp
   LinearAdvection2D.cpp
+  Diffusion2D.hpp
+  Diffusion2D.cpp
   RotationAdvection2D.hpp
   RotationAdvection2D.cpp
 )

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_scalar_Diffusion1D_hpp
-#define cf3_sdm_scalar_Diffusion1D_hpp
+#ifndef cf3_sdm_scalar_Diffusion2D_hpp
+#define cf3_sdm_scalar_Diffusion2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace sdm {
 namespace scalar {
 
 template <Uint NB_EQS, Uint NB_DIM>
-struct DiffusionPhysData : PhysDataBase<NB_EQS,NB_DIM>
+struct Diffusion2DPhysData : PhysDataBase<NB_EQS,NB_DIM>
 {
   typedef Eigen::Matrix<Real,NB_DIM,NB_EQS> RealMatrixNDIMxNEQS;
   RealMatrixNDIMxNEQS solution_gradient;
@@ -30,26 +30,26 @@ struct DiffusionPhysData : PhysDataBase<NB_EQS,NB_DIM>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_scalar_API Diffusion1D : public DiffusiveTerm< DiffusionPhysData<1u,1u> >
+class sdm_scalar_API Diffusion2D : public DiffusiveTerm< Diffusion2DPhysData<1u,2u> >
 {
 public:
-  static std::string type_name() { return "Diffusion1D"; }
-  Diffusion1D(const std::string& name) : DiffusiveTerm< PhysData >(name)
+  static std::string type_name() { return "Diffusion2D"; }
+  Diffusion2D(const std::string& name) : DiffusiveTerm< PhysData >(name)
   {
     m_mu = 1.;
     options().add_option("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
   }
 
-  virtual ~Diffusion1D() {}
+  virtual ~Diffusion2D() {}
 
   virtual void compute_flux(PhysData& data, const RealVectorNDIM& unit_normal,
                             RealVectorNEQS& flux, Real& wave_speed)
   {
-    flux[0] = m_mu * data.solution_gradient[0] * unit_normal[XX];
+    flux[0] = m_mu * (data.solution_gradient[XX] * unit_normal[XX] + data.solution_gradient[YY] * unit_normal[YY]);
     wave_speed = m_mu;
   }
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
+  
+private:
   Real m_mu;
 };
 
@@ -61,4 +61,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_scalar_Diffusion1D_hpp
+#endif // cf3_sdm_scalar_Diffusion2D_hpp
