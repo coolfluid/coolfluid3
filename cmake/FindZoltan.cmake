@@ -25,10 +25,14 @@ endif()
 
 if(Zoltan_FOUND)
 
+  set( ZOLTAN_INCLUDE_DIRS "" )
+
   list( APPEND ZOLTAN_INCLUDE_DIRS ${Zoltan_INCLUDE_DIRS})
   list( APPEND ZOLTAN_INCLUDE_DIRS ${Zoltan_TPL_INCLUDE_DIRS})
 
-  foreach (test_lib ${Zoltan_LIBRARIES})
+  set( ZOLTAN_LIBRARIES "" )
+
+  foreach( test_lib ${Zoltan_LIBRARIES} )
     find_library( ${test_lib}_lib ${test_lib} PATHS  ${Zoltan_LIBRARY_DIRS}  NO_DEFAULT_PATH)
     find_library( ${test_lib}_lib ${test_lib})
     list( APPEND ZOLTAN_LIBRARIES ${${test_lib}_lib} )
@@ -55,20 +59,20 @@ else()
   find_library(ZOLTAN_LIBRARIES zoltan  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
   find_library(ZOLTAN_LIBRARIES zoltan )
 
-  if( ${CF3_HAVE_PARMETIS} )
+  if( CF3_HAVE_PARMETIS )
     list( APPEND ZOLTAN_LIBRARIES ${PARMETIS_LIBRARIES} )
     list( APPEND ZOLTAN_INCLUDE_DIRS ${PARMETIS_INCLUDE_DIRS} )
   endif()
 
-  if( ${CF3_HAVE_PTSCOTCH} )
+  if( CF3_HAVE_PTSCOTCH )
     list( APPEND ZOLTAN_LIBRARIES ${PTSCOTCH_LIBRARIES} )
     list( APPEND ZOLTAN_INCLUDE_DIRS ${PTSCOTCH_INCLUDE_DIRS} )
   endif()
 
 endif()
 
-#coolfluid_log("ZOLTAN_INCLUDE_DIRS = ${ZOLTAN_INCLUDE_DIRS}" )
-#coolfluid_log("ZOLTAN_LIBRARIES = ${ZOLTAN_LIBRARIES}" )
+coolfluid_log("ZOLTAN_INCLUDE_DIRS = ${ZOLTAN_INCLUDE_DIRS}" )
+coolfluid_log("ZOLTAN_LIBRARIES = ${ZOLTAN_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Zoltan
                        DESCRIPTION "parallel graph partitioning"
@@ -77,3 +81,10 @@ coolfluid_set_package( PACKAGE Zoltan
                        VARS
                        ZOLTAN_INCLUDE_DIRS
                        ZOLTAN_LIBRARIES  )
+
+
+if( Zoltan_FOUND )
+    set( CF3_HAVE_ZOLTAN 1 )
+else()
+    set( CF3_HAVE_ZOLTAN 0 )
+endif()
