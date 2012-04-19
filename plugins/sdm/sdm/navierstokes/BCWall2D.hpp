@@ -25,11 +25,12 @@ struct PhysData : PhysDataBase<4u,2u> {};
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Inviscid wall boundary condition (slip) for Euler equations
+/// @brief Viscous adiabatic wall boundary condition for Navier-Stokes equations
 ///
-/// No configuration necessary
-/// @todo Replace outward_normal by passed unit_normal, when unit_normal is correctly
-/// calculated. Then the extra virtual functions can dissapear.
+/// The velocity inside the wall is reversed, so that a velocity flux results in zero.
+/// The wall temperature is interpolated from inside.
+///
+/// No configuration is necessary.
 class sdm_navierstokes_API BCWall2D : public BCWeak< PhysDataBase<4u,2u> >
 {
 private:
@@ -44,10 +45,10 @@ public:
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     // Set the outside boundary state
-    boundary_face_pt_data[Rho  ]=inner_cell_data.solution[Rho];
-    boundary_face_pt_data[RhoUx]=0.;
-    boundary_face_pt_data[RhoUy]=0.;
-    boundary_face_pt_data[RhoE ]=inner_cell_data.solution[RhoE];
+    boundary_face_pt_data[Rho  ] =  inner_cell_data.solution[Rho];
+    boundary_face_pt_data[RhoUx] = -inner_cell_data.solution[RhoUx];
+    boundary_face_pt_data[RhoUy] = -inner_cell_data.solution[RhoUy];
+    boundary_face_pt_data[RhoE ] =  inner_cell_data.solution[RhoE];
   }
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
