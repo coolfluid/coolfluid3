@@ -11,6 +11,8 @@
 
 #include "fparser/fparser.hh"
 
+#include "common/BasicExceptions.hpp"
+
 #include "math/LibMath.hpp"
 #include "math/MatrixTypes.hpp"
 
@@ -41,15 +43,15 @@ public: // functions
   /// Destructor
   ~VectorialFunction();
 
-  /// Evaluate the Vectorial Function given the values of the variables.
-  /// @param vars values of the variables to substitute in the function.
-  /// @param ret_value the placeholder vector for the result
-  void evaluate (const VariablesT& var_values, RealVector& ret_value) const;
+//  /// Evaluate the Vectorial Function given the values of the variables.
+//  /// @param vars values of the variables to substitute in the function.
+//  /// @param ret_value the placeholder vector for the result
+//  void evaluate (const VariablesT& var_values, RealVector& ret_value) const;
 
-  /// Evaluate the Vectorial Function given the values of the variables.
-  /// @param vars values of the variables to substitute in the function.
-  /// @param ret_value the placeholder vector for the result
-  void evaluate (const RealVector& var_values, RealVector& ret_value) const;
+//  /// Evaluate the Vectorial Function given the values of the variables.
+//  /// @param vars values of the variables to substitute in the function.
+//  /// @param ret_value the placeholder vector for the result
+//  void evaluate (const RealVector& var_values, RealVector& ret_value) const;
 
   /// Evaluate the Vectorial Function given the values of the variables.
   /// @param vars values of the variables to substitute in the function.
@@ -136,9 +138,11 @@ void VectorialFunction::evaluate(const var_t& var_values, ret_t& ret_value) cons
   // evaluate and store the functions line by line in the vector
   std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
   std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
-  Uint i = 0;
-  for( ; parser != end ; ++parser, ++i )
+  for(Uint i=0 ; parser != end ; ++parser, ++i )
+  {
+    // It is possible this function signals a FloatingPointException (FPE)
     ret_value[i] = (*parser)->Eval(&var_values[0]);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
