@@ -55,30 +55,37 @@ public:
     m_gamma_minus_1 = m_gamma-1.;
     options().add_option("gamma",m_gamma)
         .description("Heat capacity ratio")
-        .attach_trigger( boost::bind( &Diffusion2D::config_gamma, this) );
+        .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_R = 287.05;
     options().add_option("R",m_R)
         .description("Gas constant")
-        .link_to(&m_R);
+        .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_k = 2.601e-2;
     options().add_option("k",m_k)
         .description("Heat conduction")
-        .link_to(&m_k);
+        .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_mu = 1.806e-5;
     options().add_option("mu",m_mu)
         .description("Dynamic viscosity")
-        .link_to(&m_mu);
+        .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
+
+    config_constants();
 
   }
 
-  void config_gamma()
+  void config_constants()
   {
     m_gamma = options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma-1.;
+    m_R     = options().option("R").value<Real>();
+    m_k     = options().option("k").value<Real>();
+    m_mu    = options().option("mu").value<Real>();
+    m_Cp    = m_gamma*m_R/m_gamma_minus_1;
   }
+
 
   virtual ~Diffusion2D() {}
 
@@ -103,7 +110,7 @@ public:
     grad_u = (rho*grad_rhou-rhou*grad_rho)/rho2;
     grad_v = (rho*grad_rhov-rhov*grad_rho)/rho2;
     grad_T = m_gamma_minus_1/(m_R*rho3) * (grad_rho*(-rho*rhoE+rhou*rhou+rhov*rhov)
-                                                            + rho*(rho*grad_rhoE-rhou*grad_rhou-rhov*grad_rhov));
+                                           + rho*(rho*grad_rhoE-rhou*grad_rhou-rhov*grad_rhov));
     two_third_divergence_U = 2./3.*(grad_u[XX] + grad_v[YY]);
 
     // Viscous stress tensor
@@ -112,24 +119,26 @@ public:
     tau_xy = m_mu*(grad_u[YY] + grad_v[XX]);
 
     // Heat flux
-    heat_flux = -m_k*(grad_T[XX]*nx + grad_T[YY] *ny);
+    heat_flux = -m_k*(grad_T[XX]*nx + grad_T[YY]*ny);
 
     flux[0] = 0.;
     flux[1] = tau_xx*nx + tau_xy*ny;
     flux[2] = tau_xy*nx + tau_yy*ny;
     flux[3] = (tau_xx*rhou + tau_xy*rhov)/rho*nx + (tau_xy*rhou + tau_yy*rhov)/rho*ny - heat_flux;
 
-    wave_speed = 0.;
+    // maximum of kinematic viscosity nu and thermal diffusivity alpha
+    wave_speed = std::max(m_mu/rho, m_k/(rho*m_Cp));
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  Real m_gamma;
-  Real m_gamma_minus_1;
-  Real m_R;
-  Real m_k;
-  Real m_mu;
+  Real m_gamma;         // heat capacity ratio
+  Real m_gamma_minus_1; // heat capacity ratio -
+  Real m_R;             // gas constant
+  Real m_k;             // heat conductivity
+  Real m_mu;            // dynamic viscosity
+  Real m_Cp;
 
 
   // allocations
