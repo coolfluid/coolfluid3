@@ -150,15 +150,43 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 
 
   Uint DOF = 10;
-  Uint order = 2;
+  Uint order = 5;
 
-  Uint res = 10;//DOF/order;
+  Uint res = 30;//DOF/order;
 
   Uint sol_order = order;
   Uint time_order = 4;
 
   Real cfl_matteo = 1./(2.2*(sol_order-1.)+1.);
-  cfl_matteo=0.1;
+  Real cfl = cfl_matteo;
+
+  // CFL number for definition  CFL = dt*mu/dx^2
+  boost::multi_array<Real,2> cfl_array;
+  cfl_array.resize(boost::extents[6][5]);
+
+  // RK1 (Forward Euler)
+  cfl_array[1][1] = 0.5;
+  cfl_array[2][1] = 0.16;
+  cfl_array[3][1] = 0.05;
+  cfl_array[4][1] = 0.021;
+  cfl_array[5][1] = 0.009;
+
+  // RK2
+  cfl_array[1][2] = 0.5;
+  cfl_array[2][2] = 0.16;
+  cfl_array[3][2] = 0.05;
+  cfl_array[4][2] = 0.021;
+  cfl_array[5][2] = 0.009;
+
+  // RK4
+  cfl_array[1][4] = 0.72;
+  cfl_array[2][4] = 0.23;
+  cfl_array[3][4] = 0.078;
+  cfl_array[4][4] = 0.028;
+  cfl_array[5][4] = 0.01275;
+
+
+  cfl = cfl_array[sol_order][time_order];
 
   physics.options().configure_option("v",1.);
 
@@ -206,8 +234,8 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   solver::Action& init_gauss = solver.initial_conditions().create_initial_condition("gaussian");
   std::vector<std::string> functions;
   // Gaussian wave
-//  functions.push_back("sigma:="+to_str(lengths[XX]/5.)+";mu:="+to_str(lengths[XX]/2.)+";exp(-(x-mu)^2/(2*sigma^2))");
-  functions.push_back("sin(pi/"+to_str(lengths[XX])+"*x)");
+  functions.push_back("sigma:="+to_str(lengths[XX]/12.5)+";mu:="+to_str(lengths[XX]/2.)+";exp(-(x-mu)^2/(2*sigma^2))");
+//  functions.push_back("sin(pi/"+to_str(lengths[XX])+"*x)");
 //  functions.push_back("1+x/"+to_str(lengths[XX]));
 //  functions.push_back("1+2*x^2");
 //  functions.push_back("0");
@@ -238,17 +266,11 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 //  dirichlet.configure_option("functions",dirichlet_functions);
 
 
-  std::vector<Real> cfl(5);
-  cfl[1] = 1.;
-  cfl[2] = 0.5;
-  cfl[3] = 0.3;
-  cfl[4] = 0.2254;
-
   // Time stepping
   solver.time().options().configure_option("time_step",100.);
   solver.time().options().configure_option("end_time",1.0); // instead of 0.3
-  solver.time_stepping().options().configure_option("max_iteration" , 1u );
-  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
+  solver.time_stepping().options().configure_option("max_iteration" , 200u );
+  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -273,15 +295,15 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   gp << "set grid\n";
   gp << "set xlabel 'x'\n";
   gp << "set ylabel 'U'\n";
-  gp << "set title 'Rank "<<PE::Comm::instance().rank()<<" , P"<<sol_order-1<<"  RK"<<time_order<<"  DOF="<<solution_field.size()<<"   CFL="<<1./(2.2*(sol_order-1.)+1.)<<"'\n";
+  gp << "set title 'Rank "<<PE::Comm::instance().rank()<<" , P"<<sol_order-1<<"  RK"<<time_order<<"  DOF="<<solution_field.size()<<"   CFL="<<cfl<<"'\n";
   gp << "plot ";
   gp << "'-' with points title 'initial solution'"    << ", ";
-  gp << "'-' with linespoints title 'final solution'"      << ", ";
+  gp << "'-' with linespoints title 'final solution'"      << "\n ";
 //  gp << "'-' with linespoints title 'diffusion'"           << ",";
 //  gp << "'-' with linespoints title '1st_derivative'"           << ",";
-  gp << "'-' with lines title 'exact_diffusion'"           << ",";
+//  gp << "'-' with lines title 'exact_diffusion'"           << ",";
 //  gp << "'-' with points title 'jacobian_determinant'";
-  gp << "'-' with linespoints title 'residual'"            << "\n";
+//  gp << "'-' with linespoints title 'residual'"            << "\n";
 //  gp << "'-' with points title 'wave_speed'"          << "\n";
 //  gp << "\n";
   gp.send( solution_field.coordinates().array() , solution_field.array() );
@@ -297,9 +319,9 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   gp.send( solution_field.coordinates().array() , solution_field.array() );
 //  gp.send( diffusion_field.coordinates().array() , diffusion_field.array() );
 //  gp.send( diffusion_wavespeed.coordinates().array() , diffusion_wavespeed.array() );
-  gp.send( exact_diffusion );
+//  gp.send( exact_diffusion );
 //  gp.send( jacobian_determinant_field.coordinates().array() , jacobian_determinant_field.array() );
-  gp.send( residual_field.coordinates().array() , residual_field.array() );
+//  gp.send( residual_field.coordinates().array() , residual_field.array() );
 //  gp.send( wave_speed_field.coordinates().array() , wave_speed_field.array() );
 #endif
 
@@ -343,7 +365,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#if 0
+#if 1
 BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
 {
 
