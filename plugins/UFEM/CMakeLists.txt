@@ -8,7 +8,7 @@ project( UFEM CXX )
 
 coolfluid_define_plugin( UFEM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CF3_PLUGIN_UFEM )
+if( CF3_PLUGIN_UFEM AND CF3_ENABLE_PROTO )
 
   coolfluid_find_orphan_files()
 

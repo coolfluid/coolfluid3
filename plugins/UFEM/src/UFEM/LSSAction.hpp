@@ -20,6 +20,8 @@
 #include "LibUFEM.hpp"
 
 namespace cf3 {
+  namespace mesh { class Dictionary; }
+
 
 namespace UFEM {
 
@@ -42,7 +44,7 @@ public: // functions
   static std::string type_name () { return "LSSAction"; }
 
   virtual void execute();
-  
+
   /// Create the LSS to use
   /// @param matrix_builder Name of the matrix builder to use for the LSS
   math::LSS::System& create_lss(const std::string& matrix_builder);
@@ -50,15 +52,21 @@ public: // functions
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
-  
+
   /// Signals
   void signature_create_lss( common::SignalArgs& node );
   void signal_create_lss( common::SignalArgs& node );
 
+  /// trigger for the dictionary
+  void trigger_dictionary();
+
+  /// The dictionary to use for field lookups
+  Handle<mesh::Dictionary> m_dictionary;
+
 protected:
   /// tag used to keep track of what field stores the solution to the LSS
   std::string m_solution_tag;
-  
+
   void on_regions_set();
 
 public:

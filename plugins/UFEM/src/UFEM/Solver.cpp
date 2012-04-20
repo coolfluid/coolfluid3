@@ -52,13 +52,13 @@ Solver::Solver(const std::string& name) :
     .description("Create a solver needing only one LSS solve")
     .pretty_name("Create Direct Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
-    
+
   regist_signal( "add_unsteady_solver" )
     .connect( boost::bind( &Solver::signal_add_unsteady_solver, this, _1 ) )
     .description("Create an unsteady solver, solving a linear system once every time step")
     .pretty_name("Create Unsteady Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
-    
+
   regist_signal( "create_initial_conditions" )
     .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
     .description("Create initial conditions.")
@@ -75,11 +75,11 @@ Handle< common::Action > Solver::add_direct_solver(const std::string& builder_na
   {
     create_component<InitialConditions>("InitialConditions");
   }
-  
+
   std::vector<std::string> builder_parts;
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle<common::Action> result(create_component(builder_parts.back(), builder_name));
-  
+
   if(is_not_null(m_physics))
     configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
@@ -102,13 +102,13 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   {
     timeloop->remove_component("AdvanceTime");
   }
-  
+
   std::vector<std::string> builder_parts;
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle< common::Action > result(timeloop->create_component(builder_parts.back(), builder_name));
 
   timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
-  
+
   if(is_not_null(m_physics))
     configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
@@ -122,11 +122,11 @@ Handle< common::ActionDirector > Solver::create_initial_conditions()
     CFwarn << "InitialConditions were created already, returning handle to previously created component" << CFendl;
     return result;
   }
-  
+
   result = create_component<InitialConditions>("InitialConditions");
   if(is_not_null(m_physics))
     result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
-  
+
   return result;
 }
 
@@ -142,7 +142,7 @@ void Solver::signal_add_direct_solver(SignalArgs& args)
 {
   SignalOptions options(args);
   Handle<common::Action> result = add_direct_solver(options.option("builder_name").value<std::string>());
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", result->uri());
@@ -152,7 +152,7 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 {
   SignalOptions options(args);
   Handle<common::Action> result = add_unsteady_solver(options.option("builder_name").value<std::string>());
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", result->uri());
@@ -161,7 +161,7 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 void Solver::signal_create_initial_conditions(SignalArgs& args)
 {
   Handle<common::ActionDirector> ic = create_initial_conditions();
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", ic->uri());
@@ -219,6 +219,7 @@ void Solver::mesh_changed(Mesh& mesh)
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively(solver::Tags::regions(), root_regions);
+  configure_option_recursively("dictionary", mesh.geometry_fields().handle<Dictionary>());
 }
 
 } // UFEM
