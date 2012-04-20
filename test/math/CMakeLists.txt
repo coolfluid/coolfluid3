@@ -50,30 +50,33 @@ coolfluid_add_test( UTEST utest-lss-system-emptylss
                     LIBS  coolfluid_math_lss coolfluid_math
                     MPI   1 )
 
-
-coolfluid_add_test( UTEST utest-lss-atomic
+coolfluid_add_test( UTEST utest-lss-atomic-fevbr
                     CPP   utest-lss-atomic.cpp
                     LIBS  coolfluid_math_lss coolfluid_math
+                    CONDITION CF3_HAVE_TRILINOS
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
-                    MPI   2
-                    CONDITION CF3_HAVE_TRILINOS)
+                    MPI   2)
 
-if( CF3_HAVE_TRILINOS )
-# reuse the same test executable for the CrsMatrix
-add_test(utest-lss-atomic-crs ${CF3_MPIRUN_PROGRAM} -np 2 utest-lss-atomic cf3.math.LSS.TrilinosCrsMatrix)
-endif()
+coolfluid_add_test( UTEST utest-lss-atomic-csr
+                    CPP   utest-lss-atomic.cpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    CONDITION CF3_HAVE_TRILINOS
+                    ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
+                    MPI   2)
 
-coolfluid_add_test( UTEST utest-lss-distributed-matrix
+coolfluid_add_test( UTEST utest-lss-distributed-matrix-febvbr
                     CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
                     LIBS  coolfluid_math_lss coolfluid_math
+                    CONDITION CF3_HAVE_TRILINOS
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
-                    MPI   4
-                    CONDITION CF3_HAVE_TRILINOS)
+                    MPI   4)
 
-if( CF3_HAVE_TRILINOS )
-# reuse the same test executable for the CrsMatrix
-add_test(utest-lss-distributed-matrix-crs ${CF3_MPIRUN_PROGRAM} -np 4 utest-lss-distributed-matrix cf3.math.LSS.TrilinosCrsMatrix)
-endif()
+coolfluid_add_test( UTEST utest-lss-distributed-matrix-csr
+                    CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    CONDITION CF3_HAVE_TRILINOS
+                    ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
+                    MPI   4)
 
 ################################################################################
 

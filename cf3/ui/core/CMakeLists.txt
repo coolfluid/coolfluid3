@@ -79,4 +79,10 @@ list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_network coolfluid_ui_common c
 # Use Qt Libraries
 list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES} )
 
+if( CF3_ENABLE_GUI AND QT4_FOUND )
+    set( coolfluid_ui_core_condition TRUE )
+else()
+    set( coolfluid_ui_core_condition FALSE )
+endif()
+
 coolfluid_add_library(coolfluid_ui_core)
