@@ -165,6 +165,7 @@ void LSSAction::on_regions_set()
     CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
     m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
     CFdebug << "Finished creating LSS" << CFendl;
+    configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
     configure_option_recursively("lss", m_implementation->m_lss);
   }
 

@@ -117,7 +117,6 @@ private:
     m_cached_component = m_component->get();
     if(is_not_null(m_cached_component))
     {
-      std::cout << "triggered with existing lss" << std::endl;
       m_matrix = m_cached_component->matrix().get();
       m_rhs = m_cached_component->rhs().get();
       m_solution = m_cached_component->solution().get();
@@ -127,7 +126,6 @@ private:
     }
     else
     {
-      std::cout << "triggered with null lss" << std::endl;
       m_matrix = nullptr;
       m_rhs = nullptr;
       m_solution = nullptr;

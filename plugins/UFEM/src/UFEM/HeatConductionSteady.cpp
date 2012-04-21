@@ -46,12 +46,12 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
           _T(temperature) += transpose(N(temperature))*N(temperature)
         ),
         system_matrix +=  _A,
-        system_rhs += _T * nodal_values(heat)
+        system_rhs += -_A * _b + _T * nodal_values(heat)
       )
     ))
     << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
     << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
-    << create_proto_action("SetSolution", nodes_expression(temperature = solution(temperature)));     // Set the solution
+    << create_proto_action("SetSolution", nodes_expression(temperature += solution(temperature)));     // Set the solution
 }
 
 

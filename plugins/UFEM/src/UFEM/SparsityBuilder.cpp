@@ -54,13 +54,11 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   const Uint nb_used_nodes = used_nodes.size();
   gids.resize(nb_used_nodes);
   ranks.resize(nb_used_nodes);
-  std::vector<bool> is_used_node(nb_global_nodes, false);
   used_node_map.resize(nb_global_nodes);
   Uint nb_local_nodes = 0;
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
     const Uint node_idx = used_nodes[i];
-    is_used_node[node_idx] = true;
     used_node_map[node_idx] = i;
     if(my_rank == dict_rank[node_idx])
     {
@@ -87,10 +85,11 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   // first gid on this rank
   Uint gid_counter = my_rank == 0 ? 0 : gid_distribution[my_rank-1];
   // copy of the GIDs, where the used node GID will be replaced by the new GID
-  std::vector<Uint> replaced_gids(used_nodes.array().begin(), used_nodes.array().end());
+  std::vector<Uint> replaced_gids(dict_gid.array().begin(), dict_gid.array().end());
 
   // For each rank, the indices that need to be received from the GID list
   std::vector< std::vector<Uint> > gids_to_receive(nb_procs);
+  std::vector< std::vector<Uint> > lids_to_receive(nb_procs);
   std::vector< std::vector<Uint> > gids_to_send(nb_procs);
 
   // Fill gid list
@@ -103,7 +102,8 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
     }
     else
     {
-      gids_to_receive[ranks[i]].push_back(used_nodes[i]);
+      lids_to_receive[ranks[i]].push_back(used_nodes[i]);
+      gids_to_receive[ranks[i]].push_back(dict_gid[used_nodes[i]]);
     }
   }
 
@@ -127,13 +127,20 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
 
     std::vector<int> recv_map; recv_map.reserve(recv_size);
     std::vector<int> send_map; send_map.reserve(send_size);
+    
+    std::map<Uint, Uint> gids_reverse_map;
+    for(Uint i = 0; i != nb_global_nodes; ++i)
+      gids_reverse_map[dict_gid[i]] = i;
 
     for(Uint i = 0; i != nb_procs; ++i)
     {
-      recv_map.insert(recv_map.end(), gids_to_receive[i].begin(), gids_to_receive[i].end());
-      send_map.insert(send_map.end(), gids_to_send[i].begin(), gids_to_send[i].end());
+      recv_map.insert(recv_map.end(), lids_to_receive[i].begin(), lids_to_receive[i].end());
+      const std::vector<Uint> send_gids_i = gids_to_send[i];
+      const Uint len_send_gids_i = send_gids_i.size();
+      for(Uint j = 0; j != len_send_gids_i; ++j)
+        send_map.push_back(gids_reverse_map[send_gids_i[j]]);
     }
-
+    
     // Update the GIDs for the ghosts
     PE::Comm::instance().all_to_all(replaced_gids, send_num, send_map, replaced_gids, recv_num, recv_map);
 

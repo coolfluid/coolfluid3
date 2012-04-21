@@ -64,6 +64,9 @@ blocks.options().configure_option('block_regions', ['solid_bottom', 'solid_top']
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
+hc_bottom.options().configure_option('regions', [mesh.access_component('topology/solid_bottom').uri()])
+hc_top.options().configure_option('regions', [mesh.access_component('topology/solid_top').uri()])
+
 # LSS for bottom part
 bot_lss = hc_bottom.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 bot_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
@@ -73,17 +76,19 @@ top_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv
 
 # Boundary conditions for the bottom part
 bc_bot = hc_bottom.get_child('BoundaryConditions')
+bc_bot.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc_bot.add_constant_bc(region_name = 'bottom', variable_name = 'Temperature').options().configure_option('value', 10)
 # the boundary between the regions had an automatically generated region, named 'region_bnd_<name of first region>_<name of second region>
 bc_bot.add_constant_bc(region_name = 'region_bnd_solid_bottom_solid_top', variable_name = 'Temperature').options().configure_option('value', 50)
 
 # Boundary conditions for the top part
 bc_top = hc_top.get_child('BoundaryConditions')
+bc_top.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc_top.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().configure_option('value', 10)
 bc_top.add_constant_bc(region_name = 'region_bnd_solid_top_solid_bottom', variable_name = 'Temperature').options().configure_option('value', 50)
 
 # run the simulation
 model.simulate()
-mesh.print_tree()
+
 # Write result
 domain.write_mesh(cf.URI('atest-multiregion.pvtu'))
