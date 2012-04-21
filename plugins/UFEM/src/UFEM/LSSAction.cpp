@@ -132,14 +132,14 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 
 void LSSAction::on_regions_set()
 {
+  if(m_implementation->m_updating) // avoid recursion
+    return;
+  
   m_implementation->m_lss = options().option("lss").value< Handle<LSS::System> >();
   if(is_null(m_implementation->m_lss))
     return;
 
   if(is_null(m_dictionary))
-    return;
-
-  if(m_implementation->m_updating) // avoid recursion
     return;
 
   m_implementation->m_updating = true;
@@ -149,11 +149,13 @@ void LSSAction::on_regions_set()
   {
     VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), m_solution_tag);
 
-    Handle< List<Uint> > gids = create_component< List<Uint> >("GIDs");
-    Handle< List<Uint> > ranks = create_component< List<Uint> >("Ranks");
+    Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
+    Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
+    Handle< List<Uint> > used_node_map = m_implementation->m_lss->create_component< List<Uint> >("used_node_map");
 
     std::vector<Uint> node_connectivity, starting_indices;
-    boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks);
+    boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+    add_component(used_nodes);
 
     // This comm pattern is valid only over the used nodes for the supplied regions
     PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
@@ -163,6 +165,7 @@ void LSSAction::on_regions_set()
     CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
     m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
     CFdebug << "Finished creating LSS" << CFendl;
+    configure_option_recursively("lss", m_implementation->m_lss);
   }
 
   m_implementation->m_updating = false;

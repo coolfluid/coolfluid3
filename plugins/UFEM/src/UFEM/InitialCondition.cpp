@@ -25,6 +25,8 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
+#include "physics/PhysModel.hpp"
+
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/NodeLooper.hpp"
 

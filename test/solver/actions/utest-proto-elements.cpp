@@ -96,53 +96,53 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   blocks.create_mesh(mesh);
 
-  mesh.check_sanity();
-
-  // Declare a mesh variable
-  MeshTerm<0, ScalarField> V("CellVolume", "volumes");
-
-  // Store the total error
-  Real total_error = 0;
-
-  // Accepted element types
-  boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D> allowed_elements;
-
-  // Expression to compute volumes, assuming rectangles
-  boost::shared_ptr<Expression> volumes = elements_expression
-  (
-    allowed_elements,
-    V = (nodes[1][0] - nodes[0][0]) * (nodes[3][1] - nodes[0][1])
-  );
-
-  // Register the variables
-  volumes->register_variables(phys_model);
-  // Add actions
-  solver
-    << create_proto_action("Volumes", volumes) // Setting the field
-    << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
-
-  // Create the fields
-  Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
-  solver.field_manager().create_field("volumes", elems_P0);
-
-  // Set the region of all children to the root region of the mesh
-  std::vector<URI> root_regions;
-  root_regions.push_back(mesh.topology().uri());
-  solver.configure_option_recursively(solver::Tags::regions(), root_regions);
-
-  // Run
-  model.simulate();
-
-  BOOST_CHECK_SMALL(total_error, 1e-12);
-
-  // Write mesh
-  MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
-  std::vector<URI> fields;
-  fields.push_back(elems_P0.uri()/"volumes");
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("file",URI("utest-proto-elements_output.pvtu"));
-  writer.execute();
+//   mesh.check_sanity();
+// 
+//   // Declare a mesh variable
+//   MeshTerm<0, ScalarField> V("CellVolume", "volumes");
+// 
+//   // Store the total error
+//   Real total_error = 0;
+// 
+//   // Accepted element types
+//   boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D> allowed_elements;
+// 
+//   // Expression to compute volumes, assuming rectangles
+//   boost::shared_ptr<Expression> volumes = elements_expression
+//   (
+//     allowed_elements,
+//     V = (nodes[1][0] - nodes[0][0]) * (nodes[3][1] - nodes[0][1])
+//   );
+// 
+//   // Register the variables
+//   volumes->register_variables(phys_model);
+//   // Add actions
+//   solver
+//     << create_proto_action("Volumes", volumes) // Setting the field
+//     << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
+// 
+//   // Create the fields
+//   Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
+//   solver.field_manager().create_field("volumes", elems_P0);
+// 
+//   // Set the region of all children to the root region of the mesh
+//   std::vector<URI> root_regions;
+//   root_regions.push_back(mesh.topology().uri());
+//   solver.configure_option_recursively(solver::Tags::regions(), root_regions);
+// 
+//   // Run
+//   model.simulate();
+// 
+//   BOOST_CHECK_SMALL(total_error, 1e-12);
+// 
+//   // Write mesh
+//   MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
+//   std::vector<URI> fields;
+//   fields.push_back(elems_P0.uri()/"volumes");
+//   writer.options().configure_option("fields",fields);
+//   writer.options().configure_option("mesh",mesh.handle<Mesh>());
+//   writer.options().configure_option("file",URI("utest-proto-elements_output.pvtu"));
+//   writer.execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "ComponentWrapper.hpp"
+#include "LSSWrapper.hpp"
 #include "Terminals.hpp"
 
 namespace cf3 {
@@ -27,7 +27,7 @@ struct DirichletBCTag
 };
 
 /// Used to create placeholders for a Dirichlet condition
-typedef ComponentWrapper<math::LSS::System, DirichletBCTag> DirichletBC;
+typedef LSSWrapper<DirichletBCTag> DirichletBC;
 
 /// Helper function for assignment
 inline void assign_dirichlet(math::LSS::System& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset)
@@ -57,12 +57,12 @@ struct DirichletBCSetter :
               , typename impl::data_param data
     ) const
     {
-      math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
+      math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss();
       assign_dirichlet(
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
-        data.node_idx,
+        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx),
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset
       );
     }
@@ -78,7 +78,7 @@ struct DirichletBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, DirichletBCTag> >,
+        boost::proto::terminal< LSSWrapperImpl<DirichletBCTag> >,
         FieldTypes
       >,
       GrammarT

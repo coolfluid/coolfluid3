@@ -84,6 +84,6 @@ bc_top.add_constant_bc(region_name = 'region_bnd_solid_top_solid_bottom', variab
 
 # run the simulation
 model.simulate()
-
+mesh.print_tree()
 # Write result
 domain.write_mesh(cf.URI('atest-multiregion.pvtu'))

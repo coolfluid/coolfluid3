@@ -28,7 +28,7 @@ using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks)
+boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks, List<Uint>& used_node_map)
 {
   // Get some data from the dictionary
   const Uint nb_global_nodes = dictionary.size();
@@ -55,7 +55,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   gids.resize(nb_used_nodes);
   ranks.resize(nb_used_nodes);
   std::vector<bool> is_used_node(nb_global_nodes, false);
-  std::vector<Uint> used_node_map(nb_global_nodes);
+  used_node_map.resize(nb_global_nodes);
   Uint nb_local_nodes = 0;
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
