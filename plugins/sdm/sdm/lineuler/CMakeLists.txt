@@ -5,6 +5,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   LibLinEuler.cpp
   Convection2D.hpp
   Convection2D.cpp
+  Convection3D.hpp
+  Convection3D.cpp
   BCChar2D.hpp
   BCChar2D.cpp
   BCSubsonicOutlet2D.hpp
@@ -17,6 +19,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   ComputeCharacteristicVariables.cpp
   SourceMonopole2D.hpp
   SourceMonopole2D.cpp
+  SourceMonopole3D.hpp
+  SourceMonopole3D.cpp
 )
 
 list( APPEND coolfluid_sdm_lineuler_cflibs coolfluid_sdm coolfluid_physics_lineuler )

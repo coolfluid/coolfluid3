@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_lineuler_SourceMonopole2D_hpp
-#define cf3_sdm_lineuler_SourceMonopole2D_hpp
+#ifndef cf3_sdm_lineuler_SourceMonopole3D_hpp
+#define cf3_sdm_lineuler_SourceMonopole3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@
 
 #include "sdm/SourceTerm.hpp"
 #include "sdm/lineuler/LibLinEuler.hpp"
-#include "Physics/LinEuler/Cons2D.hpp"
+// #include "Physics/LinEuler/Cons2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,11 +30,11 @@ namespace lineuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_lineuler_API SourceMonopole2D : public SourceTerm< PhysDataBase<4u,2u> >
+class sdm_lineuler_API SourceMonopole3D : public SourceTerm< PhysDataBase<5u,3u> >
 {
 public:
-  static std::string type_name() { return "SourceMonopole2D"; }
-  SourceMonopole2D(const std::string& name) : SourceTerm< PhysData >(name)
+  static std::string type_name() { return "SourceMonopole3D"; }
+  SourceMonopole3D(const std::string& name) : SourceTerm< PhysData >(name)
   {
     options().add_option("time",m_time)
       .description("Time component")
@@ -49,9 +49,10 @@ public:
     std::vector<Real> source_loc_opt(NDIM);
     source_loc_opt[XX]=0.;
     source_loc_opt[YY]=0.;
+    source_loc_opt[ZZ]=0.;
     options().add_option("source_location",source_loc_opt)
         .description("Source location")
-        .attach_trigger( boost::bind( &SourceMonopole2D::config_source_loc, this) );
+        .attach_trigger( boost::bind( &SourceMonopole3D::config_source_loc, this) );
 
     m_alpha = 0.5*log(2.);
     options().add_option("alpha",m_alpha)
@@ -72,7 +73,7 @@ public:
       m_source_loc[d] = source_loc_opt[d];
   }
 
-  virtual ~SourceMonopole2D() {}
+  virtual ~SourceMonopole3D() {}
 
   // Check at setting of entities, if time is set properly
   virtual void set_entities(const mesh::Entities& entities)
@@ -90,7 +91,8 @@ public:
     source[0] = m_source;
     source[1] = 0.;
     source[2] = 0.;
-    source[3] = m_source;
+    source[3] = 0.;
+    source[4] = m_source;
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -102,7 +104,8 @@ private:
   {
     return m_eps * exp( -m_alpha*(
       (coord[XX]-m_source_loc[XX])*(coord[XX]-m_source_loc[XX]) +
-      (coord[YY]-m_source_loc[YY])*(coord[YY]-m_source_loc[YY])  ) );
+      (coord[YY]-m_source_loc[YY])*(coord[YY]-m_source_loc[YY]) +
+      (coord[ZZ]-m_source_loc[ZZ])*(coord[ZZ]-m_source_loc[ZZ]) ) );
   }
 
   Real m_source;                      ///< dummy variable
@@ -123,4 +126,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_lineuler_SourceMonopole2D_hpp
+#endif // cf3_sdm_lineuler_SourceMonopole3D_hpp
