@@ -110,12 +110,6 @@ void Writer::write()
                                                 boost::system::error_code() );
   }
 
-  m_filtered_entities.clear();
-  boost_foreach(const Handle<Region const>& region, m_regions)
-    boost_foreach(const Entities& entities, find_components_recursively_with_filter<Entities>(*region,m_entities_filter))
-      m_filtered_entities.push_back(entities.handle<Entities>());
-
-
   // must be in correct order!
   write_header(file);
   write_coordinates(file);
@@ -303,6 +297,7 @@ void Writer::write_connectivity(std::fstream& file)
 
 void Writer::write_elem_nodal_data(std::fstream& file)
 {
+
   /// Discontinuous fields section
   /// @code
   /// $ElementNodeData
@@ -453,8 +448,15 @@ void Writer::write_elem_nodal_data(std::fstream& file)
 ////////////////////////////////////////////////////////////////////////////////
 
 /*
+ * Algorithm:
+ * 1) assemble geometry used_nodes list for each field
+ * 2) loop elements and interpolate to geometry nodes
+ * 3) when a geometry-node is interpolated, add it to a list_of_interpolated_geom_nodes
+ * 4) Nodes can be written to file in any order, as long as the geometry::glb_idx is used as the node-index.
+ */
 void Writer::write_nodal_data(std::fstream& file)
 {
+
   //  $NodeData
   //  1              // 1 string tag:
   //  "a_string_tag" //   the name of the view
@@ -472,102 +474,187 @@ void Writer::write_nodal_data(std::fstream& file)
   //  6 0.4
   //  $EndNodeData
 
-  //  $ElementNodeData
-  //  number-of-string-tags
-  //  < "string-tag" >
-  //  ...
-  //  number-of-real-tags
-  //  < real-tag >
-  //  ...
-  //  number-of-integer-tags
-  //  < integer-tag >
-  //  ...
-  //  elm-number number-of-nodes-per-element value ...
-  //  ...
-  //  $ElementEndNodeData
 
-  // set precision for Real
-  Uint prec = file.precision();
-  file.precision(8);
-
-  boost_foreach(Handle<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field const> field_h, m_fields)
   {
-    Field& field = *field_ptr;
-
-    if (field.continuous())
+    cf3_assert(is_null(field_h) == false);
+    const Field& field = *field_h;
+    const Real field_time = 0;//field.option("time").value<Real>();
+    const Uint field_iter = 0;//field.option("iteration").value<Uint>();
+    const std::string field_name = field.name();
+    Uint nb_elements = 0;
+    std::vector< Handle<Entities const> > filtered_used_entities_by_field;
+    boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
     {
-      const std::string field_name = field.name();
-      std::string field_topology = field.topology().uri().path();
-      boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
-      const Real field_time = field.option("time").value<Real>();
-      const Uint field_iter = field.option("iteration").value<Uint>();
-      // data_header
-      Uint row_idx=0;
-      for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
+      if (field.dict().defined_for_entities(elements_handle))
       {
-        Field::VarType var_type = field.var_type(iVar);
-        std::string var_name = field.var_name(iVar);
-        Uint datasize(var_type);
-        switch (var_type)
+        filtered_used_entities_by_field.push_back(elements_handle);
+      }
+    }
+
+    const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = build_used_nodes_list(filtered_used_entities_by_field,m_mesh->geometry_fields(),m_enable_overlap);
+    const common::List<Uint>& used_nodes = *used_nodes_ptr;
+    std::vector<bool> is_node_visited(m_mesh->geometry_fields().size(),false);
+
+    boost_foreach (const Handle<Entities const>& elements_handle, filtered_used_entities_by_field)
+    {
+      const Space& field_space = elements_handle->space(field.dict());
+      const Space& geom_space  = elements_handle->geometry_space();
+      const Uint nb_elems = elements_handle->size();
+
+      /// @todo fix
+      Uint var_type = 1;
+
+      const Uint nb_states = field_space.shape_function().nb_nodes();
+      RealMatrix field_data (nb_states,var_type);
+
+      for (Uint elem_idx=0; elem_idx<nb_elems; ++elem_idx)
+      {
+        Connectivity::ConstRow field_space_nodes = field_space.connectivity()[elem_idx];
+        Connectivity::ConstRow geom_space_nodes = field_space.connectivity()[elem_idx];
+        for (Uint elem_node_idx; elem_node_idx<geom_space_nodes.size(); ++elem_node_idx)
         {
-          case Field::VECTOR_2D:
-            datasize=Uint(Field::VECTOR_3D);
-            break;
-          case Field::TENSOR_2D:
-            datasize=Uint(Field::TENSOR_3D);
-            break;
-          default:
-            break;
-        }
-
-        RealVector data(datasize);
-        Uint nb_nodes = field.size();
-
-        file << "$NodeData\n";
-        file << 3 << "\n";
-        file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-        file << "\"" << field_name << "\"\n";
-        file << "\"" << field_topology << "\"\n";
-        file << 1 << "\n" << field_time << "\n";
-        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_nodes <<"\n";
-
-
-        Uint local_node_idx=0;
-        const Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
-
-        boost_foreach(Field::ConstRow field_per_node, field.array())
-        {
-          file << to_gmsh_node[used_nodes[local_node_idx++]] << " ";
-
-          if (var_type==Field::TENSOR_2D)
+          const Uint geom_space_node = geom_space_nodes[elem_node_idx];
+          cf3_assert(geom_node < is_node_visited.size());
+          if (!is_node_visited[geom_space_node])
           {
-            data[0]=field_per_node[row_idx+0];
-            data[1]=field_per_node[row_idx+1];
-            data[3]=field_per_node[row_idx+2];
-            data[4]=field_per_node[row_idx+3];
-            for (Uint idx=0; idx<datasize; ++idx)
-              file << " " << data[idx];
-          }
-          else
-          {
-            for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
-              file << " " << field_per_node[idx];
-            if (var_type == Field::VECTOR_2D)
-              file << " " << 0.0;
+            is_node_visited[geom_space_node]=true;
+
+            // * interpolate
+            /// get element_node local coordinates
+            RealVector local_coords = geom_space.shape_function().local_coordinates().row(elem_node_idx);
+
+            /// evaluate field shape function in element_node
+/*
+            RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
+            cf3_assert(node_data.size() == var_type);
+
+            // * write
+            if (var_type==Field::TENSOR_2D)
+            {
+              data[0]=node_data[0];
+              data[1]=node_data[1];
+              data[3]=node_data[2];
+              data[4]=node_data[3];
+              for (Uint idx=0; idx<datasize; ++idx)
+                file << " " << data[idx];
+            }
+            else
+            {
+              for (Uint j=0; j<var_type; ++j)
+                file << " " << node_data[j];
+              if (var_type == Field::VECTOR_2D)
+                file << " " << 0.0;
+            }
           }
           file << "\n";
+*/
+
+
+         }
         }
-        file << "$EndNodeData\n";
-        row_idx += Uint(var_type);
       }
     }
   }
-  // restore precision
-  file.precision(prec);
+
+//  //  $ElementNodeData
+//  //  number-of-string-tags
+//  //  < "string-tag" >
+//  //  ...
+//  //  number-of-real-tags
+//  //  < real-tag >
+//  //  ...
+//  //  number-of-integer-tags
+//  //  < integer-tag >
+//  //  ...
+//  //  elm-number number-of-nodes-per-element value ...
+//  //  ...
+//  //  $ElementEndNodeData
+
+//  // set precision for Real
+//  Uint prec = file.precision();
+//  file.precision(8);
+
+//  boost_foreach(Handle<Field> field_ptr, m_fields)
+//  {
+//    Field& field = *field_ptr;
+
+//    if (field.continuous())
+//    {
+//      const std::string field_name = field.name();
+//      std::string field_topology = field.topology().uri().path();
+//      boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
+//      const Real field_time = field.option("time").value<Real>();
+//      const Uint field_iter = field.option("iteration").value<Uint>();
+//      // data_header
+//      Uint row_idx=0;
+//      for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
+//      {
+//        Field::VarType var_type = field.var_type(iVar);
+//        std::string var_name = field.var_name(iVar);
+//        Uint datasize(var_type);
+//        switch (var_type)
+//        {
+//          case Field::VECTOR_2D:
+//            datasize=Uint(Field::VECTOR_3D);
+//            break;
+//          case Field::TENSOR_2D:
+//            datasize=Uint(Field::TENSOR_3D);
+//            break;
+//          default:
+//            break;
+//        }
+
+//        RealVector data(datasize);
+//        Uint nb_nodes = field.size();
+
+//        file << "$NodeData\n";
+//        file << 3 << "\n";
+//        file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+//        file << "\"" << field_name << "\"\n";
+//        file << "\"" << field_topology << "\"\n";
+//        file << 1 << "\n" << field_time << "\n";
+//        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_nodes <<"\n";
+
+
+//        Uint local_node_idx=0;
+//        const Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
+
+//        boost_foreach(Field::ConstRow field_per_node, field.array())
+//        {
+//          file << to_gmsh_node[used_nodes[local_node_idx++]] << " ";
+
+//          if (var_type==Field::TENSOR_2D)
+//          {
+//            data[0]=field_per_node[row_idx+0];
+//            data[1]=field_per_node[row_idx+1];
+//            data[3]=field_per_node[row_idx+2];
+//            data[4]=field_per_node[row_idx+3];
+//            for (Uint idx=0; idx<datasize; ++idx)
+//              file << " " << data[idx];
+//          }
+//          else
+//          {
+//            for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+//              file << " " << field_per_node[idx];
+//            if (var_type == Field::VECTOR_2D)
+//              file << " " << 0.0;
+//          }
+//          file << "\n";
+//        }
+//        file << "$EndNodeData\n";
+//        row_idx += Uint(var_type);
+//      }
+//    }
+//  }
+//  // restore precision
+//  file.precision(prec);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+// Could be useful for visualizing extra element information such as global index, rank,
+// The only advantage over write_element_nodal_data() is that it is taking less file memory.
 void Writer::write_element_data(std::fstream& file)
 {
   //  $ElementData
