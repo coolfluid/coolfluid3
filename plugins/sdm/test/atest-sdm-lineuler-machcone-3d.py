@@ -26,13 +26,27 @@ physics = model.create_physics('cf3.physics.LinEuler.LinEuler3D')
 domain  = model.create_domain()
 
 ### Load the mesh
+
 mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
-mesh_reader = model.create_component('mesh_reader','cf3.mesh.gmsh.Reader')
-mesh_reader.options().configure_option( 'mesh', mesh )
-mesh_reader.options().configure_option( 'file', URI('../../../resources/sqduct_3000e.msh') )
-mesh_reader.execute()
+
+#mesh_reader = model.create_component('mesh_reader','cf3.mesh.gmsh.Reader')
+#mesh_reader.options().configure_option( 'mesh', mesh )
+#mesh_reader.options().configure_option( 'file', URI('../../../resources/sqduct_3000e.msh') )
+#mesh_reader.execute()
+
+mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+mesh_generator.options().configure_option("mesh",mesh.uri())
+mesh_generator.options().configure_option("x_segments",30)
+mesh_generator.options().configure_option("y_segments_half",5)
+mesh_generator.options().configure_option("z_segments",10)
+mesh_generator.options().configure_option("length",3.)
+mesh_generator.options().configure_option("half_height",0.5)
+mesh_generator.options().configure_option("width",1.)
+mesh_generator.options().configure_option("grading",1.)
+mesh_generator.execute()
 
 ### write initial mesh
+
 gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('file',URI('file:load.msh'))
@@ -41,12 +55,15 @@ gmsh_writer.execute()
 ### Configure solver
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',4)
+solver.options().configure_option('solution_order',2)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
-solver.access_component('Time').options().configure_option('time_step',1.);
-solver.access_component('Time').options().configure_option('end_time',0.3);
+time = solver.access_component('Time')
+
+time.options().configure_option('time_step',0.25);
+time.options().configure_option('end_time',1.0);
+
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
@@ -61,7 +78,7 @@ c2    = gamma*p0/rho0
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
 functions = [
  '1',
- '2',
+ '0',
  '0',
  '0',
  '1'
@@ -82,13 +99,15 @@ convection.options().configure_option('p0',1.)
 ### create monopole term
 monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMonopole3D' )
 monopole.options().configure_option('omega',gamma)
-monopole.options().configure_option('source_location',[0.,0.,0.25])
+monopole.options().configure_option('source_location',[0.25,0.,0.5])
+monopole.options().configure_option('time', time)
+
 
 ### create BCs
-BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
-BCs.options().configure_option('solver',solver)
-BCs.options().configure_option('mesh',mesh)
-BCs.options().configure_option('physical_model',physics)
+#BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
+#BCs.options().configure_option('solver',solver)
+#BCs.options().configure_option('mesh',mesh)
+#BCs.options().configure_option('physical_model',physics)
 
 #######################################
 # SIMULATE

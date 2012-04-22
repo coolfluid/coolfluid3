@@ -29,7 +29,7 @@ LinEuler3D::Properties::Properties()
   gamma = 1.0; /// @todo this value is set for atest-rdm-rklineuler
 
   rho0 = 1.;
-  u0 = (LinEuler3D::GeoV() << 0.5 , 0.).finished(); /// @todo this value is set for atest-rdm-rklineuler
+  u0 = (LinEuler3D::GeoV() << 0.5, 0., 0.).finished(); /// @todo this value is set for atest-rdm-rklineuler
   P0 = 1.;
 
   inv_rho0 = 1./rho0;
