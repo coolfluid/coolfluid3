@@ -515,7 +515,7 @@ void Writer::write_nodal_data(std::fstream& file)
         for (Uint elem_node_idx; elem_node_idx<geom_space_nodes.size(); ++elem_node_idx)
         {
           const Uint geom_space_node = geom_space_nodes[elem_node_idx];
-          cf3_assert(geom_node < is_node_visited.size());
+          cf3_assert(geom_space_node < is_node_visited.size());
           if (!is_node_visited[geom_space_node])
           {
             is_node_visited[geom_space_node]=true;
