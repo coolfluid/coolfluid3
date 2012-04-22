@@ -17,23 +17,23 @@ namespace sdm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder<QuadLagrange1D<0>,mesh::ShapeFunction,LibSDM>
-QuadP0_builder(LibSDM::library_namespace()+".P0.Quad");
+ComponentBuilder<Point<0>,mesh::ShapeFunction,LibSDM>
+PointP0_builder(LibSDM::library_namespace()+".P0.Point");
 
-ComponentBuilder<QuadLagrange1D<1>,mesh::ShapeFunction,LibSDM>
-QuadP1_builder(LibSDM::library_namespace()+".P1.Quad");
+ComponentBuilder<Point<1>,mesh::ShapeFunction,LibSDM>
+PointP1_builder(LibSDM::library_namespace()+".P1.Point");
 
-ComponentBuilder<QuadLagrange1D<2>,mesh::ShapeFunction,LibSDM>
-QuadP2_builder(LibSDM::library_namespace()+".P2.Quad");
+ComponentBuilder<Point<2>,mesh::ShapeFunction,LibSDM>
+PointP2_builder(LibSDM::library_namespace()+".P2.Point");
 
-ComponentBuilder<QuadLagrange1D<3>,mesh::ShapeFunction,LibSDM>
-QuadP3_builder(LibSDM::library_namespace()+".P3.Quad");
+ComponentBuilder<Point<3>,mesh::ShapeFunction,LibSDM>
+PointP3_builder(LibSDM::library_namespace()+".P3.Point");
 
-ComponentBuilder<QuadLagrange1D<4>,mesh::ShapeFunction,LibSDM>
-QuadP4_builder(LibSDM::library_namespace()+".P4.Quad");
+ComponentBuilder<Point<4>,mesh::ShapeFunction,LibSDM>
+PointP4_builder(LibSDM::library_namespace()+".P4.Point");
 
-ComponentBuilder<QuadLagrange1D<5>,mesh::ShapeFunction,LibSDM>
-QuadP5_builder(LibSDM::library_namespace()+".P5.Quad");
+ComponentBuilder<Point<5>,mesh::ShapeFunction,LibSDM>
+PointP5_builder(LibSDM::library_namespace()+".P5.Point");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,23 +57,43 @@ LineP5_builder(LibSDM::library_namespace()+".P5.Line");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder<Point<0>,mesh::ShapeFunction,LibSDM>
-PointP0_builder(LibSDM::library_namespace()+".P0.Point");
+ComponentBuilder<QuadLagrange1D<0>,mesh::ShapeFunction,LibSDM>
+QuadP0_builder(LibSDM::library_namespace()+".P0.Quad");
 
-ComponentBuilder<Point<1>,mesh::ShapeFunction,LibSDM>
-PointP1_builder(LibSDM::library_namespace()+".P1.Point");
+ComponentBuilder<QuadLagrange1D<1>,mesh::ShapeFunction,LibSDM>
+QuadP1_builder(LibSDM::library_namespace()+".P1.Quad");
 
-ComponentBuilder<Point<2>,mesh::ShapeFunction,LibSDM>
-PointP2_builder(LibSDM::library_namespace()+".P2.Point");
+ComponentBuilder<QuadLagrange1D<2>,mesh::ShapeFunction,LibSDM>
+QuadP2_builder(LibSDM::library_namespace()+".P2.Quad");
 
-ComponentBuilder<Point<3>,mesh::ShapeFunction,LibSDM>
-PointP3_builder(LibSDM::library_namespace()+".P3.Point");
+ComponentBuilder<QuadLagrange1D<3>,mesh::ShapeFunction,LibSDM>
+QuadP3_builder(LibSDM::library_namespace()+".P3.Quad");
 
-ComponentBuilder<Point<4>,mesh::ShapeFunction,LibSDM>
-PointP4_builder(LibSDM::library_namespace()+".P4.Point");
+ComponentBuilder<QuadLagrange1D<4>,mesh::ShapeFunction,LibSDM>
+QuadP4_builder(LibSDM::library_namespace()+".P4.Quad");
 
-ComponentBuilder<Point<5>,mesh::ShapeFunction,LibSDM>
-PointP5_builder(LibSDM::library_namespace()+".P5.Point");
+ComponentBuilder<QuadLagrange1D<5>,mesh::ShapeFunction,LibSDM>
+QuadP5_builder(LibSDM::library_namespace()+".P5.Quad");
+
+////////////////////////////////////////////////////////////////////////////////
+
+ComponentBuilder<HexaLagrange1D<0>,mesh::ShapeFunction,LibSDM>
+HexaP0_builder(LibSDM::library_namespace()+".P0.Hexa");
+
+ComponentBuilder<HexaLagrange1D<1>,mesh::ShapeFunction,LibSDM>
+HexaP1_builder(LibSDM::library_namespace()+".P1.Hexa");
+
+ComponentBuilder<HexaLagrange1D<2>,mesh::ShapeFunction,LibSDM>
+HexaP2_builder(LibSDM::library_namespace()+".P2.Hexa");
+
+ComponentBuilder<HexaLagrange1D<3>,mesh::ShapeFunction,LibSDM>
+HexaP3_builder(LibSDM::library_namespace()+".P3.Hexa");
+
+ComponentBuilder<HexaLagrange1D<4>,mesh::ShapeFunction,LibSDM>
+HexaP4_builder(LibSDM::library_namespace()+".P4.Hexa");
+
+ComponentBuilder<HexaLagrange1D<5>,mesh::ShapeFunction,LibSDM>
+HexaP5_builder(LibSDM::library_namespace()+".P5.Hexa");
 
 ////////////////////////////////////////////////////////////////////////////////
 

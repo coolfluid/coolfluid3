@@ -38,7 +38,7 @@ using namespace cf3::sdm;
 
 #define CF3_CHECK_EQUAL(x1,x2)\
 do {\
-  Real fraction=100*math::Consts::eps(); \
+  Real fraction=200*math::Consts::eps(); \
   if (x2 == 0) \
     BOOST_CHECK_SMALL(x1,fraction); \
   else if (x1 == 0) \
@@ -302,6 +302,38 @@ BOOST_AUTO_TEST_CASE( test_P4_quad )
 BOOST_AUTO_TEST_CASE( test_P5_quad )
 {
   test_convection( *allocate_component< QuadLagrange1D<5> >("sf") );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_P0_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<0> >("sf") );
+}
+
+BOOST_AUTO_TEST_CASE( test_P1_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<1> >("sf") );
+}
+
+BOOST_AUTO_TEST_CASE( test_P2_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<2> >("sf") );
+}
+
+BOOST_AUTO_TEST_CASE( test_P3_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<3> >("sf") );
+}
+
+BOOST_AUTO_TEST_CASE( test_P4_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<4> >("sf") );
+}
+
+BOOST_AUTO_TEST_CASE( test_P5_hexa )
+{
+  test_convection( *allocate_component< HexaLagrange1D<5> >("sf") );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
