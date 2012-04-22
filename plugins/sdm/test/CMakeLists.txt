@@ -29,6 +29,9 @@ coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-2d
                     CPP        utest-sdm-navierstokesmovingreference-2d.cpp
                     LIBS       coolfluid_sdm coolfluid_sdm_navierstokesmovingreference)
 
+coolfluid_add_test( ATEST      atest-sdm-scalar-linadv-3d
+                    PYTHON     atest-sdm-scalar-linadv-3d.py
+                    LIBS       coolfluid_sdm coolfluid_sdm_scalar)
 
 coolfluid_add_test( ATEST      atest-sdm-euler-shocktube-1d
                     PYTHON     atest-sdm-euler-shocktube-1d.py
