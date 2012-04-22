@@ -6,8 +6,8 @@ from coolfluid import *
 import math
 
 # The cf root component
-root = coolfluid.Core.root()
-env =  coolfluid.Core.environment()
+root = Core.root()
+env =  Core.environment()
 
 ### Logging configuration
 env.options().configure_option('assertion_backtrace', True)
@@ -26,8 +26,13 @@ physics = model.create_physics('cf3.physics.LinEuler.LinEuler3D')
 domain  = model.create_domain()
 
 ### Load the mesh
-mesh = domain.load_mesh( file = URI('../../../resources/circle-quad-p1-32.msh'), name = 'circle' );
+mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
+mesh_reader = model.create_component('mesh_reader','cf3.mesh.gmsh.Reader')
+mesh_reader.options().configure_option( 'mesh', mesh )
+mesh_reader.options().configure_option( 'file', URI('../../../resources/sqduct_3000e.msh') )
+mesh_reader.execute()
 
+### write initial mesh
 gmsh_writer = model.create_component('load_writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('file',URI('file:load.msh'))
@@ -65,12 +70,21 @@ initial_condition.options().configure_option('functions',functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
-convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection2D')
+
+dd = solver.get_child('DomainDiscretization')
+
+convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
 convection.options().configure_option('gamma',gamma)
 convection.options().configure_option('rho0',1.)
 convection.options().configure_option('U0',[2.,0.,0.])
 convection.options().configure_option('p0',1.)
 
+### create monopole term
+monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMonopole3D' )
+monopole.options().configure_option('omega',gamma)
+monopole.options().configure_option('source_location',[0.,0.,0.25])
+
+### create BCs
 BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
 BCs.options().configure_option('solver',solver)
 BCs.options().configure_option('mesh',mesh)
@@ -97,7 +111,7 @@ tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplo
 tec_writer.options().configure_option('mesh',mesh)
 tec_writer.options().configure_option('fields',fields)
 tec_writer.options().configure_option('cell_centred',False)
-tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
+tec_writer.options().configure_option('file',URI('file:sdm_output.plt'))
 tec_writer.execute()
 
 # gmsh
@@ -105,5 +119,5 @@ tec_writer.execute()
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().configure_option('mesh',mesh)
 gmsh_writer.options().configure_option('fields',fields)
-gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
+gmsh_writer.options().configure_option('file',URI('file:sdm_output.msh'))
 gmsh_writer.execute()

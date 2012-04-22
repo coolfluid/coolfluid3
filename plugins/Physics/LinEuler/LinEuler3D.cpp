@@ -48,7 +48,7 @@ LinEuler3D::LinEuler3D( const std::string& name ) :
   physics::PhysModel(name),
   m_gamma(1.), /// @todo this value is set for atest-rdm-rklineuler
   m_rho0(1.),
-  m_u0( (LinEuler3D::GeoV() << 0.5 , 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
+  m_u0( (LinEuler3D::GeoV() << 0.5, 0., 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
   m_P0(1.)
 {
   options().add_option("gamma",m_gamma)

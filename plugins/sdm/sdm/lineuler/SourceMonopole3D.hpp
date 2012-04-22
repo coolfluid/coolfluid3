@@ -45,7 +45,7 @@ public:
         .description("Angular frequency")
         .link_to(&m_omega);
 
-    m_source_loc << 0.,0.;
+    m_source_loc << 0.,0.,0.;
     std::vector<Real> source_loc_opt(NDIM);
     source_loc_opt[XX]=0.;
     source_loc_opt[YY]=0.;
