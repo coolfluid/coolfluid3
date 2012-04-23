@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
+#sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
 from coolfluid import *
 import math
