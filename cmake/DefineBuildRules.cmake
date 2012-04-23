@@ -85,6 +85,7 @@ endif()
 
 if( CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   coolfluid_add_cxx_flags("-Wno-parentheses")
+  coolfluid_add_cxx_flags("-Wno-unknown-warning-option")
   coolfluid_add_cxx_flags("-Wno-c++11-compat")
 endif()
 
