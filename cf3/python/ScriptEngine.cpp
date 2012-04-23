@@ -247,7 +247,7 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
   PyObject *py_key, *py_value;
   char* key_str;
   bool fetch_values=interpreter_mode==STOP || interpreter_mode==LINE_BY_LINE_EXECUTION;
-  Py_ssize_t pos = 0,dir_size;
+  ssize_t pos = 0,dir_size;
   std::vector<bool> reverse_found;
   std::string c_name;
   std::string value_string;
