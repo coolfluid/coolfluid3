@@ -28,28 +28,28 @@ nb_div = int(length/dx)
 print "nb_div=",nb_div
 mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-mesh_generator.options().configure_option("mesh",mesh.uri())
-mesh_generator.options().configure_option("x_segments",nb_div)
-mesh_generator.options().configure_option("y_segments_half",nb_div//2)
-mesh_generator.options().configure_option("z_segments",nb_div)
-mesh_generator.options().configure_option("length",length)
-mesh_generator.options().configure_option("half_height",length/2)
-mesh_generator.options().configure_option("width",length)
-mesh_generator.options().configure_option("grading",1.)
+mesh_generator.options().set("mesh",mesh.uri())
+mesh_generator.options().set("x_segments",nb_div)
+mesh_generator.options().set("y_segments_half",nb_div//2)
+mesh_generator.options().set("z_segments",nb_div)
+mesh_generator.options().set("length",length)
+mesh_generator.options().set("half_height",length/2)
+mesh_generator.options().set("width",length)
+mesh_generator.options().set("grading",1.)
 mesh_generator.execute()
 
 ### Configure solver
 
-solver.options().configure_option('mesh',mesh)
-solver.options().configure_option('time',time)
-solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',2)
+solver.options().set('mesh',mesh)
+solver.options().set('time',time)
+solver.options().set('solution_vars','cf3.physics.LinEuler.Cons3D')
+solver.options().set('solution_order',2)
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
 
-solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
-solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
+solver.access_component('TimeStepping').options().set('cfl','0.2');
+solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 
@@ -69,16 +69,16 @@ functions = [
 '0',
 str(c2)+' * 0.001*exp( -( (x-0.5)^2 + (y)^2 + (z-0.5)^2 )/(0.05)^2)'
 ]
-initial_condition.options().configure_option('functions',functions)
+initial_condition.options().set('functions',functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
 
 convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
-convection.options().configure_option('gamma', gamma)
-convection.options().configure_option('rho0',rho0)
-convection.options().configure_option('U0',[0.,0.,0.])
-convection.options().configure_option('p0',p0)
+convection.options().set('gamma', gamma)
+convection.options().set('rho0',rho0)
+convection.options().set('U0',[0.,0.,0.])
+convection.options().set('p0',p0)
 
 ### fields to output
 
@@ -92,7 +92,7 @@ mesh.access_component('solution_space/residual').uri()
 simulate_to_time = 0.
 while (simulate_to_time < final_time-1e-10) :
   simulate_to_time += output_simulation_every
-  time.options().configure_option('end_time',simulate_to_time);
+  time.options().set('end_time',simulate_to_time);
 
   model.simulate()
 
@@ -108,14 +108,14 @@ mesh.write_mesh(file=URI('file:acousticpulse3d.pvtu'), fields=fields)
 
 vis_mesh = domain.create_component( 'vis_mesh', 'cf3.mesh.Mesh' )
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-mesh_generator.options().configure_option("mesh",vis_mesh.uri())
-mesh_generator.options().configure_option("x_segments",50)
-mesh_generator.options().configure_option("y_segments_half",25)
-mesh_generator.options().configure_option("z_segments",50)
-mesh_generator.options().configure_option("length",1.)
-mesh_generator.options().configure_option("half_height",0.5)
-mesh_generator.options().configure_option("width",1.)
-mesh_generator.options().configure_option("grading",1.)
+mesh_generator.options().set("mesh",vis_mesh.uri())
+mesh_generator.options().set("x_segments",50)
+mesh_generator.options().set("y_segments_half",25)
+mesh_generator.options().set("z_segments",50)
+mesh_generator.options().set("length",1.)
+mesh_generator.options().set("half_height",0.5)
+mesh_generator.options().set("width",1.)
+mesh_generator.options().set("grading",1.)
 mesh_generator.execute()
 
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[vector],p')

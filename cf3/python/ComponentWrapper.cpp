@@ -159,7 +159,7 @@ struct AnyListToPython
   {
     if(typeid(std::vector<T>) != m_value.type())
       return;
-    
+
     boost::python::list result;
     const std::vector<T> val = boost::any_cast< std::vector<T> >(m_value);
     BOOST_FOREACH(const T& item, val)
@@ -595,8 +595,8 @@ void def_component()
     .def("__str__", to_str);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
-    .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
-    .def("value_str", option_value_str, "String value for an option");
+    .def("set", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
+    .def("as_str", option_value_str, "String value for an option");
 
   boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
     .def("__len__", properties_get_len)

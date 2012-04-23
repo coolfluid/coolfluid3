@@ -6,12 +6,12 @@ root = coolfluid.Core.root()
 env =  coolfluid.Core.environment()
 
 ### Logging configuration
-env.options().configure_option('assertion_backtrace', True)
-env.options().configure_option('exception_backtrace', True)
-env.options().configure_option('regist_signal_handlers', True)
-env.options().configure_option('exception_log_level', 10)
-env.options().configure_option('log_level', 1)
-env.options().configure_option('exception_outputs', True)
+env.options().set('assertion_backtrace', True)
+env.options().set('exception_backtrace', True)
+env.options().set('regist_signal_handlers', True)
+env.options().set('exception_log_level', 10)
+env.options().set('log_level', 1)
+env.options().set('exception_outputs', True)
 
 ############################
 # Create simulation
@@ -24,32 +24,32 @@ domain  = model.create_domain()
 ###### Following generates a line mesh
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
-mesh_generator.options().configure_option("mesh",mesh.uri())
-mesh_generator.options().configure_option("nb_cells",[70])
-mesh_generator.options().configure_option("lengths",[10])
-mesh_generator.options().configure_option("offsets",[-5])
+mesh_generator.options().set("mesh",mesh.uri())
+mesh_generator.options().set("nb_cells",[70])
+mesh_generator.options().set("lengths",[10])
+mesh_generator.options().set("offsets",[-5])
 mesh_generator.execute()
 load_balance = mesh_generator.create_component("load_balancer","cf3.mesh.actions.LoadBalance")
-load_balance.options().configure_option("mesh",mesh)
+load_balance.options().set("mesh",mesh)
 load_balance.execute()
 #####
 
 ### Configure physics
-physics.options().configure_option('gamma',1.4)
-physics.options().configure_option('R',287.05)
+physics.options().set('gamma',1.4)
+physics.options().set('R',287.05)
 
 ### Configure solver
-solver.options().configure_option('mesh',mesh)
-solver.options().configure_option('solution_vars','cf3.physics.NavierStokes.Cons1D')
-solver.options().configure_option('solution_order',3)
-solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
+solver.options().set('mesh',mesh)
+solver.options().set('solution_vars','cf3.physics.NavierStokes.Cons1D')
+solver.options().set('solution_order',3)
+solver.options().set('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
-solver.access_component('Time').options().configure_option('time_step',1.);
-solver.access_component('Time').options().configure_option('end_time',0.008);
-solver.access_component('TimeStepping').options().configure_option('time_accurate',True);
-solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
-solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
+solver.access_component('Time').options().set('time_step',1.);
+solver.access_component('Time').options().set('end_time',0.008);
+solver.access_component('TimeStepping').options().set('time_accurate',True);
+solver.access_component('TimeStepping').options().set('cfl','0.2');
+solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 solver.get_child('PrepareMesh').execute()
@@ -61,7 +61,7 @@ functions = [
 'r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=0,p_L/(g-1)+0.5*r_L*u_L*u_L,p_R/(g-1)+0.5*r_R*u_R*u_R)'
 ]
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'shocktube')
-initial_condition.options().configure_option("functions",functions)
+initial_condition.options().set("functions",functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
@@ -85,16 +85,16 @@ mesh.access_component("solution_space/residual").uri()
 # tecplot
 #########
 tec_writer = model.get_child('tools').create_component("writer","cf3.mesh.tecplot.Writer")
-tec_writer.options().configure_option("mesh",mesh)
-tec_writer.options().configure_option("fields",fields)
-tec_writer.options().configure_option("cell_centred",False)
-tec_writer.options().configure_option("file",coolfluid.URI("file:sdm_output.plt"))
+tec_writer.options().set("mesh",mesh)
+tec_writer.options().set("fields",fields)
+tec_writer.options().set("cell_centred",False)
+tec_writer.options().set("file",coolfluid.URI("file:sdm_output.plt"))
 tec_writer.execute()
 
 # gmsh
 ######
 gmsh_writer = model.create_component("writer","cf3.mesh.gmsh.Writer")
-gmsh_writer.options().configure_option("mesh",mesh)
-gmsh_writer.options().configure_option("fields",fields)
-gmsh_writer.options().configure_option("file",coolfluid.URI("file:sdm_output.msh"))
+gmsh_writer.options().set("mesh",mesh)
+gmsh_writer.options().set("fields",fields)
+gmsh_writer.options().set("file",coolfluid.URI("file:sdm_output.msh"))
 gmsh_writer.execute()

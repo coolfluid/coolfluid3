@@ -8,7 +8,7 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 # Global configuration
-env.options().configure_option('log_level', 4)
+env.options().set('log_level', 4)
 
 # simulation parameters
 x_parts = 4
@@ -98,7 +98,7 @@ outlet_patch[1] = [9, 10]
 outlet_patch[2] = [10, 11]
 outlet_patch[3] = [11, 12]
 
-blocks.options().configure_option('block_regions', ['fluid_top', 'fluid_top', 'fluid_bottom', 'fluid_bottom', 'fluid_top', 'fluid_top'])
+blocks.options().set('block_regions', ['fluid_top', 'fluid_top', 'fluid_bottom', 'fluid_bottom', 'fluid_top', 'fluid_top'])
 
 # Generate a channel mesh
 mesh = root.create_component('Mesh', 'cf3.mesh.Mesh')

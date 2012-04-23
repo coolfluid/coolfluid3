@@ -27,16 +27,16 @@ mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
 
 ### Configure solver
 
-solver.options().configure_option('mesh',mesh)
-solver.options().configure_option('time',time)
-solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',3)
+solver.options().set('mesh',mesh)
+solver.options().set('time',time)
+solver.options().set('solution_vars','cf3.physics.LinEuler.Cons3D')
+solver.options().set('solution_order',3)
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
 
-solver.access_component('TimeStepping').options().configure_option('cfl','0.1');
-solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
+solver.access_component('TimeStepping').options().set('cfl','0.1');
+solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 
@@ -50,25 +50,25 @@ u0   = mach*c0
 
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
 functions = ['0','0','0','0','0']
-initial_condition.options().configure_option('functions',functions)
+initial_condition.options().set('functions',functions)
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
 
 convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
-convection.options().configure_option('gamma', c0**2*rho0/p0)
-convection.options().configure_option('rho0',rho0)
-convection.options().configure_option('U0',[u0,0.,0.])
-convection.options().configure_option('p0',p0)
+convection.options().set('gamma', c0**2*rho0/p0)
+convection.options().set('rho0',rho0)
+convection.options().set('U0',[u0,0.,0.])
+convection.options().set('p0',p0)
 
 ### create monopole term
 
 monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMonopole3D' )
-monopole.options().configure_option('omega',2*math.pi/30)
-monopole.options().configure_option('alpha',math.log(2)/2)
-monopole.options().configure_option('epsilon',0.5)
-monopole.options().configure_option('source_location',[xc-50,yc,zc])
-monopole.options().configure_option('time', time)
+monopole.options().set('omega',2*math.pi/30)
+monopole.options().set('alpha',math.log(2)/2)
+monopole.options().set('epsilon',0.5)
+monopole.options().set('source_location',[xc-50,yc,zc])
+monopole.options().set('time', time)
 
 ### fields to output
 
@@ -82,7 +82,7 @@ mesh.access_component('solution_space/residual').uri()
 simulate_to_time = 0.
 while (simulate_to_time < final_time-1e-10) :
   simulate_to_time += output_simulation_every
-  time.options().configure_option('end_time',simulate_to_time);
+  time.options().set('end_time',simulate_to_time);
 
   model.simulate()
 

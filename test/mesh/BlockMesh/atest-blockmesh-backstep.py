@@ -8,7 +8,7 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 # Global configuration
-env.options().configure_option('log_level', 4)
+env.options().set('log_level', 4)
 
 # simulation parameters
 x_parts = 4
