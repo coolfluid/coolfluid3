@@ -10,6 +10,8 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
+#include "coolfluid-packages.hpp"
+
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
@@ -103,7 +105,9 @@ void WriteMesh::update_list_of_available_writers()
   
   // TODO proper way to find the list of potential writers
   const std::vector<std::string> known_writers = boost::assign::list_of
+#ifdef CF3_HAVE_CGNS
     ("cf3.mesh.CGNS.Writer")
+#endif
     ("cf3.mesh.gmsh.Writer")
     ("cf3.mesh.neu.Writer")
     ("cf3.mesh.tecplot.Writer")
