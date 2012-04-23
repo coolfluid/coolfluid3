@@ -192,9 +192,9 @@ function( coolfluid_add_test )
       endif()
 
       if( DEFINED _MOC)
-        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers}  ${_MOC})
+        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers}  ${_MOC} EXCLUDE_FROM_ALL )
       else()
-        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers})
+        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers} EXCLUDE_FROM_ALL )
       endif()
 
       if( DEFINED _PAR_DEPENDS)

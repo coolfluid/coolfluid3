@@ -36,12 +36,12 @@ mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
 
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
 mesh_generator.options().configure_option("mesh",mesh.uri())
-mesh_generator.options().configure_option("x_segments",30)
-mesh_generator.options().configure_option("y_segments_half",5)
-mesh_generator.options().configure_option("z_segments",10)
-mesh_generator.options().configure_option("length",3.)
-mesh_generator.options().configure_option("half_height",0.5)
-mesh_generator.options().configure_option("width",1.)
+mesh_generator.options().configure_option("x_segments",20)
+mesh_generator.options().configure_option("y_segments_half",10)
+mesh_generator.options().configure_option("z_segments",20)
+mesh_generator.options().configure_option("length",200)
+mesh_generator.options().configure_option("half_height",100)
+mesh_generator.options().configure_option("width",200)
 mesh_generator.options().configure_option("grading",1.)
 mesh_generator.execute()
 
@@ -55,14 +55,14 @@ gmsh_writer.execute()
 ### Configure solver
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',2)
+solver.options().configure_option('solution_order',3)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
 time = solver.access_component('Time')
 
-time.options().configure_option('time_step',0.25);
-time.options().configure_option('end_time',1.0);
+time.options().configure_option('time_step',50.0);
+time.options().configure_option('end_time',300.0);
 
 solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
@@ -77,11 +77,11 @@ p0    = 1.
 c2    = gamma*p0/rho0
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
 functions = [
- '1',
  '0',
  '0',
  '0',
- '1'
+ '0',
+ '0'
 ]
 initial_condition.options().configure_option('functions',functions)
 solver.get_child('InitialConditions').execute();
@@ -93,13 +93,15 @@ dd = solver.get_child('DomainDiscretization')
 convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
 convection.options().configure_option('gamma',gamma)
 convection.options().configure_option('rho0',1.)
-convection.options().configure_option('U0',[2.,0.,0.])
+convection.options().configure_option('U0',[0.5,0.,0.])
 convection.options().configure_option('p0',1.)
 
 ### create monopole term
 monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMonopole3D' )
-monopole.options().configure_option('omega',gamma)
-monopole.options().configure_option('source_location',[0.25,0.,0.5])
+monopole.options().configure_option('omega',2*math.pi/30)
+monopole.options().configure_option('alpha',math.log(2)/2)
+monopole.options().configure_option('epsilon',0.5)
+monopole.options().configure_option('source_location',[50,0.,100])
 monopole.options().configure_option('time', time)
 
 

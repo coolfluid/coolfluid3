@@ -64,12 +64,12 @@ public: // functions
     p.rho   = sol[Rho];                 // acoustic density
     p.rho0u = sol[Rho0U];               // rho0.u
     p.rho0v = sol[Rho0V];               // rho0.v
-    p.rho0w = sol[Rho0W];               // rho0.v
+    p.rho0w = sol[Rho0W];               // rho0.w
     p.p     = sol[P];                   // acoustic pressure
 
     p.u = p.rho0u / p.rho0;                   // velocity along XX, rho0.u / rho0
     p.v = p.rho0v / p.rho0;                   // velocity along YY, rho0.v / rho0
-    p.w = p.rho0w / p.rho0;                   // velocity along YY, rho0.v / rho0
+    p.w = p.rho0w / p.rho0;                   // velocity along ZZ, rho0.w / rho0
 
     p.H = p.p/( p.rho+p.rho0 ) + 0.5*(p.u*p.u + p.v*p.v + p.w*p.w);
 
@@ -82,6 +82,7 @@ public: // functions
       std::cout << "P     : " << p.p     << std::endl;
       std::cout << "u     : " << p.u     << std::endl;
       std::cout << "v     : " << p.v     << std::endl;
+      std::cout << "w     : " << p.w     << std::endl;
       std::cout << "H     : " << p.H     << std::endl;
 
       throw common::FailedToConverge( FromHere(), "Pressure is negative at coordinates ["
