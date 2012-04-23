@@ -27,11 +27,11 @@ mesh = domain.create_component('mesh','cf3.mesh.Mesh')
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
 mesh_generator.options().configure_option("mesh",mesh.uri())
 mesh_generator.options().configure_option("x_segments",10)
-mesh_generator.options().configure_option("y_segments_half",10) 
-mesh_generator.options().configure_option("z_segments",10)
-mesh_generator.options().configure_option("length",10.)  
+mesh_generator.options().configure_option("y_segments_half",5)
+mesh_generator.options().configure_option("z_segments",25)
+mesh_generator.options().configure_option("length",10.)
 mesh_generator.options().configure_option("half_height",5.)  #-5 to 5
-mesh_generator.options().configure_option("width",10.)
+mesh_generator.options().configure_option("width",25.)
 mesh_generator.options().configure_option("grading",1.)
 mesh_generator.execute()
 # load_balance = mesh_generator.create_component("load_balancer","cf3.mesh.actions.LoadBalance")
@@ -43,13 +43,13 @@ mesh_generator.execute()
 solver.options().configure_option('time',time)
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('solution_vars','cf3.physics.Scalar.LinearAdv2D')
-solver.options().configure_option('solution_order',2)
+solver.options().configure_option('solution_order',3)
 solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
 time.options().configure_option('time_step',1.);
-time.options().configure_option('end_time',3);
-solver.access_component('TimeStepping').options().configure_option('cfl','0.1');
+time.options().configure_option('end_time',15);
+solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
 # solver.access_component('TimeStepping').options().configure_option('max_iteration',10);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
@@ -67,7 +67,7 @@ solver.get_child('InitialConditions').execute();
 
 ### Create convection term
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.scalar.LinearAdvection3D')
-convection.options().configure_option("advection_speed",[1,0,0])
+convection.options().configure_option("advection_speed",[0,0,1])
 # nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.sdm.BCNull',
 # regions=[
 # mesh.access_component('topology/left').uri(),
