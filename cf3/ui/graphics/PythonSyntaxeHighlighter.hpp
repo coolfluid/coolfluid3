@@ -14,11 +14,15 @@
 
 #include "ui/graphics/LibGraphics.hpp"
 
+#include <QTextBlockUserData>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace ui {
 namespace graphics {
+
+class PythonPreCompiler;
 
 /// @brief simple syntaxe highlighter
 class Graphics_API PythonSyntaxeHighlighter
@@ -46,7 +50,20 @@ private:
   static QTextCharFormat *operator_format;
   static QTextCharFormat *string_format;
   static QTextCharFormat *single_quote_string_format;
+  static QTextCharFormat *error_format;
+  static PythonPreCompiler *python_pre_compiler;
 }; // PythonSyntaxeHighlighter
+
+////////////////////////////////////////////////////////////////////////////////
+
+class TextBlockErrorData
+  : public QTextBlockUserData {
+public:
+  TextBlockErrorData(const QString & str) : error_text(str) {}
+  const QString & get_error_string() {return error_text;}
+private:
+  const QString error_text;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

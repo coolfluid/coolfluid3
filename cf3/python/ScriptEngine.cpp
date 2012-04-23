@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "python/BoostPython.hpp"
-
 #include <coolfluid-paths.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -28,8 +26,6 @@
 
 #include <boost/thread/thread.hpp>
 #include <boost/thread/locks.hpp>
-#include <boost/python/handle.hpp>
-#include <boost/python/object.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
@@ -62,6 +58,7 @@ boost::mutex* python_scope_mutex;
 boost::condition_variable* python_break_condition;
 boost::thread* python_thread;
 boost::thread* python_stream_statement_thread;
+int current_execution_fragment;
 bool python_should_wake_up;
 bool python_should_break;
 bool python_should_run;
@@ -84,19 +81,16 @@ int python_trace(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg){
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void python_execute_function(){
-  {//to be sure that no code is trying to execute while init phase
-    boost::lock_guard<boost::mutex> lock(*python_code_queue_mutex);
-    boost::posix_time::millisec wait_init(500);//to wait that the component tree is created
-    //CFinfo << "stop_lock_aquired" << CFendl;
-    boost::this_thread::sleep(wait_init);
-  }
   boost::unique_lock<boost::mutex> locker(*python_code_queue_mutex,boost::defer_lock_t());
   locker.lock();
+  boost::posix_time::millisec wait_init(500);//to wait that the component tree is created
+  boost::this_thread::sleep(wait_init);
   while(python_should_run){
     if (python_code_queue.size()){
       std::pair<boost::python::handle<>,int> python_current_fragment=python_code_queue.front();
       python_code_queue.pop();
       locker.unlock();
+      current_execution_fragment=python_current_fragment.second;
       try{
         {
           boost::lock_guard<boost::mutex> lock(*python_scope_mutex);
@@ -119,7 +113,7 @@ void python_execute_function(){
         CFinfo << "Error while executing python code." << CFendl;
       }
       PyErr_Clear();
-      script_engine->check_python_change(python_current_fragment.second);
+      script_engine->check_python_change();
       locker.lock();
     }else{
       script_engine->no_more_instruction();
@@ -133,7 +127,7 @@ void python_execute_function(){
 
 ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
-  if (python_close++ == 0){//this class is instancied two times, don't known why
+  if (python_close++ == 0){//near singleton implementation
     fragment_generator=1;
     stoped=false;
     python_should_wake_up=false;
@@ -202,9 +196,6 @@ ScriptEngine::~ScriptEngine()
       python_code_queue_condition->notify_one();
       // to be sure that the thread ends well
     }
-    // to be sure that the thread ends well
-    //if (python_stream_statement_thread->joinable())
-      //python_stream_statement_thread->join();
     Py_Finalize();
   }
 }
@@ -212,42 +203,40 @@ ScriptEngine::~ScriptEngine()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 int ScriptEngine::execute_script(std::string script,int code_fragment){
-  {
-    boost::lock_guard<boost::mutex> lock(*python_code_queue_mutex);
-    // we compile the received fragment
-    std::stringstream ss;
-    if (code_fragment > 0)
-      code_fragment=fragment_generator++;
-    ss << code_fragment;
-    //CFinfo << python_current_fragment.first.c_str() << CFendl;
-    boost::python::handle<> src;
-    if (code_fragment == -1){//entire script 'flag'
-      src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_file_input)));
-      if (NULL != src.get()){
-        boost::lock_guard<boost::mutex> lock(*python_scope_mutex);
-        boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
-      }
-    }else{//single input compilation
-      src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
-      if (NULL != src.get()){
-          python_code_queue.push(std::pair<boost::python::handle<>,int>(src,code_fragment));
-          python_code_queue_condition->notify_one();
-      }
-      if (code_fragment){//we don't check errors on internal request (fragment code = 0)
-        PyObject *exc,*val,*trb,*obj;
-        char* error;
-        PyErr_Fetch(&exc, &val, &trb);
-        if (NULL != val){
-          if (PyArg_ParseTuple (val, "sO", &error, &obj)){
-            CFinfo << ":" << code_fragment << ":" << error << CFendl;
-          }else{
-            const char* val_str=PyString_AsString(PyObject_Str(val));
-            CFinfo << ":" << code_fragment << ":" << val_str << CFendl;
-          }
+  boost::lock_guard<boost::mutex> lock(*python_code_queue_mutex);
+  // we compile the received fragment
+  std::stringstream ss;
+  if (code_fragment > 0)
+    code_fragment=fragment_generator++;
+  ss << code_fragment;
+  boost::python::handle<> src;
+  if (code_fragment == -1){//entire script 'flag'
+    src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_file_input)));
+    if (NULL != src.get()){
+      boost::lock_guard<boost::mutex> lock(*python_scope_mutex);
+      boost::python::handle<> dum(boost::python::allow_null(PyEval_EvalCode((PyCodeObject *)src.get(), global_scope.get(), local_scope.get())));
+    }
+  }else{//single input compilation
+    src=boost::python::handle<>(boost::python::allow_null(Py_CompileString(script.c_str(), ss.str().c_str(), Py_single_input)));
+    if (NULL != src.get()){
+        python_code_queue.push(std::pair<boost::python::handle<>,int>(src,code_fragment));
+        python_code_queue_condition->notify_one();
+    }
+    if (code_fragment){//we don't check errors on internal request (fragment code = 0)
+      PyObject *exc,*val,*trb,*obj;
+      char* error;
+      PyErr_Fetch(&exc, &val, &trb);
+      if (NULL != val){
+        if (PyArg_ParseTuple (val, "sO", &error, &obj)){
+          CFinfo << ":" << code_fragment << ":" << error << CFendl;
+        }else{
+          const char* val_str=PyString_AsString(PyObject_Str(val));
+          CFinfo << ":" << code_fragment << ":" << val_str << CFendl;
         }
       }
     }
   }
+  PyErr_Clear();
   return code_fragment;
 }
 
@@ -365,7 +354,7 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::flush_python_stdout(int code_fragment){
+void ScriptEngine::flush_python_stdout(){
   boost::python::handle<> name(PyString_FromString("data"));
   boost::python::handle<> blank(PyString_FromString(""));
   boost::python::handle<> py_stdout(boost::python::borrowed(boost::python::allow_null(PyDict_GetItemString(local_scope.get(),"stdoutStack"))));
@@ -375,13 +364,11 @@ void ScriptEngine::flush_python_stdout(int code_fragment){
       char * data_str=PyString_AsString(data.get());
       if (strlen(data_str)>0){
         //CFinfo << "flush emit output" << CFendl;
-        if (code_fragment)
-          CFinfo << ":" << code_fragment << ":" << data_str << CFendl;
+        if (current_execution_fragment)
+          CFinfo << ":" << current_execution_fragment << ":" << data_str << CFendl;
         else//must be a documentation request
           emit_documentation(data_str);
-        //Py_XDECREF(data.get());
         PyObject_SetAttr(py_stdout.get(),name.get(),blank.get());
-        //execute_script("sys.stdout.data=''",0);
       }
     }
   }
@@ -389,39 +376,30 @@ void ScriptEngine::flush_python_stdout(int code_fragment){
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScriptEngine::check_python_change(int code_fragment){
-  {
-    boost::lock_guard<boost::mutex> lock(*python_scope_mutex);
-    flush_python_stdout(code_fragment);
-    std::vector<std::string> add,sub;
-    check_scope_difference(local_scope_entry,"",&add,&sub);
-    builtin_scope_entry.py_ref=PyEval_GetBuiltins();
-    check_scope_difference(builtin_scope_entry,"",&add,&sub);
-    if (PyEval_GetFrame() != NULL){
-      //CFinfo << PyString_AsString(PyEval_GetFrame()->f_code->co_name) << CFendl;
-      std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
-      if (target != "<module>"){
-        local_frame_scope_entry.py_ref=PyEval_GetLocals();
-        local_frame_scope_entry.name=target+"(";
-        global_frame_scope_entry.py_ref=PyEval_GetGlobals();
-        global_frame_scope_entry.name=target+"(";
-      }
-    }else{
-      local_frame_scope_entry.py_ref=NULL;
-      global_frame_scope_entry.py_ref=NULL;
+void ScriptEngine::check_python_change(){
+  boost::lock_guard<boost::mutex> lock(*python_scope_mutex);
+  flush_python_stdout();
+  std::vector<std::string> add,sub;
+  check_scope_difference(local_scope_entry,"",&add,&sub);
+  builtin_scope_entry.py_ref=PyEval_GetBuiltins();
+  check_scope_difference(builtin_scope_entry,"",&add,&sub);
+  if (PyEval_GetFrame() != NULL){
+    std::string target=PyString_AsString(PyEval_GetFrame()->f_code->co_name);
+    if (target != "<module>"){
+      local_frame_scope_entry.py_ref=PyEval_GetLocals();
+      local_frame_scope_entry.name=target+"(";
+      global_frame_scope_entry.py_ref=PyEval_GetGlobals();
+      global_frame_scope_entry.name=target+"(";
     }
-    check_scope_difference(local_frame_scope_entry,"",&add,&sub);
-    check_scope_difference(global_frame_scope_entry,"",&add,&sub);
-    if (add.size() || sub.size()){
-      emit_completion_list(&add,&sub);
-    }
+  }else{
+    local_frame_scope_entry.py_ref=NULL;
+    global_frame_scope_entry.py_ref=NULL;
   }
-  /*CFinfo << "add" << CFendl;
-  for (int i=0;i<add.size();i++)
-    CFinfo << add[i] << CFendl;
-  CFinfo << "sub" << CFendl;
-  for (int i=0;i<sub.size();i++)
-    CFinfo << sub[i] << CFendl;*/
+  check_scope_difference(local_frame_scope_entry,"",&add,&sub);
+  check_scope_difference(global_frame_scope_entry,"",&add,&sub);
+  if (add.size() || sub.size()){
+    emit_completion_list(&add,&sub);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -468,7 +446,6 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
     options.add_option("new_fragment", new_fragment);
     options.flush();
   }
-  //return boost::python::object();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,8 +481,9 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
   case STOP:
   case LINE_BY_LINE_EXECUTION:
     python_should_wake_up=false;
+    python_scope_mutex->unlock();
     emit_debug_trace(code_fragment,line_number);
-    check_python_change(code_fragment);
+    check_python_change();
   {
     boost::unique_lock<boost::mutex> lock(*python_break_mutex);
     while (!python_should_wake_up)
@@ -517,6 +495,7 @@ int ScriptEngine::new_line_reached(int code_fragment,int line_number){
       python_should_break=false;
       return -1;
     }
+    python_scope_mutex->lock();
     break;
   default:
     break;
@@ -570,7 +549,6 @@ void ScriptEngine::signal_change_debug_state(SignalArgs& node){
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::emit_completion_list(std::vector<std::string> *add, std::vector<std::string> *sub){
-  /// @todo remove those hardcoded URIs
   if (m_manager.get()==NULL)
     access_pe_manager();
   if (m_manager.get()!=NULL){
@@ -586,7 +564,6 @@ void ScriptEngine::emit_completion_list(std::vector<std::string> *add, std::vect
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::emit_documentation(std::string doc){
-  /// @todo remove those hardcoded URIs
   if (m_manager.get()==NULL)
     access_pe_manager();
   if (m_manager.get()!=NULL){
@@ -601,7 +578,6 @@ void ScriptEngine::emit_documentation(std::string doc){
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void ScriptEngine::emit_debug_trace(int fragment,int line){
-  /// @todo remove those hardcoded URIs
   if (m_manager.get()==NULL)
     access_pe_manager();
   if (m_manager.get()!=NULL){

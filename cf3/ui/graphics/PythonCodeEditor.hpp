@@ -43,6 +43,7 @@ private slots:
   void execute_stepped();
   void open();
   void save();
+  void contents_change(int pos,int sub,int add);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

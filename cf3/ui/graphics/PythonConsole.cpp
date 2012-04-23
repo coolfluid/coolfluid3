@@ -124,7 +124,7 @@ void PythonConsole::cursor_position_changed(){
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PythonConsole::mousePressEvent(QMouseEvent *e){
+/*void PythonConsole::mousePressEvent(QMouseEvent *e){
   if (e->button() == Qt::MidButton){
     QTextCursor c=textCursor();
     if (!editable_zone(c)){
@@ -138,7 +138,7 @@ void PythonConsole::mousePressEvent(QMouseEvent *e){
   }else{
     QPlainTextEdit::mousePressEvent(e);
   }
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -226,7 +226,7 @@ bool PythonConsole::editable_zone(const QTextCursor &cursor){
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::insert_text(const QString &text){
-  execute_code(text,false,QVector<int>());
+  execute_code(text,true,QVector<int>());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -394,6 +394,7 @@ void PythonConsole::stream_next_command(){
   foreach (line,current_command.command.split('\n')){
     c.insertText(line);
     c.movePosition(QTextCursor::End);
+    c.insertBlock();
     if (document()->lastBlock().userState() != PROMPT_1)
       document()->lastBlock().setUserState(PROMPT_2);
   }
@@ -414,7 +415,7 @@ void PythonConsole::insert_output(QString output, int fragment){
     if (input_start_in_text==0){//special case
       cursor.setPosition(0);
       cursor.insertText("\n");
-      document()->findBlockByNumber(0).setUserState(-1);
+      document()->findBlockByNumber(0).setUserState(1);
       document()->findBlockByNumber(1).setUserState(PythonCodeContainer::PROMPT_1);
       cursor.setPosition(0);
     }else{
@@ -515,18 +516,23 @@ void PythonConsole::insert_log(const QString &output){
 ////////////////////////////////////////////////////////////////////////////
 
 void PythonConsole::append_false_code(QString code){
+  int ind=code.indexOf('\n');
+  QString first_line=code.mid(0,ind);
   QTextCursor c(document());
   c.setPosition(input_start_in_text);
   c.insertBlock();
   c.movePosition(QTextCursor::Left);
-  c.insertText(code);
+  c.insertText(first_line);
   c.block().setUserState(PROMPT_1);
-  input_start_in_text+=code.size()+1;
+  input_start_in_text+=first_line.size()+1;
   input_block+=1;
-  history.append(code);
-  add_history_draggable_item(code);
+  history.append(first_line);
+  add_history_draggable_item(first_line);
   history_index=history.size();
   fix_prompt();
+  if (ind > -1){
+    append_false_code(code.mid(ind+1));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

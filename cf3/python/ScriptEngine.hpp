@@ -9,21 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if MAC_FRAMEWORK_PYTHON
-#include <Python/Python.h>
-#else
-#include <Python.h>
-#endif
-//python Py_ssize_t backward compatibility
-
-#if (PY_VERSION_HEX < 0x02050000)
-typedef int Py_ssize_t;
-#endif
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 #include "common/Component.hpp"
 
 #include "python/LibPython.hpp"
@@ -32,9 +17,13 @@ typedef int Py_ssize_t;
 
 #include "common/CommonAPI.hpp"
 
-#include <frameobject.h>
-
 #include <boost/thread/mutex.hpp>
+#include <boost/python.hpp>
+#include <boost/python/ssize_t.hpp>
+#include <boost/python/handle.hpp>
+#include <boost/python/object.hpp>
+
+#include <frameobject.h>
 
 #include <vector>
 #include <string>
@@ -88,7 +77,7 @@ public: // functions
 
   /// @brief Verify if the python scope has changed, or if there is some data on the python sys.out
   /// code_fragment allow to redirect correctly the output if this was a documentation request
-  void check_python_change(int code_fragment);
+  void check_python_change();
 
   /// @brief Called when the interpreter have no more instruction avalaible
   /// used in debug to clear the debug trace at the end of the code
@@ -138,7 +127,7 @@ private:
   void check_scope_difference(PythonDictEntry &entry,std::string name,std::vector<std::string> *add, std::vector<std::string> *sub,int rec = 0,bool child=false);
 
   /// @brief Look if there are no outputs in python sys.out (replaced with a simple storing class), output are then sendend throught CFinfo
-  void flush_python_stdout(int code_fragment);
+  void flush_python_stdout();
 
   void access_pe_manager();
 

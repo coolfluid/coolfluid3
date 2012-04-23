@@ -18,6 +18,7 @@
 #include <QAction>
 #include <QWidget>
 #include <QFileDialog>
+#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +37,11 @@ PythonCodeEditor::PythonCodeEditor(QWidget *parent) :
   connect(tool_bar->addAction(QIcon(":/Icons/action_execute_script_edit.png"),"Execute statement by statement"),SIGNAL(triggered()),this,SLOT(execute_stepped()));
   connect(tool_bar->addAction(QIcon(":/Icons/action_open.png"),"Open"),SIGNAL(triggered()),this,SLOT(open()));
   connect(tool_bar->addAction(QIcon(":/Icons/action_save.png"),"Save"),SIGNAL(triggered()),this,SLOT(save()));
+  connect(document(),SIGNAL(contentsChange(int,int,int)),this,SLOT(contents_change(int,int,int)));
   setViewportMargins(border_width,tool_bar->height(),0,0);
   offset_border.setX(border_width);
   offset_border.setY(tool_bar->height());
+  document()->findBlockByNumber(0).setUserState(LINE_NUMBER);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -142,6 +145,25 @@ void PythonCodeEditor::save(){
     f.open(QFile::WriteOnly);
     f.write(toPlainText().toStdString().c_str());
     f.close();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonCodeEditor::contents_change(int pos,int sub,int add){
+  int modif_length=add-sub;
+  if (modif_length > 0){
+    QTextBlock block=document()->findBlock(pos);
+    QTextBlock end=document()->findBlock(pos+modif_length);
+    std::cout << "first modif block : " << block.blockNumber() << ", last modif block : " << end.blockNumber() << std::endl;
+    if (end.isValid()) {
+      while (block != end) {
+        block.setUserState(LINE_NUMBER);
+        block=block.next();
+      }
+      block.setUserState(LINE_NUMBER);
+      document()->markContentsDirty(pos,modif_length);
+    }
   }
 }
 

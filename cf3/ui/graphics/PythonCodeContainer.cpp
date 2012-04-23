@@ -27,6 +27,7 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QToolTip>
+#include <QBitmap>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -205,10 +206,6 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
   while (block.isValid() && top <= event->rect().bottom()) {
     if (block.isVisible() && bottom >= event->rect().top()) {
       switch (block.userState()){
-      case LINE_NUMBER://display bloc number
-        painter.drawText(0, top, border_width-4, fontMetrics().height(),
-                         Qt::AlignRight, QString::number(block_number + 1));
-        break;
       case PROMPT_1://display prompt 1
         painter.drawText(0, top, border_width-4, fontMetrics().height(),
                          Qt::AlignRight, ">>>");
@@ -216,6 +213,10 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
       case PROMPT_2://display prompt 2
         painter.drawText(0, top, border_width-4, fontMetrics().height(),
                          Qt::AlignRight, "...");
+        break;
+      case LINE_NUMBER://display bloc number
+        painter.drawText(0, top, border_width-4, fontMetrics().height(),
+                         Qt::AlignRight, QString::number(block_number + 1));
         break;
       default:
         painter.drawText(0, top, border_width-4, fontMetrics().height(),
@@ -342,6 +343,64 @@ void PythonCodeContainer::leaveEvent(QEvent *e){
   doc_timer.stop();
   QToolTip::hideText();
   QPlainTextEdit::leaveEvent(e);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+/* convert a selection into a pixmap representing the selection
+  to much things didn't work well
+void PythonCodeContainer::mousePressEvent(QMouseEvent *e){
+  if (e->button() == Qt::LeftButton){
+    QTextCursor cursor=textCursor();
+    QString selected_text=cursor.selectedText();
+    if (!selected_text.isEmpty()){
+      int sel_start=cursor.selectionStart();
+      int sel_end=cursor.selectionEnd();
+      QTextCursor temp_cur(document());
+      temp_cur.setPosition(sel_start);
+      QRect selection=cursorRect(temp_cur);
+      while (temp_cur.position() < sel_end){
+        temp_cur.movePosition(QTextCursor::Right);
+        selection=selection.united(cursorRect(temp_cur));
+      }
+      if (selection.contains(e->pos())){
+        QMimeData* data=new QMimeData();
+        selected_text.replace(QChar(8233),'\n');
+        data->setText(selected_text);
+        QPixmap image(selection.size());
+        render(&image,QPoint(),selection.translated(offset_border+QPoint(2,2)),QWidget::DrawChildren);
+        QBitmap mask(selection.size());
+        mask.clear();
+        {
+          QPainter p(&mask);
+          temp_cur.setPosition(sel_start);
+          while (temp_cur.position() < sel_end){
+            QRect cur_rect=cursorRect(temp_cur);
+            temp_cur.movePosition(QTextCursor::Right);
+            QRect next_cur_rect=cursorRect(temp_cur);
+            cur_rect=cur_rect.united(next_cur_rect);
+            if (cur_rect.height() == next_cur_rect.height()){//if we are on the same line
+              p.fillRect(cur_rect.translated(-selection.topLeft()),QBrush(Qt::color1,Qt::Dense4Pattern));
+            }
+          }
+        }
+        image.setMask(mask);
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(data);
+        drag->setPixmap(image);
+        drag->setHotSpot(e->pos()-selection.topLeft());
+        Qt::DropAction dropAction = drag->exec();
+        return;
+      }
+    }
+  }else{
+  QPlainTextEdit::mousePressEvent(e);
+}*/
+
+//////////////////////////////////////////////////////////////////////////
+
+QMimeData* PythonCodeContainer::createMimeDataFromSelection() const{
+  return NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -484,14 +543,19 @@ void PythonCodeContainer::remove_dictionary_item(QString name,CustomStandardItem
 void PythonCodeContainer::request_documentation(){
   if (!python_console->is_stopped()){
     QTextCursor c=cursorForPosition(last_mouse_pos);
-    QString word=get_word_under_cursor(c);
-    if (word.size() > 1){
-      if (word != last_documented_word){
-        last_documented_word=word;
-        ui::core::NScriptEngine::global().get()->request_documentation(word);
-      }else{
-        popup_documentation(last_documentation);
+    QTextBlock b=c.block();
+    if (b.userData() == NULL){
+      QString word=get_word_under_cursor(c);
+      if (word.size() > 1){
+        if (word != last_documented_word){
+          last_documented_word=word;
+          ui::core::NScriptEngine::global().get()->request_documentation(word);
+        }else{
+          popup_documentation(last_documentation);
+        }
       }
+    }else{
+      popup_documentation(static_cast<TextBlockErrorData*>(b.userData())->get_error_string());
     }
   }
 }

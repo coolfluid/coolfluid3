@@ -6,7 +6,10 @@
 
 
 #include "PythonSyntaxeHighlighter.hpp"
+#include "PythonPreCompiler.hpp"
+#include "PythonCodeContainer.hpp"
 #include <QColor>
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -17,13 +20,15 @@ namespace graphics {
 //////////////////////////////////////////////////////////////////////////
 
 int PythonSyntaxeHighlighter::instance_count=0;
-QVector<PythonSyntaxeHighlighter::HighlightingRule> *PythonSyntaxeHighlighter::highlighting_rules=0;
-QTextCharFormat *PythonSyntaxeHighlighter::comment_format=0;
-QTextCharFormat *PythonSyntaxeHighlighter::keyword_format=0;
-QTextCharFormat *PythonSyntaxeHighlighter::number_format=0;
-QTextCharFormat *PythonSyntaxeHighlighter::operator_format=0;
-QTextCharFormat *PythonSyntaxeHighlighter::string_format=0;
-QTextCharFormat *PythonSyntaxeHighlighter::single_quote_string_format=0;
+QVector<PythonSyntaxeHighlighter::HighlightingRule> *PythonSyntaxeHighlighter::highlighting_rules=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::comment_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::keyword_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::number_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::operator_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::string_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::single_quote_string_format=NULL;
+QTextCharFormat *PythonSyntaxeHighlighter::error_format=NULL;
+PythonPreCompiler *PythonSyntaxeHighlighter::python_pre_compiler=NULL;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +79,12 @@ PythonSyntaxeHighlighter::PythonSyntaxeHighlighter(QTextDocument* parent)
     rule.pattern = QRegExp("\'[^\'\\\\\\r\\n]*(?:\\\\.[^\'\\\\\\r\\n]*)*\'");
     rule.format = single_quote_string_format;
     highlighting_rules->append(rule);
+
+    //error displaying
+    error_format=new QTextCharFormat();
+    error_format->setUnderlineColor(QColor(Qt::red));
+    error_format->setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+    python_pre_compiler=new PythonPreCompiler();
   }
 }
 
@@ -90,13 +101,53 @@ PythonSyntaxeHighlighter::~PythonSyntaxeHighlighter(){
 }
 
 void PythonSyntaxeHighlighter::highlightBlock(const QString &text){
-  foreach (const HighlightingRule &rule, *highlighting_rules) {
-    QRegExp expression(rule.pattern);
-    int index = expression.indexIn(text);
-    while (index >= 0) {
-      int length = expression.matchedLength();
-      setFormat(index, length, *rule.format);
-      index = expression.indexIn(text, index + length);
+  // maybe not great to do this at each modification
+  static QRegExp two_points("^[^#:]*:[ ]*(#[^$]*)?$");
+  currentBlock().setUserData(NULL);//reset error if there where one
+  if (text.length()){
+    int a=currentBlock().userState();
+    if (a >= PythonCodeContainer::PROMPT_1){
+      int start=0,end=text.size();
+      int first_word=0;
+      if (text.contains(two_points)){
+        first_word=1;
+        for (;start<text.size();start++){
+          QChar c=text[start];
+          if (first_word==1){
+            if (c != '\t')
+              first_word=2;
+          }else if (first_word==2){
+            if (c == '\t' || c == ' ')
+              first_word=3;
+          }else{
+            if (c != '\t' && c != ' '){
+              first_word=4;
+              break;
+            }
+          }
+          end=start;
+          for (;end<text.size() && text[end] != ':';end++);
+        }
+      }else{
+        for (;start<end && text[start] == '\t';start++);
+      }
+      if (first_word == 0 || first_word==4){
+        const QString error=python_pre_compiler->try_compile(text.mid(start,end-start));
+        if (error.length()){
+          setFormat(start,end-start,*error_format);
+          currentBlock().setUserData(new TextBlockErrorData(error));
+          return;
+        }
+      }
+      foreach (const HighlightingRule &rule, *highlighting_rules) {
+        QRegExp expression(rule.pattern);
+        int index = expression.indexIn(text);
+        while (index >= 0) {
+          int length = expression.matchedLength();
+          setFormat(index, length, *rule.format);
+          index = expression.indexIn(text, index + length);
+        }
+      }
     }
   }
 }

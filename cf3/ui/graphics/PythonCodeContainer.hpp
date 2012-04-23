@@ -48,9 +48,9 @@ class Graphics_API PythonCodeContainer : public QPlainTextEdit
 public:
   /// @brief Use to manage userData in a QTextBlock
   enum line_type{
-    LINE_NUMBER = -1,
     PROMPT_1 = 100000,
-    PROMPT_2 = 100001
+    PROMPT_2 = 100001,
+    LINE_NUMBER = 100002
   };
   /// @brief constructor
   PythonCodeContainer(QWidget *parent = 0);
@@ -72,6 +72,10 @@ protected:
   void mouseMoveEvent(QMouseEvent *e);
   /// @brief stop the documentation timer
   void leaveEvent(QEvent *);
+  // @brief implement the drag feature REMOVED
+  //void mousePressEvent(QMouseEvent *e);
+  /// @brief create a mimeData with a preview of the selected text
+  QMimeData* createMimeDataFromSelection() const;
   /// @brief allow to drop text mimeData and QListWidgetItem mimeData
   bool canInsertFromMimeData(const QMimeData *source) const;
   /// @brief call insert_text with the extracted mimeData

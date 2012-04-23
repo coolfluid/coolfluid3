@@ -101,6 +101,8 @@ list( APPEND coolfluid_ui_graphics_files
   PythonCodeEditor.hpp
   PythonConsole.cpp
   PythonConsole.hpp
+  PythonPreCompiler.cpp
+  PythonPreCompiler.hpp
   PythonSyntaxeHighlighter.cpp
   PythonSyntaxeHighlighter.hpp
   SelectPathDialog.cpp
@@ -122,9 +124,8 @@ list( APPEND coolfluid_ui_graphics_files
  )
 
 list( APPEND coolfluid_ui_graphics_cflibs coolfluid_ui_core )
-
 # Use Qt Libraries
-list( APPEND coolfluid_ui_graphics_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser)
+list( APPEND coolfluid_ui_graphics_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
 
 QT4_ADD_RESOURCES(coolfluid_ui_graphics_RCC Resources/coolfluid-client.qrc)
 

@@ -11,7 +11,7 @@ sys.setdlopenflags(flags | dl.RTLD_GLOBAL)
 from libcoolfluid_python import *
 
 # Import unit test module
-import unittest
+from unittest import *
 
 # restore the dlopen flags to default
 sys.setdlopenflags(flags)

@@ -63,7 +63,7 @@ protected:
   void new_line(int indent_number);
   void border_click(const QPoint &pos);
   bool editable_zone(const QTextCursor &cursor);
-  void mousePressEvent(QMouseEvent *e);
+  //void mousePressEvent(QMouseEvent *e);
   void insert_text(const QString &text);
 public slots:
   /// @brief parse and append the code to the console

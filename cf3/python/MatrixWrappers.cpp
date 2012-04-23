@@ -11,6 +11,10 @@
 #include "math/MatrixTypes.hpp"
 #include "python/MatrixWrappers.hpp"
 #include "iostream"
+#include <Eigen/src/Core/util/StaticAssert.h>
+#include <Eigen/src/Core/util/Macros.h>
+
+
 
 namespace cf3 {
 namespace python {
@@ -26,6 +30,67 @@ using namespace boost::python;
 #define TDYNVECTOR Eigen::Matrix<Real,-1,1>
 #define MIN(x,y) ((x)>(y)?(y):(x))
 #define TARRAY Eigen::ArrayWrapper<Eigen::Matrix<Real,rows,cols> >
+
+// these are some template function used for the simplest function call
+
+#define GENERIC_MATRIX_FUNCTION_0ARG(function_name, matrix_function_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self){ \
+    self->matrix_function_name(); \
+  }
+
+#define GENERIC_MATRIX_FUNCTION_1ARG(function_name, matrix_function_name, arg0_type, arg0_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name){ \
+    self->matrix_function_name(arg0_name); \
+  }
+
+#define GENERIC_MATRIX_FUNCTION_2ARG(function_name,matrix_function_name, arg0_type, arg0_name, arg1_type, arg1_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name, arg1_type arg1_name){ \
+    self->matrix_function_name(arg0_name, arg1_name); \
+  }
+
+#define GENERIC_MATRIX_FUNCTION_3ARG(function_name, matrix_function_name, arg0_type, arg0_name, arg1_type, arg1_name, arg2_type, arg2_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name, arg1_type arg1_name, arg2_type arg2_name){ \
+    self->matrix_function_name(arg0_name, arg1_name, arg2_name); \
+  }
+
+#define GENERIC_MATRIX_AUTO_SIZE_FUNCTION_0ARG(function_name, matrix_function_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self){ \
+    self->matrix_function_name(self->rows(),self->cols()); \
+  }
+
+#define GENERIC_MATRIX_AUTO_SIZE_FUNCTION_1ARG(function_name, matrix_function_name, arg0_type, arg0_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name){ \
+    self->matrix_function_name(self->rows(),self->cols(), arg0_name); \
+  }
+
+#define GENERIC_VECTOR_AUTO_SIZE_FUNCTION_0ARG(function_name, matrix_function_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self){ \
+    self->matrix_function_name(self->size()); \
+  }
+
+#define GENERIC_VECTOR_AUTO_SIZE_FUNCTION_1ARG(function_name, matrix_function_name, arg0_type, arg0_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name){ \
+    self->matrix_function_name(self->size(), arg0_name); \
+  }
+
+#define GENERIC_VECTOR_AUTO_SIZE_FUNCTION_2ARG(function_name, matrix_function_name, arg0_type, arg0_name, arg1_type, arg1_name) \
+  template<int rows, int cols> \
+  void function_name(boost::shared_ptr<TMATRIX > self, arg0_type arg0_name, arg1_type arg1_name){ \
+    self->matrix_function_name(self->size(), arg0_name, arg1_name); \
+  }
+
+void failed_assertion_translate(const common::FailedAssertion& e)
+{
+    PyErr_SetString(PyExc_RuntimeError, e.msg().c_str());
+}
 
 //allow to have shared_ptr that doesn't delete his containts
 struct null_deleter{
@@ -48,9 +113,12 @@ public:
   void isub(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()-=a->m->array();}
   void imul(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()*=a->m->array();}
   void idiv(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){m->array()/=a->m->array();}
-#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a) \
-                                                         {boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().func(a->m->array()))); \
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) \
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){ \
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().func(a->m->array()))); \
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat)); \
+    return p; \
+  }
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(min,min)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(max,max)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(add,operator+)
@@ -58,9 +126,12 @@ public:
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(mul,operator*)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(div,operator/)
 #undef GENERIC_ARRAY_MAPPER_OPERATION_CALL
-#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a) \
-  {boost::shared_ptr<TMATRIX > mat(new TMATRIX((m->array().func(a->m->array())).template cast<Real>())); \
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+#define GENERIC_ARRAY_MAPPER_OPERATION_CALL(name,func) \
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > name(boost::shared_ptr<matrix_array_mapper<rows,cols> >a){ \
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX((m->array().func(a->m->array())).template cast<Real>())); \
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat)); \
+    return p; \
+    }
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(larger_equal,operator>=)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(larger,operator>)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(smaller_equal,operator<=)
@@ -68,16 +139,31 @@ public:
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(equal,operator==)
   GENERIC_ARRAY_MAPPER_OPERATION_CALL(not_equal,operator!=)
 #undef GENERIC_ARRAY_MAPPER_OPERATION_CALL
-  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_add(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()+a));
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
-  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_sub(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()-a));
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
-  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_mul(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()*a));
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
-  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_div(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()/a));
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
-  boost::shared_ptr<matrix_array_mapper<rows,cols> > pow(Real a){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().pow(a)));
-                                                         boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_add(Real a){
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()+a));
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));
+    return p;
+  }
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_sub(Real a){
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()-a));
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));
+    return p;
+  }
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_mul(Real a){
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()*a));
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));
+    return p;
+  }
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > scalar_div(Real a){
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array()/a));
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));
+    return p;
+  }
+  boost::shared_ptr<matrix_array_mapper<rows,cols> > pow(Real a){
+    boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().pow(a)));
+    boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));
+    return p;
+  }
 #define GENERIC_ARRAY_MAPPER_FUNCTION_CALL(x) boost::shared_ptr<matrix_array_mapper<rows,cols> > x(){boost::shared_ptr<TMATRIX > mat(new TMATRIX(m->array().x())); \
                                                          boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(mat));return p;}
   GENERIC_ARRAY_MAPPER_FUNCTION_CALL(abs)
@@ -93,6 +179,18 @@ public:
   GENERIC_ARRAY_MAPPER_FUNCTION_CALL(log)
   GENERIC_ARRAY_MAPPER_FUNCTION_CALL(tan)
 #undef GENERIC_ARRAY_MAPPER_FUNCTION_CALL
+  std::string to_str(){
+    std::ostringstream s;
+    int rownum=rows>0?rows:(*m).rows();
+    int colnum=cols>0?cols:(*m).cols();
+    for (int i=0;i<rownum;i++){
+      for (int j=0;j<colnum;j++){
+        s << (*m)(i,j) << " ";
+      }
+      s << "\n";
+    }
+    return s.str();
+  }
   boost::shared_ptr<TMATRIX > m;
 };
 
@@ -247,132 +345,63 @@ boost::shared_ptr<TMATRIX > realmatrix_init_static_tab(const list tab){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //static common
-template<int rows, int cols>
-void static_set_zero(boost::shared_ptr<TMATRIX > self){
-  (*self).setZero();
-}
+GENERIC_MATRIX_FUNCTION_0ARG(static_set_zero, setZero)
 
-template<int rows, int cols>
-void static_set_ones(boost::shared_ptr<TMATRIX > self){
-  (*self).setOnes();
-}
+GENERIC_MATRIX_FUNCTION_0ARG(static_set_ones, setOnes)
 
-template<int rows, int cols>
-void static_set_constant(boost::shared_ptr<TMATRIX > self, Real value){
-  (*self).setConstant(value);
-}
+GENERIC_MATRIX_FUNCTION_1ARG(static_set_constant, setConstant, Real, value)
 
-template<int rows, int cols>
-void static_set_random(boost::shared_ptr<TMATRIX > self){
-  (*self).setRandom();
-}
+GENERIC_MATRIX_FUNCTION_0ARG(static_set_random, setRandom)
 
-template<int rows, int cols>
-void static_set_lin_spaced(boost::shared_ptr<TMATRIX > self, Real low, Real high){
-  (*self).setLinSpaced(rows,low,high);
-}
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_2ARG(static_set_lin_spaced, setLinSpaced, Real, low, Real, high)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //dynamic  matrix
-template<int rows, int cols>
-void dynamic_matrix_set_zero(boost::shared_ptr<TMATRIX > self, Uint rownum, Uint colnum){
-  (*self).setZero(rownum,colnum);
-}
 
-template<int rows, int cols>
-void dynamic_matrix_set_ones(boost::shared_ptr<TMATRIX > self, Uint rownum, Uint colnum){
-  (*self).setOnes(rownum,colnum);
-}
+GENERIC_MATRIX_FUNCTION_2ARG(dynamic_matrix_set_zero, setZero, Uint, rownum, Uint, colnum)
 
-template<int rows, int cols>
-void dynamic_matrix_set_constant(boost::shared_ptr<TMATRIX > self, Uint rownum, Uint colnum, Real value){
-  (*self).setConstant(rownum,colnum,value);
-}
+GENERIC_MATRIX_FUNCTION_2ARG(dynamic_matrix_set_ones, setOnes, Uint, rownum, Uint, colnum)
 
-template<int rows, int cols>
-void dynamic_matrix_set_random(boost::shared_ptr<TMATRIX > self, Uint rownum, Uint colnum){
-  (*self).setRandom(rownum,colnum);
-}
+GENERIC_MATRIX_FUNCTION_3ARG(dynamic_matrix_set_constant, setConstant, Uint, rownum, Uint, colnum, Real, value)
+
+GENERIC_MATRIX_FUNCTION_2ARG(dynamic_matrix_set_random, setRandom, Uint, rownum, Uint, colnum)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //dynamic vector
-template<int rows, int cols>
-void dynamic_vector_set_zero(boost::shared_ptr<TMATRIX > self, Uint size){
-  (*self).setZero(size);
-}
 
-template<int rows, int cols>
-void dynamic_vector_set_ones(boost::shared_ptr<TMATRIX > self, Uint size){
-  (*self).setOnes(size);
-}
+GENERIC_MATRIX_FUNCTION_1ARG(dynamic_vector_set_zero, setZero, Uint, size)
 
-template<int rows, int cols>
-void dynamic_vector_set_constant(boost::shared_ptr<TMATRIX > self, Uint size, Real value){
-  (*self).setConstant(size,value);
-}
+GENERIC_MATRIX_FUNCTION_1ARG(dynamic_vector_set_ones, setOnes, Uint, size)
 
-template<int rows, int cols>
-void dynamic_vector_set_random(boost::shared_ptr<TMATRIX > self, Uint size){
-  (*self).setRandom(size);
-}
+GENERIC_MATRIX_FUNCTION_2ARG(dynamic_vector_set_constant, setConstant, Uint, size, Real, value)
 
-template<int rows, int cols>
-void dynamic_vector_set_lin_spaced(boost::shared_ptr<TMATRIX > self, Uint size, Real low, Real high){
-  (*self).setLinSpaced(size,low,high);
-}
+GENERIC_MATRIX_FUNCTION_1ARG(dynamic_vector_set_random, setRandom, Uint, size)
+
+GENERIC_MATRIX_FUNCTION_3ARG(dynamic_vector_set_lin_spaced, setLinSpaced, Uint, size, Real, low, Real, high)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //dynamic  matrix default
-template<int rows, int cols>
-void dynamic_matrix_set_zero_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setZero((*self).rows(),(*self).cols());
-}
 
-template<int rows, int cols>
-void dynamic_matrix_set_ones_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setOnes((*self).rows(),(*self).cols());
-}
+GENERIC_MATRIX_AUTO_SIZE_FUNCTION_0ARG(dynamic_matrix_set_zero_default, setZero)
 
-template<int rows, int cols>
-void dynamic_matrix_set_constant_default(boost::shared_ptr<TMATRIX > self, Real value){
-  (*self).setConstant((*self).rows(),(*self).cols(),value);
-}
+GENERIC_MATRIX_AUTO_SIZE_FUNCTION_0ARG(dynamic_matrix_set_ones_default, setOnes)
 
-template<int rows, int cols>
-void dynamic_matrix_set_random_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setRandom((*self).rows(),(*self).cols());
-}
+GENERIC_MATRIX_AUTO_SIZE_FUNCTION_1ARG(dynamic_matrix_set_constant_default, setConstant, Real, value)
+
+GENERIC_MATRIX_AUTO_SIZE_FUNCTION_0ARG(dynamic_matrix_set_random_default, setRandom)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //dynamic vector default
-template<int rows, int cols>
-void dynamic_vector_set_zero_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setZero((*self).size());
-}
 
-template<int rows, int cols>
-void dynamic_vector_set_ones_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setOnes((*self).size());
-}
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_0ARG(dynamic_vector_set_zero_default, setZero)
 
-template<int rows, int cols>
-void dynamic_vector_set_constant_default(boost::shared_ptr<TMATRIX > self, Real value){
-  (*self).setConstant((*self).size(),value);
-}
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_0ARG(dynamic_vector_set_ones_default, setOnes)
 
-template<int rows, int cols>
-void dynamic_vector_set_random_default(boost::shared_ptr<TMATRIX > self){
-  (*self).setRandom((*self).size());
-}
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_1ARG(dynamic_vector_set_constant_default, setConstant, Real, value)
 
-template<int rows, int cols>
-void dynamic_vector_set_lin_spaced_default(boost::shared_ptr<TMATRIX > self, Real low, Real high){
-  (*self).setLinSpaced((*self).size(),low,high);
-}
-/*template<int rows, int cols>
-void dynamic_vector_unit(boost::shared_ptr<TMATRIX > self, Uint size, Uint i){
-  self.Unit(size, i);
-}*/
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_0ARG(dynamic_vector_set_random_default, setRandom)
+
+GENERIC_VECTOR_AUTO_SIZE_FUNCTION_2ARG(dynamic_vector_set_lin_spaced_default, setLinSpaced, Real, low, Real, high)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Matrix op
@@ -881,14 +910,12 @@ bool matrix_is_zero(boost::shared_ptr<TMATRIX > self , const Real prec){
 
 template<int rows, int cols>
 boost::shared_ptr<matrix_array_mapper<rows,cols> > matrix_array_get(boost::shared_ptr<TMATRIX > self){
-  boost::shared_ptr<TMATRIX >m(new TMATRIX(*self));
-  boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(m));
+  boost::shared_ptr<matrix_array_mapper<rows,cols> >p(new matrix_array_mapper<rows,cols>(self));
   return p;
 }
 
 template<int rows, int cols>
 void matrix_array_set(boost::shared_ptr<TMATRIX > self, boost::shared_ptr<matrix_array_mapper<rows,cols> > other){
-  std::cout << (*self) << std::endl;
   if (other.get() != 0){
     std::cout << (*(other->m)) << std::endl;
     (*self)=(*(other->m));
@@ -905,6 +932,7 @@ void def_common_vector(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
       .def("__setitem__", vector_set_item<rows,cols>)
       .def("__len__", vector_size<rows,cols>)
       .def("__str__", vector_str<rows,cols>)
+      .def("__repr__", vector_str<rows,cols>)
       .def("head", vector_head<rows,cols>, "head(n) return a vector of size (n) filled with the n first components of the vector.")
       .def("tail", vector_tail<rows,cols>, "tail(n) return a vector of size (n) filled with the n last components of the vector.")
       .def("segment", vector_segment<rows,cols>, "segment(pos,n) return a vector of size (n) filled with the n components from the pos component of the vector.")
@@ -950,6 +978,7 @@ void def_common_pure_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_pt
       .def("__setitem__", matrix_set_item<rows,cols>)
       .def("__len__", matrix_size<rows,cols>)
       .def("__str__", matrix_str<rows,cols>)
+      .def("__repr__", matrix_str<rows,cols>)
       .def("col", matrix_get_col<rows,cols>, "col(col_number) give the asked column as a RealMatrix.")
       .def("row", matrix_get_row<rows,cols>, "row(row_number) give the asked row as a RealMatrix.")
       .def("colVector", matrix_get_col_vector<rows,cols>, "colVector(col_number) give the asked colum as a RealVector.")
@@ -1051,7 +1080,9 @@ void def_common_matrix(class_<TMATRIX, boost::noncopyable, boost::shared_ptr<TMA
     .def("inverse",&matrix_array_mapper<rows,cols>::inverse)
     .def("log",&matrix_array_mapper<rows,cols>::log)
     .def("tan",&matrix_array_mapper<rows,cols>::tan)
-    .def("pow",&matrix_array_mapper<rows,cols>::pow);
+    .def("pow",&matrix_array_mapper<rows,cols>::pow)
+    .def("__str__",&matrix_array_mapper<rows,cols>::to_str)
+    .def("__repr__",&matrix_array_mapper<rows,cols>::to_str);
 }
 
 /** @brief wrap the Eigen::Matrix<n,1>
@@ -1179,6 +1210,7 @@ void def_dynamic_matrix(const char* name,const char* doc){
 /** @brief Define all matrix/vector types
   */
 void def_matrix_types(){
+  register_exception_translator<common::FailedAssertion>(&failed_assertion_translate);
   def_dynamic_matrix<Eigen::Dynamic,Eigen::Dynamic>("RealMatrix","Wrap of the Eigen::Matrix<Eigen::Dynamic,Eigen::Dynamic> classe.\n"
                                                     "RealMatrix(tab) initialize the matrix with the size and the values contains in tab (must be a two dimensional array) ex : RealMatrix([[1,2],[3,4]]) create a 2 by 2 RealMatrix.\n"
                                                     "RealMatrix(row_num,col_num) create a RealMatrix with the size (row_num,col_num), all components are initialized with zeros.\n"
@@ -1246,3 +1278,5 @@ void def_matrix_types(){
  /// add .array() -> return the same pointer
 } // python
 } // cf3
+
+//#undef eigen_assert

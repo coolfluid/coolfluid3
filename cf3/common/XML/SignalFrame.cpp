@@ -561,7 +561,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
       }else{
         opt += option->value_str();
       }
-      str+=opt+")";
+      str+=opt+")\n";
     }
   }else if (target=="signal_signature"){
     SignalFrame frame( *this );
@@ -618,7 +618,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
           str += ',' + opt;
       }
     }
-    str+=')';
+    str+=')\n';
   }else{
     str+="."+target+"(";
     SignalFrame frame( *this );
@@ -665,8 +665,9 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
       else
         str += "," + opt;
     }
-    str+=')';
+    str+=')\n';
   }
+  str.resize(str.size()-1);//to remove the last character
   return str;
 }
 
