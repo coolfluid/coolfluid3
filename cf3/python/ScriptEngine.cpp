@@ -272,7 +272,11 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
       boost::python::handle<> value;
 
       if (rec==0){//scope fetch
+#if PY_VERSION_HEX >= 0x02050000
         loop=PyDict_Next(entry.py_ref, &pos, &py_key, &py_value);
+#else
+        loop=PyDict_Next(entry.py_ref, &((int)pos), &py_key, &py_value);
+#endif
         key=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_key)));
         value=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_value)));
       }else{
