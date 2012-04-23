@@ -234,8 +234,6 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
   writer->options().configure_option("file", filepath);
 
   writer->execute();
-
-  CFinfo << "wrote mesh in file " << filepath.string() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

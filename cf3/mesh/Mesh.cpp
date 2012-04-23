@@ -300,14 +300,12 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("file" , name() + ".msh" )
+  options.add_option("file" , URI(name() + ".msh") )
       .description("File to write" );
 
-//  boost_foreach (Field& field, find_components_recursively<Field>(*this))
-//  {
-//    options.add_option(field.name(), false )
-//        .description("Mark if field gets to be written");
-//  }
+  std::vector<URI> fields;
+  options.add_option("fields" , fields )
+      .description("Field paths to write");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,10 +314,10 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string file = name()+".msh";
+  URI file(name()+".msh");
 
   if (options.check("file"))
-    file = options.value<std::string>("file");
+    file = options.value<URI>("file");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -331,10 +329,8 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   std::vector<URI> fields;
 
-  boost_foreach( Field& field, find_components_recursively<Field>(*this))
-  {
-    fields.push_back(field.uri());
-  }
+  if (options.check("fields"))
+    fields = options.array<URI>("fields");
 
   write_mesh(fpath,fields);
 }

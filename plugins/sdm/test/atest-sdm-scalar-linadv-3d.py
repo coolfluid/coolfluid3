@@ -81,7 +81,7 @@ convection.options().configure_option("advection_speed",[1,0,0])
 #######################################
 # SIMULATE
 #######################################
-# model.simulate()
+model.simulate()
 
 ########################
 # OUTPUT
