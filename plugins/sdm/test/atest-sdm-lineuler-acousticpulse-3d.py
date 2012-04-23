@@ -28,14 +28,17 @@ nb_div = int(length/dx)
 print "nb_div=",nb_div
 mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-mesh_generator.options().set("mesh",mesh.uri())
-mesh_generator.options().set("x_segments",nb_div)
-mesh_generator.options().set("y_segments_half",nb_div//2)
-mesh_generator.options().set("z_segments",nb_div)
-mesh_generator.options().set("length",length)
-mesh_generator.options().set("half_height",length/2)
-mesh_generator.options().set("width",length)
-mesh_generator.options().set("grading",1.)
+
+mesh_generator.options() \
+              .set("mesh",mesh.uri()) \
+              .set("x_segments",nb_div) \
+              .set("y_segments_half",nb_div//2) \
+              .set("z_segments",nb_div) \
+              .set("length",length) \
+              .set("half_height",length/2) \
+              .set("width",length) \
+              .set("grading",1.)
+
 mesh_generator.execute()
 
 ### Configure solver
