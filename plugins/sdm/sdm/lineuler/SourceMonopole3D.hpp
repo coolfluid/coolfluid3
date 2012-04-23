@@ -45,14 +45,11 @@ public:
         .description("Angular frequency")
         .link_to(&m_omega);
 
-    m_source_loc << 0.,0.,0.;
-    std::vector<Real> source_loc_opt(NDIM);
-    source_loc_opt[XX]=0.;
-    source_loc_opt[YY]=0.;
-    source_loc_opt[ZZ]=0.;
-    options().add_option("source_location",source_loc_opt)
+//    std::vector<Real> source_loc_opt(NDIM,0.);
+    options().add_option("source_location",std::vector<Real>(NDIM,0.))
         .description("Source location")
         .attach_trigger( boost::bind( &SourceMonopole3D::config_source_loc, this) );
+    config_source_loc();
 
     m_alpha = 0.5*log(2.);
     options().add_option("alpha",m_alpha)

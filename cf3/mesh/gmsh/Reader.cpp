@@ -616,7 +616,7 @@ void Reader::read_connectivity()
       cf_element.resize(nb_element_nodes);
       for (Uint j=0; j<nb_element_nodes; ++j)
       {
-        cf_idx = m_nodes_gmsh_to_cf[gmsh_element_type][j];
+        cf_idx = Shared::m_nodes_gmsh_to_cf[gmsh_element_type][j];
         m_file >> gmsh_node_number;
         cf_node_number = m_node_idx_gmsh_to_cf[gmsh_node_number];
         cf_element[cf_idx] = cf_node_number;

@@ -7,8 +7,9 @@ import math
 
 ###########################################################################
 
-final_time = 30.
-output_simulation_every = 10.
+final_time = 0.3
+output_simulation_every = 0.1
+mach = 0
 
 ###########################################################################
 
@@ -22,29 +23,19 @@ domain  = model.create_domain()
 
 ### Create Cubic 3D Hexahedral mesh
 
-mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-mesh_generator.options().configure_option("mesh",mesh.uri())
-mesh_generator.options().configure_option("x_segments",20)
-mesh_generator.options().configure_option("y_segments_half",10)
-mesh_generator.options().configure_option("z_segments",20)
-mesh_generator.options().configure_option("length",200)
-mesh_generator.options().configure_option("half_height",100)
-mesh_generator.options().configure_option("width",200)
-mesh_generator.options().configure_option("grading",1.)
-mesh_generator.execute()
+mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
 
 ### Configure solver
 
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('time',time)
 solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',2)
+solver.options().configure_option('solution_order',3)
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
 
-solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
+solver.access_component('TimeStepping').options().configure_option('cfl','0.1');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -52,6 +43,10 @@ solver.access_component('TimeStepping/IterativeSolver').options().configure_opti
 solver.get_child('PrepareMesh').execute()
 
 ### Set the initial condition
+p0   = 1
+rho0 = 1
+c0   = 1
+u0   = mach*c0
 
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
 functions = ['0','0','0','0','0']
@@ -60,10 +55,6 @@ solver.get_child('InitialConditions').execute();
 
 ### Create convection term
 
-p0   = 1
-rho0 = 1
-u0   = 1.5
-c0   = 1
 convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
 convection.options().configure_option('gamma', c0**2*rho0/p0)
 convection.options().configure_option('rho0',rho0)
@@ -76,7 +67,7 @@ monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMon
 monopole.options().configure_option('omega',2*math.pi/30)
 monopole.options().configure_option('alpha',math.log(2)/2)
 monopole.options().configure_option('epsilon',0.5)
-monopole.options().configure_option('source_location',[50,0.,100])
+monopole.options().configure_option('source_location',[xc-50,yc,zc])
 monopole.options().configure_option('time', time)
 
 ### fields to output
@@ -88,7 +79,6 @@ mesh.access_component('solution_space/residual').uri()
 ]
 
 ### simulate
-
 simulate_to_time = 0.
 while (simulate_to_time < final_time-1e-10) :
   simulate_to_time += output_simulation_every
@@ -104,4 +94,3 @@ while (simulate_to_time < final_time-1e-10) :
 mesh.write_mesh(file=URI('file:mach_cone.plt'),  fields=fields)
 mesh.write_mesh(file=URI('file:mach_cone.msh'),  fields=fields)
 mesh.write_mesh(file=URI('file:mach_cone.pvtu'), fields=fields)
-

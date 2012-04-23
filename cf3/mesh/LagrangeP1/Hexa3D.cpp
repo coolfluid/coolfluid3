@@ -336,6 +336,8 @@ Real Hexa3D::area(const NodesT& nodes)
 
 bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, const Uint face)
 {
+  static const Real tolerance = 1e-11;
+
   //test according to http://graphics.ethz.ch/~peikert/personal/HexCellTest/
 
   const Uint a = faces().nodes_range(face)[3];
