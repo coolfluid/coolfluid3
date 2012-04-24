@@ -2,7 +2,7 @@ import sys
 import coolfluid as cf
 
 # Global configuration
-cf.Core.environment().options().configure_option('log_level', 4)
+cf.Core.environment().options().set('log_level', 4)
 
 # setup a model
 model = cf.Core.root().create_component('HotModel', 'cf3.solver.Model')
@@ -16,12 +16,12 @@ domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # lss setup
 lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2]);
+lss.get_child('Matrix').options().set('settings_file', sys.argv[2]);
 
 # Boundary conditions
 bc = hc.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inner', variable_name = 'Temperature').options().configure_option('value', 10)
-bc.add_constant_bc(region_name = 'outer', variable_name = 'Temperature').options().configure_option('value', 35)
+bc.add_constant_bc(region_name = 'inner', variable_name = 'Temperature').options().set('value', 10)
+bc.add_constant_bc(region_name = 'outer', variable_name = 'Temperature').options().set('value', 35)
 
 # run the simulation
 model.simulate()

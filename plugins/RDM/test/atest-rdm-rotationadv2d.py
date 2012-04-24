@@ -7,13 +7,13 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', True)
-env.options().configure_option('exception_backtrace', True)
-env.options().configure_option('exception_aborts', True)
-env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 4)
-env.options().configure_option('regist_signal_handlers', False)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', True)
+env.options().set('exception_backtrace', True)
+env.options().set('exception_aborts', True)
+env.options().set('exception_outputs', True)
+env.options().set('log_level', 4)
+env.options().set('regist_signal_handlers', False)
 
 ### create model
 
@@ -39,17 +39,17 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/default_id1084')]
 
 ### solver
 solver = model.get_child('RDSolver')
-solver.options().configure_option('update_vars', 'RotationAdv2D')
+solver.options().set('update_vars', 'RotationAdv2D')
 
-solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 50)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
+solver.get_child('IterativeSolver').get_child('MaxIterations').options().set('maxiter', 50)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 0.25)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('regions', internal_regions)
 
 ### initial conditions
 iconds = solver.get_child('InitialConditions')
 iconds.create_initial_condition(name='INIT')
-iconds.get_child('INIT').options().configure_option('functions', ['x*x+y*y'])
-iconds.get_child('INIT').options().configure_option('regions', internal_regions)
+iconds.get_child('INIT').options().set('functions', ['x*x+y*y'])
+iconds.get_child('INIT').options().set('regions', internal_regions)
 
 ## configure Model/RDSolver/InitialConditions use_strong_bcs:bool=true
 
@@ -59,14 +59,14 @@ iconds.get_child('INIT').options().configure_option('regions', internal_regions)
 bcs = solver.get_child('BoundaryConditions')
 
 bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/inlet')])
-bcs.get_child('INLET').options().configure_option('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
+bcs.get_child('INLET').options().set('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 
 bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/farfield')])
-bcs.get_child('FARFIELD').options().configure_option('functions', ['0'])
+bcs.get_child('FARFIELD').options().set('functions', ['0'])
 
 ### domain discretization
 solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='cf3.RDM.Schemes.LDA')
-solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().configure_option('regions', internal_regions)
+solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().set('regions', internal_regions)
 
 ### simulate and write the result
 
