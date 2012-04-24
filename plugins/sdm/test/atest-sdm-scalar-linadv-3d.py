@@ -68,15 +68,15 @@ solver.get_child('InitialConditions').execute();
 ### Create convection term
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.scalar.LinearAdvection3D')
 convection.options().configure_option("advection_speed",[0,0,1])
-# nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.sdm.BCNull',
-# regions=[
-# mesh.access_component('topology/left').uri(),
-# mesh.access_component('topology/right').uri(),
-# mesh.access_component('topology/top').uri(),
-# mesh.access_component('topology/bottom').uri(),
-# mesh.access_component('topology/front').uri(),
-# mesh.access_component('topology/back').uri()
-# ])
+nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.sdm.BCExtrapolate<1,3>',
+regions=[
+mesh.access_component('topology/left').uri(),
+mesh.access_component('topology/right').uri(),
+mesh.access_component('topology/top').uri(),
+mesh.access_component('topology/bottom').uri(),
+mesh.access_component('topology/front').uri(),
+mesh.access_component('topology/back').uri()
+])
 
 #######################################
 # SIMULATE

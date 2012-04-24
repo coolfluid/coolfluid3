@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-#sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
+sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
 from coolfluid import *
 import math
@@ -37,18 +37,27 @@ mesh_generator.options().configure_option("half_height",length/2)
 mesh_generator.options().configure_option("width",length)
 mesh_generator.options().configure_option("grading",1.)
 mesh_generator.execute()
+coords=mesh.access_component('geometry/coordinates')
+for index in range(len(coords)) :
+  coords[index][0] -= 0.5
+  coords[index][2] -= 0.5
+
+
+#repartition=mesh.create_component('repartition','cf3.mesh.actions.LoadBalance')
+#repartition.options().configure_option('mesh',mesh)
+#repartition.execute()
 
 ### Configure solver
 
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('time',time)
 solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',2)
+solver.options().configure_option('solution_order',1)
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
 
-solver.access_component('TimeStepping').options().configure_option('cfl','0.2');
+solver.access_component('TimeStepping').options().configure_option('cfl','0.1');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -63,11 +72,11 @@ c2 = gamma*p0/rho0
 
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
 functions = [
-'0.001*exp( -( (x-0.5)^2 + (y)^2 + (z-0.5)^2 )/(0.05)^2 )',
+'0.001*exp( -( (x)^2 + (y)^2 + (z)^2 )/(0.05)^2 )',
 '0',
 '0',
 '0',
-str(c2)+' * 0.001*exp( -( (x-0.5)^2 + (y)^2 + (z-0.5)^2 )/(0.05)^2)'
+str(c2)+' * 0.001*exp( -( (x)^2 + (y)^2 + (z)^2 )/(0.05)^2)'
 ]
 initial_condition.options().configure_option('functions',functions)
 solver.get_child('InitialConditions').execute();
@@ -96,31 +105,44 @@ while (simulate_to_time < final_time-1e-10) :
 
   model.simulate()
 
-  mesh.write_mesh(file=URI('file:acousticpulse3d'+str(simulate_to_time)+'.plt'), fields=fields)
-  mesh.write_mesh(file=URI('file:acousticpulse3d'+str(simulate_to_time)+'.msh'), fields=fields)
+  mesh.write_mesh(file=URI('file:acousticpulse3d_time'+str(simulate_to_time)+'.plt'), fields=fields)
+  mesh.write_mesh(file=URI('file:acousticpulse3d_time'+str(simulate_to_time)+'.msh'), fields=fields)
 
 ### output final results
 
 mesh.write_mesh(file=URI('file:acousticpulse3d.plt'),  fields=fields)
 mesh.write_mesh(file=URI('file:acousticpulse3d.msh'),  fields=fields)
-mesh.write_mesh(file=URI('file:acousticpulse3d.pvtu'), fields=fields)
 
 
 vis_mesh = domain.create_component( 'vis_mesh', 'cf3.mesh.Mesh' )
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-mesh_generator.options().configure_option("mesh",vis_mesh.uri())
-mesh_generator.options().configure_option("x_segments",50)
-mesh_generator.options().configure_option("y_segments_half",25)
-mesh_generator.options().configure_option("z_segments",50)
-mesh_generator.options().configure_option("length",1.)
-mesh_generator.options().configure_option("half_height",0.5)
-mesh_generator.options().configure_option("width",1.)
-mesh_generator.options().configure_option("grading",1.)
-mesh_generator.execute()
+vis_mesh_generator = domain.create_component("vis_mesh_generator","cf3.mesh.SimpleMeshGenerator")
+vis_mesh_generator.options().configure_option('mesh',vis_mesh.uri())
+vis_mesh_generator.options().configure_option('nb_cells',[80,80])
+vis_mesh_generator.options().configure_option('lengths',[1.,1.])
+vis_mesh_generator.options().configure_option('offsets',[-0.5,-0.5])
+vis_mesh_generator.execute()
 
-vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[vector],p')
+#mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+#mesh_generator.options().configure_option("mesh",vis_mesh.uri())
+#mesh_generator.options().configure_option("x_segments",50)
+#mesh_generator.options().configure_option("y_segments_half",25)
+#mesh_generator.options().configure_option("z_segments",50)
+#mesh_generator.options().configure_option("length",1.)
+#mesh_generator.options().configure_option("half_height",0.5)
+#mesh_generator.options().configure_option("width",1.)
+#mesh_generator.options().configure_option("grading",1.)
+#mesh_generator.execute()
+
+vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
 
 interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
 interpolator.interpolate(source=mesh.access_component('solution_space/solution').uri(),target=vis_solution.uri())
 
-vis_mesh.write_mesh(file=URI('file:acousticpulse3d_vis.plt'),fields=[vis_solution.uri()])
+#vis_coords=vis_mesh.access_component('geometry/coordinates')
+#for index in range(len(vis_coords)) :
+#  vis_coords[index][0] += 0.5
+
+vis_mesh.write_mesh(file=URI('file:acousticpulse3d_vis.msh'),fields=[vis_solution.uri()])
+
+
+

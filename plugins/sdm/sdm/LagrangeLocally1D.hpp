@@ -1027,7 +1027,7 @@ public: // functions
         for (Uint f_eta=0; f_eta<m_local_1d.nb_sol_pts; ++f_eta) {
           for (Uint f_zta=0; f_zta<m_local_1d.nb_flx_pts; ++f_zta)
           {
-            const Uint f = (f_eta*m_local_1d.nb_sol_pts + f_ksi)*m_local_1d.nb_flx_pts+f_zta + 2.*m_local_1d.nb_sol_pts*m_local_1d.nb_sol_pts*m_local_1d.nb_flx_pts;
+            const Uint f = (f_eta*m_local_1d.nb_sol_pts + f_ksi)*m_local_1d.nb_flx_pts+f_zta + 2*m_local_1d.nb_sol_pts*m_local_1d.nb_sol_pts*m_local_1d.nb_flx_pts;
             value[f] = Lagrange::coeff(local_coordinate[KSI],m_local_1d.sol_pts,f_ksi)
                      * Lagrange::coeff(local_coordinate[ETA],m_local_1d.sol_pts,f_eta)
                      * Lagrange::coeff(local_coordinate[ZTA],m_local_1d.flx_pts,f_zta);

@@ -3,6 +3,8 @@ list( APPEND coolfluid_sdm_files
   BC.cpp
   BCConstant.hpp
   BCConstant.cpp
+  BCExtrapolate.hpp
+  BCExtrapolate.cpp
   BCFunction.hpp
   BCFunction.cpp
   BCWeak.hpp

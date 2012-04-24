@@ -70,7 +70,7 @@ solver.get_child('InitialConditions').execute();
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
 #diffusion  = solver.get_child('DomainDiscretization').create_term(name = 'diffusion' , type = 'cf3.sdm.navierstokes.Diffusion2D')
 
-nullbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'nullbc', type = 'cf3.sdm.BCNull',
+bc_extrapolate = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'bc_extrapolate', type = 'cf3.sdm.BCExtrapolate<4,2>',
 regions=[
 mesh.access_component('topology/left').uri(),
 mesh.access_component('topology/right').uri(),

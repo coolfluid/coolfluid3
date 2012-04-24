@@ -1,5 +1,5 @@
-# import sys
-# sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/debug/dso/')
+import sys
+sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
 import coolfluid
 import math

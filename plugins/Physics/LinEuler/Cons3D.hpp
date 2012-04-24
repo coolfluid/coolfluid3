@@ -215,18 +215,29 @@ public: // functions
 
       const Real inv_c2  = p.inv_c*p.inv_c;
 
+      Rv << nx,  ny,  nz,  0.5*p.inv_c,  0.5*p.inv_c,
+            0., -nz,  ny,  0.5*nx,      -0.5*nx,
+            nz,  0., -nx,  0.5*ny,      -0.5*ny,
+           -ny,  nx,  0.,  0.5*nz,      -0.5*nz,
+            0.,  0.,  0.,  0.5*p.c,      0.5*p.c;
 
-      Rv <<  nx,  ny,  nz, 0.5*p.inv_c,   0.5*p.inv_c,
-             0., -nz,  ny, 0.5*nx,       -0.5*nx,
-             nz,  0., -nx, 0.5*ny,       -0.5*ny,
-            -ny,  nx,  0., 0.5*nz,       -0.5*nz,
-             0.,  0.,  0., 0.5*p.c,       0.5*p.c;
+      Lv << nx,  0.,  nz, -ny, -nx*inv_c2,
+            ny, -nz,  0.,  nx, -ny*inv_c2,
+            nz,  ny, -nx,  0., -nz*inv_c2,
+            0.,  nx,  ny,  nz,  p.inv_c,
+            0., -nx, -ny, -nz,  p.inv_c;
 
-      Lv <<   nx,   0.,  nz,  -ny,   -nx*inv_c2,
-              ny,  -nz,  0.,   nx,   -ny*inv_c2,
-              nz,   ny, -nx,   0.,   -nz*inv_c2,
-              0.,   nx,  ny,   nz,      p.inv_c,
-              0.,  -nx, -ny,  -nz,      p.inv_c;
+//      Rv <<  nx,  ny,  nz, 0.5*p.inv_c,   0.5*p.inv_c,
+//             0., -nz,  ny, 0.5*nx,       -0.5*nx,
+//             nz,  0., -nx, 0.5*ny,       -0.5*ny,
+//            -ny,  nx,  0., 0.5*nz,       -0.5*nz,
+//             0.,  0.,  0., 0.5*p.c,       0.5*p.c;
+
+//      Lv <<   nx,   0.,  nz,  -ny,   -nx*inv_c2,
+//              ny,  -nz,  0.,   nx,   -ny*inv_c2,
+//              nz,   ny, -nx,   0.,   -nz*inv_c2,
+//              0.,   nx,  ny,   nz,      p.inv_c,
+//              0.,  -nx, -ny,  -nz,      p.inv_c;
 
       Dv[0] = u0n;
       Dv[1] = u0n;

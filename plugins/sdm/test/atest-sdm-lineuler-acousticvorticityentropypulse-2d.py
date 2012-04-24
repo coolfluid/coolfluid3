@@ -98,7 +98,7 @@ convection.options().configure_option('U0',[.5,0.])
 convection.options().configure_option('p0',1.)
 
 ### extrapolation boundary condition, for visualization of domain-boundary
-null_bc = solver.access_component('BoundaryConditions').create_boundary_condition(name='null',type='cf3.sdm.BCNull',regions=[
+null_bc = solver.access_component('BoundaryConditions').create_boundary_condition(name='null',type='cf3.sdm.BCExtrapolate<4,2>',regions=[
 mesh.access_component('topology/right').uri(),
 mesh.access_component('topology/bottom').uri(),
 mesh.access_component('topology/top').uri(),

@@ -15,6 +15,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "math/AnalyticalFunction.hpp"
 
 #include "sdm/BCWeak.hpp"

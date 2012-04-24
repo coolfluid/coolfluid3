@@ -33,25 +33,19 @@ public:
   static std::string type_name() { return "Convection3D"; }
   Convection3D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
-    p.gamma = 1.4;
-    options().add_option("gamma",p.gamma)
+    options().add_option("gamma",1.4)
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    p.rho0 = 1.;
-    options().add_option("rho0",p.rho0)
+    options().add_option("rho0",1.)
         .description("Uniform mean density")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    p.u0.setZero();
-    std::vector<Real> U0(p.u0.size());
-    for (Uint d=0; d<U0.size(); ++d)
-      U0[d] = p.u0[d];
-    options().add_option("U0",U0)
+    options().add_option("U0", std::vector<Real>(NDIM,0.))
         .description("Uniform mean velocity")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("p0",p.P0)
+    options().add_option("p0",1.)
         .description("Uniform mean pressure")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
@@ -70,7 +64,8 @@ public:
     p.inv_c = 1./p.c;
 
     std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
-    for (Uint d=0; d<U0.size(); ++d)
+    cf3_assert(U0.size() == NDIM);
+    for (Uint d=0; d<NDIM; ++d)
       p.u0[d] = U0[d];
   }
 
@@ -111,6 +106,7 @@ public:
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
 
   PHYS::MODEL::Properties p;
@@ -128,7 +124,7 @@ private:
   PHYS::MODEL::SolV eigenvalues;
   PHYS::MODEL::JacM right_eigenvectors;
   PHYS::MODEL::JacM left_eigenvectors;
-  PHYS::MODEL::JacM  abs_jacobian;
+  PHYS::MODEL::JacM abs_jacobian;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

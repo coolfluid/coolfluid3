@@ -12,16 +12,12 @@
 #include "common/PropertyList.hpp"
 
 #include "math/MatrixTypes.hpp"
-#include "math/VectorialFunction.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/BC.hpp"
 #include "sdm/ShapeFunction.hpp"
 #include "sdm/Operations.hpp"
 #include "sdm/PhysDataBase.hpp"
-
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -246,23 +242,6 @@ inline void BCWeak<PHYSDATA>::execute()
   }
   unset_inner_cell();
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-class sdm_API BCNull : public BCWeak< PhysDataBase<4u,2u> >
-{
-public:
-  static std::string type_name() { return "BCNull"; }
-  BCNull(const std::string& name) : BCWeak< PhysDataBase<4u,2u> >(name)
-  {
-  }
-  virtual ~BCNull() {}
-
-  virtual void compute_solution(const PhysDataBase<4u,2u>& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
-  {
-    boundary_face_pt_data = inner_cell_data.solution;
-  }
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
