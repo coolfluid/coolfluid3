@@ -3,7 +3,6 @@ import sys
 sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
 from coolfluid import *
-import math
 
 ###########################################################################
 
@@ -14,7 +13,7 @@ output_simulation_every = 0.1
 
 ### Create simulation
 
-model   = Core.root().create_component('machcone_3d','cf3.solver.ModelUnsteady');
+model   = Core.root().create_component('acousticpulse_3d','cf3.solver.ModelUnsteady');
 time    = model.create_time()
 physics = model.create_physics('cf3.physics.LinEuler.LinEuler3D')
 solver  = model.create_solver('cf3.sdm.SDSolver')
@@ -23,7 +22,7 @@ domain  = model.create_domain()
 ### Create Cubic 3D Hexahedral mesh
 
 length = 1.
-dx = 0.05
+dx = 0.1
 nb_div = int(length/dx)
 print "nb_div=",nb_div
 mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
@@ -52,12 +51,12 @@ for index in range(len(coords)) :
 solver.options().configure_option('mesh',mesh)
 solver.options().configure_option('time',time)
 solver.options().configure_option('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().configure_option('solution_order',1)
+solver.options().configure_option('solution_order',3)
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
 
-solver.access_component('TimeStepping').options().configure_option('cfl','0.1');
+solver.access_component('TimeStepping').options().configure_option('cfl','0.24');
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
