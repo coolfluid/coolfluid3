@@ -239,10 +239,16 @@ bool PythonConsole::is_stopped(){
 
 void PythonConsole::fix_prompt(){
   QTextBlock block=document()->findBlockByNumber(input_block);
-  block.setUserState(PROMPT_1);
+  if (block.userState() != PROMPT_1){
+    block.setUserState(PROMPT_1);
+    highlighter->rehighlightBlock(block);
+  }
   block=block.next();
   while (block.isValid()){
-    block.setUserState(PROMPT_2);
+    if (block.userState() != PROMPT_2){
+      block.setUserState(PROMPT_2);
+      highlighter->rehighlightBlock(block);
+    }
     block=block.next();
   }
 }

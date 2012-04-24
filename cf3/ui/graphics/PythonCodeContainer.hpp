@@ -109,7 +109,6 @@ private:
   void add_to_dictionary(int &i,const QStringList &add,CustomStandardItem* item);
   void remove_dictionary_item(QString name,CustomStandardItem* item);
   QString get_word_under_cursor(QTextCursor &c);
-  PythonSyntaxeHighlighter* highlighter;
   BorderArea *border_area;
   int debug_arrow;//block number of the debug arrow, -1 for no arrow
   QPoint last_mouse_pos;
@@ -130,6 +129,7 @@ protected:
   static QStandardItemModel python_dictionary;
   static QTreeView *python_scope_values;
   QVector<int> break_points;
+  PythonSyntaxeHighlighter* highlighter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

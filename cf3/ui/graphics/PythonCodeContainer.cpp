@@ -400,7 +400,9 @@ void PythonCodeContainer::mousePressEvent(QMouseEvent *e){
 //////////////////////////////////////////////////////////////////////////
 
 QMimeData* PythonCodeContainer::createMimeDataFromSelection() const{
-  return NULL;
+  QMimeData* mime_data=new QMimeData();
+  mime_data->setText(textCursor().selectedText());
+  return mime_data;
 }
 
 //////////////////////////////////////////////////////////////////////////
