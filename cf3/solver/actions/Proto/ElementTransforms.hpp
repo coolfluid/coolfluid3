@@ -80,16 +80,28 @@ struct SFOps :
 {
 };
 
+/// Dummy for non-element fields
+template<typename T>
+struct GetElementResultType
+{
+  typedef typename boost::remove_const<typename boost::remove_reference<typename T::EvalT>::type>::type& type;
+};
+
+/// Correct type for element-based fields
+template<typename SupportEtypeT, Uint Dim, bool IsEquationVar>
+struct GetElementResultType< EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar> >
+{
+  typedef typename EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>::ValueResultT type;
+};
+
 /// Filter to extract the value from an element-based field
 struct ElementValue : boost::proto::transform<ElementValue>
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    
     typedef typename VarDataType<ExprT, DataT>::type VarDataT;
-    // TODO: Result type deduction (needed only for element-based vector fields)
-    typedef Real& result_type;
+    typedef typename GetElementResultType<VarDataT>::type result_type;
     
     result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
     {
@@ -104,7 +116,8 @@ struct ElementValue : boost::proto::transform<ElementValue>
     }
     
     /// static dispatch in case of element-based field
-    result_type dispatch(const ElementBased&, VarDataT& var, typename impl::expr_param)
+    template<Uint Dim>
+    result_type dispatch(const ElementBased<Dim>&, VarDataT& var, typename impl::expr_param)
     {
       return var.value();
     }
