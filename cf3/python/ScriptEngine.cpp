@@ -247,7 +247,12 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
   PyObject *py_key, *py_value;
   char* key_str;
   bool fetch_values=interpreter_mode==STOP || interpreter_mode==LINE_BY_LINE_EXECUTION;
-  ssize_t pos = 0,dir_size;
+#if PY_VERSION_HEX >= 0x02050000
+  ssize_t pos = 0;
+#else
+ int pos = 0;
+#endif
+  ssize_t dir_size;
   std::vector<bool> reverse_found;
   std::string c_name;
   std::string value_string;
@@ -272,11 +277,7 @@ void ScriptEngine::check_scope_difference(PythonDictEntry &entry,std::string nam
       boost::python::handle<> value;
 
       if (rec==0){//scope fetch
-#if PY_VERSION_HEX >= 0x02050000
         loop=PyDict_Next(entry.py_ref, &pos, &py_key, &py_value);
-#else
-        loop=PyDict_Next(entry.py_ref, &((int)pos), &py_key, &py_value);
-#endif
         key=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_key)));
         value=boost::python::handle<>(boost::python::borrowed(boost::python::allow_null(py_value)));
       }else{
