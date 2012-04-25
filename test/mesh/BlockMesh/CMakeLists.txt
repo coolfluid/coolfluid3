@@ -30,3 +30,8 @@ coolfluid_add_test(UTEST utest-blockmesh-channelgenerator
 coolfluid_add_test(ATEST atest-blockmesh-backstep
                    PYTHON atest-blockmesh-backstep.py
                    MPI 16)
+
+################################################################################
+
+coolfluid_add_test(ATEST atest-blockmesh-multiregion
+                   PYTHON atest-blockmesh-multiregion.py)

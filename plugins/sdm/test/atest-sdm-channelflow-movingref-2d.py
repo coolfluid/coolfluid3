@@ -52,7 +52,7 @@ solver.access_component('Time').options().configure_option('end_time',100)
 solver.access_component('Time').options().configure_option('time_step',1)
 solver.access_component('TimeStepping').options().configure_option('time_accurate',True);
 solver.access_component('TimeStepping').options().configure_option('cfl','1');
-solver.access_component('TimeStepping').options().configure_option('max_iteration',100);
+solver.access_component('TimeStepping').options().configure_option('max_iteration',2000);
 solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
@@ -90,13 +90,19 @@ mesh.access_component('topology/top').uri(),
 mesh.access_component('topology/bottom').uri()
 ])
 
-inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletUT2D',
-regions=[
-mesh.access_component('topology/left').uri()
-])
-inlet.options().configure_option('U', (50., 0.))
-inlet.options().configure_option('gamma', 1.4)
-inlet.options().configure_option('T', 273.15)
+# inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletUT2D',
+# regions=[
+# mesh.access_component('topology/left').uri()
+# ])
+# inlet.options().configure_option('U', (50., 0.))
+# inlet.options().configure_option('gamma', 1.4)
+# inlet.options().configure_option('T', 273.15)
+# inlet.options().configure_option('R', 287.05)
+
+inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name = 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletTtPtAlpha2D',regions= [mesh.access_component('topology/left').uri()])
+inlet.options().configure_option('Tt', 273.349069351)
+inlet.options().configure_option('Pt', 102862.5)
+inlet.options().configure_option('alpha', 0)
 inlet.options().configure_option('R', 287.05)
 
 outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokes.BCSubsonicOutlet2D',

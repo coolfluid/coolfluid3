@@ -74,9 +74,9 @@ endfunction( coolfluid_set_feature )
 # documents the feature search
 ##############################################################################
 function( coolfluid_set_package )
-# CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
-  set( options QUIET)
-  set( oneValueArgs PACKAGE DESCRIPTION URL TYPE PURPOSE)
+
+  set( options        QUIET)
+  set( oneValueArgs   PACKAGE DESCRIPTION URL TYPE PURPOSE )
   set( multiValueArgs VARS )
 
   cmake_parse_arguments(_PAR "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})

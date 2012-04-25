@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_navierstokes_BCSubsonicOutlet2D_hpp
-#define cf3_sdm_navierstokes_BCSubsonicOutlet2D_hpp
+#ifndef cf3_sdm_navierstokesmovingreference_BCSubsonicOutlet2D_hpp
+#define cf3_sdm_navierstokesmovingreference_BCSubsonicOutlet2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,13 +15,13 @@
 #include "math/AnalyticalFunction.hpp"
 
 #include "sdm/BCWeak.hpp"
-#include "sdm/navierstokes/LibNavierStokes.hpp"
+#include "sdm/navierstokesmovingreference/LibNavierStokesMovingReference.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace navierstokes {
+namespace navierstokesmovingreference {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +44,11 @@ public:
     options().add_option("gamma", m_gamma)
         .description("The heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) );
+
+    m_omega=0.0;
+    options().add_option("omega", m_omega)
+        .description("Rotation speed")
+        .link_to(&m_omega);
   }
   virtual ~BCSubsonicOutlet2D() {}
 
@@ -59,6 +64,9 @@ public:
   {
     m_function_P.evaluate(inner_cell_data.coord,m_p);
 
+    m_x = inner_cell_data.coord[0];
+    m_y = inner_cell_data.coord[1];
+
     m_rho_inner = inner_cell_data.solution[Rho];
     m_u_inner = inner_cell_data.solution[RhoUx]/m_rho_inner;
     m_v_inner = inner_cell_data.solution[RhoUy]/m_rho_inner;
@@ -67,7 +75,7 @@ public:
     boundary_face_pt_data[Rho ]=inner_cell_data.solution[Rho];
     boundary_face_pt_data[RhoUx]=inner_cell_data.solution[RhoUx];
     boundary_face_pt_data[RhoUy]=inner_cell_data.solution[RhoUy];
-    boundary_face_pt_data[RhoE ]=m_p/m_gamma_minus_1 + 0.5 * m_rho_inner * m_uuvv_inner;
+    boundary_face_pt_data[RhoE ]=m_p/m_gamma_minus_1 + 0.5 * m_rho_inner * m_uuvv_inner - 0.5 * m_rho_inner * m_omega*m_omega * (m_x*m_x + m_y*m_y);
   }
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -75,6 +83,11 @@ public:
 private: // data
 
   math::AnalyticalFunction m_function_P;
+
+  Real m_omega;
+
+  Real m_x;
+  Real m_y;
 
   Real m_p;
   Real m_gamma;
@@ -88,7 +101,7 @@ private: // data
 };
 
 
-} // navierstokes
+} // navierstokesmovingreference
 } // sdm
 } // cf3
 

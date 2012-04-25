@@ -30,6 +30,12 @@ private:
     RealVector2 Vtrans;
     RealVector3 Omega;
     RealVector3 a0, dOmegadt;
+private:
+    RealVector3 r;
+    RealVector3 Vr;
+    RealVector3 V0;
+    RealVector3 Vt;
+    RealVector3 at;
 
     void config_Omega()
     {
@@ -77,6 +83,13 @@ public:
     Source2D(const std::string& name) : SourceTerm< PhysData >(name),
                                             gamma(1.4)
     {
+          r  = RealVector3::Zero(3);
+          Vr = RealVector3::Zero(3);
+          V0 = RealVector3::Zero(3);
+          Vt = RealVector3::Zero(3);
+          at = RealVector3::Zero(3);
+
+
           std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0), a0Default(3,0), dOmegadtDefault(3,0);
           OmegaDefault[0] = Omega[0];
           OmegaDefault[1] = Omega[1];
@@ -122,12 +135,6 @@ public:
 
     void compute_source(PhysData& data, RealVectorNEQS& source)
     {
-        RealVector3 r = RealVector3::Zero(3);
-        RealVector3 Vr = RealVector3::Zero(3);
-        RealVector3 V0 = RealVector3::Zero(3);
-        RealVector3 Vt = RealVector3::Zero(3);
-        RealVector3 at = RealVector3::Zero(3);
-
         r.head(2).noalias() = data.coord;
         Vr.head(2).noalias() = data.solution.block<2,1>(1,0)/data.solution[0];
         V0.head(2).noalias() = Vtrans;
@@ -141,6 +148,7 @@ public:
     }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

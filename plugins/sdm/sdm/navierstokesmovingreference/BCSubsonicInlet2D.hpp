@@ -10,21 +10,21 @@
 /// - BCSubsonicInletTtPtAlpha2D
 /// - BCSubsonicInletUT2D
 
-#ifndef cf3_sdm_navierstokes_BCSubsonicInlet2D_hpp
-#define cf3_sdm_navierstokes_BCSubsonicInlet2D_hpp
+#ifndef cf3_sdm_navierstokesmovingreference_BCSubsonicInlet2D_hpp
+#define cf3_sdm_navierstokesmovingreference_BCSubsonicInlet2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/AnalyticalFunction.hpp"
 
 #include "sdm/BCWeak.hpp"
-#include "sdm/navierstokes/LibNavierStokes.hpp"
+#include "sdm/navierstokesmovingreference/LibNavierStokesMovingReference.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace navierstokes {
+namespace navierstokesmovingreference {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +63,11 @@ public:
         .description("Gas constant")
         .link_to(&m_R);
 
+    m_omega=0.0;
+    options().add_option("omega", m_omega)
+        .description("Rotation speed")
+        .link_to(&m_omega);
+
   }
   virtual ~BCSubsonicInletTtPtAlpha2D() {}
 
@@ -84,10 +89,12 @@ public:
     m_function_alpha.evaluate(inner_cell_data.coord,m_alpha);
 
     // Compute inner cell data
+    m_x               = inner_cell_data.coord[0];
+    m_y               = inner_cell_data.coord[1];
     m_rho_inner       = inner_cell_data.solution[Rho];
     m_uuvv_inner      = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner      = inner_cell_data.solution[RhoE];
-    m_p_inner         = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvv_inner);
+    m_p_inner         = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvv_inner + 0.5 * m_rho_inner * m_omega * m_omega * (m_x*m_x + m_y*m_y));
     m_T_inner         = m_p_inner / (m_R*m_rho_inner);
     m_M2_inner        = m_uuvv_inner/(m_gamma*m_R*m_T_inner);
     m_coeff_inner     = 1. + 0.5*m_gamma_minus_1*m_M2_inner;
@@ -120,9 +127,13 @@ private: // data
   math::AnalyticalFunction m_function_Pt;
   math::AnalyticalFunction m_function_alpha;
 
+  Real m_x;
+  Real m_y;
+
   Real m_Tt;
   Real m_Pt;
   Real m_alpha;
+  Real m_omega;
 
   Real m_R;
   Real m_gamma;
@@ -170,12 +181,13 @@ public:
         .description("Velocity [m/s]")
         .link_to(&m_U);
 
-    options().add_option("T",m_function_T.function()).description("Temperature")
-        .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_T, this) );
 
     m_gamma=1.4;
     m_gamma_minus_1=m_gamma-1.;
     m_R=287.05;
+
+    options().add_option("T",m_function_T.function()).description("Temperature")
+        .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_T, this) );
 
     options().add_option("gamma", m_gamma)
         .description("The heat capacity ratio")
@@ -185,6 +197,11 @@ public:
         .description("Gas constant")
         .link_to(&m_R);
 
+    m_omega=0.0;
+    options().add_option("omega", m_omega)
+        .description("Rotation speed")
+        .link_to(&m_omega);
+
   }
   virtual ~BCSubsonicInletUT2D() {}
 
@@ -193,7 +210,6 @@ public:
     m_gamma = options().option("gamma").value<Real>();
     m_gamma_minus_1 = m_gamma - 1.;
   }
-
   void config_T()    { m_function_T.parse(options().option("T").value_str()); }
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
@@ -202,15 +218,17 @@ public:
     m_function_T.evaluate(inner_cell_data.coord,m_T);
 
     // solution at inside of face
+    m_x          = inner_cell_data.coord[0];
+    m_y          = inner_cell_data.coord[1];
     m_rho_inner  = inner_cell_data.solution[Rho];
     m_uuvv_inner = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner = inner_cell_data.solution[RhoE];
-    m_p_inner    = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvv_inner);
+    m_p_inner    = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvv_inner + 0.5 * m_rho_inner * m_omega*m_omega * (m_x*m_x + m_y*m_y));
 
     // compute solution at outside of face
     m_rho = m_p_inner/(m_R*m_T);
     m_uuvv = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY];
-    m_rhoE = m_p_inner/m_gamma_minus_1 + 0.5*m_rho*m_uuvv;
+    m_rhoE = m_p_inner/m_gamma_minus_1 + 0.5*m_rho*m_uuvv - 0.5*m_rho*m_omega*m_omega*(m_x*m_x+m_y*m_y);
 
     // set solution at outside of face
     boundary_face_pt_data[Rho  ]=m_rho;
@@ -228,6 +246,11 @@ private: // data
   Real m_gamma;
   std::vector<Real> m_U;
 
+  Real m_omega;
+
+  Real m_x;
+  Real m_y;
+
   Real m_rho_inner;
   Real m_p_inner;
   Real m_uuvv_inner;
@@ -242,7 +265,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // navierstokes
+} // navierstokesmovingreference
 } // sdm
 } // cf3
 

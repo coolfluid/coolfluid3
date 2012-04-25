@@ -14,11 +14,9 @@ list( APPEND coolfluid_math_lss_files
   EmptyLSS/EmptyLSSMatrix.cpp
 )
 
-list( APPEND coolfluid_math_lss_libs coolfluid_math)
+list( APPEND coolfluid_math_lss_libs coolfluid_math coolfluid_common )
 
-# happen to have trilinos
-if(CF3_HAVE_TRILINOS)
-  list( APPEND coolfluid_math_lss_files
+list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/TrilinosCrsMatrix.hpp
     Trilinos/TrilinosCrsMatrix.cpp
     Trilinos/TrilinosDetail.hpp
@@ -27,21 +25,16 @@ if(CF3_HAVE_TRILINOS)
     Trilinos/TrilinosFEVbrMatrix.cpp
     Trilinos/TrilinosVector.hpp
     Trilinos/TrilinosVector.cpp
-    )
+)
+
+# happen to have trilinos
+if(CF3_HAVE_TRILINOS)
+    list( APPEND coolfluid_math_lss_files ${coolfluid_math_lss_trilinos_files} )
     list( APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIRS})
     list( APPEND coolfluid_math_lss_libs ${TRILINOS_LIBRARIES} )
     ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
 else()
-  coolfluid_mark_not_orphan(
-    Trilinos/TrilinosCrsMatrix.hpp
-    Trilinos/TrilinosCrsMatrix.cpp
-    Trilinos/TrilinosDetail.hpp
-    Trilinos/TrilinosDetail.cpp
-    Trilinos/TrilinosFEVbrMatrix.hpp
-    Trilinos/TrilinosFEVbrMatrix.cpp
-    Trilinos/TrilinosVector.hpp
-    Trilinos/TrilinosVector.cpp
-  )
+  coolfluid_mark_not_orphan( ${coolfluid_math_lss_trilinos_files} )
 endif()
 
 set( coolfluid_math_lss_kernellib TRUE )
