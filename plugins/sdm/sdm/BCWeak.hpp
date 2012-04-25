@@ -136,7 +136,7 @@ protected: // configuration
         {
           bool m=true;
           for (Uint d=0; d<NDIM; ++d)
-            m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 100*math::Consts::eps() );
+            m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 200*math::Consts::eps() );
           if ( m )
           {
             matched=true;
@@ -224,7 +224,7 @@ inline void BCWeak<PHYSDATA>::execute()
   set_inner_cell();
   compute_face();
   for(Uint face_pt=0; face_pt<boundary_face_pt_idx.size(); ++face_pt)
-  { 
+  {
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
     compute_solution(*inner_cell_face_data[face_pt],unit_normal,face_sol);
 //    common::TableConstRow<Uint>::type field_index = face_elem->get().space->connectivity()[m_face_elem_idx];

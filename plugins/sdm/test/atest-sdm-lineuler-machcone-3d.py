@@ -3,13 +3,13 @@ import sys
 #sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
 from coolfluid import *
-import math
+from math import *
 
 ###########################################################################
 
-final_time = 0.3
-output_simulation_every = 0.1
-mach = 0
+final_time = 200
+output_simulation_every = 20
+mach = 1.5
 
 ###########################################################################
 
@@ -23,14 +23,29 @@ domain  = model.create_domain()
 
 ### Create Cubic 3D Hexahedral mesh
 
-mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
+#mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
+mesh = domain.create_component('mesh','cf3.mesh.Mesh')
+
+nb_div=12
+length=120.
+mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+mesh_generator.options().set("mesh",mesh.uri()) \
+                        .set("x_segments",nb_div) \
+                        .set("y_segments_half",int(nb_div/2)) \
+                        .set("z_segments",nb_div) \
+                        .set("length",length) \
+                        .set("half_height",length/2.) \
+                        .set("width",length) \
+                        .set("grading",1.)
+mesh_generator.execute()
 
 ### Configure solver
 
-solver.options().set('mesh',mesh)
-solver.options().set('time',time)
-solver.options().set('solution_vars','cf3.physics.LinEuler.Cons3D')
-solver.options().set('solution_order',3)
+solver.options().set('mesh',mesh) \
+                .set('time',time) \
+                .set('solution_vars','cf3.physics.LinEuler.Cons3D') \
+                .set('solution_order',5)
+
 dd = solver.get_child('DomainDiscretization')
 
 ### Configure timestepping
@@ -56,19 +71,20 @@ solver.get_child('InitialConditions').execute();
 ### Create convection term
 
 convection = dd.create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection3D')
-convection.options().set('gamma', c0**2*rho0/p0)
-convection.options().set('rho0',rho0)
-convection.options().set('U0',[u0,0.,0.])
-convection.options().set('p0',p0)
+convection.options().set('gamma', c0**2*rho0/p0) \
+                    .set('rho0',rho0) \
+                    .set('U0',[u0,0.,0.]) \
+                    .set('p0',p0)
 
 ### create monopole term
 
 monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMonopole3D' )
-monopole.options().set('omega',2*math.pi/30)
-monopole.options().set('alpha',math.log(2)/2)
-monopole.options().set('epsilon',0.5)
-monopole.options().set('source_location',[xc-50,yc,zc])
-monopole.options().set('time', time)
+monopole.options().set('omega',2*pi/30 ) \
+                  .set('alpha',log(2)/2) \
+                  .set('epsilon',0.5) \
+                  .set('source_location',[25,0,length/2.]) \
+                  .set('time', time)
+
 
 ### fields to output
 
@@ -77,6 +93,17 @@ mesh.access_component('solution_space/solution').uri(),
 mesh.access_component('solution_space/wave_speed').uri(),
 mesh.access_component('solution_space/residual').uri()
 ]
+
+vis_mesh = domain.create_component('vis_mesh','cf3.mesh.Mesh')
+vis_mesh_generator = domain.create_component("vis_mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+vis_mesh_generator.options().set("mesh",vis_mesh.uri()).set("grading",1.) \
+                        .set("x_segments",100).set("y_segments_half",50).set("z_segments",100) \
+                        .set("length",length).set("half_height",length/2.).set("width",length)
+vis_mesh_generator.execute()
+
+vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
+interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
+
 
 ### simulate
 simulate_to_time = 0.
@@ -89,8 +116,20 @@ while (simulate_to_time < final_time-1e-10) :
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.plt'), fields=fields)
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.msh'), fields=fields)
 
+
+
 ### output final results
 
-mesh.write_mesh(file=URI('file:mach_cone.plt'),  fields=fields)
-mesh.write_mesh(file=URI('file:mach_cone.msh'),  fields=fields)
-mesh.write_mesh(file=URI('file:mach_cone.pvtu'), fields=fields)
+### create boundary condition
+
+bc_extrapolate = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'function', type = 'cf3.sdm.BCExtrapolate<5,3>',
+regions=[
+mesh.access_component('topology/front').uri(),
+mesh.access_component('topology/bottom').uri(),
+mesh.access_component('topology/right').uri(),
+mesh.access_component('topology/back').uri(),
+mesh.access_component('topology/top').uri(),
+])
+solver.get_child('BoundaryConditions').execute()
+interpolator.interpolate(source=mesh.access_component('solution_space/solution').uri(),target=vis_solution.uri())
+vis_mesh.write_mesh(file=URI('file:mach_cone_vis.plt'),fields=[vis_solution.uri()])
