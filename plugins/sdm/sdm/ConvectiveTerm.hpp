@@ -463,10 +463,10 @@ void ConvectiveTerm<PHYSDATA>::compute_face()
     for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       compute_flx_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
 
-    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
-    {
-      cf3_assert(left_face_data[face_pt]->coord == right_face_data[face_pt]->coord);
-    }
+//    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
+//    {
+//      cf3_assert(left_face_data[face_pt]->coord == right_face_data[face_pt]->coord);
+//    }
 
   }
   /// * Case there is no neighbour, but physical data inside the face solution points
