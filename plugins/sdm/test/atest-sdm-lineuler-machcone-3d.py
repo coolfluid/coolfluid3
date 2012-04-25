@@ -7,7 +7,7 @@ from math import *
 
 ###########################################################################
 
-final_time = 200
+final_time = 120
 output_simulation_every = 20
 mach = 1.5
 
@@ -26,18 +26,24 @@ domain  = model.create_domain()
 #mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
 
-nb_div=12
+nb_div=10
 length=120.
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
 mesh_generator.options().set("mesh",mesh.uri()) \
-                        .set("x_segments",nb_div) \
-                        .set("y_segments_half",int(nb_div/2)) \
-                        .set("z_segments",nb_div) \
-                        .set("length",length) \
-                        .set("half_height",length/2.) \
-                        .set("width",length) \
-                        .set("grading",1.)
+                        .set("nb_cells",[nb_div,nb_div,nb_div]) \
+                        .set("lengths",[length,length,length]) \
+                        .set("offsets",[0.,-length/2,-length/2])
 mesh_generator.execute()
+
+vis_mesh = domain.create_component('vis_mesh','cf3.mesh.Mesh')
+mesh_generator.options().set("mesh",vis_mesh.uri())\
+                        .set("nb_cells",[100,100,100])
+mesh_generator.execute()
+
+repartitioner=mesh.create_component('repartitioner','cf3.mesh.actions.LoadBalance')
+repartitioner.options().set('mesh',mesh)
+repartitioner.execute()
+
 
 ### Configure solver
 
@@ -82,7 +88,7 @@ monopole = dd.create_term( name = 'monopole', type = 'cf3.sdm.lineuler.SourceMon
 monopole.options().set('omega',2*pi/30 ) \
                   .set('alpha',log(2)/2) \
                   .set('epsilon',0.5) \
-                  .set('source_location',[25,0,length/2.]) \
+                  .set('source_location',[25,0.,0.]) \
                   .set('time', time)
 
 
@@ -94,16 +100,8 @@ mesh.access_component('solution_space/wave_speed').uri(),
 mesh.access_component('solution_space/residual').uri()
 ]
 
-vis_mesh = domain.create_component('vis_mesh','cf3.mesh.Mesh')
-vis_mesh_generator = domain.create_component("vis_mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-vis_mesh_generator.options().set("mesh",vis_mesh.uri()).set("grading",1.) \
-                        .set("x_segments",100).set("y_segments_half",50).set("z_segments",100) \
-                        .set("length",length).set("half_height",length/2.).set("width",length)
-vis_mesh_generator.execute()
-
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
 interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
-
 
 ### simulate
 simulate_to_time = 0.
@@ -115,7 +113,6 @@ while (simulate_to_time < final_time-1e-10) :
 
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.plt'), fields=fields)
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.msh'), fields=fields)
-
 
 
 ### output final results
