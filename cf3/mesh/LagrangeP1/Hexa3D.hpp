@@ -58,12 +58,19 @@ struct Mesh_LagrangeP1_API Hexa3D : public ElementTypeBase<Hexa3D,Hexa3D_traits>
   static Real area(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
   static bool is_coord_in_element(const CoordsT& coord, const NodesT& nodes);
+  static CoordsT plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation);
+  static void compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation, CoordsT& result);
 
   //@}
 
 private:
 
   static bool is_orientation_inside(const CoordsT& coord, const NodesT& nodes, const Uint face);
+
+  static Eigen::Matrix<Real,nb_nodes,1> m_shapeFunc;
+  static Eigen::Matrix<Real,nb_nodes,dimensionality> m_shapeFuncDerivs;
+  static Eigen::Matrix<Real,dimension,1> m_vec1;
+  static Eigen::Matrix<Real,dimension,1> m_vec2;
 
 };
 

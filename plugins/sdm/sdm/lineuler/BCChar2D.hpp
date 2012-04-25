@@ -9,6 +9,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "Physics/LinEuler/LinEuler2D.hpp"
 #include "sdm/BCWeak.hpp"
 #include "sdm/lineuler/LibLinEuler.hpp"

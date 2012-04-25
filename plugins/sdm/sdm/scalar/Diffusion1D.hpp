@@ -36,6 +36,8 @@ public:
   static std::string type_name() { return "Diffusion1D"; }
   Diffusion1D(const std::string& name) : DiffusiveTerm< PhysData >(name)
   {
+    m_mu = 1.;
+    options().add_option("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
   }
 
   virtual ~Diffusion1D() {}
@@ -43,14 +45,12 @@ public:
   virtual void compute_flux(PhysData& data, const RealVectorNDIM& unit_normal,
                             RealVectorNEQS& flux, Real& wave_speed)
   {
-    const Real mu = 1.;
-    flux[0] = mu * data.solution_gradient[0] * unit_normal[XX];
-//    flux[0] = mu * data.solution[0] * unit_normal[XX];
-    wave_speed = 2*mu;
-//    wave_speed = flux[0]/150;
+    flux[0] = m_mu * data.solution_gradient[0] * unit_normal[XX];
+    wave_speed = m_mu;
   }
-
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  Real m_mu;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

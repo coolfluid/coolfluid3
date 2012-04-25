@@ -31,7 +31,7 @@ find $D $* \(   \
                 -or -iname "*.c"  -or -iname "*.cxx" -or -iname "*.cpp" -or -iname "*.cc" -or -iname "*.ci"\
 								-or -iname "*.cfscript" -or -iname "*.py" \
 		-or -iname "*.f" -or -iname "*.f77" -or -iname "*.f90" -or -iname "*.for" \
-		-or -iname "*.CFcase" -or -iname "*.in" \
+	    -or -iname "*.in" \
 		-or -iname "*.pl" -or -iname "*.sh" \
            \) -print -follow | grep -v "\.svn/" |  sed "s/ /\\\ /g" | \
 xargs egrep -H -n -e "$REG"

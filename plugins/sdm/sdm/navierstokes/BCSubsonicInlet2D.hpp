@@ -15,6 +15,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "math/AnalyticalFunction.hpp"
 
 #include "sdm/BCWeak.hpp"
@@ -56,7 +59,7 @@ public:
     m_R=287.05;
 
     options().add_option("gamma", m_gamma)
-        .description("The heat capacity ratio")
+        .description("Heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_gamma, this) );
 
     options().add_option("R", m_R)

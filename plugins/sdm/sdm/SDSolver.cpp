@@ -123,7 +123,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
   conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
-  conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
+//  conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 
   m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );

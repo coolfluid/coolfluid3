@@ -19,12 +19,6 @@ namespace actions {
 
 class solver_actions_API PeriodicWriteMesh : public solver::Action {
 
-public: // typedefs
-
-  /// pointers
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component

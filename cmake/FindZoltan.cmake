@@ -71,8 +71,8 @@ else()
 
 endif()
 
-coolfluid_log("ZOLTAN_INCLUDE_DIRS = ${ZOLTAN_INCLUDE_DIRS}" )
-coolfluid_log("ZOLTAN_LIBRARIES = ${ZOLTAN_LIBRARIES}" )
+coolfluid_log_file("ZOLTAN_INCLUDE_DIRS = ${ZOLTAN_INCLUDE_DIRS}" )
+coolfluid_log_file("ZOLTAN_LIBRARIES = ${ZOLTAN_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Zoltan
                        DESCRIPTION "parallel graph partitioning"

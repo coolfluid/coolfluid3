@@ -1,7 +1,7 @@
 #############################################################
 # ParaView plugin for the GUI
 
-#if( ParaView_FOUND )
+if( QT4_FOUND )
 
   # List of classes to "moc"
   list( APPEND coolfluid_ui_qwt_tab_moc_classes
@@ -43,11 +43,11 @@
 
   coolfluid_add_library(coolfluid_ui_qwt_tab)
 
-#else()
+else()
 
-#   coolfluid_mark_not_orphan(
-#    LibQwtTab.cpp
-#    LibQwtTab.hpp
-#   )
+  coolfluid_mark_not_orphan(
+    LibQwtTab.cpp
+    LibQwtTab.hpp
+  )
 
-#endif()
+endif()

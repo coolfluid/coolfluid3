@@ -37,6 +37,7 @@ my $opt_debug         = 0;
 my $opt_nompi         = 0;
 my $opt_mpi           = "openmpi";
 my $opt_mpi_dir       = "";
+my $opt_python        = "";
 my $opt_fetchonly     = 0;
 my $opt_many_mpi      = 0;
 my $opt_no_fortran    = 0;
@@ -112,6 +113,7 @@ sub parse_commandline() # Parse command line
         'many-mpi'              => \$opt_many_mpi,
         'mpi=s'                 => \$opt_mpi,
         'mpi-dir=s'             => \$opt_mpi_dir,
+        'python=s'              => \$opt_python,
         'fetchonly'             => \$opt_fetchonly,
         'dry-run'               => \$opt_dryrun,
         'install-dir=s'         => \$opt_install_dir,
@@ -149,6 +151,8 @@ options:
         --mpi=             MPI implementation [$opt_mpi]
         --many-mpi=        Install all mpi related packages in a separate directory
                            therefore allowing multiple mpi environments to coexist [$opt_many_mpi]
+
+        --python=          Python executable, if installed in a non-standard location
 
         --install-dir=     Install location of the packages [$opt_install_dir]
         --install-mpi-dir= Install location for the mpi dependent installations [$opt_install_mpi_dir]
@@ -1216,6 +1220,21 @@ using mpi : $opt_mpi_dir/bin/mpicxx ;
 ZZZ
       close (USERCONFIGJAM); 
     }
+
+    if ( $opt_python ne "" )
+    {
+      open  ( USERCONFIGJAM, ">>$bjamcfg") || die("Cannot open file $bjamcfg") ;
+      print   USERCONFIGJAM <<ZZZ;
+
+# ----------------------
+# python configuration.
+# ----------------------
+using python : $opt_python ;
+
+ZZZ
+      close (USERCONFIGJAM);
+    }
+
     run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options --with-python $boostmpiopt toolset=$toolset threading=multi variant=release stage install $opt_makeopts");
   }
 }

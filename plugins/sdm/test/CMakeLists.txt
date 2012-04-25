@@ -24,11 +24,14 @@ coolfluid_add_test( UTEST      utest-sdm-transformation
 coolfluid_add_test( UTEST      utest-sdm-lineuler-2d
                     CPP        utest-sdm-lineuler-2d.cpp
                     LIBS       coolfluid_sdm coolfluid_sdm_lineuler)
-                    
+
 coolfluid_add_test( UTEST      utest-sdm-navierstokesmovingreference-2d
                     CPP        utest-sdm-navierstokesmovingreference-2d.cpp
                     LIBS       coolfluid_sdm coolfluid_sdm_navierstokesmovingreference)
 
+coolfluid_add_test( ATEST      atest-sdm-scalar-linadv-3d
+                    PYTHON     atest-sdm-scalar-linadv-3d.py
+                    LIBS       coolfluid_sdm coolfluid_sdm_scalar)
 
 coolfluid_add_test( ATEST      atest-sdm-euler-shocktube-1d
                     PYTHON     atest-sdm-euler-shocktube-1d.py
@@ -46,6 +49,16 @@ coolfluid_add_test( ATEST      atest-sdm-euler-cylinder-2d
 
 coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-2d
                     PYTHON     atest-sdm-lineuler-acousticpulse-2d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
+coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-3d
+                    PYTHON     atest-sdm-lineuler-acousticpulse-3d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
+coolfluid_add_test( ATEST      atest-sdm-lineuler-machcone-3d
+                    PYTHON     atest-sdm-lineuler-machcone-3d.py
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 
