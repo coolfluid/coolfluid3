@@ -103,5 +103,5 @@ blocks.options().set('block_regions', ['fluid_top', 'fluid_top', 'fluid_bottom',
 # Generate a channel mesh
 mesh = root.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
-mesh.write_mesh('backstep-multiregion.msh')
+mesh.write_mesh(file=cf.URI('backstep-multiregion.msh'))
 mesh.print_tree()
