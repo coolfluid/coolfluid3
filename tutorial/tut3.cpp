@@ -92,21 +92,17 @@ int main(int argc, char * argv[])
 
   // The default behaviour, with the signature, containing default arguments,
   // and explains what is expected from the user.
-  {
-    SignalArgs args;
-    hello->signature_print(args);
-    hello->signal_print(args);
-  }
+  SignalArgs args;
+  hello->signature_print(args);
+  hello->signal_print(args);
   // output:    Hello nobody!
 
   // The behaviour where the arguments are given by a user. Note that a signal_signature
   // is not strictly necessary, but good practise.
-  {
-    SignalOptions options;
-    options.add_option("person", string("You") );
-    SignalArgs args = options.create_frame();
-    hello->signal_print(args);
-  }
+  SignalOptions options(args);
+  options["person"].change_value( string("You") );
+  options.flush();
+  hello->signal_print(args);
   // output:    Hello You!
 
   return 0;
