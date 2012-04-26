@@ -101,9 +101,14 @@ void BasicCommands::call(const std::vector<std::string>& params)
     for (Uint i=0; i<signal_options.size(); ++i)
       signal_options[i] = params[i+1];
 
-    XML::SignalOptions options;
+    // The following 3 lines are added/adapted to get default signature values
+    SignalArgs signal_args;
+    (*signaling_component->signal(name)->signature()) (signal_args);
+    SignalOptions options(signal_args);
 
     options.fill_from_vector(signal_options);
+    options.flush();
+
 
     XML::SignalFrame frame = options.create_frame(name, signaling_component->uri(), signaling_component->uri() );
 
