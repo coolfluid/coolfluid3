@@ -138,6 +138,8 @@ void Core::terminate()
   // terminate all
   if(is_not_null(m_libraries))
     libraries().terminate_all_libraries();
+
+  m_root.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

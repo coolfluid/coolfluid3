@@ -508,7 +508,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
 void BasicCommands::mv(const std::vector<std::string>& params)
 {
   if (params.size() != 2)
-    throw SetupError(FromHere(),"2 parameters needed for command [make cpath1 cpath2]");
+    throw SetupError(FromHere(),"2 parameters needed for command [mv cpath1 cpath2]");
   const URI cpath1(params[0]);
   const URI cpath2(params[1]);
   Handle<Component> component_1 = current_component->access_component(cpath1);
