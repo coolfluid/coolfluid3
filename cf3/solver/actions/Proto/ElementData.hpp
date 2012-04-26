@@ -254,6 +254,11 @@ template<Uint Dim>
 struct ElementBased
 {
   static const Uint dimension = Dim;
+  /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
+  struct SF
+  {
+    typedef RealMatrix GradientT;
+  };
 };
 
 /// Data associated with field variables
@@ -450,7 +455,7 @@ private:
   mutable GradientT m_gradient;
 
   InterpolationImpl<Dim> m_eval;
-  
+
 public:
   /// Index of where the variable we need is in the field data row
   const Uint offset;
@@ -495,11 +500,20 @@ public:
     return ValueResultT(&m_field[m_field_idx][offset]);
   }
 
+  // Dummy types for compatibility with higher order elements
+  typedef RealMatrix EvalT;
+  RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
+  }
+
 private:
   mesh::Field& m_field;
   const SupportT& m_support;
   const Uint m_elements_begin;
   Uint m_field_idx;
+  RealMatrix m_dummy_result; // only there for compilation purposes during the checking of the variable types. Never really used.
 
 public:
   /// Index in the field array for this variable
@@ -545,11 +559,19 @@ public:
     return m_field[m_field_idx][offset];
   }
 
+  typedef Real EvalT;
+  const RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
+  }
+
 private:
   mesh::Field& m_field;
   const SupportT& m_support;
   const Uint m_elements_begin;
   Uint m_field_idx;
+  RealMatrix m_dummy_result; // only there for compilation purposes during the checking of the variable types. Never really used.
 
 public:
   /// Index in the field array for this variable

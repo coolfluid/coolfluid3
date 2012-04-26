@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
-  
+
   Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
   create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
-  
+
   math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 

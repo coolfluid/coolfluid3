@@ -193,6 +193,8 @@ void Solver::mesh_changed(Mesh& mesh)
   // Create fields as needed
   BOOST_FOREACH(const std::string& tag, tags)
   {
+    if(tag == "element_fields")
+      continue;
     Handle< Field > field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
 
     // If the field was created before, destroy it
