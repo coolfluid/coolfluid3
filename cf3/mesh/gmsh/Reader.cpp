@@ -133,13 +133,16 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   fix_negative_volumes(*m_mesh);
 
   if (options().option("read_fields").value<bool>())
+  {
     read_element_node_data();
+    read_node_data();
+  }
+
 
 //  if (options().option("read_fields").value<bool>())
 //  {
 //    read_element_data();
 
-//    read_node_data();
 //  }
 
   m_node_idx_gmsh_to_cf.clear();
@@ -311,11 +314,11 @@ void Reader::find_used_nodes()
 //  }
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
-    if (m_total_nb_elements > 100000)
-    {
-      if(i%(m_total_nb_elements/20)==0)
-        CFinfo << 100*i/m_total_nb_elements << "% " << CFflush;
-    }
+//    if (m_total_nb_elements > 100000)
+//    {
+//      if(i%(m_total_nb_elements/20)==0)
+//        CFinfo << 100*i/m_total_nb_elements << "% " << CFflush;
+//    }
 
     cf3_assert(m_hash);
     if (m_hash->subhash(ELEMS).owns(i))
@@ -359,13 +362,13 @@ void Reader::find_used_nodes()
 
   for (Uint node_idx=0; node_idx<m_total_nb_nodes; ++node_idx)
   {
-    if (m_total_nb_nodes > 100000)
-    {
-      if(node_idx%(m_total_nb_nodes/20)==0)
-        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFflush;
-      if (node_idx == m_total_nb_nodes-1)
-        CFinfo << CFendl;
-    }
+//    if (m_total_nb_nodes > 100000)
+//    {
+//      if(node_idx%(m_total_nb_nodes/20)==0)
+//        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFflush;
+//      if (node_idx == m_total_nb_nodes-1)
+//        CFinfo << CFendl;
+//    }
     getline(m_file,line);
 
     std::stringstream ss(line);
@@ -430,11 +433,11 @@ void Reader::read_coordinates()
 
   for (Uint node_idx=0; node_idx<m_total_nb_nodes; ++node_idx)
   {
-    if (m_total_nb_nodes > 100000)
-    {
-      if(node_idx%(m_total_nb_nodes/20)==0)
-        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
-    }
+//    if (m_total_nb_nodes > 100000)
+//    {
+//      if(node_idx%(m_total_nb_nodes/20)==0)
+//        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
+//    }
     getline(m_file,line);
 
     if (m_hash->subhash(NODES).owns(node_idx))
@@ -588,11 +591,11 @@ void Reader::read_connectivity()
 
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
-    if (m_total_nb_elements > 100000)
-    {
-      if(i%(m_total_nb_elements/20)==0)
-        CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
-    }
+//    if (m_total_nb_elements > 100000)
+//    {
+//      if(i%(m_total_nb_elements/20)==0)
+//        CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
+//    }
 
     // element description
     m_file >> element_number >> gmsh_element_type;
@@ -860,14 +863,8 @@ void Reader::read_node_data()
 
   foreach_container((const std::string& name) (Field& gmsh_field) , fields)
   {
-    std::vector<std::string> var_types_str;
-    //boost_foreach(const Uint var_type, gmsh_field.var_types)
-    //  var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    mesh::Field& field = m_mesh->geometry_fields().create_field(gmsh_field.name);
-    field.options().configure_option("var_names",gmsh_field.var_names);
-    field.options().configure_option("var_types",var_types_str);
-    field.resize(gmsh_field.nb_entries);
+    mesh::Field& field = m_mesh->geometry_fields().create_field(gmsh_field.name,gmsh_field.description());
 
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
