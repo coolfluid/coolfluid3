@@ -6,6 +6,8 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "coolfluid-packages.hpp"
+
 #include "common/Signal.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
@@ -69,7 +71,9 @@ void LoadMesh::update_list_of_available_readers()
   
   // TODO proper way to find the list of potential readers
   const std::vector<std::string> known_readers = boost::assign::list_of
+  #ifdef CF3_HAVE_CGNS
     ("cf3.mesh.CGNS.Reader")
+  #endif
     ("cf3.mesh.gmsh.Reader")
     ("cf3.mesh.neu.Reader");
 
