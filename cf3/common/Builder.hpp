@@ -149,7 +149,7 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<Builder,BuilderT<BASE,CONCRETE> >::value) );
 
     // give some info
-    CFdebug << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    //CFdebug << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
     RegistTypeInfo<CONCRETE,LIB> regist(name);
