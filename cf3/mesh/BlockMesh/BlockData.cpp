@@ -640,11 +640,13 @@ struct BlockArrays::Implementation
       {
         if(!patch.block.is_local)
           continue;
+        const Uint first_offset = patch.fixed_direction == 0 ? 1 : 0;
+        const Uint second_offset = patch.fixed_direction == 0 ? 0 : 1;
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
           Connectivity::Row elem_row = patch_conn[elem_idx++];
-          elem_row[0] = to_local(patch.global_idx(i  ));
-          elem_row[1] = to_local(patch.global_idx(i+1));
+          elem_row[0] = to_local(patch.global_idx(i + first_offset));
+          elem_row[1] = to_local(patch.global_idx(i + second_offset));
         }
       }
     }

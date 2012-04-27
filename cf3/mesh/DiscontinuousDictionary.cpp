@@ -125,10 +125,26 @@ void DiscontinuousDictionary::rebuild_spaces_from_geometry()
     Uint nb_states_per_elem = entities_space.shape_function().nb_nodes();
     RealMatrix elem_coords(entities.geometry_space().shape_function().nb_nodes(),entities.element_type().dimension());
     RealVector centroid(entities.element_type().dimension());
+    RealVector normal(entities.element_type().dimension());
     for (Uint e=0; e<entities.size(); ++e)
     {
       entities.geometry_space().put_coordinates(elem_coords,e);
       entities.element_type().compute_centroid(elem_coords,centroid);
+      // Displace by a certain amount along the normal vector, to fix duplicates when internal boundaries exist that provide both face orientations
+      if(entities.element_type().dimension() != entities.element_type().dimensionality())
+      {
+        const Real tol = 0.0001;
+        entities.element_type().compute_normal(elem_coords, normal);
+        if(!bounding_box.contains(centroid + tol*normal))
+        {
+          CFwarn << "Normal for element with centroid " << centroid.transpose() << " points outwards. Please fix your mesh." << CFendl;
+          centroid -= tol*normal;
+        }
+        else
+        {
+          centroid += tol*normal;
+        }
+      }
       boost::uint64_t hash = compute_glb_idx(centroid);
 //      std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash << std::endl;
       bool inserted = hash_to_elements.insert( std::make_pair(hash, Entity(entities,e)) ).second;
