@@ -9,8 +9,9 @@ from math import *
 
 ###########################################################################
 
-final_time = 120
-output_simulation_every = 20
+
+final_time = 5 # should be 120
+output_simulation_every = 5
 mach = 1.5
 
 ###########################################################################
@@ -28,7 +29,7 @@ domain  = model.create_domain()
 #mesh = domain.load_mesh(file=URI('cube_20x20x20.msh'),name='mesh')
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
 
-nb_div=100
+nb_div=10
 length=120.
 mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
 mesh_generator.options().set("mesh",mesh.uri()) \
@@ -41,7 +42,7 @@ mesh.write_mesh( file = URI("cube_10x10x10.msh") )
 
 vis_mesh = domain.create_component('vis_mesh','cf3.mesh.Mesh')
 mesh_generator.options().set("mesh",vis_mesh.uri())\
-                        .set("nb_cells",[100,100,100])
+                        .set("nb_cells",[50,50,50])
 mesh_generator.execute()
 
 repartitioner=mesh.create_component('repartitioner','cf3.mesh.actions.LoadBalance')

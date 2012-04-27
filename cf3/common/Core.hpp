@@ -114,15 +114,15 @@ private: // data
   /// the BuildInfo unique object
   boost::shared_ptr< common::BuildInfo >    m_build_info;
   /// the Environment unique object
-  boost::shared_ptr< common::Environment >         m_environment;
+  boost::shared_ptr< common::Environment >  m_environment;
   /// the Libraries unique object
-  Handle< common::Libraries >   m_libraries;
+  boost::shared_ptr< common::Libraries >    m_libraries;
   /// the Factories unique object
-  Handle< common::Factories >   m_factories;
+  boost::shared_ptr< common::Factories >    m_factories;
   /// @brief The component tree root
   boost::shared_ptr< common::Group >        m_root;
   /// The network information
-  boost::shared_ptr< common::NetworkInfo >   m_network_info;
+  boost::shared_ptr< common::NetworkInfo >  m_network_info;
 
   /// command-line arguments count
   int m_argc;

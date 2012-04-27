@@ -60,12 +60,8 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-3d
 coolfluid_add_test( ATEST      atest-sdm-lineuler-machcone-3d
                     PYTHON     atest-sdm-lineuler-machcone-3d.py
                     LIBS       coolfluid_sdm_lineuler
-                    DEPENDS    copy-resources)
-
-coolfluid_add_test( ATEST      atest-sdm-lineuler-machcone-3d-simple
-                    PYTHON     atest-sdm-lineuler-machcone-3d-simple.py
-                    LIBS       coolfluid_sdm_lineuler
-                    DEPENDS    copy-resources)
+                    DEPENDS    copy-resources
+                    MPI        2)
 
 coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticvorticityentropypulse-2d
                     PYTHON     atest-sdm-lineuler-acousticvorticityentropypulse-2d.py
