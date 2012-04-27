@@ -92,10 +92,11 @@ struct FieldBase
   /// Construct a new field placeholder
   /// @param name Variable name for the represented quantity (i.e. Temperature)
   /// @param field_tag Tag to identify the field
-  FieldBase(const std::string& name, const std::string& field_tag, const std::string& space_name = "geometry") :
+  /// @param space_lib_name The name of the space library used for the field
+  FieldBase(const std::string& name, const std::string& field_tag, const std::string& space_lib_name = "geometry") :
     m_name(name),
     m_field_tag(field_tag),
-    m_space_name(space_name)
+    m_space_lib_name(space_lib_name)
   {
   }
 
@@ -108,16 +109,16 @@ struct FieldBase
   {
     return m_field_tag;
   }
-  
-  inline const std::string& space_name() const
+
+  inline const std::string& space_lib_name() const
   {
-    return m_space_name;
+    return m_space_lib_name;
   }
 
 private:
   std::string m_name;
   std::string m_field_tag;
-  std::string m_space_name;
+  std::string m_space_lib_name;
 };
 
 /// Field data for a scalar field

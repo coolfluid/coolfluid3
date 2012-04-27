@@ -167,53 +167,98 @@ void Solver::signal_create_initial_conditions(SignalArgs& args)
   reply_options.add_option("created_component", ic->uri());
 }
 
-void Solver::mesh_loaded(Mesh& mesh)
+void Solver::mesh_loaded(mesh::Mesh& mesh)
 {
-  SimpleSolver::mesh_loaded(mesh);
+  cf3::solver::SimpleSolver::mesh_loaded(mesh);
   mesh_changed(mesh);
 }
 
+
 void Solver::mesh_changed(Mesh& mesh)
 {
+  SimpleSolver::mesh_loaded(mesh);
+
   CFdebug << "UFEM::Solver: Reacting to mesh_changed signal" << CFendl;
 
-  // Ensure the comm pattern will be updated
-  if(is_not_null(mesh.geometry_fields().get_child("CommPattern")))
-  {
-    mesh.geometry_fields().remove_component("CommPattern");
-  }
-
   // Find out what tags are used
-  std::set<std::string> tags;
+  std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
   {
-    action.insert_tags(tags);
+    action.insert_field_info(tags);
   }
 
   // Create fields as needed
-  BOOST_FOREACH(const std::string& tag, tags)
+  for(std::map<std::string, std::string>::const_iterator it = tags.begin(); it != tags.end(); ++it)
   {
-    if(tag == "element_fields")
-      continue;
-    Handle< Field > field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
+    const std::string& tag = it->first;
+    const std::string& space_lib_name = it->second;
 
-    // If the field was created before, destroy it
-    if(is_not_null(field))
+    // Find the dictionary
+    Handle<Dictionary> dict;
+    if(space_lib_name == "geometry")
     {
-      CFdebug << "Removing existing field " << field->uri().string() << CFendl;
-      field->parent()->remove_component(field->name());
-      field.reset();
+      dict = mesh.geometry_fields().handle<Dictionary>();
+    }
+    else
+    {
+      BOOST_FOREACH(Dictionary& tagged_dict, find_components_recursively_with_tag<Dictionary>(mesh, "ufem_dict"))
+      {
+        if(tagged_dict.spaces().empty())
+        {
+          CFwarn << "Found empty dict while looking for dictionaries with tag ufem_dict" << CFendl;
+          continue;
+        }
+        const std::string sf_name = tagged_dict.options().option("shape_function").value<std::string>();
+        if(boost::algorithm::starts_with(sf_name, space_lib_name))
+        {
+          if(is_null(dict))
+          {
+            CFinfo << "Found ufem_dict " << tagged_dict.uri().path() << CFendl;
+            dict = tagged_dict.handle<Dictionary>();
+          }
+          else
+          {
+            CFwarn << "Duplicate ufem_dict " << tagged_dict.uri().path() << " ignored." << CFendl;
+          }
+        }
+      }
     }
 
+    // If the dictionary is not found, create it
+    if(is_null(dict))
+    {
+      // Special case of P0: create a discontinuous space
+      if(boost::ends_with(space_lib_name, "P0"))
+      {
+        dict = mesh.create_discontinuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+      }
+      else
+      {
+        dict = mesh.create_continuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+      }
+      dict->add_tag("ufem_dict");
+      CFinfo << "Created ufem_dict " << dict->uri().path() << CFendl;
+    }
+
+    cf3_assert(is_not_null(dict));
+
+    // Reset the comm pattern, since GIDs may have changed
+    if(is_not_null(dict->get_child("CommPattern")))
+    {
+      dict->remove_component("CommPattern");
+    }
+
+    Handle< Field > field = find_component_ptr_with_tag<Field>(*dict, tag);
+
     // Create the field
-    field_manager().create_field(tag, mesh.geometry_fields());
-    field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
+    field_manager().create_field(tag, *dict);
+    field = find_component_ptr_with_tag<Field>(*dict, tag);
     cf3_assert(is_not_null(field));
 
     // Parallelize
     if(common::PE::Comm::instance().is_active())
     {
-      field->parallelize_with(mesh.geometry_fields().comm_pattern());
+      field->parallelize_with(dict->comm_pattern());
     }
   }
 
