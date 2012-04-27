@@ -517,7 +517,7 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   XML::SignalOptions options;
 //  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
 
-  options.add_option( "Path", parent_2->uri() );
+  options.add_option( "path", parent_2->uri() );
 
   XML::SignalFrame frame = options.create_frame("move_component", component_1->uri(), component_1->uri() );
 
