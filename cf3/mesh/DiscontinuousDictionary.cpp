@@ -58,7 +58,7 @@ namespace detail
       elem_coords(entities.geometry_space().shape_function().nb_nodes(),entities.element_type().dimension())
     {
     }
-    
+
     /// Compute the centroid, adapting using the normal so that internal boundaries that exist with both orientations
     /// get a distinct centroid
     const RealVector& operator()(const Uint element_index)
@@ -68,15 +68,23 @@ namespace detail
       if(m_entities.element_type().dimension() != m_entities.element_type().dimensionality())
       {
         const Real tol = 0.0001;
-        m_entities.element_type().compute_normal(elem_coords, normal);
+        try
+        {
+          m_entities.element_type().compute_normal(elem_coords, normal);
+        }
+        catch(NotImplemented& e)
+        {
+          normal.setZero();
+          CFdebug << e.what() << ", ignoring normal correction to face centroid" << CFendl;
+        }
         centroid += tol*normal;
       }
-      
+
       return centroid;
     }
-    
+
     const Entities& m_entities;
-    
+
     RealVector centroid;
     RealVector normal;
     RealMatrix elem_coords;
