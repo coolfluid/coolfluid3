@@ -137,9 +137,6 @@ if( CF3_ENABLE_SANDBOX )
   add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 endif()
 
-# add dir with tutorial applications
-add_subdirectory( tutorial EXCLUDE_FROM_ALL)           # dir with documentation to be installed
-
 coolfluid_log("")
 
 ##############################################################################
