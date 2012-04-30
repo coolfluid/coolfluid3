@@ -1297,7 +1297,7 @@ void MeshAdaptor::grow_overlap()
 void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
 {
   restore_element_node_connectivity();
-  CFinfo << "Adding mesh " << other_mesh.uri() << CFendl;
+  CFdebug << "Adding mesh " << other_mesh.uri() << CFendl;
   const Uint dim = std::max(other_mesh.dimension(),m_mesh->dimension());
   if (m_mesh->dimension() == 0) // It is not initialized yet
   {
