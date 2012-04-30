@@ -18,4 +18,6 @@ if( CF3_PLUGIN_SDM )
 
   add_subdirectory( test ) # testing tree
 
+  add_subdirectory( executables ) # executables
+
 endif()

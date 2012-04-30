@@ -40,7 +40,7 @@ Hilbert::Hilbert(const math::BoundingBox& bounding_box, Uint levels) :
     m_box1.resize(2);
     break;
   }
-  m_nb_keys = (boost::uint64_t) std::ldexp(1,m_dim*m_max_level);
+  m_nb_keys = (boost::uint64_t) std::ldexp(1,m_dim*m_max_level);  // equivalent to:  1*2^(m_dim*m_max_level)
 }
 
 boost::uint64_t Hilbert::operator() (const RealVector& point)

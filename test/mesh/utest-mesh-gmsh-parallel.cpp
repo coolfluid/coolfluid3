@@ -82,12 +82,13 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( test )
 {
   bool p2=true;
+  bool continuous=true;
   Uint dim=2;
   if (1){
   // Generate a mesh
   Handle<Mesh> generated_mesh = Core::instance().root().create_component<Mesh>("mesh");
   boost::shared_ptr< MeshGenerator > generate_mesh = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","meshgenerator");
-  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,120));
+  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,25));
   generate_mesh->options().configure_option("lengths",std::vector<Real>(dim,2.));
   generate_mesh->options().configure_option("mesh",generated_mesh->uri());
   generate_mesh->options().configure_option("bdry",false);
@@ -98,13 +99,17 @@ BOOST_AUTO_TEST_CASE( test )
   if (p2)
   {
   // Create a P2 space and some fields
-  Dictionary& P2 = generated_mesh->create_discontinuous_space("P2","cf3.mesh.LagrangeP2");
+    if (continuous)
+      generated_mesh->create_continuous_space("P2","cf3.mesh.LagrangeP2");
+    else
+      generated_mesh->create_discontinuous_space("P2","cf3.mesh.LagrangeP2");
 
-  CFinfo << "P2 space fully created" << CFendl;
+    Dictionary& P2 = *generated_mesh->get_child("P2")->handle<Dictionary>();
+    CFinfo << "P2 space fully created" << CFendl;
 
-  Field& glb_idx = P2.create_field("glb_node_idx");
-  for (Uint n=0; n<P2.size(); ++n)
-    glb_idx[n][0] = P2.glb_idx()[n];
+    Field& glb_idx = P2.create_field("glb_node_idx");
+    for (Uint n=0; n<P2.size(); ++n)
+      glb_idx[n][0] = P2.glb_idx()[n];
   }
 
   // Write a distributed mesh:
@@ -138,8 +143,15 @@ BOOST_AUTO_TEST_CASE( test )
 
     boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
     write_mesh->options().configure_option("mesh",meshes[p]);
+
+    std::cout << meshes[p]->tree() << std::endl;
     if (p2)
-      write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"discontinuous_geometry/glb_node_idx"));
+    {
+      if (continuous)
+        write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"geometry/glb_node_idx"));
+      else
+        write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"discontinuous_geometry/glb_node_idx"));
+    }
     write_mesh->options().configure_option("file",URI("out-P"+to_str(p)+"-utest-mesh-gmsh-parallel.msh"));
     write_mesh->execute();
   }
@@ -174,7 +186,12 @@ BOOST_AUTO_TEST_CASE( test )
   boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   write_mesh->options().configure_option("mesh",merged_mesh);
   if (p2)
-    write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
+  {
+    if (continuous)
+      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
+    else
+      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
+  }
   write_mesh->options().configure_option("file",URI("out-merged-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
   }
@@ -193,14 +210,16 @@ BOOST_AUTO_TEST_CASE( test )
 
   // Write the loadbalanced mesh
   {
-  CFinfo << "Write file \"out-loadbalanced-utest-mesh-gmsh-parallel.msh\" " << CFendl;
-  boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  write_mesh->options().configure_option("mesh",merged_mesh);
-  if (p2)
-    write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
-  write_mesh->options().configure_option("file",URI("out-loadbalanced-utest-mesh-gmsh-parallel.msh"));
-  write_mesh->options().configure_option("enable_overlap",false);
-  write_mesh->execute();
+    CFinfo << "Write file \"out-loadbalanced-utest-mesh-gmsh-parallel.msh\" " << CFendl;
+    boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+    write_mesh->options().configure_option("mesh",merged_mesh);
+    if (continuous)
+      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
+    else
+      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
+    write_mesh->options().configure_option("file",URI("out-loadbalanced-utest-mesh-gmsh-parallel.msh"));
+    write_mesh->options().configure_option("enable_overlap",false);
+    write_mesh->execute();
   }
 }
 

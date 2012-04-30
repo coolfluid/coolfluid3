@@ -59,7 +59,7 @@ struct Domain::Implementation
         .supported_protocol(URI::Scheme::FILE)
         .description("Location of the file holding the mesh");
 
-    options.add_option("name", std::string() )
+    options.add_option("name", std::string("mesh") )
         .description("Name for the mesh to load");
   }
 

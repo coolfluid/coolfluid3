@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_LibCGNS_hpp
-#define cf3_LibCGNS_hpp
+#ifndef cf3_tutorial_LibTutorial_hpp
+#define cf3_tutorial_LibTutorial_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,47 +13,45 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro CGNS_API
-/// @note build system defines COOLFLUID_CGNS_EXPORTS when compiling CGNS files
-#ifdef COOLFLUID_MESH_CGNS_EXPORTS
-#   define Mesh_CGNS_API      CF3_EXPORT_API
-#   define Mesh_CGNS_TEMPLATE
+/// Define the macro tutorial_API
+/// @note build system defines COOLFLUID_TUTORIAL_EXPORTS when compiling tutorial files
+#ifdef COOLFLUID_TUTORIAL_EXPORTS
+#   define tutorial_API      CF3_EXPORT_API
+#   define tutorial_TEMPLATE
 #else
-#   define Mesh_CGNS_API      CF3_IMPORT_API
-#   define Mesh_CGNS_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define tutorial_API      CF3_IMPORT_API
+#   define tutorial_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
-  
-/// @brief Library for I/O of the CGNS format
-namespace CGNS {
+
+/// @brief Contains Tutorial classes and functions
+namespace tutorial {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the CGNS mesh format operations
-/// @author Willem Deconinck
-class Mesh_CGNS_API LibCGNS : public cf3::common::Library
+/// @brief Defines the Tutorial library
+class tutorial_API LibTutorial : public cf3::common::Library 
 {
 public:
 
-  
-  
-
   /// Constructor
-  LibCGNS ( const std::string& name) : common::Library(name) {   }
+  LibTutorial ( const std::string& name) : cf3::common::Library(name) { }
+
+  /// Destructor
+  virtual ~LibTutorial() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.mesh.CGNS"; }
+  static std::string library_namespace() { return "cf3.tutorial"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "CGNS"; }
+  static std::string library_name() { return "tutorial"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
@@ -61,19 +59,20 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements the CGNS mesh format operations.";
+    return "This library implements Tutorial components";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibCGNS"; }
-}; // end LibCGNS
+  static std::string type_name() { return "LibTutorial"; }
+  
+  virtual void initiate();
+}; // end LibTutorial
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CGNS
-} // mesh
+} // tutorial
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_CGNS_hpp
+#endif // cf3_tutorial_LibTutorial_hpp

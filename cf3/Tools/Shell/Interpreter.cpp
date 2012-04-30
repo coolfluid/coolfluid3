@@ -208,7 +208,6 @@ void Interpreter::handle_read_line(std::string line)
 
   std::vector<std::string> args;
 
-  // huu, ugly...
   args = split_command_line(std::string("--") + line);
 
   try

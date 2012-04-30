@@ -1,14 +1,17 @@
 #!/usr/bin/env python
-import sys
+
 #sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
+
+import sys
 
 from coolfluid import *
 from math import *
 
 ###########################################################################
 
-final_time = 120
-output_simulation_every = 20
+
+final_time = 5 # should be 120
+output_simulation_every = 5
 mach = 1.5
 
 ###########################################################################
@@ -35,9 +38,11 @@ mesh_generator.options().set("mesh",mesh.uri()) \
                         .set("offsets",[0.,-length/2,-length/2])
 mesh_generator.execute()
 
+mesh.write_mesh( file = URI("cube_10x10x10.msh") )
+
 vis_mesh = domain.create_component('vis_mesh','cf3.mesh.Mesh')
 mesh_generator.options().set("mesh",vis_mesh.uri())\
-                        .set("nb_cells",[100,100,100])
+                        .set("nb_cells",[50,50,50])
 mesh_generator.execute()
 
 repartitioner=mesh.create_component('repartitioner','cf3.mesh.actions.LoadBalance')

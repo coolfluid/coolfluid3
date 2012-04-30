@@ -71,9 +71,9 @@ coolfluid_add_test( UTEST utest-mesh-meshadaptor
 
 coolfluid_add_test( UTEST     utest-mesh-cgns
                     CPP       utest-mesh-cgns.cpp
-                    LIBS      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neu coolfluid_mesh_gmsh
+                    LIBS      coolfluid_mesh_actions coolfluid_mesh_cgns coolfluid_mesh_neu coolfluid_mesh_gmsh
                     DEPENDS   copy-resources
-                    CONDITION coolfluid_mesh_cgns3_builds)
+                    CONDITION coolfluid_mesh_cgns_builds)
 
 
 coolfluid_add_test( UTEST   utest-mesh-neu
