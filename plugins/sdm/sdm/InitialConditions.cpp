@@ -76,9 +76,9 @@ void InitialConditions::execute()
 //  synchronize.execute();
 }
 
-solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
+solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::string& type, const std::vector<URI>& regions)
 {
-  Handle<solver::Action> ic = create_component< sdm::Init >(name);
+  Handle<solver::Action> ic = create_component(name,type)->handle<solver::Action>();
 
   Handle<Field> solution = follow_link(solver().field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
@@ -106,6 +106,8 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
 
   std::string name = options.value<std::string>("name");
 
+  std::string type = options.value<std::string>("type");
+
   std::vector<URI> regions;
   if( options.check("regions") )
   {
@@ -116,7 +118,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
     regions = solver().options().option("regions").value< std::vector<common::URI> >();
   }
 
-  solver::Action& created_component = create_initial_condition(name,regions);
+  solver::Action& created_component = create_initial_condition(name,type,regions);
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -129,17 +131,16 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   SignalOptions options( args );
 
   // name
-
-  options.add_option("name", std::string() )
+  options.add_option("name", std::string("init") )
       .description("Name for created initial condition" );
 
+  // type
+  options.add_option("type", std::string("cf3.sdm.Init") )
+      .description("Type of initial condition" );
+
   // regions
-
-  std::vector<URI> dummy;
-
   /// @todo create here the list of restricted regions, both volume and surface
-
-  options.add_option("regions", dummy )
+  options.add_option("regions", std::vector<URI>() )
       .description("Regions where to apply the initial condition [optional]");
 }
 
