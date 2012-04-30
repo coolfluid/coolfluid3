@@ -19,6 +19,8 @@
 #include "common/List.hpp"
 #include "common/DynTable.hpp"
 
+#include "common/PE/debug.hpp"
+
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
@@ -79,7 +81,7 @@ Reader::Reader( const std::string& name )
   desc += "  - " + supported_type + "\n";
   properties()["description"] = desc;
 
-  IO_rank = 1;
+  IO_rank = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -123,11 +125,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   m_mesh->initialize_nodes(0, m_mesh_dimension);
 
-
   find_used_nodes();
-
   read_coordinates();
-
   read_connectivity();
 
   fix_negative_volumes(*m_mesh);
@@ -137,13 +136,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
     read_element_node_data();
     read_node_data();
   }
-
-
-//  if (options().option("read_fields").value<bool>())
-//  {
-//    read_element_data();
-
-//  }
 
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
@@ -165,7 +157,6 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
 void Reader::get_file_positions()
 {
-
   std::string region_names("$PhysicalNames");
   std::string nodes("$Nodes");
   std::string elements("$Elements");
@@ -214,14 +205,15 @@ void Reader::get_file_positions()
     else if (line.find(nodes)!=std::string::npos) {
       m_coordinates_position=p;
       m_file >> m_total_nb_nodes;
-      //CFinfo << "The total number of nodes is " << m_total_nb_nodes << CFendl;
+//      CFinfo << "The total number of nodes is " << m_total_nb_nodes << CFendl;
+      if (m_total_nb_nodes == 0) throw ParsingFailed(FromHere(),"File contains no nodes");
     }
     else if (line.find(elements)!=std::string::npos)
     {
       m_elements_position = p;
       m_file >> m_total_nb_elements;
-      //CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
-
+//      CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
+      if (m_total_nb_elements == 0) throw ParsingFailed(FromHere(),"File contains no elements");
       //Create a hash
       m_hash = create_component<MergedParallelDistribution>("hash");
       std::vector<Uint> num_obj(2);
@@ -261,7 +253,10 @@ void Reader::get_file_positions()
     }
 
   }
-  cf3_assert(m_elements_position>0);
+  if (m_elements_position==0)
+  {
+    throw ParsingFailed(FromHere(),"File does not contain any elements");
+  }
   m_file.clear();
 }
 
@@ -419,8 +414,10 @@ void Reader::read_coordinates()
   std::string line;
   //Skip the line with keyword '$Nodes':
   getline(m_file,line);
+//  CFinfo << line << CFendl;
   // skip one line, which says how many (total) nodes are  present in the mesh
   getline(m_file,line);
+//  CFinfo << line << CFendl;
 
 
   // declare and allocate one coordinate row
@@ -436,10 +433,12 @@ void Reader::read_coordinates()
 //    if (m_total_nb_nodes > 100000)
 //    {
 //      if(node_idx%(m_total_nb_nodes/20)==0)
-//        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
+//        CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFflush;
+//      if(node_idx==m_total_nb_nodes-1)
+//        CFinfo << CFendl;
 //    }
     getline(m_file,line);
-
+//    CFinfo << line << CFendl;
     if (m_hash->subhash(NODES).owns(node_idx))
     {
       std::stringstream ss(line);
@@ -594,7 +593,9 @@ void Reader::read_connectivity()
 //    if (m_total_nb_elements > 100000)
 //    {
 //      if(i%(m_total_nb_elements/20)==0)
-//        CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
+//        CFinfo << 100*i/m_total_nb_elements << "% " << CFflush;
+//      if(i==m_total_nb_elements-1)
+//        CFinfo << CFendl;
 //    }
 
     // element description
@@ -971,7 +972,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   field.nb_entries=nb_entries;
   field.file_data_positions.push_back(m_file.tellg());
 
-  CFinfo << "    - found variable " << var_name << " from discontinuous field " << field_name << " at time " << field_time << CFendl;
+  CFdebug << "    - found variable " << var_name << " from discontinuous field " << field_name << " at time " << field_time << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
