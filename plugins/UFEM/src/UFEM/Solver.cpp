@@ -52,13 +52,13 @@ Solver::Solver(const std::string& name) :
     .description("Create a solver needing only one LSS solve")
     .pretty_name("Create Direct Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
-    
+
   regist_signal( "add_unsteady_solver" )
     .connect( boost::bind( &Solver::signal_add_unsteady_solver, this, _1 ) )
     .description("Create an unsteady solver, solving a linear system once every time step")
     .pretty_name("Create Unsteady Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
-    
+
   regist_signal( "create_initial_conditions" )
     .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
     .description("Create initial conditions.")
@@ -75,11 +75,11 @@ Handle< common::Action > Solver::add_direct_solver(const std::string& builder_na
   {
     create_component<InitialConditions>("InitialConditions");
   }
-  
+
   std::vector<std::string> builder_parts;
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle<common::Action> result(create_component(builder_parts.back(), builder_name));
-  
+
   if(is_not_null(m_physics))
     configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
@@ -102,13 +102,13 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   {
     timeloop->remove_component("AdvanceTime");
   }
-  
+
   std::vector<std::string> builder_parts;
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle< common::Action > result(timeloop->create_component(builder_parts.back(), builder_name));
 
   timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
-  
+
   if(is_not_null(m_physics))
     configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
@@ -122,11 +122,11 @@ Handle< common::ActionDirector > Solver::create_initial_conditions()
     CFwarn << "InitialConditions were created already, returning handle to previously created component" << CFendl;
     return result;
   }
-  
+
   result = create_component<InitialConditions>("InitialConditions");
   if(is_not_null(m_physics))
     result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
-  
+
   return result;
 }
 
@@ -142,7 +142,7 @@ void Solver::signal_add_direct_solver(SignalArgs& args)
 {
   SignalOptions options(args);
   Handle<common::Action> result = add_direct_solver(options.option("builder_name").value<std::string>());
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", result->uri());
@@ -152,7 +152,7 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 {
   SignalOptions options(args);
   Handle<common::Action> result = add_unsteady_solver(options.option("builder_name").value<std::string>());
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", result->uri());
@@ -161,57 +161,104 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 void Solver::signal_create_initial_conditions(SignalArgs& args)
 {
   Handle<common::ActionDirector> ic = create_initial_conditions();
-  
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", ic->uri());
 }
 
-void Solver::mesh_loaded(Mesh& mesh)
+void Solver::mesh_loaded(mesh::Mesh& mesh)
 {
-  SimpleSolver::mesh_loaded(mesh);
+  cf3::solver::SimpleSolver::mesh_loaded(mesh);
   mesh_changed(mesh);
 }
 
+
 void Solver::mesh_changed(Mesh& mesh)
 {
+  SimpleSolver::mesh_loaded(mesh);
+
   CFdebug << "UFEM::Solver: Reacting to mesh_changed signal" << CFendl;
 
-  // Ensure the comm pattern will be updated
-  if(is_not_null(mesh.geometry_fields().get_child("CommPattern")))
-  {
-    mesh.geometry_fields().remove_component("CommPattern");
-  }
-
   // Find out what tags are used
-  std::set<std::string> tags;
+  std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
   {
-    action.insert_tags(tags);
+    action.insert_field_info(tags);
   }
 
   // Create fields as needed
-  BOOST_FOREACH(const std::string& tag, tags)
+  for(std::map<std::string, std::string>::const_iterator it = tags.begin(); it != tags.end(); ++it)
   {
-    Handle< Field > field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
+    const std::string& tag = it->first;
+    const std::string& space_lib_name = it->second;
 
-    // If the field was created before, destroy it
-    if(is_not_null(field))
+    // Find the dictionary
+    Handle<Dictionary> dict;
+    if(space_lib_name == "geometry")
     {
-      CFdebug << "Removing existing field " << field->uri().string() << CFendl;
-      field->parent()->remove_component(field->name());
-      field.reset();
+      dict = mesh.geometry_fields().handle<Dictionary>();
+    }
+    else
+    {
+      BOOST_FOREACH(Dictionary& tagged_dict, find_components_recursively_with_tag<Dictionary>(mesh, "ufem_dict"))
+      {
+        if(tagged_dict.spaces().empty())
+        {
+          CFwarn << "Found empty dict while looking for dictionaries with tag ufem_dict" << CFendl;
+          continue;
+        }
+        const std::string sf_name = tagged_dict.options().option("shape_function").value<std::string>();
+        if(boost::algorithm::starts_with(sf_name, space_lib_name))
+        {
+          if(is_null(dict))
+          {
+            CFinfo << "Found ufem_dict " << tagged_dict.uri().path() << CFendl;
+            dict = tagged_dict.handle<Dictionary>();
+          }
+          else
+          {
+            CFwarn << "Duplicate ufem_dict " << tagged_dict.uri().path() << " ignored." << CFendl;
+          }
+        }
+      }
     }
 
+    // If the dictionary is not found, create it
+    if(is_null(dict))
+    {
+      // Special case of P0: create a discontinuous space
+      if(boost::ends_with(space_lib_name, "P0"))
+      {
+        dict = mesh.create_discontinuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+      }
+      else
+      {
+        dict = mesh.create_continuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+      }
+      dict->add_tag("ufem_dict");
+      CFinfo << "Created ufem_dict " << dict->uri().path() << CFendl;
+    }
+
+    cf3_assert(is_not_null(dict));
+
+    // Reset the comm pattern, since GIDs may have changed
+    if(is_not_null(dict->get_child("CommPattern")))
+    {
+      dict->remove_component("CommPattern");
+    }
+
+    Handle< Field > field = find_component_ptr_with_tag<Field>(*dict, tag);
+
     // Create the field
-    field_manager().create_field(tag, mesh.geometry_fields());
-    field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
+    field_manager().create_field(tag, *dict);
+    field = find_component_ptr_with_tag<Field>(*dict, tag);
     cf3_assert(is_not_null(field));
 
     // Parallelize
     if(common::PE::Comm::instance().is_active())
     {
-      field->parallelize_with(mesh.geometry_fields().comm_pattern());
+      field->parallelize_with(dict->comm_pattern());
     }
   }
 
@@ -219,6 +266,7 @@ void Solver::mesh_changed(Mesh& mesh)
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively(solver::Tags::regions(), root_regions);
+  configure_option_recursively("dictionary", mesh.geometry_fields().handle<Dictionary>());
 }
 
 } // UFEM

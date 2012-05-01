@@ -1,4 +1,6 @@
 list( APPEND coolfluid_ufem_files
+  AdjacentCellToFace.hpp
+  AdjacentCellToFace.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   HeatConductionSteady.hpp

@@ -250,8 +250,15 @@ inline mesh::Field& find_field(mesh::Elements& elements, const std::string& tag)
 }
 
 /// Dummy shape function type used for element-based fields
+template<Uint Dim>
 struct ElementBased
 {
+  static const Uint dimension = Dim;
+  /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
+  struct SF
+  {
+    typedef RealMatrix GradientT;
+  };
 };
 
 /// Data associated with field variables
@@ -448,7 +455,7 @@ private:
   mutable GradientT m_gradient;
 
   InterpolationImpl<Dim> m_eval;
-  
+
 public:
   /// Index of where the variable we need is in the field data row
   const Uint offset;
@@ -456,20 +463,13 @@ public:
 
 /// Data for element-based fields
 template<typename SupportEtypeT, Uint Dim, bool IsEquationVar>
-class EtypeTVariableData<ElementBased, SupportEtypeT, Dim, IsEquationVar>
+class EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>
 {
-
-  BOOST_MPL_ASSERT_MSG(
-    Dim == 1
-    , VECTOR_ELEMENT_FIELDS_NOT_SUPPORTED
-    , (EtypeTVariableData<ElementBased, SupportEtypeT, Dim, IsEquationVar>)
-  );
-
 public:
-  typedef ElementBased EtypeT;
+  typedef ElementBased<Dim> EtypeT;
 
   /// Type of returned value
-  typedef Real& ValueResultT;
+  typedef Eigen::Map< Eigen::Matrix<Real, 1, Dim> > ValueResultT;
 
   /// Data type for the geometric support
   typedef GeometricSupport<SupportEtypeT> SupportT;
@@ -495,9 +495,17 @@ public:
     m_field_idx = element_idx + m_elements_begin;
   }
 
-  Real& value()
+  ValueResultT value()
   {
-    return m_field[m_field_idx][offset];
+    return ValueResultT(&m_field[m_field_idx][offset]);
+  }
+
+  // Dummy types for compatibility with higher order elements
+  typedef RealMatrix EvalT;
+  RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
   }
 
 private:
@@ -505,6 +513,65 @@ private:
   const SupportT& m_support;
   const Uint m_elements_begin;
   Uint m_field_idx;
+  RealMatrix m_dummy_result; // only there for compilation purposes during the checking of the variable types. Never really used.
+
+public:
+  /// Index in the field array for this variable
+  const Uint offset;
+};
+
+/// Data for scalar element-based fields
+template<typename SupportEtypeT, bool IsEquationVar>
+class EtypeTVariableData<ElementBased<1>, SupportEtypeT, 1, IsEquationVar>
+{
+public:
+  typedef ElementBased<1> EtypeT;
+
+  /// Type of returned value
+  typedef Real& ValueResultT;
+
+  /// Data type for the geometric support
+  typedef GeometricSupport<SupportEtypeT> SupportT;
+
+  /// The dimension of the variable
+  static const Uint dimension = 1;
+
+  /// True if this variable is an unknow in the system of equations
+  static const bool is_equation_variable = IsEquationVar;
+
+  template<typename VariableT>
+  EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
+    m_field(find_field(elements, placeholder.field_tag())),
+    m_support(support),
+    m_elements_begin(m_field.dict().space(elements).connectivity()[0][0]),
+    offset(m_field.descriptor().offset(placeholder.name()))
+  {
+  }
+
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+    m_field_idx = element_idx + m_elements_begin;
+  }
+
+  Real& value()
+  {
+    return m_field[m_field_idx][offset];
+  }
+
+  typedef Real EvalT;
+  const RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
+  }
+
+private:
+  mesh::Field& m_field;
+  const SupportT& m_support;
+  const Uint m_elements_begin;
+  Uint m_field_idx;
+  RealMatrix m_dummy_result; // only there for compilation purposes during the checking of the variable types. Never really used.
 
 public:
   /// Index in the field array for this variable
@@ -539,13 +606,13 @@ struct MakeVarData
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
 
-    typedef typename boost::mpl::if_c<EtypeT::order == 0, ElementBased, EtypeT>::type EEtypeT;
+    typedef typename boost::mpl::if_c<EtypeT::order == 0, ElementBased<FieldWidth<VarT, SupportEtypeT>::value>, EtypeT>::type EEtypeT;
 
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      EtypeTVariableData<EEtypeT, SupportEtypeT, FieldWidth<VarT, EtypeT>::value, IsEquationVar::value>*
+      EtypeTVariableData<EEtypeT, SupportEtypeT, FieldWidth<VarT, SupportEtypeT>::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -589,7 +656,7 @@ public:
   static const Uint dimension = SupportShapeFunction::dimension;
 
   /// Element matrix size per var
-  typedef typename MatrixSizePerVar<VariablesT, VariablesEtypeTT>::type MatrixSizesT;
+  typedef typename MatrixSizePerVar<VariablesT, VariablesEtypeTT, SupportEtypeT>::type MatrixSizesT;
 
   /// Size for the element matrix
   typedef typename ElementMatrixSize<MatrixSizesT, EquationVariablesT>::type EMatrixSizeT;

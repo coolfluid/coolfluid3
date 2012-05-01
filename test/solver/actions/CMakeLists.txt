@@ -20,6 +20,7 @@ coolfluid_add_test( UTEST utest-solver-solvelss
 
 ################################################################################
 # proto tests
+
 if(CF3_ENABLE_PROTO)
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
@@ -58,4 +59,12 @@ coolfluid_add_test( PTEST     ptest-proto-parallel
                     ARGUMENTS ${_ARGS}
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh coolfluid_testing coolfluid_mesh_generation coolfluid_solver
                     MPI       4)
+else()
+coolfluid_mark_not_orphan(
+  ptest-proto-benchmark.cpp
+  utest-proto-operators.cpp
+  utest-proto-components.cpp
+  utest-proto-elements.cpp
+  ptest-proto-parallel.cpp
+)
 endif()

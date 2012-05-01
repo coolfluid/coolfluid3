@@ -8,6 +8,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
+#include <common/List.hpp>
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -73,12 +74,17 @@ LSSAction::LSSAction(const std::string& name) :
   solution(m_implementation->solution)
 {
   m_solution_tag = UFEM::Tags::solution();
-  
+
   regist_signal( "create_lss" )
     .connect( boost::bind( &LSSAction::signal_create_lss, this, _1 ) )
     .description("Create the Linear System Solver")
     .pretty_name("Create LSS")
     .signature( boost::bind( &LSSAction::signature_create_lss, this, _1 ) );
+
+  options().add_option("dictionary", m_dictionary)
+    .pretty_name("Dictionary")
+    .description("The dictionary to use for field lookups")
+    .link_to(&m_dictionary);
 }
 
 LSSAction::~LSSAction()
@@ -99,9 +105,9 @@ LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
   lss->options().configure_option("matrix_builder", matrix_builder);
 
   configure_option_recursively("lss", lss);
-  
+
   on_regions_set();
-  
+
   return *lss;
 }
 
@@ -117,7 +123,7 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 {
   SignalOptions options(node);
   LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>());
-  
+
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", lss.uri());
@@ -126,11 +132,14 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 
 void LSSAction::on_regions_set()
 {
+  if(m_implementation->m_updating) // avoid recursion
+    return;
+  
   m_implementation->m_lss = options().option("lss").value< Handle<LSS::System> >();
   if(is_null(m_implementation->m_lss))
     return;
 
-  if(m_implementation->m_updating) // avoid recursion
+  if(is_null(m_dictionary))
     return;
 
   m_implementation->m_updating = true;
@@ -140,17 +149,41 @@ void LSSAction::on_regions_set()
   {
     VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), m_solution_tag);
 
+    Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
+    Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
+    Handle< List<Uint> > used_node_map = m_implementation->m_lss->create_component< List<Uint> >("used_node_map");
+
     std::vector<Uint> node_connectivity, starting_indices;
-    build_sparsity(m_loop_regions, node_connectivity, starting_indices);
+    boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+    add_component(used_nodes);
+
+    // This comm pattern is valid only over the used nodes for the supplied regions
+    PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
+    comm_pattern.insert("gid",gids->array(),false);
+    comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
     CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
-    
-    m_implementation->m_lss->create(common::find_parent_component<mesh::Mesh>(*m_loop_regions.front()).geometry_fields().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
     CFdebug << "Finished creating LSS" << CFendl;
+    configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+    configure_option_recursively("lss", m_implementation->m_lss);
   }
 
   m_implementation->m_updating = false;
 }
+
+void LSSAction::trigger_dictionary()
+{
+  if(is_not_null(m_dictionary))
+  {
+    boost_foreach(Component& child, *this)
+    {
+      child.configure_option_recursively("dictionary", m_dictionary);
+    }
+    on_regions_set();
+  }
+}
+
 
 
 

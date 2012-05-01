@@ -11,9 +11,18 @@
 option( CF3_SKIP_TRILINOS "Skip search for Trilinos library" OFF )
 
 # Try to find Trilinos using Trilinos recommendations
-find_package(Trilinos PATHS ${TRILINOS_HOME}/lib/cmake/Trilinos ${TRILINOS_HOME}/include ${DEPS_ROOT}/lib/cmake/Trilinos ${DEPS_ROOT}/include)
-if(Trilinos_FOUND)
 
+if( DEFINED TRILINOS_HOME )
+    find_package(Trilinos PATHS ${TRILINOS_HOME}/lib/cmake/Trilinos ${TRILINOS_HOME}/include )
+endif()
+
+if( DEFINED DEPS_ROOT )
+    find_package(Trilinos PATHS ${DEPS_ROOT}/lib/cmake/Trilinos ${DEPS_ROOT}/include )
+endif()
+
+if( Trilinos_FOUND )
+
+    set( TRILINOS_INCLUDE_DIRS "" )
     list( APPEND TRILINOS_INCLUDE_DIRS ${Trilinos_INCLUDE_DIRS})
     list( APPEND TRILINOS_INCLUDE_DIRS ${Trilinos_TPL_INCLUDE_DIRS})
 
@@ -59,26 +68,26 @@ else()
       thyracore
   )
 
-  foreach (test_lib ${trilinos_req_libs})
+  foreach( test_lib ${trilinos_req_libs} )
     find_library( ${test_lib}_lib ${test_lib} PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
     find_library( ${test_lib}_lib ${test_lib})
     list( APPEND TRILINOS_LIBRARIES ${${test_lib}_lib} )
   endforeach()
 
-  if( ${CF3_HAVE_PARMETIS} )
+  if( CF3_HAVE_PARMETIS )
     list( APPEND TRILINOS_LIBRARIES ${PARMETIS_LIBRARIES} )
     list( APPEND TRILINOS_INCLUDE_DIRS ${PARMETIS_INCLUDE_DIRS} )
   endif()
 
-  if( ${CF3_HAVE_PTSCOTCH} )
+  if( CF3_HAVE_PTSCOTCH )
     list( APPEND TRILINOS_LIBRARIES ${PTSCOTCH_LIBRARIES} )
     list( APPEND TRILINOS_INCLUDE_DIRS ${PTSCOTCH_INCLUDE_DIRS} )
   endif()
 
 endif()
 
-#coolfluid_log("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
-#coolfluid_log("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
+coolfluid_log("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
+coolfluid_log("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Trilinos
                        DESCRIPTION "parallel linear system solver and other libraries"
@@ -86,3 +95,9 @@ coolfluid_set_package( PACKAGE Trilinos
                        VARS
                        TRILINOS_INCLUDE_DIRS
                        TRILINOS_LIBRARIES  )
+
+if( Trilinos_FOUND )
+    set( CF3_HAVE_TRILINOS 1 )
+else()
+    set( CF3_HAVE_TRILINOS 0 )
+endif()
