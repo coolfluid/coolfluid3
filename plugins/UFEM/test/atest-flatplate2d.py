@@ -137,7 +137,7 @@ bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().configure_option('value', u_in)
 bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().configure_option('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Velocity').options().configure_option('value',  u_in)
+bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().configure_option('value',  0.)
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
 

@@ -15,6 +15,7 @@
 
 #include "LSSWrapper.hpp"
 #include "Terminals.hpp"
+#include "Transforms.hpp"
 
 namespace cf3 {
 namespace solver {
@@ -43,8 +44,9 @@ inline void assign_dirichlet(math::LSS::System& lss, const NewT& new_value, cons
     lss.dirichlet(node_idx, offset+i, new_value[i] - old_value[i]);
 }
 
+/// Sets whole-variable dirichlet BC, allowing the use of a complete vector as value
 struct DirichletBCSetter :
-  boost::proto::transform< DirichletBCSetter >
+  boost::proto::transform<DirichletBCSetter>
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -69,21 +71,67 @@ struct DirichletBCSetter :
   };
 };
 
+/// Sets a specific component of a vector
+struct DirichletBCComponentSetter :
+  boost::proto::transform<DirichletBCComponentSetter>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      const Uint vec_component = boost::proto::value(boost::proto::right(boost::proto::child_c<1>(expr)));
+      math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss();
+      assign_dirichlet(
+        lss,
+        state,
+        data.var_data(boost::proto::value(boost::proto::left(boost::proto::child_c<1>(expr)))).value()[vec_component], // old value
+        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx),
+        data.var_data(boost::proto::value(boost::proto::left(boost::proto::child_c<1>(expr)))).offset + vec_component
+      );
+    }
+  };
+};
+
+
+
 /// Matches the proper formulation of Dirichlet BC
 template<typename GrammarT>
 struct DirichletBCGrammar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::assign
+    boost::proto::when
     <
-      boost::proto::function
+      boost::proto::assign
       <
-        boost::proto::terminal< LSSWrapperImpl<DirichletBCTag> >,
-        FieldTypes
+        boost::proto::function
+        <
+          boost::proto::terminal< LSSWrapperImpl<DirichletBCTag> >,
+          FieldTypes
+        >,
+        GrammarT
       >,
-      GrammarT
+      DirichletBCSetter(boost::proto::_left, GrammarT(boost::proto::_right))
     >,
-    DirichletBCSetter(boost::proto::_left, GrammarT(boost::proto::_right))
+    boost::proto::when
+    <
+      boost::proto::assign
+      <
+        boost::proto::function
+        <
+          boost::proto::terminal< LSSWrapperImpl<DirichletBCTag> >,
+          boost::proto::subscript<boost::proto::terminal< Var<boost::proto::_, VectorField> >, Integers>
+        >,
+        GrammarT
+      >,
+      DirichletBCComponentSetter(boost::proto::_left, GrammarT(boost::proto::_right))
+    >
   >
 {
 };
