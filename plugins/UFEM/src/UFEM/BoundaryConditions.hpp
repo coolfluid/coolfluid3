@@ -43,6 +43,9 @@ public: // functions
   /// @param variable_name Name of the variable for which to set the BC
   /// @param default_value Default value
   Handle<common::Action> add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
+  
+  /// Set only one component of a vector variable
+  Handle<common::Action> add_constant_component_bc(const std::string& region_name, const std::string& variable_name, const Uint component_idx, const Real default_value = 0.);
 
   /// Create a dirichlet BC that can be set using a user-supplied function
   /// @param region_name Name of the boundary region. Must be unique in the problem region
@@ -52,6 +55,7 @@ public: // functions
   /// Signal to create a constant BC and add it to the sequence of executed actions
   void signal_create_constant_bc(common::SignalArgs& node);
   void signal_create_function_bc(common::SignalArgs& node);
+  void signal_create_constant_component_bc(common::SignalArgs& node);
 
   void set_solution_tag(const std::string& solution_tag);
 
