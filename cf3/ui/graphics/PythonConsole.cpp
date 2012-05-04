@@ -62,6 +62,8 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   QAction* history_to_text_editor=new QAction(QIcon(":/Icons/action_new_script_from_history")
                                               ,"Create script from history",this);
   tool_bar->addAction(history_to_text_editor);
+
+  debug_arrow=-1;
   //history list
   history_list_widget=new CustomListWidget(this);
   history_list_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -73,10 +75,11 @@ PythonConsole::PythonConsole(QWidget *parent,MainWindow* main_window) :
   connect(break_action,SIGNAL(triggered()),this,SLOT(break_pressed()));
   connect(history_to_text_editor,SIGNAL(triggered()),this,SLOT(push_history_to_script_editor()));
   connect(ui::core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(execution_stopped(int,int)));
-  connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
-          this, SLOT(insert_log(QString)));
+  connect(core::NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),this,SLOT(insert_log(QString)));
   connect(core::NScriptEngine::global().get(),SIGNAL(execute_code_request(QString)),this,SLOT(execute_code(QString)));
   connect(core::NScriptEngine::global().get(),SIGNAL(append_false_command_request(QString)),this,SLOT(append_false_code(QString)));
+  connect(core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(display_debug_trace(int,int)));
+  connect(core::NScriptEngine::global().get(),SIGNAL(change_fragment_request(int,int)),this,SLOT(change_code_fragment(int,int)));
   connect(this,SIGNAL(cursorPositionChanged()),this,SLOT(cursor_position_changed()));
   setViewportMargins(border_width,tool_bar->height(),0,0);
   offset_border.setX(border_width);
@@ -140,7 +143,62 @@ void PythonConsole::cursor_position_changed(){
   }
 }*/
 
+//////////////////////////////////////////////////////////////////////////
+
+int PythonConsole::get_debug_arrow_block(){
+  return debug_arrow;
+}
+
+//////////////////////////////////////////////////////////////////////////
+void PythonConsole::display_debug_trace(int fragment,int line){
+  if (fragment > 0){
+    int fragment_bloc_number=fragment_container[fragment];
+    reset_debug_trace();
+    debug_arrow=fragment_bloc_number+(line-1);
+    QTextBlock block=document()->findBlockByNumber(debug_arrow);
+    QTextCursor prev_cursor=textCursor();
+    QTextCursor cursor(document());
+    cursor.setPosition(block.position());
+    setTextCursor(cursor);
+    centerCursor();
+    setTextCursor(prev_cursor);
+    document()->markContentsDirty(block.position(),1);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::register_fragment(QString code,int block_number,QVector<int> break_point){
+  fragment_container.insert(++fragment_generator,block_number);
+  blocks_fragment.insert(block_number,fragment_generator);
+  ui::core::NScriptEngine::global().get()->execute_line(code,fragment_generator,break_point);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::reset_debug_trace(){
+  if (debug_arrow > -1){
+    document()->markContentsDirty(document()->findBlockByNumber(debug_arrow).position(),1);
+    debug_arrow=-1;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::change_code_fragment(int fragment,int new_fragment){
+  int block_number=fragment_container.value(fragment);
+  if (block_number!=0){
+    fragment_container.remove(fragment);
+    fragment_container.insert(new_fragment,block_number);
+    blocks_fragment.insert(block_number,new_fragment);
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////
+
+void PythonConsole::send_toggle_break_point(int fragment_block,int line_number){
+  ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::TOGGLE_BREAK_POINT,blocks_fragment.value(fragment_block),line_number);
+}
 
 void PythonConsole::key_press_event(QKeyEvent *e){
   QTextCursor c=textCursor();

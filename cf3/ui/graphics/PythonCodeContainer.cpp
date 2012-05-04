@@ -37,12 +37,9 @@ namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-QMap<int,int> PythonCodeContainer::fragment_container;
-QMap<int,int> PythonCodeContainer::blocks_fragment;
 PythonCompleter* PythonCodeContainer::completer=NULL;
 PythonConsole* PythonCodeContainer::python_console=NULL;
 QTreeView* PythonCodeContainer::python_scope_values=NULL;
-int PythonCodeContainer::fragment_generator=0;
 QVector<PythonCodeContainer::PythonDict> PythonCodeContainer::dictionary;
 QStandardItemModel PythonCodeContainer::python_dictionary;
 QPixmap* BorderArea::debug_arrow=NULL;
@@ -67,22 +64,16 @@ PythonCodeContainer::PythonCodeContainer(QWidget *parent) :
     python_scope_values->setAttribute(Qt::WA_DeleteOnClose,false);
     python_scope_values->setEditTriggers(QAbstractItemView::NoEditTriggers);
     python_scope_values->setColumnHidden(1,true);
-    //fragment_container.push_back(QPair<PythonCodeContainer*,int>(NULL,0));//dummy fragment, fragment index start at 1
     connect(core::ThreadManager::instance().tree().root().get(),SIGNAL(connected())
             ,core::NScriptEngine::global().get(),SLOT(client_connected()));
     connect(core::NScriptEngine::global().get(),SIGNAL(completion_list_received(QStringList,QStringList)),
             this,SLOT(keywords_changed(QStringList,QStringList)));
-    connect(core::NScriptEngine::global().get(), SIGNAL(debug_trace_received(int,int))
-            , this,SLOT(display_debug_trace(int,int)));
-    connect(core::NScriptEngine::global().get(),SIGNAL(change_fragment_request(int,int)),this,SLOT(change_code_fragment(int,int)));
-    //connect(core::NScriptEngine::global().get(),SIGNAL(debug_trace_received(int,int)),this,SLOT(di)
   }
   setAcceptDrops(true);
   highlighter=new PythonSyntaxeHighlighter(document());
   setFont(QFont("Monospace"));
   border_width=fontMetrics().width(QLatin1Char('>'))*3+20;
   border_area=new BorderArea(this,border_width);
-  debug_arrow=-1;
   setLineWrapMode(QPlainTextEdit::WidgetWidth);
   tool_bar=new QToolBar(this);
   tool_bar->setMovable(false);
@@ -124,72 +115,6 @@ void PythonCodeContainer::update_border_area(const QRect &rect,int dy){
 
 //////////////////////////////////////////////////////////////////////////
 
-void PythonCodeContainer::register_fragment(QString code,int block_number,QVector<int> break_point){
-  fragment_container.insert(++fragment_generator,block_number);
-  blocks_fragment.insert(block_number,fragment_generator);
-  ui::core::NScriptEngine::global().get()->execute_line(code,fragment_generator,break_point);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PythonCodeContainer::toggle_break_point(int fragment_block, int line_number,bool send){
-  if (send)
-    ui::core::NScriptEngine::global().get()->emit_debug_command(ui::core::NScriptEngine::TOGGLE_BREAK_POINT,blocks_fragment.value(fragment_block),line_number);
-  int block_number=fragment_block+line_number;
-  int ind=break_points.indexOf(block_number);
-  if (ind > -1){
-    break_points.remove(ind);
-  }else{
-    int i;
-    for (i=0;i<break_points.size();i++)
-      if (break_points[i] > block_number)
-        break;
-    break_points.insert(i,block_number);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PythonCodeContainer::display_debug_trace(int fragment,int line){
-  if (fragment > 0){
-    int fragment_bloc_number=fragment_container[fragment];
-    if (python_console != NULL){
-      reset_debug_trace();
-      python_console->debug_arrow=fragment_bloc_number+(line-1);
-      QTextBlock block=python_console->document()->findBlockByNumber(python_console->debug_arrow);
-      QTextCursor prev_cursor=python_console->textCursor();
-      QTextCursor cursor(prev_cursor);
-      cursor.setPosition(block.position());
-      python_console->setTextCursor(cursor);
-      //python_console->centerCursor();
-      //python_console->setTextCursor(prev_cursor);
-      python_console->document()->markContentsDirty(block.position(),1);
-      //python_scope_values->show();
-    }
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PythonCodeContainer::reset_debug_trace(){
-  if (python_console->debug_arrow > -1){
-    python_console->document()->markContentsDirty(
-          python_console->document()->findBlockByNumber(python_console->debug_arrow).position(),1);
-    python_console->debug_arrow=-1;
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void PythonCodeContainer::change_code_fragment(int fragment,int new_fragment){
-  int block_number=fragment_container.value(fragment);
-  fragment_container.remove(fragment);
-  fragment_container.insert(new_fragment,block_number);
-  blocks_fragment.insert(block_number,new_fragment);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
   if (BorderArea::debug_arrow==NULL){
     BorderArea::break_point=new QPixmap(":/Icons/break_point.png");
@@ -202,6 +127,7 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
   int vertical_displace=tool_bar->height();
   int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top()+vertical_displace;
   int bottom = top + (int) blockBoundingRect(block).height();
+  int debug_arrow_block=python_console->get_debug_arrow_block();
   painter.setPen(Qt::black);
   while (block.isValid() && top <= event->rect().bottom()) {
     if (block.isVisible() && bottom >= event->rect().top()) {
@@ -225,13 +151,31 @@ void PythonCodeContainer::repaint_border_area(QPaintEvent *event){
       int break_point_index=break_points.indexOf(block_number);
       if (break_point_index!=-1)
         painter.drawPixmap(0,top,16,16,*BorderArea::break_point);
-      if (block_number == debug_arrow)
+      if (block_number == debug_arrow_block)
         painter.drawPixmap(2,top,16,16,*BorderArea::debug_arrow);
     }
     block = block.next();
     top = bottom;
     bottom = top + (int) blockBoundingRect(block).height();
     block_number++;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void PythonCodeContainer::toggle_break_point(int fragment_block, int line_number,bool send){
+  if (send)
+    python_console->send_toggle_break_point(fragment_block,line_number);
+  int block_number=fragment_block+line_number;
+  int ind=break_points.indexOf(block_number);
+  if (ind > -1){
+    break_points.remove(ind);
+  }else{
+    int i;
+    for (i=0;i<break_points.size();i++)
+      if (break_points[i] > block_number)
+        break;
+    break_points.insert(i,block_number);
   }
 }
 
@@ -344,58 +288,6 @@ void PythonCodeContainer::leaveEvent(QEvent *e){
   QToolTip::hideText();
   QPlainTextEdit::leaveEvent(e);
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-/* convert a selection into a pixmap representing the selection
-  to much things didn't work well
-void PythonCodeContainer::mousePressEvent(QMouseEvent *e){
-  if (e->button() == Qt::LeftButton){
-    QTextCursor cursor=textCursor();
-    QString selected_text=cursor.selectedText();
-    if (!selected_text.isEmpty()){
-      int sel_start=cursor.selectionStart();
-      int sel_end=cursor.selectionEnd();
-      QTextCursor temp_cur(document());
-      temp_cur.setPosition(sel_start);
-      QRect selection=cursorRect(temp_cur);
-      while (temp_cur.position() < sel_end){
-        temp_cur.movePosition(QTextCursor::Right);
-        selection=selection.united(cursorRect(temp_cur));
-      }
-      if (selection.contains(e->pos())){
-        QMimeData* data=new QMimeData();
-        selected_text.replace(QChar(8233),'\n');
-        data->setText(selected_text);
-        QPixmap image(selection.size());
-        render(&image,QPoint(),selection.translated(offset_border+QPoint(2,2)),QWidget::DrawChildren);
-        QBitmap mask(selection.size());
-        mask.clear();
-        {
-          QPainter p(&mask);
-          temp_cur.setPosition(sel_start);
-          while (temp_cur.position() < sel_end){
-            QRect cur_rect=cursorRect(temp_cur);
-            temp_cur.movePosition(QTextCursor::Right);
-            QRect next_cur_rect=cursorRect(temp_cur);
-            cur_rect=cur_rect.united(next_cur_rect);
-            if (cur_rect.height() == next_cur_rect.height()){//if we are on the same line
-              p.fillRect(cur_rect.translated(-selection.topLeft()),QBrush(Qt::color1,Qt::Dense4Pattern));
-            }
-          }
-        }
-        image.setMask(mask);
-        QDrag *drag = new QDrag(this);
-        drag->setMimeData(data);
-        drag->setPixmap(image);
-        drag->setHotSpot(e->pos()-selection.topLeft());
-        Qt::DropAction dropAction = drag->exec();
-        return;
-      }
-    }
-  }else{
-  QPlainTextEdit::mousePressEvent(e);
-}*/
 
 //////////////////////////////////////////////////////////////////////////
 

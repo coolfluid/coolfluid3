@@ -18,7 +18,6 @@
 #include <QAction>
 #include <QWidget>
 #include <QFileDialog>
-#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +154,6 @@ void PythonCodeEditor::contents_change(int pos,int sub,int add){
   if (modif_length > 0){
     QTextBlock block=document()->findBlock(pos);
     QTextBlock end=document()->findBlock(pos+modif_length);
-    std::cout << "first modif block : " << block.blockNumber() << ", last modif block : " << end.blockNumber() << std::endl;
     if (end.isValid() && block != end) {
       while (block != end) {
         block.setUserState(LINE_NUMBER);

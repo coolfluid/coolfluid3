@@ -18,6 +18,7 @@ NTree.hpp
 NScriptEngine.hpp
 PropertyModel.hpp
 RemoteDispatcher.hpp
+SSHTunnel.hpp
 TreeNode.hpp
 TreeThread.hpp
 )
@@ -69,6 +70,8 @@ PropertyModel.cpp
 PropertyModel.hpp
 RemoteDispatcher.cpp
 RemoteDispatcher.hpp
+SSHTunnel.cpp
+SSHTunnel.hpp
 ThreadManager.cpp
 ThreadManager.hpp
 TreeNode.cpp

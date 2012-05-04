@@ -34,6 +34,7 @@
 #include "ui/core/NTree.hpp"
 #include "ui/core/PropertyModel.hpp"
 #include "ui/core/RemoteDispatcher.hpp"
+#include "ui/core/SSHTunnel.hpp"
 #include "ui/core/ThreadManager.hpp"
 
 #include "ui/graphics/AboutCFDialog.hpp"
@@ -171,6 +172,8 @@ MainWindow::MainWindow()
 
   connect(m_tab_window, SIGNAL(currentChanged(int)), this, SLOT(tab_clicked(int)));
 
+  current_tunnel=NULL;
+
   this->set_connected_state(false);
 
   NLog::global()->add_message("Client successfully launched.");
@@ -214,8 +217,20 @@ void MainWindow::build_menus()
                                 SLOT(connect_to_server()), tr("ctrl+shift+C"));
   m_actions[ACTION_CONNECT_TO_SERVER] = action;
 
+  //////
+#if defined(unix) || defined(__unix__) || defined(__unix)
+  action = m_mnu_file->addAction("Create an ssh &tunnel", this,
+                                SLOT(create_ssh_tunnel()), tr("ctrl+shift+T"));
+  m_actions[ACTION_CREATE_SSH_TUNNEL] = action;
+
+  action = m_mnu_file->addAction("Create a &reverse ssh tunnel", this,
+                                SLOT(create_reverse_ssh_tunnel()), tr("ctrl+shift+R"));
+  m_actions[ACTION_CREATE_REVERSE_SSH_TUNNEL] = action;
+#endif
+  //////
+
   action = m_mnu_file->addAction("&Disconnect from server", this,
-                                SLOT(disconnect_from_server()), tr("ctrl+shift+x"));
+                                SLOT(disconnect_from_server()), tr("ctrl+shift+X"));
   m_actions[ACTION_DISCONNECT_FROM_SERVER] = action;
 
   action = m_mnu_file->addAction("&Shutdown the server", this,
@@ -224,12 +239,12 @@ void MainWindow::build_menus()
 
   m_mnu_file->addSeparator();
 
-  action = m_mnu_file->addAction("&Run script", this,
-                                SLOT(run_script()), tr("ctrl+shift+R"));
+  action = m_mnu_file->addAction("Run &script", this,
+                                SLOT(run_script()), tr("ctrl+shift+S"));
   m_actions[ACTION_RUN_SCRIPT] = action;
 
   action = m_mnu_file->addAction("&New python editor", this,
-                                SLOT(new_python_script_editor()), tr("ctrl+shift+R"));
+                                SLOT(new_python_script_editor()), tr("ctrl+shift+N"));
   m_actions[ACTION_RUN_SCRIPT] = action;
 
   m_mnu_file->addSeparator();
@@ -512,6 +527,28 @@ void MainWindow::connect_to_server()
 
     ThreadManager::instance().network().connect_to_host( hostname, port );
   }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::create_ssh_tunnel()
+{
+  SSHTunnel* tunnel=SSHTunnel::simple_tunnel_popup(this);
+  if (tunnel){
+    current_tunnel=tunnel;
+  }
+    //ThreadManager::instance().network().connect_to_host( "localhost", gateway_port );
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::create_reverse_ssh_tunnel()
+{
+  SSHTunnel* tunnel=SSHTunnel::reverse_tunnel_popup(this);
+  if (tunnel){
+    current_tunnel=tunnel;
+  }
+    //ThreadManager::instance().network().connect_to_host( "localhost", gateway_port );
 }
 
 ////////////////////////////////////////////////////////////////////////////

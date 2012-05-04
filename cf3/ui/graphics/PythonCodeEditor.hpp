@@ -39,10 +39,15 @@ protected:
   bool editable_zone(const QTextCursor &cursor);
   void insert_text(const QString &text);
 private slots:
+  /// @brief send the code to the python console, the entire code is executed directly
   void execute_immediat();
+  /// @brief send the code to the python console, the console stop after each statement to let the user do some modifications
   void execute_stepped();
+  /// @brief open a file and append his content to the code editor
   void open();
+  /// @brief save the code editor content to a file
   void save();
+  /// @brief called at each modification, the main purpose of this is to change the new block state to LINE_NUMBER
   void contents_change(int pos,int sub,int add);
 };
 

@@ -101,7 +101,6 @@ PythonSyntaxeHighlighter::~PythonSyntaxeHighlighter(){
 }
 
 void PythonSyntaxeHighlighter::highlightBlock(const QString &text){
-  // maybe not great to do this at each modification
   static QRegExp two_points("^[^#:]*:[ ]*(#[^$]*)?$");
   currentBlock().setUserData(NULL);//reset error if there where one
   if (text.length()){

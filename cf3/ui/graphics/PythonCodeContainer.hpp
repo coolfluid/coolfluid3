@@ -59,9 +59,7 @@ public:
   void repaint_border_area(QPaintEvent *event);
   /// @brief called by the border area on click event
   virtual void border_click(const QPoint & pos) = 0;
-protected:
-  /// @brief Send the python code fragment to the script engine
-  void register_fragment(QString code,int block_number,QVector<int> break_point);
+protected: 
   /// @brief Send a toggle break command to the script engine
   void toggle_break_point(int fragment_block, int line_number,bool send=true);
   /// @brief manage some typing behaviour then call key_press_event to propagate the event to the inherited class
@@ -93,9 +91,6 @@ protected slots:
   void update_border_area(const QRect &,int);
   void keywords_changed(const QStringList &add,const QStringList &sub);
   void insert_completion(QString);
-  void display_debug_trace(int fragment,int line);
-  void change_code_fragment(int fragment,int new_fragment);
-  void reset_debug_trace();
   void request_documentation();
   void popup_documentation(const QString & documentation);
 private:
@@ -110,12 +105,10 @@ private:
   void remove_dictionary_item(QString name,CustomStandardItem* item);
   QString get_word_under_cursor(QTextCursor &c);
   BorderArea *border_area;
-  int debug_arrow;//block number of the debug arrow, -1 for no arrow
   QPoint last_mouse_pos;
   QTimer doc_timer;
   QString last_documented_word;
   QString last_documentation;
-  static int fragment_generator;
   static PythonCompleter *completer;
   static QVector<PythonDict> dictionary;
   //static QStringList python_dictionary;
@@ -123,8 +116,6 @@ protected:
   int border_width;
   QPoint offset_border;
   QToolBar *tool_bar;
-  static QMap<int,int> blocks_fragment;
-  static QMap<int,int> fragment_container;
   static PythonConsole *python_console;
   static QStandardItemModel python_dictionary;
   static QTreeView *python_scope_values;

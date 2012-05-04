@@ -36,6 +36,7 @@ namespace ui {
 
 namespace core {
   class PropertyModel;
+  class SSHTunnel;
 }
 
 namespace graphics {
@@ -62,6 +63,10 @@ namespace graphics {
     enum MainWinActions
     {
       ACTION_CONNECT_TO_SERVER,
+
+      ACTION_CREATE_SSH_TUNNEL,
+
+      ACTION_CREATE_REVERSE_SSH_TUNNEL,
 
       ACTION_DISCONNECT_FROM_SERVER,
 
@@ -117,7 +122,7 @@ namespace graphics {
     ~MainWindow();
 
 
-    ///
+    /// @brief create a new PythonCodeEditor, called from the PythonConsole
     PythonCodeEditor* create_new_python_editor();
 
   protected:
@@ -148,6 +153,10 @@ namespace graphics {
     void new_exception(const QString &);
 
     void connect_to_server();
+
+    void create_ssh_tunnel();
+
+    void create_reverse_ssh_tunnel();
 
     void disconnect_from_server();
 
@@ -250,6 +259,8 @@ namespace graphics {
     TreeBrowser * m_tree_browser;
 
     Tools::Shell::Interpreter * m_script_runner;
+
+    core::SSHTunnel * current_tunnel;
 
     /// @brief Creates actions and menus
     void build_menus();
