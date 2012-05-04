@@ -7,9 +7,6 @@
 #ifndef cf3_solver_actions_Proto_NodeLooper_hpp
 #define cf3_solver_actions_Proto_NodeLooper_hpp
 
-#include <boost/mpl/for_each.hpp>
-#include <boost/mpl/range_c.hpp>
-
 #include "NodeData.hpp"
 #include "NodeGrammar.hpp"
 
@@ -121,7 +118,6 @@ struct NodeLooperDim
   void operator()() const
   {
     // Create data used for the evaluation
-#warning Call to find_parent_component in node-loop exposed (used to be in now removed "Region::geometry_fields()" )
     const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
     DataT node_data(m_variables, m_region, coordinates, m_expr);
 
@@ -184,26 +180,36 @@ private:
   VariablesT& m_variables;
 };
 
+template<Uint dim, typename ExprT>
+void for_each_node(mesh::Region& root_region, const ExprT& expr)
+{
+  // IF COMPILATION FAILS HERE: the espression passed is invalid
+  BOOST_MPL_ASSERT_MSG(
+    (boost::proto::matches<ExprT, NodeGrammar>::value),
+                       INVALID_NODE_EXPRESSION,
+                       (NodeGrammar));
+
+  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
+
+  VariablesT vars;
+  CopyNumberedVars<VariablesT> ctx(vars);
+  boost::proto::eval(expr, ctx);
+
+  NodeLooper<ExprT>(expr, root_region, vars)(boost::mpl::int_<dim>());
+}
+
 /// Visit all nodes used by root_region exactly once, executing expr
 /// @param variable_names Name of each of the variables, in case a linear system is solved
 /// @param variable_sizes Size (number of scalars) that makes up each variable in the linear system, if any
 template<typename ExprT>
 void for_each_node(mesh::Region& root_region, const ExprT& expr)
 {
-  // IF COMPILATION FAILS HERE: the espression passed is invalid
-  BOOST_MPL_ASSERT_MSG(
-    (boost::proto::matches<ExprT, NodeGrammar>::value),
-    INVALID_NODE_EXPRESSION,
-    (NodeGrammar));
-  
-  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
-  
-  VariablesT vars;
-  CopyNumberedVars<VariablesT> ctx(vars);
-  boost::proto::eval(expr, ctx);
-  
-  boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<ExprT>(expr, root_region, vars) );
+  for_each_node<1>(root_region, expr);
+  for_each_node<2>(root_region, expr);
+  for_each_node<3>(root_region, expr);
 }
+
+
 
 } // namespace Proto
 } // namespace actions

@@ -125,6 +125,9 @@ list( APPEND coolfluid_ui_graphics_files
 
 list( APPEND coolfluid_ui_graphics_cflibs coolfluid_ui_core )
 
+list(APPEND coolfluid_ui_graphics_includedirs ${PYTHON_INCLUDE_DIR})
+list(APPEND coolfluid_ui_graphics_libs ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
+
 # Use Qt Libraries
 list( APPEND coolfluid_ui_graphics_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser)
 
