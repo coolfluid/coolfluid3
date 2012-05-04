@@ -56,8 +56,6 @@ using namespace cf3::common;
 
 using namespace cf3::math::Consts;
 
-using namespace boost;
-
 /// Check close, for testing purposes
 inline void check_close(const RealMatrix2& a, const RealMatrix2& b, const Real threshold)
 {

@@ -14,6 +14,7 @@
 #include "common/CF.hpp"
 
 #include "Transforms.hpp"
+#include "ElementData.hpp"
 
 /// @file
 /// Operations used in element-wise expressions

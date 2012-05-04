@@ -120,6 +120,7 @@ struct NodeLooperDim
 
   void operator()() const
   {
+    // Create data used for the evaluation
 #warning Call to find_parent_component in node-loop exposed (used to be in now removed "Region::geometry_fields()" )
     const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
     DataT node_data(m_variables, m_region, coordinates, m_expr);

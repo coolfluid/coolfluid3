@@ -92,9 +92,11 @@ struct FieldBase
   /// Construct a new field placeholder
   /// @param name Variable name for the represented quantity (i.e. Temperature)
   /// @param field_tag Tag to identify the field
-  FieldBase(const std::string& name, const std::string& field_tag) :
+  /// @param space_lib_name The name of the space library used for the field
+  FieldBase(const std::string& name, const std::string& field_tag, const std::string& space_lib_name = "geometry") :
     m_name(name),
-    m_field_tag(field_tag)
+    m_field_tag(field_tag),
+    m_space_lib_name(space_lib_name)
   {
   }
 
@@ -108,9 +110,15 @@ struct FieldBase
     return m_field_tag;
   }
 
+  inline const std::string& space_lib_name() const
+  {
+    return m_space_lib_name;
+  }
+
 private:
   std::string m_name;
   std::string m_field_tag;
+  std::string m_space_lib_name;
 };
 
 /// Field data for a scalar field
@@ -118,6 +126,8 @@ struct ScalarField : FieldBase
 {
   ScalarField() : FieldBase() {}
   ScalarField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
+  template<typename LibraryT>
+  ScalarField(const std::string& varname, const std::string& field_tag, const Handle<LibraryT>& space_lib) : FieldBase(varname, field_tag, LibraryT::library_namespace()) {}
 };
 
 /// Field data for a vector having the dimension of the problem
@@ -125,6 +135,8 @@ struct VectorField : FieldBase
 {
   VectorField() : FieldBase() {}
   VectorField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
+  template<typename LibraryT>
+  VectorField(const std::string& varname, const std::string& field_tag, const Handle<LibraryT>& space_lib) : FieldBase(varname, field_tag, LibraryT::library_namespace()) {}
 };
 
 /// Shorthand for terminals containing a numbered variable

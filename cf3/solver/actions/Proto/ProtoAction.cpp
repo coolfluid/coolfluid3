@@ -81,9 +81,9 @@ void ProtoAction::set_expression(const boost::shared_ptr< Expression >& expressi
   m_implementation->trigger_physical_model();
 }
 
-void ProtoAction::insert_tags(std::set< std::string >& tags) const
+void ProtoAction::insert_field_info(std::map<std::string, std::string>& tags) const
 {
-  m_implementation->m_expression->insert_tags(tags);
+  m_implementation->m_expression->insert_field_info(tags);
 }
 
 

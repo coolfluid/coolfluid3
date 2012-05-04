@@ -12,8 +12,7 @@
 
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
-
-#include "physics/PhysModel.hpp"
+#include "common/Signal.hpp"
 
 /// @file
 /// Wraps Component classes for Proto
@@ -39,28 +38,36 @@ public:
   ComponentWrapperImpl(ComponentT& component) :
     m_component( new Handle<ComponentT>(component.template handle<ComponentT>()) )
   {
+    trigger_component();
   }
 
   /// Construction using an option that will point to the actual component.
   ComponentWrapperImpl(common::Option& component_option) :
     m_component( new Handle<ComponentT>() )
   {
-    component_option.link_to(m_component.get());
+    component_option.link_to(m_component.get()).attach_trigger(boost::bind(&ComponentWrapperImpl::trigger_component, this));
+    trigger_component();
   }
 
   /// Return the wrapped component
   ComponentT& component()
   {
-    if(is_null(m_component))
-      throw common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
-
-    return **m_component;
+//     if(is_null(m_component))
+//       throw common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
+    cf3_assert(is_not_null(m_component));
+    return *m_cached_component;
   }
 
 private:
   /// Points to the wrapped component, if any
   /// The shared_ptr wraps the weak_ptr so the link is always OK
   boost::shared_ptr< Handle<ComponentT> > m_component;
+  ComponentT* m_cached_component;
+  
+  void trigger_component()
+  {
+    m_cached_component = m_component->get();
+  }
 };
 
 /// Proto-ready terminal type for wrapping a component

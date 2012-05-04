@@ -179,20 +179,20 @@ struct FieldWidth<VectorField, SF>
 };
 
 /// Given a variable's data, get the product of the number of nodes with the dimension variable (i.e. the size of the element matrix if this variable would be the only one in the problem)
-template<typename VariableT, typename SF>
+template<typename VariableT, typename SF, typename SupportSF>
 struct NodesTimesDim
 {
-  typedef boost::mpl::int_<SF::nb_nodes * FieldWidth<VariableT, SF>::value> type;
+  typedef boost::mpl::int_<SF::nb_nodes * FieldWidth<VariableT, SupportSF>::value> type;
 };
 
-template<typename SF>
-struct NodesTimesDim<boost::mpl::void_, SF>
+template<typename SF, typename SupportSF>
+struct NodesTimesDim<boost::mpl::void_, SF, SupportSF>
 {
   typedef boost::mpl::int_<0> type;
 };
 
 /// The size of the element matrix for each variable
-template<typename VariablesT, typename VariablesSFT>
+template<typename VariablesT, typename VariablesSFT, typename SupportSF>
 struct MatrixSizePerVar
 {
   typedef typename boost::mpl::eval_if
@@ -202,12 +202,12 @@ struct MatrixSizePerVar
     <
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
       VariablesSFT,
-      NodesTimesDim<boost::mpl::_1, boost::mpl::_2>
+      NodesTimesDim<boost::mpl::_1, boost::mpl::_2, SupportSF>
     >,
     boost::mpl::transform
     <
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
-      NodesTimesDim<boost::mpl::_1, VariablesSFT>
+      NodesTimesDim<boost::mpl::_1, VariablesSFT, SupportSF>
     >
   >::type type;
 };

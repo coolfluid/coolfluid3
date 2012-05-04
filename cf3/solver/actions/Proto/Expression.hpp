@@ -8,7 +8,6 @@
 #define cf3_solver_actions_Proto_Expression_hpp
 
 #include <map>
-#include <set>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -57,8 +56,10 @@ public:
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(physics::PhysModel& physical_model) = 0;
 
-  /// Append the field tags to the given vector
-  virtual void insert_tags(std::set<std::string>& tags) const = 0;
+  /// Complete the passed map with field information used by the stored expression. The map is built as follows:
+  /// key: the tag for the field to use or create
+  /// value: space library name, to indicate what kind of field is expected
+  virtual void insert_field_info(std::map<std::string, std::string>& tags) const = 0;
 
   virtual ~Expression() {}
 };
@@ -115,7 +116,7 @@ public:
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
   }
 
-  void insert_tags(std::set< std::string >& tags) const
+  void insert_field_info(std::map<std::string, std::string>& tags) const
   {
     boost::fusion::for_each(m_variables, AppendTags(tags));
   }
@@ -193,7 +194,7 @@ private:
   /// Functor to store the tags used by a field
   struct AppendTags
   {
-    AppendTags(std::set<std::string>& tags) :
+    AppendTags(std::map<std::string, std::string>& tags) :
       m_tags(tags)
     {
     }
@@ -201,7 +202,8 @@ private:
     /// Register a scalar
     void operator()(const FieldBase& field) const
     {
-      m_tags.insert(field.field_tag());
+      if(m_tags.insert( std::make_pair(field.field_tag(), field.space_lib_name()) ).first->second != field.space_lib_name())
+        throw common::SetupError(FromHere(), "Field with tag " + field.field_tag() + " uses two different space libs");
     }
 
     /// Skip unused variables
@@ -209,7 +211,7 @@ private:
     {
     }
 
-    std::set<std::string>& m_tags;
+    std::map<std::string, std::string>& m_tags;
   };
 };
 

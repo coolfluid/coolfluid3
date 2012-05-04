@@ -73,6 +73,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
     Proto/IndexLooping.hpp
+    Proto/LSSWrapper.hpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp

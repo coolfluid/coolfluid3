@@ -10,7 +10,15 @@
 #include "UFEM/LibUFEM.hpp"
 
 namespace cf3 {
-  namespace mesh { class Mesh; }
+  namespace common {
+    template<class T >
+    class List;
+  }
+
+  namespace mesh {
+    class Region;
+    class Dictionary;
+  }
 namespace UFEM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +29,7 @@ namespace UFEM {
 /// @param node_connectivity Lists the connected nodes for each node.
 /// @param start_indices For each node N, the index in node_connectivity where the list of connected nodes of node N starts.
 /// Size is number of nodes + 1, so the last item is the size of node_connectivity
-void UFEM_API build_sparsity(const mesh::Mesh& mesh, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices);
+UFEM_API boost::shared_ptr< common::List< Uint > > build_sparsity(const std::vector< Handle<mesh::Region> >& regions, const mesh::Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, common::List<Uint>& gids, common::List<Uint>& ranks, common::List<Uint>& used_node_map);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

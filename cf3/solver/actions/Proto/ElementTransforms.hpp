@@ -16,7 +16,7 @@
 #include "solver/actions/Proto/ElementData.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
-/// @file 
+/// @file
 /// Transforms used in element-wise expression evaluation
 
 namespace cf3 {
@@ -34,14 +34,14 @@ struct RunTerminalOp : boost::proto::transform< RunTerminalOp<GrammarT> >
     typedef typename boost::remove_reference<typename boost::proto::result_of::value<ExprT>::type>::type ValueT;
     typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
     typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
-    
+
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
       return OpT()(expr, state, data);
     }
   };
 };
-  
+
 /// Runs a shape function operation that is used as a function call
 template<typename GrammarT>
 struct RunFunctionOp : boost::proto::transform< RunFunctionOp<GrammarT> >
@@ -53,7 +53,7 @@ struct RunFunctionOp : boost::proto::transform< RunFunctionOp<GrammarT> >
     typedef typename boost::remove_reference<typename boost::proto::result_of::value<Child0>::type>::type ValueT;
     typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
     typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
-    
+
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
       return OpT()(expr, state, data);
@@ -80,31 +80,44 @@ struct SFOps :
 {
 };
 
+/// Dummy for non-element fields
+template<typename T>
+struct GetElementResultType
+{
+  typedef typename boost::remove_const<typename boost::remove_reference<typename T::EvalT>::type>::type& type;
+};
+
+/// Correct type for element-based fields
+template<typename SupportEtypeT, Uint Dim, bool IsEquationVar>
+struct GetElementResultType< EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar> >
+{
+  typedef typename EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>::ValueResultT type;
+};
+
 /// Filter to extract the value from an element-based field
 struct ElementValue : boost::proto::transform<ElementValue>
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    
     typedef typename VarDataType<ExprT, DataT>::type VarDataT;
-    // TODO: Result type deduction (needed only for element-based vector fields)
-    typedef Real& result_type;
-    
+    typedef typename GetElementResultType<VarDataT>::type result_type;
+
     result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
     {
       return dispatch(typename VarDataT::EtypeT(), data.var_data(var), var);
     }
-    
+
     /// static dispatch in case of node-based field, giving an error
     template<typename SF>
     result_type dispatch(const SF&, VarDataT&, typename impl::expr_param var)
     {
       throw common::SetupError(FromHere(), "Variable " + var.variable_value.name() + " is used like an element-based variable, but it is stored in a node-based field");
     }
-    
+
     /// static dispatch in case of element-based field
-    result_type dispatch(const ElementBased&, VarDataT& var, typename impl::expr_param)
+    template<Uint Dim>
+    result_type dispatch(const ElementBased<Dim>&, VarDataT& var, typename impl::expr_param)
     {
       return var.value();
     }
@@ -157,7 +170,7 @@ struct ElementMathImplicit :
   >
 {
 };
-  
+
 } // namespace Proto
 } // namespace actions
 } // namespace solver

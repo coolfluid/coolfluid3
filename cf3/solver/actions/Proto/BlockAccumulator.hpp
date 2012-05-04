@@ -19,7 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Matrix.hpp"
 
-#include "ComponentWrapper.hpp"
+#include "LSSWrapper.hpp"
 #include "Terminals.hpp"
 
 /// @file
@@ -36,7 +36,7 @@ struct SystemMatrixTag
 };
 
 /// Represents a system matrix
-typedef ComponentWrapper<math::LSS::System, SystemMatrixTag> SystemMatrix;
+typedef LSSWrapper<SystemMatrixTag> SystemMatrix;
 
 /// Tag for RHS
 struct SystemRHSTag
@@ -44,12 +44,12 @@ struct SystemRHSTag
 };
 
 /// Represents an RHS
-typedef ComponentWrapper<math::LSS::System, SystemRHSTag> SystemRHS;
+typedef LSSWrapper<SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, TagT> >
+  boost::proto::terminal< LSSWrapperImpl<TagT> >
 {
 };
 
@@ -106,13 +106,14 @@ struct BlockAssignmentOp;
 template<typename OpTagT>
 struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
 {
-  template<typename RhsT, typename DataT>
-  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  template<typename LSST, typename RhsT, typename DataT>
+  void operator()(LSST& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+    lss.convert_to_lss(block_accumulator.indices);
 
     for(Uint row = 0; row != mat_size; ++row)
     {
@@ -124,15 +125,15 @@ struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
         block_accumulator.mat(block_row, block_col) = rhs(row, col);
       }
     }
-    do_assign_op_matrix(OpTagT(), *lss.matrix(), block_accumulator);
+    do_assign_op_matrix(OpTagT(), lss.matrix(), block_accumulator);
   }
 };
 
 template<typename OpTagT>
 struct BlockAssignmentOp<SystemRHSTag, OpTagT>
 {
-  template<typename RhsT, typename DataT>
-  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  template<typename LSST, typename RhsT, typename DataT>
+  void operator()(LSST& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
@@ -145,7 +146,7 @@ struct BlockAssignmentOp<SystemRHSTag, OpTagT>
       block_accumulator.rhs[block_idx] = rhs[i];
     }
 
-    do_assign_op_rhs(OpTagT(), *lss.rhs(), block_accumulator);
+    do_assign_op_rhs(OpTagT(), lss.rhs(), block_accumulator);
   }
 };
 
@@ -177,7 +178,7 @@ struct BlockAccumulator :
               , typename impl::data_param data // data associated with element loop
     ) const
     {
-      BlockAssignmentOp<SystemTagT, OpT>()(boost::proto::value( boost::proto::left(expr) ).component(), state, data);
+      BlockAssignmentOp<SystemTagT, OpT>()(boost::proto::value( boost::proto::left(expr) ), state, data);
     }
   };
 };

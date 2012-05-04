@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_PROTO_MAX_ARITY 10                        //explained in boost doc
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
  #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
  #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
@@ -34,7 +34,8 @@
 
 #include "mesh/SimpleMeshGenerator.hpp"
 
-#include "UFEM/LinearSolver.hpp"
+#include "UFEM/LSSAction.hpp"
+#include "UFEM/Solver.hpp"
 #include "UFEM/Tags.hpp"
 
 using namespace cf3;
@@ -92,11 +93,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup a model
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolver& solver = *model.create_component<UFEM::LinearSolver>("Solver");
+  UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
 
-  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
-  lss.options().configure_option("solver", std::string("Trilinos"));
-  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
+  Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
@@ -108,7 +107,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   // add the top-level actions (assembly, BC and solve)
-  solver
+  *lss_action
     << create_proto_action
     (
       "Assembly",
@@ -119,18 +118,18 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         (
           _A = _0,
           element_quadrature( _A(temperature) += transpose(nabla(temperature)) * nabla(temperature) ),
-          solver.system_matrix += _A
+          lss_action->system_matrix += _A
         )
       )
     )
     << bc
     << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-    << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
+    << create_proto_action("Increment", nodes_expression(temperature += lss_action->solution(temperature)))
     << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"))
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
-  model.create_physics("cf3.physics.DynamicModel");
+  model.create_physics("cf3.UFEM.NavierStokesPhysics");
 
   // Setup mesh
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -141,6 +140,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
 
+  math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
   lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
