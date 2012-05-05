@@ -260,6 +260,9 @@ coolfluid_add_test( UTEST    utest-mesh-simplemeshgenerator
                     LIBS     coolfluid_mesh
                     MPI      2 )
 
+coolfluid_add_test( UTEST    utest-mesh-triangulator
+                    PYTHON   utest-mesh-triangulator.py)
+
 ############################################################################################
 
 set( partitioner_lib "" )

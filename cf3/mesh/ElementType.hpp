@@ -14,6 +14,7 @@
 
 #include "math/MatrixTypes.hpp"
 
+#include "mesh/Entities.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/ShapeFunctionT.hpp"
 #include "mesh/GeoShape.hpp"
@@ -34,8 +35,8 @@ class Mesh_API ElementType : public common::Component {
 
 public: // typedefs
 
-  
-  
+
+
 
   typedef ElementTypeFaceConnectivity FaceConnectivity;
 public: // functions
@@ -250,6 +251,16 @@ struct IsElementType
   bool operator()(const ElementType& etype)
   {
     return ETYPE::dimension == etype.dimension() && is_not_null(dynamic_cast<const ShapeFunctionT<typename ETYPE::SF>*>(&etype.shape_function()));
+  }
+
+  bool operator()(const Handle< Entities >& component)
+  {
+    return operator()(component->element_type());
+  }
+
+  bool operator()(const Entities& component)
+  {
+    return operator()(component.element_type());
   }
 };
 
