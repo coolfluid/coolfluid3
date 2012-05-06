@@ -8,12 +8,14 @@
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
 
+#include "mesh/ConnectivityData.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/MeshTriangulator.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "LagrangeP1/Quad2D.hpp"
 #include "LagrangeP1/Hexa3D.hpp"
+#include "LagrangeP1/Quad3D.hpp"
 #include "Space.hpp"
 #include "Connectivity.hpp"
 
@@ -62,7 +64,41 @@ void MeshTriangulator::execute()
     to_remove.push_back(quads.handle());
   }
   
-  // Convert 2D mesh
+  // Convert 3D mesh
+  
+  // Keeps track of the per-tetrahedron indices
+  const Uint tetra_indices[5][4] = {
+    {0, 1, 2, 5},
+    {0, 2, 3, 7},
+    {5, 7, 6, 2},
+    {4, 7, 5, 0},
+    {0, 7, 5, 2}
+  };
+    
+  // local node indices for the triangles that split each side of the hexahedron
+  const Uint face_nodes[6][2][3] = {
+    {{0, 3, 2}, {2, 1, 0}},
+    {{4, 5, 7}, {5, 6, 7}},
+    {{0, 1, 5}, {5, 4, 0}},
+    {{1, 2, 5}, {2, 6, 5}},
+    {{2, 3, 7}, {7, 6, 2}},
+    {{0, 4, 7}, {7, 3, 0}}
+  };
+  
+  // We use connectivity information to ensure that quad surface patches are subdivided the same way as the adjacent cell
+  boost::shared_ptr<CNodeConnectivity> node_connectivity = allocate_component<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Quad3D>()));
+  
+  // Build a mapping between Quad3D and Triag3D element patches
+  std::map<Elements const*, Elements*> surface_patches;
+  BOOST_FOREACH(Elements& quads, find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Quad3D>()))
+  {
+    Elements& triags = find_parent_component<Region>(quads).create_elements("cf3.mesh.LagrangeP1.Triag3D", quads.geometry_fields());
+    triags.resize(quads.size()*2);
+    surface_patches[&quads] = &triags;
+    to_remove.push_back(quads.handle());
+  }
+  
   BOOST_FOREACH(Elements& hexas, find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Hexa3D>()))
   {
     const Uint nb_hexas = hexas.size();
@@ -71,18 +107,15 @@ void MeshTriangulator::execute()
     const Connectivity& hexa_conn = hexas.geometry_space().connectivity();
     Connectivity& tetra_conn = tetras.geometry_space().connectivity();
     
-    // Keeps track of the per-tetrahedron indices
-    Uint tetra_indices[5][4] = {
-      {0, 1, 2, 5},
-      {0, 2, 3, 7},
-      {5, 7, 6, 2},
-      {4, 7, 5, 0},
-      {0, 7, 5, 2}
-    };
+    // Connectivity to any adjacent surface patches
+    CFaceConnectivity& face_connectivity = *hexas.create_component<CFaceConnectivity>("CellToFaceConnectivity");
+    face_connectivity.initialize(*node_connectivity);
     
     for(Uint i = 0; i != nb_hexas; ++i)
     {
       const Connectivity::ConstRow hexa_row = hexa_conn[i];
+      
+      // Split up the volume cells
       for(Uint j = 0; j != 5; ++j) // loop over the tetras
       {
         Connectivity::Row tetra_row = tetra_conn[i*5+j];
@@ -91,18 +124,39 @@ void MeshTriangulator::execute()
           tetra_row[k] = hexa_row[tetra_indices[j][k]];
         }
       }
+      
+      // Split up the surface patches
+      for(Uint j = 0; j != 6; ++j)
+      {
+        if(face_connectivity.has_adjacent_element(i, j))
+        {
+          const CFaceConnectivity::ElementReferenceT adj_elem = face_connectivity.adjacent_element(i, j);
+          Elements& triags = *surface_patches[adj_elem.first];
+          Connectivity::Row triag_row1 = triags.geometry_space().connectivity()[adj_elem.second*2];
+          Connectivity::Row triag_row2 = triags.geometry_space().connectivity()[adj_elem.second*2+1];
+          
+          triag_row1[0] = hexa_row[face_nodes[j][0][0]];
+          triag_row1[1] = hexa_row[face_nodes[j][0][1]];
+          triag_row1[2] = hexa_row[face_nodes[j][0][2]];
+
+          triag_row2[0] = hexa_row[face_nodes[j][1][0]];
+          triag_row2[1] = hexa_row[face_nodes[j][1][1]];
+          triag_row2[2] = hexa_row[face_nodes[j][1][2]];
+        }
+      }
     }
 
     to_remove.push_back(hexas.handle());
   }
 
+  // Remove the quads and hexas
   BOOST_FOREACH(const Handle<Component>& comp, to_remove)
   {
     comp->parent()->remove_component(*comp);
   }
   
   mesh().update_statistics();
-	mesh().check_sanity();
+  mesh().check_sanity();
 }
 
 } // mesh
