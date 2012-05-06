@@ -43,6 +43,9 @@ private:
   /// Update the copy of the physics coefficients when the physical model changes
   void trigger_physical_model();
   
+  /// Create the solver structure, based on the choice of specialized code
+  void trigger_use_specializations();
+  
   /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;
 };
