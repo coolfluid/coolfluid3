@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   // List of (Navier-)Stokes creation functions, with their names
   const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("generic_ns_assembly");
   typedef boost::shared_ptr< Expression > (*FactoryT)(LSSActionUnsteady&, SUPGCoeffs&);
-  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::generic_ns_assembly);
+  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::ns_assembly_quad_hexa_p1);
 
   // Loop over all model types
   for(Uint i = 0; i != names.size(); ++i)
