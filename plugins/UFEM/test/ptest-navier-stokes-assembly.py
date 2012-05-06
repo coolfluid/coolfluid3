@@ -1,3 +1,4 @@
+import math
 import sys
 import coolfluid as cf
 
@@ -20,15 +21,28 @@ def make_square(x_segs, y_segs):
   blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [3, 2]
   blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
   
+  blocks.options().configure_option('overlap', 0)
+  
   return blocks
 
 class TestCase:
   def __init__(self, modelname, segments, use_spec):
+    if len(sys.argv) == 2:
+      self.nb_procs = int(sys.argv[1])
+    else:
+      self.nb_procs = 1
     self.model = cf.Core.root().create_component(modelname, 'cf3.solver.ModelUnsteady')
     self.domain = self.model.create_domain()
     self.physics = self.model.create_physics('cf3.UFEM.NavierStokesPhysics')
     self.solver = self.model.create_solver('cf3.UFEM.Solver')
     self.segments = segments
+    if self.nb_procs > 1:
+      m1 = self.nb_procs/int(math.floor(math.sqrt(self.nb_procs)))
+      while self.nb_procs % m1 != 0:
+        m1 += 1
+      m2 = self.nb_procs/m1
+      self.segments[0] *= m2
+      self.segments[1] *= m1
     
     self.physics.options().configure_option('density', 1000.)
     self.physics.options().configure_option('dynamic_viscosity', 10.)
@@ -39,14 +53,28 @@ class TestCase:
     self.ns_solver.options().configure_option('disabled_actions', ['SolveLSS'])
     self.use_spec = use_spec
     
+  def grow_overlap(self):
+    if self.nb_procs > 1:
+      globconn = self.domain.create_component('GlobalConnectivity', 'cf3.mesh.actions.GlobalConnectivity')
+      globconn.options().configure_option('mesh', self.mesh)
+      globconn.execute()
+      
+      grow = self.domain.create_component('GrowOverlap', 'cf3.mesh.actions.GrowOverlap')
+      grow.options().configure_option('mesh', self.mesh)
+      grow.execute()
+    
   def square_mesh_quads(self):
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
-    make_square(self.segments[0], self.segments[1]).create_mesh(self.mesh.uri())
+    blocks=make_square(self.segments[0], self.segments[1])
+    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+    blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
     
   def square_mesh_triags(self):
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
-    make_square(self.segments[0], self.segments[1]).create_mesh(self.mesh.uri())
+    blocks=make_square(self.segments[0], self.segments[1])
+    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+    blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
     triangulator.options().configure_option('mesh', self.mesh)
     triangulator.execute()
@@ -58,6 +86,7 @@ class TestCase:
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
     blocks.extrude_blocks(positions=[1.], nb_segments=[self.segments[2]], gradings=[1.])
+    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
     
@@ -65,6 +94,7 @@ class TestCase:
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
     blocks.extrude_blocks(positions=[1.], nb_segments=[self.segments[2]], gradings=[1.])
+    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
     triangulator.options().configure_option('mesh', self.mesh)
@@ -74,6 +104,7 @@ class TestCase:
     self.setup_lss()
     
   def setup_lss(self):
+    self.grow_overlap()
     self.ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
     
   def run(self):
@@ -86,7 +117,7 @@ class TestCase:
       assembly_name = 'GenericAssembly'
       if(self.use_spec):
         assembly_name = 'SpecializedAssembly'
-      print '<DartMeasurement name=\"{modname} time\" type=\"numeric/double\">{timing}</DartMeasurement>'.format(modname=self.model.name(), timing = self.ns_solver.get_child(assembly_name).properties()['timer_mean'])
+      print '<DartMeasurement name=\"' + self.model.name() + ' time\" type=\"numeric/double\">' + str(self.ns_solver.get_child(assembly_name).properties()['timer_mean']) + '</DartMeasurement>'
     except:
       print 'Could not find timing info'
 
@@ -99,7 +130,7 @@ env.options().configure_option('assertion_throws', False)
 env.options().configure_option('assertion_backtrace', False)
 env.options().configure_option('exception_backtrace', False)
 env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('log_level', 4)
+env.options().configure_option('log_level', 0)
 
 # Generic assembly over quads
 test_case = TestCase('QuadsGeneric', [500,400], False)

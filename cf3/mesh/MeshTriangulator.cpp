@@ -155,7 +155,51 @@ void MeshTriangulator::execute()
     comp->parent()->remove_component(*comp);
   }
   
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
+  
+  // Total number of elements on this rank
+  Uint mesh_nb_elems = 0;
+  boost_foreach(Elements& elements , find_components_recursively<Elements>(mesh()))
+  {
+    mesh_nb_elems += elements.size();
+  }
+  
+  std::vector<Uint> nb_elements_accumulated;
+  if(PE::Comm::instance().is_active())
+  {
+    // Get the total number of elements on each rank
+    PE::Comm::instance().all_gather(mesh_nb_elems, nb_elements_accumulated);
+  }
+  else
+  {
+    nb_elements_accumulated.push_back(mesh_nb_elems);
+  }
+  cf3_assert(nb_elements_accumulated.size() == nb_procs);
+  // Sum up the values
+  for(Uint i = 1; i != nb_procs; ++i)
+    nb_elements_accumulated[i] += nb_elements_accumulated[i-1];
+
+  // Offset to start with for this rank
+  Uint element_offset = rank == 0 ? 0 : nb_elements_accumulated[rank-1];
+
+  // Update the element ranks and gids
+  boost_foreach(Elements& elements , find_components_recursively<Elements>(mesh()))
+  {
+    const Uint nb_elems = elements.size();
+    elements.rank().resize(nb_elems);
+    elements.glb_idx().resize(nb_elems);
+
+    for (Uint elem=0; elem != nb_elems; ++elem)
+    {
+      elements.rank()[elem] = rank;
+      elements.glb_idx()[elem] = elem + element_offset;
+    }
+    element_offset += nb_elems;
+  }
+
   mesh().update_statistics();
+  mesh().update_structures();
   mesh().check_sanity();
 }
 
