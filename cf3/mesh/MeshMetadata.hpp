@@ -25,11 +25,6 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API MeshMetadata : public common::Component
 {
-public: //typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor

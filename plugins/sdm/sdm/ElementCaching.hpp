@@ -9,11 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <set>
-
-/// @todo remove common/Log include
-#include "common/Log.hpp"
-
 #include "common/OptionList.hpp"
 #include "common/StringConversion.hpp"
 
@@ -53,14 +48,12 @@ public:
   ElementCache(const std::string& name) //: common::Component(name)
   {
     idx = math::Consts::uint_max();
-    CFdebug <<"Create new " << name;
     unlock();
   }
   virtual ~ElementCache() {}
 
   virtual void configure(const Handle<const mesh::Entities>& entities_comp)
   {
-    CFdebug<<" for " << entities_comp->uri() <<CFendl;
     // reset and reconfigure for this element type
     unlock();
     if(entities)
@@ -146,7 +139,6 @@ public:
 
   virtual ElementCacheT& configure_cache( const Handle<mesh::Entities const>& entities )
   {
-    CFdebug << "configuring Cache" << CFendl;
     get().configure(entities);
     return get();
   }
@@ -246,7 +238,6 @@ public:
     Handle< typename ElementCacheT::cache_type > fac = Handle< typename ElementCacheT::cache_type >(get_child(tag));
     if (!fac) // if not available, generate it
     {
-      CFdebug << "Creating Cache for " << tag << CFendl;
       fac = create_component< typename ElementCacheT::cache_type >(tag);
       fac->add_options();
     }

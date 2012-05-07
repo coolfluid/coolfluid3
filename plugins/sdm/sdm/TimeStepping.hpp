@@ -24,11 +24,6 @@ namespace sdm {
 
 class sdm_API TimeStepping : public cf3::solver::ActionDirector {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component
