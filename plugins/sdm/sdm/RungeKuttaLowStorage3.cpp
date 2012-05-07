@@ -146,6 +146,7 @@ void RungeKuttaLowStorage3::execute()
   
   link_fields();
 
+  int convergence_failed = false;
   const Uint nb_stages = options().option("nb_stages").value<Uint>();
   std::vector<Real> delta_vec = options().option("delta").value< std::vector<Real> >();
   std::vector<Real> gamma1_vec = options().option("gamma1").value< std::vector<Real> >();
@@ -197,7 +198,18 @@ void RungeKuttaLowStorage3::execute()
     time.current_time() = T0 + c * dt;
 
     // Do actual computations in pre_update
-    pre_update().execute();
+    try
+    {
+      pre_update().execute();
+    }
+    catch (const common::FailedToConverge& exception)
+    {
+      convergence_failed = true;
+    }
+    PE::Comm::instance().all_reduce(PE::max(),&convergence_failed,1,&convergence_failed);
+    if (convergence_failed)
+      throw (common::FailedToConverge(FromHere(),""));
+
 
     // now assigned in pre-update
     // - R
