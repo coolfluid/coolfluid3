@@ -31,6 +31,7 @@
 #include "common/LibLoader.hpp"
 #include "common/PropertyList.hpp"
 #include "common/ComponentIterator.hpp"
+#include "common/TimedComponent.hpp"
 #include "common/UUCount.hpp"
 
 
@@ -163,6 +164,12 @@ Component::Component ( const std::string& name ) :
       .hidden(true)
       .read_only(true)
       .description("Gives signature of a signal");
+      
+  regist_signal( "store_timings" )
+      .connect( boost::bind(&Component::signal_store_timings, this, _1))
+      .hidden(true)
+      .pretty_name("Store Timings")
+      .description("Store calculated timing information into properties timer_mean, timer_minimum and timer_maximum for the tree starting at this component");
 
 
   // properties
@@ -1041,6 +1048,14 @@ void Component::signature_move_component( SignalArgs& args )
       .pretty_name("Path")
       .description("Path to the new component to which this one will move to.");
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_store_timings ( SignalArgs& args )
+{
+  store_timings(*this);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

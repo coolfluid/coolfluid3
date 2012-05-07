@@ -50,6 +50,8 @@ list( APPEND coolfluid_mesh_files
   MeshReader.cpp
   MeshTransformer.hpp
   MeshTransformer.cpp
+  MeshTriangulator.hpp
+  MeshTriangulator.cpp
   MeshWriter.hpp
   MeshWriter.cpp
   MergedParallelDistribution.hpp

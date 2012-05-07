@@ -79,6 +79,7 @@ public: // functions
   void write_mesh( const common::URI& file, const std::vector<common::URI> fields = std::vector<common::URI>());
 
   void signal_write_mesh ( common::SignalArgs& node );
+  void signal_raise_mesh_loaded ( common::SignalArgs& node );
 
   void signature_write_mesh ( common::SignalArgs& node);
 
