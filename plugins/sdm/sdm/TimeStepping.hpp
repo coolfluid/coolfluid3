@@ -15,7 +15,7 @@
 
 namespace cf3 {
 
-  namespace solver { class Time; }
+  namespace solver { class Time; class History; }
 
 namespace sdm {
 
@@ -41,6 +41,7 @@ public: // functions
   common::ActionDirector& pre_actions()  { return *m_pre_actions; }
   common::ActionDirector& post_actions() { return *m_post_actions; }
 
+  const Handle< solver::History >& history() { return m_history; }
   /// @name SIGNALS
   //@{
 
@@ -61,7 +62,10 @@ private: // data
 
   Handle< common::ActionDirector > m_post_actions; ///< set of actions after non-linear solve
 
+  Handle< solver::History > m_history;  ///< Component tracking history of several variables
+
   FunctionParser  m_cfl;
+
   void parse_cfl();
 };
 
