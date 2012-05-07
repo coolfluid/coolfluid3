@@ -10,6 +10,7 @@
 #include "common/Log.hpp"
 #include "common/BoostFilesystem.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
@@ -20,6 +21,7 @@
 
 #include "mesh/gmsh/Writer.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/MeshMetadata.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Dictionary.hpp"
@@ -322,8 +324,8 @@ void Writer::write_elem_nodal_data(std::fstream& file)
     const Field& field = *field_h;
     if(field.discontinuous())
     {
-      const Real field_time = 0;//field.option("time").value<Real>();
-      const Uint field_iter = 0;//field.option("iteration").value<Uint>();
+      const Real field_time = m_mesh->metadata().properties().value<Real>("time");
+      const Uint field_iter = m_mesh->metadata().properties().value<Uint>("iter");
       const std::string field_name = field.name();
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
@@ -488,8 +490,8 @@ void Writer::write_nodal_data(std::fstream& file)
     {
       cf3_assert(is_null(field_h) == false);
       const Field& field = *field_h;
-      const Real field_time = 0;//field.option("time").value<Real>();
-      const Uint field_iter = 0;//field.option("iteration").value<Uint>();
+      const Real field_time = m_mesh->metadata().properties().value<Real>("time");
+      const Uint field_iter = m_mesh->metadata().properties().value<Uint>("iter");
       const std::string field_name = field.name();
       Uint nb_elements = 0;
       std::vector< Handle<Entities const> > filtered_used_entities_by_field;
