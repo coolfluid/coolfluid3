@@ -27,11 +27,32 @@ class HistoryEntry;
 
 /// @brief Stores History of variables
 ///
-/// An API is offered to dynamically grow a history using buffers.
-/// Any number of variables can be added during runtime.
-/// A logging facility is provided to log a history to file in
-/// Tab Separated Values format (tsv).
-/// Accessing the history triggers a flush of the buffers
+/// An API is offered to easily store the history of Real variables, or vectors
+/// of Real variables, and log to file.
+///
+/// History is stored internally using a common::Table<Real> .
+/// An optional (default=ON) logging facility is provided to log the history to
+/// file at every new entry.
+/// The file format is Tab Separated Values (extension tsv)
+///
+/// Any number of variables can be added after logging started. This will cause
+/// The history file to be rewritten, including the new variables, putting zero's
+/// for the non-existent past entries.
+///
+/// Example:\n
+/// @code
+/// boost::shared_ptr<History> history = allocate_component<History>("history");
+///
+/// history->set("iter",1);   // Create new variable "iter", and store it as a property
+/// history->save_entry();    // Because new variable: Resize table , create buffer. Then store property "iter" in buffer, write to file
+///
+/// history->set("iter",2);   // No new variable created, but property "iter" changed
+/// history->save_entry();    // Store property "iter" in buffer, write to file
+///
+/// history->set("iter",3);   // No new variable created, but property "iter" changed
+/// history->set("time",0.1); // Create new variable "time", and store it as a property
+/// history->save_entry();    // Because new variable: Resize table , create buffer. Then store properties "iter" and "time" in buffer, write to file
+/// @endcode
 /// @author Willem Deconinck
 class solver_API History : public common::Component
 {
@@ -47,36 +68,57 @@ public:
   /// @brief Get the class name
   static std::string type_name () { return "History"; }
 
+  /// @name High level API
+  //@{
+
   /// @brief Set in the current entry the variable with given name to a given value
+  ///
+  /// Variables are saved as properties in this component
+  /// This function can be called multiple times per entry.
   void set(const std::string& var_name, const Real& var_values);
 
-  /// @brief Set in the current entry the variable with given name to a given value
+  /// @brief Set in the current entry the vector of variables with given name to a given value
+  ///
+  /// Variables are saved as properties in this component
+  /// This function can be called multiple times per entry.
   void set(const std::string& var_name, const std::vector<Real>& var_values);
 
-  /// @brief Save the current properties in the buffer
+  /// @brief Finalize an entry in history, save it, and write it optionally (default=ON) to file
+  ///
+  /// - The entry is assembled from the properties that are set using the function set().
+  /// - In case new variables were created, resize the table, and create new buffer.
+  /// - The entry is then saved in the buffer
+  /// - The entry is optionally (default=ON) saved to file. In case of new variables, the file
+  ///   gets recreated.
   void save_entry();
 
+  //@}
+
+  /// @name SIGNALS
+  //@{
+  /// @brief Write the history to file, signal
+  void signal_write(common::SignalArgs& args);
+
+  /// @brief Write the history to file, signature
+  void signature_write(common::SignalArgs& args);
+  //@}
+
+  /// @brief Write the history to file
+  void write_file(boost::filesystem::fstream& file);
+
   /// @brief Read access to the table storing the history
-  /// @note This flushes the buffer first, so that newest information is available
+  /// @note This flushes the buffer first, so that most recent information is available
   Handle<common::Table<Real> const> table();
 
   /// @brief Information of every variable stored in history
   Handle<math::VariablesDescriptor const> variables() const;
+
 
   /// @brief Flush the buffer in the table
   void flush();
 
   /// @brief make a Entry object that can be written to any output stream
   HistoryEntry entry() const;
-
-  /// @brief Write the history to file
-  void write_file(boost::filesystem::fstream& file);
-
-  /// @brief Write the history to file, signal
-  void signal_write(common::SignalArgs& args);
-
-  /// @brief Write the history to file, signature
-  void signature_write(common::SignalArgs& args);
 
 private: // functions
 
@@ -114,6 +156,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Helper class to output one entry to an output stream
 class HistoryEntry
 {
 public:

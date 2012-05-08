@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iomanip>
+
 #include "common/BoostFilesystem.hpp"
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
@@ -203,6 +205,7 @@ void History::open_file(boost::filesystem::fstream& file, const common::URI& fil
     throw boost::filesystem::filesystem_error( path.string() + " failed to open",
                                                boost::system::error_code() );
   }
+  file.precision(10);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,12 +220,12 @@ std::string History::file_header() const
     const Uint var_length = m_variables->var_length(var_idx);
     if (var_length == 1)
     {
-      ss << "\t" << m_variables->user_variable_name(var_idx);
+      ss << "\t" << std::setw(16) << m_variables->user_variable_name(var_idx);
     }
     else
     {
       for (Uint i=0; i<var_length; ++i)
-        ss << "\t" << m_variables->user_variable_name(var_idx)<<"["<<i<<"]";
+        ss << "\t" << std::setw(16) << m_variables->user_variable_name(var_idx)<<"["<<i<<"]";
     }
 
   }
@@ -246,7 +249,7 @@ void History::write_file(boost::filesystem::fstream& file)
       const Uint var_begin  = m_variables->offset(var_idx);
       const Uint var_length = m_variables->var_length(var_idx);
       for (Uint i=0; i<var_length; ++i)
-        file << "\t" << (*m_table)[row][var_begin+i];
+        file << "\t" <<std::scientific << std::setw(16) << (*m_table)[row][var_begin+i];
     }
     file << "\n";
   }
@@ -302,7 +305,7 @@ const std::vector<Real>& HistoryEntry::data() const
 std::ostream& operator<< ( std::ostream& os, const HistoryEntry& history_entry )
 {
   for (Uint i=0; i<history_entry.m_entry.size(); ++i)
-    os << "\t" << history_entry.m_entry[i];
+    os << "\t" <<  std::scientific << std::setw(16) << history_entry.m_entry[i];
   return os;
 }
 
