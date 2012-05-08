@@ -48,6 +48,12 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   properties()["brief"] = std::string("Loads meshes, guessing automatically the format from the file extension");
   mark_basic();
 
+  // options
+
+  options().add_option("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum dimensionality)")
+      .pretty_name("Dimension");
+
   // signals
 
   regist_signal ( "load_mesh" )
@@ -155,6 +161,7 @@ void LoadMesh::load_mesh_into(const URI& file, Mesh& mesh)
       Handle< MeshReader > meshreader = m_extensions_to_readers[extension][0];
       meshreader->options().configure_option("mesh",mesh.handle<Mesh>());
       meshreader->options().configure_option("file",file);
+      meshreader->options().configure_option("dimension",options().option("dimension").value<Uint>());
       meshreader->execute();
     }
   }
