@@ -112,25 +112,27 @@ void PythonSyntaxeHighlighter::highlightBlock(const QString &text){
         first_word=1;
         for (;start<text.size();start++){
           QChar c=text[start];
-          if (first_word==1){
-            if (c != '\t')
-              first_word=2;
-          }else if (first_word==2){
-            if (c == '\t' || c == ' ')
-              first_word=3;
-          }else{
-            if (c != '\t' && c != ' '){
-              first_word=4;
-              break;
+          if (c != '#'){
+            if (first_word==1){
+              if (c != '\t' && c != ' ')
+                first_word=2;
+            }else if (first_word==2){
+              if (c == '\t' || c == ' ')
+                first_word=3;
+            }else{
+              if (c != '\t' && c != ' '){
+                first_word=4;
+                break;
+              }
             }
           }
-          end=start;
-          for (;end<text.size() && text[end] != ':';end++);
         }
       }else{
-        for (;start<end && text[start] == '\t';start++);
+        for (;start<end && (text[start] == '\t' || text[start] == ' ');start++);
       }
-      if (first_word == 0 || first_word==4){
+      end=start;
+      for (;end<text.size() && text[end] != ':' && text[end] != '#';end++);
+      if ((first_word == 0 || first_word==4) && start != end){
         const QString error=python_pre_compiler->try_compile(text.mid(start,end-start));
         if (error.length()){
           setFormat(start,end-start,*error_format);
