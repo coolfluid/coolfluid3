@@ -187,7 +187,7 @@ void Reader::get_file_positions()
            (m_nb_gmsh_elem_in_region[ir])[type] = 0;
       }
 
-      m_mesh_dimension = DIM_1D;
+      m_mesh_dimension = options().option("dimension").value<Uint>();
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
         Uint phys_group_dimensionality;
@@ -397,13 +397,6 @@ void Reader::read_coordinates()
 {
 
   m_file.seekg(m_coordinates_position,std::ios::beg);
-
-  // Find the region which has the highest dimensionality present in the mesh:
-  Uint master_region = 0;
-  while((m_region_list[master_region].dim != m_mesh_dimension) && (master_region < m_nb_regions))
-  {
-     master_region++;
-  }
 
   Dictionary& nodes = m_mesh->geometry_fields();
   nodes.resize(m_used_nodes.size());

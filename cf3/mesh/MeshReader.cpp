@@ -57,6 +57,10 @@ MeshReader::MeshReader ( const std::string& name  ) :
       .mark_basic()
       .link_to(&m_file_path);
 
+  options().add_option("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum dimensionality)")
+      .pretty_name("Dimension");
+
   // signals
   regist_signal( "read" )
     .connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
