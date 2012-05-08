@@ -119,7 +119,7 @@ while (simulate_to_time < final_time) :
 
   model.simulate()
 
-  history.write()
+  history.write(file=URI('file:extra_history_file.tsv'))
 
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.msh'), fields=fields)
 
