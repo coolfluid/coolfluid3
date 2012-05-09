@@ -30,14 +30,6 @@ namespace neu {
 class neu_API Writer : public MeshWriter, public Shared
 {
 
-public: // typedefs
-
-
-
-
-private : // typedefs
-
-
 public: // functions
 
   /// constructor

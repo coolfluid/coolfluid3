@@ -543,11 +543,11 @@ void Reader::read_connectivity()
        boost::shared_ptr< ElementType > allocated_type = build_component_abstract_type<ElementType>(cf_elem_name,"tmp");
        boost::shared_ptr< Entities > elements;
        if (allocated_type->dimensionality() == allocated_type->dimension()-1)
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Faces",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Faces","elements_"+allocated_type->derived_type_name());
        else if(allocated_type->dimensionality() == allocated_type->dimension())
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Cells",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Cells","elements_"+allocated_type->derived_type_name());
        else
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Elements",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Elements","elements_"+allocated_type->derived_type_name());
       region->add_component(elements);
       elements->initialize(cf_elem_name,nodes);
 

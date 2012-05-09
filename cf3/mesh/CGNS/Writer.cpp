@@ -72,16 +72,16 @@ void Writer::write()
 void Writer::write_base(const Mesh& mesh)
 {
   const Region& base_region = mesh.topology();
-  m_base.name = base_region.name();
+  m_base.name = mesh.name();
   m_base.cell_dim = mesh.dimensionality();
   m_base.phys_dim = mesh.dimension();
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
 
-  BOOST_FOREACH(const Region& zone_region, find_components<Region>(base_region))
-  {
-    write_zone(zone_region, mesh);
-  }
+  //BOOST_FOREACH(const Region& zone_region, find_components<Region>(base_region))
+  //{
+  write_zone(mesh.topology(), mesh);
+  //}
 
 }
 
@@ -306,9 +306,11 @@ void Writer::write_section(const GroupedElements& grouped_elements)
         cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);
       }
 
+
       CFdebug << "Writing section " << m_section.name << " of type " << m_elemtype_CGNS_to_CF[m_section.type] << CFendl;
       CALL_CGNS(cg_section_write(m_file.idx,m_base.idx,m_zone.idx,m_section.name.c_str(),m_section.type,m_section.elemStartIdx,  \
                                  m_section.elemEndIdx,m_section.nbBdry,elemNodes,&m_section.idx));
+
       delete_ptr(elemNodes);
     }
   }
