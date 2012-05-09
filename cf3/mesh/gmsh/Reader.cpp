@@ -24,6 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
@@ -681,8 +682,15 @@ void Reader::read_element_node_data()
 
   if (gmsh_fields.size())
   {
-    // FIXME this is not LagrangeP1, but should be different for every element type
-    Dictionary& dict = m_mesh->create_discontinuous_space("discontinuous_geometry","cf3.mesh.LagrangeP1",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
+    // Create discontinuous dictionary enveloping the same shape-function as the standard geometry dictionary
+    Dictionary& dict = *m_mesh->create_component<DiscontinuousDictionary>("discontinuous_geometry");
+    m_mesh->geometry_fields().update_structures();
+    boost_foreach(const Handle<Entities>& entities_handle, m_mesh->geometry_fields().entities_range() )
+    {
+      entities_handle->create_space(entities_handle->element_type().shape_function().derived_type_name(),dict);
+    }
+    dict.build();
+    m_mesh->update_structures();
 
     // 1) Find which elements regions this field is defined in.
     foreach_container( (const std::string& field_name) (const Reader::Field& gmsh_field) , gmsh_fields)

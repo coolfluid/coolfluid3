@@ -126,8 +126,6 @@ void LoadMesh::load_multiple_files(const std::vector<URI>& files, Mesh& mesh)
       load_mesh_into(file,*tmp_mesh);
       mesh_adaptor.combine_mesh(*tmp_mesh);
     }
-
-    mesh_adaptor.assign_partition_agnostic_global_indices_to_dict(mesh.geometry_fields());
     mesh_adaptor.remove_duplicate_elements_and_nodes();
     mesh_adaptor.fix_node_ranks();
     mesh_adaptor.finish();
