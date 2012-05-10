@@ -73,6 +73,8 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
   // ------------------------------
 
   // (a) Create bounding box of all coordinates, to define a space
+  //     This bounding box is not the one from the mesh, as it doesn't have
+  //     to cover the mesh, or can exist in more than one mesh.
   math::BoundingBox bounding_box;
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
