@@ -302,7 +302,7 @@ void LinearInterpolator::create_octtree()
     V*=L[d];
   }
 
-  m_nb_elems = m_source_mesh->properties().value<Uint>("nb_cells");
+  m_nb_elems = m_source_mesh->properties().value<Uint>("local_nb_cells");
 
   if (options().option("Divisions").value<std::vector<Uint> >().size() > 0)
   {

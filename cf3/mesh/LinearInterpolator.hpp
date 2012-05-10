@@ -26,12 +26,7 @@ namespace mesh {
 
 /// This class defines neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API LinearInterpolator : public Interpolator
-{
-public: // typedefs
-
-  
-  
+class Mesh_API LinearInterpolator : public Interpolator {
 
 private: // typedefs
 

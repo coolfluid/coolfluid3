@@ -23,12 +23,7 @@ namespace mesh {
 
 /// This class defines neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API StencilComputerOcttree : public StencilComputer
-{
-public: // typedefs
-
-  
-  
+class Mesh_API StencilComputerOcttree : public StencilComputer {
 
 public: // functions  
   /// constructor
@@ -37,7 +32,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "StencilComputerOcttree"; }
 
-  virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil);
+  virtual void compute_stencil(const Entity& element, std::vector<Entity>& stencil);
 
 private: // functions
 

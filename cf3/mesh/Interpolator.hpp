@@ -29,12 +29,6 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API Interpolator : public common::Component {
 
-public: // typedefs
-
-  /// pointer to this type
-  
-  
-
 public: // functions
 
   /// Contructor

@@ -33,13 +33,10 @@ StencilComputer::StencilComputer( const std::string& name )
 {
 
   options().add_option("mesh", m_mesh)
-      .description("Mesh to create octtree from")
+      .description("Mesh this stencil computer applies to")
       .pretty_name("Mesh")
-      .attach_trigger(boost::bind(&StencilComputer::configure_mesh,this))
       .mark_basic()
       .link_to(&m_mesh);
-
-  m_elements = create_component<UnifiedData>("elements");
 
   m_min_stencil_size=1;
   options().add_option("stencil_size", m_min_stencil_size)
@@ -50,25 +47,6 @@ StencilComputer::StencilComputer( const std::string& name )
 }
 
 //////////////////////////////////////////////////////////////////////
-
-void StencilComputer::configure_mesh()
-{
-  if (is_null(m_mesh))
-    throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
-
-  boost_foreach (Elements& elements, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsVolume()))
-    m_elements->add(elements);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void StencilComputer::set_mesh(Mesh& mesh)
-{
-  m_mesh = Handle<Mesh>(mesh.handle<Component>());
-  configure_mesh();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // mesh
 } // cf3

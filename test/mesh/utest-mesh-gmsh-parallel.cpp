@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE( test )
     read_mesh->options().configure_option("mesh",meshes[p]);
     read_mesh->options().configure_option("file",URI("out-utest-mesh-gmsh-parallel_P"+to_str(p)+".msh"));
     read_mesh->execute();
-    CFinfo << "mesh["<<p<<"]: nb_cells = " << meshes[p]->properties().value_str("nb_cells") << CFendl;
-    CFinfo << "mesh["<<p<<"]: nb_nodes = " << meshes[p]->properties().value_str("nb_nodes") << CFendl;
+    CFinfo << "mesh["<<p<<"]: nb_cells = " << meshes[p]->properties().value_str("global_nb_cells") << CFendl;
+    CFinfo << "mesh["<<p<<"]: nb_nodes = " << meshes[p]->properties().value_str("global_nb_nodes") << CFendl;
 
     PE::Comm::instance().barrier();
 
@@ -174,9 +174,10 @@ BOOST_AUTO_TEST_CASE( test )
   mesh_adaptor.remove_duplicate_elements_and_nodes();
   mesh_adaptor.fix_node_ranks();
   mesh_adaptor.finish();
-  mesh_adaptor.rebuild_node_glb_to_loc_map();
-  CFinfo << "merged_mesh: nb_cells = " << merged_mesh->properties().value_str("nb_cells") << CFendl;
-  CFinfo << "merged_mesh: nb_nodes = " << merged_mesh->properties().value_str("nb_nodes") << CFendl;
+  CFinfo << "merged_mesh: local_nb_cells = " << merged_mesh->properties().value_str("local_nb_cells") << CFendl;
+  CFinfo << "merged_mesh: local_nb_nodes = " << merged_mesh->properties().value_str("local_nb_nodes") << CFendl;
+  CFinfo << "merged_mesh: global_nb_cells = " << merged_mesh->properties().value_str("global_nb_cells") << CFendl;
+  CFinfo << "merged_mesh: global_nb_nodes = " << merged_mesh->properties().value_str("global_nb_nodes") << CFendl;
 //  merged_mesh->geometry_fields().update();
   }
   PE::Comm::instance().barrier();
@@ -203,8 +204,8 @@ BOOST_AUTO_TEST_CASE( test )
   // Loadbalance the merged mesh
   boost::shared_ptr<mesh::actions::LoadBalance> load_balancer = allocate_component<mesh::actions::LoadBalance>("load_balance");
   load_balancer->transform(*merged_mesh);
-  CFinfo << "loadbalanced_mesh: nb_cells = " << merged_mesh->properties().value_str("nb_cells") << CFendl;
-  CFinfo << "loadbalanced_mesh: nb_nodes = " << merged_mesh->properties().value_str("nb_nodes") << CFendl;
+  CFinfo << "loadbalanced_mesh: nb_cells = " << merged_mesh->properties().value_str("global_nb_cells") << CFendl;
+  CFinfo << "loadbalanced_mesh: nb_nodes = " << merged_mesh->properties().value_str("global_nb_nodes") << CFendl;
 
   PE::Comm::instance().barrier();
 

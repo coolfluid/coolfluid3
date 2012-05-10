@@ -42,9 +42,6 @@ StencilComputerOcttree::StencilComputerOcttree( const std::string& name )
   : StencilComputer(name), m_dim(0), m_nb_elems_in_mesh(0)
 {
   options().option("mesh").attach_trigger(boost::bind(&StencilComputerOcttree::configure_mesh,this));
-
-  m_octtree = create_static_component<Octtree>("octtree");
-  m_octtree->mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -57,22 +54,27 @@ void StencilComputerOcttree::configure_mesh()
   m_nb_elems_in_mesh = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
   m_dim = m_mesh->geometry_fields().coordinates().row_size();
 
-  m_octtree->options().configure_option("mesh",m_mesh);
-  m_octtree->create_octtree();
+  if (Handle<Component> found = m_mesh->get_child("octtree"))
+    m_octtree = Handle<Octtree>(found);
+  else
+  {
+    m_octtree = m_mesh->create_component<Octtree>("octtree");
+    m_octtree->options().configure_option("mesh",m_mesh);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void StencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil)
+void StencilComputerOcttree::compute_stencil(const Entity& element, std::vector<Entity>& stencil)
 {
+  if ( is_null(m_octtree) )
+    throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
+
   std::vector<Uint> octtree_cell(3);
   RealVector centroid(m_dim);
-  Handle< Component > component;
-  Uint elem_idx;
-  boost::tie(component,elem_idx) = unified_elements().location(unified_elem_idx);
-  Elements& elements = dynamic_cast<Elements&>(*component);
-  RealMatrix coordinates = elements.geometry_space().get_coordinates(elem_idx);
-  elements.element_type().compute_centroid(coordinates,centroid);
+
+  RealMatrix coordinates = element.get_coordinates();
+  element.element_type().compute_centroid(coordinates,centroid);
   stencil.resize(0);
   if (m_octtree->find_octtree_cell(centroid,octtree_cell))
   {
