@@ -8,25 +8,15 @@ set distant_port [lindex $argv 4]
 set local_user [lindex $argv 5]
 set gateway_user [lindex $argv 6]
 set distant_user [lindex $argv 7]
-set local_pass [lindex $argv 8]
-set gateway_pass [lindex $argv 9]
-set distant_pass [lindex $argv 10]
 
-proc ssh1 {gateway_user gateway_pass} {
+proc ssh1 {gateway_user gateway_host} {
   expect {
     -re "^.*($gateway_user).*\\$" {
       return 1
     }
     "assword: " {
-      send -- "$gateway_pass\r"
-      expect {
-      	-re "^.*($gateway_user).*\\$" {
-      	  return 1
-      	}
-      	default {
-      	  return 0
-      	}
-      }
+      send_user "#$gateway_host#$gateway_user#\n"
+      exit
     }
     "(yes/no)? " {
       send -- "yes\r"
@@ -34,36 +24,28 @@ proc ssh1 {gateway_user gateway_pass} {
         return 1
       }
       "assword: " {
-        send -- "$gateway_pass\r"
-        expect {
-      	  -re "^.*($gateway_user).*\\$" {
-      	    return 1
-      	  }
-      	  default {
-      	    return 0
-      	  }
-        }
+        send_user "#$gateway_host#$gateway_user#\n"
+        exit
       }
+      default {
+        exit
+      }
+    }
+    default {
+      exit
     }
   }
 }
 
-proc ssh2 {distant_user distant_host distant_pass} {
+proc ssh2 {distant_user distant_host} {
   send -- "/usr/bin/ssh -t -t $distant_user@$distant_host\r"
   expect {
     -re "^.*($distant_user).*\\$" {
       return 1
     }
     "assword: " {
-      send -- "$distant_pass\r"
-      expect {
-      	-re "^.*($distant_user).*\\$" {
-      	  return 1
-      	}
-      	default {
-      	  return 0
-      	}
-      }
+      send_user "#$distant_host#$distant_user#\n"
+      exit
     }
     "(yes/no)? " {
       send -- "yes\r"
@@ -71,36 +53,28 @@ proc ssh2 {distant_user distant_host distant_pass} {
         return 1
       }
       "assword: " {
-        send -- "$distant_pass\r"
-        expect {
-      	  -re "^.*($distant_user).*\\$" {
-      	    return 1
-      	  }
-      	  default {
-      	    return 0
-      	  }
-        }
+        send_user "#$distant_host#$distant_user#\n"
+        exit
       }
+      default {
+        exit
+      }
+    }
+    default {
+      exit
     }
   }
 }
 
-proc ssh3 {local_user local_host local_pass local_port distant_port} {
+proc ssh3 {local_user local_host local_port distant_port} {
   send -- "/usr/bin/ssh -t -t -R $local_port:localhost:$distant_port $local_user@$local_host\r"
   expect {
     -re "^.*($local_user).*\\$" {
       return 1
     }
     "assword: " {
-      send -- "$local_pass\r"
-      expect {
-      	-re "^.*($local_user).*\\$" {
-      	  return 1
-      	}
-      	default {
-      	  return 0
-      	}
-      }
+      send_user "\n#$local_host#$local_user#\n"
+      exit
     }
     "(yes/no)? " {
       send -- "yes\r"
@@ -108,32 +82,22 @@ proc ssh3 {local_user local_host local_pass local_port distant_port} {
         return 1
       }
       "assword: " {
-        send -- "$local_pass\r"
-        expect {
-      	  -re "^.*($local_user).*\\$" {
-      	    return 1
-      	  }
-      	  default {
-      	    return 0
-      	  }
-        }
+        send_user "\n#$local_host#$local_user#\n"
+        exit
       }
+      default {
+        exit
+      }
+    }
+    default {
+      exit
     }
   }
 }
 
 spawn /usr/bin/ssh -t -t $gateway_user@$gateway_host
 
-set ret [ssh1 $gateway_user $gateway_pass]
-if {$ret == 0} {
-  exit
-}
-set ret [ssh2 $distant_user $distant_host $distant_pass]
-if {$ret == 0} {
-  exit
-}
-set ret [ssh3 $local_user $local_host $local_pass $local_port $distant_port]
-if {$ret == 0} {
-  exit
-}
+set ret [ssh1 $gateway_user $gateway_host]
+set ret [ssh2 $distant_user $distant_host]
+set ret [ssh3 $local_user $local_host $local_port $distant_port]
 interact

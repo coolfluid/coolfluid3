@@ -32,6 +32,7 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   PythonCodeEditor.hpp
   PythonConsole.hpp
   PythonSyntaxeHighlighter.hpp
+  RemoteFileCopy.hpp
   SignalManager.hpp
   SignalInspectorDialog.hpp
   SignatureDialog.hpp
@@ -105,6 +106,8 @@ list( APPEND coolfluid_ui_graphics_files
   PythonPreCompiler.hpp
   PythonSyntaxeHighlighter.cpp
   PythonSyntaxeHighlighter.hpp
+  RemoteFileCopy.cpp
+  RemoteFileCopy.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
   SignalInspectorDialog.cpp

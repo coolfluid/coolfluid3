@@ -28,20 +28,22 @@ class Core_API SSHTunnel : public QProcess {
 public:
   /// @brief normal tunnel creation
   SSHTunnel(QObject* parent,quint16 local_port,quint16 distant_port,QString gateway_host
-            ,QString gateway_user,QString gateway_pass,QString distant_host);
+            ,QString gateway_user,QString distant_host,QString local_host,QString local_user);
   /// @brief reverse tunnel creation
   SSHTunnel(QObject* parent,QString local_host,QString gateway_host,QString distant_host
             ,quint16 local_port,quint16 distant_port,QString local_user,QString gateway_user
-            ,QString distant_user,QString local_pass,QString gateway_pass,QString distant_pass);
+            ,QString distant_user);
   ~SSHTunnel();
   static SSHTunnel* simple_tunnel_popup(QWidget *parent);
   static SSHTunnel* reverse_tunnel_popup(QWidget *parent);
+  static std::string get_local_signature();
 private slots:
   void process_sent_output();
   void process_sent_error();
   void process_end(int status);
 private:
   bool ssh_tunnel_is_open;
+  static std::string local_signature;
 };
 
 } // Core

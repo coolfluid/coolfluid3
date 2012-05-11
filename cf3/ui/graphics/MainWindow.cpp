@@ -47,6 +47,7 @@
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/graphics/TreeBrowser.hpp"
 #include "ui/graphics/TreeView.hpp"
+#include "ui/graphics/RemoteFileCopy.hpp"
 
 #include "ui/uicommon/ComponentNames.hpp"
 
@@ -265,6 +266,10 @@ void MainWindow::build_menus()
 
   m_mnu_file->addMenu(m_mnu_open_file);
   m_mnu_file->addMenu(m_mnu_save_file);
+
+  action = m_mnu_file->addAction("New remote &file copy view", this,
+                                SLOT(new_remote_file_copy()), tr("ctrl+shift+F"));
+  m_actions[ACTION_NEW_REMOTE_FILE_COPY] = action;
   m_mnu_file->addSeparator();
 
   //-----------------------------------------------
@@ -658,6 +663,10 @@ void MainWindow::run_script()
 
 void MainWindow::new_python_script_editor(){
     TabBuilder::instance()->addTab(new PythonCodeEditor(this), "Python editor");
+}
+
+void MainWindow::new_remote_file_copy(){
+  TabBuilder::instance()->addTab(new RemoteFileCopy(this),"File Copy Thing");
 }
 
 PythonCodeEditor* MainWindow::create_new_python_editor(){

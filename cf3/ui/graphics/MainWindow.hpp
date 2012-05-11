@@ -104,7 +104,9 @@ namespace graphics {
 
       ACTION_ABOUT_QT,
 
-      ACTION_NEW_PYTHON_EDITOR
+      ACTION_NEW_PYTHON_EDITOR,
+
+      ACTION_NEW_REMOTE_FILE_COPY
 
     }; // MainWinActions
 
@@ -175,6 +177,8 @@ namespace graphics {
     void run_script();
 
     void new_python_script_editor();
+
+    void new_remote_file_copy();
 
     void new_log_message(const QString & message, uiCommon::LogMessage::Type type);
 
