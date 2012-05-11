@@ -53,7 +53,7 @@ RemoteFileCopy::RemoteFileCopy(QWidget* parent) : QSplitter(parent) {
   local_list_widget->setModel(local_files);
   remote_list_widget->setModel(filter_remote_model);
   local_files->setRootPath("/");
-  local_files->setFilter(QDir::AllEntries | QDir::NoDot);
+  local_files->setFilter(QDir::AllEntries);
   local_list_widget->setRootIndex(local_files->index(QApplication::applicationDirPath()));
   remote_files->open_dir("");
 

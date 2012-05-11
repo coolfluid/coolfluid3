@@ -246,7 +246,7 @@ void MainWindow::build_menus()
 
   action = m_mnu_file->addAction("&New python editor", this,
                                 SLOT(new_python_script_editor()), tr("ctrl+shift+N"));
-  m_actions[ACTION_RUN_SCRIPT] = action;
+  m_actions[ACTION_NEW_PYTHON_EDITOR] = action;
 
   m_mnu_file->addSeparator();
 
@@ -587,6 +587,7 @@ void MainWindow::set_connected_state(bool connected)
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
   m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
   m_actions[ACTION_RUN_SCRIPT]->setEnabled(connected);
+  m_actions[ACTION_NEW_REMOTE_FILE_COPY]->setEnabled(connected);
 }
 
 ////////////////////////////////////////////////////////////////////////////
