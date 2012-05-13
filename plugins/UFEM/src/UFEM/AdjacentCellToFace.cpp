@@ -77,9 +77,13 @@ void AdjacentCellToFace::on_regions_set()
   {
     BOOST_FOREACH(Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementsSurface()))
     {
-      CFaceConnectivity& face_conn = *elements.create_component<CFaceConnectivity>("FaceToCellConnectivity");
-      face_conn.add_tag("face_to_cell_connectivity");
-      face_conn.initialize(*m_node_connectivity);
+      Handle<CFaceConnectivity> face_conn(find_component_ptr_with_tag(elements, "face_to_cell_connectivity"));
+      if(is_null(face_conn))
+      {
+        face_conn = elements.create_component<CFaceConnectivity>("FaceToCellConnectivity");
+        face_conn->add_tag("face_to_cell_connectivity");
+        face_conn->initialize(*m_node_connectivity);
+      }
     }
   }
 }

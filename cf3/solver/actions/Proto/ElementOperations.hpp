@@ -167,7 +167,7 @@ struct InterpolationOp : boost::proto::transform< InterpolationOp >
   {
     typedef typename VarDataType<VarT, DataT>::type VarDataT;
     typedef typename VarDataT::EvalT result_type;
-    typedef typename VarDataT::EtypeT::MappedCoordsT MappedCoordsT;
+    typedef typename VarDataT::MappedCoordsT MappedCoordsT;
 
     /// Mapped coords supplied explicitely
     result_type operator()(typename impl::expr_param, const MappedCoordsT& mapped_coords, typename impl::data_param data)

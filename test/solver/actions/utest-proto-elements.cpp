@@ -29,6 +29,7 @@
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
 #include "mesh/LagrangeP0/Quad.hpp"
+#include <mesh/LagrangeP0/Line.hpp>
 
 #include "mesh/BlockMesh/BlockData.hpp"
 
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE( ProtoScalarElementField )
   *blocks.create_blocks(1) << 0 << 1 << 2 << 3;
   *blocks.create_block_subdivisions() << x_segs << y_segs;
   *blocks.create_block_gradings() << ratio << ratio << ratio << ratio;
-  
+
   *blocks.create_patch("bottom", 1) << 0 << 1;
   *blocks.create_patch("right", 1) << 1 << 2;
   *blocks.create_patch("top", 1) << 2 << 3;
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
   *blocks.create_blocks(1) << 0 << 1 << 2 << 3;
   *blocks.create_block_subdivisions() << x_segs << y_segs;
   *blocks.create_block_gradings() << ratio << ratio << ratio << ratio;
-  
+
   *blocks.create_patch("bottom", 1) << 0 << 1;
   *blocks.create_patch("right", 1) << 1 << 2;
   *blocks.create_patch("top", 1) << 2 << 3;
@@ -181,13 +182,14 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
 
   // Declare a mesh variable
   MeshTerm<0, VectorField> V("VectorVal", "vector_val");
+  MeshTerm<1, ScalarField> T("Scalar", "scalars");
 
   // Store the total error
   Real total_error = 0;
 
   // Accepted element types
-  boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D> allowed_elements;
-  
+  boost::mpl::vector4<mesh::LagrangeP0::Line, mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Line2D> allowed_elements;
+
   RealVector2 v; v[0] = 1.; v[1] = 2.;
 
   // Expression to compute vector_val, assuming rectangles
@@ -196,20 +198,28 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
     allowed_elements,
     V = v
   );
+  
+  boost::shared_ptr<Expression> boundary_integral_expr = elements_expression(boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), 
+                      _cout << transpose(integral<1>(transpose(N(T))*V*normal)) << "\n");
 
   // Register the variables
   vector_val->register_variables(phys_model);
+  boundary_integral_expr->register_variables(phys_model);
   // Add actions
   solver << create_proto_action("SetVector", vector_val);
 
   // Create the fields
   Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   solver.field_manager().create_field("vector_val", elems_P0);
+  solver.field_manager().create_field("scalars", mesh.geometry_fields());
 
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   solver.configure_option_recursively(solver::Tags::regions(), root_regions);
+  boost::shared_ptr<ProtoAction> boundary_integral = create_proto_action("BoundaryIntegral", boundary_integral_expr);
+  solver.add_component(boundary_integral);
+  boundary_integral->options().configure_option("regions", std::vector<URI>(1, mesh.topology().get_child("top")->uri()));
 
   // Run
   model.simulate();

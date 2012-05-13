@@ -545,13 +545,13 @@ BOOST_AUTO_TEST_CASE( ProtoAccumulators )
   Tools::MeshGeneration::create_line(*mesh, 4., 400);
 
   boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::max> > acc;
-  
+
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
   MeshTerm<0, VectorField > T("Temperature", "solution");
 
   boost::shared_ptr<Expression> init_expr = nodes_expression(T = coordinates);
   init_expr->loop(mesh->topology());
-  
+
   boost::shared_ptr<Expression> test_expr = nodes_expression(boost::proto::lit(acc)(_norm(T)));
 
   test_expr->loop(mesh->topology());
@@ -579,6 +579,21 @@ BOOST_AUTO_TEST_CASE( AssignMatrix )
 
   std::cout << "tmp=\n" << tmp << std::endl;
 
+}
+
+BOOST_AUTO_TEST_CASE( GaussPointAccess )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("gauss_rect");
+  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
+
+  RealVector center_coords(2);
+  center_coords.setZero();
+
+  for_each_element<VolumeTypes>(mesh->topology(), _cout << "point = " << transpose(gauss_points_1) << ", weight = " << gauss_weights_1 << "\n");
+  std::cout << std::endl;
+  
+  for_each_element<VolumeTypes>(mesh->topology(), _cout << "point = " << transpose(gauss_points_2) << ", weight = " << gauss_weights_2 << "\n");
+  std::cout << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

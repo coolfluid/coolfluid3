@@ -212,7 +212,7 @@ struct MatrixSizePerVar
   >::type type;
 };
 
-/// Filter the matrix siz so equation variables are the only ones left with non-zero size
+/// Filter the matrix size so equation variables are the only ones left with non-zero size
 template<typename MatrixSizesT, typename EquationVariablesT>
 struct FilterMatrixSizes
 {

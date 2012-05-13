@@ -254,10 +254,12 @@ template<Uint Dim>
 struct ElementBased
 {
   static const Uint dimension = Dim;
+  static const Uint nb_nodes = 1;
   /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
   struct SF
   {
     typedef RealMatrix GradientT;
+    typedef RealMatrix ValueT;
   };
 };
 
@@ -495,14 +497,28 @@ public:
     m_field_idx = element_idx + m_elements_begin;
   }
 
-  ValueResultT value()
+  ValueResultT value() const
   {
     return ValueResultT(&m_field[m_field_idx][offset]);
   }
+  
+  typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
+  typedef ValueResultT EvalT;
+  
+  /// Calculate and return the interpolation at given mapped coords
+  EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
+  {
+    return value();
+  }
 
   // Dummy types for compatibility with higher order elements
-  typedef RealMatrix EvalT;
   RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
+  }
+
+  const RealMatrix& shape_function(RealMatrix mapped_coords = RealMatrix()) const
   {
     cf3_assert(false); // should not be used
     return m_dummy_result;
@@ -554,13 +570,27 @@ public:
     m_field_idx = element_idx + m_elements_begin;
   }
 
-  Real& value()
+  Real& value() const
   {
     return m_field[m_field_idx][offset];
   }
 
   typedef Real EvalT;
+  
+  typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
+  
+  /// Calculate and return the interpolation at given mapped coords
+  EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
+  {
+    return value();
+  }
   const RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  {
+    cf3_assert(false); // should not be used
+    return m_dummy_result;
+  }
+
+  const RealMatrix& shape_function(RealMatrix mapped_coords = RealMatrix()) const
   {
     cf3_assert(false); // should not be used
     return m_dummy_result;
@@ -636,12 +666,39 @@ struct MakeVarData<VariablesT, EtypeT, EtypeT, EquationVariablesT, MatrixSizesT,
   };
 };
 
+template<typename IsEqVarT, typename VariableSFT>
+struct FilterElementField
+{
+  typedef typename boost::mpl::if_c<VariableSFT::order == 0, boost::mpl::false_, IsEqVarT>::type type;
+};
+
+/// Filter out element-based fields from the possible equation variables
+template<typename EquationVariablesT, typename VariablesEtypeTT, typename SupportEtypeT>
+struct FilterEquationVars
+{
+  typedef typename boost::mpl::eval_if
+  <
+    boost::mpl::is_sequence<VariablesEtypeTT>,
+    boost::mpl::transform
+    <
+      typename boost::mpl::copy<EquationVariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      VariablesEtypeTT,
+      FilterElementField<boost::mpl::_1, boost::mpl::_2>
+    >,
+    boost::mpl::transform
+    <
+      typename boost::mpl::copy<EquationVariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      FilterElementField<boost::mpl::_1, VariablesEtypeTT>
+    >
+  >::type type;
+};
+
 /// Stores data that is used when looping over elements to execute Proto expressions. "Data" is meant here in the boost::proto sense,
 /// i.e. it is intended for use as 3rd argument for proto transforms.
 /// VariablesT is a fusion sequence containing each unique variable in the expression
 /// VariablesDataT is a fusion sequence of pointers to the data (also in proto sense) associated with each of the variables
 /// SupportEtypeT is the shape function for the geometric support
-template<typename VariablesT, typename VariablesEtypeTT, typename SupportEtypeT, typename EquationVariablesT>
+template<typename VariablesT, typename VariablesEtypeTT, typename SupportEtypeT, typename EquationVariablesInT>
 class ElementData
 {
 public:
@@ -658,6 +715,9 @@ public:
   /// Element matrix size per var
   typedef typename MatrixSizePerVar<VariablesT, VariablesEtypeTT, SupportEtypeT>::type MatrixSizesT;
 
+  /// Filter out element-based fields from the equation variables
+  typedef typename FilterEquationVars<EquationVariablesInT, VariablesEtypeTT, SupportEtypeT>::type EquationVariablesT;
+  
   /// Size for the element matrix
   typedef typename ElementMatrixSize<MatrixSizesT, EquationVariablesT>::type EMatrixSizeT;
 
@@ -690,7 +750,7 @@ public:
       m_element_matrices[i].setZero();
 
     // TODO Fix for multi-shapefunction case
-    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (boost::mpl::int_<SupportShapeFunction::nb_nodes>));
+    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (EMatrixSizeT));
     block_accumulator.resize(SupportShapeFunction::nb_nodes, EMatrixSizeT::value/SupportShapeFunction::nb_nodes);
   }
 
@@ -941,6 +1001,11 @@ private:
     void apply(boost::mpl::true_, T*& d)
     {
       d->compute_values(m_mapped_coords);
+    }
+
+    template<Uint Dim, bool IsEquationVar>
+    void apply(boost::mpl::true_, EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>*&)
+    {
     }
 
     // Variable is not used - do nothing
