@@ -80,14 +80,14 @@ Uint Field::var_number ( const std::string& vname ) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Field::var_index ( const std::string& vname ) const
+Uint Field::var_offset ( const std::string& vname ) const
 {
   return descriptor().offset(vname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint Field::var_index ( const Uint var_nb ) const
+Uint Field::var_offset ( const Uint var_nb ) const
 {
   return descriptor().offset(var_nb);
 }

@@ -33,6 +33,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"

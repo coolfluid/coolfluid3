@@ -20,6 +20,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 
+#include "math/MatrixTypesConversion.hpp"
+
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
@@ -30,6 +32,8 @@
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Field.hpp"
+
+#include "mesh/PointInterpolator.hpp"
 
 
 using namespace boost;
@@ -70,7 +74,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  boost::shared_ptr< Interpolator > interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
+  boost::shared_ptr< OldInterpolator > interpolator = build_component_abstract_type<OldInterpolator>("cf3.mesh.LinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -101,7 +105,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
 
   // Create and configure interpolator.
-  boost::shared_ptr< Interpolator > interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
+  boost::shared_ptr< OldInterpolator > interpolator = build_component_abstract_type<OldInterpolator>("cf3.mesh.LinearInterpolator","interpolator");
   interpolator->options().configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -212,6 +216,77 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   meshwriter->execute();
   BOOST_CHECK(true);
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_new_interpolation )
+{
+  BOOST_CHECK( true );
+
+  // Create mesh
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  Handle<Mesh> source_mesh = Core::instance().root().create_component<Mesh>("hextet_new");
+  meshreader->read_mesh_into("../../resources/hextet.neu",*source_mesh);
+
+
+  // Create and configure interpolator.
+  boost::shared_ptr< PointInterpolator > point_interpolator = allocate_component<PointInterpolator>("interpolator");
+//  interpolator->options().configure_option("element_finder",std::string("cf3.mesh.Octtree"));
+//  interpolator->options().configure_option("stencil_computer",std::string("cf3.mesh.StencilComputerOcttree"));
+//  interpolator->options().configure_option("function",std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"));
+
+
+  point_interpolator->options().configure_option("source",source_mesh->geometry_fields().handle<Dictionary>());
+
+  RealVector coord(3); coord << 5., 1., 1.;
+  std::vector<Real> interpolated_value;
+  const Field& source_field = source_mesh->geometry_fields().coordinates();
+  point_interpolator->interpolate(source_field,coord,interpolated_value);
+  CFinfo << "interpolated value = " << to_str(interpolated_value) << CFendl;
+
+  CFinfo << point_interpolator->info() << CFendl;
+
+
+  Dictionary& target_dict = source_mesh->create_continuous_space("target","cf3.mesh.LagrangeP1");
+  Field& target_field = target_dict.create_field("target","target[vector]");
+
+  boost::shared_ptr< Interpolator > interpolator = allocate_component<Interpolator>("interpolator");
+
+  // first call: compute storage and store
+  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+  CFinfo << target_field << CFendl;
+
+  // second call: use stored values
+  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+  CFinfo << target_field << CFendl;
+
+  // turn off storage, and compute again on the fly
+  interpolator->options().configure_option("store",false);
+  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+  CFinfo << target_field << CFendl;
+
+
+  Handle<Mesh> source_mesh_2 = Core::instance().root().create_component<Mesh>("quadtriag_new");
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",*source_mesh_2);
+
+  Dictionary& target_dict_2 = source_mesh_2->create_continuous_space("target","cf3.mesh.LagrangeP2");
+  Field& target_field_2 = target_dict_2.create_field("target","target[vector]");
+
+  interpolator->options().configure_option("store",true);
+
+  // first call: compute storage and store
+  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  CFinfo << target_field_2 << CFendl;
+
+  // second call: use stored values
+  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  CFinfo << target_field_2 << CFendl;
+
+  // turn off storage, and compute again on the fly
+  interpolator->options().configure_option("store",false);
+  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  CFinfo << target_field_2 << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

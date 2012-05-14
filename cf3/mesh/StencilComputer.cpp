@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionList.hpp"
@@ -15,6 +16,7 @@
 
 #include "mesh/StencilComputer.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Dictionary.hpp"
@@ -32,11 +34,9 @@ StencilComputer::StencilComputer( const std::string& name )
   : Component(name)
 {
 
-  options().add_option("mesh", m_mesh)
-      .description("Mesh this stencil computer applies to")
-      .pretty_name("Mesh")
-      .mark_basic()
-      .link_to(&m_mesh);
+  options().add_option("dict",m_dict)
+      .description("Dictionary used to find the element")
+      .link_to(&m_dict);
 
   m_min_stencil_size=1;
   options().add_option("stencil_size", m_min_stencil_size)
@@ -47,6 +47,25 @@ StencilComputer::StencilComputer( const std::string& name )
 }
 
 //////////////////////////////////////////////////////////////////////
+
+cf3::common::ComponentBuilder < StencilComputerOneCell, StencilComputer, LibMesh > stencilcomputeronecell_Builder;
+
+////////////////////////////////////////////////////////////////////////////////
+
+StencilComputerOneCell::StencilComputerOneCell( const std::string& name )
+  : StencilComputer(name)
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void StencilComputerOneCell::compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil)
+{
+  stencil.assign(1,element);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // mesh
 } // cf3

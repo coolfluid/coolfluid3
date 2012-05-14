@@ -707,7 +707,7 @@ void Reader::read_element_node_data()
       {
 
         CFdebug << "Reading " << field.name() << "/" << field.var_name(var) <<"["<<static_cast<Uint>(field.var_length(var))<<"]" << CFendl;
-        Uint var_begin = field.var_index(var);
+        Uint var_begin = field.var_offset(var);
         Uint var_end = var_begin + static_cast<Uint>(field.var_length(var));
         m_file.seekg(gmsh_field.file_data_positions[var]);
 
@@ -799,7 +799,7 @@ void Reader::read_element_data()
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
         CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
-        Uint var_begin = field.var_index(i);
+        Uint var_begin = field.var_offset(i);
         Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
         m_file.seekg(gmsh_field.file_data_positions[i]);
 
@@ -871,7 +871,7 @@ void Reader::read_node_data()
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
-      Uint var_begin = field.var_index(i);
+      Uint var_begin = field.var_offset(i);
       Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
       m_file.seekg(gmsh_field.file_data_positions[i]);
 

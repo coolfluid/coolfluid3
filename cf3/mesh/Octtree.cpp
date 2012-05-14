@@ -6,7 +6,8 @@
 
 #include <set>
 
-#include <boost/tuple/tuple.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -46,7 +47,7 @@ namespace mesh {
 
 cf3::common::ComponentBuilder < Octtree, Component, LibMesh > Octtree_Builder;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 Octtree::Octtree( const std::string& name )
   : Component(name), m_dim(0), m_N(3), m_D(3), m_octtree_idx(3)
@@ -272,8 +273,11 @@ void Octtree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, st
 
 bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
+  if (m_octtree.num_elements() == 0)
+    create_octtree();
+
   static const Real tolerance = 100*math::Consts::eps();
-  //CFinfo << "point " << coordinate << CFflush;
+  //CFinfo << "point " << coordinate.transpose() << " ("<<coordinate.size() << ")    dim " << m_dim << CFendl;
   cf3_assert(coordinate.size() == static_cast<int>(m_dim));
 
   for (Uint d=0; d<m_dim; ++d)

@@ -17,8 +17,6 @@
 namespace cf3 {
 namespace mesh {
 
-  class NodeElementConnectivity;
-
 //////////////////////////////////////////////////////////////////////////////
 
 /// @brief Compute the stencil around an element, consisting of rings of neighboring cells
@@ -32,11 +30,11 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "StencilComputerRings"; }
 
-  virtual void compute_stencil(const Entity& element, std::vector<Entity>& stencil);
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil);
 
 private: // functions
 
-  void compute_neighbors(std::set<Entity>& included, const Entity& element, const Uint level=0);
+  void compute_neighbors(std::set<SpaceElem>& included, const SpaceElem& element, const Uint level=0);
 
 private: // data
   

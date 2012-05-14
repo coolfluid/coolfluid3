@@ -7,17 +7,19 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "math/MatrixTypesConversion.hpp"
+
+#include "common/FindComponents.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/OptionList.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 
 #include "mesh/Interpolator.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/StencilComputer.hpp"
 
-#include "common/OptionList.hpp"
+#include "mesh/PointInterpolator.hpp"
 
 #include "common/OptionList.hpp"
 
@@ -29,7 +31,83 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Interpolator::Interpolator ( const std::string& name  ) :
+Interpolator::Interpolator(const std::string &name) : Component(name)
+{
+  m_point_interpolator = create_component<PointInterpolator>("point_interpolator");
+
+  options().add_option("store", true)
+      .description("Flag to store weights and stencils used for faster interpolation")
+      .pretty_name("Store");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::interpolate(const Field& source_field, Field& target_field)
+{
+  if (options().option("store").value<bool>())
+  {
+    if (m_stored_element.size() == 0 || (target_field.size() != m_stored_element.size())) // if nothing is stored yet, store it
+    {
+
+      cf3_assert(m_point_interpolator);
+      m_point_interpolator->options().configure_option("source",source_field.dict().handle<Dictionary>());
+
+      m_stored_element.resize(target_field.size());
+      m_stored_stencil.resize(target_field.size());
+      m_stored_source_field_points.resize(target_field.size());
+      m_stored_source_field_weights.resize(target_field.size());
+
+      const Field& target_coordinates = target_field.coordinates();
+      RealVector t_point(target_coordinates.row_size());
+      for (Uint t=0; t<target_field.size(); ++t)
+      {
+        math::copy(target_coordinates[t],t_point);
+        bool interpolation_possible =
+            m_point_interpolator->compute_storage(t_point,
+                                                  m_stored_element[t],
+                                                  m_stored_stencil[t],
+                                                  m_stored_source_field_points[t],
+                                                  m_stored_source_field_weights[t]);
+        if (!interpolation_possible)
+          throw ValueNotFound(FromHere(),"coordinate not found");
+      }
+    }
+
+    if (target_field.size() != m_stored_element.size())
+      throw InvalidStructure(FromHere(),"The stored values for speedy interpolation are invalid for target field "+target_field.uri().string());
+
+    target_field = 0.;
+    for (Uint t=0; t<target_field.size(); ++t)
+    {
+      for (Uint v=0; v<target_field.row_size(); ++v)
+      {
+        for (Uint s=0; s<m_stored_source_field_points[t].size(); ++s)
+          target_field[t][v] += source_field[ m_stored_source_field_points[t][s] ][v] * m_stored_source_field_weights[t][s];
+      }
+    }
+  }
+  else
+  {
+    cf3_assert(m_point_interpolator);
+    m_point_interpolator->options().configure_option("source",source_field.dict().handle<Dictionary>());
+
+    const Field& target_coordinates = target_field.coordinates();
+    RealVector t_point(target_coordinates.row_size());
+    for (Uint t=0; t<target_field.size(); ++t)
+    {
+      math::copy(target_coordinates[t],t_point);
+      Field::ArrayT::reference ref = target_field[t];
+      m_point_interpolator->interpolate(source_field,t_point,ref);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+OldInterpolator::OldInterpolator ( const std::string& name  ) :
   Component ( name )
 {
   options().add_option("source", m_source)
@@ -47,52 +125,24 @@ Interpolator::Interpolator ( const std::string& name  ) :
   options().add_option("store", true)
       .description("Flag to store weights and stencils used for faster interpolation")
       .pretty_name("Store");
-
-  options().add_option("stencil_computer", std::string("stencilcomputer"))
-      .description("Builder name of the stencil computer")
-      .pretty_name("Stencil Computer")
-      .attach_trigger( boost::bind( &Interpolator::configure_stencil_computer, this ) )
-      .mark_basic();
-
-  options().add_option("function", std::string("function"))
-      .description("Builder name of the interpolator function")
-      .pretty_name("Interpolator Function")
-      .attach_trigger( boost::bind( &Interpolator::configure_interpolator_function, this ) )
-      .mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Interpolator::~Interpolator()
+OldInterpolator::~OldInterpolator()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Interpolator::configure_stencil_computer()
-{
-  if (is_not_null(m_stencil_computer))
-    remove_component(m_stencil_computer->name());
-  m_stencil_computer = create_component<StencilComputer>(options().option("stencil_computer").value<std::string>(),"stencil_computer");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Interpolator::configure_interpolator_function()
-{
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolator::signal_interpolate( SignalArgs& node  )
+void OldInterpolator::signal_interpolate( SignalArgs& node  )
 {
   interpolate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Interpolator::interpolate()
+void OldInterpolator::interpolate()
 {
   if ( is_null(m_source) )
     throw SetupError (FromHere(), "SourceField option was not set");
@@ -103,7 +153,6 @@ void Interpolator::interpolate()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 } // mesh
 } // cf3

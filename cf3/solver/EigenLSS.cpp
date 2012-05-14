@@ -337,7 +337,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
 
           const Uint solution_begin = var_offsets.back() * row_idx + var_offsets[i];
           const Uint solution_end = solution_begin + var_sizes[i];
-          Uint field_idx = field.var_index(var_names[i]);
+          Uint field_idx = field.var_offset(var_names[i]);
 
           cf3_assert( (Uint) field.var_length(var_names[i]) == (Uint) var_sizes[i]);
 

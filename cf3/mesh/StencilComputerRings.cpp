@@ -51,9 +51,9 @@ StencilComputerRings::StencilComputerRings( const std::string& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void StencilComputerRings::compute_stencil(const Entity& element, std::vector<Entity>& stencil)
+void StencilComputerRings::compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil)
 {
-  std::set<Entity> included;
+  std::set<SpaceElem> included;
   visited_nodes.clear();
   compute_neighbors(included,element);
 
@@ -61,23 +61,23 @@ void StencilComputerRings::compute_stencil(const Entity& element, std::vector<En
     CFwarn << "stencil size computed for element " << element << " is " << included.size() <<". This is smaller than the requested " << m_min_stencil_size << "." << CFendl;
 
   stencil.clear(); stencil.reserve(included.size());
-  boost_foreach (const Entity& elem, included)
+  boost_foreach (const SpaceElem& elem, included)
     stencil.push_back(elem);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void StencilComputerRings::compute_neighbors(std::set<Entity>& included, const Entity& element, const Uint level)
+void StencilComputerRings::compute_neighbors(std::set<SpaceElem>& included, const SpaceElem& element, const Uint level)
 {
   included.insert(element);
 
   if (level < m_nb_rings)
   {
-    boost_foreach(Uint node_idx, element.get_nodes())
+    boost_foreach(Uint node_idx, element.nodes())
     {
-      boost_foreach(const SpaceElem& neighbor_elem, m_mesh->geometry_fields().connectivity()[node_idx])
+      boost_foreach(const SpaceElem& neighbor_elem, m_dict->connectivity()[node_idx])
       {
-        compute_neighbors(included,Entity(neighbor_elem.comp->support(),neighbor_elem.idx),level+1);
+        compute_neighbors(included,neighbor_elem,level+1);
       }
     }
   }

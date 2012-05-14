@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "math/MatrixTypes.hpp"
 #include "mesh/StencilComputer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +18,7 @@ namespace cf3 {
 namespace mesh {
 
   class Mesh;
+  class Entity;
   class Octtree;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,18 +34,24 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "StencilComputerOcttree"; }
 
-  virtual void compute_stencil(const Entity& element, std::vector<Entity>& stencil);
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil);
 
 private: // functions
 
-  void configure_mesh();
-  
+  void configure_octtree();
+
 private: // data
   
   Handle<Octtree> m_octtree;
   
   Uint m_dim;
   Uint m_nb_elems_in_mesh;
+
+  std::vector<Uint> m_octtree_cell;
+  RealVector m_centroid;
+
+  std::vector<Entity> m_stencil;
+
 
 }; // end StencilComputerOcttree
 

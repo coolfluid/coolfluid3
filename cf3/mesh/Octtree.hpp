@@ -53,7 +53,7 @@ public: // functions
 
   /// @brief Find which element contains a given coordinate
   /// @return if element was found
-  bool find_element(const RealVector& target_coord, Entity& element);
+  virtual bool find_element(const RealVector& target_coord, Entity& element);
 
   /// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate  [in]  The coordinate to look for
