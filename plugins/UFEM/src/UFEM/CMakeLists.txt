@@ -27,6 +27,8 @@ list( APPEND coolfluid_ufem_files
   ParsedFunctionExpression.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
+  SpalartAllmaras.cpp
+  SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
   Tags.hpp

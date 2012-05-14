@@ -1,5 +1,4 @@
 # UFEM tests
-if(coolfluid_ufem_builds)
 coolfluid_add_test( UTEST utest-proto-heat
                     CPP utest-proto-heat.cpp
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
@@ -50,6 +49,18 @@ coolfluid_add_test( UTEST utest-proto-ns-assembly
                     CPP utest-proto-ns-assembly.cpp
                     LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
 
+coolfluid_add_test( UTEST utest-neumann
+                    CPP utest-neumann.cpp
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    MPI 1)
+
+coolfluid_add_test( UTEST utest-spalart-allmaras
+                    CPP utest-spalart-allmaras.cpp
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    MPI 1)
+
 # Disable debugging on the compiled expressions, since this takes huge amounts of memory
 set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
 
@@ -82,5 +93,11 @@ coolfluid_add_test( ATEST atest-quadtriag
 coolfluid_add_test( ATEST atest-flatplate2d
                     PYTHON atest-flatplate2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
-endif()
 
+coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras
+                    PYTHON atest-flatplate2d-spalartallmaras.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
+coolfluid_add_test( ATEST atest-multiregion
+                    PYTHON atest-multiregion.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)

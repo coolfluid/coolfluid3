@@ -140,10 +140,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Proto placeholders
 
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
-  MeshTerm<2, ScalarField> T("Temperature", UFEM::Tags::solution());
-  MeshTerm<3, VectorField> u_adv("AdvectionVelocity","linearized_velocity");// The extrapolated advection velocity (n+1/2)
+  MeshTerm<0, ScalarField> NU("turbulentViscosity", UFEM::Tags::solution());
+  MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");// The extrapolated advection velocity (n+1/2)
   //MeshTerm<4, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   UFEM::SUPGCoeffs c;
@@ -163,7 +161,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   RealVector initial_u(1); initial_u.setConstant(1.);
 
   // add the top-level actions (assembly, BC and solve)
-  *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u, u = initial_u, p = 1.)));
+  *ic << create_proto_action("Initialize", nodes_expression(group(NU = 0., u_adv = initial_u)));
   *lss_action
     << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
     << create_proto_action
@@ -173,6 +171,15 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
          (
            allowed_elements,
            group
+
+           (
+          _A = _0, _T = _0,
+          //UFEM::compute_tau(u_adv, c),
+          element_quadrature( _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + c.tau_su * transpose(u_adv*nabla(NU))  * u_adv * nabla(NU) ,
+                _T(NU,NU) +=  transpose(N(NU) + c.tau_su * u_adv * nabla(NU)) * N(NU) ),
+                lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
+                lss_action->system_rhs += -_A * _b
+        )
 
           /*
                      from scalar-advection:
@@ -185,7 +192,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
                    lss_action->system_rhs += -_A * _b
            )*/
 // from test/Navier-Stokes
-           (
+           /*(
              _A = _0, _T = _0,
              UFEM::compute_tau(u, c),
              element_quadrature
@@ -199,7 +206,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
              ),
              lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
              lss_action->system_rhs += -_A * _b
-           )
+           )*/
 
            /*
           from Navier-Stokes.Ops
@@ -246,9 +253,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
        )
   << bc
   << allocate_component<solver::actions::SolveLSS>("SolveLSS")
-  << create_proto_action("Increment", nodes_expression(T += lss_action->solution(T)))
+  << create_proto_action("Increment", nodes_expression(NU += lss_action->solution(NU)))
   << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
-  << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << T << "\n"));
+  << create_proto_action("Output", nodes_expression(_cout << "NU(" << coordinates(0,0) << ") = " << NU << "\n"));
 
   // Setup physics
   model.create_physics("cf3.physics.DynamicModel");
@@ -277,13 +284,13 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   model.simulate();
 
   // Check result
-  t = model.time().current_time();
+  /*t = model.time().current_time();
   std::cout << "Checking solution at time " << t << std::endl;
   for_each_node
   (
     mesh.topology(),
         _check_close(-(_exp(Pe2 * coordinates[0])-1.)/(_exp(Pe2)-1.)+1, T, 1.)
-  );
+  );*/
 
 }
 

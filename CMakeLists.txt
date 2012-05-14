@@ -2,20 +2,20 @@
 # coolfluid cmake build system
 ##############################################################################
 # Command line options for cmake:
-# -DCMAKE_BUILD_TYPE=DEBUG     will set the build type
-# -DCF3_SKIP_FORTRAN=:BOOL=ON   will not test for fortran language
-# -G"Visual Studio 9 2008"     will generate for WIN32
-# -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
+# -DCMAKE_BUILD_TYPE=DEBUG will set the build type
+# -DCF3_SKIP_FORTRAN=:BOOL=ON will not test for fortran language
+# -G"Visual Studio 9 2008" will generate for WIN32
+# -DCMAKE_INSTALL_PREFIX=DIR will specify where to install
 # -DCF3_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
 ##############################################################################
 #
 # TODO
 #
-#  * use EXECUTABLE_OUTPUT_PATH  to specify a common place where CMake puts all executable files
-#        set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-#  * use LIBRARY_OUTPUT_PATH to specify a common place where CMake puts all libraries
-#        set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-#  * try using precompiled headers and add a check to their support
+# * use EXECUTABLE_OUTPUT_PATH to specify a common place where CMake puts all executable files
+# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+# * use LIBRARY_OUTPUT_PATH to specify a common place where CMake puts all libraries
+# set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+# * try using precompiled headers and add a check to their support
 #
 ##############################################################################
 
@@ -58,17 +58,17 @@ set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 message( STATUS "[configuring ${PROJECT_NAME}]")
 ##############################################################################
 
-include( DefineVersions )         # define variables with coolfluid versions
+include( DefineVersions ) # define variables with coolfluid versions
 
-include( DefineMacros )            # define our own macros
+include( DefineMacros ) # define our own macros
 
-include( DefineFileExtensions )    # define project files extensions
+include( DefineFileExtensions ) # define project files extensions
 
-include( CTest )                   # include testing support
+include( CTest ) # include testing support
 
-include( DefineInstallPaths )      # define where to install the files after building
+include( DefineInstallPaths ) # define where to install the files after building
 
-include( ResetVariables )          # reset variables used for the build and set DEPS_ROOT if needed
+include( ResetVariables ) # reset variables used for the build and set DEPS_ROOT if needed
 
 coolfluid_log("")
 
@@ -77,17 +77,17 @@ coolfluid_log(" setting build options ")
 ##############################################################################
 
 
-include( DefineGlobalOptions )     # add user global options
+include( DefineGlobalOptions ) # add user global options
 
-include( CheckOperatingSystem  )   # check for operating system features
+include( CheckOperatingSystem ) # check for operating system features
 
-include( CheckCompilerFeatures )   # check compiler features
+include( CheckCompilerFeatures ) # check compiler features
 
-include( DefineBuildModes )        # define how build modes behave ( may override some options )
+include( DefineBuildModes ) # define how build modes behave ( may override some options )
 
-include( DefineBuildRules )        # defined default compilation flags and linking rules per architecture
+include( DefineBuildRules ) # defined default compilation flags and linking rules per architecture
 
-include( ApplyGlobalOptions )      # take options into effect
+include( ApplyGlobalOptions ) # take options into effect
 
 coolfluid_log("")
 
@@ -95,15 +95,15 @@ coolfluid_log("")
 coolfluid_log(" generic configuration ")
 ##############################################################################
 
-add_subdirectory( cmake )         # dir with macros to be installed
+add_subdirectory( cmake ) # dir with macros to be installed
 
-add_subdirectory( tools )         # dir with tools and scripts
+add_subdirectory( tools ) # dir with tools and scripts
 
-add_subdirectory( doc )           # dir with documentation to be installed
+add_subdirectory( doc ) # dir with documentation to be installed
 
-include( DetectSoftware )         # find sofwtare dependencies
+include( DetectSoftware ) # find sofwtare dependencies
 
-include( CheckSourceRevision )        # check for subversion support
+include( CheckSourceRevision ) # check for subversion support
 
 coolfluid_log("")
 
@@ -158,8 +158,8 @@ foreach( EXDIR ${CF3_PLUGIN_DIRS} )
   coolfluid_log_file( "---------------------------------------------------------" )
 
   # find modules in each search dir
-  file( GLOB  FOUND_PLUGIN_DIRS "${EXDIR}/*/CMakeLists.txt")
-  list( SORT  FOUND_PLUGIN_DIRS )
+  file( GLOB FOUND_PLUGIN_DIRS "${EXDIR}/*/CMakeLists.txt")
+  list( SORT FOUND_PLUGIN_DIRS )
 
   foreach( ADIR ${FOUND_PLUGIN_DIRS} )
 
@@ -190,11 +190,11 @@ include( PrintSummary )
 ##############################################################################
 
 if(CF3_CHECK_ORPHAN_FILES)
-  include( ProcessOrphanFiles )    # processes the list of orphan files
+  include( ProcessOrphanFiles ) # processes the list of orphan files
 endif()
 
-include( DumpVariables )         # dump relevant variables in the log file
+include( DumpVariables ) # dump relevant variables in the log file
 
-include( PrepareCPack  )         # packaging instructions
+include( PrepareCPack ) # packaging instructions
 
 coolfluid_log( "Full configuration log: ${PROJECT_LOG_FILE}" )

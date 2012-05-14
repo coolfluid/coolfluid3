@@ -98,7 +98,7 @@ struct BoundaryConditions::Implementation
     options.add_option("variable_name", std::string())
         .description("Variable name for this BC");
   }
-  
+
   void add_bc_component_signature(SignalArgs& node)
   {
     SignalOptions options( node );
@@ -108,7 +108,7 @@ struct BoundaryConditions::Implementation
 
     options.add_option("variable_name", std::string())
         .description("Variable name for this BC");
-        
+
     options.add_option("component", 0u)
         .description("Component of the vector for which the BC is applied");
   }
@@ -150,7 +150,7 @@ struct BoundaryConditions::Implementation
       CFdebug << "Region name " << region_name << " resolved to:\n";
       boost_foreach(const URI& uri, bc_regions)
       {
-        CFdebug << "  " << uri.string() << CFendl;
+        CFdebug << " " << uri.string() << CFendl;
       }
     }
 
@@ -174,13 +174,13 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
     .description("Create a constant Dirichlet BC")
     .pretty_name("Add Constant BC")
     .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
-    
+
   regist_signal( "add_constant_component_bc" )
     .connect( boost::bind( &BoundaryConditions::signal_create_constant_component_bc, this, _1 ) )
     .description("Create a constant Dirichlet BC for one component of a vector")
     .pretty_name("Add Constant Component BC")
     .signature( boost::bind(&Implementation::add_bc_component_signature, m_implementation.get(), _1) );
-    
+
   regist_signal( "add_function_bc" )
     .connect( boost::bind( &BoundaryConditions::signal_create_function_bc, this, _1 ) )
     .description("Create a Dirichlet BC that can be set using an analytical function")
@@ -212,7 +212,7 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
 
 Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
-  Handle<common::Action> result =  add_constant_bc(region_name, variable_name);
+  Handle<common::Action> result = add_constant_bc(region_name, variable_name);
   result->options().configure_option("value", default_value);
   return result;
 }
@@ -221,10 +221,10 @@ Handle< common::Action > BoundaryConditions::add_constant_component_bc(const std
 {
   MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
   ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
-  
+
   boost::shared_ptr< common::Action > result = create_proto_action("BC"+region_name+variable_name,
                                                 nodes_expression(m_implementation->dirichlet(var[component_idx]) = value));
-  
+
   add_component(result);
   m_implementation->configure_bc(*result, region_name);
 

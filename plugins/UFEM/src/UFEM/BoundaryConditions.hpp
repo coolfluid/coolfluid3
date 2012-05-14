@@ -21,7 +21,7 @@ namespace UFEM {
 /// BoundaryConditions for UFEM problems
 class UFEM_API BoundaryConditions : public common::ActionDirector
 {
-    
+
 public: // functions
 
   /// Contructor
@@ -43,7 +43,7 @@ public: // functions
   /// @param variable_name Name of the variable for which to set the BC
   /// @param default_value Default value
   Handle<common::Action> add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
-  
+
   /// Set only one component of a vector variable
   Handle<common::Action> add_constant_component_bc(const std::string& region_name, const std::string& variable_name, const Uint component_idx, const Real default_value = 0.);
 
