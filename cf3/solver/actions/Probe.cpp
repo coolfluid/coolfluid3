@@ -18,8 +18,11 @@
 #include "common/Signal.hpp"
 #include "common/XML/SignalOptions.hpp"
 
+#include "common/PE/Buffer.hpp"
+
 #include "math/MatrixTypesConversion.hpp"
 #include "math/VariablesDescriptor.hpp"
+#include "math/Consts.hpp"
 
 #include "solver/actions/Probe.hpp"
 #include "mesh/Field.hpp"
@@ -91,26 +94,56 @@ void Probe::execute()
   std::vector<SpaceElem> m_stencil;
   std::vector<Uint> m_points;
   std::vector<Real> m_weights;
-  bool found = m_point_interpolator->compute_storage(coord,m_element,m_stencil,m_points,m_weights);
-  if (!found)
+
+  int found = m_point_interpolator->compute_storage(coord,m_element,m_stencil,m_points,m_weights);
+
+//  std::cout << PE::Comm::instance().rank() << ":  found = " << found << std::endl;
+
+  int found_on_proc = found ? PE::Comm::instance().rank() : -1;
+
+  if (PE::Comm::instance().is_active())
+    PE::Comm::instance().all_reduce(PE::max(), &found_on_proc, 1, &found_on_proc);
+
+//  std::cout << PE::Comm::instance().rank() << ":  found_on_proc = " << found_on_proc << std::endl;
+
+  if (found_on_proc<0)
     throw SetupError(FromHere(),"Cannot probe: coordinate ("+to_str(opt_coord)+") lies outside the domain");
 
-  properties()["space"]=m_element.comp->uri().path();
-  properties()["glb_elem_idx"]=m_element.glb_idx();
+  PE::Buffer elem_comp_buffer;
+  if (found)
+  {
+    elem_comp_buffer << m_element.comp->uri().path() << m_element.glb_idx();
+  }
+  elem_comp_buffer.broadcast(found_on_proc);
+  std::string elem_comp;
+  Uint glb_idx;
+  elem_comp_buffer >> elem_comp >> glb_idx;
+
+  properties()["space"]=elem_comp;
+  properties()["glb_elem_idx"]=glb_idx;
+
+//  std::cout << PE::Comm::instance().rank() << ":  elem_comp = " << elem_comp << std::endl;
+//  std::cout << PE::Comm::instance().rank() << ":  glb_idx = " << glb_idx << std::endl;
 
   boost_foreach (const Handle<Field>& field, m_dict->fields())
   {
 
     // Interpolate each field to the given point
     std::vector<Real> interpolated(field->row_size());
-    for(Uint v=0; v<interpolated.size(); ++v)
+
+    if (found)
     {
-      interpolated[v]=0.;
-      for(Uint i=0; i<m_points.size(); ++i)
+      for(Uint v=0; v<interpolated.size(); ++v)
       {
-        interpolated[v] += field->array()[m_points[i]][v] * m_weights[i];
+        interpolated[v]=0.;
+        for(Uint i=0; i<m_points.size(); ++i)
+        {
+          interpolated[v] += field->array()[m_points[i]][v] * m_weights[i];
+        }
       }
     }
+
+    PE::Comm::instance().broadcast(interpolated,interpolated,found_on_proc);
 
     // Set interpolated variables as properties
     for (Uint var_idx=0; var_idx<field->nb_vars(); ++var_idx)
