@@ -164,6 +164,11 @@ struct ElementMathImplicit :
   boost::proto::or_
   <
     SFOps< boost::proto::terminal<boost::proto::_> >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+      VarValue(boost::proto::_value(boost::proto::_child1))
+    >,
     FieldInterpolation,
     MathTerminals,
     EigenMath<ElementMathImplicit, Integers>
