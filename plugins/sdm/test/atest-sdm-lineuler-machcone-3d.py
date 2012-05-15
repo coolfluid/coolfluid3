@@ -108,17 +108,11 @@ mesh.access_component('solution_space/residual').uri()
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
 interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
 
-### Setup history logging
-
-# Create probe of solution_space at monopole centre
-probe = solver.access_component('TimeStepping/PostActions').create_component('probe','cf3.solver.actions.Probe')
-probe.options().set('coordinate',[25,0.,0.]) \
-               .set('dict',mesh.access_component('solution_space'))
-
-# Add probed variable rho to history
-probe_history = probe.create_post_processor(name='log_solution',type='cf3.solver.actions.ProbePostProcHistory')
-probe_history.options().set( 'history' , solver.access_component('TimeStepping/History') ) \
-                       .set( 'variables' , ['Rho'] )
+solver.add_probe(
+  name="probe",
+  coordinate=[25.,0.,0.],
+  functions=['ptot=P+'+str(p0)],
+  log_variables=['ptot'])
 
 ### simulate
 
