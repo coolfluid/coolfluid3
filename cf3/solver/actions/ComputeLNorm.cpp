@@ -126,7 +126,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 {
 
   const Uint loc_nb_rows = field.size(); // field size on local processor
-  Uint nb_rows = 0.;                     // field size over all processors
+  Uint nb_rows = 0;                      // field size over all processors
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_nb_rows, 1u, &nb_rows );
 
