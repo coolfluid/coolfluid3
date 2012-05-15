@@ -103,6 +103,7 @@ void InitialCondition::execute()
   // Construct a vector with the values to use
   std::vector<Real> values; values.reserve(descriptor.size());
   const Uint nb_vars = m_variable_options.size();
+  CFdebug << "Using descriptor " << descriptor.description() << " for InitialCondition" << CFendl;
   cf3_assert(nb_vars == descriptor.nb_vars());
 
   for(Uint i = 0; i != nb_vars; ++i)

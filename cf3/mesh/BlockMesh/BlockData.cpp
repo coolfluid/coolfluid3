@@ -342,7 +342,6 @@ struct BlockArrays::Implementation
     Uint block_start = 0;
     for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
     {
-      CFdebug << "adding block " << block_idx << CFendl;
       Block& block = block_list[block_idx];
       block.is_local = block_idx >= partition_begin && block_idx < partition_end;
       block.start_index = block_start;
@@ -595,7 +594,6 @@ struct BlockArrays::Implementation
         cf3_assert(node_idx < mesh_coords.size());
         mesh_coords[node_idx][XX] = coords[XX];
         mesh_coords[node_idx][YY] = coords[YY];
-        CFdebug << "added node " << coords.transpose() << " at index " << node_idx << " for block " << block_idx << CFendl;
       }
     }
   }

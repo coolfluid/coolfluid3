@@ -92,5 +92,9 @@ coolfluid_add_test( ATEST atest-multiregion
                     PYTHON atest-multiregion.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
+coolfluid_add_test( ATEST atest-conjugate-heat-flatplate
+                    PYTHON atest-conjugate-heat-flatplate.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
 coolfluid_add_test( PTEST ptest-navier-stokes-assembly
                     PYTHON ptest-navier-stokes-assembly.py)

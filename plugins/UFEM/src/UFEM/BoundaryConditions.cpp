@@ -99,6 +99,17 @@ struct BoundaryConditions::Implementation
         .description("Variable name for this BC");
   }
   
+  void create_bc_action_signature(SignalArgs& node)
+  {
+    SignalOptions options( node );
+
+    options.add_option("region_name", std::string())
+        .description("Default region name for this BC");
+
+    options.add_option("builder_name", std::string())
+        .description("Name of the builder to create the BC component");
+  }
+  
   void add_bc_component_signature(SignalArgs& node)
   {
     SignalOptions options( node );
@@ -155,7 +166,7 @@ struct BoundaryConditions::Implementation
     }
 
     bc_action.options().configure_option(solver::Tags::regions(), bc_regions);
-    bc_action.options().configure_option(solver::Tags::physical_model(), m_physical_model);
+    bc_action.configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
   }
 
   ActionDirector& m_component;
@@ -186,6 +197,12 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
     .description("Create a Dirichlet BC that can be set using an analytical function")
     .pretty_name("Add Function BC")
     .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
+    
+  regist_signal( "create_bc_action" )
+    .connect( boost::bind( &BoundaryConditions::signal_create_bc_action, this, _1 ) )
+    .description("Create a boundary condition using the supplied builder name")
+    .pretty_name("Create BC Action")
+    .signature( boost::bind(&Implementation::create_bc_action_signature, m_implementation.get(), _1) );
 
   set_solution_tag(UFEM::Tags::solution());
 }
@@ -244,6 +261,15 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
   return result;
 }
 
+Handle< common::Action > BoundaryConditions::create_bc_action(const std::string& region_name, const std::string& builder_name)
+{
+  Handle<common::Action> result(create_component(builder_name+region_name, builder_name));
+  m_implementation->configure_bc(*result, region_name);
+  result->options().configure_option("lss", options().option("lss").value());
+  return result;
+}
+
+
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 {
   SignalOptions options( node );
@@ -271,6 +297,16 @@ void BoundaryConditions::signal_create_constant_component_bc(SignalArgs& node)
   reply_options.add_option("created_component", add_constant_component_bc(options.value<std::string>("region_name"),
                                                                           options.value<std::string>("variable_name"),
                                                                           options.value<Uint>("component"))->uri());
+}
+
+void BoundaryConditions::signal_create_bc_action(SignalArgs& node)
+{
+  SignalOptions options( node );
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", create_bc_action(options.value<std::string>("region_name"),
+                                                                          options.value<std::string>("builder_name"))->uri());
 }
 
 

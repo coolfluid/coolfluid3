@@ -140,18 +140,14 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   
   // This will create values at the boundary starting from the cell next to the wall
   common::Action& create_boundary_gradient = *coupling_bc->create_component<UFEM::AdjacentCellToFace>("CreateBoundaryGradient");
-  // Must be the tag for the file we want to copy, in this case GradT:
+  // Must be the tag for the field we want to copy, in this case GradT:
   create_boundary_gradient.options().configure_option("field_tag", std::string("element_fields"));
   
   // Add the neumann boundary condition, which is expressed using a proto action:
   Component& neumann_bc = bc_top->add_component(create_proto_action("NeumannHeat", elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    group
-    (
-      _A(T) = _0, // Needed to get an element matrix size
-      hc_top->system_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
-    )
+    hc_top->system_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
   )));
 
   // Build the mesh

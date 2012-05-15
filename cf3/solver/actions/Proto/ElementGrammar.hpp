@@ -14,6 +14,7 @@
 #include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
 #include "ExpressionGroup.hpp"
+#include "GaussPoints.hpp"
 #include "IndexLooping.hpp"
 
 /// @file

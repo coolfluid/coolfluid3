@@ -9,6 +9,7 @@
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
 #include <common/List.hpp>
+#include <common/PropertyList.hpp>
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -73,7 +74,7 @@ LSSAction::LSSAction(const std::string& name) :
   dirichlet(m_implementation->dirichlet),
   solution(m_implementation->solution)
 {
-  m_solution_tag = UFEM::Tags::solution();
+  properties().add_property("solution_tag", std::string(UFEM::Tags::solution()));
 
   regist_signal( "create_lss" )
     .connect( boost::bind( &LSSAction::signal_create_lss, this, _1 ) )
@@ -147,7 +148,7 @@ void LSSAction::on_regions_set()
   // Create the LSS if the mesh is set
   if(!m_loop_regions.empty() && !m_implementation->m_lss->is_created())
   {
-    VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), m_solution_tag);
+    VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), solution_tag());
 
     Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
     Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
@@ -162,7 +163,7 @@ void LSSAction::on_regions_set()
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
-    CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks" << CFendl;
+    CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
     m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
@@ -184,6 +185,15 @@ void LSSAction::trigger_dictionary()
   }
 }
 
+std::string LSSAction::solution_tag()
+{
+  return properties().value<std::string>("solution_tag");
+}
+
+void LSSAction::set_solution_tag(const std::string& tag)
+{
+  properties().configure_property("solution_tag", tag);
+}
 
 
 

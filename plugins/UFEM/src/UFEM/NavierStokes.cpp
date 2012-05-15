@@ -49,6 +49,8 @@ NavierStokes::NavierStokes(const std::string& name) :
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_use_specializations, this));
   
+  set_solution_tag("navier_stokes_solution");
+    
   trigger_use_specializations();
 }
 
@@ -73,8 +75,8 @@ void NavierStokes::trigger_use_specializations()
   
   const bool use_specializations = options().option("use_specializations").value<bool>();
   
-  MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
-  MeshTerm<0, VectorField> u("Velocity", Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", solution_tag());
+  MeshTerm<0, VectorField> u("Velocity", solution_tag());
 
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
@@ -117,7 +119,7 @@ void NavierStokes::trigger_use_specializations()
     ));
   }
   
-  create_component<BoundaryConditions>("BoundaryConditions");
+  create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());
   create_component<SolveLSS>("SolveLSS");
   add_component(create_proto_action("Update", nodes_expression(group
   (
