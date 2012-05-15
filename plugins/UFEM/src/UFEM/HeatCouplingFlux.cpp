@@ -41,14 +41,10 @@ using namespace solver::actions::Proto;
 
 common::ComponentBuilder < HeatCouplingFlux, common::ActionDirector, LibUFEM > HeatCouplingFlux_Builder;
 
-HeatCouplingFlux::HeatCouplingFlux(const std::string& name): ActionDirector(name)
+HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
+  ActionDirector(name),
+  m_rhs(options().add_option("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
-  options().add_option("lss", m_lss)
-    .pretty_name("LSS")
-    .description("The linear system for which the boundary condition is applied")
-    .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this))
-    .link_to(&m_lss);
-
   options().add_option("gradient_region", m_gradient_region)
     .pretty_name("Gradient Region")
     .description("The (volume) region in which to calculate the temperature gradient")
@@ -97,9 +93,6 @@ void HeatCouplingFlux::trigger_gradient_region()
 
 void HeatCouplingFlux::trigger_setup()
 {
-  if(is_null(m_lss))
-    return;
-
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().option("temperature_field_tag").value<std::string>();
 
@@ -122,12 +115,10 @@ void HeatCouplingFlux::trigger_setup()
   ));
 
   // Expression for the Neumann BC itself
-  // Placeholder for the Linear System right-hand-side:
-  SystemRHS rhs(options().option("lss"));
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
+    m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
   ));
 
   // Raise an event to indicate that we added a variable (GradT)

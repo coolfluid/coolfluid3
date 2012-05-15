@@ -51,6 +51,9 @@ public: // functions
   
   /// Access to the tag this component uses for finding its solution field
   std::string solution_tag();
+  
+  /// Set the tag used to keep track of what field stores the solution to the LSS
+  void set_solution_tag(const std::string& tag);
 
 private:
   class Implementation;
@@ -67,8 +70,6 @@ private:
   Handle<mesh::Dictionary> m_dictionary;
   
 protected:
-  /// Set the tag used to keep track of what field stores the solution to the LSS
-  void set_solution_tag(const std::string& tag);
 
   void on_regions_set();
 

@@ -149,6 +149,13 @@ ic_ns = ic.create_initial_condition('navier_stokes_solution')
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 # Initial conditions for the scalar advection solver
 ic_phi = ic.create_initial_condition('scalar_advection_solution')
+#Initial condition for the temperature
+ic_hc = ic.create_initial_condition('heat_conduction_solution')
+
+ic_ns.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_linearized_vel.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_phi.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
 
 #initial conditions
 ic_ns.options().configure_option('Velocity', u_in)
@@ -156,7 +163,8 @@ ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
-ic_phi.options().configure_option('Tadv', phi_in)
+ic_phi.options().configure_option('Tadv', phi_wall)
+ic_hc.options().configure_option('Tcond', phi_wall)
 
 #properties for Navier-Stokes
 physics.options().configure_option('density', 1.2)
@@ -178,7 +186,8 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().co
 bc = scalaradv.get_child('BoundaryConditions')
 bc.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().configure_option('value', phi_in)
-bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Temperature').options().configure_option('value',  phi_wall)
+bc_wall_temp = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.BCHoldValue')
+bc_wall_temp.set_tags(from_field_tag = 'heat_conduction_solution', to_field_tag = 'scalar_advection_solution', from_variable = 'Temperature', to_variable = 'Temperature')
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().configure_option('value',  phi_in)
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().configure_option('value',  phi_in)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().configure_option('value', phi_in)
@@ -196,7 +205,7 @@ time = model.create_time()
 time.options().configure_option('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 0.01
+final_end_time = 0.1
 save_interval = 0.01
 current_end_time = 0.
 iteration = 0

@@ -109,7 +109,7 @@ void AdjacentCellToFace::execute()
         cf3_assert(face_conn.has_adjacent_element(i, 0));
         const CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(i, 0);
         const Uint other_field_elements_begin = field.dict().space(*adj_elem.first).connectivity()[0][0];
-        field.set_row(own_field_elements_begin + i, field[other_field_elements_begin + i]);
+        field.set_row(own_field_elements_begin + i, field[other_field_elements_begin + adj_elem.second]);
       }
     }
   }

@@ -98,6 +98,8 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()])
+scalaradv.options().configure_option('regions', [mesh.access_component('topology').uri()])
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
@@ -111,8 +113,8 @@ u_wall = [0., 0.]
 phi_in = 100
 phi_wall = 200
 
-# Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('solution')
+# Add initial conditions for the Navier-Stokes solver, which uses 'navier_stokes_solution' as a tag for its solution fields
+ic_ns = ic.create_initial_condition('navier_stokes_solution')
 # Initial advection velocity and its previous values, using linearized_velocity as tag
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 # Initial conditions for the scalar advection solver

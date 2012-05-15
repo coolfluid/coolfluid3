@@ -105,6 +105,7 @@ class TestCase:
     
   def setup_lss(self):
     self.grow_overlap()
+    self.ns_solver.options().configure_option('regions', [self.mesh.access_component('topology').uri()])
     self.ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
     
   def run(self):

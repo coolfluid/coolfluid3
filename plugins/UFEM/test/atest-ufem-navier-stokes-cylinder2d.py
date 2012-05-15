@@ -25,7 +25,9 @@ ic = solver.create_initial_conditions()
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
 #Load mesh
-domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
+mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
+
+ns_solver.options().configure_option('regions', [mesh.access_component('topology').uri()])
 
 # lss setup
 lss = ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
@@ -34,7 +36,7 @@ lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2])
 u_in = [2., 0.]
 
 # Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('solution')
+ic_ns = ic.create_initial_condition('navier_stokes_solution')
 # Initial advection velocity and its previous values, using linearized_velocity as tag
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 

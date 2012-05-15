@@ -347,6 +347,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
   LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
 
   // Write the matrix

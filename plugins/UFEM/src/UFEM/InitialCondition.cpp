@@ -97,6 +97,9 @@ void InitialCondition::trigger_tag()
 
 void InitialCondition::execute()
 {
+  if(m_loop_regions.empty())
+    CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
+  
   const std::string field_tag = options().option("field_tag").value<std::string>();
   VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), field_tag);
 
@@ -122,6 +125,7 @@ void InitialCondition::execute()
   }
   BOOST_FOREACH(const Handle<Region>& region, m_loop_regions)
   {
+    CFdebug << "  Action " << name() << ": running over region " << region->uri().path() << CFendl;
     std::vector<Uint> nodes;
     make_node_list(*region, common::find_parent_component<mesh::Mesh>(*region).geometry_fields().coordinates(), nodes);
     Field& field = find_field(*region, field_tag);

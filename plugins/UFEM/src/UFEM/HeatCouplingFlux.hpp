@@ -9,6 +9,7 @@
 
 
 #include "solver/ActionDirector.hpp"
+#include <solver/actions/Proto/BlockAccumulator.hpp>
 
 #include "LibUFEM.hpp"
 
@@ -49,6 +50,7 @@ private:
 
   Handle<mesh::Region> m_gradient_region;
   Handle<math::LSS::System> m_lss;
+  cf3::solver::actions::Proto::SystemRHS m_rhs;
 };
 
 } // UFEM

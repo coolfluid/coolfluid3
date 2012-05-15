@@ -148,6 +148,8 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   blocks.partition_blocks(PE::Comm::instance().size(), XX);
   blocks.create_mesh(mesh);
+  
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
 
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
