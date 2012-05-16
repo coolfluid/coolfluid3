@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   // List of (Navier-)Stokes creation functions, with their names
   const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("generic_ns_assembly");
   typedef boost::shared_ptr< Expression > (*FactoryT)(LSSActionUnsteady&, SUPGCoeffs&);
-  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::generic_ns_assembly);
+  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&UFEM::ns_assembly_quad_hexa_p1);
 
   // Loop over all model types
   for(Uint i = 0; i != names.size(); ++i)
@@ -124,14 +124,15 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     Domain& domain = model.create_domain("Domain");
     UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
     Handle<UFEM::LSSActionUnsteady> lss_action(solver.add_unsteady_solver("cf3.UFEM.LSSActionUnsteady"));
+    lss_action->set_solution_tag("navier_stokes_solution");
     Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
     time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
     // Expression variables
-    MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-    MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+    MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
+    MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
     MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
 
     // Velocity initial condition
@@ -143,6 +144,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // BC
     boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
+    bc->set_solution_tag("navier_stokes_solution");
     
     // build up the solver out of different actions
     *lss_action
@@ -170,6 +172,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     create_rectangle->options().configure_option("nb_cells",nb_cells);
     Mesh& mesh = create_rectangle->generate();
 
+    lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+    
     lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
     // Boundary conditions

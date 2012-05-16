@@ -208,6 +208,11 @@ struct ElementMathImplicitIndexed :
   boost::proto::or_
   <
     SFOps< boost::proto::call< ElementMathImplicitIndexed<I, J> > >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+      VarValue(boost::proto::_value(boost::proto::_child1))
+    >,
     FieldInterpolation,
     MathTerminals,
     ElementMatrixGrammar,
@@ -234,7 +239,6 @@ struct ElementQuadrature :
   >
 {
 };
-
 
 } // namespace Proto
 } // namespace actions

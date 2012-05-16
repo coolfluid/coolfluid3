@@ -10,6 +10,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
+#include <common/EventHandler.hpp>
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -21,6 +22,7 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include <mesh/Space.hpp>
 
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
@@ -63,6 +65,8 @@ Solver::Solver(const std::string& name) :
     .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
     .description("Create initial conditions.")
     .pretty_name("Create Initial Conditions");
+
+  Core::instance().event_handler().connect_to_event("ufem_variables_added", this, &Solver::on_variables_added_event);
 }
 
 Solver::~Solver()
@@ -176,10 +180,19 @@ void Solver::mesh_loaded(mesh::Mesh& mesh)
 
 void Solver::mesh_changed(Mesh& mesh)
 {
-  SimpleSolver::mesh_loaded(mesh);
-
   CFdebug << "UFEM::Solver: Reacting to mesh_changed signal" << CFendl;
+  create_fields();
+}
 
+void Solver::on_variables_added_event(SignalArgs& args)
+{
+  // TODO: Check if the event comes from one of our children
+  CFdebug << "UFEM::Solver: Reacting to ufem_variables_added event" << CFendl;
+  create_fields();
+}
+
+void Solver::create_fields()
+{
   // Find out what tags are used
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
@@ -197,18 +210,18 @@ void Solver::mesh_changed(Mesh& mesh)
     Handle<Dictionary> dict;
     if(space_lib_name == "geometry")
     {
-      dict = mesh.geometry_fields().handle<Dictionary>();
+      dict = mesh().geometry_fields().handle<Dictionary>();
     }
     else
     {
-      BOOST_FOREACH(Dictionary& tagged_dict, find_components_recursively_with_tag<Dictionary>(mesh, "ufem_dict"))
+      BOOST_FOREACH(Dictionary& tagged_dict, find_components_recursively_with_tag<Dictionary>(mesh(), "ufem_dict"))
       {
         if(tagged_dict.spaces().empty())
         {
           CFwarn << "Found empty dict while looking for dictionaries with tag ufem_dict" << CFendl;
           continue;
         }
-        const std::string sf_name = tagged_dict.options().option("shape_function").value<std::string>();
+        const std::string sf_name = tagged_dict.spaces().front()->shape_function().derived_type_name();
         if(boost::algorithm::starts_with(sf_name, space_lib_name))
         {
           if(is_null(dict))
@@ -230,11 +243,11 @@ void Solver::mesh_changed(Mesh& mesh)
       // Special case of P0: create a discontinuous space
       if(boost::ends_with(space_lib_name, "P0"))
       {
-        dict = mesh.create_discontinuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+        dict = mesh().create_discontinuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
       }
       else
       {
-        dict = mesh.create_continuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
+        dict = mesh().create_continuous_space(space_lib_name, space_lib_name).handle<Dictionary>();
       }
       dict->add_tag("ufem_dict");
       CFinfo << "Created ufem_dict " << dict->uri().path() << CFendl;
@@ -264,10 +277,10 @@ void Solver::mesh_changed(Mesh& mesh)
 
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
-  root_regions.push_back(mesh.topology().uri());
-  configure_option_recursively(solver::Tags::regions(), root_regions);
-  configure_option_recursively("dictionary", mesh.geometry_fields().handle<Dictionary>());
+  root_regions.push_back(mesh().topology().uri());
+  configure_option_recursively("dictionary", mesh().geometry_fields().handle<Dictionary>());
 }
+
 
 } // UFEM
 } // cf3

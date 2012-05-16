@@ -24,6 +24,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include <mesh/LagrangeP0/Line.hpp>
 #include "mesh/LagrangeP1/Quad2D.hpp"
 
 #include "solver/Model.hpp"
@@ -96,16 +97,28 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   physics::PhysModel& physics = model.create_physics("cf3.UFEM.NavierStokesPhysics");
+  // Add a UFEM solver, the top layer for the simulation
   Handle<UFEM::Solver> solver(model.create_solver("cf3.UFEM.Solver").handle());
+  // This steady heat conduction solver will be used on the bottom region:
   Handle<UFEM::LSSAction> hc_bottom(solver->add_direct_solver("cf3.UFEM.HeatConductionSteady"));
-//   Handle<UFEM::LSSAction> hc_top(solver->add_direct_solver("cf3.UFEM.HeatConductionSteady"));
+  // coupling_bc will hold the actions related to the heat transfer coupling condition between the regions
+  Handle<solver::ActionDirector> coupling_bc = solver->create_component<solver::ActionDirector>("heat_bc");
+  // hc_top solves the heat conduction equation in the top part of the mesh
+  Handle<UFEM::LSSAction> hc_top(solver->add_direct_solver("cf3.UFEM.HeatConductionSteady"));
+  
+  // Handles to boundary conditions
+  Handle<UFEM::BoundaryConditions> bc_bot(hc_bottom->get_child("BoundaryConditions"));
+  Handle<UFEM::BoundaryConditions> bc_top(hc_top->get_child("BoundaryConditions"));
+  
 
+  ////////////////////////////////////////
+  // Special-purpose boundary condition //
+  ////////////////////////////////////////
+  
   // Represents the temperature field, as calculated
   MeshTerm<0, ScalarField> T("Temperature", "solution");
   // Represents the gradient of the temperature, to be stored in an (element based) field
   MeshTerm<1, VectorField> GradT("GradT", "element_fields", Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>());
-  // Only consider on P0 and P1 quads
-  boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // For quads, the center is at mapped coordinates (0,0)
   RealVector2 center; center.setZero();
@@ -115,16 +128,29 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   // T are the nodal values for the temperature
   boost::shared_ptr<Expression> grad_t_expr = elements_expression
   (
-    allowed_elements,
+    boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
     GradT = nabla(T, center)*nodal_values(T)
   );
 
   // Register the variables, making sure a field description for GradT exists
   grad_t_expr->register_variables(physics);
 
-  // Add an action to do the calculation
-  (*solver) << create_proto_action("GradT", grad_t_expr);
+  // Add an action to do the gradient calculation
+  (*coupling_bc ) << create_proto_action("GradT", grad_t_expr);
+  
+  // This will create values at the boundary starting from the cell next to the wall
+  common::Action& create_boundary_gradient = *coupling_bc->create_component<UFEM::AdjacentCellToFace>("CreateBoundaryGradient");
+  // Must be the tag for the field we want to copy, in this case GradT:
+  create_boundary_gradient.options().configure_option("field_tag", std::string("element_fields"));
+  
+  // Add the neumann boundary condition, which is expressed using a proto action:
+  Component& neumann_bc = bc_top->add_component(create_proto_action("NeumannHeat", elements_expression
+  (
+    boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+    hc_top->system_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
+  )));
 
+  // Build the mesh
   Handle<BlockMesh::BlockArrays> blocks = domain.create_component<BlockMesh::BlockArrays>("blocks");
   (*blocks->create_points(2, 6)) << 0. << 0.
                                 << 1. << 0.
@@ -150,42 +176,34 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
 
   Handle<Mesh> mesh = domain.create_component<Mesh>("Mesh");
   blocks->create_mesh(*mesh);
-
-  // Create the field for the gradient
-  std::vector< Handle<Region> > regions;
-  regions.push_back(Handle<Region>(mesh->access_component("topology/solid_bottom")));
-  //regions.push_back(Handle<Region>(mesh->access_component("topology/solid_top")));
-
+  
+  // Set up the regular bottom and top solvers
   hc_bottom->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
-  solver->get_child("GradT")->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
-  
-  // This will create values at the boundary starting from the cell next to the wall
-  common::Action& create_boundary_gradient = *solver->create_component<UFEM::AdjacentCellToFace>("CreateBoundaryGradient");
-  create_boundary_gradient.options().configure_option("field_tag", std::string("element_fields"));
-  create_boundary_gradient.options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
-  
-//   hc_top->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
+  hc_top->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
   math::LSS::System& bot_lss = hc_bottom->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
   bot_lss.matrix()->options().configure_option("settings_file", solver_config);
 
-//   math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-//   top_lss.matrix()->options().configure_option("settings_file", solver_config);
+  math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+  top_lss.matrix()->options().configure_option("settings_file", solver_config);
 
-  Handle<UFEM::BoundaryConditions> bc_bot(hc_bottom->get_child("BoundaryConditions"));
+  
   bc_bot->options().configure_option("regions", std::vector<URI>(1, mesh->topology().uri()));
   bc_bot->add_constant_bc("bottom", "Temperature")->options().configure_option("value", 10.);
   bc_bot->add_constant_bc("region_bnd_solid_bottom_solid_top", "Temperature")->options().configure_option("value", 50.);
 
-//   Handle<UFEM::BoundaryConditions> bc_top(hc_top->get_child("BoundaryConditions"));
-//   bc_top->options().configure_option("regions", std::vector<URI>(1, mesh->topology().uri()));
-//   bc_top->add_constant_bc("top", "Temperature")->options().configure_option("value", 10.);
-//   bc_top->add_constant_bc("region_bnd_solid_top_solid_bottom", "Temperature")->options().configure_option("value", 50.);
+  bc_top->options().configure_option("regions", std::vector<URI>(1, mesh->topology().uri()));
+  bc_top->add_constant_bc("top", "Temperature")->options().configure_option("value", 10.);
+  
+  
+  // Set up the regions (needs to be done after mesh creation)
+  coupling_bc->get_child("GradT")->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
+  neumann_bc.options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
+  create_boundary_gradient.options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
 
-  std::cout << mesh->tree() << std::endl;
-
+  // Run the simulation and save the mesh
   model.simulate();
-
+  top_lss.rhs()->print_native(std::cout);
   domain.write_mesh("utest-neumann.msh");
 }
 

@@ -177,7 +177,8 @@ struct BlockArrays::Implementation
       if(i == nb_points[search_direction])
       {
         Block neighbor = *neighbors[search_direction];
-        neighbor.search_indices = search_indices;
+        for(Uint j = 0; j != search_direction; ++j)
+          neighbor = neighbor[search_indices[j]];
         neighbor.search_indices.push_back(0);
         return neighbor;
       }

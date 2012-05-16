@@ -48,6 +48,12 @@ public: // functions
   /// Create the LSS to use
   /// @param matrix_builder Name of the matrix builder to use for the LSS
   math::LSS::System& create_lss(const std::string& matrix_builder);
+  
+  /// Access to the tag this component uses for finding its solution field
+  std::string solution_tag();
+  
+  /// Set the tag used to keep track of what field stores the solution to the LSS
+  void set_solution_tag(const std::string& tag);
 
 private:
   class Implementation;
@@ -62,10 +68,8 @@ private:
 
   /// The dictionary to use for field lookups
   Handle<mesh::Dictionary> m_dictionary;
-
+  
 protected:
-  /// tag used to keep track of what field stores the solution to the LSS
-  std::string m_solution_tag;
 
   void on_regions_set();
 

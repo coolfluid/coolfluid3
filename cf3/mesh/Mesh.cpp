@@ -84,6 +84,11 @@ Mesh::Mesh ( const std::string& name  ) :
       .pretty_name("Write Mesh" )
       .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
+      
+  regist_signal ( "raise_mesh_loaded" )
+      .description( "Raise the mesh loaded event" )
+      .pretty_name("Raise Mesh Loaded" )
+      .connect   ( boost::bind ( &Mesh::signal_raise_mesh_loaded,    this, _1 ) );
 
   m_geometry_fields = create_static_component<ContinuousDictionary>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
@@ -323,6 +328,12 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   write_mesh(fpath,fields);
 }
+
+void Mesh::signal_raise_mesh_loaded ( SignalArgs& node )
+{
+  raise_mesh_loaded();
+}
+
 
 void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 {

@@ -31,6 +31,7 @@
 #include "IndexLooping.hpp"
 #include "Terminals.hpp"
 #include "Transforms.hpp"
+#include "BlockAccumulator.hpp"
 
 /// @file
 /// System matrix block accumultation. Current prototype uses dense a dense Eigen matrix and is purely for proof-of-concept
@@ -60,7 +61,11 @@ static boost::proto::terminal<ElementRHS>::type const _b = {};
 
 /// Match element matrix terminals
 struct ElementMatrixTerm :
-  boost::proto::terminal< ElementMatrix<boost::proto::_> >
+  boost::proto::or_
+  <
+    boost::proto::terminal< ElementMatrix<boost::proto::_> >,
+    BlockLhsGrammar<SystemRHSTag>
+  >
 {
 };
 
@@ -212,7 +217,7 @@ struct MatrixSizePerVar
   >::type type;
 };
 
-/// Filter the matrix siz so equation variables are the only ones left with non-zero size
+/// Filter the matrix size so equation variables are the only ones left with non-zero size
 template<typename MatrixSizesT, typename EquationVariablesT>
 struct FilterMatrixSizes
 {

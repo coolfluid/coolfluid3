@@ -25,20 +25,19 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
+template<typename AllowedElementsT>
 boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs)
 {
-  // Elements for which no specialized implementation exists
-  boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D> generic_elements;
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
 
-  MeshTerm<0, VectorField> u("Velocity", Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
-
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, ScalarField> NU("TurbulentViscosity", "spalart_allmaras_solution");
 
   return elements_expression
   (
-    generic_elements,
+    AllowedElementsT(),
     group
 
         (
@@ -81,6 +80,15 @@ boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUP
   );
 }
 
+boost::shared_ptr< Expression > ns_assembly_lagrange_p1 ( LSSActionUnsteady& solver, SUPGCoeffs& coeffs )
+{
+  return generic_ns_assembly< boost::mpl::vector4<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Triag2D> >(solver, coeffs);
+}
+
+boost::shared_ptr< Expression > ns_assembly_quad_hexa_p1 ( LSSActionUnsteady& solver, SUPGCoeffs& coeffs )
+{
+  return generic_ns_assembly< boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D> >(solver, coeffs);
+}
 
 } // UFEM
 } // cf3

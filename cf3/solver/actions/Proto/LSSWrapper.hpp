@@ -95,7 +95,7 @@ public:
   {
     if(is_null(m_used_node_map))
       return node;
-    
+    cf3_assert(node < m_used_node_map->size());
     return (*m_used_node_map)[node];
   }
 
