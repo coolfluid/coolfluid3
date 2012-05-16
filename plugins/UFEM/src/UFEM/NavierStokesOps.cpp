@@ -28,10 +28,8 @@ using namespace solver::actions::Proto;
 template<typename AllowedElementsT>
 boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs)
 {
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
   MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-
-  MeshTerm<1, ScalarField> p("Pressure", Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, ScalarField> NU("TurbulentViscosity", "spalart_allmaras_solution");
 

@@ -115,9 +115,9 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   // The code will only be active for these element types
   boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
-  m_solution_tag = "spalart_allmaras_solution";
+  set_solution_tag("spalart_allmaras_solution");
 
-  MeshTerm<0, ScalarField> NU("TurbulentViscosity", m_solution_tag);
+  MeshTerm<0, ScalarField> NU("TurbulentViscosity", solution_tag());
   MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   MeshTerm<2, VectorField> u("Velocity","velocity");
 
@@ -141,7 +141,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
                + ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) * cw1 * r * ((1 + cw3*cw3*cw3*cw3*cw3*cw3 )/(r + cw3*cw3*cw3*cw3*cw3*cw3 ))      // ^(1/6) is missing due to error message, wall distance, r
                - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-               - (1/sigma) * (cb2) * nabla(NU) * nabla(NU) * nodal_values(NU),                                                      // should be nabla(NU)^2
+                       - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                                      // should be nabla(NU)^2
             _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                      // Time, standard and SUPG
           ),
           system_matrix += invdt() * _T + 1.0 * _A,
@@ -153,7 +153,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     << allocate_component<SolveLSS>("SolveLSS")
     << create_proto_action("Update", nodes_expression(NU += solution(NU)));
 
-  get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(m_solution_tag);
+  get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
 
 }
 
