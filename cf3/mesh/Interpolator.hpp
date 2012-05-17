@@ -42,17 +42,29 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Interpolator"; }
 
+  void store(const Dictionary& dict, const common::Table<Real>& target_coords);
+
   void interpolate(const Field& source_field, Field& target_field);
+
+  void stored_interpolation(const Field& source_field, common::Table<Real>& target);
+
+  void unstored_interpolation(const Field& source_field, const common::Table<Real>& target_coords, common::Table<Real>& target);
 
 private: // data
 
   /// The strategy to interpolate one coordinate
   Handle<PointInterpolator>  m_point_interpolator;
 
-  std::vector< SpaceElem >              m_stored_element;
-  std::vector< std::vector<SpaceElem> > m_stored_stencil;
-  std::vector< std::vector<Uint>   >    m_stored_source_field_points;
-  std::vector< std::vector<Real>   >    m_stored_source_field_weights;
+  Handle<Dictionary const> m_dict;
+  Handle<common::Table<Real> const> m_table;
+
+  // Values for each processor
+  std::vector< int                                   > m_proc;
+  std::vector< std::vector< Uint                   > > m_expect_recv;
+  std::vector< std::vector< SpaceElem              > > m_stored_element;
+  std::vector< std::vector< std::vector<SpaceElem> > > m_stored_stencil;
+  std::vector< std::vector< std::vector<Uint>      > > m_stored_source_field_points;
+  std::vector< std::vector< std::vector<Real>      > > m_stored_source_field_weights;
 
 };
 
