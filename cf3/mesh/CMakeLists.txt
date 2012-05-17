@@ -38,8 +38,6 @@ list( APPEND coolfluid_mesh_files
   InterpolationFunction.cpp
   Interpolator.hpp
   Interpolator.cpp
-  LinearInterpolator.hpp
-  LinearInterpolator.cpp
   Mesh.hpp
   Mesh.cpp
   MeshElements.hpp
@@ -102,6 +100,8 @@ list( APPEND coolfluid_mesh_files
   MeshMetadata.cpp
   PointInterpolator.hpp
   PointInterpolator.cpp
+  PseudoLaplacianLinearInterpolation.hpp
+  PseudoLaplacianLinearInterpolation.cpp
   ShapeFunction.hpp
   ShapeFunctionT.hpp
   ShapeFunctionBase.hpp

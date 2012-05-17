@@ -11,6 +11,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
+#include "common/Core.hpp"
+#include "common/Environment.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -26,6 +28,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Dictionary.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
@@ -49,9 +52,8 @@ struct MeshInterpolation_Fixture
   /// common setup for each test case
   MeshInterpolation_Fixture()
   {
-     // uncomment if you want to use arguments to the test executable
-     //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-     //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
+     int*    argc = &boost::unit_test::framework::master_test_suite().argc;
+     char*** argv = &boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
@@ -63,6 +65,8 @@ struct MeshInterpolation_Fixture
 
 
   /// common values accessed by all tests goes here
+  int    m_argc;
+  char** m_argv;
 
 };
 
@@ -72,10 +76,14 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Constructors)
+
+BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  boost::shared_ptr< OldInterpolator > interpolator = build_component_abstract_type<OldInterpolator>("cf3.mesh.LinearInterpolator","interpolator");
-  BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
+  Core::instance().initiate(m_argc,m_argv);
+  PE::Comm::instance().init(m_argc,m_argv);
+  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().options().configure_option("exception_backtrace",true);
+  Core::instance().environment().options().configure_option("regist_signal_handlers",true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,8 +97,14 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK( true );
 
-  Mesh& source = *Core::instance().root().create_component<Mesh>("hextet");
-  meshreader->read_mesh_into("../../resources/hextet.neu",source);
+  Mesh& source = *Core::instance().root().create_component<Mesh>("box");
+//  meshreader->read_mesh_into("../../resources/hextet.neu",source);
+
+  boost::shared_ptr<MeshGenerator> mesh_gen = allocate_component<SimpleMeshGenerator>("meshgen");
+  mesh_gen->options().configure_option("nb_cells",std::vector<Uint>(3,5));
+  mesh_gen->options().configure_option("lengths",std::vector<Real>(3,10.));
+  mesh_gen->options().configure_option("mesh",source.uri());
+  mesh_gen->execute();
 
   BOOST_CHECK_EQUAL( source.geometry_fields().coordinates().row_size() , (Uint)DIM_3D );
 
@@ -105,14 +119,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
 
   // Create and configure interpolator.
-  boost::shared_ptr< OldInterpolator > interpolator = build_component_abstract_type<OldInterpolator>("cf3.mesh.LinearInterpolator","interpolator");
-  interpolator->options().configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
-  // Following configuration option has priority over the the previous one.
-  std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
-  //interpolator->options().configure_option("Divisions", divisions );
-
-  // Create the honeycomb
-  interpolator->construct_internal_storage(source);
+  boost::shared_ptr< Interpolator > interpolator = allocate_component<Interpolator>("interpolator");
 
   BOOST_CHECK(true);
 
@@ -125,8 +132,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  Dictionary& source_elem_fields = source.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
-  Dictionary& target_elem_fields = target.create_discontinuous_space("elems_P0", "cf3.mesh.LagrangeP0");
+  Dictionary& source_elem_fields = source.create_discontinuous_space("elems_P1", "cf3.mesh.LagrangeP1");
+  Dictionary& target_elem_fields = target.create_discontinuous_space("elems_P1", "cf3.mesh.LagrangeP1");
   Dictionary& source_node_fields = source.geometry_fields();
   Dictionary& target_node_fields = target.geometry_fields();
 
@@ -154,24 +161,19 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   }
 
-  RealMatrix coordinates;
   boost_foreach( const Handle<Entities>& s_elements, s_elembased.entities_range() )
   {
     const Space& space = s_elembased.space(*s_elements);
-    space.allocate_coordinates(coordinates);
-
+    const Field& coordinates = s_elembased.coordinates();
     for (Uint elem_idx = 0; elem_idx<s_elements->size(); ++elem_idx)
     {
-      coordinates = space.compute_coordinates( elem_idx );
-      cf3_assert(space.connectivity()[elem_idx].size() == coordinates.rows());
-      boost_foreach(const Uint state, space.connectivity()[elem_idx])
+      boost_foreach(const Uint pt, space.connectivity()[elem_idx])
       {
-        const RealRowVector& coords = coordinates.row(0);
-        s_elembased[state][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
-        s_elembased[state][1]=coords[XX];
-        s_elembased[state][2]=coords[YY];
-        s_elembased[state][3]=7.0;
-        s_elembased[state][4]=coords[XX];
+        s_elembased[pt][0]=coordinates[pt][XX]+2.*coordinates[pt][YY]+2.*coordinates[pt][ZZ];
+        s_elembased[pt][1]=coordinates[pt][XX];
+        s_elembased[pt][2]=coordinates[pt][YY];
+        s_elembased[pt][3]=7.0;
+        s_elembased[pt][4]=coordinates[pt][XX];
       }
     }
   }
@@ -180,15 +182,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
-  interpolator->interpolate_field_from_to(s_nodebased,s_elembased);
-  interpolator->interpolate_field_from_to(s_nodebased,t_nodebased);
-  interpolator->interpolate_field_from_to(s_elembased,t_nodebased_2);
-  interpolator->interpolate_field_from_to(s_elembased,t_elembased);
-
-  // interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
-  // interpolator->interpolate_field_from_to(source->field("nodebased"),source->field("elementbased"));
-  // interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
-  // interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
+  interpolator->interpolate(s_nodebased,s_elembased);
+  interpolator->interpolate(s_nodebased,t_nodebased);
+  interpolator->interpolate(s_elembased,t_nodebased_2);
+  interpolator->interpolate(s_elembased,t_elembased);
 
   BOOST_CHECK(true);
 
@@ -227,7 +224,12 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   // Create mesh
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Handle<Mesh> source_mesh = Core::instance().root().create_component<Mesh>("hextet_new");
-  meshreader->read_mesh_into("../../resources/hextet.neu",*source_mesh);
+//  meshreader->read_mesh_into("../../resources/hextet.neu",*source_mesh);
+  boost::shared_ptr<MeshGenerator> mesh_gen = allocate_component<SimpleMeshGenerator>("meshgen");
+  mesh_gen->options().configure_option("nb_cells",std::vector<Uint>(3,5));
+  mesh_gen->options().configure_option("lengths",std::vector<Real>(3,10.));
+  mesh_gen->options().configure_option("mesh",source_mesh->uri());
+  mesh_gen->execute();
 
 
   // Create and configure interpolator.
@@ -287,6 +289,15 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   interpolator->options().configure_option("store",false);
   interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
   CFinfo << target_field_2 << CFendl;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( finalize_mpi )
+{
+  PE::Comm::instance().finalize();
+  Core::instance().terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

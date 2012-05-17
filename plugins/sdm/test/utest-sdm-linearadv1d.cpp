@@ -40,7 +40,6 @@
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/LinearInterpolator.hpp"
 
 #include "sdm/SDSolver.hpp"
 #include "sdm/Term.hpp"
