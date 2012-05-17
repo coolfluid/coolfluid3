@@ -178,7 +178,6 @@ void GlobalNumbering::execute()
       elements.geometry_space().put_coordinates(element_coordinates,elem_idx);
       RealVector centroid(elements.element_type().dimension());
       elements.element_type().compute_centroid(element_coordinates,centroid);
-//      hilbert_indices.data()[elem_idx]=elem_hash_value(element_coordinates);
       hilbert_indices.data()[elem_idx]=compute_glb_idx(centroid);
       if (m_debug)
         std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem "<< elements.uri().path() << "["<<elem_idx<<"] ("<<centroid.transpose()<<") to " << hilbert_indices.data()[elem_idx] << std::endl;
@@ -195,7 +194,7 @@ void GlobalNumbering::execute()
     for (Uint i=0; i<hilbert_indices.data().size(); ++i)
     {
       if (hilbert_set.insert(hilbert_indices.data()[i]).second == false)  // it was already in the set
-        throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
+        throw ValueExists(FromHere(), "node "+to_str(i)+" ("+to_str(coordinates[18])+") is duplicated");
     }
 
     hilbert_set.clear();
