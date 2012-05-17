@@ -19,6 +19,12 @@ list( APPEND coolfluid_solver_actions_files
   Iterate.cpp
   LoopOperation.hpp
   LoopOperation.cpp
+  Probe.hpp
+  Probe.cpp
+  ProbePostProcFunction.hpp
+  ProbePostProcFunction.cpp
+  ProbePostProcHistory.hpp
+  ProbePostProcHistory.cpp
   ForAllCells.hpp
   ForAllCells.cpp
   ForAllElements.hpp

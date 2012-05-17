@@ -88,9 +88,13 @@ BOOST_AUTO_TEST_CASE( build_faceconnectivity )
   BOOST_CHECK_EQUAL( f2c.size() , 31u);
 
   Face2Cell face(f2c);
-  Handle<Elements> liquid_triag (mesh->access_component("topology/quadtriag/liquid/Triag"));
-  Handle<Elements> gas_triag    (mesh->access_component("topology/quadtriag/gas/Triag"));
-  Handle<Elements> gas_quad     (mesh->access_component("topology/quadtriag/gas/Quad"));
+  Handle<Elements> liquid_triag (mesh->access_component("topology/quadtriag/liquid/elements_cf3.mesh.LagrangeP1.Triag2D"));
+  Handle<Elements> gas_triag    (mesh->access_component("topology/quadtriag/gas/elements_cf3.mesh.LagrangeP1.Triag2D"));
+  Handle<Elements> gas_quad     (mesh->access_component("topology/quadtriag/gas/elements_cf3.mesh.LagrangeP1.Quad2D"));
+
+  BOOST_CHECK(is_not_null(liquid_triag));
+  BOOST_CHECK(is_not_null(gas_triag));
+  BOOST_CHECK(is_not_null(gas_quad));
 
   face.idx=0;
   BOOST_CHECK_EQUAL( face.is_bdry() , false);

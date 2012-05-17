@@ -63,6 +63,7 @@ struct VariablesDescriptor::Implementation
 
     m_types.push_back(type);
     m_offsets.push_back(m_size);
+    m_internal_names.push_back(name);
     m_user_names.push_back(name);
 
     m_component.options().add_option(variable_property_name(name), name)
@@ -71,6 +72,21 @@ struct VariablesDescriptor::Implementation
         .link_to(&m_user_names.back());
 
     m_size += to_size(type);
+  }
+
+  void push_back(const std::string& name, const Uint nb_vars)
+  {
+    if (nb_vars == 1)
+    {
+      push_back(name,VariablesDescriptor::Dimensionalities::SCALAR);
+    }
+    else
+    {
+      for (Uint i=0; i<nb_vars; ++i)
+      {
+        push_back(name+"["+to_str(i)+"]",VariablesDescriptor::Dimensionalities::SCALAR);
+      }
+    }
   }
 
   Uint nb_vars() const
@@ -116,6 +132,11 @@ struct VariablesDescriptor::Implementation
   }
 
   const std::string& user_variable_name(const Uint var_nb) const
+  {
+    return m_user_names[var_nb];
+  }
+
+  const std::string& internal_variable_name(const Uint var_nb) const
   {
     return m_user_names[var_nb];
   }
@@ -319,6 +340,7 @@ struct VariablesDescriptor::Implementation
 
   /// User defined variable names
   std::vector<std::string> m_user_names;
+  std::vector<std::string> m_internal_names;
 
 };
 
@@ -368,6 +390,13 @@ VariablesDescriptor::~VariablesDescriptor()
 void VariablesDescriptor::push_back(const std::string& name, const VariablesDescriptor::Dimensionalities::Type type)
 {
   m_implementation->push_back(name, type);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void VariablesDescriptor::push_back(const std::string& name, const Uint nb_vars)
+{
+  m_implementation->push_back(name, nb_vars);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -454,6 +483,13 @@ const std::string& VariablesDescriptor::user_variable_name(const std::string& na
 const std::string& VariablesDescriptor::user_variable_name(const Uint var_nb) const
 {
   return m_implementation->user_variable_name(var_nb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const std::string& VariablesDescriptor::internal_variable_name(const Uint var_nb) const
+{
+  return m_implementation->internal_variable_name(var_nb);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

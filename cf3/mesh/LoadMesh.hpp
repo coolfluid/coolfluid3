@@ -20,13 +20,10 @@ namespace mesh {
   class Mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Helper class to load mesh based on a file extension
+/// @author Willem Deconinck
 /// @author Tiago Quintino
 class Mesh_API LoadMesh : public common::Component {
-
-public: // typedefs
-
-
-
 
 public: // functions
 

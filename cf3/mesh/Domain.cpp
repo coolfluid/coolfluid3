@@ -99,6 +99,11 @@ Domain::Domain( const std::string& name  ) :
       .pretty_name("Load Mesh")
       .signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
 
+  options().add_option("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum found dimensionality inside all meshes)")
+      .pretty_name("Dimension");
+
+  /// @deprecated Call write_mesh() on the mesh contained itself
   regist_signal( "write_mesh" )
       .connect( boost::bind( &Domain::signal_write_mesh, this, _1 ) )
       .description("Load a new mesh")
@@ -106,11 +111,11 @@ Domain::Domain( const std::string& name  ) :
       .signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 Domain::~Domain() {}
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 {
@@ -121,6 +126,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 
   Handle<Mesh> mesh = create_component<Mesh>(name);
 
+  mesh_loader.options().configure_option("dimension",dimension());
   mesh_loader.load_mesh_into(file, *mesh);
 
   CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
@@ -145,6 +151,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   return *mesh;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /// @todo Domain writes only the first mesh. Handle multiple-mesh case.
 
@@ -163,6 +170,7 @@ void Domain::write_mesh(const URI& file)
   m_implementation->m_write_mesh->write_mesh(mesh, file, state_fields);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 void Domain::signal_load_mesh ( common::SignalArgs& node )
 {
@@ -181,7 +189,7 @@ void Domain::signal_load_mesh ( common::SignalArgs& node )
   reply_options.add_option("created_component", created_component.uri());
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 void Domain::signal_write_mesh(SignalArgs& node)
 {
@@ -190,6 +198,17 @@ void Domain::signal_write_mesh(SignalArgs& node)
   write_mesh(fileuri);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+Uint Domain::dimension() const
+{
+  Uint dim = options().option("dimension").value<Uint>();
+  boost_foreach (const Mesh& mesh, find_components<Mesh>(*this))
+  {
+    dim = std::max(dim,mesh.dimension());
+  }
+  return dim;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

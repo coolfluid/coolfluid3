@@ -24,6 +24,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "common/Table.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshGenerator.hpp"
@@ -90,10 +91,10 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   mesh_generator->options().configure_option("nb_parts",1u);
 
   Mesh& mesh = mesh_generator->generate();
-
+  Handle<Dictionary> dict = mesh.geometry_fields().handle<Dictionary>();
   Octtree& octtree = *mesh.create_component<Octtree>("octtree");
 
-  // Create and configure interpolator.
+  // Create and configure octtree.
   octtree.options().configure_option("nb_elems_per_cell", 1u );
   octtree.options().configure_option("mesh", mesh.handle<Mesh>());
 
@@ -103,41 +104,41 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
   BOOST_CHECK(true);
 
-  Handle< Elements > elements;
-  Uint idx(0);
+  Entity element;
   RealVector2 coord;
 
   coord << 1. , 1. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,0u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,0u);
 
   coord << 3. , 1. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,1u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,1u);
 
   coord << 1 , 3. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,5u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,5u);
 
 
-  Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");
-  stencil_computer->options().configure_option("mesh", find_component<Mesh>(Core::instance().root()).handle<Mesh>() );
+  Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");  
+  stencil_computer->options().configure_option("dict", dict );
 
-  std::vector<Uint> stencil;
+  SpaceElem space_elem = SpaceElem(mesh.elements()[0]->space(*dict),7);
+  std::vector<SpaceElem> stencil;
   stencil_computer->options().configure_option("stencil_size", 1u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 1u);
 
   stencil_computer->options().configure_option("stencil_size", 2u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
   stencil_computer->options().configure_option("stencil_size", 10u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
   stencil_computer->options().configure_option("stencil_size", 21u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
 
   CFinfo << stencil_computer->tree() << CFendl;

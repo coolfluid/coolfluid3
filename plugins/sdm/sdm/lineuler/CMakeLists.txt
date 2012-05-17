@@ -21,6 +21,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   SourceMonopole2D.cpp
   SourceMonopole3D.hpp
   SourceMonopole3D.cpp
+  SourceVelocityField2D.hpp
+  SourceVelocityField2D.cpp
 )
 
 list( APPEND coolfluid_sdm_lineuler_cflibs coolfluid_sdm coolfluid_physics_lineuler )

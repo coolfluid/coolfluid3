@@ -69,14 +69,20 @@ Mesh::Mesh ( const std::string& name  ) :
 {
   mark_basic(); // by default meshes are visible
 
-  properties().add_property("nb_cells",Uint(0));
-  properties().add_property("nb_faces",Uint(0));
-  properties().add_property("nb_nodes",Uint(0));
+  properties().add_property("local_nb_cells",Uint(0));
+  properties().add_property("local_nb_faces",Uint(0));
+  properties().add_property("local_nb_nodes",Uint(0));
+  properties().add_property("global_nb_cells",Uint(0));
+  properties().add_property("global_nb_faces",Uint(0));
+  properties().add_property("global_nb_nodes",Uint(0));
   properties().add_property("dimensionality",Uint(0));
   properties().add_property(common::Tags::dimension(),Uint(0));
 
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
+
+  m_local_bounding_box  = create_static_component<BoundingBox>("bounding_box_local");
+  m_global_bounding_box = create_static_component<BoundingBox>("bounding_box_global");
 
   regist_signal ( "write_mesh" )
       .description( "Write mesh, guessing automatically the format" )
@@ -112,7 +118,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf3_assert(geometry_fields().coordinates().row_size() == dimension);
   m_dimension = dimension;
   properties().property(common::Tags::dimension()) = m_dimension;
-  properties().property("nb_nodes")  = geometry_fields().size();
+  properties().property("local_nb_nodes")  = geometry_fields().size();
   update_structures();
 }
 
@@ -192,9 +198,26 @@ void Mesh::update_statistics()
 
   properties().property(common::Tags::dimension()) = m_dimension;
   properties().property("dimensionality")= m_dimensionality;
-  properties().property("nb_cells") = nb_cells;
-  properties().property("nb_faces") = nb_faces;
-  properties().property("nb_nodes") = geometry_fields().size();
+  properties().property("local_nb_cells") = nb_cells;
+  properties().property("local_nb_faces") = nb_faces;
+  properties().property("local_nb_nodes") = geometry_fields().size();
+
+  std::vector<Uint> global_stats(3);
+  global_stats[0]=nb_cells;
+  global_stats[1]=nb_faces;
+  global_stats[2]=geometry_fields().size();
+  if (PE::Comm::instance().is_active())
+    PE::Comm::instance().all_reduce(PE::plus(),global_stats,global_stats);
+  properties().property("global_nb_cells") = global_stats[0];
+  properties().property("global_nb_faces") = global_stats[1];
+  properties().property("global_nb_nodes") = global_stats[2];
+
+  m_local_bounding_box->build(*this);
+  m_local_bounding_box->update_properties();
+
+  m_global_bounding_box->define(*m_local_bounding_box);
+  m_global_bounding_box->make_global();
+  m_global_bounding_box->update_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

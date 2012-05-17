@@ -9,10 +9,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/tuple/tuple.hpp>
-
 #include "common/BoostArray.hpp"
 #include "mesh/Interpolator.hpp"
+#include "mesh/InterpolationFunction.hpp"
 #include "mesh/Elements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,12 +25,7 @@ namespace mesh {
 
 /// This class defines neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API LinearInterpolator : public Interpolator
-{
-public: // typedefs
-
-  
-  
+class Mesh_API LinearInterpolator : public OldInterpolator {
 
 private: // typedefs
 
@@ -76,14 +70,13 @@ private: // functions
   /// Find one single element in which the given coordinate resides.
   /// @param target_coord [in] the given coordinate
   /// @return the elements region, and the local coefficient in this region
-  boost::tuple<Handle< Elements const >,Uint> find_element(const RealVector& target_coord);
+  std::pair<Handle< Elements const >,Uint> find_element(const RealVector& target_coord);
 
   /// Pseudo-Laplacian weighted linear interpolation algorithm
   /// @param source_points [in] The coordinates of the points used for interpolation
   /// @param target_point  [in] The coordinate of the target point for interpolation
   /// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
   void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
-
 
   /// Utility function to convert a vector-like type to a RealVector
   template<typename RowT>
@@ -118,6 +111,32 @@ private: // data
   std::vector<Uint> m_element_cloud;
 
 }; // end LinearInterpolator
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API PseudoLaplacianLinearInterpolation : public InterpolationFunction
+{
+public:
+  /// constructor
+  PseudoLaplacianLinearInterpolation( const std::string& name ) : InterpolationFunction(name) {}
+
+  /// Gets the Class name
+  static std::string type_name() { return "PseudoLaplacianLinearInterpolation"; }
+
+
+  virtual void compute_interpolation_weights(const RealVector& coordinate, const std::vector<SpaceElem>& stencil,
+                                             std::vector<Uint>& source_field_points, std::vector<Real>& source_field_weights);
+
+
+  /// Pseudo-Laplacian weighted linear interpolation algorithm
+  /// @param target_point  [in] The coordinate of the target point for interpolation
+  /// @param source_points [in] The coordinates of the points used for interpolation
+  /// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
+  static void pseudo_laplacian_weighted_linear_interpolation(const RealVector& t_point, const std::vector<RealVector>& s_points, std::vector<Real>& weights);
+
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -19,6 +19,7 @@
 #include <boost/function.hpp>
 
 #include "math/AnalyticalFunction.hpp"
+#include "math/Functions.hpp"
 
 #include "sdm/BCWeak.hpp"
 #include "sdm/navierstokes/LibNavierStokes.hpp"
@@ -81,6 +82,8 @@ public:
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
+    using math::Functions::sign;
+
     // Evaluate analytical functions
     m_function_Tt.evaluate(inner_cell_data.coord,m_Tt);
     m_function_Pt.evaluate(inner_cell_data.coord,m_Pt);
@@ -104,7 +107,7 @@ public:
     m_T = m_Tt/m_coeff_inner;
     m_p = m_Pt/m_pow_coeff_inner;
     m_rho = m_p/(m_R*m_T);
-    m_U[XX] = m_M*std::sqrt(m_gamma*m_R*m_T/(1.+m_tan_alpha*m_tan_alpha));
+    m_U[XX] = sign(std::cos(m_alpha)) * m_M*std::sqrt(m_gamma*m_R*m_T/(1.+m_tan_alpha*m_tan_alpha));
     m_U[YY] = m_tan_alpha*m_U[XX];
     m_uuvv = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY];
     m_rhoE = m_p/m_gamma_minus_1 + 0.5*m_rho*m_uuvv;

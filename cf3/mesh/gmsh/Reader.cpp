@@ -24,6 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
+#include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
@@ -187,7 +188,7 @@ void Reader::get_file_positions()
            (m_nb_gmsh_elem_in_region[ir])[type] = 0;
       }
 
-      m_mesh_dimension = DIM_1D;
+      m_mesh_dimension = options().option("dimension").value<Uint>();
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
         Uint phys_group_dimensionality;
@@ -398,13 +399,6 @@ void Reader::read_coordinates()
 
   m_file.seekg(m_coordinates_position,std::ios::beg);
 
-  // Find the region which has the highest dimensionality present in the mesh:
-  Uint master_region = 0;
-  while((m_region_list[master_region].dim != m_mesh_dimension) && (master_region < m_nb_regions))
-  {
-     master_region++;
-  }
-
   Dictionary& nodes = m_mesh->geometry_fields();
   nodes.resize(m_used_nodes.size());
   m_used_nodes.clear();
@@ -550,11 +544,11 @@ void Reader::read_connectivity()
        boost::shared_ptr< ElementType > allocated_type = build_component_abstract_type<ElementType>(cf_elem_name,"tmp");
        boost::shared_ptr< Entities > elements;
        if (allocated_type->dimensionality() == allocated_type->dimension()-1)
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Faces",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Faces","elements_"+allocated_type->derived_type_name());
        else if(allocated_type->dimensionality() == allocated_type->dimension())
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Cells",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Cells","elements_"+allocated_type->derived_type_name());
        else
-         elements = build_component_abstract_type<Entities>("cf3.mesh.Elements",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Elements","elements_"+allocated_type->derived_type_name());
       region->add_component(elements);
       elements->initialize(cf_elem_name,nodes);
 
@@ -688,8 +682,15 @@ void Reader::read_element_node_data()
 
   if (gmsh_fields.size())
   {
-    // FIXME this is not LagrangeP1, but should be different for every element type
-    Dictionary& dict = m_mesh->create_discontinuous_space("discontinuous_geometry","cf3.mesh.LagrangeP1",std::vector< Handle<Region> >(1,m_mesh->topology().handle<Region>()));
+    // Create discontinuous dictionary enveloping the same shape-function as the standard geometry dictionary
+    Dictionary& dict = *m_mesh->create_component<DiscontinuousDictionary>("discontinuous_geometry");
+    m_mesh->geometry_fields().update_structures();
+    boost_foreach(const Handle<Entities>& entities_handle, m_mesh->geometry_fields().entities_range() )
+    {
+      entities_handle->create_space(entities_handle->element_type().shape_function().derived_type_name(),dict);
+    }
+    dict.build();
+    m_mesh->update_structures();
 
     // 1) Find which elements regions this field is defined in.
     foreach_container( (const std::string& field_name) (const Reader::Field& gmsh_field) , gmsh_fields)
@@ -706,7 +707,7 @@ void Reader::read_element_node_data()
       {
 
         CFdebug << "Reading " << field.name() << "/" << field.var_name(var) <<"["<<static_cast<Uint>(field.var_length(var))<<"]" << CFendl;
-        Uint var_begin = field.var_index(var);
+        Uint var_begin = field.var_offset(var);
         Uint var_end = var_begin + static_cast<Uint>(field.var_length(var));
         m_file.seekg(gmsh_field.file_data_positions[var]);
 
@@ -798,7 +799,7 @@ void Reader::read_element_data()
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
         CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
-        Uint var_begin = field.var_index(i);
+        Uint var_begin = field.var_offset(i);
         Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
         m_file.seekg(gmsh_field.file_data_positions[i]);
 
@@ -870,7 +871,7 @@ void Reader::read_node_data()
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
-      Uint var_begin = field.var_index(i);
+      Uint var_begin = field.var_offset(i);
       Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
       m_file.seekg(gmsh_field.file_data_positions[i]);
 

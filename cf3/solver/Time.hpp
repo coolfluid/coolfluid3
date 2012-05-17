@@ -25,11 +25,6 @@ namespace solver {
 /// @author Willem Deconinck
 class solver_API Time : public common::Component {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor

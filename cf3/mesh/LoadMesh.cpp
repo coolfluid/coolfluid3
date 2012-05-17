@@ -48,6 +48,12 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   properties()["brief"] = std::string("Loads meshes, guessing automatically the format from the file extension");
   mark_basic();
 
+  // options
+
+  options().add_option("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum dimensionality)")
+      .pretty_name("Dimension");
+
   // signals
 
   regist_signal ( "load_mesh" )
@@ -120,8 +126,6 @@ void LoadMesh::load_multiple_files(const std::vector<URI>& files, Mesh& mesh)
       load_mesh_into(file,*tmp_mesh);
       mesh_adaptor.combine_mesh(*tmp_mesh);
     }
-
-    mesh_adaptor.assign_partition_agnostic_global_indices_to_dict(mesh.geometry_fields());
     mesh_adaptor.remove_duplicate_elements_and_nodes();
     mesh_adaptor.fix_node_ranks();
     mesh_adaptor.finish();
@@ -155,6 +159,7 @@ void LoadMesh::load_mesh_into(const URI& file, Mesh& mesh)
       Handle< MeshReader > meshreader = m_extensions_to_readers[extension][0];
       meshreader->options().configure_option("mesh",mesh.handle<Mesh>());
       meshreader->options().configure_option("file",file);
+      meshreader->options().configure_option("dimension",options().option("dimension").value<Uint>());
       meshreader->execute();
     }
   }

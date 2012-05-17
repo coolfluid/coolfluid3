@@ -11,7 +11,7 @@ from math import *
 
 
 final_time = 5 # should be 120
-output_simulation_every = 5
+output_simulation_every = 1
 mach = 1.5
 
 ###########################################################################
@@ -108,15 +108,21 @@ mesh.access_component('solution_space/residual').uri()
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
 interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
 
+solver.add_probe(
+  name="probe",
+  coordinate=[25.,0.,0.],
+  functions=['ptot=P+'+str(p0)],
+  log_variables=['ptot'])
+
 ### simulate
+
 simulate_to_time = 0.
-while (simulate_to_time < final_time-1e-10) :
+while (simulate_to_time < final_time) :
   simulate_to_time += output_simulation_every
   time.options().set('end_time',simulate_to_time);
 
   model.simulate()
 
-  mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.plt'), fields=fields)
   mesh.write_mesh(file=URI('file:mach_cone_time'+str(simulate_to_time)+'.msh'), fields=fields)
 
 

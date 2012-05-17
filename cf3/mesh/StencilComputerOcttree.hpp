@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "math/MatrixTypes.hpp"
 #include "mesh/StencilComputer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,18 +18,14 @@ namespace cf3 {
 namespace mesh {
 
   class Mesh;
+  class Entity;
   class Octtree;
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API StencilComputerOcttree : public StencilComputer
-{
-public: // typedefs
-
-  
-  
+class Mesh_API StencilComputerOcttree : public StencilComputer {
 
 public: // functions  
   /// constructor
@@ -37,18 +34,24 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "StencilComputerOcttree"; }
 
-  virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil);
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil);
 
 private: // functions
 
-  void configure_mesh();
-  
+  void configure_octtree();
+
 private: // data
   
   Handle<Octtree> m_octtree;
   
   Uint m_dim;
   Uint m_nb_elems_in_mesh;
+
+  std::vector<Uint> m_octtree_cell;
+  RealVector m_centroid;
+
+  std::vector<Entity> m_stencil;
+
 
 }; // end StencilComputerOcttree
 

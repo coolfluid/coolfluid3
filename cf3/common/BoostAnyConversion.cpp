@@ -81,6 +81,9 @@ Common_TEMPLATE template std::string any_to_value<std::string>( const boost::any
 Common_TEMPLATE template URI any_to_value<URI>( const boost::any& );
 Common_TEMPLATE template UUCount any_to_value<UUCount>( const boost::any& );
 
+
+Common_TEMPLATE template std::vector<Real> any_to_value< std::vector<Real> >( const boost::any& );
+
 /////////////////////////////////////////////////////////////////////////////
 
 } // common

@@ -21,6 +21,7 @@
 #include "common/Link.hpp"
 
 #include "math/Consts.hpp"
+#include "math/MatrixTypesConversion.hpp"
 
 #include "mesh/LinearInterpolator.hpp"
 #include "mesh/Mesh.hpp"
@@ -44,12 +45,12 @@ namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < LinearInterpolator, Interpolator, LibMesh > LinearInterpolator_Builder;
+cf3::common::ComponentBuilder < LinearInterpolator, OldInterpolator, LibMesh > LinearInterpolator_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 LinearInterpolator::LinearInterpolator( const std::string& name )
-  : Interpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_point_idx(3), m_sufficient_nb_points(0)
+  : OldInterpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_point_idx(3), m_sufficient_nb_points(0)
 {
 
 
@@ -302,7 +303,7 @@ void LinearInterpolator::create_octtree()
     V*=L[d];
   }
 
-  m_nb_elems = m_source_mesh->properties().value<Uint>("nb_cells");
+  m_nb_elems = m_source_mesh->properties().value<Uint>("local_nb_cells");
 
   if (options().option("Divisions").value<std::vector<Uint> >().size() > 0)
   {
@@ -481,7 +482,7 @@ void LinearInterpolator::find_pointcloud(Uint nb_points)
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(const RealVector& target_coord)
+std::pair<Handle< Elements const >,Uint> LinearInterpolator::find_element(const RealVector& target_coord)
 {
   if (find_point_in_octtree(target_coord,m_point_idx))
   {
@@ -496,18 +497,63 @@ boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(con
       RealMatrix elem_coordinates = elements.geometry_space().get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(Handle<Elements const>(elements.handle()),elem_idx);
+        return std::make_pair(Handle<Elements const>(elements.handle()),elem_idx);
       }
     }
   }
-  return boost::make_tuple(Handle< Elements >(), 0u);
+  return std::make_pair(Handle< Elements >(), 0u);
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void LinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& s_points, const RealVector& t_point, std::vector<Real>& weights)
 {
-  switch (m_dim)
+  PseudoLaplacianLinearInterpolation::pseudo_laplacian_weighted_linear_interpolation(t_point,s_points,weights);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+cf3::common::ComponentBuilder < PseudoLaplacianLinearInterpolation, InterpolationFunction, LibMesh > PseudoLaplacianLinearInterpolation_builder;
+
+
+void PseudoLaplacianLinearInterpolation::compute_interpolation_weights(const RealVector& coordinate, const std::vector<SpaceElem>& stencil,
+                                           std::vector<Uint>& source_field_points, std::vector<Real>& source_field_weights)
+{
+  cf3_assert_desc("Dictionary not configured in "+uri().string(), is_not_null(m_dict) );
+
+  // collect s_points
+  std::set<Uint> nodes;
+  boost_foreach (const SpaceElem& element, stencil)
+  {
+    boost_foreach (const Uint node, element.nodes())
+    {
+      nodes.insert(node);
+    }
+  }
+  source_field_points.reserve(nodes.size());
+  boost_foreach (const Uint node, nodes)
+  {
+    source_field_points.push_back(node);
+  }
+  const Field& coordinates = m_dict->coordinates();
+  std::vector<RealVector> s_points(nodes.size(),RealVector(coordinates.row_size()));
+  for (Uint p=0; p<s_points.size(); ++p)
+  {
+    cf3_assert(source_field_points[p] < coordinates.size() );
+    math::copy(coordinates[source_field_points[p]] , s_points[p]);
+  }
+  source_field_weights.resize(source_field_points.size());
+  pseudo_laplacian_weighted_linear_interpolation(coordinate, s_points, source_field_weights);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PseudoLaplacianLinearInterpolation::pseudo_laplacian_weighted_linear_interpolation(const RealVector& t_point, const std::vector<RealVector>& s_points, std::vector<Real>& weights)
+{
+  const Uint dim = s_points[0].size();
+  switch (dim)
   {
     case DIM_3D:
     {
@@ -619,6 +665,7 @@ void LinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const st
   }
 
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 

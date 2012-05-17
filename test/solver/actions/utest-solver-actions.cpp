@@ -181,7 +181,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   Handle<ComputeVolume> compute_volume = root.create_component<ComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  Elements& elems = *root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag"))->handle<Elements>();
+  BOOST_CHECK( root.access_component(mesh->topology().uri()/URI("rotation/fluid/elements_cf3.mesh.LagrangeP1.Triag2D")) );
+  Elements& elems = *root.access_component(mesh->topology().uri()/URI("rotation/fluid/elements_cf3.mesh.LagrangeP1.Triag2D"))->handle<Elements>();
   BOOST_CHECK(true);
   compute_volume->options().configure_option("volume",volumes.uri());
   BOOST_CHECK(true);

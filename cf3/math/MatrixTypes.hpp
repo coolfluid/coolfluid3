@@ -19,7 +19,7 @@ namespace cf3 {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Dynamic sized matrix of Real scalars
-typedef Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
+typedef Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> RealMatrix;
 
 /// Dynamic sized column vector
 typedef Eigen::Matrix<Real, Eigen::Dynamic, 1>    RealVector;
@@ -28,12 +28,12 @@ typedef Eigen::Matrix<Real, Eigen::Dynamic, 1>    RealVector;
 typedef RealVector                                RealColVector;
 
 /// Dynamic sized row vector
-typedef Eigen::Matrix<Real, 1, Eigen::Dynamic>    RealRowVector;
+typedef Eigen::Matrix<Real, 1, Eigen::Dynamic, Eigen::RowMajor>    RealRowVector;
 
 // Fixed size matrix typedefs for 2x2, 3x3 and 4x4 matrices
-typedef Eigen::Matrix<Real, 2, 2> RealMatrix2;     ///< Fixed size 2x2 matrix
-typedef Eigen::Matrix<Real, 3, 3> RealMatrix3;     ///< Fixed size 3x3 matrix
-typedef Eigen::Matrix<Real, 4, 4> RealMatrix4;     ///< Fixed size 4x4 matrix
+typedef Eigen::Matrix<Real, 2, 2, Eigen::RowMajor> RealMatrix2;     ///< Fixed size 2x2 matrix
+typedef Eigen::Matrix<Real, 3, 3, Eigen::RowMajor> RealMatrix3;     ///< Fixed size 3x3 matrix
+typedef Eigen::Matrix<Real, 4, 4, Eigen::RowMajor> RealMatrix4;     ///< Fixed size 4x4 matrix
 
 // Fixed size vectors for 1, 2, 3 and 4 elements
 typedef Eigen::Matrix<Real, 1, 1> RealVector1;     ///< Fixed size 1x1 column vector

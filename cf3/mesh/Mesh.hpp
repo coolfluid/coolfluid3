@@ -92,6 +92,9 @@ public: // functions
 
   void raise_mesh_changed();
 
+  const Handle<BoundingBox>& local_bounding_box()  const { return m_local_bounding_box; }
+  const Handle<BoundingBox>& global_bounding_box() const { return m_global_bounding_box; }
+
 private: // data
 
   Uint m_dimension;
@@ -107,6 +110,9 @@ private: // data
   Handle<Region> m_topology;
 
   Handle<Dictionary> m_geometry_fields;
+
+  Handle<BoundingBox> m_local_bounding_box;
+  Handle<BoundingBox> m_global_bounding_box;
 
 };
 
