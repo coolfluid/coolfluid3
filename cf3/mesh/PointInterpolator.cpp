@@ -56,7 +56,7 @@ PointInterpolator::PointInterpolator ( const std::string& name  ) :
       .attach_trigger( boost::bind( &PointInterpolator::configure_stencil_computer, this ) )
       .mark_basic();
 
-  options().add_option("function", std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"))
+  options().add_option("function", std::string("cf3.mesh.ShapeFunctionInterpolation"))
       .description("Builder name of the interpolator function")
       .pretty_name("Interpolator Function")
       .attach_trigger( boost::bind( &PointInterpolator::configure_interpolator_function, this ) )

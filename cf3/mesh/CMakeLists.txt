@@ -105,6 +105,8 @@ list( APPEND coolfluid_mesh_files
   ShapeFunction.hpp
   ShapeFunctionT.hpp
   ShapeFunctionBase.hpp
+  ShapeFunctionInterpolation.hpp
+  ShapeFunctionInterpolation.cpp
   Tags.hpp
   Tags.cpp
   WriteMesh.hpp
