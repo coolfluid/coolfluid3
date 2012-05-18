@@ -289,6 +289,13 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   interpolator->options().configure_option("store",false);
   interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
   CFinfo << target_field_2 << CFendl;
+
+  target_field_2 = 0.;
+  std::vector<Uint> source_vars = boost::assign::list_of(0)(1);
+  std::vector<Uint> target_vars = boost::assign::list_of(1)(0);
+  interpolator->interpolate_vars(source_mesh_2->geometry_fields().coordinates(),target_field_2,source_vars,target_vars);
+  CFinfo << target_field_2 << CFendl;
+
 }
 
 

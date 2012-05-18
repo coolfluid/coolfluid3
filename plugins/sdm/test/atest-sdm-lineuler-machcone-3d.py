@@ -106,7 +106,7 @@ mesh.access_component('solution_space/residual').uri()
 ]
 
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
-interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
+interpolator = vis_mesh.create_component('interpolator','cf3.mesh.Interpolator')
 
 solver.add_probe(
   name="probe",

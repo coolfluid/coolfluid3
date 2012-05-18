@@ -112,7 +112,7 @@ mesh_generator.options().set('nb_cells',[40,40,40]) \
 mesh_generator.execute()
 
 vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho[s],rho0U[v],p[s]')
-interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
+interpolator = vis_mesh.create_component('interpolator','cf3.mesh.Interpolator')
 interpolator.interpolate(source=mesh.access_component('solution_space/solution').uri(),target=vis_solution.uri())
 
 #vis_coords=vis_mesh.access_component('geometry/coordinates')

@@ -178,7 +178,7 @@ mesh_generator.execute()
 visualization_mesh.get_child('geometry').create_field(name='solution',       variables='rho[1],rho0U[2],p[1]')
 visualization_mesh.get_child('geometry').create_field(name='char', variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
 
-interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.Interpolator')
 interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
 												 target=visualization_mesh.access_component("geometry/solution").uri())
 interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),

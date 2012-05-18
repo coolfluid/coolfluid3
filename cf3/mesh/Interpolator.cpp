@@ -14,7 +14,8 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
-
+#include "common/Signal.hpp"
+#include "common/XML/SignalOptions.hpp"
 #include "common/PE/debug.hpp"
 
 #include "mesh/Interpolator.hpp"
@@ -32,13 +33,23 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+common::ComponentBuilder<Interpolator,Component,LibMesh> Interpolator_builder;
+
+////////////////////////////////////////////////////////////////////////////////
+
 Interpolator::Interpolator(const std::string &name) : Component(name)
 {
   m_point_interpolator = create_component<PointInterpolator>("point_interpolator");
 
   options().add_option("store", true)
-      .description("Flag to store weights and stencils used for faster interpolation")
+      .description("Flag to store weights and stencils used for faster interpolation in the future")
       .pretty_name("Store");
+
+  regist_signal ( "interpolate" )
+      .description( "Interpolate to given coordinates, not mesh-related" )
+      .pretty_name("Interpolate" )
+      .connect   ( boost::bind ( &Interpolator::signal_interpolate,    this, _1 ) )
+      .signature ( boost::bind ( &Interpolator::signature_interpolate, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,8 +224,9 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
 
     // number of points to be interpolated
     const Uint nb_points = m_stored_element[pid_send_interpolated].size();
+
     // number of variables for each point to be interpolated
-    const Uint nb_vars = source_field.row_size();
+    const Uint nb_vars = m_source_vars.size();
 
     // storage for interpolated variables, which will be sent to the pid that reqests it (pid_recv_interpolated)
     std::vector<Real> interpolated; interpolated.reserve(nb_points*nb_vars);
@@ -232,7 +244,7 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
         for (Uint s=0; s<s_points[t].size(); ++s)
         {
           cf3_assert(s_points[t][s]<source_field.size());
-          interpolated.back() += source_field[ s_points[t][s] ][v] * s_weights[t][s];
+          interpolated.back() += source_field[ s_points[t][s] ][ m_source_vars[v] ] * s_weights[t][s];
         }
       }
     }
@@ -249,7 +261,7 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
       for (Uint v=0; v<nb_vars; ++v)
       {
         cf3_assert(t<target.size());
-        target[t][v] = recv_interpolated[it++];
+        target[t][ m_target_vars[v] ] = recv_interpolated[it++];
       }
     }
   }
@@ -308,14 +320,14 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
     std::vector<Uint> send_found_coords;  send_found_coords.reserve(nb_received_coords);
 
     // number of variables for each point to be interpolated
-    const Uint nb_vars = source_field.row_size();
+    const Uint nb_vars = m_source_vars.size();
 
     // storage for interpolated variables, which will be sent to the pid that reqests it (pid_recv_interpolated)
     std::vector<Real> send_interpolated; send_interpolated.reserve(nb_received_coords*nb_vars);
 
     Uint dim = target_coords.row_size();
     RealVector t_point(dim);
-    RealVector t_val(nb_vars);
+    RealVector t_val(source_field.row_size());
 
     for (Uint t=0; t<nb_received_coords; ++t)
     {
@@ -328,7 +340,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
         send_found_coords.push_back(t);
 
         for (Uint v=0; v<nb_vars; ++v)
-          send_interpolated.push_back(t_val[v]);
+          send_interpolated.push_back(t_val[ m_source_vars[v] ] );
       }
     }
 
@@ -353,7 +365,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
       for (Uint v=0; v<nb_vars; ++v)
       {
         cf3_assert(t<target.size());
-        target[t][v] = recv_interpolated[it++];
+        target[t][ m_target_vars[v] ] = recv_interpolated[it++];
       }
     }
   }
@@ -362,27 +374,133 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Interpolator::interpolate(const Field& source_field, Field& target_field)
+void Interpolator::interpolate_vars(const Field& source_field, const common::Table<Real>& target_coords, common::Table<Real>& target, const std::vector<Uint>& source_vars, const std::vector<Uint>& target_vars)
 {
+  if (source_vars.size() != target_vars.size())
+    throw InvalidStructure(FromHere(), "Cannot map source_vars to target_vars");
+
+  m_source_vars = source_vars;
+  m_target_vars = target_vars;
+
   if (options().option("store").value<bool>())
   {
     if ( is_null(m_dict) || is_null(m_table) )
     {
-      store(source_field.dict(),target_field.coordinates());
+      store(source_field.dict(),target_coords);
     }
-    if ( m_dict != source_field.handle<Dictionary>() && m_table != target_field.coordinates().handle< Table<Real> >())
+    if ( m_dict != source_field.handle<Dictionary>() && m_table != target_coords.handle< Table<Real> >())
     {
-      store(source_field.dict(),target_field.coordinates());
+      store(source_field.dict(),target_coords);
     }
-    stored_interpolation(source_field,target_field);
+    stored_interpolation(source_field,target);
   }
   else
   {
-    unstored_interpolation(source_field,target_field.coordinates(),target_field);
+    unstored_interpolation(source_field,target_coords,target);
   }
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::interpolate_vars(const Field& source_field, Field& target_field, const std::vector<Uint>& source_vars, const std::vector<Uint>& target_vars)
+{
+  interpolate_vars(source_field,target_field.coordinates(),target_field,source_vars,target_vars);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::interpolate(const Field& source_field, const common::Table<Real>& target_coords, common::Table<Real>& target)
+{
+  if (target.row_size() != source_field.row_size())
+    throw InvalidStructure(FromHere(), "Source field and Target field don't have matching variables");
+
+  m_source_vars.resize(source_field.row_size());
+  for (Uint i=0; i<m_source_vars.size(); ++i)
+  {
+    m_source_vars[i] = i;
+  }
+  m_target_vars = m_source_vars;
+
+  interpolate_vars(source_field,target_coords,target,m_source_vars,m_target_vars);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::interpolate(const Field& source_field, Field& target_field)
+{
+  interpolate(source_field,target_field.coordinates(),target_field);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::signal_interpolate ( common::SignalArgs& node )
+{
+  common::XML::SignalOptions options( node );
+
+  URI source_uri = options.value<URI>("source");
+  URI target_uri = options.value<URI>("target");
+  URI coordinates_uri = options.value<URI>("coordinates");
+
+  Field& source = *Handle<Field>(Core::instance().root().access_component(source_uri));
+  common::Table<Real>& target = *Handle< common::Table<Real> >(Core::instance().root().access_component(target_uri));
+
+  Handle< common::Table<Real> > coordinates;
+  if (coordinates_uri.string() == URI().string())
+  {
+    if ( Handle< Field > target_field = Handle<Field>(target.handle<Component>()) )
+    {
+      coordinates = Handle< common::Table<Real> >(target_field->dict().coordinates().handle<Component>());
+    }
+    else
+    {
+      throw SetupError(FromHere(),"Argument \"coordinates\" not passed to interpolate() in "+uri().string());
+    }
+  }
+  else
+  {
+    coordinates = Handle< common::Table<Real> >(Core::instance().root().access_component(coordinates_uri));
+  }
+
+  std::vector<Uint> source_vars = options.array<Uint>("source_vars");
+  std::vector<Uint> target_vars = options.array<Uint>("target_vars");
+  if (source_vars.size())
+  {
+    interpolate_vars(source,*coordinates,target,source_vars,target_vars);
+  }
+  else
+  {
+    interpolate(source,*coordinates,target);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void Interpolator::signature_interpolate ( common::SignalArgs& node)
+{
+  common::XML::SignalOptions options( node );
+
+  options.add_option("source",URI())
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Source field");
+
+  options.add_option("target",URI())
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Target field or table");
+
+  options.add_option("coordinates",URI())
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Table of coordinates if target is not a field");
+
+  options.add_option("source_vars",std::vector<Uint>())
+      .description("Source variable indices to interpolate");
+
+  options.add_option("target_vars",std::vector<Uint>())
+      .description("Target variable indices to interpolate to");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 } // mesh
 } // cf3
