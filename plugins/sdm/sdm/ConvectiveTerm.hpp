@@ -356,7 +356,7 @@ void ConvectiveTerm<PHYSDATA>::set_connectivity()
     {
       right_face_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
     }
-    if (NDIM==DIM_3D)
+    if ((int)NDIM==(int)DIM_3D)
     {
       mesh::Field::View left_cell_coords   = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
       mesh::Field::View right_cell_coords  = solution_field().dict().coordinates().view(neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx]);
