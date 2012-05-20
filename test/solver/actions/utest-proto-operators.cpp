@@ -483,15 +483,16 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   
   std::cout << "advection: " << result.transpose() << std::endl;
 
-  RealMatrix4 gradient_result; gradient_result.setZero();
+  //RealMatrix4 gradient_result; gradient_result.setZero();
+  Real gradient_result = 0.;
   // Gradient calculation for a scalar
   elements_expression
   (
     boost::mpl::vector1<LagrangeP1::Quad2D>(),
-   element_quadrature(boost::proto::lit(gradient_result) += transpose(N(T))*transpose(nabla(T)*nodal_values(T))*nabla(T))
+   element_quadrature(boost::proto::lit(gradient_result) += _norm(transpose(N(T))*transpose(nabla(T)*nodal_values(T))*nabla(T)))
   )->loop(mesh.topology());
 
-  std::cout << "gradient: " << gradient_result.transpose() << std::endl;
+  std::cout << "gradient: " << gradient_result << std::endl;
 }
 
 
