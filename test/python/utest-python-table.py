@@ -1,8 +1,7 @@
-import coolfluid as cf
-import sys
+from coolfluid import *
 
-root = cf.Core.root()
-env = cf.Core.environment()
+root = Core.root()
+env = Core.environment()
 
 env.options().configure_option('assertion_backtrace', False)
 env.options().configure_option('exception_backtrace', False)
@@ -13,33 +12,28 @@ env.options().configure_option('exception_outputs', False)
 
 table = root.create_component("table", "cf3.common.Table<unsigned>")
 
-if len(table) != 0:
-  raise Exception('Created table was not size 0')
+cf_check_equal(len(table),0,'Created table was not size 0')
 
 table.set_row_size(2)
 table.resize(10)
 
-if len(table) != 10:
-  raise Exception('Incorrect table size')
+cf_check_equal(len(table),10,'Incorrect table size')
 
-if len(table[0]) != 2:
-  raise Exception('Incorrect table column count')
+cf_check_equal(len(table[0]),2,'Incorrect table column count')
 
 table[0] = [1, 2]
 print 'First table row is', table[0]
 
-if table[0][0] != 1 or table[0][1] != 2:
-  raise Exception('First table row is incorrect')
+cf_check(table[0][0] == 1 and table[0][1] == 2,'First table row is incorrect')
 
 table[1] = table[0]
 print table[1]
-if table[1][0] != 1 or table[1][1] != 2:
-  raise Exception('Second table row is incorrect')
+
+cf_check(table[1][0] == 1 and table[1][1] == 2,'Second table row is incorrect')
 
 table[0][0] += 1
 print table[0]
-if table[0][0] != 2:
-  raise Exception('Table increment failed')
+cf_check_equal(table[0][0],2,'Table increment failed')
 
 print 'Full table:'
 print table

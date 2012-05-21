@@ -22,6 +22,7 @@
 #include "ui/core/NRoot.hpp"
 #include "ui/core/NTree.hpp"
 #include "ui/core/ThreadManager.hpp"
+#include "ui/core/NScriptEngine.hpp"
 
 #include "ui/core/NPlugin.hpp"
 #include "ui/core/CNodeBuilders.hpp"
@@ -81,6 +82,7 @@ void TreeThread::run()
   boost::shared_ptr< NPlugins > plugins(new NPlugins(CLIENT_PLUGINS));
   boost::shared_ptr< NGeneric > uidir( new NGeneric( CLIENT_UI_DIR, "cf3.common.Group", CNode::LOCAL_NODE ) );
   boost::shared_ptr< NetworkQueue > networkQueue( new NetworkQueue() );
+  boost::shared_ptr< NScriptEngine > scriptEngine( new NScriptEngine() );
 
   Logger::instance().getStream(WARNING).addStringForwarder( log.get() );
   Logger::instance().getStream(ERROR).addStringForwarder( log.get() );
@@ -96,6 +98,7 @@ void TreeThread::run()
   uidir->add_component(tree);
   uidir->add_component(networkQueue);
   uidir->add_component(plugins);
+  uidir->add_component(scriptEngine);
 
   realRoot->add_component(uidir);
 
@@ -107,6 +110,7 @@ void TreeThread::run()
   tree->mark_basic();
   networkQueue->mark_basic();
   plugins->mark_basic();
+  scriptEngine->mark_basic();
 
   // set the root as model root
   tree->set_tree_root(realRoot);

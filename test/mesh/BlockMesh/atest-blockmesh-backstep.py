@@ -13,7 +13,7 @@ env.options().configure_option('log_level', 4)
 # simulation parameters
 x_parts = 4
 y_parts = 2
-z_parts = 2
+z_parts = 1
 
 # Meshing parameters
 step_length = 10.e-3
