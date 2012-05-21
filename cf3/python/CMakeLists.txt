@@ -21,6 +21,8 @@ list( APPEND coolfluid_python_files
   Utility.hpp
   NetworkXPython.hpp
   NetworkXPython.cpp
+  TestAllOptions.hpp
+  TestAllOptions.cpp
 )
 
 set( coolfluid_python_kernellib TRUE )

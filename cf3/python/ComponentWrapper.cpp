@@ -60,10 +60,9 @@ struct AnyToPython
 /// Conversion for basic types
 struct PythonToAny
 {
-  PythonToAny(const boost::python::object& value, boost::any& result, const std::string& target_type, bool& found) :
+  PythonToAny(const boost::python::object& value, boost::any& result, bool& found) :
     m_value(value),
     m_result(result),
-    m_target_type(target_type),
     m_found(found)
   {
   }
@@ -73,10 +72,7 @@ struct PythonToAny
   {
     if(m_found)
       return;
-
-    if(!m_target_type.empty() && common::class_name_from_typeinfo(typeid(T)) != m_target_type)
-      return;
-
+    // might need  PyObject_IsInstance(PyObject *inst, PyObject *cls) instead
     boost::python::extract<T> extracted_value(m_value);
     if(extracted_value.check())
     {
@@ -87,17 +83,19 @@ struct PythonToAny
 
   void operator()(const Handle<common::Component>) const
   {
-    if(!m_target_type.empty() && !boost::starts_with(m_target_type, "handle"))
+    if(m_found)
       return;
-
-    ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(m_value);
-    m_result = wrapped.component().handle<common::Component>();
-    m_found = true;
+    
+    boost::python::extract< ComponentWrapper& > extracted_value(m_value);
+    if(extracted_value.check())
+    {
+      m_found = true;
+      m_result = extracted_value().component().handle<common::Component>();
+    }
   }
 
   const boost::python::object& m_value;
   boost::any& m_result;
-  const std::string& m_target_type;
   bool& m_found;
 };
 
@@ -230,25 +228,25 @@ boost::python::object any_to_python(const boost::any& value)
 }
 
 // Helper functions to convert to any
-boost::any python_to_any(const boost::python::object& val, const std::string& target_type)
+boost::any python_to_any(const boost::python::object& val)
 {
   boost::any result;
   bool found = false;
 
-  const bool is_list = boost::starts_with(target_type, "array[");
-
-  if(is_list)
-  {
-    const std::string single_value_type(target_type.begin()+6, target_type.end()-1);
-    boost::mpl::for_each<AnyTypes>(PythonListToAny(static_cast<const boost::python::list&>(val), result, single_value_type, found));
-  }
-  else
-  {
-    boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, target_type, found));
-  }
+//   const bool is_list = boost::starts_with(target_type, "array[");
+// 
+//   if(is_list)
+//   {
+// //     const std::string single_value_type(target_type.begin()+6, target_type.end()-1);
+// //     boost::mpl::for_each<AnyTypes>(PythonListToAny(static_cast<const boost::python::list&>(val), result, single_value_type, found));
+//   }
+//   else
+//   {
+    boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, found));
+//   }
 
   if(!found)
-    throw common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
+    throw common::CastingFailed(FromHere(), std::string("Failed to convert to boost::any from python type ") + val.ptr()->ob_type->tp_name);
 
   return result;
 }
@@ -274,7 +272,7 @@ struct SignalWrapper
     if(len(args) == 2 && nb_options == 1)
     {
       common::Option& option = *options.begin()->second;
-      option.change_value(python_to_any(args[1], option.type()));
+      option.change_value(python_to_any(args[1]));
     }
     else // All other cases should use keywords
     {
@@ -290,7 +288,7 @@ struct SignalWrapper
         if(options.check(key))
         {
           common::Option& option = options[key];
-          option.change_value(python_to_any(kwargs[key], option.type()));
+          option.change_value(python_to_any(kwargs[key]));
         }
         else
         {
@@ -480,7 +478,7 @@ void print_timing_tree(ComponentWrapper& self)
 
 void configure_option_recursively(ComponentWrapper& self, const std::string& option_name, const boost::python::object& value)
 {
-    self.component().configure_option_recursively(option_name, python_to_any(value, ""));
+    self.component().configure_option_recursively(option_name, python_to_any(value));
 }
 
 Uint get_len(ComponentWrapper& self)
@@ -548,7 +546,7 @@ void configure_option(common::OptionList* self, const std::string& optname, cons
 {
   cf3_assert(is_not_null(self));
   common::Option& option = self->option(optname);
-  option.change_value(python_to_any(val, option.type()));
+  option.change_value(python_to_any(val));
 }
 
 std::string option_value_str(const common::OptionList* self, const std::string& optname)
