@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "python/ScriptEngine.hpp"
+
 #include <coolfluid-paths.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -21,8 +23,6 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "ui/uicommon/ComponentNames.hpp"
-
-#include "python/ScriptEngine.hpp"
 
 #include <boost/thread/thread.hpp>
 #include <boost/thread/locks.hpp>

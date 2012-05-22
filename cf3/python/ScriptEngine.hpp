@@ -9,24 +9,21 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/Component.hpp"
-
-#include "python/LibPython.hpp"
-
-#include "common/PE/Manager.hpp"
-
-#include "common/CommonAPI.hpp"
-
-#include <boost/thread/mutex.hpp>
 #include <boost/python.hpp>
 #include <boost/python/ssize_t.hpp>
 #include <boost/python/handle.hpp>
 #include <boost/python/object.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include <frameobject.h>
-
 #include <vector>
 #include <string>
+
+#include "common/Component.hpp"
+#include "common/PE/Manager.hpp"
+#include "common/CommonAPI.hpp"
+
+#include "python/LibPython.hpp"
 
 namespace cf3 {
 namespace python {
