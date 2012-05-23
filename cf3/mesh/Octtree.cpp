@@ -419,11 +419,12 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
   if (find_octtree_cell(target_coord,m_octtree_idx))
   {
     m_elements_pool.clear();
-    for (Uint rings=0; rings<=1; ++rings)
+    Uint pool_size = 0;
+    for (Uint rings=0; pool_size==0; ++rings)
     {
+      pool_size=m_elements_pool.size();
       gather_elements_around_idx(m_octtree_idx,rings,m_elements_pool);
-
-      boost_foreach(const Entity& pool_elem, m_elements_pool)
+      boost_foreach(const Entity& pool_elem, boost::make_iterator_range(m_elements_pool.begin()+pool_size,m_elements_pool.end()))
       {
         cf3_assert(is_not_null(pool_elem.comp));
         const RealMatrix elem_coordinates = pool_elem.get_coordinates();
@@ -432,14 +433,14 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
           element = pool_elem;
           return true;
         }
-        // if arrived here, loop once more.
-        // it means no element has been found. The search is enlarged with one more ring, for possible misses.
       }
+      // if arrived here, keep searching
+      // it means no element has been found. The search is enlarged with one more ring, for possible misses.
     }
   }
-  // if arrived here, it means no element has been found. Give up.
+  // if arrived here, it means no element has been found in the octtree cell. Give up.
   element = Entity();
-  CFdebug << "coord " << target_coord.transpose() << " has not been found in any cell registered in the bounding box" << CFendl;
+  CFdebug << "coord " << target_coord.transpose() << " has not been found in the octtree cell" << CFendl;
   return false;
 }
 
