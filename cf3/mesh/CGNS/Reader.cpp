@@ -947,6 +947,7 @@ void Reader::read_flowsolution()
     m_flowsol.name = flowsol_name_char;
     boost::algorithm::replace_all(m_flowsol.name," ","_");
     boost::algorithm::replace_all(m_flowsol.name,".","_");
+    boost::algorithm::replace_all(m_flowsol.name,"-","_");
     boost::algorithm::replace_all(m_flowsol.name,":","_");
     boost::algorithm::replace_all(m_flowsol.name,"/","_");
 
@@ -989,7 +990,14 @@ void Reader::read_flowsolution()
     {
       char field_name_char[CGNS_CHAR_MAX];
       CALL_CGNS(cg_field_info(m_file.idx,m_base.idx,m_zone.idx,m_flowsol.idx,m_field.idx,&m_field.datatype,field_name_char));
-      variables->push_back(field_name_char, math::VariablesDescriptor::Dimensionalities::SCALAR);
+      std::string var_name = field_name_char;
+      boost::algorithm::replace_all(var_name," ","_");
+      boost::algorithm::replace_all(var_name,".","_");
+      boost::algorithm::replace_all(var_name,"-","_");
+      boost::algorithm::replace_all(var_name,":","_");
+      boost::algorithm::replace_all(var_name,"/","_");
+
+      variables->push_back(var_name, math::VariablesDescriptor::Dimensionalities::SCALAR);
     }
 
     Field& flowsol_field = dict->create_field(m_flowsol.name,variables->description());
