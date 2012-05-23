@@ -740,6 +740,11 @@ void Reader::read_element_node_data()
 
               mesh::Field::Row field_data = field[space.connectivity()[cf_idx][n]] ;
 
+              if (var_end-var_begin == mesh::Field::TENSOR_2D)
+              {
+                data[2]=data[3];
+                data[3]=data[4];
+              }
               d=0;
               for(Uint v=var_begin; v<var_end; ++v)
                 field_data[v] = data[d++];
@@ -892,6 +897,11 @@ void Reader::read_node_data()
           cf_idx = it->second;
           mesh::Field::Row field_data = field[cf_idx];
 
+          if (var_end-var_begin == mesh::Field::TENSOR_2D)
+          {
+            data[2]=data[3];
+            data[3]=data[4];
+          }
           d=0;
           for(Uint v=var_begin; v<var_end; ++v)
             field_data[v] = data[d++];
