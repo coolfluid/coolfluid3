@@ -939,7 +939,7 @@ void Reader::read_boco_structured(Region& parent_region)
 
 void Reader::read_flowsolution()
 {
-  std::cout << "nbsols = " << m_zone.nbSols << std::endl;
+//  std::cout << "nbsols = " << m_zone.nbSols << std::endl;
   for (m_flowsol.idx=1; m_flowsol.idx<=m_zone.nbSols; ++m_flowsol.idx)
   {
     char flowsol_name_char[CGNS_CHAR_MAX];
@@ -993,7 +993,7 @@ void Reader::read_flowsolution()
     }
 
     Field& flowsol_field = dict->create_field(m_flowsol.name,variables->description());
-    std::cout << "flowsol_field.size() = " <<  flowsol_field.size() << std::endl;
+    // std::cout << "flowsol_field.size() = " <<  flowsol_field.size() << std::endl;
     for (m_field.idx=1; m_field.idx<=m_flowsol.nbFields; ++m_field.idx)
     {
       char field_name_char[CGNS_CHAR_MAX];
