@@ -278,7 +278,7 @@ bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>&
 
   static const Real tolerance = 100*math::Consts::eps();
   //CFinfo << "point " << coordinate.transpose() << " ("<<coordinate.size() << ")    dim " << m_dim << CFendl;
-  cf3_assert(coordinate.size() == static_cast<int>(m_dim));
+  cf3_assert_desc(common::to_str(coordinate.size())+"=="+common::to_str(m_dim),(coordinate.size() == static_cast<int>(m_dim)));
 
   for (Uint d=0; d<m_dim; ++d)
   {
@@ -416,11 +416,19 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
   if (m_octtree.num_elements() == 0)
     create_octtree();
 
-  if (find_octtree_cell(target_coord,m_octtree_idx))
+  cf3_assert(target_coord.size() <= (long)m_dim);
+  RealVector t_coord(m_dim);
+  for (Uint d=0; d<target_coord.size(); ++d)
+    t_coord[d] = target_coord[d];
+
+  for (Uint t=0; t<target_coord.size(); ++t)
+
+  if (find_octtree_cell(t_coord,m_octtree_idx))
   {
     m_elements_pool.clear();
     Uint pool_size = 0;
-    for (Uint rings=0; pool_size==0; ++rings)
+    Uint rings=0;
+    for ( ; pool_size==0 ; ++rings)
     {
       pool_size=m_elements_pool.size();
       gather_elements_around_idx(m_octtree_idx,rings,m_elements_pool);
@@ -428,19 +436,30 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
       {
         cf3_assert(is_not_null(pool_elem.comp));
         const RealMatrix elem_coordinates = pool_elem.get_coordinates();
-        if (pool_elem.element_type().is_coord_in_element(target_coord,elem_coordinates))
+        if (pool_elem.element_type().is_coord_in_element(t_coord,elem_coordinates))
         {
           element = pool_elem;
           return true;
         }
       }
-      // if arrived here, keep searching
-      // it means no element has been found. The search is enlarged with one more ring, for possible misses.
+    }
+    // if arrived here, keep searching
+    // it means no element has been found. The search is enlarged with one more ring, for possible misses.
+    gather_elements_around_idx(m_octtree_idx,rings,m_elements_pool);
+    boost_foreach(const Entity& pool_elem, boost::make_iterator_range(m_elements_pool.begin()+pool_size,m_elements_pool.end()))
+    {
+      cf3_assert(is_not_null(pool_elem.comp));
+      const RealMatrix elem_coordinates = pool_elem.get_coordinates();
+      if (pool_elem.element_type().is_coord_in_element(t_coord,elem_coordinates))
+      {
+        element = pool_elem;
+        return true;
+      }
     }
   }
   // if arrived here, it means no element has been found in the octtree cell. Give up.
   element = Entity();
-  CFdebug << "coord " << target_coord.transpose() << " has not been found in the octtree cell" << CFendl;
+  CFdebug << "coord " << t_coord.transpose() << " has not been found in the octtree cell" << CFendl;
   return false;
 }
 
