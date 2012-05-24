@@ -179,7 +179,7 @@ private: // data
   Array_t& m_array;
 
   /// the number of columns of the array
-  Uint m_nbCols;
+  Uint m_nb_cols;
 
   /// The size newly created buffers will have
   /// @note it is safe to change in the middle of buffer operations
@@ -207,7 +207,7 @@ private: // data
 template<typename T>
 ArrayBufferT<T>::ArrayBufferT (typename ArrayBufferT<T>::Array_t& array, size_t nbRows) :
   m_array(array),
-  m_nbCols(m_array.shape()[1]),
+  m_nb_cols(m_array.shape()[1]),
   m_buffersize(nbRows)
 {
 }
@@ -249,7 +249,7 @@ void ArrayBufferT<T>::flush()
   if (new_size > old_array_size)
   {
     // make m_array bigger
-    m_array.resize(boost::extents[new_size][m_nbCols]);
+    m_array.resize(boost::extents[new_size][m_nb_cols]);
 
     // copy each buffer into the array
     Uint array_idx=old_array_size;
@@ -323,7 +323,7 @@ void ArrayBufferT<T>::flush()
     }
 
     // make m_array smaller
-    m_array.resize(boost::extents[new_size][m_nbCols]);
+    m_array.resize(boost::extents[new_size][m_nb_cols]);
   }
 
   // clear all buffers
@@ -360,7 +360,7 @@ inline void ArrayBufferT<T>::increase_array_size(const size_t increase)
 {
   Uint old_size = m_array.size();
   Uint new_size = old_size+increase;
-  m_array.resize(boost::extents[new_size][m_nbCols]);
+  m_array.resize(boost::extents[new_size][m_nb_cols]);
   for (Uint i_new=old_size; i_new<new_size; ++i_new)
   {
     m_new_array_rows.push_back(i_new);
@@ -373,7 +373,7 @@ template<typename T>
 inline void ArrayBufferT<T>::add_buffer()
 {
   Uint idx = total_allocated();
-  m_buffers.push_back(Buffer(m_buffersize,m_nbCols));
+  m_buffers.push_back(Buffer(m_buffersize,m_nb_cols));
   for (Uint i=0; i<m_buffersize; ++i)
     m_new_buffer_rows.push_back(idx++);
   cf3_assert(total_allocated()==idx);
@@ -389,6 +389,20 @@ inline Uint ArrayBufferT<T>::add_row(const vectorType& row)
     add_buffer(); // will make a whole lot of new new_buffer_rows
   Uint idx = m_new_buffer_rows.front();
   set_row(idx,row);
+  m_new_buffer_rows.pop_front();
+  return idx;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+inline Uint ArrayBufferT<T>::add_empty_row()
+{
+  if (m_new_buffer_rows.empty())
+    add_buffer(); // will make a whole lot of new new_buffer_rows
+  Uint idx = m_new_buffer_rows.front();
+  std::vector<T> dummy(m_nb_cols);
+  set_row( idx , std::vector<T>(m_nb_cols) );
   m_new_buffer_rows.pop_front();
   return idx;
 }
@@ -412,7 +426,7 @@ template<typename T>
 template<typename vectorType>
 inline void ArrayBufferT<T>::set_row(const Uint array_idx, const vectorType& row)
 {
-  cf3_assert(row.size() == m_nbCols);
+  cf3_assert(row.size() == m_nb_cols);
   Uint cummulative_size = m_array.size();
   if (array_idx < cummulative_size)
   {

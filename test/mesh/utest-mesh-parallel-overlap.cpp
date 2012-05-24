@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   BOOST_CHECK_EQUAL(mesh.dictionaries().size(),2u);
-  BOOST_CHECK_EQUAL(mesh.dictionaries()[0]->name() , mesh::Tags::geometry());
+  BOOST_CHECK_EQUAL(mesh.dictionaries()[1]->name() , mesh::Tags::geometry());
 
   BOOST_CHECK_EQUAL(mesh.elements().size(),5u);
 

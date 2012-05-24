@@ -1,7 +1,7 @@
 #############################################################
 # ParaView plugin for the GUI
 
-if( ParaView_FOUND )
+if( ParaView_FOUND AND QT4_FOUND )
 
   # List of classes to "moc"
   list( APPEND coolfluid_ui_paraview_tab_moc_classes

@@ -12,16 +12,12 @@
 #include "common/PropertyList.hpp"
 
 #include "math/MatrixTypes.hpp"
-#include "math/VectorialFunction.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/BC.hpp"
 #include "sdm/ShapeFunction.hpp"
 #include "sdm/Operations.hpp"
 #include "sdm/PhysDataBase.hpp"
-
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +136,7 @@ protected: // configuration
         {
           bool m=true;
           for (Uint d=0; d<NDIM; ++d)
-            m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 100*math::Consts::eps() );
+            m = m && ( std::abs(cell_face_coords[inner_cell_face_pt][d] - bdry_face_pt_coord[d]) < 200*math::Consts::eps() );
           if ( m )
           {
             matched=true;
@@ -228,7 +224,7 @@ inline void BCWeak<PHYSDATA>::execute()
   set_inner_cell();
   compute_face();
   for(Uint face_pt=0; face_pt<boundary_face_pt_idx.size(); ++face_pt)
-  { 
+  {
     cell_flx_pt = inner_cell_face_pt_idx[face_pt];
     compute_solution(*inner_cell_face_data[face_pt],unit_normal,face_sol);
 //    common::TableConstRow<Uint>::type field_index = face_elem->get().space->connectivity()[m_face_elem_idx];
@@ -246,23 +242,6 @@ inline void BCWeak<PHYSDATA>::execute()
   }
   unset_inner_cell();
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-class sdm_API BCNull : public BCWeak< PhysDataBase<4u,2u> >
-{
-public:
-  static std::string type_name() { return "BCNull"; }
-  BCNull(const std::string& name) : BCWeak< PhysDataBase<4u,2u> >(name)
-  {
-  }
-  virtual ~BCNull() {}
-
-  virtual void compute_solution(const PhysDataBase<4u,2u>& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
-  {
-    boundary_face_pt_data = inner_cell_data.solution;
-  }
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -23,7 +23,7 @@ namespace math {
 /// Hilbert Spacefilling Curve.
 ///
 /// This algorithm is based on:
-/// - John J. Bartholdi and Paul Goldsman "Vertex-Labeling Algorithms for the Hilbert Spacefilling Curve"
+/// - John J. Bartholdi and Paul Goldsman "Vertex-Labeling Algorithms for the Hilbert Spacefilling Curve"\n
 /// It is adapted to return contiguous numbers of the boost::uint64_t type, instead of a Real [0,1]
 ///
 /// Given a bounding box and number of hilbert levels, the bounding box can be divided in

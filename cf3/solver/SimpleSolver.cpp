@@ -45,7 +45,8 @@ void SimpleSolver::mesh_loaded(Mesh& mesh)
   m_mesh = mesh.handle<Mesh>();
 
   // Update the dimensions on the physics
-  physics().options().configure_option(common::Tags::dimension(), mesh.topology().elements_range().begin()->geometry_fields().coordinates().row_size());
+  cf3_assert(mesh.dimension()>0);
+  physics().options().configure_option(common::Tags::dimension(), mesh.dimension());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

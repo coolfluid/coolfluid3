@@ -20,12 +20,6 @@ namespace actions {
 
 class solver_actions_API ComputeLNorm : public common::Action {
 
-public: // typedefs
-
-  /// pointers
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component
@@ -40,11 +34,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Real compute_norm(mesh::Field&) const;
-
-private: // data
-
-//  boost::weak_ptr<mesh::Field> m_field;
+  std::vector<Real> compute_norm(mesh::Field&) const;
 
 };
 

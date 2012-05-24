@@ -27,11 +27,6 @@ namespace CGNS {
 /// @author Willem Deconinck
   class Mesh_CGNS_API Reader : public MeshReader, public CGNS::Shared
 {
-public: // typedefs
-
-  
-  
-
 private: // typedefs
 
   typedef std::pair<Handle<Elements>,Uint> Region_TableIndex_pair;
@@ -54,13 +49,14 @@ private: // functions
   virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
   void read_base(Mesh& parent_region);
-  void read_zone(Region& parent_region);
+  void read_zone(Mesh& parent_region);
   void read_coordinates_unstructured(Region& parent_region);
   void read_coordinates_structured(Region& parent_region);
   void read_section(Region& parent_region);
   void create_structured_elements(Region& parent_region);
   void read_boco_unstructured(Region& parent_region);
   void read_boco_structured(Region& parent_region);
+  void read_flowsolution();
   Uint get_total_nbElements();
 
   Uint structured_node_idx(Uint i, Uint j, Uint k)

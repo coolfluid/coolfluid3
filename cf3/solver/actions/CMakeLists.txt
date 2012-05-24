@@ -19,6 +19,12 @@ list( APPEND coolfluid_solver_actions_files
   Iterate.cpp
   LoopOperation.hpp
   LoopOperation.cpp
+  Probe.hpp
+  Probe.cpp
+  ProbePostProcFunction.hpp
+  ProbePostProcFunction.cpp
+  ProbePostProcHistory.hpp
+  ProbePostProcHistory.cpp
   ForAllCells.hpp
   ForAllCells.cpp
   ForAllElements.hpp
@@ -81,10 +87,6 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/Terminals.hpp
     Proto/Transforms.hpp
 )
-
-option( CF3_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
-
-coolfluid_set_feature( Proto CF3_ENABLE_PROTO "boost proto expressions" )
 
 if( CF3_ENABLE_PROTO )
   list( APPEND coolfluid_solver_actions_files ${coolfluid_solver_actions_proto_files} )

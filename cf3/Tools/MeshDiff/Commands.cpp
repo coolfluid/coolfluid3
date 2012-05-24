@@ -67,10 +67,9 @@ void Commands::compare(const std::vector<std::string>& params)
   boost_foreach(const std::string& file_str, params)
   {
     URI file(file_str);
-    boost::shared_ptr< Mesh > mesh = mesh_loader->load_mesh(file);
-    mesh->rename(file.name());
-    meshes->add_component(mesh);
-    mesh_vector.push_back(Handle<Mesh>(mesh));
+    Handle<Mesh> mesh = meshes->create_component<Mesh>(file.base_name());
+    mesh_loader->load_mesh_into(file,*mesh);
+    mesh_vector.push_back(mesh);
   }
 
   Mesh& reference_mesh = *mesh_vector[0];

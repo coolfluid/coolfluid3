@@ -3,9 +3,12 @@
 #########################################################################################
 
 # code compilation options
-option( CF3_ENABLE_GUI                "Enable GUI building"                            ON  )
+option( CF3_ENABLE_GUI                "Enable GUI building"                             ON  )
 
-option( CF3_ENABLE_PYTHON             "Enable building of the python bindings"         ON  )
+option( CF3_ENABLE_PYTHON             "Enable building of the python bindings"          ON  )
+
+option( CF3_ENABLE_PROTO              "Build boost::proto related code for expressions" ON  )
+coolfluid_set_feature( Proto ${CF3_ENABLE_PROTO} "boost proto expressions" )
 
 option( CF3_ENABLE_DOCS               "Enable build of documentation"                  ON  )
 option( CF3_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"         ON  )

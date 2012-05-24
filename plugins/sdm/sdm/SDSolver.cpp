@@ -6,7 +6,7 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-
+#include <boost/algorithm/string.hpp>
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
@@ -26,9 +26,11 @@
 
 //#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
+#include "solver/History.hpp"
 #include "solver/Time.hpp"
 #include "solver/actions/SynchronizeFields.hpp"
 #include "solver/actions/ComputeLNorm.hpp"
+#include "solver/actions/Probe.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
@@ -123,13 +125,19 @@ SDSolver::SDSolver ( const std::string& name  ) :
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
   conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
-  conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
+//  conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
   m_time_stepping->post_actions().add_link(L2norm);
 
   m_boundary_conditions= create_static_component< BoundaryConditions > ( BoundaryConditions::type_name() );
   m_domain_discretization= create_static_component< DomainDiscretization > ( DomainDiscretization::type_name() );
 
   config_iterative_solver();
+
+  regist_signal("add_probe")
+      .description("Add a probe in one coordinate to inspect and log variables")
+      .pretty_name("Add Probe")
+      .connect   ( boost::bind ( &SDSolver::signal_add_probe   , this , _1 ) )
+      .signature ( boost::bind ( &SDSolver::signature_add_probe, this , _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -287,13 +295,38 @@ void SDSolver::on_mesh_changed_event( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//void SDSolver::build_riemann_solver()
-//{
-//  if (is_not_null(m_riemann_solver))
-//    remove_component(*m_riemann_solver);
-//  m_riemann_solver = create_component("riemann_solver",options().option("riemann_solver").value<std::string>())->handle<RiemannSolvers::RiemannSolver>();
-//  m_riemann_solver->options().configure_option("physical_model",physics().handle<PhysModel>());
-//}
+void SDSolver::signal_add_probe(common::SignalArgs& args)
+{
+  XML::SignalOptions sig_opts(args);
+
+  Handle<Probe> probe = time_stepping().post_actions().create_component<Probe>(sig_opts.value<std::string>("name"));
+  probe->options().configure_option("dict",mesh().access_component("solution_space"));
+  probe->options().configure_option("coordinate",sig_opts.array<Real>("coordinate"));
+  std::vector<std::string> functions = sig_opts.array<std::string>("functions");
+  boost_foreach(const std::string& function, functions)
+  {
+    std::vector<std::string> func_split;
+    boost::split(func_split,function,boost::is_any_of("="));
+    Handle<ProbePostProcessor> pp = probe->create_post_processor("func_"+func_split[0],"cf3.solver.actions.ProbePostProcFunction");
+    pp->options().configure_option("function",function);
+  }
+  std::vector<std::string> log_vars = sig_opts.array<std::string>("log_variables");
+  if (log_vars.size())
+  {
+    Handle<ProbePostProcessor> pp = probe->create_post_processor("log_history","cf3.solver.actions.ProbePostProcHistory");
+    pp->options().configure_option("history",time_stepping().get_child("History"));
+    pp->options().configure_option("variables",log_vars);
+  }
+}
+
+void SDSolver::signature_add_probe(common::SignalArgs& args)
+{
+  XML::SignalOptions sig_opts(args);
+  sig_opts.add_option("name",std::string("probe"));
+  sig_opts.add_option("coordinate",std::vector<Real>());
+  sig_opts.add_option("functions",std::vector<std::string>());
+  sig_opts.add_option("log_variables",std::vector<std::string>());
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

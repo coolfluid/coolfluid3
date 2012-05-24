@@ -1,7 +1,7 @@
 #############################################################
 # ParaView plugin for the GUI
 
-if( ParaView_FOUND )
+if( ParaView_FOUND AND QT4_FOUND )
 
   # List of classes to "moc"
   list( APPEND coolfluid_ui_paraview_moc_classes
@@ -24,8 +24,6 @@ if( ParaView_FOUND )
   include_directories(${PARAVIEW_INCLUDE_DIRS})
 
   list( APPEND coolfluid_ui_paraview_cflibs ${CF3_KERNEL_LIBS} )
-
-
 
   # Use Qt Libraries
   list( APPEND coolfluid_ui_paraview_libs ${QT_LIBRARIES} ${ParaView_LIBRARIES})

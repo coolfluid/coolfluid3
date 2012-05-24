@@ -41,11 +41,11 @@ endif()
 # option to skip fortran language
 # kernel does not need fortran but some plugins might
 # developers that know that they wont need it may turn it off in systems where is not available
-if(NOT CF3_SKIP_FORTRAN)
+if( CF3_ENABLE_FORTRAN )
   enable_language( Fortran OPTIONAL )
 else()
-  set( CF3_SKIP_FORTRAN ON CACHE BOOL "Skipping fortran language" FORCE )
-endif(NOT CF3_SKIP_FORTRAN)
+  set( CF3_ENABLE_FORTRAN OFF CACHE BOOL "Skipping fortran language" FORCE )
+endif()
 
 # optionally include personal options ( alternative to passing a cache initialization to cmake)
 # developers may create this file and to define options that they don't want on the cache

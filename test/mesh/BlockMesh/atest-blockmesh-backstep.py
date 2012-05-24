@@ -8,7 +8,7 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 # Global configuration
-env.options().configure_option('log_level', 4)
+env.options().set('log_level', 4)
 
 # simulation parameters
 x_parts = 4
@@ -105,4 +105,4 @@ blocks.partition_blocks(nb_partitions = x_parts, direction = 0)
 blocks.partition_blocks(nb_partitions = y_parts, direction = 1)
 blocks.partition_blocks(nb_partitions = z_parts, direction = 2)
 blocks.create_mesh(mesh.uri())
-mesh.write_mesh('backstep.pvtu')
+mesh.write_mesh(file=cf.URI('backstep.pvtu'))

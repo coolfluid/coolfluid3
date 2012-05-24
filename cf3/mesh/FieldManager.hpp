@@ -28,11 +28,6 @@ class Mesh;
 /// @author Bart Janssens
 class Mesh_API FieldManager : public common::Component {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor

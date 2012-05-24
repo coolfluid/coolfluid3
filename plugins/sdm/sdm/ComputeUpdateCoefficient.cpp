@@ -95,6 +95,7 @@ void ComputeUpdateCoefficient::execute()
     //  -----------------
     /// - take user-defined time step
     Real dt = time.options().option("time_step").value<Real>();
+    if (dt==0.) dt = math::Consts::real_max();
 
     /// - Make time step stricter through the CFL number
     Real min_dt = dt;

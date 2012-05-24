@@ -103,6 +103,8 @@ Real Line1D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Nodes
 
 void Line1D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
+  cf3_assert(result.rows()==dimension);
+  cf3_assert(result.cols()==dimension);
   result(KSI,XX) = jacobian_determinant(mapped_coord, nodes);
 }
 

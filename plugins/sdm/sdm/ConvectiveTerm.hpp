@@ -356,6 +356,45 @@ void ConvectiveTerm<PHYSDATA>::set_connectivity()
     {
       right_face_pt_idx[face_pt] = neighbour_elem->get().sf->face_flx_pts(neighbour_face_nb)[nb_neighbour_face_pts-1-face_pt];
     }
+    if ((int)NDIM==(int)DIM_3D)
+    {
+      mesh::Field::View left_cell_coords   = solution_field().dict().coordinates().view(elem->get().space->connectivity()[elem->get().idx]);
+      mesh::Field::View right_cell_coords  = solution_field().dict().coordinates().view(neighbour_elem->get().space->connectivity()[neighbour_elem->get().idx]);
+
+      std::vector<RealVectorNDIM> left_cell_face_coords(left_face_pt_idx.size());
+      std::vector<RealVectorNDIM> right_cell_face_coords(right_face_pt_idx.size());
+
+      for (Uint face_pt=0; face_pt<left_face_pt_idx.size(); ++face_pt)
+      {
+        elem->get().reconstruct_from_solution_space_to_flux_points[left_face_pt_idx[face_pt]](left_cell_coords,left_cell_face_coords[face_pt]);
+        neighbour_elem->get().reconstruct_from_solution_space_to_flux_points[right_face_pt_idx[face_pt]](right_cell_coords,right_cell_face_coords[face_pt]);
+      }
+
+      std::vector<Uint> tmp_idx(right_face_pt_idx.size());
+      for (Uint right_face_pt=0; right_face_pt<right_face_pt_idx.size(); ++right_face_pt)
+      {
+        bool matched = false;
+        for (Uint left_face_pt=0; left_face_pt<left_face_pt_idx.size(); ++left_face_pt)
+        {
+          bool m=true;
+          for (Uint d=0; d<NDIM; ++d)
+            m = m && ( std::abs(left_cell_face_coords[left_face_pt][d] - right_cell_face_coords[right_face_pt][d]) < 100*math::Consts::eps() );
+          if ( m )
+          {
+            matched=true;
+
+            tmp_idx[left_face_pt] = right_face_pt_idx[right_face_pt];
+
+            break;
+          }
+        }
+        cf3_assert_desc(elem->get().space->uri().string()+"["+common::to_str(elem->get().idx)+"]",matched);
+      }
+      for (Uint face_pt=0; face_pt<left_face_pt_idx.size(); ++face_pt)
+      {
+        right_face_pt_idx[face_pt] = tmp_idx[face_pt];
+      }
+    }
   }
   // If there is no neighbour, but a face
   else
@@ -423,6 +462,12 @@ void ConvectiveTerm<PHYSDATA>::compute_face()
   {
     for (Uint face_pt=0; face_pt<elem->get().sf->face_flx_pts(m_face_nb).size(); ++face_pt)
       compute_flx_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
+
+//    for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
+//    {
+//      cf3_assert(left_face_data[face_pt]->coord == right_face_data[face_pt]->coord);
+//    }
+
   }
   /// * Case there is no neighbour, but physical data inside the face solution points
   else
@@ -431,6 +476,7 @@ void ConvectiveTerm<PHYSDATA>::compute_face()
     for (Uint face_pt=0; face_pt<right_face_pt_idx.size(); ++face_pt)
       compute_sol_pt_phys_data(neighbour_elem->get(),right_face_pt_idx[face_pt],*right_face_data[face_pt]);
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

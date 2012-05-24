@@ -11,6 +11,8 @@ list( APPEND coolfluid_math_files
   Defs.hpp
   FindMinimum.hpp
   FloatingPoint.hpp
+  AnalyticalFunction.hpp
+  AnalyticalFunction.cpp
   Functions.hpp
   Hilbert.hpp
   Hilbert.cpp

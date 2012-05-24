@@ -237,17 +237,19 @@ void OSystemLayer::regist_os_signal_handlers()
 
   // enable the exceptions that will raise the SIGFPE signal
   feenableexcept ( FE_DIVBYZERO );
-  //feenableexcept ( FE_OVERFLOW  );
-  //feenableexcept ( FE_UNDERFLOW );
-  // feenableexcept ( FE_INVALID   );
-  // feenableexcept ( FE_INEXACT   );
+  //  feenableexcept ( FE_OVERFLOW  );
+  //  feenableexcept ( FE_UNDERFLOW );
+  //  feenableexcept ( FE_INVALID   );
+  //  feenableexcept ( FE_INEXACT   );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 int OSystemLayer::handleSIGFPE (int signal)
 {
-  throw common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+  std::stringstream msg;
+  msg << "received signal SIGFPE ["<<signal<<"] - 'Floating Point Exception'";
+  throw common::FloatingPointError (FromHere(), msg.str());
   return SIGFPE;
 }
 
@@ -270,8 +272,8 @@ int OSystemLayer::handleSIGSEGV(int signal)
 int OSystemLayer::handleSIGABRT(int signal)
 {
   printf("\nreceived signal SIGABRT [%d] - 'abort'\n",signal);
-  //static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
-  //printf( "%s\n", dump.c_str() );
+  //  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
+  //  printf( "%s\n", dump.c_str() );
   return SIGABRT;
 }
 
