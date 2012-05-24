@@ -35,6 +35,8 @@ TestAllOptions::TestAllOptions ( const std::string& name ) : Component ( name )
   options().add_option("generic_component", Handle<Component>());
   options().add_option("group_component", Handle<Group>());
   options().add_option("string_vector", std::vector<std::string>());
+  options().add_option("int_vector", std::vector<int>());
+  options().add_option("uint_vector", std::vector<Uint>());
 }
 
 
