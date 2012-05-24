@@ -22,3 +22,6 @@ add_subdirectory( ui )
 # tools harbours miscellaneous tools to support coolfluid development
 add_subdirectory( Tools )
 
+# add dir with tutorial applications
+add_subdirectory( tutorial )
+

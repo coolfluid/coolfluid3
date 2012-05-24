@@ -35,7 +35,7 @@ common::ComponentBuilder<BCConstant<4u,2u>,BC,LibSDM> bcconstant_4eq_2d_builder;
 
 //common::ComponentBuilder<BCConstant<5u,1u>,BC,LibSDM> bcconstant_5eq_1d_builder;
 //common::ComponentBuilder<BCConstant<5u,2u>,BC,LibSDM> bcconstant_5eq_2d_builder;
-//common::ComponentBuilder<BCConstant<5u,3u>,BC,LibSDM> bcconstant_5eq_3d_builder;
+common::ComponentBuilder<BCConstant<5u,3u>,BC,LibSDM> bcconstant_5eq_3d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 

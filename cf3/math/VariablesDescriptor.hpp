@@ -51,7 +51,7 @@ public: // functions
   /// TENSOR: rank 2 tensor with the dimension of the problem
   struct Math_API Dimensionalities
   {
-    enum Type { INVALID=-1, SCALAR=1, VECTOR=-2, TENSOR=-3};
+    enum Type { INVALID=-1, SCALAR=1, VECTOR=-2, TENSOR=-3, ARRAY=-4};
 
     struct Math_API Convert : public common::EnumT< Dimensionalities >
     {
@@ -123,6 +123,10 @@ public: // functions
   /// @param name Internal name of the variable
   const std::string& user_variable_name(const Uint var_nb) const;
 
+  /// Return the internal unique name of a variable
+  /// @param var_nb The variable number
+  const std::string& internal_variable_name(const Uint var_nb) const;
+
   /// Setup variables acording to a Field string description
   void set_variables(const std::string& description);
 
@@ -135,6 +139,7 @@ public: // functions
   /// Append a variable to the back of the list. Does nothing if the variable with the given name already existed
   /// @param name Internal name of the variable
   void push_back(const std::string& name, const Dimensionalities::Type type);
+  void push_back(const std::string& name, const Uint nb_vars);
 
   void prefix_variable_names(const std::string& prefix);
 

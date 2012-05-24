@@ -36,6 +36,9 @@ public: // functions
   /// Constructor using std::vector<Real>
   BoundingBox(const std::vector<Real>& min, const std::vector<Real>& max);
 
+  /// @brief Define bounding box with other bounding box
+  void define(const BoundingBox& other);
+
   /// @brief Define bounding box with RealVectors
   void define(const RealVector& min, const RealVector& max);
 
@@ -58,17 +61,17 @@ public: // functions
   const RealVector& min() const { return m_bounding_min; }
 
   /// @brief maximum coordinates, defining one corner of the bounding box  
-  const RealVector& max() const { return m_bounding_max; }  
+  const RealVector& max() const { return m_bounding_max; }
 
   /// @brief minimum coordinates, defining one corner of the bounding box
   RealVector& min() { return m_bounding_min; }
 
-  /// @brief maximum coordinates, defining one corner of the bounding box  
-  RealVector& max() { return m_bounding_max; }  
-  
+  /// @brief maximum coordinates, defining one corner of the bounding box
+  RealVector& max() { return m_bounding_max; }
+
   /// @brief dimension of the bounding box
   Uint dim() const { return m_bounding_min.size(); }
-  
+
 private: // data
 
   RealVector m_bounding_min; ///< minimum coordinates

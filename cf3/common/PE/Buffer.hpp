@@ -508,9 +508,11 @@ inline void Buffer::all_gather(Buffer& recv)
 
 inline void Buffer::all_to_all(PE::Buffer& recv)
 {
+  cf3_assert(strides().size() == PE::Comm::instance().size());
   recv.reset();
   Comm::instance().all_to_all(strides(),recv.strides());
-  recv.displs().resize(recv.strides().size());
+  cf3_assert(recv.strides().size() == PE::Comm::instance().size());
+  recv.displs().resize(PE::Comm::instance().size());
   recv.displs()[0]=0;
   for (Uint pid=1; pid<Comm::instance().size(); ++pid)
     recv.displs()[pid] = recv.displs()[pid-1] + recv.strides()[pid-1];

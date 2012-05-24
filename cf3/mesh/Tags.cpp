@@ -21,8 +21,6 @@ const char * Tags::coordinates ()  { return "coordinates"; }
 const char * Tags::nodes ()        { return "nodes"; }
 const char * Tags::nodes_used ()   { return "nodes_used"; }
 
-const char * Tags::global_elem_indices ()  { return "gelemidx"; }
-const char * Tags::global_node_indices ()  { return "gnodeidx"; }
 const char * Tags::global_indices ()  { return "global_indices"; }
 const char * Tags::map_global_to_local ()  { return "map_global_to_local"; }
 
@@ -39,6 +37,9 @@ const char * Tags::outer_faces ()  { return "outer_faces"; }
 const char * Tags::bdry_faces ()  { return "bdry_faces"; }
 
 const char * Tags::connectivity_table () { return "connectivity_table"; }
+
+const char * Tags::event_mesh_loaded() { return "mesh_loaded"; }
+const char * Tags::event_mesh_changed() { return "mesh_changed"; }
 
 //const char * Tags::geometry_elements () { return "geometry_elements"; }
 

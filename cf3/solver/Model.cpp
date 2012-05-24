@@ -121,8 +121,8 @@ Model::Model( const std::string& name  ) :
     .signature( boost::bind ( &Model::signature_setup, this, _1 ) );
 
   // Listen to mesh_updated events, emitted by the domain
-  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &Model::on_mesh_loaded_event);
-  Core::instance().event_handler().connect_to_event("mesh_changed", this, &Model::on_mesh_changed_event);
+  Core::instance().event_handler().connect_to_event(mesh::Tags::event_mesh_loaded(), this, &Model::on_mesh_loaded_event);
+  Core::instance().event_handler().connect_to_event(mesh::Tags::event_mesh_changed(), this, &Model::on_mesh_changed_event);
 }
 
 Model::~Model() {}
@@ -134,7 +134,7 @@ void Model::simulate()
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
   // call all the solvers
-  try
+//  try
   {
     boost_foreach(Solver& solver, find_components<Solver>(*this))
     {
@@ -142,10 +142,10 @@ void Model::simulate()
     }
     CFinfo << name() << ": end simulation\n" << CFendl;
   }
-  catch (common::FailedToConverge& e)
-  {
-    CFerror << "simulation failed\n" << e.what() << CFendl;
-  }
+//  catch (common::FailedToConverge& e)
+//  {
+//    CFerror << "simulation failed\n" << e.what() << CFendl;
+//  }
 
 }
 

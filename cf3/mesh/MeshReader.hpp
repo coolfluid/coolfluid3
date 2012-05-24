@@ -36,13 +36,6 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API MeshReader : public common::Action {
 
-public: // typedefs
-
-  /// type of pointer to Component
-
-  /// type of pointer to constant Component
-
-
 public: // functions
 
   /// Contructor

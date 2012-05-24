@@ -12,6 +12,8 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+#include "math/VectorialFunction.hpp"
+
 #include "sdm/BCWeak.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

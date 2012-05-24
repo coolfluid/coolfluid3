@@ -20,6 +20,7 @@ list( APPEND resources_files
    cylinder-quad-p2-32x8.msh
    cylinder-quad-p2-64x16.msh
    cylinder-quad-p2-128x32.msh
+   sqduct_3000e.msh
 )
 
 set( CF3_RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "build dir" )

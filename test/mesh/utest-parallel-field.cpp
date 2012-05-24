@@ -36,6 +36,7 @@
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Interpolator.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
@@ -193,10 +194,8 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   // Create a field with glb node numbers
   Field& P1_node_rank = mesh.geometry_fields().create_field("P1_node_rank");
 
-  Handle<Action> interpolator(mesh.create_component("interpolator","cf3.mesh.actions.Interpolate"));
-  interpolator->options().configure_option("source",nodes_P1_node_rank.handle<Field const>());
-  interpolator->options().configure_option("target",P1_node_rank.handle<Field>());
-  interpolator->execute();
+  Handle<AInterpolator> interpolator (mesh.create_component("interpolator","cf3.mesh.SpaceInterpolator"));
+  interpolator->interpolate(nodes_P1_node_rank,P1_node_rank);
 
   // Write the mesh with the fields
 

@@ -68,6 +68,8 @@ private:
   static Eigen::Matrix<Real,nb_nodes,1> m_shapeFunc;
   static Eigen::Matrix<Real,nb_nodes,dimensionality> m_shapeFuncDerivs;
 
+  static RealVector2 m_D;
+  static Real m_scale;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

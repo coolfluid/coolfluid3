@@ -5,6 +5,9 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <set>
+#include <mpi.h>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
@@ -14,7 +17,11 @@
 #include "common/PE/debug.hpp"
 
 #include "math/Consts.hpp"
+#include "math/VariablesDescriptor.hpp"
+#include "math/Hilbert.hpp"
+#include "math/MatrixTypesConversion.hpp"
 
+#include "mesh/BoundingBox.hpp"
 #include "mesh/MeshAdaptor.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Dictionary.hpp"
@@ -23,6 +30,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 
@@ -162,6 +170,8 @@ void PackedNode::pack(PE::Buffer& buf)
 
 MeshAdaptor::MeshAdaptor(mesh::Mesh &mesh)
 {
+  has_node_buffers = false;
+  has_element_buffers = false;
   is_node_connectivity_global = false;
   node_glb_to_loc_needs_rebuild = false;
   node_elem_connectivity_needs_rebuild = false;
@@ -194,25 +204,50 @@ void MeshAdaptor::prepare()
 
 void MeshAdaptor::finish()
 {
-  flush_nodes();
-  flush_elements();
+  clear_node_buffers();     // also flushes nodes
+  clear_element_buffers();  // also flushes elements
 
   restore_element_node_connectivity();
-  rebuild_node_glb_to_loc_map();
-  rebuild_node_to_element_connectivity();
-
   cf3_assert( ! is_node_connectivity_global );
-  cf3_assert( ! node_glb_to_loc_needs_rebuild );
-  cf3_assert( ! node_elem_connectivity_needs_rebuild );
 
-  m_mesh->update_statistics();
-  m_mesh->update_structures();
+  m_mesh->raise_mesh_changed();
+
+  // Change following flags as "raise_mesh_changed" took care of this
+  node_glb_to_loc_needs_rebuild=false;
+  node_elem_connectivity_needs_rebuild=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void MeshAdaptor::create_element_buffers()
 {
+  clear_element_buffers();
+
+  for (Uint ent=0; ent<m_mesh->elements().size(); ++ent)
+  {
+    const Handle<Entities>& elements = m_mesh->elements()[ent];
+    if (is_not_null(elements))
+    {
+      element_glb_idx[ent] = elements->glb_idx().create_buffer_ptr();
+      element_rank[ent]    = elements->rank().create_buffer_ptr();
+      element_connected_nodes[ent].resize(elements->spaces().size());
+      for (Uint space_idx=0; space_idx < elements->spaces().size(); ++space_idx )
+      {
+        //PECheckPoint(100, "buffer["<<ent<<"] space["<<space_idx<<"]:  dict_idx = " << elements->spaces()[space_idx]->dict_idx() );
+        element_connected_nodes[ent][space_idx] = elements->spaces()[space_idx]->connectivity().create_buffer_ptr();
+      }
+    }
+  }
+  has_element_buffers = true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::clear_element_buffers()
+{
+  flush_elements();
+
   element_glb_idx.clear();
   element_rank.clear();
   element_connected_nodes.clear();
@@ -224,24 +259,40 @@ void MeshAdaptor::create_element_buffers()
   added_elements.resize(m_mesh->elements().size());
   added_elements.clear();
 
-  for (Uint ent=0; ent<m_mesh->elements().size(); ++ent)
-  {
-    const Handle<Entities>& elements = m_mesh->elements()[ent];
-    if (is_not_null(elements))
-    {
-      element_glb_idx[ent] = elements->glb_idx().create_buffer_ptr();
-      element_rank[ent]    = elements->rank().create_buffer_ptr();
-      element_connected_nodes[ent].resize(elements->spaces().size());
-      for (Uint space_idx=0; space_idx < elements->spaces().size(); ++space_idx )
-        element_connected_nodes[ent][space_idx] = elements->spaces()[space_idx]->connectivity().create_buffer_ptr();
-    }
-  }
+  has_element_buffers = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void MeshAdaptor::create_node_buffers()
 {
+  clear_node_buffers();
+
+  for (Uint dict_idx=0; dict_idx<m_mesh->dictionaries().size(); ++dict_idx)
+  {
+    const Handle<Dictionary>& dict = m_mesh->dictionaries()[dict_idx];
+    //PECheckPoint(100, "buffer["<<dict_idx<<"] creation for dict: " << dict->uri() );
+    if (is_not_null(dict))
+    {
+      node_glb_idx[dict_idx] = dict->glb_idx().create_buffer_ptr();
+      node_rank[dict_idx]    = dict->rank().create_buffer_ptr();
+      node_field_values[dict_idx].resize(dict->fields().size());
+      for (Uint fields_idx=0; fields_idx < dict->fields().size(); ++fields_idx )
+      {
+        cf3_assert(dict->fields()[fields_idx]);
+        node_field_values[dict_idx][fields_idx] = dict->fields()[fields_idx]->create_buffer_ptr();
+      }
+    }
+  }
+  has_node_buffers = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::clear_node_buffers()
+{
+  flush_nodes();
+
   node_glb_idx.clear();
   node_rank.clear();
   node_field_values.clear();
@@ -253,18 +304,7 @@ void MeshAdaptor::create_node_buffers()
   added_nodes.resize(m_mesh->dictionaries().size());
   added_nodes.clear();
 
-  for (Uint dict_idx=0; dict_idx<m_mesh->dictionaries().size(); ++dict_idx)
-  {
-    const Handle<Dictionary>& dict = m_mesh->dictionaries()[dict_idx];
-    if (is_not_null(dict))
-    {
-      node_glb_idx[dict_idx] = dict->glb_idx().create_buffer_ptr();
-      node_rank[dict_idx]    = dict->rank().create_buffer_ptr();
-      node_field_values[dict_idx].resize(dict->fields().size());
-      for (Uint fields_idx=0; fields_idx < dict->fields().size(); ++fields_idx )
-        node_field_values[dict_idx][fields_idx] = dict->fields()[fields_idx]->create_buffer_ptr();
-    }
-  }
+  has_node_buffers = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -278,13 +318,18 @@ void MeshAdaptor::make_element_node_connectivity_global()
     {
       boost_foreach(const Handle<Space>& space, elements.spaces())
       {
+        //PECheckPoint(100,space->dict().uri());
+        //PECheckPoint(100,"local connectivity = \n"<<space->connectivity());
+        //PECheckPoint(100,"global nodes = \n"<<space->dict().glb_idx());
         boost_foreach ( Connectivity::Row nodes, space->connectivity().array() )
         {
           boost_foreach ( Uint& node, nodes )
           {
+            cf3_assert_desc(to_str(node)+"<"+space->dict().glb_idx().uri().string()+".size() "+to_str(space->dict().glb_idx().size()),node<space->dict().glb_idx().size());
             node = space->dict().glb_idx()[node];
           }
         }
+        //PECheckPoint(100,"global connectivity = \n"<<space->connectivity());
       }
     }
   }
@@ -303,11 +348,15 @@ void MeshAdaptor::restore_element_node_connectivity()
     {
       boost_foreach(const Handle<Space>& space, elements.spaces())
       {
+        //PECheckPoint(100,space->dict().uri());
+        //PECheckPoint(100,"global connectivity = \n"<<space->connectivity());
+        //PECheckPoint(100,"global nodes = \n"<<space->dict().glb_idx());
         const common::Map<boost::uint64_t,Uint>& glb_to_loc = space->dict().glb_to_loc();
         boost_foreach ( Connectivity::Row nodes, space->connectivity().array() )
         {
           boost_foreach ( Uint& node, nodes )
           {
+            cf3_assert_desc("cannot find glb node "+to_str(node)+" in "+glb_to_loc.uri().string(),glb_to_loc.exists(node));
             node = glb_to_loc[node];
             cf3_assert( node < space->dict().size() );
           }
@@ -322,6 +371,9 @@ void MeshAdaptor::restore_element_node_connectivity()
 
 void MeshAdaptor::add_element(const PackedElement& packed_element)
 {
+  if (has_element_buffers == false)
+    create_element_buffers();
+
   bool not_added_yet = added_elements[packed_element.entities_idx()].insert(packed_element.glb_idx()).second;
   if (not_added_yet)
   {
@@ -330,8 +382,9 @@ void MeshAdaptor::add_element(const PackedElement& packed_element)
     element_rank[packed_element.entities_idx()]->add_row(packed_element.rank());
     for (Uint space_idx=0; space_idx<element_connected_nodes[packed_element.entities_idx()].size(); ++space_idx)
     {
-      cf3_assert(packed_element.connectivity()[space_idx].size() == element_connected_nodes[packed_element.entities_idx()][space_idx]->get_appointed().shape()[1]);
-      element_connected_nodes[packed_element.entities_idx()][space_idx]->add_row(packed_element.connectivity()[space_idx]);
+      const Uint dict_idx = m_mesh->elements()[packed_element.entities_idx()]->spaces()[space_idx]->dict_idx();
+      cf3_assert(packed_element.connectivity()[dict_idx].size() == element_connected_nodes[packed_element.entities_idx()][space_idx]->get_appointed().shape()[1]);
+      element_connected_nodes[packed_element.entities_idx()][space_idx]->add_row(packed_element.connectivity()[dict_idx]);
     }
     elem_flush_required = true;
   }
@@ -348,6 +401,9 @@ void MeshAdaptor::remove_element(const PackedElement& packed_element)
 
 void MeshAdaptor::remove_element(const Uint entities_idx, const Uint elem_loc_idx)
 {
+  if (has_element_buffers == false)
+    create_element_buffers();
+
 //  std::cout << PERank << " removing element " << elem_loc_idx << std::endl;
   cf3_assert_desc("Forgot to call MeshAdaptor::create_element_buffers()",element_glb_idx.size());
   cf3_assert(entities_idx< element_glb_idx.size() );
@@ -364,6 +420,9 @@ void MeshAdaptor::remove_element(const Uint entities_idx, const Uint elem_loc_id
 
 void MeshAdaptor::add_node(const PackedNode& packed_node)
 {
+  if (has_node_buffers == false)
+    create_node_buffers();
+
   bool not_added_yet = added_nodes[packed_node.dict_idx()].insert(packed_node.glb_idx()).second;
   if (not_added_yet)
   {
@@ -391,7 +450,8 @@ void MeshAdaptor::remove_node(const PackedNode& packed_node)
 
 void MeshAdaptor::remove_node(const Uint dict_idx, const Uint node_loc_idx)
 {
-  cf3_assert_desc("Forgot to call MeshAdaptor::create_node_buffers()",node_glb_idx.size());
+  if (has_node_buffers == false)
+    create_node_buffers();
   cf3_assert(dict_idx< node_glb_idx.size() );
   cf3_assert(node_loc_idx < node_glb_idx[dict_idx]->total_allocated());
   node_glb_idx[dict_idx]->rm_row(node_loc_idx);
@@ -565,6 +625,7 @@ void MeshAdaptor::send_elements(const std::vector< std::vector< std::vector<Uint
   cf3_assert(exported_elements_loc_id.size() == PE::Comm::instance().size());
   const Uint nb_dicts = m_mesh->dictionaries().size();
   const Uint nb_entities = m_mesh->elements().size();
+  rebuild_node_glb_to_loc_map();
   for (Uint dict_idx=0; dict_idx<nb_dicts; ++dict_idx)
   {
     Dictionary& dict = *m_mesh->dictionaries()[dict_idx];
@@ -598,7 +659,7 @@ void MeshAdaptor::send_elements(const std::vector< std::vector< std::vector<Uint
     }
   }
 
-  ////PECheckArrivePoint(100,"Send/receive elements");
+  //////PECheckArrivePoint(100,"Send/receive elements");
 
   // Send/Receive the elements.
   send_buffer.all_to_all(receive_buffer);
@@ -694,12 +755,12 @@ void MeshAdaptor::send_nodes(const std::vector< std::vector< std::vector<Uint> >
     }
   }
 
-  ////PECheckArrivePoint(100,"nodes packed");
+  //////PECheckArrivePoint(100,"nodes packed");
 
   // Send/Receive buffers
   send_buffer.all_to_all(receive_buffer);
 
-  ////PECheckArrivePoint(100,"nodes sent/received");
+  //////PECheckArrivePoint(100,"nodes sent/received");
 
   // 4) Add nodes on receiving side
   std::vector< std::vector<std::set<boost::uint64_t> > > received_glb_nodes_pid(PE::Comm::instance().size(),std::vector<std::set<boost::uint64_t> >(nb_dicts));
@@ -727,7 +788,7 @@ void MeshAdaptor::send_nodes(const std::vector< std::vector< std::vector<Uint> >
     }
   }
 
-  ////PECheckArrivePoint(100,"nodes added");
+  //////PECheckArrivePoint(100,"nodes added");
 
   // Fill imported_nodes_glb_id
   imported_nodes_glb_id.resize(PE::Comm::instance().size(), std::vector< std::vector<boost::uint64_t> >(nb_dicts));
@@ -818,14 +879,14 @@ void MeshAdaptor::move_elements(const std::vector< std::vector< std::vector<Uint
     }
   }
 
-  //PECheckArrivePoint(100,"Sending elements");
+  ////PECheckArrivePoint(100,"Sending elements");
 
   // 2) send elements and nodes belonging to the elements
   std::vector< std::vector< std::vector<boost::uint64_t> > > imported_elements_glb_id;
   send_elements(exported_elements_loc_id,imported_elements_glb_id);
 
 
-  //PECheckArrivePoint(100,"Finding nodes to export");
+  ////PECheckArrivePoint(100,"Finding nodes to export");
   std::vector< std::vector< std::vector<Uint> > > exported_nodes_loc_id;
   find_nodes_to_export(exported_elements_loc_id,exported_nodes_loc_id);
 
@@ -865,7 +926,7 @@ void MeshAdaptor::move_elements(const std::vector< std::vector< std::vector<Uint
 
 
 
-  //PECheckArrivePoint(100,"Sending nodes");
+  ////PECheckArrivePoint(100,"Sending nodes");
 
   std::vector< std::vector< std::vector<boost::uint64_t> > > imported_nodes_glb_id;
   send_nodes(exported_nodes_loc_id,imported_nodes_glb_id);
@@ -873,7 +934,7 @@ void MeshAdaptor::move_elements(const std::vector< std::vector< std::vector<Uint
   flush_elements();
 
   // 6) Remove unused nodes
-  //PECheckArrivePoint(100,"removing unused nodes");
+  ////PECheckArrivePoint(100,"removing unused nodes");
 
   for (Uint dict_idx=0; dict_idx<nb_dicts; ++dict_idx)
   {
@@ -983,7 +1044,7 @@ void MeshAdaptor::move_elements(const std::vector< std::vector< std::vector<Uint
 void MeshAdaptor::fix_node_ranks()
 {
   CFdebug << "MeshAdaptor: fix node ranks" << CFendl;
-  //PECheckArrivePoint(100,"fix node ranks");
+  ////PECheckArrivePoint(100,"fix node ranks");
   const Uint nb_dicts = m_mesh->dictionaries().size();
 
   flush_nodes();
@@ -1020,12 +1081,13 @@ void MeshAdaptor::fix_node_ranks()
           if (dict->glb_to_loc().exists(glb_node))
           {
             Uint loc_node = dict->glb_to_loc()[glb_node];
+            cf3_assert(dict->glb_idx()[loc_node]==glb_node);
             cf3_assert(loc_node<dict->rank().size());
             // if the rank is yourself, it means that the glb_node has not been found
             // before. Change then the rank to the broacasting cpu.
             if (dict->rank()[loc_node] == PE::Comm::instance().rank())
             {
-              dict->rank()[loc_node] = root;
+              dict->rank()[loc_node] = std::min(root,dict->rank()[loc_node]);
             }
           }
         }
@@ -1033,7 +1095,7 @@ void MeshAdaptor::fix_node_ranks()
     }
   }
 
-//  //PECheckArrivePoint(100,"fix node ranks done");
+//  ////PECheckArrivePoint(100,"fix node ranks done");
 
 }
 
@@ -1056,7 +1118,7 @@ void MeshAdaptor::fix_node_ranks(const std::vector< std::vector<boost::uint64_t>
     else
       recv_request_node_ranks[0] = request_node_ranks[dict_idx];
 
-    //PECheckArrivePoint(100,"communicated 1");
+    ////PECheckArrivePoint(100,"communicated 1");
 
     // Search if this rank contains the missing node-ranks given in recv_request_node_ranks,
     // and mark the node as found.
@@ -1084,11 +1146,11 @@ void MeshAdaptor::fix_node_ranks(const std::vector< std::vector<boost::uint64_t>
     else
       recv_found_requested_nodes[0] = send_found_on_rank[0];
 
-    //PECheckArrivePoint(100,"communicated 2");
+    ////PECheckArrivePoint(100,"communicated 2");
 
     rebuild_node_glb_to_loc_map();
 
-    //PECheckArrivePoint(100,"rebuilt map");
+    ////PECheckArrivePoint(100,"rebuilt map");
 
     // Set the missing rank to the lowest pid that found it
     for (Uint node_idx=0; node_idx<request_node_ranks[dict_idx].size(); ++node_idx)
@@ -1115,6 +1177,7 @@ void MeshAdaptor::fix_node_ranks(const std::vector< std::vector<boost::uint64_t>
 
 void MeshAdaptor::grow_overlap()
 {
+
   flush_nodes();
   flush_elements();
 
@@ -1129,6 +1192,10 @@ void MeshAdaptor::grow_overlap()
   face2cell->setup(m_mesh->topology());
 
   Dictionary& geometry_dict = m_mesh->geometry_fields();
+//  geometry_dict.rebuild_node_to_element_connectivity();
+//  geometry_dict.rebuild_map_glb_to_loc();
+
+  cf3_assert(geometry_dict.connectivity().size() == geometry_dict.size());
 
   std::set<boost::uint64_t> bdry_nodes;
   for (Uint f=0; f<face2cell->size(); ++f)
@@ -1146,7 +1213,7 @@ void MeshAdaptor::grow_overlap()
   // Remove from memory again, boundary nodes are found
   face2cell.reset();
 
-  ////PECheckArrivePoint(100, "boundary nodes found");
+  //////PECheckArrivePoint(100, "boundary nodes found");
 
   // Copy set into vector
   std::vector<boost::uint64_t> glb_boundary_nodes;
@@ -1169,13 +1236,12 @@ void MeshAdaptor::grow_overlap()
   PE::Comm::instance().all_gather(glb_boundary_nodes, recv_elem_glb_nodes);
   cf3_assert(recv_elem_glb_nodes.size() == PE::Comm::instance().size());
 
-  ////PECheckArrivePoint(100, "boundary nodes allgathered");
+  //////PECheckArrivePoint(100, "boundary nodes allgathered");
 
   std::vector< std::vector< std::vector< Uint > > > exported_elements_loc_id (PE::Comm::instance().size(),
                                                                               std::vector< std::vector<Uint> > (m_mesh->elements().size()));
 
   PE::Buffer send_buffer, receive_buffer;
-  cf3_assert(geometry_dict.connectivity().size() == geometry_dict.size());
 
   rebuild_node_glb_to_loc_map();
 
@@ -1205,7 +1271,7 @@ void MeshAdaptor::grow_overlap()
     }
   }
 
-  ////PECheckArrivePoint(100, "exported_elements_loc_id assembled");
+  //////PECheckArrivePoint(100, "exported_elements_loc_id assembled");
 
 
 
@@ -1224,6 +1290,478 @@ void MeshAdaptor::grow_overlap()
   flush_nodes();
   // nodes and elements should be flushed now, as well as dict.glb_to_loc rebuilt.
   // A call to finish() should restore the element-node connectivity tables and update statistics
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
+{
+  restore_element_node_connectivity();
+  CFdebug << "Adding mesh " << other_mesh.uri() << CFendl;
+  const Uint dim = std::max(other_mesh.dimension(),m_mesh->dimension());
+  if (m_mesh->dimension() == 0) // It is not initialized yet
+  {
+    m_mesh->initialize_nodes(0,dim);
+  }
+  else if (m_mesh->dimension() != dim)
+  {
+    CFwarn << "other mesh has different dimension!" << CFendl;
+  }
+
+  // 1) Initialize nodes
+
+  std::map< Handle<Dictionary> , Uint > node_start_idx;
+
+  std::map< std::string , Handle<Dictionary> > dictionaries;
+  boost_foreach (const Handle<Dictionary>& dict, m_mesh->dictionaries())
+  {
+    dictionaries[dict->name()]=dict;
+  }
+
+  std::map< std::string , Handle<Dictionary> > other_dictionaries;
+  boost_foreach (const Handle<Dictionary>& other_dict, other_mesh.dictionaries())
+  {
+    other_dictionaries[other_dict->name()]=other_dict;
+  }
+
+  std::map< Handle<Space const> , Handle<Space> > other_space_to_space;
+  std::map< Handle<Entities const> , Handle<Entities> > other_entities_to_entities;
+
+  // Create missing regions, entities, spaces, and dictionaries, but don't fill anything yet!
+  boost_foreach(const Region& other_region, find_components_recursively<Region>(other_mesh.topology()))
+  {
+    std::string other_region_relative_path = other_region.uri().path();
+    boost::algorithm::replace_first(other_region_relative_path,other_mesh.topology().uri().path()+"/","");
+
+    std::vector<std::string> vec;
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep("/");
+    Tokenizer tokens(other_region_relative_path, sep);
+    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+      vec.push_back(*tok_iter);
+
+    Handle<Component> found;
+
+    // Create region
+    Handle<Region> region = m_mesh->topology().handle<Region>();
+    boost_foreach(const std::string& path, vec)
+    {
+      found = region->access_component(path);
+      if ( found )
+        region = found->handle<Region>();
+      else
+        region = region->create_component<Region>(path);
+    }
+
+    // Create entities
+    Handle<Entities> entities;
+    boost_foreach(const Entities& other_entities, find_components<Entities>(other_region))
+    {
+      found = region->get_child(other_entities.name());
+      if (found)
+      {
+        entities = found->handle<Entities>();
+        cf3_assert(entities->element_type().derived_type_name() == other_entities.element_type().derived_type_name());
+      }
+      else
+      {
+        entities = region->create_elements(other_entities.element_type().derived_type_name(),m_mesh->geometry_fields()).handle<Entities>();
+      }
+      other_entities_to_entities[other_entities.handle<Entities>()]=entities;
+
+      // Create space
+      Handle<Space> space;
+      boost_foreach(const Handle<Space>& other_space, other_entities.spaces())
+      {
+        Dictionary& other_dict = other_space->dict();
+        found = entities->access_component(URI("spaces")/other_space->name());
+        if (found)
+        {
+          space = found->handle<Space>();
+          cf3_assert_desc("Found dictionary "+space->dict().uri().string()+" doesn't match with "+other_dict.uri().string(),dictionaries.count(space->dict().name()));
+        }
+        else
+        {
+          // Create dictionary
+          if (dictionaries.count(other_dict.name()) == 0)
+          {
+            Handle<Dictionary> dict = m_mesh->create_component(other_dict.name(),other_dict.derived_type_name())->handle<Dictionary>();
+            dictionaries[dict->name()]=dict;
+          }
+          space = entities->create_space(other_space->shape_function().derived_type_name(),*dictionaries[other_dict.name()]).handle<Space>();
+        }
+        other_space_to_space[other_space]=space;
+        cf3_assert(space->dict().defined_for_entities(entities));
+        cf3_assert(other_dict.defined_for_entities(other_entities.handle<Entities>()));
+      }
+    }
+  }
+  foreach_container ( (const std::string& dict_name) (const Handle<Dictionary>& dict), dictionaries)
+  {
+    dict->update_structures();
+  }
+
+  // Add nodes. Duplicate nodes are inserted all the same
+  foreach_container ( (const std::string& other_dict_name) (const Handle<Dictionary>& other_dict), other_dictionaries)
+  {
+    Handle<Dictionary> dict = dictionaries[other_dict_name];
+
+
+    Uint total_nb_nodes = dict->size();
+    Uint start_node_idx = total_nb_nodes;
+    node_start_idx[dict]=start_node_idx;
+    total_nb_nodes += other_dict->size();
+
+    boost_foreach( const Handle<Field>& other_field, other_dict->fields())
+    {
+      if ( is_null (dict->get_child(other_field->name())) )
+      {
+        dict->create_field(other_field->name(),other_field->descriptor().description());
+      }
+    }
+
+    dict->resize(total_nb_nodes);
+    for (Uint n=0; n<other_dict->size(); ++n)
+    {
+      dict->rank()[start_node_idx+n]    = other_dict->rank()[n];
+    }
+
+    if (dict->discontinuous())
+    {
+      // find start-index of global index
+      boost::uint64_t this_pid_nb_nodes = start_node_idx;
+      boost::uint64_t all_pid_nb_nodes;
+      PE::Comm::instance().all_reduce(PE::plus(),&this_pid_nb_nodes,1,&all_pid_nb_nodes);
+      for (Uint n=0; n<other_dict->size(); ++n)
+      {
+        dict->glb_idx()[start_node_idx+n] = other_dict->glb_idx()[n] + all_pid_nb_nodes;
+      }
+    }
+    else
+    {
+      for (Uint n=0; n<other_dict->size(); ++n)
+      {
+        dict->glb_idx()[start_node_idx+n] = other_dict->glb_idx()[n];
+      }
+    }
+    boost_foreach( const Handle<Field>& other_field_handle, other_dict->fields())
+    {
+      Field& other_field = *other_field_handle;
+      Field& field = dict->field(other_field.name());
+      cf3_assert (field.row_size() == other_field.row_size());
+      for (Uint n=0; n<other_dict->size(); ++n)
+      {
+        field[start_node_idx+n] = other_field[n];
+      }
+    }
+  }
+
+  // Add elements and their connectivities
+
+  boost_foreach (const Handle<Entities>& other_entities, other_mesh.elements())
+  {
+    const Handle<Entities>& entities = other_entities_to_entities[other_entities];
+    Uint total_nb_elems = entities->size();
+    const Uint start_elem_idx = total_nb_elems;
+    total_nb_elems += other_entities->size();
+    entities->resize(total_nb_elems);
+    for (Uint e=0; e<other_entities->size(); ++e)
+    {
+      entities->rank()[start_elem_idx+e] = other_entities->rank()[e];
+      entities->glb_idx()[start_elem_idx+e] = other_entities->glb_idx()[e];
+    }
+    boost_foreach (const Handle<Space>& other_space, other_entities->spaces())
+    {
+      const Handle<Space>& space = other_space_to_space[other_space];
+      const Uint start_node_idx = node_start_idx[space->dict().handle<Dictionary>()];
+      //PECheckPoint(100,"start_node_idx("<<space->dict().uri()<<") = " << start_node_idx);
+      //PECheckPoint(100,"new connectivity to add \n" << other_space->connectivity());
+      for (Uint e=0; e<other_space->size(); ++e)
+      {
+        for (Uint n=0; n<space->shape_function().nb_nodes(); ++n)
+        {
+          space->connectivity()[start_elem_idx+e][n] = start_node_idx + other_space->connectivity()[e][n];
+        }
+      }
+    }
+  }
+
+  m_mesh->update_structures();
+
+  has_element_buffers = false;
+  has_node_buffers = false;
+  // Now we COULD still have duplicate elements and nodes!!!
+  // To be sure, call remove_duplicate_elements_and_nodes() before finish() is called.
+
+  // Force rebuild of glb_to_loc when finish() is called, because nodes have been added
+  node_glb_to_loc_needs_rebuild=true;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::remove_duplicate_elements_and_nodes()
+{
+  const Uint nb_dicts = m_mesh->dictionaries().size();
+  const Uint nb_entities= m_mesh->elements().size();
+
+  // Remove duplicate elements
+  {
+    flush_elements();
+    flush_nodes();
+
+//    rebuild_node_glb_to_loc_map();
+
+    cf3_assert(is_node_connectivity_global==false);
+
+    int this_pid_need_renumbering = false;
+    int any_pid_needs_renumbering = false;
+
+    boost::shared_ptr<mesh::BoundingBox> bounding_box = allocate_component<mesh::BoundingBox>("bounding_box");
+    bounding_box->build(m_mesh->geometry_fields().coordinates());
+    bounding_box->make_global();
+    math::Hilbert compute_hilbert_idx(*bounding_box, 20);  // functor
+//    std::cout << PERank << "nb_entities = " << nb_entities << std::endl;
+    for (Uint entities_idx=0; entities_idx<nb_entities; ++entities_idx)
+    {
+//      std::cout << PERank << "entities_idx " << entities_idx << std::endl;
+      const Handle<Entities>& entities = m_mesh->elements()[entities_idx];
+      const Space& space = entities->geometry_space();
+
+      //PECheckPoint(100,"local_connectivity = \n"<<space.connectivity());
+      std::map<boost::uint64_t,Uint> hilbert_to_loc;
+
+      boost::uint64_t hilbert_idx;
+      RealVector centroid(entities->element_type().dimension());
+      RealMatrix element_coordinates;
+      space.allocate_coordinates(element_coordinates);
+
+      for (Uint e=0; e<space.size(); ++e)
+      {
+        //        std::cout << PERank << "elem " << e << std::endl;
+        space.put_coordinates(element_coordinates,e);
+        space.support().element_type().compute_centroid(element_coordinates,centroid);
+//                std::cout << PERank << "check element " << entities->glb_idx()[e] << " ("<<centroid.transpose()<<")" << std::endl;
+        hilbert_idx = compute_hilbert_idx(centroid);
+
+        if (hilbert_to_loc.count(hilbert_idx)) // if the element already exists
+        {
+          remove_element(entities_idx,e);
+//          std::cout << PERank << "removing elem " << entities->uri() << "["<<entities->glb_idx()[e] << "] ("<<centroid.transpose()<<")" << std::endl;
+          if (entities->glb_idx()[e] != entities->glb_idx()[hilbert_to_loc[hilbert_idx]])
+          {
+            this_pid_need_renumbering = true;
+          }
+        }
+        else // if the element doesn't exist, add it to the map
+        {
+          hilbert_to_loc[ hilbert_idx ] = e;
+        }
+      }
+    }
+
+    PE::Comm::instance().all_reduce(PE::max(),&this_pid_need_renumbering,1,&any_pid_needs_renumbering);
+
+    if (any_pid_needs_renumbering)
+      throw NotImplemented(FromHere(), "Todo: Renumber all elements");
+
+    node_elem_connectivity_needs_rebuild=true;
+  }
+
+  flush_elements();
+
+  make_element_node_connectivity_global();
+
+  // Remove duplicate nodes
+  for (Uint dict_idx=0; dict_idx<nb_dicts; ++dict_idx)
+  {
+    int this_pid_need_renumbering = false;
+    int any_pid_needs_renumbering = false;
+
+    const Handle<Dictionary>& dict = m_mesh->dictionaries()[dict_idx];
+
+    //PECheckPoint(100,dict->uri());
+    if (dict->discontinuous())
+    {
+      CFwarn << "Cannot use hilbert technique to identify duplicate nodes, because 2 elements might each have a different node in same location" << CFendl;
+      CFwarn << "Skipping removal of nodes" << CFendl;
+      CFwarn << "Fixing removal of nodes for discontinuous dictionaries is a TODO. Removal of elements works." << CFendl;
+      continue;
+    }
+    boost::shared_ptr<mesh::BoundingBox> bounding_box = allocate_component<mesh::BoundingBox>("bounding_box");
+    bounding_box->build(dict->coordinates());
+    bounding_box->make_global();
+    math::Hilbert compute_hilbert_idx(*bounding_box, 20);  // functor
+    std::map<boost::uint64_t,Uint> hilbert_to_loc;
+    RealVector coord(dict->coordinates().row_size());
+    const Uint nb_nodes=dict->size();
+    for (Uint n=0; n<nb_nodes; ++n)
+    {
+      math::copy(dict->coordinates()[n],coord);
+      boost::uint64_t hilbert_idx = compute_hilbert_idx(coord);
+
+      if (hilbert_to_loc.count(hilbert_idx)) // if the node already exists
+      {
+        remove_node(dict_idx,n);
+//        std::cout << PERank << "removing node " << dict->name() << "["<<dict->glb_idx()[n] << "] ("<<coord.transpose()<<")"<< std::endl;
+        if (dict->glb_idx()[n] != dict->glb_idx()[hilbert_to_loc[hilbert_idx]])
+        {
+          this_pid_need_renumbering = true;
+          cf3_assert_desc("for now",false);
+        }
+      }
+      else // if the node doesn't exist, add it to the map
+      {
+        hilbert_to_loc[ hilbert_idx ] = n;
+      }
+    }
+
+    //PECheckPoint(100,"before: nodes = \n"<<dict->glb_idx());
+
+    flush_nodes();
+
+    //PECheckPoint(100,"after: nodes = \n"<<dict->glb_idx());
+
+    PE::Comm::instance().all_reduce(PE::max(),&this_pid_need_renumbering,1,&any_pid_needs_renumbering);
+
+    if (any_pid_needs_renumbering)
+    {
+      assign_partition_agnostic_global_indices_to_dict(*dict);
+    }
+  }
+  rebuild_node_glb_to_loc_map();
+  restore_element_node_connectivity();
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshAdaptor_send_receive(const Uint send_to_pid, std::vector<T>& send, const Uint receive_from_pid, std::vector<T>& receive)
+{
+  if (send_to_pid == PE::Comm::instance().rank() &&
+      receive_from_pid == PE::Comm::instance().rank())
+  {
+    receive = send;
+      return;
+  }
+  cf3_assert(send.empty()==false);
+  size_t recv_size;
+  size_t send_size = send.size();
+  MPI_Sendrecv(&send_size, 1, PE::get_mpi_datatype<size_t>(), (int)send_to_pid, 0,
+               &recv_size, 1, PE::get_mpi_datatype<size_t>(), (int)receive_from_pid, 0,
+               PE::Comm::instance().communicator(), MPI_STATUS_IGNORE);
+  receive.resize(recv_size);
+  MPI_Sendrecv(&send[0], (int)send.size(), PE::get_mpi_datatype<T>(), (int)send_to_pid, 0,
+               &receive[0], (int)receive.size(), PE::get_mpi_datatype<T>(), (int)receive_from_pid, 0,
+               PE::Comm::instance().communicator(), MPI_STATUS_IGNORE);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::assign_partition_agnostic_global_indices_to_dict( Dictionary& dict )
+{
+  /// Nodes found on pid 0 will be numbered from 0 to nb_nodes(pid0)
+  /// NEW nodes found on pid 1 will be numbered from nb_nodes(pid0) to nb_nodes(pid0+pid1)
+  /// NEW nodes found on pid 2 will be numbered from nb_nodes(pid0+pid1) to nb_nodes(pid0+pid1+pid2)
+  /// ...
+  /// Any ownership is not claimed! It is still possible that a node with glb_idx between
+  /// nb_nodes(pid0) and nb_nodes(pid0+pid1) is owned by pid0 or pid1 or pid2.
+  /// Only when a call to fix_node_ranks() is done, will ownership be claimed by the proc that found the node,
+  /// with the lowest pid.
+
+  boost::shared_ptr<mesh::BoundingBox> bounding_box = allocate_component<mesh::BoundingBox>("bounding_box");
+  bounding_box->build(dict.coordinates());
+  bounding_box->make_global();
+  math::Hilbert compute_hilbert_idx(*bounding_box, 20);  // functor
+
+  CFdebug << "Renumbering " << dict.uri() << CFendl;
+
+  if (dict.continuous())
+  {
+    boost::shared_ptr< common::Map<boost::uint64_t,Uint> > hilbert_to_loc_handle
+        = allocate_component< common::Map<boost::uint64_t,Uint> > ("map");
+    common::Map<boost::uint64_t,Uint>& hilbert_to_loc = *hilbert_to_loc_handle;
+    hilbert_to_loc.reserve(dict.size());
+    std::vector<boost::uint64_t> hilbert_indices(dict.size());
+    const Field& coordinates = dict.coordinates();
+    RealVector coord(coordinates.row_size());
+
+    for (Uint node_idx=0; node_idx<dict.size(); ++node_idx)
+    {
+      math::copy(coordinates[node_idx],coord);
+      boost::uint64_t hilbert_idx = compute_hilbert_idx(coord);
+      hilbert_to_loc.push_back(hilbert_idx, node_idx);
+      hilbert_indices[node_idx]=hilbert_idx;
+    }
+    hilbert_to_loc.sort_keys();
+
+    // Find start index or offset for global indices on this pid
+    const Uint nb_nodes = dict.size();
+    std::vector<Uint> nb_nodes_per_pid(Comm::instance().size(),dict.size());
+    if( Comm::instance().is_active() )
+      Comm::instance().all_gather(nb_nodes, nb_nodes_per_pid);
+
+    Uint start_glb_idx=0;
+    for (Uint pid=0; pid<Comm::instance().rank(); ++pid)
+      start_glb_idx += nb_nodes_per_pid[pid];
+
+
+    std::vector< std::vector<boost::uint64_t> > received_global_indices(PE::Comm::instance().size());
+
+    for (Uint pid=0; pid<PE::Comm::instance().size(); pid++)
+    {
+      // Trade my requests with processor procup and procdown
+      const Uint pid_send_hilbert = (PE::Comm::instance().rank() + pid) %
+                                    PE::Comm::instance().size();
+      const Uint pid_recv_hilbert = (PE::Comm::instance().size() + PE::Comm::instance().rank() - pid) %
+                                    PE::Comm::instance().size();
+
+      std::vector<boost::uint64_t>& send_hilbert_indices = hilbert_indices;
+      std::vector<boost::uint64_t> received_hilbert_indices;
+      MeshAdaptor_send_receive(pid_send_hilbert,   send_hilbert_indices,
+                               pid_recv_hilbert, received_hilbert_indices);
+
+      // Find global indices for each received hilbert index
+      std::vector<boost::uint64_t> send_global_indices;
+      send_global_indices.reserve(received_hilbert_indices.size());
+
+      boost_foreach(const boost::uint64_t& hilbert_index, received_hilbert_indices)
+      {
+        if (hilbert_to_loc.exists(hilbert_index))
+          send_global_indices.push_back( start_glb_idx + hilbert_to_loc[hilbert_index]);
+        else
+          send_global_indices.push_back( std::numeric_limits<boost::uint64_t>::max());
+      }
+
+      const Uint pid_send_glb_indices = pid_recv_hilbert;
+      const Uint pid_recv_glb_indices = pid_send_hilbert;
+
+      MeshAdaptor_send_receive (pid_send_glb_indices, send_global_indices,
+                                pid_recv_glb_indices, received_global_indices[pid_recv_glb_indices]);
+      cf3_assert( received_global_indices[pid_recv_glb_indices].size() == dict.size() );
+    }
+
+    // Assign global indices in the dictionary
+    for (Uint node_idx=0; node_idx<dict.size(); ++node_idx)
+    {
+      boost::uint64_t glb_idx = std::numeric_limits<boost::uint64_t>::max();
+      for (Uint pid=0; pid<PE::Comm::instance().size(); pid++)
+      {
+        if (received_global_indices[pid][node_idx] < glb_idx)
+        {
+          dict.glb_idx()[node_idx] = received_global_indices[pid][node_idx];
+          break;
+        }
+      }
+    }
+
+  }
+  else // if dict.discontinuous()
+  {
+    throw NotImplemented(FromHere(), "TODO, implement numbering for discontinuous dictionaries");
+  }
+  node_glb_to_loc_needs_rebuild = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -132,24 +132,25 @@ Shared::Shared() :
 
   // P1 hexa
   m_nodes_cf_to_gmsh[P1HEXA].resize(8);
-  m_nodes_cf_to_gmsh[P1HEXA][0]=4;
-  m_nodes_cf_to_gmsh[P1HEXA][1]=5;
-  m_nodes_cf_to_gmsh[P1HEXA][2]=1;
-  m_nodes_cf_to_gmsh[P1HEXA][3]=0;
-  m_nodes_cf_to_gmsh[P1HEXA][4]=6;
-  m_nodes_cf_to_gmsh[P1HEXA][5]=7;
-  m_nodes_cf_to_gmsh[P1HEXA][6]=3;
-  m_nodes_cf_to_gmsh[P1HEXA][7]=2;
+  m_nodes_cf_to_gmsh[P1HEXA][0]=0;
+  m_nodes_cf_to_gmsh[P1HEXA][1]=1;
+  m_nodes_cf_to_gmsh[P1HEXA][2]=2;
+  m_nodes_cf_to_gmsh[P1HEXA][3]=3;
+  m_nodes_cf_to_gmsh[P1HEXA][4]=4;
+  m_nodes_cf_to_gmsh[P1HEXA][5]=5;
+  m_nodes_cf_to_gmsh[P1HEXA][6]=6;
+  m_nodes_cf_to_gmsh[P1HEXA][7]=7;
 
   m_nodes_gmsh_to_cf[P1HEXA].resize(8);
-  m_nodes_gmsh_to_cf[P1HEXA][0]=3;
-  m_nodes_gmsh_to_cf[P1HEXA][1]=2;
-  m_nodes_gmsh_to_cf[P1HEXA][2]=7;
-  m_nodes_gmsh_to_cf[P1HEXA][3]=6;
-  m_nodes_gmsh_to_cf[P1HEXA][4]=0;
-  m_nodes_gmsh_to_cf[P1HEXA][5]=1;
-  m_nodes_gmsh_to_cf[P1HEXA][6]=4;
-  m_nodes_gmsh_to_cf[P1HEXA][7]=5;
+  m_nodes_gmsh_to_cf[P1HEXA][0]=0;
+  m_nodes_gmsh_to_cf[P1HEXA][1]=1;
+  m_nodes_gmsh_to_cf[P1HEXA][2]=2;
+  m_nodes_gmsh_to_cf[P1HEXA][3]=3;
+  m_nodes_gmsh_to_cf[P1HEXA][4]=4;
+  m_nodes_gmsh_to_cf[P1HEXA][5]=5;
+  m_nodes_gmsh_to_cf[P1HEXA][6]=6;
+  m_nodes_gmsh_to_cf[P1HEXA][7]=7;
+
 
   // P2 line
   m_nodes_cf_to_gmsh[P2LINE].resize(3);

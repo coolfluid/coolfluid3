@@ -372,7 +372,7 @@ void Writer::write()
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
-      const Uint var_begin = field.var_index(var_name);
+      const Uint var_begin = field.var_offset(var_idx);
       const Uint field_size = field.continuous() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;

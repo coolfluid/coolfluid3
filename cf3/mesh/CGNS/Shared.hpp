@@ -139,12 +139,31 @@ protected:
     int nDataSet;
   } m_boco;
 
+  struct CGNS_FlowSolution
+  {
+    int idx;
+    std::string name;
+    int nbFields;
+    int data_dim;
+    cgsize_t dim_vals[3];
+    GridLocation_t grid_loc;   // Vertex, CellCenter, IFaceCenter, JFaceCenter, KFaceCenter.
+    PointSetType_t ptset_type; // PointList / PointRange / ElementList / ElementRange
+    cgsize_t npnts;
+  } m_flowsol;
 
-  std::map<int,Region*> m_base_map;
-  std::map<int,Region*> m_zone_map;
-  std::map<int,Region*> m_section_map;
+  struct CGNS_Field
+  {
+    int idx;
+    std::string name;
+    DataType_t datatype;
+  } m_field;
+
+
+  std::map<int,Region*>      m_base_map;
+  std::map<int,Region*>      m_zone_map;
+  std::map<int,Region*>      m_section_map;
   std::map<int,Dictionary*>  m_nodes_map;
-  std::map<int,Region*> m_boco_map;
+  std::map<int,Region*>      m_boco_map;
 
 private:
   std::vector<std::string> m_supported_element_types;

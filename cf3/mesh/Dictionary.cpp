@@ -51,8 +51,7 @@ using namespace common::XML;
 
 Dictionary::Dictionary ( const std::string& name  ) :
   Component( name ),
-  m_is_continuous(true), // default continuous
-  m_new_spaces_added(false)
+  m_is_continuous(true) // default continuous
 {
   mark_basic();
 
@@ -69,10 +68,6 @@ Dictionary::Dictionary ( const std::string& name  ) :
 
   m_connectivity = create_static_component< common::DynTable<SpaceElem> >("element_connectivity");
 
-  // Event handlers
-  //  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &Dictionary::on_mesh_changed_event);
-  Core::instance().event_handler().connect_to_event("mesh_changed", this, &Dictionary::on_mesh_changed_event);
-
   // Signals
   regist_signal ( "create_field" )
       .description( "Create Field" )
@@ -85,7 +80,6 @@ Dictionary::Dictionary ( const std::string& name  ) :
 
 void Dictionary::add_space(const Handle<Space>& space)
 {
-  m_new_spaces_added = true;
   m_spaces_map.insert( std::make_pair(space->support().handle<Entities>(),space ) );
 }
 
@@ -185,12 +179,12 @@ Field& Dictionary::create_field(const std::string &name, const std::string& vari
 
   field->resize(size());
 
-  m_fields.push_back(field);
+  update_structures();
 
   CFinfo << "Created field " << field->uri() << " with variables \n";
   for (Uint var=0; var<field->descriptor().nb_vars(); ++var)
   {
-    CFinfo << "    - " << field->descriptor().user_variable_name(var) << "[" << field->descriptor().var_length(var) << "]\n";
+    CFinfo << "    - " << field->descriptor().user_variable_name(var) << " [" << field->descriptor().var_length(var) << "]\n";
   }
   CFinfo << CFflush;
 
@@ -211,7 +205,15 @@ Field& Dictionary::create_field(const std::string &name, math::VariablesDescript
   }
   field->resize(size());
 
-  m_fields.push_back(field);
+  update_structures();
+
+  CFinfo << "Created field " << field->uri() << " with variables \n";
+  for (Uint var=0; var<field->descriptor().nb_vars(); ++var)
+  {
+    CFinfo << "    - " << field->descriptor().user_variable_name(var) << " [" << field->descriptor().var_length(var) << "]\n";
+  }
+  CFinfo << CFflush;
+
 
   return *field;
 }
@@ -300,60 +302,50 @@ Field& Dictionary::field(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Dictionary::on_mesh_changed_event( SignalArgs& args )
+void Dictionary::build()
 {
-  common::XML::SignalOptions options( args );
-
-
-  URI mesh_uri = options.value<URI>("mesh_uri");
-  if (mesh_uri.is_relative())
-  {
-    throw InvalidURI(FromHere(),"URI "+to_str(mesh_uri)+" should be absolute");
-  }
-  Mesh& mesh_arg  = *Handle<Mesh>(access_component(mesh_uri));
-  Mesh& this_mesh = *Handle<Mesh>(parent());
-
-  if (&this_mesh == &mesh_arg)
-  {
-    if (m_spaces_map.size())
-      update();
-  }
+  update_structures();
+  rebuild_spaces_from_geometry();
+  rebuild_map_glb_to_loc();
+  rebuild_node_to_element_connectivity();
+  check_sanity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Dictionary::update()
+void Dictionary::update_structures()
 {
-  if (m_new_spaces_added)
+  m_entities.clear();
+  m_spaces.clear();
+  m_entities.reserve(m_spaces_map.size());
+  m_spaces.reserve(m_spaces_map.size());
+
+  std::vector< Handle<Entities const> > to_remove_from_spaces_map;
+  std::map< std::string, Handle<Entities const> > tmp_entities_map;
+  to_remove_from_spaces_map.reserve(m_spaces_map.size());
+  foreach_container( (const Handle<Entities const>& entities) (const Handle<Space const>& space), m_spaces_map)
   {
-    m_entities.clear();
-    m_spaces.clear();
-    m_entities.reserve(m_spaces_map.size());
-    m_spaces.reserve(m_spaces_map.size());
-
-    std::vector< Handle<Entities const> > to_remove_from_spaces_map;
-    to_remove_from_spaces_map.reserve(m_spaces_map.size());
-    foreach_container( (const Handle<Entities const>& entities) (const Handle<Space const>& space), m_spaces_map)
+    if ( is_null(entities) )
     {
-      if ( is_null(entities) )
-      {
-        to_remove_from_spaces_map.push_back(entities);
-      }
-      else
-      {
-        cf3_assert(space);
-        m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
-        m_spaces.push_back(const_cast<Space&>(*space).handle<Space>());
-      }
+      to_remove_from_spaces_map.push_back(entities);
     }
-    boost_foreach( const Handle<Entities const>& entities, to_remove_from_spaces_map)
+    else
     {
-      m_spaces_map.erase(entities);
+      cf3_assert(space);
+      tmp_entities_map[entities->uri().string()] = entities;
+//      m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
+//      m_spaces.push_back(const_cast<Space&>(*space).handle<Space>());
     }
-    m_new_spaces_added = false;
+  }
+  foreach_container ( (const std::string& uri)(const Handle<Entities const>& entities), tmp_entities_map)
+  {
+    m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
+    m_spaces.push_back(const_cast<Space&>(*m_spaces_map[entities]).handle<Space>());
+  }
 
-    if (has_tag(mesh::Tags::geometry()) == false)
-      rebuild_spaces_from_geometry();
+  boost_foreach( const Handle<Entities const>& entities, to_remove_from_spaces_map)
+  {
+    m_spaces_map.erase(entities);
   }
 
   m_fields.clear();
@@ -361,14 +353,6 @@ void Dictionary::update()
   {
     m_fields.push_back(field.handle<Field>());
   }
-
-  // Rebuild global to local mapping
-  rebuild_map_glb_to_loc();
-
-  // Rebuild node to space-element connectivity
-  rebuild_node_to_element_connectivity();
-
-  check_sanity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -402,9 +386,9 @@ Field& Dictionary::coordinates()
 {
   if (is_null(m_coordinates))
   {
-    if (Handle< Field > found = find_component_ptr_with_tag<Field>(*this,mesh::Tags::coordinates()))
+    if (Handle< Component > found = get_child(mesh::Tags::coordinates()))
     {
-      m_coordinates = found;
+      m_coordinates = found->handle<Field>();
     }
     else
     {
@@ -431,6 +415,7 @@ Field& Dictionary::create_coordinates()
     m_coordinates.reset();
 
   Field& coordinates = create_field("coordinates","coords[vector]");
+  CFdebug << "    - Interpolating coordinates from geometry" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
     Entities& entities = *entities_handle;
@@ -452,7 +437,7 @@ Field& Dictionary::create_coordinates()
     for (Uint e=0; e<entities.size(); ++e)
     {
       entities.geometry_space().put_coordinates(geom_nodes,e);
-      coords = interpolation*geom_nodes;
+      coords.noalias() = interpolation*geom_nodes;
 
       for (Uint i=0; i<sf.nb_nodes(); ++i)
       {

@@ -127,7 +127,6 @@ BOOST_AUTO_TEST_CASE( test_move_elements )
   meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
-  mesh.geometry_fields().update();
 
   // Create a MeshAdaptor object to manipulate the elements
   MeshAdaptor mesh_adaptor(mesh);
@@ -182,6 +181,7 @@ BOOST_AUTO_TEST_CASE( test_element_node_connectivity_rebuilding )
   meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
+  mesh.geometry_fields().rebuild_map_glb_to_loc();
 
   // Create a MeshAdaptor object to manipulate the elements
   MeshAdaptor mesh_adaptor(mesh);

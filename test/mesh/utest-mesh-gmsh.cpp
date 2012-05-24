@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("mesh_2d_mix_p1_out");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-mix-p1-out.msh",mesh);
+  meshreader->read_mesh_into("rectangle-mix-p1-out_P0.msh",mesh);
   // CFinfo.setFilterRankZero(true);
   BOOST_CHECK(true);
 

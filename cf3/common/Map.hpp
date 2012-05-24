@@ -443,7 +443,7 @@ void Map<KEY,DATA>::sort_keys()
     std::sort(begin(), end(), LessThan());
     m_sorted = true;
 
-    cf3_assert_desc ("multiple keys in the map are detected. Not allowed in this map" , 
+    cf3_assert_desc ("Duplicated keys detected in map "+uri().string(),
       std::unique (begin(), end(), unique_key ) - begin() == (int) size() );  
   }
 }

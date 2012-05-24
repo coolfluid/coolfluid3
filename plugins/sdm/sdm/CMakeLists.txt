@@ -3,6 +3,8 @@ list( APPEND coolfluid_sdm_files
   BC.cpp
   BCConstant.hpp
   BCConstant.cpp
+  BCExtrapolate.hpp
+  BCExtrapolate.cpp
   BCFunction.hpp
   BCFunction.cpp
   BCWeak.hpp
@@ -13,6 +15,8 @@ list( APPEND coolfluid_sdm_files
   ComputeUpdateCoefficient.cpp
   ConvectiveTerm.hpp
   ConvectiveTerm.cpp
+  DiffusiveTerm.hpp
+  DiffusiveTerm.cpp
   CreateSDFields.hpp
   CreateSDFields.cpp
   DomainDiscretization.cpp

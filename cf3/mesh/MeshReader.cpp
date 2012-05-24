@@ -57,6 +57,10 @@ MeshReader::MeshReader ( const std::string& name  ) :
       .mark_basic()
       .link_to(&m_file_path);
 
+  options().add_option("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum dimensionality)")
+      .pretty_name("Dimension");
+
   // signals
   regist_signal( "read" )
     .connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
@@ -80,10 +84,6 @@ void MeshReader::execute()
 
   // Call the concrete implementation
   do_read_mesh_into(m_file_path, *m_mesh);
-
-  // Raise an event to indicate that a mesh was loaded happened
-  m_mesh->raise_mesh_loaded();
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@ std::map<std::string,Handle< Elements > >
     boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
-      Cells& etype_cells = *parent_region.create_component<Cells>(element_type->shape_name());
+      Cells& etype_cells = *parent_region.create_component<Cells>("elements_"+etype);
       etype_cells.initialize(etype,nodes);
       cells_map[etype] = Handle<Elements>(etype_cells.handle<Component>());
     }
@@ -172,7 +172,7 @@ std::map<std::string,Handle< Elements > >
     boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
-      Faces& etype_faces = *parent_region.create_component<Faces>(element_type->shape_name());
+      Faces& etype_faces = *parent_region.create_component<Faces>("elements_"+etype);
       etype_faces.initialize(etype,nodes);
       faces_map[etype] = Handle<Elements>(etype_faces.handle<Component>());
     }

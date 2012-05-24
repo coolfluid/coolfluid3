@@ -13,6 +13,8 @@ list( APPEND coolfluid_solver_files
   ModelUnsteady.cpp
   EigenLSS.cpp
   EigenLSS.hpp
+  History.hpp
+  History.cpp
   SimpleSolver.hpp
   SimpleSolver.cpp
   Solver.hpp
@@ -43,8 +45,8 @@ elseif( CF3_HAVE_SUPERLU )
   list(APPEND coolfluid_solver_includedirs ${SUPERLU_INCLUDE_DIRS})
 endif()
 
-if( coolfluid_mesh_cgns3_builds )
-  list(APPEND coolfluid_solver_cflibs coolfluid_mesh_cgns3 )
+if( coolfluid_mesh_cgns_builds )
+  list(APPEND coolfluid_solver_cflibs coolfluid_mesh_cgns )
 endif()
 
 coolfluid_add_library( coolfluid_solver )

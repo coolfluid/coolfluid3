@@ -12,18 +12,13 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "common/Core.hpp"
-#include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
-
-#include "common/FindComponents.hpp"
-#include "common/Link.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "mesh/Dictionary.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/MeshGenerator.hpp"
 #include "mesh/StencilComputerRings.hpp"
 
@@ -72,23 +67,26 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
   mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().configure_option("bdry",false);
   Mesh& mesh = mesh_generator->generate();
+  Handle<Dictionary> dict = mesh.geometry_fields().handle<Dictionary>();
 
   Handle<StencilComputerRings> stencil_computer = Core::instance().root().create_component<StencilComputerRings>("stencilcomputer");
-  stencil_computer->options().configure_option("mesh", mesh.handle<Mesh>() );
+  stencil_computer->options().configure_option("dict", dict );
 
-  std::vector<Uint> stencil;
+  SpaceElem space_elem = SpaceElem(mesh.elements()[0]->space(*dict),7);
+  std::vector<SpaceElem> stencil;
 //  stencil_computer->options().configure_option("stencil_size", 10u );
   stencil_computer->options().configure_option("nb_rings", 1u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
   stencil_computer->options().configure_option("nb_rings", 2u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
   stencil_computer->options().configure_option("nb_rings", 3u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u);
 
 }

@@ -21,15 +21,15 @@ class Mesh_API ContinuousDictionary : public mesh::Dictionary {
 
 public: // functions
 
+  /// Get the class name
+  static std::string type_name () { return "ContinuousDictionary"; }
+
   /// Contructor
   /// @param name of the component
   ContinuousDictionary ( const std::string& name );
 
   /// Virtual destructor
   virtual ~ContinuousDictionary();
-
-  /// Get the class name
-  static std::string type_name () { return "ContinuousDictionary"; }
 
   virtual void rebuild_spaces_from_geometry();
 

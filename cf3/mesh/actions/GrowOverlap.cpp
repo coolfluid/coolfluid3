@@ -67,6 +67,9 @@ GrowOverlap::GrowOverlap( const std::string& name )
 
 void GrowOverlap::execute()
 {
+  // These 2 functions need to be called
+  m_mesh->geometry_fields().rebuild_map_glb_to_loc();
+  m_mesh->geometry_fields().rebuild_node_to_element_connectivity();
 
   MeshAdaptor mesh_adaptor(*m_mesh);
   mesh_adaptor.prepare();

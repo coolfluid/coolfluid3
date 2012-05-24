@@ -203,7 +203,6 @@ public:
 
   /// @name Shortcut functions
   //@{
-  /// return the elementType
   const ShapeFunction& shape_function() const;
   Uint glb_idx() const;
   Uint rank() const;
@@ -218,6 +217,7 @@ public:
   //@{
   bool operator==(const SpaceElem& other) const;
   bool operator!=(const SpaceElem& other) const;
+  bool operator<(const SpaceElem& other) const;
   //@}
 
   // Output of the form  cpath:/path/to/space[elem_idx]

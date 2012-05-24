@@ -16,7 +16,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/MeshGenerator.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 
 #include "common/DynTable.hpp"
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 {
 
-  boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
+  boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","2Dgenerator");
 
   meshgenerator->options().configure_option("mesh",URI("//rect"));
   meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(2,2));
@@ -122,6 +122,42 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"rect.msh");
+
+  BOOST_CHECK(true);
+
+  CFinfo << mesh.tree() << CFendl;
+
+  Dictionary& nodes = mesh.geometry_fields();
+  for (Uint n=0; n<nodes.size(); ++n)
+  {
+    if (nodes.is_ghost(n))
+    {
+      CFinfo << "node " << n << " is a ghost node" << CFendl;
+      ++nb_ghosts;
+    }
+  }
+  CFinfo << "ghost node count = " << nb_ghosts << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( generate_3d_mesh )
+{
+
+  boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","3Dgenerator");
+
+  meshgenerator->options().configure_option("mesh",URI("//box"));
+  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(3,6));
+  meshgenerator->options().configure_option("lengths",std::vector<Real>(3,2.));
+  Mesh& mesh = meshgenerator->generate();
+
+  CFinfo << "elements count = " << mesh.topology().recursive_elements_count(true) << CFendl;
+  CFinfo << "nodes count    = " << mesh.topology().recursive_nodes_count() << CFendl;
+
+  Uint nb_ghosts=0;
+
+  boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  gmsh_writer->write_from_to(mesh,"box.msh");
 
   BOOST_CHECK(true);
 

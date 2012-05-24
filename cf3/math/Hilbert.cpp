@@ -40,7 +40,7 @@ Hilbert::Hilbert(const math::BoundingBox& bounding_box, Uint levels) :
     m_box1.resize(2);
     break;
   }
-  m_nb_keys = (boost::uint64_t) std::ldexp(1,m_dim*m_max_level);
+  m_nb_keys = (boost::uint64_t) std::ldexp(1,m_dim*m_max_level);  // equivalent to:  1*2^(m_dim*m_max_level)
 }
 
 boost::uint64_t Hilbert::operator() (const RealVector& point)
@@ -101,6 +101,8 @@ boost::uint64_t Hilbert::operator() (const RealVector2& point)
   m_box2[D][YY] = m_box2[A][YY];
   m_box2[B][XX] = m_box2[A][XX];
   m_box2[B][YY] = m_box2[C][YY];
+  cf3_assert_desc("point lies outside bounding box", (point-m_box2[A]).squaredNorm() <= (m_box2[A]-m_box2[C]).squaredNorm() );
+  cf3_assert_desc("point lies outside bounding box", (point-m_box2[B]).squaredNorm() <= (m_box2[A]-m_box2[C]).squaredNorm() );
   recursive_algorithm_2d(point);
   return m_key;
 }
@@ -212,11 +214,6 @@ void Hilbert::recursive_algorithm_2d(const RealVector2& p)
   m_box2 = m_tmp_box2;
 
   m_key += (boost::uint64_t) std::ldexp((long double) 0.25*m_quadrant,2*(m_max_level-m_level));
-
-  cf3_assert( (p-m_box2[A]).norm() <= (m_box2[A]-m_box2[C]).norm() );
-  cf3_assert( (p-m_box2[B]).norm() <= (m_box2[A]-m_box2[C]).norm() );
-  cf3_assert( (p-m_box2[C]).norm() <= (m_box2[A]-m_box2[C]).norm() );
-  cf3_assert( (p-m_box2[D]).norm() <= (m_box2[A]-m_box2[C]).norm() );
 
   ++m_level;
   if (m_level < m_max_level)

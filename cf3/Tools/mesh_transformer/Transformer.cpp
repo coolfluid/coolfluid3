@@ -13,6 +13,7 @@
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 
@@ -21,6 +22,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/LoadMesh.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/mesh_transformer/Transformer.hpp"
@@ -92,7 +94,7 @@ void Transformer::help( const std::string& param )
   boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
     boost::shared_ptr< MeshTransformer > transformer = boost::dynamic_pointer_cast<MeshTransformer>(bdt.build("transformer"));
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->options().option("brief").value<std::string>();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->properties().value<std::string>("brief");
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
 
@@ -179,39 +181,46 @@ void Transformer::input( const std::vector<std::string>& params )
       extensions_to_readers[extension].push_back(reader);
   }
 
+  std::vector<URI> files;
   boost_foreach(const std::string& value, params)
   {
-    URI inputfile (value);
-    const std::string ext = inputfile.extension();
-    Handle< MeshReader > reader;
-    if (!extensions_to_readers.count(ext))
-    {
-      Uint selection = 0;
-      CFinfo << inputfile.path() << " has ambiguous extension " << ext << CFendl;
-      boost_foreach(const boost::shared_ptr< MeshReader > selectreader , readers)
-      CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
-      CFinfo << "Select the correct reader: " << CFflush;
-      std::cin >> selection;
-      reader = Handle<MeshReader>(readers[--selection]);
-    }
-    else
-    {
-      Uint selection = 0;
-      if (extensions_to_readers[ext].size()>1)
-      {
-        CFinfo << inputfile.path() << " with extension " << ext << " has multiple readers: " << CFendl;
-        boost_foreach(const boost::shared_ptr< MeshReader > selectreader , extensions_to_readers[ext])
-        CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
-        CFinfo << "Select the correct reader: " << CFflush;
-        std::cin >> selection;
-        --selection;
-      }
-      reader = Handle<MeshReader>(extensions_to_readers[ext][selection]);
-    }
-
-    CFinfo << "\nReading " << inputfile.path() << " with " << reader->get_format() << CFendl;
-    if (!dryrun) reader->read_mesh_into(inputfile,*mesh);
+    files.push_back(value);
   }
+
+  allocate_component<mesh::LoadMesh>("mesh_loader")->load_multiple_files(files,*mesh);
+//  boost_foreach(const std::string& value, params)
+//  {
+//    URI inputfile (value);
+//    const std::string ext = inputfile.extension();
+//    Handle< MeshReader > reader;
+//    if (!extensions_to_readers.count(ext))
+//    {
+//      Uint selection = 0;
+//      CFinfo << inputfile.path() << " has ambiguous extension " << ext << CFendl;
+//      boost_foreach(const boost::shared_ptr< MeshReader > selectreader , readers)
+//      CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
+//      CFinfo << "Select the correct reader: " << CFflush;
+//      std::cin >> selection;
+//      reader = Handle<MeshReader>(readers[--selection]);
+//    }
+//    else
+//    {
+//      Uint selection = 0;
+//      if (extensions_to_readers[ext].size()>1)
+//      {
+//        CFinfo << inputfile.path() << " with extension " << ext << " has multiple readers: " << CFendl;
+//        boost_foreach(const boost::shared_ptr< MeshReader > selectreader , extensions_to_readers[ext])
+//        CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
+//        CFinfo << "Select the correct reader: " << CFflush;
+//        std::cin >> selection;
+//        --selection;
+//      }
+//      reader = Handle<MeshReader>(extensions_to_readers[ext][selection]);
+//    }
+
+//    CFinfo << "\nReading " << inputfile.path() << " with " << reader->get_format() << CFendl;
+//    if (!dryrun) reader->read_mesh_into(inputfile,*mesh);
+//  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,7 +246,7 @@ void Transformer::output( const std::vector<std::string>& params )
 
   boost_foreach(const std::string& value, params)
   {
-    URI outputfile (value);
+    URI outputfile (value,URI::Scheme::FILE);
     const std::string ext = outputfile.extension();
 
     Handle< MeshWriter > writer;
@@ -269,8 +278,11 @@ void Transformer::output( const std::vector<std::string>& params )
     CFinfo << "\nWriting " << outputfile.path() << " with " << writer->get_format() << CFendl;
 
     std::vector<URI> fields;
-    boost_foreach ( Field& field, find_components<Field>(*mesh) )
-      fields.push_back(field.uri());
+    boost_foreach ( Field& field, find_components_recursively<Field>(*mesh) )
+    {
+      if (field.name() != "coordinates")
+        fields.push_back(field.uri());
+    }
     if (!dryrun) writer->options().configure_option("fields",fields);
     if (!dryrun) writer->options().configure_option("mesh",mesh);
     if (!dryrun) writer->options().configure_option("file",outputfile);
@@ -294,7 +306,7 @@ void Transformer::transform( const std::vector<std::string>& params )
   boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
     boost::shared_ptr< MeshTransformer > transformer = boost::dynamic_pointer_cast<MeshTransformer>(bdt.build("transformer"));
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->options().option("brief").value<std::string>();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->properties().value<std::string>("brief");
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
 

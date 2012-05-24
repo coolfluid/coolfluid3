@@ -51,7 +51,7 @@ struct ReconstructBase
   template <typename matrix_type, typename vector_type>
   void equal(const matrix_type& from, const vector_type& to) const
   {
-    cf3_assert(m_pts.size()>0);
+//    cf3_assert(used_points().size()>0);
     set_zero(to);
     add(from,to);
   }
@@ -78,7 +78,7 @@ struct ReconstructBase
   template <typename matrix_type, typename vector_type>
   void add(const matrix_type& from, const vector_type& to) const
   {
-    cf3_assert(m_pts.size()>0);
+//    cf3_assert(used_points().size()>0);
     boost_foreach(const Uint pt, m_pts)
       contribute_plus(from,to,pt);
   }
@@ -95,7 +95,7 @@ struct ReconstructBase
   template <typename matrix_type, typename vector_type>
   void subtract(const matrix_type& from, const vector_type& to) const
   {
-    cf3_assert(m_pts.size()>0);
+//    cf3_assert(used_points().size()>0);
     boost_foreach(const Uint pt, m_pts)
       contribute_minus(from,to,pt);
   }
@@ -210,8 +210,11 @@ struct DerivativeReconstructPoint : ReconstructBase
   {
     m_derivative = derivative;
     m_coord = coord;
-    m_N = sf->gradient(coord).col(derivative);
+    RealMatrix grad_sf(sf->dimensionality(),sf->nb_nodes());
+    sf->compute_gradient(coord,grad_sf);
+    m_N = grad_sf.row(derivative);
 
+//    std::cout << "grad_sf = \n" << sf->gradient(coord) << std::endl;
     // Save indexes of non-zero values to speed up reconstruction
     m_pts.clear();
     for (Uint pt=0; pt<m_N.size(); ++pt)
@@ -221,6 +224,7 @@ struct DerivativeReconstructPoint : ReconstructBase
         m_pts.push_back(pt);
       }
     }
+//    cf3_assert(used_points().size()>0);
   }
 
   Uint derivative() const
@@ -268,8 +272,8 @@ struct Reconstruct
   void operator()(const matrix_type_from& from, matrix_type_to& to) const
   {
     cf3_assert(m_reconstruct.size()==to.size());
-    for (Uint r=0; r<m_reconstruct.size(); ++r)
-      m_reconstruct[r](from,to[r]);
+    for (Uint pt=0; pt<m_reconstruct.size(); ++pt)
+      m_reconstruct[pt](from,to[pt]);
   }
 
   /// Reconstruct values from matrix with values in row-vectors to matrix with values in row-vectors
@@ -277,8 +281,8 @@ struct Reconstruct
   void operator()(const matrix_type_from& from, RealMatrix& to) const
   {
     cf3_assert(m_reconstruct.size()==to.rows());
-    for (Uint r=0; r<m_reconstruct.size(); ++r)
-      m_reconstruct[r](from,to.row(r));
+    for (Uint pt=0; pt<m_reconstruct.size(); ++pt)
+      m_reconstruct[pt](from,to.row(pt));
   }
 
 private:
@@ -288,6 +292,43 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/// @author Willem Deconinck
+struct GradientReconstruct : ReconstructBase
+{
+  /// Build the coefficients for the reconstruction for every point of to_sf
+  void build_coefficients(const Handle<mesh::ShapeFunction const>& from_sf,
+                          const Handle<mesh::ShapeFunction const>& to_sf)
+  {
+    m_from_sf=from_sf;
+    m_to_sf=to_sf;
+    m_derivativereconstruct.resize(from_sf->dimensionality());
+    for (Uint d=0; d<m_derivativereconstruct.size(); ++d)
+    {
+      m_derivativereconstruct[d].resize(to_sf->nb_nodes());
+      for (Uint pt=0; pt<to_sf->nb_nodes(); ++pt)
+      {
+        m_derivativereconstruct[d][pt].build_coefficients(d,to_sf->local_coordinates().row(pt),from_sf);
+      }
+    }
+  }
+
+  /// Access to individual reconstructor for one derivative
+  const std::vector<DerivativeReconstructPoint>& operator[](const Uint d) const
+  {
+    cf3_assert(d<m_derivativereconstruct.size());
+    return m_derivativereconstruct[d];
+  }
+
+private:
+  Handle<mesh::ShapeFunction const> m_from_sf;
+  Handle<mesh::ShapeFunction const> m_to_sf;
+  std::vector< std::vector<DerivativeReconstructPoint> > m_derivativereconstruct;
+  Uint m_dim;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 } // mesh
 } // cf3

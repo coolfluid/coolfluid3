@@ -39,7 +39,7 @@ public:
     options().add_option("time",m_time)
       .description("Time component")
       .link_to(&m_time);
-    
+
     m_omega = 2.*math::Consts::pi()/30.;
     options().add_option("omega",m_omega)
         .description("Angular frequency")
@@ -47,8 +47,8 @@ public:
 
     m_source_loc << 0.,0.;
     std::vector<Real> source_loc_opt(NDIM);
-    source_loc_opt[0]=0.;
-    source_loc_opt[1]=0.;
+    source_loc_opt[XX]=0.;
+    source_loc_opt[YY]=0.;
     options().add_option("source_location",source_loc_opt)
         .description("Source location")
         .attach_trigger( boost::bind( &SourceMonopole2D::config_source_loc, this) );
@@ -79,7 +79,7 @@ public:
   {
     if (is_null(m_time))
       throw common::SetupError(FromHere(),"Option \"time\" was not set and is required");
-      
+
     SourceTerm<PhysData>::set_entities(entities);
   }
 
@@ -94,19 +94,19 @@ public:
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
+
 private:
-  
+
   /// spatial part of the source term
   Real f(const RealVectorNDIM& coord)
   {
-    return m_eps * exp( -m_alpha*( 
-      (coord[XX]-m_source_loc[XX])*(coord[XX]-m_source_loc[XX]) + 
+    return m_eps * exp( -m_alpha*(
+      (coord[XX]-m_source_loc[XX])*(coord[XX]-m_source_loc[XX]) +
       (coord[YY]-m_source_loc[YY])*(coord[YY]-m_source_loc[YY])  ) );
   }
-  
+
   Real m_source;                      ///< dummy variable
-  
+
   Handle<solver::Time const> m_time;  ///< Component to store time
   Real m_alpha;                       ///< Width of monopole
   Real m_eps;                         ///< Amplitude of monopole

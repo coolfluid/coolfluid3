@@ -38,13 +38,6 @@ namespace gmsh {
 /// @author Martin Vymazal
 class gmsh_API Reader : public MeshReader, public Shared
 {
-public: // typedefs
-
-  
-  
-
-private: // typedefs
-
 public: // functions
   /// constructor
   Reader( const std::string& name );
@@ -64,11 +57,11 @@ private: // functions
 
   void find_used_nodes();
 
-//  void find_ghost_nodes();
-
   void read_coordinates();
 
   void read_connectivity();
+
+  void read_element_node_data();
 
   void read_element_data();
 
@@ -82,7 +75,7 @@ private: // data
   Handle<MergedParallelDistribution> m_hash;
 
   // map< gmsh index , pair< elements, index in elements > >
-  std::map<Uint, boost::tuple<Handle<Elements>,Uint> > m_elem_idx_gmsh_to_cf;
+  std::map<Uint, std::pair<Handle<Elements>,Uint> > m_elem_idx_gmsh_to_cf;
   std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
 
   boost::filesystem::fstream m_file;
@@ -135,13 +128,37 @@ private: // data
     std::vector<Uint> var_types;
     Uint nb_entries;
     std::vector<Uint> file_data_positions;
+    std::string description() const
+    {
+      std::stringstream ss;
+      for (Uint var=0; var<var_names.size(); ++var)
+      {
+        ss << var_names[var] << "["<<var_type_gmsh_to_cf(var_types[var])<<"]";
+        if (var<var_names.size()-1)
+          ss << ",";
+      }
+      return ss.str();
+    }
+    std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh) const
+    {
+      switch (var_type_gmsh)
+      {
+        case 1:
+          return "scalar";
+        case 3:
+          return "vector";
+        case 9:
+          return "tensor";
+        default:
+          throw common::FileFormatError(FromHere(),"Gmsh variable type should be either 1(scalar), 3(vector), 9(tensor).");
+      }
+      return "null";
+    }
   };
 
   void fix_negative_volumes(Mesh& mesh);
 
   void read_variable_header(std::map<std::string,Field>& fields);
-
-  std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh);
 
   Uint IO_rank;
 }; // end Reader

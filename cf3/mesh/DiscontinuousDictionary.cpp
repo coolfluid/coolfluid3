@@ -73,15 +73,18 @@ void DiscontinuousDictionary::rebuild_spaces_from_geometry()
     Connectivity& space_connectivity = const_cast<Connectivity&>(entities_space.connectivity());
     space_connectivity.resize(entities->size());
     RealMatrix elem_coords(entities->geometry_space().shape_function().nb_nodes(),entities->element_type().dimension());
-    RealVector centroid(entities->element_type().dimension());
+    RealVector node_coord(entities->element_type().dimension());
 
     Uint nb_nodes_per_elem = entities_space.shape_function().nb_nodes();
     const Uint nb_elems = entities->size();
     for (Uint elem=0; elem<nb_elems; ++elem)
     {
       entities->geometry_space().put_coordinates(elem_coords,elem);
-      entities->element_type().compute_centroid(elem_coords,centroid);
-      bounding_box.extend(centroid);
+      for (Uint node=0; node<elem_coords.rows(); ++node)
+      {
+        node_coord = elem_coords.row(node);
+        bounding_box.extend(node_coord);
+      }
 
       for (Uint node=0; node<nb_nodes_per_elem; ++node)
         space_connectivity[elem][node] = field_idx++;

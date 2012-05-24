@@ -73,18 +73,21 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
   // ------------------------------
 
   // (a) Create bounding box of all coordinates, to define a space
+  //     This bounding box is not the one from the mesh, as it doesn't have
+  //     to cover the mesh, or can exist in more than one mesh.
   math::BoundingBox bounding_box;
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
     Entities& entities = *entities_handle;
     const ShapeFunction& shape_function = space(entities).shape_function();
+    RealVector node_coord(entities.element_type().dimension());
     for (Uint elem=0; elem<entities.size(); ++elem)
     {
       elem_coordinates = entities.geometry_space().get_coordinates(elem);
-      for (Uint node=0; node<shape_function.nb_nodes(); ++node)
+      for (Uint node=0; node<elem_coordinates.rows(); ++node)
       {
-        RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
-        bounding_box.extend(space_coordinates);
+        node_coord = elem_coordinates.row(node);
+        bounding_box.extend(node_coord);
       }
     }
   }
@@ -109,7 +112,7 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
   }
 
   // (c) Create the coordinates field
-  Field& coordinates = create_field("coordinates","coords[vector]");
+  Field& coordinates = create_field(mesh::Tags::coordinates(),"coords[vector]");
 
   // step 3: resize
   // --------------
@@ -227,7 +230,7 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
   // step 5: fix unknown glb_idx
   // ---------------------------
   Uint nb_owned = 0;
-  std::deque<Uint> ghosts;
+  std::vector<Uint> ghosts; ghosts.reserve(size());
   for (Uint i=0; i<size(); ++i)
   {
     if (is_ghost(i))

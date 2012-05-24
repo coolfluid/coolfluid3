@@ -137,7 +137,7 @@ void ChannelGenerator::execute()
   }
 
   blocks.partition_blocks(nb_parts, XX);
-  blocks.create_mesh(mesh);
+  blocks.create_mesh(mesh); //--> raises mesh_loaded event inside
 }
 
 } // BlockMesh

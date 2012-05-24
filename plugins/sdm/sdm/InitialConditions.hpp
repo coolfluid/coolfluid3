@@ -41,7 +41,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  solver::Action& create_initial_condition( const std::string& name, const std::vector<common::URI>& regions = std::vector<common::URI>() );
+  solver::Action& create_initial_condition( const std::string& name, const std::string& type = "cf3.sdm.Init", const std::vector<common::URI>& regions = std::vector<common::URI>() );
 
   /// @name SIGNALS
   //@{

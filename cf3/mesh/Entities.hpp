@@ -141,13 +141,21 @@ private:
 class Mesh_API Entity
 {
 public:
-  Entity() : comp(NULL), idx(0) {}
+  Entity() : comp(nullptr), idx(0) {}
   Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
 
   Entity(Entities& entities, const Uint index=0) :
     comp( &entities ),
     idx(index)
   {
+    cf3_assert(idx<comp->size());
+  }
+
+  Entity(const Handle<Entities>& entities, const Uint index=0) :
+    comp( entities.get() ),
+    idx(index)
+  {
+    cf3_assert( is_not_null(comp) );
     cf3_assert(idx<comp->size());
   }
 
@@ -167,13 +175,15 @@ public:
   void allocate_coordinates(RealMatrix& coordinates) const;
   common::TableConstRow<Uint>::type get_nodes() const;
 
+//  Entity& operator++()
+//    {  cf3_assert(idx<comp->size()); idx++; return *this; }
+//  Entity& operator--()
+//    {  cf3_assert(idx>=0u); idx--; return *this; }
 
-  Entity& operator++()
-    {  cf3_assert(idx<comp->size()); idx++; return *this; }
-  Entity& operator--()
-    {  cf3_assert(idx>=0u); idx--; return *this; }
   bool operator==(const Entity& other) const { return comp==other.comp && idx==other.idx; }
   bool operator!=(const Entity& other) const { return !(*this==other);  }
+  bool operator<(const Entity& other) const { return glb_idx()<other.glb_idx(); }
+
 
   friend std::ostream& operator<<(std::ostream& os, const Entity& entity);
 

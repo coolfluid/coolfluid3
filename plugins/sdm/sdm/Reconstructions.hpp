@@ -38,6 +38,7 @@ struct ReconstructFromFluxPoint : mesh::ReconstructBase
         m_pts.push_back(pt);
       }
     }
+    cf3_assert(used_points().size()>0);
   }
 
   Uint direction() const
@@ -71,6 +72,7 @@ struct DerivativeReconstructFromFluxPoint : mesh::ReconstructBase
         m_pts.push_back(pt);
       }
     }
+//    cf3_assert(used_points().size()>0);
   }
 
   Uint derivative() const
@@ -155,7 +157,9 @@ struct GradientReconstructToFluxPoints
     {
       m_derivative_reconstruct_to_flx_pt[pt].resize(to_sf->dimensionality());
       for (Uint d=0; d<to_sf->dimensionality(); ++d)
+      {
         m_derivative_reconstruct_to_flx_pt[pt][d].build_coefficients(d,to_sf->flx_pts().row(pt),from_sf);
+      }
     }
   }
 

@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   vector_test(result,ETYPE::MappedCoordsT(-1.0, -1.0),accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 200000);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 300000);
 
 
 }
