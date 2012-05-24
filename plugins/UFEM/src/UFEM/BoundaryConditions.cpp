@@ -99,6 +99,31 @@ struct BoundaryConditions::Implementation
         .description("Variable name for this BC");
   }
 
+  void create_bc_action_signature(SignalArgs& node)
+  {
+    SignalOptions options( node );
+
+    options.add_option("region_name", std::string())
+        .description("Default region name for this BC");
+
+    options.add_option("builder_name", std::string())
+        .description("Name of the builder to create the BC component");
+  }
+  
+  void add_bc_component_signature(SignalArgs& node)
+  {
+    SignalOptions options( node );
+
+    options.add_option("region_name", std::string())
+        .description("Default region name for this BC");
+
+    options.add_option("variable_name", std::string())
+        .description("Variable name for this BC");
+
+    options.add_option("component", 0u)
+        .description("Component of the vector for which the BC is applied");
+  }
+
   // Checked access to the physical model
   physics::PhysModel& physical_model()
   {
@@ -136,12 +161,12 @@ struct BoundaryConditions::Implementation
       CFdebug << "Region name " << region_name << " resolved to:\n";
       boost_foreach(const URI& uri, bc_regions)
       {
-        CFdebug << "  " << uri.string() << CFendl;
+        CFdebug << " " << uri.string() << CFendl;
       }
     }
 
     bc_action.options().configure_option(solver::Tags::regions(), bc_regions);
-    bc_action.options().configure_option(solver::Tags::physical_model(), m_physical_model);
+    bc_action.configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
   }
 
   ActionDirector& m_component;
@@ -160,12 +185,24 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
     .description("Create a constant Dirichlet BC")
     .pretty_name("Add Constant BC")
     .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
-    
+
+  regist_signal( "add_constant_component_bc" )
+    .connect( boost::bind( &BoundaryConditions::signal_create_constant_component_bc, this, _1 ) )
+    .description("Create a constant Dirichlet BC for one component of a vector")
+    .pretty_name("Add Constant Component BC")
+    .signature( boost::bind(&Implementation::add_bc_component_signature, m_implementation.get(), _1) );
+
   regist_signal( "add_function_bc" )
     .connect( boost::bind( &BoundaryConditions::signal_create_function_bc, this, _1 ) )
     .description("Create a Dirichlet BC that can be set using an analytical function")
     .pretty_name("Add Function BC")
     .signature( boost::bind(&Implementation::add_bc_signature, m_implementation.get(), _1) );
+    
+  regist_signal( "create_bc_action" )
+    .connect( boost::bind( &BoundaryConditions::signal_create_bc_action, this, _1 ) )
+    .description("Create a boundary condition using the supplied builder name")
+    .pretty_name("Create BC Action")
+    .signature( boost::bind(&Implementation::create_bc_action_signature, m_implementation.get(), _1) );
 
   set_solution_tag(UFEM::Tags::solution());
 }
@@ -183,7 +220,7 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
     m_implementation->create_constant_vector_bc(region_name, variable_name);
 
 
-  *this << result; // Append action
+  add_component(result); // Append action
 
   m_implementation->configure_bc(*result, region_name);
 
@@ -192,10 +229,25 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
 
 Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
-  Handle<common::Action> result =  add_constant_bc(region_name, variable_name);
+  Handle<common::Action> result = add_constant_bc(region_name, variable_name);
   result->options().configure_option("value", default_value);
   return result;
 }
+
+Handle< common::Action > BoundaryConditions::add_constant_component_bc(const std::string& region_name, const std::string& variable_name, const Uint component_idx, const Real default_value)
+{
+  MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
+  ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
+
+  boost::shared_ptr< common::Action > result = create_proto_action("BC"+region_name+variable_name,
+                                                nodes_expression(m_implementation->dirichlet(var[component_idx]) = value));
+
+  add_component(result);
+  m_implementation->configure_bc(*result, region_name);
+
+  return Handle<common::Action>(result);
+}
+
 
 Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& region_name, const std::string& variable_name)
 {
@@ -208,6 +260,15 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
 
   return result;
 }
+
+Handle< common::Action > BoundaryConditions::create_bc_action(const std::string& region_name, const std::string& builder_name)
+{
+  Handle<common::Action> result(create_component(builder_name+region_name, builder_name));
+  m_implementation->configure_bc(*result, region_name);
+  result->options().configure_option("lss", options().option("lss").value());
+  return result;
+}
+
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 {
@@ -226,6 +287,28 @@ void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
   SignalOptions reply_options(reply);
   reply_options.add_option("created_component", add_function_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
 }
+
+void BoundaryConditions::signal_create_constant_component_bc(SignalArgs& node)
+{
+  SignalOptions options( node );
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", add_constant_component_bc(options.value<std::string>("region_name"),
+                                                                          options.value<std::string>("variable_name"),
+                                                                          options.value<Uint>("component"))->uri());
+}
+
+void BoundaryConditions::signal_create_bc_action(SignalArgs& node)
+{
+  SignalOptions options( node );
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add_option("created_component", create_bc_action(options.value<std::string>("region_name"),
+                                                                          options.value<std::string>("builder_name"))->uri());
+}
+
 
 void BoundaryConditions::set_solution_tag(const std::string& solution_tag)
 {

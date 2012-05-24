@@ -51,32 +51,6 @@ public:
   virtual ~OptionComponent() {}
 
   virtual std::string type() const { return class_name<value_type>(); }
-  
-  virtual void change_value(const boost::any& value)
-  {
-    // Allowed types to be held by the any
-    typedef typename boost::mpl::if_
-    <
-      boost::is_const<T>,
-      // const and non-const may be assigned to a const handle
-      boost::mpl::vector4< Handle<Component>, Handle<Component const>, Handle<typename boost::remove_const<T>::type>, Handle<T> >,
-      // only non-const may be assigned to a non-const handle
-      boost::mpl::vector2< Handle<Component>, Handle<T> > 
-    >::type AllowedTypes;
-    
-    bool success = false;
-    boost::mpl::for_each<AllowedTypes>(ValueExtractor(name(), value, m_value, success));
-    
-    if(!success)
-    {
-      throw CastingFailed(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
-    }
-      
-    copy_to_linked_params(m_linked_params);
-
-    // call all trigger functors
-    trigger();
-  }
 
   /// @returns the xml tag for this option
   virtual const char * tag() const { return Protocol::Tags::type<URI>(); }
@@ -84,14 +58,51 @@ public:
   /// @returns the value as a std::string
   virtual std::string value_str () const
   {
-    value_type comp = this->template value<value_type>();
+    value_type comp = Option::template value<value_type>();
     if(is_null(comp))
       return URI().string();
 
     return comp->uri().string();
   }
 
+  /// The returned value contains a Component handle, useful for dynamic use in i.e. Python
+  virtual boost::any value() const
+  {
+    // Determine if we should use a handle-to-const or not
+    typedef typename boost::mpl::if_< boost::is_const<T>, Handle<Component const>, Handle<Component> >::type BaseT;
+
+    return BaseT(Option::template value<value_type>());
+  }
+
+  /// Redirect form the base class due to conflict with the non-template
+  template<typename OutputT>
+  OutputT value() const
+  {
+    return Option::template value<OutputT>();
+  }
+
 private:
+
+  virtual void change_value_impl(const boost::any& value)
+  {
+    // Allowed types to be held by the any
+    typedef typename boost::mpl::if_
+    <
+    boost::is_const<T>,
+    // const and non-const may be assigned to a const handle
+    boost::mpl::vector4< Handle<Component>, Handle<Component const>, Handle<typename boost::remove_const<T>::type>, Handle<T> >,
+    // only non-const may be assigned to a non-const handle
+    boost::mpl::vector2< Handle<Component>, Handle<T> >
+    >::type AllowedTypes;
+
+    bool success = false;
+    boost::mpl::for_each<AllowedTypes>(ValueExtractor(name(), value, m_value, success));
+
+    if(!success)
+    {
+      throw CastingFailed(FromHere(), "Bad value of type " + demangle(value.type().name()) + " passed where handle of type " + T::type_name() + " was expected for option " + name());
+    }
+  }
 
   /// updates the option value using the xml configuration
   /// @param node XML node with data for this option
@@ -117,14 +128,14 @@ private:
     if(linked_params.empty())
       return;
 
-    value_type val = this->template value<value_type>();
+    value_type val = Option::template value<value_type>();
     BOOST_FOREACH ( boost::any& v, linked_params )
     {
       value_type* cv = boost::any_cast<value_type*>(v);
       *cv = val;
     }
   }
-  
+
   /// MPL functor to extract a value from an any
   struct ValueExtractor
   {
@@ -135,14 +146,14 @@ private:
       success(b)
     {
     }
-    
+
     template<typename HandleT>
     void operator()(const HandleT)
     {
       // Value was found, we're done
       if(success)
         return;
-      
+
       const HandleT* any_handle = boost::any_cast< HandleT >(&input_value); // test any cast
       if(is_not_null(any_handle)) // if we have a successful any-cast
       {
@@ -158,8 +169,8 @@ private:
         }
       }
     }
-    
-    
+
+
     const std::string option_name;
     const boost::any& input_value;
     boost::any& output_value;

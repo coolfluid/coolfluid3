@@ -15,6 +15,8 @@ hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
 # load the mesh (passed as first argument to the script)
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
+hc.options().set('regions', [mesh.access_component('topology').uri()])
+
 # lss setup
 lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 lss.get_child('Matrix').options().set('settings_file', sys.argv[2]);
@@ -29,7 +31,7 @@ model.simulate()
 
 # check the result
 coords = mesh.access_component('geometry/coordinates')
-temperature = mesh.access_component('geometry/solution')
+temperature = mesh.access_component('geometry/heat_conduction_solution')
 length = 0.
 for i in range(len(coords)):
   x = coords[i][0]

@@ -41,7 +41,7 @@ PrintIterationSummary::PrintIterationSummary ( const std::string& name ) : Actio
 
   // options
 
-  options().add_option("check_convergence", true)
+  options().add_option("check_convergence", false)
       .description("checks if the norm contains a non-real number ( either a nan or infinity )");
 
   options().add_option("print_rate", 1u)

@@ -19,7 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Matrix.hpp"
 
-#include "ComponentWrapper.hpp"
+#include "LSSWrapper.hpp"
 #include "Terminals.hpp"
 
 /// @file
@@ -36,7 +36,7 @@ struct SystemMatrixTag
 };
 
 /// Represents a system matrix
-typedef ComponentWrapper<math::LSS::System, SystemMatrixTag> SystemMatrix;
+typedef LSSWrapper<SystemMatrixTag> SystemMatrix;
 
 /// Tag for RHS
 struct SystemRHSTag
@@ -44,12 +44,12 @@ struct SystemRHSTag
 };
 
 /// Represents an RHS
-typedef ComponentWrapper<math::LSS::System, SystemRHSTag> SystemRHS;
+typedef LSSWrapper<SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, TagT> >
+  boost::proto::terminal< LSSWrapperImpl<TagT> >
 {
 };
 
@@ -106,13 +106,14 @@ struct BlockAssignmentOp;
 template<typename OpTagT>
 struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
 {
-  template<typename RhsT, typename DataT>
-  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  template<typename LSST, typename RhsT, typename DataT>
+  void operator()(LSST& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+    lss.convert_to_lss(block_accumulator.indices);
 
     for(Uint row = 0; row != mat_size; ++row)
     {
@@ -124,15 +125,15 @@ struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
         block_accumulator.mat(block_row, block_col) = rhs(row, col);
       }
     }
-    do_assign_op_matrix(OpTagT(), *lss.matrix(), block_accumulator);
+    do_assign_op_matrix(OpTagT(), lss.matrix(), block_accumulator);
   }
 };
 
 template<typename OpTagT>
 struct BlockAssignmentOp<SystemRHSTag, OpTagT>
 {
-  template<typename RhsT, typename DataT>
-  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  template<typename LSST, typename RhsT, typename DataT>
+  void operator()(LSST& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
@@ -145,7 +146,7 @@ struct BlockAssignmentOp<SystemRHSTag, OpTagT>
       block_accumulator.rhs[block_idx] = rhs[i];
     }
 
-    do_assign_op_rhs(OpTagT(), *lss.rhs(), block_accumulator);
+    do_assign_op_rhs(OpTagT(), lss.rhs(), block_accumulator);
   }
 };
 
@@ -177,7 +178,57 @@ struct BlockAccumulator :
               , typename impl::data_param data // data associated with element loop
     ) const
     {
-      BlockAssignmentOp<SystemTagT, OpT>()(boost::proto::value( boost::proto::left(expr) ).component(), state, data);
+      BlockAssignmentOp<SystemTagT, OpT>()(boost::proto::value( boost::proto::left(expr) ), state, data);
+    }
+  };
+};
+
+struct RHSAccumulator :
+boost::proto::transform< RHSAccumulator >
+{
+  template<typename ExprT, typename State, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, State, DataT>
+  {
+    /// Contrary to general C++ assignment, assigning to a LSS doesn't return anything
+    typedef void result_type;
+
+    template<typename LSST, typename RhsT>
+    void assign_single_variable(LSST& lss_term, const RhsT& rhs, typename impl::data_param data, const Uint var_offset) const
+    {
+      math::LSS::System& lss = lss_term.lss();
+      // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
+      static const Uint mat_size = boost::remove_reference<DataT>::type::EMatrixSizeT::value;
+      typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
+      static const Uint nb_dofs = mat_size / SupportT::EtypeT::nb_nodes;
+      math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+      lss_term.convert_to_lss(block_accumulator.indices);
+      
+      for(Uint i = 0; i != var_offset; ++i)
+      {
+        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        block_accumulator.rhs[block_idx] = 0.;
+      }
+      const Uint var_end = var_offset + rhs.size();
+      for(Uint i = var_offset; i != var_end; ++i)
+      {
+        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        block_accumulator.rhs[block_idx] = rhs[i];
+      }
+      for(Uint i = var_end; i != mat_size; ++i)
+      {
+        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        block_accumulator.rhs[block_idx] = 0.;
+      }
+      do_assign_op_rhs(boost::proto::tag::plus_assign(), *lss.rhs(), block_accumulator);
+    }
+
+    result_type operator ()(
+      typename impl::expr_param expr // The assignment expression
+      , typename impl::state_param state // should be the element matrix, i.e. RHS already evaluated
+      , typename impl::data_param data // data associated with element loop
+    ) const
+    {
+      assign_single_variable(boost::proto::value( boost::proto::left( boost::proto::left(expr) ) ), state, data, data.var_data(boost::proto::value(boost::proto::right(boost::proto::left(expr)))).offset);
     }
   };
 };
@@ -185,10 +236,18 @@ struct BlockAccumulator :
 /// Grammar matching block accumulation expressions
 template<typename GrammarT>
 struct BlockAccumulation :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::or_< boost::proto::switch_< MatrixAssignOpsCases<SystemMatrixTag> >, boost::proto::switch_< MatrixAssignOpsCases<SystemRHSTag> > >,
-    BlockAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
+    boost::proto::when
+    <
+      boost::proto::or_< boost::proto::switch_< MatrixAssignOpsCases<SystemMatrixTag> >, boost::proto::switch_< MatrixAssignOpsCases<SystemRHSTag> > >,
+      BlockAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::plus_assign< boost::proto::function< BlockLhsGrammar<SystemRHSTag>, FieldTypes >, boost::proto::_ >,
+      RHSAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
+    >
   >
 {
 };

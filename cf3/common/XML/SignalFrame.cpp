@@ -8,6 +8,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -24,10 +25,10 @@
 
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
-Common_TEMPLATE template XmlNode SignalFrame::set_option<T>(const std::string&, const T&, const std::string&);\
-Common_TEMPLATE template XmlNode SignalFrame::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
-Common_TEMPLATE template T SignalFrame::get_option<T>(const std::string&) const;\
-Common_TEMPLATE template std::vector<T> SignalFrame::get_array<T>(const std::string&) const;
+  Common_TEMPLATE template XmlNode SignalFrame::set_option<T>(const std::string&, const T&, const std::string&);\
+  Common_TEMPLATE template XmlNode SignalFrame::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
+  Common_TEMPLATE template T SignalFrame::get_option<T>(const std::string&) const;\
+  Common_TEMPLATE template std::vector<T> SignalFrame::get_array<T>(const std::string&) const;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,7 @@ namespace XML {
 ////////////////////////////////////////////////////////////////////////////
 
 SignalFrame::SignalFrame ( XmlNode xml ) :
-    node(xml)
+  node(xml)
 {
 
   if( node.is_valid() )
@@ -126,12 +127,12 @@ SignalFrame::SignalFrame ( boost::shared_ptr<XmlDoc> doc )
   else
     throw XmlError( FromHere(), "Could not find a frame." );
 
-//  map_node = node.content->first_node( Protocol::Tags::node_map() );
+  //  map_node = node.content->first_node( Protocol::Tags::node_map() );
 
-//  if( is_not_null(map_node) )
-//    main_map.content.content = map_node;
-//  else
-//    main_map = node.add_node( Protocol::Tags::node_map() );
+  //  if( is_not_null(map_node) )
+  //    main_map.content.content = map_node;
+  //  else
+  //    main_map = node.add_node( Protocol::Tags::node_map() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -236,7 +237,7 @@ SignalFrame & SignalFrame::map ( const std::string & name )
     XmlNode node = main_map.content.add_node( Protocol::Tags::node_value() );
     node.set_attribute( Protocol::Tags::attr_key(), name );
     m_maps[name] = SignalFrame(node); // SignalFrame() adds a map under the node
- }
+  }
 
   return m_maps[name];
 }
@@ -353,28 +354,28 @@ void SignalFrame::insert( std::vector<std::string>& input )
         {
           std::vector<bool> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<bool>(str_val));
+              vec.push_back(from_str<bool>(str_val));
           set_array(name, vec, " ; ");
         }
         else if (subtype == "unsigned")
         {
           std::vector<Uint> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<Uint>(str_val));
+              vec.push_back(from_str<Uint>(str_val));
           set_array(name, vec, " ; ");
         }
         else if (subtype == "integer")
         {
           std::vector<int> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<int>(str_val));
+              vec.push_back(from_str<int>(str_val));
           set_array(name, vec, " ; ");
         }
         else if (subtype == "real")
         {
           std::vector<Real> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<Real>(str_val));
+              vec.push_back(from_str<Real>(str_val));
           set_array(name, vec, " ; ");
         }
         else if (subtype == "string")
@@ -385,23 +386,23 @@ void SignalFrame::insert( std::vector<std::string>& input )
         {
           std::vector<URI> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<URI>(str_val));
+              vec.push_back(from_str<URI>(str_val));
           set_array(name, vec, " ; ");
         }
       }
       else
         throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] is invalid.\n"+
-          "Format should be:\n"
-          " -  for simple types:  variable_name:type=value\n"
-          " -  for array types:   variable_name:array[type]=value1,value2\n"
-          "  with possible type: [bool,unsigned,integer,real,string,uri]");
+                            "Format should be:\n"
+                            " -  for simple types:  variable_name:type=value\n"
+                            " -  for array types:   variable_name:array[type]=value1,value2\n"
+                            "  with possible type: [bool,unsigned,integer,real,string,uri]");
     }
     else
       throw ParsingFailed(FromHere(), "Could not parse [" + arg + "].\n"+
-         "Format should be:\n"
-         " -  for simple types:  variable_name:type=value\n"
-         " -  for array types:   variable_name:array[type]=value1,value2\n"
-         "  with possible type: [bool,unsigned,integer,real,string,uri]");
+                          "Format should be:\n"
+                          " -  for simple types:  variable_name:type=value\n"
+                          " -  for array types:   variable_name:array[type]=value1,value2\n"
+                          "  with possible type: [bool,unsigned,integer,real,string,uri]");
   }
 }
 
@@ -491,6 +492,182 @@ std::string SignalFrame::to_script( int indentation ) const
   }
 
 
+  return str;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+std::string SignalFrame::to_python_script( int indentation ) const //add uri parameter with the sender cpath
+{
+  std::string str="Root";
+  std::string target = node.attribute_value("target");
+  std::string receiver = node.attribute_value("receiver");
+  if (receiver.length() > 7)
+    receiver=receiver.substr(7);//without the 'cpath:/'
+  else
+    return "";
+  boost::char_separator<char> sep("/");
+  boost::tokenizer< boost::char_separator<char> > tokens(receiver, sep);
+  BOOST_FOREACH(std::string t, tokens){
+    if (t.length()){
+      if (t=="Core"){//special case
+        return "";
+      }else if (t=="ScriptEngine"){//we don't want to record them
+        return "";
+      }else{
+        str+=".get_child('"+t+"')";
+      }
+    }
+  }
+  if (target=="configure"){
+    str+=".options().configure_option(";
+    std::string str_start=str;
+    str="";
+    SignalFrame frame( *this );
+    SignalOptions opts( frame );
+
+    OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+
+    for (; it != opts.store.end() ; it++ ){
+      boost::shared_ptr<Option const> option = it->second;
+      str+=str_start;
+      std::string opt = "'"+option->name()+"',";
+      std::string tag = option->tag();
+      if(tag == Protocol::Tags::node_array()){
+        opt += '[';
+        std::string array_tag=option->element_type();
+        if (array_tag == "string"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+= "'"+t+"',";
+          }
+          opt.resize(opt.size()-1);//to remove the laste ,
+        }else if(tag == "bool"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+=std::string(t=="true"?"True":"False")+",";
+          }
+          opt.resize(opt.size()-1);
+        }else{
+          opt+=option->value_str();
+        }
+        opt += ']';
+      }else if(tag == "string"){
+        opt += "'" + option->value_str() + "'";
+      }else if(tag == "bool"){
+        opt += boost::any_cast<bool>(option->value())?"True":"False";
+      }else{
+        opt += option->value_str();
+      }
+      str+=opt+")\n";
+    }
+  }else if (target=="signal_signature"){
+    SignalFrame frame( *this );
+    SignalOptions opts( frame );
+
+    OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+    for (; it != opts.store.end() ; it++ )
+    {
+      boost::shared_ptr<Option const> option = it->second;
+      if (option->name() == "name"){
+        str+="."+option->value_str()+"(";
+      }
+    }
+    it = opts.store.begin();
+    for (; it != opts.store.end() ; it++ )
+    {
+      boost::shared_ptr<Option const> option = it->second;
+
+      std::string opt = option->name();
+      if (opt != "name"){
+        std::string tag = option->tag();
+        if(tag == Protocol::Tags::node_array()){
+          opt += '[';
+          std::string array_tag=option->element_type();
+          if (array_tag == "string"){
+            boost::char_separator<char> sep(",");
+            boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+            BOOST_FOREACH(std::string t, tokens){
+              opt+= "'"+t+"',";
+            }
+            opt.resize(opt.size()-1);//to remove the laste ,
+          }else if(tag == "bool"){
+            boost::char_separator<char> sep(",");
+            boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+            BOOST_FOREACH(std::string t, tokens){
+              opt+=std::string(t=="true"?"True":"False")+",";
+            }
+            opt.resize(opt.size()-1);
+          }else{
+            opt+=option->value_str();
+          }
+          opt += ']';
+        }else if(tag == "string"){
+          opt += "'" + option->value_str() + "'";
+        }else if(tag == "bool"){
+          opt += boost::any_cast<bool>(option->value())?"True":"False";
+        }else{
+          opt += option->value_str();
+        }
+
+        if( it == opts.store.begin() )
+          str += opt;
+        else
+          str += ',' + opt;
+      }
+    }
+    str+=")\n";
+  }else{
+    str+="."+target+"(";
+    SignalFrame frame( *this );
+    SignalOptions opts( frame );
+
+    OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+    for (; it != opts.store.end() ; it++ )
+    {
+      boost::shared_ptr<Option const> option = it->second;
+
+      std::string opt = option->name() + '=';
+      std::string tag = option->tag();
+      if(tag == Protocol::Tags::node_array()){
+        opt += '[';
+        std::string array_tag=option->element_type();
+        if (array_tag == "string"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+= "'"+t+"',";
+          }
+          opt.resize(opt.size()-1);//to remove the laste ,
+        }else if(tag == "bool"){
+          boost::char_separator<char> sep(",");
+          boost::tokenizer< boost::char_separator<char> > tokens(option->value_str(), sep);
+          BOOST_FOREACH(std::string t, tokens){
+            opt+=std::string(t=="true"?"True":"False")+",";
+          }
+          opt.resize(opt.size()-1);
+        }else{
+          opt+=option->value_str();
+        }
+        opt += ']';
+      }else if(tag == "string"){
+        opt += "'" + option->value_str() + "'";
+      }else if(tag == "bool"){
+        opt += boost::any_cast<bool>(option->value())?"True":"False";
+      }else{
+        opt += option->value_str();
+      }
+
+      if( it == opts.store.begin() )
+        str += opt;
+      else
+        str += "," + opt;
+    }
+    str+=")\n";
+  }
+  str.resize(str.size()-1);//to remove the last character
   return str;
 }
 

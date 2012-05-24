@@ -1,8 +1,14 @@
 list( APPEND coolfluid_ufem_files
+  AdjacentCellToFace.hpp
+  AdjacentCellToFace.cpp
+  BCHoldValue.hpp
+  BCHoldValue.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
+  HeatCouplingFlux.hpp
+  HeatCouplingFlux.cpp
   InitialCondition.hpp
   InitialCondition.cpp
   InitialConditions.hpp
@@ -25,6 +31,8 @@ list( APPEND coolfluid_ufem_files
   ParsedFunctionExpression.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
+  SpalartAllmaras.cpp
+  SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
   Tags.hpp

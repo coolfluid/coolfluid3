@@ -177,7 +177,8 @@ struct BlockArrays::Implementation
       if(i == nb_points[search_direction])
       {
         Block neighbor = *neighbors[search_direction];
-        neighbor.search_indices = search_indices;
+        for(Uint j = 0; j != search_direction; ++j)
+          neighbor = neighbor[search_indices[j]];
         neighbor.search_indices.push_back(0);
         return neighbor;
       }
@@ -640,11 +641,13 @@ struct BlockArrays::Implementation
       {
         if(!patch.block.is_local)
           continue;
+        const Uint first_offset = patch.fixed_direction == 0 ? 1 : 0;
+        const Uint second_offset = patch.fixed_direction == 0 ? 0 : 1;
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
           Connectivity::Row elem_row = patch_conn[elem_idx++];
-          elem_row[0] = to_local(patch.global_idx(i  ));
-          elem_row[1] = to_local(patch.global_idx(i+1));
+          elem_row[0] = to_local(patch.global_idx(i + first_offset));
+          elem_row[1] = to_local(patch.global_idx(i + second_offset));
         }
       }
     }
@@ -1741,11 +1744,13 @@ void BlockArrays::create_mesh(Mesh& mesh)
   const Uint overlap = options().option("overlap").value<Uint>();
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
+    mesh.block_mesh_changed(true); // avoid triggering mesh_changed before the load event is raised
     MeshTransformer& grow_overlap = *Handle<MeshTransformer>(create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
     mesh.geometry_fields().remove_component("CommPattern");
+    mesh.block_mesh_changed(false);
   }
   mesh.raise_mesh_loaded();
 }

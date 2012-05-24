@@ -44,7 +44,10 @@ struct ProtoAction::Implementation
   void trigger_physical_model()
   {
     if(m_expression && is_not_null(m_physical_model))
+    {
+      CFdebug << "registering variables for " << m_component.uri().path() << CFendl;
       m_expression->register_variables(*m_physical_model);
+    }
   }
 
   boost::shared_ptr< Expression > m_expression;
@@ -70,6 +73,7 @@ void ProtoAction::execute()
 
   boost_foreach(const Handle< Region >& region, m_loop_regions)
   {
+    CFdebug << "  Action " << name() << ": running over region " << region->uri().path() << CFendl;
     m_implementation->m_expression->loop(*region);
   }
 }
@@ -81,9 +85,9 @@ void ProtoAction::set_expression(const boost::shared_ptr< Expression >& expressi
   m_implementation->trigger_physical_model();
 }
 
-void ProtoAction::insert_tags(std::set< std::string >& tags) const
+void ProtoAction::insert_field_info(std::map<std::string, std::string>& tags) const
 {
-  m_implementation->m_expression->insert_tags(tags);
+  m_implementation->m_expression->insert_field_info(tags);
 }
 
 

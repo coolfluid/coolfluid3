@@ -30,6 +30,7 @@ TabBuilder * TabBuilder::instance()
 TabBuilder::TabBuilder(QWidget * parent)
   : QTabWidget(parent)
 {
+  setAcceptDrops(true);
   connect(this, SIGNAL(currentChanged(int)), this, SLOT(tab_clicked(int)));
 
   connect( NTree::global().get(), SIGNAL(begin_update_tree()),

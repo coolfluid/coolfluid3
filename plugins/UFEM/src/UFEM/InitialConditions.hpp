@@ -35,8 +35,10 @@ public: // functions
   static std::string type_name () { return "InitialConditions"; }
 
   /// Create an initial condition for the field the given tag
+  /// @param solver A component that acts a solver. If this has an option "regions", it will be used to loop over.
+  /// If it has an option "solution_tag", it will be used to find the field where the variavles are found
   Handle<InitialCondition> create_initial_condition(const std::string& tag);
-  
+
   void signal_create_initial_condition(common::SignalArgs& args);
   void signature_create_initial_condition(common::SignalArgs& args);
 };

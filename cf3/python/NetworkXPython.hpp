@@ -106,6 +106,15 @@ class  NetworkXPython : public common::Component {
   /// going recursively on the tree and append to string the command to add the edges to the graph
   void append_property_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
 
+  /// signal for listing the tags
+  void signal_get_tag_graph( common::SignalArgs& args );
+  /// signature for listing the tags
+  void signature_get_tag_graph( common::SignalArgs& args );
+  /// going recursively on the tree and append to string the command to add the nodes to the graph
+  void append_tag_nodes_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
+  /// going recursively on the tree and append to string the command to add the edges to the graph
+  void append_tag_edges_recursive(const Component &c, std::string &coll, const int depthlimit, const int depth);
+
   private:
 
   /// little helper function for mapping bool to python style string

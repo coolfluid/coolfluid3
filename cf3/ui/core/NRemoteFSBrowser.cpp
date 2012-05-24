@@ -19,6 +19,7 @@
 
 #include "common/XML/FileOperations.hpp"
 
+
 using namespace cf3::common;
 using namespace cf3::common::XML;
 
@@ -43,7 +44,8 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
       .connect(boost::bind(&NRemoteFSBrowser::reply_read_dir, this, _1));
   regist_signal("list_favorites")
       .connect(boost::bind(&NRemoteFSBrowser::reply_list_favorites, this, _1));
-
+  regist_signal("copy_request")
+      .connect(boost::bind(&NRemoteFSBrowser::reply_copy_request, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -153,6 +155,23 @@ void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
 
   emit favorites_changed( fav_dirs );
 //  m_favorites_model->setStringList(fav_dirs);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void NRemoteFSBrowser::copy_request ( std::vector<std::string> & parameters ){
+
+  SignalFrame frame("copy_request", uri(), SERVER_CORE_PATH);
+  frame.set_array<std::string>("parameters", parameters, ";");
+  frame.options().flush();
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void NRemoteFSBrowser::reply_copy_request ( common::SignalArgs & node ){
+
+  emit copy_finished();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -425,6 +444,14 @@ void NRemoteFSBrowser::send_favorites(const QStringList &favs)
   frame.options().flush();
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+Qt::ItemFlags NRemoteFSBrowser::flags(const QModelIndex &index) const
+{
+  return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
+                       | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
 }
 
 /////////////////////////////////////////////////////////////////////////////

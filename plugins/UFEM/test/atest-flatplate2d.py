@@ -36,16 +36,16 @@ points[0]  = [0, 0.]
 points[1]  = [1, 0.]
 points[2]  = [0.,0.2]
 points[3]  = [1, 0.2]
-points[4]  = [0.,2.1]
-points[5]  = [1, 2.2]
+points[4]  = [0.,1.1]
+points[5]  = [1, 1.2]
 
 points[6]  = [2.,0.]
 points[7]  = [2, 0.2]
-points[8]  = [2, 2.3]
+points[8]  = [2, 1.3]
 
 points[9]  = [-1.,0.]
 points[10]  = [-1, 0.2]
-points[11]  = [-1, 2.]
+points[11]  = [-1, 1.]
 
 block_nodes = blocks.create_blocks(6)
 block_nodes[0] = [0, 1, 3, 2]
@@ -57,13 +57,12 @@ block_nodes[4] = [9, 0, 2, 10]
 block_nodes[5] = [10, 2, 4, 11]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [40, 20]
-block_subdivs[1] = [40, 20]
-
-block_subdivs[2] = [40, 20]
-block_subdivs[3] = [40, 20]
-block_subdivs[4] = [40, 20]
-block_subdivs[5] = [40, 20]
+block_subdivs[0] = [80, 40]
+block_subdivs[1] = [80, 40]
+block_subdivs[2] = [80, 40]
+block_subdivs[3] = [80, 40]
+block_subdivs[4] = [80, 40]
+block_subdivs[5] = [80, 40]
 
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 5., 5.]
@@ -98,6 +97,8 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+nstokes.options().set('regions', [mesh.access_component('topology').uri()])
+scalaradv.options().set('regions', [mesh.access_component('topology').uri()])
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
@@ -111,8 +112,8 @@ u_wall = [0., 0.]
 phi_in = 100
 phi_wall = 200
 
-# Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('solution')
+# Add initial conditions for the Navier-Stokes solver, which uses 'navier_stokes_solution' as a tag for its solution fields
+ic_ns = ic.create_initial_condition('navier_stokes_solution')
 # Initial advection velocity and its previous values, using linearized_velocity as tag
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 # Initial conditions for the scalar advection solver
@@ -137,7 +138,7 @@ bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)
 bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Velocity').options().set('value',  u_in)
+bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
@@ -154,7 +155,7 @@ time = model.create_time()
 time.options().set('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 1.
+final_end_time = 0.1
 save_interval = 0.1
 current_end_time = 0.
 iteration = 0
@@ -162,7 +163,7 @@ while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-flatplate2d_output-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d_output_b-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

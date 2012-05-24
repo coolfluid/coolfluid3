@@ -17,7 +17,18 @@
   #include <pwd.h> // for getpwuid()
 #endif
 
+
+#include <sys/wait.h>
+#include <queue>
+#include <unistd.h>
+
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/regex.hpp>
 
 #include "rapidxml/rapidxml.hpp"
@@ -143,6 +154,10 @@ CCore::CCore()
       .description( "Sets the favorite directories for the remote browsing feature." )
       .read_only(true)
       .connect(boost::bind(&CCore::signal_set_favorites, this, _1));
+
+  regist_signal( "copy_request" )
+      .description("Ask the server to execute some scp commands")
+      .pretty_name("").connect(boost::bind(&CCore::signal_copy_request, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -428,6 +443,78 @@ void CCore::send_ack( const std::string & clientid,
   options.flush();
 
   m_comm_server->send_frame_to_client( frame, clientid);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+std::queue< pid_t > pid_queue;
+boost::mutex* pid_queue_mutex;
+boost::condition_variable* pid_queue_condition;
+bool pid_still_coming;
+
+void wait_all_pids(common::SignalArgs node){
+  boost::unique_lock<boost::mutex> locker(*pid_queue_mutex,boost::defer_lock_t());
+  int status;
+  while (pid_still_coming || pid_queue.size()){
+    locker.lock();
+    if (pid_queue.size()){
+      pid_t pid=pid_queue.front();
+          pid_queue.pop();
+      std::cout << "waiting for pid :" << pid << std::endl;
+      locker.unlock();
+      waitpid(pid,&status,0);
+    }else{
+      pid_queue_condition->wait(locker);
+      locker.unlock();
+    }
+  }
+  delete pid_queue_mutex;
+  delete pid_queue_condition;
+  std::cout << "wait finished" << std::endl;
+  node.create_reply();
+}
+
+
+void CCore::signal_copy_request( common::SignalArgs & node ){
+  pid_queue_mutex=new boost::mutex();
+  pid_queue_condition=new boost::condition_variable();
+  boost::thread notifier_thread(wait_all_pids, node);
+  std::vector<std::string> commands = node.get_array<std::string>("parameters");
+  std::vector<std::string>::iterator it = commands.begin();
+  std::vector<std::string>::iterator end = commands.end();
+  pid_still_coming=true;
+  char* args[6];
+  args[0]=new char[13];
+  strcpy(args[0],"/usr/bin/scp");
+  for (int i=1;it<end;it++,i++){
+    int str_size=(*it).size();
+    if (str_size > 1){
+      args[i]=new char[str_size+1];
+      strcpy(args[i],(*it).c_str());
+    }else{
+      args[i]=NULL;
+      /*for (int j=0;j<i;j++){
+        std::cout << args[j];
+      }
+      std::cout << std::endl;*/
+      //not portable
+      pid_t pid=fork();
+      if (pid == 0){
+        execv(args[0],args);
+      }else{
+        boost::lock_guard<boost::mutex> guard(*pid_queue_mutex);
+        pid_queue.push(pid);
+        std::cout << "spawning pid :" << pid << std::endl;
+        pid_queue_condition->notify_one();
+      }
+      for (int j=1;j<i;j++){
+        delete[] args[j];
+      }
+      i=0;
+    }
+  }
+  delete[] args[0];
+  pid_still_coming=false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

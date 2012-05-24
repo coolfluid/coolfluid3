@@ -367,6 +367,9 @@ public: // functions
   /// Defines the signature of "move_component" signal.
   /// @param args The frame under which signature is added.
   void signature_move_component( SignalArgs& args );
+  
+  /// Signal to store the timings (if enabled) into properties, i.e. for readout from python or the GUI
+  void signal_store_timings( SignalArgs& args );
 
   //@} END SIGNALS
 

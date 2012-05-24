@@ -52,7 +52,7 @@ OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void OptionURI::change_value(const boost::any& value)
+void OptionURI::change_value_impl(const boost::any& value)
 {
   try
   {
@@ -68,8 +68,8 @@ void OptionURI::change_value(const boost::any& value)
       }
       throw BadValue(FromHere(), error_str.str());
     }
-
-    Option::change_value(value);
+    
+    m_value = value;
   }
   catch(boost::bad_any_cast& e)
   {

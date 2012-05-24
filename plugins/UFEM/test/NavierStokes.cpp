@@ -24,8 +24,8 @@ typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -53,8 +53,8 @@ boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCo
 boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -84,8 +84,8 @@ boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs&
 boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -115,8 +115,8 @@ boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPG
 boost::shared_ptr<Expression> navier_stokes_supg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
+  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;

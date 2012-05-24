@@ -56,8 +56,6 @@ using namespace cf3::common;
 
 using namespace cf3::math::Consts;
 
-using namespace boost;
-
 /// Check close, for testing purposes
 inline void check_close(const RealMatrix2& a, const RealMatrix2& b, const Real threshold)
 {
@@ -447,27 +445,31 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
   MeshTerm<0, VectorField> u("Velocity", "solution");
+  MeshTerm<0, ScalarField> T("Temperature", "solution");
 
   Model& model = *Core::instance().root().create_component<Model>("Model");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = *dom.create_component<Mesh>("QuadGrid2");
-  Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
+  Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 5, 5);
 
   physics::PhysModel& physics = model.create_physics("cf3.physics.DynamicModel");
   physics.options().configure_option(common::Tags::dimension(), 2u);
 
   // Create the initialization expression
   boost::shared_ptr< Expression > init = nodes_expression(u = coordinates);
+  boost::shared_ptr< Expression > init_temp = nodes_expression(T = coordinates[0]);
 
   FieldManager& field_manager = *dom.create_component<FieldManager>("FieldManager");
   field_manager.options().configure_option("variable_manager", physics.variable_manager().handle<math::VariableManager>());
 
   // set up fields
   init->register_variables(physics);
+  init_temp->register_variables(physics);
   field_manager.create_field("solution", mesh.geometry_fields());
 
   // Do the initialization
   init->loop(mesh.topology());
+  init_temp->loop(mesh.topology());
 
   RealVector4 result;
   result.setZero();
@@ -478,8 +480,19 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
     boost::mpl::vector1<LagrangeP1::Quad2D>(),
     element_quadrature(boost::proto::lit(result) += u*nabla(u))
   )->loop(mesh.topology());
+  
+  std::cout << "advection: " << result.transpose() << std::endl;
 
-  std::cout << result << std::endl;
+  //RealMatrix4 gradient_result; gradient_result.setZero();
+  Real gradient_result = 0.;
+  // Gradient calculation for a scalar
+  elements_expression
+  (
+    boost::mpl::vector1<LagrangeP1::Quad2D>(),
+   element_quadrature(boost::proto::lit(gradient_result) += _norm(transpose(N(T))*transpose(nabla(T)*nodal_values(T))*nabla(T)))
+  )->loop(mesh.topology());
+
+  std::cout << "gradient: " << gradient_result << std::endl;
 }
 
 
@@ -547,13 +560,13 @@ BOOST_AUTO_TEST_CASE( ProtoAccumulators )
   Tools::MeshGeneration::create_line(*mesh, 4., 400);
 
   boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::max> > acc;
-  
+
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
   MeshTerm<0, VectorField > T("Temperature", "solution");
 
   boost::shared_ptr<Expression> init_expr = nodes_expression(T = coordinates);
   init_expr->loop(mesh->topology());
-  
+
   boost::shared_ptr<Expression> test_expr = nodes_expression(boost::proto::lit(acc)(_norm(T)));
 
   test_expr->loop(mesh->topology());
@@ -581,6 +594,21 @@ BOOST_AUTO_TEST_CASE( AssignMatrix )
 
   std::cout << "tmp=\n" << tmp << std::endl;
 
+}
+
+BOOST_AUTO_TEST_CASE( GaussPointAccess )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("gauss_rect");
+  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
+
+  RealVector center_coords(2);
+  center_coords.setZero();
+
+  for_each_element<VolumeTypes>(mesh->topology(), _cout << "point = " << transpose(gauss_points_1) << ", weight = " << gauss_weights_1 << "\n");
+  std::cout << std::endl;
+
+  for_each_element<VolumeTypes>(mesh->topology(), _cout << "point = " << transpose(gauss_points_2) << ", weight = " << gauss_weights_2 << "\n");
+  std::cout << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

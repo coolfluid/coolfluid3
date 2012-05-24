@@ -90,15 +90,22 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
-  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), node_connectivity, starting_indices);
+  Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
+  Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
+  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   // Check result
   BOOST_CHECK_EQUAL(starting_indices[0], 0u);
   for(Uint i = 2; i != nb_nodes; ++i)
     BOOST_CHECK_EQUAL(starting_indices[i] - starting_indices[i-1], 3);
 
+  PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
+  comm_pattern.insert("gid",gids->array(),false);
+  comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
+
   // Create the LSS
-  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -127,10 +134,17 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
-  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), node_connectivity, starting_indices);
+  Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
+  Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
+  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+
+  PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
+  comm_pattern.insert("gid",gids->array(),false);
+  comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
   // Create the LSS
-  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -159,10 +173,17 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
-  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), node_connectivity, starting_indices);
+  Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
+  Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
+  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+
+  PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
+  comm_pattern.insert("gid",gids->array(),false);
+  comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
   // Create the LSS
-  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -188,39 +209,46 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
   // Setup mesh
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
-  
+
   BlockMesh::BlockArrays& blocks = *domain.create_component<BlockMesh::BlockArrays>("blocks");
 
-  *blocks.create_points(3, 8) << 0.     << 0.     << 0.    
-                              << length << 0.     << 0.    
-                              << 0.     << length << 0.    
-                              << length << length << 0.    
+  *blocks.create_points(3, 8) << 0.     << 0.     << 0.
+                              << length << 0.     << 0.
+                              << 0.     << length << 0.
+                              << length << length << 0.
                               << 0.     << 0.     << length
                               << length << 0.     << length
                               << 0.     << length << length
                               << length << length << length;
-  
+
   *blocks.create_blocks(1) << 0 << 1 << 3 << 2 << 4 << 5 << 7 << 6;
   *blocks.create_block_subdivisions() << nb_segments << nb_segments << nb_segments;
   *blocks.create_block_gradings() << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1.;
-  
+
   *blocks.create_patch("bottomWall", 1) << 0 << 1 << 3 << 2;
   *blocks.create_patch("topWall", 1) << 4 << 5 << 7 << 6;
   *blocks.create_patch("side1", 1) << 1 << 5 << 7 << 3;
   *blocks.create_patch("side2", 1) << 0 << 4 << 5 << 1;
   *blocks.create_patch("side3", 1) << 6 << 4 << 0 << 2;
   *blocks.create_patch("side4", 1) << 2 << 3 << 7 << 6;
-  
+
   blocks.create_mesh(mesh);
 
   BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry_fields().coordinates().size());
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
-  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), node_connectivity, starting_indices);
+  Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
+  Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
+  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+
+  PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
+  comm_pattern.insert("gid",gids->array(),false);
+  comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
   // Create the LSS
-  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -253,10 +281,17 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
-  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), node_connectivity, starting_indices);
+  Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
+  Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
+  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+
+  PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
+  comm_pattern.insert("gid",gids->array(),false);
+  comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
   // Create the LSS
-  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_3DHexaChannel.plt");
@@ -275,7 +310,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
-  
+
   Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
@@ -312,6 +347,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
   LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
 
   // Write the matrix

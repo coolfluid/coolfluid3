@@ -66,7 +66,6 @@ void FaceTerm::link_fields()
   }
 }
 
-
 ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
 {
   // ensure that the fields are present
@@ -82,6 +81,7 @@ ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
         physical_model().get_child( RDM::Tags::update_vars() )
                         ->handle<physics::Variables>()
                         ->type();
+
 
     loop = create_component<FaceLoop>("LOOP", "FaceLoopT<" + type_name + "," + update_vars_type + ">");
   }

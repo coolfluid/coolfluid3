@@ -21,6 +21,8 @@ void def_uri()
     .def(init<std::string>())
     .def(init<std::string, common::URI::Scheme::Type>())
     .def("__str__", &common::URI::string)
+    .def("__eq__", &common::URI::operator==)
+    .def("__ne__", &common::URI::operator!=)
     .def("path", (std::string(common::URI::*)()const)(&common::URI::path));
 
   enum_<common::URI::Scheme::Type>("Scheme")
