@@ -194,7 +194,7 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   // Create a field with glb node numbers
   Field& P1_node_rank = mesh.geometry_fields().create_field("P1_node_rank");
 
-  Handle<Interpolator> interpolator (mesh.create_component("interpolator","cf3.mesh.Interpolator"));
+  Handle<AInterpolator> interpolator (mesh.create_component("interpolator","cf3.mesh.SpaceInterpolator"));
   interpolator->interpolate(nodes_P1_node_rank,P1_node_rank);
 
   // Write the mesh with the fields

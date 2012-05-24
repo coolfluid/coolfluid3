@@ -33,17 +33,38 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder<PointInterpolator,cf3::common::Component,LibMesh> PointInterpolator_builder;
-
-PointInterpolator::PointInterpolator ( const std::string& name  ) :
+APointInterpolator::APointInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  options().add_option("source", m_source)
+  options().add_option("dict", m_dict)
       .description("Dictionary to interpolate from")
       .pretty_name("Source Dictionary")
       .mark_basic()
-      .attach_trigger( boost::bind( &PointInterpolator::configure_source, this ) );
+      .attach_trigger( boost::bind( &APointInterpolator::configure_dict, this ) );
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+void APointInterpolator::configure_dict()
+{
+  Handle<Dictionary> old_dict = m_dict;
+  m_dict = options().option("dict").value< Handle<Dictionary> >();
+  if (m_dict != old_dict)
+  {
+    boost_foreach ( Component& child, *this )
+      child.configure_option_recursively("dict",m_dict);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+cf3::common::ComponentBuilder<PointInterpolator,APointInterpolator,LibMesh> PointInterpolator_builder;
+
+////////////////////////////////////////////////////////////////////////////////
+
+PointInterpolator::PointInterpolator ( const std::string& name  ) :
+  APointInterpolator ( name )
+{
   options().add_option("element_finder", std::string("cf3.mesh.ElementFinderOcttree"))
       .description("Builder name of the element finder")
       .pretty_name("Element Finder")
@@ -56,7 +77,8 @@ PointInterpolator::PointInterpolator ( const std::string& name  ) :
       .attach_trigger( boost::bind( &PointInterpolator::configure_stencil_computer, this ) )
       .mark_basic();
 
-  options().add_option("function", std::string("cf3.mesh.ShapeFunctionInterpolation"))
+//  options().add_option("function", std::string("cf3.mesh.ShapeFunctionInterpolation"))
+  options().add_option("function", std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"))
       .description("Builder name of the interpolator function")
       .pretty_name("Interpolator Function")
       .attach_trigger( boost::bind( &PointInterpolator::configure_interpolator_function, this ) )
@@ -69,24 +91,14 @@ PointInterpolator::PointInterpolator ( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PointInterpolator::configure_source()
-{
-  Handle<Dictionary> old_source = m_source;
-  m_source = options().option("source").value< Handle<Dictionary> >();
-  if (m_source != old_source)
-    configure_option_recursively("dict",m_source);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void PointInterpolator::configure_element_finder()
 {
   if (is_not_null(m_element_finder))
     remove_component(m_element_finder->name());
   m_element_finder = Handle<ElementFinder>(create_component("element_finder",options().option("element_finder").value<std::string>()));
 
-  if(m_source)
-    m_element_finder->options().configure_option("dict",m_source);
+  if(m_dict)
+    m_element_finder->options().configure_option("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +109,8 @@ void PointInterpolator::configure_stencil_computer()
     remove_component(m_stencil_computer->name());
   m_stencil_computer = Handle<StencilComputer>(create_component("stencil_computer",options().option("stencil_computer").value<std::string>()));
 
-  if(m_source)
-    m_stencil_computer->options().configure_option("dict",m_source);
+  if(m_dict)
+    m_stencil_computer->options().configure_option("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,8 +121,8 @@ void PointInterpolator::configure_interpolator_function()
     remove_component(m_interpolator_function->name());
   m_interpolator_function = Handle<InterpolationFunction>(create_component("function",options().option("function").value<std::string>()));
 
-  if(m_source)
-    m_interpolator_function->options().configure_option("dict",m_source);
+  if(m_dict)
+    m_interpolator_function->options().configure_option("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

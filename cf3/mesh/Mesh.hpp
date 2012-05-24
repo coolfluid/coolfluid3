@@ -74,9 +74,9 @@ public: // functions
 
   void write_mesh( const common::URI& file, const std::vector<common::URI> fields = std::vector<common::URI>());
 
-  void signal_write_mesh ( common::SignalArgs& node );
+  void signal_write_mesh ( common::SignalArgs& args );
 
-  void signature_write_mesh ( common::SignalArgs& node);
+  void signature_write_mesh ( common::SignalArgs& args);
 
   Uint dimension() const { return m_dimension; }
 

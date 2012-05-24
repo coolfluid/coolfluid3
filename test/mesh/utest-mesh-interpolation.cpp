@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   // Create and configure interpolator.
   boost::shared_ptr< Interpolator > interpolator = allocate_component<Interpolator>("interpolator");
-
+  interpolator->options().configure_option("store",false);
   BOOST_CHECK(true);
 
   std::string nvars = "rho_n[1] , V_n[3] , p_n[1]";
@@ -182,10 +182,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
-  interpolator->interpolate(s_nodebased,s_elembased);
-  interpolator->interpolate(s_nodebased,t_nodebased);
-  interpolator->interpolate(s_elembased,t_nodebased_2);
-  interpolator->interpolate(s_elembased,t_elembased);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(s_nodebased,s_elembased));
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(s_nodebased,t_nodebased));
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(s_elembased,t_nodebased_2));
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(s_elembased,t_elembased));
 
   BOOST_CHECK(true);
 
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
 //  interpolator->options().configure_option("function",std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"));
 
 
-  point_interpolator->options().configure_option("source",source_mesh->geometry_fields().handle<Dictionary>());
+  point_interpolator->options().configure_option("dict",source_mesh->geometry_fields().handle<Dictionary>());
 
   RealVector coord(3); coord << 5., 1., 1.;
   std::vector<Real> interpolated_value;
@@ -253,19 +253,21 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   Dictionary& target_dict = source_mesh->create_continuous_space("target","cf3.mesh.LagrangeP1");
   Field& target_field = target_dict.create_field("target","target[vector]");
 
-  boost::shared_ptr< Interpolator > interpolator = allocate_component<Interpolator>("interpolator");
+  boost::shared_ptr< AInterpolator > interpolator = allocate_component<Interpolator>("interpolator");
+  interpolator->options().configure_option("store",true);
 
   // first call: compute storage and store
-  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field));
   CFinfo << target_field << CFendl;
 
   // second call: use stored values
-  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field));
   CFinfo << target_field << CFendl;
 
   // turn off storage, and compute again on the fly
   interpolator->options().configure_option("store",false);
-  interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field));
   CFinfo << target_field << CFendl;
 
 
@@ -278,22 +280,22 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   interpolator->options().configure_option("store",true);
 
   // first call: compute storage and store
-  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2));
   CFinfo << target_field_2 << CFendl;
 
   // second call: use stored values
-  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2));
   CFinfo << target_field_2 << CFendl;
 
   // turn off storage, and compute again on the fly
   interpolator->options().configure_option("store",false);
-  interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2));
   CFinfo << target_field_2 << CFendl;
 
   target_field_2 = 0.;
   std::vector<Uint> source_vars = boost::assign::list_of(0)(1);
   std::vector<Uint> target_vars = boost::assign::list_of(1)(0);
-  interpolator->interpolate_vars(source_mesh_2->geometry_fields().coordinates(),target_field_2,source_vars,target_vars);
+  BOOST_CHECK_NO_THROW(interpolator->interpolate_vars(source_mesh_2->geometry_fields().coordinates(),target_field_2,source_vars,target_vars));
   CFinfo << target_field_2 << CFendl;
 
 }

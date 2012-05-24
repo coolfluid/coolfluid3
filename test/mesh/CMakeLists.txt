@@ -173,6 +173,9 @@ coolfluid_add_test( UTEST utest-mesh-lagrangep1-quad3d
                     CPP   utest-mesh-lagrangep1-quad3d.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
 
+coolfluid_add_test( UTEST utest-mesh-lagrangep2-quad2d
+                    CPP   utest-mesh-lagrangep2-quad2d.cpp
+                    LIBS  coolfluid_mesh_lagrangep2 )
 
 coolfluid_add_test( UTEST utest-matrix-interpolation
                     CPP   utest-matrix-interpolation.cpp

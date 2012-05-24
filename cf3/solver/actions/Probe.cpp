@@ -74,7 +74,7 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
 
 void Probe::configure_point_interpolator()
 {
-  m_point_interpolator->options().configure_option("source",m_dict);
+  m_point_interpolator->options().configure_option("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

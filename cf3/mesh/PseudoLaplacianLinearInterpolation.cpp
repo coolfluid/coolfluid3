@@ -58,7 +58,10 @@ void PseudoLaplacianLinearInterpolation::compute_interpolation_weights(const Rea
   source_field_weights.resize(source_field_points.size());
 
   // call core algorithm to do all the work
-  pseudo_laplacian_weighted_linear_interpolation(coordinate, s_points, source_field_weights);
+  RealVector coord(s_points[0].size());
+  for (Uint d=0; d<coordinate.size(); ++d)
+    coord[d] = coordinate[d];
+  pseudo_laplacian_weighted_linear_interpolation(coord, s_points, source_field_weights);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +69,7 @@ void PseudoLaplacianLinearInterpolation::compute_interpolation_weights(const Rea
 void PseudoLaplacianLinearInterpolation::pseudo_laplacian_weighted_linear_interpolation(const RealVector& t_point, const std::vector<RealVector>& s_points, std::vector<Real>& weights)
 {
   const Uint dim = s_points[0].size();
+  cf3_assert(t_point.size() == s_points[0].size());
   switch (dim)
   {
     case DIM_3D:
