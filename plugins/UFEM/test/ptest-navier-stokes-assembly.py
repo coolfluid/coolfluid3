@@ -21,7 +21,7 @@ def make_square(x_segs, y_segs):
   blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [3, 2]
   blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
   
-  blocks.options().configure_option('overlap', 0)
+  blocks.options().set('overlap', 0)
   
   return blocks
 
@@ -44,23 +44,23 @@ class TestCase:
       self.segments[0] *= m2
       self.segments[1] *= m1
     
-    self.physics.options().configure_option('density', 1000.)
-    self.physics.options().configure_option('dynamic_viscosity', 10.)
-    self.physics.options().configure_option('reference_velocity', 1.)
+    self.physics.options().set('density', 1000.)
+    self.physics.options().set('dynamic_viscosity', 10.)
+    self.physics.options().set('reference_velocity', 1.)
     
     self.ns_solver = self.solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-    self.ns_solver.options().configure_option('use_specializations', use_spec)
-    self.ns_solver.options().configure_option('disabled_actions', ['SolveLSS'])
+    self.ns_solver.options().set('use_specializations', use_spec)
+    self.ns_solver.options().set('disabled_actions', ['SolveLSS'])
     self.use_spec = use_spec
     
   def grow_overlap(self):
     if self.nb_procs > 1:
       globconn = self.domain.create_component('GlobalConnectivity', 'cf3.mesh.actions.GlobalConnectivity')
-      globconn.options().configure_option('mesh', self.mesh)
+      globconn.options().set('mesh', self.mesh)
       globconn.execute()
       
       grow = self.domain.create_component('GrowOverlap', 'cf3.mesh.actions.GrowOverlap')
-      grow.options().configure_option('mesh', self.mesh)
+      grow.options().set('mesh', self.mesh)
       grow.execute()
     
   def square_mesh_quads(self):
@@ -76,7 +76,7 @@ class TestCase:
     blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
-    triangulator.options().configure_option('mesh', self.mesh)
+    triangulator.options().set('mesh', self.mesh)
     triangulator.execute()
     self.mesh.move_component(self.domain.uri())
     self.mesh.raise_mesh_loaded()
@@ -97,7 +97,7 @@ class TestCase:
     blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
-    triangulator.options().configure_option('mesh', self.mesh)
+    triangulator.options().set('mesh', self.mesh)
     triangulator.execute()
     self.mesh.move_component(self.domain.uri())
     self.mesh.raise_mesh_loaded()
@@ -105,13 +105,13 @@ class TestCase:
     
   def setup_lss(self):
     self.grow_overlap()
-    self.ns_solver.options().configure_option('regions', [self.mesh.access_component('topology').uri()])
+    self.ns_solver.options().set('regions', [self.mesh.access_component('topology').uri()])
     self.ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
     
   def run(self):
     time = self.model.create_time()
-    time.options().configure_option('time_step', 1.)
-    time.options().configure_option('end_time', 1.)
+    time.options().set('time_step', 1.)
+    time.options().set('end_time', 1.)
     self.model.simulate()
     self.ns_solver.store_timings()
     try:
@@ -127,11 +127,11 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global configuration
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', False)
-env.options().configure_option('exception_backtrace', False)
-env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('log_level', 0)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', False)
+env.options().set('exception_backtrace', False)
+env.options().set('regist_signal_handlers', False)
+env.options().set('log_level', 0)
 
 # Generic assembly over quads
 test_case = TestCase('QuadsGeneric', [500,400], False)

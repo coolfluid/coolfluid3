@@ -118,17 +118,15 @@ void DiscontinuousDictionary::rebuild_spaces_from_geometry()
     Connectivity& space_connectivity = const_cast<Connectivity&>(entities_space.connectivity());
     space_connectivity.resize(entities->size());
     detail::ComputeCentroid compute_centroid(*entities);
-    RealMatrix elem_coords(entities->geometry_space().shape_function().nb_nodes(),entities->element_type().dimension());
 
     Uint nb_nodes_per_elem = entities_space.shape_function().nb_nodes();
     const Uint nb_elems = entities->size();
     for (Uint elem=0; elem<nb_elems; ++elem)
     {
       bounding_box.extend(compute_centroid(elem));
-      for (Uint node=0; node<elem_coords.rows(); ++node)
+      for (Uint node=0; node < compute_centroid.elem_coords.rows(); ++node)
       {
-        RealVector node_coord = elem_coords.row(node);
-        bounding_box.extend(node_coord);
+        bounding_box.extend(compute_centroid.elem_coords.row(node));
       }
 
       for (Uint node=0; node<nb_nodes_per_elem; ++node)
@@ -176,7 +174,7 @@ void DiscontinuousDictionary::rebuild_spaces_from_geometry()
     for (Uint e=0; e<entities.size(); ++e)
     {
       boost::uint64_t hash = compute_glb_idx(compute_centroid(e));
-//      std::cout << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) to " << hash << std::endl;
+      //CFinfo << "["<<PE::Comm::instance().rank() << "]  hashed "<< entities.uri().path() << "["<<e<<"]) at centroid " << compute_centroid.centroid.transpose() <<  " to " << hash << CFendl;
       bool inserted = hash_to_elements.insert( std::make_pair(hash, Entity(entities,e)) ).second;
       if (! inserted)
       {

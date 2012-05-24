@@ -8,11 +8,11 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', False)
-env.options().configure_option('exception_backtrace', False)
-env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('log_level', 4)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', False)
+env.options().set('exception_backtrace', False)
+env.options().set('regist_signal_handlers', False)
+env.options().set('log_level', 4)
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -100,12 +100,12 @@ blocks.create_mesh(mesh.uri())
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
-ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 #LSS for Spalart-Allmaras turbulence model
 satm_lss = satm.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
-satm_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+satm_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
-nstokes.options().configure_option('disabled_actions', ['SolveLSS'])
+nstokes.options().set('disabled_actions', ['SolveLSS'])
 
 u_in = [0.5, 0.]
 u_wall = [0., 0.]
@@ -119,39 +119,39 @@ ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 ic_NU = ic.create_initial_condition('spalart_allmaras_solution')
 
 #initial conditions
-ic_ns.options().configure_option('Velocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
-ic_NU.options().configure_option('TurbulentViscosity', NU_in)
+ic_ns.options().set('Velocity', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity1', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity2', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity3', u_in)
+ic_NU.options().set('TurbulentViscosity', NU_in)
 
 #properties for Navier-Stokes
-physics.options().configure_option('density', 1.2)
-physics.options().configure_option('dynamic_viscosity', 1.7894e-5)
-physics.options().configure_option('reference_velocity', u_in[0])
-#scalaradv.options().configure_option('scalar_coefficient', 1.)
+physics.options().set('density', 1.2)
+physics.options().set('dynamic_viscosity', 1.7894e-5)
+physics.options().set('reference_velocity', u_in[0])
+#scalaradv.options().set('scalar_coefficient', 1.)
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().configure_option('value', u_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().configure_option('value',  0.)
-bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 1.)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
 # Boundary conditions for ScalarAdvection
 bc = satm.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'TurbulentViscosity').options().configure_option('value', NU_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().configure_option('value',  NU_in)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().configure_option('value',  NU_in)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'TurbulentViscosity').options().configure_option('value',  NU_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').options().configure_option('value', NU_in)
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
 
 # Time setup
 time = model.create_time()
-time.options().configure_option('time_step', 0.01)
+time.options().set('time_step', 0.01)
 
 # Setup a time series write
 final_end_time = 1.
@@ -167,13 +167,13 @@ model.simulate()
 
 while current_end_time < final_end_time:
   current_end_time += save_interval
-  time.options().configure_option('end_time', current_end_time)
+  time.options().set('end_time', current_end_time)
   model.simulate()
   ns_lss.print_system('lss-' +str(iteration) + '.plt')
   domain.write_mesh(cf.URI('atest-flatplate2d_output_satm-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
-    solver.options().configure_option('disabled_actions', ['InitialConditions'])
+    solver.options().set('disabled_actions', ['InitialConditions'])
 
 # print timings
 model.print_timing_tree()

@@ -39,7 +39,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/fluid')]
 ### solver
 solver = model.get_child('RDSolver')
 solver.options().set('update_vars', 'RotationAdv2D')
-solver.options().configure_option('solution_space', 'LagrangeP1')
+solver.options().set('solution_space', 'LagrangeP1')
 
 solver.get_child('IterativeSolver').get_child('MaxIterations').options().set('maxiter', 50)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 0.25)

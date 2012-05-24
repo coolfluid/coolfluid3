@@ -22,7 +22,7 @@ hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
 # Generate a channel mesh
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
-hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
+hc.options().set('regions', [mesh.access_component('topology').uri()])
 
 # lss setup
 lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')

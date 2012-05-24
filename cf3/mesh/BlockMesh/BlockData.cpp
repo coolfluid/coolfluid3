@@ -1744,11 +1744,13 @@ void BlockArrays::create_mesh(Mesh& mesh)
   const Uint overlap = options().option("overlap").value<Uint>();
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
+    mesh.block_mesh_changed(true); // avoid triggering mesh_changed before the load event is raised
     MeshTransformer& grow_overlap = *Handle<MeshTransformer>(create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
     mesh.geometry_fields().remove_component("CommPattern");
+    mesh.block_mesh_changed(false);
   }
   mesh.raise_mesh_loaded();
 }

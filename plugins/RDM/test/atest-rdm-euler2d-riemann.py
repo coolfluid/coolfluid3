@@ -7,13 +7,13 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', True)
-env.options().configure_option('exception_backtrace', True)
-env.options().configure_option('exception_aborts', True)
-env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 3)
-env.options().configure_option('regist_signal_handlers', False)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', True)
+env.options().set('exception_backtrace', True)
+env.options().set('exception_aborts', True)
+env.options().set('exception_outputs', True)
+env.options().set('log_level', 3)
+env.options().set('regist_signal_handlers', False)
 
 ### create model
 
@@ -53,29 +53,29 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 ### solver
 
 solver = model.get_child('RDSolver')
-solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP2')
+solver.options().set('update_vars', 'Cons2D')
+solver.options().set('solution_space', 'LagrangeP2')
 
-solver.get_child('IterativeSolver').get_child('MaxIterations').options().configure_option('maxiter', 100)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 0.25)
-#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('saverate', 10)
-#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().configure_option('filepath', cf.URI('file:periodic.plt'))
+solver.get_child('IterativeSolver').get_child('MaxIterations').options().set('maxiter', 100)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 0.25)
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().set('saverate', 10)
+#solver.get_child('IterativeSolver').get_child('PostActions').get_child('PeriodicWriter').options().set('filepath', cf.URI('file:periodic.plt'))
 
 ### initial conditions
 
 iconds = solver.get_child('InitialConditions')
 iconds.create_initial_condition(name='INIT')
-iconds.get_child('INIT').options().configure_option('functions', 
+iconds.get_child('INIT').options().set('functions', 
      ['if(x>0.5,0.5,1.)',
       '0.0',
       'if(x>0.5,1.67332,2.83972)',
       'if(x>0.5,3.425,6.532)'])
-iconds.get_child('INIT').options().configure_option('regions', internal_regions)
+iconds.get_child('INIT').options().set('regions', internal_regions)
 
 ### boundary conditions
 
 solver.get_child('BoundaryConditions').create_boundary_condition(name='INLET',type='cf3.RDM.BcDirichlet')
-solver.get_child('BoundaryConditions').get_child('INLET').options().configure_option('functions',
+solver.get_child('BoundaryConditions').get_child('INLET').options().set('functions',
      ['if(x>0.5,0.5,1.)',
       '0.0',
       'if(x>0.5,1.67332,2.83972)',
@@ -84,7 +84,7 @@ solver.get_child('BoundaryConditions').get_child('INLET').options().configure_op
 ### domain discretization
 
 solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='cf3.RDM.Schemes.LDA')
-solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().configure_option('regions', internal_regions)
+solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().set('regions', internal_regions)
 
 ### simulate and write the result
 
@@ -98,12 +98,12 @@ fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
       cf.URI('//Model/Domain/mesh/solution/wave_speed')]
 
 gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',root.access_component('//Model/Domain/mesh'))
-gmsh_writer.options().configure_option('fields',fgeo)
-gmsh_writer.options().configure_option('file',cf.URI('file:_geo_initial_riemann.msh'))
+gmsh_writer.options().set('mesh',root.access_component('//Model/Domain/mesh'))
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_initial_riemann.msh'))
 gmsh_writer.execute()
-gmsh_writer.options().configure_option('fields',fsol)
-gmsh_writer.options().configure_option('file',cf.URI('file:_sol_initial_riemann.msh'))
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_initial_riemann.msh'))
 gmsh_writer.execute()
 
 model.simulate()
@@ -112,12 +112,12 @@ model.simulate()
 #nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='sc',hidden='')
 #nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
 
-gmsh_writer.options().configure_option('fields',fgeo)
-gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final_riemann.msh'))
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_final_riemann.msh'))
 gmsh_writer.execute()
-gmsh_writer.options().configure_option('fields',fsol)
-gmsh_writer.options().configure_option('file',cf.URI('file:_sol_final_riemann.msh'))
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_final_riemann.msh'))
 gmsh_writer.execute()
 
-#tecplot_writer.options().configure_option('file',cf.URI('file:final_euler2d-riemann.plt'))
+#tecplot_writer.options().set('file',cf.URI('file:final_euler2d-riemann.plt'))
 #tecplot_writer.execute()

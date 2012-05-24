@@ -97,8 +97,8 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
-nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()])
-scalaradv.options().configure_option('regions', [mesh.access_component('topology').uri()])
+nstokes.options().set('regions', [mesh.access_component('topology').uri()])
+scalaradv.options().set('regions', [mesh.access_component('topology').uri()])
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')

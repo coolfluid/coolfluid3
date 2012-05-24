@@ -92,6 +92,9 @@ public: // functions
   void raise_mesh_loaded();
 
   void raise_mesh_changed();
+  
+  /// If true, block subsequent raise_mesh_changed event.
+  void block_mesh_changed(const bool block);
 
   const Handle<BoundingBox>& local_bounding_box()  const { return m_local_bounding_box; }
   const Handle<BoundingBox>& global_bounding_box() const { return m_global_bounding_box; }
@@ -114,6 +117,8 @@ private: // data
 
   Handle<BoundingBox> m_local_bounding_box;
   Handle<BoundingBox> m_global_bounding_box;
+  
+  bool m_block_mesh_changed;
 
 };
 

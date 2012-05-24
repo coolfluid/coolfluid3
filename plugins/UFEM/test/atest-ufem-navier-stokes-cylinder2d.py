@@ -27,7 +27,7 @@ ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 #Load mesh
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
-ns_solver.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ns_solver.options().set('regions', [mesh.access_component('topology').uri()])
 
 # lss setup
 lss = ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')

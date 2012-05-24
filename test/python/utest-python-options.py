@@ -3,10 +3,10 @@ import sys
 
 root = cf.Core.root()
 
-cf.Core.environment().options().configure_option('log_level', 4)
+cf.Core.environment().options().set('log_level', 4)
 
 def test_option(comp, optname, value):
-  comp.options().configure_option(optname, value)
+  comp.options().set(optname, value)
   print 'option', optname, 'for component', comp.uri(), 'has value', comp.options()[optname], 'and was set using', value
   if comp.options()[optname] != value:
     raise Exception('Bad option value')

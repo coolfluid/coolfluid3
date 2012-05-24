@@ -193,6 +193,8 @@ void Solver::on_variables_added_event(SignalArgs& args)
 
 void Solver::create_fields()
 {
+  if(is_null(m_mesh))
+    return;
   // Find out what tags are used
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))

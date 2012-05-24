@@ -8,11 +8,11 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', False)
-env.options().configure_option('exception_backtrace', False)
-env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('log_level', 4)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', False)
+env.options().set('exception_backtrace', False)
+env.options().set('regist_signal_handlers', False)
+env.options().set('log_level', 4)
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -28,7 +28,7 @@ nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
 # Add the scalar advection solver as an unsteady solver
 scalaradv = solver.add_unsteady_solver('cf3.UFEM.ScalarAdvection')
-scalaradv.options().configure_option('scalar_name', 'Temperature')
+scalaradv.options().set('scalar_name', 'Temperature')
 
 # Add the heat conduction solver for the solid
 heatcond = solver.add_unsteady_solver('cf3.UFEM.HeatConductionSteady')
@@ -113,30 +113,30 @@ top_patch[0] = [5, 4]
 top_patch[1] = [5, 8]
 top_patch[2] = [11, 4]
 
-blocks.options().configure_option('block_regions', ['fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'solid'])
+blocks.options().set('block_regions', ['fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'solid'])
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
 # rename the temperature variables, so each temperature has a unique name (needed for mesh writing)
 variables = physics.get_child('VariableManager')
-variables.get_child('scalar_advection_solution').options().configure_option('Temperature_variable_name', 'Tadv')
-variables.get_child('heat_conduction_solution').options().configure_option('Temperature_variable_name', 'Tcond')
+variables.get_child('scalar_advection_solution').options().set('Temperature_variable_name', 'Tadv')
+variables.get_child('heat_conduction_solution').options().set('Temperature_variable_name', 'Tcond')
 
 # For each solver, set the region in which it operates
-nstokes.options().configure_option('regions', [mesh.access_component('topology/fluid').uri()])
-scalaradv.options().configure_option('regions', [mesh.access_component('topology/fluid').uri()])
-heatcond.options().configure_option('regions', [mesh.access_component('topology/solid').uri()])
+nstokes.options().set('regions', [mesh.access_component('topology/fluid').uri()])
+scalaradv.options().set('regions', [mesh.access_component('topology/fluid').uri()])
+heatcond.options().set('regions', [mesh.access_component('topology/solid').uri()])
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 #LSS for scalar advection
 sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-sa_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+sa_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 #LSS for heat conduction
 hc_lss = heatcond.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-hc_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+hc_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
 u_in = [0.5, 0.]
 u_wall = [0., 0.]
@@ -152,57 +152,57 @@ ic_phi = ic.create_initial_condition('scalar_advection_solution')
 #Initial condition for the temperature
 ic_hc = ic.create_initial_condition('heat_conduction_solution')
 
-ic_ns.options().configure_option('regions', [mesh.access_component('topology').uri()])
-ic_linearized_vel.options().configure_option('regions', [mesh.access_component('topology').uri()])
-ic_phi.options().configure_option('regions', [mesh.access_component('topology').uri()])
-ic_hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_ns.options().set('regions', [mesh.access_component('topology').uri()])
+ic_linearized_vel.options().set('regions', [mesh.access_component('topology').uri()])
+ic_phi.options().set('regions', [mesh.access_component('topology').uri()])
+ic_hc.options().set('regions', [mesh.access_component('topology').uri()])
 
 #initial conditions
-ic_ns.options().configure_option('Velocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
-ic_phi.options().configure_option('Tadv', phi_wall)
-ic_hc.options().configure_option('Tcond', phi_wall)
+ic_ns.options().set('Velocity', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity1', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity2', u_in)
+ic_linearized_vel.options().set('AdvectionVelocity3', u_in)
+ic_phi.options().set('Tadv', phi_wall)
+ic_hc.options().set('Tcond', phi_wall)
 
 #properties for Navier-Stokes
-physics.options().configure_option('density', 1.2)
-physics.options().configure_option('dynamic_viscosity', 1.7894e-5)
-physics.options().configure_option('reference_velocity', u_in[0])
-scalaradv.options().configure_option('scalar_coefficient', 1.)
+physics.options().set('density', 1.2)
+physics.options().set('dynamic_viscosity', 1.7894e-5)
+physics.options().set('reference_velocity', u_in[0])
+scalaradv.options().set('scalar_coefficient', 1.)
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
-bc.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().configure_option('value', u_in)
-bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().configure_option('value',  0.)
-bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 10.)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
+bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)
+bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 10.)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
 # Boundary conditions for ScalarAdvection
 bc = scalaradv.get_child('BoundaryConditions')
-bc.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().configure_option('value', phi_in)
+bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', phi_in)
 bc_wall_temp = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.BCHoldValue')
 bc_wall_temp.set_tags(from_field_tag = 'heat_conduction_solution', to_field_tag = 'scalar_advection_solution', from_variable = 'Temperature', to_variable = 'Temperature')
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().configure_option('value',  phi_in)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().configure_option('value',  phi_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().configure_option('value', phi_in)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  phi_in)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  phi_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_in)
 
 # Boundary conditions for HeatConduction
 bc = heatcond.get_child('BoundaryConditions')
-bc.options().configure_option('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
+bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 heat_coupling = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
-heat_coupling.options().configure_option('gradient_region', mesh.access_component('topology/fluid'))
-heat_coupling.options().configure_option('temperature_field_tag', 'scalar_advection_solution')
-bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().configure_option('value',  phi_wall)
+heat_coupling.options().set('gradient_region', mesh.access_component('topology/fluid'))
+heat_coupling.options().set('temperature_field_tag', 'scalar_advection_solution')
+bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().set('value',  phi_wall)
 
 # Time setup
 time = model.create_time()
-time.options().configure_option('time_step', 0.01)
+time.options().set('time_step', 0.01)
 
 # Setup a time series write
 final_end_time = 0.1
@@ -211,12 +211,12 @@ current_end_time = 0.
 iteration = 0
 while current_end_time < final_end_time:
   current_end_time += save_interval
-  time.options().configure_option('end_time', current_end_time)
+  time.options().set('end_time', current_end_time)
   model.simulate()
   domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-' +str(iteration) + '.msh'))
   iteration += 1
   if iteration == 1:
-    solver.options().configure_option('disabled_actions', ['InitialConditions'])
+    solver.options().set('disabled_actions', ['InitialConditions'])
 
 # print timings
 model.print_timing_tree()

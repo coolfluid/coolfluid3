@@ -95,18 +95,34 @@ struct SignalWrapper
     ( * m_signal->signature() ) ( node );
     common::XML::SignalOptions options(node);
 
-    // We support keywordless calling only for signals taking a single argument
-    const Uint nb_options = options.store.size();
-    if(len(args) == 2 && nb_options == 1)
+    // We support keywordless calling only for signals taking a single mandatory argument
+    // This is because the options are in alphabetical order and thus different from C++, making it counter-intuitive to learn
+    // two different orders. This policy can be reconsidered when the options store is no longer alphabetic.
+    if(len(args) == 2)
     {
-      common::Option& option = *options.begin()->second;
-      option.change_value(python_to_any(args[1]));
+      // We have only one (possibly optional) argument, so just set it
+      if(options.store.size() == 1)
+      {
+        options.begin()->second->change_value(python_to_any(args[1]));
+      }
+      else
+      {
+        // Find the first non-optional argument and set it
+        bool found = false;
+        for(common::OptionList::iterator opt_it = options.begin(); opt_it != options.end(); ++opt_it)
+        {
+          if(opt_it->second->has_tag("basic"))
+          {
+            if(found)
+              throw common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments since it has more than one basic option");
+            opt_it->second->change_value(python_to_any(args[1]));
+            found = true;
+          }
+        }
+      }
     }
     else // All other cases should use keywords
     {
-      if(len(args) != 1)
-        throw common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments");
-
       const boost::python::list keys = kwargs.keys();
       const Uint nb_kwargs = len(keys);
       for(Uint i = 0; i != nb_kwargs; ++i)
@@ -398,6 +414,12 @@ boost::python::object option_get_item(const common::OptionList* self, const std:
   return any_to_python(self->operator [](optname).value());
 }
 
+// Function for __set_item__ must not return anything
+void option_set_item(common::OptionList* self, const std::string& optname, const boost::python::object& val)
+{
+  configure_option(self, optname, val);
+}
+
 boost::python::list option_keys(const common::OptionList* self){
   boost::python::list list;
   common::OptionList::const_iterator it=self->begin();
@@ -509,9 +531,9 @@ void def_component()
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("set", configure_option, boost::python::return_value_policy<boost::python::reference_existing_object>())
-    .def("as_str", option_value_str, "String value for an option");
+    .def("as_str", option_value_str, "String value for an option")
     .def("__getitem__", option_get_item, "")
-    .def("__setitem__", configure_option, "")
+    .def("__setitem__", option_set_item, "")
     .def("keys", option_keys, "")
     .def("dict", option_dict, "");
 
