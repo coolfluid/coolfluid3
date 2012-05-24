@@ -9,6 +9,7 @@
 #include "common/Builder.hpp"
 
 #include "math/Consts.hpp"
+#include "math/Functions.hpp"
 
 #include "mesh/ElementTypeT.hpp"
 
@@ -21,6 +22,11 @@ namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Eigen::Matrix<Real,Hexa3D::nb_nodes,1> Hexa3D::m_shapeFunc;
+Eigen::Matrix<Real,Hexa3D::nb_nodes,Hexa3D::dimensionality> Hexa3D::m_shapeFuncDerivs;
+Eigen::Matrix<Real,Hexa3D::dimension,1> Hexa3D::m_vec1;
+Eigen::Matrix<Real,Hexa3D::dimension,1> Hexa3D::m_vec2;
 
 common::ComponentBuilder < ElementTypeT<Hexa3D>, ElementType , LibLagrangeP1 >
    Hexa3D_Builder(LibLagrangeP1::library_namespace()+"."+Hexa3D::type_name());
@@ -330,6 +336,8 @@ Real Hexa3D::area(const NodesT& nodes)
 
 bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, const Uint face)
 {
+  static const Real tolerance = 1e-11;
+
   //test according to http://graphics.ethz.ch/~peikert/personal/HexCellTest/
 
   const Uint a = faces().nodes_range(face)[3];
@@ -366,6 +374,129 @@ bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, co
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+Hexa3D::CoordsT Hexa3D::plane_jacobian_normal(const CoordsT& mapped_coords,
+                                              const NodesT& nodes,
+                                              const CoordRef orientation)
+{
+  CoordsT result;
+  compute_plane_jacobian_normal(mapped_coords,nodes,orientation,result);
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Hexa3D::compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation, CoordsT& result)
+{
+  const Real xi =  mapped_coord[KSI];
+  const Real eta = mapped_coord[ETA];
+  const Real zta = mapped_coord[ZTA];
+
+  const Real a1 = 1. + xi;
+  const Real a2 = 1. - xi;
+  const Real b1 = 1. + eta;
+  const Real b2 = 1. - eta;
+  const Real c1 = 1. + zta;
+  const Real c2 = 1. - zta;
+
+  switch (orientation)
+  {
+    case KSI:
+
+      m_shapeFuncDerivs(0,ETA) = -a2*c2;
+      m_shapeFuncDerivs(1,ETA) = -a1*c2;
+      m_shapeFuncDerivs(2,ETA) =  a1*c2;
+      m_shapeFuncDerivs(3,ETA) =  a2*c2;
+      m_shapeFuncDerivs(4,ETA) = -a2*c1;
+      m_shapeFuncDerivs(5,ETA) = -a1*c1;
+      m_shapeFuncDerivs(6,ETA) =  a1*c1;
+      m_shapeFuncDerivs(7,ETA) =  a2*c1;
+
+      m_shapeFuncDerivs(0,ZTA) = -a2*b2;
+      m_shapeFuncDerivs(1,ZTA) = -a1*b2;
+      m_shapeFuncDerivs(2,ZTA) = -a1*b1;
+      m_shapeFuncDerivs(3,ZTA) = -a2*b1;
+      m_shapeFuncDerivs(4,ZTA) =  b2*a2;
+      m_shapeFuncDerivs(5,ZTA) =  b2*a1;
+      m_shapeFuncDerivs(6,ZTA) =  b1*a1;
+      m_shapeFuncDerivs(7,ZTA) =  b1*a2;
+
+      m_vec1 = m_shapeFuncDerivs(0,ETA)*(nodes.row(0));
+      m_vec2 = m_shapeFuncDerivs(0,ZTA)*(nodes.row(0));
+      for (Uint in = 1; in < 8; ++in)
+      {
+        m_vec1 += m_shapeFuncDerivs(in,ETA)*(nodes.row(in));
+        m_vec2 += m_shapeFuncDerivs(in,ZTA)*(nodes.row(in));
+      }
+      break;
+
+    case ETA:
+
+      m_shapeFuncDerivs(0,ZTA) = -a2*b2;
+      m_shapeFuncDerivs(1,ZTA) = -a1*b2;
+      m_shapeFuncDerivs(2,ZTA) = -a1*b1;
+      m_shapeFuncDerivs(3,ZTA) = -a2*b1;
+      m_shapeFuncDerivs(4,ZTA) =  b2*a2;
+      m_shapeFuncDerivs(5,ZTA) =  b2*a1;
+      m_shapeFuncDerivs(6,ZTA) =  b1*a1;
+      m_shapeFuncDerivs(7,ZTA) =  b1*a2;
+
+      m_shapeFuncDerivs(0,KSI) = -b2*c2;
+      m_shapeFuncDerivs(1,KSI) =  b2*c2;
+      m_shapeFuncDerivs(2,KSI) =  b1*c2;
+      m_shapeFuncDerivs(3,KSI) = -b1*c2;
+      m_shapeFuncDerivs(4,KSI) = -b2*c1;
+      m_shapeFuncDerivs(5,KSI) =  b2*c1;
+      m_shapeFuncDerivs(6,KSI) =  b1*c1;
+      m_shapeFuncDerivs(7,KSI) = -b1*c1;
+
+      m_vec1 = m_shapeFuncDerivs(0,ZTA)*(nodes.row(0));
+      m_vec2 = m_shapeFuncDerivs(0,KSI)*(nodes.row(0));
+      for (Uint in = 1; in < 8; ++in)
+      {
+        m_vec1 += m_shapeFuncDerivs(in,ZTA)*(nodes.row(in));
+        m_vec2 += m_shapeFuncDerivs(in,KSI)*(nodes.row(in));
+      }
+      break;
+
+    case ZTA:
+
+      m_shapeFuncDerivs(0,KSI) = -b2*c2;
+      m_shapeFuncDerivs(1,KSI) =  b2*c2;
+      m_shapeFuncDerivs(2,KSI) =  b1*c2;
+      m_shapeFuncDerivs(3,KSI) = -b1*c2;
+      m_shapeFuncDerivs(4,KSI) = -b2*c1;
+      m_shapeFuncDerivs(5,KSI) =  b2*c1;
+      m_shapeFuncDerivs(6,KSI) =  b1*c1;
+      m_shapeFuncDerivs(7,KSI) = -b1*c1;
+
+      m_shapeFuncDerivs(0,ETA) = -a2*c2;
+      m_shapeFuncDerivs(1,ETA) = -a1*c2;
+      m_shapeFuncDerivs(2,ETA) =  a1*c2;
+      m_shapeFuncDerivs(3,ETA) =  a2*c2;
+      m_shapeFuncDerivs(4,ETA) = -a2*c1;
+      m_shapeFuncDerivs(5,ETA) = -a1*c1;
+      m_shapeFuncDerivs(6,ETA) =  a1*c1;
+      m_shapeFuncDerivs(7,ETA) =  a2*c1;
+
+      m_vec1 = m_shapeFuncDerivs(0,KSI)*(nodes.row(0));
+      m_vec2 = m_shapeFuncDerivs(0,ETA)*(nodes.row(0));
+      for (Uint in = 1; in < 8; ++in)
+      {
+        m_vec1 += m_shapeFuncDerivs(in,KSI)*(nodes.row(in));
+        m_vec2 += m_shapeFuncDerivs(in,ETA)*(nodes.row(in));
+      }
+      break;
+
+    default:
+      throw common::ShouldNotBeHere(FromHere(),"Wrong orientation");
+  }
+
+  // compute normal
+  math::Functions::cross_product(m_vec1,m_vec2,result);
+  result *= 0.015625;
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1

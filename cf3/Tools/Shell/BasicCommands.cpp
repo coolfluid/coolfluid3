@@ -101,9 +101,14 @@ void BasicCommands::call(const std::vector<std::string>& params)
     for (Uint i=0; i<signal_options.size(); ++i)
       signal_options[i] = params[i+1];
 
-    XML::SignalOptions options;
+    // The following 3 lines are added/adapted to get default signature values
+    SignalArgs signal_args;
+    (*signaling_component->signal(name)->signature()) (signal_args);
+    SignalOptions options(signal_args);
 
     options.fill_from_vector(signal_options);
+    options.flush();
+
 
     XML::SignalFrame frame = options.create_frame(name, signaling_component->uri(), signaling_component->uri() );
 
@@ -503,7 +508,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
 void BasicCommands::mv(const std::vector<std::string>& params)
 {
   if (params.size() != 2)
-    throw SetupError(FromHere(),"2 parameters needed for command [make cpath1 cpath2]");
+    throw SetupError(FromHere(),"2 parameters needed for command [mv cpath1 cpath2]");
   const URI cpath1(params[0]);
   const URI cpath2(params[1]);
   Handle<Component> component_1 = current_component->access_component(cpath1);
@@ -512,7 +517,7 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   XML::SignalOptions options;
 //  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
 
-  options.add_option( "Path", parent_2->uri() );
+  options.add_option( "path", parent_2->uri() );
 
   XML::SignalFrame frame = options.create_frame("move_component", component_1->uri(), component_1->uri() );
 

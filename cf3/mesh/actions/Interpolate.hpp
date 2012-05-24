@@ -32,12 +32,7 @@ namespace actions {
 ///
 /// @post After this, the mesh is ready to be parallellized
 /// @author Willem Deconinck
-class mesh_actions_API Interpolate : public MeshTransformer
-{
-public: // typedefs
-
-    
-    
+class mesh_actions_API Interpolate : public MeshTransformer {
 
 public: // functions
 
@@ -72,7 +67,7 @@ private:
   /// source octtree
   Handle<Octtree> m_octtree;
 
-  void interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row);
+  void interpolate_coordinate(const RealVector& target_coord, const Entities& element_component, const Uint element_idx, Field::Row target_row);
 
 
 }; // end Interpolate

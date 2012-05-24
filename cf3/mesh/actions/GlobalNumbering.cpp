@@ -141,28 +141,26 @@ void GlobalNumbering::execute()
         elements.glb_idx()[e]=glb_idx++;
       }
     }
-    mesh.update_structures();
-    mesh.update_statistics();
-
+    mesh.raise_mesh_changed();
     return;
   }
 
   common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
   RealVector coord_vec(coordinates.row_size());
 
-  if ( is_null( mesh.geometry_fields().get_child("glb_node_hash") ) )
-    mesh.geometry_fields().create_component<CVector_uint64>("glb_node_hash");
-  CVector_uint64& glb_node_hash = *Handle<CVector_uint64>(mesh.geometry_fields().get_child("glb_node_hash"));
-  glb_node_hash.data().resize(coordinates.size());
+  if ( is_null( mesh.geometry_fields().get_child("hilbert_indices") ) )
+    mesh.geometry_fields().create_component<CVector_uint64>("hilbert_indices");
+  CVector_uint64& hilbert_indices = *Handle<CVector_uint64>(mesh.geometry_fields().get_child("hilbert_indices"));
+  hilbert_indices.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
   {
-//    glb_node_hash.data()[i]=node_hash_value(to_vector(coords));
+//    hilbert_indices.data()[i]=node_hash_value(to_vector(coords));
     math::copy(coords,coord_vec);
-    glb_node_hash.data()[i]=compute_glb_idx(coord_vec);
+    hilbert_indices.data()[i]=compute_glb_idx(coord_vec);
 
     if (m_debug)
-      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< coord_vec.transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< coord_vec.transpose() << ") to " << hilbert_indices.data()[i] << std::endl;
     ++i;
   }
 
@@ -170,22 +168,21 @@ void GlobalNumbering::execute()
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
-    if ( is_null( elements.get_child("glb_elem_hash") ) )
-      elements.create_component<CVector_uint64>("glb_elem_hash");
-    CVector_uint64& glb_elem_hash = *Handle<CVector_uint64>(elements.get_child("glb_elem_hash"));
-    glb_elem_hash.data().resize(elements.size());
+    if ( is_null( elements.get_child("hilbert_indices") ) )
+      elements.create_component<CVector_uint64>("hilbert_indices");
+    CVector_uint64& hilbert_indices = *Handle<CVector_uint64>(elements.get_child("hilbert_indices"));
+    hilbert_indices.data().resize(elements.size());
 
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
       elements.geometry_space().put_coordinates(element_coordinates,elem_idx);
       RealVector centroid(elements.element_type().dimension());
       elements.element_type().compute_centroid(element_coordinates,centroid);
-//      glb_elem_hash.data()[elem_idx]=elem_hash_value(element_coordinates);
-      glb_elem_hash.data()[elem_idx]=compute_glb_idx(centroid);
+      hilbert_indices.data()[elem_idx]=compute_glb_idx(centroid);
       if (m_debug)
-        std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem "<< elements.uri().path() << "["<<elem_idx<<"] ("<<centroid.transpose()<<") to " << glb_elem_hash.data()[elem_idx] << std::endl;
+        std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem "<< elements.uri().path() << "["<<elem_idx<<"] ("<<centroid.transpose()<<") to " << hilbert_indices.data()[elem_idx] << std::endl;
 
-      //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
+      //CFinfo << "hilbert_indices["<<elem_idx<<"] = " <<  hilbert_indices.data()[elem_idx] << CFendl;
     }
   }
 
@@ -193,20 +190,20 @@ void GlobalNumbering::execute()
   // In debug mode, check if no hashes are duplicated
   if (m_debug)
   {
-    std::set<boost::uint64_t> glb_set;
-    for (Uint i=0; i<glb_node_hash.data().size(); ++i)
+    std::set<boost::uint64_t> hilbert_set;
+    for (Uint i=0; i<hilbert_indices.data().size(); ++i)
     {
-      if (glb_set.insert(glb_node_hash.data()[i]).second == false)  // it was already in the set
-        throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
+      if (hilbert_set.insert(hilbert_indices.data()[i]).second == false)  // it was already in the set
+        throw ValueExists(FromHere(), "node "+to_str(i)+" ("+to_str(coordinates[18])+") is duplicated");
     }
 
-    glb_set.clear();
+    hilbert_set.clear();
     boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
-      CVector_uint64& glb_elem_hash = *Handle<CVector_uint64>(elements.get_child("glb_elem_hash"));
-      for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
+      CVector_uint64& hilbert_indices = *Handle<CVector_uint64>(elements.get_child("hilbert_indices"));
+      for (Uint i=0; i<hilbert_indices.data().size(); ++i)
       {
-        if (glb_set.insert(glb_elem_hash.data()[i]).second == false)  // it was already in the set
+        if (hilbert_set.insert(hilbert_indices.data()[i]).second == false)  // it was already in the set
           throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
       }
     }
@@ -217,14 +214,12 @@ void GlobalNumbering::execute()
   // now renumber
 
   //------------------------------------------------------------------------------
-  // create node_glb2loc mapping
+  // create node_hilbert2loc mapping
   Dictionary& nodes = mesh.geometry_fields();
-  std::map<boost::uint64_t,Uint> node_glb2loc;
+  std::map<boost::uint64_t,Uint> node_hilbert2loc;
   Uint loc_node_idx(0);
-  boost_foreach(boost::uint64_t hash, glb_node_hash.data())
-    node_glb2loc[hash]=loc_node_idx++;
-  std::map<boost::uint64_t,Uint>::iterator node_glb2loc_it;
-  std::map<boost::uint64_t,Uint>::iterator hash_not_found = node_glb2loc.end();
+  boost_foreach(boost::uint64_t hilbert_idx, hilbert_indices.data())
+    node_hilbert2loc[hilbert_idx]=loc_node_idx++;
 
   // Check if all nodes have been added to the map
   cf3_assert(loc_node_idx==nodes.size());
@@ -240,7 +235,6 @@ void GlobalNumbering::execute()
     if (nodes.is_ghost(i) == false)
     {
       ++nb_owned_nodes;
-      nodes_rank[i] = PE::Comm::instance().rank();
     }
   }
 
@@ -255,7 +249,6 @@ void GlobalNumbering::execute()
       if (elements.is_ghost(e) == false)
       {
         ++nb_owned_elems;
-        elem_rank[e] = PE::Comm::instance().rank();
       }
     }
   }
@@ -282,7 +275,7 @@ void GlobalNumbering::execute()
   // add glb_idx to owned nodes, broadcast/receive glb_idx for ghost nodes
 
   std::vector<boost::uint64_t> node_from(nb_owned_nodes);
-  std::vector<Uint>   node_to(nb_owned_nodes);
+  std::vector<boost::uint64_t> node_to(nb_owned_nodes);
 
   common::List<Uint>& nodes_glb_idx = mesh.geometry_fields().glb_idx();
   nodes_glb_idx.resize(nodes.size());
@@ -291,10 +284,11 @@ void GlobalNumbering::execute()
   Uint glb_id = start_id_per_proc[PE::Comm::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
+    cf3_assert(nodes.rank()[i] < PE::Comm::instance().size());
     if ( ! nodes.is_ghost(i) )
     {
       nodes_glb_idx[i] = glb_id++;
-      node_from[cnt] = glb_node_hash.data()[i];
+      node_from[cnt] = hilbert_indices.data()[i];
       node_to[cnt]   = nodes_glb_idx[i];
       ++cnt;
     }
@@ -304,12 +298,16 @@ void GlobalNumbering::execute()
     }
   }
 
+
+  if (node_hilbert2loc.count(267565322921))
+    std::cout << PERank << "++++++ hilbert 267565322921 found at local idx "<< node_hilbert2loc[267565322921] << ", owned by " << nodes.rank()[node_hilbert2loc[267565322921]] << std::endl;
+
   for (Uint root=0; root<PE::Comm::instance().size(); ++root)
   {
 
     std::vector<boost::uint64_t> rcv_node_from(0);
     PE::Comm::instance().broadcast(node_from,rcv_node_from,root);
-    std::vector<Uint>        rcv_node_to(0);
+    std::vector<boost::uint64_t>        rcv_node_to(0);
     PE::Comm::instance().broadcast(node_to,rcv_node_to,root);
 
     if (m_debug)
@@ -324,18 +322,18 @@ void GlobalNumbering::execute()
         if (p == PE::Comm::instance().rank())
         {
           Uint rcv_idx(0);
-          boost_foreach(const boost::uint64_t node_hash, rcv_node_from)
+          boost_foreach(const boost::uint64_t hilbert_idx, rcv_node_from)
           {
-            node_glb2loc_it = node_glb2loc.find(node_hash);
-            if ( node_glb2loc_it != hash_not_found )
+            if ( node_hilbert2loc.count(hilbert_idx) )
             {
+              const Uint loc_idx = node_hilbert2loc[hilbert_idx];
               if (m_debug)
-                std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< hilbert_idx << " (" << loc_idx<< ") to " << rcv_node_to[rcv_idx] << std::endl;
               cf3_assert(rcv_idx < rcv_node_to.size());
-              nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
-              cf3_assert(node_glb2loc_it->second < nodes_rank.size());
-              cf3_assert(nodes.is_ghost(node_glb2loc_it->second));
-              nodes_rank[node_glb2loc_it->second]=root;
+              nodes_glb_idx[loc_idx]=rcv_node_to[rcv_idx];
+              cf3_assert(loc_idx < nodes_rank.size());
+              cf3_assert_desc("node "+to_str(loc_idx)+ " with hilbert_idx " +to_str(hilbert_idx) +" must be a ghost, but is owned by "+to_str(nodes_rank[loc_idx]),nodes.is_ghost(loc_idx));
+              nodes_rank[loc_idx]=std::min(root,nodes_rank[loc_idx]);
             }
             ++rcv_idx;
           }
@@ -371,7 +369,7 @@ void GlobalNumbering::execute()
   {
     if (m_debug)
       std::cout << "give glb idx to elements " << elements.uri() << std::endl;
-    std::vector<boost::uint64_t>& glb_elem_hash = Handle<CVector_uint64>(elements.get_child("glb_elem_hash"))->data();
+    std::vector<boost::uint64_t>& hilbert_indices = Handle<CVector_uint64>(elements.get_child("hilbert_indices"))->data();
     common::List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
@@ -384,18 +382,18 @@ void GlobalNumbering::execute()
 
     for (Uint e=0; e<elements.size(); ++e)
     {
-      elem_glb2loc [ glb_elem_hash[e] ] = e;
+      elem_glb2loc [ hilbert_indices[e] ] = e;
       if ( ! elements.is_ghost(e) )
         ++nb_owned_elems;
     }
 
 
     std::vector<boost::uint64_t> send_hash(nb_owned_elems);
-    std::vector<Uint>   send_id(nb_owned_elems);
+    std::vector<boost::uint64_t>   send_id(nb_owned_elems);
 
     common::List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
-    cf3_assert(glb_elem_hash.size() == elements.size());
+    cf3_assert(hilbert_indices.size() == elements.size());
 
     Uint cnt(0);
     for (Uint e=0; e<elements.size(); ++e)
@@ -404,10 +402,10 @@ void GlobalNumbering::execute()
       if ( ! elements.is_ghost(e) )
       {
         if (m_debug)
-          std::cout << "["<<PE::Comm::instance().rank() << "]  will change owned elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
+          std::cout << "["<<PE::Comm::instance().rank() << "]  will change owned elem "<< hilbert_indices[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
 
         elements_glb_idx[e] = glb_id++;
-        send_hash[cnt] = glb_elem_hash[e];
+        send_hash[cnt] = hilbert_indices[e];
         send_id[cnt]   = elements_glb_idx[e];
         ++cnt;
       }
@@ -422,7 +420,7 @@ void GlobalNumbering::execute()
     {
       std::vector<boost::uint64_t> recv_hash(0);
       PE::Comm::instance().broadcast(send_hash,recv_hash,root);
-      std::vector<Uint>        recv_id(0);
+      std::vector<boost::uint64_t>        recv_id(0);
       PE::Comm::instance().broadcast(send_id,recv_id,root);
       if (PE::Comm::instance().rank() != root)
       {
@@ -458,10 +456,10 @@ void GlobalNumbering::execute()
   // In debug mode, check if no hashes are duplicated
   if (m_debug)
   {
-    std::set<Uint> glb_set;
+    std::set<boost::uint64_t> hilbert_set;
     for (Uint i=0; i<nodes_glb_idx.size(); ++i)
     {
-      if (glb_set.insert(nodes_glb_idx[i]).second == false)  // it was already in the set
+      if (hilbert_set.insert(nodes_glb_idx[i]).second == false)  // it was already in the set
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
       if (nodes_glb_idx[i] == uint_max())
         throw BadValue(FromHere(), "node " + to_str(i)+" doesn't have glb_idx");
@@ -472,7 +470,7 @@ void GlobalNumbering::execute()
       common::List<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
       {
-        if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set
+        if (hilbert_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set
           throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
         if (elements_glb_idx[i] == uint_max())
           throw BadValue(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] doesn't have glb_idx");
@@ -482,15 +480,14 @@ void GlobalNumbering::execute()
   }
 
 
-  mesh.geometry_fields().remove_component(glb_node_hash);
+  mesh.geometry_fields().remove_component(hilbert_indices);
 
   boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
-    elements.remove_component("glb_elem_hash");
+    elements.remove_component("hilbert_indices");
   }
 
-  mesh.update_statistics();
-  mesh.update_structures();
+  mesh.raise_mesh_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -85,6 +85,9 @@ public: // functions
 
   std::vector< Handle<mesh::Region> >& regions() { return m_regions; }
 
+  void signal_add_probe(common::SignalArgs& args);
+  void signature_add_probe(common::SignalArgs& args);
+
 //  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
 
 private: // functions

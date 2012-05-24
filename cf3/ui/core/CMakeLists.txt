@@ -24,7 +24,9 @@ TreeThread.hpp
 )
 
 # Create the moc files
-QT4_WRAP_CPP(coolfluid_ui_core_moc_files ${coolfluid_ui_core_moc_classes})
+if( QT4_FOUND )
+  QT4_WRAP_CPP(coolfluid_ui_core_moc_files ${coolfluid_ui_core_moc_classes})
+endif()
 
 # Add the project files (including the moc files)
 list( APPEND coolfluid_ui_core_files

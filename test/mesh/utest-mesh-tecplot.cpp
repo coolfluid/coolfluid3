@@ -120,10 +120,10 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   tec_writer->execute();
 
   std::vector<URI> regions;
-  regions.push_back(mesh.uri()/"topology/quadtriag/inlet");
-  regions.push_back(mesh.uri()/"topology/quadtriag/outlet");
-  regions.push_back(mesh.uri()/"topology/quadtriag/wall");
-  regions.push_back(mesh.uri()/"topology/quadtriag/liquid");
+  regions.push_back(mesh.uri()/"topology/inlet");
+  regions.push_back(mesh.uri()/"topology/outlet");
+  regions.push_back(mesh.uri()/"topology/wall");
+  regions.push_back(mesh.uri()/"topology/liquid");
   tec_writer->options().configure_option("regions",regions);
   tec_writer->options().configure_option("file",URI("quadtriag_filtered.plt"));
   tec_writer->execute();

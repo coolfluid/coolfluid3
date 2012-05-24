@@ -3,12 +3,12 @@ from coolfluid import *
 root = Core.root()
 env = Core.environment()
 
-env.options().configure_option('assertion_backtrace', False)
-env.options().configure_option('exception_backtrace', False)
-env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('exception_log_level', 0)
-env.options().configure_option('log_level', 4)
-env.options().configure_option('exception_outputs', False)
+env.options().set('assertion_backtrace', False)
+env.options().set('exception_backtrace', False)
+env.options().set('regist_signal_handlers', False)
+env.options().set('exception_log_level', 0)
+env.options().set('log_level', 4)
+env.options().set('exception_outputs', False)
 
 table = root.create_component("table", "cf3.common.Table<unsigned>")
 

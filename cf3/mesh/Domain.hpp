@@ -26,11 +26,6 @@ namespace mesh {
 /// @author Tiago Quintino
 class Mesh_API Domain : public common::Component {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor
@@ -60,6 +55,8 @@ public: // functions
   void signal_write_mesh( common::SignalArgs& node );
   
   //@} END SIGNALS
+
+  Uint dimension() const;
 
 private:
   class Implementation;

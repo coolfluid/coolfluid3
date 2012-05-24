@@ -13,7 +13,7 @@
 namespace cf3 {
 namespace sdm {
 namespace navierstokes {
-	
+
 //////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder<BCSubsonicInletUT2D,BC,LibNavierStokes> bcsubsonicinletUT2d_builder;

@@ -98,12 +98,12 @@ public: // functions
 
   /// @brief Compute the shape function gradient in the given local coordinate
   /// @param [in] local_coordinate   local coordinate (size = dimensionality x 1)
-  /// @return shape function gradient (size = nb_nodes x dimensionality)
+  /// @return shape function gradient (size = dimensionality x nb_nodes)
   virtual RealMatrix gradient(const RealVector& local_coordinate) const = 0;
 
   /// @brief Compute the shape function values in the given local coordinate
   /// @param [in]  local_coordinate   local coordinate (size = dimensionality x 1)
-  /// @param [out] gradient           computed gradient (size = nb_nodes x dimensionality)
+  /// @param [out] gradient           computed gradient (size = dimensionality x nb_nodes)
   virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const = 0;
 
   //@}

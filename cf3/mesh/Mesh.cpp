@@ -69,15 +69,20 @@ Mesh::Mesh ( const std::string& name  ) :
 {
   mark_basic(); // by default meshes are visible
 
-  properties().add_property("nb_cells",Uint(0));
-  properties().add_property("nb_faces",Uint(0));
-  properties().add_property("nb_nodes",Uint(0));
+  properties().add_property("local_nb_cells",Uint(0));
+  properties().add_property("local_nb_faces",Uint(0));
+  properties().add_property("local_nb_nodes",Uint(0));
+  properties().add_property("global_nb_cells",Uint(0));
+  properties().add_property("global_nb_faces",Uint(0));
+  properties().add_property("global_nb_nodes",Uint(0));
   properties().add_property("dimensionality",Uint(0));
   properties().add_property(common::Tags::dimension(),Uint(0));
 
-  m_mesh_elements   = create_static_component<MeshElements>("elements");
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
+
+  m_local_bounding_box  = create_static_component<BoundingBox>("bounding_box_local");
+  m_global_bounding_box = create_static_component<BoundingBox>("bounding_box_global");
 
   regist_signal ( "write_mesh" )
       .description( "Write mesh, guessing automatically the format" )
@@ -118,7 +123,8 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf3_assert(geometry_fields().coordinates().row_size() == dimension);
   m_dimension = dimension;
   properties().property(common::Tags::dimension()) = m_dimension;
-  properties().property("nb_nodes")  = geometry_fields().size();
+  properties().property("local_nb_nodes")  = geometry_fields().size();
+  update_structures();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,19 +135,20 @@ void Mesh::update_structures()
   Uint dict_idx=0;
   m_elements.clear();
   m_dictionaries.clear();
-  std::set< Handle<Dictionary> > dicts_set;
+  std::map<std::string,Handle<Dictionary> > dicts_map; // sorted by string
   boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
   {
     m_elements.push_back(elements.handle<Entities>());
     boost_foreach(const Handle<Space>& space, elements.spaces())
     {
-      dicts_set.insert(space->dict().handle<Dictionary>());
+      dicts_map[space->dict().uri().string()]=space->dict().handle<Dictionary>();
     }
   }
-  m_dictionaries.reserve(dicts_set.size());
-  boost_foreach(const Handle<Dictionary>& dict, dicts_set)
+  m_dictionaries.reserve(dicts_map.size());
+  foreach_container( (const std::string& uri) (const Handle<Dictionary>& dict), dicts_map)
   {
     m_dictionaries.push_back(dict);
+    dict->update_structures();
   }
 
   // Set private member m_entities_idx in each Entities
@@ -150,11 +157,24 @@ void Mesh::update_structures()
     m_elements[entities_idx]->m_entities_idx = entities_idx;
   }
 
+  bool found=false;
+  boost_foreach (const Handle<Dictionary> dict, m_dictionaries)
+  {
+    if (dict == m_geometry_fields)
+    {
+      found = true;
+      break;
+    }
+  }
+  if (!found)
+  {
+    if (m_geometry_fields)
+      m_dictionaries.push_back(m_geometry_fields);
+  }
+
   // Set private member m_dict_idx in each Space
   for (dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
   {
-    m_dictionaries[dict_idx]->update();
-
     boost_foreach(const Handle<Space>& space, m_dictionaries[dict_idx]->spaces())
     {
       space->m_dict_idx = dict_idx;
@@ -183,9 +203,26 @@ void Mesh::update_statistics()
 
   properties().property(common::Tags::dimension()) = m_dimension;
   properties().property("dimensionality")= m_dimensionality;
-  properties().property("nb_cells") = nb_cells;
-  properties().property("nb_faces") = nb_faces;
-  properties().property("nb_nodes") = geometry_fields().size();
+  properties().property("local_nb_cells") = nb_cells;
+  properties().property("local_nb_faces") = nb_faces;
+  properties().property("local_nb_nodes") = geometry_fields().size();
+
+  std::vector<Uint> global_stats(3);
+  global_stats[0]=nb_cells;
+  global_stats[1]=nb_faces;
+  global_stats[2]=geometry_fields().size();
+  if (PE::Comm::instance().is_active())
+    PE::Comm::instance().all_reduce(PE::plus(),global_stats,global_stats);
+  properties().property("global_nb_cells") = global_stats[0];
+  properties().property("global_nb_faces") = global_stats[1];
+  properties().property("global_nb_nodes") = global_stats[2];
+
+  m_local_bounding_box->build(*this);
+  m_local_bounding_box->update_properties();
+
+  m_global_bounding_box->define(*m_local_bounding_box);
+  m_global_bounding_box->make_global();
+  m_global_bounding_box->update_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -198,35 +235,39 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
 
 Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  std::set< Handle<Entities> > entities_set;
+  std::map< std::string, Handle<Entities> > entities_set; // sorted by uri
   boost_foreach(const Handle<Region>& region, regions)
   {
     boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
     {
-      entities_set.insert(entities.handle<Entities>());
+      entities_set[entities.uri().string()]=entities.handle<Entities>();
     }
   }
-  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  std::vector< Handle<Entities> > entities_vec;
+  foreach_container( (const std::string& uri)(const Handle<Entities>& entities), entities_set )
+  {
+    entities_vec.push_back(entities);
+  }
   return create_continuous_space(space_name, space_lib_name, entities_vec);
 }
 
 Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  Dictionary& space_fields = *create_component<ContinuousDictionary>(space_name);
+  Dictionary& dict = *create_component<ContinuousDictionary>(space_name);
 
-  boost_foreach(const Handle<Entities>& entities_handle, entities )
-  {
-    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
-  }
-  space_fields.update();
-
-  CFinfo << "Continuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  CFinfo << "Creating Continuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
+  }
+  dict.build();
   update_structures();
-  return space_fields;
+  return dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,35 +280,39 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
 
 Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region> >& regions )
 {
-  std::set< Handle<Entities> > entities_set;
+  std::map< std::string, Handle<Entities> > entities_set; // sorted by uri
   boost_foreach(const Handle<Region>& region, regions)
   {
     boost_foreach(Entities& entities, find_components_recursively<Entities>(*region) )
     {
-      entities_set.insert(entities.handle<Entities>());
+      entities_set[entities.uri().string()]=entities.handle<Entities>();
     }
   }
-  std::vector< Handle<Entities> > entities_vec (entities_set.begin(),entities_set.end());
+  std::vector< Handle<Entities> > entities_vec;
+  foreach_container( (const std::string& uri)(const Handle<Entities>& entities), entities_set )
+  {
+    entities_vec.push_back(entities);
+  }
   return create_discontinuous_space(space_name, space_lib_name, entities_vec);
 }
 
 Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
-  Dictionary& space_fields = *create_component<DiscontinuousDictionary>(space_name);
+  Dictionary& dict = *create_component<DiscontinuousDictionary>(space_name);
 
-  boost_foreach(const Handle<Entities>& entities_handle, entities )
-  {
-    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),space_fields);
-  }
-  space_fields.update();
-
-  CFinfo << "Discontinuous space " << space_fields.uri() << " ("<<space_lib_name<<") created for entities" << CFendl;
+  CFinfo << "Creating Disontinuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
   {
     CFinfo << "    -  " <<  entities_handle->uri() << CFendl;
   }
+
+  boost_foreach(const Handle<Entities>& entities_handle, entities )
+  {
+    entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
+  }
+  dict.build();
   update_structures();
-  return space_fields;
+  return dict;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -277,27 +322,18 @@ Dictionary& Mesh::geometry_fields() const
   return *m_geometry_fields;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-MeshElements& Mesh::mesh_elements() const
-{
-  return *m_mesh_elements;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("file" , name() + ".msh" )
+  options.add_option("file" , URI(name() + ".msh") )
       .description("File to write" );
 
-//  boost_foreach (Field& field, find_components_recursively<Field>(*this))
-//  {
-//    options.add_option(field.name(), false )
-//        .description("Mark if field gets to be written");
-//  }
+  std::vector<URI> fields;
+  options.add_option("fields" , fields )
+      .description("Field paths to write");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,10 +342,10 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string file = name()+".msh";
+  URI file(name()+".msh");
 
   if (options.check("file"))
-    file = options.value<std::string>("file");
+    file = options.value<URI>("file");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -321,10 +357,8 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   std::vector<URI> fields;
 
-  boost_foreach( Field& field, find_components_recursively<Field>(*this))
-  {
-    fields.push_back(field.uri());
-  }
+  if (options.check("fields"))
+    fields = options.array<URI>("fields");
 
   write_mesh(fpath,fields);
 }
@@ -425,21 +459,54 @@ bool Mesh::check_sanity() const
 
 void Mesh::raise_mesh_loaded()
 {
-  update_statistics();
   update_structures();
+  update_statistics();
+
+  for (Uint dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
+  {
+    m_dictionaries[dict_idx]->rebuild_map_glb_to_loc();
+    m_dictionaries[dict_idx]->rebuild_node_to_element_connectivity();
+  }
 
   check_sanity();
 
-  // Raise an event to indicate that a mesh was loaded happened
+  // Raise an event to indicate that this mesh was loaded
   SignalOptions options;
   options.add_option("mesh_uri", uri());
 
   SignalArgs f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+  Core::instance().event_handler().raise_event( Tags::event_mesh_loaded(), f );
 
   update_statistics();
-  mesh_elements().update();
   check_sanity();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::raise_mesh_changed()
+{
+  update_structures();
+  update_statistics();
+
+  for (Uint dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
+  {
+    m_dictionaries[dict_idx]->rebuild_map_glb_to_loc();
+    m_dictionaries[dict_idx]->rebuild_node_to_element_connectivity();
+  }
+
+  check_sanity();
+
+  // Raise an event to indicate that this mesh was changed
+  SignalOptions options;
+  options.add_option("mesh_uri", uri());
+
+  SignalArgs f= options.create_frame();
+  Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+
+  update_statistics();
+  check_sanity();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

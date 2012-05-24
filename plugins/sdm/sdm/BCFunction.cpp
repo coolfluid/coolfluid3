@@ -19,7 +19,7 @@ namespace sdm {
 
 common::ComponentBuilder<BCFunction<1u,1u>,BC,LibSDM> bcfunction_1eq_1d_builder;
 common::ComponentBuilder<BCFunction<1u,2u>,BC,LibSDM> bcfunction_1eq_2d_builder;
-//common::ComponentBuilder<BCFunction<1u,3u>,BC,LibSDM> bcfunction_1eq_3d_builder;
+common::ComponentBuilder<BCFunction<1u,3u>,BC,LibSDM> bcfunction_1eq_3d_builder;
 
 //common::ComponentBuilder<BCFunction<2u,1u>,BC,LibSDM> bcfunction_2eq_1d_builder;
 //common::ComponentBuilder<BCFunction<2u,2u>,BC,LibSDM> bcfunction_2eq_2d_builder;
@@ -35,7 +35,7 @@ common::ComponentBuilder<BCFunction<4u,2u>,BC,LibSDM> bcfunction_4eq_2d_builder;
 
 //common::ComponentBuilder<BCFunction<5u,1u>,BC,LibSDM> bcfunction_5eq_1d_builder;
 //common::ComponentBuilder<BCFunction<5u,2u>,BC,LibSDM> bcfunction_5eq_2d_builder;
-//common::ComponentBuilder<BCFunction<5u,3u>,BC,LibSDM> bcfunction_5eq_3d_builder;
+common::ComponentBuilder<BCFunction<5u,3u>,BC,LibSDM> bcfunction_5eq_3d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 

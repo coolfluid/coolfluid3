@@ -9,12 +9,12 @@ root = coolfluid.Core.root()
 env =  coolfluid.Core.environment()
 
 ### Logging configuration
-env.options().configure_option('assertion_backtrace', True)
-env.options().configure_option('exception_backtrace', True)
-env.options().configure_option('regist_signal_handlers', True)
-env.options().configure_option('exception_log_level', 10)
-env.options().configure_option('log_level', 3)
-env.options().configure_option('exception_outputs', True)
+env.options().set('assertion_backtrace', True)
+env.options().set('exception_backtrace', True)
+env.options().set('regist_signal_handlers', True)
+env.options().set('exception_log_level', 10)
+env.options().set('log_level', 3)
+env.options().set('exception_outputs', True)
 
 ############################
 # Create simulation
@@ -40,22 +40,22 @@ u_inf = M_inf*c_inf
 rhoE_inf = p_inf/(gamma-1) + 0.5 * rho_inf * u_inf**2
 # p = (g-1) * ( rhoE - 0.5 * rho * ( u**2 ) )
 
-physics.options().configure_option('gamma',gamma)
-physics.options().configure_option('R',R)
+physics.options().set('gamma',gamma)
+physics.options().set('R',R)
 
 ### Configure solver
-solver.options().configure_option('mesh',mesh)
-solver.options().configure_option('solution_vars','cf3.physics.NavierStokes.Cons2D')
-solver.options().configure_option('solution_order',3)
-solver.options().configure_option('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
+solver.options().set('mesh',mesh)
+solver.options().set('solution_vars','cf3.physics.NavierStokes.Cons2D')
+solver.options().set('solution_order',3)
+solver.options().set('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
 
 ### Configure timestepping
-solver.access_component('Time').options().configure_option('end_time',3000000)
-solver.access_component('Time').options().configure_option('time_step',1)
-solver.access_component('TimeStepping').options().configure_option('time_accurate',True);         # time accurate for initial stability
-solver.access_component('TimeStepping').options().configure_option('cfl','min(0.5,0.0001*i)');    # increasing cfl number
-solver.access_component('TimeStepping').options().configure_option('max_iteration',100);           # limit the number of iterations (default = no limit)
-solver.access_component('TimeStepping/IterativeSolver').options().configure_option('nb_stages',3) # Runge Kutta number of stages
+solver.access_component('Time').options().set('end_time',3000000)
+solver.access_component('Time').options().set('time_step',1)
+solver.access_component('TimeStepping').options().set('time_accurate',True);         # time accurate for initial stability
+solver.access_component('TimeStepping').options().set('cfl','min(0.5,0.0001*i)');    # increasing cfl number
+solver.access_component('TimeStepping').options().set('max_iteration',100);           # limit the number of iterations (default = no limit)
+solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3) # Runge Kutta number of stages
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 solver.get_child('PrepareMesh').execute()
@@ -69,8 +69,8 @@ str(rho_inf),
 str(p_inf)
 ]
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'uniform')
-initial_condition.options().configure_option('functions',functions)
-initial_condition.options().configure_option('input_vars',physics.access_component('input_vars'))
+initial_condition.options().set('functions',functions)
+initial_condition.options().set('input_vars',physics.access_component('input_vars'))
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
@@ -82,7 +82,7 @@ bc_farfield = solver.get_child('BoundaryConditions').create_boundary_condition(
    name = 'farfield', 
    type = 'cf3.sdm.BCConstant<4,2>', 
    regions=[mesh.access_component('topology/boundary').uri()])
-bc_farfield.options().configure_option('constants',[rho_inf,rho_inf*u_inf,0.,rhoE_inf])
+bc_farfield.options().set('constants',[rho_inf,rho_inf*u_inf,0.,rhoE_inf])
 
 ### Create wall boundary condition
 bc_wall = solver.get_child('BoundaryConditions').create_boundary_condition(
@@ -105,9 +105,9 @@ mesh.access_component('solution_space/delta').uri()
 ]
 
 gmsh_writer = model.create_component('init_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh)
-gmsh_writer.options().configure_option('fields',fields)
-gmsh_writer.options().configure_option('file',coolfluid.URI('file:initial.msh'))
+gmsh_writer.options().set('mesh',mesh)
+gmsh_writer.options().set('fields',fields)
+gmsh_writer.options().set('file',coolfluid.URI('file:initial.msh'))
 gmsh_writer.execute()
 
 #######################################
@@ -162,9 +162,9 @@ mesh.access_component('solution_space/wave_speed').uri()
 # gmsh
 ######
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',mesh)
-gmsh_writer.options().configure_option('fields',fields)
-gmsh_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.msh'))
+gmsh_writer.options().set('mesh',mesh)
+gmsh_writer.options().set('fields',fields)
+gmsh_writer.options().set('file',coolfluid.URI('file:sdm_output.msh'))
 gmsh_writer.execute()
 
 ## Tecplot
@@ -197,8 +197,8 @@ gmsh_writer.execute()
 
 ## Write visualization mesh
 #tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplot.Writer')
-#tec_writer.options().configure_option('mesh',visualization_mesh)
-#tec_writer.options().configure_option('fields',fields)
-#tec_writer.options().configure_option('cell_centred',True)
-#tec_writer.options().configure_option('file',coolfluid.URI('file:sdm_output.plt'))
+#tec_writer.options().set('mesh',visualization_mesh)
+#tec_writer.options().set('fields',fields)
+#tec_writer.options().set('cell_centred',True)
+#tec_writer.options().set('file',coolfluid.URI('file:sdm_output.plt'))
 #tec_writer.execute()

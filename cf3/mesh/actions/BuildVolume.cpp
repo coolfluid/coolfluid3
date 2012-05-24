@@ -73,7 +73,8 @@ void BuildVolume::execute()
   Dictionary& cells_P0 = *mesh.create_component<DiscontinuousDictionary>("cells_P0");
   boost_foreach(Cells& cells, find_components_recursively<Cells>(mesh.topology()))
     cells.create_space("cf3.mesh.LagrangeP0"+cells.element_type().shape_name(),cells_P0);
-  cells_P0.update();
+  cells_P0.build();         // to tell the dictionary that all spaces have been added
+  mesh.update_structures(); // to tell the mesh there is a new dictionary added manually
 
 
   Field& volume = cells_P0.create_field("volume");

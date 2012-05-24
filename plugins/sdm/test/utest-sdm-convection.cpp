@@ -40,7 +40,6 @@
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/LinearInterpolator.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/ElementConnectivity.hpp"

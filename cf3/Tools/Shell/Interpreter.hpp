@@ -32,6 +32,12 @@ std::string default_prompt();
   
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Command Line and script interpreter
+///
+/// Based on boost::program_options.
+/// Line by line from a script is interpreted, treating
+/// every line as boost::program_options arguments
+/// @author Willem Deconinck
 class Interpreter
 {
 private:

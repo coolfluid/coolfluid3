@@ -31,11 +31,6 @@ namespace neu {
 /// @author Willem Deconinck
 class neu_API Reader : public MeshReader, public Shared
 {
-public: // typedefs
-
-  
-  
-
 private: // typedefs
 
   typedef std::pair<Handle<Elements>,Uint> Region_TableIndex_pair;

@@ -291,6 +291,13 @@ bool SpaceElem::operator!=(const SpaceElem& other) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool SpaceElem::operator<(const SpaceElem& other) const
+{
+  return glb_idx()<other.glb_idx();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 std::ostream& operator<<(std::ostream& os, const SpaceElem& elem)
 {
   cf3_assert(is_not_null(elem.comp));

@@ -7,18 +7,18 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', True)
-env.options().configure_option('exception_backtrace', True)
-env.options().configure_option('exception_aborts', True)
-env.options().configure_option('exception_outputs', True)
-env.options().configure_option('log_level', 5)
-env.options().configure_option('regist_signal_handlers', False)
+env.options().set('assertion_throws', False)
+env.options().set('assertion_backtrace', True)
+env.options().set('exception_backtrace', True)
+env.options().set('exception_aborts', True)
+env.options().set('exception_outputs', True)
+env.options().set('log_level', 5)
+env.options().set('regist_signal_handlers', False)
 
 ### create model
 
 wizard = root.create_component('Wizard',  'cf3.RDM.UnsteadyExplicit')
-wizard.options().configure_option('rkorder',2)
+wizard.options().set('rkorder',2)
 wizard.create_model(model_name='Model', physical_model='cf3.physics.LinEuler.LinEuler2D')
 model = root.get_child('Model')
 
@@ -33,8 +33,8 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 ### solver
 
 solver = model.get_child('RDSolver')
-solver.options().configure_option('update_vars', 'Cons2D')
-solver.options().configure_option('solution_space', 'LagrangeP1')
+solver.options().set('update_vars', 'Cons2D')
+solver.options().set('solution_space', 'LagrangeP1')
 
 #print("----------------------------------------------------------------------------------------------------------")
 #solver.get_child('TimeStepping').list_options_recursive()
@@ -45,23 +45,23 @@ solver.options().configure_option('solution_space', 'LagrangeP1')
 #root.list_tree_recursive()
 #print("----------------------------------------------------------------------------------------------------------")
 
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('time_step', 0.13)
-solver.get_child('TimeStepping').get_child('Time').options().configure_option('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().configure_option('maxiter', 10)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('cfl', 1.) #0.25)
-solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().configure_option('regions', internal_regions)
+solver.get_child('TimeStepping').get_child('Time').options().set('time_step', 0.13)
+solver.get_child('TimeStepping').get_child('Time').options().set('end_time', 50.)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().set('maxiter', 10)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 1.) #0.25)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('regions', internal_regions)
 
 
 ### initial conditions
 
 iconds = solver.get_child('InitialConditions')
 iconds.create_initial_condition(name='INIT')
-iconds.get_child('INIT').options().configure_option('functions', 
+iconds.get_child('INIT').options().set('functions', 
   ['exp((-0.301)/25.*(x*x+y*y))+0.1*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))',
    '0.04*(y)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))',
    '-0.04*(x-67.)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))',
    'exp((-0.301)/25.*(x*x+y*y))'])
-iconds.get_child('INIT').options().configure_option('regions', internal_regions)
+iconds.get_child('INIT').options().set('regions', internal_regions)
 
 ### boundary conditions
 
@@ -74,15 +74,15 @@ iconds.get_child('INIT').options().configure_option('regions', internal_regions)
 #bcs = solver.get_child('BoundaryConditions')
 #
 #bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/inlet')])
-#bcs.get_child('INLET').options().configure_option('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
+#bcs.get_child('INLET').options().set('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 #
 #bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/farfield')])
-#bcs.get_child('FARFIELD').options().configure_option('functions', ['0'])
+#bcs.get_child('FARFIELD').options().set('functions', ['0'])
 
 ### domain discretization
 
 solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='cf3.RDM.Schemes.RKLDA')
-solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().configure_option('regions', internal_regions)
+solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').options().set('regions', internal_regions)
 
 ### simulate and write the result
 
@@ -103,18 +103,18 @@ fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
       cf.URI('//Model/Domain/mesh/solution/dual_area')]
 
 gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().configure_option('mesh',root.access_component('//Model/Domain/mesh'))
-gmsh_writer.options().configure_option('fields',fgeo)
-gmsh_writer.options().configure_option('file',cf.URI('file:_geo_initial_lineuler.msh'))
+gmsh_writer.options().set('mesh',root.access_component('//Model/Domain/mesh'))
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_initial_lineuler.msh'))
 gmsh_writer.execute()
-gmsh_writer.options().configure_option('fields',fsol)
-gmsh_writer.options().configure_option('file',cf.URI('file:_sol_initial_lineuler.msh'))
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_initial_lineuler.msh'))
 gmsh_writer.execute()
 
 #tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-#tecplot_writer.options().configure_option('mesh',cf.URI('//Model/Domain/mesh'))
-#tecplot_writer.options().configure_option('fields',fields)
-#tecplot_writer.options().configure_option('file',cf.URI('file:initial.plt'))
+#tecplot_writer.options().set('mesh',cf.URI('//Model/Domain/mesh'))
+#tecplot_writer.options().set('fields',fields)
+#tecplot_writer.options().set('file',cf.URI('file:initial.plt'))
 #tecplot_writer.execute()
 
 model.simulate()
@@ -123,14 +123,14 @@ model.simulate()
 #interpolator.interpolate(source=cf.URI('//Model/Domain/mesh/solution/solution'),
                          #target=cf.URI('//Model/Domain/mesh/geometry/solution'))
 
-gmsh_writer.options().configure_option('fields',fgeo)
-gmsh_writer.options().configure_option('file',cf.URI('file:_geo_final_lineuler.msh'))
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_final_lineuler.msh'))
 gmsh_writer.execute()
-gmsh_writer.options().configure_option('fields',fsol)
-gmsh_writer.options().configure_option('file',cf.URI('file:_sol_final_lineuler.msh'))
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_final_lineuler.msh'))
 gmsh_writer.execute()
 
-#tecplot_writer.options().configure_option('file',cf.URI('file:final.plt'))
+#tecplot_writer.options().set('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
 
 import networkxpython as nx

@@ -86,8 +86,8 @@ else()
 
 endif()
 
-coolfluid_log("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
-coolfluid_log("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
+coolfluid_log_file("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
+coolfluid_log_file("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Trilinos
                        DESCRIPTION "parallel linear system solver and other libraries"

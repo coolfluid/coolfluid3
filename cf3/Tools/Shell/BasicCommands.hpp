@@ -15,6 +15,10 @@ namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Defines basic set of commands in the coolfluid shell
+///
+/// Commands include cd, ls, mv, exit, ...
+/// @author Willem Deconinck
 class BasicCommands
 {
 public: // typedefs

@@ -179,36 +179,6 @@ void VectorialFunction::parse()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void VectorialFunction::evaluate( const VariablesT& var_values, RealVector& ret_value) const
-{
-  cf3_assert(m_is_parsed);
-  cf3_assert(var_values.size() == m_nbvars);
-
-  // evaluate and store the functions line by line in the vector
-  std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
-  std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
-  Uint i = 0;
-  for( ; parser != end ; ++parser, ++i )
-    ret_value[i] = (*parser)->Eval(&var_values[0]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void VectorialFunction::evaluate( const RealVector& var_values, RealVector& ret_value) const
-{
-  cf3_assert(m_is_parsed);
-  cf3_assert(var_values.size() == m_nbvars);
-
-  // evaluate and store the functions line by line in the vector
-  std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
-  std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
-  Uint i = 0;
-  for( ; parser != end ; ++parser, ++i )
-    ret_value[i] = (*parser)->Eval(&var_values[0]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 RealVector& VectorialFunction::operator()( const VariablesT& var_values)
 {
   cf3_assert(m_is_parsed);

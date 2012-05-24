@@ -46,6 +46,13 @@ BoundingBox::BoundingBox(const std::vector<Real>& min, const std::vector<Real>& 
 
 //////////////////////////////////////////////////////////////////////////////
 
+void BoundingBox::define(const BoundingBox& other)
+{
+  define(other.min(),other.max());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void BoundingBox::define(const RealVector& min, const RealVector& max)
 {
   m_bounding_min.resize(min.size());

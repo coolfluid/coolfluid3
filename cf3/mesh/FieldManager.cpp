@@ -18,12 +18,7 @@
 #include "math/VariableManager.hpp"
 
 #include "mesh/FieldManager.hpp"
-#include "mesh/MeshTransformer.hpp"
-#include "mesh/LoadMesh.hpp"
-#include "mesh/WriteMesh.hpp"
 #include "mesh/Field.hpp"
-
-#include "common/PE/Comm.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"

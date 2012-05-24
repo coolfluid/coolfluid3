@@ -27,8 +27,8 @@ using namespace cf3::Tools::Shell;
 
 int main(int argc, char * argv[])
 {
-  Core::instance().initiate(argc, argv);
   PE::Comm::instance().init(argc, argv);
+  Core::instance().initiate(argc, argv);
 
   try
   {
@@ -66,8 +66,8 @@ int main(int argc, char * argv[])
     CFerror << "Detected unknown exception" << CFendl;
   }
 
-  PE::Comm::instance().finalize();
   Core::instance().terminate();
+  PE::Comm::instance().finalize();
 
   return 0;
 }

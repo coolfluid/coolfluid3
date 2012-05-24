@@ -63,10 +63,6 @@ public: // functions
   /// @return the nodes of the mesh
   Dictionary& geometry_fields() const;
 
-  /// @return linearized view of all the entities in the mesh
-  /// @deprecated
-  MeshElements& mesh_elements() const;
-
   const std::vector< Handle<Entities> >& elements() const { return m_elements; }
   const std::vector< Handle<Dictionary> >& dictionaries() const { return m_dictionaries; }
 
@@ -78,10 +74,10 @@ public: // functions
 
   void write_mesh( const common::URI& file, const std::vector<common::URI> fields = std::vector<common::URI>());
 
-  void signal_write_mesh ( common::SignalArgs& node );
+  void signal_write_mesh ( common::SignalArgs& args );
   void signal_raise_mesh_loaded ( common::SignalArgs& node );
 
-  void signature_write_mesh ( common::SignalArgs& node);
+  void signature_write_mesh ( common::SignalArgs& args);
 
   Uint dimension() const { return m_dimension; }
 
@@ -95,6 +91,11 @@ public: // functions
 
   void raise_mesh_loaded();
 
+  void raise_mesh_changed();
+
+  const Handle<BoundingBox>& local_bounding_box()  const { return m_local_bounding_box; }
+  const Handle<BoundingBox>& global_bounding_box() const { return m_global_bounding_box; }
+
 private: // data
 
   Uint m_dimension;
@@ -105,13 +106,14 @@ private: // data
 
   std::vector< Handle<Dictionary> > m_dictionaries;
 
-  Handle<MeshElements> m_mesh_elements;
-
   Handle<MeshMetadata> m_metadata;
 
   Handle<Region> m_topology;
 
   Handle<Dictionary> m_geometry_fields;
+
+  Handle<BoundingBox> m_local_bounding_box;
+  Handle<BoundingBox> m_global_bounding_box;
 
 };
 

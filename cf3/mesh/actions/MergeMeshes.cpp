@@ -157,11 +157,7 @@ void MergeMeshes::merge_mesh(const Mesh& mesh, Mesh& merged)
   // The problem is that there are no ghost nodes defined.
   // After merging all meshes, a call to "fix_ranks" must be done.
 
-  merged.update_statistics();
-  merged.update_structures();
-
-  merged.check_sanity();
-
+  merged.raise_mesh_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////////

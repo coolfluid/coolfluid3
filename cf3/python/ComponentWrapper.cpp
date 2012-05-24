@@ -380,11 +380,12 @@ common::OptionList* options(ComponentWrapper& self)
   return &self.component().options();
 }
 
-void configure_option(common::OptionList* self, const std::string& optname, const boost::python::object& val)
+common::OptionList* configure_option(common::OptionList* self, const std::string& optname, const boost::python::object& val)
 {
   cf3_assert(is_not_null(self));
   common::Option& option = self->option(optname);
   option.change_value(python_to_any(val));
+  return self;
 }
 
 std::string option_value_str(const common::OptionList* self, const std::string& optname)
@@ -507,8 +508,8 @@ void def_component()
     .def("__ne__", is_not_equal);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
-    .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
-    .def("value_str", option_value_str, "String value for an option")
+    .def("set", configure_option, boost::python::return_value_policy<boost::python::reference_existing_object>())
+    .def("as_str", option_value_str, "String value for an option");
     .def("__getitem__", option_get_item, "")
     .def("__setitem__", configure_option, "")
     .def("keys", option_keys, "")
