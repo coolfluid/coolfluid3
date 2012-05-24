@@ -155,7 +155,7 @@ time = model.create_time()
 time.options().configure_option('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 10.
+final_end_time = 0.1
 save_interval = 0.1
 current_end_time = 0.
 iteration = 0
