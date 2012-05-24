@@ -37,6 +37,8 @@ TestAllOptions::TestAllOptions ( const std::string& name ) : Component ( name )
   options().add_option("string_vector", std::vector<std::string>());
   options().add_option("int_vector", std::vector<int>());
   options().add_option("uint_vector", std::vector<Uint>());
+  options().add_option("real_vector", std::vector<Real>());
+  options().add_option("bool_vector", std::vector<bool>());
 }
 
 

@@ -86,7 +86,34 @@ namespace detail
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Uint>");
+        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<int>");
+      }
+    }
+  }
+
+  template<>
+  void change_array_value<Real>(boost::any& to_set, const boost::any& new_value)
+  {
+    if(new_value.type() == to_set.type())
+    {
+      to_set = new_value;
+    }
+    else
+    {
+      try
+      {
+        std::vector<int> int_vals = boost::any_cast< std::vector<int> >(new_value);
+        const Uint nb_vals = int_vals.size();
+        std::vector<Real> result(nb_vals);
+        for(Uint i = 0; i != nb_vals; ++i)
+        {
+          result[i] = static_cast<Real>(int_vals[i]);
+        }
+        to_set = result;
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Real>");
       }
     }
   }
