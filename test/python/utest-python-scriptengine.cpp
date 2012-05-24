@@ -7,12 +7,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::Python::ScriptEngine"
 
+#include "python/ScriptEngine.hpp"
+
 #include <boost/test/unit_test.hpp>
 
 #include "common/BoostFilesystem.hpp"
 #include "common/Core.hpp"
 
-#include "python/ScriptEngine.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
