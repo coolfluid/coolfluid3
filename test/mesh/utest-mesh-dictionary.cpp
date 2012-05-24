@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( FieldVariables )
   sol.setConstant(3.);
 
   RealRowVector2::MapType U(nullptr);  // or RealRowVector2::MapType U(nullptr,0);
-  new (&U) RealRowVector::MapType( &solution.array()[1][solution.var_offset(1)],solution.var_length(1) );
+  new (&U) RealRowVector2::MapType( &solution.array()[1][solution.var_offset(1)],solution.var_length(1) );
   U.setConstant(4.);
 
   BOOST_CHECK_EQUAL ( solution[0][0] , 3. );
