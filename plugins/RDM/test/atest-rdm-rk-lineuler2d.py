@@ -133,8 +133,8 @@ gmsh_writer.execute()
 #tecplot_writer.options().set('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
 
-import networkxpython as nx
-nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')#
+#import networkxpython as nx
+#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')#
 #nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
 
 
