@@ -6,7 +6,7 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/lineuler/SourceVelocityField2D.hpp"
+#include "sdm/lineuler/SourceLighthill2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@ namespace lineuler {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<SourceVelocityField2D,Term,LibLinEuler> SourceVelocityField2D_builder;
+common::ComponentBuilder<SourceLighthill2D,Term,LibLinEuler> SourceLighthill2D_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 
