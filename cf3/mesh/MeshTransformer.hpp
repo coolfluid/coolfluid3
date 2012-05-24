@@ -25,13 +25,6 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API MeshTransformer : public common::Action
 {
-
-public: // typedefs
-
-  /// pointer to this type
-  
-  
-
 public: // functions
 
   /// Contructor

@@ -198,6 +198,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
 
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("Initialize")->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions

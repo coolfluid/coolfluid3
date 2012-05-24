@@ -13,6 +13,10 @@ list( APPEND coolfluid-server_cflibs coolfluid_ui_server)
 
 list( APPEND coolfluid-server_libs coolfluid_ui_server )
 
+configure_file( ssh_simple_tunnel.tcl   ${CMAKE_CURRENT_BINARY_DIR}/ssh_simple_tunnel.tcl   @ONLY)
+
+configure_file( ssh_reverse_tunnel.tcl   ${CMAKE_CURRENT_BINARY_DIR}/ssh_reverse_tunnel.tcl   @ONLY)
+
 coolfluid_add_application( coolfluid-server )
 
 #####################################################################

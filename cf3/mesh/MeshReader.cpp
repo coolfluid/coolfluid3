@@ -118,7 +118,9 @@ void MeshReader::signal_read( SignalArgs& node  )
     boost_foreach(const URI& file, files)
     {
       // Call the concrete implementation
+      mesh->block_mesh_changed(true);
       do_read_mesh_into(file, *mesh);
+      mesh->block_mesh_changed(false);
 
       // Raise an event to indicate that a mesh was loaded happened
       mesh->raise_mesh_loaded();
@@ -137,7 +139,9 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
   options().configure_option("file",path);
   options().configure_option("mesh",mesh.handle<Mesh>());
 
+  mesh.block_mesh_changed(true);
   execute();
+  mesh.block_mesh_changed(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////

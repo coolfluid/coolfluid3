@@ -17,7 +17,7 @@
 #include "ElementTransforms.hpp"
 #include "IndexLooping.hpp"
 
-/// @file 
+/// @file
 /// Transforms used in element-wise expression evaluation
 
 namespace cf3 {
@@ -47,22 +47,22 @@ private:
   /// Helper to extract the integration order
   template<typename T>
   struct GetOrder;
-  
+
   template<int I>
   struct GetOrder< IntegralTag< boost::mpl::int_<I> > >
   {
     static const int value = I;
   };
-  
+
 public:
-    
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     /// Mapped coordinate type to use is obtained from the support
     typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
     typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
-    
+
     /// function argument 0 contains the terminal representing the function, and thus also the integration order
     typedef typename boost::remove_const
     <
@@ -74,12 +74,12 @@ public:
         >::type
       >::type
     >::type IntegralTagT;
-    
+
     // Whew, we got the order
     static const int order = GetOrder<IntegralTagT>::value;
-    
+
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type ChildT;
-    
+
     // Basic result of the expression to integrate might be an Eigen expression
     typedef typename boost::remove_const
     <
@@ -96,15 +96,15 @@ public:
         >::type
       >::type
     >::type EigenExprT;
-    
+
     // Converter to get a real matrix type that can hold the result
     typedef ValueType
     <
       EigenExprT
     > ValueT;
-    
+
     typedef const typename ValueT::type& result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       typedef mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
@@ -118,8 +118,8 @@ public:
       }
       return expr.value;
     }
-    
-  };  
+
+  };
 };
 
 template<typename GrammarT>
@@ -128,10 +128,10 @@ struct ElementQuadratureEval :
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
-    
+  {
+
     typedef void result_type;
-  
+
     /// Fusion functor to evaluate each child expression using the GrammarT supplied in the template argument
     struct evaluate_expr
     {
@@ -142,25 +142,25 @@ struct ElementQuadratureEval :
         m_weight(weight * data.support().jacobian_determinant())
       {
       }
-      
+
       template<typename I>
       void operator()(const I&) const
       {
         evaluate_child(boost::proto::child_c<I::value>(m_expr));
       }
-      
+
       template<typename ChildExprT>
       void evaluate_child(ChildExprT& expr) const
       {
         tag_dispatch(typename boost::proto::tag_of<ChildExprT>::type(), expr);
       }
-      
+
       template<typename ChildExprT>
       void tag_dispatch(const boost::proto::tag::plus_assign, ChildExprT& expr) const
       {
         GrammarT()(boost::proto::left(expr) += m_weight * boost::proto::right(expr), m_state, m_data);
       }
-      
+
       // Issue an error message if a tag was not supported
       template<typename TagT, typename ChildExprT>
       void tag_dispatch(const TagT, ChildExprT& expr) const
@@ -174,7 +174,7 @@ struct ElementQuadratureEval :
       typename impl::data_param m_data;
       const Real m_weight; // The integration weight (gauss point weight * jacobian determinant)
     };
-    
+
     void operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
@@ -184,7 +184,7 @@ struct ElementQuadratureEval :
       typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
       typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
       typedef mesh::Integrators::GaussMappedCoords<2, ShapeFunctionT::shape> GaussT;
-      
+
       for(Uint i = 0; i != GaussT::nb_points; ++i)
       {
         // Precompute the primitive element matrices (shape function values, gradients, ...) for the current Gauss point
@@ -198,7 +198,7 @@ struct ElementQuadratureEval :
   };
 };
 
-/// Use group(expr1, expr2, ..., exprN) to evaluate a group of expressions
+/// Use element_quadrature(expr1, expr2, ..., exprN) to evaluate a group of expressions
 static boost::proto::terminal<ElementQuadratureTag>::type element_quadrature = {};
 
 
@@ -208,6 +208,11 @@ struct ElementMathImplicitIndexed :
   boost::proto::or_
   <
     SFOps< boost::proto::call< ElementMathImplicitIndexed<I, J> > >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+      VarValue(boost::proto::_value(boost::proto::_child1))
+    >,
     FieldInterpolation,
     MathTerminals,
     ElementMatrixGrammar,
@@ -235,7 +240,6 @@ struct ElementQuadrature :
 {
 };
 
-  
 } // namespace Proto
 } // namespace actions
 } // namespace solver

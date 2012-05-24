@@ -166,6 +166,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("SetInitial")->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("InitAdvectionSpeed")->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions

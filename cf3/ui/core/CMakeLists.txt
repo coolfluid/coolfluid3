@@ -15,8 +15,10 @@ NLog.hpp
 NRemoteFSBrowser.hpp
 NRoot.hpp
 NTree.hpp
+NScriptEngine.hpp
 PropertyModel.hpp
 RemoteDispatcher.hpp
+SSHTunnel.hpp
 TreeNode.hpp
 TreeThread.hpp
 )
@@ -64,10 +66,14 @@ NRoot.cpp
 NRoot.hpp
 NTree.cpp
 NTree.hpp
+NScriptEngine.cpp
+NScriptEngine.hpp
 PropertyModel.cpp
 PropertyModel.hpp
 RemoteDispatcher.cpp
 RemoteDispatcher.hpp
+SSHTunnel.cpp
+SSHTunnel.hpp
 ThreadManager.cpp
 ThreadManager.hpp
 TreeNode.cpp

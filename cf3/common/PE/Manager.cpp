@@ -120,6 +120,8 @@ void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDo
   if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {
     SignalFrame frame( sig );
+
+    //std::cout << "forwarding frame " << frame.node.attribute_value("key") <<std::endl;
     call_signal( "signal_to_forward", frame );
   }
   else
@@ -152,7 +154,11 @@ void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDo
         SignalFrame reply = signal_frame.get_reply();
 
         if( reply.node.is_valid() && !reply.node.attribute_value("target").empty() )
+        {
           send_to_parent( signal_frame );
+
+          //std::cout << "sending reply to frame " << signal_frame.node.attribute_value("key") <<std::endl;
+        }
       }
 
       success = true;

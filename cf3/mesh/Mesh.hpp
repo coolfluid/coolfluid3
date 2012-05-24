@@ -75,6 +75,7 @@ public: // functions
   void write_mesh( const common::URI& file, const std::vector<common::URI> fields = std::vector<common::URI>());
 
   void signal_write_mesh ( common::SignalArgs& args );
+  void signal_raise_mesh_loaded ( common::SignalArgs& node );
 
   void signature_write_mesh ( common::SignalArgs& args);
 
@@ -91,6 +92,9 @@ public: // functions
   void raise_mesh_loaded();
 
   void raise_mesh_changed();
+  
+  /// If true, block subsequent raise_mesh_changed event.
+  void block_mesh_changed(const bool block);
 
   const Handle<BoundingBox>& local_bounding_box()  const { return m_local_bounding_box; }
   const Handle<BoundingBox>& global_bounding_box() const { return m_global_bounding_box; }
@@ -113,6 +117,8 @@ private: // data
 
   Handle<BoundingBox> m_local_bounding_box;
   Handle<BoundingBox> m_global_bounding_box;
+  
+  bool m_block_mesh_changed;
 
 };
 

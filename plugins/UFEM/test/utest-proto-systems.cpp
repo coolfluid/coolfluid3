@@ -125,6 +125,9 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   create_rectangle->options().configure_option("nb_cells",nb_cells);
   Mesh& mesh = create_rectangle->generate();
 
+  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("Initialize")->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   bc->add_constant_bc("left", "VectorVariable", outside_temp);

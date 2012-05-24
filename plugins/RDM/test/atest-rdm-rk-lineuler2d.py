@@ -12,13 +12,13 @@ env.options().set('assertion_backtrace', True)
 env.options().set('exception_backtrace', True)
 env.options().set('exception_aborts', True)
 env.options().set('exception_outputs', True)
-env.options().set('log_level', 4)
+env.options().set('log_level', 5)
 env.options().set('regist_signal_handlers', False)
 
 ### create model
 
 wizard = root.create_component('Wizard',  'cf3.RDM.UnsteadyExplicit')
-wizard.options().set('rkorder',1)
+wizard.options().set('rkorder',2)
 wizard.create_model(model_name='Model', physical_model='cf3.physics.LinEuler.LinEuler2D')
 model = root.get_child('Model')
 
@@ -26,6 +26,7 @@ model = root.get_child('Model')
 
 domain = model.get_child('Domain')
 mesh = domain.load_mesh(file=cf.URI('circle150r-tg-p1-3471.msh', cf.URI.Scheme.file), name='mesh')
+#mesh = domain.load_mesh(file=cf.URI('circle.msh', cf.URI.Scheme.file), name='mesh')
 
 internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 
@@ -34,8 +35,6 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/domain')]
 solver = model.get_child('RDSolver')
 solver.options().set('update_vars', 'Cons2D')
 solver.options().set('solution_space', 'LagrangeP1')
-
-#solver.get_child('IterativeSolver').get_child('MaxIterations').options().set('maxiter', 10)
 
 #print("----------------------------------------------------------------------------------------------------------")
 #solver.get_child('TimeStepping').list_options_recursive()
@@ -48,13 +47,10 @@ solver.options().set('solution_space', 'LagrangeP1')
 
 solver.get_child('TimeStepping').get_child('Time').options().set('time_step', 0.13)
 solver.get_child('TimeStepping').get_child('Time').options().set('end_time', 50.)
-solver.get_child('TimeStepping').get_child('MaxIterations').options().set('maxiter', 50)
+solver.get_child('TimeStepping').get_child('MaxIterations').options().set('maxiter', 10)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 1.) #0.25)
-#solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('regions', internal_regions)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('regions', internal_regions)
 
-
-### ??? configure Model/RDSolver  solution_space:string=LagrangeP1
-### ??? configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1 end_time:real=50
 
 ### initial conditions
 
@@ -90,35 +86,57 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 
 ### simulate and write the result
 
+#import networkxpython as nx
+#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')
+
+
 iconds.execute()
 
-fields=[
-#  cf.URI('//Model/Domain/mesh/geometry_fields/solution'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/residual'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/wave_speed'),
-#  cf.URI('//Model/Domain/mesh/geometry_fields/dual_area')]
-  cf.URI('//Model/Domain/mesh/solution/solution'),
-  cf.URI('//Model/Domain/mesh/solution/residual'),
-  cf.URI('//Model/Domain/mesh/solution/wave_speed'),
-  cf.URI('//Model/Domain/mesh/solution/dual_area')]
 
-#gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
-#gmsh_writer.options().set('mesh',cf.URI('//Model/Domain/mesh'))
-#gmsh_writer.options().set('fields',fields)
-#gmsh_writer.options().set('file',cf.URI('file:initial.msh'))
-#gmsh_writer.execute()
+fgeo=[cf.URI('//Model/Domain/mesh/geometry/solution'),
+      cf.URI('//Model/Domain/mesh/geometry/residual'),
+      cf.URI('//Model/Domain/mesh/geometry/wave_speed'),
+      cf.URI('//Model/Domain/mesh/geometry/dual_area')]
+fsol=[cf.URI('//Model/Domain/mesh/solution/solution'),
+      cf.URI('//Model/Domain/mesh/solution/residual'),
+      cf.URI('//Model/Domain/mesh/solution/wave_speed'),
+      cf.URI('//Model/Domain/mesh/solution/dual_area')]
 
-tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
-tecplot_writer.options().set('mesh',mesh)
-tecplot_writer.options().set('fields',fields)
-tecplot_writer.options().set('file',cf.URI('file:initial.plt'))
+gmsh_writer = model.create_component('gmsh_writer','cf3.mesh.gmsh.Writer')
+gmsh_writer.options().set('mesh',root.access_component('//Model/Domain/mesh'))
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_initial_lineuler.msh'))
+gmsh_writer.execute()
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_initial_lineuler.msh'))
+gmsh_writer.execute()
+
+#tecplot_writer = model.create_component('tecplot_writer','cf3.mesh.tecplot.Writer')
+#tecplot_writer.options().set('mesh',cf.URI('//Model/Domain/mesh'))
+#tecplot_writer.options().set('fields',fields)
+#tecplot_writer.options().set('file',cf.URI('file:initial.plt'))
 #tecplot_writer.execute()
 
 model.simulate()
-   
-#gmsh_writer.options().set('file',cf.URI('file:final.msh'))
-#gmsh_writer.execute()
+
+#interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+#interpolator.interpolate(source=cf.URI('//Model/Domain/mesh/solution/solution'),
+                         #target=cf.URI('//Model/Domain/mesh/geometry/solution'))
+
+gmsh_writer.options().set('fields',fgeo)
+gmsh_writer.options().set('file',cf.URI('file:_geo_final_lineuler.msh'))
+gmsh_writer.execute()
+gmsh_writer.options().set('fields',fsol)
+gmsh_writer.options().set('file',cf.URI('file:_sol_final_lineuler.msh'))
+gmsh_writer.execute()
 
 #tecplot_writer.options().set('file',cf.URI('file:final.plt'))
 #tecplot_writer.execute()
+
+#import networkxpython as nx
+#nx.show_graph(cf.URI('//Model/Domain/mesh'),depth=1000,tree='clf',caption='clf',printdestination='s',hidden='')#
+#nx.show_graph(solver.uri(),depth=1000,tree='coltf',caption='coltf',printdestination='s',hidden='')
+
+
+
 

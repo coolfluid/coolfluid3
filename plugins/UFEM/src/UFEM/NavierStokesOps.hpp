@@ -401,8 +401,11 @@ struct SUPGSpecialized
 /// Placeholder for the specialized ops
 static solver::actions::Proto::MakeSFOp<SUPGSpecialized>::type const supg_specialized = {};
 
-/// Precompiled Navier-Stokes assembly expression
-boost::shared_ptr<solver::actions::Proto::Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
+/// Precompiled Navier-Stokes assembly expression, quads and hexa P1 elements only
+boost::shared_ptr<solver::actions::Proto::Expression> ns_assembly_quad_hexa_p1(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
+
+/// Precompiled Navier-Stokes assembly expression, all 2D and 3D lagrange P1 elements
+boost::shared_ptr<solver::actions::Proto::Expression> ns_assembly_lagrange_p1(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
 
 } // UFEM
 } // cf3

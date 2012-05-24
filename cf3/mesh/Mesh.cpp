@@ -65,7 +65,8 @@ common::ComponentBuilder < Mesh, Component, LibMesh > Mesh_Builder;
 Mesh::Mesh ( const std::string& name  ) :
   Component ( name ),
   m_dimension(0u),
-  m_dimensionality(0u)
+  m_dimensionality(0u),
+  m_block_mesh_changed(false)
 {
   mark_basic(); // by default meshes are visible
 
@@ -89,6 +90,11 @@ Mesh::Mesh ( const std::string& name  ) :
       .pretty_name("Write Mesh" )
       .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
+      
+  regist_signal ( "raise_mesh_loaded" )
+      .description( "Raise the mesh loaded event" )
+      .pretty_name("Raise Mesh Loaded" )
+      .connect   ( boost::bind ( &Mesh::signal_raise_mesh_loaded,    this, _1 ) );
 
   m_geometry_fields = create_static_component<ContinuousDictionary>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
@@ -324,7 +330,7 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
   SignalOptions options( node );
 
   options.add_option("file" , URI(name() + ".msh") )
-      .description("File to write" );
+      .description("File to write" ).mark_basic();
 
   std::vector<URI> fields;
   options.add_option("fields" , fields )
@@ -357,6 +363,12 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   write_mesh(fpath,fields);
 }
+
+void Mesh::signal_raise_mesh_loaded ( SignalArgs& node )
+{
+  raise_mesh_loaded();
+}
+
 
 void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 {
@@ -490,13 +502,23 @@ void Mesh::raise_mesh_changed()
   SignalOptions options;
   options.add_option("mesh_uri", uri());
 
-  SignalArgs f= options.create_frame();
-  Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+  if(!m_block_mesh_changed)
+  {
+    SignalArgs f= options.create_frame();
+    Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+  }
 
   update_statistics();
   check_sanity();
-
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::block_mesh_changed ( const bool block )
+{
+  m_block_mesh_changed = block;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -87,6 +87,8 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank)
   if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
+  /// @todo really needs to be added?
+//  if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
@@ -138,6 +140,8 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, boost::multi_array<Uint,
   if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
+  /// @todo really needs to be added?
+//  if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
