@@ -124,7 +124,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
-    m_region = Handle<Region>(m_mesh->topology().create_region(m_headerData.mesh_name).handle<Component>());
+  m_region = m_mesh->topology().handle<Region>();
   //else
   //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Handle<Region>(Merge").value<bool>()).handle<Component>());
 

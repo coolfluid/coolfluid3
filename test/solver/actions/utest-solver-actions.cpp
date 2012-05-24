@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   // read mesh from file
   Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("rotation-tg-p1.neu", *mesh);
 
-  std::vector<URI> regions = list_of(mesh->topology().uri()/URI("rotation/inlet"))
-                                    (mesh->topology().uri()/URI("rotation/outlet"));
+  std::vector<URI> regions = list_of(mesh->topology().uri()/URI("inlet"))
+                                    (mesh->topology().uri()/URI("outlet"));
 
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -181,8 +181,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   Handle<ComputeVolume> compute_volume = root.create_component<ComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  BOOST_CHECK( root.access_component(mesh->topology().uri()/URI("rotation/fluid/elements_cf3.mesh.LagrangeP1.Triag2D")) );
-  Elements& elems = *root.access_component(mesh->topology().uri()/URI("rotation/fluid/elements_cf3.mesh.LagrangeP1.Triag2D"))->handle<Elements>();
+  BOOST_CHECK( root.access_component(mesh->topology().uri()/URI("fluid/elements_cf3.mesh.LagrangeP1.Triag2D")) );
+  Elements& elems = *root.access_component(mesh->topology().uri()/URI("fluid/elements_cf3.mesh.LagrangeP1.Triag2D"))->handle<Elements>();
   BOOST_CHECK(true);
   compute_volume->options().configure_option("volume",volumes.uri());
   BOOST_CHECK(true);
