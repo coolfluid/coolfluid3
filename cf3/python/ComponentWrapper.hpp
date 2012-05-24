@@ -80,6 +80,7 @@ private:
 /// Python wrapping for the Component class
 void def_component();
 
+/// Wrap the passed component in a python object
 boost::python::object wrap_component(const cf3::Handle<common::Component>& component);
 
 } // python

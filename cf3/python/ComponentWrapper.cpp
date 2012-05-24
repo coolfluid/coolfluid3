@@ -7,7 +7,6 @@
 #include "python/BoostPython.hpp"
 
 #include <boost/algorithm/string.hpp>
-
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
 
@@ -28,150 +27,14 @@
 #include "common/XML/FileOperations.hpp"
 
 #include "python/ComponentWrapper.hpp"
+#include "python/PythonAny.hpp"
 #include "python/TableWrapper.hpp"
 
 namespace cf3 {
 namespace python {
 
-// Types that can be held by any
-typedef boost::mpl::vector8<std::string, Real, Uint, int, bool, common::URI, Handle<common::Component>, common::UUCount > AnyTypes;
-
-/// Conversion from any to python for basic types
-struct AnyToPython
-{
-  AnyToPython(const boost::any& value, boost::python::object& result) :
-    m_value(value),
-    m_result(result)
-  {
-  }
-
-  template<typename T>
-  void operator()(T) const
-  {
-    if(typeid(T) != m_value.type())
-      return;
-
-    m_result = boost::python::object(boost::any_cast<T>(m_value));
-  }
-
-  const boost::any& m_value;
-  boost::python::object& m_result;
-};
-
-/// Conversion for basic types
-struct PythonToAny
-{
-  PythonToAny(const boost::python::object& value, boost::any& result, bool& found) :
-    m_value(value),
-    m_result(result),
-    m_found(found)
-  {
-  }
-
-  template<typename T>
-  void operator()(T) const
-  {
-    if(m_found)
-      return;
-    // might need  PyObject_IsInstance(PyObject *inst, PyObject *cls) instead
-    boost::python::extract<T> extracted_value(m_value);
-    if(extracted_value.check())
-    {
-      m_found = true;
-      m_result = extracted_value();
-    }
-  }
-
-  void operator()(const Handle<common::Component>) const
-  {
-    if(m_found)
-      return;
-    
-    boost::python::extract< ComponentWrapper& > extracted_value(m_value);
-    if(extracted_value.check())
-    {
-      m_found = true;
-      m_result = extracted_value().component().handle<common::Component>();
-    }
-  }
-
-  const boost::python::object& m_value;
-  boost::any& m_result;
-  bool& m_found;
-};
-
-/// Conversion for lists
-struct PythonListToAny
-{
-  PythonListToAny(const boost::python::list& a_list, boost::any& result, const std::string& target_type, bool& found) :
-    m_list(a_list),
-    m_result(result),
-    m_target_type(target_type),
-    m_found(found)
-  {
-  }
-
-  template<typename T>
-  void operator()(T) const
-  {
-    if(m_found)
-      return;
-
-    if(common::class_name_from_typeinfo(typeid(T)) != m_target_type)
-      return;
-
-    std::vector<T> vec;
-
-    const Uint nb_items = len(m_list);
-    vec.reserve(nb_items);
-    for(Uint i = 0; i != nb_items; ++i)
-    {
-      boost::python::extract<T> extracted_value(m_list[i]);
-      if(!extracted_value.check())
-        throw common::BadValue(FromHere(), "Incorrect python extracted value for list item");
-
-      vec.push_back(extracted_value());
-    }
-
-    m_found = true;
-
-    m_result = vec;
-  }
-
-  const boost::python::list& m_list;
-  boost::any& m_result;
-  const std::string& m_target_type;
-  bool& m_found;
-};
-
-/// Conversion from any to python for basic types
-struct AnyListToPython
-{
-  AnyListToPython(const boost::any& value, boost::python::object& result) :
-    m_value(value),
-    m_result(result)
-  {
-  }
-
-  template<typename T>
-  void operator()(T) const
-  {
-    if(typeid(std::vector<T>) != m_value.type())
-      return;
-    
-    boost::python::list result;
-    const std::vector<T> val = boost::any_cast< std::vector<T> >(m_value);
-    BOOST_FOREACH(const T& item, val)
-    {
-      result.append(boost::any_cast<T>(item));
-    }
-
-    m_result = result;
-  }
-
-  const boost::any& m_value;
-  boost::python::object& m_result;
-};
+/// Available types for options
+typedef boost::mpl::vector8<std::string, int, Uint, bool, Real, common::URI, Handle<common::Component>, common::UUCount > OptionTypes;
 
 struct OptionCreator
 {
@@ -216,42 +79,6 @@ struct OptionCreator
   bool& m_found;
 };
 
-// helper function to convert from any to python
-boost::python::object any_to_python(const boost::any& value)
-{
-  boost::python::object result;
-  boost::mpl::for_each<AnyTypes>(AnyToPython(value, result));
-  if(result.is_none()) // try lists if straight conversion failed
-    boost::mpl::for_each<AnyTypes>(AnyListToPython(value, result));
-  if(result.is_none())
-    throw common::CastingFailed(FromHere(), "Failed to convert boost any to a valid python object");
-  return result;
-}
-
-// Helper functions to convert to any
-boost::any python_to_any(const boost::python::object& val)
-{
-  boost::any result;
-  bool found = false;
-
-//   const bool is_list = boost::starts_with(target_type, "array[");
-// 
-//   if(is_list)
-//   {
-// //     const std::string single_value_type(target_type.begin()+6, target_type.end()-1);
-// //     boost::mpl::for_each<AnyTypes>(PythonListToAny(static_cast<const boost::python::list&>(val), result, single_value_type, found));
-//   }
-//   else
-//   {
-    boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, found));
-//   }
-
-  if(!found)
-    throw common::CastingFailed(FromHere(), std::string("Failed to convert to boost::any from python type ") + val.ptr()->ob_type->tp_name);
-
-  return result;
-}
-
 // Wrapper for signals
 struct SignalWrapper
 {
@@ -294,7 +121,7 @@ struct SignalWrapper
         else
         {
           bool found = false;
-          boost::mpl::for_each<AnyTypes>(OptionCreator(options, kwargs[key], key, found));
+          boost::mpl::for_each<OptionTypes>(OptionCreator(options, kwargs[key], key, found));
           if(!found)
             throw common::BadValue(FromHere(), "No conversion found for keyword argument " + key);
         }
@@ -518,6 +345,16 @@ std::string to_str(ComponentWrapper& self)
   return self.get_list_interface()->to_str();
 }
 
+bool is_equal(ComponentWrapper& self, ComponentWrapper& other)
+{
+  return self.component().handle() == other.component().handle();
+}
+
+bool is_not_equal(ComponentWrapper& self, ComponentWrapper& other)
+{
+  return self.component().handle() != other.component().handle();
+}
+
 // class OptionListWrapper
 // {
 // public:
@@ -593,21 +430,19 @@ Uint properties_get_len(common::PropertyList* self)
 
 boost::python::object properties_get_item(common::PropertyList* self, const std::string& name)
 {
-  std::cout << "get_item value type:" << self->type(name) << std::endl;
   return any_to_python(self->property(name));
 }
 
 void properties_set_item(common::PropertyList* self, const std::string& name, const boost::python::object& val)
 {
   if (self->check(name)){
-    self->property(name)=python_to_any(val,self->type(name));
-    std::cout << "set_item value type:" << self->type(name) << std::endl;
+    self->property(name)=python_to_any(val);
   }
 }
 
 void properties_add_property(common::PropertyList* self, const std::string& name, const std::string& type, const boost::python::object& val)
 {
-  self->add_property(name, python_to_any(val,type));
+  self->add_property(name, python_to_any(val));
 }
 
 boost::python::list properties_keys(const common::PropertyList* self){
@@ -667,7 +502,9 @@ void def_component()
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
     .def("__str__", to_str)
-    .def("__repr__", to_str);
+    .def("__repr__", to_str)
+    .def("__eq__", is_equal)
+    .def("__ne__", is_not_equal);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")

@@ -50,8 +50,10 @@ private: // functions
 
   /// copy the configured update value to all linked parameters
   virtual void copy_to_linked_params (std::vector< boost::any >& linked_params );
-  
+
   virtual boost::any extract_configured_value(XML::XmlNode& node);
+
+  virtual void change_value_impl(const boost::any& value);
 
 }; // class OptionT
 

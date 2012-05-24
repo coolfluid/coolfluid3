@@ -63,6 +63,14 @@ void OptionArray<TYPE>::copy_to_linked_params(std::vector< boost::any >& linked_
   }
 }
 
+template<typename TYPE>
+void OptionArray<TYPE>::change_value_impl(const boost::any& value)
+{
+  cf3_assert(value.type() == m_value.type());
+  m_value = value;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// explicit instantiation to avoid missing symbols in certain compilers

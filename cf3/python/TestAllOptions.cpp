@@ -7,6 +7,7 @@
 #include "common/Builder.hpp"
 #include "common/Group.hpp"
 #include "common/OptionList.hpp"
+#include "common/Signal.hpp"
 #include "common/URI.hpp"
 
 #include "python/LibPython.hpp"
@@ -16,7 +17,7 @@ namespace cf3 {
 namespace python {
 
 using namespace common;
-  
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < TestAllOptions, Component, LibPython > TestAllOptions_Builder;
@@ -33,12 +34,19 @@ TestAllOptions::TestAllOptions ( const std::string& name ) : Component ( name )
   options().add_option("uri", URI());
   options().add_option("generic_component", Handle<Component>());
   options().add_option("group_component", Handle<Group>());
+  options().add_option("string_vector", std::vector<std::string>());
 }
 
 
 TestAllOptions::~TestAllOptions()
 {
 }
+
+void TestAllOptions::trigger_debug()
+{
+  CFdebug << "new uri set: " << options()["uri"].value<URI>().path() << CFendl;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

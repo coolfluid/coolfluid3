@@ -82,6 +82,7 @@ void NavierStokes::trigger_use_specializations()
   MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
   MeshTerm<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
   MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
+  MeshTerm<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
   
   create_component<ZeroLSS>("ZeroLSS");
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));

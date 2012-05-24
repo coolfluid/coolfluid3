@@ -31,7 +31,7 @@ boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUP
   MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
   MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
-  MeshTerm<3, ScalarField> NU("TurbulentViscosity", "spalart_allmaras_solution");
+  MeshTerm<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   return elements_expression
   (
@@ -45,10 +45,9 @@ boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUP
           (
             _A(p    , u[_i]) += transpose(N(p) + coeffs.tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
             _A(p    , p)     += coeffs.tau_ps * transpose(nabla(p)) * nabla(p) * coeffs.one_over_rho, // Continuity, PSPG
-            _A(u[_i], u[_i]) += (coeffs.mu + (NU * coeffs.rho *( ( NU/coeffs.mu ) *  ( NU/coeffs.mu ) *  ( NU/coeffs.mu ) )/(357.910999999999941 +  ( NU/coeffs.mu ) *  ( NU/coeffs.mu ) * ( NU/coeffs.mu ))))
-            * transpose(nabla(u)) * nabla(u) * coeffs.one_over_rho + transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
+            _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
             _A(u[_i], p)     += coeffs.one_over_rho * transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-            _A(u[_i], u[_j]) += transpose((coeffs.tau_bulk + 0.33333333333333*boost::proto::lit(coeffs.mu)*coeffs.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+            _A(u[_i], u[_j]) += transpose((coeffs.tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
             + 0.5*u_adv[_i]*(N(u) + coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG

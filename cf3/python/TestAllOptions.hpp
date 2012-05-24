@@ -33,6 +33,9 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "TestAllOptions"; }
+  
+private:
+  void trigger_debug();
 
 }; // TestAllOptions
 

@@ -29,7 +29,7 @@ void LibPython::initiate()
 {
   if(m_is_initiated)
     return;
-  
+
   initiate_impl();
   m_is_initiated = true;
 }
@@ -39,7 +39,7 @@ void LibPython::terminate()
 {
   if(!m_is_initiated)
     return;
-  
+
   terminate_impl();
   m_is_initiated = false;
 }
@@ -47,13 +47,13 @@ void LibPython::terminate()
 
 void LibPython::initiate_impl()
 {
-  Handle<common::Component> group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
-  group->create_component("ScriptEngine", "cf3.python.ScriptEngine");
+//   Handle<common::Component> group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
+//   group->create_component("ScriptEngine", "cf3.python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()
 {
-  common::Core::instance().tools().remove_component("Python");
+//   common::Core::instance().tools().remove_component("Python");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
