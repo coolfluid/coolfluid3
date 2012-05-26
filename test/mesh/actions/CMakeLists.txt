@@ -21,8 +21,8 @@ coolfluid_add_test( UTEST utest-mesh-actions-interpolate
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1
                     MPI   2 )
 
-coolfluid_add_test( UTEST utest-mesh-actions-rotate
-                    CPP   utest-mesh-actions-rotate.cpp
+coolfluid_add_test( UTEST utest-mesh-actions-rotate-translate
+                    CPP   utest-mesh-actions-rotate-translate.cpp
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1
                   )
 

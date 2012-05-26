@@ -72,15 +72,13 @@ BOOST_AUTO_TEST_CASE( Init )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test2d )
+BOOST_AUTO_TEST_CASE( test_rotate_2d )
 {
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator_rect");
   mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"rect");
 
   mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
-  std::vector<Uint> nb_cells(2);
-  nb_cells[XX] = 10u;
-  nb_cells[YY] = 5u;
+  std::vector<Uint> nb_cells = list_of(10)(5);
   mesh_generator->options().configure_option("nb_cells",nb_cells);
   Mesh& mesh = mesh_generator->generate();
 
@@ -94,16 +92,13 @@ BOOST_AUTO_TEST_CASE( test2d )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test3d )
+BOOST_AUTO_TEST_CASE( test_rotate_3d )
 {
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator_box");
   mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"box");
 
   mesh_generator->options().configure_option("lengths",std::vector<Real>(3,10.));
-  std::vector<Uint> nb_cells(3);
-  nb_cells[XX] = 10u;
-  nb_cells[YY] = 10u;
-  nb_cells[ZZ] = 10u;
+  std::vector<Uint> nb_cells = list_of(10)(5)(2);
   mesh_generator->options().configure_option("nb_cells",nb_cells);
   Mesh& mesh = mesh_generator->generate();
 
@@ -115,6 +110,36 @@ BOOST_AUTO_TEST_CASE( test3d )
   rotate->options().configure_option("angle",math::Consts::pi()/2.);
   rotate->transform(mesh);
   mesh.write_mesh("file:rotated_box.msh");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_translate_2d )
+{
+
+  Mesh& mesh = *Core::instance().root().get_child("rect")->handle<Mesh>();
+
+  boost::shared_ptr<MeshTransformer> translate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Translate","translate"));
+  std::vector<Real> tvec = list_of(-5)(-5);
+  translate->options().configure_option("vector",tvec);
+  translate->transform(mesh);
+
+  mesh.write_mesh("file:translated_rect.msh");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_translate_3d )
+{
+
+  Mesh& mesh = *Core::instance().root().get_child("box")->handle<Mesh>();
+
+  boost::shared_ptr<MeshTransformer> translate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Translate","translate"));
+  std::vector<Real> tvec = list_of(-5)(-5)(-5);
+  translate->options().configure_option("vector",tvec);
+  translate->transform(mesh);
+
+  mesh.write_mesh("file:translated_box.msh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
