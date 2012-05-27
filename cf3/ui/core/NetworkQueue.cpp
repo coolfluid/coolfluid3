@@ -306,7 +306,7 @@ void NetworkQueue::execute_script ( const QString & filename )
       const URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
-      options.add_option("script", m_script_stream->readAll().toStdString());
+      options.add("script", m_script_stream->readAll().toStdString());
       SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
       
       dispatch_signal("execute_script", script_engine_path, frame);

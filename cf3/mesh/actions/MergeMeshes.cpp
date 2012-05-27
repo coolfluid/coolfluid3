@@ -51,7 +51,7 @@ MergeMeshes::MergeMeshes( const std::string& name )
   std::string desc;
   properties()["description"] = desc;
 
-  options().add_option("meshes", std::vector<URI>())
+  options().add("meshes", std::vector<URI>())
     .description("Meshes to merge");
 }
 

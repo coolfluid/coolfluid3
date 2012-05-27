@@ -161,7 +161,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created volume term");
 
   // type
@@ -170,7 +170,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -179,7 +179,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the domain term");
 }
 
@@ -190,7 +190,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created volume term");
 
   // type
@@ -199,7 +199,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -208,7 +208,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   /// @todo create here the list of restricted face regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the domain term");
 }
 

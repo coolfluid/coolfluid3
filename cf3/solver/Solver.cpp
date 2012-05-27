@@ -86,13 +86,13 @@ Solver::Solver ( const std::string& name  ) :
 
   // options
 
-  options().add_option(Tags::domain(), URI("cpath:../Domain"))
+  options().add(Tags::domain(), URI("cpath:../Domain"))
       .description("Domain to solve")
       .pretty_name("Domain")
       .link_to(&m_implementation->m_domain_uri)
       .attach_trigger(boost::bind(&Implementation::trigger_domain, m_implementation.get()));
       
-  options().add_option(Tags::physical_model(), m_physics)
+  options().add(Tags::physical_model(), m_physics)
       .pretty_name("Physical Model")
       .description("Physical Model")
       .link_to(&m_physics)

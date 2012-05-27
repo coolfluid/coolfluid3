@@ -55,11 +55,11 @@ struct Domain::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option("file", URI() )
+    options.add("file", URI() )
         .supported_protocol(URI::Scheme::FILE)
         .description("Location of the file holding the mesh");
 
-    options.add_option("name", std::string("mesh") )
+    options.add("name", std::string("mesh") )
         .description("Name for the mesh to load");
   }
 
@@ -68,7 +68,7 @@ struct Domain::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option("file", URI() )
+    options.add("file", URI() )
         .supported_protocol(URI::Scheme::FILE)
         .description("Location of the file holding the mesh");
   }
@@ -99,7 +99,7 @@ Domain::Domain( const std::string& name  ) :
       .pretty_name("Load Mesh")
       .signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
 
-  options().add_option("dimension", 0u)
+  options().add("dimension", 0u)
       .description("The coordinate dimension (0 --> maximum found dimensionality inside all meshes)")
       .pretty_name("Dimension");
 
@@ -141,8 +141,8 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   // considering it like a rebalance that had no effect
 
   SignalOptions options;
-  options.add_option("mesh_uri", mesh->uri());
-  options.add_option("mesh_rebalanced", true);
+  options.add("mesh_uri", mesh->uri());
+  options.add("mesh_rebalanced", true);
   SignalArgs args = options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_changed", args);
 
@@ -186,7 +186,7 @@ void Domain::signal_load_mesh ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -42,7 +42,7 @@ public:
   /// @pre An option with the same name does not exist
   /// @return A reference to the created option
   template<typename T>
-  typename SelectOptionType<T>::type& add_option(const std::string& name, const T& default_value = T())
+  typename SelectOptionType<T>::type& add (const std::string& name, const T& default_value = T())
   {
     cf3_assert_desc ( "Class already has an option with same name",
                       this->store.find(name) == store.end() );
@@ -57,7 +57,7 @@ public:
   /// @pre An option with the same name does not exist
   /// @return A reference to the added option
   template < typename OPTION_TYPE >
-  OPTION_TYPE& add_option (const boost::shared_ptr<OPTION_TYPE>& option)
+  OPTION_TYPE& add (const boost::shared_ptr<OPTION_TYPE>& option)
   {
     cf3_assert_desc ( "Class has already property with name " + option->name(),
                       this->store.find(option->name()) == store.end() );
@@ -88,6 +88,15 @@ public:
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
   void set(const std::string& pname, const boost::any& val);
+
+  /// @brief Get the value of the option with given name
+  /// @param [in] opt_name  The option name
+  /// @return option value with correct type
+  template < typename TYPE >
+    const TYPE value ( const std::string& opt_name ) const
+  {
+    return option(opt_name).value<TYPE>();
+  }
 
   /// check that a option with the name exists
   /// @param opt_name the property name

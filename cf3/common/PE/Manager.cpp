@@ -183,9 +183,9 @@ void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDo
       SignalOptions & options = frame.options();
       std::string frameid = signal_frame.node.attribute_value("frameid");
 
-      options.add_option("frameid", frameid );
-      options.add_option("success", success );
-      options.add_option("message", message );
+      options.add("frameid", frameid );
+      options.add("success", success );
+      options.add("message", message );
 
       options.flush();
 
@@ -427,15 +427,15 @@ void Manager::signature_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
 
-  options.add_option("name", std::string())
+  options.add("name", std::string())
       .pretty_name("Name")
       .description("Name of the new group");
 
-  options.add_option("count", Uint(1))
+  options.add("count", Uint(1))
       .pretty_name("Workers Count")
       .description("Number of workers to spawn.");
 
-  options.add_option("log_forwarding", std::string("None") )
+  options.add("log_forwarding", std::string("None") )
       .pretty_name("Log Forwarding")
       .description("Defines the way the log is forwarded from the workers.")
       .restricted_list() += std::string("Only rank 0"), std::string("All ranks");
@@ -456,7 +456,7 @@ void Manager::signature_kill_group ( SignalArgs & args )
   for(int i = 0 ; it != m_groups.end() ; ++it, ++i )
     groups[i] = it->first;
 
-  options.add_option("group", m_groups.begin()->first )
+  options.add("group", m_groups.begin()->first )
       .pretty_name("Group to kill")
       .description("Processes belonging to the selected group will be exited.")
       .restricted_list() = groups;

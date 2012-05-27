@@ -260,13 +260,13 @@ void addValueToXml( const std::string& name,
     std::vector<TYPE> data;
     Map::split_string(value, sep, data);
 
-    options.add_option(name, data);
+    options.add(name, data);
   }
   else
   {
     try
     {
-      options.add_option(name, from_str<TYPE>(value));
+      options.add(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {
@@ -329,12 +329,12 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
       // since OptionT<URI> does not exist, using addValueToXml for
       // this type would lead to an undefined reference linking error
       if( sep.empty() )
-        options.add_option(name, from_str<URI>(value));
+        options.add(name, from_str<URI>(value));
       else
       {
         std::vector<URI> data;
         Map::split_string(value, sep, data);
-        options.add_option(name, data);
+        options.add(name, data);
       }
     }
     else

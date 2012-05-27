@@ -47,33 +47,33 @@ SimpleMeshGenerator::SimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option("nb_cells", m_nb_cells)
+  options().add("nb_cells", m_nb_cells)
       .description("Vector of number of cells in each direction")
       .pretty_name("Number of Cells")
       .link_to(&m_nb_cells)
       .mark_basic();
 
-  options().add_option("offsets", m_offsets)
+  options().add("offsets", m_offsets)
       .description("Vector of offsets in direction")
       .pretty_name("Offsets")
       .link_to(&m_offsets)
       .mark_basic();
 
-  options().add_option("lengths", m_lengths)
+  options().add("lengths", m_lengths)
       .description("Vector of lengths each direction")
       .pretty_name("Lengths")
       .link_to(&m_lengths)
       .mark_basic();
 
-  options().add_option("part", PE::Comm::instance().rank())
+  options().add("part", PE::Comm::instance().rank())
       .description("Part number (e.g. rank of processors)")
       .pretty_name("Part");
 
-  options().add_option("nb_parts", PE::Comm::instance().size())
+  options().add("nb_parts", PE::Comm::instance().size())
       .description("Total number of partitions (e.g. number of processors)")
       .pretty_name("Number of Partitions");
 
-  options().add_option("bdry", true)
+  options().add("bdry", true)
       .description("Generate Boundary")
       .pretty_name("Boundary");
 }

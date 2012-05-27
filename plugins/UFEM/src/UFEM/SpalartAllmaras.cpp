@@ -44,67 +44,67 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   LSSActionUnsteady(name)
 {
   // TODO: Move this to the physical model
-  options().add_option("SA_constant_cb1", 0.1355)
+  options().add("SA_constant_cb1", 0.1355)
     .description("SA_constant_cb1")
     .pretty_name("SA_constant_cb1")
     .link_to(&cb1);
 
-  options().add_option("SA_constant_cb2", 0.622)
+  options().add("SA_constant_cb2", 0.622)
     .description("SA_constant_cb2")
     .pretty_name("SA_constant_cb2")
     .link_to(&cb2);
 
-  options().add_option("SA_constant_cw1", 3.2390678167757287)
+  options().add("SA_constant_cw1", 3.2390678167757287)
     .description("SA_constant_cw1")
     .pretty_name("SA_constant_cw1")
     .link_to(&cw1);
 
-  options().add_option("SA_constant_cw2", 0.3)
+  options().add("SA_constant_cw2", 0.3)
     .description("SA_constant_cw2")
     .pretty_name("SA_constant_cw2")
     .link_to(&cw2);
 
-  options().add_option("SA_constant_cw3", 2.0)
+  options().add("SA_constant_cw3", 2.0)
     .description("SA_constant_cw3")
     .pretty_name("SA_constant_cw3")
     .link_to(&cw3);
 
-  options().add_option("SA_constant_cv1", 7.1)
+  options().add("SA_constant_cv1", 7.1)
     .description("SA_constant_cv1")
     .pretty_name("SA_constant_cv1")
     .link_to(&cv1);
 
-  options().add_option("SA_constant_ct3", 1.2)
+  options().add("SA_constant_ct3", 1.2)
     .description("SA_constant_ct3")
     .pretty_name("SA_constant_ct3")
     .link_to(&ct3);
 
-  options().add_option("SA_constant_ct4", 0.5)
+  options().add("SA_constant_ct4", 0.5)
     .description("SA_constant_ct4")
     .pretty_name("SA_constant_ct4")
     .link_to(&ct4);
 
-  options().add_option("SA_constant_kappa", 0.41)
+  options().add("SA_constant_kappa", 0.41)
     .description("SA_constant_kappa")
     .pretty_name("SA_constant_kappa")
     .link_to(&kappa);
 
-  options().add_option("SA_constant_sigma", 0.66666666666666666666)
+  options().add("SA_constant_sigma", 0.66666666666666666666)
     .description("SA_constant_sigma")
     .pretty_name("SA_constant_sigma")
     .link_to(&sigma);
 
-  options().add_option("SA_constant_r", 1)
+  options().add("SA_constant_r", 1)
     .description("SA_constant_r")
     .pretty_name("SA_constant_r")
     .link_to(&r);
 
-  options().add_option("SA_constant_g", 1)
+  options().add("SA_constant_g", 1)
     .description("SA_constant_g")
     .pretty_name("SA_constant_g")
     .link_to(&g);
 
-  options().add_option("SA_constant_d", 1)
+  options().add("SA_constant_d", 1)
     .description("SA_constant_d")
     .pretty_name("SA_constant_d")
     .link_to(&d);

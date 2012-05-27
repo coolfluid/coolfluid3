@@ -33,19 +33,19 @@ public:
   static std::string type_name() { return "Convection3D"; }
   Convection3D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
-    options().add_option("gamma",1.4)
+    options().add("gamma",1.4)
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("rho0",1.)
+    options().add("rho0",1.)
         .description("Uniform mean density")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("U0", std::vector<Real>(NDIM,0.))
+    options().add("U0", std::vector<Real>(NDIM,0.))
         .description("Uniform mean velocity")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("p0",1.)
+    options().add("p0",1.)
         .description("Uniform mean pressure")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 

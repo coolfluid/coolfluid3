@@ -66,12 +66,12 @@ GlobalNumbering::GlobalNumbering( const std::string& name )
     "  Usage: GlobalNumbering Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
-  options().add_option("debug", m_debug)
+  options().add("debug", m_debug)
       .description("Perform checks on validity")
       .pretty_name("Debug")
       .link_to(&m_debug);
 
-  options().add_option("combined", true)
+  options().add("combined", true)
       .description("Combine nodes and elements in one global numbering")
       .pretty_name("Combined");
 }

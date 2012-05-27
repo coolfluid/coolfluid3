@@ -56,7 +56,7 @@ AdjacentCellToFace::AdjacentCellToFace(const std::string& name) : solver::Action
 {
   m_node_connectivity = create_static_component<CNodeConnectivity>("NodeConnectivity");
 
-  options().add_option("field_tag", "")
+  options().add("field_tag", "")
     .pretty_name("Field Tag")
     .description("Tag for the field in which the initial conditions will be set");
 }

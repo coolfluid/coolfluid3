@@ -120,9 +120,9 @@ void NScriptEngine::execute_line( const QString & line , int fragment_number, QV
     QString repl=QString(line);
     repl.replace(QString("\t"),QString(";"));
     repl.replace(QString("\n"),QString("?"));
-    options.add_option("script", repl.toStdString());
-    options.add_option("fragment",fragment_number);
-    options.add_option("breakpoints",break_points.toStdVector());
+    options.add("script", repl.toStdString());
+    options.add("fragment",fragment_number);
+    options.add("breakpoints",break_points.toStdVector());
     SignalFrame frame = options.create_frame("execute_script", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
   }
@@ -134,10 +134,10 @@ void NScriptEngine::emit_debug_command(debug_command command, int fragment, int 
   if (connected){
     const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
     SignalOptions options;
-    options.add_option("command", static_cast<int>(command));
+    options.add("command", static_cast<int>(command));
     if (command == TOGGLE_BREAK_POINT){
-      options.add_option("fragment", fragment);
-      options.add_option("line", line);
+      options.add("fragment", fragment);
+      options.add("line", line);
     }
     SignalFrame frame = options.create_frame("change_debug_state", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
@@ -160,7 +160,7 @@ void NScriptEngine::request_documentation(QString &doc){
   if (connected){
     const common::URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
     SignalOptions options;
-    options.add_option("expression", doc.toStdString());
+    options.add("expression", doc.toStdString());
     SignalFrame frame = options.create_frame("get_documentation", uri(), script_engine_path);
     NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
   }

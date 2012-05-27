@@ -48,7 +48,7 @@ common::ComponentBuilder< Reader, MeshReader, LibCGNS > aCGNSReader_Builder;
 Reader::Reader(const std::string& name)
 : MeshReader(name), Shared()
 {
-  options().add_option( "SectionsAreBCs", false )
+  options().add( "SectionsAreBCs", false )
       .description("Treat Sections of lower dimensionality as BC. "
                         "This means no BCs from cgns will be read");
 }

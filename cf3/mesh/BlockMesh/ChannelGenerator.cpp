@@ -37,39 +37,39 @@ ComponentBuilder < ChannelGenerator, Component, LibBlockMesh > ChannelGenerator_
 
 ChannelGenerator::ChannelGenerator(const std::string& name): MeshGenerator(name)
 {
-  options().add_option("nb_parts", PE::Comm::instance().size())
+  options().add("nb_parts", PE::Comm::instance().size())
     .description("Total number of partitions (e.g. number of processors)")
     .pretty_name("Number of Partitions");
 
-  options().add_option("cell_overlap", PE::Comm::instance().size())
+  options().add("cell_overlap", PE::Comm::instance().size())
     .description("Cell overlap between two adjacent processors")
     .pretty_name("Cell Overlap");
 
-  options().add_option("x_segments", 10u)
+  options().add("x_segments", 10u)
     .description("Number of segments in the X direction")
     .pretty_name("X segments");
 
-  options().add_option("y_segments_half", 10u)
+  options().add("y_segments_half", 10u)
     .description("Number of segments in the Y direction for one half of the channel")
     .pretty_name("Y segments half");
 
-  options().add_option("z_segments", 10u)
+  options().add("z_segments", 10u)
     .description("Number of segments in the Z direction")
     .pretty_name("Z segments");
 
-  options().add_option("length", 10.)
+  options().add("length", 10.)
     .description("Length in the X direction")
     .pretty_name("Length");
 
-  options().add_option("half_height", 0.5)
+  options().add("half_height", 0.5)
     .description("Channel half height, in the Y-direction")
     .pretty_name("Half Height");
 
-  options().add_option("width", 10.)
+  options().add("width", 10.)
     .description("Channel witdh in the Z-direction")
     .pretty_name("Width");
 
-  options().add_option("grading", 0.2)
+  options().add("grading", 0.2)
     .description("Grading ratio. Values smaller than one refine towards the wall")
     .pretty_name("Grading Ratio");
 }

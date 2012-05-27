@@ -211,10 +211,10 @@ void NRemoteFSBrowser::open_dir ( const QString & path )
     it++;
   }
 
-  options.add_option("dirPath", path.toStdString());
-  options.add_option("includeFiles", m_include_files);
-  options.add_option("includeNoExtensions", m_include_no_extensions);
-  options.add_option("extensions", vect);
+  options.add("dirPath", path.toStdString());
+  options.add("includeFiles", m_include_files);
+  options.add("includeNoExtensions", m_include_no_extensions);
+  options.add("extensions", vect);
 
   options.flush();
 
@@ -237,10 +237,10 @@ void NRemoteFSBrowser::open_special_dir ( const QString & path )
     it++;
   }
 
-  options.add_option("dirPath", path.toStdString());
-  options.add_option("includeFiles", m_include_files);
-  options.add_option("includeNoExtensions", m_include_no_extensions);
-  options.add_option("extensions", vect);
+  options.add("dirPath", path.toStdString());
+  options.add("includeFiles", m_include_files);
+  options.add("includeNoExtensions", m_include_no_extensions);
+  options.add("extensions", vect);
 
   options.flush();
 

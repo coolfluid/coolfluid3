@@ -496,8 +496,8 @@ void BasicCommands::create(const std::vector<std::string>& params)
 //  XML::SignalFrame frame("create_component", parent_component->uri(), parent_component->uri());
   //  XML::SignalOptions & options = frame.options();
 
-  options.add_option( "name", new_component_path.name() );
-  options.add_option( "type", params[1] );
+  options.add( "name", new_component_path.name() );
+  options.add( "type", params[1] );
 
   XML::SignalFrame frame = options.create_frame("create_component", parent_component->uri(), parent_component->uri());
   dispatcher->dispatch_signal( "create_component", parent_component->uri(), frame );
@@ -517,7 +517,7 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   XML::SignalOptions options;
 //  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
 
-  options.add_option( "path", parent_2->uri() );
+  options.add( "path", parent_2->uri() );
 
   XML::SignalFrame frame = options.create_frame("move_component", component_1->uri(), component_1->uri() );
 

@@ -47,7 +47,7 @@ Translate::Translate( const std::string& name )
   properties()["description"] = desc;
 
   std::vector<Real> vec = boost::assign::list_of(0.)(0.)(0.);
-  options().add_option("vector",vec)
+  options().add("vector",vec)
       .description("Translation vector")
       .mark_basic();
 }

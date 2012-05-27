@@ -43,15 +43,15 @@ common::ComponentBuilder < HeatCouplingFlux, common::ActionDirector, LibUFEM > H
 
 HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
   ActionDirector(name),
-  m_rhs(options().add_option("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
-  options().add_option("gradient_region", m_gradient_region)
+  options().add("gradient_region", m_gradient_region)
     .pretty_name("Gradient Region")
     .description("The (volume) region in which to calculate the temperature gradient")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_gradient_region, this))
     .link_to(&m_gradient_region);
 
-  options().add_option("temperature_field_tag", UFEM::Tags::solution())
+  options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));

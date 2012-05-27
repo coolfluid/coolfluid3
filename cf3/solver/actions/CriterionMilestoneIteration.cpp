@@ -31,14 +31,14 @@ CriterionMilestoneIteration::CriterionMilestoneIteration( const std::string& nam
     "Returns true if a time is reached\n";
   properties()["description"] = description;
 
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .mark_basic()
       .link_to(&m_time)
       .add_tag("time");
 
-  options().add_option("milestone_rate", 1u)
+  options().add("milestone_rate", 1u)
       .description("Defines the checkpoints for the criterion")
       .pretty_name("Milestone Rate")
       .mark_basic();

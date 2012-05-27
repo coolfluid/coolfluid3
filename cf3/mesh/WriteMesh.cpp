@@ -56,20 +56,20 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   mark_basic();
 
 
-  options().add_option( "mesh", m_mesh)
+  options().add( "mesh", m_mesh)
       .description("Mesh to write")
       .pretty_name("Mesh")
       .mark_basic()
       .link_to(&m_mesh);
 
-  options().add_option("file", m_file)
+  options().add("file", m_file)
       .supported_protocol(URI::Scheme::FILE)
       .description("File to write")
       .pretty_name("File")
       .mark_basic()
       .link_to(&m_file);
 
-  options().add_option("fields", m_fields)
+  options().add("fields", m_fields)
       .description("Fields to write")
       .pretty_name("Fields")
       .mark_basic()
@@ -275,16 +275,16 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
     writers.push_back(bdr.name());
   }
 
-  options.add_option("mesh", URI() )
+  options.add("mesh", URI() )
       .supported_protocol( URI::Scheme::CPATH )
       .description("Path to the mesh");
 
   // create the value and add the restricted list
-  options.add_option( "Available writers", std::string() )
+  options.add( "Available writers", std::string() )
       .description("Available writers")
       .restricted_list() = writers;
 
-  options.add_option("file", std::string() )
+  options.add("file", std::string() )
       .description("File to write");
 }
 

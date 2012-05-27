@@ -43,14 +43,14 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("field", m_field )
+  options().add("field", m_field )
       .pretty_name("Solution Field")
       .description("The field to Initialize")
       .link_to(&m_field);
 
   // options
 
-  options().add_option("functions", std::vector<std::string>())
+  options().add("functions", std::vector<std::string>())
       .description("math function applied as Dirichlet boundary condition (vars x,y)")
       .attach_trigger ( boost::bind ( &Init::config_function, this ) )
       .mark_basic();

@@ -151,9 +151,9 @@ void CentralPanel::set_options(const QList<boost::shared_ptr< Option > > & list)
       bool basic = option->has_tag("basic");
 
       if (basic)
-        m_basic_option_layout->add_option(option);
+        m_basic_option_layout->add(option);
       else
-        m_advanced_option_layout->add_option(option);
+        m_advanced_option_layout->add(option);
     }
     catch(Exception e)
     {

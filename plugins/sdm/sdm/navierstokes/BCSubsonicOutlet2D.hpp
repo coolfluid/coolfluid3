@@ -32,12 +32,12 @@ public:
   BCSubsonicOutlet2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_p = 101300.;
-    options().add_option("p",m_p).link_to(&m_p);
+    options().add("p",m_p).link_to(&m_p);
 
     m_gamma=1.4;
     m_gamma_minus_1=m_gamma-1.;
 
-    options().add_option("gamma", m_gamma)
+    options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) );
   }

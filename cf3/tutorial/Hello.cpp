@@ -33,7 +33,7 @@ common::ComponentBuilder < Hello, Component, LibTutorial > Hello_Builder;
 Hello::Hello ( const std::string& name ) : Component ( name )
 {
   // Create a configurable 
-  options().add_option("message",std::string("Hello world!"));
+  options().add("message",std::string("Hello world!"));
   
   properties().add_property("print_count",0);
   
@@ -81,7 +81,7 @@ void Hello::signature_print(SignalArgs& args)
   SignalOptions sig_opts( args );
 
   // Add the option "person"
-  sig_opts.add_option("message", std::string("Hello world!") )
+  sig_opts.add("message", std::string("Hello world!") )
       .description("Message to print");
 }
 

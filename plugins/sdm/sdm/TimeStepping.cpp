@@ -59,15 +59,15 @@ TimeStepping::TimeStepping ( const std::string& name ) :
   properties().add_property( "iteration", 0u );
   properties().add_property( "walltime", 0. );
 
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .link_to(&m_time);
 
-  options().add_option("max_iteration",math::Consts::uint_max()).mark_basic();
-  options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
+  options().add("max_iteration",math::Consts::uint_max()).mark_basic();
+  options().add("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
   parse_cfl();
-  options().add_option("time_accurate",true).mark_basic();
+  options().add("time_accurate",true).mark_basic();
 
   // static components
 
@@ -200,9 +200,9 @@ void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add_option( "time",  m_time->current_time() );
-  opts.add_option( "dt",    m_time->dt() );
-  opts.add_option( "iteration", properties().value<Uint>("iteration") );
+  opts.add( "time",  m_time->current_time() );
+  opts.add( "dt",    m_time->dt() );
+  opts.add( "iteration", properties().value<Uint>("iteration") );
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 

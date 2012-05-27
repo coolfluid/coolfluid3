@@ -37,7 +37,7 @@ ProbePostProcFunction::ProbePostProcFunction(const std::string &name) : ProbePos
 {
   m_var_str="f";
   m_function_str="0";
-  options().add_option("function",m_var_str+"="+m_function_str)
+  options().add("function",m_var_str+"="+m_function_str)
       .description("Function to parse. Variables will be added dynamically during probing");
 }
 

@@ -40,7 +40,7 @@ AdvanceTime::AdvanceTime( const std::string& name  ) :
   properties()["brief"] = std::string("Time advancing object");
   properties()["description"] = std::string( "This object handles time advancing\n" );
 
-  options().add_option(solver::Tags::time(), m_time)
+  options().add(solver::Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .mark_basic()

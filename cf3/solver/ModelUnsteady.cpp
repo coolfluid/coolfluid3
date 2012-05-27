@@ -105,7 +105,7 @@ void ModelUnsteady::signal_create_time ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", time.uri());
+  reply_options.add("created_component", time.uri());
 }
 
 Time& ModelUnsteady::time()

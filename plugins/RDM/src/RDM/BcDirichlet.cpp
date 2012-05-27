@@ -40,7 +40,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
 
-  options().add_option("functions", std::vector<std::string>())
+  options().add("functions", std::vector<std::string>())
       .description("math function applied as Dirichlet boundary condition (vars x,y)")
       .attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
       .mark_basic();

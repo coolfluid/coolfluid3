@@ -64,7 +64,7 @@ Space::Space ( const std::string& name ) :
 
   properties()["description"] = msg.str();
 
-  options().add_option("shape_function", std::string())
+  options().add("shape_function", std::string())
       .description("Shape Function defined in this space")
       .pretty_name("Shape Function")
       .attach_trigger(boost::bind(&Space::configure_shape_function, this))

@@ -51,11 +51,11 @@ LinEuler3D::LinEuler3D( const std::string& name ) :
   m_u0( (LinEuler3D::GeoV() << 0.5, 0., 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
   m_P0(1.)
 {
-  options().add_option("gamma",m_gamma)
+  options().add("gamma",m_gamma)
       .description("Specific heat reatio")
       .link_to(&m_gamma);
 
-  options().add_option("rho0",m_rho0)
+  options().add("rho0",m_rho0)
       .description("Uniform mean density")
       .link_to(&m_rho0);
 
@@ -63,11 +63,11 @@ LinEuler3D::LinEuler3D( const std::string& name ) :
   U0[XX] = m_u0[XX];
   U0[YY] = m_u0[YY];
   U0[ZZ] = m_u0[ZZ];
-  options().add_option("U0",U0)
+  options().add("U0",U0)
       .description("Uniform mean velocity")
       .attach_trigger( boost::bind( &LinEuler3D::config_mean_velocity, this) );
 
-  options().add_option("P0",m_P0)
+  options().add("P0",m_P0)
       .description("Uniform mean pressure")
       .link_to(&m_P0);
 }

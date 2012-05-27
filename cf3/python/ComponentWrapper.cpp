@@ -56,7 +56,7 @@ struct OptionCreator
     if(extracted_value.check())
     {
       m_found = true;
-      m_options.add_option(m_name, extracted_value());
+      m_options.add(m_name, extracted_value());
     }
   }
 
@@ -69,7 +69,7 @@ struct OptionCreator
     if(extracted_value.check())
     {
       m_found = true;
-      m_options.add_option(m_name, extracted_value());
+      m_options.add(m_name, extracted_value());
     }
   }
 

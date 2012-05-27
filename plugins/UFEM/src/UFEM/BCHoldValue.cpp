@@ -43,7 +43,7 @@ common::ComponentBuilder < BCHoldValue, common::Action, LibUFEM > BCHoldValue_Bu
 
 BCHoldValue::BCHoldValue(const std::string& name) :
   ProtoAction(name),
-  m_dirichlet(options().add_option("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
   regist_signal( "set_tags" )
     .connect( boost::bind( &BCHoldValue::signal_set_tags, this, _1 ) )
@@ -78,19 +78,19 @@ void BCHoldValue::signature_set_tags ( common::SignalArgs& node )
 {
   common::XML::SignalOptions options(node);
   
-  options.add_option("from_field_tag", UFEM::Tags::solution())
+  options.add("from_field_tag", UFEM::Tags::solution())
     .pretty_name("From Field Tag")
     .description("Tag for the field to copy from");
     
-  options.add_option("to_field_tag", UFEM::Tags::solution())
+  options.add("to_field_tag", UFEM::Tags::solution())
     .pretty_name("To Field Tag")
     .description("Tag for the field to copy to");
     
-  options.add_option("from_variable", UFEM::Tags::solution())
+  options.add("from_variable", UFEM::Tags::solution())
     .pretty_name("From Variable")
     .description("Internal name for the variable to copy from");
     
-  options.add_option("to_variable", UFEM::Tags::solution())
+  options.add("to_variable", UFEM::Tags::solution())
     .pretty_name("To Variable")
     .description("Internal name for the variable to copy to");
 }

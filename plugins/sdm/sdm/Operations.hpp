@@ -68,7 +68,7 @@ struct SFDElement : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -114,7 +114,7 @@ struct FluxPointPlaneJacobianNormal : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -178,7 +178,7 @@ struct FluxPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -228,7 +228,7 @@ struct FluxPointCoordinatesDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -280,7 +280,7 @@ struct SolutionPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -335,7 +335,7 @@ struct SolutionPointFieldDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
@@ -387,7 +387,7 @@ struct SolutionPointField : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
@@ -434,7 +434,7 @@ struct FluxPointFieldDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
@@ -480,7 +480,7 @@ struct FluxPointField : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:

@@ -53,22 +53,22 @@ public:
 
     m_gamma = 1.4;
     m_gamma_minus_1 = m_gamma-1.;
-    options().add_option("gamma",m_gamma)
+    options().add("gamma",m_gamma)
         .description("Heat capacity ratio")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_R = 287.05;
-    options().add_option("R",m_R)
+    options().add("R",m_R)
         .description("Gas constant")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_k = 2.601e-2;
-    options().add_option("k",m_k)
+    options().add("k",m_k)
         .description("Heat conduction")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_mu = 1.806e-5;
-    options().add_option("mu",m_mu)
+    options().add("mu",m_mu)
         .description("Dynamic viscosity")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 

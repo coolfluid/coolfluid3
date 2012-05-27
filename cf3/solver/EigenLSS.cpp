@@ -57,7 +57,7 @@ cf3::common::ComponentBuilder < EigenLSS, common::Component, LibSolver > aEigenL
 
 EigenLSS::EigenLSS ( const std::string& name ) : Component ( name )
 {
-  options().add_option("config_file", URI())
+  options().add("config_file", URI())
       .supported_protocol(URI::Scheme::FILE)
       .description("Solver config file")
       .pretty_name("Config File")

@@ -44,14 +44,14 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name)
 {
   // TODO: Move this to the physical model
-  options().add_option("scalar_coefficient", 1.)
+  options().add("scalar_coefficient", 1.)
     .description("Scalar coefficient ")
     .pretty_name("Scalar coefficient")
     .link_to(&m_alpha);
 
   options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&ScalarAdvection::trigger_physical_model, this));
 
-  options().add_option("scalar_name", "Scalar")
+  options().add("scalar_name", "Scalar")
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));

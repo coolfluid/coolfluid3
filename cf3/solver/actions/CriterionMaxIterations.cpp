@@ -36,12 +36,12 @@ CriterionMaxIterations::CriterionMaxIterations( const std::string& name  ) :
 
   // options
 
-  options().add_option("iterator", m_iter_comp)
+  options().add("iterator", m_iter_comp)
       .description("Component performing iterations")
       .pretty_name("Iterative component")
       .link_to(&m_iter_comp);
 
-  options().add_option( "maxiter", 1u )
+  options().add( "maxiter", 1u )
       .description("Maximum number of iterations (0 will perform none)")
       .pretty_name("Maximum number");
 

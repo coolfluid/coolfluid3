@@ -37,7 +37,7 @@ common::ComponentBuilder<Interpolator,AInterpolator,LibMesh> Interpolator_builde
 
 Interpolator::Interpolator(const std::string &name) : AInterpolator(name)
 {
-  options().add_option("store", false)
+  options().add("store", false)
       .description("Flag to store weights and stencils used for faster interpolation in the future")
       .pretty_name("Store");
 

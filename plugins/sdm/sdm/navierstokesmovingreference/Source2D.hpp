@@ -93,27 +93,27 @@ public:
           dOmegadtDefault[1] = dOmegadt[1];
           dOmegadtDefault[2] = dOmegadt[2];
 
-          options().add_option("Omega", OmegaDefault)
+          options().add("Omega", OmegaDefault)
               .description("Rotation vector")
               .mark_basic()
               .attach_trigger(boost::bind( &Source2D::config_Omega, this));
 
-          options().add_option("Vtrans", VtransDefault)
+          options().add("Vtrans", VtransDefault)
               .description("Vector of the translation speeds")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_Vtrans, this));
 
-          options().add_option("a0", a0Default)
+          options().add("a0", a0Default)
               .description("Acceleration of the translation (DVtrans/Dt)")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_a0, this));
 
-          options().add_option("dOmegadt", dOmegadtDefault)
+          options().add("dOmegadt", dOmegadtDefault)
               .description("Acceleration of the rotation")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_dOmegadt, this));
 
-          options().add_option("gamma", gamma)
+          options().add("gamma", gamma)
               .description("The heat capacity ratio")
               .link_to(&gamma);
     }

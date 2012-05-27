@@ -53,32 +53,32 @@ RungeKuttaLowStorage3::RungeKuttaLowStorage3 ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("order", 1u)
+  options().add("order", 1u)
       .description("Order of the Runge-Kutta integration")
       .pretty_name("RK order");
 
-  options().add_option("nb_stages", 1u)
+  options().add("nb_stages", 1u)
       .description("Number of stages of the Runge-Kutta integration")
       .pretty_name("RK stages")
       .attach_trigger( boost::bind( &RungeKuttaLowStorage3::config_nb_stages , this ) );
 
   std::vector<Real> dummy(4);
-  options().add_option("delta", dummy)
+  options().add("delta", dummy)
       .description("RK coefficients delta (length = nb_stages)");
 
-  options().add_option("gamma1", dummy)
+  options().add("gamma1", dummy)
       .description("RK coefficients gamma1 (length = nb_stages)");
 
-  options().add_option("gamma2", dummy)
+  options().add("gamma2", dummy)
       .description("RK coefficients gamma2 (length = nb_stages)");
 
-  options().add_option("gamma3", dummy)
+  options().add("gamma3", dummy)
       .description("RK coefficients gamma3 (length = nb_stages)");
 
-  options().add_option("beta", dummy)
+  options().add("beta", dummy)
       .description("RK coefficients beta, lowstorage: vector instead of matrix (stage+1,stage)  (length = nb_stages)");
 
-  options().add_option("c", dummy)
+  options().add("c", dummy)
       .description("coefficients c from butcher tableau (length = nb_stages)");
 
   config_nb_stages();
@@ -280,7 +280,7 @@ void RungeKuttaLowStorage3::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option( "iteration", iter );
+  opts.add( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

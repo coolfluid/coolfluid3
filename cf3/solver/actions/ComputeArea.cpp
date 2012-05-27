@@ -37,7 +37,7 @@ ComputeArea::ComputeArea ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  options().add_option(mesh::Tags::area(), URI())
+  options().add(mesh::Tags::area(), URI())
       .supported_protocol(URI::Scheme::CPATH)
       .description("Field to set")
       .pretty_name("Area")

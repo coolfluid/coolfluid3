@@ -48,17 +48,17 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("solution_field", m_field )
+  options().add("solution_field", m_field )
       .pretty_name("Solution Field")
       .description("The field to Initialize")
       .link_to(&m_field);
 
-  options().add_option("input_vars", m_input_vars)
+  options().add("input_vars", m_input_vars)
       .pretty_name("Input Variables")
       .description("The input variables.\nIf empty, Solution Variables will be used")
       .link_to(&m_input_vars);
 
-  options().add_option("functions", std::vector<std::string>())
+  options().add("functions", std::vector<std::string>())
       .pretty_name("Functions")
       .description("math function applied as initial condition using Input Variables (vars x,y)")
       .attach_trigger ( boost::bind ( &Init::config_function, this ) )

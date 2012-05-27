@@ -23,7 +23,7 @@ common::ComponentBuilder < ParsedFunctionExpression, Action, LibUFEM > ParsedFun
 
 ParsedFunctionExpression::ParsedFunctionExpression(const std::string& name) : ProtoAction(name)
 {
-  options().add_option("value", std::vector<std::string>())
+  options().add("value", std::vector<std::string>())
     .pretty_name("Value")
     .description("Array of functions to use. Each function is used as a component in the result vector.")
     .attach_trigger(boost::bind(&ParsedFunctionExpression::trigger_value, this));

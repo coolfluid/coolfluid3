@@ -30,7 +30,7 @@ common::ComponentBuilder < LSSActionUnsteady, common::ActionDirector, LibUFEM > 
 LSSActionUnsteady::LSSActionUnsteady(const std::string& name) :
   LSSAction(name)
 {
-  options().add_option(solver::Tags::time(), m_time)
+  options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Component that keeps track of time for this simulation")
     .attach_trigger(boost::bind(&LSSActionUnsteady::trigger_time, this))

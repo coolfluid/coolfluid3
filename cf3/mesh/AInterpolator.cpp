@@ -110,22 +110,22 @@ void AInterpolator::signature_interpolate ( common::SignalArgs& node)
 {
   common::XML::SignalOptions options( node );
 
-  options.add_option("source",URI())
+  options.add("source",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Source field");
 
-  options.add_option("target",URI())
+  options.add("target",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Target field or table");
 
-  options.add_option("coordinates",URI())
+  options.add("coordinates",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Table of coordinates if target is not a field");
 
-  options.add_option("source_vars",std::vector<Uint>())
+  options.add("source_vars",std::vector<Uint>())
       .description("Source variable indices to interpolate");
 
-  options.add_option("target_vars",std::vector<Uint>())
+  options.add("target_vars",std::vector<Uint>())
       .description("Target variable indices to interpolate to");
 }
 

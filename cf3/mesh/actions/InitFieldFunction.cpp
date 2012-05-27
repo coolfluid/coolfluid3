@@ -49,13 +49,13 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
     "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  options().add_option("field", m_field)
+  options().add("field", m_field)
       .description("Field to initialize")
       .pretty_name("Field")
       .link_to(&m_field)
       .mark_basic();
 
-  options().add_option("functions", std::vector<std::string>())
+  options().add("functions", std::vector<std::string>())
       .description("math function applied as initial field (vars x,y,z)")
       .pretty_name("Functions definition")
       .attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )

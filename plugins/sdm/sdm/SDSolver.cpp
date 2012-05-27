@@ -66,36 +66,36 @@ SDSolver::SDSolver ( const std::string& name  ) :
   properties()["description"] = std::string("Long description not available");
 
   // options
-  options().add_option( sdm::Tags::solution_vars(), "")
+  options().add( sdm::Tags::solution_vars(), "")
       .attach_trigger ( boost::bind ( &SDSolver::config_physics, this ) )
       .mark_basic();
 
-  options().add_option( sdm::Tags::solution_order(),2u )
+  options().add( sdm::Tags::solution_order(),2u )
       .pretty_name("Solution Order")
       .description("Setting this will create the appropriate spaces in the mesh")
       .mark_basic();
 
-  options().add_option(sdm::Tags::mesh(), m_mesh)
+  options().add(sdm::Tags::mesh(), m_mesh)
       .description("Mesh the Discretization Method will be applied to")
       .pretty_name("Mesh")
       .attach_trigger ( boost::bind ( &SDSolver::config_mesh,   this ) )
       .mark_basic()
       .link_to(&m_mesh);
 
-  options().add_option(sdm::Tags::regions(), std::vector<URI>(1,mesh::Tags::topology()))
+  options().add(sdm::Tags::regions(), std::vector<URI>(1,mesh::Tags::topology()))
       .description("The regions this solver will be applied to (if relative URI, it is relative to mesh/topology)")
       .pretty_name("Regions")
       .attach_trigger ( boost::bind ( &SDSolver::config_regions,   this ) )
       .mark_basic();
 
-  options().add_option("iterative_solver",("cf3.sdm.RungeKuttaLowStorage2"))
+  options().add("iterative_solver",("cf3.sdm.RungeKuttaLowStorage2"))
       .description("Iterative solver to solve for the solution each time step")
       .pretty_name("Iterative Solver")
       .attach_trigger( boost::bind ( &SDSolver::config_iterative_solver, this ))
       .mark_basic();
 
   m_time = create_component<Time>("Time");
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .attach_trigger( boost::bind( &SDSolver::config_time, this) )
@@ -322,10 +322,10 @@ void SDSolver::signal_add_probe(common::SignalArgs& args)
 void SDSolver::signature_add_probe(common::SignalArgs& args)
 {
   XML::SignalOptions sig_opts(args);
-  sig_opts.add_option("name",std::string("probe"));
-  sig_opts.add_option("coordinate",std::vector<Real>());
-  sig_opts.add_option("functions",std::vector<std::string>());
-  sig_opts.add_option("log_variables",std::vector<std::string>());
+  sig_opts.add("name",std::string("probe"));
+  sig_opts.add("coordinate",std::vector<Real>());
+  sig_opts.add("functions",std::vector<std::string>());
+  sig_opts.add("log_variables",std::vector<std::string>());
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -41,17 +41,17 @@ PrintIterationSummary::PrintIterationSummary ( const std::string& name ) : Actio
 
   // options
 
-  options().add_option("check_convergence", false)
+  options().add("check_convergence", false)
       .description("checks if the norm contains a non-real number ( either a nan or infinity )");
 
-  options().add_option("print_rate", 1u)
+  options().add("print_rate", 1u)
       .description("how often to print the iteration summary");
 
-  options().add_option("norm", my_norm)
+  options().add("norm", my_norm)
       .description("component holding the norm property")
       .link_to(&my_norm);
 
-  options().add_option("iterator", my_iter)
+  options().add("iterator", my_iter)
       .description("component holding the iteration property")
       .link_to(&my_iter);
 }

@@ -36,16 +36,16 @@ PeriodicWriteMesh::PeriodicWriteMesh ( const std::string& name ) : solver::Actio
 {
   mark_basic();
 
-  options().add_option("iterator", m_iterator)
+  options().add("iterator", m_iterator)
       .pretty_name("Iterator Component")
       .description("The component that stores the \'iteration\'")
       .link_to(&m_iterator);
 
-  options().add_option( "saverate", 0u )
+  options().add( "saverate", 0u )
       .pretty_name("Save Rate")
       .description("Interval of iterations between saves");
 
-  options().add_option( "filepath", URI() )
+  options().add( "filepath", URI() )
       .pretty_name("File Path")
       .description("Path where to save the mesh");
 }

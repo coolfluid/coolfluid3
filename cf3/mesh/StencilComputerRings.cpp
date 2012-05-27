@@ -43,7 +43,7 @@ cf3::common::ComponentBuilder < StencilComputerRings, StencilComputer, LibMesh >
 StencilComputerRings::StencilComputerRings( const std::string& name )
   : StencilComputer(name), m_nb_rings(0)
 {
-  options().add_option("nb_rings", m_nb_rings)
+  options().add("nb_rings", m_nb_rings)
       .description("Number of neighboring rings of elements in stencil")
       .pretty_name("Number of Rings")
       .link_to(&m_nb_rings);

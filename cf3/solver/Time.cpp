@@ -41,20 +41,20 @@ Time::Time ( const std::string& name  ) :
     "unless the code explicitely (re)configures them.";
   properties()["description"] = description;
 
-  options().add_option("iteration", m_iter)
+  options().add("iteration", m_iter)
       .description("Current iteration of the simulation")
       .pretty_name("Iteration")
       .link_to(&m_iter)
       .mark_basic();
 
 
-  options().add_option("current_time", m_current_time)
+  options().add("current_time", m_current_time)
       .description("Current time of the simulation")
       .pretty_name("Current Time")
       .link_to(&m_current_time)
       .mark_basic();
 
-  options().add_option("time_step", m_dt)
+  options().add("time_step", m_dt)
       .description("Maximal Time Step the simulation will use.\n"
                         "A CFL condition will be applied to make time step more strict if required.")
       .pretty_name("Time Step")
@@ -62,7 +62,7 @@ Time::Time ( const std::string& name  ) :
       .mark_basic()
       .attach_trigger(boost::bind(&Time::trigger_timestep, this));
 
-  options().add_option("end_time", m_current_time)
+  options().add("end_time", m_current_time)
       .description("Time at which to finish the simulation")
       .pretty_name("End Time")
       .link_to(&m_end_time)

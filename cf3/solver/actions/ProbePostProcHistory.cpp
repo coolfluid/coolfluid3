@@ -36,10 +36,10 @@ common::ComponentBuilder <ProbePostProcHistory,ProbePostProcessor, solver::actio
 
 ProbePostProcHistory::ProbePostProcHistory(const std::string &name) : ProbePostProcessor(name)
 {
-  options().add_option("history",m_history)
+  options().add("history",m_history)
       .description("history")
       .link_to(&m_history);
-  options().add_option("variables",m_vars)
+  options().add("variables",m_vars)
       .description("Variables to log in the history component")
       .link_to(&m_vars);
 }

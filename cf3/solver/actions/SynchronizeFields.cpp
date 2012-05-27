@@ -36,7 +36,7 @@ SynchronizeFields::SynchronizeFields ( const std::string& name ) : solver::Actio
   mark_basic();
 
   std::vector< URI > dummy;
-  options().add_option("Fields", dummy)
+  options().add("Fields", dummy)
       .description("Fields to synchronize")
       .attach_trigger ( boost::bind ( &SynchronizeFields::config_fields,   this ) );
 }

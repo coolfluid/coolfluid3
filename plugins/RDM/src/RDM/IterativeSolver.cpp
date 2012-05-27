@@ -140,7 +140,7 @@ void IterativeSolver::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option( "iteration", iter );
+  opts.add( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

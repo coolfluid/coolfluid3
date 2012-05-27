@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
   SignalOptions options;
 
   // URI with a wrong protocol
-  options.add_option("location", URI("file:/"));
+  options.add("location", URI("file:/"));
 
   frame = options.create_frame("Target", "/", "/");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
@@ -227,8 +227,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add_option("location", URI("cpath:/MyDom"));
-  options.add_option("files", files);
+  options.add("location", URI("cpath:/MyDom"));
+  options.add("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option("location", URI("cpath:/MyDom"));
-  options.add_option("files", files);
+  options.add("location", URI("cpath:/MyDom"));
+  options.add("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option("location", URI("cpath:/MyDom"));
-  options.add_option("files", files);
+  options.add("location", URI("cpath:/MyDom"));
+  options.add("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   files.push_back( "file:../../resources/hextet.neu" );
  // more than 1 file no longer supported
 //  files.push_back( "file:../../resources/quadtriag.neu" );
-  options.add_option("location", URI("cpath:/MyDom"));
-  options.add_option("files", files);
+  options.add("location", URI("cpath:/MyDom"));
+  options.add("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 

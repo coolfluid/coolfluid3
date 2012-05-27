@@ -41,7 +41,7 @@ struct IterativeAlgo
   {
     SignalOptions options;
 
-    options.add_option("iteration", 0u);
+    options.add("iteration", 0u);
 
     for( Uint iter = 0; iter < 10; ++iter )
     {
@@ -73,7 +73,7 @@ struct IterativeAlgo
 
     SignalOptions options;
 
-    options.add_option("file", URI("file:///localhost/path/to/file.txt") );
+    options.add("file", URI("file:///localhost/path/to/file.txt") );
 
     SignalFrame f = options.create_frame();
     Core::instance().event_handler().raise_event( "file_written", f );

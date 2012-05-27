@@ -183,7 +183,7 @@ DiffusiveTerm<PHYSDATA>::DiffusiveTerm( const std::string& name )
 #endif
 
   m_alpha=0.;
-  options().add_option("alpha",m_alpha)
+  options().add("alpha",m_alpha)
       .description("Coefficient for lifting-operator in the second approach of Bassi-Rebay")
       .link_to(&m_alpha);
 }

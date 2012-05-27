@@ -30,15 +30,15 @@ BoundaryTerm::BoundaryTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(RDM::Tags::solution(), m_solution)
+  options().add(RDM::Tags::solution(), m_solution)
       .pretty_name("Solution Field")
       .link_to(&m_solution);
 
-  options().add_option(RDM::Tags::wave_speed(), m_wave_speed)
+  options().add(RDM::Tags::wave_speed(), m_wave_speed)
       .pretty_name("Wave Speed Field")
       .link_to(&m_wave_speed);
 
-  options().add_option(RDM::Tags::residual(), m_residual)
+  options().add(RDM::Tags::residual(), m_residual)
       .pretty_name("Residual Field")
       .link_to(&m_residual);
 }

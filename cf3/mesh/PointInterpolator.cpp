@@ -36,7 +36,7 @@ using namespace common;
 APointInterpolator::APointInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  options().add_option("dict", m_dict)
+  options().add("dict", m_dict)
       .description("Dictionary to interpolate from")
       .pretty_name("Source Dictionary")
       .mark_basic()
@@ -65,20 +65,20 @@ cf3::common::ComponentBuilder<PointInterpolator,APointInterpolator,LibMesh> Poin
 PointInterpolator::PointInterpolator ( const std::string& name  ) :
   APointInterpolator ( name )
 {
-  options().add_option("element_finder", std::string("cf3.mesh.ElementFinderOcttree"))
+  options().add("element_finder", std::string("cf3.mesh.ElementFinderOcttree"))
       .description("Builder name of the element finder")
       .pretty_name("Element Finder")
       .attach_trigger( boost::bind( &PointInterpolator::configure_element_finder, this ) )
       .mark_basic();
 
-  options().add_option("stencil_computer", std::string("cf3.mesh.StencilComputerOneCell"))
+  options().add("stencil_computer", std::string("cf3.mesh.StencilComputerOneCell"))
       .description("Builder name of the stencil computer")
       .pretty_name("Stencil Computer")
       .attach_trigger( boost::bind( &PointInterpolator::configure_stencil_computer, this ) )
       .mark_basic();
 
-//  options().add_option("function", std::string("cf3.mesh.ShapeFunctionInterpolation"))
-  options().add_option("function", std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"))
+//  options().add("function", std::string("cf3.mesh.ShapeFunctionInterpolation"))
+  options().add("function", std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"))
       .description("Builder name of the interpolator function")
       .pretty_name("Interpolator Function")
       .attach_trigger( boost::bind( &PointInterpolator::configure_interpolator_function, this ) )

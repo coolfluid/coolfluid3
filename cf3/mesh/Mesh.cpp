@@ -329,11 +329,11 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("file" , URI(name() + ".msh") )
+  options.add("file" , URI(name() + ".msh") )
       .description("File to write" ).mark_basic();
 
   std::vector<URI> fields;
-  options.add_option("fields" , fields )
+  options.add("fields" , fields )
       .description("Field paths to write");
 }
 
@@ -473,7 +473,7 @@ void Mesh::raise_mesh_loaded()
 
   // Raise an event to indicate that this mesh was loaded
   SignalOptions options;
-  options.add_option("mesh_uri", uri());
+  options.add("mesh_uri", uri());
 
   SignalArgs f= options.create_frame();
   Core::instance().event_handler().raise_event( Tags::event_mesh_loaded(), f );
@@ -500,7 +500,7 @@ void Mesh::raise_mesh_changed()
 
   // Raise an event to indicate that this mesh was changed
   SignalOptions options;
-  options.add_option("mesh_uri", uri());
+  options.add("mesh_uri", uri());
 
   if(!m_block_mesh_changed)
   {

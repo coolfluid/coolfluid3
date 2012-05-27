@@ -564,7 +564,7 @@ void Component::signal_create_component ( SignalArgs& args  )
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", comp->uri());
+  reply_options.add("created_component", comp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -753,9 +753,9 @@ void Component::signature_print_tree( SignalArgs& args ) const
 {
   SignalOptions options( args );
 
-  options.add_option("basic_mode", false )
+  options.add("basic_mode", false )
       .description("If false, only components marked as basic will be printed");
-  options.add_option("depth", 0u )
+  options.add("depth", 0u )
       .description("Define howmany levels will be printed");
 }
 
@@ -1020,11 +1020,11 @@ void Component::signature_create_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option("name", std::string("untitled") )
+  options.add("name", std::string("untitled") )
       .description("Name for created component.");
-  options.add_option("type", std::string("cf3.common.Group") )
+  options.add("type", std::string("cf3.common.Group") )
       .description("Concrete type of the component.");
-  options.add_option("basic_mode", true )
+  options.add("basic_mode", true )
       .description("Component will be visible in basic mode.");
 }
 
@@ -1034,7 +1034,7 @@ void Component::signature_rename_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Component new name.");
 }
 
@@ -1044,7 +1044,7 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option<URI>("path")
+  options.add<URI>("path")
       .pretty_name("Path")
       .description("Path to the new component to which this one will move to.");
 }

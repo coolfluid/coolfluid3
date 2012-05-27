@@ -42,29 +42,29 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 {
   mark_basic();
   // options
-  options().add_option("time_accurate", true)
+  options().add("time_accurate", true)
     .description("Time Accurate")
     .pretty_name("Time Accurate")
     .mark_basic()
     .add_tag("time_accurate");
 
-  options().add_option("cfl", 1.)
+  options().add("cfl", 1.)
     .description("Courant Number")
     .pretty_name("CFL")
     .mark_basic()
     .add_tag("cfl");
 
-  options().add_option(sdm::Tags::update_coeff(), m_update_coeff)
+  options().add(sdm::Tags::update_coeff(), m_update_coeff)
     .description("Update coefficient to multiply with residual")
     .pretty_name("Update Coefficient")
     .link_to(&m_update_coeff);
 
-  options().add_option(sdm::Tags::wave_speed(), m_wave_speed)
+  options().add(sdm::Tags::wave_speed(), m_wave_speed)
     .description("Wave Speed multiplied divided by characteristic length")
     .pretty_name("Wave Speed")
     .link_to(&m_wave_speed);
 
-  options().add_option(sdm::Tags::time(), m_time)
+  options().add(sdm::Tags::time(), m_time)
     .description("Time Tracking component")
     .pretty_name("Time")
     .link_to(&m_time);

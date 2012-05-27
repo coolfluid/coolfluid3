@@ -58,16 +58,16 @@ Rotate::Rotate( const std::string& name )
   properties()["description"] = desc;
 
   std::vector<Real> axis_direction = boost::assign::list_of(0.)(0.)(1.);
-  options().add_option("axis_direction",axis_direction)
+  options().add("axis_direction",axis_direction)
       .description("Direction of rotation axis, only useful for 3D rotations.")
       .mark_basic();
 
   std::vector<Real> axis_point     = boost::assign::list_of(0.)(0.)(0.);
-  options().add_option("axis_point",axis_point)
+  options().add("axis_point",axis_point)
       .description("Point on axis of rotation in 3D. Rotation centre in 2D")
       .mark_basic();
 
-  options().add_option("angle",0.)
+  options().add("angle",0.)
       .description("Rotation angle [rad]")
       .mark_basic();
 }

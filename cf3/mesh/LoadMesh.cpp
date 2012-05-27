@@ -50,7 +50,7 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 
   // options
 
-  options().add_option("dimension", 0u)
+  options().add("dimension", 0u)
       .description("The coordinate dimension (0 --> maximum dimensionality)")
       .pretty_name("Dimension");
 
@@ -211,7 +211,7 @@ void LoadMesh::signal_load_mesh ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", mesh->uri());
+  reply_options.add("created_component", mesh->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,10 +220,10 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("mesh", URI() )
+  options.add("mesh", URI() )
       .description("Path to the mesh component. Mesh will be created if doesn't exist");
 
-  options.add_option( "files", std::vector<URI>() )
+  options.add( "files", std::vector<URI>() )
       .description( "Files to load into one single mesh" );
 }
 

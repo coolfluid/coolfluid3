@@ -181,7 +181,7 @@ void NetworkXPython::signal_get_detailed_info(SignalArgs& args)
   // send coll to python
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ void NetworkXPython::signal_get_detailed_info(SignalArgs& args)
 void NetworkXPython::signature_get_detailed_info( common::SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
 }
@@ -208,7 +208,7 @@ void NetworkXPython::signal_get_component_graph(SignalArgs& args)
   append_component_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,10 +216,10 @@ void NetworkXPython::signal_get_component_graph(SignalArgs& args)
 void NetworkXPython::signature_get_component_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -273,7 +273,7 @@ void NetworkXPython::signal_get_option_graph(SignalArgs& args)
   append_option_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -281,10 +281,10 @@ void NetworkXPython::signal_get_option_graph(SignalArgs& args)
 void NetworkXPython::signature_get_option_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -330,7 +330,7 @@ void NetworkXPython::signal_get_signal_graph(SignalArgs& args)
   append_signal_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -338,10 +338,10 @@ void NetworkXPython::signal_get_signal_graph(SignalArgs& args)
 void NetworkXPython::signature_get_signal_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -389,7 +389,7 @@ void NetworkXPython::signal_get_field_graph(SignalArgs& args)
   append_field_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -397,10 +397,10 @@ void NetworkXPython::signal_get_field_graph(SignalArgs& args)
 void NetworkXPython::signature_get_field_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -452,7 +452,7 @@ void NetworkXPython::signal_get_link_graph(SignalArgs& args)
   append_link_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -460,10 +460,10 @@ void NetworkXPython::signal_get_link_graph(SignalArgs& args)
 void NetworkXPython::signature_get_link_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -532,7 +532,7 @@ void NetworkXPython::signal_get_property_graph(SignalArgs& args)
   append_property_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -540,10 +540,10 @@ void NetworkXPython::signal_get_property_graph(SignalArgs& args)
 void NetworkXPython::signature_get_property_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }
@@ -589,7 +589,7 @@ void NetworkXPython::signal_get_tag_graph( SignalArgs& args )
   append_tag_edges_recursive(*printroot,coll,depthlimit,0);
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("return_value", coll);
+  reply_options.add("return_value", coll);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -597,10 +597,10 @@ void NetworkXPython::signal_get_tag_graph( SignalArgs& args )
 void NetworkXPython::signature_get_tag_graph( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option( "uri", URI("//") )
+  options.add( "uri", URI("//") )
     .description("URI of the component to start from")
     .pretty_name("uri");
-  options.add_option( "depth", 1000 )
+  options.add( "depth", 1000 )
     .description("Level up to look into the subtree of the component")
     .pretty_name("Depth");
 }

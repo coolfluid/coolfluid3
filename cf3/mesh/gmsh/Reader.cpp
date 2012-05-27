@@ -57,15 +57,15 @@ Reader::Reader( const std::string& name )
 
   // options
 
-  options().add_option("part", PE::Comm::instance().rank() )
+  options().add("part", PE::Comm::instance().rank() )
       .description("Number of the part of the mesh to read. (e.g. rank of processor)")
       .pretty_name("Part");
 
-  options().add_option("nb_parts", PE::Comm::instance().size() )
+  options().add("nb_parts", PE::Comm::instance().size() )
       .description("Total number of parts. (e.g. number of processors)")
       .pretty_name("nb_parts");
 
-  options().add_option("read_fields", true)
+  options().add("read_fields", true)
       .description("Read the data from the mesh")
       .pretty_name("Read Fields")
       .mark_basic();

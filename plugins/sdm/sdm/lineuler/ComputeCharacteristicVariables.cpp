@@ -60,7 +60,7 @@ ComputeCharacteristicVariables::ComputeCharacteristicVariables ( const std::stri
   std::vector<Real> normal(2);
   normal[XX]=1.;
   normal[YY]=0.;
-  options().add_option("normal",normal).description("characteristic normal");
+  options().add("normal",normal).description("characteristic normal");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

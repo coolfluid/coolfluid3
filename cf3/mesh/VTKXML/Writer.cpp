@@ -203,7 +203,7 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    options().add_option("distributed_files", false)
+    options().add("distributed_files", false)
     .pretty_name("Distributed Files")
     .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }

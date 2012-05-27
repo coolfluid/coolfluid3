@@ -48,22 +48,22 @@ public:
     m_function_Pt.parse("100000","x,y");  // 1 bar
     m_function_alpha.parse("0","x,y");    // 0 radians
 
-    options().add_option("Tt",m_function_Tt.function()).description("Total Temperature")
+    options().add("Tt",m_function_Tt.function()).description("Total Temperature")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Tt, this) );
-    options().add_option("Pt",m_function_Tt.function()).description("Total Pressure")
+    options().add("Pt",m_function_Tt.function()).description("Total Pressure")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Pt, this) );
-    options().add_option("alpha",m_function_Tt.function()).description("flow angle in rad")
+    options().add("alpha",m_function_Tt.function()).description("flow angle in rad")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_alpha, this) );
 
     m_gamma=1.4;
     m_gamma_minus_1=m_gamma-1.;
     m_R=287.05;
 
-    options().add_option("gamma", m_gamma)
+    options().add("gamma", m_gamma)
         .description("Heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_gamma, this) );
 
-    options().add_option("R", m_R)
+    options().add("R", m_R)
         .description("Gas constant")
         .link_to(&m_R);
 
@@ -170,12 +170,12 @@ public:
   BCSubsonicInletUT2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_U.resize(1.,0.);
-    options().add_option("U",m_U)
+    options().add("U",m_U)
         .description("Velocity [m/s]")
         .link_to(&m_U);
 
     m_T=273.15 + 25;
-    options().add_option("T",m_T)
+    options().add("T",m_T)
         .description("Temperature [K]")
         .link_to(&m_T);
 
@@ -183,11 +183,11 @@ public:
     m_gamma_minus_1=m_gamma-1.;
     m_R=287.05;
 
-    options().add_option("gamma", m_gamma)
+    options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_gamma, this) );
 
-    options().add_option("R", m_R)
+    options().add("R", m_R)
         .description("Gas constant")
         .link_to(&m_R);
 

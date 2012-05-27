@@ -141,7 +141,7 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("model_name", std::string() )
+  options.add("model_name", std::string() )
       .description("Name for created model" )
       .pretty_name("Model Name");
 
@@ -151,7 +151,7 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add_option("physical_model", std::string() )
+  options.add("physical_model", std::string() )
       .description("Name of the Physical Model")
       .pretty_name("Physical Model Type")
       .restricted_list() = models;

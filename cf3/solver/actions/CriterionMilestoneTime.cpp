@@ -33,7 +33,7 @@ CriterionMilestoneTime::CriterionMilestoneTime( const std::string& name  ) :
     "Returns true if a time is reached\n";
   properties()["description"] = description;
 
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .mark_basic()

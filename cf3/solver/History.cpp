@@ -32,16 +32,16 @@ History::History ( const std::string& name ) :
   m_table = create_static_component< Table<Real> >("table");
   m_variables = create_static_component< math::VariablesDescriptor >("variables");
 
-  options().add_option("dimension",0u);
+  options().add("dimension",0u);
 
 
   m_logging = true;
-  options().add_option("logging",m_logging)
+  options().add("logging",m_logging)
       .description("Turn on logging at every entry")
       .link_to(&m_logging);
 
   // Extension TSV for "Tab Separated Values"
-  options().add_option("file",URI("history.tsv"))
+  options().add("file",URI("history.tsv"))
       .description("Log file for history");
 
   regist_signal ( "write" )
@@ -173,7 +173,7 @@ Handle<math::VariablesDescriptor const> History::variables() const
 void History::signature_write(common::SignalArgs& args)
 {
   SignalOptions opts(args);
-  opts.add_option("file",URI("history.tsv"))
+  opts.add("file",URI("history.tsv"))
       .description("Tab Separated Value log file for output of history");
 }
 

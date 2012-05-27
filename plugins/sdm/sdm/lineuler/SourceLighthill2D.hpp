@@ -67,22 +67,22 @@ public:
   static std::string type_name() { return "SourceLighthill2D"; }
   SourceLighthill2D(const std::string& name) : SourceTerm< PhysData >(name)
   {
-    options().add_option("lighthill_tensor",m_lighthill_tensor_field)
+    options().add("lighthill_tensor",m_lighthill_tensor_field)
       .description("Field containing lighthill tensor")
       .link_to(&m_lighthill_tensor_field);
 
-    options().add_option("avg_lighthill_tensor",m_avg_lighthill_tensor_field)
+    options().add("avg_lighthill_tensor",m_avg_lighthill_tensor_field)
       .description("Field containing time averaged lighthill tensor")
       .link_to(&m_avg_lighthill_tensor_field);
 
 //    m_U0 << 0.,0.;
 //    std::vector<Real> U0(NDIM,0.);
-//    options().add_option("U0", U0)
+//    options().add("U0", U0)
 //        .description("Uniform mean velocity")
 //        .attach_trigger( boost::bind( &SourceLighthill2D::config_U0, this) );
 
     m_rho0 = 1.;
-    options().add_option("rho0",m_rho0)
+    options().add("rho0",m_rho0)
         .description("Uniform mean density")
         .link_to(&m_rho0);
   }

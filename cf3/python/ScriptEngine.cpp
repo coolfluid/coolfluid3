@@ -447,8 +447,8 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
   if (new_fragment > 0 && fragment != new_fragment){
     SignalFrame reply=node.create_reply();
     SignalOptions options(reply);
-    options.add_option("fragment", fragment);
-    options.add_option("new_fragment", new_fragment);
+    options.add("fragment", fragment);
+    options.add("new_fragment", new_fragment);
     options.flush();
   }
 }
@@ -459,7 +459,7 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option( "script", std::string() )
+  options.add( "script", std::string() )
       .description("Script to execute")
       .pretty_name("Script");
 }
@@ -559,8 +559,8 @@ void ScriptEngine::emit_completion_list(std::vector<std::string> *add, std::vect
   if (m_manager.get()!=NULL){
     SignalFrame frame("completion", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
-    options.add_option("add", *add);
-    options.add_option("sub", *sub);
+    options.add("add", *add);
+    options.add("sub", *sub);
     options.flush();
     m_manager->send_to_parent(frame);
   }
@@ -574,7 +574,7 @@ void ScriptEngine::emit_documentation(std::string doc){
   if (m_manager.get()!=NULL){
     SignalFrame frame("documentation", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
-    options.add_option("text", doc);
+    options.add("text", doc);
     options.flush();
     m_manager->send_to_parent( frame );
   }
@@ -588,8 +588,8 @@ void ScriptEngine::emit_debug_trace(int fragment,int line){
   if (m_manager.get()!=NULL){
     SignalFrame frame("debug_trace", uri(), CLIENT_SCRIPT_ENGINE_PATH);
     SignalOptions options(frame);
-    options.add_option("fragment", fragment);
-    options.add_option("line", line);
+    options.add("fragment", fragment);
+    options.add("line", line);
     options.flush();
     m_manager->send_to_parent(frame);
   }

@@ -27,7 +27,7 @@ common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 Roe::Roe ( const std::string& name ) : RiemannSolver(name)
 {
-  options().add_option("roe_vars",m_roe_vars)
+  options().add("roe_vars",m_roe_vars)
       .description("The component describing the Roe variables")
       .pretty_name("Roe Variables")
       .link_to(&m_roe_vars);

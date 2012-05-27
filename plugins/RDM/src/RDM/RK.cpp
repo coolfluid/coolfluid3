@@ -44,15 +44,15 @@ RK::RK ( const std::string& name ) :
 
   // options
 
-  options().add_option(RDM::Tags::solution(), m_solution).link_to(&m_solution);
-  options().add_option(RDM::Tags::dual_area(), m_dual_area).link_to(&m_dual_area);
-  options().add_option(RDM::Tags::residual(), m_residual).link_to(&m_residual);
+  options().add(RDM::Tags::solution(), m_solution).link_to(&m_solution);
+  options().add(RDM::Tags::dual_area(), m_dual_area).link_to(&m_dual_area);
+  options().add(RDM::Tags::residual(), m_residual).link_to(&m_residual);
 
-  options().add_option( "cfl", 1.0 )
+  options().add( "cfl", 1.0 )
       .pretty_name("CFL")
       .description("Courant-Fredrichs-Levy stability number");
 
-  options().add_option( "rkorder", 1u )
+  options().add( "rkorder", 1u )
       .pretty_name("RK Order")
       .description("Order of the Runge-Kutta step");
 

@@ -65,7 +65,7 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
 {
   // options
 
-  options().add_option( "rkorder", 1u )
+  options().add( "rkorder", 1u )
       .description("Order of the explicit time stepping")
       .pretty_name("Time Step Order");
 
@@ -170,7 +170,7 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("model_name", std::string() )
+  options.add("model_name", std::string() )
       .description("Name for created model" )
       .pretty_name("Model Name");
 
@@ -181,7 +181,7 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ( NavierStokes::NavierStokes2D::type_name() )
       ( LinEuler::LinEuler2D::type_name() ) ;
 
-  options.add_option("physical_model", std::string() )
+  options.add("physical_model", std::string() )
       .description("Name of the Physical Model")
       .pretty_name("Physical Model Type")
       .restricted_list() = models;

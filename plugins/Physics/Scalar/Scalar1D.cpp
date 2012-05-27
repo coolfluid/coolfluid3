@@ -41,11 +41,11 @@ Scalar1D::Scalar1D( const std::string& name ) :
   m_v (1.0),
   m_mu (1.0)
 {
-  options().add_option("v",m_v)
+  options().add("v",m_v)
       .description("Advection Speed")
       .link_to(&m_v);
 
-  options().add_option("mu",m_mu)
+  options().add("mu",m_mu)
       .description("Diffusion Coefficient")
       .link_to(&m_mu);
 }

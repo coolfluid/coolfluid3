@@ -31,7 +31,7 @@ public:
   BCConstant(const std::string& name) :
     BCWeak< PhysDataBase<NEQS,NDIM> >(name)
   {
-    common::Component::options().add_option("constants",std::vector<Real>())
+    common::Component::options().add("constants",std::vector<Real>())
         .link_to(&m_constants);
   }
 

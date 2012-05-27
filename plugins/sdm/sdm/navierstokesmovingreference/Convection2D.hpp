@@ -62,17 +62,17 @@ public:
         VtransDefault[0] = Vtrans[0];
         VtransDefault[1] = Vtrans[1];
 
-        options().add_option("Omega", OmegaDefault)
+        options().add("Omega", OmegaDefault)
             .description("Rotation vector")
             .mark_basic()
             .attach_trigger(boost::bind( &Convection2D::config_Omega, this));
 
-        options().add_option("Vtrans", VtransDefault)
+        options().add("Vtrans", VtransDefault)
             .description("Vector of the translation speeds")
             .mark_basic()
             .attach_trigger( boost::bind( &Convection2D::config_Vtrans, this));
 
-      options().add_option("gamma", gamma)
+      options().add("gamma", gamma)
           .description("The heat capacity ratio")
           .link_to(&gamma);
   }

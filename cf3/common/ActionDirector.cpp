@@ -32,7 +32,7 @@ ComponentBuilder < ActionDirector, Action, LibCommon > ActionDirector_Builder;
 
 ActionDirector::ActionDirector(const std::string& name): Action(name)
 {
-  options().add_option("disabled_actions", std::vector<std::string>())
+  options().add("disabled_actions", std::vector<std::string>())
     .description("Names of the actions to execute in sequence")
     .pretty_name("Disabled Actions")
     .attach_trigger(boost::bind(&ActionDirector::trigger_disabled_actions, this));

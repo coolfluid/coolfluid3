@@ -137,7 +137,7 @@ Handle< common::ActionDirector > Solver::create_initial_conditions()
 void Solver::signature_add_solver(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("builder_name", "")
+  options.add("builder_name", "")
     .pretty_name("Builder Names")
     .description("List the names of the builders that should be used to construct inner actions");
 }
@@ -149,7 +149,7 @@ void Solver::signal_add_direct_solver(SignalArgs& args)
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", result->uri());
+  reply_options.add("created_component", result->uri());
 }
 
 void Solver::signal_add_unsteady_solver(SignalArgs& args)
@@ -159,7 +159,7 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", result->uri());
+  reply_options.add("created_component", result->uri());
 }
 
 void Solver::signal_create_initial_conditions(SignalArgs& args)
@@ -168,7 +168,7 @@ void Solver::signal_create_initial_conditions(SignalArgs& args)
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", ic->uri());
+  reply_options.add("created_component", ic->uri());
 }
 
 void Solver::mesh_loaded(mesh::Mesh& mesh)

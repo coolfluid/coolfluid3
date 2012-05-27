@@ -13,7 +13,7 @@ namespace common {
 
 CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
-  options().add_option("file_path", URI("profile_file.txt", cf3::common::URI::Scheme::FILE))
+  options().add("file_path", URI("profile_file.txt", cf3::common::URI::Scheme::FILE))
     .pretty_name("File Path")
     .description("Path to the file where the profile data should be stored");
     

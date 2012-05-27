@@ -45,19 +45,19 @@ MeshReader::MeshReader ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option("mesh",m_mesh)
+  options().add("mesh",m_mesh)
       .pretty_name("Mesh")
       .description("Mesh to read into")
       .link_to(&m_mesh)
       .mark_basic();
 
-  options().add_option("file",m_file_path)
+  options().add("file",m_file_path)
       .pretty_name("File")
       .description("File to read")
       .mark_basic()
       .link_to(&m_file_path);
 
-  options().add_option("dimension", 0u)
+  options().add("dimension", 0u)
       .description("The coordinate dimension (0 --> maximum dimensionality)")
       .pretty_name("Dimension");
 
@@ -237,11 +237,11 @@ void MeshReader::read_signature( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("location", URI() )
+  options.add("location", URI() )
       .supported_protocol( URI::Scheme::CPATH )
       .description("Component to load mesh into");
 
-  options.add_option("files", URI("", URI::Scheme::FILE) )
+  options.add("files", URI("", URI::Scheme::FILE) )
       .supported_protocol( URI::Scheme::FILE )
       .description("Files to read");
 }

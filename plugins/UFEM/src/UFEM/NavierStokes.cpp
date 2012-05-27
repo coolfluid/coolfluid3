@@ -44,7 +44,7 @@ NavierStokes::NavierStokes(const std::string& name) :
 {
   options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&NavierStokes::trigger_physical_model, this));
   
-  options().add_option("use_specializations", true)
+  options().add("use_specializations", true)
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_use_specializations, this));

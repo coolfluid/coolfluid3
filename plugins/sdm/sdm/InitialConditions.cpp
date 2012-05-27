@@ -122,7 +122,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 }
 
 
@@ -131,16 +131,16 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   SignalOptions options( args );
 
   // name
-  options.add_option("name", std::string("init") )
+  options.add("name", std::string("init") )
       .description("Name for created initial condition" );
 
   // type
-  options.add_option("type", std::string("cf3.sdm.Init") )
+  options.add("type", std::string("cf3.sdm.Init") )
       .description("Type of initial condition" );
 
   // regions
   /// @todo create here the list of restricted regions, both volume and surface
-  options.add_option("regions", std::vector<URI>() )
+  options.add("regions", std::vector<URI>() )
       .description("Regions where to apply the initial condition [optional]");
 }
 

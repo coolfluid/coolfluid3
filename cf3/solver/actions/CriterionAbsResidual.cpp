@@ -32,12 +32,12 @@ CriterionAbsResidual::CriterionAbsResidual( const std::string& name  ) :
     "Returns true if a the maximum number of iterations is achived\n";
   properties()["description"] = description;
 
-  options().add_option("MaxIter", m_max_iter)
+  options().add("MaxIter", m_max_iter)
       .description("Maximum number of iterations")
       .mark_basic()
       .link_to( &m_max_iter );
 
-  options().add_option("iteration", m_iter_comp)
+  options().add("iteration", m_iter_comp)
       .description("Iteration tracking component")
       .pretty_name("Iteration")
       .link_to(&m_iter_comp);

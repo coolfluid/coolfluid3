@@ -24,7 +24,7 @@ InterpolationFunction::InterpolationFunction( const std::string& name )
   : Component(name)
 {
 
-  options().add_option("dict",m_dict)
+  options().add("dict",m_dict)
       .description("Dictionary used to find interpolation points and weights")
       .link_to(&m_dict);
 }

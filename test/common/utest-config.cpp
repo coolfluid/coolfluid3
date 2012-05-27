@@ -62,22 +62,22 @@ public:
   MyC ( const std::string& name ) :  Component(name)
   {
     // POD's (plain old data)
-    options().add_option ( "OptBool", false ).description("bool option");
-    options().add_option ( "OptInt", -5 ).description("int option");
-    options().add_option ( "OptUInt", 10u ).description("Uint option");
-    options().add_option ( "OptReal", 0.0 ).description("real option");
-    options().add_option ( "OptStr", std::string("LOLO") ).description("string option");
-    options().add_option ( "OptURI", URI("cpath:/lolo") ).description( "URI option");
+    options().add ( "OptBool", false ).description("bool option");
+    options().add ( "OptInt", -5 ).description("int option");
+    options().add ( "OptUInt", 10u ).description("Uint option");
+    options().add ( "OptReal", 0.0 ).description("real option");
+    options().add ( "OptStr", std::string("LOLO") ).description("string option");
+    options().add ( "OptURI", URI("cpath:/lolo") ).description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    options().add_option( "VecInt", def ).description("vector ints option");
+    options().add( "VecInt", def ).description("vector ints option");
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    options().add_option( "VecStr", defs ).description("vector strs option");;
+    options().add( "VecStr", defs ).description("vector strs option");;
 
 //    option("OptInt").set_value(10);
 
@@ -95,14 +95,14 @@ public:
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    options().add_option( "OptC", Handle<CConcrete1>() )
+    options().add( "OptC", Handle<CConcrete1>() )
         .description("component option");
     options().link_to_parameter ( "OptC", &m_component_lnk );
     boost::shared_ptr<Option> opt2 (new OptionComponent<CConcrete1>("OptC2", Handle<CConcrete1>()));
     opt2->description("component option");
-    options().add_option(opt2).link_to( &m_component_lnk2 ).mark_basic();
+    options().add(opt2).link_to( &m_component_lnk2 ).mark_basic();
 
-    Option& opt3 = options().add_option("OptC3",m_component);
+    Option& opt3 = options().add("OptC3",m_component);
     opt3.description("component option");
     CFinfo << opt3.value_str() << CFendl;
   };

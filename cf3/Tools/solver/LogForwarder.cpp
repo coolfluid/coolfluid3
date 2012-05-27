@@ -42,8 +42,8 @@ void LogForwarder::message(const std::string &data)
   SignalOptions options(frame);
   std::string header = "Worker[" + to_str( Comm::instance().rank() ) + "] ";
 
-  options.add_option("type", "Info");
-  options.add_option("text", header + data);
+  options.add("type", "Info");
+  options.add("text", header + data);
 //  frame.set_option<std::string>("message", data);
 
   options.flush();

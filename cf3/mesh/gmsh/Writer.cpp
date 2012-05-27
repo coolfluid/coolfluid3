@@ -48,7 +48,7 @@ common::ComponentBuilder < gmsh::Writer, MeshWriter, LibGmsh> aGmshWriter_Builde
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-  options().add_option("serial",false)
+  options().add("serial",false)
       .pretty_name("Serial Format")
       .description("All processors write in 1 file")
       .mark_basic();

@@ -33,7 +33,7 @@ ZeroLSS::ZeroLSS( const std::string& name  ) :
     "This object executes a linear system solver\n";
   properties()["description"] = description;
 
-  options().add_option("lss", m_lss)
+  options().add("lss", m_lss)
       .description("Linear System solver that gets executed")
       .pretty_name("LSS")
       .mark_basic()

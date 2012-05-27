@@ -42,14 +42,14 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  options().add_option("rho_in", std::string() )
+  options().add("rho_in", std::string() )
       .description("Inlet density (vars x,y,z)")
       .attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
       .mark_basic();
 
   density_function.variables("x,y,z");
 
-  options().add_option("vel_in",std::vector<std::string>())
+  options().add("vel_in",std::vector<std::string>())
       .description("Inlet velocity (vars x,y,z)")
       .attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
       .mark_basic();

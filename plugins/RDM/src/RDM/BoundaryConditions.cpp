@@ -117,7 +117,7 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created boundary term" );
 
   /// @todo should loop on availabe BCs in factory of BCs
@@ -126,14 +126,14 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
   std::vector< boost::any > restricted;
 //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  options.add_option("type", std::string("cf3.RDM.BcDirichlet") )
+  options.add("type", std::string("cf3.RDM.BcDirichlet") )
       .description("Type for created boundary")
       .restricted_list() = restricted;
 
   // regions
   std::vector<URI> dummy;
   /// @todo create here the list of restricted surface regions
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the boundary condition");
 }
 

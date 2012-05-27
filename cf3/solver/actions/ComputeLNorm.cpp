@@ -109,13 +109,13 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
 
   // options
 
-  options().add_option("scale", true)
+  options().add("scale", true)
       .description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  options().add_option("order", 2u)
+  options().add("order", 2u)
       .description("Order of the p-norm, zero if L-inf");
 
-  options().add_option("field", URI())
+  options().add("field", URI())
       .pretty_name("Field")
       .description("URI to the field to use, or to a link");
   }

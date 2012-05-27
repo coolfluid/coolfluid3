@@ -53,7 +53,7 @@ common::ComponentBuilder < InitialCondition, common::Action, LibUFEM > InitialCo
 
 InitialCondition::InitialCondition(const std::string& name) : solver::Action(name)
 {
-  options().add_option("field_tag", "")
+  options().add("field_tag", "")
     .pretty_name("Field Tag")
     .description("Tag for the field in which the initial conditions will be set")
     .attach_trigger(boost::bind(&InitialCondition::trigger_tag, this));
@@ -86,11 +86,11 @@ void InitialCondition::trigger_tag()
     m_variable_options.push_back(var_name);
     if(descriptor.var_length(i) == 1)
     {
-      options().add_option(var_name, 0.).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, 0.).description(std::string("Initial condition for variable " + var_name));
     }
     else
     {
-      options().add_option(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name));
     }
   }
 }

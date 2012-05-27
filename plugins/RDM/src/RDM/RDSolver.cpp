@@ -60,14 +60,14 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // options
 
-  options().add_option( RDM::Tags::update_vars(), "")
+  options().add( RDM::Tags::update_vars(), "")
       .attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option( "solution_space", RDM::Tags::solution() )
+  options().add( "solution_space", RDM::Tags::solution() )
       .pretty_name("Solution Space")
       .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  options().add_option(RDM::Tags::mesh(), m_mesh)
+  options().add(RDM::Tags::mesh(), m_mesh)
       .description("Mesh the Discretization Method will be applied to")
       .pretty_name("Mesh")
       .attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) )

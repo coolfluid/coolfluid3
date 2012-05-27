@@ -51,10 +51,10 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
       "Configure a coordinate and dictionary, and the probe will interpolate all found values";
   properties()["description"] = description;
   
-  options().add_option("coordinate",std::vector<Real>())
+  options().add("coordinate",std::vector<Real>())
     .description("Coordinate to interpolate fields to");
     
-  options().add_option("dict",m_dict)
+  options().add("dict",m_dict)
       .description("Dictionary that will be probed")
       .link_to(&m_dict)
       .attach_trigger( boost::bind( &Probe::configure_point_interpolator, this ) );
@@ -220,7 +220,7 @@ void Probe::signal_create_post_processor(SignalArgs &args)
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", pp->uri());
+  reply_options.add("created_component", pp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -229,8 +229,8 @@ void Probe::signature_create_post_processor(SignalArgs &args)
 {
   SignalOptions options(args);
 
-  options.add_option("name", std::string("function"));
-  options.add_option("type", std::string("cf3.mesh.ProbeFunction"));
+  options.add("name", std::string("function"));
+  options.add("type", std::string("cf3.mesh.ProbeFunction"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,7 @@ Probe::~Probe() {}
 
 ProbePostProcessor::ProbePostProcessor(const std::string &name) : common::Action(name)
 {
-  options().add_option("probe",m_probe).link_to(&m_probe);
+  options().add("probe",m_probe).link_to(&m_probe);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

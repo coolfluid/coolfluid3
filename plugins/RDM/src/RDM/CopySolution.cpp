@@ -36,7 +36,7 @@ CopySolution::CopySolution ( const std::string& name ) :
 
   // options
 
-  options().add_option(RDM::Tags::solution(), m_solution)
+  options().add(RDM::Tags::solution(), m_solution)
       .pretty_name("Solution")
       .link_to(&m_solution);
 }

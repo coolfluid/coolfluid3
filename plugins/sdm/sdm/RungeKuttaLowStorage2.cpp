@@ -53,27 +53,27 @@ RungeKuttaLowStorage2::RungeKuttaLowStorage2 ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("order", 1u)
+  options().add("order", 1u)
       .description("Order of the Runge-Kutta integration")
       .pretty_name("RK order");
 
-  options().add_option("nb_stages", 1u)
+  options().add("nb_stages", 1u)
       .description("Number of stages of the Runge-Kutta integration")
       .pretty_name("RK stages")
       .attach_trigger( boost::bind( &RungeKuttaLowStorage2::config_nb_stages , this ) );
 
   std::vector<Real> dummy(4);
-  options().add_option("alpha", dummy)
+  options().add("alpha", dummy)
       .description("RK coefficients alpha")
       .pretty_name("alpha")
       .link_to(&m_alpha);
 
-  options().add_option("beta", dummy)
+  options().add("beta", dummy)
       .description("RK coefficients beta")
       .pretty_name("beta")
       .link_to(&m_beta);
 
-  options().add_option("gamma", dummy)
+  options().add("gamma", dummy)
       .description("RK coefficients gamma")
       .pretty_name("gamma")
       .link_to(&m_gamma);
@@ -286,7 +286,7 @@ void RungeKuttaLowStorage2::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option( "iteration", iter );
+  opts.add( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

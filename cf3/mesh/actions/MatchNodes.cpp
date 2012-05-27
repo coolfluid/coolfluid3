@@ -59,7 +59,7 @@ MatchNodes::MatchNodes( const std::string& name )
   properties()["description"] = desc;
 
 
-  options().add_option("Regions", std::vector<URI>())
+  options().add("Regions", std::vector<URI>())
       .description("Regions to match nodes of");
 }
 

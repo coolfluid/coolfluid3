@@ -301,12 +301,12 @@ void CCore::read_dir(SignalArgs & args)
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
 
-    roptions.add_option("dirPath", directory);
-    roptions.add_option("dirs", content.dirs);
-    roptions.add_option("files", content.files);
-    roptions.add_option("dirDates", content.dir_dates);
-    roptions.add_option("fileDates", content.file_dates);
-    roptions.add_option("fileSizes", content.file_sizes);
+    roptions.add("dirPath", directory);
+    roptions.add("dirs", content.dirs);
+    roptions.add("files", content.files);
+    roptions.add("dirDates", content.dir_dates);
+    roptions.add("fileDates", content.file_dates);
+    roptions.add("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -360,12 +360,12 @@ void CCore::read_special_dir(SignalArgs & args)
 
     reply.node.set_attribute( "target", "read_dir" );
 
-    roptions.add_option("dirPath", directory);
-    roptions.add_option("dirs", content.dirs);
-    roptions.add_option("files", content.files);
-    roptions.add_option("dirDates", content.dir_dates);
-    roptions.add_option("fileDates", content.file_dates);
-    roptions.add_option("fileSizes", content.file_sizes);
+    roptions.add("dirPath", directory);
+    roptions.add("dirs", content.dirs);
+    roptions.add("files", content.files);
+    roptions.add("dirDates", content.dir_dates);
+    roptions.add("fileDates", content.file_dates);
+    roptions.add("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -436,9 +436,9 @@ void CCore::send_ack( const std::string & clientid,
   SignalOptions & options = frame.options();
 
 
-  options.add_option("frameid", frameid );
-  options.add_option("success", success );
-  options.add_option("message", message );
+  options.add("frameid", frameid );
+  options.add("success", success );
+  options.add("message", message );
 
   options.flush();
 

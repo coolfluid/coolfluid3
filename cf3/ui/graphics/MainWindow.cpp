@@ -515,11 +515,11 @@ void MainWindow::connect_to_server()
   SignalOptions options( frame );
   SignatureDialog dlg( this );
 
-  options.add_option( "hostname", std::string("localhost") )
+  options.add( "hostname", std::string("localhost") )
       .pretty_name( "Hostname" )
       .description( "Name of the computer that hosts the server.");
 
-  options.add_option( "port_number",cf3::Uint(62784) )
+  options.add( "port_number",cf3::Uint(62784) )
       .pretty_name( "Port Number" )
       .description( "The port number the server is listening to." );
 

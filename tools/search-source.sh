@@ -34,5 +34,5 @@ find $D $* \(   \
 	    -or -iname "*.in" \
 		-or -iname "*.pl" -or -iname "*.sh" \
            \) -print -follow | grep -v "\.svn/" |  sed "s/ /\\\ /g" | \
-xargs egrep -H -n -e "$REG"
+xargs egrep -H -n -e $REG
 exit

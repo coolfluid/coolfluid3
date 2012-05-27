@@ -58,15 +58,15 @@ struct BoundaryConditions::Implementation
   Implementation(ActionDirector& comp) :
     m_component(comp),
     m_physical_model(),
-    dirichlet(m_component.options().add_option("lss", Handle<LSS::System>())
+    dirichlet(m_component.options().add("lss", Handle<LSS::System>())
               .pretty_name("LSS")
               .description("The referenced linear system solver"))
   {
-    m_component.options().add_option(solver::Tags::regions(), std::vector<URI>())
+    m_component.options().add(solver::Tags::regions(), std::vector<URI>())
       .pretty_name("Regions")
       .description("Regions the boundary condition applies to")
       .link_to(&m_region_uris);
-    m_component.options().add_option< Handle<physics::PhysModel> >(solver::Tags::physical_model())
+    m_component.options().add< Handle<physics::PhysModel> >(solver::Tags::physical_model())
       .pretty_name("Physical Model")
       .description("Physical Model")
       .link_to(&m_physical_model);
@@ -92,10 +92,10 @@ struct BoundaryConditions::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option("region_name", std::string())
+    options.add("region_name", std::string())
         .description("Default region name for this BC");
 
-    options.add_option("variable_name", std::string())
+    options.add("variable_name", std::string())
         .description("Variable name for this BC");
   }
 
@@ -103,10 +103,10 @@ struct BoundaryConditions::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option("region_name", std::string())
+    options.add("region_name", std::string())
         .description("Default region name for this BC");
 
-    options.add_option("builder_name", std::string())
+    options.add("builder_name", std::string())
         .description("Name of the builder to create the BC component");
   }
   
@@ -114,13 +114,13 @@ struct BoundaryConditions::Implementation
   {
     SignalOptions options( node );
 
-    options.add_option("region_name", std::string())
+    options.add("region_name", std::string())
         .description("Default region name for this BC");
 
-    options.add_option("variable_name", std::string())
+    options.add("variable_name", std::string())
         .description("Variable name for this BC");
 
-    options.add_option("component", 0u)
+    options.add("component", 0u)
         .description("Component of the vector for which the BC is applied");
   }
 
@@ -276,7 +276,7 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", add_constant_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
+  reply_options.add("created_component", add_constant_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
 }
 
 void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
@@ -285,7 +285,7 @@ void BoundaryConditions::signal_create_function_bc ( SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", add_function_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
+  reply_options.add("created_component", add_function_bc(options.value<std::string>("region_name"), options.value<std::string>("variable_name"))->uri());
 }
 
 void BoundaryConditions::signal_create_constant_component_bc(SignalArgs& node)
@@ -294,7 +294,7 @@ void BoundaryConditions::signal_create_constant_component_bc(SignalArgs& node)
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", add_constant_component_bc(options.value<std::string>("region_name"),
+  reply_options.add("created_component", add_constant_component_bc(options.value<std::string>("region_name"),
                                                                           options.value<std::string>("variable_name"),
                                                                           options.value<Uint>("component"))->uri());
 }
@@ -305,7 +305,7 @@ void BoundaryConditions::signal_create_bc_action(SignalArgs& node)
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", create_bc_action(options.value<std::string>("region_name"),
+  reply_options.add("created_component", create_bc_action(options.value<std::string>("region_name"),
                                                                           options.value<std::string>("builder_name"))->uri());
 }
 

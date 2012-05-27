@@ -35,16 +35,16 @@ MergedParallelDistribution::MergedParallelDistribution ( const std::string& name
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  options().add_option("nb_obj", m_nb_obj)
+  options().add("nb_obj", m_nb_obj)
       .description("Total number of objects of each subhash. Subhashes will "
                         "be created upon configuration with names hash_0 hash_1, ...")
       .pretty_name("Number of Objects");
 
-  options().add_option("nb_parts", m_nb_parts)
+  options().add("nb_parts", m_nb_parts)
       .description("Total number of partitions (e.g. number of processors)")
       .pretty_name("Number of Partitions");
 
-  options().add_option("base", m_base)
+  options().add("base", m_base)
       .description("Start index for global numbering")
       .pretty_name("Base");
 

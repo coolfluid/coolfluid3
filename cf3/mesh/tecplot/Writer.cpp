@@ -46,7 +46,7 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
 
-  options().add_option("cell_centred",true)
+  options().add("cell_centred",true)
     .description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 

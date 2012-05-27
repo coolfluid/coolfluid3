@@ -34,12 +34,12 @@ StencilComputer::StencilComputer( const std::string& name )
   : Component(name)
 {
 
-  options().add_option("dict",m_dict)
+  options().add("dict",m_dict)
       .description("Dictionary used to find the element")
       .link_to(&m_dict);
 
   m_min_stencil_size=1;
-  options().add_option("stencil_size", m_min_stencil_size)
+  options().add("stencil_size", m_min_stencil_size)
       .description("The minimum amount of cells in a stencil")
       .pretty_name("Stencil Size")
       .link_to(&m_min_stencil_size);

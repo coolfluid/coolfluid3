@@ -45,7 +45,7 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  options().add_option("nb_parts", m_nb_parts)
+  options().add("nb_parts", m_nb_parts)
       .description("Total number of partitions (e.g. number of processors)")
       .pretty_name("Number of Partitions")
       .link_to(&m_nb_parts)
@@ -104,7 +104,7 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("mesh", URI())
+  options.add("mesh", URI())
       .description("Mesh to load balance");
 }
 

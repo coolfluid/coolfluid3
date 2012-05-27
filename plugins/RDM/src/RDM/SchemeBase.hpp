@@ -229,9 +229,9 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   // options
 
-  options().add_option(RDM::Tags::solution(), csolution).link_to(&csolution);
-  options().add_option(RDM::Tags::wave_speed(), cwave_speed).link_to(&cwave_speed);
-  options().add_option(RDM::Tags::residual(), cresidual).link_to(&cresidual);
+  options().add(RDM::Tags::solution(), csolution).link_to(&csolution);
+  options().add(RDM::Tags::wave_speed(), cwave_speed).link_to(&cwave_speed);
+  options().add(RDM::Tags::residual(), cresidual).link_to(&cresidual);
 
 
   options()["elements"]

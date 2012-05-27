@@ -47,7 +47,7 @@ struct LSSAction::Implementation
 {
   Implementation(Component& comp) :
    m_component(comp),
-   system_matrix(m_component.options().add_option("lss", Handle<LSS::System>()).pretty_name("LSS")),
+   system_matrix(m_component.options().add("lss", Handle<LSS::System>()).pretty_name("LSS")),
    system_rhs(m_component.options().option("lss")),
    dirichlet(m_component.options().option("lss")),
    solution(m_component.options().option("lss")),
@@ -82,7 +82,7 @@ LSSAction::LSSAction(const std::string& name) :
     .pretty_name("Create LSS")
     .signature( boost::bind( &LSSAction::signature_create_lss, this, _1 ) );
 
-  options().add_option("dictionary", m_dictionary)
+  options().add("dictionary", m_dictionary)
     .pretty_name("Dictionary")
     .description("The dictionary to use for field lookups")
     .link_to(&m_dictionary);
@@ -115,7 +115,7 @@ LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
 void LSSAction::signature_create_lss(SignalArgs& node)
 {
   SignalOptions options(node);
-  options.add_option("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
+  options.add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
     .pretty_name("Matrix Builder")
     .description("Name for the matrix builder to use when constructing the LSS");
 }
@@ -127,7 +127,7 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", lss.uri());
+  reply_options.add("created_component", lss.uri());
 }
 
 

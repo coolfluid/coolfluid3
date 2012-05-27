@@ -37,22 +37,22 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  options().add_option(sdm::Tags::solution(), m_solution)
+  options().add(sdm::Tags::solution(), m_solution)
      .description("Solution to update")
      .pretty_name("Solution")
      .link_to(&m_solution);
 
-  options().add_option(sdm::Tags::update_coeff(), m_update_coeff)
+  options().add(sdm::Tags::update_coeff(), m_update_coeff)
      .description("Update coefficient")
      .pretty_name("Update Coefficient")
      .link_to(&m_update_coeff);
 
-  options().add_option(sdm::Tags::residual(), m_residual)
+  options().add(sdm::Tags::residual(), m_residual)
      .description("Residual")
      .pretty_name("Residual")
      .link_to(&m_residual);
      
-  options().add_option(sdm::Tags::jacob_det(), m_jacobian_determinant)
+  options().add(sdm::Tags::jacob_det(), m_jacobian_determinant)
      .description("Jacobian determinant")
      .pretty_name("Jacobian Determinant")
      .link_to(&m_jacobian_determinant);

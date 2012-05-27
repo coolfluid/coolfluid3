@@ -37,12 +37,12 @@ LoopOperation::LoopOperation ( const std::string& name ) :
   m_idx(0)
 {
   // Following option is ignored if the loop is not about elements
-  options().add_option("elements", URI())
+  options().add("elements", URI())
       .supported_protocol(URI::Scheme::CPATH)
       .description("Elements that are being looped")
       .attach_trigger ( boost::bind ( &LoopOperation::config_elements,   this ) );
 
-  options().add_option("loop_index", 0u)
+  options().add("loop_index", 0u)
       .description("Index that is being looped")
       .link_to( &m_idx );
 
