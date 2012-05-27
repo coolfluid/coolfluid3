@@ -82,9 +82,9 @@ PointInterpolatorT<ELEMENTFINDER,STENCILCOMPUTER,INTERPOLATIONFUNCTION>::PointIn
 template< typename ELEMENTFINDER, typename STENCILCOMPUTER, typename INTERPOLATIONFUNCTION>
 void PointInterpolatorT<ELEMENTFINDER,STENCILCOMPUTER,INTERPOLATIONFUNCTION>::configure()
 {
-  m_element_finder->options().configure_option("dict",m_dict);
-  m_stencil_computer->options().configure_option("dict",m_dict);
-  m_interpolator_function->options().configure_option("dict",m_dict);
+  m_element_finder->options().set("dict",m_dict);
+  m_stencil_computer->options().set("dict",m_dict);
+  m_interpolator_function->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -509,7 +509,7 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  options().configure_option(common::Tags::dimension(), dimension);
+  options().set(common::Tags::dimension(), dimension);
   m_implementation->set_variables(description);
 }
 

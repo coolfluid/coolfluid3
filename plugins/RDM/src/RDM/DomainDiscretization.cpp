@@ -89,11 +89,11 @@ RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
 
   Handle<RDM::CellTerm> term(m_cell_terms->create_component(name, type));
 
-  term->options().configure_option("regions" , regions);
+  term->options().set("regions" , regions);
 
-  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
-  term->options().configure_option( RDM::Tags::solver() , m_solver );
-  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
+  term->options().set( RDM::Tags::mesh(), m_mesh );
+  term->options().set( RDM::Tags::solver() , m_solver );
+  term->options().set( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }
@@ -104,11 +104,11 @@ RDM::FaceTerm& DomainDiscretization::create_face_term( const std::string& type,
 {
   Handle<FaceTerm> term(m_face_terms->create_component(name, type));
 
-  term->options().configure_option("regions" , regions);
+  term->options().set("regions" , regions);
 
-  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
-  term->options().configure_option( RDM::Tags::solver() , m_solver );
-  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
+  term->options().set( RDM::Tags::mesh(), m_mesh );
+  term->options().set( RDM::Tags::solver() , m_solver );
+  term->options().set( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }

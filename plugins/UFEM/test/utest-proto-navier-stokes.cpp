@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 {
   // debug output
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   const Real length = 5.;
   const Real height = 2.;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Velocity initial condition
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
     vel_init->set_expression(nodes_expression(u = vel_init->function()));
-    vel_init->options().configure_option("value", parabole_functions);
+    vel_init->options().set("value", parabole_functions);
     
     *ic << create_proto_action("InitializePressure", nodes_expression(p = 0.)) << vel_init;
 
@@ -165,29 +165,29 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // Setup mesh
     boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
-    create_rectangle->options().configure_option("mesh",domain.uri()/"Mesh");
+    create_rectangle->options().set("mesh",domain.uri()/"Mesh");
     std::vector<Real> lengths(2);     lengths[XX] = length;            lengths[YY]  = height;
     std::vector<Uint> nb_cells(2);    nb_cells[XX] = x_segments;       nb_cells[YY] = y_segments;
-    create_rectangle->options().configure_option("lengths",lengths);
-    create_rectangle->options().configure_option("nb_cells",nb_cells);
+    create_rectangle->options().set("lengths",lengths);
+    create_rectangle->options().set("nb_cells",nb_cells);
     Mesh& mesh = create_rectangle->generate();
 
-    lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+    lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
     
-    lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+    lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
     // Boundary conditions
     bc->add_constant_bc("left", "Pressure", p0);
     bc->add_constant_bc("right", "Pressure", p1);
     bc->add_constant_bc("bottom", "Velocity", u_wall);
     bc->add_constant_bc("top", "Velocity", u_wall);
-    bc->add_function_bc("left", "Velocity")->options().configure_option("value", parabole_functions);
-    //bc->add_function_bc("right", "Velocity")->options().configure_option("value", parabole_functions);
+    bc->add_function_bc("left", "Velocity")->options().set("value", parabole_functions);
+    //bc->add_function_bc("right", "Velocity")->options().set("value", parabole_functions);
 
     // Configure timings
     Time& time = model.create_time();
-    time.options().configure_option("time_step", dt);
-    time.options().configure_option("end_time", end_time);
+    time.options().set("time_step", dt);
+    time.options().set("end_time", end_time);
 
     // Run the solver
     model.simulate();

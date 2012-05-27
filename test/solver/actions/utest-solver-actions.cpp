@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
   Component& root = Core::instance().root();
   Handle<Mesh> mesh = root.create_component<Mesh>("mesh");
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   Handle<Loop> node_loop2 = root.create_component< ForAllNodes2 >("node_loop");
 
   node_loop2->create_loop_operation("cf3.TestActions.DummyLoopOperation");
-  node_loop2->options().configure_option("regions",regions);
+  node_loop2->options().set("regions",regions);
 
   CFinfo << "\n\n\nNode loop 2 " << CFendl;
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
   Handle<Loop> face_loop = root.create_component< ForAllFaces >("face_loop");
   face_loop->create_loop_operation("cf3.TestActions.DummyLoopOperation");
-  face_loop->options().configure_option("regions",regions);
+  face_loop->options().set("regions",regions);
   CFinfo << "\n\n\nFace loop" << CFendl;
 
   BOOST_CHECK_NO_THROW( face_loop->execute() );
@@ -156,11 +156,11 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   Field& field = mesh->geometry_fields().create_field("field");
 
   Handle<Loop> node_loop = root.create_component< ForAllNodes2 >("node_loop");
-  node_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
+  node_loop->options().set("regions",std::vector<URI>(1,mesh->topology().uri()));
 
 /// @todo CSetFieldValues no longer exists, find replacement for node_loop
 //  node_loop->create_loop_operation("cf3.solver.actions.CSetFieldValues");
-//  node_loop->action("cf3.solver.actions.CSetFieldValues").options().configure_option("Field",field.uri());
+//  node_loop->action("cf3.solver.actions.CSetFieldValues").options().set("Field",field.uri());
   node_loop->execute();
 
   BOOST_CHECK(true);
@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK( root.access_component(mesh->topology().uri()/URI("fluid/elements_cf3.mesh.LagrangeP1.Triag2D")) );
   Elements& elems = *root.access_component(mesh->topology().uri()/URI("fluid/elements_cf3.mesh.LagrangeP1.Triag2D"))->handle<Elements>();
   BOOST_CHECK(true);
-  compute_volume->options().configure_option("volume",volumes.uri());
+  compute_volume->options().set("volume",volumes.uri());
   BOOST_CHECK(true);
-  compute_volume->options().configure_option("elements",elems.uri());
+  compute_volume->options().set("elements",elems.uri());
   BOOST_CHECK(true);
-  compute_volume->options().configure_option("loop_index",12u);
+  compute_volume->options().set("loop_index",12u);
   BOOST_CHECK(true);
   compute_volume->execute();
   BOOST_CHECK(true);
@@ -197,13 +197,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK_EQUAL( volumes[P0_space.connectivity()[12][0]][0] , 0.0035918050864676932);
 
   Handle<Loop> elem_loop = root.create_component< ForAllElements >("elem_loop");
-  elem_loop->options().configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
+  elem_loop->options().set("regions",std::vector<URI>(1,mesh->topology().uri()));
 
   elem_loop->create_loop_operation("cf3.solver.actions.ComputeVolume");
-  elem_loop->action("cf3.solver.actions.ComputeVolume").options().configure_option("volume",volumes.uri());
+  elem_loop->action("cf3.solver.actions.ComputeVolume").options().set("volume",volumes.uri());
 
   elem_loop->create_loop_operation("cf3.solver.actions.ComputeArea");
-  elem_loop->action("cf3.solver.actions.ComputeArea").options().configure_option("area",areas.uri());
+  elem_loop->action("cf3.solver.actions.ComputeArea").options().set("area",areas.uri());
 
   elem_loop->execute();
 
@@ -214,9 +214,9 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   fields.push_back(field.uri());
   fields.push_back(areas.uri());
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->options().configure_option("fields",fields);
-  gmsh_writer->options().configure_option("mesh",mesh);
-  gmsh_writer->options().configure_option("file",URI("quadtriag.msh"));
+  gmsh_writer->options().set("fields",fields);
+  gmsh_writer->options().set("mesh",mesh);
+  gmsh_writer->options().set("file",URI("quadtriag.msh"));
   gmsh_writer->execute();
 
   // root.remove_component( *mesh ); // mesh needed for next test
@@ -243,10 +243,10 @@ BOOST_AUTO_TEST_CASE ( test_ForAllElementsT )
 
   BOOST_CHECK(true);
 
-  compute_all_cell_volumes->options().configure_option("regions",topology);
+  compute_all_cell_volumes->options().set("regions",topology);
   BOOST_CHECK(true);
 
-  compute_all_cell_volumes->action().options().configure_option("volume",field.uri());
+  compute_all_cell_volumes->action().options().set("volume",field.uri());
   BOOST_CHECK(true);
 
   compute_all_cell_volumes->execute();
@@ -254,9 +254,9 @@ BOOST_AUTO_TEST_CASE ( test_ForAllElementsT )
   std::vector<URI> fields;
   fields.push_back(field.uri());
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->options().configure_option("fields",fields);
-  gmsh_writer->options().configure_option("mesh",mesh);
-  gmsh_writer->options().configure_option("file",URI("test_utest-actions_ForAllElementsT.msh"));
+  gmsh_writer->options().set("fields",fields);
+  gmsh_writer->options().set("mesh",mesh);
+  gmsh_writer->options().set("file",URI("test_utest-actions_ForAllElementsT.msh"));
   gmsh_writer->execute();
 
   root.remove_component( *mesh );

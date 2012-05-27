@@ -165,7 +165,7 @@ struct BoundaryConditions::Implementation
       }
     }
 
-    bc_action.options().configure_option(solver::Tags::regions(), bc_regions);
+    bc_action.options().set(solver::Tags::regions(), bc_regions);
     bc_action.configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
   }
 
@@ -230,7 +230,7 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
 Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
   Handle<common::Action> result = add_constant_bc(region_name, variable_name);
-  result->options().configure_option("value", default_value);
+  result->options().set("value", default_value);
   return result;
 }
 
@@ -265,7 +265,7 @@ Handle< common::Action > BoundaryConditions::create_bc_action(const std::string&
 {
   Handle<common::Action> result(create_component(builder_name+region_name, builder_name));
   m_implementation->configure_bc(*result, region_name);
-  result->options().configure_option("lss", options().option("lss").value());
+  result->options().set("lss", options().option("lss").value());
   return result;
 }
 

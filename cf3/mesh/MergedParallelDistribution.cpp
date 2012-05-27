@@ -66,8 +66,8 @@ void MergedParallelDistribution::config_nb_obj ()
   {
     Handle<ParallelDistribution> hash = create_component<ParallelDistribution>("hash_"+to_str(i));
     m_subhash.push_back(hash);
-    hash->options().configure_option("nb_obj", nb_obj);
-    hash->options().configure_option("nb_parts", m_nb_parts);
+    hash->options().set("nb_obj", nb_obj);
+    hash->options().set("nb_parts", m_nb_parts);
     ++i;
   }
 }
@@ -80,7 +80,7 @@ void MergedParallelDistribution::config_nb_parts ()
   if (m_subhash.size())
   {
     boost_foreach(Handle< ParallelDistribution > hash, m_subhash)
-      hash->options().configure_option("nb_parts", m_nb_parts);
+      hash->options().set("nb_parts", m_nb_parts);
   }
 }
 

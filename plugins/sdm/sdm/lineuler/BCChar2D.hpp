@@ -81,7 +81,7 @@ private:
   {
     BCWeak< PhysData >::initialize();
     flx_pt_plane_jacobian_normal = shared_caches().get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
-    flx_pt_plane_jacobian_normal->options().configure_option("space",solution_field().dict().handle<mesh::Dictionary>());
+    flx_pt_plane_jacobian_normal->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
   }
 
   virtual void set_inner_cell()

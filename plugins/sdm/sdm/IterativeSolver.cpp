@@ -80,8 +80,8 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       .link_to(&m_time);
 
   ComputeLNorm& cnorm = *create_static_component<ComputeLNorm>( "ComputeNorm" );
-  cnorm.options().configure_option("order",2u);
-  cnorm.options().configure_option("scale",true);
+  cnorm.options().set("order",2u);
+  cnorm.options().set("scale",true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

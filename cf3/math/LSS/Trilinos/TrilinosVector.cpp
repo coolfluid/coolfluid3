@@ -53,7 +53,7 @@ TrilinosVector::TrilinosVector(const std::string& name) :
 void TrilinosVector::create(common::PE::CommPattern& cp, Uint neq)
 {
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
-  single_var_descriptor->options().configure_option(common::Tags::dimension(), neq);
+  single_var_descriptor->options().set(common::Tags::dimension(), neq);
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
   create_blocked(cp, *single_var_descriptor);
 }

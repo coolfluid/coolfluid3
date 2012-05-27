@@ -208,7 +208,7 @@ void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
     {
 //      CFdebug << PERank << "building face_cell connectivity for region " << region.uri().path() << CFendl;
       Handle<FaceCellConnectivity> face_to_cell = region.create_component<FaceCellConnectivity>("face_to_cell");
-      face_to_cell->options().configure_option("face_building_algorithm",true);
+      face_to_cell->options().set("face_building_algorithm",true);
       face_to_cell->add_tag(mesh::Tags::inner_faces());
       face_to_cell->setup(region);
       PE::Comm::instance().barrier();
@@ -448,7 +448,7 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
   Mesh& mesh = *m_mesh;
   // interface connectivity
   boost::shared_ptr<FaceCellConnectivity> interface = allocate_component<FaceCellConnectivity>("interface_connectivity");
-  interface->options().configure_option("face_building_algorithm",true);
+  interface->options().set("face_building_algorithm",true);
   ElementConnectivity::Buffer i2c = find_component_with_name<ElementConnectivity>(*interface,mesh::Tags::connectivity_table()).create_buffer();
   common::Table<Uint>::Buffer fnb = find_component_with_name<common::Table<Uint> >(*interface,"face_number").create_buffer();
   common::List<bool>::Buffer bdry = find_component_with_name<common::List<bool> >(*interface,"is_bdry_face").create_buffer();
@@ -582,7 +582,7 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
     if (is_null(bdry_face_to_cell))
     {
       bdry_face_to_cell = bdry_faces.create_component<FaceCellConnectivity>("cell_connectivity");
-      bdry_face_to_cell->options().configure_option("face_building_algorithm",true);
+      bdry_face_to_cell->options().set("face_building_algorithm",true);
 
       bdry_faces.connectivity_face2cell() = bdry_face_to_cell;
     }

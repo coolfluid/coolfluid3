@@ -72,7 +72,7 @@ void History::set(const std::string& var_name, const Real& var_value)
       const Uint dim = options().option("dimension").value<Uint>();
       if ( dim == 0u)
         throw common::SetupError(FromHere(), "Dimension of "+uri().string()+" not set");
-      m_variables->options().configure_option("dimension",dim);
+      m_variables->options().set("dimension",dim);
     }
 
     m_variables->push_back(var_name,math::VariablesDescriptor::Dimensionalities::SCALAR);

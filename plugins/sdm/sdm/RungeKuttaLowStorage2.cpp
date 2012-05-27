@@ -95,14 +95,14 @@ void RungeKuttaLowStorage2::config_nb_stages()
   switch (nb_stages)
   {
     case 1: // Simple Forward Euler
-      options().configure_option("order",1u);
+      options().set("order",1u);
       alpha[0] = 0.0;
       beta[0] = 1.0;
       gamma[0] = 0.0;
       break;
 
     case 2: // R-K 2
-      options().configure_option("order",2u);
+      options().set("order",2u);
 
       alpha[0] = 0.0;
       alpha[1] = 0.0;
@@ -115,7 +115,7 @@ void RungeKuttaLowStorage2::config_nb_stages()
       break;
 
     case 3:  // 3rd order TVD R-K scheme
-      options().configure_option("order",3u);
+      options().set("order",3u);
 
       alpha[0] = 0.0;
       alpha[1] = 1.0/4.0;
@@ -131,7 +131,7 @@ void RungeKuttaLowStorage2::config_nb_stages()
       break;
 
     case 4:    // R-K 4
-      options().configure_option("order",4u);
+      options().set("order",4u);
 
       alpha[0] = 0.0;
       alpha[1] = 0.0;
@@ -152,9 +152,9 @@ void RungeKuttaLowStorage2::config_nb_stages()
 
   if (gamma[0] != 0) throw BadValue(FromHere(),"gamma[0] must be zero for consistent time marching");
 
-  options().configure_option("alpha",alpha);
-  options().configure_option("beta",beta);
-  options().configure_option("gamma",gamma);
+  options().set("alpha",alpha);
+  options().set("beta",beta);
+  options().set("gamma",gamma);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

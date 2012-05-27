@@ -81,9 +81,9 @@ BOOST_FIXTURE_TEST_SUITE( DictionaryTests_TestSuite, DictionaryTests_Fixture )
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
   SimpleMeshGenerator& mesh_gen = *Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
-  mesh_gen.options().configure_option("mesh",m_mesh->uri());
-  mesh_gen.options().configure_option("lengths",std::vector<Real>(2,5.));
-  mesh_gen.options().configure_option("nb_cells",std::vector<Uint>(2,5u));
+  mesh_gen.options().set("mesh",m_mesh->uri());
+  mesh_gen.options().set("lengths",std::vector<Real>(2,5.));
+  mesh_gen.options().set("nb_cells",std::vector<Uint>(2,5u));
   mesh_gen.execute();
 }
 ////////////////////////////////////////////////////////////////////////////////

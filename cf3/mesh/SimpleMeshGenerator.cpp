@@ -131,8 +131,8 @@ void SimpleMeshGenerator::create_line()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   // find ghost nodes
   std::map<Uint,Uint> ghost_nodes_loc;
@@ -294,8 +294,8 @@ void SimpleMeshGenerator::create_rectangle()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1);
   num_obj[ELEMS] = x_segments*y_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("interior");
   Dictionary& nodes = mesh.geometry_fields();
@@ -590,8 +590,8 @@ void SimpleMeshGenerator::create_box()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1)*(z_segments+1);
   num_obj[ELEMS] = x_segments*y_segments*z_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("interior");
   Dictionary& nodes = mesh.geometry_fields();

@@ -119,7 +119,7 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
 
   CriterionTime& time_limit = *solver.time_stepping().create_component<CriterionTime>("TimeLimit");
 
-  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<Time>() /* .uri()*/ );
+  time_limit.options().set( RDM::Tags::time(), solver.time_stepping().time().handle<Time>() /* .uri()*/ );
 
   // (4b) setup iterative solver reset action
 
@@ -132,17 +132,17 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
   std::vector<std::string> reset_fields;
   reset_fields.push_back( RDM::Tags::residual() );
   reset_fields.push_back( RDM::Tags::wave_speed() );
-  reset->options().configure_option("FieldTags", reset_fields);
+  reset->options().set("FieldTags", reset_fields);
 
   // (4c) setup iterative solver explicit time stepping  - RK
   solver.iterative_solver().update().create_component<RK>("Step");
 
-  solver.iterative_solver().get_child("MaxIterations")->options().configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
+  solver.iterative_solver().get_child("MaxIterations")->options().set("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
-  solver.iterative_solver().get_child("PostActions")->get_child("IterationSummary")->options().configure_option("print_rate", 0u); // dont print under unsteady iterations
+  solver.iterative_solver().get_child("PostActions")->get_child("IterationSummary")->options().set("print_rate", 0u); // dont print under unsteady iterations
 
   // (4d) setup solver fields
-  solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().configure_option( "nb_levels", rkorder );
+  solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().set( "nb_levels", rkorder );
   solver.prepare_mesh().create_component<ComputeDualArea>("ComputeDualArea");
 
   // (5) configure domain, physical model and solver in all subcomponents

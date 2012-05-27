@@ -107,15 +107,15 @@ Term& DomainDiscretization::create_term( const std::string& type,
 {
   Handle< Term > term = m_terms->create_component<Term>(name, type);
 
-  term->options().configure_option( sdm::Tags::solver(),         solver().handle<Component>());
-  term->options().configure_option( sdm::Tags::mesh(),           mesh().handle<Component>());
+  term->options().set( sdm::Tags::solver(),         solver().handle<Component>());
+  term->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    term->options().configure_option("regions", solver().options().option("regions").value< std::vector<common::URI> >() );
+    term->options().set("regions", solver().options().option("regions").value< std::vector<common::URI> >() );
   else
-    term->options().configure_option("regions", regions);
+    term->options().set("regions", regions);
 
-  term->options().configure_option( sdm::Tags::physical_model(), physical_model().handle<Component>());
+  term->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
 
   term->initialize();
 

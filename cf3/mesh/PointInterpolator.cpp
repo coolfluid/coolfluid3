@@ -98,7 +98,7 @@ void PointInterpolator::configure_element_finder()
   m_element_finder = Handle<ElementFinder>(create_component("element_finder",options().option("element_finder").value<std::string>()));
 
   if(m_dict)
-    m_element_finder->options().configure_option("dict",m_dict);
+    m_element_finder->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ void PointInterpolator::configure_stencil_computer()
   m_stencil_computer = Handle<StencilComputer>(create_component("stencil_computer",options().option("stencil_computer").value<std::string>()));
 
   if(m_dict)
-    m_stencil_computer->options().configure_option("dict",m_dict);
+    m_stencil_computer->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void PointInterpolator::configure_interpolator_function()
   m_interpolator_function = Handle<InterpolationFunction>(create_component("function",options().option("function").value<std::string>()));
 
   if(m_dict)
-    m_interpolator_function->options().configure_option("dict",m_dict);
+    m_interpolator_function->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

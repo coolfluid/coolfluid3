@@ -46,7 +46,7 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
   mark_basic();
 
   // Build faces and cell2face and face2cell connectivities
-  create_component<BuildFaces>("build_inner_faces")->options().configure_option("store_cell2face",true);
+  create_component<BuildFaces>("build_inner_faces")->options().set("store_cell2face",true);
 
   // renumber elements because of the faces (not strictly necessary)
   // create_component<GlobalNumbering>("renumber");

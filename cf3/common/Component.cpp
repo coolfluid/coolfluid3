@@ -917,7 +917,7 @@ void Component::signal_configure ( SignalArgs& args )
      if (opt != options.end() )
      {
        XmlNode node(itr);
-       opt->second->configure_option( node );
+       opt->second->set( node );
      }
      else
      {
@@ -1066,13 +1066,13 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 
   if (m_options->check(opt_name) && !(*m_options)[opt_name].has_tag("norecurse"))
   {
-    options().configure_option(opt_name,val);
+    options().set(opt_name,val);
   }
 
   foreach_container((std::string name) (boost::shared_ptr<Option> opt), options())
   {
     if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
-      options().configure_option(name,val);
+      options().set(name,val);
   }
 
   // configure all child's options recursively
@@ -1086,7 +1086,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 
     if (component.options().check(opt_name) && !component.options().option(opt_name).has_tag("norecurse"))
     {
-      component.options().configure_option(opt_name,val);
+      component.options().set(opt_name,val);
     }
 
     // configure the options that matches the tags
@@ -1094,7 +1094,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
     foreach_container((std::string name) (boost::shared_ptr<Option> opt), component.options())
     {
       if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
-        component.options().configure_option(name,val);
+        component.options().set(name,val);
     }
 
   }
@@ -1238,17 +1238,17 @@ void Component::configure (const std::vector<std::string>& args)
                             "] not found in "+ uri().path());
 
       if      (type == "bool")
-        options().configure_option(name,from_str<bool>(value));
+        options().set(name,from_str<bool>(value));
       else if (type == "unsigned")
-        options().configure_option(name,from_str<Uint>(value));
+        options().set(name,from_str<Uint>(value));
       else if (type == "integer")
-        options().configure_option(name,from_str<int>(value));
+        options().set(name,from_str<int>(value));
       else if (type == "real")
-        options().configure_option(name,from_str<Real>(value));
+        options().set(name,from_str<Real>(value));
       else if (type == "string")
-        options().configure_option(name,value);
+        options().set(name,value);
       else if (type == "uri")
-        options().configure_option(name,from_str<URI>(value));
+        options().set(name,from_str<URI>(value));
       else if (type == "array")
       {
         std::vector<std::string> array;
@@ -1278,39 +1278,39 @@ void Component::configure (const std::vector<std::string>& args)
           std::vector<bool> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<bool>(str_val));
-          options().configure_option(name,vec);
+          options().set(name,vec);
         }
         else if (subtype == "unsigned")
         {
           std::vector<Uint> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<Uint>(str_val));
-          options().configure_option(name,vec);
+          options().set(name,vec);
         }
         else if (subtype == "integer")
         {
           std::vector<int> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<int>(str_val));
-          options().configure_option(name,vec);
+          options().set(name,vec);
         }
         else if (subtype == "real")
         {
           std::vector<Real> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<Real>(str_val));
-          options().configure_option(name,vec);
+          options().set(name,vec);
         }
         else if (subtype == "string")
         {
-          options().configure_option(name,array);
+          options().set(name,array);
         }
         else if (subtype == "uri")
         {
           std::vector<URI> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<URI>(str_val));
-          options().configure_option(name,vec);
+          options().set(name,vec);
         }
 
       }

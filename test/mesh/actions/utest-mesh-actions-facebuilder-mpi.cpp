@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE( init_mpi)
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
-  Core::instance().environment().options().configure_option("only_cpu0_writes",false);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("only_cpu0_writes",false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

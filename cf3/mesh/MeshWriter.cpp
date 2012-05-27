@@ -175,8 +175,8 @@ void MeshWriter::execute()
 
 void MeshWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  options().configure_option("mesh",mesh.handle<Mesh const>());
-  options().configure_option("file",file_path);
+  options().set("mesh",mesh.handle<Mesh const>());
+  options().set("file",file_path);
   execute();
 };
 

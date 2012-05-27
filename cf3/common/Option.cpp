@@ -39,7 +39,7 @@ Option::~Option()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Option::configure_option ( XmlNode& node )
+void Option::set ( XmlNode& node )
 {
   cf3_assert ( node.is_valid() );
   change_value(extract_configured_value(node));

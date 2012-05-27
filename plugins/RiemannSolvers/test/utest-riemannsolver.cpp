@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
 
   // Creation + configuration of riemann solver
   Handle<RiemannSolver> riemann( model.create_component("riemann","cf3.RiemannSolvers.Roe") );
-  riemann->options().configure_option("physical_model",physics);
-  riemann->options().configure_option("solution_vars",sol_vars);
-  riemann->options().configure_option("roe_vars",roe_vars);
+  riemann->options().set("physical_model",physics);
+  riemann->options().set("solution_vars",sol_vars);
+  riemann->options().set("roe_vars",roe_vars);
 
   std::cout << model.tree() << std::endl;
 
@@ -103,9 +103,9 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
 
   // Creation + configuration of riemann solver
   Handle<RiemannSolver> riemann( model.create_component("riemann","cf3.RiemannSolvers.Roe") );
-  riemann->options().configure_option("physical_model",physics);
-  riemann->options().configure_option("solution_vars",sol_vars);
-  riemann->options().configure_option("roe_vars",roe_vars);
+  riemann->options().set("physical_model",physics);
+  riemann->options().set("solution_vars",sol_vars);
+  riemann->options().set("roe_vars",roe_vars);
 
   std::cout << model.tree() << std::endl;
 
@@ -198,9 +198,9 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
   // Creation + configuration of riemann solver
   Handle<RiemannSolver> riemann( model.create_component("riemann","cf3.RiemannSolvers.Roe") );
-  riemann->options().configure_option("physical_model",physics);
-  riemann->options().configure_option("solution_vars",sol_vars);
-  riemann->options().configure_option("roe_vars",roe_vars);
+  riemann->options().set("physical_model",physics);
+  riemann->options().set("solution_vars",sol_vars);
+  riemann->options().set("roe_vars",roe_vars);
 
   std::cout << model.tree() << std::endl;
 
@@ -338,8 +338,8 @@ BOOST_AUTO_TEST_CASE( test_Roe_adv_diff )
   RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver-AdvectionDiffusion1D","cf3.RiemannSolvers.Roe").as_type<RiemannSolver>();
 
   Component& state = Core::instance().root().create_component("solution-state-AdvectionDiffusion1D","cf3.AdvectionDiffusion.State1D");
-  riemannsolver.options().configure_option("solution_state",state.uri());
-  riemannsolver.options().configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
+  riemannsolver.options().set("solution_state",state.uri());
+  riemannsolver.options().set("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
 
   RealVector left(1);   left   << 1.5;
   RealVector right(1);  right  << 0.5;

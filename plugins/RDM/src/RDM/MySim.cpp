@@ -140,7 +140,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
 
-    inletbc->options().configure_option("functions", fns);
+    inletbc->options().set("functions", fns);
   }
 
   // initialization

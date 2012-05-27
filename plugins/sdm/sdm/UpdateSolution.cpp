@@ -87,28 +87,28 @@ void UpdateSolution::link_fields()
   {
     m_solution = Handle<Field>( follow_link( solver().field_manager()
         .get_child( sdm::Tags::solution() ) ) );
-    options().configure_option( sdm::Tags::solution(), m_solution->uri() );
+    options().set( sdm::Tags::solution(), m_solution->uri() );
   }
 
   if( is_null( m_update_coeff ) )
   {
     m_update_coeff = Handle<Field>( follow_link( solver().field_manager()
         .get_child( sdm::Tags::update_coeff() ) ) );
-    options().configure_option( sdm::Tags::update_coeff(), m_update_coeff->uri() );
+    options().set( sdm::Tags::update_coeff(), m_update_coeff->uri() );
   }
 
   if( is_null( m_residual ) )
   {
     m_residual = Handle<Field>( follow_link( solver().field_manager()
         .get_child( sdm::Tags::residual() ) ) );
-    options().configure_option( sdm::Tags::residual(), m_residual->uri() );
+    options().set( sdm::Tags::residual(), m_residual->uri() );
   }
 
   if( is_null( m_jacobian_determinant ) )
   {
     m_jacobian_determinant = follow_link(solver().field_manager()
         .get_child( sdm::Tags::jacob_det() ))->handle<Field>();
-    options().configure_option( sdm::Tags::jacob_det(), m_jacobian_determinant->uri() );
+    options().set( sdm::Tags::jacob_det(), m_jacobian_determinant->uri() );
   }
 
 }

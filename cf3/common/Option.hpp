@@ -157,7 +157,7 @@ namespace XML { class XmlNode; }
     Option& separator( const std::string & separator );
 
     /// configure this option using the passed xml node
-    void configure_option ( XML::XmlNode & node );
+    void set ( XML::XmlNode & node );
 
     /// attach a function that will be triggered when an option gets configured
     /// @return this option

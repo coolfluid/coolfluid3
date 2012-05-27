@@ -233,9 +233,9 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
   // get the correct writer based on the extension
 
   Handle< MeshWriter > writer = m_extensions_to_writers[extension][0];
-  writer->options().configure_option("fields",fields);
-  writer->options().configure_option("mesh",mesh.handle<Mesh>());
-  writer->options().configure_option("file", filepath);
+  writer->options().set("fields",fields);
+  writer->options().set("mesh",mesh.handle<Mesh>());
+  writer->options().set("file", filepath);
 
   writer->execute();
 }

@@ -220,8 +220,8 @@ void Reader::get_file_positions()
       std::vector<Uint> num_obj(2);
       num_obj[0] = m_total_nb_nodes;
       num_obj[1] = m_total_nb_elements;
-      m_hash->options().configure_option("nb_parts",options().option("nb_parts").value<Uint>());
-      m_hash->options().configure_option("nb_obj",num_obj);
+      m_hash->options().set("nb_parts",options().option("nb_parts").value<Uint>());
+      m_hash->options().set("nb_obj",num_obj);
 
 
       Uint elem_idx, elem_type, nb_tags, phys_tag;
@@ -798,8 +798,8 @@ void Reader::read_element_data()
       //    var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
       mesh::Field& field = dict.create_field(gmsh_field.name);
-      field.options().configure_option("var_names",gmsh_field.var_names);
-      field.options().configure_option("var_types",var_types_str);
+      field.options().set("var_names",gmsh_field.var_names);
+      field.options().set("var_types",var_types_str);
 
       for (Uint i=0; i<field.nb_vars(); ++i)
       {

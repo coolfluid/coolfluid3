@@ -196,7 +196,7 @@ CFinfo << "WWWWWWWWWWWWWW: " << geometry->name() << solution_space << CFendl;
     parallel_fields.push_back( steps[step]->uri() );
   }
 
-  mysolver.actions().get_child("Synchronize")->options().configure_option("Fields", parallel_fields);
+  mysolver.actions().get_child("Synchronize")->options().set("Fields", parallel_fields);
 
 //  std::cout << "solution " << solution->uri().string() << std::endl;
 //  std::cout << "residual " << residual->uri().string() << std::endl;

@@ -89,11 +89,11 @@ RDM::BoundaryTerm& BoundaryConditions::create_boundary_condition( const std::str
   else
     m_strong_bcs->add_link( *bterm );
 
-  bterm->options().configure_option("regions" , regions);
+  bterm->options().set("regions" , regions);
 
-  bterm->options().configure_option( RDM::Tags::mesh(), m_mesh);
-  bterm->options().configure_option( RDM::Tags::solver() , m_solver);
-  bterm->options().configure_option( RDM::Tags::physical_model() , m_physical_model);
+  bterm->options().set( RDM::Tags::mesh(), m_mesh);
+  bterm->options().set( RDM::Tags::solver() , m_solver);
+  bterm->options().set( RDM::Tags::physical_model() , m_physical_model);
 
   return *bterm;
 }

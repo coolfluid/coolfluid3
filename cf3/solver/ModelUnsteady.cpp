@@ -84,7 +84,7 @@ void ModelUnsteady::setup(const std::string& solver_builder_name, const std::str
 void ModelUnsteady::simulate ()
 {
   Model::simulate();
-//  time().options().configure_option("time", time().current_time() );
+//  time().options().set("time", time().current_time() );
 }
 
 

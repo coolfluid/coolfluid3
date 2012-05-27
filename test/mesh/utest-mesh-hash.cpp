@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( SingleHash )
 {
   boost::shared_ptr<ParallelDistribution> hash = allocate_component<ParallelDistribution>("hash");
-  hash->options().configure_option("nb_obj", (Uint) 11);
-  hash->options().configure_option("nb_parts", (Uint) 3);
+  hash->options().set("nb_obj", (Uint) 11);
+  hash->options().set("nb_parts", (Uint) 3);
 
   BOOST_CHECK(true);
 
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE( MixedHash )
   std::vector<Uint> num_obj(2);
   num_obj[0] = 10;
   num_obj[1] = 8;
-  hash->options().configure_option("nb_parts", (Uint) 3);
-  hash->options().configure_option("nb_obj", num_obj);
+  hash->options().set("nb_parts", (Uint) 3);
+  hash->options().set("nb_obj", num_obj);
 
   BOOST_CHECK(true);
 

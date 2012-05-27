@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
 
   // Create the fields
   FieldManager& field_manager = *model->create_component<FieldManager>("FieldManager");
-  field_manager.options().configure_option("variable_manager", model->physics().variable_manager().handle<math::VariableManager>());
+  field_manager.options().set("variable_manager", model->physics().variable_manager().handle<math::VariableManager>());
   field_manager.create_field("solution", mesh->geometry_fields());
   BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh->geometry_fields(), "solution"));
 
@@ -196,8 +196,8 @@ BOOST_AUTO_TEST_CASE( ProtoActionTest )
   // Create an action that can wrap an expression
   ProtoAction& action = *Core::instance().root().create_component<ProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
-  action.options().configure_option("physical_model", model->physics().handle<physics::PhysModel>());
-  action.options().configure_option(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
+  action.options().set("physical_model", model->physics().handle<physics::PhysModel>());
+  action.options().set(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
 
   // Create the fields
   field_manager->create_field("T2", mesh->geometry_fields());

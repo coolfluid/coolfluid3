@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("read_groups",true);
+  meshreader->options().set("read_groups",true);
 
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("quadtriag");
@@ -111,10 +111,10 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("number_of_processors",(Uint) Comm::instance().size());
-  meshreader->options().configure_option("rank",(Uint) Comm::instance().rank());
-  meshreader->options().configure_option("Repartition",false);
-  meshreader->options().configure_option("OutputRank",(Uint) 2);
+  meshreader->options().set("number_of_processors",(Uint) Comm::instance().size());
+  meshreader->options().set("rank",(Uint) Comm::instance().rank());
+  meshreader->options().set("Repartition",false);
+  meshreader->options().set("OutputRank",(Uint) 2);
 
   // the file to read from
   boost::filesystem::path fp_in ("../../resources/hextet.neu");
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("Repartition",true);
-  meshreader->options().configure_option("OutputRank",(Uint) 0);
+  meshreader->options().set("Repartition",true);
+  meshreader->options().set("OutputRank",(Uint) 0);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");

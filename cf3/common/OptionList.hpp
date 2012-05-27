@@ -87,7 +87,7 @@ public:
   /// Configure one option, and trigger its actions
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
-  void configure_option(const std::string& pname, const boost::any& val);
+  void set(const std::string& pname, const boost::any& val);
 
   /// check that a option with the name exists
   /// @param opt_name the property name

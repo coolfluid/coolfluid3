@@ -112,7 +112,7 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
 void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
 {
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
-  single_var_descriptor->options().configure_option(common::Tags::dimension(), neq);
+  single_var_descriptor->options().set(common::Tags::dimension(), neq);
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
   create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs);
 }

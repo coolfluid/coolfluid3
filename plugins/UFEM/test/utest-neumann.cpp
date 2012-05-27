@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( NeumannTest )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
-  //Core::instance().environment().options().configure_option("exception_aborts", true);
+  Core::instance().environment().options().set("log_level", 4u);
+  //Core::instance().environment().options().set("exception_aborts", true);
 
   // Setup a model
   Model& model = *root.create_component<Model>("Model");
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   // This will create values at the boundary starting from the cell next to the wall
   common::Action& create_boundary_gradient = *coupling_bc->create_component<UFEM::AdjacentCellToFace>("CreateBoundaryGradient");
   // Must be the tag for the field we want to copy, in this case GradT:
-  create_boundary_gradient.options().configure_option("field_tag", std::string("element_fields"));
+  create_boundary_gradient.options().set("field_tag", std::string("element_fields"));
   
   // Add the neumann boundary condition, which is expressed using a proto action:
   Component& neumann_bc = bc_top->add_component(create_proto_action("NeumannHeat", elements_expression
@@ -172,34 +172,34 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
 
   // Setup a different region for each of the two blocks
   std::vector<std::string> block_regions(2); block_regions[0] = "solid_bottom"; block_regions[1] = "solid_top";
-  blocks->options().configure_option("block_regions", block_regions);
+  blocks->options().set("block_regions", block_regions);
 
   Handle<Mesh> mesh = domain.create_component<Mesh>("Mesh");
   blocks->create_mesh(*mesh);
   
   // Set up the regular bottom and top solvers
-  hc_bottom->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
-  hc_top->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
+  hc_bottom->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
+  hc_top->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
   math::LSS::System& bot_lss = hc_bottom->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  bot_lss.matrix()->options().configure_option("settings_file", solver_config);
+  bot_lss.matrix()->options().set("settings_file", solver_config);
 
   math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  top_lss.matrix()->options().configure_option("settings_file", solver_config);
+  top_lss.matrix()->options().set("settings_file", solver_config);
 
   
-  bc_bot->options().configure_option("regions", std::vector<URI>(1, mesh->topology().uri()));
-  bc_bot->add_constant_bc("bottom", "Temperature")->options().configure_option("value", 10.);
-  bc_bot->add_constant_bc("region_bnd_solid_bottom_solid_top", "Temperature")->options().configure_option("value", 50.);
+  bc_bot->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
+  bc_bot->add_constant_bc("bottom", "Temperature")->options().set("value", 10.);
+  bc_bot->add_constant_bc("region_bnd_solid_bottom_solid_top", "Temperature")->options().set("value", 50.);
 
-  bc_top->options().configure_option("regions", std::vector<URI>(1, mesh->topology().uri()));
-  bc_top->add_constant_bc("top", "Temperature")->options().configure_option("value", 10.);
+  bc_top->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
+  bc_top->add_constant_bc("top", "Temperature")->options().set("value", 10.);
   
   
   // Set up the regions (needs to be done after mesh creation)
-  coupling_bc->get_child("GradT")->options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
-  neumann_bc.options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
-  create_boundary_gradient.options().configure_option("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
+  coupling_bc->get_child("GradT")->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
+  neumann_bc.options().set("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
+  create_boundary_gradient.options().set("regions", std::vector<URI>(1, mesh->access_component("topology/region_bnd_solid_top_solid_bottom")->uri()));
 
   // Run the simulation and save the mesh
   model.simulate();

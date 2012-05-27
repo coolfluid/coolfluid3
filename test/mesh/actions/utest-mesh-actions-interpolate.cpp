@@ -75,23 +75,23 @@ BOOST_AUTO_TEST_CASE( build )
   Core::instance().initiate(m_argc,m_argv);
 
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator");
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"rect");
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"rect");
 
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
   std::vector<Real> offsets(2);
   offsets[XX] = 0.;
   offsets[YY] = -0.5;
-  mesh_generator->options().configure_option("offsets",offsets);
+  mesh_generator->options().set("offsets",offsets);
   std::vector<Uint> nb_cells(2);
   nb_cells[XX] = 10u;
   nb_cells[YY] = 1u;
-  mesh_generator->options().configure_option("nb_cells",nb_cells);
+  mesh_generator->options().set("nb_cells",nb_cells);
   Mesh& rect = mesh_generator->generate();
 
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"line");
-  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(1,20));
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(1,20.));
-//  mesh_generator->options().configure_option("offsets",std::vector<Real>(1,-5));
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"line");
+  mesh_generator->options().set("nb_cells",std::vector<Uint>(1,20));
+  mesh_generator->options().set("lengths",std::vector<Real>(1,20.));
+//  mesh_generator->options().set("offsets",std::vector<Real>(1,-5));
 
   Mesh& line = mesh_generator->generate();
 
@@ -105,13 +105,13 @@ BOOST_AUTO_TEST_CASE( build )
   }
 
   Interpolate& interpolator = *Core::instance().root().create_component<Interpolate>("interpolator");
-  interpolator.options().configure_option("source",source.handle<Field const>());
-  interpolator.options().configure_option("target",target.handle<Field>());
+  interpolator.options().set("source",source.handle<Field const>());
+  interpolator.options().set("target",target.handle<Field>());
   interpolator.execute();
 
 
   Handle<MeshWriter> gmsh_writer(Core::instance().root().create_component("gmsh_writer","cf3.mesh.gmsh.Writer"));
-  gmsh_writer->options().configure_option("fields",std::vector<URI>(1,target.uri()) );
+  gmsh_writer->options().set("fields",std::vector<URI>(1,target.uri()) );
   gmsh_writer->write_from_to(line,"line-interpolated.msh");
 }
 

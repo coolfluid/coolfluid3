@@ -453,14 +453,14 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 5, 5);
 
   physics::PhysModel& physics = model.create_physics("cf3.physics.DynamicModel");
-  physics.options().configure_option(common::Tags::dimension(), 2u);
+  physics.options().set(common::Tags::dimension(), 2u);
 
   // Create the initialization expression
   boost::shared_ptr< Expression > init = nodes_expression(u = coordinates);
   boost::shared_ptr< Expression > init_temp = nodes_expression(T = coordinates[0]);
 
   FieldManager& field_manager = *dom.create_component<FieldManager>("FieldManager");
-  field_manager.options().configure_option("variable_manager", physics.variable_manager().handle<math::VariableManager>());
+  field_manager.options().set("variable_manager", physics.variable_manager().handle<math::VariableManager>());
 
   // set up fields
   init->register_variables(physics);

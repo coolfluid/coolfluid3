@@ -140,9 +140,9 @@ BOOST_AUTO_TEST_CASE( ProtoScalarElementField )
   MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(elems_P0.uri()/"volumes");
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("file",URI("utest-proto-elements-scalar_output.pvtu"));
+  writer.options().set("fields",fields);
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("file",URI("utest-proto-elements-scalar_output.pvtu"));
   writer.execute();
 }
 
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
   solver.configure_option_recursively(solver::Tags::regions(), root_regions);
   boost::shared_ptr<ProtoAction> boundary_integral = create_proto_action("BoundaryIntegral", boundary_integral_expr);
   solver.add_component(boundary_integral);
-  boundary_integral->options().configure_option("regions", std::vector<URI>(1, mesh.topology().get_child("top")->uri()));
+  boundary_integral->options().set("regions", std::vector<URI>(1, mesh.topology().get_child("top")->uri()));
 
   // Run
   model.simulate();
@@ -230,9 +230,9 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
   MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(elems_P0.uri()/"vector_val");
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("file",URI("utest-proto-elements-vector_output.pvtu"));
+  writer.options().set("fields",fields);
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("file",URI("utest-proto-elements-vector_output.pvtu"));
   writer.execute();
 }
 

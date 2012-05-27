@@ -123,7 +123,7 @@ const Option & OptionList::operator [] (const std::string & pname) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OptionList::configure_option(const std::string& pname, const boost::any& val)
+void OptionList::set(const std::string& pname, const boost::any& val)
 {
   OptionStorage_t::iterator itr = store.find(pname);
   if (itr == store.end())

@@ -98,10 +98,10 @@ BOOST_AUTO_TEST_CASE( sandbox )
 /*
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 {
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
   CFinfo << "MeshPartitioner_test" << CFendl;
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  meshreader->options().configure_option("read_boundaries",false);
+  meshreader->options().set("read_boundaries",false);
 
   // the file to read from
   URI fp_in ("../../resources/quadtriag.neu");
@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
   Core::instance().initiate(m_argc,m_argv);
 
-  //p.options().configure_option("nb_parts", (Uint) 4);
-  p.options().configure_option("graph_package", std::string("PHG"));
-  p.options().configure_option("debug_level", 2u);
+  //p.options().set("nb_parts", (Uint) 4);
+  p.options().set("graph_package", std::string("PHG"));
+  p.options().set("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   BOOST_CHECK(true);
 
   boost::shared_ptr< MeshTransformer > glb_node_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumberingNodes","glb_node_numbering");
-  glb_node_numbering->options().configure_option("debug",true);
+  glb_node_numbering->options().set("debug",true);
   glb_node_numbering->transform(mesh);
 
 
@@ -200,15 +200,15 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 */
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 {
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->options().configure_option("mesh",URI("//rect"));
+  meshgenerator->options().set("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
   std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
-  meshgenerator->options().configure_option("nb_cells",nb_cells);
-  meshgenerator->options().configure_option("lengths",lengths);
-  meshgenerator->options().configure_option("bdry",false);
+  meshgenerator->options().set("nb_cells",nb_cells);
+  meshgenerator->options().set("lengths",lengths);
+  meshgenerator->options().set("bdry",false);
   Mesh& mesh = meshgenerator->generate();
 
 
@@ -227,9 +227,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
   Core::instance().initiate(m_argc,m_argv);
 
-  //p.options().configure_option("nb_parts", (Uint) 4);
-  p.options().configure_option("graph_package", std::string("PHG"));
-  p.options().configure_option("debug_level", 2u);
+  //p.options().set("nb_parts", (Uint) 4);
+  p.options().set("graph_package", std::string("PHG"));
+  p.options().set("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
   BOOST_CHECK(true);
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   BOOST_CHECK(true);
 
   boost::shared_ptr< MeshTransformer > glb_node_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumberingNodes","glb_node_numbering");
-  glb_node_numbering->options().configure_option("debug",true);
+  glb_node_numbering->options().set("debug",true);
   glb_node_numbering->transform(mesh);
 
 

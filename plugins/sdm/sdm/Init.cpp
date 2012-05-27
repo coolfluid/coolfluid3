@@ -88,7 +88,7 @@ void Init::execute()
   Handle<Variables> solution_vars(find_component_ptr_with_tag(physical_model(),sdm::Tags::solution_vars()));
 
   if (is_null(m_input_vars))
-    options().configure_option("input_vars",solution_vars);
+    options().set("input_vars",solution_vars);
 
   Variables& input_vars = *m_input_vars;
 

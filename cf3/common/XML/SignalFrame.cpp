@@ -520,7 +520,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
     }
   }
   if (target=="configure"){
-    str+=".options().configure_option(";
+    str+=".options().set(";
     std::string str_start=str;
     str="";
     SignalFrame frame( *this );

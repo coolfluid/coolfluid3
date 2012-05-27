@@ -75,17 +75,17 @@ BOOST_AUTO_TEST_CASE( Init )
 BOOST_AUTO_TEST_CASE( test_rotate_2d )
 {
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator_rect");
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"rect");
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"rect");
 
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
   std::vector<Uint> nb_cells = list_of(10)(5);
-  mesh_generator->options().configure_option("nb_cells",nb_cells);
+  mesh_generator->options().set("nb_cells",nb_cells);
   Mesh& mesh = mesh_generator->generate();
 
   boost::shared_ptr<MeshTransformer> rotate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Rotate","rotate"));
   std::vector<Real> axis_point = list_of(5.)(5.);
-  rotate->options().configure_option("axis_point",axis_point);
-  rotate->options().configure_option("angle",math::Consts::pi()/2.);
+  rotate->options().set("axis_point",axis_point);
+  rotate->options().set("angle",math::Consts::pi()/2.);
   rotate->transform(mesh);
   mesh.write_mesh("file:rotated_rect.msh");
 }
@@ -95,19 +95,19 @@ BOOST_AUTO_TEST_CASE( test_rotate_2d )
 BOOST_AUTO_TEST_CASE( test_rotate_3d )
 {
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator_box");
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"box");
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"box");
 
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(3,10.));
+  mesh_generator->options().set("lengths",std::vector<Real>(3,10.));
   std::vector<Uint> nb_cells = list_of(10)(5)(2);
-  mesh_generator->options().configure_option("nb_cells",nb_cells);
+  mesh_generator->options().set("nb_cells",nb_cells);
   Mesh& mesh = mesh_generator->generate();
 
   boost::shared_ptr<MeshTransformer> rotate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Rotate","rotate"));
   std::vector<Real> axis_direction = list_of(1)(1)(1);
   std::vector<Real> axis_point = list_of(5.)(5.)(5.);
-  rotate->options().configure_option("axis_direction",axis_direction);
-  rotate->options().configure_option("axis_point",axis_point);
-  rotate->options().configure_option("angle",math::Consts::pi()/2.);
+  rotate->options().set("axis_direction",axis_direction);
+  rotate->options().set("axis_point",axis_point);
+  rotate->options().set("angle",math::Consts::pi()/2.);
   rotate->transform(mesh);
   mesh.write_mesh("file:rotated_box.msh");
 }
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( test_translate_2d )
 
   boost::shared_ptr<MeshTransformer> translate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Translate","translate"));
   std::vector<Real> tvec = list_of(-5)(-5);
-  translate->options().configure_option("vector",tvec);
+  translate->options().set("vector",tvec);
   translate->transform(mesh);
 
   mesh.write_mesh("file:translated_rect.msh");
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_translate_3d )
 
   boost::shared_ptr<MeshTransformer> translate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Translate","translate"));
   std::vector<Real> tvec = list_of(-5)(-5)(-5);
-  translate->options().configure_option("vector",tvec);
+  translate->options().set("vector",tvec);
   translate->transform(mesh);
 
   mesh.write_mesh("file:translated_box.msh");

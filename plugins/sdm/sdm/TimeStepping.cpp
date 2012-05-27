@@ -78,7 +78,7 @@ TimeStepping::TimeStepping ( const std::string& name ) :
   post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
   m_history = create_static_component<History>("History");
-  history()->options().configure_option("dimension",1u);
+  history()->options().set("dimension",1u);
 
   // Set a few variables in history. More can be added during run-time
   // following the same way.
@@ -141,13 +141,13 @@ void TimeStepping::execute()
 
     // (1) the pre actions - pre-process, user defined actions, etc
 
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option(sdm::Tags::time(),m_time);
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("time_accurate",options().option("time_accurate").value<bool>());
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set(sdm::Tags::time(),m_time);
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("time_accurate",options().option("time_accurate").value<bool>());
     std::vector<Real> vars(2);
     vars[0] = properties().value<Uint>("iteration");
     vars[1] = m_time->current_time();
     Real cfl = m_cfl.Eval(&vars[0]);
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("cfl",cfl);
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("cfl",cfl);
 
     m_pre_actions->execute();
 

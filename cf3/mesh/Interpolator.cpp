@@ -75,7 +75,7 @@ void Interpolator::store(const Dictionary& dict, const Table<Real>& target_coord
   m_table = target_coords.handle< Table<Real> >();
 
   cf3_assert(m_point_interpolator);
-  m_point_interpolator->options().configure_option("dict", const_cast<Dictionary*>(m_dict.get())->handle<Dictionary>());
+  m_point_interpolator->options().set("dict", const_cast<Dictionary*>(m_dict.get())->handle<Dictionary>());
 
   Uint nb_coords = target_coords.size();
   Uint dim = target_coords.row_size();
@@ -267,7 +267,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
   m_table.reset();
 
   cf3_assert(m_point_interpolator);
-  m_point_interpolator->options().configure_option("dict", const_cast<Dictionary*>(&source_field.dict())->handle<Dictionary>());
+  m_point_interpolator->options().set("dict", const_cast<Dictionary*>(&source_field.dict())->handle<Dictionary>());
 
   const Uint nb_coords = target_coords.size();
   const Uint dim = target_coords.row_size();

@@ -166,13 +166,13 @@ void ComputeUpdateCoefficient::link_fields()
   if( is_null( m_update_coeff ) )
   {
     m_update_coeff = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::update_coeff() ) ) );
-    options().configure_option( sdm::Tags::update_coeff(), m_update_coeff );
+    options().set( sdm::Tags::update_coeff(), m_update_coeff );
   }
 
   if( is_null( m_wave_speed ) )
   {
     m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::wave_speed() ) ) );
-    options().configure_option( sdm::Tags::wave_speed(), m_wave_speed );
+    options().set( sdm::Tags::wave_speed(), m_wave_speed );
   }
 }
 

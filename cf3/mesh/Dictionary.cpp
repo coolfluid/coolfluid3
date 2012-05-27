@@ -201,7 +201,7 @@ Field& Dictionary::create_field(const std::string &name, math::VariablesDescript
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
   {
     cf3_assert( is_not_null( parent() ));
-    field->descriptor().options().configure_option(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
+    field->descriptor().options().set(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
   }
   field->resize(size());
 

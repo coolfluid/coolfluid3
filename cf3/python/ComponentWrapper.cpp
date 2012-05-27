@@ -396,7 +396,7 @@ common::OptionList* options(ComponentWrapper& self)
   return &self.component().options();
 }
 
-common::OptionList* configure_option(common::OptionList* self, const std::string& optname, const boost::python::object& val)
+common::OptionList* set(common::OptionList* self, const std::string& optname, const boost::python::object& val)
 {
   cf3_assert(is_not_null(self));
   common::Option& option = self->option(optname);
@@ -417,7 +417,7 @@ boost::python::object option_get_item(const common::OptionList* self, const std:
 // Function for __set_item__ must not return anything
 void option_set_item(common::OptionList* self, const std::string& optname, const boost::python::object& val)
 {
-  configure_option(self, optname, val);
+  set(self, optname, val);
 }
 
 boost::python::list option_keys(const common::OptionList* self){
@@ -530,7 +530,7 @@ void def_component()
     .def("__ne__", is_not_equal);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
-    .def("set", configure_option, boost::python::return_value_policy<boost::python::reference_existing_object>())
+    .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("as_str", option_value_str, "String value for an option")
     .def("__getitem__", option_get_item, "")
     .def("__setitem__", option_set_item, "")

@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE( Euler_Suite )
 
 BOOST_AUTO_TEST_CASE( eulercons1d )
 {
-  common::Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  common::Core::instance().environment().options().set("log_level",(Uint)DEBUG);
   Euler::Cons1D cons_state;
   Euler::Roe1D  roe_state;
   boost::shared_ptr<solver::Physics> phys = cons_state.create_physics();

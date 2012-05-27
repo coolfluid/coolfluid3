@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
     // output:  Hello world!
 
 
-    hello->options().configure_option("message",string("Goodbye world!"));
+    hello->options().set("message",string("Goodbye world!"));
     hello->print();
     // output:  Goodbye world!
 

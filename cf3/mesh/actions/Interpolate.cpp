@@ -164,7 +164,7 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
     else
     {
       m_octtree = source_mesh.create_component<Octtree>("octtree");
-      m_octtree->options().configure_option("mesh",source_mesh.handle<Mesh>());
+      m_octtree->options().set("mesh",source_mesh.handle<Mesh>());
     }
   }
 

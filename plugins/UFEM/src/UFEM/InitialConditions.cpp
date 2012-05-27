@@ -62,9 +62,9 @@ Handle<InitialCondition> InitialConditions::create_initial_condition(const std::
 {
   Handle<InitialCondition> ic = create_component<InitialCondition>(tag);
 
-  ic->options().configure_option(solver::Tags::physical_model(), options().option(solver::Tags::physical_model()).value());
-  ic->options().configure_option(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
-  ic->options().configure_option("field_tag", tag);
+  ic->options().set(solver::Tags::physical_model(), options().option(solver::Tags::physical_model()).value());
+  ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  ic->options().set("field_tag", tag);
 
   return ic;
 }

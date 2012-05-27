@@ -157,9 +157,9 @@ void LoadMesh::load_mesh_into(const URI& file, Mesh& mesh)
     else
     {
       Handle< MeshReader > meshreader = m_extensions_to_readers[extension][0];
-      meshreader->options().configure_option("mesh",mesh.handle<Mesh>());
-      meshreader->options().configure_option("file",file);
-      meshreader->options().configure_option("dimension",options().option("dimension").value<Uint>());
+      meshreader->options().set("mesh",mesh.handle<Mesh>());
+      meshreader->options().set("file",file);
+      meshreader->options().set("dimension",options().option("dimension").value<Uint>());
       meshreader->execute();
     }
   }

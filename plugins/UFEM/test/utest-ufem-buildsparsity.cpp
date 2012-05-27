@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Sparsity1D )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -83,9 +83,9 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
   boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
-  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
-  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
-  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  create_line->options().set("mesh",domain.uri()/"Mesh");
+  create_line->options().set("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().set("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
 
   // Setup sparsity
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
 
 BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 
 BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 // Single block, meshed with the blockmesher
 BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
 BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
-  lss_action->options().configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   
   LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
 

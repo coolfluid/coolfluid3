@@ -255,8 +255,8 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   Handle<CConcrete1> component2 = root->create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->options().configure_option("MyRelativeFriend",URI("cpath:../component2"));
-  component1->options().configure_option("MyAbsoluteFriend",URI("cpath:/component2"));
+  component1->options().set("MyRelativeFriend",URI("cpath:../component2"));
+  component1->options().set("MyAbsoluteFriend",URI("cpath:/component2"));
 
   // Check if everything worked OK.
   URI absolute_friend_path = component1->options().option("MyAbsoluteFriend").value<URI>();
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( optionComponent )
   Handle<CConcrete1> component2 = root.create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->options().configure_option("OptC",component2);
+  component1->options().set("OptC",component2);
 
   BOOST_CHECK( component1->comp() == component2 );
   BOOST_CHECK(component1->options().option("OptC").value< Handle<CConcrete1> >() == component2);

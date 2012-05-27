@@ -136,8 +136,8 @@ void MeshReader::signal_read( SignalArgs& node  )
 
 void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 {
-  options().configure_option("file",path);
-  options().configure_option("mesh",mesh.handle<Mesh>());
+  options().set("file",path);
+  options().set("mesh",mesh.handle<Mesh>());
 
   mesh.block_mesh_changed(true);
   execute();

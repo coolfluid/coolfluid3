@@ -60,7 +60,7 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
   create_static_component<ProtoAction>("ComputeGradient");
     // Then set the gradient on the boundary elements, and configure its tag
   Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
-  set_boundary_gradient->options().configure_option("field_tag", std::string("gradient_field"));
+  set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
   // Finally set the boundary condition
   create_static_component<ProtoAction>("NeumannHeatFlux");
 }
@@ -76,9 +76,9 @@ void HeatCouplingFlux::on_regions_set()
   if(is_not_null(set_boundary_gradient))
   {
     // Set the boundary regions of the component that copies the gradient from the volume to the boundary
-    set_boundary_gradient->options().configure_option("regions", options()["regions"].value());
+    set_boundary_gradient->options().set("regions", options()["regions"].value());
     // Set the regions on which to apply the Neumann BC
-    get_child("NeumannHeatFlux")->options().configure_option("regions", options()["regions"].value());
+    get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
   }
 }
 
@@ -87,7 +87,7 @@ void HeatCouplingFlux::trigger_gradient_region()
   Handle<Component> compute_gradient = get_child("ComputeGradient");
   if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
   {
-    compute_gradient->options().configure_option("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
+    compute_gradient->options().set("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
   }
 }
 

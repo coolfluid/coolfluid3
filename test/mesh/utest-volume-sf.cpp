@@ -343,8 +343,8 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
-  Core::instance().environment().options().configure_option("exception_outputs",false);
-  Core::instance().environment().options().configure_option("exception_backtrace",false);
+  Core::instance().environment().options().set("exception_outputs",false);
+  Core::instance().environment().options().set("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
   boost::mpl::for_each<TestCellTypes>(functor);
 }

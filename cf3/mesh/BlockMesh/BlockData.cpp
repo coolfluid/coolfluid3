@@ -1454,8 +1454,8 @@ void BlockArrays::partition_blocks(const Uint nb_partitions, const Uint directio
   m_implementation->partition_blocks(nb_partitions, direction);
 
   // The algorithm just modifies the linked parameter, so we need to reset the option to keep it in sync
-  options().configure_option("block_distribution", m_implementation->block_distribution);
-  options().configure_option("block_regions", m_implementation->block_regions);
+  options().set("block_distribution", m_implementation->block_distribution);
+  options().set("block_regions", m_implementation->block_regions);
 }
 
 void BlockArrays::extrude_blocks(const std::vector<Real>& positions, const std::vector< Uint >& nb_segments, const std::vector< Real >& gradings)

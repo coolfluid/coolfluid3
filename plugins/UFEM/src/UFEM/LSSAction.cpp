@@ -103,7 +103,7 @@ void LSSAction::execute()
 LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
 {
   Handle<LSS::System> lss = create_component<LSS::System>("LSS");
-  lss->options().configure_option("matrix_builder", matrix_builder);
+  lss->options().set("matrix_builder", matrix_builder);
 
   configure_option_recursively("lss", lss);
 

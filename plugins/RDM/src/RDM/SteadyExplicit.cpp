@@ -100,11 +100,11 @@ Model& SteadyExplicit::create_model( const std::string& model_name, const std::s
   // (4a) setup iterative solver reset action
 
   Handle<Reset> reset(solver->iterative_solver().pre_actions().create_component<Reset>("Reset"));
-  reset->options().configure_option( RDM::Tags::solver(), solver->handle<Solver>() );
+  reset->options().set( RDM::Tags::solver(), solver->handle<Solver>() );
 
   std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
                                                               ( RDM::Tags::wave_speed() );
-  reset->options().configure_option("FieldTags", reset_tags);
+  reset->options().set("FieldTags", reset_tags);
 
   // (4c) setup iterative solver explicit time stepping  - forward euler
 

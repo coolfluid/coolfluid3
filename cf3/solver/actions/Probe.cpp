@@ -74,7 +74,7 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
 
 void Probe::configure_point_interpolator()
 {
-  m_point_interpolator->options().configure_option("dict",m_dict);
+  m_point_interpolator->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@ void Probe::set(const std::string& var_name, const Real& var_value)
   {
     if (m_variables->nb_vars() == 0)
     {
-      m_variables->options().configure_option("dimension",(Uint)options().option("coordinate").value<std::vector<Real> >().size());
+      m_variables->options().set("dimension",(Uint)options().option("coordinate").value<std::vector<Real> >().size());
     }
 
     m_variables->push_back(var_name,math::VariablesDescriptor::Dimensionalities::SCALAR);
@@ -204,7 +204,7 @@ void Probe::set(const std::string& var_name, const std::vector<Real>& var_values
 Handle<ProbePostProcessor> Probe::create_post_processor(const std::string& name, const std::string& builder)
 {
   Handle<ProbePostProcessor> p = create_component(name,builder)->handle<ProbePostProcessor>();
-  p->options().configure_option("probe",this->handle());
+  p->options().set("probe",this->handle());
   return p;
 }
 

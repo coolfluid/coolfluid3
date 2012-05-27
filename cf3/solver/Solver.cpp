@@ -131,7 +131,7 @@ physics::PhysModel& Solver::physics()
 
 void Solver::trigger_physical_model()
 {
-  m_implementation->m_field_manager.options().configure_option("variable_manager", m_physics->variable_manager().handle<math::VariableManager>());
+  m_implementation->m_field_manager.options().set("variable_manager", m_physics->variable_manager().handle<math::VariableManager>());
 }
 
 

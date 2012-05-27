@@ -108,9 +108,9 @@ SDSolver::SDSolver ( const std::string& name  ) :
   // Shared actions by the solver
   m_actions = create_static_component< Group >( sdm::Tags::actions() );
   ComputeLNorm& L2norm = *m_actions->create_static_component<ComputeLNorm>(sdm::Tags::L2norm());
-  L2norm.options().configure_option("order",2u);
-  L2norm.options().configure_option("scale",true);
-  L2norm.options().configure_option("field",URI("../../FieldManager/")/Tags::residual());
+  L2norm.options().set("order",2u);
+  L2norm.options().set("scale",true);
+  L2norm.options().set("field",URI("../../FieldManager/")/Tags::residual());
   ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
 
   // listen to mesh_updated events, emitted by the domain
@@ -121,7 +121,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
   m_initial_conditions  = create_static_component< InitialConditions >( InitialConditions::type_name() );
 
   m_time_stepping    = create_static_component< TimeStepping >( TimeStepping::type_name() );
-  m_time_stepping->options().configure_option(Tags::time(),m_time);
+  m_time_stepping->options().set(Tags::time(),m_time);
 
   Handle< Action > conditional( m_time_stepping->post_actions().create_component("Periodic", "cf3.solver.actions.Conditional") );
   conditional->create_component("time_step","cf3.solver.actions.CriterionMilestoneTime");
@@ -185,7 +185,7 @@ void SDSolver::config_time()
       if (owned_child == m_time->handle<Component>())
         remove_component(*m_time);
     m_time = new_time_component;
-    m_time_stepping->options().configure_option(solver::Tags::time(),m_time);
+    m_time_stepping->options().set(solver::Tags::time(),m_time);
   }
 
 }
@@ -290,7 +290,7 @@ void SDSolver::on_mesh_changed_event( SignalArgs& args )
   // Carefully see what needs to be changed!!!
   throw NotSupported(FromHere(),"Mesh may not be changed once configured!!! (yet)");
 
-  //  options().configure_option( sdm::Tags::mesh(), mesh_uri ); // trigger config_mesh()
+  //  options().set( sdm::Tags::mesh(), mesh_uri ); // trigger config_mesh()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,22 +300,22 @@ void SDSolver::signal_add_probe(common::SignalArgs& args)
   XML::SignalOptions sig_opts(args);
 
   Handle<Probe> probe = time_stepping().post_actions().create_component<Probe>(sig_opts.value<std::string>("name"));
-  probe->options().configure_option("dict",mesh().access_component("solution_space"));
-  probe->options().configure_option("coordinate",sig_opts.array<Real>("coordinate"));
+  probe->options().set("dict",mesh().access_component("solution_space"));
+  probe->options().set("coordinate",sig_opts.array<Real>("coordinate"));
   std::vector<std::string> functions = sig_opts.array<std::string>("functions");
   boost_foreach(const std::string& function, functions)
   {
     std::vector<std::string> func_split;
     boost::split(func_split,function,boost::is_any_of("="));
     Handle<ProbePostProcessor> pp = probe->create_post_processor("func_"+func_split[0],"cf3.solver.actions.ProbePostProcFunction");
-    pp->options().configure_option("function",function);
+    pp->options().set("function",function);
   }
   std::vector<std::string> log_vars = sig_opts.array<std::string>("log_variables");
   if (log_vars.size())
   {
     Handle<ProbePostProcessor> pp = probe->create_post_processor("log_history","cf3.solver.actions.ProbePostProcHistory");
-    pp->options().configure_option("history",time_stepping().get_child("History"));
-    pp->options().configure_option("variables",log_vars);
+    pp->options().set("history",time_stepping().get_child("History"));
+    pp->options().set("variables",log_vars);
   }
 }
 

@@ -81,9 +81,9 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
-  Core::instance().environment().options().configure_option("exception_backtrace",true);
-  Core::instance().environment().options().configure_option("regist_signal_handlers",true);
+  Core::instance().environment().options().set("log_level",(Uint)INFO);
+  Core::instance().environment().options().set("exception_backtrace",true);
+  Core::instance().environment().options().set("regist_signal_handlers",true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,9 +101,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 //  meshreader->read_mesh_into("../../resources/hextet.neu",source);
 
   boost::shared_ptr<MeshGenerator> mesh_gen = allocate_component<SimpleMeshGenerator>("meshgen");
-  mesh_gen->options().configure_option("nb_cells",std::vector<Uint>(3,5));
-  mesh_gen->options().configure_option("lengths",std::vector<Real>(3,10.));
-  mesh_gen->options().configure_option("mesh",source.uri());
+  mesh_gen->options().set("nb_cells",std::vector<Uint>(3,5));
+  mesh_gen->options().set("lengths",std::vector<Real>(3,10.));
+  mesh_gen->options().set("mesh",source.uri());
   mesh_gen->execute();
 
   BOOST_CHECK_EQUAL( source.geometry_fields().coordinates().row_size() , (Uint)DIM_3D );
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   // Create and configure interpolator.
   boost::shared_ptr< Interpolator > interpolator = allocate_component<Interpolator>("interpolator");
-  interpolator->options().configure_option("store",false);
+  interpolator->options().set("store",false);
   BOOST_CHECK(true);
 
   std::string nvars = "rho_n[1] , V_n[3] , p_n[1]";
@@ -198,18 +198,18 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   boost_foreach(Field& field, find_components_recursively<Field>(source))
     s_fields.push_back(field.uri());
 
-  meshwriter->options().configure_option("fields",s_fields);
-  meshwriter->options().configure_option("file",URI("source.msh"));
-  meshwriter->options().configure_option("mesh",source.handle<Mesh>());
+  meshwriter->options().set("fields",s_fields);
+  meshwriter->options().set("file",URI("source.msh"));
+  meshwriter->options().set("mesh",source.handle<Mesh>());
   meshwriter->execute();
 
   std::vector<URI> t_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(target))
     t_fields.push_back(field.uri());
 
-  meshwriter->options().configure_option("fields",t_fields);
-  meshwriter->options().configure_option("file",URI("interpolated.msh"));
-  meshwriter->options().configure_option("mesh",target.handle<Mesh>());
+  meshwriter->options().set("fields",t_fields);
+  meshwriter->options().set("file",URI("interpolated.msh"));
+  meshwriter->options().set("mesh",target.handle<Mesh>());
   meshwriter->execute();
   BOOST_CHECK(true);
 
@@ -226,20 +226,20 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   Handle<Mesh> source_mesh = Core::instance().root().create_component<Mesh>("hextet_new");
 //  meshreader->read_mesh_into("../../resources/hextet.neu",*source_mesh);
   boost::shared_ptr<MeshGenerator> mesh_gen = allocate_component<SimpleMeshGenerator>("meshgen");
-  mesh_gen->options().configure_option("nb_cells",std::vector<Uint>(3,5));
-  mesh_gen->options().configure_option("lengths",std::vector<Real>(3,10.));
-  mesh_gen->options().configure_option("mesh",source_mesh->uri());
+  mesh_gen->options().set("nb_cells",std::vector<Uint>(3,5));
+  mesh_gen->options().set("lengths",std::vector<Real>(3,10.));
+  mesh_gen->options().set("mesh",source_mesh->uri());
   mesh_gen->execute();
 
 
   // Create and configure interpolator.
   boost::shared_ptr< PointInterpolator > point_interpolator = allocate_component<PointInterpolator>("interpolator");
-//  interpolator->options().configure_option("element_finder",std::string("cf3.mesh.Octtree"));
-//  interpolator->options().configure_option("stencil_computer",std::string("cf3.mesh.StencilComputerOcttree"));
-//  interpolator->options().configure_option("function",std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"));
+//  interpolator->options().set("element_finder",std::string("cf3.mesh.Octtree"));
+//  interpolator->options().set("stencil_computer",std::string("cf3.mesh.StencilComputerOcttree"));
+//  interpolator->options().set("function",std::string("cf3.mesh.PseudoLaplacianLinearInterpolation"));
 
 
-  point_interpolator->options().configure_option("dict",source_mesh->geometry_fields().handle<Dictionary>());
+  point_interpolator->options().set("dict",source_mesh->geometry_fields().handle<Dictionary>());
 
   RealVector coord(3); coord << 5., 1., 1.;
   std::vector<Real> interpolated_value;
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   Field& target_field = target_dict.create_field("target","target[vector]");
 
   boost::shared_ptr< AInterpolator > interpolator = allocate_component<Interpolator>("interpolator");
-  interpolator->options().configure_option("store",true);
+  interpolator->options().set("store",true);
 
   // first call: compute storage and store
 
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   CFinfo << target_field << CFendl;
 
   // turn off storage, and compute again on the fly
-  interpolator->options().configure_option("store",false);
+  interpolator->options().set("store",false);
   BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh->geometry_fields().coordinates(),target_field));
   CFinfo << target_field << CFendl;
 
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   Dictionary& target_dict_2 = source_mesh_2->create_continuous_space("target","cf3.mesh.LagrangeP2");
   Field& target_field_2 = target_dict_2.create_field("target","target[vector]");
 
-  interpolator->options().configure_option("store",true);
+  interpolator->options().set("store",true);
 
   // first call: compute storage and store
   BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2));
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( test_new_interpolation )
   CFinfo << target_field_2 << CFendl;
 
   // turn off storage, and compute again on the fly
-  interpolator->options().configure_option("store",false);
+  interpolator->options().set("store",false);
   BOOST_CHECK_NO_THROW(interpolator->interpolate(source_mesh_2->geometry_fields().coordinates(),target_field_2));
   CFinfo << target_field_2 << CFendl;
 

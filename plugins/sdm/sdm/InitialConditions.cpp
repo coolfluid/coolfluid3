@@ -82,20 +82,20 @@ solver::Action& InitialConditions::create_initial_condition(const std::string& n
 
   Handle<Field> solution = follow_link(solver().field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
-  ic->options().configure_option( sdm::Tags::solver() , m_solver);
-  ic->options().configure_option( sdm::Tags::mesh(), m_mesh);
-  ic->options().configure_option( "solution_field", solution);
+  ic->options().set( sdm::Tags::solver() , m_solver);
+  ic->options().set( sdm::Tags::mesh(), m_mesh);
+  ic->options().set( "solution_field", solution);
 
   if( regions.empty() ) // if user did not specify, then use the one from the solver
   {
-    ic->options().configure_option("regions" , solver().options().option("regions").value< std::vector<common::URI> >() );
+    ic->options().set("regions" , solver().options().option("regions").value< std::vector<common::URI> >() );
   }
   else
   {
-    ic->options().configure_option("regions" , regions);
+    ic->options().set("regions" , regions);
   }
 
-  ic->options().configure_option( sdm::Tags::physical_model() , m_physical_model);
+  ic->options().set( sdm::Tags::physical_model() , m_physical_model);
 
   return *ic;
 }

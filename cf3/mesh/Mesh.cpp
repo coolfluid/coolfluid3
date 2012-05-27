@@ -117,7 +117,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf3_assert(dimension > 0);
 
   geometry_fields().coordinates().set_dict(geometry_fields());
-  geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
+  geometry_fields().coordinates().descriptor().options().set(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
 
   cf3_assert(geometry_fields().size() == nb_nodes);

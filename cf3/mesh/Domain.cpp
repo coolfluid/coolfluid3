@@ -126,7 +126,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 
   Handle<Mesh> mesh = create_component<Mesh>(name);
 
-  mesh_loader.options().configure_option("dimension",dimension());
+  mesh_loader.options().set("dimension",dimension());
   mesh_loader.load_mesh_into(file, *mesh);
 
   CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;

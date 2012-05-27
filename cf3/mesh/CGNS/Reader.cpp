@@ -984,7 +984,7 @@ void Reader::read_flowsolution()
     cf3_assert(datasize == m_mesh->geometry_fields().size());
 
     boost::shared_ptr<math::VariablesDescriptor> variables = allocate_component<math::VariablesDescriptor>("variables");
-    variables->options().configure_option("dimension",static_cast<Uint>(m_base.phys_dim));
+    variables->options().set("dimension",static_cast<Uint>(m_base.phys_dim));
 
     for (m_field.idx=1; m_field.idx<=m_flowsol.nbFields; ++m_field.idx)
     {

@@ -208,7 +208,7 @@ void RDSolver::on_mesh_changed_event( SignalArgs& args )
 
   Handle<Mesh> mesh( access_component(options.value<URI>("mesh_uri")) );
 
-  this->options().configure_option( RDM::Tags::mesh(), mesh ); // trigger config_mesh()
+  this->options().set( RDM::Tags::mesh(), mesh ); // trigger config_mesh()
 }
 
 

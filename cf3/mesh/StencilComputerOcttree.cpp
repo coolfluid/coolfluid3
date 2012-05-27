@@ -62,7 +62,7 @@ void StencilComputerOcttree::configure_octtree()
   else
   {
     m_octtree = mesh->create_component<Octtree>("octtree");
-    m_octtree->options().configure_option("mesh",mesh);
+    m_octtree->options().set("mesh",mesh);
   }
 }
 

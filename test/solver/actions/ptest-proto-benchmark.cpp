@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
   Elements& elements = find_component_recursively_with_filter<Elements>(mesh->topology(), IsElementsVolume());
 
   LoopOperation& volume_computer = elem_loop.create_loop_operation("cf3.solver.actions.ComputeVolume");
-  volume_computer.options().configure_option("volume",vol_field.uri());
-  volume_computer.options().configure_option("elements",elements.uri());
+  volume_computer.options().set("volume",vol_field.uri());
+  volume_computer.options().set("elements",elements.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

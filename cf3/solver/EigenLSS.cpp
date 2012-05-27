@@ -69,7 +69,7 @@ EigenLSS::EigenLSS ( const std::string& name ) : Component ( name )
 
 void EigenLSS::set_config_file(const URI& path)
 {
-  options().configure_option("config_file", path);
+  options().set("config_file", path);
 }
 
 

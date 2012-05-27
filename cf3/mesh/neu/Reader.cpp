@@ -120,7 +120,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_headerData.NUMNP;
   num_obj[1] = m_headerData.NELEM;
-  m_hash->options().configure_option("nb_obj",num_obj);
+  m_hash->options().set("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())

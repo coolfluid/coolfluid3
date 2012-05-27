@@ -283,9 +283,9 @@ void Transformer::output( const std::vector<std::string>& params )
       if (field.name() != "coordinates")
         fields.push_back(field.uri());
     }
-    if (!dryrun) writer->options().configure_option("fields",fields);
-    if (!dryrun) writer->options().configure_option("mesh",mesh);
-    if (!dryrun) writer->options().configure_option("file",outputfile);
+    if (!dryrun) writer->options().set("fields",fields);
+    if (!dryrun) writer->options().set("mesh",mesh);
+    if (!dryrun) writer->options().set("file",outputfile);
     if (!dryrun) writer->execute();
   }
 }
