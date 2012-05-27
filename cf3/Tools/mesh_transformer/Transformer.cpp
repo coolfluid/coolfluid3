@@ -325,7 +325,7 @@ void Transformer::transform( const std::vector<std::string>& params )
     Handle< MeshTransformer > transformer(name_to_transformers[transformer_name]);
     CFinfo << "\nTransforming mesh with " << transformer_name << " [" << transformer_args << "]" << CFendl;
     if (!dryrun) transformer->set_mesh(mesh);
-    if (!dryrun) transformer->configure(parsed_transformer_args);
+    if (!dryrun) transformer->options().set(parsed_transformer_args);
     if (!dryrun) transformer->execute();
   }
   else

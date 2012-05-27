@@ -35,7 +35,7 @@ Hello::Hello ( const std::string& name ) : Component ( name )
   // Create a configurable 
   options().add("message",std::string("Hello world!"));
   
-  properties().add_property("print_count",0);
+  properties().add("print_count",0);
   
   // Register a dynamic function, that can be called from a GUI, or script
   regist_signal( "print" )

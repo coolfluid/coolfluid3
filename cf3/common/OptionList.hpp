@@ -125,8 +125,19 @@ public:
   /// If an option already exists in the list, its value is modified with the
   /// new one. If it does not exist yet, it is added.
 
-  /// @param args Options to parse.
-  void fill_from_vector( const std::vector<std::string> & args );
+  /// @brief Configure an option on this class from a human readable string.
+  ///
+  /// The string provides the configuration in one of the following formats:
+  /// - var_name:type=value
+  /// - var_name:array[type]=val1,val2
+  void set (const std::string& arg);
+
+  /// @brief Configure an option on this class from a list of human readable strings
+  ///
+  /// The strings provide the configuration in one of the following formats:
+  /// - var_name:type=value
+  /// - var_name:array[type]=val1,val2
+  void set( const std::vector<std::string> & args );
 
 public:
 

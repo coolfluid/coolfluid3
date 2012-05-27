@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE( construct )
 
   // test construction
 
-  props.add_property("count", int(10));
-  props.add_property("name", std::string("lolo"));
+  props.add("count", int(10));
+  props.add("name", std::string("lolo"));
 
   BOOST_CHECK_EQUAL ( props.check( "nono" ),  false );
   BOOST_CHECK_EQUAL ( props.check( "count" ), true );
@@ -74,17 +74,17 @@ BOOST_AUTO_TEST_CASE( assign )
 {
   PropertyList props;
 
-  props.add_property("name", std::string("(empty)"));
+  props.add("name", std::string("(empty)"));
 
   // test assign
 
-  props.configure_property("name", std::string( "john" ));
+  props.set("name", std::string( "john" ));
 
   BOOST_CHECK_EQUAL ( props.value<std::string>("name"), "john" );
 
   // test re-assign
 
-  props.configure_property("name", std::string( "joanna" ));
+  props.set("name", std::string( "joanna" ));
 
   BOOST_CHECK_EQUAL ( props.value<std::string>("name"), "joanna" );
 }
@@ -97,10 +97,10 @@ BOOST_AUTO_TEST_CASE( list )
 
   // test construction
 
-  props.add_property("count0", Uint(10));
-  props.add_property("count1", Uint(11));
-  props.add_property("count2", Uint(12));
-  props.add_property("count3", Uint(13));
+  props.add("count0", Uint(10));
+  props.add("count1", Uint(11));
+  props.add("count2", Uint(12));
+  props.add("count3", Uint(13));
 
   Uint counter = 10;
   PropertyList::PropertyStorage_t::iterator itr = props.store.begin();
@@ -118,10 +118,10 @@ BOOST_AUTO_TEST_CASE( remove )
   AssertionManager::instance().AssertionThrows = true;
   PropertyList props;
 
-  props.add_property("count", int(10));
-  props.add_property("name", std::string("john"));
-  props.add_property("surname", std::string("doe"));
-  props.add_property("size", int(99));
+  props.add("count", int(10));
+  props.add("name", std::string("john"));
+  props.add("surname", std::string("doe"));
+  props.add("size", int(99));
 
   BOOST_CHECK_EQUAL ( props.store.size(), (Uint) 4 );
 

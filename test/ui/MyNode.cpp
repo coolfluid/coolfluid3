@@ -28,7 +28,7 @@ MyNode::MyNode(const std::string & name)
   options().add("myString", std::string("This is a string") )
       .description("A string");
 
-  properties().add_property("someProp", Real(3.14));
+  properties().add("someProp", Real(3.14));
 
   m_content_listed = true;
 }

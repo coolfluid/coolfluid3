@@ -56,12 +56,12 @@ BOOST_AUTO_TEST_CASE( init )
   opts.store.clear();
 
   opts.add("AnUriOption", URI("cpath:/"));
-  props.add_property("Euler", Real(2.71));
+  props.add("Euler", Real(2.71));
   opts.add("MyString", std::string("Hello, World!"));
-  props.add_property("Pi", Real(3.14159));
+  props.add("Pi", Real(3.14159));
   opts.add("SomeBool", true);
   opts.add("SomeInt", int(-2168454));
-  props.add_property("TheAnswer", Uint(42));
+  props.add("TheAnswer", Uint(42));
 
   BOOST_CHECK_EQUAL( props.store.size(), size_t(3));
   BOOST_CHECK_EQUAL( opts.store.size(), size_t(4));

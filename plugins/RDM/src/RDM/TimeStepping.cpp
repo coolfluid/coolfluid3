@@ -46,7 +46,7 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // properties
 
-  properties().add_property( "iteration", Uint(0) );
+  properties().add( "iteration", Uint(0) );
 
   // static components
 

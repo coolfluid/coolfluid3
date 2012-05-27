@@ -106,7 +106,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
     (*signaling_component->signal(name)->signature()) (signal_args);
     SignalOptions options(signal_args);
 
-    options.fill_from_vector(signal_options);
+    options.set(signal_options);
     options.flush();
 
 
@@ -441,7 +441,7 @@ void BasicCommands::configure(const std::vector<std::string>& params)
 
     XML::SignalOptions options;
 
-    options.fill_from_vector(conf_options);
+    options.set(conf_options);
 
     XML::SignalFrame frame = options.create_frame("configure", comp->uri(), comp->uri() );
 
@@ -459,7 +459,7 @@ void BasicCommands::export_env(const std::vector<std::string>& params)
     throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
 
   /// @note (QG) this will not work from the GUI
-  environment_component.change_property(params[0]);
+  environment_component.properties().set(params[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -70,14 +70,14 @@ Mesh::Mesh ( const std::string& name  ) :
 {
   mark_basic(); // by default meshes are visible
 
-  properties().add_property("local_nb_cells",Uint(0));
-  properties().add_property("local_nb_faces",Uint(0));
-  properties().add_property("local_nb_nodes",Uint(0));
-  properties().add_property("global_nb_cells",Uint(0));
-  properties().add_property("global_nb_faces",Uint(0));
-  properties().add_property("global_nb_nodes",Uint(0));
-  properties().add_property("dimensionality",Uint(0));
-  properties().add_property(common::Tags::dimension(),Uint(0));
+  properties().add("local_nb_cells",Uint(0));
+  properties().add("local_nb_faces",Uint(0));
+  properties().add("local_nb_nodes",Uint(0));
+  properties().add("global_nb_cells",Uint(0));
+  properties().add("global_nb_faces",Uint(0));
+  properties().add("global_nb_nodes",Uint(0));
+  properties().add("dimensionality",Uint(0));
+  properties().add(common::Tags::dimension(),Uint(0));
 
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");

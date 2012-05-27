@@ -39,7 +39,7 @@ namespace common {
   public:
 
     /// adds a property to the list
-    PropertyList & add_property (const std::string& name, const boost::any & value);
+    PropertyList & add (const std::string& name, const boost::any & value);
 
     /// get a const property from the list
     const boost::any& property( const std::string& pname ) const;
@@ -54,7 +54,14 @@ namespace common {
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
-    void configure_property(const std::string& pname, const boost::any& val);
+    void set(const std::string& pname, const boost::any& val);
+
+    /// @brief Configure an option on this class from a human readable string.
+    ///
+    /// The string provides the configuration in one of the following formats:
+    /// - var_name:type=value
+    /// - var_name:array[type]=val1,val2
+    void set(const std::string& arg);
 
     /// check that a property with the name exists
     /// @param prop_name the property name

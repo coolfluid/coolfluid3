@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
   CF3_DEBUG_POINT;
 
-  //p.configure_property("nb_partitions", (Uint) 2);
+  //p.set("nb_partitions", (Uint) 2);
   BOOST_CHECK(true);
   p.initialize(mesh);
   CF3_DEBUG_POINT;

@@ -105,7 +105,7 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
 
   // properties
 
-  properties().add_property("norm", Real(0.) );
+  properties().add("norm", Real(0.) );
 
   // options
 
@@ -167,7 +167,7 @@ void ComputeLNorm::execute()
     std::vector<Real> norms = compute_norm(*field);
 
     /// @todo this first one should dissapear
-    properties().configure_property("norm", norms[0] );
+    properties().set("norm", norms[0] );
     properties()["norms"] = norms;
   }
   else

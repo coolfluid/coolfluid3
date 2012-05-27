@@ -56,8 +56,8 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
  // properties
 
-  properties().add_property( "iteration", 0u );
-  properties().add_property( "walltime", 0. );
+  properties().add( "iteration", 0u );
+  properties().add( "walltime", 0. );
 
   options().add(Tags::time(), m_time)
       .description("Time tracking component")

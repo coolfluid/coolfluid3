@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
 
 //////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( fill_from_vector )
+BOOST_AUTO_TEST_CASE ( set_options_from_vector )
 {
   std::vector<std::string> args(12);
   std::vector<std::string> args_mod(2);
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   args_mod[0] = "my_int:integer=42";
   args_mod[1] = "my_real_array:array[real]=1.56, 7894.012, 32.768";
 
-  options.fill_from_vector( args );
+  options.set( args );
 
   BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
 
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // III. Modify options
   ////////////
 
-  options.fill_from_vector( args_mod );
+  options.set( args_mod );
 
   BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
 

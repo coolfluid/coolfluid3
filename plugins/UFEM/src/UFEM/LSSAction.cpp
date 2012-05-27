@@ -74,7 +74,7 @@ LSSAction::LSSAction(const std::string& name) :
   dirichlet(m_implementation->dirichlet),
   solution(m_implementation->solution)
 {
-  properties().add_property("solution_tag", std::string(UFEM::Tags::solution()));
+  properties().add("solution_tag", std::string(UFEM::Tags::solution()));
 
   regist_signal( "create_lss" )
     .connect( boost::bind( &LSSAction::signal_create_lss, this, _1 ) )
@@ -192,7 +192,7 @@ std::string LSSAction::solution_tag()
 
 void LSSAction::set_solution_tag(const std::string& tag)
 {
-  properties().configure_property("solution_tag", tag);
+  properties().set("solution_tag", tag);
 }
 
 

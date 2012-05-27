@@ -53,7 +53,7 @@ Partitioner::Partitioner ( const std::string& name ) :
   cf3_assert_desc("Could not initialize zoltan", error_code == ZOLTAN_OK);
   m_zoltan_version = version;
 
-  properties().add_property("Zoltan_version",m_zoltan_version);
+  properties().add("Zoltan_version",m_zoltan_version);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -463,9 +463,9 @@ void properties_set_item(common::PropertyList* self, const std::string& name, co
   }
 }
 
-void properties_add_property(common::PropertyList* self, const std::string& name, const std::string& type, const boost::python::object& val)
+void properties_add(common::PropertyList* self, const std::string& name, const std::string& type, const boost::python::object& val)
 {
-  self->add_property(name, python_to_any(val));
+  self->add(name, python_to_any(val));
 }
 
 boost::python::list properties_keys(const common::PropertyList* self){
@@ -541,7 +541,7 @@ void def_component()
     .def("__len__", properties_get_len)
     .def("__getitem__", properties_get_item)
     .def("__setitem__", properties_set_item, "")
-    .def("add_property", properties_add_property,"")
+    .def("add", properties_add,"")
     .def("keys", properties_keys, "")
     .def("dict", properties_dict, "");
 
