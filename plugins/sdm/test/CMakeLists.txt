@@ -17,6 +17,11 @@ coolfluid_add_test( UTEST      utest-sdm-convection
                     LIBS       coolfluid_sdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
                     MPI        1 )
 
+coolfluid_add_test( UTEST      utest-sdm-diffusion
+                    CPP        utest-sdm-diffusion.cpp
+                    LIBS       coolfluid_sdm coolfluid_mesh_gmsh coolfluid_sdm_scalar
+                    MPI        1 )
+
 coolfluid_add_test( UTEST      utest-sdm-transformation
                     CPP        utest-sdm-transformation.cpp
                     LIBS       coolfluid_sdm )

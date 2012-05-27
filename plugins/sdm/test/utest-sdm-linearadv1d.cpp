@@ -165,25 +165,25 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   cfl_array.resize(boost::extents[6][5]);
 
   // RK1 (Forward Euler)
-  cfl_array[1][1] = 0.5;
-  cfl_array[2][1] = 0.16;
-  cfl_array[3][1] = 0.05;
-  cfl_array[4][1] = 0.021;
-  cfl_array[5][1] = 0.009;
+  cfl_array[1][1] = 1.;
+  cfl_array[2][1] = 0.32;
+  cfl_array[3][1] = 0.1;
+  cfl_array[4][1] = 0.042;
+  cfl_array[5][1] = 0.018;
 
   // RK2
-  cfl_array[1][2] = 0.5;
-  cfl_array[2][2] = 0.16;
-  cfl_array[3][2] = 0.05;
-  cfl_array[4][2] = 0.021;
-  cfl_array[5][2] = 0.009;
+  cfl_array[1][2] = 1.;
+  cfl_array[2][2] = 0.32;
+  cfl_array[3][2] = 0.1;
+  cfl_array[4][2] = 0.042;
+  cfl_array[5][2] = 0.018;
 
   // RK4
-  cfl_array[1][4] = 0.72;
-  cfl_array[2][4] = 0.23;
-  cfl_array[3][4] = 0.078;
-  cfl_array[4][4] = 0.028;
-  cfl_array[5][4] = 0.01275;
+  cfl_array[1][4] = 1.44;
+  cfl_array[2][4] = 0.46;
+  cfl_array[3][4] = 0.156;
+  cfl_array[4][4] = 0.056;
+  cfl_array[5][4] = 0.02550;
 
 
   cfl = cfl_array[sol_order][time_order];
