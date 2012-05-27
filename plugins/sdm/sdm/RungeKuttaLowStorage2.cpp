@@ -85,7 +85,7 @@ RungeKuttaLowStorage2::RungeKuttaLowStorage2 ( const std::string& name ) :
 
 void RungeKuttaLowStorage2::config_nb_stages()
 {
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
 
   std::vector<Real> alpha(nb_stages,0);
   std::vector<Real> beta(nb_stages,0);
@@ -192,10 +192,10 @@ void RungeKuttaLowStorage2::execute()
   link_fields();
 
   int convergence_failed = false;
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
-  std::vector<Real> alpha = options().option("alpha").value< std::vector<Real> >();
-  std::vector<Real> beta  = options().option("beta").value< std::vector<Real> >();
-  std::vector<Real> gamma = options().option("gamma").value< std::vector<Real> >();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
+  std::vector<Real> alpha = options().value< std::vector<Real> >("alpha");
+  std::vector<Real> beta  = options().value< std::vector<Real> >("beta");
+  std::vector<Real> gamma = options().value< std::vector<Real> >("gamma");
   Field& U  = *m_solution;
   Field& U0 = *m_solution_backup;
   Field& R  = *m_residual;

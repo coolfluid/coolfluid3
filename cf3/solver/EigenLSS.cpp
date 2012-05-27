@@ -209,7 +209,7 @@ void EigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  const URI config_uri = options().option("config_file").value<URI>();
+  const URI config_uri = options().value<URI>("config_file");
   const std::string config_path = config_uri.path();
 
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(config_path); // the most important in general setup

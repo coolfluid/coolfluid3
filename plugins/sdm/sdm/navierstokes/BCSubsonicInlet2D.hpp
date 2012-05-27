@@ -72,7 +72,7 @@ public:
 
   void config_gamma()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    m_gamma = options().value<Real>("gamma");
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
@@ -196,7 +196,7 @@ public:
 
   void config_gamma()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    m_gamma = options().value<Real>("gamma");
     m_gamma_minus_1 = m_gamma - 1.;
   }
 

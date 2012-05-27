@@ -102,7 +102,7 @@ void Entities::create_geometry_space(Dictionary& geometry_dict)
 
 void Entities::configure_element_type()
 {
-  const std::string etype_name = options().option("element_type").value<std::string>();
+  const std::string etype_name = options().value<std::string>("element_type");
   if (is_not_null(m_element_type))
   {
     remove_component(m_element_type->name());

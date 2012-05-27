@@ -70,7 +70,7 @@ Logger & Logger::instance()
 
 void Logger::initiate()
 {
-  bool rank0 = Core::instance().environment().options().option("only_cpu0_writes").value<bool>();
+  bool rank0 = Core::instance().environment().options().value<bool>("only_cpu0_writes");
 
   CFerror.setFilterRankZero( rank0 );
   CFwarn.setFilterRankZero( rank0 );

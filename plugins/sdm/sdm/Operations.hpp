@@ -76,7 +76,7 @@ private:
   {
     //cf3_assert(cache->options().check("space"));
     cf3_assert(entities);
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
     cf3_assert(space);
     sf = space->shape_function().handle<sdm::ShapeFunction>();
     cf3_assert(sf);
@@ -235,7 +235,7 @@ private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
     sf = space->shape_function().handle<sdm::ShapeFunction>();
 
     reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
@@ -341,7 +341,7 @@ struct SolutionPointFieldDyn : ElementCache
 private:
   virtual void compute_fixed_data()
   {
-    field = cache->access_component(options().option("field").value<common::URI>())->handle<mesh::Field>();
+    field = cache->access_component(options().value<common::URI>("field"))->handle<mesh::Field>();
     space = field->dict().space(*entities).handle<mesh::Space>();
     sf = space->shape_function().handle<sdm::ShapeFunction>();
   }
@@ -440,7 +440,7 @@ struct FluxPointFieldDyn : ElementCache
 private:
   virtual void compute_fixed_data()
   {
-    field = cache->access_component(options().option("field").value<common::URI>())->handle<mesh::Field>();
+    field = cache->access_component(options().value<common::URI>("field"))->handle<mesh::Field>();
     space = field->dict().space(*entities).handle<mesh::Space>();
     sf = space->shape_function().handle<sdm::ShapeFunction>();
     reconstruct_to_flux_points.build_coefficients(sf);
@@ -533,7 +533,7 @@ public:
 //private:
 //  virtual void compute_fixed_data()
 //  {
-//    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+//    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
 //    sf = space->shape_function().handle<sdm::ShapeFunction>();
 //    gradient_reconstruct_to_flux_points.build_coefficients(sf);
 //    grad_field_in_flx_pts.resize(sf->nb_flx_pts());

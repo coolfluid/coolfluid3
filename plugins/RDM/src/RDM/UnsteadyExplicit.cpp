@@ -91,7 +91,7 @@ UnsteadyExplicit::~UnsteadyExplicit() {}
 Model& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
 
-  const Uint rkorder = options().option("rkorder").value<Uint>();
+  const Uint rkorder = options().value<Uint>("rkorder");
 
   // (1) create the model
 

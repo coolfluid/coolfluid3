@@ -74,7 +74,7 @@ LinEuler3D::LinEuler3D( const std::string& name ) :
 
 void LinEuler3D::config_mean_velocity()
 {
-  std::vector<Real> U0 = options().option("U0").value< std::vector<Real> >();
+  std::vector<Real> U0 = options().value< std::vector<Real> >("U0");
   m_u0[XX] = U0[XX];
   m_u0[YY] = U0[YY];
   m_u0[ZZ] = U0[ZZ];

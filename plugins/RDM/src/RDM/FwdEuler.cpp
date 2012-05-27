@@ -64,7 +64,7 @@ void FwdEuler::execute()
   CFinfo << "PPPPPPPPPPPPPP4: " << residual.uri().path() << CFendl;
   CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed.uri().path() << CFendl;
 
-  const Real CFL = options().option("cfl").value<Real>();
+  const Real CFL = options().value<Real>("cfl");
 
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();

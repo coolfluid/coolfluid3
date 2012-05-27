@@ -93,7 +93,7 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
   bc->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    bc->options().set("regions", solver().options().option("regions").value< std::vector<common::URI> >());
+    bc->options().set("regions", solver().options().value< std::vector<common::URI> >("regions"));
   else
     bc->options().set("regions", regions);
 

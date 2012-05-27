@@ -113,13 +113,13 @@ bool TimeStepping::stop_condition()
     ++nb_criteria;
   }
 
-  if (options().option("time_accurate").value<bool>())
+  if (options().value<bool>("time_accurate"))
   {
     if (m_time->current_time() + 1e-12 > m_time->end_time())
       return true;
   }
 
-  if (m_time->iter() >= options().option("max_iteration").value<Uint>())
+  if (m_time->iter() >= options().value<Uint>("max_iteration"))
     return true; // stop
 
   return finish;
@@ -142,7 +142,7 @@ void TimeStepping::execute()
     // (1) the pre actions - pre-process, user defined actions, etc
 
     solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set(sdm::Tags::time(),m_time);
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("time_accurate",options().option("time_accurate").value<bool>());
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("time_accurate",options().value<bool>("time_accurate"));
     std::vector<Real> vars(2);
     vars[0] = properties().value<Uint>("iteration");
     vars[1] = m_time->current_time();
@@ -187,7 +187,7 @@ void TimeStepping::execute()
 
     history()->save_entry();
 
-    if (options().option("time_accurate").value<bool>())
+    if (options().value<bool>("time_accurate"))
       CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm[0] <<"]" << CFendl;
     else
       CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm[0] << "]" << CFendl;

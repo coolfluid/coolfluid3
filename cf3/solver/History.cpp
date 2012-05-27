@@ -69,7 +69,7 @@ void History::set(const std::string& var_name, const Real& var_value)
   {
     if (m_variables->nb_vars() == 0)
     {
-      const Uint dim = options().option("dimension").value<Uint>();
+      const Uint dim = options().value<Uint>("dimension");
       if ( dim == 0u)
         throw common::SetupError(FromHere(), "Dimension of "+uri().string()+" not set");
       m_variables->options().set("dimension",dim);
@@ -133,7 +133,7 @@ void History::save_entry()
       if (!m_file)
       {
         flush();
-        open_file(m_file,options().option("file").value<URI>());
+        open_file(m_file,options().value<URI>("file"));
         write_file(m_file);
         m_file.flush();
       }

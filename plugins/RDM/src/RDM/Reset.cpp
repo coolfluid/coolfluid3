@@ -57,7 +57,7 @@ Reset::Reset ( const std::string& name ) : solver::Action(name)
 
 void Reset::config_fields()
 {
-  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
+  std::vector<URI> vec = options().value< std::vector<URI> >("Fields");
 
   boost_foreach(const URI field_path, vec)
   {
@@ -75,7 +75,7 @@ void Reset::config_fields()
 
 void Reset::config_field_tags()
 {
-  std::vector<std::string> vec = options().option("FieldTags").value< std::vector<std::string> >();
+  std::vector<std::string> vec = options().value< std::vector<std::string> >("FieldTags");
 
   RDSolver& mysolver = *solver().handle<RDSolver>();
 

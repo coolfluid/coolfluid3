@@ -52,7 +52,7 @@ bool CriterionAbsResidual::operator()()
   if (is_null(m_iter_comp)) throw SetupError(FromHere(),"Component holding iteration number was not set in ["+uri().string()+"]");
   Component& comp_iter = *m_iter_comp;
 
-  const Uint cur_iter = comp_iter.options().option("iter").value<Uint>();
+  const Uint cur_iter = comp_iter.options().value<Uint>("iter");
 
   return ( cur_iter > m_max_iter );
 }

@@ -136,7 +136,7 @@ void LSSAction::on_regions_set()
   if(m_implementation->m_updating) // avoid recursion
     return;
   
-  m_implementation->m_lss = options().option("lss").value< Handle<LSS::System> >();
+  m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
     return;
 

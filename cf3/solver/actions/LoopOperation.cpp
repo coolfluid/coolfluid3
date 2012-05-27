@@ -56,7 +56,7 @@ void LoopOperation::config_elements()
   // otherwise this would get triggered
   if (m_call_config_elements)
   {
-    const URI uri = options().option("elements").value<URI>();
+    const URI uri = options().value<URI>("elements");
     m_elements = access_component_checked(uri)->handle<Entities>();
     if ( is_null(m_elements) )
       throw CastingFailed (FromHere(), "Elements must be of a Entities or derived type");

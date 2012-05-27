@@ -184,7 +184,7 @@ void Writer::write_file(std::fstream& file)
          << ", E=" << nb_elems
          << ", DATAPACKING=BLOCK"
          << ", ZONETYPE=" << zone_type(etype);
-    if (cell_centered_var_ids.size() && options().option("cell_centred").value<bool>())
+    if (cell_centered_var_ids.size() && options().value<bool>("cell_centred"))
     {
       file << ",VARLOCATION=(["<<cell_centered_var_ids[0];
       for (Uint i=1; i<cell_centered_var_ids.size(); ++i)
@@ -307,7 +307,7 @@ void Writer::write_file(std::fstream& file)
               const Space& field_space = field.space(elements);
               RealVector field_data (field_space.shape_function().nb_nodes());
 
-              if (options().option("cell_centred").value<bool>())
+              if (options().value<bool>("cell_centred"))
               {
                 boost::shared_ptr< ShapeFunction > P0_cell_centred = boost::dynamic_pointer_cast<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
@@ -391,7 +391,7 @@ void Writer::write_file(std::fstream& file)
             else
             {
               // field not defined for this zone, so write zeros
-              if (options().option("cell_centred").value<bool>())
+              if (options().value<bool>("cell_centred"))
                 file << nb_elems << "*" << 0.;
               else
                 file << used_nodes.size() << "*" << 0.;

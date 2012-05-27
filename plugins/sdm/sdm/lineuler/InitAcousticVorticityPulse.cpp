@@ -61,7 +61,7 @@ InitAcousticVorticityPulse::InitAcousticVorticityPulse( const std::string& name 
 void InitAcousticVorticityPulse::execute()
 {
   RealVector2 coord;
-  Real time = options().option("time").value<Real>();
+  Real time = options().value<Real>("time");
 
   cf3_assert(m_field);
   cf3_assert(m_field->coordinates().row_size()>=DIM_2D);

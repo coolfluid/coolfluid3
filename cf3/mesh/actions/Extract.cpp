@@ -106,7 +106,7 @@ void Extract::execute()
   // Storage of regions to keep
   std::list<std::string> keep_region_paths;
 
-  std::vector<std::string> args = options().option("Regions").value< std::vector<std::string> >();
+  std::vector<std::string> args = options().value< std::vector<std::string> >("Regions");
 
   // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)

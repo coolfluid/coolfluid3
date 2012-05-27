@@ -375,7 +375,7 @@ void Interpolator::interpolate_vars(const Field& source_field, const common::Tab
   m_source_vars = source_vars;
   m_target_vars = target_vars;
 
-  if (options().option("store").value<bool>())
+  if (options().value<bool>("store"))
   {
     if (    source_field.dict().uri().string() != m_source_dict_uri.string()
          || m_source_dict_size != source_field.size()

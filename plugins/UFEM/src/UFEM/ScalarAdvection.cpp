@@ -81,7 +81,7 @@ void ScalarAdvection::trigger_scalar_name()
   boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Scalar name is obtained from an option
-  MeshTerm<0, ScalarField> Phi(options().option("scalar_name").value<std::string>(), solution_tag());
+  MeshTerm<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
   MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
 
   // Set the proto expression that handles the assembly

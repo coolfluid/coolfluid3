@@ -40,7 +40,7 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
 
 void NavierStokesPhysics::trigger_rho()
 {
-  m_coeffs.one_over_rho = 1. / options().option("density").value<Real>();
+  m_coeffs.one_over_rho = 1. / options().value<Real>("density");
   BOOST_FOREACH(SUPGCoeffs* coeffs, m_linked_coeffs)
   {
     coeffs->one_over_rho = m_coeffs.one_over_rho;

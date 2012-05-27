@@ -66,7 +66,7 @@ InitialCondition::~InitialCondition()
 
 void InitialCondition::trigger_tag()
 {
-  const std::string field_tag = options().option("field_tag").value<std::string>();
+  const std::string field_tag = options().value<std::string>("field_tag");
   if(field_tag.empty())
     return;
 
@@ -100,7 +100,7 @@ void InitialCondition::execute()
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
   
-  const std::string field_tag = options().option("field_tag").value<std::string>();
+  const std::string field_tag = options().value<std::string>("field_tag");
   VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), field_tag);
 
   // Construct a vector with the values to use

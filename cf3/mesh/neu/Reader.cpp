@@ -131,10 +131,10 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-  if (options().option("read_boundaries").value<bool>())
+  if (options().value<bool>("read_boundaries"))
     read_boundaries();
 
-  if (options().option("read_groups").value<bool>())
+  if (options().value<bool>("read_groups"))
     read_groups();
 
   // clean-up
@@ -146,7 +146,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
   {
     elements.rank().resize(elements.size());
-    Uint my_rank = options().option("part").value<Uint>();
+    Uint my_rank = options().value<Uint>("part");
     for (Uint e=0; e<elements.size(); ++e)
     {
       elements.rank()[e] = my_rank;
@@ -239,7 +239,7 @@ void Reader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (options().option("nb_parts").value<Uint>() > 1)
+  if (options().value<Uint>("nb_parts") > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line

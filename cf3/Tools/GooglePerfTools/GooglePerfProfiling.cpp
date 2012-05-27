@@ -38,7 +38,7 @@ void GooglePerfProfiling::start_profiling()
 {
   if( !m_profiling )
   {
-    const std::string file_path = options().option("file_path").value<URI>().path();
+    const std::string file_path = options().value<URI>("file_path").path();
     ProfilerStart(file_path.c_str());
     CFinfo <<  type_name() << ": Saving profile data to: " << file_path << CFendl;
     m_profiling = true;

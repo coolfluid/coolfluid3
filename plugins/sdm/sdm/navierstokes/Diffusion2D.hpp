@@ -78,11 +78,11 @@ public:
 
   void config_constants()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    m_gamma = options().value<Real>("gamma");
     m_gamma_minus_1 = m_gamma-1.;
-    m_R     = options().option("R").value<Real>();
-    m_k     = options().option("k").value<Real>();
-    m_mu    = options().option("mu").value<Real>();
+    m_R     = options().value<Real>("R");
+    m_k     = options().value<Real>("k");
+    m_mu    = options().value<Real>("mu");
     m_Cp    = m_gamma*m_R/m_gamma_minus_1;
   }
 

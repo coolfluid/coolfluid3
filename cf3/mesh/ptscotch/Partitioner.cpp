@@ -161,7 +161,7 @@ void Partitioner::partition_graph()
 
   //PECheckPoint(1,"  begin SCOTCH_dgraphPart()");
   if (SCOTCH_dgraphPart(&graph,
-                       options().option("nb_parts").value<Uint>(),
+                       options().value<Uint>("nb_parts"),
                        &stradat,
                        &partloctab[0]))
     throw BadValue (FromHere(), "Could not partition PT-scotch graph");

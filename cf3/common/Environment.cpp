@@ -121,7 +121,7 @@ Environment::~Environment()
 
 void Environment::trigger_only_cpu0_writes()
 {
-  bool opt = options().option("only_cpu0_writes").value<bool>();
+  bool opt = options().value<bool>("only_cpu0_writes");
 
   CFerror.setFilterRankZero( opt );
   CFwarn.setFilterRankZero( opt );
@@ -133,49 +133,49 @@ void Environment::trigger_only_cpu0_writes()
 
 void Environment::trigger_assertion_throws()
 {
-  AssertionManager::instance().AssertionThrows = options().option("assertion_throws").value<bool>();
+  AssertionManager::instance().AssertionThrows = options().value<bool>("assertion_throws");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_assertion_backtrace()
 {
-  AssertionManager::instance().AssertionDumps = options().option("assertion_backtrace").value<bool>();
+  AssertionManager::instance().AssertionDumps = options().value<bool>("assertion_backtrace");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_disable_assertions()
 {
-  AssertionManager::instance().DoAssertions = ! options().option("disable_assertions").value<bool>();
+  AssertionManager::instance().DoAssertions = ! options().value<bool>("disable_assertions");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_exception_outputs()
 {
-  ExceptionManager::instance().ExceptionOutputs = options().option("exception_outputs").value<bool>();
+  ExceptionManager::instance().ExceptionOutputs = options().value<bool>("exception_outputs");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_exception_backtrace()
 {
-  ExceptionManager::instance().ExceptionDumps = options().option("exception_backtrace").value<bool>();
+  ExceptionManager::instance().ExceptionDumps = options().value<bool>("exception_backtrace");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_exception_aborts()
 {
-  ExceptionManager::instance().ExceptionAborts = options().option("exception_aborts").value<bool>();
+  ExceptionManager::instance().ExceptionAborts = options().value<bool>("exception_aborts");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Environment::trigger_log_level()
 {
-  Logger::instance().set_log_level(options().option("log_level").value<Uint>());
+  Logger::instance().set_log_level(options().value<Uint>("log_level"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

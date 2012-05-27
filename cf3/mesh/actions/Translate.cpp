@@ -57,7 +57,7 @@ Translate::Translate( const std::string& name )
 void Translate::execute()
 {
   // Get options
-  std::vector<Real> vec = options().option("vector").value< std::vector<Real> >();
+  std::vector<Real> vec = options().value< std::vector<Real> >("vector");
   const Uint dim = m_mesh->dimension();
   Uint d=0;
 

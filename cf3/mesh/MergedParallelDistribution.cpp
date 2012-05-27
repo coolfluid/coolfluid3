@@ -57,7 +57,7 @@ MergedParallelDistribution::MergedParallelDistribution ( const std::string& name
 
 void MergedParallelDistribution::config_nb_obj ()
 {
-  m_nb_obj = options().option("nb_obj").value< std::vector<Uint> >();
+  m_nb_obj = options().value< std::vector<Uint> >("nb_obj");
   boost_foreach(Handle< ParallelDistribution > hash, m_subhash)
     remove_component(hash->name());
   m_subhash.resize(0);
@@ -76,7 +76,7 @@ void MergedParallelDistribution::config_nb_obj ()
 
 void MergedParallelDistribution::config_nb_parts ()
 {
-  m_nb_parts = options().option("nb_parts").value<Uint>();
+  m_nb_parts = options().value<Uint>("nb_parts");
   if (m_subhash.size())
   {
     boost_foreach(Handle< ParallelDistribution > hash, m_subhash)

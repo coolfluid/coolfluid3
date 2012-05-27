@@ -40,7 +40,7 @@ MeshGenerator::MeshGenerator ( const std::string& name  ) :
 
 void MeshGenerator::config_mesh()
 {
-  URI mesh_uri = options().option("mesh").value<URI>();
+  URI mesh_uri = options().value<URI>("mesh");
   if ( Handle< Component > found_mesh = Core::instance().root().access_component( mesh_uri ) )
   {
     m_mesh = Handle<Mesh>(found_mesh);

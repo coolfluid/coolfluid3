@@ -82,8 +82,8 @@ void ComputeUpdateCoefficient::execute()
 
   Field& wave_speed = *m_wave_speed;
   Field& update_coeff = *m_update_coeff;
-  Real cfl = options().option("cfl").value<Real>();
-  if (options().option("time_accurate").value<bool>()) // global time stepping
+  Real cfl = options().value<Real>("cfl");
+  if (options().value<bool>("time_accurate")) // global time stepping
   {
     if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
 
@@ -94,7 +94,7 @@ void ComputeUpdateCoefficient::execute()
     /// compute time step
     //  -----------------
     /// - take user-defined time step
-    Real dt = time.options().option("time_step").value<Real>();
+    Real dt = time.options().value<Real>("time_step");
     if (dt==0.) dt = math::Consts::real_max();
 
     /// - Make time step stricter through the CFL number
@@ -116,7 +116,7 @@ void ComputeUpdateCoefficient::execute()
     dt = glb_min_dt;
 
     /// - Make sure we reach milestones and final simulation time
-    Real tf = limit_end_time(time.current_time(), time.options().option("end_time").value<Real>());
+    Real tf = limit_end_time(time.current_time(), time.options().value<Real>("end_time"));
     if( time.current_time() + dt + m_tolerance > tf )
       dt = tf - time.current_time();
 
@@ -151,7 +151,7 @@ void ComputeUpdateCoefficient::execute()
 
 Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
 {
-  const Real milestone_dt  =  m_time->options().option("time_step").value<Real>();
+  const Real milestone_dt  =  m_time->options().value<Real>("time_step");
   if (milestone_dt == 0)
     return end_time;
 

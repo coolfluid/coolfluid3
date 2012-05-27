@@ -57,7 +57,7 @@ bool CriterionMilestoneIteration::operator()()
 {
   /// @bug normally  option("milestone_rate").value<Uint>() should be used
   /// but that throws a bad any_cast exception somehow !?
-  const Uint rate = options().option("milestone_rate").value<int>();
+  const Uint rate = options().value<int>("milestone_rate");
   if ( rate == 0 )
     return false;
 

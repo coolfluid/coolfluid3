@@ -469,7 +469,7 @@ void Writer::write()
   fout.close();
 
   // Write the parallel header, if needed
-  if(PE::Comm::instance().rank() == 0 || options().option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || options().value<bool>("distributed_files"))
   {
     URI pvtu_path = my_dir / (basename + ".pvtu");
 

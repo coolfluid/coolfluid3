@@ -88,7 +88,7 @@ solver::Action& InitialConditions::create_initial_condition(const std::string& n
 
   if( regions.empty() ) // if user did not specify, then use the one from the solver
   {
-    ic->options().set("regions" , solver().options().option("regions").value< std::vector<common::URI> >() );
+    ic->options().set("regions" , solver().options().value< std::vector<common::URI> >("regions") );
   }
   else
   {
@@ -115,7 +115,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
   }
   else // if user did not specify, then use the whole topology (all regions)
   {
-    regions = solver().options().option("regions").value< std::vector<common::URI> >();
+    regions = solver().options().value< std::vector<common::URI> >("regions");
   }
 
   solver::Action& created_component = create_initial_condition(name,type,regions);

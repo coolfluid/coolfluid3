@@ -91,7 +91,7 @@ void RK::execute()
   Field& residual     = *m_residual;
 
   /// @todo should be used later to calculate automatically the \Delta t
-     //const Real CFL = options().option("cfl").value<Real>();
+     //const Real CFL = options().value<Real>("cfl");
 
   /// @todo maybe better to directly store dual_area inverse
 

@@ -241,7 +241,7 @@ void SDSolver::config_regions()
   if ( is_null(m_mesh) )
     throw SetupError(FromHere(), "First configure the mesh");
   m_regions.clear();
-  const std::vector<URI> regions = options().option("regions").value< std::vector<URI> >();
+  const std::vector<URI> regions = options().value< std::vector<URI> >("regions");
   boost_foreach(const URI& region_uri, regions)
   {
     Handle<Component> comp = m_mesh->access_component(region_uri);

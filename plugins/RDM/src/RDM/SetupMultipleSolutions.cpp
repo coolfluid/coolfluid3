@@ -57,7 +57,7 @@ void SetupMultipleSolutions::execute()
   if(is_null(m_mesh))
     throw SetupError(FromHere(), "SetupMultipleSolution has no configured mesh in [" + uri().string() + "]" );
 
-  const Uint nb_levels = options().option("nb_levels").value<Uint>();
+  const Uint nb_levels = options().value<Uint>("nb_levels");
 
   Mesh& mesh = *m_mesh;
   Group& fields = mysolver.fields();
@@ -67,7 +67,7 @@ void SetupMultipleSolutions::execute()
   // get the geometry field group
   Handle<Dictionary> geometry = mesh.geometry_fields().handle<Dictionary>();
 
-  const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
+  const std::string solution_space = mysolver.options().value<std::string>("solution_space");
 
   // check that the geometry belongs to the same space as selected by the user
 

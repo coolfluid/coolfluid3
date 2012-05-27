@@ -53,7 +53,7 @@ ComputeVolume::ComputeVolume ( const std::string& name ) :
 
 void ComputeVolume::config_field()
 {
-  URI uri = options().option("volume").value<URI>();
+  URI uri = options().value<URI>("volume");
   m_volume = Core::instance().root().access_component(uri)->handle<Field>();
 }
 

@@ -73,7 +73,7 @@ void NavierStokes::trigger_use_specializations()
     remove_component(name);
   }
   
-  const bool use_specializations = options().option("use_specializations").value<bool>();
+  const bool use_specializations = options().value<bool>("use_specializations");
   
   MeshTerm<1, ScalarField> p("Pressure", solution_tag());
   MeshTerm<0, VectorField> u("Velocity", solution_tag());

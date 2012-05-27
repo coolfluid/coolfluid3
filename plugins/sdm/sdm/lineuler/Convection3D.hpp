@@ -54,16 +54,16 @@ public:
 
   void config_constants()
   {
-    p.gamma = options().option("gamma").value<Real>();
-    p.rho0  = options().option("rho0").value<Real>();
-    p.P0  = options().option("p0").value<Real>();
+    p.gamma = options().value<Real>("gamma");
+    p.rho0  = options().value<Real>("rho0");
+    p.P0  = options().value<Real>("p0");
 
     p.inv_rho0 = 1./p.rho0;
 
     p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
     p.inv_c = 1./p.c;
 
-    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
+    std::vector<Real> U0 = options().value<std::vector<Real> >("U0");
     cf3_assert(U0.size() == NDIM);
     for (Uint d=0; d<NDIM; ++d)
       p.u0[d] = U0[d];

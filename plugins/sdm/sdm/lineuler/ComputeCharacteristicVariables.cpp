@@ -77,7 +77,7 @@ void ComputeCharacteristicVariables::execute()
   RealVector sol_vec(physical_model().neqs());
 
   RealVector n(physical_model().ndim());
-  std::vector<Real> normal = options().option("normal").value< std::vector<Real> >();
+  std::vector<Real> normal = options().value< std::vector<Real> >("normal");
   n[XX]=normal[XX];
   n[YY]=normal[YY];
 

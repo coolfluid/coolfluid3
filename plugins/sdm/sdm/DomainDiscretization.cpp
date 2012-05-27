@@ -111,7 +111,7 @@ Term& DomainDiscretization::create_term( const std::string& type,
   term->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    term->options().set("regions", solver().options().option("regions").value< std::vector<common::URI> >() );
+    term->options().set("regions", solver().options().value< std::vector<common::URI> >("regions") );
   else
     term->options().set("regions", regions);
 

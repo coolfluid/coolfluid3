@@ -89,7 +89,7 @@ public:
 
 //  void config_U0()
 //  {
-//    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
+//    std::vector<Real> U0 = options().value<std::vector<Real> >("U0");
 //    m_U0 = RealVectorNDIM::MapType(&U0.front(),U0.size());
 //  }
 

@@ -88,7 +88,7 @@ RungeKuttaLowStorage3::RungeKuttaLowStorage3 ( const std::string& name ) :
 
 void RungeKuttaLowStorage3::config_nb_stages()
 {
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
 
   // Here can be some default coefficients set for the given number of stages
 }
@@ -147,13 +147,13 @@ void RungeKuttaLowStorage3::execute()
   link_fields();
 
   int convergence_failed = false;
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
-  std::vector<Real> delta_vec = options().option("delta").value< std::vector<Real> >();
-  std::vector<Real> gamma1_vec = options().option("gamma1").value< std::vector<Real> >();
-  std::vector<Real> gamma2_vec = options().option("gamma2").value< std::vector<Real> >();
-  std::vector<Real> gamma3_vec = options().option("gamma3").value< std::vector<Real> >();
-  std::vector<Real> beta_vec  = options().option("beta").value< std::vector<Real> >();
-  std::vector<Real> c_vec     = options().option("c").value< std::vector<Real> >();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
+  std::vector<Real> delta_vec = options().value< std::vector<Real> >("delta");
+  std::vector<Real> gamma1_vec = options().value< std::vector<Real> >("gamma1");
+  std::vector<Real> gamma2_vec = options().value< std::vector<Real> >("gamma2");
+  std::vector<Real> gamma3_vec = options().value< std::vector<Real> >("gamma3");
+  std::vector<Real> beta_vec  = options().value< std::vector<Real> >("beta");
+  std::vector<Real> c_vec     = options().value< std::vector<Real> >("c");
 
   if (c_vec[0] != 0)
     throw NotSupported(FromHere(),

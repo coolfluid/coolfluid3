@@ -31,7 +31,7 @@ ParsedFunctionExpression::ParsedFunctionExpression(const std::string& name) : Pr
 
 void ParsedFunctionExpression::trigger_value()
 {
-  const std::vector<std::string> functions = options().option("value").value< std::vector<std::string> >();
+  const std::vector<std::string> functions = options().value< std::vector<std::string> >("value");
 
   // Set variables according to the dimension
   std::vector<std::string> vars;

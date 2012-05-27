@@ -202,7 +202,7 @@ void Domain::signal_write_mesh(SignalArgs& node)
 
 Uint Domain::dimension() const
 {
-  Uint dim = options().option("dimension").value<Uint>();
+  Uint dim = options().value<Uint>("dimension");
   boost_foreach (const Mesh& mesh, find_components<Mesh>(*this))
   {
     dim = std::max(dim,mesh.dimension());

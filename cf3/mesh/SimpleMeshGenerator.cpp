@@ -118,11 +118,11 @@ void SimpleMeshGenerator::create_line()
   const Uint x_segments = m_nb_cells[XX];
   const Real x_len = m_lengths[XX];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
@@ -282,11 +282,11 @@ void SimpleMeshGenerator::create_rectangle()
   const Real y_len = m_lengths[YY];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
   const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
@@ -578,11 +578,11 @@ void SimpleMeshGenerator::create_box()
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
   const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
   const Real z_offset = (m_offsets.empty() ? 0. : m_offsets[ZZ]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");

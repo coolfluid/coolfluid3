@@ -33,7 +33,7 @@ private:
 
     void config_Omega()
     {
-        std::vector<Real> Omega_vec= options().option("Omega").value< std::vector<Real> >();
+        std::vector<Real> Omega_vec= options().value< std::vector<Real> >("Omega");
         cf3_assert(Omega_vec.size() == 3);
         cf3_assert(Omega_vec[0] == 0);
         cf3_assert(Omega_vec[1] == 0);
@@ -44,7 +44,7 @@ private:
 
     void config_Vtrans()
     {
-        std::vector<Real> Vtrans_vec= options().option("Vtrans").value< std::vector<Real> >();
+        std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
         cf3_assert(Vtrans_vec.size() == 2);
         Vtrans[0] = Vtrans_vec[0];
         Vtrans[1] = Vtrans_vec[1];
@@ -52,7 +52,7 @@ private:
 
     void config_a0()
     {
-        std::vector<Real> a0_vec= options().option("a0").value< std::vector<Real> >();
+        std::vector<Real> a0_vec= options().value< std::vector<Real> >("a0");
         cf3_assert(a0_vec.size() == 3);
         cf3_assert(a0_vec[2] == 0);
         a0[0] = a0_vec[0];
@@ -62,7 +62,7 @@ private:
 
     void config_dOmegadt()
     {
-        std::vector<Real> dOmegadt_vec= options().option("dOmegadt").value< std::vector<Real> >();
+        std::vector<Real> dOmegadt_vec= options().value< std::vector<Real> >("dOmegadt");
         cf3_assert(dOmegadt_vec.size() == 3);
         cf3_assert(dOmegadt_vec[0] == 0);
         cf3_assert(dOmegadt_vec[1] == 0);

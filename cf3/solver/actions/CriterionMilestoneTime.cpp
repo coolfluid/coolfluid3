@@ -51,7 +51,7 @@ CriterionMilestoneTime::~CriterionMilestoneTime()
 
 bool CriterionMilestoneTime::operator()()
 {
-  const Real dt = m_time->options().option("time_step").value<Real>();
+  const Real dt = m_time->options().value<Real>("time_step");
   if ( dt == 0. )
     return true;
 

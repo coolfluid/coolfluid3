@@ -58,13 +58,13 @@ void PeriodicWriteMesh::execute()
 
   const Uint iteration = boost::any_cast<Uint> ( m_iterator->properties().property("iteration") );
 
-  const Uint saverate = options().option("saverate").value<Uint>();
+  const Uint saverate = options().value<Uint>("saverate");
 
   if (saverate == 0) return;
 
   if ( iteration % saverate == 0 ) // write mesh
   {
-    URI filepath = options().option("filepath").value<URI>();
+    URI filepath = options().value<URI>("filepath");
 
     /// @note writes all fields to the mesh
 

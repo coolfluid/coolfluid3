@@ -93,16 +93,16 @@ void Octtree::create_octtree()
 
   const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
 
-  if (options().option("nb_cells").value<std::vector<Uint> >().size() > 0)
+  if (options().value<std::vector<Uint> >("nb_cells").size() > 0)
   {
-    m_N = options().option("nb_cells").value<std::vector<Uint> >();
+    m_N = options().value<std::vector<Uint> >("nb_cells");
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*options().option("nb_elems_per_cell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*options().value<Uint>("nb_elems_per_cell");
 
     for (Uint d=0; d<m_dim; ++d)
     {

@@ -73,7 +73,7 @@ LinEuler2D::LinEuler2D( const std::string& name ) :
 
 void LinEuler2D::config_mean_velocity()
 {
-  std::vector<Real> U0 = options().option("U0").value< std::vector<Real> >();
+  std::vector<Real> U0 = options().value< std::vector<Real> >("U0");
   m_u0[XX] = U0[XX];
   m_u0[YY] = U0[YY];
 }

@@ -77,9 +77,9 @@ Rotate::Rotate( const std::string& name )
 void Rotate::execute()
 {
   // Get options
-  const Real theta = options().option("angle").value<Real>();
-  std::vector<Real> axis_dir_vec = options().option("axis_direction").value< std::vector<Real> >();
-  std::vector<Real> axis_point_vec = options().option("axis_point").value< std::vector<Real> >();
+  const Real theta = options().value<Real>("angle");
+  std::vector<Real> axis_dir_vec = options().value< std::vector<Real> >("axis_direction");
+  std::vector<Real> axis_point_vec = options().value< std::vector<Real> >("axis_point");
 
   // In 2D, use 2-dimensional algorithm
   if (m_mesh->dimension() == 2u)

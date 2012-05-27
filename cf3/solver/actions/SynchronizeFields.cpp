@@ -45,7 +45,7 @@ SynchronizeFields::SynchronizeFields ( const std::string& name ) : solver::Actio
 
 void SynchronizeFields::config_fields()
 {
-  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
+  std::vector<URI> vec = options().value< std::vector<URI> >("Fields");
 
   boost_foreach(const URI field_path, vec)
   {

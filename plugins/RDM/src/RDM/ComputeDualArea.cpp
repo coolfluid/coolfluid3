@@ -52,7 +52,7 @@ void ComputeDualArea::create_dual_area_field()
   RDM::RDSolver& rdsolver = *solver().handle< RDM::RDSolver >();
   Mesh& mymesh = mesh();
 
-  const std::string solution_space = rdsolver.options().option("solution_space").value<std::string>();
+  const std::string solution_space = rdsolver.options().value<std::string>("solution_space");
 
   Dictionary& solution_grp = find_component_with_tag<Dictionary>( mymesh, solution_space );
 

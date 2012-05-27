@@ -82,14 +82,14 @@ void ChannelGenerator::execute()
   if(is_not_null(get_child("ParallelBlocks")))
     remove_component("ParallelBlocks");
 
-  const Uint x_segs = options().option("x_segments").value<Uint>();
-  const Uint y_segs_half = options().option("y_segments_half").value<Uint>();
-  const Uint z_segs = options().option("z_segments").value<Uint>();
+  const Uint x_segs = options().value<Uint>("x_segments");
+  const Uint y_segs_half = options().value<Uint>("y_segments_half");
+  const Uint z_segs = options().value<Uint>("z_segments");
 
-  const Real length = options().option("length").value<Real>();
-  const Real half_height = options().option("half_height").value<Real>();
-  const Real width = options().option("width").value<Real>();
-  const Real ratio = options().option("grading").value<Real>();
+  const Real length = options().value<Real>("length");
+  const Real half_height = options().value<Real>("half_height");
+  const Real width = options().value<Real>("width");
+  const Real ratio = options().value<Real>("grading");
 
   BlockArrays& blocks = *create_component<BlockArrays>("BlockArrays");
 
@@ -126,13 +126,13 @@ void ChannelGenerator::execute()
   *blocks.create_patch("left", 2) << 0 << 6 << 8 << 2 << 2 << 8 << 10 << 4;
   *blocks.create_patch("right", 2) << 1 << 3 << 9 << 7 << 3 << 5 << 11 << 9;
 
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
 
   Mesh& mesh = *m_mesh;
 
   if(PE::Comm::instance().is_active() && nb_parts > 1)
   {
-    const Uint cell_overlap = options().option("cell_overlap").value<Uint>();
+    const Uint cell_overlap = options().value<Uint>("cell_overlap");
     blocks.options().set("overlap", cell_overlap);
   }
 

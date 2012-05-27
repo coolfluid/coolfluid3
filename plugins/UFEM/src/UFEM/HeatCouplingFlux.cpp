@@ -94,7 +94,7 @@ void HeatCouplingFlux::trigger_gradient_region()
 void HeatCouplingFlux::trigger_setup()
 {
   // Get the tags for the used fields
-  const std::string temperature_field_tag = options().option("temperature_field_tag").value<std::string>();
+  const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
 
   Handle<ProtoAction> compute_gradient(get_child("ComputeGradient"));
   Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));

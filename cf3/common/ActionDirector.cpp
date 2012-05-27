@@ -69,7 +69,7 @@ void ActionDirector::trigger_disabled_actions()
 {
   m_disabled_actions.clear();
 
-  std::vector<std::string> disabled_actions = options().option("disabled_actions").value< std::vector<std::string> >();
+  std::vector<std::string> disabled_actions = options().value< std::vector<std::string> >("disabled_actions");
   m_disabled_actions.insert(disabled_actions.begin(), disabled_actions.end());
 }
 

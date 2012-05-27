@@ -32,7 +32,7 @@ private:
 
     void config_Omega()
     {
-        std::vector<Real> Omega_vec= options().option("Omega").value< std::vector<Real> >();
+        std::vector<Real> Omega_vec= options().value< std::vector<Real> >("Omega");
         cf3_assert(Omega_vec.size() == 3);
         cf3_assert(Omega_vec[0] == 0);
         cf3_assert(Omega_vec[1] == 0);
@@ -43,7 +43,7 @@ private:
 
     void config_Vtrans()
     {
-        std::vector<Real> Vtrans_vec= options().option("Vtrans").value< std::vector<Real> >();
+        std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
         cf3_assert(Vtrans_vec.size() == 2);
         Vtrans[0] = Vtrans_vec[0];
         Vtrans[1] = Vtrans_vec[1];

@@ -100,7 +100,7 @@ void Core::initiate ( int argc, char** argv )
   m_argc = argc;
   m_argv = argv;
 
-  if( environment().options().option("regist_signal_handlers").value<bool>() )
+  if( environment().options().value<bool>("regist_signal_handlers") )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
   // initiate the logging facility

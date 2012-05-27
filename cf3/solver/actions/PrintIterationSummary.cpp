@@ -68,8 +68,8 @@ void PrintIterationSummary::execute()
   Uint iter = my_iter->properties().value<Uint>("iteration");
   Real norm = my_norm->properties().value<Real>("norm");
 
-  Uint print_rate = options().option("print_rate").value<Uint>();
-  bool check_convergence = options().option("check_convergence").value<bool>();
+  Uint print_rate = options().value<Uint>("print_rate");
+  bool check_convergence = options().value<bool>("check_convergence");
 
   if( print_rate > 0 && !(iter % print_rate) )
     CFinfo << "iter ["    << std::setw(4)  << iter << "]"

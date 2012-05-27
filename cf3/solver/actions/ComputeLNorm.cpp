@@ -134,7 +134,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
   std::vector<Real> norms(field.row_size(), 0.);
 
-  const Uint order = options().option("order").value<Uint>();
+  const Uint order = options().value<Uint>("order");
 
   // sum of all processors
 
@@ -150,7 +150,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
   }
 
-  if( options().option("scale").value<bool>() && order )
+  if( options().value<bool>("scale") && order )
   {
     for (Uint i=0; i<norms.size(); ++i)
       norms[i] /= nb_rows;
@@ -161,7 +161,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
 void ComputeLNorm::execute()
 {
-  Handle<Field> field( follow_link(access_component(options().option("field").value<URI>())) );
+  Handle<Field> field( follow_link(access_component(options().value<URI>("field"))) );
   if(is_not_null(field))
   {
     std::vector<Real> norms = compute_norm(*field);

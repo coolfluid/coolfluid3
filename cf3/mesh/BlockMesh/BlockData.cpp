@@ -1741,7 +1741,7 @@ void BlockArrays::create_mesh(Mesh& mesh)
     element_offset += nb_elems;
   }
 
-  const Uint overlap = options().option("overlap").value<Uint>();
+  const Uint overlap = options().value<Uint>("overlap");
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
     mesh.block_mesh_changed(true); // avoid triggering mesh_changed before the load event is raised

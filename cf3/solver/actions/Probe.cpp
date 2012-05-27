@@ -85,7 +85,7 @@ void Probe::execute()
     throw SetupError(FromHere(), "Option \"dict\" was not configured in "+uri().string());
 
   // Take the coordinate from the options
-  std::vector<Real> opt_coord = options().option("coordinate").value< std::vector<Real> >();
+  std::vector<Real> opt_coord = options().value< std::vector<Real> >("coordinate");
   RealVector coord(opt_coord.size());
   math::copy(opt_coord,coord);
 
@@ -181,7 +181,7 @@ void Probe::set(const std::string& var_name, const Real& var_value)
   {
     if (m_variables->nb_vars() == 0)
     {
-      m_variables->options().set("dimension",(Uint)options().option("coordinate").value<std::vector<Real> >().size());
+      m_variables->options().set("dimension",(Uint)options().value<std::vector<Real> >("coordinate").size());
     }
 
     m_variables->push_back(var_name,math::VariablesDescriptor::Dimensionalities::SCALAR);

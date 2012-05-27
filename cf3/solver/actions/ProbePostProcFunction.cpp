@@ -54,7 +54,7 @@ void ProbePostProcFunction::execute()
 
 void ProbePostProcFunction::update_function()
 {
-  std::string str = options().option("function").value<std::string>();
+  std::string str = options().value<std::string>("function");
   std::vector<std::string> split;
   boost::split(split, str, boost::is_any_of("="));
 
