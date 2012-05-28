@@ -118,14 +118,17 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   // Setup mesh
   boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
-  create_rectangle->options().configure_option("mesh",domain.uri()/"Mesh");
+  create_rectangle->options().set("mesh",domain.uri()/"Mesh");
   std::vector<Real> lengths(2);     lengths[XX] = length;            lengths[YY]  = 0.5*length;
   std::vector<Uint> nb_cells(2);    nb_cells[XX] = 2*nb_segments;    nb_cells[YY] = nb_segments;
-  create_rectangle->options().configure_option("lengths",lengths);
-  create_rectangle->options().configure_option("nb_cells",nb_cells);
+  create_rectangle->options().set("lengths",lengths);
+  create_rectangle->options().set("nb_cells",nb_cells);
   Mesh& mesh = create_rectangle->generate();
 
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("Initialize")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   bc->add_constant_bc("left", "VectorVariable", outside_temp);
   bc->add_constant_bc("right", "VectorVariable", outside_temp);
@@ -134,8 +137,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   // Configure timings
   Time& time = model.create_time();
-  time.options().configure_option("time_step", dt);
-  time.options().configure_option("end_time", end_time);
+  time.options().set("time_step", dt);
+  time.options().set("end_time", end_time);
 
   // Run the solver
   model.simulate();

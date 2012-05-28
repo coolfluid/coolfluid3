@@ -45,12 +45,12 @@ Iterate::Iterate( const std::string& name  ) :
   "It can have one or more stop criteria\n";
   properties()["description"] = description;
 
-  options().add_option("verbose", m_verbose)
+  options().add("verbose", m_verbose)
       .description("Print iteration number")
       .pretty_name("Verbose")
       .link_to(&m_verbose);
 
-  options().add_option("max_iter", m_max_iter)
+  options().add("max_iter", m_max_iter)
       .description("Maximal number of iterations")
       .pretty_name("Max Iterations")
       .link_to(&m_max_iter);

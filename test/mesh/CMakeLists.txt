@@ -22,7 +22,8 @@ coolfluid_add_test( UTEST utest-mesh-boundingbox
 
 coolfluid_add_test( UTEST utest-mesh-interpolation
                     CPP   utest-mesh-interpolation.cpp
-                    LIBS  coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
+                    LIBS  coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 
+                    MPI   2)
 
 
 coolfluid_add_test( UTEST utest-mesh-unified-data
@@ -172,6 +173,9 @@ coolfluid_add_test( UTEST utest-mesh-lagrangep1-quad3d
                     CPP   utest-mesh-lagrangep1-quad3d.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
 
+coolfluid_add_test( UTEST utest-mesh-lagrangep2-quad2d
+                    CPP   utest-mesh-lagrangep2-quad2d.cpp
+                    LIBS  coolfluid_mesh_lagrangep2 )
 
 coolfluid_add_test( UTEST utest-matrix-interpolation
                     CPP   utest-matrix-interpolation.cpp
@@ -259,6 +263,9 @@ coolfluid_add_test( UTEST    utest-mesh-simplemeshgenerator
                     CPP      utest-mesh-simplemeshgenerator.cpp
                     LIBS     coolfluid_mesh
                     MPI      2 )
+
+coolfluid_add_test( UTEST    utest-mesh-triangulator
+                    PYTHON   utest-mesh-triangulator.py)
 
 ############################################################################################
 

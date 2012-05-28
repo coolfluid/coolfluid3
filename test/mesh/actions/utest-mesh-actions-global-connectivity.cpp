@@ -78,13 +78,13 @@ BOOST_AUTO_TEST_CASE( build )
   Core::instance().initiate(m_argc,m_argv);
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  meshreader->options().configure_option("read_boundaries",false);
+  meshreader->options().set("read_boundaries",false);
   meshreader->read_mesh_into("../../../resources/quadtriag.neu",*mesh);
 
 
   boost::shared_ptr<GlobalNumbering> build_glb_numbering = allocate_component<GlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
-  build_glb_numbering->options().configure_option("debug",true);
+  build_glb_numbering->options().set("debug",true);
   build_glb_numbering->execute();
 
   boost::shared_ptr<GlobalConnectivity> build_connectivity = allocate_component<GlobalConnectivity>("build_glb_connectivity");

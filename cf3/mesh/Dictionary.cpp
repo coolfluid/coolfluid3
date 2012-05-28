@@ -201,7 +201,7 @@ Field& Dictionary::create_field(const std::string &name, math::VariablesDescript
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
   {
     cf3_assert( is_not_null( parent() ));
-    field->descriptor().options().configure_option(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
+    field->descriptor().options().set(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
   }
   field->resize(size());
 
@@ -473,10 +473,10 @@ void Dictionary::signature_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option<std::string>("name")
+  options.add<std::string>("name")
       .description("Name of the field" );
 
-  options.add_option<std::string>("variables")
+  options.add<std::string>("variables")
       .description("Variables description of the field" );
 
 }
@@ -497,7 +497,7 @@ void Dictionary::signal_create_field( SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

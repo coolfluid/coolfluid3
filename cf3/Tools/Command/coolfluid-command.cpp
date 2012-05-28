@@ -35,10 +35,10 @@ int main(int argc, char * argv[])
 
     // --------------------------------------------------------
 
-    Core::instance().environment().options().configure_option("exception_outputs",false);
-    Core::instance().environment().options().configure_option("exception_backtrace",false);
-    Core::instance().environment().options().configure_option("exception_aborts",false);
-    Core::instance().environment().options().configure_option("assertion_throws",true);
+    Core::instance().environment().options().set("exception_outputs",false);
+    Core::instance().environment().options().set("exception_backtrace",false);
+    Core::instance().environment().options().set("exception_aborts",false);
+    Core::instance().environment().options().set("assertion_throws",true);
 
     // Initialize empty commands
     options_description desc;

@@ -87,7 +87,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 
   Handle<Field> solution_field( follow_link( solver().handle<RDSolver>()->fields().get_child( RDM::Tags::solution() ) ) );
 
-  ic->options().configure_option( "field", solution_field );
+  ic->options().set( "field", solution_field );
 
   std::vector<URI> regions;
   if( options.check("regions") )
@@ -98,11 +98,11 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   {
     regions.push_back(mesh().topology().uri());
   }
-  ic->options().configure_option("regions" , regions);
+  ic->options().set("regions" , regions);
 
-  ic->options().configure_option( RDM::Tags::mesh(), m_mesh );
-  ic->options().configure_option( RDM::Tags::solver() , m_solver );
-  ic->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
+  ic->options().set( RDM::Tags::mesh(), m_mesh );
+  ic->options().set( RDM::Tags::solver() , m_solver );
+  ic->options().set( RDM::Tags::physical_model() , m_physical_model );
 }
 
 
@@ -112,7 +112,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created initial condition" );
 
   // regions
@@ -121,7 +121,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the initial condition [optional]");
 }
 

@@ -53,7 +53,7 @@ Journal::Journal (const std::string & name)
 
   signal("list_journal")->hidden(true);
 
-  options().add_option("RecordReplies", false)
+  options().add("RecordReplies", false)
       .description("If true, both signal and reply frames are recorded. If "
                         "false, only signal frames are recorded.\nRecording replies "
                         "will significantly increase the journal size and the memory used.");

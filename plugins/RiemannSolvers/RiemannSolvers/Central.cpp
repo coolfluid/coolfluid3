@@ -57,7 +57,7 @@ void Central::trigger_physical_model()
   {
     if (Handle<Component> found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
-      options().configure_option("solution_vars",found_solution_vars->uri());
+      options().set("solution_vars",found_solution_vars->uri());
     }
     else
     {

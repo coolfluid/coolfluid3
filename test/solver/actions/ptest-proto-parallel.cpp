@@ -98,7 +98,7 @@ struct ProtoParallelFixture :
     BlockMesh::BlockArrays& blocks = *dom.create_component<BlockMesh::BlockArrays>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     blocks.partition_blocks(PE::Comm::instance().size(), XX);
-    blocks.options().configure_option("overlap", 0u);
+    blocks.options().set("overlap", 0u);
     blocks.create_mesh(mesh);
 
     // Set up variables
@@ -261,9 +261,9 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("fields",fields);
+  writer.options().set("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
   writer.execute();
 }
 
@@ -291,9 +291,9 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.options().set("fields",fields);
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
   writer.execute();
 }
 

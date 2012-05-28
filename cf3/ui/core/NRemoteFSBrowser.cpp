@@ -19,6 +19,7 @@
 
 #include "common/XML/FileOperations.hpp"
 
+
 using namespace cf3::common;
 using namespace cf3::common::XML;
 
@@ -43,7 +44,8 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
       .connect(boost::bind(&NRemoteFSBrowser::reply_read_dir, this, _1));
   regist_signal("list_favorites")
       .connect(boost::bind(&NRemoteFSBrowser::reply_list_favorites, this, _1));
-
+  regist_signal("copy_request")
+      .connect(boost::bind(&NRemoteFSBrowser::reply_copy_request, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -157,6 +159,23 @@ void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
 
 /////////////////////////////////////////////////////////////////////////////
 
+void NRemoteFSBrowser::copy_request ( std::vector<std::string> & parameters ){
+
+  SignalFrame frame("copy_request", uri(), SERVER_CORE_PATH);
+  frame.set_array<std::string>("parameters", parameters, ";");
+  frame.options().flush();
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void NRemoteFSBrowser::reply_copy_request ( common::SignalArgs & node ){
+
+  emit copy_finished();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 const QStringListModel * NRemoteFSBrowser::completion_model() const
 {
   return m_completion_model;
@@ -192,10 +211,10 @@ void NRemoteFSBrowser::open_dir ( const QString & path )
     it++;
   }
 
-  options.add_option("dirPath", path.toStdString());
-  options.add_option("includeFiles", m_include_files);
-  options.add_option("includeNoExtensions", m_include_no_extensions);
-  options.add_option("extensions", vect);
+  options.add("dirPath", path.toStdString());
+  options.add("includeFiles", m_include_files);
+  options.add("includeNoExtensions", m_include_no_extensions);
+  options.add("extensions", vect);
 
   options.flush();
 
@@ -218,10 +237,10 @@ void NRemoteFSBrowser::open_special_dir ( const QString & path )
     it++;
   }
 
-  options.add_option("dirPath", path.toStdString());
-  options.add_option("includeFiles", m_include_files);
-  options.add_option("includeNoExtensions", m_include_no_extensions);
-  options.add_option("extensions", vect);
+  options.add("dirPath", path.toStdString());
+  options.add("includeFiles", m_include_files);
+  options.add("includeNoExtensions", m_include_no_extensions);
+  options.add("extensions", vect);
 
   options.flush();
 
@@ -425,6 +444,14 @@ void NRemoteFSBrowser::send_favorites(const QStringList &favs)
   frame.options().flush();
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+Qt::ItemFlags NRemoteFSBrowser::flags(const QModelIndex &index) const
+{
+  return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
+                       | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled);
 }
 
 /////////////////////////////////////////////////////////////////////////////

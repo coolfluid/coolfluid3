@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 {
   // debug output
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Setup a model
   ModelUnsteady& model = *Core::instance().root().create_component<ModelUnsteady>("Model");
@@ -203,20 +203,24 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
   boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
-  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
-  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
-  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  create_line->options().set("mesh",domain.uri()/"Mesh");
+  create_line->options().set("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().set("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
 
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("Initialize")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("InitializeAnalytical")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   bc->add_constant_bc("xneg", "Temperature", ambient_temp);
   bc->add_constant_bc("xpos", "Temperature", ambient_temp);
 
   // Configure timings
   Time& time = model.create_time();
-  time.options().configure_option("time_step", dt);
-  time.options().configure_option("end_time", end_time);
+  time.options().set("time_step", dt);
+  time.options().set("end_time", end_time);
 
   // Run the solver
   model.simulate();

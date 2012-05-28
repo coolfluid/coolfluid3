@@ -37,6 +37,10 @@ list( APPEND coolfluid_mesh_actions_files
   LibActions.cpp
   LoadBalance.hpp
   LoadBalance.cpp
+  Rotate.hpp
+  Rotate.cpp
+  Translate.hpp
+  Translate.cpp
 )
 
 list( APPEND coolfluid_mesh_actions_cflibs coolfluid_mesh )

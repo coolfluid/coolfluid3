@@ -40,7 +40,7 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option(common::Tags::dimension(), 0u)
+    m_component.options().add(common::Tags::dimension(), 0u)
       .pretty_name("Dimension")
       .description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       .mark_basic()
@@ -66,7 +66,7 @@ struct VariablesDescriptor::Implementation
     m_internal_names.push_back(name);
     m_user_names.push_back(name);
 
-    m_component.options().add_option(variable_property_name(name), name)
+    m_component.options().add(variable_property_name(name), name)
         .pretty_name(name + std::string(" Variable Name"))
         .description("Variable name for variable " + name)
         .link_to(&m_user_names.back());
@@ -509,7 +509,7 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  options().configure_option(common::Tags::dimension(), dimension);
+  options().set(common::Tags::dimension(), dimension);
   m_implementation->set_variables(description);
 }
 

@@ -26,7 +26,7 @@ struct NeumannBCTag
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef ComponentWrapper<math::LSS::System, NeumannBCTag> NeumannBC;
+typedef LSSWrapper<NeumannBCTag> NeumannBC;
 
 struct NeumannBCSetter :
   boost::proto::transform< NeumannBCSetter >
@@ -42,9 +42,9 @@ struct NeumannBCSetter :
               , typename impl::data_param data
     ) const
     {
-      math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
-      const Uint sys_idx = data.node_idx*data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
-      lss.rhs()->set_value(sys_idx, state);
+      const Uint node_idx = boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx);
+      const Uint sys_idx = node_idx*data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
+      boost::proto::value( boost::proto::child_c<0>(expr) ).rhs().set_value(sys_idx, state);
     }
   };
 };
@@ -58,7 +58,7 @@ struct NeumannBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, NeumannBCTag> >,
+        boost::proto::terminal< LSSWrapperImpl<NeumannBCTag> >,
         FieldTypes
       >,
       GrammarT

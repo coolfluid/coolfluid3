@@ -73,8 +73,8 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
-  Core::instance().environment().options().configure_option("regist_signal_handlers",true);
+  Core::instance().environment().options().set("log_level",(Uint)INFO);
+  Core::instance().environment().options().set("regist_signal_handlers",true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,10 +88,10 @@ BOOST_AUTO_TEST_CASE( test )
   // Generate a mesh
   Handle<Mesh> generated_mesh = Core::instance().root().create_component<Mesh>("mesh");
   boost::shared_ptr< MeshGenerator > generate_mesh = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","meshgenerator");
-  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,25));
-  generate_mesh->options().configure_option("lengths",std::vector<Real>(dim,2.));
-  generate_mesh->options().configure_option("mesh",generated_mesh->uri());
-  generate_mesh->options().configure_option("bdry",false);
+  generate_mesh->options().set("nb_cells",std::vector<Uint>(dim,25));
+  generate_mesh->options().set("lengths",std::vector<Real>(dim,2.));
+  generate_mesh->options().set("mesh",generated_mesh->uri());
+  generate_mesh->options().set("bdry",false);
   generate_mesh->execute();
 
   PE::Comm::instance().barrier();
@@ -116,10 +116,10 @@ BOOST_AUTO_TEST_CASE( test )
   // -  out-utest-mesh-gmsh-parallel_P0.msh
   // -  out-utest-mesh-gmsh-parallel_P1.msh
   boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  write_mesh->options().configure_option("mesh",generated_mesh);
+  write_mesh->options().set("mesh",generated_mesh);
   if (p2)
-    write_mesh->options().configure_option("fields",std::vector<URI>(1,generated_mesh->uri()/"P2/glb_node_idx"));
-  write_mesh->options().configure_option("file",URI("out-utest-mesh-gmsh-parallel.msh"));
+    write_mesh->options().set("fields",std::vector<URI>(1,generated_mesh->uri()/"P2/glb_node_idx"));
+  write_mesh->options().set("file",URI("out-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
   }
 
@@ -127,14 +127,14 @@ BOOST_AUTO_TEST_CASE( test )
 
   // Read the two mesh-files created previously
   boost::shared_ptr< MeshReader > read_mesh = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
-  read_mesh->options().configure_option("read_fields",true);
+  read_mesh->options().set("read_fields",true);
 
   std::vector< Handle<Mesh> > meshes(PE::Comm::instance().size());
   for (Uint p=0; p<PE::Comm::instance().size(); ++p)
   {
     meshes[p] = Core::instance().root().create_component<Mesh>("mesh"+to_str(p));
-    read_mesh->options().configure_option("mesh",meshes[p]);
-    read_mesh->options().configure_option("file",URI("out-utest-mesh-gmsh-parallel_P"+to_str(p)+".msh"));
+    read_mesh->options().set("mesh",meshes[p]);
+    read_mesh->options().set("file",URI("out-utest-mesh-gmsh-parallel_P"+to_str(p)+".msh"));
     read_mesh->execute();
     CFinfo << "mesh["<<p<<"]: nb_cells = " << meshes[p]->properties().value_str("global_nb_cells") << CFendl;
     CFinfo << "mesh["<<p<<"]: nb_nodes = " << meshes[p]->properties().value_str("global_nb_nodes") << CFendl;
@@ -142,17 +142,17 @@ BOOST_AUTO_TEST_CASE( test )
     PE::Comm::instance().barrier();
 
     boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-    write_mesh->options().configure_option("mesh",meshes[p]);
+    write_mesh->options().set("mesh",meshes[p]);
 
     std::cout << meshes[p]->tree() << std::endl;
     if (p2)
     {
       if (continuous)
-        write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"geometry/glb_node_idx"));
+        write_mesh->options().set("fields",std::vector<URI>(1,meshes[p]->uri()/"geometry/glb_node_idx"));
       else
-        write_mesh->options().configure_option("fields",std::vector<URI>(1,meshes[p]->uri()/"discontinuous_geometry/glb_node_idx"));
+        write_mesh->options().set("fields",std::vector<URI>(1,meshes[p]->uri()/"discontinuous_geometry/glb_node_idx"));
     }
-    write_mesh->options().configure_option("file",URI("out-P"+to_str(p)+"-utest-mesh-gmsh-parallel.msh"));
+    write_mesh->options().set("file",URI("out-P"+to_str(p)+"-utest-mesh-gmsh-parallel.msh"));
     write_mesh->execute();
   }
 
@@ -185,15 +185,15 @@ BOOST_AUTO_TEST_CASE( test )
   // Write the merged mesh
   CFinfo << "Write file \"out-merged-utest-mesh-gmsh-parallel.msh\" " << CFendl;
   boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  write_mesh->options().configure_option("mesh",merged_mesh);
+  write_mesh->options().set("mesh",merged_mesh);
   if (p2)
   {
     if (continuous)
-      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
+      write_mesh->options().set("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
     else
-      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
+      write_mesh->options().set("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
   }
-  write_mesh->options().configure_option("file",URI("out-merged-utest-mesh-gmsh-parallel.msh"));
+  write_mesh->options().set("file",URI("out-merged-utest-mesh-gmsh-parallel.msh"));
   write_mesh->execute();
   }
 
@@ -213,13 +213,13 @@ BOOST_AUTO_TEST_CASE( test )
   {
     CFinfo << "Write file \"out-loadbalanced-utest-mesh-gmsh-parallel.msh\" " << CFendl;
     boost::shared_ptr< MeshWriter > write_mesh = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-    write_mesh->options().configure_option("mesh",merged_mesh);
+    write_mesh->options().set("mesh",merged_mesh);
     if (continuous)
-      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
+      write_mesh->options().set("fields",std::vector<URI>(1,merged_mesh->uri()/"geometry/glb_node_idx"));
     else
-      write_mesh->options().configure_option("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
-    write_mesh->options().configure_option("file",URI("out-loadbalanced-utest-mesh-gmsh-parallel.msh"));
-    write_mesh->options().configure_option("enable_overlap",false);
+      write_mesh->options().set("fields",std::vector<URI>(1,merged_mesh->uri()/"discontinuous_geometry/glb_node_idx"));
+    write_mesh->options().set("file",URI("out-loadbalanced-utest-mesh-gmsh-parallel.msh"));
+    write_mesh->options().set("enable_overlap",false);
     write_mesh->execute();
   }
 }

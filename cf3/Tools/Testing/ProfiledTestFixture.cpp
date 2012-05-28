@@ -41,9 +41,9 @@ ProfiledTestFixture::ProfiledTestFixture() :
 {
   if(!Core::instance().root().get_child("Profiler"))
   {
-    Core::instance().environment().options().configure_option("exception_aborts",false);
-    Core::instance().environment().options().configure_option("exception_backtrace",false);
-    Core::instance().environment().options().configure_option("exception_outputs",false);
+    Core::instance().environment().options().set("exception_aborts",false);
+    Core::instance().environment().options().set("exception_backtrace",false);
+    Core::instance().environment().options().set("exception_outputs",false);
     const std::string prof_name ( "cf3.Tools.GooglePerfTools.GooglePerfProfiling" );
     try
     {
@@ -87,7 +87,7 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
   if( Core::instance().profiler() )
   {
     m_current_filename = m_prefix + "-" + unit.p_name.get() + job_suffix.str() + ".pprof";
-    Core::instance().profiler()->options().configure_option("file_path", URI(boost::filesystem::path(m_profile_dir / m_current_filename).string(), URI::Scheme::FILE));
+    Core::instance().profiler()->options().set("file_path", URI(boost::filesystem::path(m_profile_dir / m_current_filename).string(), URI::Scheme::FILE));
     Core::instance().profiler()->start_profiling();
   }
 }

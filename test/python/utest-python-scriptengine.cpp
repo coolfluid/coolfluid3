@@ -7,12 +7,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::Python::ScriptEngine"
 
+#include "python/ScriptEngine.hpp"
+
 #include <boost/test/unit_test.hpp>
 
 #include "common/BoostFilesystem.hpp"
 #include "common/Core.hpp"
 
-#include "python/ScriptEngine.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -31,14 +32,12 @@ BOOST_AUTO_TEST_CASE( ExecuteScript )
   Component& root = Core::instance().root();
 
   Handle<python::ScriptEngine> engine = root.create_component<python::ScriptEngine>("PythonEngine");
-
   boost::filesystem::fstream file(boost::unit_test::framework::master_test_suite().argv[1]);
 
   std::stringstream script_stream;
   script_stream << file.rdbuf();
 
   engine->execute_script(script_stream.str());
-
   BOOST_CHECK(is_not_null(root.get_child("group")));
   BOOST_CHECK(is_not_null(root.get_child("group")->get_child("journal")));
 }

@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelOverlap_test" << CFendl;
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
 
 
   // Create or read the mesh
@@ -227,23 +227,23 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//rect"));
+  meshgenerator->options().set("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 50;
   nb_cells[1] = 50;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
-  meshgenerator->options().configure_option("nb_cells",nb_cells);
-  meshgenerator->options().configure_option("lengths",lengths);
-  meshgenerator->options().configure_option("bdry",true);
+  meshgenerator->options().set("nb_cells",nb_cells);
+  meshgenerator->options().set("lengths",lengths);
+  meshgenerator->options().set("bdry",true);
   Mesh& mesh = meshgenerator->generate();
 #endif
 
 #ifdef NEU
   boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-//  meshreader->options().configure_option("read_boundaries",false);
+//  meshreader->options().set("read_boundaries",false);
   boost::shared_ptr< Mesh > mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
 //  Handle< Mesh > mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.neu");
   Mesh& mesh = *mesh_ptr;
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "Global Numbering..." << CFendl;
 //  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);
   boost::shared_ptr< MeshTransformer > glb_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering");
-//  glb_numbering->options().configure_option("debug",true);
+//  glb_numbering->options().set("debug",true);
   glb_numbering->transform(mesh);
   CFinfo << "Global Numbering... done" << CFendl;
 
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "Partitioning..." << CFendl;
   boost::shared_ptr< MeshPartitioner > partitioner_ptr = boost::dynamic_pointer_cast<MeshPartitioner>(build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner"));
   MeshPartitioner& p = *partitioner_ptr;
-  p.options().configure_option("graph_package", std::string("PHG"));
+  p.options().set("graph_package", std::string("PHG"));
   p.initialize(mesh);
   p.partition_graph();
 //  p.show_changes();
@@ -352,17 +352,17 @@ BOOST_CHECK(true);
   fields_to_output.push_back(elem_rank.uri());
   fields_to_output.push_back(P2coords.uri());
 BOOST_CHECK(true);
-  tec_writer->options().configure_option("fields",fields_to_output);
-  tec_writer->options().configure_option("enable_overlap",true);
-  tec_writer->options().configure_option("mesh",mesh.handle<Mesh>());
-  tec_writer->options().configure_option("file",URI("parallel_overlap"+tec_writer->get_extensions()[0]));
+  tec_writer->options().set("fields",fields_to_output);
+  tec_writer->options().set("enable_overlap",true);
+  tec_writer->options().set("mesh",mesh.handle<Mesh>());
+  tec_writer->options().set("file",URI("parallel_overlap"+tec_writer->get_extensions()[0]));
   tec_writer->execute();
   CFinfo << "parallel_overlap_P*"+tec_writer->get_extensions()[0]+" written" << CFendl;
 BOOST_CHECK(true);
-  gmsh_writer->options().configure_option("fields",fields_to_output);
-  gmsh_writer->options().configure_option("enable_overlap",true);
-  gmsh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
-  gmsh_writer->options().configure_option("file",URI("parallel_overlap"+gmsh_writer->get_extensions()[0]));
+  gmsh_writer->options().set("fields",fields_to_output);
+  gmsh_writer->options().set("enable_overlap",true);
+  gmsh_writer->options().set("mesh",mesh.handle<Mesh>());
+  gmsh_writer->options().set("file",URI("parallel_overlap"+gmsh_writer->get_extensions()[0]));
   gmsh_writer->execute();
   CFinfo << "parallel_overlap_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;
 }

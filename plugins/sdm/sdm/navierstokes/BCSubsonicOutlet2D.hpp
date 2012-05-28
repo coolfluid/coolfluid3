@@ -33,15 +33,13 @@ public:
   static std::string type_name() { return "BCSubsonicOutlet2D"; }
   BCSubsonicOutlet2D(const std::string& name) : BCWeak< PhysData >(name)
   {
-    m_function_P.parse("100000","x,y"); // 1bar
-
-    options().add_option("P",m_function_P.function()).description("Pressure")
-        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_P, this) );
+    m_p = 101300.;
+    options().add("p",m_p).link_to(&m_p);
 
     m_gamma=1.4;
     m_gamma_minus_1=m_gamma-1.;
 
-    options().add_option("gamma", m_gamma)
+    options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) );
   }
@@ -49,7 +47,7 @@ public:
 
   void config_gamma()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    m_gamma = options().value<Real>("gamma");
     m_gamma_minus_1 = m_gamma - 1.;
   }
 

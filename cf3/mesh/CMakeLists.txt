@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_files
+  AInterpolator.hpp
+  AInterpolator.cpp
   BoundingBox.hpp
   BoundingBox.cpp
   CellFaces.hpp
@@ -38,8 +40,7 @@ list( APPEND coolfluid_mesh_files
   InterpolationFunction.cpp
   Interpolator.hpp
   Interpolator.cpp
-  LinearInterpolator.hpp
-  LinearInterpolator.cpp
+  InterpolatorTypes.cpp
   Mesh.hpp
   Mesh.cpp
   MeshElements.hpp
@@ -52,6 +53,8 @@ list( APPEND coolfluid_mesh_files
   MeshReader.cpp
   MeshTransformer.hpp
   MeshTransformer.cpp
+  MeshTriangulator.hpp
+  MeshTriangulator.cpp
   MeshWriter.hpp
   MeshWriter.cpp
   MergedParallelDistribution.hpp
@@ -71,6 +74,8 @@ list( APPEND coolfluid_mesh_files
   SimpleMeshGenerator.cpp
   Space.hpp
   Space.cpp
+  SpaceInterpolator.hpp
+  SpaceInterpolator.cpp
   StencilComputer.hpp
   StencilComputer.cpp
   StencilComputerRings.hpp
@@ -102,6 +107,9 @@ list( APPEND coolfluid_mesh_files
   MeshMetadata.cpp
   PointInterpolator.hpp
   PointInterpolator.cpp
+  PointInterpolatorT.hpp
+  PseudoLaplacianLinearInterpolation.hpp
+  PseudoLaplacianLinearInterpolation.cpp
   ShapeFunction.hpp
   ShapeFunctionT.hpp
   ShapeFunctionBase.hpp

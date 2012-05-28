@@ -38,7 +38,7 @@ ComputeVolume::ComputeVolume ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  options().add_option("volume", URI())
+  options().add("volume", URI())
       .supported_protocol(URI::Scheme::CPATH)
       .description("Field to set")
       .mark_basic()
@@ -53,7 +53,7 @@ ComputeVolume::ComputeVolume ( const std::string& name ) :
 
 void ComputeVolume::config_field()
 {
-  URI uri = options().option("volume").value<URI>();
+  URI uri = options().value<URI>("volume");
   m_volume = Core::instance().root().access_component(uri)->handle<Field>();
 }
 

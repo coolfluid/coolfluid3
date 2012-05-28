@@ -125,7 +125,7 @@ BOOST_FIXTURE_TEST_SUITE( sdm_MPITests_TestSuite, sdm_MPITests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
 //  PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().set("log_level", (Uint)INFO);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE( test_source )
     Omegaoption[2] = 0.;
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S0 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source0");
-    S0->options().configure_option("Vtrans", Vtransoption);
-    S0->options().configure_option("Omega", Omegaoption);
+    S0->options().set("Vtrans", Vtransoption);
+    S0->options().set("Omega", Omegaoption);
 
     S0->compute_source(d0, s0);
 
@@ -177,8 +177,8 @@ BOOST_AUTO_TEST_CASE( test_source )
     Omegaoption[2] = 10;
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S1 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source1");
-    S1->options().configure_option("Vtrans", Vtransoption);
-    S1->options().configure_option("Omega", Omegaoption);
+    S1->options().set("Vtrans", Vtransoption);
+    S1->options().set("Omega", Omegaoption);
 
     S1->compute_source(d1, s1);
 
@@ -202,8 +202,8 @@ BOOST_AUTO_TEST_CASE( test_source )
     Omegaoption[2] = 10;
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S2 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source2");
-    S2->options().configure_option("Vtrans", Vtransoption);
-    S2->options().configure_option("Omega", Omegaoption);
+    S2->options().set("Vtrans", Vtransoption);
+    S2->options().set("Omega", Omegaoption);
 
     S2->compute_source(d2, s2);
 
@@ -235,10 +235,10 @@ BOOST_AUTO_TEST_CASE( test_source )
     dOmegadtoption[2] = 1.;
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S3 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source3");
-    S3->options().configure_option("Vtrans", Vtransoption);
-    S3->options().configure_option("Omega", Omegaoption);
-    S3->options().configure_option("a0", a0option);
-    S3->options().configure_option("dOmegadt", dOmegadtoption);
+    S3->options().set("Vtrans", Vtransoption);
+    S3->options().set("Omega", Omegaoption);
+    S3->options().set("a0", a0option);
+    S3->options().set("dOmegadt", dOmegadtoption);
 
     S3->compute_source(d3, s3);
 
@@ -273,9 +273,9 @@ BOOST_AUTO_TEST_CASE( test_convection )
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection2D> C1 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection2D>("convection1");
 
-    C1->options().configure_option("Omega", Omegaoption);
-    C1->options().configure_option("Vtrans", Vtransoption);
-    C1->options().configure_option("gamma", 1.4);
+    C1->options().set("Omega", Omegaoption);
+    C1->options().set("Vtrans", Vtransoption);
+    C1->options().set("gamma", 1.4);
 
     C1->compute_analytical_flux(Data, normal, flux, wavespeed);
 
@@ -298,9 +298,9 @@ BOOST_AUTO_TEST_CASE( test_convection )
 
     boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection2D> C2 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection2D>("convection1");
 
-    C2->options().configure_option("Omega", Omegaoption);
-    C2->options().configure_option("Vtrans", Vtransoption);
-    C2->options().configure_option("gamma", 1.4);
+    C2->options().set("Omega", Omegaoption);
+    C2->options().set("Vtrans", Vtransoption);
+    C2->options().set("gamma", 1.4);
 
     wavespeed = 0;
     C2->compute_analytical_flux(Data, normal, flux, wavespeed);

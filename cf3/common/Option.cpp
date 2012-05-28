@@ -39,7 +39,7 @@ Option::~Option()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Option::configure_option ( XmlNode& node )
+void Option::set ( XmlNode& node )
 {
   cf3_assert ( node.is_valid() );
   change_value(extract_configured_value(node));
@@ -74,7 +74,7 @@ Option& Option::mark_basic()
 
 void Option::change_value ( const boost::any& value )
 {
-  m_value = value; // update the value
+  change_value_impl(value);
   copy_to_linked_params(m_linked_params);
 
   // call all trigger functors

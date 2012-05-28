@@ -14,6 +14,8 @@
 #include "common/CF.hpp"
 
 #include "Transforms.hpp"
+#include "ElementData.hpp"
+#include "GaussPoints.hpp"
 
 /// @file
 /// Operations used in element-wise expressions
@@ -101,6 +103,28 @@ struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   }
 };
 
+/// Possible types for mapped coords
+struct MappedCoordTerms :
+  boost::proto::or_
+  <
+    boost::proto::terminal< RealVector >,
+    boost::proto::terminal< RealVector1 >,
+    boost::proto::terminal< RealVector2 >,
+    boost::proto::terminal< RealVector3 >
+  >
+{
+};
+
+/// Transform to evalate mapped coordinates
+struct EvalMappedCoords :
+  boost::proto::or_
+  <
+    boost::proto::when<MappedCoordTerms, boost::proto::_value>,
+    GaussGrammar
+  >
+{
+};
+
 /// Base class for the implementation of operations that depend on mapped coordinates (CRTP pattern)
 template<typename ExprT, typename StateT, typename DataT, typename Derived, template<typename> class ResultType>
 struct MappedVarOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -130,7 +154,7 @@ struct MappedVarOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   /// Mapped coordinates were put in the last argument
   result_type dispatch(boost::mpl::int_<3>, typename MappedVarOpBase::expr_param expr, typename MappedVarOpBase::data_param data)
   {
-    return Derived::apply(data.support(), data.var_data(typename VarT::index_type()), boost::proto::value(boost::proto::child_c<2>(expr)));
+    return Derived::apply(data.support(), data.var_data(typename VarT::index_type()), EvalMappedCoords()(boost::proto::child_c<2>(expr), 0, data));
   }
 };
 
@@ -166,7 +190,7 @@ struct InterpolationOp : boost::proto::transform< InterpolationOp >
   {
     typedef typename VarDataType<VarT, DataT>::type VarDataT;
     typedef typename VarDataT::EvalT result_type;
-    typedef typename VarDataT::EtypeT::MappedCoordsT MappedCoordsT;
+    typedef typename VarDataT::MappedCoordsT MappedCoordsT;
 
     /// Mapped coords supplied explicitely
     result_type operator()(typename impl::expr_param, const MappedCoordsT& mapped_coords, typename impl::data_param data)

@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 1.;
@@ -166,7 +166,11 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("SetInitial")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("InitAdvectionSpeed")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("top",    "FI", 8.);
@@ -175,8 +179,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   bc->add_constant_bc("right",  "FI", 2.);
 
   model.create_time();
-  model.time().options().configure_option("end_time", 10.);
-  model.time().options().configure_option("time_step",1.);
+  model.time().options().set("end_time", 10.);
+  model.time().options().set("time_step",1.);
 
   // Run the solver
   model.simulate();

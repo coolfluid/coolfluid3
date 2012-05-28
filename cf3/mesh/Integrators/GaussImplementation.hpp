@@ -618,8 +618,11 @@ struct GaussMappedCoords
 
   static const Uint nb_points = GaussMappedCoordsImpl<Order, Shape>::nb_points;
 
-  const typename GaussMappedCoordsImpl<Order, Shape>::CoordsT coords;
-  const typename GaussMappedCoordsImpl<Order, Shape>::WeightsT weights;
+  typedef typename GaussMappedCoordsImpl<Order, Shape>::CoordsT CoordsT;
+  typedef typename GaussMappedCoordsImpl<Order, Shape>::WeightsT WeightsT;
+
+  const CoordsT coords;
+  const WeightsT weights;
 
   static const GaussMappedCoords<Order, Shape>& instance()
   {

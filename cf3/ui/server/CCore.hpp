@@ -143,6 +143,11 @@ namespace server {
     void signal_set_favorites( common::SignalArgs & node );
 
     void signal_list_favorites( common::SignalArgs & node );
+
+    /// @brief ask the server to do an scp command to copy files from the server or from the client
+    /// @param commands std::vector<std::string> containing the parameters of the scp command
+    /// each time a string with length 0 appear it means that it is a new scp command that should be done
+    void signal_copy_request( common::SignalArgs & node );
   };
 
 ////////////////////////////////////////////////////////////////////////////

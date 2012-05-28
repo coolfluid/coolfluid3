@@ -84,7 +84,7 @@ void ModelUnsteady::setup(const std::string& solver_builder_name, const std::str
 void ModelUnsteady::simulate ()
 {
   Model::simulate();
-//  time().options().configure_option("time", time().current_time() );
+//  time().options().set("time", time().current_time() );
 }
 
 
@@ -105,7 +105,7 @@ void ModelUnsteady::signal_create_time ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", time.uri());
+  reply_options.add("created_component", time.uri());
 }
 
 Time& ModelUnsteady::time()

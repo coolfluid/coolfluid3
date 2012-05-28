@@ -53,18 +53,18 @@ Octtree::Octtree( const std::string& name )
   : Component(name), m_dim(0), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  options().add_option("mesh", m_mesh)
+  options().add("mesh", m_mesh)
       .description("Mesh to create octtree from")
       .pretty_name("Mesh")
       .mark_basic()
       .link_to(&m_mesh);
 
-  options().add_option( "nb_elems_per_cell", 1u )
+  options().add( "nb_elems_per_cell", 1u )
       .description("The approximate amount of elements that are stored in a structured cell of the octtree")
       .pretty_name("Number of Elements per Octtree Cell");
 
   std::vector<Uint> dummy;
-  options().add_option( "nb_cells", dummy)
+  options().add( "nb_cells", dummy)
       .description("The number of cells in each direction of the comb. "
                         "Takes precedence over \"Number of Elements per Octtree Cell\". ")
       .pretty_name("Number of Cells");
@@ -93,16 +93,16 @@ void Octtree::create_octtree()
 
   const Uint nb_elems = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume(),true);
 
-  if (options().option("nb_cells").value<std::vector<Uint> >().size() > 0)
+  if (options().value<std::vector<Uint> >("nb_cells").size() > 0)
   {
-    m_N = options().option("nb_cells").value<std::vector<Uint> >();
+    m_N = options().value<std::vector<Uint> >("nb_cells");
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*options().option("nb_elems_per_cell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*options().value<Uint>("nb_elems_per_cell");
 
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -278,7 +278,7 @@ bool Octtree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>&
 
   static const Real tolerance = 100*math::Consts::eps();
   //CFinfo << "point " << coordinate.transpose() << " ("<<coordinate.size() << ")    dim " << m_dim << CFendl;
-  cf3_assert(coordinate.size() == static_cast<int>(m_dim));
+  cf3_assert_desc(common::to_str(coordinate.size())+"=="+common::to_str(m_dim),(coordinate.size() == static_cast<int>(m_dim)));
 
   for (Uint d=0; d<m_dim; ++d)
   {
@@ -416,30 +416,50 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
   if (m_octtree.num_elements() == 0)
     create_octtree();
 
-  if (find_octtree_cell(target_coord,m_octtree_idx))
+  cf3_assert(target_coord.size() <= (long)m_dim);
+  RealVector t_coord(m_dim);
+  for (Uint d=0; d<target_coord.size(); ++d)
+    t_coord[d] = target_coord[d];
+
+  for (Uint t=0; t<target_coord.size(); ++t)
+
+  if (find_octtree_cell(t_coord,m_octtree_idx))
   {
     m_elements_pool.clear();
-    for (Uint rings=0; rings<=1; ++rings)
+    Uint pool_size = 0;
+    Uint rings=0;
+    for ( ; pool_size==0 ; ++rings)
     {
+      pool_size=m_elements_pool.size();
       gather_elements_around_idx(m_octtree_idx,rings,m_elements_pool);
-
-      boost_foreach(const Entity& pool_elem, m_elements_pool)
+      boost_foreach(const Entity& pool_elem, boost::make_iterator_range(m_elements_pool.begin()+pool_size,m_elements_pool.end()))
       {
         cf3_assert(is_not_null(pool_elem.comp));
         const RealMatrix elem_coordinates = pool_elem.get_coordinates();
-        if (pool_elem.element_type().is_coord_in_element(target_coord,elem_coordinates))
+        if (pool_elem.element_type().is_coord_in_element(t_coord,elem_coordinates))
         {
           element = pool_elem;
           return true;
         }
-        // if arrived here, loop once more.
-        // it means no element has been found. The search is enlarged with one more ring, for possible misses.
+      }
+    }
+    // if arrived here, keep searching
+    // it means no element has been found. The search is enlarged with one more ring, for possible misses.
+    gather_elements_around_idx(m_octtree_idx,rings,m_elements_pool);
+    boost_foreach(const Entity& pool_elem, boost::make_iterator_range(m_elements_pool.begin()+pool_size,m_elements_pool.end()))
+    {
+      cf3_assert(is_not_null(pool_elem.comp));
+      const RealMatrix elem_coordinates = pool_elem.get_coordinates();
+      if (pool_elem.element_type().is_coord_in_element(t_coord,elem_coordinates))
+      {
+        element = pool_elem;
+        return true;
       }
     }
   }
-  // if arrived here, it means no element has been found. Give up.
+  // if arrived here, it means no element has been found in the octtree cell. Give up.
   element = Entity();
-  CFdebug << "coord " << target_coord.transpose() << " has not been found in any cell registered in the bounding box" << CFendl;
+  CFdebug << "coord " << t_coord.transpose() << " has not been found in the octtree cell" << CFendl;
   return false;
 }
 

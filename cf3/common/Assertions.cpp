@@ -26,7 +26,7 @@ namespace common {
 AssertionManager::AssertionManager() :
   DoAssertions    ( true ),
   AssertionDumps  ( true ),
-  AssertionThrows ( false ) {}
+  AssertionThrows ( true ) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 

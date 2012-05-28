@@ -4,5 +4,15 @@
         <file>Exception.png</file>
         <file>Info.png</file>
         <file>Warning.png</file>
+        <file>debug_arrow.png</file>
+        <file>break_point.png</file>
+        <file>action_break.png</file>
+        <file>action_line_by_line.png</file>
+        <file>action_new_script_from_history.png</file>
+        <file>action_open.png</file>
+        <file>action_pause.png</file>
+        <file>action_save.png</file>
+        <file>action_execute_script_edit.png</file>
+        <file>action_execute_script.png</file>
     </qresource>
 </RCC>

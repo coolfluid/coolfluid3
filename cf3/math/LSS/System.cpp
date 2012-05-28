@@ -50,11 +50,11 @@ common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builde
 LSS::System::System(const std::string& name) :
   Component(name)
 {
-  options().add_option( "matrix_builder" , "cf3.math.LSS.TrilinosFEVbrMatrix")
+  options().add( "matrix_builder" , "cf3.math.LSS.TrilinosFEVbrMatrix")
     .pretty_name("Matrix Builder")
     .description("Name for the builder used to create the LSS matrix");
 
-  options().add_option( "vector_builder" , "")
+  options().add( "vector_builder" , "")
     .pretty_name("Vector Builder")
     .description("Name for the builder used for the vectors. If left empty, this is obtained from the vector_type property of the matrix");
 
@@ -328,7 +328,7 @@ void LSS::System::signature_print(common::SignalArgs& args)
 {
   common::XML::SignalOptions options( args );
 
-  options.add_option<std::string>("file_name")
+  options.add<std::string>("file_name")
     .pretty_name("File name")
     .description("tecplot file to print the matrix to");
 }

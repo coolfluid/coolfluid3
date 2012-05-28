@@ -39,9 +39,9 @@ private:
   virtual void initialize()
   {
     BCWeak< PhysData >::initialize();   
-    correct_non_reflective_term->options().configure_option("solver",m_solver);
-    correct_non_reflective_term->options().configure_option("mesh",m_mesh);
-    correct_non_reflective_term->options().configure_option("physical_model",m_physical_model);
+    correct_non_reflective_term->options().set("solver",m_solver);
+    correct_non_reflective_term->options().set("mesh",m_mesh);
+    correct_non_reflective_term->options().set("physical_model",m_physical_model);
     correct_non_reflective_term->initialize();
   }
 

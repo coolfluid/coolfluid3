@@ -53,27 +53,27 @@ RungeKuttaLowStorage2::RungeKuttaLowStorage2 ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("order", 1u)
+  options().add("order", 1u)
       .description("Order of the Runge-Kutta integration")
       .pretty_name("RK order");
 
-  options().add_option("nb_stages", 1u)
+  options().add("nb_stages", 1u)
       .description("Number of stages of the Runge-Kutta integration")
       .pretty_name("RK stages")
       .attach_trigger( boost::bind( &RungeKuttaLowStorage2::config_nb_stages , this ) );
 
   std::vector<Real> dummy(4);
-  options().add_option("alpha", dummy)
+  options().add("alpha", dummy)
       .description("RK coefficients alpha")
       .pretty_name("alpha")
       .link_to(&m_alpha);
 
-  options().add_option("beta", dummy)
+  options().add("beta", dummy)
       .description("RK coefficients beta")
       .pretty_name("beta")
       .link_to(&m_beta);
 
-  options().add_option("gamma", dummy)
+  options().add("gamma", dummy)
       .description("RK coefficients gamma")
       .pretty_name("gamma")
       .link_to(&m_gamma);
@@ -85,7 +85,7 @@ RungeKuttaLowStorage2::RungeKuttaLowStorage2 ( const std::string& name ) :
 
 void RungeKuttaLowStorage2::config_nb_stages()
 {
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
 
   std::vector<Real> alpha(nb_stages,0);
   std::vector<Real> beta(nb_stages,0);
@@ -95,14 +95,14 @@ void RungeKuttaLowStorage2::config_nb_stages()
   switch (nb_stages)
   {
     case 1: // Simple Forward Euler
-      options().configure_option("order",1u);
+      options().set("order",1u);
       alpha[0] = 0.0;
       beta[0] = 1.0;
       gamma[0] = 0.0;
       break;
 
     case 2: // R-K 2
-      options().configure_option("order",2u);
+      options().set("order",2u);
 
       alpha[0] = 0.0;
       alpha[1] = 0.0;
@@ -115,7 +115,7 @@ void RungeKuttaLowStorage2::config_nb_stages()
       break;
 
     case 3:  // 3rd order TVD R-K scheme
-      options().configure_option("order",3u);
+      options().set("order",3u);
 
       alpha[0] = 0.0;
       alpha[1] = 1.0/4.0;
@@ -131,7 +131,7 @@ void RungeKuttaLowStorage2::config_nb_stages()
       break;
 
     case 4:    // R-K 4
-      options().configure_option("order",4u);
+      options().set("order",4u);
 
       alpha[0] = 0.0;
       alpha[1] = 0.0;
@@ -152,9 +152,9 @@ void RungeKuttaLowStorage2::config_nb_stages()
 
   if (gamma[0] != 0) throw BadValue(FromHere(),"gamma[0] must be zero for consistent time marching");
 
-  options().configure_option("alpha",alpha);
-  options().configure_option("beta",beta);
-  options().configure_option("gamma",gamma);
+  options().set("alpha",alpha);
+  options().set("beta",beta);
+  options().set("gamma",gamma);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -192,10 +192,10 @@ void RungeKuttaLowStorage2::execute()
   link_fields();
 
   int convergence_failed = false;
-  const Uint nb_stages = options().option("nb_stages").value<Uint>();
-  std::vector<Real> alpha = options().option("alpha").value< std::vector<Real> >();
-  std::vector<Real> beta  = options().option("beta").value< std::vector<Real> >();
-  std::vector<Real> gamma = options().option("gamma").value< std::vector<Real> >();
+  const Uint nb_stages = options().value<Uint>("nb_stages");
+  std::vector<Real> alpha = options().value< std::vector<Real> >("alpha");
+  std::vector<Real> beta  = options().value< std::vector<Real> >("beta");
+  std::vector<Real> gamma = options().value< std::vector<Real> >("gamma");
   Field& U  = *m_solution;
   Field& U0 = *m_solution_backup;
   Field& R  = *m_residual;
@@ -286,7 +286,7 @@ void RungeKuttaLowStorage2::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option( "iteration", iter );
+  opts.add( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);

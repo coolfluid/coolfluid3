@@ -37,7 +37,7 @@ public:
   Diffusion1D(const std::string& name) : DiffusiveTerm< PhysData >(name)
   {
     m_mu = 1.;
-    options().add_option("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
+    options().add("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
   }
 
   virtual ~Diffusion1D() {}

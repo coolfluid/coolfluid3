@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("read_groups",true);
+  meshreader->options().set("read_groups",true);
 
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>( "mesh" );
@@ -113,19 +113,19 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   fields.push_back(cell_centred.uri());
   fields.push_back(nodesP2.uri());
   boost::shared_ptr< MeshWriter > tec_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
-  tec_writer->options().configure_option("cell_centred",true);
-  tec_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  tec_writer->options().configure_option("fields",fields);
-  tec_writer->options().configure_option("file",URI("quadtriag.plt"));
+  tec_writer->options().set("cell_centred",true);
+  tec_writer->options().set("mesh",mesh.handle<Mesh const>());
+  tec_writer->options().set("fields",fields);
+  tec_writer->options().set("file",URI("quadtriag.plt"));
   tec_writer->execute();
 
   std::vector<URI> regions;
-  regions.push_back(mesh.uri()/"topology/quadtriag/inlet");
-  regions.push_back(mesh.uri()/"topology/quadtriag/outlet");
-  regions.push_back(mesh.uri()/"topology/quadtriag/wall");
-  regions.push_back(mesh.uri()/"topology/quadtriag/liquid");
-  tec_writer->options().configure_option("regions",regions);
-  tec_writer->options().configure_option("file",URI("quadtriag_filtered.plt"));
+  regions.push_back(mesh.uri()/"topology/inlet");
+  regions.push_back(mesh.uri()/"topology/outlet");
+  regions.push_back(mesh.uri()/"topology/wall");
+  regions.push_back(mesh.uri()/"topology/liquid");
+  tec_writer->options().set("regions",regions);
+  tec_writer->options().set("file",URI("quadtriag_filtered.plt"));
   tec_writer->execute();
 
   BOOST_CHECK(true);
@@ -138,10 +138,10 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("number_of_processors",(Uint) Comm::instance().size());
-  meshreader->options().configure_option("rank",(Uint) Comm::instance().rank());
-  meshreader->options().configure_option("Repartition",false);
-  meshreader->options().configure_option("OutputRank",(Uint) 2);
+  meshreader->options().set("number_of_processors",(Uint) Comm::instance().size());
+  meshreader->options().set("rank",(Uint) Comm::instance().rank());
+  meshreader->options().set("Repartition",false);
+  meshreader->options().set("OutputRank",(Uint) 2);
 
   // the file to read from
   boost::filesystem::path fp_in ("../../resources/hextet.neu");
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().configure_option("Repartition",true);
-  meshreader->options().configure_option("OutputRank",(Uint) 0);
+  meshreader->options().set("Repartition",true);
+  meshreader->options().set("OutputRank",(Uint) 0);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");

@@ -50,7 +50,7 @@ void Builder::signal_create_component ( SignalArgs& args )
 void Builder::signature_signal_create_component ( SignalArgs& args )
 {
   SignalOptions options( args );
-  options.add_option("path", URI("cpath:")).description("Full path for the created component" );
+  options.add("path", URI("cpath:")).description("Full path for the created component" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

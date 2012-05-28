@@ -26,6 +26,8 @@ generator.options().set('x_segments', 64)
 generator.options().set('cell_overlap', 1)
 generator.execute()
 
+hc.options().set('regions', [domain.access_component('mesh/topology').uri()])
+
 # lss setup
 lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 lss.get_child('Matrix').options().set('settings_file', sys.argv[1]);

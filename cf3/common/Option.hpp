@@ -128,8 +128,8 @@ namespace XML { class XmlNode; }
     /// @return Returns the value cast to string.
     virtual std::string value_str () const = 0;
 
-    /// @return Returns the value as it is stored.
-    boost::any value() const { return m_value; }
+    /// @return A copy of the stored value
+    virtual boost::any value() const { return m_value; }
 
     /// @returns the type of the option as a string
     virtual std::string type() const;
@@ -157,7 +157,7 @@ namespace XML { class XmlNode; }
     Option& separator( const std::string & separator );
 
     /// configure this option using the passed xml node
-    void configure_option ( XML::XmlNode & node );
+    void set ( XML::XmlNode & node );
 
     /// attach a function that will be triggered when an option gets configured
     /// @return this option
@@ -222,7 +222,7 @@ namespace XML { class XmlNode; }
     boost::any m_value;
     /// parameters that also get updated when option is changed
     std::vector< boost::any > m_linked_params;
-    
+
   private: // data
     /// storage of the default value of the option
     boost::any m_default;
@@ -247,6 +247,9 @@ namespace XML { class XmlNode; }
     /// Get the value to use from XML
     /// @param node XML node with data for this option
     virtual boost::any extract_configured_value( XML::XmlNode & node ) = 0;
+
+    /// Concrete implementation of the value changing
+    virtual void change_value_impl(const boost::any& value) = 0;
 
   }; // class Option
 

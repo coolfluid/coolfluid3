@@ -45,23 +45,23 @@ Term::Term ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(sdm::Tags::solution(), m_solution)
+  options().add(sdm::Tags::solution(), m_solution)
       .pretty_name("Solution Field")
       .link_to(&m_solution);
 
-  options().add_option(sdm::Tags::wave_speed(), m_wave_speed)
+  options().add(sdm::Tags::wave_speed(), m_wave_speed)
       .pretty_name("Wave Speed Field")
       .link_to(&m_wave_speed);
 
-  options().add_option(sdm::Tags::residual(), m_residual)
+  options().add(sdm::Tags::residual(), m_residual)
       .pretty_name("Residual Field")
       .link_to(&m_residual);
 
-  options().add_option(sdm::Tags::jacob_det(), m_jacob_det)
+  options().add(sdm::Tags::jacob_det(), m_jacob_det)
       .pretty_name("Jacobian Determinant Field")
       .link_to(&m_jacob_det);
 
-  options().add_option(sdm::Tags::shared_caches(), m_shared_caches)
+  options().add(sdm::Tags::shared_caches(), m_shared_caches)
       .pretty_name("Share Caches")
       .link_to(&m_shared_caches);
 

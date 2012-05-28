@@ -59,7 +59,7 @@ MatchNodes::MatchNodes( const std::string& name )
   properties()["description"] = desc;
 
 
-  options().add_option("Regions", std::vector<URI>())
+  options().add("Regions", std::vector<URI>())
       .description("Regions to match nodes of");
 }
 
@@ -89,7 +89,7 @@ void MatchNodes::execute()
   CFinfo << mesh.tree() << CFendl;
   const Uint m_dim = mesh.geometry_fields().coordinates().row_size();
 
-  std::vector<URI> region_paths = options().option("Regions").value<std::vector<URI> >();
+  std::vector<URI> region_paths = options().value<std::vector<URI> >("Regions");
 
   Region& region_1 = *Handle<Region>(mesh.access_component(region_paths[0]));
   Region& region_2 = *Handle<Region>(mesh.access_component(region_paths[1]));

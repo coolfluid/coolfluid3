@@ -233,14 +233,14 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
         SignalFrame reply = buffer.create_reply();
         SignalOptions & roptions = reply.options();
 
-        roptions.add_option("accepted", true);
+        roptions.add("accepted", true);
         roptions.flush();
 
         this->init_send(conn, buffer );
 
         // tell listeners a new client has arrived
         SignalFrame frame("new_client_connected", "cpath:/", "cpath:/");
-        frame.options().add_option( "clientid", clientid );
+        frame.options().add( "clientid", clientid );
         call_signal( "new_client_connected", frame );
       }
     }
@@ -314,8 +314,8 @@ void ServerNetworkComm::send_frame_rejected( TCPConnection::Ptr client,
   SignalFrame frame("frame_rejected", sender, CLIENT_ROOT_PATH);
   SignalOptions & options = frame.options();
 
-  options.add_option( "frameid", frameid );
-  options.add_option( "reason", reason );
+  options.add( "frameid", frameid );
+  options.add( "reason", reason );
 
   init_send( client, frame );
 }
@@ -332,8 +332,8 @@ void ServerNetworkComm::send_message( TCPConnection::Ptr client,
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  options.add_option("type", LogMessage::Convert::instance().to_str(type));
-  options.add_option("text", message);
+  options.add("type", LogMessage::Convert::instance().to_str(type));
+  options.add("text", message);
 
   init_send( client, frame );
 }

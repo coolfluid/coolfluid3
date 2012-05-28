@@ -289,16 +289,6 @@ public: // functions
   /// @param [in] val      The new value assigned to the option
   void configure_option_recursively(const std::string& optname, const boost::any& val);
 
-  /// Configures all the options on this class from a list of strings.
-  /// Each string provides the configuration of one property following the
-  /// format var_name:type=value var_name:array[type]=val1,val2
-  void configure (const std::vector<std::string>& args);
-
-  /// Creates or modifies existing properties using the CF human readable language
-  /// For single variables  --> var_name:type=value @n
-  /// For arrays            --> var_name:array[type]=val1,val2
-  void change_property(const std::string args);
-
   /// @name SIGNALS
   //@{
 
@@ -367,6 +357,9 @@ public: // functions
   /// Defines the signature of "move_component" signal.
   /// @param args The frame under which signature is added.
   void signature_move_component( SignalArgs& args );
+  
+  /// Signal to store the timings (if enabled) into properties, i.e. for readout from python or the GUI
+  void signal_store_timings( SignalArgs& args );
 
   //@} END SIGNALS
 

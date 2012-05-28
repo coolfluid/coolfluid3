@@ -45,7 +45,7 @@ FaceCellConnectivity::FaceCellConnectivity ( const std::string& name ) :
   m_face_building_algorithm(false)
 {
 
-  options().add_option("face_building_algorithm", m_face_building_algorithm)
+  options().add("face_building_algorithm", m_face_building_algorithm)
       .link_to(&m_face_building_algorithm)
       .description("Improves efficiency for face building algorithm");
 

@@ -44,15 +44,15 @@ RK::RK ( const std::string& name ) :
 
   // options
 
-  options().add_option(RDM::Tags::solution(), m_solution).link_to(&m_solution);
-  options().add_option(RDM::Tags::dual_area(), m_dual_area).link_to(&m_dual_area);
-  options().add_option(RDM::Tags::residual(), m_residual).link_to(&m_residual);
+  options().add(RDM::Tags::solution(), m_solution).link_to(&m_solution);
+  options().add(RDM::Tags::dual_area(), m_dual_area).link_to(&m_dual_area);
+  options().add(RDM::Tags::residual(), m_residual).link_to(&m_residual);
 
-  options().add_option( "cfl", 1.0 )
+  options().add( "cfl", 1.0 )
       .pretty_name("CFL")
       .description("Courant-Fredrichs-Levy stability number");
 
-  options().add_option( "rkorder", 1u )
+  options().add( "rkorder", 1u )
       .pretty_name("RK Order")
       .description("Order of the Runge-Kutta step");
 
@@ -81,7 +81,7 @@ void RK::execute()
     csolution_k = m_solution;
   else
   {
-    csolution_k = follow_link(mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ))->handle<Field>();
+    csolution_k = follow_link(mysolver.fields().get_child( std::string(RDM::Tags::solution()) + "-" + to_str(step) + "dt" ))->handle<Field>();
   }
 
   cf3_assert( is_not_null(csolution_k) );
@@ -91,7 +91,7 @@ void RK::execute()
   Field& residual     = *m_residual;
 
   /// @todo should be used later to calculate automatically the \Delta t
-     //const Real CFL = options().option("cfl").value<Real>();
+     //const Real CFL = options().value<Real>("cfl");
 
   /// @todo maybe better to directly store dual_area inverse
 

@@ -268,18 +268,18 @@ BOOST_AUTO_TEST_CASE( modify_options )
 
   // call with an empty map, nothing should change
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(42) );
-  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), true );
-  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().value<int>("theAnswer"), int(42) );
+  BOOST_CHECK_EQUAL( node.options().value<bool>("someBool"), true );
+  BOOST_CHECK_EQUAL( node.options().value<std::string>("myString"), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // modify some options
   map["someBool"] = QVariant(false).toString();
   map["theAnswer"] = QString::number(-45782446);
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(-45782446) );
-  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), false );
-  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().value<int>("theAnswer"), int(-45782446) );
+  BOOST_CHECK_EQUAL( node.options().value<bool>("someBool"), false );
+  BOOST_CHECK_EQUAL( node.options().value<std::string>("myString"), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // try to modify a property (should fail)

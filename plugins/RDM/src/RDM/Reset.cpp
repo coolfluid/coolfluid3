@@ -40,12 +40,12 @@ Reset::Reset ( const std::string& name ) : solver::Action(name)
   mark_basic();
 
   std::vector< URI > dummy0;
-  options().add_option("Fields", dummy0)
+  options().add("Fields", dummy0)
       .description("Fields to cleanup")
       .attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
 
   std::vector< std::string > dummy1;
-  options().add_option("FieldTags", dummy1)
+  options().add("FieldTags", dummy1)
       .description("Tags of the field for which to apply the action");
 
   // call config field_tags when mesh is configured
@@ -57,7 +57,7 @@ Reset::Reset ( const std::string& name ) : solver::Action(name)
 
 void Reset::config_fields()
 {
-  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
+  std::vector<URI> vec = options().value< std::vector<URI> >("Fields");
 
   boost_foreach(const URI field_path, vec)
   {
@@ -75,7 +75,7 @@ void Reset::config_fields()
 
 void Reset::config_field_tags()
 {
-  std::vector<std::string> vec = options().option("FieldTags").value< std::vector<std::string> >();
+  std::vector<std::string> vec = options().value< std::vector<std::string> >("FieldTags");
 
   RDSolver& mysolver = *solver().handle<RDSolver>();
 

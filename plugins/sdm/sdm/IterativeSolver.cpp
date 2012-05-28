@@ -51,7 +51,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // properties
 
-  properties().add_property( "iteration", Uint(0) );
+  properties().add( "iteration", Uint(0) );
 
   // static components
 
@@ -59,29 +59,29 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_update = create_static_component<common::ActionDirector>("PostUpdate");
 
-  options().add_option(sdm::Tags::solution(), m_solution)
+  options().add(sdm::Tags::solution(), m_solution)
       .description("Solution to update")
       .pretty_name("Solution")
       .link_to(&m_solution);
 
-      options().add_option(sdm::Tags::update_coeff(), m_update_coeff)
+      options().add(sdm::Tags::update_coeff(), m_update_coeff)
       .description("Update coefficient")
       .pretty_name("Update Coefficient")
       .link_to(&m_update_coeff);
 
-      options().add_option(sdm::Tags::residual(), m_residual)
+      options().add(sdm::Tags::residual(), m_residual)
       .description("Residual")
       .pretty_name("Residual")
       .link_to(&m_residual);
 
-  options().add_option(sdm::Tags::time(), m_time)
+  options().add(sdm::Tags::time(), m_time)
       .description("Time component")
       .pretty_name("Time")
       .link_to(&m_time);
 
   ComputeLNorm& cnorm = *create_static_component<ComputeLNorm>( "ComputeNorm" );
-  cnorm.options().configure_option("order",2u);
-  cnorm.options().configure_option("scale",true);
+  cnorm.options().set("order",2u);
+  cnorm.options().set("scale",true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ void IterativeSolver::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
-  opts.add_option( "iteration", iter );
+  opts.add( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
   common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }

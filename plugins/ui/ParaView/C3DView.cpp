@@ -54,26 +54,26 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  options().add_option( "mesh", m_mesh )
+  options().add( "mesh", m_mesh )
       .description("Mesh to visualize with given refresh rate")
       .pretty_name("Mesh")
       .mark_basic();
 
   m_filename = "solution_field.vtk";
-  options().add_option("filename", m_filename )
+  options().add("filename", m_filename )
       .description("File name to dumpmesh in VTK format")
       .pretty_name("File Name")
       .link_to(&m_filename);
 
   m_refresh_rate = 1;
-  options().add_option("refresh_rate", m_refresh_rate )
+  options().add("refresh_rate", m_refresh_rate )
       .description("Number of iterations between refreshing the mesh / solution")
       .pretty_name("Refresh Rate")
       .mark_basic()
       .link_to(&m_refresh_rate);
 
   m_port = 8080;
-  options().add_option("paraview_server_port", m_port )
+  options().add("paraview_server_port", m_port )
       .description("Port used on paraview server launch")
       .pretty_name("Server Port")
       .mark_basic()
@@ -174,7 +174,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
       mesh::Mesh& mesh = find_component_recursively<mesh::Mesh>( Core::instance().root() );
       URI mesh_path = mesh.uri();
-      properties().configure_property("mesh", mesh_path);
+      properties().set("mesh", mesh_path);
     }
     //  throw SetupError( FromHere(), "Mesh option is not configured");
 
@@ -201,7 +201,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
       data[1] = QFileInfo( options["filename"].value<std::string>().c_str())
           .fileName().section('.',0,0).toStdString();
 
-      options.add_option("pathinfo", data);
+      options.add("pathinfo", data);
 
       //    Server::ServerRoot::instance().core()->sendSignal( *frame.xml_doc.get() );
     }

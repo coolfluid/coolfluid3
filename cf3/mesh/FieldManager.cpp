@@ -42,7 +42,7 @@ struct FieldManager::Implementation
   Implementation(Component& component) :
     m_component(component)
   {
-    m_component.options().add_option("variable_manager", m_variable_manager)
+    m_component.options().add("variable_manager", m_variable_manager)
               .pretty_name("Variable Manager")
               .description("Variable manager that is scanned for the tags")
               .link_to(&m_variable_manager);
@@ -62,11 +62,11 @@ struct FieldManager::Implementation
   {
     SignalOptions options(node);
 
-    options.add_option<URI>("dict")
+    options.add<URI>("dict")
       .pretty_name("Field Group")
       .description("URI for the Dictionary in which to create fields");
 
-    options.add_option<std::string>("tag")
+    options.add<std::string>("tag")
       .pretty_name("Tag")
       .description("Tag for the VariableDescriptors to use and their corresponding fields");
   }

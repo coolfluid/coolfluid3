@@ -35,7 +35,7 @@ CriterionTime::CriterionTime( const std::string& name  ) :
     "Returns true if a time is reached\n";
   properties()["description"] = description;
 
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .mark_basic()
@@ -52,7 +52,7 @@ bool CriterionTime::operator()()
   if (is_null(m_time)) throw SetupError(FromHere(),"Time option was not set in ["+uri().path()+"]");
   Time& t = *m_time;
 
-  const Real end_time = t.options().option("end_time").value<Real>();
+  const Real end_time = t.options().value<Real>("end_time");
 
   bool achieved = ( t.current_time() + m_tolerance > end_time );
 

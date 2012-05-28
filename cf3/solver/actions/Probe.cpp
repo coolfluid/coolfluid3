@@ -51,10 +51,10 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
       "Configure a coordinate and dictionary, and the probe will interpolate all found values";
   properties()["description"] = description;
   
-  options().add_option("coordinate",std::vector<Real>())
+  options().add("coordinate",std::vector<Real>())
     .description("Coordinate to interpolate fields to");
     
-  options().add_option("dict",m_dict)
+  options().add("dict",m_dict)
       .description("Dictionary that will be probed")
       .link_to(&m_dict)
       .attach_trigger( boost::bind( &Probe::configure_point_interpolator, this ) );
@@ -74,7 +74,7 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
 
 void Probe::configure_point_interpolator()
 {
-  m_point_interpolator->options().configure_option("source",m_dict);
+  m_point_interpolator->options().set("dict",m_dict);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ void Probe::execute()
     throw SetupError(FromHere(), "Option \"dict\" was not configured in "+uri().string());
 
   // Take the coordinate from the options
-  std::vector<Real> opt_coord = options().option("coordinate").value< std::vector<Real> >();
+  std::vector<Real> opt_coord = options().value< std::vector<Real> >("coordinate");
   RealVector coord(opt_coord.size());
   math::copy(opt_coord,coord);
 
@@ -181,7 +181,7 @@ void Probe::set(const std::string& var_name, const Real& var_value)
   {
     if (m_variables->nb_vars() == 0)
     {
-      m_variables->options().configure_option("dimension",(Uint)options().option("coordinate").value<std::vector<Real> >().size());
+      m_variables->options().set("dimension",(Uint)options().value<std::vector<Real> >("coordinate").size());
     }
 
     m_variables->push_back(var_name,math::VariablesDescriptor::Dimensionalities::SCALAR);
@@ -204,7 +204,7 @@ void Probe::set(const std::string& var_name, const std::vector<Real>& var_values
 Handle<ProbePostProcessor> Probe::create_post_processor(const std::string& name, const std::string& builder)
 {
   Handle<ProbePostProcessor> p = create_component(name,builder)->handle<ProbePostProcessor>();
-  p->options().configure_option("probe",this->handle());
+  p->options().set("probe",this->handle());
   return p;
 }
 
@@ -220,7 +220,7 @@ void Probe::signal_create_post_processor(SignalArgs &args)
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", pp->uri());
+  reply_options.add("created_component", pp->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -229,8 +229,8 @@ void Probe::signature_create_post_processor(SignalArgs &args)
 {
   SignalOptions options(args);
 
-  options.add_option("name", std::string("function"));
-  options.add_option("type", std::string("cf3.mesh.ProbeFunction"));
+  options.add("name", std::string("function"));
+  options.add("type", std::string("cf3.mesh.ProbeFunction"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,7 @@ Probe::~Probe() {}
 
 ProbePostProcessor::ProbePostProcessor(const std::string &name) : common::Action(name)
 {
-  options().add_option("probe",m_probe).link_to(&m_probe);
+  options().add("probe",m_probe).link_to(&m_probe);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

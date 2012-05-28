@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( StringOption )
 {
   Component& root = Core::instance().root();
 
-  root.options().add_option( "test_option", std::string("test01"));
+  root.options().add( "test_option", std::string("test01"));
   BOOST_CHECK_EQUAL(root.options().option("test_option").value_str(), "test01");
 
   root.options().option("test_option").change_value(std::string("test02"));
@@ -54,28 +54,28 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
   Component& root = Core::instance().root();
   const Handle<Component> referred = root.create_component<Component>("ReferredComponent");
 
-  OptionComponent<Component>& opt = root.options().add_option("test_component_option", root.handle<Component>());
-  BOOST_CHECK(root.uri() == root.options().option("test_component_option").value< Handle<Component> >()->uri());
+  OptionComponent<Component>& opt = root.options().add("test_component_option", root.handle<Component>());
+  BOOST_CHECK(root.uri() == root.options().value< Handle<Component> >("test_component_option")->uri());
   BOOST_CHECK(root.name() == opt.value< Handle<Component> >()->name());
 
   root.options().option("test_component_option").change_value(referred);
-  BOOST_CHECK(referred->uri() == root.options().option("test_component_option").value< Handle<Component> >()->uri());
+  BOOST_CHECK(referred->uri() == root.options().value< Handle<Component> >("test_component_option")->uri());
   BOOST_CHECK(referred->name() == opt.value< Handle<Component> >()->name());
 
   const Handle<Group> group = root.create_component<Group>("TestGroup");
-  OptionComponent<Group>& group_opt = root.options().add_option("test_group_option", Handle<Group>());
+  OptionComponent<Group>& group_opt = root.options().add("test_group_option", Handle<Group>());
   BOOST_CHECK_THROW(root.options().option("test_group_option").change_value(referred), CastingFailed);
 
   root.options().option("test_group_option").change_value(group);
   BOOST_CHECK(group == group_opt.value< Handle<Group> >());
-  
+
   Handle<Group const> const_group(group);
   BOOST_CHECK_THROW(root.options().option("test_group_option").change_value(const_group), CastingFailed);
-  
-  OptionComponent<Group const>& group_opt_const = root.options().add_option("test_const_group_option", Handle<Group const>());
+
+  OptionComponent<Group const>& group_opt_const = root.options().add("test_const_group_option", Handle<Group const>());
   root.options().option("test_const_group_option").change_value(group);
   BOOST_CHECK(group == group_opt_const.value< Handle<Group const> >());
-  
+
   root.options().option("test_const_group_option").change_value(Handle<Component>());
   BOOST_CHECK(is_null(group_opt_const.value< Handle<Group const> >()));
 }
@@ -86,9 +86,9 @@ BOOST_AUTO_TEST_CASE( TestOptionArray )
 
   std::vector<int> def;
   def += 1,2,3,4,5,6,7,8,9;
-  BOOST_CHECK(root.options().add_option("test_array_option", def).value< std::vector<int> >() == def);
+  BOOST_CHECK(root.options().add("test_array_option", def).value< std::vector<int> >() == def);
 
-  BOOST_CHECK(def == root.options().option("test_array_option").value< std::vector<int> >());
+  BOOST_CHECK(def == root.options().value< std::vector<int> >("test_array_option"));
 }
 
 BOOST_AUTO_TEST_CASE( TestOptionURI )
@@ -96,9 +96,9 @@ BOOST_AUTO_TEST_CASE( TestOptionURI )
   Component& root = Core::instance().root();
 
   // Since the result is properly typed, we can immediately call supported_protocol
-  root.options().add_option("test_uri_option", root.uri()).supported_protocol(cf3::common::URI::Scheme::CPATH);
+  root.options().add("test_uri_option", root.uri()).supported_protocol(cf3::common::URI::Scheme::CPATH);
 
-  BOOST_CHECK(root.uri() == root.options().option("test_uri_option").value< URI >());
+  BOOST_CHECK(root.uri() == root.options().value< URI >("test_uri_option"));
 }
 
 

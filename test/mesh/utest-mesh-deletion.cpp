@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE( MeshDeletion )
 BOOST_AUTO_TEST_CASE( DeleteMesh )
 {
   // debug output
-  Core::instance().environment().options().configure_option("log_level", 3u);
+  Core::instance().environment().options().set("log_level", 3u);
 
   const Real length = 5.;
   const Real height = 2.;

@@ -7,8 +7,6 @@
 #ifndef cf3_solver_actions_Proto_ProtoAction_hpp
 #define cf3_solver_actions_Proto_ProtoAction_hpp
 
-#include <set>
-
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -28,8 +26,8 @@ class Expression;
 class ProtoAction : public solver::Action
 {
 public:
-  
-  
+
+
 
   ProtoAction(const std::string& name);
 
@@ -44,7 +42,7 @@ public:
   void set_expression(const boost::shared_ptr<Expression> & expression);
 
   /// Append the tags used in the expression
-  void insert_tags(std::set<std::string>& tags) const;
+  void insert_field_info(std::map<std::string, std::string>& tags) const;
 
 private:
   class Implementation;

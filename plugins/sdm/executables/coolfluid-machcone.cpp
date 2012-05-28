@@ -63,27 +63,27 @@ int main(int argc, char * argv[])
 
     Handle<Mesh>          mesh           = domain.create_component<Mesh>("mesh");
     Handle<MeshGenerator> mesh_generator = model->tools().create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")->handle<MeshGenerator>();
-    mesh_generator->options().configure_option("mesh",mesh->uri());
-    mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(3,10));
-    mesh_generator->options().configure_option("lengths",std::vector<Real>(3,120.));
+    mesh_generator->options().set("mesh",mesh->uri());
+    mesh_generator->options().set("nb_cells",std::vector<Uint>(3,10));
+    mesh_generator->options().set("lengths",std::vector<Real>(3,120.));
     std::vector<Real> offsets = list_of(0.)(-60)(-60);
-    mesh_generator->options().configure_option("offsets",offsets);
+    mesh_generator->options().set("offsets",offsets);
     mesh_generator->execute();
     allocate_component<LoadBalance>("repartitioner")->transform(mesh);
 
     // Configure solver
 
-    solver.options().configure_option("mesh",mesh);
-    solver.options().configure_option("time",time.handle<Time>());
-    solver.options().configure_option("solution_vars",std::string("cf3.physics.LinEuler.Cons3D"));
-    solver.options().configure_option("solution_order",5u);
+    solver.options().set("mesh",mesh);
+    solver.options().set("time",time.handle<Time>());
+    solver.options().set("solution_vars",std::string("cf3.physics.LinEuler.Cons3D"));
+    solver.options().set("solution_order",5u);
 
     DomainDiscretization& dd = *solver.get_child("DomainDiscretization")->handle<DomainDiscretization>();
 
     // Configure timestepping
 
-    solver.access_component("TimeStepping")->options().configure_option("cfl",std::string("0.1"));
-    solver.access_component("TimeStepping/IterativeSolver")->options().configure_option("nb_stages",3u);
+    solver.access_component("TimeStepping")->options().set("cfl",std::string("0.1"));
+    solver.access_component("TimeStepping/IterativeSolver")->options().set("nb_stages",3u);
 
     // Prepare the mesh for Spectral Difference (build faces and fields etc...)
 
@@ -92,21 +92,21 @@ int main(int argc, char * argv[])
     // Create convection term
 
     Term& convection = dd.create_term("cf3.sdm.lineuler.Convection3D","convection");
-    convection.options().configure_option("gamma", 1.);
-    convection.options().configure_option("rho0",1.);
+    convection.options().set("gamma", 1.);
+    convection.options().set("rho0",1.);
     std::vector<Real> U0 = list_of(1.5)(0.)(0.);
-    convection.options().configure_option("U0",U0);
-    convection.options().configure_option("p0",1.);
+    convection.options().set("U0",U0);
+    convection.options().set("p0",1.);
 
     // create monopole source term
 
     Term& monopole = dd.create_term("cf3.sdm.lineuler.SourceMonopole3D","monopole");
-    monopole.options().configure_option("omega",2.*pi()/30. );
-    monopole.options().configure_option("alpha",log(2.)/2.);
-    monopole.options().configure_option("epsilon",0.5);
+    monopole.options().set("omega",2.*pi()/30. );
+    monopole.options().set("alpha",log(2.)/2.);
+    monopole.options().set("epsilon",0.5);
     std::vector<Real> monopole_loc = list_of(25.)(0.)(0.);
-    monopole.options().configure_option("source_location",monopole_loc);
-    monopole.options().configure_option("time", time.handle<Time>());
+    monopole.options().set("source_location",monopole_loc);
+    monopole.options().set("time", time.handle<Time>());
 
     // fields to output
 
@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
     while (simulate_to_time<final_time)
     {
       simulate_to_time += step;
-      time.options().configure_option("end_time",simulate_to_time);
+      time.options().set("end_time",simulate_to_time);
 
       model->simulate();
 
@@ -132,8 +132,8 @@ int main(int argc, char * argv[])
 
     // Output on a fine mesh for visualization
     Handle<Mesh> vis_mesh = domain.create_component<Mesh>("vis_mesh");
-    mesh_generator->options().configure_option("mesh",vis_mesh->uri());
-    mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(3,60));
+    mesh_generator->options().set("mesh",vis_mesh->uri());
+    mesh_generator->options().set("nb_cells",std::vector<Uint>(3,60));
     mesh_generator->execute();
 
     Handle<Interpolate> interpolator = model->tools().create_component<Interpolate>("interpolator");

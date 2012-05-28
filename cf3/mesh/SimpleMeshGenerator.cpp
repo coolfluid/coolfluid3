@@ -47,33 +47,33 @@ SimpleMeshGenerator::SimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option("nb_cells", m_nb_cells)
+  options().add("nb_cells", m_nb_cells)
       .description("Vector of number of cells in each direction")
       .pretty_name("Number of Cells")
       .link_to(&m_nb_cells)
       .mark_basic();
 
-  options().add_option("offsets", m_offsets)
+  options().add("offsets", m_offsets)
       .description("Vector of offsets in direction")
       .pretty_name("Offsets")
       .link_to(&m_offsets)
       .mark_basic();
 
-  options().add_option("lengths", m_lengths)
+  options().add("lengths", m_lengths)
       .description("Vector of lengths each direction")
       .pretty_name("Lengths")
       .link_to(&m_lengths)
       .mark_basic();
 
-  options().add_option("part", PE::Comm::instance().rank())
+  options().add("part", PE::Comm::instance().rank())
       .description("Part number (e.g. rank of processors)")
       .pretty_name("Part");
 
-  options().add_option("nb_parts", PE::Comm::instance().size())
+  options().add("nb_parts", PE::Comm::instance().size())
       .description("Total number of partitions (e.g. number of processors)")
       .pretty_name("Number of Partitions");
 
-  options().add_option("bdry", true)
+  options().add("bdry", true)
       .description("Generate Boundary")
       .pretty_name("Boundary");
 }
@@ -118,11 +118,11 @@ void SimpleMeshGenerator::create_line()
   const Uint x_segments = m_nb_cells[XX];
   const Real x_len = m_lengths[XX];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
@@ -131,8 +131,8 @@ void SimpleMeshGenerator::create_line()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   // find ghost nodes
   std::map<Uint,Uint> ghost_nodes_loc;
@@ -282,11 +282,11 @@ void SimpleMeshGenerator::create_rectangle()
   const Real y_len = m_lengths[YY];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
   const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
@@ -294,8 +294,8 @@ void SimpleMeshGenerator::create_rectangle()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1);
   num_obj[ELEMS] = x_segments*y_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("interior");
   Dictionary& nodes = mesh.geometry_fields();
@@ -578,11 +578,11 @@ void SimpleMeshGenerator::create_box()
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
   const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
   const Real z_offset = (m_offsets.empty() ? 0. : m_offsets[ZZ]);
-  const Uint nb_parts = options().option("nb_parts").value<Uint>();
-  const bool bdry = options().option("bdry").value<bool>();
+  const Uint nb_parts = options().value<Uint>("nb_parts");
+  const bool bdry = options().value<bool>("bdry");
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
@@ -590,8 +590,8 @@ void SimpleMeshGenerator::create_box()
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1)*(z_segments+1);
   num_obj[ELEMS] = x_segments*y_segments*z_segments;
-  hash.options().configure_option("nb_obj",num_obj);
-  hash.options().configure_option("nb_parts",nb_parts);
+  hash.options().set("nb_obj",num_obj);
+  hash.options().set("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("interior");
   Dictionary& nodes = mesh.geometry_fields();

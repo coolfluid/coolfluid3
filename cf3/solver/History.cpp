@@ -32,16 +32,16 @@ History::History ( const std::string& name ) :
   m_table = create_static_component< Table<Real> >("table");
   m_variables = create_static_component< math::VariablesDescriptor >("variables");
 
-  options().add_option("dimension",0u);
+  options().add("dimension",0u);
 
 
   m_logging = true;
-  options().add_option("logging",m_logging)
+  options().add("logging",m_logging)
       .description("Turn on logging at every entry")
       .link_to(&m_logging);
 
   // Extension TSV for "Tab Separated Values"
-  options().add_option("file",URI("history.tsv"))
+  options().add("file",URI("history.tsv"))
       .description("Log file for history");
 
   regist_signal ( "write" )
@@ -69,10 +69,10 @@ void History::set(const std::string& var_name, const Real& var_value)
   {
     if (m_variables->nb_vars() == 0)
     {
-      const Uint dim = options().option("dimension").value<Uint>();
+      const Uint dim = options().value<Uint>("dimension");
       if ( dim == 0u)
         throw common::SetupError(FromHere(), "Dimension of "+uri().string()+" not set");
-      m_variables->options().configure_option("dimension",dim);
+      m_variables->options().set("dimension",dim);
     }
 
     m_variables->push_back(var_name,math::VariablesDescriptor::Dimensionalities::SCALAR);
@@ -133,7 +133,7 @@ void History::save_entry()
       if (!m_file)
       {
         flush();
-        open_file(m_file,options().option("file").value<URI>());
+        open_file(m_file,options().value<URI>("file"));
         write_file(m_file);
         m_file.flush();
       }
@@ -173,7 +173,7 @@ Handle<math::VariablesDescriptor const> History::variables() const
 void History::signature_write(common::SignalArgs& args)
 {
   SignalOptions opts(args);
-  opts.add_option("file",URI("history.tsv"))
+  opts.add("file",URI("history.tsv"))
       .description("Tab Separated Value log file for output of history");
 }
 

@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE( init_mpi)
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
-  Core::instance().environment().options().configure_option("only_cpu0_writes",false);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("only_cpu0_writes",false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,17 +104,17 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
   PEProcessSortedExecute(-1,
                          std::cout << "checking rank " << PERank << std::endl;
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/inlet")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/outlet")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/wall")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/cells")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/inner_faces")) );
-//  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/liquid/outer_faces")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/cells")) );
-  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/inner_faces")) );
-//  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/quadtriag/gas/outer_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/inlet")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/outlet")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/wall")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/liquid")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/liquid/cells")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/liquid/inner_faces")) );
+//  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/liquid/outer_faces")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/cells")) );
+  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/inner_faces")) );
+//  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/outer_faces")) );
 //  std::cout << mesh->topology().access_component("quadtriag/gas").tree() << std::endl;
   );
 

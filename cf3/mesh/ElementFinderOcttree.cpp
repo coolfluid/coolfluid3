@@ -20,6 +20,10 @@
 #include "mesh/Space.hpp"
 #include "mesh/ElementFinderOcttree.hpp"
 
+
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
@@ -43,6 +47,10 @@ ElementFinderOcttree::ElementFinderOcttree(const std::string &name) : ElementFin
 void ElementFinderOcttree::configure_octtree()
 {
   Handle<Mesh> mesh = find_parent_component_ptr<Mesh>(*m_dict);
+//  std::cout << "configuring octtree for mesh" << mesh->uri() << std::endl;
+
+//  std::cout << OSystem::instance().layer()->back_trace() << std::endl;
+
   if (is_null(mesh))
     throw SetupError(FromHere(),"Mesh was not found as parent of "+m_dict->uri().string());
 
@@ -51,7 +59,7 @@ void ElementFinderOcttree::configure_octtree()
   else
   {
     m_octtree = mesh->create_component<Octtree>("octtree");
-    m_octtree->options().configure_option("mesh",mesh);
+    m_octtree->options().set("mesh",mesh);
   }
 }
 

@@ -81,10 +81,10 @@ void Plotter::signature_create_xyplot(SignalArgs &args)
 {
   SignalOptions options( args );
 
-  options.add_option("Plot name", std::string() )
+  options.add("Plot name", std::string() )
       .description("Name for the new plot");
 
-  options.add_option("Parent", Core::instance().root().uri() )
+  options.add("Parent", Core::instance().root().uri() )
       .supported_protocol( URI::Scheme::CPATH )
       .description("Parent of the new component");
 }

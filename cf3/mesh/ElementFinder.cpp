@@ -21,7 +21,7 @@ namespace mesh {
 
 ElementFinder::ElementFinder(const std::string &name) : common::Component(name)
 {
-  options().add_option("dict",m_dict)
+  options().add("dict",m_dict)
       .description("Dictionary used to find the element")
       .link_to(&m_dict);
 }

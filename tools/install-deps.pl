@@ -1229,7 +1229,7 @@ ZZZ
 # ----------------------
 # python configuration.
 # ----------------------
-using python : $opt_python ;
+using python : : $opt_python ;
 
 ZZZ
       close (USERCONFIGJAM);

@@ -64,28 +64,28 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   // create meshreader
   boost::shared_ptr< MeshGenerator > mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"mesh");
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->options().configure_option("bdry",false);
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"mesh");
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().set("bdry",false);
   Mesh& mesh = mesh_generator->generate();
   Handle<Dictionary> dict = mesh.geometry_fields().handle<Dictionary>();
 
   Handle<StencilComputerRings> stencil_computer = Core::instance().root().create_component<StencilComputerRings>("stencilcomputer");
-  stencil_computer->options().configure_option("dict", dict );
+  stencil_computer->options().set("dict", dict );
 
   SpaceElem space_elem = SpaceElem(mesh.elements()[0]->space(*dict),7);
   std::vector<SpaceElem> stencil;
-//  stencil_computer->options().configure_option("stencil_size", 10u );
-  stencil_computer->options().configure_option("nb_rings", 1u );
+//  stencil_computer->options().set("stencil_size", 10u );
+  stencil_computer->options().set("nb_rings", 1u );
   stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->options().configure_option("nb_rings", 2u );
+  stencil_computer->options().set("nb_rings", 2u );
   stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
-  stencil_computer->options().configure_option("nb_rings", 3u );
+  stencil_computer->options().set("nb_rings", 3u );
   stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u);
 

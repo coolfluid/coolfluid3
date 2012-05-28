@@ -7,6 +7,9 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+/// @todo remove when ready
+#include "common/Log.hpp"
+
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
@@ -40,14 +43,14 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option("field", m_field )
+  options().add("field", m_field )
       .pretty_name("Solution Field")
       .description("The field to Initialize")
       .link_to(&m_field);
 
   // options
 
-  options().add_option("functions", std::vector<std::string>())
+  options().add("functions", std::vector<std::string>())
       .description("math function applied as Dirichlet boundary condition (vars x,y)")
       .attach_trigger ( boost::bind ( &Init::config_function, this ) )
       .mark_basic();
@@ -82,15 +85,15 @@ void Init::execute()
 
   boost_foreach(Handle< Region >& region, m_loop_regions)
   {
-    /// @warning assumes that field maps one to one with mesh.geometry_fields()
+    Handle<Dictionary> nodes = mesh().geometry_fields().parent()->get_child(RDM::Tags::solution())->handle<Dictionary>();
+//    Handle<Dictionary> coords = mesh().geometry_fields().parent()->get_child(mesh::Tags::coordinates())->handle<Dictionary>();
 
-    Dictionary& nodes = mesh().geometry_fields();
-
-    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
+//    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
+    for(Uint node=0; node<(const Uint)nodes->size(); node++)
     {
       cf3_assert(node < field.size());
 
-      Table<Real>::ConstRow coords = nodes.coordinates()[node];
+      Table<Real>::ConstRow coords = nodes->coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
@@ -100,6 +103,7 @@ void Init::execute()
       Table<Real>::Row data_row = field[node];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
+
     }
 
   }

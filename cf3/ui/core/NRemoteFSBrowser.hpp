@@ -122,11 +122,21 @@ public:
 
   // @} END Signals
 
+  void copy_request (std::vector<std::string> & parameters);
+
+  void reply_copy_request ( common::SignalArgs & node );
+
+protected:
+
+  Qt::ItemFlags flags(const QModelIndex &index) const;
+
 signals:
 
   void current_path_changed( const QString & newPath );
 
   void favorites_changed( const QStringList & list );
+
+  void copy_finished ();
 
 private: // functions
 

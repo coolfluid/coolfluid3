@@ -46,16 +46,16 @@ BOOST_AUTO_TEST_SUITE( FieldManagerSuite )
 
 BOOST_AUTO_TEST_CASE( test_FieldManager )
 {
-  Core::instance().environment().options().configure_option("exception_aborts",false);
-  Core::instance().environment().options().configure_option("exception_backtrace",false);
-  Core::instance().environment().options().configure_option("exception_outputs",false);
+  Core::instance().environment().options().set("exception_aborts",false);
+  Core::instance().environment().options().set("exception_backtrace",false);
+  Core::instance().environment().options().set("exception_outputs",false);
   Component& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
   const std::string tag = "solution";
 
   Handle<VariableManager> var_manager = root.create_component<VariableManager>("varmanager");
-  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().configure_option(common::Tags::dimension(), 2u);
+  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().set(common::Tags::dimension(), 2u);
 
   // Test mesh
   Mesh& mesh = *root.create_component<Mesh>("mesh");
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
 
   // FieldManager
   FieldManager& field_manager = *root.create_component<FieldManager>("fieldmanager");
-  field_manager.options().configure_option("variable_manager", var_manager);
+  field_manager.options().set("variable_manager", var_manager);
 
   // Do this twice, to ensure the second run does nothing
   field_manager.create_field(tag, mesh.geometry_fields());
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
 
   // Now change the descriptor and ensure there is an error
   var_manager->get_child(tag)->remove_tag(tag);
-  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().configure_option(common::Tags::dimension(), 3u);
+  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().set(common::Tags::dimension(), 3u);
   BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry_fields()), SetupError);
 }
 

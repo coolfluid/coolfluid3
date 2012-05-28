@@ -36,6 +36,7 @@
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Interpolator.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelFields_test" << CFendl;
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
 
   // Create or read the mesh
 
@@ -96,16 +97,16 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//rect"));
+  meshgenerator->options().set("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 10;
   nb_cells[1] = 5;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
-  meshgenerator->options().configure_option("nb_cells",nb_cells);
-  meshgenerator->options().configure_option("lengths",lengths);
-  meshgenerator->options().configure_option("bdry",false);
+  meshgenerator->options().set("nb_cells",nb_cells);
+  meshgenerator->options().set("lengths",lengths);
+  meshgenerator->options().set("bdry",false);
   Mesh& mesh = meshgenerator->generate();
 #endif
 
@@ -121,17 +122,17 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   boost::shared_ptr< MeshReader > meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
   Handle< Mesh > mesh_ptr = Core::instance().root().create_component<Mesh>("mesh");
-  meshreader->options().configure_option("mesh",mesh_ptr);
-  meshreader->options().configure_option("file",URI("../../resources/rectangle-tg-p1.msh"));
+  meshreader->options().set("mesh",mesh_ptr);
+  meshreader->options().set("file",URI("../../resources/rectangle-tg-p1.msh"));
   meshreader->execute();
   Mesh& mesh = *mesh_ptr;
 
   boost::shared_ptr< MeshWriter > mesh_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","msh_writer");
 
-//  mesh_writer->options().configure_option("fields",fields);
-  mesh_writer->options().configure_option("file",URI("parallel_fields.msh"));
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+//  mesh_writer->options().set("fields",fields);
+  mesh_writer->options().set("file",URI("parallel_fields.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh>());
   mesh_writer->execute();
 
 #endif
@@ -193,10 +194,8 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   // Create a field with glb node numbers
   Field& P1_node_rank = mesh.geometry_fields().create_field("P1_node_rank");
 
-  Handle<Action> interpolator(mesh.create_component("interpolator","cf3.mesh.actions.Interpolate"));
-  interpolator->options().configure_option("source",nodes_P1_node_rank.handle<Field const>());
-  interpolator->options().configure_option("target",P1_node_rank.handle<Field>());
-  interpolator->execute();
+  Handle<AInterpolator> interpolator (mesh.create_component("interpolator","cf3.mesh.SpaceInterpolator"));
+  interpolator->interpolate(nodes_P1_node_rank,P1_node_rank);
 
   // Write the mesh with the fields
 
@@ -210,10 +209,10 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
 
-  tec_writer->options().configure_option("fields",fields);
-  tec_writer->options().configure_option("cell_centred",true);
-  tec_writer->options().configure_option("file",URI("parallel_fields.plt"));
-  tec_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  tec_writer->options().set("fields",fields);
+  tec_writer->options().set("cell_centred",true);
+  tec_writer->options().set("file",URI("parallel_fields.plt"));
+  tec_writer->options().set("mesh",mesh.handle<Mesh>());
   tec_writer->execute();
 
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
@@ -221,9 +220,9 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   boost::shared_ptr< MeshWriter > msh_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","msh_writer");
 
-  msh_writer->options().configure_option("fields",fields);
-  msh_writer->options().configure_option("file",URI("parallel_fields.msh"));
-  msh_writer->options().configure_option("mesh",mesh.handle<Mesh>());
+  msh_writer->options().set("fields",fields);
+  msh_writer->options().set("file",URI("parallel_fields.msh"));
+  msh_writer->options().set("mesh",mesh.handle<Mesh>());
   msh_writer->execute();
 
   CFinfo << "parallel_fields_P*.msh written" << CFendl;
@@ -236,13 +235,13 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
 BOOST_AUTO_TEST_CASE( minitest )
 {
   CFinfo << "ParallelFields_test" << CFendl;
-  Core::instance().environment().options().configure_option("log_level",(Uint)DEBUG);
+  Core::instance().environment().options().set("log_level",(Uint)DEBUG);
 
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//line"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
-  meshgenerator->options().configure_option("bdry",false);
+  meshgenerator->options().set("mesh",URI("//line"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->options().set("lengths",std::vector<Real>(1,10.));
+  meshgenerator->options().set("bdry",false);
   Mesh& mesh = meshgenerator->generate();
 
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);

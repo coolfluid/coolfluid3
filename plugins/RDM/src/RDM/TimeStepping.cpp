@@ -46,7 +46,7 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // properties
 
-  properties().add_property( "iteration", Uint(0) );
+  properties().add( "iteration", Uint(0) );
 
   // static components
 
@@ -116,9 +116,9 @@ void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add_option( "time",  m_time->current_time() );
-  opts.add_option( "dt",  m_time->dt() );
-  opts.add_option( "iteration", properties().value<Uint>("iteration") );
+  opts.add( "time",  m_time->current_time() );
+  opts.add( "dt",  m_time->dt() );
+  opts.add( "iteration", properties().value<Uint>("iteration") );
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 

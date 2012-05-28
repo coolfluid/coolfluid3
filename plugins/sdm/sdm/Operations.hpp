@@ -68,7 +68,7 @@ struct SFDElement : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -76,7 +76,7 @@ private:
   {
     //cf3_assert(cache->options().check("space"));
     cf3_assert(entities);
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
     cf3_assert(space);
     sf = space->shape_function().handle<sdm::ShapeFunction>();
     cf3_assert(sf);
@@ -114,7 +114,7 @@ struct FluxPointPlaneJacobianNormal : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -178,7 +178,7 @@ struct FluxPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -228,14 +228,14 @@ struct FluxPointCoordinatesDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
   virtual void compute_fixed_data()
   {
     geo.configure(entities);
-    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
     sf = space->shape_function().handle<sdm::ShapeFunction>();
 
     reconstruct_to_flux_points.build_coefficients(geo.sf,sf);
@@ -280,7 +280,7 @@ struct SolutionPointCoordinates : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
+    cache.options().add("space",Handle<mesh::Dictionary>()).description("path to Dictionary");
   }
 
 private:
@@ -335,13 +335,13 @@ struct SolutionPointFieldDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
   virtual void compute_fixed_data()
   {
-    field = cache->access_component(options().option("field").value<common::URI>())->handle<mesh::Field>();
+    field = cache->access_component(options().value<common::URI>("field"))->handle<mesh::Field>();
     space = field->dict().space(*entities).handle<mesh::Space>();
     sf = space->shape_function().handle<sdm::ShapeFunction>();
   }
@@ -387,7 +387,7 @@ struct SolutionPointField : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
@@ -434,13 +434,13 @@ struct FluxPointFieldDyn : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
   virtual void compute_fixed_data()
   {
-    field = cache->access_component(options().option("field").value<common::URI>())->handle<mesh::Field>();
+    field = cache->access_component(options().value<common::URI>("field"))->handle<mesh::Field>();
     space = field->dict().space(*entities).handle<mesh::Space>();
     sf = space->shape_function().handle<sdm::ShapeFunction>();
     reconstruct_to_flux_points.build_coefficients(sf);
@@ -480,7 +480,7 @@ struct FluxPointField : ElementCache
 
   static void add_options(Cache& cache)
   {
-    cache.options().add_option("field",common::URI());
+    cache.options().add("field",common::URI());
   }
 
 private:
@@ -533,7 +533,7 @@ public:
 //private:
 //  virtual void compute_fixed_data()
 //  {
-//    space = options().option("space").value< Handle<mesh::Dictionary> >()->space(entities);
+//    space = options().value< Handle<mesh::Dictionary> >("space")->space(entities);
 //    sf = space->shape_function().handle<sdm::ShapeFunction>();
 //    gradient_reconstruct_to_flux_points.build_coefficients(sf);
 //    grad_field_in_flx_pts.resize(sf->nb_flx_pts());

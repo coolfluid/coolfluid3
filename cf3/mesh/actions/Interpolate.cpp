@@ -50,13 +50,13 @@ Interpolate::Interpolate( const std::string& name )
     "Shapefunction/Space of the source-field is used to interpolate to the target";
   properties()["description"] = desc;
 
-  options().add_option("source", m_source)
+  options().add("source", m_source)
       .description("Field to interpolate from")
       .pretty_name("Source Field")
       .mark_basic()
       .link_to(&m_source);
 
-  options().add_option("target", m_target)
+  options().add("target", m_target)
       .description("Field to interpolate to")
       .pretty_name("Target Field")
       .mark_basic()
@@ -164,7 +164,7 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
     else
     {
       m_octtree = source_mesh.create_component<Octtree>("octtree");
-      m_octtree->options().configure_option("mesh",source_mesh.handle<Mesh>());
+      m_octtree->options().set("mesh",source_mesh.handle<Mesh>());
     }
   }
 
@@ -385,15 +385,15 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
 {
   common::XML::SignalOptions options( node );
 
-  options.add_option("source",URI())
+  options.add("source",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Source field");
 
-  options.add_option("target",URI())
+  options.add("target",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Target field or table");
 
-  options.add_option("coordinates",URI())
+  options.add("coordinates",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Table of coordinates if target is not a field");
 

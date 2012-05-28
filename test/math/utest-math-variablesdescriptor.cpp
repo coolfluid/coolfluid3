@@ -30,12 +30,12 @@ BOOST_AUTO_TEST_CASE( PushBackScalar )
   boost::shared_ptr<VariablesDescriptor> descriptor = allocate_component<VariablesDescriptor>("descriptor");
   descriptor->push_back("a", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
 
-  descriptor->options().configure_option(common::Tags::dimension(), 3u);
+  descriptor->options().set(common::Tags::dimension(), 3u);
 
   BOOST_CHECK_EQUAL(descriptor->size(), 1);
   BOOST_CHECK_EQUAL(descriptor->user_variable_name("a"), "a");
 
-  descriptor->options().configure_option("a_variable_name", std::string("b"));
+  descriptor->options().set("a_variable_name", std::string("b"));
 
   BOOST_CHECK_EQUAL(descriptor->user_variable_name("a"), "b");
 }
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
 {
   boost::shared_ptr<VariablesDescriptor> descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->options().configure_option(common::Tags::dimension(), 2u);
+  descriptor->options().set(common::Tags::dimension(), 2u);
 
   descriptor->push_back("v1", cf3::math::VariablesDescriptor::Dimensionalities::VECTOR);
   descriptor->push_back("v2", cf3::math::VariablesDescriptor::Dimensionalities::VECTOR);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("v2"), 2);
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 4);
 
-  descriptor->options().configure_option(common::Tags::dimension(), 3u);
+  descriptor->options().set(common::Tags::dimension(), 3u);
   BOOST_CHECK_EQUAL(descriptor->size(), 15);
   BOOST_CHECK_EQUAL(descriptor->size("v1"), 3);
   BOOST_CHECK_EQUAL(descriptor->size("v2"), 3);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( ParseString )
 {
   boost::shared_ptr<VariablesDescriptor> descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->options().configure_option(common::Tags::dimension(), 2u);
+  descriptor->options().set(common::Tags::dimension(), 2u);
 
   // Add a scalar, vector and tensor
   descriptor->set_variables("a, b[v], c[t]");
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( ParseStringArray )
 {
   boost::shared_ptr<VariablesDescriptor> descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->options().configure_option(common::Tags::dimension(), 2u);
+  descriptor->options().set(common::Tags::dimension(), 2u);
 
   // Add 5 scalars
   descriptor->set_variables("a[5]");

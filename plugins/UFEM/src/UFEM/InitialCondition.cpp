@@ -25,6 +25,8 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 
+#include "physics/PhysModel.hpp"
+
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/NodeLooper.hpp"
 
@@ -51,7 +53,7 @@ common::ComponentBuilder < InitialCondition, common::Action, LibUFEM > InitialCo
 
 InitialCondition::InitialCondition(const std::string& name) : solver::Action(name)
 {
-  options().add_option("field_tag", "")
+  options().add("field_tag", "")
     .pretty_name("Field Tag")
     .description("Tag for the field in which the initial conditions will be set")
     .attach_trigger(boost::bind(&InitialCondition::trigger_tag, this));
@@ -64,7 +66,7 @@ InitialCondition::~InitialCondition()
 
 void InitialCondition::trigger_tag()
 {
-  const std::string field_tag = options().option("field_tag").value<std::string>();
+  const std::string field_tag = options().value<std::string>("field_tag");
   if(field_tag.empty())
     return;
 
@@ -84,23 +86,27 @@ void InitialCondition::trigger_tag()
     m_variable_options.push_back(var_name);
     if(descriptor.var_length(i) == 1)
     {
-      options().add_option(var_name, 0.).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, 0.).description(std::string("Initial condition for variable " + var_name));
     }
     else
     {
-      options().add_option(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name));
     }
   }
 }
 
 void InitialCondition::execute()
 {
-  const std::string field_tag = options().option("field_tag").value<std::string>();
+  if(m_loop_regions.empty())
+    CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
+  
+  const std::string field_tag = options().value<std::string>("field_tag");
   VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), field_tag);
 
   // Construct a vector with the values to use
   std::vector<Real> values; values.reserve(descriptor.size());
   const Uint nb_vars = m_variable_options.size();
+  CFdebug << "Using descriptor " << descriptor.description() << " for InitialCondition" << CFendl;
   cf3_assert(nb_vars == descriptor.nb_vars());
 
   for(Uint i = 0; i != nb_vars; ++i)
@@ -119,6 +125,7 @@ void InitialCondition::execute()
   }
   BOOST_FOREACH(const Handle<Region>& region, m_loop_regions)
   {
+    CFdebug << "  Action " << name() << ": running over region " << region->uri().path() << CFendl;
     std::vector<Uint> nodes;
     make_node_list(*region, common::find_parent_component<mesh::Mesh>(*region).geometry_fields().coordinates(), nodes);
     Field& field = find_field(*region, field_tag);

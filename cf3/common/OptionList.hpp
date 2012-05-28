@@ -42,7 +42,7 @@ public:
   /// @pre An option with the same name does not exist
   /// @return A reference to the created option
   template<typename T>
-  typename SelectOptionType<T>::type& add_option(const std::string& name, const T& default_value = T())
+  typename SelectOptionType<T>::type& add (const std::string& name, const T& default_value = T())
   {
     cf3_assert_desc ( "Class already has an option with same name",
                       this->store.find(name) == store.end() );
@@ -57,7 +57,7 @@ public:
   /// @pre An option with the same name does not exist
   /// @return A reference to the added option
   template < typename OPTION_TYPE >
-  OPTION_TYPE& add_option (const boost::shared_ptr<OPTION_TYPE>& option)
+  OPTION_TYPE& add (const boost::shared_ptr<OPTION_TYPE>& option)
   {
     cf3_assert_desc ( "Class has already property with name " + option->name(),
                       this->store.find(option->name()) == store.end() );
@@ -87,7 +87,16 @@ public:
   /// Configure one option, and trigger its actions
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
-  void configure_option(const std::string& pname, const boost::any& val);
+  void set(const std::string& pname, const boost::any& val);
+
+  /// @brief Get the value of the option with given name
+  /// @param [in] opt_name  The option name
+  /// @return option value with correct type
+  template < typename TYPE >
+    const TYPE value ( const std::string& opt_name ) const
+  {
+    return option(opt_name).value<TYPE>();
+  }
 
   /// check that a option with the name exists
   /// @param opt_name the property name
@@ -116,8 +125,19 @@ public:
   /// If an option already exists in the list, its value is modified with the
   /// new one. If it does not exist yet, it is added.
 
-  /// @param args Options to parse.
-  void fill_from_vector( const std::vector<std::string> & args );
+  /// @brief Configure an option on this class from a human readable string.
+  ///
+  /// The string provides the configuration in one of the following formats:
+  /// - var_name:type=value
+  /// - var_name:array[type]=val1,val2
+  void set (const std::string& arg);
+
+  /// @brief Configure an option on this class from a list of human readable strings
+  ///
+  /// The strings provide the configuration in one of the following formats:
+  /// - var_name:type=value
+  /// - var_name:array[type]=val1,val2
+  void set( const std::vector<std::string> & args );
 
 public:
 

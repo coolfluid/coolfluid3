@@ -11,10 +11,10 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
-#include "common/OptionComponent.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
-
+#include "common/Signal.hpp"
+#include "common/XML/SignalOptions.hpp"
 #include "common/PE/debug.hpp"
 
 #include "mesh/Interpolator.hpp"
@@ -22,7 +22,6 @@
 #include "mesh/Field.hpp"
 
 #include "mesh/PointInterpolator.hpp"
-
 
 namespace cf3 {
 namespace mesh {
@@ -32,13 +31,17 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Interpolator::Interpolator(const std::string &name) : Component(name)
-{
-  m_point_interpolator = create_component<PointInterpolator>("point_interpolator");
+common::ComponentBuilder<Interpolator,AInterpolator,LibMesh> Interpolator_builder;
 
-  options().add_option("store", true)
-      .description("Flag to store weights and stencils used for faster interpolation")
+////////////////////////////////////////////////////////////////////////////////
+
+Interpolator::Interpolator(const std::string &name) : AInterpolator(name)
+{
+  options().add("store", false)
+      .description("Flag to store weights and stencils used for faster interpolation in the future")
       .pretty_name("Store");
+
+  m_point_interpolator = Handle<APointInterpolator>(create_component<PointInterpolator>("point_interpolator"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +55,6 @@ void Interpolator_send_receive(const Uint send_to_pid, std::vector<T>& send, con
     receive = send;
       return;
   }
-  cf3_assert(send.empty()==false);
   size_t recv_size;
   size_t send_size = send.size();
   MPI_Sendrecv(&send_size, 1, PE::get_mpi_datatype<size_t>(), (int)send_to_pid, 0,
@@ -73,7 +75,7 @@ void Interpolator::store(const Dictionary& dict, const Table<Real>& target_coord
   m_table = target_coords.handle< Table<Real> >();
 
   cf3_assert(m_point_interpolator);
-  m_point_interpolator->options().configure_option("source", const_cast<Dictionary*>(m_dict.get())->handle<Dictionary>());
+  m_point_interpolator->options().set("dict", const_cast<Dictionary*>(m_dict.get())->handle<Dictionary>());
 
   Uint nb_coords = target_coords.size();
   Uint dim = target_coords.row_size();
@@ -213,8 +215,9 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
 
     // number of points to be interpolated
     const Uint nb_points = m_stored_element[pid_send_interpolated].size();
+
     // number of variables for each point to be interpolated
-    const Uint nb_vars = source_field.row_size();
+    const Uint nb_vars = m_source_vars.size();
 
     // storage for interpolated variables, which will be sent to the pid that reqests it (pid_recv_interpolated)
     std::vector<Real> interpolated; interpolated.reserve(nb_points*nb_vars);
@@ -232,7 +235,7 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
         for (Uint s=0; s<s_points[t].size(); ++s)
         {
           cf3_assert(s_points[t][s]<source_field.size());
-          interpolated.back() += source_field[ s_points[t][s] ][v] * s_weights[t][s];
+          interpolated.back() += source_field[ s_points[t][s] ][ m_source_vars[v] ] * s_weights[t][s];
         }
       }
     }
@@ -249,7 +252,7 @@ void Interpolator::stored_interpolation(const Field& source_field, Table<Real>& 
       for (Uint v=0; v<nb_vars; ++v)
       {
         cf3_assert(t<target.size());
-        target[t][v] = recv_interpolated[it++];
+        target[t][ m_target_vars[v] ] = recv_interpolated[it++];
       }
     }
   }
@@ -264,7 +267,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
   m_table.reset();
 
   cf3_assert(m_point_interpolator);
-  m_point_interpolator->options().configure_option("source", const_cast<Dictionary*>(&source_field.dict())->handle<Dictionary>());
+  m_point_interpolator->options().set("dict", const_cast<Dictionary*>(&source_field.dict())->handle<Dictionary>());
 
   const Uint nb_coords = target_coords.size();
   const Uint dim = target_coords.row_size();
@@ -283,6 +286,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
                                   PE::Comm::instance().size();
 
     std::vector<Real> send_coords; send_coords.reserve(not_found.size()*target_coords.row_size());
+    std::vector<Uint>  unknown_ids; unknown_ids.reserve(not_found.size());
     std::vector<Real> received_coords;
 
     // fill in coords to send
@@ -290,6 +294,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
     {
       if (t>=0)
       {
+        unknown_ids.push_back(t);
         boost_foreach (const Real& xyz, target_coords[t])
         {
           send_coords.push_back(xyz);
@@ -308,14 +313,14 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
     std::vector<Uint> send_found_coords;  send_found_coords.reserve(nb_received_coords);
 
     // number of variables for each point to be interpolated
-    const Uint nb_vars = source_field.row_size();
+    const Uint nb_vars = m_source_vars.size();
 
     // storage for interpolated variables, which will be sent to the pid that reqests it (pid_recv_interpolated)
     std::vector<Real> send_interpolated; send_interpolated.reserve(nb_received_coords*nb_vars);
 
     Uint dim = target_coords.row_size();
     RealVector t_point(dim);
-    RealVector t_val(nb_vars);
+    RealVector t_val(source_field.row_size());
 
     for (Uint t=0; t<nb_received_coords; ++t)
     {
@@ -328,7 +333,7 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
         send_found_coords.push_back(t);
 
         for (Uint v=0; v<nb_vars; ++v)
-          send_interpolated.push_back(t_val[v]);
+          send_interpolated.push_back(t_val[ m_source_vars[v] ] );
       }
     }
 
@@ -346,14 +351,14 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
     Uint it=0;
     boost_foreach(const Uint i, recv_found_coords)
     {
-      cf3_assert(i<not_found.size());
-      const int t = not_found[i];
-      not_found[i] = -1;
-      cf3_assert(t<nb_coords);
+      cf3_assert(i<unknown_ids.size());
+      const int t = unknown_ids[i];
+      not_found[t] = -1;
+      cf3_assert_desc(common::to_str(t)+'<'+common::to_str(nb_coords),t<(int)nb_coords);
       for (Uint v=0; v<nb_vars; ++v)
       {
         cf3_assert(t<target.size());
-        target[t][v] = recv_interpolated[it++];
+        target[t][ m_target_vars[v] ] = recv_interpolated[it++];
       }
     }
   }
@@ -362,74 +367,35 @@ void Interpolator::unstored_interpolation(const Field& source_field, const commo
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Interpolator::interpolate(const Field& source_field, Field& target_field)
+void Interpolator::interpolate_vars(const Field& source_field, const common::Table<Real>& target_coords, common::Table<Real>& target, const std::vector<Uint>& source_vars, const std::vector<Uint>& target_vars)
 {
-  if (options().option("store").value<bool>())
+  if (source_vars.size() != target_vars.size())
+    throw InvalidStructure(FromHere(), "Cannot map source_vars to target_vars");
+
+  m_source_vars = source_vars;
+  m_target_vars = target_vars;
+
+  if (options().value<bool>("store"))
   {
-    if ( is_null(m_dict) || is_null(m_table) )
+    if (    source_field.dict().uri().string() != m_source_dict_uri.string()
+         || m_source_dict_size != source_field.size()
+         || m_target_size != target.size() )
     {
-      store(source_field.dict(),target_field.coordinates());
+      store(source_field.dict(),target_coords);
+      m_source_dict_uri = source_field.dict().uri();
+      m_source_dict_size = source_field.size();
+      m_target_size = target.size();
     }
-    if ( m_dict != source_field.handle<Dictionary>() && m_table != target_field.coordinates().handle< Table<Real> >())
-    {
-      store(source_field.dict(),target_field.coordinates());
-    }
-    stored_interpolation(source_field,target_field);
+//    if ( m_dict != source_field.handle<Dictionary>() && m_table != target_coords.handle< Table<Real> >())
+//    {
+//      store(source_field.dict(),target_coords);
+//    }
+    stored_interpolation(source_field,target);
   }
   else
   {
-    unstored_interpolation(source_field,target_field.coordinates(),target_field);
+    unstored_interpolation(source_field,target_coords,target);
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-
-OldInterpolator::OldInterpolator ( const std::string& name  ) :
-  Component ( name )
-{
-  options().add_option("source", m_source)
-      .description("Field to interpolate from")
-      .pretty_name("Source Field")
-      .mark_basic()
-      .link_to(&m_source);
-
-  options().add_option("target", m_target)
-      .description("Field to interpolate to")
-      .pretty_name("TargetField")
-      .mark_basic()
-      .link_to(&m_target);
-
-  options().add_option("store", true)
-      .description("Flag to store weights and stencils used for faster interpolation")
-      .pretty_name("Store");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-OldInterpolator::~OldInterpolator()
-{
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void OldInterpolator::signal_interpolate( SignalArgs& node  )
-{
-  interpolate();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void OldInterpolator::interpolate()
-{
-  if ( is_null(m_source) )
-    throw SetupError (FromHere(), "SourceField option was not set");
-  if ( is_null(m_target) )
-    throw SetupError (FromHere(), "TargetField option was not set");
-  construct_internal_storage(*Handle<Mesh>(m_source->parent()));
-  interpolate_field_from_to(*m_source,*m_target);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

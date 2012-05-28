@@ -28,7 +28,7 @@ EmptyLSSMatrix::EmptyLSSMatrix ( const std::string& name ) :
   m_neq(0),
   m_is_created(false)
 {
-  properties().add_property("vector_type", std::string("cf3.math.LSS.EmptyLSSVector"));
+  properties().add("vector_type", std::string("cf3.math.LSS.EmptyLSSVector"));
 }
 
 

@@ -46,7 +46,7 @@ void SimpleSolver::mesh_loaded(Mesh& mesh)
 
   // Update the dimensions on the physics
   cf3_assert(mesh.dimension()>0);
-  physics().options().configure_option(common::Tags::dimension(), mesh.dimension());
+  physics().options().set(common::Tags::dimension(), mesh.dimension());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

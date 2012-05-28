@@ -73,6 +73,19 @@ Common_API std::string to_str< multi_array_view<Real,2> > (const multi_array_vie
   return s;
 }
 
+template <>
+Common_API std::string to_str< sub_array<Real, 1> > (const sub_array<Real, 1>& v)
+{
+  std::string s = "";
+  if (v.num_elements()) {
+    for (Uint i=0; i<v.size(); ++i) {
+      if (i!=0) s+= " ";
+      s += to_str(v[i]);
+    }
+  }
+  return s;
+
+}
 
 } // namespace common
 } // namespace cf3

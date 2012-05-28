@@ -105,17 +105,17 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
 
   // properties
 
-  properties().add_property("norm", Real(0.) );
+  properties().add("norm", Real(0.) );
 
   // options
 
-  options().add_option("scale", true)
+  options().add("scale", true)
       .description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  options().add_option("order", 2u)
+  options().add("order", 2u)
       .description("Order of the p-norm, zero if L-inf");
 
-  options().add_option("field", URI())
+  options().add("field", URI())
       .pretty_name("Field")
       .description("URI to the field to use, or to a link");
   }
@@ -134,7 +134,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
   std::vector<Real> norms(field.row_size(), 0.);
 
-  const Uint order = options().option("order").value<Uint>();
+  const Uint order = options().value<Uint>("order");
 
   // sum of all processors
 
@@ -150,7 +150,7 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
   }
 
-  if( options().option("scale").value<bool>() && order )
+  if( options().value<bool>("scale") && order )
   {
     for (Uint i=0; i<norms.size(); ++i)
       norms[i] /= nb_rows;
@@ -161,13 +161,13 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
 void ComputeLNorm::execute()
 {
-  Handle<Field> field( follow_link(access_component(options().option("field").value<URI>())) );
+  Handle<Field> field( follow_link(access_component(options().value<URI>("field"))) );
   if(is_not_null(field))
   {
     std::vector<Real> norms = compute_norm(*field);
 
     /// @todo this first one should dissapear
-    properties().configure_property("norm", norms[0] );
+    properties().set("norm", norms[0] );
     properties()["norms"] = norms;
   }
   else

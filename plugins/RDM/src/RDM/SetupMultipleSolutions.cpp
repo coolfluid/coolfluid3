@@ -16,14 +16,16 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 
-#include "SetupMultipleSolutions.hpp"
+#include "RDM/ComputeDualArea.hpp"
+
+#include "RDM/SetupMultipleSolutions.hpp"
 
 
 using namespace cf3::common;
@@ -43,7 +45,7 @@ SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3
 {
   // options
 
-  options().add_option( "nb_levels", 1u )
+  options().add( "nb_levels", 1u )
       .description("Number of solution levels to be created")
       .pretty_name("Number of levels");
 }
@@ -52,25 +54,31 @@ void SetupMultipleSolutions::execute()
 {
   RDM::RDSolver& mysolver = *solver().handle< RDM::RDSolver >();
 
-  /* nb_levels == rkorder */
+  if(is_null(m_mesh))
+    throw SetupError(FromHere(), "SetupMultipleSolution has no configured mesh in [" + uri().string() + "]" );
 
-  const Uint nb_levels = options().option("nb_levels").value<Uint>();
+  const Uint nb_levels = options().value<Uint>("nb_levels");
 
-  Mesh&  mesh = *m_mesh;
+  Mesh& mesh = *m_mesh;
   Group& fields = mysolver.fields();
 
+  const Uint nbdofs = physical_model().neqs();
+
   // get the geometry field group
+  Handle<Dictionary> geometry = mesh.geometry_fields().handle<Dictionary>();
 
-  Dictionary& geometry = mesh.geometry_fields();
-
-  const std::string solution_space = mysolver.options().option("solution_space").value<std::string>();
+  const std::string solution_space = mysolver.options().value<std::string>("solution_space");
 
   // check that the geometry belongs to the same space as selected by the user
 
   Handle< Dictionary > solution_group;
 
-  if( solution_space == geometry.name() || solution_space == mesh::Tags::geometry() )
-    solution_group = geometry.handle<Dictionary>();
+CFinfo << "WWWWWWWWWWWWWW: " << geometry->name() << solution_space << CFendl;
+
+  if( solution_space == geometry->name() || solution_space == RDM::Tags::solution() )
+  {
+    solution_group = geometry;
+  }
   else
   {
     // check if solution space already exists
@@ -89,8 +97,6 @@ void SetupMultipleSolutions::execute()
 
   // construct vector of variables
 
-  const Uint nbdofs = physical_model().neqs();
-
   std::string vars;
   for(Uint i = 0; i < nbdofs; ++i)
   {
@@ -98,35 +104,33 @@ void SetupMultipleSolutions::execute()
    if( i != nbdofs-1 ) vars += ",";
   }
 
-  // configure 1st solution
+  // configure solution
 
   Handle< Field > solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
     solution = solution_group->create_field( RDM::Tags::solution(), vars ).handle<Field>();
-
-    solution->add_tag(Tags::solution());
+    solution->add_tag(RDM::Tags::solution());
   }
 
   // create the other solutions based on the first solution field
 
-  std::vector< Handle< Field > > rk_steps;
+  std::vector< Handle< Field > > steps;
 
-  rk_steps.push_back(solution);
+  steps.push_back(solution);
 
   for(Uint step = 1; step < nb_levels; ++step)
   {
     Handle< Field > solution_k = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() + to_str(step));
     if ( is_null( solution_k ) )
     {
-      std::string name = std::string(Tags::solution()) + to_str(step);
+      std::string name = std::string(Tags::solution()) + "-" + to_str(step) + "dt";
       solution_k = solution_group->create_field( name, solution->descriptor().description() ).handle<Field>();
-      solution_k->descriptor().prefix_variable_names("rk" + to_str(step) + "_");
-      solution_k->add_tag("rksteps");
+      solution_k->add_tag("past_step");
     }
 
     cf3_assert( solution_k );
-    rk_steps.push_back(solution_k);
+    steps.push_back(solution_k);
   }
 
   // configure residual
@@ -139,7 +143,6 @@ void SetupMultipleSolutions::execute()
     residual->add_tag(Tags::residual());
   }
 
-
   // configure wave_speed
 
   Handle< Field > wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
@@ -149,37 +152,51 @@ void SetupMultipleSolutions::execute()
     wave_speed->add_tag(Tags::wave_speed());
   }
 
-
-  // create links
+  // place link to the fields in the Fields group
 
   if( ! fields.get_child( solution->name() ) )
     fields.create_component<Link>( solution->name() )->link_to(*solution).add_tag(RDM::Tags::solution());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( solution->name() )->handle<Link>()->link_to(*solution).add_tag(RDM::Tags::solution());
+
   if( ! fields.get_child( RDM::Tags::residual() ) )
     fields.create_component<Link>( RDM::Tags::residual() )->link_to(*residual).add_tag(RDM::Tags::residual());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( RDM::Tags::residual() )->handle<Link>()->link_to(*residual).add_tag(RDM::Tags::residual());
+
   if( ! fields.get_child( RDM::Tags::wave_speed() ) )
     fields.create_component<Link>( RDM::Tags::wave_speed() )->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
+  else
+    if (mysolver.switch_to_sol)
+      fields.get_child( RDM::Tags::wave_speed() )->handle<Link>()->link_to(*wave_speed).add_tag(RDM::Tags::wave_speed());
 
-  for( Uint step = 1; step < rk_steps.size(); ++step)
+
+  for( Uint step = 1; step < steps.size(); ++step)
   {
-    if( ! fields.get_child( rk_steps[step]->name() ) )
-      fields.create_component<Link>( rk_steps[step]->name() )->link_to( *rk_steps[step] ).add_tag("rksteps");
+    if( ! fields.get_child( steps[step]->name() ) )
+      fields.create_component<Link>( steps[step]->name() )->link_to( *steps[step] ).add_tag("past_step");
+    else
+      if (mysolver.switch_to_sol)
+        fields.get_child( steps[step]->name() )->handle<Link>()->link_to( *steps[step] ).add_tag("past_step");
   }
 
 
   // parallelize the solution if not yet done
 
-  CommPattern& pattern = solution->parallelize();
+  CommPattern& pattern=solution->parallelize();
 
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );
 
   for(Uint step = 1; step < nb_levels; ++step)
   {
-    rk_steps[step]->parallelize_with( pattern );
-    parallel_fields.push_back( rk_steps[step]->uri() );
+    steps[step]->parallelize_with( pattern );
+    parallel_fields.push_back( steps[step]->uri() );
   }
 
-  mysolver.actions().get_child("Synchronize")->options().configure_option("Fields", parallel_fields);
+  mysolver.actions().get_child("Synchronize")->options().set("Fields", parallel_fields);
 
 //  std::cout << "solution " << solution->uri().string() << std::endl;
 //  std::cout << "residual " << residual->uri().string() << std::endl;

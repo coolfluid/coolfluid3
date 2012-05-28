@@ -48,7 +48,7 @@ common::ComponentBuilder< Reader, MeshReader, LibCGNS > aCGNSReader_Builder;
 Reader::Reader(const std::string& name)
 : MeshReader(name), Shared()
 {
-  options().add_option( "SectionsAreBCs", false )
+  options().add( "SectionsAreBCs", false )
       .description("Treat Sections of lower dimensionality as BC. "
                         "This means no BCs from cgns will be read");
 }
@@ -939,7 +939,7 @@ void Reader::read_boco_structured(Region& parent_region)
 
 void Reader::read_flowsolution()
 {
-  std::cout << "nbsols = " << m_zone.nbSols << std::endl;
+//  std::cout << "nbsols = " << m_zone.nbSols << std::endl;
   for (m_flowsol.idx=1; m_flowsol.idx<=m_zone.nbSols; ++m_flowsol.idx)
   {
     char flowsol_name_char[CGNS_CHAR_MAX];
@@ -947,6 +947,7 @@ void Reader::read_flowsolution()
     m_flowsol.name = flowsol_name_char;
     boost::algorithm::replace_all(m_flowsol.name," ","_");
     boost::algorithm::replace_all(m_flowsol.name,".","_");
+    boost::algorithm::replace_all(m_flowsol.name,"-","_");
     boost::algorithm::replace_all(m_flowsol.name,":","_");
     boost::algorithm::replace_all(m_flowsol.name,"/","_");
 
@@ -983,17 +984,24 @@ void Reader::read_flowsolution()
     cf3_assert(datasize == m_mesh->geometry_fields().size());
 
     boost::shared_ptr<math::VariablesDescriptor> variables = allocate_component<math::VariablesDescriptor>("variables");
-    variables->options().configure_option("dimension",static_cast<Uint>(m_base.phys_dim));
+    variables->options().set("dimension",static_cast<Uint>(m_base.phys_dim));
 
     for (m_field.idx=1; m_field.idx<=m_flowsol.nbFields; ++m_field.idx)
     {
       char field_name_char[CGNS_CHAR_MAX];
       CALL_CGNS(cg_field_info(m_file.idx,m_base.idx,m_zone.idx,m_flowsol.idx,m_field.idx,&m_field.datatype,field_name_char));
-      variables->push_back(field_name_char, math::VariablesDescriptor::Dimensionalities::SCALAR);
+      std::string var_name = field_name_char;
+      boost::algorithm::replace_all(var_name," ","_");
+      boost::algorithm::replace_all(var_name,".","_");
+      boost::algorithm::replace_all(var_name,"-","_");
+      boost::algorithm::replace_all(var_name,":","_");
+      boost::algorithm::replace_all(var_name,"/","_");
+
+      variables->push_back(var_name, math::VariablesDescriptor::Dimensionalities::SCALAR);
     }
 
     Field& flowsol_field = dict->create_field(m_flowsol.name,variables->description());
-    std::cout << "flowsol_field.size() = " <<  flowsol_field.size() << std::endl;
+    // std::cout << "flowsol_field.size() = " <<  flowsol_field.size() << std::endl;
     for (m_field.idx=1; m_field.idx<=m_flowsol.nbFields; ++m_field.idx)
     {
       char field_name_char[CGNS_CHAR_MAX];

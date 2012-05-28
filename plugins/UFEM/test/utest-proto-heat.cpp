@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 5.;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
-  
+
   Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
@@ -135,12 +135,15 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   // Tools::MeshGeneration::create_line(mesh, length, nb_segments);
   boost::shared_ptr<MeshGenerator> create_line = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
-  create_line->options().configure_option("mesh",domain.uri()/"Mesh");
-  create_line->options().configure_option("lengths",std::vector<Real>(DIM_1D, length));
-  create_line->options().configure_option("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
+  create_line->options().set("mesh",domain.uri()/"Mesh");
+  create_line->options().set("lengths",std::vector<Real>(DIM_1D, length));
+  create_line->options().set("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
   
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+
+  math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+  lss.matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("xneg", "Temperature", 10.);

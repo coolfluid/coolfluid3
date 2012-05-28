@@ -57,15 +57,15 @@ Reader::Reader( const std::string& name )
 
   // options
 
-  options().add_option("part", PE::Comm::instance().rank() )
+  options().add("part", PE::Comm::instance().rank() )
       .description("Number of the part of the mesh to read. (e.g. rank of processor)")
       .pretty_name("Part");
 
-  options().add_option("nb_parts", PE::Comm::instance().size() )
+  options().add("nb_parts", PE::Comm::instance().size() )
       .description("Total number of parts. (e.g. number of processors)")
       .pretty_name("nb_parts");
 
-  options().add_option("read_fields", true)
+  options().add("read_fields", true)
       .description("Read the data from the mesh")
       .pretty_name("Read Fields")
       .mark_basic();
@@ -132,7 +132,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   fix_negative_volumes(*m_mesh);
 
-  if (options().option("read_fields").value<bool>())
+  if (options().value<bool>("read_fields"))
   {
     read_element_node_data();
     read_node_data();
@@ -188,7 +188,7 @@ void Reader::get_file_positions()
            (m_nb_gmsh_elem_in_region[ir])[type] = 0;
       }
 
-      m_mesh_dimension = options().option("dimension").value<Uint>();
+      m_mesh_dimension = options().value<Uint>("dimension");
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
         Uint phys_group_dimensionality;
@@ -220,8 +220,8 @@ void Reader::get_file_positions()
       std::vector<Uint> num_obj(2);
       num_obj[0] = m_total_nb_nodes;
       num_obj[1] = m_total_nb_elements;
-      m_hash->options().configure_option("nb_parts",options().option("nb_parts").value<Uint>());
-      m_hash->options().configure_option("nb_obj",num_obj);
+      m_hash->options().set("nb_parts",options().value<Uint>("nb_parts"));
+      m_hash->options().set("nb_obj",num_obj);
 
 
       Uint elem_idx, elem_type, nb_tags, phys_tag;
@@ -403,7 +403,7 @@ void Reader::read_coordinates()
   nodes.resize(m_used_nodes.size());
   m_used_nodes.clear();
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
 
   std::string line;
   //Skip the line with keyword '$Nodes':
@@ -503,7 +503,7 @@ void Reader::read_connectivity()
   Dictionary& nodes = m_mesh->geometry_fields();
 
 
-  Uint part = options().option("part").value<Uint>();
+  Uint part = options().value<Uint>("part");
 
   //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
  //Each row corresponds to one region of the mesh
@@ -740,6 +740,11 @@ void Reader::read_element_node_data()
 
               mesh::Field::Row field_data = field[space.connectivity()[cf_idx][n]] ;
 
+              if (var_end-var_begin == mesh::Field::TENSOR_2D)
+              {
+                data[2]=data[3];
+                data[3]=data[4];
+              }
               d=0;
               for(Uint v=var_begin; v<var_end; ++v)
                 field_data[v] = data[d++];
@@ -793,8 +798,8 @@ void Reader::read_element_data()
       //    var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
       mesh::Field& field = dict.create_field(gmsh_field.name);
-      field.options().configure_option("var_names",gmsh_field.var_names);
-      field.options().configure_option("var_types",var_types_str);
+      field.options().set("var_names",gmsh_field.var_names);
+      field.options().set("var_types",var_types_str);
 
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
@@ -892,6 +897,11 @@ void Reader::read_node_data()
           cf_idx = it->second;
           mesh::Field::Row field_data = field[cf_idx];
 
+          if (var_end-var_begin == mesh::Field::TENSOR_2D)
+          {
+            data[2]=data[3];
+            data[3]=data[4];
+          }
           d=0;
           for(Uint v=var_begin; v<var_end; ++v)
             field_data[v] = data[d++];

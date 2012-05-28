@@ -38,12 +38,12 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   mark_basic();
 
   // Fields to write
-  options().add_option("fields",std::vector<URI>())
+  options().add("fields",std::vector<URI>())
       .description("Fields to ouptut")
       .mark_basic();
 
   // Path to the mesh to write
-  options().add_option("mesh", m_mesh)
+  options().add("mesh", m_mesh)
       .description("Mesh to write")
       .pretty_name("Mesh")
       .link_to(&m_mesh)
@@ -51,7 +51,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
 
   // Output file path
   m_file_path = URI("mesh", URI::Scheme::FILE);
-  options().add_option("file", m_file_path)
+  options().add("file", m_file_path)
       .supported_protocol(URI::Scheme::FILE)  
       .description("File to write")
       .pretty_name("File")
@@ -59,14 +59,14 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
       .mark_basic();
 
   // Regions to write. Default is entire mesh.
-  options().add_option("regions", std::vector<URI>(1,"./"+std::string(Tags::topology())))
+  options().add("regions", std::vector<URI>(1,"./"+std::string(Tags::topology())))
       .pretty_name("Regions")
       .description("Regions to write. Default is entire mesh. URI can be relative to mesh")
       .mark_basic();
 
   // Option to enable overlap
   m_enable_overlap = false;
-  options().add_option("enable_overlap", m_enable_overlap)
+  options().add("enable_overlap", m_enable_overlap)
       .pretty_name("Enable Overlap")
       .description("Includes ghost cells")
       .mark_basic()
@@ -75,7 +75,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   // Option to enable surfaces such as boundaries
   m_region_filter  .enable_surfaces = true;   // default value
   m_entities_filter.enable_surfaces = true; // default value
-  options().add_option("enable_surfaces", m_region_filter.enable_surfaces)
+  options().add("enable_surfaces", m_region_filter.enable_surfaces)
       .pretty_name("Enable Surfaces")
       .description("Includes interior faces in mesh")
       .mark_basic()
@@ -85,7 +85,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   // Option to enable interior cells
   m_region_filter  .enable_interior_cells = true; // default value
   m_entities_filter.enable_interior_cells = true; // default value
-  options().add_option("enable_interior_cells", m_region_filter.enable_interior_cells)
+  options().add("enable_interior_cells", m_region_filter.enable_interior_cells)
       .pretty_name("Enable Interior Cells")
       .description("Includes interior cells in mesh")
       .mark_basic()
@@ -95,7 +95,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   // Option to enable interior faces
   m_region_filter  .enable_interior_faces = false; // default value
   m_entities_filter.enable_interior_faces = false; // default value
-  options().add_option("enable_interior_faces", m_region_filter.enable_interior_faces)
+  options().add("enable_interior_faces", m_region_filter.enable_interior_faces)
       .pretty_name("Enable Interior Faces")
       .description("Includes interior faces in mesh")
       .mark_basic()
@@ -175,8 +175,8 @@ void MeshWriter::execute()
 
 void MeshWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  options().configure_option("mesh",mesh.handle<Mesh const>());
-  options().configure_option("file",file_path);
+  options().set("mesh",mesh.handle<Mesh const>());
+  options().set("file",file_path);
   execute();
 };
 

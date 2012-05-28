@@ -47,13 +47,13 @@ InitAcousticVorticityPulse::InitAcousticVorticityPulse( const std::string& name 
   desc = "  Usage: InitAcousticVorticityPulse constant \n";
   properties()["description"] = desc;
 
-  options().add_option("field", m_field)
+  options().add("field", m_field)
       .description("Field to initialize")
       .pretty_name("Field")
       .link_to(&m_field)
       .mark_basic();
 
-  options().add_option("time", 0.).description("time after pulse").mark_basic();
+  options().add("time", 0.).description("time after pulse").mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ InitAcousticVorticityPulse::InitAcousticVorticityPulse( const std::string& name 
 void InitAcousticVorticityPulse::execute()
 {
   RealVector2 coord;
-  Real time = options().option("time").value<Real>();
+  Real time = options().value<Real>("time");
 
   cf3_assert(m_field);
   cf3_assert(m_field->coordinates().row_size()>=DIM_2D);

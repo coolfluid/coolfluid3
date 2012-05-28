@@ -77,7 +77,7 @@ namespace graphics {
     /// object is not cleared.
     void modified_options(core::CommitDetails & commitDetails) const;
 
-    void add_option(const boost::shared_ptr<cf3::common::Option >& option);
+    void add(const boost::shared_ptr<cf3::common::Option >& option);
 
     bool has_options() const;
 

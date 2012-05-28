@@ -57,7 +57,7 @@ namespace detail
   {
     SignalFrame reply = args.create_reply(created_component.parent()->uri());
     SignalOptions reply_options(reply);
-    reply_options.add_option("created_component", created_component.uri());
+    reply_options.add("created_component", created_component.uri());
   }
 
   /// Create the first step length and expansion ratios in each direction (in the mapped space)
@@ -177,7 +177,8 @@ struct BlockArrays::Implementation
       if(i == nb_points[search_direction])
       {
         Block neighbor = *neighbors[search_direction];
-        neighbor.search_indices = search_indices;
+        for(Uint j = 0; j != search_direction; ++j)
+          neighbor = neighbor[search_indices[j]];
         neighbor.search_indices.push_back(0);
         return neighbor;
       }
@@ -640,11 +641,13 @@ struct BlockArrays::Implementation
       {
         if(!patch.block.is_local)
           continue;
+        const Uint first_offset = patch.fixed_direction == 0 ? 1 : 0;
+        const Uint second_offset = patch.fixed_direction == 0 ? 0 : 1;
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
           Connectivity::Row elem_row = patch_conn[elem_idx++];
-          elem_row[0] = to_local(patch.global_idx(i  ));
-          elem_row[1] = to_local(patch.global_idx(i+1));
+          elem_row[0] = to_local(patch.global_idx(i + first_offset));
+          elem_row[1] = to_local(patch.global_idx(i + second_offset));
         }
       }
     }
@@ -1229,16 +1232,16 @@ BlockArrays::BlockArrays(const std::string& name) :
     .pretty_name("Create Mesh")
     .signature( boost::bind(&BlockArrays::signature_create_mesh, this, _1) );
 
-  options().add_option("block_distribution", std::vector<Uint>())
+  options().add("block_distribution", std::vector<Uint>())
     .pretty_name("Block Distribution")
     .description("The distribution of the blocks among CPUs in a parallel simulation")
     .link_to(&m_implementation->block_distribution)
     .attach_trigger(boost::bind(&Implementation::trigger_block_distribution, m_implementation.get()));
 
-  options().add_option("overlap", 1u).pretty_name("Overlap")
+  options().add("overlap", 1u).pretty_name("Overlap")
     .description("Number of cell layers to overlap across parallel partitions. Ignored in serial runs");
 
-  options().add_option("block_regions", std::vector<std::string>())
+  options().add("block_regions", std::vector<std::string>())
     .pretty_name("Block Regions")
     .description("For each block, the region it belongs to. Leave empty to assign each block to the region \"interior\"")
     .link_to(&m_implementation->block_regions)
@@ -1451,8 +1454,8 @@ void BlockArrays::partition_blocks(const Uint nb_partitions, const Uint directio
   m_implementation->partition_blocks(nb_partitions, direction);
 
   // The algorithm just modifies the linked parameter, so we need to reset the option to keep it in sync
-  options().configure_option("block_distribution", m_implementation->block_distribution);
-  options().configure_option("block_regions", m_implementation->block_regions);
+  options().set("block_distribution", m_implementation->block_distribution);
+  options().set("block_regions", m_implementation->block_regions);
 }
 
 void BlockArrays::extrude_blocks(const std::vector<Real>& positions, const std::vector< Uint >& nb_segments, const std::vector< Real >& gradings)
@@ -1738,14 +1741,16 @@ void BlockArrays::create_mesh(Mesh& mesh)
     element_offset += nb_elems;
   }
 
-  const Uint overlap = options().option("overlap").value<Uint>();
+  const Uint overlap = options().value<Uint>("overlap");
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
+    mesh.block_mesh_changed(true); // avoid triggering mesh_changed before the load event is raised
     MeshTransformer& grow_overlap = *Handle<MeshTransformer>(create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
     mesh.geometry_fields().remove_component("CommPattern");
+    mesh.block_mesh_changed(false);
   }
   mesh.raise_mesh_loaded();
 }
@@ -1753,8 +1758,8 @@ void BlockArrays::create_mesh(Mesh& mesh)
 void BlockArrays::signature_partition_blocks(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("nb_partitions", PE::Comm::instance().size()).pretty_name("Nb. Partitions").description("Number of partitions");
-  options.add_option("direction", 0u).pretty_name("Direction").description("Partitioning direction (0=X, 1=Y, 2=Z)");
+  options.add("nb_partitions", PE::Comm::instance().size()).pretty_name("Nb. Partitions").description("Number of partitions");
+  options.add("direction", 0u).pretty_name("Direction").description("Partitioning direction (0=X, 1=Y, 2=Z)");
 }
 
 void BlockArrays::signal_partition_blocks(SignalArgs& args)
@@ -1768,8 +1773,8 @@ void BlockArrays::signal_partition_blocks(SignalArgs& args)
 void BlockArrays::signature_create_points(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("dimensions", 3u).pretty_name("Dimensions").description("The physical dimensions for the mesh (must be 2 or 3)");
-  options.add_option("nb_points", 0u).pretty_name("Number of points").description("The number of points needed to define the blocks");
+  options.add("dimensions", 3u).pretty_name("Dimensions").description("The physical dimensions for the mesh (must be 2 or 3)");
+  options.add("nb_points", 0u).pretty_name("Number of points").description("The number of points needed to define the blocks");
 }
 
 void BlockArrays::signal_create_points(SignalArgs& args)
@@ -1782,7 +1787,7 @@ void BlockArrays::signal_create_points(SignalArgs& args)
 void BlockArrays::signature_create_blocks(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("nb_blocks", 0u).pretty_name("Number of blocks").description("The number of blocks that are needed");
+  options.add("nb_blocks", 0u).pretty_name("Number of blocks").description("The number of blocks that are needed");
 }
 
 void BlockArrays::signal_create_blocks(SignalArgs& args)
@@ -1807,8 +1812,8 @@ void BlockArrays::signal_create_block_gradings(SignalArgs& args)
 void BlockArrays::signature_create_patch_nb_faces(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
-  options.add_option("nb_faces", 0u).pretty_name("Number of faces").description("The number of faces (of individual blocks) that make up the patch");
+  options.add("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
+  options.add("nb_faces", 0u).pretty_name("Number of faces").description("The number of faces (of individual blocks) that make up the patch");
 }
 
 void BlockArrays::signal_create_patch_nb_faces(SignalArgs& args)
@@ -1821,8 +1826,8 @@ void BlockArrays::signal_create_patch_nb_faces(SignalArgs& args)
 void BlockArrays::signature_create_patch_face_list(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
-  options.add_option("face_list", std::vector<Uint>()).pretty_name("Face List").description("The list of faces that make up the patch. Numbers are as given in the default patch");
+  options.add("name", "Default").pretty_name("Patch Name").description("The name for the created patch");
+  options.add("face_list", std::vector<Uint>()).pretty_name("Face List").description("The list of faces that make up the patch. Numbers are as given in the default patch");
 }
 
 void BlockArrays::signal_create_patch_face_list(SignalArgs& args)
@@ -1841,15 +1846,15 @@ void BlockArrays::signature_extrude_blocks(SignalArgs& args)
 {
   SignalOptions options(args);
 
-  options.add_option("positions", std::vector<Real>())
+  options.add("positions", std::vector<Real>())
     .pretty_name("Positions")
     .description("Spanwise coordinate for each new spanwise layer of points. Values must ne greater than 0");
 
-  options.add_option("nb_segments", std::vector<Uint>())
+  options.add("nb_segments", std::vector<Uint>())
     .pretty_name("Nb Segments")
     .description("Number of spanwise segments for each block");
 
-  options.add_option("gradings", std::vector<Real>())
+  options.add("gradings", std::vector<Real>())
     .pretty_name("Gradings")
     .description("Uniform grading definition in the spanwise direction for each block");
 }
@@ -1865,7 +1870,7 @@ void BlockArrays::signal_extrude_blocks(SignalArgs& args)
 void BlockArrays::signature_create_mesh(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("output_mesh", URI())
+  options.add("output_mesh", URI())
     .supported_protocol(cf3::common::URI::Scheme::CPATH)
     .pretty_name("Output Mesh")
     .description("URI to a mesh in which to create the output");

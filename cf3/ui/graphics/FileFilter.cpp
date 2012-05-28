@@ -10,6 +10,8 @@
 
 #include "ui/graphics/FileFilter.hpp"
 
+#include <QMimeData>
+
 using namespace cf3::ui::core;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,6 +54,14 @@ QVariant FileFilter::data ( const QModelIndex &index, int role ) const
   }
 
   return value;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+QMimeData * FileFilter::mimeData(const QModelIndexList &indexes) const
+{
+  //we don't really care about the data itself, all matter is that this pointer is not null
+  return new QMimeData();
 }
 
 //////////////////////////////////////////////////////////////////////////////

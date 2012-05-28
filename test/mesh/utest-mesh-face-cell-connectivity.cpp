@@ -87,9 +87,9 @@ BOOST_AUTO_TEST_CASE( create_mesh )
   std::vector<Real> lengths  = list_of(4.)(2.);
   std::vector<Uint> nb_cells = list_of(scale*2u)(scale*2u);
   SimpleMeshGenerator& mesh_gen = *Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
-  mesh_gen.options().configure_option("mesh",m_mesh->uri());
-  mesh_gen.options().configure_option("lengths",lengths);
-  mesh_gen.options().configure_option("nb_cells",nb_cells);
+  mesh_gen.options().set("mesh",m_mesh->uri());
+  mesh_gen.options().set("lengths",lengths);
+  mesh_gen.options().set("nb_cells",nb_cells);
   mesh_gen.execute();
   BOOST_CHECK(true);
 }

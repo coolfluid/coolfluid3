@@ -112,7 +112,7 @@ CNode::CNode( const std::string & name, const QString & component_type, Type typ
       .connect(boost::bind(&CNode::reply_signal_signature, this, _1))
       .hidden(true);
 
-  properties().add_property( "original_component_type", m_component_type.toStdString() );
+  properties().add( "original_component_type", m_component_type.toStdString() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -161,19 +161,19 @@ void CNode::set_properties( const SignalArgs & options )
             if(properties().check(key_val))
             {
               if( typ_val == Protocol::Tags::type<bool>() )
-                properties().configure_property(key_val, from_str<bool>(value));
+                properties().set(key_val, from_str<bool>(value));
               else if( typ_val == Protocol::Tags::type<int>() )
-                properties().configure_property(key_val, from_str<int>(value));
+                properties().set(key_val, from_str<int>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                properties().configure_property(key_val, from_str<cf3::Uint>(value));
+                properties().set(key_val, from_str<cf3::Uint>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                properties().configure_property(key_val, from_str<cf3::Real>(value));
+                properties().set(key_val, from_str<cf3::Real>(value));
               else if( typ_val == Protocol::Tags::type<std::string>() )
-                properties().configure_property(key_val, std::string(value));
+                properties().set(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
-                properties().configure_property(key_val, from_str<URI>(value));
+                properties().set(key_val, from_str<URI>(value));
               else if( typ_val == Protocol::Tags::type<UUCount>() )
-                properties().configure_property(key_val, from_str<UUCount>(value));
+                properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -181,19 +181,19 @@ void CNode::set_properties( const SignalArgs & options )
             {
 
               if( typ_val == Protocol::Tags::type<bool>() )
-                properties().add_property(key_val, from_str<bool>(value));
+                properties().add(key_val, from_str<bool>(value));
               else if( typ_val == Protocol::Tags::type<int>() )
-                properties().add_property(key_val, from_str<int>(value));
+                properties().add(key_val, from_str<int>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                properties().add_property(key_val, from_str<cf3::Uint>(value));
+                properties().add(key_val, from_str<cf3::Uint>(value));
               else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                properties().add_property(key_val, from_str<cf3::Real>(value));
+                properties().add(key_val, from_str<cf3::Real>(value));
               else if( typ_val == Protocol::Tags::type<std::string>() )
-                properties().add_property(key_val, std::string(value));
+                properties().add(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
-                properties().add_property(key_val, from_str<URI>(value));
+                properties().add(key_val, from_str<URI>(value));
               else if( typ_val == Protocol::Tags::type<UUCount>() )
-                properties().configure_property(key_val, from_str<UUCount>(value));
+                properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -260,13 +260,13 @@ void addValueToXml( const std::string& name,
     std::vector<TYPE> data;
     Map::split_string(value, sep, data);
 
-    options.add_option(name, data);
+    options.add(name, data);
   }
   else
   {
     try
     {
-      options.add_option(name, from_str<TYPE>(value));
+      options.add(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {
@@ -329,12 +329,12 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
       // since OptionT<URI> does not exist, using addValueToXml for
       // this type would lead to an undefined reference linking error
       if( sep.empty() )
-        options.add_option(name, from_str<URI>(value));
+        options.add(name, from_str<URI>(value));
       else
       {
         std::vector<URI> data;
         Map::split_string(value, sep, data);
-        options.add_option(name, data);
+        options.add(name, data);
       }
     }
     else
@@ -638,7 +638,7 @@ boost::shared_ptr< CNode > CNode::create_from_xml_recursive( XmlNode & node,
     root_node->mark_basic();
 
   if( !uuid.is_nil() )
-    root_node->properties().configure_property( "uuid", uuid );
+    root_node->properties().set( "uuid", uuid );
   else
     NLog::global()->add_warning( "Found a Component without no UuiD." );
 

@@ -34,16 +34,20 @@
 #include "ui/core/NTree.hpp"
 #include "ui/core/PropertyModel.hpp"
 #include "ui/core/RemoteDispatcher.hpp"
+#include "ui/core/SSHTunnel.hpp"
 #include "ui/core/ThreadManager.hpp"
 
 #include "ui/graphics/AboutCFDialog.hpp"
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
+#include "ui/graphics/PythonCodeEditor.hpp"
+#include "ui/graphics/PythonConsole.hpp"
 #include "ui/graphics/SignatureDialog.hpp"
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/graphics/TreeBrowser.hpp"
 #include "ui/graphics/TreeView.hpp"
+#include "ui/graphics/RemoteFileCopy.hpp"
 
 #include "ui/uicommon/ComponentNames.hpp"
 
@@ -81,14 +85,15 @@ MainWindow::MainWindow()
   m_tree_view = new TreeView(m_central_panel, this);
   m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
   m_central_splitter = new QSplitter(Qt::Vertical/*, this*/);
+  m_python_tab_splitter = new QSplitter(this);
   m_tab_window = new QTabWidget(m_central_panel);
   m_log_list = new LoggingList(m_tab_window);
   m_property_model = new PropertyModel();
   m_property_view = new QTableView(m_tab_window);
   m_lab_description = new QLabel(m_tab_window);
+  m_python_console = new PythonConsole(m_tab_window, this);
   m_tree_browser = new TreeBrowser(m_tree_view, this);
   m_scroll_description = new QScrollArea(this);
-
   m_about_cf_dialog = new AboutCFDialog(this);
 
   boost::program_options::options_description desc;
@@ -114,6 +119,7 @@ MainWindow::MainWindow()
   m_tab_window->addTab(m_log_list, "Log");
   m_tab_window->addTab(m_property_view, "Properties");
   m_tab_window->addTab(m_scroll_description, "Description");
+  m_tab_window->addTab(m_python_console,"Python Console");
 
   TabBuilder::instance()->addTab(m_central_panel, "Options");
 
@@ -121,10 +127,19 @@ MainWindow::MainWindow()
   // add the components to the splitter
   m_splitter->addWidget(m_tree_browser);
 
+  QWidget* m_python_tab_widget=new QWidget(this);
+
   m_central_splitter->addWidget(TabBuilder::instance());
   m_central_splitter->addWidget(m_tab_window);
 
-  m_splitter->addWidget(m_central_splitter);
+  m_python_tab_splitter->addWidget(m_central_splitter);
+  m_python_tab_splitter->addWidget(m_python_tab_widget);
+
+  m_python_tab_splitter->setStretchFactor(0,10);
+
+  m_python_console->create_python_area(m_python_tab_widget);
+
+  m_splitter->addWidget(m_python_tab_splitter);
 
   m_central_splitter->setStretchFactor(0, 10);
   m_splitter->setStretchFactor(1, 10);
@@ -157,6 +172,8 @@ MainWindow::MainWindow()
           this, SLOT(current_index_changed(QModelIndex,QModelIndex)));
 
   connect(m_tab_window, SIGNAL(currentChanged(int)), this, SLOT(tab_clicked(int)));
+
+  current_tunnel=NULL;
 
   this->set_connected_state(false);
 
@@ -201,8 +218,20 @@ void MainWindow::build_menus()
                                 SLOT(connect_to_server()), tr("ctrl+shift+C"));
   m_actions[ACTION_CONNECT_TO_SERVER] = action;
 
+  //////
+#if defined(unix) || defined(__unix__) || defined(__unix)
+  action = m_mnu_file->addAction("Create an ssh &tunnel", this,
+                                SLOT(create_ssh_tunnel()), tr("ctrl+shift+T"));
+  m_actions[ACTION_CREATE_SSH_TUNNEL] = action;
+
+  action = m_mnu_file->addAction("Create a &reverse ssh tunnel", this,
+                                SLOT(create_reverse_ssh_tunnel()), tr("ctrl+shift+R"));
+  m_actions[ACTION_CREATE_REVERSE_SSH_TUNNEL] = action;
+#endif
+  //////
+
   action = m_mnu_file->addAction("&Disconnect from server", this,
-                                SLOT(disconnect_from_server()), tr("ctrl+shift+x"));
+                                SLOT(disconnect_from_server()), tr("ctrl+shift+X"));
   m_actions[ACTION_DISCONNECT_FROM_SERVER] = action;
 
   action = m_mnu_file->addAction("&Shutdown the server", this,
@@ -211,9 +240,13 @@ void MainWindow::build_menus()
 
   m_mnu_file->addSeparator();
 
-  action = m_mnu_file->addAction("&Run script", this,
-                                SLOT(run_script()), tr("ctrl+shift+R"));
+  action = m_mnu_file->addAction("Run &script", this,
+                                SLOT(run_script()), tr("ctrl+shift+S"));
   m_actions[ACTION_RUN_SCRIPT] = action;
+
+  action = m_mnu_file->addAction("&New python editor", this,
+                                SLOT(new_python_script_editor()), tr("ctrl+shift+N"));
+  m_actions[ACTION_NEW_PYTHON_EDITOR] = action;
 
   m_mnu_file->addSeparator();
 
@@ -233,6 +266,10 @@ void MainWindow::build_menus()
 
   m_mnu_file->addMenu(m_mnu_open_file);
   m_mnu_file->addMenu(m_mnu_save_file);
+
+  action = m_mnu_file->addAction("New remote &file copy view", this,
+                                SLOT(new_remote_file_copy()), tr("ctrl+shift+F"));
+  m_actions[ACTION_NEW_REMOTE_FILE_COPY] = action;
   m_mnu_file->addSeparator();
 
   //-----------------------------------------------
@@ -478,11 +515,11 @@ void MainWindow::connect_to_server()
   SignalOptions options( frame );
   SignatureDialog dlg( this );
 
-  options.add_option( "hostname", std::string("localhost") )
+  options.add( "hostname", std::string("localhost") )
       .pretty_name( "Hostname" )
       .description( "Name of the computer that hosts the server.");
 
-  options.add_option( "port_number",cf3::Uint(62784) )
+  options.add( "port_number",cf3::Uint(62784) )
       .pretty_name( "Port Number" )
       .description( "The port number the server is listening to." );
 
@@ -495,6 +532,28 @@ void MainWindow::connect_to_server()
 
     ThreadManager::instance().network().connect_to_host( hostname, port );
   }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::create_ssh_tunnel()
+{
+  SSHTunnel* tunnel=SSHTunnel::simple_tunnel_popup(this);
+  if (tunnel){
+    current_tunnel=tunnel;
+  }
+    //ThreadManager::instance().network().connect_to_host( "localhost", gateway_port );
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::create_reverse_ssh_tunnel()
+{
+  SSHTunnel* tunnel=SSHTunnel::reverse_tunnel_popup(this);
+  if (tunnel){
+    current_tunnel=tunnel;
+  }
+    //ThreadManager::instance().network().connect_to_host( "localhost", gateway_port );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -528,6 +587,7 @@ void MainWindow::set_connected_state(bool connected)
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
   m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
   m_actions[ACTION_RUN_SCRIPT]->setEnabled(connected);
+  m_actions[ACTION_NEW_REMOTE_FILE_COPY]->setEnabled(connected);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -600,6 +660,20 @@ void MainWindow::run_script()
   {
     NLog::global()->add_exception( e.what() );
   }
+}
+
+void MainWindow::new_python_script_editor(){
+    TabBuilder::instance()->addTab(new PythonCodeEditor(this), "Python editor");
+}
+
+void MainWindow::new_remote_file_copy(){
+  TabBuilder::instance()->addTab(new RemoteFileCopy(this),"File Copy Thing");
+}
+
+PythonCodeEditor* MainWindow::create_new_python_editor(){
+  PythonCodeEditor *editor=new PythonCodeEditor(this);
+  TabBuilder::instance()->addTab(editor, "Python editor");
+  return editor;
 }
 
 ////////////////////////////////////////////////////////////////////////////

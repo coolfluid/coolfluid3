@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
 {
   CFinfo << "MeshPartitioner_test" << CFendl;
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  meshreader->options().configure_option("read_boundaries",false);
+  meshreader->options().set("read_boundaries",false);
 
   // the file to read from
   URI fp_in ("file:../../resources/quadtriag.neu");
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
   CF3_DEBUG_POINT;
 
-  //p.configure_property("nb_partitions", (Uint) 2);
+  //p.set("nb_partitions", (Uint) 2);
   BOOST_CHECK(true);
   p.initialize(mesh);
   CF3_DEBUG_POINT;

@@ -72,16 +72,16 @@ solver.get_child('InitialConditions').execute();
 ### Create convection term
 # convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokesmovingreference.Convection2D')
-convection.options().set("Omega", (0.0, 0.0, 5.0))
-convection.options().set("Vtrans", (0.0, 0.0))
+convection.options().set("Omega", [0.0, 0.0, 5.0])
+convection.options().set("Vtrans", [0.0, 0.0])
 convection.options().set("gamma", 1.4)
 
 ## Create source term
 source_term = solver.get_child('DomainDiscretization').create_term( name='source_term',
   type='cf3.sdm.navierstokesmovingreference.Source2D',
   regions=[mesh.access_component('topology/interior').uri()] )
-source_term.options().set("Omega", (0.0, 0.0, 5.0))
-source_term.options().set("Vtrans", (0.0, 0.0))
+source_term.options().set("Omega", [0.0, 0.0, 5.0])
+source_term.options().set("Vtrans", [0.0, 0.0])
 source_term.options().set("gamma", 1.4)
 
 wallbc = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'wallbc', type = 'cf3.sdm.navierstokes.BCWallEuler2D',
@@ -94,7 +94,7 @@ inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= '
 regions=[
 mesh.access_component('topology/left').uri()
 ])
-inlet.options().set('U', (50., 0.))
+inlet.options().set('U', [50., 0.])
 inlet.options().set('gamma', 1.4)
 inlet.options().set('T', 273.15)
 inlet.options().set('R', 287.05)
