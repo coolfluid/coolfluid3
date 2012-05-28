@@ -33,8 +33,8 @@ mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p
 gamma = 1.4
 R = 287.05
 M_inf = 0.38
-p_inf = 1
-rho_inf = 1
+p_inf = 1.0
+rho_inf = 1.0
 c_inf = math.sqrt(gamma*p_inf/rho_inf)
 u_inf = M_inf*c_inf
 rhoE_inf = p_inf/(gamma-1) + 0.5 * rho_inf * u_inf**2
@@ -61,16 +61,14 @@ solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages
 solver.get_child('PrepareMesh').execute()
 
 ### Set the initial condition
-physics.create_variables(name='input_vars',type='cf3.physics.NavierStokes.Prim2D')
 functions = [
 str(rho_inf),
-'if( (x<-5) | (x>5) , '+str(u_inf)+' , 0.5*'+str(u_inf)+' )',
+'if( (x<-5) | (x>5) , '+str(rho_inf*u_inf)+' , 0.5*'+str(rho_inf*u_inf)+' )',
 '0.',
-str(p_inf)
+str(rhoE_inf)
 ]
 initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'uniform')
 initial_condition.options().set('functions',functions)
-initial_condition.options().set('input_vars',physics.access_component('input_vars'))
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
@@ -100,8 +98,8 @@ solver.get_child('BoundaryConditions').execute();
 # fields to output:
 fields = [
 mesh.access_component('solution_space/solution').uri(),
-mesh.access_component('solution_space/jacobian_determinant').uri(),
-mesh.access_component('solution_space/delta').uri()
+#mesh.access_component('solution_space/jacobian_determinant').uri(),
+#mesh.access_component('solution_space/delta').uri()
 ]
 
 gmsh_writer = model.create_component('init_writer','cf3.mesh.gmsh.Writer')
