@@ -26,10 +26,12 @@ namespace cf3 {
 namespace Tools { 
 namespace Shell {
 
+typedef boost::program_options::options_description commands_description;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string default_prompt();
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Command Line and script interpreter
@@ -45,7 +47,6 @@ private:
   typedef std::string (*prompt_function_pointer_t)();
   typedef std::string (*readline_function_pointer_t)(const std::string& line);
 //  typedef void (*unrecognized_commands_handler_t)(std::vector<std::string>& unrecognized_commands);
-  typedef boost::program_options::options_description commands_description;
   
   typedef boost::function< void (std::vector<std::string>&) >  unrecognized_commands_handler_t;
   
@@ -83,7 +84,7 @@ public:
   void alias(const std::string& arg);
   
   void interpret_alias(std::vector<std::string>& unrecognized_commands);
-  
+
 private:
 
   commands_description m_desc;
@@ -91,6 +92,28 @@ private:
   std::vector<unrecognized_commands_handler_t> m_handle_unrecognized_commands;
   std::deque<std::string> m_history;
   std::map<std::string,std::string> m_alias;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class Command : public commands_description
+{
+public:
+  Command(const std::string& command, const std::string& description, commands_description& commands);
+  void handle(const std::vector<std::string>& params);
+  virtual void execute(const std::vector<std::string>& params) = 0;
+protected:
+  commands_description& m_commands;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class StdHelp : public Command
+{
+public:
+  StdHelp(const std::string& command, const std::string& description, commands_description& commands)
+    : Command(command,description,commands) {}
+  virtual void execute(const std::vector<std::string>& params);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_mesh_actions_files
   Info.hpp
   Info.cpp
+  CreateField.hpp
+  CreateField.cpp
   Extract.hpp
   Extract.cpp
   BuildArea.hpp
@@ -21,14 +23,12 @@ list( APPEND coolfluid_mesh_actions_files
   GlobalNumberingNodes.cpp
   GlobalConnectivity.hpp
   GlobalConnectivity.cpp
+  ImportVariables.hpp
+  ImportVariables.cpp
   InitFieldConstant.hpp
   InitFieldConstant.cpp
   InitFieldFunction.hpp
   InitFieldFunction.cpp
-  MatchNodes.hpp
-  MatchNodes.cpp
-  MergeMeshes.hpp
-  MergeMeshes.cpp
   GrowOverlap.hpp
   GrowOverlap.cpp
   Interpolate.hpp

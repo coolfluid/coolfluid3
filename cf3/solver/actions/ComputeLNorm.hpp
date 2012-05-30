@@ -14,6 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
+namespace common { template<typename T> class Table; }
 namespace mesh   { class Field; }
 namespace solver {
 namespace actions {
@@ -34,7 +35,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  std::vector<Real> compute_norm(mesh::Field&) const;
+  std::vector<Real> compute_norm(common::Table<Real>& table) const;
 
 };
 

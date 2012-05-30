@@ -43,13 +43,6 @@ public: // functions
 
   virtual void execute();
   
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
-
-
 }; // end GlobalConnectivity
 
 

@@ -4,45 +4,53 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_MergeMeshes_hpp
-#define cf3_mesh_actions_MergeMeshes_hpp
+#ifndef cf3_mesh_actions_ImportVariables_hpp
+#define cf3_mesh_actions_ImportVariables_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/MatrixTypes.hpp"
-#include "common/Action.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-class Mesh;
+
+  class Dictionary;
+  class LoadMesh;
+  class AInterpolator;
+
 namespace actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
-/// @brief Merge several meshes into a new mesh
+/// @brief Import variables from another mesh
+///
+/// Optionally, a dictionary can be provided to load the variables into
+/// Every imported variable will have its own field
 /// @author Willem Deconinck
-class mesh_actions_API MergeMeshes : public common::Component
-{
+class mesh_actions_API ImportVariables : public MeshTransformer
+{   
 public: // functions
   
+  /// constructor
+  ImportVariables( const std::string& name );
+  
   /// Gets the Class name
-  static std::string type_name() { return "MergeMeshes"; }
+  static std::string type_name() { return "ImportVariables"; }
 
-  /// Constructor
-  MergeMeshes( const std::string& name );
+  virtual void execute();
+  
+private: // data
 
-  /// Virtual destructor
-  virtual ~MergeMeshes() {};
+  std::vector<std::string> m_import_var_names;
+  std::vector<std::string> m_var_names;
 
-  /// Merge meshes
-  void merge_mesh(const Mesh& mesh, Mesh& merged_mesh);
+  Handle<LoadMesh> m_mesh_loader;
+  Handle<AInterpolator> m_interpolator;
 
-  void fix_ranks(Mesh& merged_mesh);
-
-}; // end MergeMeshes
+}; // end ImportVariables
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,4 +60,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_MergeMeshes_hpp
+#endif // cf3_mesh_actions_ImportVariables_hpp

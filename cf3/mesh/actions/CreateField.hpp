@@ -4,12 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_MatchNodes_hpp
-#define cf3_mesh_actions_MatchNodes_hpp
+#ifndef cf3_mesh_actions_CreateField_hpp
+#define cf3_mesh_actions_CreateField_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/MatrixTypes.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/actions/LibActions.hpp"
 
@@ -17,42 +16,47 @@
 
 namespace cf3 {
 namespace mesh {
+
+  class Dictionary;
+  class LoadMesh;
+  class AInterpolator;
+
 namespace actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines a mesh transformer
-/// that finds matching nodes in given regions of the mesh
+/// @brief Import variables from another mesh
+///
+/// Optionally, a dictionary can be provided to load the variables into
+/// Every imported variable will have its own field
 /// @author Willem Deconinck
-class mesh_actions_API MatchNodes : public MeshTransformer
-{
-public: // typedefs
-
-    
-    
-
+class mesh_actions_API CreateField : public MeshTransformer
+{   
 public: // functions
   
   /// constructor
-  MatchNodes( const std::string& name );
+  CreateField( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "MatchNodes"; }
+  static std::string type_name() { return "CreateField"; }
 
   virtual void execute();
   
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
-  
 private: // functions
-  
-  std::size_t hash_value(const RealVector3& coords);
 
-}; // end MatchNodes
+  void replace_var_name (const std::string& var_from,
+                         const std::string& var_to,
+                         std::vector<std::string>& functions);
 
+private: // data
+
+  std::vector<std::string> m_import_var_names;
+  std::vector<std::string> m_var_names;
+
+  Handle<LoadMesh> m_mesh_loader;
+  Handle<AInterpolator> m_interpolator;
+
+}; // end CreateField
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,4 +66,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_MatchNodes_hpp
+#endif // cf3_mesh_actions_CreateField_hpp

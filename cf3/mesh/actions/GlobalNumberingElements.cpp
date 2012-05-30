@@ -82,21 +82,6 @@ GlobalNumberingElements::GlobalNumberingElements( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string GlobalNumberingElements::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string GlobalNumberingElements::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void GlobalNumberingElements::execute()
 {
   Mesh& mesh = *m_mesh;

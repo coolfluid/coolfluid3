@@ -115,24 +115,24 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
   options().add("order", 2u)
       .description("Order of the p-norm, zero if L-inf");
 
-  options().add("field", URI())
-      .pretty_name("Field")
-      .description("URI to the field to use, or to a link");
+  options().add("table", URI())
+      .pretty_name("Table")
+      .description("URI to the table to use, or to a link");
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
+std::vector<Real> ComputeLNorm::compute_norm(Table<Real>& table) const
 {
 
-  const Uint loc_nb_rows = field.size(); // field size on local processor
-  Uint nb_rows = 0;                      // field size over all processors
+  const Uint loc_nb_rows = table.size(); // table size on local processor
+  Uint nb_rows = 0;                      // table size over all processors
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_nb_rows, 1u, &nb_rows );
 
-  if ( !nb_rows ) throw SetupError(FromHere(), "Field is empty");
+  if ( !nb_rows ) throw SetupError(FromHere(), "Table is empty");
 
-  std::vector<Real> norms(field.row_size(), 0.);
+  std::vector<Real> norms(table.row_size(), 0.);
 
   const Uint order = options().value<Uint>("order");
 
@@ -140,13 +140,13 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
   switch(order) {
 
-  case 2:  compute_L2( field.array(), norms );    break;
+  case 2:  compute_L2( table.array(), norms );    break;
 
-  case 1:  compute_L1( field.array(), norms );    break;
+  case 1:  compute_L1( table.array(), norms );    break;
 
-  case 0:  compute_Linf( field.array(), norms );  break; // consider order 0 as Linf
+  case 0:  compute_Linf( table.array(), norms );  break; // consider order 0 as Linf
 
-  default: compute_Lp( field.array(), norms, order );    break;
+  default: compute_Lp( table.array(), norms, order );    break;
 
   }
 
@@ -161,17 +161,17 @@ std::vector<Real> ComputeLNorm::compute_norm(mesh::Field& field) const
 
 void ComputeLNorm::execute()
 {
-  Handle<Field> field( follow_link(access_component(options().value<URI>("field"))) );
-  if(is_not_null(field))
+  Handle< Table<Real> > table( follow_link(access_component(options().value<URI>("table"))) );
+  if(is_not_null(table))
   {
-    std::vector<Real> norms = compute_norm(*field);
+    std::vector<Real> norms = compute_norm(*table);
 
     /// @todo this first one should dissapear
     properties().set("norm", norms[0] );
     properties()["norms"] = norms;
   }
   else
-    CFinfo << "Not computing norm in action " << uri() << " because option field is invalid." << CFendl;
+    CFinfo << "Not computing norm in action " << uri() << " because option table is invalid." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
