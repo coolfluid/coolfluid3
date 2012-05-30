@@ -78,21 +78,6 @@ GlobalNumbering::GlobalNumbering( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string GlobalNumbering::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string GlobalNumbering::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh;

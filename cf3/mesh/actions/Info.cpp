@@ -73,22 +73,6 @@ Info::Info( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string Info::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string Info::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" +
-      properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void Info::execute()
 {
 

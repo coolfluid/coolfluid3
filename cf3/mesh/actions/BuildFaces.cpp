@@ -93,22 +93,6 @@ BuildFaces::BuildFaces( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string BuildFaces::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string BuildFaces::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" +
-      properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void BuildFaces::execute()
 {
   // traverse regions and make interface region between connected regions recursively

@@ -47,17 +47,6 @@ public: // functions
 
   virtual void execute();
 
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-
-  /// extended help that user can query
-  virtual std::string help() const;
-
-public: // functions
-
-//  static std::size_t elem_hash_value(const RealMatrix& coords);
-//  static std::size_t node_hash_value(const RealMatrix& coords);
-
 private: // data
 
   bool m_debug;

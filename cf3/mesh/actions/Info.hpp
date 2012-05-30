@@ -25,13 +25,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API Info : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
-
-private: // typedefs
-  
 public: // functions
   
   /// constructor
@@ -41,13 +34,7 @@ public: // functions
   static std::string type_name() { return "Info"; }
 
   virtual void execute();
-  
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
-  
+
 private: // functions
  
   std::string print_region_tree(const Region& region, Uint level=0);

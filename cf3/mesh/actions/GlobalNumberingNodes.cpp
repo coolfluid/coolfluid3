@@ -82,21 +82,6 @@ GlobalNumberingNodes::GlobalNumberingNodes( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string GlobalNumberingNodes::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string GlobalNumberingNodes::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void GlobalNumberingNodes::execute()
 {
   Mesh& mesh = *m_mesh;

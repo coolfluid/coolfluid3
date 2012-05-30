@@ -26,10 +26,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API BuildFaceNormals : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
 
 public: // functions
   
@@ -40,13 +36,7 @@ public: // functions
   static std::string type_name() { return "BuildFaceNormals"; }
 
   virtual void execute();
-  
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
-  
+    
   enum {FIRST=0};
 }; // end BuildFaceNormals
 
