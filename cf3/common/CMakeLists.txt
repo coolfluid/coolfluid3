@@ -99,6 +99,8 @@ list( APPEND coolfluid_common_files
     Option.hpp
     OptionArray.cpp
     OptionArray.hpp
+    OptionFactory.hpp
+    OptionFactory.cpp
     OptionT.hpp
     OptionT.cpp
     OptionList.cpp

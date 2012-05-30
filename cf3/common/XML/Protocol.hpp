@@ -86,11 +86,6 @@ namespace XML {
       static const char * node_type_reply ();
       /// @return Returns the type for signal frames.
       static const char * node_type_signal ();
-
-      /// @return Returns the C-string version of TYPE.
-      template<typename TYPE>
-      static const char * type();
-
     }; // Tags
 
     /// Searches for a document node after the XML declaration.

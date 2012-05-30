@@ -165,6 +165,29 @@ void OptionArray<TYPE>::change_value_impl(const boost::any& value)
   detail::change_array_value<TYPE>(m_value, value);
 }
 
+template<typename TYPE>
+std::string OptionArray<TYPE>::restricted_list_str() const
+{
+  std::vector<TYPE> restr_list_vec;
+  BOOST_FOREACH(const boost::any& restr_item, restricted_list())
+  {
+    restr_list_vec.push_back(boost::any_cast<TYPE>(restr_item));
+  }
+  return option_vector_to_str(restr_list_vec, separator());
+}
+
+template<typename TYPE>
+void OptionArray<TYPE>::set_restricted_list_str(const std::vector< std::string >& list)
+{
+  BOOST_FOREACH(const std::string& item, list)
+  {
+    restricted_list().push_back(from_str<TYPE>(item));
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

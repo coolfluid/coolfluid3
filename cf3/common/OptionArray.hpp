@@ -11,7 +11,7 @@
 
 #include "common/Option.hpp"
 #include "common/StringConversion.hpp"
-#include "common/XML/Protocol.hpp"
+#include "common/TypeInfo.hpp"
 
 namespace cf3 {
 namespace common {
@@ -43,15 +43,18 @@ public:
   //@{
 
   /// Returns a C-strng representation of element type
-  virtual std::string element_type() const { return std::string(XML::Protocol::Tags::type<ElementT>()); }
-
-  /// @returns the xml tag for this option
-  virtual const char * tag() const { return XML::Protocol::Tags::node_array(); }
+  virtual std::string element_type() const { return class_name<TYPE>(); }
 
   virtual std::string value_str() const
   {
-    return to_str( value<value_type>() );
+    const value_type val = value<value_type>();
+
+    // build the value string
+    return option_vector_to_str(val, separator());
   }
+
+  virtual std::string restricted_list_str() const;
+  virtual void set_restricted_list_str(const std::vector< std::string >& list);
 
   //@} END VIRTUAL FUNCTIONS
 

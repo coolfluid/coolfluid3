@@ -16,6 +16,7 @@
 #include "common/Foreach.hpp"
 #include "common/Option.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionFactory.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/StringConversion.hpp"
@@ -42,17 +43,16 @@ namespace XML {
 /// the restricted values list.
 /// @return Returns the created option.
 /// @author Quentin Gasper.
-template<typename TYPE>
-boost::shared_ptr<Option> make_option_t(const std::string & name, const std::string & pretty_name,
+boost::shared_ptr<Option> make_option(const std::string & name, const std::string & pretty_name,
                           const std::string & descr, XmlNode & node)
 {
-  TYPE value;
-  to_value(node, value);
+  const std::string str_value = node.content->value();
+
   XmlNode restr_node = Map(node.content->parent())
       .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
 
-  boost::shared_ptr<Option> option(new common::OptionT<TYPE>(name, value));
+  boost::shared_ptr<Option> option = OptionFactory::instance().create_option(name, node.content->name(), str_value);
 
   option->description( descr );
   option->pretty_name( pretty_name );
@@ -60,16 +60,10 @@ boost::shared_ptr<Option> make_option_t(const std::string & name, const std::str
   if(restr_node.is_valid())
   {
     std::string delimiter;
-    std::vector<TYPE> restr_list = Map().array_to_vector<TYPE>( restr_node, &delimiter );
-
-    typename std::vector<TYPE>::iterator it;
+    std::vector<std::string> restr_list = Map().array_to_vector<std::string>( restr_node, &delimiter );
 
     option->separator(delimiter);
-
-//    option->restricted_list().push_back( value );
-
-    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
-      option->restricted_list().push_back( *it );
+    option->set_restricted_list_str(restr_list);
   }
 
   return option;
@@ -126,7 +120,6 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
   cf3_assert( node.is_valid() );
 
   bool advanced; // indicates whether the option should be advanced or not
-  boost::shared_ptr<Option> option;
   std::string opt_type( Map::get_value_type(node) ); // option type
 
   // get some attributes
@@ -148,65 +141,24 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
 
   advanced = is_null(mode_attr) || std::strcmp(mode_attr->value(), "adv") == 0;
 
+  boost::shared_ptr<Option> option;
+
   // if it is a single value
   if( Map::is_single_value(node) )
   {
     XmlNode type_node( node.content->first_node(opt_type.c_str()) );
+    option = make_option(key_str, pretty_name, descr_str, type_node);
+    boost::shared_ptr<OptionURI> option_uri = boost::dynamic_pointer_cast<OptionURI>(option);
 
-    if( opt_type == Protocol::Tags::type<bool>() )
-      option = make_option_t<bool>(key_str, pretty_name, descr_str, type_node);
-    else if( opt_type == Protocol::Tags::type<int>() )
-      option = make_option_t<int>(key_str, pretty_name, descr_str, type_node);
-    else if( opt_type == Protocol::Tags::type<Uint>() )
-      option = make_option_t<Uint>(key_str, pretty_name, descr_str, type_node);
-    else if( opt_type == Protocol::Tags::type<Real>() )
-      option = make_option_t<Real>(key_str, pretty_name, descr_str, type_node);
-    else if( opt_type == Protocol::Tags::type<std::string>() )
-      option = make_option_t<std::string>(key_str, pretty_name, descr_str, type_node);
-    else if( opt_type == Protocol::Tags::type<URI>() )
+    // Add the schemes if we have a URI
+    if( is_not_null(option_uri) )
     {
       // in the case of a URI value, we have to create an OptionURI and
       // check for supported schemes
 
-      URI value;
       rapidxml::xml_attribute<>* schemes_attr = nullptr;
       std::vector<std::string> schemes;
       std::vector<std::string>::iterator it;
-      boost::shared_ptr<OptionURI> option_uri;
-
-      XmlNode restr_node = Map(node).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
-
-      std::vector<URI> restr_list;
-
-      // cast the value
-      try
-      {
-        to_value(type_node, value);
-      }
-      catch( boost::bad_lexical_cast & e)
-      {
-        std::string value( type_node.content->value() );
-        throw CastingFailed( FromHere(), "Unable to cast [" + value + "] to type [URI].");
-      }
-
-      // create the option
-      option_uri = boost::shared_ptr<OptionURI> (new common::OptionURI(key_str, value));
-
-      option_uri->description( descr_str );
-      option_uri->pretty_name( pretty_name );
-
-      // add the list of restricted values (if present)
-      if( restr_node.is_valid() )
-      {
-        restr_list = Map().array_to_vector<URI>( restr_node );
-
-        std::vector<URI>::iterator it;
-
-        option->restricted_list().push_back( value );
-
-        for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
-          option->restricted_list().push_back( *it );
-      }
 
       schemes_attr = node.content->first_attribute( Protocol::Tags::attr_uri_schemes() );
 
@@ -227,30 +179,11 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
           option_uri->supported_protocol(scheme);
         }
       }
-
-      option = option_uri;
     }
-    else
-      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown option type");
-
   }
   else if( Map::is_array_value(node) ) // it is an array value
   {
-    if(opt_type == Protocol::Tags::type<bool>() )
-      option = make_option_array_t<bool>(key_str, pretty_name, descr_str, node);
-    else if(opt_type == Protocol::Tags::type<int>() )
-      option = make_option_array_t<int>(key_str, pretty_name, descr_str, node);
-    else if(opt_type == Protocol::Tags::type<Uint>() )
-      option = make_option_array_t<Uint>(key_str, pretty_name, descr_str, node);
-    else if(opt_type == Protocol::Tags::type<Real>() )
-      option = make_option_array_t<Real>(key_str, pretty_name, descr_str, node);
-    else if(opt_type == Protocol::Tags::type<std::string>() )
-      option = make_option_array_t<std::string>(key_str, pretty_name, descr_str, node);
-    else if(opt_type == Protocol::Tags::type<URI>() )
-      option = make_option_array_t<URI>(key_str, pretty_name, descr_str, node);
-    else
-      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown option type");
-
+    node.print(4);
   }
   else
     throw ProtocolError(FromHere(), "Node [" + std::string(node.content->name()) +"] does not "
@@ -271,7 +204,6 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
 /// @param opt Option to add
 /// @param is_array If @c true, the option is treated as an array.
 /// @author Quentin Gasper.
-template<typename TYPE>
 void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 {
   cf3_assert( opt_map.content.is_valid() );
@@ -283,10 +215,10 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 
 
   if( !is_array )
-    value_node = opt_map.set_value<TYPE>( opt->name(), opt->value<TYPE>(), desc );
+    value_node = opt_map.set_value( opt->name(), opt->type(), opt->value_str(), desc );
   else
   {
-    value_node = opt_map.set_array<TYPE>( opt->name(), opt->value< std::vector<TYPE> >(), opt->separator(), desc );
+    value_node = opt_map.set_array( opt->name(), opt->element_type(), opt->value_str(), opt->separator(), desc );
   }
 
   value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
@@ -296,16 +228,10 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
   if( opt->has_restricted_list() )
   {
     Map value_map(value_node);
-    std::vector<TYPE> vect;
-    std::vector<boost::any>::iterator it = opt->restricted_list().begin();
-
-    for( ; it != opt->restricted_list().end() ; ++it )
-      vect.push_back( boost::any_cast<TYPE>(*it) );
-
-    value_map.set_array( Protocol::Tags::key_restricted_values(), vect, opt->separator() );
+    value_map.set_array( Protocol::Tags::key_restricted_values(), opt->element_type(), opt->restricted_list_str(), opt->separator() );
   }
 
-  if( std::strcmp( opt->tag(), Protocol::Tags::type<URI>() ) == 0)
+  if(  opt->type() == common::class_name<URI>() )
   {
     std::vector<URI::Scheme::Type> prots = boost::dynamic_pointer_cast<OptionURI>(opt)->supported_protocols();
     std::vector<URI::Scheme::Type>::iterator it = prots.begin();
@@ -388,23 +314,8 @@ void SignalOptions::add_to_map( Map & map, const OptionList & list )
   {
     boost::shared_ptr<Option> option = it->second;
 
-    bool is_array = ( option->tag() == Protocol::Tags::node_array() );
-
-    const std::string type = option->element_type();
-    if ( type == Protocol::Tags::type<bool>() )
-      add_opt_to_xml<bool>( map, option, is_array );
-    else if ( type == Protocol::Tags::type<int>() )
-      add_opt_to_xml<int>( map, option, is_array );
-    else if ( type == Protocol::Tags::type<Uint>() )
-      add_opt_to_xml<Uint>( map, option, is_array );
-    else if ( type == Protocol::Tags::type<Real>() )
-      add_opt_to_xml<Real>( map, option, is_array );
-    else if ( type == Protocol::Tags::type<std::string>() )
-      add_opt_to_xml<std::string>( map, option, is_array );
-    else if ( type == Protocol::Tags::type<URI>() )
-      add_opt_to_xml<URI>( map, option, is_array );
-    else
-      throw ShouldNotBeHere(FromHere(), "Unable to handle options of type [" + type +"].");
+    bool is_array = ( option->type().substr(0, 5) == Protocol::Tags::node_array() );
+    add_opt_to_xml( map, option, is_array );
   }
 }
 

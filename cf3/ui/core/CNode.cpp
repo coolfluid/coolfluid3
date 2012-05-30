@@ -160,19 +160,19 @@ void CNode::set_properties( const SignalArgs & options )
 
             if(properties().check(key_val))
             {
-              if( typ_val == Protocol::Tags::type<bool>() )
+              if( typ_val == common::class_name<bool>() )
                 properties().set(key_val, from_str<bool>(value));
-              else if( typ_val == Protocol::Tags::type<int>() )
+              else if( typ_val == common::class_name<int>() )
                 properties().set(key_val, from_str<int>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
+              else if( typ_val == common::class_name<cf3::Uint>() )
                 properties().set(key_val, from_str<cf3::Uint>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
+              else if( typ_val == common::class_name<cf3::Real>() )
                 properties().set(key_val, from_str<cf3::Real>(value));
-              else if( typ_val == Protocol::Tags::type<std::string>() )
+              else if( typ_val == common::class_name<std::string>() )
                 properties().set(key_val, std::string(value));
-              else if( typ_val == Protocol::Tags::type<URI>() )
+              else if( typ_val == common::class_name<URI>() )
                 properties().set(key_val, from_str<URI>(value));
-              else if( typ_val == Protocol::Tags::type<UUCount>() )
+              else if( typ_val == common::class_name<UUCount>() )
                 properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
@@ -180,19 +180,19 @@ void CNode::set_properties( const SignalArgs & options )
             else
             {
 
-              if( typ_val == Protocol::Tags::type<bool>() )
+              if( typ_val == common::class_name<bool>() )
                 properties().add(key_val, from_str<bool>(value));
-              else if( typ_val == Protocol::Tags::type<int>() )
+              else if( typ_val == common::class_name<int>() )
                 properties().add(key_val, from_str<int>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
+              else if( typ_val == common::class_name<cf3::Uint>() )
                 properties().add(key_val, from_str<cf3::Uint>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
+              else if( typ_val == common::class_name<cf3::Real>() )
                 properties().add(key_val, from_str<cf3::Real>(value));
-              else if( typ_val == Protocol::Tags::type<std::string>() )
+              else if( typ_val == common::class_name<std::string>() )
                 properties().add(key_val, std::string(value));
-              else if( typ_val == Protocol::Tags::type<URI>() )
+              else if( typ_val == common::class_name<URI>() )
                 properties().add(key_val, from_str<URI>(value));
-              else if( typ_val == Protocol::Tags::type<UUCount>() )
+              else if( typ_val == common::class_name<UUCount>() )
                 properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
@@ -271,7 +271,7 @@ void addValueToXml( const std::string& name,
     catch( const boost::bad_lexical_cast & e)
     {
       throw CastingFailed(FromHere(), "Unable to cast [" + value + "] to " +
-                          Protocol::Tags::type<TYPE>() + ".");
+                          common::class_name<TYPE>() + ".");
     }
   }
 }
@@ -314,17 +314,17 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
       sep = option.separator();
     }
 
-    if(type == Protocol::Tags::type<bool>())              // bool
+    if(type == common::class_name<bool>())              // bool
       addValueToXml<bool>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<int>())          // int
+    else if(type == common::class_name<int>())          // int
       addValueToXml<int>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<Uint>())         // Uint
+    else if(type == common::class_name<Uint>())         // Uint
       addValueToXml<Uint>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<Real>())         // Real
+    else if(type == common::class_name<Real>())         // Real
       addValueToXml<Real>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<std::string>())  // string
+    else if(type == common::class_name<std::string>())  // string
       addValueToXml<std::string>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<URI>())          // URI
+    else if(type == common::class_name<URI>())          // URI
     {
       // since OptionT<URI> does not exist, using addValueToXml for
       // this type would lead to an undefined reference linking error

@@ -7,11 +7,9 @@
 #include "BoostPython.hpp"
 #include "PythonAny.hpp"
 
+#include <boost/assign/list_of.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
-#include <boost/fusion/container/map.hpp>
-#include <boost/fusion/sequence/intrinsic/at_key.hpp>
-#include <boost/fusion/support/pair.hpp>
 
 #include "common/Component.hpp"
 #include "common/Foreach.hpp"
@@ -29,23 +27,35 @@ using namespace boost::fusion;
 typedef boost::mpl::vector7<std::string, int, bool, Real, common::URI, common::UUCount, Handle<common::Component> > PythonToAnyTypes;
 typedef boost::mpl::vector8<std::string, Uint, int, bool, Real, common::URI, common::UUCount, Handle<common::Component> > AnyToPythonTypes;
 
-/// Mapping type for the built-in types
-typedef map
-<
-  pair<std::string, const PyTypeObject*>,
-  pair<int, const PyTypeObject*>,
-  pair<bool, const PyTypeObject*>,
-  pair<Real, const PyTypeObject*>
-> AnyTypeMapT;
+/// Extract the type string for the elements of a python list
+/// Only arrays with the same overall type are supported. Arrays containing a single
+/// floating point value are assumed to contain only floating point values
+std::string python_list_element_type(const boost::python::list& pylist)
+{
+  const Uint nb_elems = boost::python::len(pylist);
+  std::string result;
+  for(Uint i = 0; i != nb_elems; ++i)
+  {
+    const std::string elem_type = type_name(pylist[i]);
+    if((result == common::class_name<int>() && elem_type == common::class_name<Real>()) || result.empty())
+    {
+      // First assign or upgrade from integer
+      result = elem_type;
+    }
+    else
+    {
+      // Other elements must match
+      if(!(elem_type == result || (elem_type == common::class_name<int>() && result == common::class_name<Real>())))
+      {
+        throw common::BadValue(FromHere(), "Python list element " + boost::lexical_cast<std::string>(i) + " does not match expected list type " + result);
+      }
+    }
+  }
+  if(result.empty())
+    throw common::BadValue(FromHere(), "Unable to determine element type for empty python list");
 
-/// Actual values of the python type pointers that correspond to each type
-const AnyTypeMapT python_type_map
-(
-  make_pair<std::string>(&PyString_Type),
-  make_pair<int>(&PyInt_Type),
-  make_pair<bool>(&PyBool_Type),
-  make_pair<Real>(&PyFloat_Type)
-);
+  return result;
+}
 
 /// Conversion from any to python for basic types
 struct AnyToPython
@@ -128,8 +138,7 @@ struct PythonToAny
     if(m_found)
       return;
 
-    //if(!PyObject_IsInstance(m_value.ptr(), at_key<T>(python_type_map)))
-    if(m_value.ptr()->ob_type != at_key<T>(python_type_map))
+    if(type_name(m_value) != common::class_name<T>())
       return;
 
     boost::python::extract<T> extracted_value(m_value);
@@ -138,30 +147,18 @@ struct PythonToAny
     m_result = extracted_value();
   }
 
-  void operator()(const common::URI&) const
+  void operator()(const Real&) const
   {
     if(m_found)
       return;
 
-    boost::python::extract< const common::URI& > extracted_value(m_value);
-    if(extracted_value.check())
-    {
-      m_found = true;
-      m_result = extracted_value();
-    }
-  }
-
-  void operator()(const common::UUCount&) const
-  {
-    if(m_found)
+    if(type_name(m_value) != common::class_name<Real>() && type_name(m_value) != common::class_name<int>())
       return;
 
-    boost::python::extract< const common::UUCount& > extracted_value(m_value);
-    if(extracted_value.check())
-    {
-      m_found = true;
-      m_result = extracted_value();
-    }
+    boost::python::extract<Real> extracted_value(m_value);
+    cf3_assert(extracted_value.check())
+    m_found = true;
+    m_result = extracted_value();
   }
 
   void operator()(const Handle<common::Component>&) const
@@ -198,19 +195,15 @@ struct PythonListToAny
     if(m_found)
       return;
 
-    boost::any any_item;
-    bool found_item = false;
-    PythonToAny(m_list[0], any_item, found_item)(T());
-    if(!found_item)
+    if(python_list_element_type(m_list) != common::class_name<T>())
       return;
 
     const Uint list_len = boost::python::len(m_list);
-
     std::vector<T> result; result.reserve(list_len);
-    result.push_back(boost::any_cast<T>(any_item));
-    for(Uint i = 1; i != list_len; ++i)
+    for(Uint i = 0; i != list_len; ++i)
     {
-      found_item = false;
+      boost::any any_item;
+      bool found_item = false;
       PythonToAny(m_list[i], any_item, found_item)(T());
       cf3_assert(found_item);
       result.push_back(boost::any_cast<T>(any_item));
@@ -259,6 +252,44 @@ boost::any python_to_any(const boost::python::api::object& value)
     throw common::CastingFailed(FromHere(), std::string("Failed to convert to boost::any from python type ") + value.ptr()->ob_type->tp_name);
 
   return result;
+}
+
+std::string type_name(const boost::python::api::object& python_object)
+{
+  // Mapping between the python type name and the coolfluid type
+  typedef std::map<std::string, std::string> TypeMapT;
+  static const TypeMapT python_type_map =
+    boost::assign::map_list_of(PyBool_Type.tp_name, common::class_name<bool>())
+                              (PyInt_Type.tp_name, common::class_name<int>())
+                              (PyString_Type.tp_name, common::class_name<std::string>())
+                              (PyFloat_Type.tp_name, common::class_name<Real>())
+                              (PyList_Type.tp_name, "array") // Special indication of lists
+                              ("URI", common::class_name<common::URI>()) // "URI" as passed in the boost::python::class_ definition
+                              ("UUCount", common::class_name<common::UUCount>()) // Same as URI
+                              ("Component", "component"); // Same as URI, but needs special treatment afterwards
+
+  // Look up the type in the map
+  const PyTypeObject& python_type = *python_object.ptr()->ob_type;
+  const TypeMapT::const_iterator it = python_type_map.find(python_type.tp_name);
+  if(it == python_type_map.end())
+  {
+    throw common::ValueNotFound(FromHere(), std::string("Python type ") + python_type.tp_name + " has no coolfluid equivalent");
+  }
+
+  // Treat special cases
+  if(it->second == "array")
+  {
+    const std::string element_type = python_list_element_type(static_cast<const boost::python::list&>(python_object));
+    return "array[" + element_type + "]";
+  }
+  else if(it->second == "component")
+  {
+    boost::python::extract< ComponentWrapper& > extracted_value(python_object);
+    cf3_assert(extracted_value.check());
+    return "handle[" + extracted_value().component().derived_type_name() + "]";
+  }
+
+  return  it->second;
 }
 
 

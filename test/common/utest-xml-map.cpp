@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE ( set_value )
   BOOST_CHECK_EQUAL ( std::strcmp(key_attr->value(), "TheUltimateAnswer"), 0 );
 
   // 2c. it should have the right value with the right type
-  type_node = XmlNode( value_node.content->first_node( Protocol::Tags::type<int>() ) );
+  type_node = XmlNode( value_node.content->first_node( common::class_name<int>() ) );
   BOOST_CHECK ( type_node.is_valid() );
   BOOST_CHECK_EQUAL ( std::strcmp(type_node.content->value(), "12"), 0 );
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE ( set_value )
   BOOST_CHECK_EQUAL ( mod_value_node.content, value_node.content );
 
   // 4b. it should the right value with the right type
-  type_node = XmlNode( mod_value_node.content->first_node( Protocol::Tags::type<int>() ) );
+  type_node = XmlNode( mod_value_node.content->first_node( common::class_name<int>() ) );
   BOOST_CHECK ( type_node.is_valid() );
   BOOST_CHECK_EQUAL ( std::strcmp(type_node.content->value(), "42"), 0 );
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
   // 2c. it should have the right type
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_type() );
   BOOST_CHECK ( is_not_null(tmp_attr) );
-  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string(Protocol::Tags::type<int>() ));
+  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string(common::class_name<int>() ));
 
   // 2d. it should have the right size
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_size() );
@@ -323,8 +323,8 @@ BOOST_AUTO_TEST_CASE ( get_value_type )
   wrong_node.set_attribute( Protocol::Tags::attr_key(), "AMap");
 
   // the node is correct and the right type should be returned
-  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(value), Protocol::Tags::type<std::string>() ), 0);
-  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(array), Protocol::Tags::type<int>() ), 0);
+  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(value), common::class_name<std::string>() ), 0);
+  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(array), common::class_name<int>() ), 0);
 
   // the type is wrong, an exception should be thrown
   BOOST_CHECK_THROW ( Map::get_value_type(wrong_value), XmlError);

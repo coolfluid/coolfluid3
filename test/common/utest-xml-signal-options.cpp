@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   my_bool = boost::dynamic_pointer_cast<OptionT<bool> >(options.store["my_bool"]);
   BOOST_CHECK( my_bool.get() != nullptr );
   BOOST_CHECK_EQUAL( my_bool->name(), std::string("my_bool") );
-  BOOST_CHECK_EQUAL( my_bool->type(), std::string( Protocol::Tags::type<bool>() ) );
+  BOOST_CHECK_EQUAL( my_bool->type(), std::string( common::class_name<bool>() ) );
   BOOST_CHECK_EQUAL( my_bool->description(), std::string("MyBool description") );
   BOOST_CHECK_EQUAL( my_bool->value<bool>(), false );
   BOOST_CHECK_EQUAL( my_bool->has_tag("basic"), false );
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   cfl = boost::dynamic_pointer_cast<OptionT<cf3::Real> >(options.store["cfl"]);
   BOOST_CHECK( cfl.get() != nullptr );
   BOOST_CHECK_EQUAL( cfl->name(), std::string("cfl") );
-  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<cf3::Real>() ) );
+  BOOST_CHECK_EQUAL( cfl->type(), std::string( common::class_name<cf3::Real>() ) );
   BOOST_CHECK_EQUAL( cfl->description(), std::string("CFL number") );
   BOOST_CHECK_EQUAL( cfl->value<cf3::Real>(), 3.1415 );
   BOOST_CHECK_EQUAL( cfl->has_tag("basic"), true );
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   strings = boost::dynamic_pointer_cast<OptionArray<std::string> >(options.store["strings"]);
   BOOST_CHECK( strings.get() != nullptr );
   BOOST_CHECK_EQUAL( strings->name(), std::string("strings") );
-  BOOST_CHECK_EQUAL( std::string(strings->element_type()), std::string(Protocol::Tags::type<std::string>()) );
+  BOOST_CHECK_EQUAL( std::string(strings->element_type()), std::string(common::class_name<std::string>()) );
   BOOST_CHECK_EQUAL( strings->description(), std::string("Some special data") );
   BOOST_CHECK_EQUAL( strings->has_tag("basic"), false );
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   website = boost::dynamic_pointer_cast<OptionURI>(options.store["website"]);
   BOOST_CHECK( website.get() != nullptr );
   BOOST_CHECK_EQUAL( website->name(), std::string("website") );
-  BOOST_CHECK_EQUAL( website->type(), std::string( Protocol::Tags::type<URI>() ) );
+  BOOST_CHECK_EQUAL( website->type(), std::string( common::class_name<URI>() ) );
   BOOST_CHECK_EQUAL( website->description(), std::string("CF website") );
   BOOST_CHECK_EQUAL( website->value<URI>().string(), std::string("http://coolfluidsrv.vki.ac.be") );
   BOOST_CHECK_EQUAL( website->has_tag("basic"), false );

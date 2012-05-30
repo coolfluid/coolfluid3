@@ -13,12 +13,15 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
+#include "common/Core.hpp"
 #include "common/Factories.hpp"
 #include "common/Link.hpp"
-#include "common/Core.hpp"
 #include "common/Library.hpp"
 #include "common/Libraries.hpp"
 #include "common/Log.hpp"
+#include "common/Option.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionArray.hpp"
 #include "common/XML/Protocol.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -51,8 +54,18 @@ public:
   /// @return the name of the type of what concrete type it builds
   virtual std::string builder_concrete_type_name() const = 0;
 
-  /// @return the name of the type of what concrete type it builds
+  /// @return the created component, which is of the passed type
   virtual boost::shared_ptr<Component> build ( const std::string& name ) const = 0;
+
+  /// @return an option that can hold a component of the builders' type
+  /// @param name The name of the created option
+  /// @param default_value The URI of the component that will be set by default
+  virtual boost::shared_ptr<Option> build_option(const std::string& name, const std::string& default_value) const = 0;
+
+  /// @return an option that can hold an array of components of the builders' type
+  /// @param name The name of the created option
+  /// @param default_value Vector of URIs with the components to store by default
+  virtual boost::shared_ptr<Option> build_option_array(const std::string& name, const std::vector<std::string>& default_value) const = 0;
 
   /// @name SIGNALS
   //@{
@@ -126,6 +139,20 @@ public:
     return this->create_component_typed(name);
   }
 
+  virtual boost::shared_ptr< Option > build_option(const std::string& name, const std::string& default_value) const
+  {
+    return boost::shared_ptr<Option>(new OptionComponent<CONCRETE>(name, Handle<CONCRETE>(access_component(URI(default_value)))));
+  }
+
+  virtual boost::shared_ptr< Option > build_option_array(const std::string& name, const std::vector< std::string >& default_value) const
+  {
+    typename OptionArray< Handle<CONCRETE> >::value_type def_val; def_val.reserve(default_value.size());
+    BOOST_FOREACH(const std::string& uri_str, default_value)
+    {
+      def_val.push_back(Handle<CONCRETE>(access_component(URI(uri_str))));
+    }
+    return boost::shared_ptr<Option>(new OptionArray< Handle<CONCRETE> >(name, def_val));
+  }
 }; // BuilderT
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +212,16 @@ struct ComponentBuilder
   }
 
 }; // ComponentBuilder
+
+/////////////////////////////////////////////////////////////////////////////////
+
+/// Find the builder with the given fully-qualified name. Throws if unsuccessful
+Builder& find_builder(const std::string& builder_name);
+
+/////////////////////////////////////////////////////////////////////////////////
+
+/// Find the builder with the given fully-qualified name. Returns a null handle if unsuccessful
+Handle<Builder> find_builder_ptr(const std::string& builder_name);
 
 /////////////////////////////////////////////////////////////////////////////////
 

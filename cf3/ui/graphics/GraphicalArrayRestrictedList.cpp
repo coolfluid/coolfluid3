@@ -77,32 +77,32 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(boost::shared_ptr< Op
 
    const std::string type = opt->element_type();
 
-   if(type == Protocol::Tags::type<bool>())              // bool option
+   if(type == common::class_name<bool>())              // bool option
    {
      vect_to_stringlist<bool>(vect, restrList);
      any_to_stringlist<bool>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<Real>())     // Real option
+   else if(type == common::class_name<Real>())     // Real option
    {
      vect_to_stringlist<cf3::Real>(vect, restrList);
      any_to_stringlist<cf3::Real>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<int>())          // int option
+   else if(type == common::class_name<int>())          // int option
    {
      vect_to_stringlist<int>(vect, restrList);
      any_to_stringlist<int>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<Uint>())     // Uint option
+   else if(type == common::class_name<Uint>())     // Uint option
    {
      vect_to_stringlist<cf3::Uint>(vect, restrList);
      any_to_stringlist<cf3::Uint>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<std::string>())  // string option
+   else if(type == common::class_name<std::string>())  // string option
    {
      vect_to_stringlist<std::string>(vect, restrList);
      any_to_stringlist<std::string>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<URI>())          // URI option
+   else if(type == common::class_name<URI>())          // URI option
    {
      vect_to_stringlist<URI>(vect, restrList);
      any_to_stringlist<URI>(opt->value(), valList);
@@ -228,7 +228,7 @@ void GraphicalArrayRestrictedList::vect_to_stringlist(const std::vector<boost::a
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = demangle(it->type().name());
-    const char * typeToCast = Protocol::Tags::type<TYPE>();
+    const char * typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");
@@ -253,7 +253,7 @@ void GraphicalArrayRestrictedList::any_to_stringlist(const boost::any & value,
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = cf3::common::demangle(value.type().name());
-    const char * typeToCast = Protocol::Tags::type<TYPE>();
+    const char * typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");

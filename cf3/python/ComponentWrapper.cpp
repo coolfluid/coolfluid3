@@ -25,6 +25,7 @@
 #include "common/UUCount.hpp"
 
 #include "common/XML/FileOperations.hpp"
+#include <common/OptionFactory.hpp>
 
 #include "python/ComponentWrapper.hpp"
 #include "python/PythonAny.hpp"
@@ -34,7 +35,7 @@ namespace cf3 {
 namespace python {
 
 /// Available types for options
-typedef boost::mpl::vector8<std::string, int, Uint, bool, Real, common::URI, Handle<common::Component>, common::UUCount > OptionTypes;
+typedef boost::mpl::vector7<std::string, int, bool, Real, common::URI, Handle<common::Component>, common::UUCount > OptionTypes;
 
 struct OptionCreator
 {
@@ -52,20 +53,13 @@ struct OptionCreator
     if(m_found)
       return;
 
-    boost::python::extract<T> extracted_value(m_value);
-    if(extracted_value.check())
-    {
-      m_found = true;
-      m_options.add(m_name, extracted_value());
-    }
+    this->template apply<T>();
   }
 
-  void operator()(const common::URI) const
+  template<typename T>
+  void apply() const
   {
-    if(m_found)
-      return;
-
-    boost::python::extract<common::URI> extracted_value(m_value);
+    boost::python::extract<T> extracted_value(m_value);
     if(extracted_value.check())
     {
       m_found = true;
@@ -78,6 +72,50 @@ struct OptionCreator
   const std::string& m_name;
   bool& m_found;
 };
+
+template<>
+void OptionCreator::apply<int>() const
+{
+  if(m_value.ptr()->ob_type != &PyInt_Type)
+    return;
+
+  m_found = true;
+  m_options.add(m_name, boost::python::extract<int>(m_value)());
+}
+
+template<>
+void OptionCreator::apply<bool>() const
+{
+  if(m_value.ptr()->ob_type != &PyBool_Type)
+    return;
+
+  m_found = true;
+  m_options.add(m_name, boost::python::extract<bool>(m_value)());
+}
+
+template<>
+void OptionCreator::apply<Real>() const
+{
+  if(m_value.ptr()->ob_type != &PyFloat_Type)
+    return;
+
+  m_found = true;
+  m_options.add(m_name, boost::python::extract<Real>(m_value)());
+}
+
+template<>
+void OptionCreator::apply< Handle<common::Component> >() const
+{
+  if(m_found)
+    return;
+
+  boost::python::extract<ComponentWrapper&> extracted_value(m_value);
+  if(extracted_value.check())
+  {
+    m_found = true;
+    m_options.add(m_name, extracted_value().component().handle());
+  }
+}
 
 // Wrapper for signals
 struct SignalWrapper
@@ -136,10 +174,7 @@ struct SignalWrapper
         }
         else
         {
-          bool found = false;
-          boost::mpl::for_each<OptionTypes>(OptionCreator(options, kwargs[key], key, found));
-          if(!found)
-            throw common::BadValue(FromHere(), "No conversion found for keyword argument " + key);
+          options.add(common::OptionFactory::instance().create_option(key, type_name(kwargs[key]), boost::python::extract<std::string>(boost::python::str(kwargs[key]))()));
         }
       }
 
