@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#ifndef cf3_Tools_mesh_transformer_Transformer_hpp
+#define cf3_Tools_mesh_transformer_Transformer_hpp
+
 #include <boost/program_options.hpp>
 
 namespace cf3 {
@@ -44,3 +47,5 @@ public:
 } // mesh_transformer
 } // Tools
 } // cf3
+
+#endif // cf3_Tools_mesh_transformer_Transformer_hpp

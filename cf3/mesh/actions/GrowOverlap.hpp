@@ -31,11 +31,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API GrowOverlap : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
-
 public: // functions
 
   /// constructor

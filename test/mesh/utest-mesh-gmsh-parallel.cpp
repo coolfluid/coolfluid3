@@ -30,7 +30,6 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshAdaptor.hpp"
 
-#include "mesh/actions/MergeMeshes.hpp"
 #include "mesh/actions/LoadBalance.hpp"
 
 using namespace std;

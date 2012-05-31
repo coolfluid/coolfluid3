@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#ifndef cf3_Tools_Shell_BasicCommands_hpp
+#define cf3_Tools_Shell_BasicCommands_hpp
+
 #include <boost/program_options.hpp>
 
 #include "common/Handle.hpp"
@@ -81,3 +84,5 @@ public: // data
 } // Shell
 } // Tools
 } // cf3
+
+#endif // cf3_Tools_Shell_BasicCommands_hpp

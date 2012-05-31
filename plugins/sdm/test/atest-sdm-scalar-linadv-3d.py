@@ -46,7 +46,7 @@ solver.options().set('time',time)
 solver.options().set('mesh',mesh)
 solver.options().set('solution_vars','cf3.physics.Scalar.LinearAdv2D')
 solver.options().set('solution_order',3)
-solver.options().set('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
+solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
 
 ### Configure timestepping
 time.options().set('end_time',1.5);

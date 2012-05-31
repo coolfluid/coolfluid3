@@ -45,7 +45,7 @@ public:
   virtual void compute_flux(PhysData& data, const RealVectorNDIM& unit_normal,
                             RealVectorNEQS& flux, Real& wave_speed)
   {
-    flux[0] = m_mu * (data.solution_gradient[XX] * unit_normal[XX] + data.solution_gradient[YY] * unit_normal[YY]);
+    flux[0] = m_mu * data.solution_gradient.dot(unit_normal);
     wave_speed = m_mu;
   }
   

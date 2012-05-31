@@ -10,6 +10,8 @@
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Mesh.hpp"
@@ -18,6 +20,7 @@ namespace cf3 {
 namespace mesh {
 
 using namespace common;
+using namespace common::XML;
 
 common::ComponentBuilder < MeshTransformer, MeshTransformer, LibMesh> MeshTransformer_Builder;
 

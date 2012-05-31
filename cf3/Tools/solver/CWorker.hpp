@@ -19,11 +19,6 @@ namespace solver {
 
 class CWorker : public common::Component
 {
-public: // typedefs
-
-  
-  
-
 public:
 
   CWorker( const std::string & name );

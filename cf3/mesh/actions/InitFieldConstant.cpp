@@ -59,21 +59,6 @@ InitFieldConstant::InitFieldConstant( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string InitFieldConstant::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string InitFieldConstant::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void InitFieldConstant::execute()
 {
   if (is_null(m_field))
