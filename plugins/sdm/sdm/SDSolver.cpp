@@ -35,7 +35,7 @@
 #include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
 #include "sdm/IterativeSolver.hpp"
-#include "sdm/RungeKuttaLowStorage2.hpp"
+#include "sdm/ExplicitRungeKuttaLowStorage2.hpp"
 #include "sdm/TimeStepping.hpp"
 #include "sdm/ComputeUpdateCoefficient.hpp"
 #include "sdm/ElementCaching.hpp"
@@ -88,7 +88,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
       .attach_trigger ( boost::bind ( &SDSolver::config_regions,   this ) )
       .mark_basic();
 
-  options().add("iterative_solver",("cf3.sdm.RungeKuttaLowStorage2"))
+  options().add("iterative_solver",("cf3.sdm.ExplicitRungeKuttaLowStorage2"))
       .description("Iterative solver to solve for the solution each time step")
       .pretty_name("Iterative Solver")
       .attach_trigger( boost::bind ( &SDSolver::config_iterative_solver, this ))

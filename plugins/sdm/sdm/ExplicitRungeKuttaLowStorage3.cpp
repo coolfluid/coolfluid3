@@ -20,16 +20,12 @@
 #include "solver/Time.hpp"
 #include "solver/Solver.hpp"
 
-#include "solver/actions/Criterion.hpp"
-#include "solver/actions/CriterionMaxIterations.hpp"
-#include "solver/actions/ComputeLNorm.hpp"
-
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 
-#include "sdm/RungeKuttaLowStorage3.hpp"
+#include "sdm/ExplicitRungeKuttaLowStorage3.hpp"
 #include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
 
@@ -44,11 +40,11 @@ namespace sdm {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < RungeKuttaLowStorage3, common::Action, LibSDM > RungeKuttaLowStorage3_Builder;
+common::ComponentBuilder < ExplicitRungeKuttaLowStorage3, common::Action, LibSDM > ExplicitRungeKuttaLowStorage3_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-RungeKuttaLowStorage3::RungeKuttaLowStorage3 ( const std::string& name ) :
+ExplicitRungeKuttaLowStorage3::ExplicitRungeKuttaLowStorage3 ( const std::string& name ) :
   IterativeSolver(name)
 {
   mark_basic();
@@ -60,7 +56,7 @@ RungeKuttaLowStorage3::RungeKuttaLowStorage3 ( const std::string& name ) :
   options().add("nb_stages", 1u)
       .description("Number of stages of the Runge-Kutta integration")
       .pretty_name("RK stages")
-      .attach_trigger( boost::bind( &RungeKuttaLowStorage3::config_nb_stages , this ) );
+      .attach_trigger( boost::bind( &ExplicitRungeKuttaLowStorage3::config_nb_stages , this ) );
 
   std::vector<Real> dummy(4);
   options().add("delta", dummy)
@@ -86,7 +82,7 @@ RungeKuttaLowStorage3::RungeKuttaLowStorage3 ( const std::string& name ) :
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void RungeKuttaLowStorage3::config_nb_stages()
+void ExplicitRungeKuttaLowStorage3::config_nb_stages()
 {
   const Uint nb_stages = options().value<Uint>("nb_stages");
 
@@ -95,7 +91,7 @@ void RungeKuttaLowStorage3::config_nb_stages()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void RungeKuttaLowStorage3::link_fields()
+void ExplicitRungeKuttaLowStorage3::link_fields()
 {
   IterativeSolver::link_fields();
 
@@ -140,7 +136,7 @@ void RungeKuttaLowStorage3::link_fields()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void RungeKuttaLowStorage3::execute()
+void ExplicitRungeKuttaLowStorage3::execute()
 {
   configure_option_recursively( "iterator", handle<Component>() );
   
@@ -276,7 +272,7 @@ void RungeKuttaLowStorage3::execute()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void RungeKuttaLowStorage3::raise_iteration_done()
+void ExplicitRungeKuttaLowStorage3::raise_iteration_done()
 {
   SignalOptions opts;
   const Uint iter = properties().value<Uint>("iteration");
