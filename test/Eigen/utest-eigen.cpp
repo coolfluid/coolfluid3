@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( EigenMap )
   modify(em1.row(1));
 
   // Multiply entire matrix with 2
-  ev1 *= 2.;
+  ev1 *= 2;
 
 //  cout << ev2 << endl << endl;
 

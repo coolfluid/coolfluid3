@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#ifndef cf3_Tools_MeshDiff_Commands_hpp
+#define cf3_Tools_MeshDiff_Commands_hpp
+
 #include <boost/program_options.hpp>
 #include "Tools/MeshDiff/LibMeshDiff.hpp"
 
@@ -38,3 +41,4 @@ public: // data
 } // MeshDiff
 } // Tools
 } // cf3
+#endif // cf3_Tools_MeshDiff_Commands_hpp

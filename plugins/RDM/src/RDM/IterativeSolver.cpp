@@ -97,7 +97,7 @@ void IterativeSolver::execute()
   Action& synchronize = *mysolver.actions().get_child("Synchronize")->handle<Action>();
 
   Handle<Component> cnorm = post_actions().get_child("ComputeNorm");
-  cnorm->options().set("field", follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->uri() );
+  cnorm->options().set("table", follow_link(mysolver.fields().get_child( RDM::Tags::residual() ))->uri() );
 
   Component& cprint = *post_actions().get_child("IterationSummary");
   cprint.options().set("norm", cnorm );

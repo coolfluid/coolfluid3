@@ -69,22 +69,6 @@ GlobalConnectivity::~GlobalConnectivity()
 {
 }
 
-
-/////////////////////////////////////////////////////////////////////////////
-
-std::string GlobalConnectivity::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string GlobalConnectivity::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 void GlobalConnectivity::execute()

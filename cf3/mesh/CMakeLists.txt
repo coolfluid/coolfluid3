@@ -41,6 +41,8 @@ list( APPEND coolfluid_mesh_files
   Interpolator.hpp
   Interpolator.cpp
   InterpolatorTypes.cpp
+  MatchedMeshInterpolator.hpp
+  MatchedMeshInterpolator.cpp
   Mesh.hpp
   Mesh.cpp
   MeshElements.hpp

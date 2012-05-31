@@ -60,6 +60,16 @@ void Line2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line2D::compute_normal(const NodesT& nodes , CoordsT& result)
+{
+  /// @bug this normal is a P1 approximation
+  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
+  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
+  result.normalize();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP2
 } // mesh
 } // cf3

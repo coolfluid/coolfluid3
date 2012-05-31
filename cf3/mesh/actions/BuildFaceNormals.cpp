@@ -60,22 +60,6 @@ BuildFaceNormals::BuildFaceNormals( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string BuildFaceNormals::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string BuildFaceNormals::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" +
-      properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void BuildFaceNormals::execute()
 {
 

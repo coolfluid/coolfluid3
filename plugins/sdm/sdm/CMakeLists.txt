@@ -22,6 +22,8 @@ list( APPEND coolfluid_sdm_files
   DomainDiscretization.cpp
   DomainDiscretization.hpp
   ElementCaching.hpp
+  ExplicitRungeKutta.hpp
+  ExplicitRungeKutta.cpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp
@@ -29,10 +31,10 @@ list( APPEND coolfluid_sdm_files
   IterativeSolver.cpp
   IterativeSolver.hpp
   PhysDataBase.hpp
-  RungeKuttaLowStorage2.hpp
-  RungeKuttaLowStorage2.cpp
-  RungeKuttaLowStorage3.hpp
-  RungeKuttaLowStorage3.cpp
+  ExplicitRungeKuttaLowStorage2.hpp
+  ExplicitRungeKuttaLowStorage2.cpp
+  ExplicitRungeKuttaLowStorage3.hpp
+  ExplicitRungeKuttaLowStorage3.cpp
   LagrangeLocally1D.hpp
   LagrangeLocally1D.cpp
   LibSDM.hpp
