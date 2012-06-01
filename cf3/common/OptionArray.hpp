@@ -43,10 +43,15 @@ public:
 
   virtual std::string value_str() const
   {
-    const value_type val = value<value_type>();
+    const value_type val = Option::template value<value_type>();
 
     // build the value string
     return option_vector_to_str(val, separator());
+  }
+
+  virtual boost::any value() const
+  {
+    return detail::Value<TYPE>()(m_value);
   }
 
   virtual std::string restricted_list_str() const
@@ -72,7 +77,7 @@ public:
 private:
   virtual void copy_to_linked_params(std::vector< boost::any >& linked_params)
   {
-    std::vector<TYPE> val = this->template value< std::vector<TYPE> >();
+    std::vector<TYPE> val = Option::template value< std::vector<TYPE> >();
     BOOST_FOREACH ( boost::any& v, linked_params )
     {
       std::vector<TYPE>* cv = boost::any_cast<std::vector<TYPE>*>(v);
@@ -88,7 +93,7 @@ private:
       throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
 
     const std::string node_type(attr->value());
-    if ( node_type != element_type() && !(node_type == "integer" && (element_type() == "real") || (element_type() == "unsigned") ) )
+    if (node_type != element_type() && !(node_type == "integer" && (element_type() == "real") || (element_type() == "unsigned") ) && node_type.substr(0, 7) != "handle[")
       throw ParsingFailed (FromHere(), "OptionArray expected \'type\' attribute \'"
       +  std::string(attr->value())
       + "\' but got \'"
@@ -99,7 +104,7 @@ private:
 
   virtual void change_value_impl(const boost::any& value)
   {
-    detail::change_array_value<TYPE>(m_value, value);
+    detail::ChangeArrayValue<TYPE>()(m_value, value);
   }
 }; // class OptionArray
 

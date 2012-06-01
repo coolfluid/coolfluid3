@@ -31,13 +31,15 @@ test_option(opts01, 'uint_vector', [0, 1, 2])
 test_option(opts01, 'real_vector', [0, 1.2, 2.9])
 test_option(opts01, 'real_vector', [0, 1, 2])
 test_option(opts01, 'bool_vector', [False, True, False])
+test_option(opts01, 'generic_component_vector', [opts01, root])
+test_option(opts01, 'group_component_vector', [root, root])
 
 print '########################### Testing global config ##########################'
 
 # test configure signal
 testgrp = opts01.create_component('testgrp', 'cf3.common.Group')
 testgen = opts01.create_component('testgen', 'cf3.common.Component')
-opts01.configure(string = 'global_config', real = 4, int = 5, uint = 6, bool = False, uri = testgen.uri(), generic_component = testgen, group_component = testgrp, string_vector = ['d', 'e'], int_vector = [3, 4, 5], uint_vector = [3, 4, 5], real_vector = [6, 7.2, 8.3], bool_vector = [True, False, True])
+opts01.configure(string = 'global_config', real = 4, int = 5, uint = 6, bool = False, uri = testgen.uri(), generic_component = testgen, group_component = testgrp, string_vector = ['d', 'e'], int_vector = [3, 4, 5], uint_vector = [3, 4, 5], real_vector = [6, 7.2, 8.3], bool_vector = [True, False, True], generic_component_vector = [opts01, testgen], group_component_vector = [testgrp, root])
 check_option(opts01, 'string', 'global_config')
 check_option(opts01, 'real', 4.)
 check_option(opts01, 'int', 5)
@@ -51,3 +53,5 @@ check_option(opts01, 'int_vector', [3, 4, 5])
 check_option(opts01, 'uint_vector', [3, 4, 5])
 check_option(opts01, 'real_vector', [6, 7.2, 8.3])
 check_option(opts01, 'bool_vector', [True, False, True])
+check_option(opts01, 'generic_component_vector', [opts01, testgen])
+check_option(opts01, 'group_component_vector', [testgrp, root])

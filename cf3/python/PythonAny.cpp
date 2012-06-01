@@ -36,7 +36,9 @@ std::string python_list_element_type(const boost::python::list& pylist)
   std::string result;
   for(Uint i = 0; i != nb_elems; ++i)
   {
-    const std::string elem_type = type_name(pylist[i]);
+    std::string elem_type = type_name(pylist[i]);
+    if(elem_type.substr(0, 7) == "handle[")
+      elem_type = common::class_name< Handle<common::Component> >();
     if((result == common::class_name<int>() && elem_type == common::class_name<Real>()) || result.empty())
     {
       // First assign or upgrade from integer

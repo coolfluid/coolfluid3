@@ -9,6 +9,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/any.hpp>
 
 #include "common/BoostFilesystem.hpp"
 
@@ -32,94 +33,136 @@ namespace detail
   // Handle the int <-> Uint conflicts
   /// Helper function to set the value
   template<typename TYPE>
-  inline void change_array_value(boost::any& to_set, const boost::any& new_value)
+  struct ChangeArrayValue
   {
-    cf3_assert(new_value.type() == to_set.type());
-    to_set = new_value; // update the value
-  }
+    inline void operator()(boost::any& to_set, const boost::any& new_value)
+    {
+      cf3_assert(new_value.type() == to_set.type());
+      to_set = new_value; // update the value
+    }
+  };
 
   template<>
-  inline void change_array_value<Uint>(boost::any& to_set, const boost::any& new_value)
+  struct ChangeArrayValue<Uint>
   {
-    if(new_value.type() == to_set.type())
+    inline void operator()(boost::any& to_set, const boost::any& new_value)
     {
-      to_set = new_value;
-    }
-    else
-    {
-      try
+      if(new_value.type() == to_set.type())
       {
-        std::vector<int> int_vals = boost::any_cast< std::vector<int> >(new_value);
-        const Uint nb_vals = int_vals.size();
-        std::vector<Uint> result(nb_vals);
-        for(Uint i = 0; i != nb_vals; ++i)
+        to_set = new_value;
+      }
+      else
+      {
+        try
         {
-          if(int_vals[i] < 0)
-            throw BadValue(FromHere(), "Tried to store a negative value in an unsigned int option array at index " + boost::lexical_cast<std::string>(i));
-          result[i] = static_cast<Uint>(int_vals[i]);
+          std::vector<int> int_vals = boost::any_cast< std::vector<int> >(new_value);
+          const Uint nb_vals = int_vals.size();
+          std::vector<Uint> result(nb_vals);
+          for(Uint i = 0; i != nb_vals; ++i)
+          {
+            if(int_vals[i] < 0)
+              throw BadValue(FromHere(), "Tried to store a negative value in an unsigned int option array at index " + boost::lexical_cast<std::string>(i));
+            result[i] = static_cast<Uint>(int_vals[i]);
+          }
+          to_set = result;
         }
-        to_set = result;
-      }
-      catch(boost::bad_any_cast& e)
-      {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Uint>");
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Uint>");
+        }
       }
     }
-  }
+  };
 
   template<>
-  inline void change_array_value<int>(boost::any& to_set, const boost::any& new_value)
+  struct ChangeArrayValue<int>
   {
-    if(new_value.type() == to_set.type())
+    inline void operator()(boost::any& to_set, const boost::any& new_value)
     {
-      to_set = new_value;
-    }
-    else
-    {
-      try
+      if(new_value.type() == to_set.type())
       {
-        std::vector<Uint> int_vals = boost::any_cast< std::vector<Uint> >(new_value);
-        const Uint nb_vals = int_vals.size();
-        std::vector<int> result(nb_vals);
-        for(Uint i = 0; i != nb_vals; ++i)
+        to_set = new_value;
+      }
+      else
+      {
+        try
         {
-          result[i] = static_cast<int>(int_vals[i]);
+          std::vector<Uint> int_vals = boost::any_cast< std::vector<Uint> >(new_value);
+          const Uint nb_vals = int_vals.size();
+          std::vector<int> result(nb_vals);
+          for(Uint i = 0; i != nb_vals; ++i)
+          {
+            result[i] = static_cast<int>(int_vals[i]);
+          }
+          to_set = result;
         }
-        to_set = result;
-      }
-      catch(boost::bad_any_cast& e)
-      {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<int>");
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<int>");
+        }
       }
     }
-  }
+  };
 
   template<>
-  inline void change_array_value<Real>(boost::any& to_set, const boost::any& new_value)
+  struct ChangeArrayValue<Real>
   {
-    if(new_value.type() == to_set.type())
+    inline void operator()(boost::any& to_set, const boost::any& new_value)
     {
-      to_set = new_value;
-    }
-    else
-    {
-      try
+      if(new_value.type() == to_set.type())
       {
-        std::vector<int> int_vals = boost::any_cast< std::vector<int> >(new_value);
-        const Uint nb_vals = int_vals.size();
-        std::vector<Real> result(nb_vals);
-        for(Uint i = 0; i != nb_vals; ++i)
+        to_set = new_value;
+      }
+      else
+      {
+        try
         {
-          result[i] = static_cast<Real>(int_vals[i]);
+          std::vector<int> int_vals = boost::any_cast< std::vector<int> >(new_value);
+          const Uint nb_vals = int_vals.size();
+          std::vector<Real> result(nb_vals);
+          for(Uint i = 0; i != nb_vals; ++i)
+          {
+            result[i] = static_cast<Real>(int_vals[i]);
+          }
+          to_set = result;
         }
-        to_set = result;
-      }
-      catch(boost::bad_any_cast& e)
-      {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Real>");
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type std::vector<Real>");
+        }
       }
     }
-  }
+  };
+
+  template<typename ComponentT>
+  struct ChangeArrayValue< Handle<ComponentT > >
+  {
+    inline void operator()(boost::any& to_set, const boost::any& new_value)
+    {
+      if(new_value.type() == to_set.type())
+      {
+        to_set = new_value;
+      }
+      else
+      {
+        try
+        {
+          const std::vector< Handle<Component> > generic_value = boost::any_cast< std::vector< Handle<Component> > >(new_value);
+          const Uint nb_entries = generic_value.size();
+          std::vector< Handle<ComponentT> > new_components(nb_entries);
+          for(Uint i = 0; i != nb_entries; ++i)
+          {
+            new_components[i] = Handle<ComponentT>(generic_value[i]);
+          }
+          to_set = new_components;
+        }
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type " + class_name< std::vector< Handle<ComponentT> > >());
+        }
+      }
+    }
+  };
 
   /// A struct, since partial specializations of functions is not allowed
   template<typename TYPE>
@@ -166,6 +209,31 @@ namespace detail
     {
       const URI uri = from_str<URI>(str);
       return TYPE(Core::instance().root().access_component(uri));
+    }
+  };
+
+  template<typename TYPE>
+  struct Value
+  {
+    boost::any operator()(const boost::any& value) const
+    {
+      return value;
+    }
+  };
+
+  template<typename ComponentT>
+  struct Value< Handle<ComponentT> >
+  {
+    boost::any operator()(const boost::any& value) const
+    {
+      const std::vector< Handle<ComponentT> > val = boost::any_cast< std::vector< Handle<ComponentT> > >(value);
+      const Uint nb_vals = val.size();
+      std::vector< Handle<Component> > generic_values(val.size());
+      for(Uint i = 0; i != nb_vals; ++i)
+      {
+        generic_values[i] = Handle<Component>(val[i]);
+      }
+      return generic_values;
     }
   };
 
