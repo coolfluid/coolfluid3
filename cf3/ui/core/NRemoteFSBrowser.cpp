@@ -162,7 +162,7 @@ void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
 void NRemoteFSBrowser::copy_request ( std::vector<std::string> & parameters ){
 
   SignalFrame frame("copy_request", uri(), SERVER_CORE_PATH);
-  frame.set_array<std::string>("parameters", parameters, ";");
+  frame.set_array("parameters", common::class_name<std::string>(), common::option_vector_to_str(parameters, ";"), ";");
   frame.options().flush();
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
@@ -439,7 +439,7 @@ void NRemoteFSBrowser::send_favorites(const QStringList &favs)
   for( int i = 0 ; it != favs.end() ; ++it, ++i )
     vect[i] = it->toStdString();
 
-  frame.set_array<std::string>("favorite_dirs", vect, ";");
+  frame.set_array("favorite_dirs", common::class_name<std::string>(), common::option_vector_to_str(vect, ";"), ";");
 
   frame.options().flush();
 

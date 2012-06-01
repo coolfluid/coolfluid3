@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include <QHBoxLayout>
 #include <QRegExpValidator>
 
@@ -65,15 +67,14 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
   if(option.get() == nullptr)
     return value;
 
-  std::string tag(option->tag());
+  std::string type(option->type());
 
-  if(tag != "array" )
+  if(!boost::starts_with(type, "array"))
   {
     if(option->has_restricted_list())
       value = new GraphicalRestrictedList(option, parent);
     else
     {
-      std::string type(option->type());
 
       if(type == common::class_name<bool>())               // bool option
         value = new GraphicalBool(option->value<bool>(), parent);
@@ -88,7 +89,7 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
       else if(type == common::class_name<URI>())           // URI option
         value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI>(option), parent);
       else
-        throw CastingFailed(FromHere(), tag + ": Unknown type");
+        throw CastingFailed(FromHere(), type + ": Unknown type");
     }
   }
   else
@@ -125,7 +126,7 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
       else if(type == common::class_name<URI>())              // URI option
         value = new GraphicalUriArray(sep, parent);
       else
-        throw CastingFailed(FromHere(), tag + ": Unknown type");
+        throw CastingFailed(FromHere(), type + ": Unknown type");
 
       value->set_value( QString(value_str.c_str()).split(option->separator().c_str()) );
     }

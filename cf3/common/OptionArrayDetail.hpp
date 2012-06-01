@@ -7,8 +7,9 @@
 #ifndef cf3_common_OptionArrayDetail_hpp
 #define cf3_common_OptionArrayDetail_hpp
 
+#include <sstream>
+
 #include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/any.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -61,7 +62,11 @@ namespace detail
           for(Uint i = 0; i != nb_vals; ++i)
           {
             if(int_vals[i] < 0)
-              throw BadValue(FromHere(), "Tried to store a negative value in an unsigned int option array at index " + boost::lexical_cast<std::string>(i));
+            {
+              std::stringstream err;
+              err << "Tried to store a negative value in an unsigned int option array at index " << i;
+              throw BadValue(FromHere(), err.str());
+            }
             result[i] = static_cast<Uint>(int_vals[i]);
           }
           to_set = result;

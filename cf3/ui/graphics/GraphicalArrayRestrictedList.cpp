@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include <QListView>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -70,7 +72,7 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(boost::shared_ptr< Op
   connect(m_bt_add, SIGNAL(clicked()), this, SLOT(bt_add_clicked()));
   connect(m_bt_remove, SIGNAL(clicked()), this, SLOT(bt_remove_clicked()));
 
- if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
+ if(opt.get() != nullptr && boost::starts_with(opt->type(), "array")  &&
     opt->has_restricted_list())
  {
    const std::vector<boost::any> & vect = opt->restricted_list();
@@ -228,7 +230,7 @@ void GraphicalArrayRestrictedList::vect_to_stringlist(const std::vector<boost::a
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = demangle(it->type().name());
-    const char * typeToCast = common::class_name<TYPE>();
+    const std::string typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");
@@ -253,7 +255,7 @@ void GraphicalArrayRestrictedList::any_to_stringlist(const boost::any & value,
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = cf3::common::demangle(value.type().name());
-    const char * typeToCast = common::class_name<TYPE>();
+    const std::string typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");

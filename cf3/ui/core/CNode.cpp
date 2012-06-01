@@ -305,7 +305,7 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
 
     Option& option = this->options().option(name);
     std::string type( option.type() );
-    bool is_array = std::strcmp(option.tag(), "array") == 0;
+    bool is_array = boost::starts_with(option.type(), "array");
 
     // if it is an array, we need to get the element type
     if(is_array)
@@ -674,7 +674,7 @@ void CNode::request_signal_signature(const QString & name)
 
   SignalFrame frame("signal_signature", path, path);
 
-  frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
+  frame.map( Protocol::Tags::key_options() ).set_option("name",common::class_name<std::string>(), name.toStdString());
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }

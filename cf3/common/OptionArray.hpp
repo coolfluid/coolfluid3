@@ -54,6 +54,13 @@ public:
     return detail::Value<TYPE>()(m_value);
   }
 
+  /// Redirect form the base class due to conflict with the non-template
+  template<typename OutputT>
+  OutputT value() const
+  {
+    return Option::template value<OutputT>();
+  }
+
   virtual std::string restricted_list_str() const
   {
     std::vector<TYPE> restr_list_vec;
