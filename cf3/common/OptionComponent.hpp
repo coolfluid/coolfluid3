@@ -128,8 +128,11 @@ private:
   virtual boost::any extract_configured_value(XML::XmlNode& node)
   {
     URI uri;
-    node.print();
+    // Try concrete type first
     XmlNode type_node(node.content->first_node(type().c_str()));
+    // Otherwise try the base component
+    if(!type_node.is_valid())
+      type_node = XmlNode(node.content->first_node("handle[cf3.common.Component]"));
 
     if( type_node.is_valid() )
       to_value( type_node, uri );

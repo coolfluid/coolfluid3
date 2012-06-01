@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Option.hpp"
+#include "common/OptionArrayDetail.hpp"
 #include "common/StringConversion.hpp"
 #include "common/TypeInfo.hpp"
 
@@ -18,16 +19,9 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines an array of options of the same type to be used by the ConfigObject class
-/// This class supports the following types:
-///   - bool
-///   - int
-///   - std::string
-///   - boost::filesystem::path
-///   - cf3::Uint
-///   - cf3::Real
-///   - cf3::common::URI
+/// Class defines an array of options of the same type
 /// @author Tiago Quintino
+/// @author Bart Janssens
 template < typename TYPE >
 class Common_API OptionArray : public Option  {
 
@@ -35,7 +29,9 @@ public:
   typedef std::vector<TYPE> value_type;
   typedef TYPE ElementT;
 
-  OptionArray( const std::string& name, const value_type& def);
+  OptionArray( const std::string& name, const value_type& def) : Option(name, def)
+  {
+  }
 
   virtual ~OptionArray() {}
 
@@ -53,15 +49,58 @@ public:
     return option_vector_to_str(val, separator());
   }
 
-  virtual std::string restricted_list_str() const;
-  virtual void set_restricted_list_str(const std::vector< std::string >& list);
+  virtual std::string restricted_list_str() const
+  {
+    std::vector<TYPE> restr_list_vec;
+    BOOST_FOREACH(const boost::any& restr_item, restricted_list())
+    {
+      restr_list_vec.push_back(boost::any_cast<TYPE>(restr_item));
+    }
+    return option_vector_to_str(restr_list_vec, separator());
+  }
+
+  virtual void set_restricted_list_str(const std::vector< std::string >& list)
+  {
+    BOOST_FOREACH(const std::string& item, list)
+    {
+      restricted_list().push_back(detail::FromString<TYPE>()(item));
+    }
+  }
 
   //@} END VIRTUAL FUNCTIONS
 
 private:
-  virtual void copy_to_linked_params(std::vector< boost::any >& linked_params);
-  virtual boost::any extract_configured_value(XML::XmlNode& node);
-  virtual void change_value_impl(const boost::any& value);
+  virtual void copy_to_linked_params(std::vector< boost::any >& linked_params)
+  {
+    std::vector<TYPE> val = this->template value< std::vector<TYPE> >();
+    BOOST_FOREACH ( boost::any& v, linked_params )
+    {
+      std::vector<TYPE>* cv = boost::any_cast<std::vector<TYPE>*>(v);
+      *cv = val;
+    }
+  }
+
+  virtual boost::any extract_configured_value(XML::XmlNode& node)
+  {
+    rapidxml::xml_attribute<>* attr = node.content->first_attribute( "type" );
+
+    if ( !attr )
+      throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
+
+    const std::string node_type(attr->value());
+    if ( node_type != element_type() && !(node_type == "integer" && (element_type() == "real") || (element_type() == "unsigned") ) )
+      throw ParsingFailed (FromHere(), "OptionArray expected \'type\' attribute \'"
+      +  std::string(attr->value())
+      + "\' but got \'"
+      +  std::string(element_type()) + "\'"  );
+
+    return detail::ArrayToVector<TYPE>()(node);
+  }
+
+  virtual void change_value_impl(const boost::any& value)
+  {
+    detail::change_array_value<TYPE>(m_value, value);
+  }
 }; // class OptionArray
 
 ////////////////////////////////////////////////////////////////////////////////

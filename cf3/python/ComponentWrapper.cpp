@@ -174,7 +174,26 @@ struct SignalWrapper
         }
         else
         {
-          options.add(common::OptionFactory::instance().create_option(key, type_name(kwargs[key]), boost::python::extract<std::string>(boost::python::str(kwargs[key]))()));
+          const boost::python::object& kw_val = kwargs[key];
+          if(kw_val.ptr()->ob_type == &PyList_Type)
+          {
+            const boost::python::list& kw_list = static_cast<const boost::python::list&>(kw_val);
+            const Uint nb_vals = boost::python::len(kw_list);
+            std::vector<std::string> values_str(nb_vals);
+            for(Uint i = 0; i != nb_vals; ++i)
+            {
+              values_str[i] = boost::python::extract<std::string>(boost::python::str(kw_list[i]))();
+            }
+            options.add(common::OptionFactory::instance().create_option(key, type_name(kw_val), values_str));
+          }
+          else
+          {
+            std::string tp_name = type_name(kw_val);
+            /// We need to translate to the base component class, since we don't know what the actual type of the expected option is
+            if(tp_name.substr(0, 7) == "handle[")
+              tp_name = "handle[cf3.common.Component]";
+            options.add(common::OptionFactory::instance().create_option(key, tp_name, boost::python::extract<std::string>(boost::python::str(kw_val))()));
+          }
         }
       }
 
@@ -386,14 +405,13 @@ void set_item(ComponentWrapper& self, const Uint i, boost::python::object& value
 
 std::string to_str(ComponentWrapper& self)
 {
-  if(is_null(self.get_list_interface()))
-  {
-    std::stringstream output_str;
-    output_str << "Component of type " << self.component().derived_type_name() << " at URI " << self.component().uri().path();
-    return output_str.str();
-  }
+  // The list_interface array printing conflicts with generic string representation of components as URI
+//   if(is_null(self.get_list_interface()))
+//   {
+    return self.component().uri().string();
+//   }
 
-  return self.get_list_interface()->to_str();
+//   return self.get_list_interface()->to_str();
 }
 
 bool is_equal(ComponentWrapper& self, ComponentWrapper& other)

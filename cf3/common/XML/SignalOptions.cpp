@@ -35,82 +35,62 @@ namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Creates an @c #OptionT option with a value of type TYPE.
+/// Creates an @c #OptionT option
 /// @param name Option name
+/// @param node The value node.
+/// @return Returns the created option.
+/// @author Quentin Gasper., Bart Janssens
+boost::shared_ptr<Option> make_option(const std::string & name, XmlNode & node)
+{
+  return OptionFactory::instance().create_option(name, node.content->name(), std::string(node.content->value()));
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+/// Creates an @c #OptionArray option
+/// @param name Option name
+/// @param node The value node.
+/// @return Returns the created option.
+/// @author Quentin Gasper, Bart Janssens
+boost::shared_ptr< Option > make_option_array(const std::string & name, const XmlNode & node)
+{
+  std::string delimiter;
+  std::vector<std::string> value = Map().array_to_vector<std::string>(node, &delimiter);
+
+  boost::shared_ptr<Option> option = OptionFactory::instance().create_option(name, "array[" + std::string(Map::get_value_type(node)) + "]", value);
+
+  option->separator(delimiter);
+
+  return option;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// Set description, pretty name and restricted list, if any
+/// @param option THe option for which to set the attributes
 /// @param pretty_name The option pretty name
 /// @param descr Option description
 /// @param node The value node. If it has a sibling node, this node is taken as
 /// the restricted values list.
-/// @return Returns the created option.
-/// @author Quentin Gasper.
-boost::shared_ptr<Option> make_option(const std::string & name, const std::string & pretty_name,
-                          const std::string & descr, XmlNode & node)
+/// @author Quentin Gasper, Bart Janssens
+void set_option_attributes(Option& option,
+                  const std::string & pretty_name,
+                  const std::string & descr,
+                  const XmlNode & node)
 {
-  const std::string str_value = node.content->value();
+  option.description( descr );
+  option.pretty_name( pretty_name );
 
-  XmlNode restr_node = Map(node.content->parent())
-      .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
-
-
-  boost::shared_ptr<Option> option = OptionFactory::instance().create_option(name, node.content->name(), str_value);
-
-  option->description( descr );
-  option->pretty_name( pretty_name );
+  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   if(restr_node.is_valid())
   {
     std::string delimiter;
     std::vector<std::string> restr_list = Map().array_to_vector<std::string>( restr_node, &delimiter );
 
-    option->separator(delimiter);
-    option->set_restricted_list_str(restr_list);
+    option.separator(delimiter);
+    option.set_restricted_list_str(restr_list);
   }
-
-  return option;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-/// Creates an @c #OptionArray option with values of type TYPE.
-/// @param name Option name
-/// @param pretty_name The option pretty name
-/// @param descr Option description
-/// @param node The value node. If it has a sibling node, this node is taken as
-/// the restricted values list.
-/// @return Returns the created option.
-/// @author Quentin Gasper.
-template<typename TYPE>
-boost::shared_ptr< OptionArray<TYPE> > make_option_array_t(const std::string & name,
-                                                     const std::string & pretty_name,
-                                                     const std::string & descr,
-                                                     const XmlNode & node)
-{
-  std::string delimiter;
-  std::vector<TYPE> value = Map().array_to_vector<TYPE>(node, &delimiter);
-
-  boost::shared_ptr< OptionArray<TYPE> > option(new OptionArray<TYPE>(name, value));
-
-  option->description( descr );
-  option->pretty_name( pretty_name );
-  option->separator(delimiter);
-
-  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
-
-
-  if(restr_node.is_valid())
-  {
-    std::vector<TYPE> restr_list = Map().array_to_vector<TYPE>( restr_node );
-
-    typename std::vector<TYPE>::iterator it;
-
-    option->restricted_list().push_back( value );
-
-    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
-      option->restricted_list().push_back( *it );
-  }
-
-
-  return option;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -147,7 +127,7 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
   if( Map::is_single_value(node) )
   {
     XmlNode type_node( node.content->first_node(opt_type.c_str()) );
-    option = make_option(key_str, pretty_name, descr_str, type_node);
+    option = make_option(key_str, type_node);
     boost::shared_ptr<OptionURI> option_uri = boost::dynamic_pointer_cast<OptionURI>(option);
 
     // Add the schemes if we have a URI
@@ -183,7 +163,7 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
   }
   else if( Map::is_array_value(node) ) // it is an array value
   {
-    node.print(4);
+    option = make_option_array(key_str, node);
   }
   else
     throw ProtocolError(FromHere(), "Node [" + std::string(node.content->name()) +"] does not "
@@ -193,6 +173,8 @@ boost::shared_ptr<Option> SignalOptions::xml_to_option( const XmlNode & node )
   if( !advanced && option.get() != nullptr )
     option->mark_basic();
 
+  if(is_not_null(option))
+    set_option_attributes(*option, pretty_name, descr_str, node);
 
   return option;
 }

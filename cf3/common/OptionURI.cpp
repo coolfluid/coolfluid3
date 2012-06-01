@@ -96,9 +96,9 @@ std::string OptionURI::restricted_list_str() const
 class OptionURIBuilder : public OptionBuilder
 {
 public:
-  virtual boost::shared_ptr< Option > create_option ( const std::string& name, const std::string& default_value )
+  virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
   {
-    const URI val = from_str<URI>(default_value);
+    const URI val = from_str<URI>(boost::any_cast<std::string>(default_value));
     return boost::shared_ptr<Option>(new OptionURI(name, val));
   }
 };

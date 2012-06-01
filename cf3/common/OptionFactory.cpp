@@ -25,7 +25,7 @@ OptionFactory& OptionFactory::instance()
   return factory;
 }
 
-boost::shared_ptr< Option > OptionFactory::create_option ( const std::string& name, const std::string& type, const std::string& default_value )
+boost::shared_ptr< Option > OptionFactory::create_option ( const std::string& name, const std::string& type, const boost::any& default_value )
 {
   boost::shared_ptr<OptionBuilder> builder = m_builders[type];
   if(is_null(builder))

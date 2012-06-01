@@ -23,14 +23,14 @@ class Common_API OptionBuilder
 {
 public:
   virtual ~OptionBuilder() {}
-  
-  /// Create an option with the given default value
-  virtual boost::shared_ptr<Option> create_option(const std::string& name, const std::string& default_value) = 0;
+
+  /// Create an option with the given default value, passed as a string or vector of strings
+  virtual boost::shared_ptr<Option> create_option(const std::string& name, const boost::any& default_value) = 0;
 };
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
-/// Factory class to buikd options dynamically 
+/// Factory class to buikd options dynamically
 class Common_API OptionFactory
 {
 
@@ -38,12 +38,12 @@ public:
 
   /// Singleton instance
   static OptionFactory& instance();
-  
+
   /// Register a builder with the given type
   void register_builder(const std::string& type, const boost::shared_ptr<OptionBuilder>& builder);
-  
-  /// Create an option with the given type and default value
-  boost::shared_ptr<Option> create_option(const std::string& name, const std::string& type, const std::string& default_value);
+
+  /// Create an option with the given type and default value, passed as a string or vector of strings
+  boost::shared_ptr<Option> create_option(const std::string& name, const std::string& type, const boost::any& default_value);
 
 private:
   OptionFactory();

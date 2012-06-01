@@ -103,6 +103,8 @@ namespace detail
   {
     const std::string type_str = common::class_name<TYPE>();
     XmlNode type_node(node.content->first_node(type_str.c_str()));
+    if(!type_node.is_valid() && type_str == "real")
+      type_node = XmlNode(node.content->first_node("integer"));
 
     if( type_node.is_valid() )
       return from_str<TYPE>( type_node.content->value() );
@@ -203,9 +205,9 @@ template<typename TYPE>
 class OptionTBuilder : public OptionBuilder
 {
 public:
-  virtual boost::shared_ptr< Option > create_option ( const std::string& name, const std::string& default_value )
+  virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
   {
-    const TYPE val = from_str<TYPE>(default_value);
+    const TYPE val = from_str<TYPE>(boost::any_cast<std::string>(default_value));
     return boost::shared_ptr<Option>(new OptionT<TYPE>(name, val));
   }
 };
