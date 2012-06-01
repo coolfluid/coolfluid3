@@ -10,3 +10,7 @@ set(CTEST_DROP_SITE "coolfluidsrv.vki.ac.be")
 set(CTEST_DROP_LOCATION "/cdash/submit.php?project=coolfluid")
 set(CTEST_DROP_SITE_CDASH TRUE)
 
+SET(CTEST_SITE                          "@SITE@")
+SET(CTEST_BUILD_NAME                    "@BUILDNAME@")
+
+
