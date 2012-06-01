@@ -22,8 +22,6 @@ list( APPEND coolfluid_sdm_files
   DomainDiscretization.cpp
   DomainDiscretization.hpp
   ElementCaching.hpp
-  ExplicitRungeKutta.hpp
-  ExplicitRungeKutta.cpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp
@@ -70,3 +68,4 @@ add_subdirectory( scalar       )                 # library coolfluid_sdm_scalar
 add_subdirectory( navierstokes )                 # library coolfluid_sdm_navierstokes
 add_subdirectory( navierstokesmovingreference )  # library coolfluid_sdm_navierstokesmovingreference
 add_subdirectory( lineuler     )                 # library coolfluid_sdm_lineuler
+add_subdirectory( explicit_rungekutta )          # library coolfluid_sdm_explicit_rungekutta

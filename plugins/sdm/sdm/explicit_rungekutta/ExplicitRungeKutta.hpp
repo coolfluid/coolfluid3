@@ -4,15 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_RungeKutta_hpp
-#define cf3_sdm_RungeKutta_hpp
+#ifndef cf3_sdm_explicit_rungekutta_RungeKuttaBase_hpp
+#define cf3_sdm_explicit_rungekutta_RungeKuttaBase_hpp
 
 #include "sdm/IterativeSolver.hpp"
 
+#include "sdm/explicit_rungekutta/ButcherTableau.hpp"
+
 namespace cf3 {
 namespace sdm {
+namespace explicit_rungekutta {
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Runge-Kutta integration method
 ///
@@ -50,27 +53,22 @@ namespace sdm {
 /// c:array[real]=c1,c2,...,cs
 ///
 /// @author Willem Deconinck
-class sdm_API ExplicitRungeKutta : public IterativeSolver {
+class sdm_explicit_rungekutta_API ExplicitRungeKuttaBase : public IterativeSolver {
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  ExplicitRungeKutta ( const std::string& name );
+  ExplicitRungeKuttaBase ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ExplicitRungeKutta() {}
+  virtual ~ExplicitRungeKuttaBase() {}
 
   /// Get the class name
-  static std::string type_name () { return "ExplicitRungeKutta"; }
+  static std::string type_name () { return "ExplicitRungeKuttaBase"; }
 
   /// execute the action
   virtual void execute ();
-
-  /// @name SIGNALS
-  //@{
-
-  //@} END SIGNALS
 
 private: // functions
 
@@ -79,23 +77,54 @@ private: // functions
 
   virtual void link_fields();
 
-  void config_coefficients();
+protected:
+  Handle<ButcherTableau> m_butcher;
 
 private: // data
-
-  std::vector<Real> m_a;
-  std::vector<Real> m_b;
-  std::vector<Real> m_c;
 
   /// Registers necessary for general runge kutta algorithm
   Handle<mesh::Field> m_solution_backup;
   std::vector< Handle<mesh::Field> > m_residuals;
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
+class sdm_explicit_rungekutta_API ExplicitRungeKutta : public ExplicitRungeKuttaBase {
 
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  ExplicitRungeKutta ( const std::string& name );
+
+  /// Get the class name
+  static std::string type_name () { return "ExplicitRungeKutta"; }
+
+private: // functions
+
+  virtual void config_butcher_tableau();
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename BUTCHER_TABLEAU>
+class ExplicitRungeKuttaT : public ExplicitRungeKuttaBase {
+public:
+
+  static std::string type_name () { return BUTCHER_TABLEAU::name(); }
+
+  ExplicitRungeKuttaT(const std::string& name) : ExplicitRungeKuttaBase(name)
+  {
+    m_butcher = create_component<ButcherTableau>("butcher_tableau");
+    m_butcher->set( BUTCHER_TABLEAU() );
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // explicit_rungekutta
 } // sdm
 } // cf3
 
-#endif // cf3_sdm_RungeKutta_hpp
+#endif // cf3_sdm_explicit_rungekutta-ExplicitRungeKuttaBase_hpp
