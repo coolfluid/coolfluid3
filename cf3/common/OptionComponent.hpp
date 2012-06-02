@@ -99,6 +99,11 @@ public:
         restricted_list().push_back(found_comp);
     }
   }
+  
+  virtual std::string type() const
+  {
+    return class_name< Handle<typename boost::remove_const<T>::type> >();
+  }
 
 private:
 

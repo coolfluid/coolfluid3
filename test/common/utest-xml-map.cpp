@@ -22,6 +22,9 @@
 #include "common/XML/Map.hpp"
 #include <common/TypeInfo.hpp>
 #include <common/Option.hpp>
+#include <common/Core.hpp>
+#include <common/Environment.hpp>
+#include <common/OptionList.hpp>
 
 using namespace cf3;
 using namespace cf3::common;
@@ -30,7 +33,16 @@ using namespace boost::assign; // for list_of
 
 /////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( XmlMap_TestSuite )
+struct XmlFixture
+{
+  XmlFixture()
+  {
+    Core::instance().environment().options().set("exception_backtrace", false);
+    Core::instance().environment().options().set("exception_outputs", false);
+  }
+};
+
+BOOST_FIXTURE_TEST_SUITE( XmlMap_TestSuite, XmlFixture )
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -189,7 +201,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
   // 4. change the value
   //
 
-  mod_value_node = map.set_array( "TheArray", common::class_name<int>(),  common::option_vector_to_str(vect_second, " ; "), "_|_" );
+  mod_value_node = map.set_array( "TheArray", common::class_name<int>(),  common::option_vector_to_str(vect_second, "_|_"), "_|_" );
   BOOST_CHECK ( mod_value_node.is_valid() );
 
   // 4a. it should be the same node as the one before (same object/pointer)

@@ -17,6 +17,9 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
+#include <common/Core.hpp>
+#include <common/Environment.hpp>
+#include <common/OptionList.hpp>
 
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/Protocol.hpp"
@@ -30,7 +33,16 @@ using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( XmlSignalOptions_TestSuite )
+struct XmlFixture
+{
+  XmlFixture()
+  {
+    Core::instance().environment().options().set("exception_backtrace", false);
+    Core::instance().environment().options().set("exception_outputs", false);
+  }
+};
+
+BOOST_FIXTURE_TEST_SUITE( XmlSignalOptions_TestSuite, XmlFixture )
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -244,7 +256,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
   BOOST_CHECK_EQUAL( option->value<URI>().string(), std::string("cpath:/") );
 
   // 7. unknown type
-  BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ShouldNotBeHere );
+  BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ValueNotFound );
 }
 
 //////////////////////////////////////////////////////////////////////////

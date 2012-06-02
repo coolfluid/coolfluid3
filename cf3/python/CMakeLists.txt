@@ -21,19 +21,17 @@ list( APPEND coolfluid_python_files
   URIWrapper.hpp
   URIWrapper.cpp
   Utility.hpp
-#   NetworkXPython.hpp
-#   NetworkXPython.cpp
+  NetworkXPython.hpp
+  NetworkXPython.cpp
   TestAllOptions.hpp
   TestAllOptions.cpp
 )
-
-coolfluid_mark_not_orphan(NetworkXPython.cpp NetworkXPython.hpp)
 
 set( coolfluid_python_kernellib TRUE )
 set( coolfluid_python_PYTHON_MODULE TRUE )
 list(APPEND coolfluid_python_includedirs ${PYTHON_INCLUDE_DIR})
 list(APPEND coolfluid_python_libs ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
-list(APPEND coolfluid_python_cflibs coolfluid_common )
+list(APPEND coolfluid_python_cflibs coolfluid_common coolfluid_mesh)
 
 coolfluid_add_library( coolfluid_python )
 

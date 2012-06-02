@@ -183,7 +183,7 @@ namespace XML { class XmlNode; }
     template < typename TYPE >
     Option& link_to ( TYPE* par )
     {
-      cf3_assert_desc (class_name<TYPE>()+"!="+type(), class_name<TYPE>() == type() );
+      cf3_assert(typeid(TYPE) == m_value.type());
       m_linked_params.push_back(par);
       *par = boost::any_cast<TYPE>(m_value);
       return *this;

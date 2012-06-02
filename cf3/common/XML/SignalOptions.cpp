@@ -81,7 +81,7 @@ void set_option_attributes(Option& option,
   option.description( descr );
   option.pretty_name( pretty_name );
 
-  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node).find_value(Protocol::Tags::key_restricted_values());//Protocol::Tags::node_array()
 
   if(restr_node.is_valid())
   {

@@ -42,11 +42,11 @@ void LibMesh::terminate()
 
 void LibMesh::initiate_impl()
 {
-//   m_load_mesh = Core::instance().tools().create_component<mesh::LoadMesh>( "LoadMesh" );
-//   m_load_mesh->mark_basic();
-// 
-//   m_write_mesh =  Core::instance().tools().create_component<mesh::WriteMesh>( "WriteMesh" );
-//   m_write_mesh->mark_basic();
+  m_load_mesh = Core::instance().tools().create_component<mesh::LoadMesh>( "LoadMesh" );
+  m_load_mesh->mark_basic();
+
+  m_write_mesh =  Core::instance().tools().create_component<mesh::WriteMesh>( "WriteMesh" );
+  m_write_mesh->mark_basic();
 }
 
 void LibMesh::terminate_impl()

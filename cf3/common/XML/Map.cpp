@@ -168,15 +168,11 @@ XmlNode Map::set_array(const std::string& value_key, const std::string element_t
   }
 
   // common modifications: set the array size and the delimiter
-
-  // note: we explicitly cast the array size to cf3::Uint for compatibility
-  // reasons: MSVC's typedef of std::size_t is for unsigned __int64
-  // (which is defined by Microsoft) instead of unsigned int. Since
-  // to_str<unsigned __int64>() is not defined, it may cause a
-  // lining error on Windows.
-  std::vector<std::string> split_result;
-  boost::split(split_result, value_str, boost::is_any_of(delimiter));
-  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( static_cast<Uint>(split_result.size()) ));
+  std::vector<std::string> split_str;
+  split_string(value_str, delimiter, split_str);
+  const Uint array_size = split_str.size();
+  
+  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( array_size ));
 
   array_node.set_attribute( Protocol::Tags::attr_array_delimiter(), delimiter );
 
