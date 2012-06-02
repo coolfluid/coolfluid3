@@ -190,7 +190,7 @@ struct SignalWrapper
           {
             std::string tp_name = type_name(kw_val);
             /// We need to translate to the base component class, since we don't know what the actual type of the expected option is
-            if(tp_name.substr(0, 7) == "handle[")
+            if(boost::starts_with(tp_name, "handle["))
               tp_name = "handle[cf3.common.Component]";
             options.add(common::OptionFactory::instance().create_option(key, tp_name, boost::python::extract<std::string>(boost::python::str(kw_val))()));
           }

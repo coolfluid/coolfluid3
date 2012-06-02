@@ -461,7 +461,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
       str+=str_start;
       std::string opt = "'"+option->name()+"',";
       const std::string opt_type = option->type();
-      if( opt_type.substr(0, 5) == Protocol::Tags::node_array()){
+      if( boost::starts_with(opt_type, Protocol::Tags::node_array()) ){
         opt += '[';
         std::string array_tag=option->element_type();
         if (array_tag == "string"){
@@ -511,7 +511,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
       std::string opt = option->name();
       if (opt != "name"){
         const std::string opt_type = option->type();
-        if( opt_type.substr(0, 5) == Protocol::Tags::node_array()){
+        if( boost::starts_with(opt_type, Protocol::Tags::node_array()) ){
           opt += '[';
           std::string array_tag=option->element_type();
           if (array_tag == "string"){
@@ -559,7 +559,7 @@ std::string SignalFrame::to_python_script( int indentation ) const //add uri par
 
       std::string opt = option->name() + '=';
       const std::string opt_type = option->type();
-      if( opt_type.substr(0, 5) == Protocol::Tags::node_array()){
+      if(boost::starts_with(opt_type, Protocol::Tags::node_array())){
         opt += '[';
         std::string array_tag=option->element_type();
         if (array_tag == "string"){

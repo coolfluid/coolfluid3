@@ -7,6 +7,7 @@
 #include "BoostPython.hpp"
 #include "PythonAny.hpp"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
@@ -37,7 +38,7 @@ std::string python_list_element_type(const boost::python::list& pylist)
   for(Uint i = 0; i != nb_elems; ++i)
   {
     std::string elem_type = type_name(pylist[i]);
-    if(elem_type.substr(0, 7) == "handle[")
+    if(boost::starts_with(elem_type, "handle["))
       elem_type = common::class_name< Handle<common::Component> >();
     if((result == common::class_name<int>() && elem_type == common::class_name<Real>()) || result.empty())
     {

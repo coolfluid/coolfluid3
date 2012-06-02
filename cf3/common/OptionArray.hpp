@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "boost/algorithm/string.hpp"
+
 #include "common/Option.hpp"
 #include "common/OptionArrayDetail.hpp"
 #include "common/StringConversion.hpp"
@@ -100,7 +102,7 @@ private:
       throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
 
     const std::string node_type(attr->value());
-    if (node_type != element_type() && !(node_type == "integer" && (element_type() == "real") || (element_type() == "unsigned") ) && node_type.substr(0, 7) != "handle[")
+    if (node_type != element_type() && !(node_type == "integer" && (element_type() == "real") || (element_type() == "unsigned") ) && !boost::starts_with(node_type, "handle["))
       throw ParsingFailed (FromHere(), "OptionArray expected \'type\' attribute \'"
       +  std::string(attr->value())
       + "\' but got \'"

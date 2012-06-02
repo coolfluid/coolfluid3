@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
       "</node>");
 
   SignalArgs args_wrong(XmlNode(wrong_opt->content->first_node("node")));
-  BOOST_CHECK_THROW(MyNode("Node").set_properties(args_wrong), ShouldNotBeHere);
+  BOOST_CHECK_THROW(MyNode("Node").set_properties(args_wrong), ValueNotFound);
 
   SignalArgs args_correct(XmlNode(correct_opt->content->first_node("node")));
   BOOST_REQUIRE_NO_THROW(node.set_properties(args_correct));

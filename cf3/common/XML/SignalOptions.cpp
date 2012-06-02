@@ -296,7 +296,7 @@ void SignalOptions::add_to_map( Map & map, const OptionList & list )
   {
     boost::shared_ptr<Option> option = it->second;
 
-    bool is_array = ( option->type().substr(0, 5) == Protocol::Tags::node_array() );
+    bool is_array = boost::starts_with( option->type(), Protocol::Tags::node_array() );
     add_opt_to_xml( map, option, is_array );
   }
 }
