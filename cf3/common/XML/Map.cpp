@@ -122,6 +122,7 @@ XmlNode Map::set_value(const std::string& value_key, const std::string type_name
   if( !descr.empty() )
     value_node.set_attribute( Protocol::Tags::attr_descr(), descr );
 
+  cf3_assert(value_node.is_valid());
   return value_node;
 }
 
@@ -181,6 +182,7 @@ XmlNode Map::set_array(const std::string& value_key, const std::string element_t
   if( !descr.empty() )
     array_node.set_attribute( Protocol::Tags::attr_descr(), descr );
 
+  cf3_assert(array_node.is_valid());
   return array_node;
 }
 

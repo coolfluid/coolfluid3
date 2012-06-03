@@ -14,6 +14,7 @@
 #include "common/Assertions.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/Foreach.hpp"
+#include "common/Log.hpp"
 #include "common/Option.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionFactory.hpp"
@@ -197,14 +198,18 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 
 
   if( !is_array )
+  {
+    CFdebug << "adding option " << opt->name() << " of type " << opt->type() << " to map" << CFendl;
     value_node = opt_map.set_value( opt->name(), opt->type(), opt->value_str(), desc );
+  }
   else
   {
+    CFdebug << "adding option array " << opt->name() << " of type " << opt->type() << " to map" << CFendl;
     value_node = opt_map.set_array( opt->name(), opt->element_type(), opt->value_str(), opt->separator(), desc );
   }
 
   value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
-  value_node.set_attribute( "is_option", to_str<bool>(true) );
+  value_node.set_attribute( "is_option", "true" );
   value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
 
   if( opt->has_restricted_list() )
