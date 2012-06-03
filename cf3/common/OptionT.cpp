@@ -218,7 +218,6 @@ RegisterOptionBuilder int_builder(common::class_name<int>(), new OptionTBuilder<
 RegisterOptionBuilder string_builder(common::class_name<std::string>(), new OptionTBuilder<std::string>());
 RegisterOptionBuilder uint_builder(common::class_name<Uint>(), new OptionTBuilder<Uint>());
 RegisterOptionBuilder Real_builder(common::class_name<Real>(), new OptionTBuilder<Real>());
-RegisterOptionBuilder uri_builder(common::class_name<URI>(), new OptionTBuilder<URI>());
 RegisterOptionBuilder uucount_builder(common::class_name<UUCount>(), new OptionTBuilder<UUCount>());
 
 ////////////////////////////////////////////////////////////////////////////////

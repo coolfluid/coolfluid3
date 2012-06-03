@@ -220,7 +220,7 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
   {
     boost::shared_ptr<OptionURI> uri_opt = boost::dynamic_pointer_cast<OptionURI>(opt);
     if(is_null(uri_opt))
-      throw ShouldNotBeHere(FromHere(), "Option " + opt->name() + " has type " + opt->type() + " but can't be cast to OptionURI");
+      throw ShouldNotBeHere(FromHere(), "Option " + opt->name() + " has type " + opt->type() + " but can't be cast to OptionURI. TypeID is " + typeid(opt.get()).name());
     std::vector<URI::Scheme::Type> prots = uri_opt->supported_protocols();
     std::vector<URI::Scheme::Type>::iterator it = prots.begin();
 
