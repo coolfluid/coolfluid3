@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CommonAPI.hpp"
+#include "Handle.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +30,12 @@ namespace common {
   /// @return converter type
   template < typename T>
   Common_API std::string to_str (const T & v);
+
+  template<typename ComponentT>
+  Common_API std::string to_str(const Handle<ComponentT> & v)
+  {
+    return to_str(v->uri());
+  }
 
 
   /// @brief Converts from std::string

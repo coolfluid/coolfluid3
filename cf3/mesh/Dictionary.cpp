@@ -47,6 +47,8 @@ using namespace common;
 using namespace common::PE;
 using namespace common::XML;
 
+RegistTypeInfo<Dictionary, LibMesh> regist_Dictionary_type;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Dictionary::Dictionary ( const std::string& name  ) :

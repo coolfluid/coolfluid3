@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include <QListView>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -70,39 +72,39 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(boost::shared_ptr< Op
   connect(m_bt_add, SIGNAL(clicked()), this, SLOT(bt_add_clicked()));
   connect(m_bt_remove, SIGNAL(clicked()), this, SLOT(bt_remove_clicked()));
 
- if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
+ if(opt.get() != nullptr && boost::starts_with(opt->type(), "array")  &&
     opt->has_restricted_list())
  {
    const std::vector<boost::any> & vect = opt->restricted_list();
 
    const std::string type = opt->element_type();
 
-   if(type == Protocol::Tags::type<bool>())              // bool option
+   if(type == common::class_name<bool>())              // bool option
    {
      vect_to_stringlist<bool>(vect, restrList);
      any_to_stringlist<bool>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<Real>())     // Real option
+   else if(type == common::class_name<Real>())     // Real option
    {
      vect_to_stringlist<cf3::Real>(vect, restrList);
      any_to_stringlist<cf3::Real>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<int>())          // int option
+   else if(type == common::class_name<int>())          // int option
    {
      vect_to_stringlist<int>(vect, restrList);
      any_to_stringlist<int>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<Uint>())     // Uint option
+   else if(type == common::class_name<Uint>())     // Uint option
    {
      vect_to_stringlist<cf3::Uint>(vect, restrList);
      any_to_stringlist<cf3::Uint>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<std::string>())  // string option
+   else if(type == common::class_name<std::string>())  // string option
    {
      vect_to_stringlist<std::string>(vect, restrList);
      any_to_stringlist<std::string>(opt->value(), valList);
    }
-   else if(type == Protocol::Tags::type<URI>())          // URI option
+   else if(type == common::class_name<URI>())          // URI option
    {
      vect_to_stringlist<URI>(vect, restrList);
      any_to_stringlist<URI>(opt->value(), valList);
@@ -228,7 +230,7 @@ void GraphicalArrayRestrictedList::vect_to_stringlist(const std::vector<boost::a
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = demangle(it->type().name());
-    const char * typeToCast = Protocol::Tags::type<TYPE>();
+    const std::string typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");
@@ -253,7 +255,7 @@ void GraphicalArrayRestrictedList::any_to_stringlist(const boost::any & value,
   catch(boost::bad_any_cast & bac)
   {
     std::string realType = cf3::common::demangle(value.type().name());
-    const char * typeToCast = Protocol::Tags::type<TYPE>();
+    const std::string typeToCast = common::class_name<TYPE>();
 
     throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");

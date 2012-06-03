@@ -20,6 +20,11 @@
 #include "common/XML/Protocol.hpp"
 
 #include "common/XML/Map.hpp"
+#include <common/TypeInfo.hpp>
+#include <common/Option.hpp>
+#include <common/Core.hpp>
+#include <common/Environment.hpp>
+#include <common/OptionList.hpp>
 
 using namespace cf3;
 using namespace cf3::common;
@@ -28,7 +33,16 @@ using namespace boost::assign; // for list_of
 
 /////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( XmlMap_TestSuite )
+struct XmlFixture
+{
+  XmlFixture()
+  {
+    Core::instance().environment().options().set("exception_backtrace", false);
+    Core::instance().environment().options().set("exception_outputs", false);
+  }
+};
+
+BOOST_FIXTURE_TEST_SUITE( XmlMap_TestSuite, XmlFixture )
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,14 +58,14 @@ BOOST_AUTO_TEST_CASE ( set_value )
 
   //
   // 1. the key is empty
-  BOOST_CHECK_THROW ( map.set_value( "", true ), BadValue );
+  BOOST_CHECK_THROW ( map.set_value( "", common::class_name<bool>(), "true" ), BadValue );
 
   //
   // 2. the value does not exist, setting it should create it and the
   // correct node should be returned
   //
 
-  value_node = map.set_value( "TheUltimateAnswer", int(12) );
+  value_node = map.set_value( "TheUltimateAnswer", common::class_name<int>(), "12" );
   BOOST_CHECK ( value_node.is_valid() );
 
   // 2a. it should be a "value" node
@@ -63,7 +77,7 @@ BOOST_AUTO_TEST_CASE ( set_value )
   BOOST_CHECK_EQUAL ( std::strcmp(key_attr->value(), "TheUltimateAnswer"), 0 );
 
   // 2c. it should have the right value with the right type
-  type_node = XmlNode( value_node.content->first_node( Protocol::Tags::type<int>() ) );
+  type_node = XmlNode( value_node.content->first_node( common::class_name<int>().c_str() ) );
   BOOST_CHECK ( type_node.is_valid() );
   BOOST_CHECK_EQUAL ( std::strcmp(type_node.content->value(), "12"), 0 );
 
@@ -72,28 +86,28 @@ BOOST_AUTO_TEST_CASE ( set_value )
   //
 
   // 3a. try to change the value but with a wrong type
-  BOOST_CHECK_THROW ( map.set_value("TheUltimateAnswer", std::string()), XmlError );
+  BOOST_CHECK_THROW ( map.set_value("TheUltimateAnswer", common::class_name<std::string>(), std::string()), XmlError );
 
   // 3b. the value in the xml tree has no type
   node.add_node( Protocol::Tags::node_value() ).set_attribute( Protocol::Tags::attr_key(), "hello");
-  BOOST_CHECK_THROW ( map.set_value("hello", std::string()), XmlError );
+  BOOST_CHECK_THROW ( map.set_value("hello", common::class_name<std::string>(),std::string()), XmlError );
 
   // 3c. the value in the xml tree is an array
   node.add_node( Protocol::Tags::node_array() ).set_attribute( Protocol::Tags::attr_key(), "world");
-  BOOST_CHECK_THROW ( map.set_value("world", std::string()), XmlError );
+  BOOST_CHECK_THROW ( map.set_value("world", common::class_name<std::string>(), std::string()), XmlError );
 
   //
   // 4. change the value
   //
 
-  mod_value_node = map.set_value( "TheUltimateAnswer", int(42) );
+  mod_value_node = map.set_value( "TheUltimateAnswer", common::class_name<int>(), "42" );
   BOOST_CHECK ( mod_value_node.is_valid() );
 
   // 4a. it should be the same node as the one before (same object/pointer)
   BOOST_CHECK_EQUAL ( mod_value_node.content, value_node.content );
 
   // 4b. it should the right value with the right type
-  type_node = XmlNode( mod_value_node.content->first_node( Protocol::Tags::type<int>() ) );
+  type_node = XmlNode( mod_value_node.content->first_node( common::class_name<int>().c_str() ) );
   BOOST_CHECK ( type_node.is_valid() );
   BOOST_CHECK_EQUAL ( std::strcmp(type_node.content->value(), "42"), 0 );
 
@@ -127,17 +141,17 @@ BOOST_AUTO_TEST_CASE ( set_array )
   //
 
   // 1b. the key is empty
-  BOOST_CHECK_THROW ( map.set_array( "", vect_first, " ; "), BadValue );
+  BOOST_CHECK_THROW ( map.set_array( "", common::class_name<int>(), common::option_vector_to_str(vect_first, " ; "), " ; "), BadValue );
 
   // 1c. the delimiter is empty
-  BOOST_CHECK_THROW ( map.set_array( "Array", vect_first, ""), BadValue );
+  BOOST_CHECK_THROW ( map.set_array( "Array", common::class_name<int>(), common::option_vector_to_str(vect_first, ""), ""), BadValue );
 
   //
   // 2. the value does not exist, setting it should create it and the
   // correct node should be returned
   //
 
-  value_node = map.set_array( "TheArray", vect_first, " ; " );
+  value_node = map.set_array( "TheArray", common::class_name<int>(), option_vector_to_str(vect_first, " ; "), " ; " );
   BOOST_CHECK ( value_node.is_valid() );
 
   // 2a. it should be a "array" node
@@ -151,7 +165,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
   // 2c. it should have the right type
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_type() );
   BOOST_CHECK ( is_not_null(tmp_attr) );
-  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string(Protocol::Tags::type<int>() ));
+  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string(common::class_name<int>() ));
 
   // 2d. it should have the right size
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_size() );
@@ -173,21 +187,21 @@ BOOST_AUTO_TEST_CASE ( set_array )
 
   // 3a. try to change the array but with a wrong type
   std::vector<std::string> vect_wrong;
-  BOOST_CHECK_THROW ( map.set_array( "TheArray", vect_wrong, " ; " ), XmlError );
+  BOOST_CHECK_THROW ( map.set_array( "TheArray", common::class_name<std::string>(),  common::option_vector_to_str(vect_wrong, " ; "), " ; " ), XmlError );
 
   // 3b. the array in the xml tree has no type
   node.add_node( Protocol::Tags::node_array() ).set_attribute( Protocol::Tags::attr_key(), "hello");
-  BOOST_CHECK_THROW ( map.set_array( "hello", vect_wrong, " ; " ), XmlError );
+  BOOST_CHECK_THROW ( map.set_array( "hello", common::class_name<std::string>(),  common::option_vector_to_str(vect_wrong, " ; "), " ; " ), XmlError );
 
   // 3c. the arry in the xml tree is a single value
   node.add_node( Protocol::Tags::node_value() ).set_attribute( Protocol::Tags::attr_key(), "world");
-  BOOST_CHECK_THROW ( map.set_array( "world", vect_wrong, " ; " ), XmlError );
+  BOOST_CHECK_THROW ( map.set_array( "world", common::class_name<std::string>(),  common::option_vector_to_str(vect_wrong, " ; "), " ; " ), XmlError );
 
   //
   // 4. change the value
   //
 
-  mod_value_node = map.set_array( "TheArray", vect_second, "_|_" );
+  mod_value_node = map.set_array( "TheArray", common::class_name<int>(),  common::option_vector_to_str(vect_second, "_|_"), "_|_" );
   BOOST_CHECK ( mod_value_node.is_valid() );
 
   // 4a. it should be the same node as the one before (same object/pointer)
@@ -311,8 +325,8 @@ BOOST_AUTO_TEST_CASE ( get_value_type )
   Map map(node);
   std::vector<int> vect;
 
-  XmlNode value( map.set_value<std::string>("MyString", std::string("TheString")) );
-  XmlNode array( map.set_array<int>("MyVector", vect, " ; ") );
+  XmlNode value( map.set_value("MyString", class_name<std::string>(), std::string("TheString")) );
+  XmlNode array( map.set_array("MyVector", class_name<int>(), "", " ; ") );
 
   XmlNode wrong_value( node.add_node(Protocol::Tags::node_value()) );
   XmlNode wrong_array( node.add_node(Protocol::Tags::node_array()) );
@@ -323,8 +337,8 @@ BOOST_AUTO_TEST_CASE ( get_value_type )
   wrong_node.set_attribute( Protocol::Tags::attr_key(), "AMap");
 
   // the node is correct and the right type should be returned
-  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(value), Protocol::Tags::type<std::string>() ), 0);
-  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(array), Protocol::Tags::type<int>() ), 0);
+  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(value), common::class_name<std::string>().c_str() ), 0);
+  BOOST_CHECK_EQUAL ( std::strcmp( Map::get_value_type(array), common::class_name<int>().c_str() ), 0);
 
   // the type is wrong, an exception should be thrown
   BOOST_CHECK_THROW ( Map::get_value_type(wrong_value), XmlError);
@@ -345,9 +359,9 @@ BOOST_AUTO_TEST_CASE ( get_value )
   std::vector<int> int_vals = list_of<int>(1213)(5464)(5554)(5654)(273)(554)(354);
   std::string str("Hello, World!");
 
-  map.set_value( "AString", str );
-  map.set_value( "Zero", int(0) );
-  map.set_array( "SomeInts", int_vals, " ; " );
+  map.set_value( "AString", class_name<std::string>(), str );
+  map.set_value( "Zero", class_name<int>(), "0" );
+  map.set_array( "SomeInts", class_name<int>(), option_vector_to_str(int_vals, " ; "), " ; " );
 
   // 1. try to get with a wrong type
   BOOST_CHECK_THROW ( map.get_value<int>( "AString"), XmlError );
@@ -375,9 +389,9 @@ BOOST_AUTO_TEST_CASE ( get_array )
   std::vector<int>::iterator it_read;
   std::string str("Hello, World!");
 
-  map.set_value( "AString", str );
-  map.set_value( "Zero", int(0) );
-  map.set_array( "SomeInts", int_vals, " ; " );
+  map.set_value( "AString", class_name<std::string>(), str );
+  map.set_value( "Zero", class_name<int>(), "0" );
+  map.set_array( "SomeInts", class_name<int>(), option_vector_to_str(int_vals, " ; "), " ; " );
 
   // 1. try to get with a wrong type
   BOOST_CHECK_THROW ( map.get_array<Real>( "SomeInts"), XmlError );
@@ -410,7 +424,7 @@ BOOST_AUTO_TEST_CASE ( split_string )
   std::vector<std::string>::iterator it_vals = str_vals.begin();
   std::vector<std::string>::iterator it_read;
 
-  map.set_array( "SomeStrings", str_vals, " ; " );
+  map.set_array( "SomeStrings", class_name<std::string>(), option_vector_to_str(str_vals, " ; "), " ; " );
 
   // get the value
   BOOST_CHECK_NO_THROW ( str_read = map.get_array<std::string>( "SomeStrings") );

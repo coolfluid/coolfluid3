@@ -76,7 +76,7 @@ void Link::change_link( SignalArgs & args )
 
   link_to (*target);
 
-  reply.map("options").set_option("target_path", path);
+  reply.map("options").set_option("target_path", class_name<std::string>(), path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
