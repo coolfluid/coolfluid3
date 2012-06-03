@@ -27,11 +27,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API LoadBalance : public MeshTransformer
 {
-public: // typedefs
-
-    
-    
-
 public: // functions
 
   /// constructor

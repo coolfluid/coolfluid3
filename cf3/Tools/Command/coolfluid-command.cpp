@@ -45,6 +45,7 @@ int main(int argc, char * argv[])
 
     // Add basic commands to program
     desc.add(BasicCommands::description());
+    desc.add(StdHelp("help,h","Show help",desc));
 
     // Parse commands that are passed directly on the command line
     Interpreter shell(desc);

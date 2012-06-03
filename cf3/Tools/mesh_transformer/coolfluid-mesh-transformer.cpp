@@ -16,6 +16,7 @@
 #include "mesh/Mesh.hpp"
 
 #include "Tools/mesh_transformer/Transformer.hpp"
+#include "Tools/mesh_transformer/Help.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"
 
@@ -50,6 +51,8 @@ int main(int argc, char * argv[])
 
     // Initialize empty commands
     options_description desc;
+
+    desc.add(Help(desc));
 
     // Add basic commands to program
     desc.add(BasicCommands::description());

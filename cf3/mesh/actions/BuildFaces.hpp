@@ -30,11 +30,6 @@ namespace actions {
 /// @author Willem Deconinck
 class mesh_actions_API BuildFaces : public MeshTransformer
 {
-public: // typedefs
-
-
-
-
 public: // functions
 
   /// constructor
@@ -44,12 +39,6 @@ public: // functions
   static std::string type_name() { return "BuildFaces"; }
 
   virtual void execute();
-
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-
-  /// extended help that user can query
-  virtual std::string help() const;
 
 private: // functions
 

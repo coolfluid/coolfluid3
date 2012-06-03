@@ -1,5 +1,7 @@
 list( APPEND coolfluid-mesh-transformer_files 
         coolfluid-mesh-transformer.cpp
+        Help.hpp
+        Help.cpp
         Transformer.hpp
         Transformer.cpp 
     )
