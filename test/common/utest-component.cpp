@@ -244,9 +244,9 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
   SignalFrame sf("Signal", "/", "/");
 
-  sf.set_option<std::string>( "name",  "MyMesh" );
-  sf.set_option<std::string>( "atype", "MeshReader" );
-  sf.set_option<std::string>( "ctype", "CGNS" );
+  sf.set_option( "name", common::class_name<std::string>(), "MyMesh" );
+  sf.set_option( "atype", common::class_name<std::string>(), "MeshReader" );
+  sf.set_option( "ctype", common::class_name<std::string>(), "CGNS" );
 
 //  XmlOps::print_xml_node( *doc.get() );
 //  XmlOps::write_xml_node( *doc.get(),  "test.xml" );

@@ -24,9 +24,11 @@
 
 namespace cf3 {
 namespace solver {
-
+  
 using namespace common;
 using namespace mesh;
+
+RegistTypeInfo<Solver, LibSolver> regist_Solver_type;
 
 ////////////////////////////////////////////////////////////////////////////////
 

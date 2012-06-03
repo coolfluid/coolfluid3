@@ -14,6 +14,7 @@
 #include "common/Assertions.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
+#include "common/TypeInfo.hpp"
 
 #include "common/Log.hpp"
 
@@ -43,9 +44,9 @@ XmlNode add_multi_array_in( Map & map, const std::string & name,
 
   XmlNode array_node =  map.content.add_node( Protocol::Tags::node_array() );
 
-  array_node.add_node( Protocol::Tags::type<std::string>(), labels_str );
+  array_node.add_node( common::class_name<std::string>(), labels_str );
 
-  XmlNode data_node = array_node.add_node( Protocol::Tags::type<Real>() );
+  XmlNode data_node = array_node.add_node( common::class_name<Real>() );
 
   Uint nb_rows = array.size();
   Uint nb_cols = 0;
@@ -110,8 +111,8 @@ void get_multi_array( const Map & map, const std::string & name,
     throw ValueNotFound(FromHere(), "Could not find a multi-array of name [" + name + "]." );
 
   // 1b. look for labels and data nodes
-  XmlNode labels_node( array_node.content->first_node( Protocol::Tags::type<std::string>() ) );
-  XmlNode data_node( array_node.content->first_node( Protocol::Tags::type<Real>() ) );
+  XmlNode labels_node( array_node.content->first_node( common::class_name<std::string>().c_str() ) );
+  XmlNode data_node( array_node.content->first_node( common::class_name<Real>().c_str() ) );
 
   if(!data_node.is_valid())
     throw ValueNotFound(FromHere(), "Could not find data for multi-array [" + name + "]." );

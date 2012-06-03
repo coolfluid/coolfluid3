@@ -85,7 +85,7 @@ namespace common {
   {
     return v.string();
   }
-  
+
   template <>
   Common_API std::string to_str<UUCount> (const UUCount & v)
   {
@@ -203,6 +203,7 @@ namespace common {
     boost::algorithm::is_equal test_equal;
 
     if ( test_equal(str,"true") ||
+         test_equal(str,"True") ||
          test_equal(str,"on")   ||
          test_equal(str,"1")     )
     {
@@ -210,6 +211,7 @@ namespace common {
     }
 
     if ( test_equal(str,"false") ||
+         test_equal(str,"False") ||
          test_equal(str,"off")   ||
          test_equal(str,"0")      )
     {
@@ -274,7 +276,7 @@ namespace common {
   {
     return URI( str );
   }
-  
+
   template <>
   Common_API UUCount from_str<UUCount> (const std::string& str)
   {

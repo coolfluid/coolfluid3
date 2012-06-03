@@ -19,6 +19,9 @@ boost::python::object any_to_python(const boost::any& value);
 /// Convert the given python object to any
 boost::any python_to_any(const boost::python::object& value);
 
+/// Return the coolfluid type string for the given python type
+std::string type_name(const boost::python::object& python_object);
+
 } // python
 } // cf3
 

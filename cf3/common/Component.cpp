@@ -18,6 +18,7 @@
 #include "common/Builder.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/EventHandler.hpp"
+#include "common/LibCommon.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
@@ -40,8 +41,14 @@
 
 using namespace cf3::common::XML;
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace cf3 {
 namespace common {
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+ComponentBuilder < Component, Component, LibCommon > Component_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -163,7 +170,7 @@ Component::Component ( const std::string& name ) :
       .hidden(true)
       .read_only(true)
       .description("Gives signature of a signal");
-      
+
   regist_signal( "store_timings" )
       .connect( boost::bind(&Component::signal_store_timings, this, _1))
       .hidden(true)
@@ -807,23 +814,7 @@ void Component::signal_list_properties( SignalFrame& args ) const
 
     std::string type = class_name_from_typeinfo( value.type() );
 
-    if(type == Protocol::Tags::type<std::string>())
-      options.set_value<std::string>( name, any_to_value<std::string>(value) );
-    else if(type == Protocol::Tags::type<bool>())
-      options.set_value<bool>( name, any_to_value<bool>(value) );
-    else if(type == Protocol::Tags::type<int>())
-      options.set_value<int>( name, any_to_value<int>(value) );
-    else if(type == Protocol::Tags::type<Uint>())
-      options.set_value<Uint>( name, any_to_value<Uint>(value) );
-    else if(type == Protocol::Tags::type<Real>())
-      options.set_value<Real>( name, any_to_value<Real>(value) );
-    else if(type == Protocol::Tags::type<URI>())
-      options.set_value<URI>( name, any_to_value<URI>(value) );
-    else if(type == Protocol::Tags::type<UUCount>())
-      options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
-    else
-      throw ShouldNotBeHere(FromHere(),
-                            std::string("Don't know how the manage [" + type + "] type."));
+    options.set_value(name, type, any_to_str(value));
   }
 }
 
@@ -1195,57 +1186,17 @@ boost::shared_ptr<Component> build_component_reduced(const std::string& builder_
 boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name )
 {
-  std::string libnamespace = Builder::extract_namespace(builder_name);
-
-  URI builder_path = Core::instance().libraries().uri()
-                   / URI(libnamespace)
-                   / URI(builder_name);
-
-
-
-  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
-
-  if( is_null(cbuilder) ) // try to load the library that contains the builder
-  {
-    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
-      throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
-
-    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
-  }
-
-  if( is_null(cbuilder) ) // if still fails, then give up
-    throw ValueNotFound( FromHere(), "Could not find builder \'" + builder_name + "\'"
-                                     " neither a plugin library that contains it." );
-
-  boost::shared_ptr<Component> comp = cbuilder->build( name );
-
-  return comp;
+  return find_builder(builder_name).build( name );
 }
 
 boost::shared_ptr< Component > build_component_nothrow(const std::string& builder_name, const std::string& name)
 {
-  std::string libnamespace = Builder::extract_namespace(builder_name);
+  Handle<Builder> cbuilder = find_builder_ptr(builder_name);
 
-  URI builder_path = Core::instance().libraries().uri()
-                   / URI(libnamespace)
-                   / URI(builder_name);
-
-  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
-
-  if( is_null(cbuilder) ) // try to load the library that contains the builder
-  {
-    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
-      return boost::shared_ptr<Component>();
-
-    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
-  }
-
-  if( is_null(cbuilder) ) // if still fails, then give up
+  if( is_null(cbuilder) )
     return boost::shared_ptr<Component>();
 
-  boost::shared_ptr<Component> comp = cbuilder->build( name );
-
-  return comp;
+  return cbuilder->build( name );
 }
 
 

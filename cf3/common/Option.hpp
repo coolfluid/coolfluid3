@@ -20,6 +20,7 @@
 #include "common/TaggedObject.hpp"
 #include "common/SignalHandler.hpp"
 #include "common/TypeInfo.hpp"
+#include "StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -122,9 +123,6 @@ namespace XML { class XmlNode; }
     /// @name VIRTUAL FUNCTIONS
     //@{
 
-    /// @return Returns the tag.
-    virtual const char * tag() const = 0;
-
     /// @return Returns the value cast to string.
     virtual std::string value_str () const = 0;
 
@@ -185,7 +183,7 @@ namespace XML { class XmlNode; }
     template < typename TYPE >
     Option& link_to ( TYPE* par )
     {
-      cf3_assert_desc (class_name<TYPE>()+"!="+type(), class_name<TYPE>() == type() );
+      cf3_assert(typeid(TYPE) == m_value.type());
       m_linked_params.push_back(par);
       *par = boost::any_cast<TYPE>(m_value);
       return *this;
@@ -205,6 +203,12 @@ namespace XML { class XmlNode; }
     /// @brief Gives a const reference to the restricted list.
     /// @return Returns a const reference to the restricted list.
     const std::vector<boost::any> & restricted_list() const { return m_restricted_list; }
+
+    /// Return the restricted list as string
+    virtual std::string restricted_list_str() const = 0;
+
+    /// Set the restricted list using a vector of strings
+    virtual void set_restricted_list_str(const std::vector<std::string>& list) = 0;
 
     /// @brief Checks whether the option has a list of restricted values.
     /// @return Returns @c true if the option a such list; otherwise, returns
@@ -254,6 +258,29 @@ namespace XML { class XmlNode; }
   }; // class Option
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Helper function to convert a vector to string, skipping empty entries
+template<typename T>
+std::string option_vector_to_str(const std::vector<T>& vec, const std::string& delim)
+{
+  std::string result;
+  typename std::vector<T>::const_iterator it = vec.begin();
+
+  for( ; it != vec.end() ; ++it )
+  {
+    if(to_str(*it).empty())
+    {
+      continue;
+    }
+    // if it is not the first item, we add the delimiter
+    if( !result.empty() )
+      result += delim;
+
+    result += to_str(*it);
+  }
+
+  return result;
+}
 
 } // common
 } // cf3

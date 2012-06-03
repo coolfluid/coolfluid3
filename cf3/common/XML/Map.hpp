@@ -49,48 +49,33 @@ namespace XML {
     /// If it already exists @b and is a single value, it is modified.
     /// An array value cannot be modified as a single one. @n
 
-    /// @param map The map node to which the value has to be added.
-    /// @param val_key The value key (name). Cannot be empty.
-    /// @param value The value.
+    /// @param value_key The value key (name). Cannot be empty.
+    /// @param type_name The string description of the type
+    /// @param value_str The value, as string
+    /// @param descr Description
 
     /// @throw BadValue If the value key is empty.
     /// @throw XmlError if
     ///        @li the value exists and is an array
     ///        @li the value exists and its type does not match to TYPE
     ///        @li the value exists but does not have a type
-    template<typename TYPE>
-    XmlNode set_value ( const std::string& val_key, const TYPE & value,
+    XmlNode set_value ( const std::string& value_key, const std::string type_name, const std::string& value_str,
                         const std::string& descr = std::string());
 
-    /// Adds or modifies an array.
-    /// The TYPE must be one of those supported by @c #from_value(). @n
-    /// Items are separated by a @c delimiter. If no value with the
-    /// provided key exists, an array is created. If it already exists
-    /// @b and is an array, it is modified. A single value cannot be
-    /// modified as an array. @n
-    /// Some rules when modifiying an array:
-    /// @li the delimiter and size can be modified
-    /// @li the type cannot be modified.
-    ///
-    /// @warning When defining the delimiter, please ensure it is
-    /// not present inside an item or this item will be altered when
-    /// you will want to get the array back.
+    /// Adds or modifies an array value.
+    /// The TYPE must be one of those supported by @c #from_value().
+    /// If no value with the provided key exists, a single value is created.
+    /// If it already exists @b and is a single value, it is modified.
+    /// An array value cannot be modified as a single one. @n
 
-    /// @param val_key The array key (name). Cannot be empty.
-    /// @param value The array.
-    /// @param delimiter The string that will be inserted between
-    /// each item and will delimitate them. Cannot be empty.
+    /// @param value_key The value key (name). Cannot be empty.
+    /// @param type_name The string description of the type of a single element
+    /// @param value_str The value, as string, for the entire array
+    /// @param descr Description
 
-    /// @throw BadValue If the value key or the delimiter is empty.
-    /// @throw XmlError if
-    ///        @li the array exists and is an array
-    ///        @li the array exists and its type does not match to TYPE
-    ///        @li the array exists but does not have a type
-    template<typename TYPE>
-    XmlNode set_array ( const std::string& val_key,
-                        const std::vector<TYPE> & value,
-                        const std::string& delimiter = " ; ",
-                        const std::string& descr = std::string() );
+    /// @throw BadValue If the value key is empty.
+    XmlNode set_array ( const std::string& value_key, const std::string element_type_name, const std::string& value_str, const std::string& delimiter,
+                        const std::string& descr = std::string());
 
     /// Searches for a value in this map.
 

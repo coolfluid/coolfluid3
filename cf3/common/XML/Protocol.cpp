@@ -11,6 +11,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/BasicExceptions.hpp"
+#include "common/Handle.hpp"
 #include "common/Log.hpp"
 #include "common/UUCount.hpp"
 #include "common/XML/XmlDoc.hpp"
@@ -21,6 +22,7 @@
 
 namespace cf3 {
 namespace common {
+  class Component;
 namespace XML {
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -64,27 +66,6 @@ namespace XML {
   const char * Protocol::Tags::node_type_reply() { return "reply"; }
 
   const char * Protocol::Tags::node_type_signal() { return "signal"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<bool>() { return "bool"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<int>() { return "integer"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<cf3::Uint>() { return "unsigned"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<cf3::Real>() { return "real"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<std::string>() { return "string"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<URI>() { return "uri"; }
-
-  template<>
-  Common_API const char * Protocol::Tags::type<UUCount>() { return "uucount"; }
 
 /////////////////////////////////////////////////////////////////////////////////
 
