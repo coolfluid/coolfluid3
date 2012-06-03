@@ -40,7 +40,6 @@ namespace explicit_rungekutta {
 ExplicitRungeKuttaBase::ExplicitRungeKuttaBase ( const std::string& name ) :
   IterativeSolver(name)
 {
-  mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +91,6 @@ void ExplicitRungeKuttaBase::link_fields()
       }
     }
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -229,18 +227,6 @@ void ExplicitRungeKuttaBase::execute()
     // raise signal that iteration is done
     raise_iteration_done();
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void ExplicitRungeKuttaBase::raise_iteration_done()
-{
-  SignalOptions opts;
-  const Uint iter = properties().value<Uint>("iteration");
-  opts.add( "iteration", iter );
-  SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
-
-  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

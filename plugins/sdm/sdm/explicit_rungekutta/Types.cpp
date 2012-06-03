@@ -15,21 +15,25 @@ namespace sdm {
 namespace explicit_rungekutta {
 
 using namespace cf3::common;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-common::ComponentBuilder < ForwardEuler, common::Action, LibExplicitRungeKutta > ForwardEuler_Builder;
-common::ComponentBuilder < Heun,         common::Action, LibExplicitRungeKutta > Heun_Builder;
-common::ComponentBuilder < RK3,          common::Action, LibExplicitRungeKutta > RK3_Builder;
-common::ComponentBuilder < ClassicRK4,   common::Action, LibExplicitRungeKutta > ClassicRK4_Builder;
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace butcher_tableau {
-
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Register the component types in the common::Action factory, so they can be
+// dynamically created
+ComponentBuilder < ForwardEuler, common::Action, LibExplicitRungeKutta > ForwardEuler_Builder;
+ComponentBuilder < Heun,         common::Action, LibExplicitRungeKutta > Heun_Builder;
+ComponentBuilder < RK3,          common::Action, LibExplicitRungeKutta > RK3_Builder;
+ComponentBuilder < ClassicRK4,   common::Action, LibExplicitRungeKutta > ClassicRK4_Builder;
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Definitions of the Butcher tableau's.
+
+namespace butcher_tableau {
+
+
+
 
 ForwardEuler::ForwardEuler()
 {
@@ -41,7 +45,9 @@ ForwardEuler::ForwardEuler()
   b += 1.;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 Heun::Heun()
 {
@@ -54,7 +60,9 @@ Heun::Heun()
   b +=  1./3., 3./4.;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 RK3::RK3()
 {
@@ -68,7 +76,9 @@ RK3::RK3()
   b +=  1./6., 2./3., 1./6.;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 ClassicRK4::ClassicRK4()
 {
@@ -83,7 +93,8 @@ ClassicRK4::ClassicRK4()
   b +=  1./6., 1./3., 1./3., 1./6.;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
 
 } // butcher_tableau
 

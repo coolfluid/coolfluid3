@@ -4,6 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file sdm/explicit_rungekutta/LibExplicitRungeKutta.hpp
+/// @author Willem Deconinck
+///
+/// This file defines the cf3::smd::explicit_rungekutta namespace
+/// and the LibExplicitRungeKutta library
+
 #ifndef cf3_sdm_LibExplicitRungeKutta_hpp
 #define cf3_sdm_LibExplicitRungeKutta_hpp
 

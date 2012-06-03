@@ -4,12 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file sdm/explicit_rungekutta/Types.hpp
+/// @author Willem Deconinck
+///
+/// This file defines several Butcher-tableau's,
+/// and corresonding Explicit Runge-Kutta methods
+
 #include "sdm/explicit_rungekutta/ExplicitRungeKutta.hpp"
 
 namespace cf3 {
 namespace sdm {
 namespace explicit_rungekutta {
 
+////////////////////////////////////////////////////////////////////////////////
+
+// Forward declarations of Butcher tableau's.
+// The declarations are below
+
+/// @brief Preconfigured butcher tableau's
 namespace butcher_tableau
 {
   struct ForwardEuler;
@@ -18,12 +30,32 @@ namespace butcher_tableau
   struct ClassicRK4;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+// Preconfigured Explicit Runge-Kutta methods, templated by a Butcher tableau
+// Their type-name = "cf3.sdm.explicit_rungekutta.<butcher_tableau>", with
+// <butcher_tableau> the name of the Butcher Tableau
+
+/// @brief Forward Euler time integration method
 typedef ExplicitRungeKuttaT<butcher_tableau::ForwardEuler> ForwardEuler;
+
+/// @brief Heun time integration method
 typedef ExplicitRungeKuttaT<butcher_tableau::Heun>         Heun;
+
+/// @brief RK3 time integration method
 typedef ExplicitRungeKuttaT<butcher_tableau::RK3>          RK3;
+
+/// @brief Classic RK4 time integration method
 typedef ExplicitRungeKuttaT<butcher_tableau::ClassicRK4>   ClassicRK4;
 
+////////////////////////////////////////////////////////////////////////////////
+
+// Declarations of Butcher tableau's here:
+
 namespace butcher_tableau {
+
+
+
 
 /// @brief Forward Euler Butcher tableau coefficients
 /// @verbatim
@@ -37,7 +69,9 @@ struct ForwardEuler : ButcherTableau::Coefficients
   ForwardEuler();
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 /// @brief Heun Butcher tableau coefficients
 /// @verbatim
@@ -52,7 +86,8 @@ struct Heun : ButcherTableau::Coefficients
   Heun();
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+
 
 /// @brief RK3 Butcher tableau coefficients
 /// @verbatim
@@ -68,7 +103,9 @@ struct RK3 : ButcherTableau::Coefficients
   RK3();
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 /// @brief Classic RK4 Butcher tableau coefficients
 /// @verbatim
@@ -84,6 +121,10 @@ struct ClassicRK4 : ButcherTableau::Coefficients
   static std::string name() { return "ClassicRK4"; }
   ClassicRK4();
 };
+
+
+
+
 
 } // butcher_tableau
 
