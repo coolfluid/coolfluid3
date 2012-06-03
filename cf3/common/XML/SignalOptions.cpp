@@ -199,12 +199,10 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 
   if( !is_array )
   {
-    CFdebug << "adding option " << opt->name() << " of type " << opt->type() << " to map" << CFendl;
     value_node = opt_map.set_value( opt->name(), opt->type(), opt->value_str(), desc );
   }
   else
   {
-    CFdebug << "adding option array " << opt->name() << " of type " << opt->type() << " to map" << CFendl;
     value_node = opt_map.set_array( opt->name(), opt->element_type(), opt->value_str(), opt->separator(), desc );
   }
 
@@ -220,7 +218,10 @@ void add_opt_to_xml( Map& opt_map, boost::shared_ptr<Option> opt, bool is_array)
 
   if(  opt->type() == common::class_name<URI>() )
   {
-    std::vector<URI::Scheme::Type> prots = boost::dynamic_pointer_cast<OptionURI>(opt)->supported_protocols();
+    boost::shared_ptr<OptionURI> uri_opt = boost::dynamic_pointer_cast<OptionURI>(opt);
+    if(is_null(uri_opt))
+      throw ShouldNotBeHere(FromHere(), "Option " + opt->name() + " has type " + opt->type() + " but can't be cast to OptionURI");
+    std::vector<URI::Scheme::Type> prots = uri_opt->supported_protocols();
     std::vector<URI::Scheme::Type>::iterator it = prots.begin();
 
     for( ; it != prots.end() ; it++)
