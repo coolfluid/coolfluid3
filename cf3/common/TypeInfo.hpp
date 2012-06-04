@@ -10,6 +10,7 @@
 #include <typeinfo>
 
 #include "common/Assertions.hpp"
+#include "Handle.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,11 +72,21 @@ std::string class_name_from_typeinfo (const std::type_info & info);
 //   RegistTypeInfo( const std::string& name = TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
 // };
 
+/// Register type info for a class that belongs to a coolfluid library, including the full namespace in the name
+/// Also registers type information for the handle and a vector of handles
 template< typename TYPE, typename LIB>
 struct RegistTypeInfo
 {
   /// @brief Registers this type into the TypeInfo registry
-  RegistTypeInfo( const std::string& name = LIB::library_namespace()+"."+TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
+  RegistTypeInfo( const std::string& name = LIB::library_namespace()+"."+TYPE::type_name() )
+  {
+    const std::string handle_name = "handle[" + name + "]";
+    const std::string array_name = "array[" + handle_name + "]";
+    
+    TypeInfo::instance().regist<TYPE>(name);
+    TypeInfo::instance().regist< Handle<TYPE> >(handle_name);
+    TypeInfo::instance().regist< std::vector< Handle<TYPE> > >(array_name);
+  }
 };
 
 /// @brief Helper function to regist a type in the TypeInfo registry

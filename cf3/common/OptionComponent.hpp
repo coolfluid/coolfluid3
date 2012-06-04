@@ -45,15 +45,9 @@ public:
   OptionComponent(const std::string & name, const Handle<T> linked_component)
     : Option(name, linked_component)
   {
-    TypeInfo::instance().regist<value_type>("handle<"+T::type_name()+">");
   }
 
   virtual ~OptionComponent() {}
-
-  virtual std::string type() const { return class_name<value_type>(); }
-
-  /// @returns the xml tag for this option
-  virtual const char * tag() const { return Protocol::Tags::type<URI>(); }
 
   /// @returns the value as a std::string
   virtual std::string value_str () const
@@ -79,6 +73,36 @@ public:
   OutputT value() const
   {
     return Option::template value<OutputT>();
+  }
+
+  virtual std::string restricted_list_str() const
+  {
+    std::vector< URI > restr_list_vec;
+    BOOST_FOREACH(const boost::any& restr_item, restricted_list())
+    {
+      value_type comp = boost::any_cast<value_type>(restr_item);
+      if(is_null(comp))
+        restr_list_vec.push_back(URI().string());
+      else
+        restr_list_vec.push_back(comp->uri().string());
+    }
+    return option_vector_to_str(restr_list_vec, separator());
+  }
+
+  virtual void set_restricted_list_str(const std::vector< std::string >& list)
+  {
+    BOOST_FOREACH(const std::string& item, list)
+    {
+      const URI comp_path(item, cf3::common::URI::Scheme::CPATH);
+      Handle<T> found_comp(Core::instance().root().access_component(comp_path));
+      if(is_not_null(found_comp))
+        restricted_list().push_back(found_comp);
+    }
+  }
+  
+  virtual std::string type() const
+  {
+    return class_name< Handle<typename boost::remove_const<T>::type> >();
   }
 
 private:
@@ -109,7 +133,11 @@ private:
   virtual boost::any extract_configured_value(XML::XmlNode& node)
   {
     URI uri;
-    XmlNode type_node(node.content->first_node(Protocol::Tags::type<URI>()));
+    // Try concrete type first
+    XmlNode type_node(node.content->first_node(type().c_str()));
+    // Otherwise try the base component
+    if(!type_node.is_valid())
+      type_node = XmlNode(node.content->first_node("handle[cf3.common.Component]"));
 
     if( type_node.is_valid() )
       to_value( type_node, uri );

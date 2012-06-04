@@ -6,6 +6,7 @@
 
 #include "common/Signal.hpp"
 #include "common/OptionT.hpp"
+#include "common/TypeInfo.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -17,6 +18,8 @@ using namespace cf3::common::XML;
 namespace cf3 {
 namespace physics {
 
+common::RegistTypeInfo<PhysModel, LibPhysics> PhysMod_type_info;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 PhysModel::PhysModel( const std::string& name ) :

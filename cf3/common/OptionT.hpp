@@ -38,11 +38,11 @@ public:
   /// @name VIRTUAL FUNCTIONS
   //@{
 
-  /// @returns the xml tag for this option
-  virtual const char * tag() const;
-
   /// @returns the value as a std::string
   virtual std::string value_str () const;
+
+  virtual std::string restricted_list_str() const;
+  virtual void set_restricted_list_str(const std::vector< std::string >& list);
 
   //@} END VIRTUAL FUNCTIONS
 
