@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2012 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -6,6 +6,7 @@
 
 /// @file sdm/explicit_rungekutta/ExplicitRungeKutta.hpp
 /// @author Willem Deconinck
+/// @author Matteo Parsani
 ///
 /// This file includes the ExplicitRungeKuttaBase component class,
 /// defining the Explicit Runge Kutta scheme,
@@ -37,7 +38,7 @@ namespace explicit_rungekutta {
 
 /// @brief Runge-Kutta integration method
 ///
-/// Standard Explicit Runge-Kutta integration using butcher tableau coefficients
+/// Standard Explicit Runge-Kutta integration using Butcher tableau coefficients
 /// @verbatim
 /// 0  |
 /// c2 | a21
@@ -107,12 +108,13 @@ private: // data
 /// @brief Explicit Runge Kutta integration method
 ///
 /// Configuring the option "order" automatically preconfigures some default
-/// Butcher tableau's:
-/// - order = 1 --> Forward Euler
-/// - order = 2 --> Heun
-/// - order = 3 --> RK3
-/// - order = 4 --> Classic RK4
-/// If nothing is configured, Classic RK4 is assumed.
+/// Butcher tableaux:
+/// - order = 1 --> forward Euler (ForwardEuler)
+/// - order = 2 --> 2-stage 2nd-order Heun method (Heun2)
+/// - order = 3 --> classic 3-stage 3rd-order Runge-Kutta method (ClassicRK33)
+/// - order = 4 --> classic 4-stage 4th-order Runge-Kutta method (ClassicRK44)
+/// - order = 5 --> 6-stage 5th-order Runge-Kutta-Fehlberg method (from the Fehlberg pair) (RKF65)
+/// If nothing is configured, ClassicRK44 is assumed.
 /// @author Willem Deconinck
 class sdm_explicit_rungekutta_API ExplicitRungeKutta : public ExplicitRungeKuttaBase {
 
@@ -138,7 +140,7 @@ private: // functions
 ///
 /// The typename of the component will be:
 /// "cf3.sdm.explicit_rungekutta.<name>"  with <name> to be replaced by
-/// the name of the Butcher tableau. For a list of Butcher tableau's, check
+/// the name of the Butcher tableau. For a list of Butcher tableaux, check
 /// sdm/explicit_rungekutta/Types.hpp
 /// @author Willem Deconinck
 template <typename BUTCHER_TABLEAU>
