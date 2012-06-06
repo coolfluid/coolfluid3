@@ -107,7 +107,7 @@ ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[
 sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 sa_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
 
-u_in = [0.5, 0.]
+u_in = [1., 0.]
 u_wall = [0., 0.]
 phi_in = 100
 phi_wall = 200

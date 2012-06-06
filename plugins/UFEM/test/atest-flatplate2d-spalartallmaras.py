@@ -97,29 +97,38 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()]) #what did change here ?
+satm.options().configure_option('regions', [mesh.access_component('topology').uri()])    #also here ?
 
 # LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
+ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
 #LSS for Spalart-Allmaras turbulence model
-satm_lss = satm.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
+satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 satm_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
 
 nstokes.options().configure_option('disabled_actions', ['SolveLSS'])
 
-u_in = [0.5, 0.]
+u_in = [1., 0.]
 u_wall = [0., 0.]
-NU_in = 0.001
+NU_in = .0001
 
 # Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('solution')
+ic_ns = ic.create_initial_condition('navier_stokes_solution')
 # Initial advection velocity and its previous values, using linearized_velocity as tag
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
 # Initial conditions for the scalar advection solver
 ic_NU = ic.create_initial_condition('spalart_allmaras_solution')
 
+ic_ns.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_linearized_vel.options().configure_option('regions', [mesh.access_component('topology').uri()])
+#ic_phi.options().configure_option('regions', [mesh.access_component('topology').uri()])
+#ic_hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
+
 #initial conditions
 ic_ns.options().configure_option('Velocity', u_in)
+ic_ns.options().configure_option('Pressure', 0.)
+#ic_ns.options().configure_option('TurbulentViscosity', NU_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
@@ -151,7 +160,7 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').op
 
 # Time setup
 time = model.create_time()
-time.options().configure_option('time_step', 0.01)
+time.options().configure_option('time_step', 0.1)
 
 # Setup a time series write
 final_end_time = 1.

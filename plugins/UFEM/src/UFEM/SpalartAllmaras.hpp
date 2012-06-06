@@ -57,7 +57,7 @@ private:
   
   /// Coefficients for Model
    Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
-   Real r, g, d;
+   Real r, g, d, S;
 
 };
 
