@@ -159,21 +159,23 @@ void ExplicitRungeKuttaBase::execute()
 
     if (stage != last_stage)  // update solution for next stage
     {
+      Uint next_stage = stage+1;
       /// U(s+1) = U(n) + h * sum( asj * Rj )
       /// R = sum( asj * Rj )
       U = U0;
       R = 0;
       Real r;
-      for (Uint j=0; j<=stage; ++j)
+      for (Uint j=0; j<next_stage; ++j)
       {
-        if (butcher.a(stage,j) != 0)
+        Real a = butcher.a(next_stage,j);
+        if (a != 0)
         {
           const Field& R_j = (*m_residuals[j]);  // R from previous stages
           for (Uint pt=0; pt<U.size(); ++pt)
           {
             for (Uint v=0; v<U.row_size(); ++v)
             {
-              r =  butcher.a(stage,j) * R_j[pt][v];
+              r =  a * R_j[pt][v];
               R[pt][v] += r;
               U[pt][v] += H[pt][0] * r;
             }
