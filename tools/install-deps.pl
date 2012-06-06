@@ -354,9 +354,9 @@ sub prepare ()
     $ENV{PATH} = "$opt_mpi_dir/bin:" . $ENV{PATH};
     $ENV{LD_LIBRARY_PATH} = "$opt_mpi_dir/lib:" . $ENV{LD_LIBRARY_PATH};
 
-    $ENV{CFLAGS}   = "-O2" . $ENV{CFLAGS};
-    $ENV{CXXFLAGS} = "-O2" . $ENV{CXXFLAGS};
-    $ENV{FFLAGS}   = "-O2" . $ENV{FFLAGS};
+    $ENV{CFLAGS}   = "-O2 " . $ENV{CFLAGS};
+    $ENV{CXXFLAGS} = "-O2 " . $ENV{CXXFLAGS};
+    $ENV{FFLAGS}   = "-O2 " . $ENV{FFLAGS};
     $ENV{F77FLAGS} = $ENV{FFLAGS};
     $ENV{F90FLAGS} = $ENV{FFLAGS};
 

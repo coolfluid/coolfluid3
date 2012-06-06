@@ -12,6 +12,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "common/TypeInfo.hpp"
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/FileOperations.hpp"
 
@@ -63,7 +64,7 @@ SignalFrame generate_message_frame( const std::string & message )
 {
   SignalFrame frame( "message", "cpath:/", "cpath:/" );
 
-  frame.set_option( "text", message );
+  frame.set_option( "text", cf3::common::class_name<std::string>(), message );
 
   return frame;
 }

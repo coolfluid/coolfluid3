@@ -15,6 +15,7 @@
 #include "common/Assertions.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
+#include "common/TypeInfo.hpp"
 #include "common/UUCount.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
@@ -25,8 +26,6 @@
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
   Common_TEMPLATE template void Map::split_string<T>(const std::string&, const std::string&, std::vector<T>&, int);\
   Common_TEMPLATE template bool Map::value_has_ptr<T>(const XmlNode&);\
-  Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&, const std::string&);\
-  Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
   Common_TEMPLATE template T Map::get_value<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> Map::get_array<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> Map::array_to_vector<T>(const XmlNode&, std::string*) const
@@ -69,7 +68,7 @@ void Map::split_string ( const std::string & str, const std::string & delimiter,
     catch(boost::bad_lexical_cast e)
     {
       throw CastingFailed(FromHere(), "Unable to cast [" + boost::copy_range<std::string>(*it) + "] to " +
-                          Protocol::Tags::type<TYPE>() + ".");
+                          common::class_name<TYPE>() + ".");
     }
   }
 }
@@ -84,17 +83,13 @@ Map::Map(XmlNode node) :
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<typename TYPE>
-XmlNode Map::set_value ( const std::string& value_key, const TYPE & value,
-                         const std::string& descr )
+XmlNode Map::set_value(const std::string& value_key, const std::string type_name, const std::string& value_str, const std::string& descr)
 {
   cf3_assert ( content.is_valid() );
 
   if( value_key.empty() )
     throw BadValue(FromHere(), "The key is empty.");
 
-  std::string type_name = Protocol::Tags::type<TYPE>();
-  std::string value_str = to_str(value); // convert value to string
   XmlNode value_node = find_value( value_key );
 
   if( !value_node.is_valid() ) // if the value was not found
@@ -119,7 +114,7 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value,
 
     if( type_name != type_node->name() )
       throw XmlError(FromHere(), std::string("Value is of type [") + type_node->name() +
-                     "]. Cannot put a value of type [" + type_name + "].");
+      "]. Cannot put a value of type [" + type_name + "].");
 
     type_node->value( type_node->document()->allocate_string(value_str.c_str()) );
   }
@@ -127,19 +122,16 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value,
   if( !descr.empty() )
     value_node.set_attribute( Protocol::Tags::attr_descr(), descr );
 
+  cf3_assert(value_node.is_valid());
   return value_node;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
-template<typename TYPE>
-XmlNode Map::set_array ( const std::string& value_key,
-                         const std::vector<TYPE> & value,
-                         const std::string& delimiter,
-                         const std::string& descr)
+XmlNode Map::set_array(const std::string& value_key, const std::string element_type_name, const std::string& value_str, const std::string& delimiter, const std::string& descr)
 {
   cf3_assert ( content.is_valid() );
-//  cf3_assert ( is_not_null(content.content->document()) );
+  //  cf3_assert ( is_not_null(content.content->document()) );
 
   if( value_key.empty() )
     throw BadValue(FromHere(), "The key is empty.");
@@ -147,28 +139,7 @@ XmlNode Map::set_array ( const std::string& value_key,
   if( delimiter.empty() )
     throw BadValue(FromHere(), "The delimiter is empty.");
 
-  std::string type_name = Protocol::Tags::type<TYPE>();
-  std::string value_str;
   XmlNode array_node = find_value( value_key );
-
-  // build the value string
-  typename std::vector<TYPE>::const_iterator it = value.begin();
-
-  Uint result_size = value.size();
-
-  for( ; it != value.end() ; ++it )
-  {
-    if(to_str(*it).empty())
-    {
-      --result_size;
-      continue;
-    }
-    // if it is not the first item, we add the delimiter
-    if( !value_str.empty() )
-      value_str += delimiter;
-
-    value_str += to_str(*it);
-  }
 
   if( !array_node.is_valid() ) // if the array was not found
   {
@@ -177,7 +148,7 @@ XmlNode Map::set_array ( const std::string& value_key,
 
     // add "key" and "type" attributes
     array_node.set_attribute( Protocol::Tags::attr_key(), value_key );
-    array_node.set_attribute( Protocol::Tags::attr_array_type(), type_name );
+    array_node.set_attribute( Protocol::Tags::attr_array_type(), element_type_name );
   }
   else if( std::strcmp(array_node.content->name(), Protocol::Tags::node_value()) == 0 )
     throw XmlError(FromHere(), "Value [" + value_key +"] is not an array.");
@@ -191,20 +162,18 @@ XmlNode Map::set_array ( const std::string& value_key,
     if( type_attr == nullptr )
       throw XmlError(FromHere(), "No type found for array [" + value_key + "].");
 
-    if( type_name != type_attr->value() )
+    if( element_type_name != type_attr->value() )
       throw XmlError(FromHere(), std::string("Array is of type [") + type_attr->value() +
-                     "]. Cannot put an array of type [" + type_name + "].");
+      "]. Cannot put an array of type [" + element_type_name + "].");
 
   }
 
   // common modifications: set the array size and the delimiter
-
-  // note: we explicitly cast the array size to cf3::Uint for compatibility
-  // reasons: MSVC's typedef of std::size_t is for unsigned __int64
-  // (which is defined by Microsoft) instead of unsigned int. Since
-  // to_str<unsigned __int64>() is not defined, it may cause a
-  // lining error on Windows.
-  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( result_size ));
+  std::vector<std::string> split_str;
+  split_string(value_str, delimiter, split_str);
+  const Uint array_size = split_str.size();
+  
+  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( array_size ));
 
   array_node.set_attribute( Protocol::Tags::attr_array_delimiter(), delimiter );
 
@@ -213,8 +182,10 @@ XmlNode Map::set_array ( const std::string& value_key,
   if( !descr.empty() )
     array_node.set_attribute( Protocol::Tags::attr_descr(), descr );
 
+  cf3_assert(array_node.is_valid());
   return array_node;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -317,13 +288,13 @@ TYPE Map::get_value ( const std::string& value_key ) const
     throw BadValue(FromHere(), "The value key is empty.");
 
   XmlNode found_node;
-  const char * type_name = Protocol::Tags::type<TYPE>();
+  const std::string type_name = common::class_name<TYPE>();
 
   found_node = find_value( value_key, Protocol::Tags::node_value() );
 
   if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )
     throw  XmlError( FromHere(), "Could not find single value of type [" +
-                     std::string(type_name) + "] with \'key\' attribute  [" +
+                     type_name + "] with \'key\' attribute  [" +
                      value_key + "]." );
 
   // convert xml value to TYPE
@@ -338,7 +309,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
 {
   cf3_assert ( content.is_valid() );
 
-  const char * type_name = Protocol::Tags::type<TYPE>();
+  const std::string type_name = common::class_name<TYPE>();
   // rapidxml::xml_attribute<> * delim_attr = nullptr;
 
   if(array_key.empty())
@@ -351,7 +322,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
   // check that node has been found and has the correct type
   if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )
     throw  XmlError( FromHere(),"Could not find an array value of type [" +
-                     std::string(type_name) + "] with \'key\' attribute  [" +
+                     type_name + "] with \'key\' attribute  [" +
                      array_key + "]." );
 
 
@@ -400,15 +371,15 @@ template<typename TYPE>
 bool Map::value_has_ptr ( const XmlNode &node )
 {
   bool type_ok = false;
-  const char * type_name = Protocol::Tags::type<TYPE>();
+  const std::string type_name = common::class_name<TYPE>();
 
   if( is_single_value(node) )
-    type_ok = node.content->first_node( type_name ) != nullptr;
+    type_ok = node.content->first_node( type_name.c_str() ) != nullptr;
   else if( is_array_value(node) )
   {
     rapidxml::xml_attribute<>* type_attr = node.content->first_attribute( Protocol::Tags::attr_array_type() );
 
-    type_ok = type_attr != nullptr && std::strcmp(type_name, type_attr->value()) == 0;
+    type_ok = type_attr != nullptr && std::strcmp(type_name.c_str(), type_attr->value()) == 0;
   }
 
   return type_ok;

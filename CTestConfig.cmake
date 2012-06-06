@@ -10,3 +10,5 @@ set(CTEST_DROP_SITE "coolfluidsrv.vki.ac.be")
 set(CTEST_DROP_LOCATION "/cdash/submit.php?project=coolfluid")
 set(CTEST_DROP_SITE_CDASH TRUE)
 
+set(CTEST_UPDATE_TYPE "git")
+

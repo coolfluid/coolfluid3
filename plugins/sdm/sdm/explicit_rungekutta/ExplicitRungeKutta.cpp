@@ -4,14 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/Signal.hpp"
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
-#include "common/OptionComponent.hpp"
-#include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
 
@@ -22,12 +19,11 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Space.hpp"
-#include "mesh/Connectivity.hpp"
 
-#include "sdm/ExplicitRungeKutta.hpp"
-#include "sdm/Tags.hpp"
 #include "sdm/SDSolver.hpp"
+
+#include "sdm/explicit_rungekutta/ExplicitRungeKutta.hpp"
+#include "sdm/explicit_rungekutta/Types.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -37,127 +33,18 @@ using namespace cf3::mesh;
 
 namespace cf3 {
 namespace sdm {
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-common::ComponentBuilder < ExplicitRungeKutta, common::Action, LibSDM > ExplicitRungeKutta_Builder;
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-ExplicitRungeKutta::ExplicitRungeKutta ( const std::string& name ) :
-  IterativeSolver(name)
-{
-  mark_basic();
-
-  options().add("order", 4u)
-      .description("Order of the Runge-Kutta integration (default = RK4)\n"
-                   "NOTE: Configure coefficients a,b,c after configuring this to override defaults")
-      .pretty_name("RK order")
-      .attach_trigger( boost::bind( &ExplicitRungeKutta::config_coefficients, this ) )
-      .mark_basic();
-
-  options().add("nb_stages", 0u)
-      .description("Number of stages of the Runge-Kutta integration")
-      .pretty_name("RK stages");
-
-  options().add("a", std::vector<Real>())
-      .description("RK coefficients a from Butcher tableau")
-      .link_to(&m_a);
-
-  options().add("b", std::vector<Real>())
-      .description("RK coefficients b from Butcher tableau")
-      .link_to(&m_b);
-
-  options().add("c", std::vector<Real>())
-      .description("RK coefficients c from Butcher tableau")
-      .link_to(&m_c);
-
-  // Configure default coefficients
-  config_coefficients();
-}
+namespace explicit_rungekutta {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Some default coefficients that are configured with option "order"
-void ExplicitRungeKutta::config_coefficients()
+ExplicitRungeKuttaBase::ExplicitRungeKuttaBase ( const std::string& name ) :
+  IterativeSolver(name)
 {
-  const Uint nb_stages = options().value<Uint>("order");
-  options().set("nb_stages",nb_stages);
-
-  switch (nb_stages)
-  {
-    case 1: // set to Forward Euler
-    {
-      // 0 |
-      // ------
-      //   | 1
-      Real a[] = { 0. };
-      Real b[] = { 1. };
-      Real c[] = { 0. };
-      options().set("a",std::vector<Real>(a,a+nb_stages*nb_stages));
-      options().set("b",std::vector<Real>(b,b+nb_stages));
-      options().set("c",std::vector<Real>(c,c+nb_stages));
-      break;
-    }
-    case 2: // Heun method
-    {
-      // 0   |
-      // 2/3 | 2/3
-      // --------------
-      //     | 1/3  3/4
-      Real a[] = { 0.,    0.,
-                   2./3., 0.   };
-      Real b[] = { 1./3., 3./4.};
-      Real c[] = { 0.,    2./3.};
-      options().set("a",std::vector<Real>(a,a+nb_stages*nb_stages));
-      options().set("b",std::vector<Real>(b,b+nb_stages));
-      options().set("c",std::vector<Real>(c,c+nb_stages));
-      break;
-    }
-    case 3: // RK3
-    {
-      // 0   |
-      // 1/2 | 1/2
-      // 1   | -1    2
-      // -------------------
-      //     | 1/6  2/3  1/6
-      Real a[] = { 0.,    0.,    0.,
-                   1./2., 0.,    0.,
-                   -1.,   2.,    0.   };
-      Real b[] = { 1./6., 2./3., 1./6.};
-      Real c[] = { 0.,    1./2., 1.   };
-      options().set("a",std::vector<Real>(a,a+nb_stages*nb_stages));
-      options().set("b",std::vector<Real>(b,b+nb_stages));
-      options().set("c",std::vector<Real>(c,c+nb_stages));
-      break;
-    }
-    case 4: // Classic RK4
-    default:
-    {
-      // 0   |
-      // 1/2 | 1/2
-      // 1/2 | 0    1/2
-      // 1   | 0    0    1
-      // ------------------------
-      //     | 1/6  1/3  1/3  1/6
-      //
-      Real a[] = { 0.,    0.,    0.,    0.,
-                   1./2., 0.,    0.,    0.,
-                   0.,    1./2., 0.,    0.,
-                   0.,    0.,    1.,    0.   };
-      Real b[] = { 1./6., 1./3., 1./3., 1./6.};
-      Real c[] = { 0.,    1./2., 1./2., 1.   };
-      options().set("a",std::vector<Real>(a,a+nb_stages*nb_stages));
-      options().set("b",std::vector<Real>(b,b+nb_stages));
-      options().set("c",std::vector<Real>(c,c+nb_stages));
-      break;
-    }
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ExplicitRungeKutta::link_fields()
+void ExplicitRungeKuttaBase::link_fields()
 {
   IterativeSolver::link_fields();
 
@@ -180,7 +67,7 @@ void ExplicitRungeKutta::link_fields()
     }
   }
 
-  Uint nb_stages = options().value<Uint>("nb_stages");
+  Uint nb_stages = m_butcher->nb_stages();
   if (m_residuals.size() != nb_stages)
     m_residuals.resize(nb_stages);
   for (Uint i=0; i<nb_stages; ++i)
@@ -203,22 +90,26 @@ void ExplicitRungeKutta::link_fields()
         solver().field_manager().create_component<Link>("erk_eval_"+to_str(i))->link_to(*m_residuals[i]);
       }
     }
-
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ExplicitRungeKutta::execute()
+void ExplicitRungeKuttaBase::execute()
 {
+  cf3_assert (is_not_null(m_butcher));
   configure_option_recursively( "iterator", handle<Component>() );
   
+  const ButcherTableau& butcher = *m_butcher;
+  butcher.check_throw();
+  const Uint nb_stages = butcher.nb_stages();
+  const Uint last_stage = nb_stages-1;
+
+
   link_fields();
 
+
   int convergence_failed = false;
-  const Uint nb_stages = options().value<Uint>("nb_stages");
-  const Uint last_stage = nb_stages-1;
   Field& U  = *m_solution;
   Field& U0 = *m_solution_backup;
   Field& R  = *m_residual;
@@ -236,7 +127,7 @@ void ExplicitRungeKutta::execute()
   {
     // Set time and iteration for this stage
     properties().property("iteration") = stage+1;
-    time.current_time() = T0 + m_c[stage] * dt;
+    time.current_time() = T0 + butcher.c(stage) * dt;
 
     // Do actual computations in pre_update
     try
@@ -255,13 +146,6 @@ void ExplicitRungeKutta::execute()
     // - R
     Field& R_stage = (*m_residuals[stage]);
     R_stage = R;
-
-//    Handle<common::Action> compute_norm = solver().handle<SDSolver>()->actions()
-//                             .get_child(Tags::L2norm())->handle<common::Action>();
-//    compute_norm->options().set("table",R_stage.uri());
-//    compute_norm->execute();
-//    std::vector<Real> norm = compute_norm->properties().value< std::vector<Real> >("norms");
-//    std::cout << "norm = " << to_str(norm) << std::endl;
 
 
     if (stage == 0)
@@ -282,14 +166,14 @@ void ExplicitRungeKutta::execute()
       Real r;
       for (Uint j=0; j<=stage; ++j)
       {
-        if (m_a[(stage+1)*nb_stages + j] != 0)
+        if (butcher.a(stage,j) != 0)
         {
           const Field& R_j = (*m_residuals[j]);  // R from previous stages
           for (Uint pt=0; pt<U.size(); ++pt)
           {
             for (Uint v=0; v<U.row_size(); ++v)
             {
-              r =  m_a[(stage+1)*nb_stages + j] * R_j[pt][v];
+              r =  butcher.a(stage,j) * R_j[pt][v];
               R[pt][v] += r;
               U[pt][v] += H[pt][0] * r;
             }
@@ -306,14 +190,14 @@ void ExplicitRungeKutta::execute()
       Real r;
       for (Uint j=0; j<nb_stages; ++j)
       {
-        if (m_b[j]!=0)
+        if (butcher.b(j)!=0)
         {
           const Field& R_j = (*m_residuals[j]);  // R from previous stages
           for (Uint pt=0; pt<U.size(); ++pt)
           {
             for (Uint v=0; v<U.row_size(); ++v)
             {
-              r = m_b[j] * R_j[pt][v];
+              r = butcher.b(j) * R_j[pt][v];
               R[pt][v] += r;
               U[pt][v] += H[pt][0] * r;
             }
@@ -345,19 +229,57 @@ void ExplicitRungeKutta::execute()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ExplicitRungeKutta::raise_iteration_done()
-{
-  SignalOptions opts;
-  const Uint iter = properties().value<Uint>("iteration");
-  opts.add( "iteration", iter );
-  SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
+common::ComponentBuilder < ExplicitRungeKutta, ExplicitRungeKuttaBase, LibExplicitRungeKutta > ExplicitRungeKutta_Builder;
 
-  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+////////////////////////////////////////////////////////////////////////////////
+
+ExplicitRungeKutta::ExplicitRungeKutta ( const std::string& name ) : ExplicitRungeKuttaBase(name)
+{
+  options().add("order", 4)
+      .description("Order of the Runge-Kutta integration (default = RK4)\n"
+                   "NOTE: This overrides any existing butcher-tableau")
+      .pretty_name("RK order")
+      .attach_trigger( boost::bind( &ExplicitRungeKutta::config_butcher_tableau, this ) )
+      .mark_basic();
+
+  m_butcher = create_component<ButcherTableau>("butcher_tableau");
+  m_butcher->set( butcher_tableau::ClassicRK4() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Some default coefficients that are configured with option "order"
+void ExplicitRungeKutta::config_butcher_tableau()
+{
+  using namespace explicit_rungekutta;
+  const Uint order = options().value<Uint>("order");
+  switch (order)
+  {
+    case 1: // set to Forward Euler
+      m_butcher->set( butcher_tableau::ForwardEuler() );
+      break;
+    case 2: // Heun method
+      m_butcher->set( butcher_tableau::Heun() );
+      break;
+    case 3: // RK3
+      m_butcher->set( butcher_tableau::RK3() );
+      break;
+    case 4: // Classic RK4
+      m_butcher->set( butcher_tableau::ClassicRK4() );
+      break;
+    default:
+      CFwarn << "Cannot configure order " << order << ". Using ClassicRK4 instead." << CFendl;
+      m_butcher->set( butcher_tableau::ClassicRK4() );
+      break;
+  }
+  CFinfo << "Used Butcher tableau:\n" << m_butcher->str() << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // explicit_rungekutta
 } // sdm
 } // cf3
