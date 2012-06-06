@@ -60,13 +60,13 @@ public:
     return *comp;
   }
 
-  /// Add the given signal to the list of wrapped signals
-  void wrap_signal(common::SignalPtr signal);
+  /// Set a pointer to the python object constructed from this wrapper. This is used to decorate the python
+  /// object with signals, basic options and basic components
+  void set_python_object(boost::python::object& obj);
 
-  /// Bind the signals as python functions to the supplied object
-  void bind_signals(boost::python::object& python_object);
-
-  /// Set the list interface to use. Takes ownership of the passed pointer
+  /// Set the list interface to use. Takes ownership of the passed pointer.
+  /// List interfaces are used to override the python [] operator for certain components,
+  /// such as tables and lists
   void set_list_interface(PythonListInterface* interface);
 
   /// Get the curent list interface, or null if there is none
@@ -74,7 +74,7 @@ public:
 
 private:
   class Implementation;
-  boost::shared_ptr<Implementation> m_implementation;
+  boost::shared_ptr<Implementation> m_implementation; // Shared pointer so we can easily make shallow copies
 };
 
 /// Python wrapping for the Component class

@@ -26,7 +26,7 @@ common::ComponentBuilder < TestAllOptions, Component, LibPython > TestAllOptions
 
 TestAllOptions::TestAllOptions ( const std::string& name ) : Component ( name )
 {
-  options().add("string", std::string());
+  options().add("string", std::string()).description("Test string option").mark_basic();
   options().add("real", 0.);
   options().add("uint", 0u);
   options().add("int", 0);
