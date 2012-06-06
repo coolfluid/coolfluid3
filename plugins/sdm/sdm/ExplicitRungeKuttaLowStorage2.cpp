@@ -47,8 +47,6 @@ common::ComponentBuilder < ExplicitRungeKuttaLowStorage2, common::Action, LibSDM
 ExplicitRungeKuttaLowStorage2::ExplicitRungeKuttaLowStorage2 ( const std::string& name ) :
   IterativeSolver(name)
 {
-  mark_basic();
-
   options().add("order", 1u)
       .description("Order of the Runge-Kutta integration")
       .pretty_name("RK order");

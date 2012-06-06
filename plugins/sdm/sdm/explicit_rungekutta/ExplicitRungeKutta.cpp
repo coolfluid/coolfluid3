@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2012 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -40,7 +40,6 @@ namespace explicit_rungekutta {
 ExplicitRungeKuttaBase::ExplicitRungeKuttaBase ( const std::string& name ) :
   IterativeSolver(name)
 {
-  mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +91,6 @@ void ExplicitRungeKuttaBase::link_fields()
       }
     }
   }
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -161,21 +159,23 @@ void ExplicitRungeKuttaBase::execute()
 
     if (stage != last_stage)  // update solution for next stage
     {
+      Uint next_stage = stage+1;
       /// U(s+1) = U(n) + h * sum( asj * Rj )
       /// R = sum( asj * Rj )
       U = U0;
       R = 0;
       Real r;
-      for (Uint j=0; j<=stage; ++j)
+      for (Uint j=0; j<next_stage; ++j)
       {
-        if (butcher.a(stage,j) != 0)
+        Real a = butcher.a(next_stage,j);
+        if (a != 0)
         {
           const Field& R_j = (*m_residuals[j]);  // R from previous stages
           for (Uint pt=0; pt<U.size(); ++pt)
           {
             for (Uint v=0; v<U.row_size(); ++v)
             {
-              r =  butcher.a(stage,j) * R_j[pt][v];
+              r =  a * R_j[pt][v];
               R[pt][v] += r;
               U[pt][v] += H[pt][0] * r;
             }
@@ -231,18 +231,6 @@ void ExplicitRungeKuttaBase::execute()
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-void ExplicitRungeKuttaBase::raise_iteration_done()
-{
-  SignalOptions opts;
-  const Uint iter = properties().value<Uint>("iteration");
-  opts.add( "iteration", iter );
-  SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
-
-  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -253,14 +241,14 @@ common::ComponentBuilder < ExplicitRungeKutta, ExplicitRungeKuttaBase, LibExplic
 ExplicitRungeKutta::ExplicitRungeKutta ( const std::string& name ) : ExplicitRungeKuttaBase(name)
 {
   options().add("order", 4)
-      .description("Order of the Runge-Kutta integration (default = RK4)\n"
-                   "NOTE: This overrides any existing butcher-tableau")
+      .description("Order of the Runge-Kutta integration (default = RK44)\n"
+                   "NOTE: This overrides any existing Butcher tableau")
       .pretty_name("RK order")
       .attach_trigger( boost::bind( &ExplicitRungeKutta::config_butcher_tableau, this ) )
       .mark_basic();
 
   m_butcher = create_component<ButcherTableau>("butcher_tableau");
-  m_butcher->set( butcher_tableau::ClassicRK4() );
+  m_butcher->set( butcher_tableau::ClassicRK44() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,21 +260,24 @@ void ExplicitRungeKutta::config_butcher_tableau()
   const Uint order = options().value<Uint>("order");
   switch (order)
   {
-    case 1: // set to Forward Euler
+    case 1: // set to forward Euler
       m_butcher->set( butcher_tableau::ForwardEuler() );
       break;
-    case 2: // Heun method
-      m_butcher->set( butcher_tableau::Heun() );
+    case 2: // 2-stage 2nd-order method
+      m_butcher->set( butcher_tableau::Heun2() );
       break;
-    case 3: // RK3
-      m_butcher->set( butcher_tableau::RK3() );
+    case 3: // Classic RK33
+      m_butcher->set( butcher_tableau::ClassicRK33() );
       break;
-    case 4: // Classic RK4
-      m_butcher->set( butcher_tableau::ClassicRK4() );
+    case 4: // Classic RK44
+      m_butcher->set( butcher_tableau::ClassicRK44() );
+      break;
+    case 5: // RKF65
+      m_butcher->set( butcher_tableau::RKF65() );
       break;
     default:
-      CFwarn << "Cannot configure order " << order << ". Using ClassicRK4 instead." << CFendl;
-      m_butcher->set( butcher_tableau::ClassicRK4() );
+      CFwarn << "Cannot configure order " << order << ". Using ClassicRK44 instead." << CFendl;
+      m_butcher->set( butcher_tableau::ClassicRK44() );
       break;
   }
   CFinfo << "Used Butcher tableau:\n" << m_butcher->str() << CFendl;
