@@ -41,7 +41,7 @@ void generic_setattr(boost::python::object const& target, char const* key, boost
   if(PyObject_GenericSetAttr(target.ptr(), key_str.ptr(), value.ptr()) == -1)
     boost::python::throw_error_already_set();
 }
-  
+
 // Wrapper for signals
 struct SignalWrapper
 {
@@ -199,12 +199,17 @@ public:
   OptionAttributeLink(const boost::shared_ptr<common::Option>& option, const boost::python::object& target, const std::string& attribute_name) :
     m_option(option),
     m_target(target),
-    m_attribute_name(attribute_name)
+    m_attribute_name(attribute_name),
+    m_trigger_id(m_option.lock()->attach_trigger_tracked(boost::bind(&OptionAttributeLink::trigger_option_change, this)))
   {
-    m_option.lock()->attach_trigger(boost::bind(&OptionAttributeLink::trigger_option_change, this));
     trigger_option_change();
   }
-  
+
+  ~OptionAttributeLink()
+  {
+    m_option.lock()->detach_trigger(m_trigger_id);
+  }
+
 private:
   /// Triggered when the option is changed
   void trigger_option_change()
@@ -212,10 +217,11 @@ private:
     cf3_assert(!m_option.expired()); // this would happen if the ComponentWrapper lives longer than the component. Not sure if that's possible.
     generic_setattr(m_target, m_attribute_name.c_str(), any_to_python(m_option.lock()->value()));
   }
-  
+
   const boost::weak_ptr<common::Option> m_option;
   const boost::python::object m_target;
   const std::string m_attribute_name;
+  const common::Option::TriggerID m_trigger_id;
 };
 
 struct ComponentWrapper::Implementation
@@ -273,10 +279,10 @@ struct ComponentWrapper::Implementation
       {
         doc_str << "Valid values are restricted to:" << opt.restricted_list_str() << "\n";
       }
-      
+
       // Update the docstring. TODO: Figure out where to add this, since this doesn't work:
       //boost::python::setattr(opt_fun, "__doc__", boost::python::str(doc_str.str()));
-      
+
       // This sets up an attribute with the option value and updates it whenever the option gets changed
       m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, py_obj, opt_name));
     }
@@ -352,31 +358,31 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
 void component_setattr(boost::python::object& self, const std::string attr, const boost::python::object& value)
 {
   common::Component& comp = boost::python::extract<ComponentWrapper&>(self)().component();
-  
+
   // Check that we're not trying to assign to a basic component
   std::string comp_name = attr;
   if(boost::ends_with(comp_name, "_comp") && is_null(comp.get_child(comp_name)))
   {
     boost::replace_last(comp_name, "_comp", "");
   }
-  
+
   Handle<common::Component> child_comp = comp.get_child(comp_name);
   if(is_not_null(child_comp) && child_comp->has_tag("basic"))
     throw common::IllegalCall(FromHere(), "Assigning to a sub-component is not allowed");
-  
+
   // Try setting an option, if there is a basic option with the attribute name
   std::string opt_name = attr;
   if(boost::ends_with(opt_name, "_opt") && !comp.options().check(opt_name))
   {
     boost::replace_last(opt_name, "_opt", "");
   }
-  
+
   if(comp.options().check(opt_name) && comp.options().option(opt_name).has_tag("basic"))
   {
     comp.options().set(opt_name, python_to_any(value));
     return;
   }
-  
+
   // Just set the attribute in all other cases
   generic_setattr(self, attr.c_str(), value);
 }
