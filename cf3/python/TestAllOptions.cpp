@@ -33,6 +33,7 @@ TestAllOptions::TestAllOptions ( const std::string& name ) : Component ( name )
   options().add("bool", false);
   options().add("uri", URI());
   options().add("generic_component", Handle<Component>());
+  options().add("const_component", Handle<Component const>()).mark_basic();
   options().add("group_component", Handle<Group>());
   options().add("string_vector", std::vector<std::string>());
   options().add("int_vector", std::vector<int>());

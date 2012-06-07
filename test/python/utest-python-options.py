@@ -65,3 +65,6 @@ opts01.string = 'easy_set'
 check_option(opts01, 'string', 'easy_set')
 if opts01.string != 'easy_set':
   raise Exception('Bad option value')
+
+opts01.const_component = root
+check_option(opts01, 'const_component', root)
