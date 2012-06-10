@@ -29,7 +29,6 @@
 #include "solver/History.hpp"
 #include "solver/Time.hpp"
 #include "solver/actions/SynchronizeFields.hpp"
-#include "solver/actions/ComputeLNorm.hpp"
 #include "solver/actions/Probe.hpp"
 
 #include "sdm/Tags.hpp"
@@ -39,6 +38,7 @@
 #include "sdm/TimeStepping.hpp"
 #include "sdm/ComputeUpdateCoefficient.hpp"
 #include "sdm/ElementCaching.hpp"
+#include "sdm/ComputeLNorm.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
@@ -110,7 +110,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
   ComputeLNorm& L2norm = *m_actions->create_static_component<ComputeLNorm>(sdm::Tags::L2norm());
   L2norm.options().set("order",2u);
   L2norm.options().set("scale",true);
-  L2norm.options().set("table",URI("../../FieldManager/")/Tags::residual());
+  L2norm.options().set("field",URI("../../FieldManager/")/Tags::residual());
   ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
 
   // listen to mesh_updated events, emitted by the domain
