@@ -50,6 +50,13 @@ boost::python::object weak_ref(const boost::python::object& source)
   return boost::python::object(boost::python::handle<>(PyWeakref_NewRef(source.ptr(), NULL)));
 }
 
+bool has_attr(const boost::python::object& obj, const std::string& str)
+{
+  // Older versions of python don't support const char* here
+  char* str_ptr = const_cast<char*>(str.c_str());
+  return PyObject_HasAttrString(obj.ptr(), str_ptr);
+}
+
 // Wrapper for signals
 struct SignalWrapper
 {
@@ -306,7 +313,7 @@ struct ComponentWrapper::Implementation : common::ConnectionManager
     // First remove any old children, in case the tree was updated
     BOOST_FOREACH(const std::string& name, m_basic_children)
     {
-      cf3_assert(PyObject_HasAttrString(py_obj.ptr(), name.c_str()))
+      cf3_assert(has_attr(py_obj, name))
       boost::python::delattr(py_obj, name.c_str());
     }
     m_basic_children.clear();
@@ -316,12 +323,12 @@ struct ComponentWrapper::Implementation : common::ConnectionManager
       if(child.has_tag("basic"))
       {
         std::string attrib_name = child.name();
-        if(PyObject_HasAttrString(py_obj.ptr(), attrib_name.c_str()))
+        if(has_attr(py_obj, attrib_name))
           attrib_name += "_comp";
 
         m_basic_children.push_back(attrib_name);
         generic_setattr(py_obj, attrib_name.c_str(), wrap_component(child.handle()));
-        cf3_assert(PyObject_HasAttrString(py_obj.ptr(), attrib_name.c_str()));
+        cf3_assert(has_attr(py_obj, attrib_name.c_str()));
       }
     }
 
