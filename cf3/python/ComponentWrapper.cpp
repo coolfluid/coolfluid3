@@ -11,6 +11,7 @@
 
 #include "common/BasicExceptions.hpp"
 #include "common/Component.hpp"
+#include "common/ComponentIterator.hpp"
 #include "common/Log.hpp"
 #include "common/Foreach.hpp"
 #include "common/Option.hpp"
@@ -25,6 +26,7 @@
 
 #include "common/XML/FileOperations.hpp"
 #include <common/OptionFactory.hpp>
+#include <common/EventHandler.hpp>
 
 #include "python/ComponentWrapper.hpp"
 #include "python/PythonAny.hpp"
@@ -40,6 +42,12 @@ void generic_setattr(boost::python::object const& target, char const* key, boost
   boost::python::str key_str(key);
   if(PyObject_GenericSetAttr(target.ptr(), key_str.ptr(), value.ptr()) == -1)
     boost::python::throw_error_already_set();
+}
+
+/// Helper function to get a weak reference to the given object
+boost::python::object weak_ref(const boost::python::object& source)
+{
+  return boost::python::object(boost::python::handle<>(PyWeakref_NewRef(source.ptr(), NULL)));
 }
 
 // Wrapper for signals
@@ -169,7 +177,8 @@ struct SignalWrapper
   {
     boost::python::object signal_func = boost::python::raw_function(*this, 0);
     setattr(signal_func, "__doc__", documentation());
-    generic_setattr(python_object, m_signal->name().c_str(), boost::python::import("types").attr("MethodType")(signal_func, python_object));
+    // weak_ref to avoid circular reference
+    generic_setattr(python_object, m_signal->name().c_str(), boost::python::import("types").attr("MethodType")(signal_func, weak_ref(python_object)));
   }
 
   common::SignalPtr m_signal;
@@ -180,14 +189,12 @@ struct SignalWrapper
 static int option_setter(PyObject* self, PyObject* value, void* closure)
 {
   const char* option_name = static_cast<const char*>(closure);
-  std::cout << "accessing option setter for " << option_name << std::endl;
   return 0;
 }
 
 static PyObject* option_getter(PyObject* self, void *closure)
 {
   const char* option_name = static_cast<const char*>(closure);
-  std::cout << "accessing option getter for " << option_name << std::endl;
   return boost::python::object().ptr();
 }
 
@@ -215,7 +222,7 @@ private:
   void trigger_option_change()
   {
     cf3_assert(!m_option.expired()); // this would happen if the ComponentWrapper lives longer than the component. Not sure if that's possible.
-    generic_setattr(m_target, m_attribute_name.c_str(), any_to_python(m_option.lock()->value()));
+    generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), any_to_python(m_option.lock()->value()));
   }
 
   const boost::weak_ptr<common::Option> m_option;
@@ -224,16 +231,18 @@ private:
   const common::Option::TriggerID m_trigger_id;
 };
 
-struct ComponentWrapper::Implementation
+struct ComponentWrapper::Implementation : common::ConnectionManager
 {
   Implementation(const Handle<common::Component>& component) :
     m_component(component),
     m_list_interface(0),
-    m_python_object(0)
+    m_python_object(0),
+    m_updating(false)
   {
+    common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::on_tree_update_event);
   }
 
-  ~Implementation()
+  virtual ~Implementation()
   {
     if(is_not_null(m_list_interface))
       delete m_list_interface;
@@ -284,8 +293,44 @@ struct ComponentWrapper::Implementation
       //boost::python::setattr(opt_fun, "__doc__", boost::python::str(doc_str.str()));
 
       // This sets up an attribute with the option value and updates it whenever the option gets changed
-      m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, py_obj, opt_name));
+      m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, weak_ref(py_obj), opt_name));
     }
+  }
+
+  void add_basic_components(const boost::python::object& py_obj)
+  {
+    if(m_updating)
+      return;
+    m_updating = true;
+    cf3_assert(py_obj.ptr() == m_python_object);
+    // First remove any old children, in case the tree was updated
+    BOOST_FOREACH(const std::string& name, m_basic_children)
+    {
+      cf3_assert(PyObject_HasAttrString(py_obj.ptr(), name.c_str()))
+      boost::python::delattr(py_obj, name.c_str());
+    }
+    m_basic_children.clear();
+
+    BOOST_FOREACH(common::Component& child, *m_component)
+    {
+      if(child.has_tag("basic"))
+      {
+        std::string attrib_name = child.name();
+        if(PyObject_HasAttrString(py_obj.ptr(), attrib_name.c_str()))
+          attrib_name += "_comp";
+
+        m_basic_children.push_back(attrib_name);
+        generic_setattr(py_obj, attrib_name.c_str(), wrap_component(child.handle()));
+        cf3_assert(PyObject_HasAttrString(py_obj.ptr(), attrib_name.c_str()));
+      }
+    }
+
+    m_updating = false;
+  }
+
+  void on_tree_update_event(common::SignalArgs& args)
+  {
+    add_basic_components(boost::python::object(boost::python::borrowed(m_python_object)));
   }
 
   Handle<common::Component> m_component;
@@ -293,6 +338,9 @@ struct ComponentWrapper::Implementation
   PythonListInterface* m_list_interface;
   boost::ptr_vector<OptionAttributeLink> m_option_attribute_links;
   PyObject* m_python_object;
+  /// Attribute names for the basic child components
+  std::vector<std::string> m_basic_children;
+  bool m_updating;
 };
 
 ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component) :
@@ -318,11 +366,13 @@ common::Component& ComponentWrapper::component()
   return *m_implementation->m_component;
 }
 
-void ComponentWrapper::set_python_object(boost::python::api::object& obj)
+void ComponentWrapper::set_python_object(boost::python::object& obj)
 {
   m_implementation->m_python_object = obj.ptr();
   m_implementation->bind_signals(obj);
   m_implementation->add_basic_options(obj);
+  m_implementation->add_basic_components(obj);
+  cf3_assert(obj.ptr()->ob_refcnt == 1); // Make sure there are no circular references
 }
 
 void ComponentWrapper::set_list_interface(PythonListInterface* interface)
@@ -332,7 +382,6 @@ void ComponentWrapper::set_list_interface(PythonListInterface* interface)
 
   m_implementation->m_list_interface = interface;
 }
-
 
 PythonListInterface* ComponentWrapper::get_list_interface()
 {
@@ -468,6 +517,12 @@ bool is_not_equal(ComponentWrapper& self, ComponentWrapper& other)
   return self.component().handle() != other.component().handle();
 }
 
+boost::python::object component_mark_basic(ComponentWrapper& self)
+{
+  self.component().mark_basic();
+  return wrap_component(self.component().handle());
+}
+
 //////////////////// OptionList ///////////////////////////////////////////////////////////////
 
 common::OptionList* options(ComponentWrapper& self)
@@ -600,6 +655,7 @@ void def_component()
     .def("uri", uri)
     .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
     .def("configure_option_recursively", configure_option_recursively, "Configure the given option recursively")
+    .def("mark_basic", component_mark_basic, "Mark the component as basic")
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
