@@ -238,7 +238,7 @@ private:
   const common::Option::TriggerID m_trigger_id;
 };
 
-struct ComponentWrapper::Implementation : common::ConnectionManager
+struct ComponentWrapper::Implementation
 {
   Implementation(const Handle<common::Component>& component) :
     m_component(component),
@@ -246,11 +246,11 @@ struct ComponentWrapper::Implementation : common::ConnectionManager
     m_python_object(0),
     m_updating(false)
   {
-    common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::on_tree_update_event);
   }
 
   virtual ~Implementation()
   {
+    WrappedObjectsEventHandler::instance().unregister_object(this);
     if(is_not_null(m_list_interface))
       delete m_list_interface;
   }
@@ -304,49 +304,112 @@ struct ComponentWrapper::Implementation : common::ConnectionManager
     }
   }
 
-  void add_basic_components(const boost::python::object& py_obj)
+  void add_basic_components()
   {
     if(m_updating)
       return;
     m_updating = true;
-    cf3_assert(py_obj.ptr() == m_python_object);
-    // First remove any old children, in case the tree was updated
-    BOOST_FOREACH(const std::string& name, m_basic_children)
-    {
-      cf3_assert(has_attr(py_obj, name))
-      boost::python::delattr(py_obj, name.c_str());
-    }
-    m_basic_children.clear();
+
+    boost::python::object py_obj(boost::python::borrowed(m_python_object));
 
     BOOST_FOREACH(common::Component& child, *m_component)
     {
       if(child.has_tag("basic"))
       {
         std::string attrib_name = child.name();
-        if(has_attr(py_obj, attrib_name))
-          attrib_name += "_comp";
+        bool create_attrib = !has_attr(py_obj, attrib_name);
+        if(!create_attrib)
+        {
+          boost::python::extract<ComponentWrapper&> extracted(boost::python::getattr(py_obj, boost::python::str(attrib_name)));
+          if(extracted.check())
+          {
+            Handle<common::Component> extracted_comp = extracted().component().handle();
+            if(extracted_comp == child.handle())
+            {
+              continue;
+            }
+            else
+            {
+              boost::python::delattr(py_obj, attrib_name.c_str());
+              create_attrib = true;
+            }
+          }
+          if(!extracted.check())
+            attrib_name += "_comp";
+          if(has_attr(py_obj, attrib_name))
+          {
+            boost::python::extract<ComponentWrapper&> extracted_obj(boost::python::getattr(py_obj, boost::python::str(attrib_name)));
+            cf3_assert(extracted.check());
+            Handle<common::Component> extracted_comp = extracted_obj().component().handle();
+            if(extracted_comp == child.handle())
+            {
+              continue;
+            }
+            else
+            {
+              boost::python::delattr(py_obj, attrib_name.c_str());
+              create_attrib = true;
+            }
+          }
+        }
 
-        m_basic_children.push_back(attrib_name);
-        generic_setattr(py_obj, attrib_name.c_str(), wrap_component(child.handle()));
-        cf3_assert(has_attr(py_obj, attrib_name.c_str()));
+        if(create_attrib)
+        {
+          generic_setattr(py_obj, attrib_name.c_str(), wrap_component(child.handle()));
+        }
       }
     }
 
     m_updating = false;
   }
 
-  void on_tree_update_event(common::SignalArgs& args)
+  /// Handles events for wrapped objects. This avoids having to listen to the events in each python object, which becomes extremely slow
+  struct WrappedObjectsEventHandler : common::ConnectionManager
   {
-    add_basic_components(boost::python::object(boost::python::borrowed(m_python_object)));
-  }
+    static WrappedObjectsEventHandler& instance()
+    {
+      static WrappedObjectsEventHandler handler;
+      return handler;
+    }
+
+    void register_object(const boost::shared_ptr<Implementation>& obj)
+    {
+      m_objects[obj.get()] = obj;
+    }
+
+    void unregister_object(const Implementation* ptr)
+    {
+      m_objects.erase(ptr);
+    }
+
+    void on_tree_update_event(common::SignalArgs& args)
+    {
+      // Copy the map, so updates while we're running don't interfere
+      StorageT objects_copy = m_objects;
+      for(StorageT::iterator obj_it = objects_copy.begin(); obj_it != objects_copy.end(); ++obj_it)
+      {
+        if(!obj_it->second.expired())
+        {
+          obj_it->second.lock()->add_basic_components();
+        }
+      }
+    }
+
+    typedef std::map< const Implementation*, boost::weak_ptr<Implementation> > StorageT;
+    StorageT m_objects;
+
+  private:
+    WrappedObjectsEventHandler()
+    {
+      common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
+    }
+  };
 
   Handle<common::Component> m_component;
   std::vector<SignalWrapper> m_wrapped_signals;
   PythonListInterface* m_list_interface;
   boost::ptr_vector<OptionAttributeLink> m_option_attribute_links;
   PyObject* m_python_object;
-  /// Attribute names for the basic child components
-  std::vector<std::string> m_basic_children;
   bool m_updating;
 };
 
@@ -359,6 +422,8 @@ ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component)
     if(signal->name() != "create_component")
       m_implementation->wrap_signal(signal);
   }
+
+  Implementation::WrappedObjectsEventHandler::instance().register_object(m_implementation);
 }
 
 ComponentWrapper::~ComponentWrapper()
@@ -378,7 +443,7 @@ void ComponentWrapper::set_python_object(boost::python::object& obj)
   m_implementation->m_python_object = obj.ptr();
   m_implementation->bind_signals(obj);
   m_implementation->add_basic_options(obj);
-  m_implementation->add_basic_components(obj);
+  m_implementation->add_basic_components();
   cf3_assert(obj.ptr()->ob_refcnt == 1); // Make sure there are no circular references
 }
 
