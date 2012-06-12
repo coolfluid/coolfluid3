@@ -401,7 +401,7 @@ struct ComponentWrapper::Implementation
   private:
     WrappedObjectsEventHandler()
     {
-      common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
+      //common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
     }
   };
 
