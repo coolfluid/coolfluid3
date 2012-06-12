@@ -8,6 +8,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/Group.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "python/CoreWrapper.hpp"
@@ -26,6 +27,11 @@ struct CoreWrapper
   static boost::python::object environment()
   {
     return wrap_component(common::Core::instance().environment().handle<common::Component>());
+  }
+
+  static boost::python::object tools()
+  {
+    return wrap_component(common::Core::instance().tools().handle<common::Component>());
   }
 
   static void initiate(boost::python::list arglist)
@@ -47,6 +53,16 @@ struct CoreWrapper
     }
   }
 
+  static Uint proc()
+  {
+    return common::PE::Comm::instance().rank();
+  }
+
+  static Uint nb_procs()
+  {
+    return common::PE::Comm::instance().size();
+  }
+
   static void terminate()
   {
     common::Core::instance().terminate();
@@ -60,11 +76,18 @@ void def_core()
     .staticmethod("root")
     .def("environment", CoreWrapper::environment, "Access to the environment for setting global options")
     .staticmethod("environment")
+    .def("tools", CoreWrapper::tools, "Access to the tools")
+    .staticmethod("tools")
     .def("initiate", CoreWrapper::initiate)
     .staticmethod("initiate")
     .def("terminate", CoreWrapper::terminate)
-    .staticmethod("terminate");
+    .staticmethod("terminate")
+    .def("proc", CoreWrapper::proc)
+    .staticmethod("proc")
+    .def("nb_procs", CoreWrapper::nb_procs)
+    .staticmethod("nb_procs");
 }
+
 
 } // python
 } // cf3
