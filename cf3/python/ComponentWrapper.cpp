@@ -351,7 +351,10 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
 
 boost::python::object get_child(ComponentWrapper& self, const std::string& name)
 {
-  return wrap_component(self.component().get_child(name));
+  if (self.component().get_child(name))
+    return wrap_component(self.component().get_child(name));
+  else
+    throw common::ValueNotFound(FromHere(),"Component "+common::to_str(self.component().uri()/name)+" does not exist");
 }
 
 boost::python::object access_component(ComponentWrapper& self, const std::string& uri)
@@ -580,7 +583,8 @@ void def_component()
     .def("__str__", to_str)
     .def("__repr__", to_str)
     .def("__eq__", is_equal)
-    .def("__ne__", is_not_equal);
+    .def("__ne__", is_not_equal)
+    .def("__getattr__", get_child);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())
