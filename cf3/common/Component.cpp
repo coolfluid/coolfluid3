@@ -1000,6 +1000,7 @@ void Component::raise_tree_updated_event ()
 Component& Component::mark_basic()
 {
   add_tag("basic");
+  raise_tree_updated_event();
   return *this;
 }
 
