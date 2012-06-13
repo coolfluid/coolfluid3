@@ -26,6 +26,7 @@ list( APPEND coolfluid_sdm_files
   DomainDiscretization.cpp
   DomainDiscretization.hpp
   ElementCaching.hpp
+  ElementCaching.cpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp
