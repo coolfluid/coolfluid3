@@ -20,9 +20,6 @@
 #include "mesh/FaceCellConnectivity.hpp"
 
 #include "physics/PhysModel.hpp"
-#include "physics/Variables.hpp"
-
-#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
 #include "sdm/Tags.hpp"
 #include "sdm/BC.hpp"
@@ -58,7 +55,7 @@ BC::BC ( const std::string& name ) :
       .link_to(&m_residual);
 
   options().add(sdm::Tags::jacob_det(), m_jacob_det)
-      .pretty_name("Jacobian DeBCinant Field")
+      .pretty_name("Jacobian Determinant Field")
       .link_to(&m_jacob_det);
 
   options().add(sdm::Tags::shared_caches(), m_shared_caches)

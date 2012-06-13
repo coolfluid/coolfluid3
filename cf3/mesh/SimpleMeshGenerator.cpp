@@ -91,6 +91,10 @@ void SimpleMeshGenerator::execute()
   if ( is_null(m_mesh) )
     throw SetupError(FromHere(), "Mesh URI not set");
 
+  m_coord_dim = m_nb_cells.size();
+  if (options().value<Uint>("dimension") > m_coord_dim)
+    m_coord_dim = options().value<Uint>("dimension");
+
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
     create_line();
@@ -155,7 +159,7 @@ void SimpleMeshGenerator::create_line()
     }
   }
 
-  mesh.initialize_nodes(hash.subhash(NODES).nb_objects_in_part(part)+ghost_nodes_loc.size(), DIM_1D);
+  mesh.initialize_nodes(hash.subhash(NODES).nb_objects_in_part(part)+ghost_nodes_loc.size(), m_coord_dim);
   Region& region = mesh.topology().create_region("interior");
   Dictionary& nodes = mesh.geometry_fields();
 
@@ -170,6 +174,8 @@ void SimpleMeshGenerator::create_line()
     {
       cf3_assert(glb_node_idx-glb_node_start_idx < nodes.size());
       common::Table<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
+      for (Uint d=0; d<m_coord_dim; ++d)
+        row[d]=0.;
       row[XX] = static_cast<Real>(i) * x_step + x_offset;
       nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
       nodes.glb_idx()[glb_node_idx-glb_node_start_idx]=glb_node_idx;
@@ -186,12 +192,14 @@ void SimpleMeshGenerator::create_line()
     loc_ghost_node_idx = loc_node_idx++;
     cf3_assert(loc_ghost_node_idx < nodes.size());
     common::Table<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
+    for (Uint d=0; d<m_coord_dim; ++d)
+      row[d]=0.;
     row[XX] = static_cast<Real>(i) * x_step + x_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
     nodes.glb_idx()[loc_ghost_node_idx]=glb_ghost_node_idx;
   }
   Handle<Cells> cells = region.create_component<Cells>("Line");
-  cells->initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
+  cells->initialize("cf3.mesh.LagrangeP1.Line"+to_str(m_coord_dim)+"D",nodes);
   cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   Connectivity& connectivity = cells->geometry_space().connectivity();
   common::List<Uint>& elem_rank = cells->rank();
@@ -231,7 +239,7 @@ void SimpleMeshGenerator::create_line()
     {
       glb_elem_idx = x_segments;
       Handle<Faces> xneg = mesh.topology().create_region("xneg").create_component<Faces>("Point");
-      xneg->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
+      xneg->initialize("cf3.mesh.LagrangeP0.Point"+to_str(m_coord_dim)+"D", nodes);
       if (hash.subhash(ELEMS).part_owns(part,0u))
       {
         xneg->resize(1);
@@ -251,7 +259,7 @@ void SimpleMeshGenerator::create_line()
     {
       glb_elem_idx = x_segments+1;
       Handle<Faces> xpos = mesh.topology().create_region("xpos").create_component<Faces>("Point");
-      xpos->initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
+      xpos->initialize("cf3.mesh.LagrangeP0.Point"+to_str(m_coord_dim)+"D", nodes);
       if (hash.subhash(ELEMS).part_owns(part,x_segments-1))
       {
         xpos->resize(1);
@@ -354,6 +362,8 @@ void SimpleMeshGenerator::create_rectangle()
       {
         cf3_assert(glb_node_idx-glb_node_start_idx < nodes.size());
         common::Table<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
+        for (Uint d=0; d<m_coord_dim; ++d)
+          row[d]=0.;
         row[XX] = static_cast<Real>(i) * x_step + x_offset;
         row[YY] = y + y_offset;
         nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
@@ -373,13 +383,15 @@ void SimpleMeshGenerator::create_rectangle()
     loc_ghost_node_idx = loc_node_idx++;
     cf3_assert(loc_ghost_node_idx < nodes.size());
     common::Table<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
+    for (Uint d=0; d<m_coord_dim; ++d)
+      row[d]=0.;
     row[XX] = static_cast<Real>(i) * x_step + x_offset;
     row[YY] = static_cast<Real>(j) * y_step + y_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
     nodes.glb_idx()[loc_ghost_node_idx]=glb_ghost_node_idx;
   }
   Handle<Cells> cells = region.create_component<Cells>("Quad");
-  cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
+  cells->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D",nodes);
 
   cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   Connectivity& connectivity = cells->geometry_space().connectivity();
@@ -434,7 +446,7 @@ void SimpleMeshGenerator::create_rectangle()
     glb_elem_idx =  (x_segments+1) * (y_segments+1);
     std::vector<Uint> line_nodes(2);
     Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
-    left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
+    left->initialize("cf3.mesh.LagrangeP1.Line"+to_str(m_coord_dim)+"D", nodes);
     Connectivity::Buffer left_connectivity = left->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer left_rank = left->rank().create_buffer();
     common::List<Uint>::Buffer left_glb_idx = left->glb_idx().create_buffer();
@@ -462,7 +474,7 @@ void SimpleMeshGenerator::create_rectangle()
     }
 
     Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
-    right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
+    right->initialize("cf3.mesh.LagrangeP1.Line"+to_str(m_coord_dim)+"D", nodes);
     Connectivity::Buffer right_connectivity = right->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer right_rank = right->rank().create_buffer();
     common::List<Uint>::Buffer right_glb_idx = right->glb_idx().create_buffer();
@@ -492,7 +504,7 @@ void SimpleMeshGenerator::create_rectangle()
     }
 
     Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
-    bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
+    bottom->initialize("cf3.mesh.LagrangeP1.Line"+to_str(m_coord_dim)+"D", nodes);
     Connectivity::Buffer bottom_connectivity = bottom->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
     common::List<Uint>::Buffer bottom_glb_idx = bottom->glb_idx().create_buffer();
@@ -521,7 +533,7 @@ void SimpleMeshGenerator::create_rectangle()
     }
 
     Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
-    top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
+    top->initialize("cf3.mesh.LagrangeP1.Line"+to_str(m_coord_dim)+"D", nodes);
     Connectivity::Buffer top_connectivity = top->geometry_space().connectivity().create_buffer();
     common::List<Uint>::Buffer top_rank = top->rank().create_buffer();
     common::List<Uint>::Buffer top_glb_idx = top->glb_idx().create_buffer();
@@ -685,6 +697,8 @@ void SimpleMeshGenerator::create_box()
         {
           cf3_assert(glb_node_idx-glb_node_start_idx < nodes.size());
           common::Table<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
+          for (Uint d=0; d<m_coord_dim; ++d)
+            row[d]=0.;
           row[XX] = x + x_offset;
           row[YY] = y + y_offset;
           row[ZZ] = z + z_offset;
@@ -709,6 +723,8 @@ void SimpleMeshGenerator::create_box()
       loc_ghost_node_idx = loc_node_idx++;
       cf3_assert(loc_ghost_node_idx < nodes.size());
       common::Table<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
+      for (Uint d=0; d<m_coord_dim; ++d)
+        row[d]=0.;
       row[XX] = static_cast<Real>(i) * x_step + x_offset;
       row[YY] = static_cast<Real>(j) * y_step + y_offset;
       row[ZZ] = static_cast<Real>(k) * z_step + z_offset;
@@ -717,7 +733,7 @@ void SimpleMeshGenerator::create_box()
     }
   }
   Handle<Cells> cells = region.create_component<Cells>("Hexa");
-  cells->initialize("cf3.mesh.LagrangeP1.Hexa3D",nodes);
+  cells->initialize("cf3.mesh.LagrangeP1.Hexa"+to_str(m_coord_dim)+"D",nodes);
 
   cells->resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   Connectivity& connectivity = cells->geometry_space().connectivity();
@@ -800,7 +816,7 @@ void SimpleMeshGenerator::create_box()
     // LEFT BDRY (elems i=0)
     {
       Handle<Faces> faces = mesh.topology().create_region("left").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();
@@ -847,7 +863,7 @@ void SimpleMeshGenerator::create_box()
     // RIGHT BDRY (elems i=x_segments-1)
     {
       Handle<Faces> faces = mesh.topology().create_region("right").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();
@@ -896,7 +912,7 @@ void SimpleMeshGenerator::create_box()
     // BOTTOM BDRY (elems j=0)
     {
       Handle<Faces> faces = mesh.topology().create_region("bottom").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();
@@ -945,7 +961,7 @@ void SimpleMeshGenerator::create_box()
     // TOP BDRY (elems j=y_segments-1)
     {
       Handle<Faces> faces = mesh.topology().create_region("top").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();
@@ -994,7 +1010,7 @@ void SimpleMeshGenerator::create_box()
     // BACK BDRY (elems k=0)
     {
       Handle<Faces> faces = mesh.topology().create_region("back").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();
@@ -1043,7 +1059,7 @@ void SimpleMeshGenerator::create_box()
     // FRONT BDRY (elems k=z_segments-1)
     {
       Handle<Faces> faces = mesh.topology().create_region("front").create_component<Faces>("Quad");
-      faces->initialize("cf3.mesh.LagrangeP1.Quad3D", nodes);
+      faces->initialize("cf3.mesh.LagrangeP1.Quad"+to_str(m_coord_dim)+"D", nodes);
       Connectivity::Buffer faces_connectivity = faces->geometry_space().connectivity().create_buffer();
       common::List<Uint>::Buffer faces_rank = faces->rank().create_buffer();
       common::List<Uint>::Buffer faces_glb_idx = faces->glb_idx().create_buffer();

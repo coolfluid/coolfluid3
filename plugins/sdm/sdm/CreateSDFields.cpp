@@ -97,11 +97,6 @@ void CreateSDFields::execute()
         cells_plus_bdry.push_back(entities.handle<Entities>());
     }
 
-//    boost_foreach(Entities& entities, find_components_recursively<Faces>(mesh().topology()))
-//    {
-//      cells_plus_bdry.push_back(entities.handle<Entities>());
-//    }
-
     Dictionary& solution_space = mesh().create_discontinuous_space(solution_space_name,"cf3.sdm.P"+to_str(solution_order-1),cells_plus_bdry);
     solution_space.add_tag(solution_space_name);
 
@@ -155,7 +150,7 @@ void CreateSDFields::execute()
           const Uint p = field_connectivity[elem][node];
           jacob_det[p][0]=elements->element_type().jacobian_determinant(local_coords.row(node),geometry_coords);
           if (jacob_det[p][0] < 0)
-            throw BadValue(FromHere(), "jacobian determinant is negative in cell "+elements->uri().string()+"["+to_str(elem)+"]. This is caused by a faulty node ordering in the mesh.");
+            throw BadValue(FromHere(), "jacobian determinant is negative ("+to_str(jacob_det[p][0])+") in cell "+elements->uri().string()+"["+to_str(elem)+"] (glbidx="+to_str(+elements->glb_idx()[elem])+"). This is caused by a faulty node ordering in the mesh.");
           elements->element_type().compute_jacobian(local_coords.row(node),geometry_coords,jacobian);
           dX.noalias() = jacobian.transpose()*dKsi;
           for (Uint d=0; d<dX.size(); ++d)

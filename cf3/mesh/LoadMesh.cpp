@@ -220,7 +220,7 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add("mesh", URI() )
+  options.add("mesh", Core::instance().root().uri()/URI("./mesh") )
       .description("Path to the mesh component. Mesh will be created if doesn't exist");
 
   options.add( "files", std::vector<URI>() )

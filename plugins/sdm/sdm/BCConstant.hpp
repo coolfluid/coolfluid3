@@ -14,6 +14,7 @@
 #include "common/Option.hpp"
 #include "common/Component.hpp"
 #include "sdm/BCWeak.hpp"
+#include "sdm/BCStrong.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,34 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+template <Uint NEQS, Uint NDIM>
+class BCConstantStrong : public BCStrong< PhysDataBase<NEQS,NDIM> >
+{
+public:
+  static std::string type_name() { return "BCConstantStrong<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
+
+  BCConstantStrong(const std::string& name) :
+    BCStrong< PhysDataBase<NEQS,NDIM> >(name)
+  {
+    common::Component::options().add("constants",std::vector<Real>(0.,NEQS))
+        .link_to(&m_constants);
+  }
+
+  virtual ~BCConstantStrong() {}
+
+  virtual void compute_solution(const PhysDataBase<NEQS,NDIM>& inner_cell_data, const Eigen::Matrix<Real,NDIM,1>& unit_normal, Eigen::Matrix<Real,NEQS,1>& boundary_face_solution)
+  {
+    for (Uint v=0; v<NEQS; ++v)
+    {
+      boundary_face_solution[v] = m_constants[v];
+    }
+  }
+
+private:
+  std::vector<Real> m_constants;
+};
+
 
 } // sdm
 } // cf3

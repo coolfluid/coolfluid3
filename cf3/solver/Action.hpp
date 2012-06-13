@@ -24,12 +24,6 @@ class Time;
 
 class solver_API Action : public common::Action {
 
-public: // typedefs
-
-  /// provider
-
-
-
 public: // functions
 
   /// Contructor
