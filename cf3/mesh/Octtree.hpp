@@ -71,6 +71,10 @@ public: // functions
 
   void find_cell_ranks( const boost::multi_array<Real,2>& coordinates, std::vector<Uint>& ranks );
 
+  bool is_created() const { return m_octtree.num_elements()!=0; }
+
+  const Uint dimension() { return m_dim; }
+
 private: // data
 
   ArrayT m_octtree;

@@ -63,7 +63,7 @@ namespace boost
 
 
 #ifndef BOOST_QUADRATURE_USER_ERROR_HANDLER
-      quadrature_error quadrature_error_handler(
+      inline quadrature_error quadrature_error_handler(
         const char* function,
         quadrature_error err)
       {

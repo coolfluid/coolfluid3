@@ -28,6 +28,10 @@ MeshGenerator::MeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
+  options().add("dimension",0u)
+      .description("Dimension of coordinates of the mesh, Not necessarily the dimensionality!")
+      .mark_basic();
+
   options().add("mesh",URI("",URI::Scheme::CPATH))
       .supported_protocol(URI::Scheme::CPATH)
       .description("Mesh that will be generated")

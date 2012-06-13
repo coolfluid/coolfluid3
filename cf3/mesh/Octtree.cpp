@@ -413,7 +413,7 @@ Entity Octtree::find_element(const RealVector& target_coord)
 
 bool Octtree::find_element(const RealVector& target_coord, Entity& element)
 {
-  if (m_octtree.num_elements() == 0)
+  if ( !is_created() )
     create_octtree();
 
   cf3_assert(target_coord.size() <= (long)m_dim);

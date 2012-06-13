@@ -49,13 +49,15 @@ public:
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &ConvectionNonUniformMeanflow2D::config_constants, this) );
 
-    options().add("meanflow_field",m_meanflow).description("Field containing mean flow (rho0, U0[x], U0[y], p0)");
+    options().add("mean_flow",m_meanflow)
+        .description("Field containing mean flow (rho0, U0[x], U0[y], p0)")
+        .link_to(&m_meanflow);
 
     p.rho0 = 1.;
     p.u0.setZero();
     p.P0 = 1.;
-    p.c = 1.;
-    p.inv_c = 1.;
+    p.c = 1.4;
+    p.inv_c = 1./p.c;
   }
 
   virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PhysData& phys_data )
@@ -63,7 +65,6 @@ public:
     ConvectiveTerm<PhysData>::compute_flx_pt_phys_data(elem,flx_pt,phys_data);
     mesh::Field::View sol_pt_meanflow = m_meanflow->view(elem.space->connectivity()[elem.idx]);
     elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_meanflow,meanflow);
-
     phys_data.rho0   = meanflow[0];
     phys_data.U0[XX] = meanflow[1];
     phys_data.U0[YY] = meanflow[2];
@@ -85,17 +86,17 @@ public:
   void config_constants()
   {
     p.gamma = options().option("gamma").value<Real>();
-    p.rho0  = options().option("rho0").value<Real>();
-    p.P0  = options().option("p0").value<Real>();
+//    p.rho0  = options().option("rho0").value<Real>();
+//    p.P0  = options().option("p0").value<Real>();
 
-    p.inv_rho0 = 1./p.rho0;
+//    p.inv_rho0 = 1./p.rho0;
 
-    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
-    p.inv_c = 1./p.c;
+//    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
+//    p.inv_c = 1./p.c;
 
-    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
-    for (Uint d=0; d<U0.size(); ++d)
-      p.u0[d] = U0[d];
+//    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
+//    for (Uint d=0; d<U0.size(); ++d)
+//      p.u0[d] = U0[d];
   }
 
   virtual ~ConvectionNonUniformMeanflow2D() {}

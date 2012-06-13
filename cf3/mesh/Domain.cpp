@@ -73,6 +73,14 @@ struct Domain::Implementation
         .description("Location of the file holding the mesh");
   }
 
+  void signature_create_mesh( common::SignalArgs& node )
+  {
+    SignalOptions options( node );
+
+    options.add("name", std::string("mesh") )
+        .description("Name for the mesh to create");
+  }
+
 
   Component& m_component;
   Handle<WriteMesh> m_write_mesh;
@@ -98,6 +106,12 @@ Domain::Domain( const std::string& name  ) :
       .description("Load a new mesh")
       .pretty_name("Load Mesh")
       .signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
+
+  regist_signal( "create_mesh" )
+      .connect( boost::bind( &Domain::signal_create_mesh, this, _1 ) )
+      .description("Create a new (empty) mesh")
+      .pretty_name("Create Mesh")
+      .signature( boost::bind( &Implementation::signature_create_mesh, m_implementation.get(), _1));
 
   options().add("dimension", 0u)
       .description("The coordinate dimension (0 --> maximum found dimensionality inside all meshes)")
@@ -191,6 +205,23 @@ void Domain::signal_load_mesh ( common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Domain::signal_create_mesh ( common::SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  std::string name ("mesh");
+  if( options.check("name") )
+    name = options.value<std::string>("name");
+
+  Mesh& created_component = *create_component<Mesh>(name);
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", created_component.uri());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Domain::signal_write_mesh(SignalArgs& node)
 {
   SignalOptions options( node );
@@ -202,7 +233,8 @@ void Domain::signal_write_mesh(SignalArgs& node)
 
 Uint Domain::dimension() const
 {
-  Uint dim = options().value<Uint>("dimension");
+  Uint opt_dim = options().value<Uint>("dimension");
+  Uint dim=opt_dim;
   boost_foreach (const Mesh& mesh, find_components<Mesh>(*this))
   {
     dim = std::max(dim,mesh.dimension());

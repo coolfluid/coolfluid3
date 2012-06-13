@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_lineuler_BCWall2D_hpp
-#define cf3_sdm_lineuler_BCWall2D_hpp
+#ifndef cf3_sdm_lineuler_BCWallNonUniformMeanflow2D_hpp
+#define cf3_sdm_lineuler_BCWallNonUniformMeanflow2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,33 +24,29 @@ namespace lineuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_lineuler_API BCWall2D : public BCWeak< PhysDataBase<4u,2u> >
+struct BCNonUniformPhysData2D : PhysDataBase<4,2u>
+{
+  RealVectorNDIM U0;
+  Real rho0;
+  Real p0;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class sdm_lineuler_API BCWallNonUniformMeanflow2D : public BCWeak< BCNonUniformPhysData2D >
 {
 public:
-  static std::string type_name() { return "BCWall2D"; }
-  BCWall2D(const std::string& name) : BCWeak< PhysData >(name)
+  static std::string type_name() { return "BCWallNonUniformMeanflow2D"; }
+  BCWallNonUniformMeanflow2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     p.gamma = 1.4;
     options().add("gamma",p.gamma)
         .description("Specific heat reatio")
-        .attach_trigger( boost::bind( &BCWall2D::config_constants, this) );
+        .attach_trigger( boost::bind( &BCWallNonUniformMeanflow2D::config_constants, this) );
 
-    p.rho0 = 1.;
-    options().add("rho0",p.rho0)
-        .description("Uniform mean density")
-        .attach_trigger( boost::bind( &BCWall2D::config_constants, this) );
-
-    p.u0.setZero();
-    std::vector<Real> U0(p.u0.size());
-    for (Uint d=0; d<U0.size(); ++d)
-      U0[d] = p.u0[d];
-    options().add("U0",U0)
-        .description("Uniform mean velocity")
-        .attach_trigger( boost::bind( &BCWall2D::config_constants, this) );
-
-    options().add("p0",p.P0)
-        .description("Uniform mean pressure")
-        .attach_trigger( boost::bind( &BCWall2D::config_constants, this) );
+    options().add("mean_flow",m_meanflow)
+        .description("Field containing mean flow (rho0, U0[x], U0[y], p0)")
+        .link_to(&m_meanflow);
 
     config_constants();
   }
@@ -58,16 +54,9 @@ public:
   void config_constants()
   {
     p.gamma = options().value<Real>("gamma");
-    p.rho0  = options().value<Real>("rho0");
-    p.P0    = options().value<Real>("p0");
-
-    p.inv_rho0 = 1./p.rho0;
-
-    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
-    p.inv_c = 1./p.c;
   }
 
-  virtual ~BCWall2D() {}
+  virtual ~BCWallNonUniformMeanflow2D() {}
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -91,44 +80,57 @@ private:
     flx_pt_plane_jacobian_normal->get().unlock();
   }
 
+  virtual void compute_flx_pt_phys_data(const SFDElement& elem, const Uint flx_pt, PhysData& phys_data )
+  {
+    BCWeak<PhysData>::compute_flx_pt_phys_data(elem,flx_pt,phys_data);
+    mesh::Field::View sol_pt_meanflow = m_meanflow->view(elem.space->connectivity()[elem.idx]);
+    elem.reconstruct_from_solution_space_to_flux_points[flx_pt](sol_pt_meanflow,meanflow);
+    phys_data.rho0   = meanflow[0];
+    phys_data.U0[XX] = meanflow[1];
+    phys_data.U0[YY] = meanflow[2];
+    phys_data.p0     = meanflow[3];
+  }
+
+
   virtual void compute_solution(const PhysData &inner_cell_data, const RealVectorNDIM &boundary_face_normal, RealVectorNEQS &boundary_face_solution)
   {
+    set_meanflow_properties(inner_cell_data);
+
     RealVectorNEQS char_cell_sol;
     RealVectorNEQS char_bdry_sol;
 
     outward_normal = flx_pt_plane_jacobian_normal->get().plane_unit_normal[cell_flx_pt] * flx_pt_plane_jacobian_normal->get().sf->flx_pt_sign(cell_flx_pt);
-    Real nx = outward_normal[XX];
-    Real ny = outward_normal[YY];
 
-    boundary_face_solution = inner_cell_data.solution;
+
 
 //  COMMENTED HERE IS A STANDARD FORM NOT BASED ON CHARACTERISTIC THEORY
 // velocity on the inside of the face
-    rho0u[XX] = inner_cell_data.solution[1];
-    rho0u[YY] = inner_cell_data.solution[2];
+//    rho0u[XX] = inner_cell_data.solution[1];
+//    rho0u[YY] = inner_cell_data.solution[2];
 
-    // velocity in outward_normal direction
-    rho0u_normal = rho0u.transpose()*outward_normal;
+//    // velocity in outward_normal direction
+//    rho0u_normal = rho0u.transpose()*outward_normal;
 
-    // Modify velocity to become the outside velocity of the face,
-    // and being the mirror of the inside velocity
-    rho0u.noalias() -= 2.*rho0u_normal*outward_normal;
+//    // Modify velocity to become the outside velocity of the face,
+//    // and being the mirror of the inside velocity
+//    rho0u.noalias() -= 2.*rho0u_normal*outward_normal;
 
-    boundary_face_solution[1] = rho0u[XX];
-    boundary_face_solution[2] = rho0u[YY];
+//    boundary_face_solution = inner_cell_data.solution;
+//    boundary_face_solution[1] = rho0u[XX];
+//    boundary_face_solution[2] = rho0u[YY];
 
-//    cons_to_char(inner_cell_data.solution,outward_normal,char_cell_sol);
-//    const Real& S     = char_cell_sol[0];
-//    const Real& Omega = char_cell_sol[1];
-//    const Real& Aplus = char_cell_sol[2];
-//    const Real& Amin  = char_cell_sol[3];
+    cons_to_char(inner_cell_data.solution,outward_normal,char_cell_sol);
+    const Real& S     = char_cell_sol[0];
+    const Real& Omega = char_cell_sol[1];
+    const Real& Aplus = char_cell_sol[2];
+    const Real& Amin  = char_cell_sol[3];
 
-//    char_bdry_sol[0] =  S;
-//    char_bdry_sol[1] =  Omega;
-//    char_bdry_sol[2] =  Aplus;
-//    char_bdry_sol[3] =  Aplus; // Amin = Aplus is the magic here
+    char_bdry_sol[0] =  S;
+    char_bdry_sol[1] =  Omega;
+    char_bdry_sol[2] =  Aplus;
+    char_bdry_sol[3] =  Aplus; // Amin = Aplus is the magic here
 
-//    char_to_cons(char_bdry_sol,outward_normal,boundary_face_solution);
+    char_to_cons(char_bdry_sol,outward_normal,boundary_face_solution);
   }
 
   void cons_to_char(const RealVectorNEQS& conservative, const RealVectorNDIM& characteristic_normal, RealVectorNEQS& characteristic)
@@ -172,6 +174,19 @@ private:
     press =  0.5*p.c*A;
   }
 
+
+  void set_meanflow_properties(const PhysData& phys_data)
+  {
+    p.rho0 = phys_data.rho0;
+    p.u0 = phys_data.U0;
+    p.P0 = phys_data.p0;
+    p.inv_rho0 = 1./p.rho0;
+    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
+    p.inv_c = 1./p.c;
+  }
+
+
+
   Handle<CacheT<FluxPointPlaneJacobianNormal<NDIM> > > flx_pt_plane_jacobian_normal;
   physics::LinEuler::LinEuler2D::Properties p;
 
@@ -179,6 +194,9 @@ private:
   RealVectorNDIM rho0u;
   RealVectorNDIM outward_normal;
   Real rho0u_normal;
+
+  RealVectorNEQS meanflow;
+  Handle<mesh::Field> m_meanflow;
 
 };
 
@@ -190,4 +208,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_lineuler_BCWall2D_hpp
+#endif // cf3_sdm_lineuler_BCWallNonUniformMeanflow2D_hpp
