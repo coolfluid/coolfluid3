@@ -50,7 +50,10 @@ public: // functions
     
   /// Signal to load a mesh
   void signal_load_mesh( common::SignalArgs& node );
-  
+
+  /// Signal to load a mesh
+  void signal_create_mesh( common::SignalArgs& node );
+
   /// Signal to write the active mesh
   void signal_write_mesh( common::SignalArgs& node );
   

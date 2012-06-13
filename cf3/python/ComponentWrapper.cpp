@@ -351,10 +351,18 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
 
 boost::python::object get_child(ComponentWrapper& self, const std::string& name)
 {
-  return wrap_component(self.component().get_child(name));
+  if (self.component().get_child(name))
+    return wrap_component(self.component().get_child(name));
+  else
+    throw common::ValueNotFound(FromHere(),"Component "+common::to_str(self.component().uri()/name)+" does not exist");
 }
 
-boost::python::object access_component(ComponentWrapper& self, const std::string& uri)
+boost::python::object access_component_uri(ComponentWrapper& self, const common::URI& uri)
+{
+  return wrap_component(self.component().access_component(uri));
+}
+
+boost::python::object access_component_str(ComponentWrapper& self, const std::string& uri)
 {
   return wrap_component(self.component().access_component(uri));
 }
@@ -567,7 +575,8 @@ void def_component()
     .def("name", name, "The name of this component")
     .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", get_child)
-    .def("access_component", access_component)
+    .def("access_component", access_component_uri)
+    .def("access_component", access_component_str)
     .def("print_timing_tree", print_timing_tree)
     .def("options", options, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
@@ -580,7 +589,8 @@ void def_component()
     .def("__str__", to_str)
     .def("__repr__", to_str)
     .def("__eq__", is_equal)
-    .def("__ne__", is_not_equal);
+    .def("__ne__", is_not_equal)
+    .def("__getattr__", get_child);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())

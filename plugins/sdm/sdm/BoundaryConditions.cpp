@@ -68,6 +68,8 @@ void BoundaryConditions::execute()
   {
     if (region)
     {
+      bc->initialize();
+
       boost_foreach( const Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::face_entity()) )
       {
         bc->set_face_entities(faces);
@@ -98,8 +100,6 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
     bc->options().set("regions", regions);
 
   bc->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
-
-  bc->initialize();
 
   boost_foreach(const URI& region_uri, regions)
   {

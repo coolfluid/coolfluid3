@@ -39,5 +39,8 @@ common::ComponentBuilder<BCConstant<5u,3u>,BC,LibSDM> bcconstant_5eq_3d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 
+common::ComponentBuilder<BCConstantStrong<4u,2u>,BC,LibSDM> bcconstantstrong_4eq_2d_builder;
+
+
 } // sdm
 } // cf3

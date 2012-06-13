@@ -11,7 +11,7 @@ sys.setdlopenflags(flags | dl.RTLD_GLOBAL)
 from libcoolfluid_python import *
 
 # Import unit test module
-from unittest import *
+from check import *
 
 # restore the dlopen flags to default
 sys.setdlopenflags(flags)
@@ -19,3 +19,13 @@ sys.setdlopenflags(flags)
 #initiate the CF3 environment. Note: there is no argv if executed from the ScriptEngine
 if sys.__dict__.has_key('argv'):
   Core.initiate(sys.argv)
+
+# shortcut for root
+root = Core.root()
+
+# shortcut for environment
+environment = Core.environment()
+
+# shortcut for tools
+tools = Core.tools()
+

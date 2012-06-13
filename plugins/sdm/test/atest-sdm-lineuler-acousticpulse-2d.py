@@ -84,6 +84,31 @@ non_refl_bc.get_child('non_reflective_convection').options().set('p0',1.)
 #######################################
 model.simulate()
 
+
+#######################################
+# POSTPROC to check accuracy
+#######################################
+exact_solution = mesh.access_component('solution_space').create_field(name='exact_solution',variables='rho_ex[s],U_ex[v],p_ex[s]')
+init_acousticpulse = model.get_child('tools').create_component('init_acousticpulse','cf3.sdm.lineuler.InitAcousticPulse')
+init_acousticpulse.options().set('field',exact_solution)
+init_acousticpulse.options().set('time',0.3)
+init_acousticpulse.execute()
+
+solution = mesh.access_component('solution_space/solution')
+
+difference = mesh.access_component('solution_space').create_field(name='difference',variables='drho[s],dU[v],dp[s]')
+for i in range(len(difference)) :
+    difference[i][0] = exact_solution[i][0] - solution[i][0]
+    difference[i][1] = exact_solution[i][1] - solution[i][1]/rho0
+    difference[i][2] = exact_solution[i][2] - solution[i][2]/rho0
+    difference[i][3] = exact_solution[i][3] - solution[i][3]
+
+compute_norm = model.get_child('tools').create_component('compute_norm','cf3.sdm.ComputeLNorm')
+compute_norm.options().set('field',difference.uri())\
+                      .set('order',2)
+compute_norm.execute()
+print "norms = ",compute_norm.properties()['norms']
+
 ########################
 # OUTPUT
 ########################
@@ -91,7 +116,9 @@ model.simulate()
 fields = [
 mesh.access_component('solution_space/solution').uri(),
 mesh.access_component('solution_space/wave_speed').uri(),
-mesh.access_component('solution_space/residual').uri()
+mesh.access_component('solution_space/residual').uri(),
+mesh.access_component('solution_space/exact_solution').uri(),
+mesh.access_component('solution_space/difference').uri()
 ]
 
 # tecplot
@@ -100,7 +127,7 @@ tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplo
 tec_writer.options().set('mesh',mesh)
 tec_writer.options().set('fields',fields)
 tec_writer.options().set('cell_centred',False)
-tec_writer.options().set('file',coolfluid.URI('file:sdm_output.plt'))
+tec_writer.options().set('file',coolfluid.URI('file:lineuler-acousticpulse-2d.plt'))
 tec_writer.execute()
 
 # gmsh
@@ -108,5 +135,5 @@ tec_writer.execute()
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().set('mesh',mesh)
 gmsh_writer.options().set('fields',fields)
-gmsh_writer.options().set('file',coolfluid.URI('file:sdm_output.msh'))
+gmsh_writer.options().set('file',coolfluid.URI('file:lineuler-acousticpulse-2d.msh'))
 gmsh_writer.execute()
