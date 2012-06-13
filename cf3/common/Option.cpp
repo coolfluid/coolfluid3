@@ -102,8 +102,10 @@ void Option::change_value ( const boost::any& value )
 
 void Option::trigger () const
 {
+  // Copy, so we protect against the trigger list being modified during execution
+  Option::TriggerStorageT triggers = m_triggers;
   // call all trigger functors
-  for(Option::TriggerStorageT::const_iterator trig_it = m_triggers.begin(); trig_it != m_triggers.end(); ++trig_it)
+  for(Option::TriggerStorageT::const_iterator trig_it = triggers.begin(); trig_it != triggers.end(); ++trig_it)
   {
     trig_it->second();
   }

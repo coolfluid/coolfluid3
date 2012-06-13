@@ -192,36 +192,40 @@ struct SignalWrapper
   Handle<common::Component> m_component;
 };
 
-/// Setter for option properties
-static int option_setter(PyObject* self, PyObject* value, void* closure)
-{
-  const char* option_name = static_cast<const char*>(closure);
-  return 0;
-}
-
-static PyObject* option_getter(PyObject* self, void *closure)
-{
-  const char* option_name = static_cast<const char*>(closure);
-  return boost::python::object().ptr();
-}
-
 /// Helper class to wrap python data members linked to options
 class OptionAttributeLink
 {
 public:
   /// Object with a string closure
-  OptionAttributeLink(const boost::shared_ptr<common::Option>& option, const boost::python::object& target, const std::string& attribute_name) :
+  OptionAttributeLink(const boost::shared_ptr<common::Option>& option, const boost::python::object& target, const std::string& attribute_name, ObjectMapT& generated_objects) :
     m_option(option),
     m_target(target),
     m_attribute_name(attribute_name),
     m_trigger_id(m_option.lock()->attach_trigger_tracked(boost::bind(&OptionAttributeLink::trigger_option_change, this)))
   {
-    trigger_option_change();
+    // Options containing components need special treatment during construction because of the risk of recursion
+    if(boost::starts_with(option->type(), "handle["))
+    {
+      generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), get_python_component(option->value(), generated_objects) );
+    }
+    else if(boost::starts_with(option->type(), "array[handle["))
+    {
+      boost::python::object py_val = get_handle_list< Handle<common::Component> >(option->value(), generated_objects);
+      if(py_val.is_none())
+        py_val = get_handle_list< Handle<common::Component const> >(option->value(), generated_objects);
+      cf3_assert(!py_val.is_none());
+      generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), py_val );
+    }
+    else
+    {
+      trigger_option_change();
+    }
   }
 
   ~OptionAttributeLink()
   {
-    m_option.lock()->detach_trigger(m_trigger_id);
+    if(!m_option.expired())
+      m_option.lock()->detach_trigger(m_trigger_id);
   }
 
 private:
@@ -230,6 +234,41 @@ private:
   {
     cf3_assert(!m_option.expired()); // this would happen if the ComponentWrapper lives longer than the component. Not sure if that's possible.
     generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), any_to_python(m_option.lock()->value()));
+  }
+
+  /// Helper to get a python component while breaking recursion
+  boost::python::object get_python_component(const boost::any& value, ObjectMapT& generated_objects)
+  {
+    if(value.type() == typeid(Handle<common::Component>))
+    {
+      return wrap_component_recursive(boost::any_cast< Handle<common::Component> >(value), generated_objects);
+    }
+    else if(value.type() == typeid(Handle<common::Component const>))
+    {
+      common::Component* comp = const_cast<common::Component*>(boost::any_cast< Handle<common::Component const> >(value).get());
+      return wrap_component_recursive(is_null(comp) ? Handle<common::Component>() : comp->handle(), generated_objects);
+    }
+    CFwarn << "Invalid value for OptionComponent " << m_option.lock()->name() << CFendl;
+    return boost::python::object();
+  }
+
+  template<typename T>
+  boost::python::object get_handle_list(const boost::any& value, ObjectMapT& generated_objects)
+  {
+    try
+    {
+      boost::python::list result;
+      const std::vector<T> val = boost::any_cast< std::vector<T> >(value);
+      BOOST_FOREACH(const T& item, val)
+      {
+        result.append(get_python_component(item, generated_objects));
+      }
+      return result;
+    }
+    catch(boost::bad_any_cast& e)
+    {
+    }
+    return boost::python::object();
   }
 
   const boost::weak_ptr<common::Option> m_option;
@@ -269,7 +308,7 @@ struct ComponentWrapper::Implementation
   }
 
   /// Adds all basic options as properties to the object
-  void add_basic_options(boost::python::object& py_obj)
+  void add_basic_options(boost::python::object& py_obj, ObjectMapT& generated_objects)
   {
     for(common::OptionList::const_iterator opt_it = m_component->options().begin(); opt_it != m_component->options().end(); ++opt_it)
     {
@@ -300,13 +339,13 @@ struct ComponentWrapper::Implementation
       //boost::python::setattr(opt_fun, "__doc__", boost::python::str(doc_str.str()));
 
       // This sets up an attribute with the option value and updates it whenever the option gets changed
-      m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, weak_ref(py_obj), opt_name));
+      m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, weak_ref(py_obj), opt_name, generated_objects));
     }
   }
 
-  void add_basic_components()
+  void add_basic_components(ObjectMapT& generated_objects)
   {
-    if(m_updating)
+    if(m_updating || is_null(m_component))
       return;
     m_updating = true;
 
@@ -355,12 +394,24 @@ struct ComponentWrapper::Implementation
 
         if(create_attrib)
         {
-          generic_setattr(py_obj, attrib_name.c_str(), wrap_component(child.handle()));
+          generic_setattr(py_obj, attrib_name.c_str(), wrap_component_recursive(child.handle(), generated_objects));
         }
       }
     }
 
     m_updating = false;
+  }
+
+  /// Set the python object
+  /// @param obj The object to use
+  /// @param generated_objects Objects that were previously generated, used to avoid recursion when setting an optioncomponent
+  void set_python_object(boost::python::object& obj, ObjectMapT& generated_objects)
+  {
+    m_python_object = obj.ptr();
+    bind_signals(obj);
+    add_basic_options(obj, generated_objects);
+    add_basic_components(generated_objects);
+    //cf3_assert(obj.ptr()->ob_refcnt == 1); // Make sure there are no circular references
   }
 
   /// Handles events for wrapped objects. This avoids having to listen to the events in each python object, which becomes extremely slow
@@ -390,7 +441,10 @@ struct ComponentWrapper::Implementation
       {
         if(!obj_it->second.expired())
         {
-          obj_it->second.lock()->add_basic_components();
+          Implementation& obj_impl = *obj_it->second.lock();
+          ObjectMapT generated_objects;
+          generated_objects[obj_impl.m_component] = boost::python::object(boost::python::borrowed(obj_impl.m_python_object));
+          obj_impl.add_basic_components(generated_objects);
         }
       }
     }
@@ -401,7 +455,7 @@ struct ComponentWrapper::Implementation
   private:
     WrappedObjectsEventHandler()
     {
-      //common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
+      common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
     }
   };
 
@@ -438,15 +492,6 @@ common::Component& ComponentWrapper::component()
   return *m_implementation->m_component;
 }
 
-void ComponentWrapper::set_python_object(boost::python::object& obj)
-{
-  m_implementation->m_python_object = obj.ptr();
-  m_implementation->bind_signals(obj);
-  m_implementation->add_basic_options(obj);
-  m_implementation->add_basic_components();
-  cf3_assert(obj.ptr()->ob_refcnt == 1); // Make sure there are no circular references
-}
-
 void ComponentWrapper::set_list_interface(PythonListInterface* interface)
 {
   if(is_not_null(m_implementation->m_list_interface))
@@ -465,9 +510,23 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
   if(is_null(component))
     return boost::python::object();
 
+  ObjectMapT generated_objects;
+  return wrap_component_recursive(component, generated_objects);
+}
+
+boost::python::object wrap_component_recursive(const Handle<common::Component>& component, ObjectMapT& generated_objects)
+{
+  if(is_null(component))
+    return boost::python::object();
+
+  ObjectMapT::iterator found_obj = generated_objects.find(component);
+  if(found_obj != generated_objects.end())
+    return found_obj->second;
+
   boost::python::object result = boost::python::object(ComponentWrapper(component));
+  generated_objects[component] = result;
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
-  wrapped.set_python_object(result);
+  wrapped.m_implementation->set_python_object(result, generated_objects);
 
   // Add extra functionality for derved classes
   add_ctable_methods(wrapped, result);
