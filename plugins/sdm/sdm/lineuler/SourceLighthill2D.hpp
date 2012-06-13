@@ -31,7 +31,7 @@ namespace lineuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SourceLightHillPhysData2D : PhysDataBase<4u,2u>
+struct SourceLighthillPhysData2D : PhysDataBase<4u,2u>
 {
   RealVectorNDIM grad_uu;
   RealVectorNDIM grad_uv;
@@ -61,7 +61,7 @@ struct SourceLightHillPhysData2D : PhysDataBase<4u,2u>
 /// with < lolo > the time-averaged lolo
 ///
 /// @author Willem Deconinck
-class sdm_lineuler_API SourceLighthill2D : public SourceTerm< SourceLightHillPhysData2D >
+class sdm_lineuler_API SourceLighthill2D : public SourceTerm< SourceLighthillPhysData2D >
 {
 public:
   static std::string type_name() { return "SourceLighthill2D"; }
