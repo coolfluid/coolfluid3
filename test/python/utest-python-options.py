@@ -55,3 +55,16 @@ check_option(opts01, 'real_vector', [6, 7.2, 8.3])
 check_option(opts01, 'bool_vector', [True, False, True])
 check_option(opts01, 'generic_component_vector', [opts01, testgen])
 check_option(opts01, 'group_component_vector', [testgrp, root])
+
+print '########################### Checking basic access ##########################'
+
+if opts01.string != 'global_config':
+  raise Exception('Bad option value')
+
+opts01.string = 'easy_set'
+check_option(opts01, 'string', 'easy_set')
+if opts01.string != 'easy_set':
+  raise Exception('Bad option value')
+
+opts01.const_component = root
+check_option(opts01, 'const_component', root)
