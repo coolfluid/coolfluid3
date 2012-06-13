@@ -9,8 +9,8 @@ list( APPEND coolfluid_sdm_files
   BCFunction.cpp
   BCWeak.hpp
   BCWeak.cpp
-#  BCStrong.hpp
-#  BCStrong.cpp
+  BCStrong.hpp
+  BCStrong.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   ComputeLNorm.hpp
