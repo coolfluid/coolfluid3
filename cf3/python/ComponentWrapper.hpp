@@ -38,10 +38,7 @@ struct PythonListInterface
   /// Get the whole list as a string
   virtual std::string to_str() const = 0;
 };
-
-/// Map to keep track of python objects associated with components
-typedef std::map<Handle<common::Component>, boost::python::object> ObjectMapT;
-
+  
 /// Wrapper class for components
 class ComponentWrapper
 {
@@ -72,7 +69,7 @@ public:
   PythonListInterface* get_list_interface();
 
 private:
-  friend boost::python::object wrap_component_recursive(const cf3::Handle<common::Component>&, ObjectMapT&);
+  friend boost::python::object wrap_component(const cf3::Handle<common::Component>&);
   class Implementation;
   boost::shared_ptr<Implementation> m_implementation; // Shared pointer so we can easily make shallow copies
 };
@@ -82,9 +79,6 @@ void def_component();
 
 /// Wrap the passed component in a python object
 boost::python::object wrap_component(const cf3::Handle<common::Component>& component);
-
-/// Wrap components, using the provided map to break recursion cycles
-boost::python::object wrap_component_recursive(const Handle<common::Component>& component, ObjectMapT& generated_objects);
 
 } // python
 } // cf3

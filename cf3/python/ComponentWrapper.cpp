@@ -31,31 +31,10 @@
 #include "python/ComponentWrapper.hpp"
 #include "python/PythonAny.hpp"
 #include "python/TableWrapper.hpp"
+#include "python/Utility.hpp"
 
 namespace cf3 {
 namespace python {
-
-/// Helper function to set attributes, since we override the __setattr__ function. This behaves exactly like boost::python::setattr,
-/// except that it calls the generic python setattr and thus does not recurse on components
-void generic_setattr(boost::python::object const& target, char const* key, boost::python::object const& value)
-{
-  boost::python::str key_str(key);
-  if(PyObject_GenericSetAttr(target.ptr(), key_str.ptr(), value.ptr()) == -1)
-    boost::python::throw_error_already_set();
-}
-
-/// Helper function to get a weak reference to the given object
-boost::python::object weak_ref(const boost::python::object& source)
-{
-  return boost::python::object(boost::python::handle<>(PyWeakref_NewRef(source.ptr(), NULL)));
-}
-
-bool has_attr(const boost::python::object& obj, const std::string& str)
-{
-  // Older versions of python don't support const char* here
-  char* str_ptr = const_cast<char*>(str.c_str());
-  return PyObject_HasAttrString(obj.ptr(), str_ptr);
-}
 
 // Wrapper for signals
 struct SignalWrapper
@@ -192,104 +171,16 @@ struct SignalWrapper
   Handle<common::Component> m_component;
 };
 
-/// Helper class to wrap python data members linked to options
-class OptionAttributeLink
-{
-public:
-  /// Object with a string closure
-  OptionAttributeLink(const boost::shared_ptr<common::Option>& option, const boost::python::object& target, const std::string& attribute_name, ObjectMapT& generated_objects) :
-    m_option(option),
-    m_target(target),
-    m_attribute_name(attribute_name),
-    m_trigger_id(m_option.lock()->attach_trigger_tracked(boost::bind(&OptionAttributeLink::trigger_option_change, this)))
-  {
-    // Options containing components need special treatment during construction because of the risk of recursion
-    if(boost::starts_with(option->type(), "handle["))
-    {
-      generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), get_python_component(option->value(), generated_objects) );
-    }
-    else if(boost::starts_with(option->type(), "array[handle["))
-    {
-      boost::python::object py_val = get_handle_list< Handle<common::Component> >(option->value(), generated_objects);
-      if(py_val.is_none())
-        py_val = get_handle_list< Handle<common::Component const> >(option->value(), generated_objects);
-      cf3_assert(!py_val.is_none());
-      generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), py_val );
-    }
-    else
-    {
-      trigger_option_change();
-    }
-  }
-
-  ~OptionAttributeLink()
-  {
-    if(!m_option.expired())
-      m_option.lock()->detach_trigger(m_trigger_id);
-  }
-
-private:
-  /// Triggered when the option is changed
-  void trigger_option_change()
-  {
-    cf3_assert(!m_option.expired()); // this would happen if the ComponentWrapper lives longer than the component. Not sure if that's possible.
-    generic_setattr( boost::python::object(boost::python::borrowed(PyWeakref_GetObject(m_target.ptr()))), m_attribute_name.c_str(), any_to_python(m_option.lock()->value()));
-  }
-
-  /// Helper to get a python component while breaking recursion
-  boost::python::object get_python_component(const boost::any& value, ObjectMapT& generated_objects)
-  {
-    if(value.type() == typeid(Handle<common::Component>))
-    {
-      return wrap_component_recursive(boost::any_cast< Handle<common::Component> >(value), generated_objects);
-    }
-    else if(value.type() == typeid(Handle<common::Component const>))
-    {
-      common::Component* comp = const_cast<common::Component*>(boost::any_cast< Handle<common::Component const> >(value).get());
-      return wrap_component_recursive(is_null(comp) ? Handle<common::Component>() : comp->handle(), generated_objects);
-    }
-    CFwarn << "Invalid value for OptionComponent " << m_option.lock()->name() << CFendl;
-    return boost::python::object();
-  }
-
-  template<typename T>
-  boost::python::object get_handle_list(const boost::any& value, ObjectMapT& generated_objects)
-  {
-    try
-    {
-      boost::python::list result;
-      const std::vector<T> val = boost::any_cast< std::vector<T> >(value);
-      BOOST_FOREACH(const T& item, val)
-      {
-        result.append(get_python_component(item, generated_objects));
-      }
-      return result;
-    }
-    catch(boost::bad_any_cast& e)
-    {
-    }
-    return boost::python::object();
-  }
-
-  const boost::weak_ptr<common::Option> m_option;
-  const boost::python::object m_target;
-  const std::string m_attribute_name;
-  const common::Option::TriggerID m_trigger_id;
-};
-
 struct ComponentWrapper::Implementation
 {
   Implementation(const Handle<common::Component>& component) :
     m_component(component),
-    m_list_interface(0),
-    m_python_object(0),
-    m_updating(false)
+    m_list_interface(0)
   {
   }
 
   virtual ~Implementation()
   {
-    WrappedObjectsEventHandler::instance().unregister_object(this);
     if(is_not_null(m_list_interface))
       delete m_list_interface;
   }
@@ -307,164 +198,9 @@ struct ComponentWrapper::Implementation
     m_wrapped_signals.push_back(SignalWrapper(signal, m_component));
   }
 
-  /// Adds all basic options as properties to the object
-  void add_basic_options(boost::python::object& py_obj, ObjectMapT& generated_objects)
-  {
-    for(common::OptionList::const_iterator opt_it = m_component->options().begin(); opt_it != m_component->options().end(); ++opt_it)
-    {
-      const common::Option& opt = *opt_it->second;
-
-      if(!opt.has_tag("basic"))
-        continue;
-
-      std::string opt_name = opt.name();
-
-      // We append the "_opt" suffix if the attribute with the option name already exists
-      boost::python::dict obj_dict(boost::python::getattr(py_obj, "__dict__"));
-      if(obj_dict.has_key(opt_name))
-        opt_name += "_opt";
-
-      // Build a doc string, and hook in with "options" function
-      boost::python::object opt_fun = boost::python::getattr(py_obj, "options");
-      std::stringstream doc_str;
-      doc_str << boost::python::extract<std::string>(boost::python::getattr(opt_fun, "__doc__"))();
-      doc_str << "\n\nBasic option with pretty name " << opt.pretty_name() << "\n";
-      doc_str << "  " << opt.description() << "\n";
-      if(opt.has_restricted_list())
-      {
-        doc_str << "Valid values are restricted to:" << opt.restricted_list_str() << "\n";
-      }
-
-      // Update the docstring. TODO: Figure out where to add this, since this doesn't work:
-      //boost::python::setattr(opt_fun, "__doc__", boost::python::str(doc_str.str()));
-
-      // This sets up an attribute with the option value and updates it whenever the option gets changed
-      m_option_attribute_links.push_back(new OptionAttributeLink(opt_it->second, weak_ref(py_obj), opt_name, generated_objects));
-    }
-  }
-
-  void add_basic_components(ObjectMapT& generated_objects)
-  {
-    if(m_updating || is_null(m_component))
-      return;
-    m_updating = true;
-
-    boost::python::object py_obj(boost::python::borrowed(m_python_object));
-
-    BOOST_FOREACH(common::Component& child, *m_component)
-    {
-      if(child.has_tag("basic"))
-      {
-        std::string attrib_name = child.name();
-        bool create_attrib = !has_attr(py_obj, attrib_name);
-        if(!create_attrib)
-        {
-          boost::python::extract<ComponentWrapper&> extracted(boost::python::getattr(py_obj, boost::python::str(attrib_name)));
-          if(extracted.check())
-          {
-            Handle<common::Component> extracted_comp = extracted().component().handle();
-            if(extracted_comp == child.handle())
-            {
-              continue;
-            }
-            else
-            {
-              boost::python::delattr(py_obj, attrib_name.c_str());
-              create_attrib = true;
-            }
-          }
-          if(!extracted.check())
-            attrib_name += "_comp";
-          if(has_attr(py_obj, attrib_name))
-          {
-            boost::python::extract<ComponentWrapper&> extracted_obj(boost::python::getattr(py_obj, boost::python::str(attrib_name)));
-            cf3_assert(extracted.check());
-            Handle<common::Component> extracted_comp = extracted_obj().component().handle();
-            if(extracted_comp == child.handle())
-            {
-              continue;
-            }
-            else
-            {
-              boost::python::delattr(py_obj, attrib_name.c_str());
-              create_attrib = true;
-            }
-          }
-        }
-
-        if(create_attrib)
-        {
-          generic_setattr(py_obj, attrib_name.c_str(), wrap_component_recursive(child.handle(), generated_objects));
-        }
-      }
-    }
-
-    m_updating = false;
-  }
-
-  /// Set the python object
-  /// @param obj The object to use
-  /// @param generated_objects Objects that were previously generated, used to avoid recursion when setting an optioncomponent
-  void set_python_object(boost::python::object& obj, ObjectMapT& generated_objects)
-  {
-    m_python_object = obj.ptr();
-    bind_signals(obj);
-    add_basic_options(obj, generated_objects);
-    add_basic_components(generated_objects);
-    //cf3_assert(obj.ptr()->ob_refcnt == 1); // Make sure there are no circular references
-  }
-
-  /// Handles events for wrapped objects. This avoids having to listen to the events in each python object, which becomes extremely slow
-  struct WrappedObjectsEventHandler : common::ConnectionManager
-  {
-    static WrappedObjectsEventHandler& instance()
-    {
-      static WrappedObjectsEventHandler handler;
-      return handler;
-    }
-
-    void register_object(const boost::shared_ptr<Implementation>& obj)
-    {
-      m_objects[obj.get()] = obj;
-    }
-
-    void unregister_object(const Implementation* ptr)
-    {
-      m_objects.erase(ptr);
-    }
-
-    void on_tree_update_event(common::SignalArgs& args)
-    {
-      // Copy the map, so updates while we're running don't interfere
-      StorageT objects_copy = m_objects;
-      for(StorageT::iterator obj_it = objects_copy.begin(); obj_it != objects_copy.end(); ++obj_it)
-      {
-        if(!obj_it->second.expired())
-        {
-          Implementation& obj_impl = *obj_it->second.lock();
-          ObjectMapT generated_objects;
-          generated_objects[obj_impl.m_component] = boost::python::object(boost::python::borrowed(obj_impl.m_python_object));
-          obj_impl.add_basic_components(generated_objects);
-        }
-      }
-    }
-
-    typedef std::map< const Implementation*, boost::weak_ptr<Implementation> > StorageT;
-    StorageT m_objects;
-
-  private:
-    WrappedObjectsEventHandler()
-    {
-      common::Core::instance().event_handler().connect_to_event("tree_updated", this, &Implementation::WrappedObjectsEventHandler::on_tree_update_event);
-    }
-  };
-
   Handle<common::Component> m_component;
   std::vector<SignalWrapper> m_wrapped_signals;
   PythonListInterface* m_list_interface;
-  boost::ptr_vector<OptionAttributeLink> m_option_attribute_links;
-  PyObject* m_python_object;
-  bool m_updating;
 };
 
 ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component) :
@@ -476,8 +212,6 @@ ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component)
     if(signal->name() != "create_component")
       m_implementation->wrap_signal(signal);
   }
-
-  Implementation::WrappedObjectsEventHandler::instance().register_object(m_implementation);
 }
 
 ComponentWrapper::~ComponentWrapper()
@@ -510,28 +244,16 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
   if(is_null(component))
     return boost::python::object();
 
-  ObjectMapT generated_objects;
-  return wrap_component_recursive(component, generated_objects);
-}
-
-boost::python::object wrap_component_recursive(const Handle<common::Component>& component, ObjectMapT& generated_objects)
-{
-  if(is_null(component))
-    return boost::python::object();
-
-  ObjectMapT::iterator found_obj = generated_objects.find(component);
-  if(found_obj != generated_objects.end())
-    return found_obj->second;
-
   boost::python::object result = boost::python::object(ComponentWrapper(component));
-  generated_objects[component] = result;
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
-  wrapped.m_implementation->set_python_object(result, generated_objects);
+  wrapped.m_implementation->bind_signals(result);
 
+  cf3_assert(result.ptr()->ob_refcnt == 1); // Make sure there are no circular references
+  
   // Add extra functionality for derved classes
   add_ctable_methods(wrapped, result);
 
-  return result;
+  return result;  
 }
 
 /// Override setattr to allow direct handling of basic options
@@ -539,24 +261,12 @@ void component_setattr(boost::python::object& self, const std::string attr, cons
 {
   common::Component& comp = boost::python::extract<ComponentWrapper&>(self)().component();
 
-  // Check that we're not trying to assign to a basic component
-  std::string comp_name = attr;
-  if(boost::ends_with(comp_name, "_comp") && is_null(comp.get_child(comp_name)))
-  {
-    boost::replace_last(comp_name, "_comp", "");
-  }
-
-  Handle<common::Component> child_comp = comp.get_child(comp_name);
+  Handle<common::Component> child_comp = comp.get_child(attr);
   if(is_not_null(child_comp) && child_comp->has_tag("basic"))
     throw common::IllegalCall(FromHere(), "Assigning to a sub-component is not allowed");
 
   // Try setting an option, if there is a basic option with the attribute name
   std::string opt_name = attr;
-  if(boost::ends_with(opt_name, "_opt") && !comp.options().check(opt_name))
-  {
-    boost::replace_last(opt_name, "_opt", "");
-  }
-
   if(comp.options().check(opt_name) && comp.options().option(opt_name).has_tag("basic"))
   {
     comp.options().set(opt_name, python_to_any(value));
@@ -565,6 +275,22 @@ void component_setattr(boost::python::object& self, const std::string attr, cons
 
   // Just set the attribute in all other cases
   generic_setattr(self, attr.c_str(), value);
+}
+
+/// Override for getattr to get basic options and sub-components
+boost::python::object component_getattr(ComponentWrapper& self, const std::string& attr)
+{
+  common::Component& comp = self.component();
+  if(comp.options().check( attr ) && comp.options().option( attr ).has_tag("basic"))
+  {
+    return any_to_python(comp.options().option(attr).value());
+  }
+  
+  Handle<common::Component> child_comp = comp.get_child(attr);
+  if(is_not_null(child_comp) && child_comp->has_tag("basic"))
+    return wrap_component(child_comp);
+  
+  throw common::ValueNotFound(FromHere(), "Attribute " + attr + " does not exist as either a basic option or a basic component for object at " + comp.uri().path());
 }
 
 std::string name(ComponentWrapper& self)
@@ -794,7 +520,8 @@ void def_component()
     .def("__repr__", to_str)
     .def("__eq__", is_equal)
     .def("__ne__", is_not_equal)
-    .def("__setattr__", component_setattr);
+    .def("__setattr__", component_setattr)
+    .def("__getattr__", component_getattr);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())
