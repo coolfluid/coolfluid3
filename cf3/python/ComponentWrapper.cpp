@@ -283,6 +283,11 @@ boost::python::object component_getattr(ComponentWrapper& self, const std::strin
   common::Component& comp = self.component();
   if(comp.options().check( attr ) && comp.options().option( attr ).has_tag("basic"))
   {
+    Handle<common::Component> child_comp = comp.get_child(attr);
+    if(is_not_null(child_comp) && child_comp->has_tag("basic"))
+    {
+      CFwarn << "Using basic option " << attr << " in precendence of existing basic component for attribute access" << CFendl;
+    }
     return any_to_python(comp.options().option(attr).value());
   }
   
