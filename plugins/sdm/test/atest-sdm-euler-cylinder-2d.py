@@ -1,33 +1,29 @@
 # import sys
-# sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/debug/dso/')
+# sys.path.append('/Users/willem/workspace/cf3/dev/builds/clang/debug/dso/')
 
-import coolfluid
+import coolfluid as cf
 import math
 
-# The cf root component
-root = coolfluid.Core.root()
-env =  coolfluid.Core.environment()
-
 ### Logging configuration
-env.options().set('assertion_backtrace', True)
-env.options().set('exception_backtrace', True)
-env.options().set('regist_signal_handlers', True)
-env.options().set('exception_log_level', 10)
-env.options().set('log_level', 3)
-env.options().set('exception_outputs', True)
+cf.environment.assertion_backtrace = True
+cf.environment.exception_backtrace = True
+cf.environment.regist_signal_handlers = True
+cf.environment.exception_log_level = 10
+cf.environment.log_level = 3
+cf.environment.exception_outputs = True
 
 ############################
 # Create simulation
 ############################
-model   = root.create_component('cylinder_2d','cf3.solver.Model');
+model   = cf.root.create_component('cylinder_2d','cf3.solver.Model');
 solver  = model.create_solver('cf3.sdm.SDSolver')
 physics = model.create_physics('cf3.physics.NavierStokes.NavierStokes2D')
 domain  = model.create_domain()
 
-# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-16x4.msh'), name = 'cylinder2d');
-mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-32x8.msh'), name = 'cylinder2d');
-# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
-# mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
+# mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-16x4.msh'), name = 'cylinder2d');
+mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-32x8.msh'), name = 'cylinder2d');
+# mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
+# mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
 
 ### Configure physics
 gamma = 1.4
@@ -40,25 +36,25 @@ u_inf = M_inf*c_inf
 rhoE_inf = p_inf/(gamma-1) + 0.5 * rho_inf * u_inf**2
 # p = (g-1) * ( rhoE - 0.5 * rho * ( u**2 ) )
 
-physics.options().set('gamma',gamma)
-physics.options().set('R',R)
+physics.gamma = gamma
+physics.R = R
 
 ### Configure solver
-solver.options().set('mesh',mesh)
-solver.options().set('solution_vars','cf3.physics.NavierStokes.Cons2D')
-solver.options().set('solution_order',3)
-solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
+solver.mesh = mesh
+solver.solution_vars = 'cf3.physics.NavierStokes.Cons2D'
+solver.solution_order = 3
+solver.iterative_solver = 'cf3.sdm.ExplicitRungeKuttaLowStorage2'
 
 ### Configure timestepping
-solver.access_component('Time').options().set('end_time',3000000)
-solver.access_component('Time').options().set('time_step',1)
-solver.access_component('TimeStepping').options().set('time_accurate',True);         # time accurate for initial stability
-solver.access_component('TimeStepping').options().set('cfl','min(0.5,0.0001*i)');    # increasing cfl number
-solver.access_component('TimeStepping').options().set('max_iteration',100);           # limit the number of iterations (default = no limit)
-solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3) # Runge Kutta number of stages
+solver.Time.end_time = 3000000
+solver.Time.time_step = 1
+solver.TimeStepping.time_accurate = True          # time accurate for initial stability
+solver.TimeStepping.cfl = 'min(0.5,0.0001*i)'     # increasing cfl number
+solver.TimeStepping.max_iteration = 100           # limit the number of iterations (default = no limit)
+solver.TimeStepping.IterativeSolver.nb_stages = 3 # Runge Kutta number of stages
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
-solver.get_child('PrepareMesh').execute()
+solver.PrepareMesh.execute()
 
 ### Set the initial condition
 functions = [
@@ -67,45 +63,49 @@ str(rho_inf),
 '0.',
 str(rhoE_inf)
 ]
-initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'uniform')
-initial_condition.options().set('functions',functions)
-solver.get_child('InitialConditions').execute();
+initial_condition = solver.InitialConditions.create_initial_condition( name = 'uniform')
+initial_condition.functions = functions
+solver.InitialConditions.execute()
 
 ### Create convection term
-solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
-convection = solver.access_component('DomainDiscretization/Terms/convection')
+convection = solver.DomainDiscretization.create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
 
 ### Create farfield boundary condition
-bc_farfield = solver.get_child('BoundaryConditions').create_boundary_condition(
+bc_farfield = solver.BoundaryConditions.create_boundary_condition(
    name = 'farfield', 
    type = 'cf3.sdm.BCConstant<4,2>', 
-   regions=[mesh.access_component('topology/boundary').uri()])
-bc_farfield.options().set('constants',[rho_inf,rho_inf*u_inf,0.,rhoE_inf])
+   regions=[mesh.topology.boundary.uri()])
+
+# This one works
+bc_farfield.options().set('constants' , [rho_inf,rho_inf*u_inf,0.,rhoE_inf])
+
+# This one doesn't work yet
+bc_farfield.constants = [rho_inf,rho_inf*u_inf,0.,rhoE_inf]
 
 ### Create wall boundary condition
-bc_wall = solver.get_child('BoundaryConditions').create_boundary_condition(
+bc_wall = solver.BoundaryConditions.create_boundary_condition(
    name = 'cylinder', 
    type = 'cf3.sdm.navierstokes.BCWallEuler2D', 
-   regions=[mesh.access_component('topology/cylinder').uri()])
+   regions=[mesh.topology.cylinder.uri()])
 
 ########################################
 # Output initial condition (optional)
 #######################################
 
 ### execute boundary condition for output for visualization
-solver.get_child('BoundaryConditions').execute();
+#solver.BoundaryConditions.execute();
 
 # fields to output:
 fields = [
-mesh.access_component('solution_space/solution').uri(),
-#mesh.access_component('solution_space/jacobian_determinant').uri(),
-#mesh.access_component('solution_space/delta').uri()
+mesh.solution_space.solution.uri(),
+#mesh.solution_space.jacobian_determinant.uri(),
+#mesh.solution_space.delta.uri()
 ]
 
 gmsh_writer = model.create_component('init_writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().set('mesh',mesh)
-gmsh_writer.options().set('fields',fields)
-gmsh_writer.options().set('file',coolfluid.URI('file:initial.msh'))
+gmsh_writer.mesh = mesh
+gmsh_writer.fields = fields
+gmsh_writer.file = cf.URI('file:initial.msh')
 gmsh_writer.execute()
 
 #######################################
@@ -118,8 +118,8 @@ print 'WARNING: not converged to steady state solution (would take too long) \n'
 # POST PROCESSING
 ########################
 
-post_proc = mesh.access_component('solution_space').create_field(name='post_proc',variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
-solution=mesh.access_component('solution_space/solution')
+post_proc = mesh.solution_space.create_field(name='post_proc',variables='U[vec],p[1],T[1],M[1],Pt[1],Tt[1],Cp[1],S[1]')
+solution=mesh.solution_space.solution
 for index in range(len(solution)):
 	 # compute variables per solution point
 	 rho=solution[index][0];
@@ -151,18 +151,18 @@ for index in range(len(solution)):
 
 # fields to output:
 fields = [
-mesh.access_component('solution_space/solution').uri(),
-mesh.access_component('solution_space/post_proc').uri(),
-mesh.access_component('solution_space/wave_speed').uri()
+mesh.solution_space.solution.uri(),
+mesh.solution_space.post_proc.uri(),
+mesh.solution_space.wave_speed.uri()
 ]
 
 
 # gmsh
 ######
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
-gmsh_writer.options().set('mesh',mesh)
-gmsh_writer.options().set('fields',fields)
-gmsh_writer.options().set('file',coolfluid.URI('file:sdm_output.msh'))
+gmsh_writer.mesh = mesh
+gmsh_writer.fields = fields
+gmsh_writer.file = cf.URI('file:sdm_output.msh')
 gmsh_writer.execute()
 
 ## Tecplot
@@ -172,7 +172,7 @@ gmsh_writer.execute()
 ## the high-order solution better.
 
 ## Generate visualization mesh
-#visualization_mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/cylinder-quad-p1-128x32.msh'), name = 'visualization_mesh');
+#visualization_mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p1-128x32.msh'), name = 'visualization_mesh');
 
 ## Interpolate fields using solution polynomial
 #visualization_mesh.access_component('geometry').create_field(name='solution',  variables='rho[1],rhoU[2],rhoE[1]')
@@ -198,5 +198,5 @@ gmsh_writer.execute()
 #tec_writer.options().set('mesh',visualization_mesh)
 #tec_writer.options().set('fields',fields)
 #tec_writer.options().set('cell_centred',True)
-#tec_writer.options().set('file',coolfluid.URI('file:sdm_output.plt'))
+#tec_writer.options().set('file',cf.URI('file:sdm_output.plt'))
 #tec_writer.execute()
