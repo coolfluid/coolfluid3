@@ -26,9 +26,6 @@ ic = solver.create_initial_conditions()
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
-# Add the scalar advection solver as an unsteady solver
-scalaradv = solver.add_unsteady_solver('cf3.UFEM.ScalarAdvection')
-
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 12)
@@ -98,14 +95,10 @@ top_patch[2] = [11, 4]
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()])
-scalaradv.options().configure_option('regions', [mesh.access_component('topology').uri()])
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
-#LSS for scalar advection
-sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-sa_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
@@ -116,8 +109,6 @@ phi_wall = 200
 ic_ns = ic.create_initial_condition('navier_stokes_solution')
 # Initial advection velocity and its previous values, using linearized_velocity as tag
 ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
-# Initial conditions for the scalar advection solver
-ic_phi = ic.create_initial_condition('scalar_advection_solution')
 
 #initial conditions
 ic_ns.options().configure_option('Velocity', u_in)
@@ -125,7 +116,6 @@ ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
-ic_phi.options().configure_option('Scalar', phi_in)
 
 #properties for Navier-Stokes
 physics.options().configure_option('density', 1.2)
@@ -142,28 +132,20 @@ bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity'
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
 
-# Boundary conditions for ScalarAdvection
-bc = scalaradv.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().configure_option('value', phi_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Scalar').options().configure_option('value',  phi_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Scalar').options().configure_option('value',  phi_in)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().configure_option('value',  phi_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().configure_option('value', phi_in)
-
 # Time setup
 time = model.create_time()
 time.options().configure_option('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 10.
-save_interval = 0.1
+final_end_time = 0.1
+save_interval = 0.01
 current_end_time = 0.
 iteration = 0
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().configure_option('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-flatplate2d_output_b-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().configure_option('disabled_actions', ['InitialConditions'])

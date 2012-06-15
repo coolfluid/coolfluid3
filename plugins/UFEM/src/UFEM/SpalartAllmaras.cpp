@@ -166,140 +166,113 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
         allowed_elements,
         group
 
-//           (
-//            _A = _0, _T = _0,
-//            UFEM::compute_tau(u_adv, m_coeffs),
-//            element_quadrature
+                       (
+                        _A = _0, _T = _0,
+                        UFEM::compute_tau(u_adv, m_coeffs),
+                        element_quadrature
+                        (
+                           _A(NU) +=
+                             transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU),               // advection terms
+//                           - cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
+//                           (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))))))),
+
+//                          + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  ((_min(10, ((NU)/(kappa*kappa*d*d*                                // cw1 * fw * (NU_hat/d)^2
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
+
+//                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//                          (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//                          )) )))),6)+_pow(cw3,6))),1/6)
+                                                                                                                                                          // wall distance
+//                           - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))                                                        // (NU+NU_hat) partial NU_hat to xj to xj
+//                           - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU)                                     // nabla(NU)^2 times the weight function
+                           _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
+                        ),
+                      system_matrix += invdt() * _T + 1.0 * _A,
+                      system_rhs += -_A * _b
+                      )
+
+
 //            (
-//               _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)              // advection term
-//               + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
-//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))))))),
-
-//              //+ cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  ((_min(10, 1 )) + cw2*(_pow((_min(10, 1 )),6)-(_min(10, 1 )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, 1 )) +
-//              // cw2*(_pow((_min(10, 1 )),6)-(_min(10, 1 )))),6)+_pow(cw3,6))),1/6)
-//                                                                                                                                              // ^(1/6) is missing due to error message, wall distance, r
-//              // - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-//              // - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                    // nabla(NU)^2 times the weight function
-//               _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
-//            ),
-//             _cout << _A,
-//          system_matrix += invdt() * _T + 1.0 * _A,
-//          system_rhs += -_A * _b
-//          )
-
-            (
-             _A = _0, _T = _0,
-             UFEM::compute_tau(u_adv, m_coeffs),
-             element_quadrature
-             (
-                _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU),              // advection term
-               /* + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
-                (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  ((_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
-
-               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-
-               )) )))),6)+_pow(cw3,6))),1/6)
-                                                                                                                                               // ^(1/6) is missing due to error message, wall distance, r
-
-                - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-                - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),    */                                // nabla(NU)^2 times the weight function
-                _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
-             ),
-           system_matrix += invdt() * _T + 1.0 * _A,
-           system_rhs += -_A * _b
-           )
-
-
-//           (
 //             _A = _0, _T = _0,
 //             UFEM::compute_tau(u_adv, m_coeffs),
 //             element_quadrature
 //             (
-//               _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                 // advection term
-//                  + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
-//                  (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-//
-//                  + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  (r + cw2*(_pow(r,6)-r)) * _pow(((1+_pow(cw3,6))/(_pow((r + cw2*(_pow(r,6)-r)),6)+_pow(cw3,6))),1/6)     // ^(1/6) is missing due to error message, wall distance, r
-//
-//                  - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-//                  - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                    // nabla(NU)^2 times the weight function
-//               _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                      // Time, standard and SUPG
+//                _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU),              // advection term
+//               /* + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
+//                (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  ((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
+
+//               ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
+//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
+
+//               )) )))),6)+_pow(cw3,6))),1/6)
+//                                                                                                                                               // wall distance
+//                - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
+//                - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),    */                                // nabla(NU)^2 times the weight function
+//                _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
 //             ),
-//             system_matrix += invdt() * _T + 1.0 * _A,
-//             system_rhs += -_A * _b
+//           system_matrix += invdt() * _T + 1.0 * _A,
+//           system_rhs += -_A * _b
 //           )
 
-//        (
-//          _A = _0, _T = _0,
-//          UFEM::compute_tau(u_adv, m_coeffs),
-//          element_quadrature
-//          (
-//            _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                 // advection term
-//               + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
-//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
 
-//               + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  g * _pow(((1+_pow(cw3,6))/(_pow(g,6)+_pow(cw3,6))),1/6) * _min(10,2)*_pow(_min(10,2),2)*  r * ((1 + ttpo6(cw3) )/(r + ttpo6(cw3) ))      // ^(1/6) is missing due to error message, wall distance, r
-
-//               - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-//               - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                    // nabla(NU)^2 times the weight function
-//            _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                      // Time, standard and SUPG
-//          ),
-//          system_matrix += invdt() * _T + 1.0 * _A,
-//          system_rhs += -_A * _b
-//        )
-
-//        (
-//          _A = _0, _T = _0,
-//          UFEM::compute_tau(u_adv, m_coeffs),
-//          element_quadrature
-//          (
-//            _A(NU) += transpose(N(NU)) * u_adv * nabla(NU) + m_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                 // advection term
-//               + cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // for 1.: vorticity magnitude is missing due to error message : (nabla(u) - transpose(nabla(u)))
-//               (1 - ((NU/m_coeffs.mu)/(1+(NU/m_coeffs.mu)*((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu))/(cv1+((NU/m_coeffs.mu)*(NU/m_coeffs.mu)*(NU/m_coeffs.mu)))))))
-//               + _min(10,2)*_pow(_min(10,2),2)*((transpose(N(NU)) * N(NU) * NU ) / (d*d)) * cw1 * r * ((1 + ttpo6(cw3) )/(r + ttpo6(cw3) ))      // ^(1/6) is missing due to error message, wall distance, r
-//               - (1/sigma) * ((NU + m_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))
-//               - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                    // nabla(NU)^2 times the weight function
-//            _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                      // Time, standard and SUPG
-//          ),
-//          system_matrix += invdt() * _T + 1.0 * _A,
-//          system_rhs += -_A * _b
-//        )
 
       )
     )
     << allocate_component<BoundaryConditions>("BoundaryConditions")
     << allocate_component<SolveLSS>("SolveLSS")
-//    << create_proto_action("Update", nodes_expression(NU += solution(NU) ));// * ((m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho)/(2 + (m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho)) ) ));     // solution(NU) is multiplied by fv1 from the Spalart-Allmaras model
-    << create_proto_action("Update", nodes_expression(NU += solution(NU) * ((m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho)/(2 + (m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho * m_coeffs.mu*m_coeffs.rho)) ) ));
-
+    << create_proto_action("Update", nodes_expression(NU += ((solution(NU)) * (( ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )) )) )) ;     // solution(NU) is multiplied by fv1 from the Spalart-Allmaras model
   get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
 
 }

@@ -90,8 +90,12 @@ coolfluid_add_test( ATEST atest-quadtriag
                     PYTHON atest-quadtriag.py
                     ARGUMENTS ${CMAKE_SOURCE_DIR}/resources/quadtriag.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
-coolfluid_add_test( ATEST atest-flatplate2d
-                    PYTHON atest-flatplate2d.py
+coolfluid_add_test( ATEST atest-flatplate2d-laminar
+                    PYTHON atest-flatplate2d-laminar.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
+coolfluid_add_test( ATEST atest-flatplate2d-scalar
+                    PYTHON atest-flatplate2d-scalar.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
 coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras
