@@ -51,7 +51,7 @@ ExplicitRungeKuttaLowStorage3::ExplicitRungeKuttaLowStorage3 ( const std::string
       .description("Order of the Runge-Kutta integration")
       .pretty_name("RK order");
 
-  options().add("nb_stages", 1u)
+  options().add("nb_stages", 1u).mark_basic()
       .description("Number of stages of the Runge-Kutta integration")
       .pretty_name("RK stages")
       .attach_trigger( boost::bind( &ExplicitRungeKuttaLowStorage3::config_nb_stages , this ) );
@@ -137,7 +137,7 @@ void ExplicitRungeKuttaLowStorage3::link_fields()
 void ExplicitRungeKuttaLowStorage3::execute()
 {
   configure_option_recursively( "iterator", handle<Component>() );
-  
+
   link_fields();
 
   int convergence_failed = false;

@@ -33,7 +33,7 @@ public:
     BCWeak< PhysDataBase<NEQS,NDIM> >(name)
   {
     common::Component::options().add("constants",std::vector<Real>(0.,NEQS))
-        .link_to(&m_constants);
+        .link_to(&m_constants).mark_basic();
   }
 
   virtual ~BCConstant() {}
@@ -62,7 +62,7 @@ public:
     BCStrong< PhysDataBase<NEQS,NDIM> >(name)
   {
     common::Component::options().add("constants",std::vector<Real>(0.,NEQS))
-        .link_to(&m_constants);
+        .link_to(&m_constants).mark_basic();
   }
 
   virtual ~BCConstantStrong() {}

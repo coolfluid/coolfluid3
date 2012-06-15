@@ -249,11 +249,11 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
   wrapped.m_implementation->bind_signals(result);
 
   cf3_assert(result.ptr()->ob_refcnt == 1); // Make sure there are no circular references
-  
+
   // Add extra functionality for derved classes
   add_ctable_methods(wrapped, result);
 
-  return result;  
+  return result;
 }
 
 /// Override setattr to allow direct handling of basic options
@@ -273,8 +273,7 @@ void component_setattr(boost::python::object& self, const std::string attr, cons
     return;
   }
 
-  // Just set the attribute in all other cases
-  generic_setattr(self, attr.c_str(), value);
+  throw common::ValueNotFound(FromHere(), "Component " + comp.uri().path() + " has no basic option " + attr);
 }
 
 /// Override for getattr to get basic options and sub-components
@@ -290,11 +289,11 @@ boost::python::object component_getattr(ComponentWrapper& self, const std::strin
     }
     return any_to_python(comp.options().option(attr).value());
   }
-  
+
   Handle<common::Component> child_comp = comp.get_child(attr);
   if(is_not_null(child_comp) && child_comp->has_tag("basic"))
     return wrap_component(child_comp);
-  
+
   throw common::ValueNotFound(FromHere(), "Attribute " + attr + " does not exist as either a basic option or a basic component for object at " + comp.uri().path());
 }
 

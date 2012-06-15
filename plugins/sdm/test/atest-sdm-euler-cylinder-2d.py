@@ -72,20 +72,16 @@ convection = solver.DomainDiscretization.create_term(name = 'convection', type =
 
 ### Create farfield boundary condition
 bc_farfield = solver.BoundaryConditions.create_boundary_condition(
-   name = 'farfield', 
-   type = 'cf3.sdm.BCConstant<4,2>', 
+   name = 'farfield',
+   type = 'cf3.sdm.BCConstant<4,2>',
    regions=[mesh.topology.boundary.uri()])
 
-# This one works
-bc_farfield.options().set('constants' , [rho_inf,rho_inf*u_inf,0.,rhoE_inf])
-
-# This one doesn't work yet
 bc_farfield.constants = [rho_inf,rho_inf*u_inf,0.,rhoE_inf]
 
 ### Create wall boundary condition
 bc_wall = solver.BoundaryConditions.create_boundary_condition(
-   name = 'cylinder', 
-   type = 'cf3.sdm.navierstokes.BCWallEuler2D', 
+   name = 'cylinder',
+   type = 'cf3.sdm.navierstokes.BCWallEuler2D',
    regions=[mesh.topology.cylinder.uri()])
 
 ########################################
