@@ -261,10 +261,6 @@ void component_setattr(boost::python::object& self, const std::string attr, cons
 {
   common::Component& comp = boost::python::extract<ComponentWrapper&>(self)().component();
 
-  Handle<common::Component> child_comp = comp.get_child(attr);
-  if(is_not_null(child_comp) && child_comp->has_tag("basic"))
-    throw common::IllegalCall(FromHere(), "Assigning to a sub-component is not allowed");
-
   // Try setting an option, if there is a basic option with the attribute name
   std::string opt_name = attr;
   if(comp.options().check(opt_name) && comp.options().option(opt_name).has_tag("basic"))
@@ -273,7 +269,15 @@ void component_setattr(boost::python::object& self, const std::string attr, cons
     return;
   }
 
-  throw common::ValueNotFound(FromHere(), "Component " + comp.uri().path() + " has no basic option " + attr);
+  Handle<common::Component> child_comp = comp.get_child(attr);
+  if(is_not_null(child_comp) && child_comp->has_tag("basic"))
+  {
+    PyErr_SetString(PyExc_AttributeError, ("Assigning to sub-component " + attr + " is not allowed").c_str());
+    boost::python::throw_error_already_set();
+  }
+
+  PyErr_SetString(PyExc_AttributeError, ("Component " + comp.uri().path() + " has no basic option " + attr).c_str());
+  boost::python::throw_error_already_set();
 }
 
 /// Override for getattr to get basic options and sub-components
@@ -294,7 +298,41 @@ boost::python::object component_getattr(ComponentWrapper& self, const std::strin
   if(is_not_null(child_comp) && child_comp->has_tag("basic"))
     return wrap_component(child_comp);
 
-  throw common::ValueNotFound(FromHere(), "Attribute " + attr + " does not exist as either a basic option or a basic component for object at " + comp.uri().path());
+  PyErr_SetString(PyExc_AttributeError, ("Attribute " + attr + " does not exist as either a basic option or a basic component for object at " + comp.uri().path()).c_str());
+  boost::python::throw_error_already_set();
+  return boost::python::object();
+}
+
+/// Report our custom attributes in __dir__
+boost::python::object component_dir(ComponentWrapper& self)
+{
+  const common::Component& comp = self.component();
+  boost::python::list result;
+
+  // Add signals
+  BOOST_FOREACH(common::SignalPtr signal, comp.signal_list())
+  {
+    if(signal->name() != "create_component")
+      result.append(signal->name());
+  }
+
+  // Add basic options
+  for(common::OptionList::OptionStorage_t::const_iterator option_it = comp.options().begin(); option_it != comp.options().end(); ++option_it)
+  {
+    if(option_it->second->has_tag("basic"))
+      result.append(option_it->first);
+  }
+
+  // Add basic components
+  BOOST_FOREACH(const common::Component& child, comp)
+  {
+    if(child.has_tag("basic") && !result.contains(child.name()))
+    {
+      result.append(child.name());
+    }
+  }
+
+  return result;
 }
 
 std::string name(ComponentWrapper& self)
@@ -534,7 +572,8 @@ void def_component()
     .def("__eq__", is_equal)
     .def("__ne__", is_not_equal)
     .def("__setattr__", component_setattr)
-    .def("__getattr__", component_getattr);
+    .def("__getattr__", component_getattr)
+    .def("__dir__", component_dir);
 
   boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
     .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())
