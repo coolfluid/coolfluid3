@@ -68,3 +68,18 @@ if opts01.string != 'easy_set':
 
 opts01.const_component = root
 check_option(opts01, 'const_component', root)
+
+print '########################### Checking access through options attribute ##########################'
+
+opts01.options.generic_component_vector = [testgen, opts01]
+opts01.options['string_vector'] = ['f', 'g']
+check_option(opts01, 'generic_component_vector', [testgen, opts01])
+check_option(opts01, 'string_vector', ['f', 'g'])
+
+print '############## Access methods demo #############'
+
+print opts01.string # Only valid for basic options
+print opts01.options.string
+print opts01.options['string']
+print opts01.options().string
+print opts01.options()['string']

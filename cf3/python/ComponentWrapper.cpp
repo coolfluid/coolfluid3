@@ -432,100 +432,247 @@ boost::python::object component_mark_basic(ComponentWrapper& self)
 
 //////////////////// OptionList ///////////////////////////////////////////////////////////////
 
-common::OptionList* options(ComponentWrapper& self)
+struct OptionListWrapper
 {
-  return &self.component().options();
-}
-
-common::OptionList* set(common::OptionList* self, const std::string& optname, const boost::python::object& val)
-{
-  cf3_assert(is_not_null(self));
-  common::Option& option = self->option(optname);
-  option.change_value(python_to_any(val));
-  return self;
-}
-
-std::string option_value_str(const common::OptionList* self, const std::string& optname)
-{
-  cf3_assert(is_not_null(self));
-  return self->option(optname).value_str();
-}
-
-boost::python::object option_get_item(const common::OptionList* self, const std::string& optname){
-  return any_to_python(self->operator [](optname).value());
-}
-
-// Function for __set_item__ must not return anything
-void option_set_item(common::OptionList* self, const std::string& optname, const boost::python::object& val)
-{
-  set(self, optname, val);
-}
-
-boost::python::list option_keys(const common::OptionList* self){
-  boost::python::list list;
-  common::OptionList::const_iterator it=self->begin();
-  for (;it!=self->end();it++){
-    list.append(boost::python::str(it->first.c_str()));
+  OptionListWrapper(const ComponentWrapper& comp_wrapper) : wrapped_component(comp_wrapper)
+  {
   }
-  return list;
-}
-
-
-boost::python::dict option_dict(const common::OptionList* self){
-  boost::python::dict dict;
-  common::OptionList::const_iterator it=self->begin();
-  for (;it!=self->end();it++){
-    dict[boost::python::str(it->first.c_str())]=any_to_python(self->operator [](it->first).value());
+  
+  ComponentWrapper wrapped_component;
+  
+  static OptionListWrapper call(OptionListWrapper& self)
+  {
+    return self;
   }
-  return dict;
+  
+  static OptionListWrapper set(OptionListWrapper& self, const std::string& optname, const boost::python::object& val)
+  {
+    common::Option& option = self.wrapped_component.component().options().option(optname);
+    option.change_value(python_to_any(val));
+    return self;
+  }
+  
+  static boost::python::object get_item(OptionListWrapper& self, const std::string& optname)
+  {
+    return any_to_python(self.wrapped_component.component().options().option(optname).value());
+  }
+  
+  // Function for __set_item__ must not return anything
+  static void set_item(OptionListWrapper& self, const std::string& optname, const boost::python::object& val)
+  {
+    set(self, optname, val);
+  }
+  
+  static boost::python::list keys(OptionListWrapper& self)
+  {
+    common::OptionList& opt_list = self.wrapped_component.component().options();
+    boost::python::list list;
+    common::OptionList::const_iterator it=opt_list.begin();
+    for (;it!=opt_list.end();it++)
+    {
+      list.append(boost::python::str(it->first.c_str()));
+    }
+    return list;
+  }
+  
+  static boost::python::dict dict(OptionListWrapper& self)
+  {
+    common::OptionList& opt_list = self.wrapped_component.component().options();
+    boost::python::dict dict;
+    common::OptionList::const_iterator it=opt_list.begin();
+    for (;it!=opt_list.end();it++){
+      dict[boost::python::str(it->first.c_str())]=any_to_python(opt_list.operator[](it->first).value());
+    }
+    return dict;
+  }
+  
+  static boost::python::object getattr(OptionListWrapper& self, const std::string& attr)
+  {
+    common::Component& comp = self.wrapped_component.component();
+    if(comp.options().check(attr))
+    {
+      return any_to_python(comp.options().option(attr).value());
+    }
+    
+    PyErr_SetString(PyExc_AttributeError, (attr + " is not an option of " + comp.uri().path()).c_str());
+    boost::python::throw_error_already_set();
+    return boost::python::object();
+  }
+  
+  static void setattr(OptionListWrapper& self, const std::string attr, const boost::python::object& value)
+  {
+    common::Component& comp = self.wrapped_component.component();
+
+    if(comp.options().check(attr))
+    {
+      comp.options().set(attr, python_to_any(value));
+      return;
+    }
+    
+    PyErr_SetString(PyExc_AttributeError, (attr + " is not an option of " + comp.uri().path()).c_str());
+    boost::python::throw_error_already_set();
+  }
+};
+
+OptionListWrapper component_options(ComponentWrapper& self)
+{
+  return OptionListWrapper(self);
 }
 
 //////////////////// PropertyList /////////////////////////////////////////////////////////////
 
-common::PropertyList* properties(ComponentWrapper& self)
+struct PropertyListWrapper
 {
-  return &self.component().properties();
-}
-
-Uint properties_get_len(common::PropertyList* self)
-{
-  return self->store.size();
-}
-
-boost::python::object properties_get_item(common::PropertyList* self, const std::string& name)
-{
-  return any_to_python(self->property(name));
-}
-
-void properties_set_item(common::PropertyList* self, const std::string& name, const boost::python::object& val)
-{
-  if (self->check(name)){
-    self->property(name)=python_to_any(val);
+  PropertyListWrapper(const ComponentWrapper& comp_wrapper) : wrapped_component(comp_wrapper)
+  {
   }
-}
+  
+  ComponentWrapper wrapped_component;
+  
+  static PropertyListWrapper call(PropertyListWrapper& self)
+  {
+    return self;
+  }
+  
+  static void set_item(PropertyListWrapper& self, const std::string& propname, const boost::python::object& val)
+  {
+    self.wrapped_component.component().properties().set( propname, python_to_any(val));
+  }
+  
+  static boost::python::object get_item(PropertyListWrapper& self, const std::string& propname)
+  {
+    return any_to_python(self.wrapped_component.component().properties().property( propname ));
+  }
+  
+  static boost::python::list keys(PropertyListWrapper& self)
+  {
+    common::PropertyList& prop_list = self.wrapped_component.component().properties();
+    boost::python::list list;
+    common::PropertyList::const_iterator it=prop_list.begin();
+    for (;it!=prop_list.end();it++)
+    {
+      list.append(boost::python::str(it->first.c_str()));
+    }
+    return list;
+  }
+  
+  static boost::python::dict dict(PropertyListWrapper& self)
+  {
+    common::PropertyList& prop_list = self.wrapped_component.component().properties();
+    boost::python::dict dict;
+    common::PropertyList::const_iterator it=prop_list.begin();
+    for (;it!=prop_list.end();it++){
+      dict[boost::python::str(it->first.c_str())]=any_to_python( prop_list.property(it->first));
+    }
+    return dict;
+  }
+  
+  static Uint len(PropertyListWrapper& self)
+  {
+    return self.wrapped_component.component().properties().store.size();
+  }
+  
+  static void add(PropertyListWrapper& self, const std::string& name, const boost::python::object& val)
+  {
+    self.wrapped_component.component().properties().add(name, python_to_any(val));
+  }
+  
+  static boost::python::object getattr(PropertyListWrapper& self, const std::string& attr)
+  {
+    common::Component& comp = self.wrapped_component.component();
+    if(comp.properties().check(attr))
+    {
+      return any_to_python(comp.properties().property(attr));
+    }
+    
+    PyErr_SetString(PyExc_AttributeError, (attr + " is not a property of " + comp.uri().path()).c_str());
+    boost::python::throw_error_already_set();
+    return boost::python::object();
+  }
+  
+  static void setattr(PropertyListWrapper& self, const std::string attr, const boost::python::object& value)
+  {
+    common::Component& comp = self.wrapped_component.component();
 
-void properties_add(common::PropertyList* self, const std::string& name, const std::string& type, const boost::python::object& val)
+    if(comp.properties().check(attr))
+    {
+      comp.properties().set(attr, python_to_any(value));
+      return;
+    }
+    
+    PyErr_SetString(PyExc_AttributeError, (attr + " is not an property of " + comp.uri().path()).c_str());
+    boost::python::throw_error_already_set();
+  }
+};
+
+PropertyListWrapper component_properties(ComponentWrapper& self)
 {
-  self->add(name, python_to_any(val));
+  return PropertyListWrapper(self);
 }
 
-boost::python::list properties_keys(const common::PropertyList* self){
-  boost::python::list list;
-  common::PropertyList::const_iterator it=self->begin();
-  for (;it!=self->end();it++){
-    list.append(boost::python::str(it->first.c_str()));
-  }
-  return list;
-}
+//////////////////// Children ///////////////////////////////////////////////////////////////
 
-
-boost::python::dict properties_dict(const common::PropertyList* self){
-  boost::python::dict dict;
-  common::PropertyList::const_iterator it=self->begin();
-  for (;it!=self->end();it++){
-    dict[boost::python::str(it->first.c_str())]=any_to_python(self->property(it->first));
+struct ChildListWrapper
+{
+  ChildListWrapper(const ComponentWrapper& comp_wrapper) : wrapped_component(comp_wrapper)
+  {
   }
-  return dict;
+  
+  ComponentWrapper wrapped_component;
+  
+  static ChildListWrapper call(ChildListWrapper& self)
+  {
+    return self;
+  }
+  
+  static boost::python::object get_item(ChildListWrapper& self, const std::string& child_name)
+  {
+    return wrap_component(self.wrapped_component.component().get_child(child_name));
+  }
+  
+  static boost::python::list keys(ChildListWrapper& self)
+  {
+    boost::python::list list;
+    BOOST_FOREACH(const common::Component& comp, self.wrapped_component.component())
+    {
+      list.append(boost::python::str(comp.name()));
+    }
+    return list;
+  }
+  
+  static boost::python::dict dict(ChildListWrapper& self)
+  {
+    boost::python::dict dict;
+    BOOST_FOREACH(common::Component& comp, self.wrapped_component.component())
+    {
+      dict[boost::python::str(comp.name())] = wrap_component(comp.handle());
+    }
+    return dict;
+  }
+  
+  static boost::python::object getattr(ChildListWrapper& self, const std::string& attr)
+  {
+    common::Component& comp = self.wrapped_component.component();
+    Handle<common::Component> child = comp.get_child(attr);
+    if(is_not_null(child))
+    {
+      return wrap_component(child);
+    }
+    
+    PyErr_SetString(PyExc_AttributeError, (attr + " is not a child of " + comp.uri().path()).c_str());
+    boost::python::throw_error_already_set();
+    return boost::python::object();
+  }
+  
+  static Uint len(PropertyListWrapper& self)
+  {
+    return self.wrapped_component.component().count_children();
+  }
+};
+
+ChildListWrapper component_children(ComponentWrapper& self)
+{
+  return ChildListWrapper(self);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,8 +705,9 @@ void def_component()
     .def("access_component", access_component_uri)
     .def("access_component", access_component_str)
     .def("print_timing_tree", print_timing_tree)
-    .def("options", options, boost::python::return_value_policy<boost::python::reference_existing_object>())
-    .def("properties", properties, boost::python::return_value_policy<boost::python::reference_existing_object>())
+    .add_property("options", component_options)
+    .add_property("properties", component_properties)
+    .add_property("children", component_children)
     .def("uri", uri)
     .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
     .def("configure_option_recursively", configure_option_recursively, "Configure the given option recursively")
@@ -575,21 +723,37 @@ void def_component()
     .def("__getattr__", component_getattr)
     .def("__dir__", component_dir);
 
-  boost::python::class_<common::OptionList>("OptionList", boost::python::no_init)
-    .def("set", set, boost::python::return_value_policy<boost::python::reference_existing_object>())
-    .def("as_str", option_value_str, "String value for an option")
-    .def("__getitem__", option_get_item, "")
-    .def("__setitem__", option_set_item, "")
-    .def("keys", option_keys, "")
-    .def("dict", option_dict, "");
+  boost::python::class_<OptionListWrapper>("OptionList", boost::python::no_init)
+    .def("__call__", OptionListWrapper::call) // This makes sure we can use the option list as both a property and a function
+    .def("set", OptionListWrapper::set)
+    .def("__getitem__", OptionListWrapper::get_item, "")
+    .def("__setitem__", OptionListWrapper::set_item, "")
+    .def("keys", OptionListWrapper::keys, "")
+    .def("dict", OptionListWrapper::dict, "")
+    .def("__setattr__", OptionListWrapper::setattr)
+    .def("__getattr__", OptionListWrapper::getattr)
+    .def("__dir__", OptionListWrapper::keys);
 
-  boost::python::class_<common::PropertyList>("PropertyList", boost::python::no_init)
-    .def("__len__", properties_get_len)
-    .def("__getitem__", properties_get_item)
-    .def("__setitem__", properties_set_item, "")
-    .def("add", properties_add,"")
-    .def("keys", properties_keys, "")
-    .def("dict", properties_dict, "");
+  boost::python::class_<PropertyListWrapper>("PropertyList", boost::python::no_init)
+    .def("__call__", PropertyListWrapper::call)
+    .def("__len__", PropertyListWrapper::len)
+    .def("__getitem__", PropertyListWrapper::get_item)
+    .def("__setitem__", PropertyListWrapper::set_item, "")
+    .def("add", PropertyListWrapper::add,"")
+    .def("keys", PropertyListWrapper::keys, "")
+    .def("dict", PropertyListWrapper::dict, "")
+    .def("__setattr__", PropertyListWrapper::setattr)
+    .def("__getattr__", PropertyListWrapper::getattr)
+    .def("__dir__", PropertyListWrapper::keys);
+    
+  boost::python::class_<ChildListWrapper>("ChildList", boost::python::no_init)
+    .def("__call__", ChildListWrapper::call)
+    .def("__len__", ChildListWrapper::len)
+    .def("__getitem__", ChildListWrapper::get_item)
+    .def("keys", ChildListWrapper::keys, "")
+    .def("dict", ChildListWrapper::dict, "")
+    .def("__getattr__", ChildListWrapper::getattr)
+    .def("__dir__", ChildListWrapper::keys);
 
   boost::python::class_<common::UUCount>("UUCount", boost::python::no_init)
     .def("__str__", uucount_str)

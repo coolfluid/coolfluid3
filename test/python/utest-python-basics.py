@@ -10,11 +10,11 @@ env.options().set('exception_log_level', 0)
 env.options().set('log_level', 4)
 env.options().set('exception_outputs', False)
 
-cf_check(env.options().as_str('log_level') == '4','Failed to set the log level at 4')
+cf_check(env.log_level == 4,'Failed to set the log level at 4')
 #print env.options().value_str('log_level')
 
 journal = root.create_component("journal", "cf3.common.Journal")
-cf_check(journal.options().as_str("RecordReplies") == 'false','RecordReplies of the journal is not false')
+cf_check(journal.options.RecordReplies == False,'RecordReplies of the journal is not false')
 #print journal.options().value_str("RecordReplies")
 
 
