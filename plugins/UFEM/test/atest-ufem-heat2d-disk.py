@@ -2,7 +2,12 @@ import sys
 import coolfluid as cf
 
 # Global configuration
-cf.Core.environment().options().set('log_level', 4)
+cf.environment.assertion_backtrace = False
+cf.environment.exception_backtrace = False
+cf.environment.regist_signal_handlers = False
+cf.environment.exception_log_level = 0
+cf.environment.log_level = 1
+cf.environment.exception_outputs = False
 
 # setup a model
 model = cf.Core.root().create_component('HotModel', 'cf3.solver.Model')
@@ -13,15 +18,15 @@ hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
 
 # load the mesh (passed as first argument to the script)
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
-hc.options().set('regions', [mesh.access_component('topology').uri()])
+hc.regions = [mesh.topology.uri()]
 # lss setup
 lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.get_child('Matrix').options().set('settings_file', sys.argv[2]);
+lss.Matrix.settings_file = sys.argv[2];
 
 # Boundary conditions
-bc = hc.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inner', variable_name = 'Temperature').options().set('value', 10)
-bc.add_constant_bc(region_name = 'outer', variable_name = 'Temperature').options().set('value', 35)
+bc = hc.BoundaryConditions
+bc.add_constant_bc(region_name = 'inner', variable_name = 'Temperature').value = 10
+bc.add_constant_bc(region_name = 'outer', variable_name = 'Temperature').value = 35
 
 # run the simulation
 model.simulate()

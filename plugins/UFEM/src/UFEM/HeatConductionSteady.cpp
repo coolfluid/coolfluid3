@@ -31,14 +31,14 @@ ComponentBuilder < HeatConductionSteady, LSSAction, LibUFEM > HeatConductionStea
 HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(name)
 {
   set_solution_tag("heat_conduction_solution");
-  
+
   MeshTerm<0, ScalarField> temperature("Temperature", solution_tag());
   MeshTerm<1, ScalarField> heat("Heat", Tags::source_terms());
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
 
   create_component<ZeroLSS>("ZeroLSS");
-  
+
   *this <<                                                                                          // The linear problem (= inner loop, but executed once here)
     create_proto_action("Assembly", elements_expression                                             // Assembly action added to linear problem
     (
@@ -57,8 +57,9 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
     << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
     << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
     << create_proto_action("SetSolution", nodes_expression(temperature += solution(temperature)));     // Set the solution
-    
+
   Handle<BoundaryConditions>(get_child("BoundaryConditions"))->set_solution_tag(solution_tag());
+  get_child("BoundaryConditions")->mark_basic();
 }
 
 

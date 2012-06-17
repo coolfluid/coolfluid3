@@ -88,6 +88,7 @@ public:
       common::Option& option = options.check(name) ? options.option(name) : options.add(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
+      option.mark_basic();
     }
 
     // Add vector options
@@ -108,6 +109,7 @@ public:
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
+      option.mark_basic();
     }
   }
 

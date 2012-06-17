@@ -61,7 +61,7 @@ TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
   m_converted_indices(0),
   m_comm(common::PE::Comm::instance().communicator())
 {
-  options().add( "settings_file", "trilinos_settings.xml" );
+  options().add( "settings_file", "trilinos_settings.xml" ).mark_basic();
   properties().add("vector_type", std::string("cf3.math.LSS.TrilinosVector"));
 }
 

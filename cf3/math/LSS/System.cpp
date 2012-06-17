@@ -89,6 +89,10 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
   m_rhs->create(cp,neq);
   m_sol->create(cp,neq);
   m_mat->create(cp,neq,node_connectivity,starting_indices,*m_sol,*m_rhs);
+
+  m_rhs->mark_basic();
+  m_sol->mark_basic();
+  m_mat->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +115,10 @@ void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDes
   m_rhs->create_blocked(cp,vars);
   m_sol->create_blocked(cp,vars);
   m_mat->create_blocked(cp,vars,node_connectivity,starting_indices,*m_sol,*m_rhs);
+
+  m_rhs->mark_basic();
+  m_sol->mark_basic();
+  m_mat->mark_basic();
 }
 
 
