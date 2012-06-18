@@ -33,6 +33,5 @@ endif()
 
 if( NOT coolfluid_git_revision_sha )
   set(coolfluid_git_revision_sha "NOTFOUND")
-  set(coolfluid_git_revision_date "NOTFOUND")
+  set(coolfluid_git_revision_date "\"NOTFOUND\"")
 endif()
-
