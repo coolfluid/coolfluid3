@@ -1741,6 +1741,8 @@ void BlockArrays::create_mesh(Mesh& mesh)
     element_offset += nb_elems;
   }
 
+  mesh.update_structures();
+
   const Uint overlap = options().value<Uint>("overlap");
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
