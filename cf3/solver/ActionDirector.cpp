@@ -59,7 +59,8 @@ ActionDirector::ActionDirector ( const std::string& name ) :
   options().add(Tags::regions(), dummy)
       .description("Regions this action is applied to")
       .pretty_name("Regions")
-      .attach_trigger ( boost::bind ( &ActionDirector::config_regions,   this ) );
+      .attach_trigger ( boost::bind ( &ActionDirector::config_regions,   this ) )
+      .mark_basic();
 }
 
 ActionDirector::~ActionDirector() {}

@@ -94,17 +94,17 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     .pretty_name("SA_constant_sigma")
     .link_to(&sigma);
 
-  options().add("SA_constant_r", 1)
+  options().add("SA_constant_r", 1.)
     .description("SA_constant_r")
     .pretty_name("SA_constant_r")
     .link_to(&r);
 
-  options().add("SA_constant_g", 1)
+  options().add("SA_constant_g", 1.)
     .description("SA_constant_g")
     .pretty_name("SA_constant_g")
     .link_to(&g);
 
-  options().add("SA_constant_d", 1)
+  options().add("SA_constant_d", 1.)
     .description("SA_constant_d")
     .pretty_name("SA_constant_d")
     .link_to(&d);
@@ -161,6 +161,12 @@ void SpalartAllmaras::trigger_physical_model()
 {
   dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_coeffs);
 }
+
+void SpalartAllmaras::on_initial_conditions_set(InitialConditions& initial_conditions)
+{
+  initial_conditions.create_initial_condition(solution_tag());
+}
+
 
 } // UFEM
 } // cf3

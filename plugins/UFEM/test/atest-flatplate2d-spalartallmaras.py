@@ -98,39 +98,28 @@ top_patch[2] = [11, 4]
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
+nstokes.regions = [mesh.topology.uri()]
+satm.regions = [mesh.topology.uri()]
+
 # LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
+ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 #LSS for Spalart-Allmaras turbulence model
-satm_lss = satm.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
+satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 satm_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-
-nstokes.options().set('disabled_actions', ['SolveLSS'])
 
 u_in = [0.5, 0.]
 u_wall = [0., 0.]
 NU_in = 0.001
 
-# Add initial conditions for the Navier-Stokes solver, which uses 'solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('solution')
-# Initial advection velocity and its previous values, using linearized_velocity as tag
-ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
-# Initial conditions for the scalar advection solver
-ic_NU = ic.create_initial_condition('spalart_allmaras_solution')
-
 #initial conditions
-ic_ns.options().set('Velocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity3', u_in)
-ic_NU.options().set('TurbulentViscosity', NU_in)
+ic.navier_stokes_solution.Velocity = u_in
+ic.spalart_allmaras_solution.TurbulentViscosity = NU_in
 
 #properties for Navier-Stokes
-physics.options().set('density', 1.2)
-physics.options().set('dynamic_viscosity', 1.7894e-5)
-physics.options().set('reference_velocity', u_in[0])
-#scalaradv.options().set('scalar_coefficient', 1.)
+physics.density = 1.2
+physics.dynamic_viscosity = 1.7894e-5
+physics.reference_velocity = u_in[0]
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
@@ -154,7 +143,7 @@ time = model.create_time()
 time.options().set('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 1.
+final_end_time = 0.1
 save_interval = 0.1
 current_end_time = 0.
 iteration = 0

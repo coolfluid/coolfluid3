@@ -8,11 +8,11 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-env.options().set('assertion_throws', False)
-env.options().set('assertion_backtrace', False)
-env.options().set('exception_backtrace', False)
-env.options().set('regist_signal_handlers', False)
-env.options().set('log_level', 4)
+env.assertion_throws = False
+env.assertion_backtrace = False
+env.exception_backtrace = False
+env.regist_signal_handlers = False
+env.log_level = 4
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -158,19 +158,16 @@ ic_phi.options().set('regions', [mesh.access_component('topology').uri()])
 ic_hc.options().set('regions', [mesh.access_component('topology').uri()])
 
 #initial conditions
-ic_ns.options().set('Velocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity3', u_in)
-ic_phi.options().set('Tadv', phi_wall)
-ic_hc.options().set('Tcond', phi_wall)
+solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+
+solver.InitialConditions.scalar_advection_solution.Scalar = phi_wall
+solver.InitialConditions.heat_conduction_solution.Temperature = phi_wall
 
 #properties for Navier-Stokes
-physics.options().set('density', 1.2)
-physics.options().set('dynamic_viscosity', 1.7894e-5)
-physics.options().set('reference_velocity', u_in[0])
-scalaradv.options().set('scalar_coefficient', 1.)
+physics.density = 1.2
+physics.dynamic_viscosity = 1.7894e-5
+physics.reference_velocity = u_in[0]
+scalaradv.scalar_coefficient = 1.
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
@@ -213,7 +210,7 @@ while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-' +str(iteration) + '.msh'))
+  domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

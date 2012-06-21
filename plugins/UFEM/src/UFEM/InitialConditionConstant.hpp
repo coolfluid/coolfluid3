@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_InitialCondition_hpp
-#define cf3_UFEM_InitialCondition_hpp
+#ifndef cf3_UFEM_InitialConditionConstant_hpp
+#define cf3_UFEM_InitialConditionConstant_hpp
 
 
 #include "solver/Action.hpp"
@@ -16,20 +16,20 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// InitialCondition for UFEM problems
-class UFEM_API InitialCondition : public solver::Action
+/// InitialConditionConstant for UFEM problems, setting variables to a constant value
+class UFEM_API InitialConditionConstant : public solver::Action
 {
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  InitialCondition ( const std::string& name );
+  InitialConditionConstant ( const std::string& name );
 
-  virtual ~InitialCondition();
+  virtual ~InitialConditionConstant();
 
   /// Get the class name
-  static std::string type_name () { return "InitialCondition"; }
+  static std::string type_name () { return "InitialConditionConstant"; }
 
   /// Execute the initial condition
   virtual void execute();
@@ -45,4 +45,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_InitialCondition_hpp
+#endif // cf3_UFEM_InitialConditionConstant_hpp

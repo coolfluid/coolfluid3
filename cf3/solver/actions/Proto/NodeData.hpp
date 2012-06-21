@@ -13,6 +13,7 @@
 #include <boost/mpl/range_c.hpp>
 
 #include "common/FindComponents.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -95,7 +96,8 @@ struct NodeVarData< ScalarField >
   static const Uint dimension = 1;
 
   NodeVarData(const ScalarField& placeholder, mesh::Region& region) :
-    m_field(find_field(region, placeholder.field_tag()))
+    m_field(find_field(region, placeholder.field_tag())),
+    m_need_synchronization(false)
   {
     const math::VariablesDescriptor& descriptor = m_field.descriptor();
     m_var_begin = descriptor.offset(placeholder.name());
@@ -105,6 +107,14 @@ struct NodeVarData< ScalarField >
 
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
+  }
+  
+  ~NodeVarData()
+  {
+    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    {
+      m_field.synchronize();
+    }
   }
 
   void set_node(const Uint idx)
@@ -125,18 +135,21 @@ struct NodeVarData< ScalarField >
   /// Sets value
   void set_value(boost::proto::tag::assign, const Real v)
   {
+    m_need_synchronization = true;
     m_value = v;
     m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::plus_assign, const Real v)
   {
+    m_need_synchronization = true;
     m_value += v;
     m_field[m_idx][m_var_begin] = m_value;
   }
 
   void set_value(boost::proto::tag::minus_assign, const Real v)
   {
+    m_need_synchronization = true;
     m_value -= v;
     m_field[m_idx][m_var_begin] = m_value;
   }
@@ -152,6 +165,7 @@ private:
   Uint m_var_begin;
   Uint m_idx;
   Real m_value;
+  bool m_need_synchronization;
 };
 
 template<Uint Dim>
@@ -165,7 +179,8 @@ struct NodeVarData<VectorField, Dim>
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   NodeVarData(const VectorField& placeholder, mesh::Region& region) :
-    m_field( find_field(region, placeholder.field_tag()) )
+    m_field( find_field(region, placeholder.field_tag()) ),
+    m_need_synchronization(false)
   {
     const math::VariablesDescriptor& descriptor = m_field.descriptor();
     m_var_begin = descriptor.offset(placeholder.name());
@@ -175,6 +190,14 @@ struct NodeVarData<VectorField, Dim>
 
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
+  }
+  
+  ~NodeVarData()
+  {
+    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    {
+      m_field.synchronize();
+    }
   }
 
   void set_node(const Uint idx)
@@ -194,6 +217,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::assign, const VectorT& v)
   {
+    m_need_synchronization = true;
     m_value = v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] = v[i];
@@ -202,6 +226,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::plus_assign, const VectorT& v)
   {
+    m_need_synchronization = true;
     m_value += v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] += v[i];
@@ -210,6 +235,7 @@ struct NodeVarData<VectorField, Dim>
   template<typename VectorT>
   void set_value(boost::proto::tag::minus_assign, const VectorT& v)
   {
+    m_need_synchronization = true;
     m_value -= v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
@@ -226,6 +252,7 @@ private:
   Uint m_var_begin;
   ValueT m_value;
   Uint m_idx;
+  bool m_need_synchronization;
 };
 
 /// MPL transform operator to wrap a variable in its data type
@@ -406,62 +433,6 @@ private:
     const Uint node_idx;
   };
 };
-
-/// Creates a list of unique nodes in the region
-inline void make_node_list(const mesh::Region& region, const common::Table<Real>& coordinates, std::vector<Uint>& nodes)
-{
-  std::vector<bool> node_is_used(coordinates.size(), false);
-
-  // First count the number of unique nodes
-  Uint nb_nodes = 0;
-  BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
-  {
-    const common::Table<Uint>& conn_tbl = elements.geometry_space().connectivity();
-    const Uint nb_elems = conn_tbl.size();
-    const Uint nb_elem_nodes = conn_tbl.row_size();
-
-    for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
-    {
-      const common::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
-      for(Uint node_idx = 0; node_idx != nb_elem_nodes; ++node_idx)
-      {
-        const Uint node = row[node_idx];
-        if(!node_is_used[node])
-        {
-          node_is_used[node] = true;
-          ++nb_nodes;
-        }
-      }
-    }
-  }
-
-  // reserve space for all unique nodes
-  nodes.clear();
-  nodes.reserve(nb_nodes);
-
-  // Add the unique node indices
-  node_is_used.assign(coordinates.size(), false);
-  BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
-  {
-    const common::Table<Uint>& conn_tbl = elements.geometry_space().connectivity();
-    const Uint nb_elems = conn_tbl.size();
-    const Uint nb_nodes = conn_tbl.row_size();
-
-    for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
-    {
-      const common::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
-      for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
-      {
-        const Uint node = row[node_idx];
-        if(!node_is_used[node])
-        {
-          node_is_used[node] = true;
-          nodes.push_back(node);
-        }
-      }
-    }
-  }
-}
 
 } // namespace Proto
 } // namespace actions
