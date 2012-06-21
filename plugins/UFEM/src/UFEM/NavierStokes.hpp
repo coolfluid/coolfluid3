@@ -36,18 +36,30 @@ public: // functions
   /// @param name of the component
   NavierStokes ( const std::string& name );
 
+  ~NavierStokes();
+
   /// Get the class name
   static std::string type_name () { return "NavierStokes"; }
-  
+
 private:
   /// Update the copy of the physics coefficients when the physical model changes
   void trigger_physical_model();
-  
+
   /// Create the solver structure, based on the choice of specialized code
   void trigger_use_specializations();
-  
+
+  /// Called when the viscosity in the physical model is changed
+  void trigger_viscosity();
+
+  virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
+
   /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;
+
+  /// Initial condition for the viscosity. This is linked to the value given by the physical model
+  Handle<common::Action> m_viscosity_initial_condition;
+
+  common::Option::TriggerID m_viscosity_trigger_id, m_rho_trigger_id;
 };
 
 } // UFEM

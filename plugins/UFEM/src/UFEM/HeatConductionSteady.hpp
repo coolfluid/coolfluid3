@@ -20,11 +20,6 @@ namespace UFEM {
 /// Useful for i.e. linear heat conduction
 class UFEM_API HeatConductionSteady : public LSSAction
 {
-public: // typedefs
-
-
-
-
 public: // functions
 
   /// Contructor
@@ -33,6 +28,9 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "HeatConductionSteady"; }
+
+private:
+  virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 };
 
 } // UFEM

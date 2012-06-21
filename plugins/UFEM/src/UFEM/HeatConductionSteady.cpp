@@ -62,6 +62,10 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
   get_child("BoundaryConditions")->mark_basic();
 }
 
+void HeatConductionSteady::on_initial_conditions_set(InitialConditions& initial_conditions)
+{
+  initial_conditions.create_initial_condition(solution_tag());
+}
 
 
 } // UFEM

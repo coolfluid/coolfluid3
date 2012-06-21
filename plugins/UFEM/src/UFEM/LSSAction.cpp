@@ -86,6 +86,12 @@ LSSAction::LSSAction(const std::string& name) :
     .pretty_name("Dictionary")
     .description("The dictionary to use for field lookups")
     .link_to(&m_dictionary);
+
+  options().add("initial_conditions", m_initial_conditions)
+    .pretty_name("Initial Conditions")
+    .description("The component that is used to manage the initial conditions in the solver this action belongs to")
+    .link_to(&m_initial_conditions)
+    .attach_trigger(boost::bind(&LSSAction::trigger_initial_conditions, this));
 }
 
 LSSAction::~LSSAction()
@@ -135,7 +141,7 @@ void LSSAction::on_regions_set()
 {
   if(m_implementation->m_updating) // avoid recursion
     return;
-  
+
   m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
     return;
@@ -170,6 +176,12 @@ void LSSAction::on_regions_set()
     configure_option_recursively("lss", m_implementation->m_lss);
   }
 
+  // Update the regions of any owned initial conditions
+  BOOST_FOREACH(const Handle<Component>& ic, m_created_initial_conditions)
+  {
+    ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  }
+
   m_implementation->m_updating = false;
 }
 
@@ -185,6 +197,39 @@ void LSSAction::trigger_dictionary()
   }
 }
 
+void LSSAction::trigger_initial_conditions()
+{
+  if(is_null(m_initial_conditions))
+  {
+    CFwarn << "Initial conditions for " << uri().path() << " were reset to NULL" << CFendl;
+    return;
+  }
+  
+  CFdebug << "Using initial conditions " << m_initial_conditions->uri().path() << " for LSSAction " << uri().path() << CFendl;
+  
+  m_created_initial_conditions.clear();
+
+  std::set< Handle<Component> > existing_conditions;
+  BOOST_FOREACH(common::Action& ic, find_components<common::Action>(*m_initial_conditions))
+  {
+    existing_conditions.insert(ic.handle());
+  }
+  
+  // Give the concrete solver a chance to add its initial conditions
+  on_initial_conditions_set(*m_initial_conditions);
+  
+  // New initial conditions are the ones we need to track
+  BOOST_FOREACH(common::Action& ic, find_components<common::Action>(*m_initial_conditions))
+  {
+    if(!existing_conditions.count(ic.handle()))
+    {
+      m_created_initial_conditions.push_back(ic.handle());
+      CFdebug << "  added initial condition " << ic.name() << CFendl;
+    }
+  }
+}
+
+
 std::string LSSAction::solution_tag()
 {
   return properties().value<std::string>("solution_tag");
@@ -195,7 +240,9 @@ void LSSAction::set_solution_tag(const std::string& tag)
   properties().set("solution_tag", tag);
 }
 
-
+void LSSAction::on_initial_conditions_set(InitialConditions& initial_conditions)
+{
+}
 
 } // UFEM
 } // cf3
