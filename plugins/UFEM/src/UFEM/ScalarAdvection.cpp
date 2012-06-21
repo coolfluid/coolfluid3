@@ -47,7 +47,8 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
   options().add("scalar_coefficient", 1.)
     .description("Scalar coefficient ")
     .pretty_name("Scalar coefficient")
-    .link_to(&m_alpha);
+    .link_to(&m_alpha)
+    .mark_basic();
 
   options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&ScalarAdvection::trigger_physical_model, this));
 
@@ -76,7 +77,7 @@ void ScalarAdvection::trigger_scalar_name()
     if(is_not_null(m_physical_model->variable_manager().get_child(solution_tag())))
       m_physical_model->variable_manager().remove_component(solution_tag());
   }
-  
+
   // The code will only be active for these element types
   boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
@@ -114,6 +115,12 @@ void ScalarAdvection::trigger_physical_model()
 {
   dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_coeffs);
 }
+
+void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
+{
+  initial_conditions.create_initial_condition(solution_tag());
+}
+
 
 } // UFEM
 } // cf3

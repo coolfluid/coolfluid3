@@ -112,20 +112,9 @@ u_wall = [0., 0.]
 phi_in = 100
 phi_wall = 200
 
-# Add initial conditions for the Navier-Stokes solver, which uses 'navier_stokes_solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('navier_stokes_solution')
-# Initial advection velocity and its previous values, using linearized_velocity as tag
-ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
-# Initial conditions for the scalar advection solver
-ic_phi = ic.create_initial_condition('scalar_advection_solution')
-
 #initial conditions
-ic_ns.options().set('Velocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().set('AdvectionVelocity3', u_in)
-ic_phi.options().set('Scalar', phi_in)
+ic.navier_stokes_solution.Velocity = u_in
+ic.scalar_advection_solution.Scalar = phi_in
 
 #properties for Navier-Stokes
 physics.options().set('density', 1.2)

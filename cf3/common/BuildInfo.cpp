@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "coolfluid-config.hpp"
+#include "coolfluid-git-revision.hpp"
 
 #include <sstream>
 

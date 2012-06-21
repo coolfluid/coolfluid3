@@ -75,25 +75,19 @@ Solver::~Solver()
 
 Handle< common::Action > Solver::add_direct_solver(const std::string& builder_name)
 {
-  if(is_null(get_child("InitialConditions")))
+  if(is_null(m_initial_conditions))
   {
-    create_component<InitialConditions>("InitialConditions");
+    create_initial_conditions();
   }
 
-  std::vector<std::string> builder_parts;
-  boost::split(builder_parts, builder_name, boost::is_any_of("."));
-  Handle<common::Action> result(create_component(builder_parts.back(), builder_name));
-
-  if(is_not_null(m_physics))
-    configure_option_recursively(solver::Tags::physical_model(), m_physics);
-  return result;
+  return add_solver(builder_name, *this);
 }
 
 Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_name)
 {
-  if(is_null(get_child("InitialConditions")))
+  if(is_null(m_initial_conditions))
   {
-    create_component<InitialConditions>("InitialConditions");
+    create_initial_conditions();
   }
 
   Handle<Component> timeloop = get_child("TimeLoop");
@@ -107,31 +101,28 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
     timeloop->remove_component("AdvanceTime");
   }
 
-  std::vector<std::string> builder_parts;
-  boost::split(builder_parts, builder_name, boost::is_any_of("."));
-  Handle< common::Action > result(timeloop->create_component(builder_parts.back(), builder_name));
+  Handle<common::Action> result = add_solver(builder_name, *timeloop);
 
   timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
 
-  if(is_not_null(m_physics))
-    configure_option_recursively(solver::Tags::physical_model(), m_physics);
   return result;
 }
 
-Handle< common::ActionDirector > Solver::create_initial_conditions()
+Handle<InitialConditions> Solver::create_initial_conditions()
 {
-  Handle<common::ActionDirector> result(get_child("InitialConditions"));
-  if(is_not_null(result))
+  if(is_not_null(m_initial_conditions))
   {
     CFwarn << "InitialConditions were created already, returning handle to previously created component" << CFendl;
-    return result;
+    return m_initial_conditions;
   }
 
-  result = create_component<InitialConditions>("InitialConditions");
+  m_initial_conditions = create_component<InitialConditions>("InitialConditions");
   if(is_not_null(m_physics))
-    result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
+    m_initial_conditions->configure_option_recursively(solver::Tags::physical_model(), m_physics);
 
-  return result;
+  m_initial_conditions->mark_basic();
+
+  return m_initial_conditions;
 }
 
 void Solver::signature_add_solver(SignalArgs& args)
@@ -195,6 +186,16 @@ void Solver::create_fields()
 {
   if(is_null(m_mesh))
     return;
+  
+  // Reset comm patterns in case they became invalid
+  BOOST_FOREACH(Dictionary& dict, find_components_recursively<Dictionary>(*m_mesh))
+  {
+    if(is_not_null(dict.get_child("CommPattern")))
+    {
+      dict.remove_component("CommPattern");
+    }
+  }
+  
   // Find out what tags are used
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
@@ -257,12 +258,6 @@ void Solver::create_fields()
 
     cf3_assert(is_not_null(dict));
 
-    // Reset the comm pattern, since GIDs may have changed
-    if(is_not_null(dict->get_child("CommPattern")))
-    {
-      dict->remove_component("CommPattern");
-    }
-
     Handle< Field > field = find_component_ptr_with_tag<Field>(*dict, tag);
 
     // Create the field
@@ -273,15 +268,29 @@ void Solver::create_fields()
     // Parallelize
     if(common::PE::Comm::instance().is_active())
     {
+      CFdebug << "parallelizing field " << field->uri().path() << CFendl;
       field->parallelize_with(dict->comm_pattern());
     }
   }
 
-  // Set the region of all children to the root region of the mesh
-  std::vector<URI> root_regions;
-  root_regions.push_back(mesh().topology().uri());
+  // Set the field lookup dict for all subcomponents
   configure_option_recursively("dictionary", mesh().geometry_fields().handle<Dictionary>());
 }
+
+Handle< common::Action > Solver::add_solver(const std::string& builder_name, Component& parent)
+{
+  std::vector<std::string> builder_parts;
+  boost::split(builder_parts, builder_name, boost::is_any_of("."));
+  Handle< common::Action > result(parent.create_component(builder_parts.back(), builder_name));
+
+  if(is_not_null(m_physics))
+    result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
+
+  result->configure_option_recursively("initial_conditions", m_initial_conditions);
+
+  return result;
+}
+
 
 
 } // UFEM

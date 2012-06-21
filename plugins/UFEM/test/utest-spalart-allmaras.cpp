@@ -268,12 +268,14 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   create_line->options().set("lengths",std::vector<Real>(DIM_1D, length));
   create_line->options().set("nb_cells",std::vector<Uint>(DIM_1D, nb_segments));
   Mesh& mesh = create_line->generate();
+  
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
 
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
-  bc->add_constant_bc("xneg", "Temperature", 1.);
-  bc->add_constant_bc("xpos", "Temperature", 0.);
+  bc->add_constant_bc("xneg", "turbulentViscosity", 1.);
+  bc->add_constant_bc("xpos", "turbulentViscosity", 0.);
 
   // Configure timings
   Time& time = model.create_time();

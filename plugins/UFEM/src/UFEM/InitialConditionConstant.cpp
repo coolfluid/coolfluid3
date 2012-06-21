@@ -30,7 +30,7 @@
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/NodeLooper.hpp"
 
-#include "InitialCondition.hpp"
+#include "InitialConditionConstant.hpp"
 #include "ParsedFunctionExpression.hpp"
 #include "Tags.hpp"
 
@@ -47,24 +47,24 @@ using namespace solver::actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < InitialCondition, common::Action, LibUFEM > InitialCondition_Builder;
+common::ComponentBuilder < InitialConditionConstant, common::Action, LibUFEM > InitialConditionConstant_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-InitialCondition::InitialCondition(const std::string& name) : solver::Action(name)
+InitialConditionConstant::InitialConditionConstant(const std::string& name) : solver::Action(name)
 {
   options().add("field_tag", "")
     .pretty_name("Field Tag")
     .description("Tag for the field in which the initial conditions will be set")
-    .attach_trigger(boost::bind(&InitialCondition::trigger_tag, this));
+    .attach_trigger(boost::bind(&InitialConditionConstant::trigger_tag, this));
 }
 
-InitialCondition::~InitialCondition()
+InitialConditionConstant::~InitialConditionConstant()
 {
 }
 
 
-void InitialCondition::trigger_tag()
+void InitialConditionConstant::trigger_tag()
 {
   const std::string field_tag = options().value<std::string>("field_tag");
   if(field_tag.empty())
@@ -86,27 +86,27 @@ void InitialCondition::trigger_tag()
     m_variable_options.push_back(var_name);
     if(descriptor.var_length(i) == 1)
     {
-      options().add(var_name, 0.).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, 0.).description(std::string("Initial condition for variable " + var_name)).mark_basic();
     }
     else
     {
-      options().add(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name));
+      options().add(var_name, std::vector<Real>()).description(std::string("Initial condition for variable " + var_name)).mark_basic();
     }
   }
 }
 
-void InitialCondition::execute()
+void InitialConditionConstant::execute()
 {
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
-  
+
   const std::string field_tag = options().value<std::string>("field_tag");
   VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), field_tag);
 
   // Construct a vector with the values to use
   std::vector<Real> values; values.reserve(descriptor.size());
   const Uint nb_vars = m_variable_options.size();
-  CFdebug << "Using descriptor " << descriptor.description() << " for InitialCondition" << CFendl;
+  CFdebug << "Using descriptor " << descriptor.description() << " for InitialConditionConstant" << CFendl;
   cf3_assert(nb_vars == descriptor.nb_vars());
 
   for(Uint i = 0; i != nb_vars; ++i)
@@ -119,6 +119,9 @@ void InitialCondition::execute()
     else
     {
       std::vector<Real> val = opt.value< std::vector<Real> >();
+      // By default, use zero
+      if(val.empty())
+        val.resize(descriptor.var_length(i), 0.);
       cf3_assert(val.size() == descriptor.var_length(i));
       values.insert(values.end(), val.begin(), val.end());
     }
@@ -126,10 +129,20 @@ void InitialCondition::execute()
   BOOST_FOREACH(const Handle<Region>& region, m_loop_regions)
   {
     CFdebug << "  Action " << name() << ": running over region " << region->uri().path() << CFendl;
-    std::vector<Uint> nodes;
-    make_node_list(*region, common::find_parent_component<mesh::Mesh>(*region).geometry_fields().coordinates(), nodes);
+    
+    // Build a list of used entities
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*region);
+    std::vector< Handle<mesh::Entities const> > used_entities;
+    BOOST_FOREACH(const mesh::Entities& entities, common::find_components_recursively<mesh::Entities>(*region))
+    {
+      used_entities.push_back(entities.handle<mesh::Entities>());
+    }
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, mesh.geometry_fields(), true);
+
+    common::List<Uint>& nodes = *used_nodes_ptr;
+    
     Field& field = find_field(*region, field_tag);
-    BOOST_FOREACH(const Uint node, nodes)
+    BOOST_FOREACH(const Uint node, nodes.array())
     {
       field.set_row(node, values);
     }
