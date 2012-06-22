@@ -254,7 +254,7 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
   Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
 
   MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
-  result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->function() ) );
+  result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->vector_function() ) );
 
   m_implementation->configure_bc(*result, region_name);
 

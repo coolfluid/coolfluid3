@@ -21,6 +21,9 @@ solver = model.create_solver('cf3.UFEM.Solver')
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
+ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
+ic_visc.variable_name = 'EffectiveViscosity'
+
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 6)
@@ -36,8 +39,8 @@ block_nodes[0] = [0, 1, 3, 2]
 block_nodes[1] = [2, 3, 5, 4]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [10, 6]
-block_subdivs[1] = [10, 6]
+block_subdivs[0] = [40, 20]
+block_subdivs[1] = [40, 20]
 
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 1., 1.]
@@ -57,7 +60,7 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-blocks.partition_blocks(nb_partitions = 2, direction = 0)
+blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
@@ -72,6 +75,10 @@ u_in = [2., 0.]
 
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+ic_visc.value = ['10. + 2*sin(2/pi*x)']
+ic_visc.regions = [mesh.topology.uri()]
+ic_visc.execute()
+domain.write_mesh(cf.URI('laminar-channel-2d_output-init.pvtu'))
 
 # Physical constants
 physics.options().set('density', 1000.)
