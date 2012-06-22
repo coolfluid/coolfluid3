@@ -46,7 +46,6 @@ ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
 ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
 
-
 #initial conditions and properties
 physics.options().configure_option('density', 1000.)
 physics.options().configure_option('dynamic_viscosity', 10.)
@@ -68,7 +67,7 @@ time = model.create_time()
 time.options().configure_option('time_step', 0.1)
 
 # Setup a time series write
-final_end_time = 10.
+final_end_time = 1.
 save_interval = 1.
 current_end_time = 0.
 iteration = 0

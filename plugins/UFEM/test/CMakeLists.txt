@@ -84,7 +84,12 @@ coolfluid_add_test( ATEST atest-ufem-heat3d-sphere
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
                     PYTHON atest-ufem-navier-stokes-cylinder2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 4)
+                    MPI 1)
+
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d_satm
+                    PYTHON atest-ufem-navier-stokes-cylinder2d_satm.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    MPI 1)
 
 coolfluid_add_test( ATEST atest-quadtriag
                     PYTHON atest-quadtriag.py
