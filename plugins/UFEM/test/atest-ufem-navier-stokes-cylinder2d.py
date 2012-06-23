@@ -35,7 +35,6 @@ u_in = [2., 0.]
 
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-
 # Physical constants
 physics.options().set('density', 1000.)
 physics.options().set('dynamic_viscosity', 10.)

@@ -46,6 +46,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "SpalartAllmaras"; }
 
+
+
 private:
   /// Update the copy of the physics coefficients when the physical model changes
   void trigger_physical_model();
@@ -58,7 +60,7 @@ private:
 
   /// Coefficients for Model
    Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
-   Real r, g, d;
+   Real r, g, d, S;
 
 };
 

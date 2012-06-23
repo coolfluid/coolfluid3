@@ -97,6 +97,8 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()]) #what did change here ?
+satm.options().configure_option('regions', [mesh.access_component('topology').uri()])    #also here ?
 
 nstokes.regions = [mesh.topology.uri()]
 satm.regions = [mesh.topology.uri()]
@@ -108,9 +110,16 @@ ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 satm_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
-u_in = [0.5, 0.]
+u_in = [1., 0.]
 u_wall = [0., 0.]
-NU_in = 0.001
+NU_in = 0.0001
+NU_wall = 0.
+
+ic_ns.options().configure_option('regions',[mesh.access_component('topology').uri()])
+ic_linearized_vel.options().configure_option('regions', [mesh.access_component('topology').uri()])
+ic_NU.options().configure_option('regions',[mesh.access_component('topology').uri()])
+#ic_phi.options().configure_option('regions', [mesh.access_component('topology').uri()])
+#ic_hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
 
 #initial conditions
 ic.navier_stokes_solution.Velocity = u_in
@@ -130,11 +139,11 @@ bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity'
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
-# Boundary conditions for ScalarAdvection
+# Boundary conditions for Spalart-Allmaras
 bc = satm.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
 bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
 
@@ -144,7 +153,7 @@ time.options().set('time_step', 0.01)
 
 # Setup a time series write
 final_end_time = 0.1
-save_interval = 0.1
+save_interval = 0.01
 current_end_time = 0.
 iteration = 0
 
@@ -159,7 +168,7 @@ while current_end_time < final_end_time:
   time.options().set('end_time', current_end_time)
   model.simulate()
   ns_lss.print_system('lss-' +str(iteration) + '.plt')
-  domain.write_mesh(cf.URI('atest-flatplate2d_output_satm-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-satm-fv8-Nu00001-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])
