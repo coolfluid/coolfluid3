@@ -25,7 +25,7 @@ if( CF3_PLUGIN_BLOCKMESHREADER )
   ##############################################################################
   # library
 
-  list( APPEND coolfluid_mesh_blockmesh_reader_files
+  list( APPEND coolfluid_blockmeshreader_files
     BlockMeshReader.cpp
     BlockMeshReader.hpp
     LibBlockMeshReader.cpp
@@ -34,9 +34,9 @@ if( CF3_PLUGIN_BLOCKMESHREADER )
    Parser.hpp
   )
 
-  list( APPEND coolfluid_mesh_blockmesh_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_mesh_blockmesh )
+  list( APPEND coolfluid_blockmeshreader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_mesh_blockmesh )
 
-  coolfluid_add_library( coolfluid_mesh_blockmesh_reader )
+  coolfluid_add_library( coolfluid_blockmeshreader )
 
   if( CF3_BLOCKMESHREADER_COMPILE_FLAGS )
     set_source_files_properties(Parser.cpp PROPERTIES COMPILE_FLAGS ${CF3_BLOCKMESHREADER_COMPILE_FLAGS})
