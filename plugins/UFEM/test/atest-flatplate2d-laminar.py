@@ -8,20 +8,17 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-env.options().configure_option('assertion_throws', False)
-env.options().configure_option('assertion_backtrace', False)
-env.options().configure_option('exception_backtrace', False)
-env.options().configure_option('regist_signal_handlers', False)
-env.options().configure_option('log_level', 4)
+env.assertion_throws = False
+env.assertion_backtrace = False
+env.exception_backtrace = False
+env.regist_signal_handlers = False
+env.log_level = 4
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
-
-# Create a component to manage initial conditions
-ic = solver.create_initial_conditions()
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
@@ -94,58 +91,51 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
-nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()])
+nstokes.regions = [mesh.topology.uri()]
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1])
+ns_lss.Matrix.settings_file = sys.argv[1]
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
 
 # Add initial conditions for the Navier-Stokes solver, which uses 'navier_stokes_solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('navier_stokes_solution')
-# Initial advection velocity and its previous values, using linearized_velocity as tag
-ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
+ic_ns = solver.InitialConditions.navier_stokes_solution
 
 # initial conditions
-ic_ns.options().configure_option('Velocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity1', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity2', u_in)
-ic_linearized_vel.options().configure_option('AdvectionVelocity3', u_in)
+ic_ns.Velocity = u_in
 
 # properties for Navier-Stokes
-physics.options().configure_option('density', 1.2)
-physics.options().configure_option('dynamic_viscosity', 1.7894e-5)
-physics.options().configure_option('reference_velocity', u_in[0])
+physics.density = 1.2
+physics.dynamic_viscosity = 1.7894e-5
+physics.reference_velocity = u_in[0]
 
 # Boundary conditions for Navier-Stokes
-bc = nstokes.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().configure_option('value', u_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().configure_option('value',  u_wall)
-bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().configure_option('value',  0.)
-bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().configure_option('value', 0.)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().configure_option('value', u_in)
+bc = nstokes.BoundaryConditions
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().value = u_in
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').options().value =  u_wall
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().value =  u_wall
+bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().value =  0.
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().value = 0.
+bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().value = u_in
 
 # Time setup
 time = model.create_time()
-time.options().configure_option('time_step', 0.01)
+time.time_step = 0.1
 
 # Setup a time series write
-final_end_time = 0.1
-save_interval = 0.01
-current_end_time = 0.
+final_end_time = 1.
+save_interval = 0.1
+time.end_time = 0.
 iteration = 0
-while current_end_time < final_end_time:
-  current_end_time += save_interval
-  time.options().configure_option('end_time', current_end_time)
+while time.end_time < final_end_time:
+  time.end_time += save_interval
   model.simulate()
   domain.write_mesh(cf.URI('atest-flatplate2d-laminar-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
-    solver.options().configure_option('disabled_actions', ['InitialConditions'])
+    solver.options.disabled_actions = ['InitialConditions']
 
 # print timings
 model.print_timing_tree()

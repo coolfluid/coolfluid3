@@ -8,20 +8,17 @@ root = cf.Core.root()
 env = cf.Core.environment()
 
 ## Global confifuration
-env.options().set('assertion_throws', False)
-env.options().set('assertion_backtrace', False)
-env.options().set('exception_backtrace', False)
-env.options().set('regist_signal_handlers', False)
-env.options().set('log_level', 4)
+env.assertion_throws = False
+env.assertion_backtrace = False
+env.exception_backtrace = False
+env.regist_signal_handlers = False
+env.log_level = 4
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
-
-# Create a component to manage initial conditions
-ic = solver.create_initial_conditions()
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
@@ -97,33 +94,26 @@ top_patch[2] = [11, 4]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
-nstokes.options().configure_option('regions', [mesh.access_component('topology').uri()]) #what did change here ?
-satm.options().configure_option('regions', [mesh.access_component('topology').uri()])    #also here ?
 
+# Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]
 satm.regions = [mesh.topology.uri()]
 
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
+ns_lss.Matrix.settings_file = sys.argv[1]
 #LSS for Spalart-Allmaras turbulence model
 satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-satm_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
+satm_lss.Matrix.settings_file = sys.argv[1]
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
 NU_in = 0.0001
 NU_wall = 0.
 
-ic_ns.options().configure_option('regions',[mesh.access_component('topology').uri()])
-ic_linearized_vel.options().configure_option('regions', [mesh.access_component('topology').uri()])
-ic_NU.options().configure_option('regions',[mesh.access_component('topology').uri()])
-#ic_phi.options().configure_option('regions', [mesh.access_component('topology').uri()])
-#ic_hc.options().configure_option('regions', [mesh.access_component('topology').uri()])
-
 #initial conditions
-ic.navier_stokes_solution.Velocity = u_in
-ic.spalart_allmaras_solution.TurbulentViscosity = NU_in
+solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+solver.InitialConditions.spalart_allmaras_solution.TurbulentViscosity = NU_in
 
 #properties for Navier-Stokes
 physics.density = 1.2
@@ -149,23 +139,16 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').op
 
 # Time setup
 time = model.create_time()
-time.options().set('time_step', 0.01)
+time.time_step = 0.01
+time.end_time = 0.
 
 # Setup a time series write
 final_end_time = 0.1
 save_interval = 0.01
-current_end_time = 0.
 iteration = 0
 
-model.simulate()
-#ns_lss.get_child('Matrix').print_native('lss.txt')
-#ns_lss.print_signal('tets.txt')
-#ns_lss.print_system('lss0.plt')
-#exit()
-
-while current_end_time < final_end_time:
-  current_end_time += save_interval
-  time.options().set('end_time', current_end_time)
+while time.end_time < final_end_time:
+  time.end_time += save_interval
   model.simulate()
   ns_lss.print_system('lss-' +str(iteration) + '.plt')
   domain.write_mesh(cf.URI('atest-flatplate2d-satm-fv8-Nu00001-' +str(iteration) + '.pvtu'))

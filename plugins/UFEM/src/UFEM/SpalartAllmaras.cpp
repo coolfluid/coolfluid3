@@ -128,7 +128,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     .pretty_name("SA_constant_d")
     .link_to(&d);
 
-  options().add_option("SA_constant_S", 1.)
+  options().add("SA_constant_S", 1.)
     .description("SA_constant_S")
     .pretty_name("SA_constant_S")
     .link_to(&S);
@@ -136,13 +136,16 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&SpalartAllmaras::trigger_physical_model, this));
 
   // The code will only be active for these element types
-  boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
+  boost::mpl::vector3<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D,mesh::LagrangeP1::Triag2D> allowed_elements;
 
   set_solution_tag("spalart_allmaras_solution");
 
   MeshTerm<0, ScalarField> NU("TurbulentViscosity", solution_tag());
   MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   MeshTerm<2, VectorField> u("Velocity","navier_stokes_solution");
+  MeshTerm<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
+  
+  
 //  MeshTerm<3, ScalarField> d("Walldistance","walldistance");
 
   //fw = g * _pow(((1+_pow(cw3,6))/(_pow(g,6)+_pow(cw3,6))),1/6)
@@ -220,8 +223,13 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     )
     << allocate_component<BoundaryConditions>("BoundaryConditions")
     << allocate_component<SolveLSS>("SolveLSS")
-    << create_proto_action("Update", nodes_expression(NU += ((solution(NU)) * (( ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )) )) )) ;     // solution(NU) is multiplied by fv1 from the Spalart-Allmaras model
-  get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
+    << create_proto_action("Update", nodes_expression(
+       group(
+         NU += solution(NU),
+         nu_eff = boost::proto::lit(m_coeffs.mu) / m_coeffs.rho + boost::proto::lit(m_coeffs.rho) * NU * (( ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) * ((NU * m_coeffs.rho)/m_coeffs.mu) )) )
+       )));
+  
+    get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
 
 }
 

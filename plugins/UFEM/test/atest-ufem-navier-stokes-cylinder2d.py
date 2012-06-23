@@ -60,7 +60,7 @@ while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-ufem-navier-stokes-cylinder2d_output-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('navier-stokes-cylinder2d_output-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

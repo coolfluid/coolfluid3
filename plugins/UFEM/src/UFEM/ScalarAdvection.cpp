@@ -61,9 +61,11 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
 
   create_component<ZeroLSS>("ZeroLSS");
   create_component<ProtoAction>("Assembly");
-  create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());;
+  create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());
   create_component<SolveLSS>("SolveLSS");
   create_component<ProtoAction>("Update");
+  
+  get_child("BoundaryConditions")->mark_basic();
 
   // Set the default scalar name
   trigger_scalar_name();

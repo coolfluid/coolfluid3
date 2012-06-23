@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // Velocity initial condition
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");
-    vel_init->set_expression(nodes_expression(u = vel_init->function()));
+    vel_init->set_expression(nodes_expression(u = vel_init->vector_function()));
     vel_init->options().set("value", parabole_functions);
     
     *ic << create_proto_action("InitializePressure", nodes_expression(p = 0.)) << vel_init;
