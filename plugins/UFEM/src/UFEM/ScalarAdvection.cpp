@@ -84,8 +84,8 @@ void ScalarAdvection::trigger_scalar_name()
   boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Scalar name is obtained from an option
-  MeshTerm<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
-  MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
 
   // Set the proto expression that handles the assembly
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
@@ -103,7 +103,7 @@ void ScalarAdvection::trigger_scalar_name()
        _T(Phi,Phi) +=  transpose(N(Phi) + m_coeffs.tau_su * u_adv * nabla(Phi)) * N(Phi)
       ),
       system_matrix += invdt() * _T + 1.0 * _A,
-      system_rhs += -_A * _b
+      system_rhs += -_A * _x
      )
     )
   );

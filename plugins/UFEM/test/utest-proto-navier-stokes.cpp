@@ -131,9 +131,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
     // Expression variables
-    MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-    MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
-    MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
+    FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+    FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
+    FieldVariable<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
 
     // Velocity initial condition
     boost::shared_ptr<UFEM::ParsedFunctionExpression> vel_init = allocate_component<UFEM::ParsedFunctionExpression>("InitializeVelocity");

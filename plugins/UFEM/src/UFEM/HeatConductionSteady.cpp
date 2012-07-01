@@ -32,8 +32,8 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
 {
   set_solution_tag("heat_conduction_solution");
 
-  MeshTerm<0, ScalarField> temperature("Temperature", solution_tag());
-  MeshTerm<1, ScalarField> heat("Heat", Tags::source_terms());
+  FieldVariable<0, ScalarField> temperature("Temperature", solution_tag());
+  FieldVariable<1, ScalarField> heat("Heat", Tags::source_terms());
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
 
@@ -51,7 +51,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
           _T(temperature) += transpose(N(temperature))*N(temperature)
         ),
         system_matrix +=  _A,
-        system_rhs += -_A * _b + _T * nodal_values(heat)
+        system_rhs += -_A * _x + _T * nodal_values(heat)
       )
     ))
     << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions

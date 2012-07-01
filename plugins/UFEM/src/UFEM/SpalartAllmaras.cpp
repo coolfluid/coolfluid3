@@ -140,13 +140,13 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
   set_solution_tag("spalart_allmaras_solution");
 
-  MeshTerm<0, ScalarField> NU("TurbulentViscosity", solution_tag());
-  MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
-  MeshTerm<2, VectorField> u("Velocity","navier_stokes_solution");
-  MeshTerm<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
+  FieldVariable<0, ScalarField> NU("TurbulentViscosity", solution_tag());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<2, VectorField> u("Velocity","navier_stokes_solution");
+  FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
   
   
-//  MeshTerm<3, ScalarField> d("Walldistance","walldistance");
+//  FieldVariable<3, ScalarField> d("Walldistance","walldistance");
 
   //fw = g * _pow(((1+_pow(cw3,6))/(_pow(g,6)+_pow(cw3,6))),1/6)
 
@@ -216,7 +216,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                            _T(NU,NU) +=  transpose(N(NU) + m_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
                         ),
                       system_matrix += invdt() * _T + 1.0 * _A,
-                      system_rhs += -_A * _b
+                      system_rhs += -_A * _x
                       )
 
       )

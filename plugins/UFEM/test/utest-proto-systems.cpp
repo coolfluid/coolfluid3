@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
   // Proto placeholders
-  MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
+  FieldVariable<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
             _T(v[_i], v[_i]) += lss_action->invdt() * (transpose(N(v)) * N(v))
           ),
           lss_action->system_matrix += _T + 0.5 * _A,
-          lss_action->system_rhs += -(_A * _b)
+          lss_action->system_rhs += -(_A * _x)
         )
       )
     )

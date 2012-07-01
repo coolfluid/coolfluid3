@@ -28,10 +28,10 @@ using namespace solver::actions::Proto;
 template<typename AllowedElementsT>
 boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs)
 {
-  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
-  MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
-  MeshTerm<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
+  FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   return elements_expression
   (
@@ -53,7 +53,7 @@ boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUP
             _T(u[_i], u[_i]) += transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
           ),
           solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-          solver.system_rhs += -_A * _b
+          solver.system_rhs += -_A * _x
         )
 
     /*(
@@ -71,7 +71,7 @@ boost::shared_ptr<Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUP
         _T(u[_i], u[_i]) += transpose(N(u) + coeffs.tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs += -_A * _b
+      solver.system_rhs += -_A * _x
     )*/
 
   );

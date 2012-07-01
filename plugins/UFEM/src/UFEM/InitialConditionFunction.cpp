@@ -84,12 +84,12 @@ void InitialConditionFunction::trigger()
 
   if(descriptor.var_length(var_name) == 1)
   {
-    MeshTerm<0, ScalarField> v(var_name, field_tag);
+    FieldVariable<0, ScalarField> v(var_name, field_tag);
     set_expression(nodes_expression(v = scalar_function()));
   }
   else
   {
-    MeshTerm<0, VectorField> v(var_name, field_tag);
+    FieldVariable<0, VectorField> v(var_name, field_tag);
     set_expression(nodes_expression(v = vector_function()));
   }
 }

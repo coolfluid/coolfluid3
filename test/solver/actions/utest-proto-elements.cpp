@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( ProtoScalarElementField )
   mesh.check_sanity();
 
   // Declare a mesh variable
-  MeshTerm<0, ScalarField> V("CellVolume", "volumes");
+  FieldVariable<0, ScalarField> V("CellVolume", "volumes");
 
   // Store the total error
   Real total_error = 0;
@@ -181,8 +181,8 @@ BOOST_AUTO_TEST_CASE( ProtoVectorElementField )
   mesh.check_sanity();
 
   // Declare a mesh variable
-  MeshTerm<0, VectorField> V("VectorVal", "vector_val");
-  MeshTerm<1, ScalarField> T("Scalar", "scalars");
+  FieldVariable<0, VectorField> V("VectorVal", "vector_val");
+  FieldVariable<1, ScalarField> T("Scalar", "scalars");
 
   // Store the total error
   Real total_error = 0;

@@ -89,14 +89,14 @@ void NavierStokes::trigger_use_specializations()
 
   const bool use_specializations = options().value<bool>("use_specializations");
 
-  MeshTerm<1, ScalarField> p("Pressure", solution_tag());
-  MeshTerm<0, VectorField> u("Velocity", solution_tag());
+  FieldVariable<1, ScalarField> p("Pressure", solution_tag());
+  FieldVariable<0, VectorField> u("Velocity", solution_tag());
 
-  MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
-  MeshTerm<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
-  MeshTerm<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
-  MeshTerm<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
-  MeshTerm<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  FieldVariable<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
+  FieldVariable<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
+  FieldVariable<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
+  FieldVariable<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
+  FieldVariable<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   create_component<ZeroLSS>("ZeroLSS");
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
@@ -120,7 +120,7 @@ void NavierStokes::trigger_use_specializations()
           _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
           supg_specialized(p, u, u_adv, nu_eff, m_coeffs, _A, _T),
           system_matrix += invdt() * _T + 1.0 * _A,
-          system_rhs += -_A * _b
+          system_rhs += -_A * _x
         )
       )
     ));
@@ -160,11 +160,11 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   // Use a proto action to set the linearized_velocity easily
   Handle<ProtoAction> lin_vel_ic (initial_conditions.create_initial_condition("linearized_velocity", "cf3.solver.ProtoAction"));
 
-  MeshTerm<0, VectorField> u("Velocity", solution_tag());
-  MeshTerm<1, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
-  MeshTerm<2, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
-  MeshTerm<3, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
-  MeshTerm<4, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
+  FieldVariable<0, VectorField> u("Velocity", solution_tag());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
+  FieldVariable<2, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
+  FieldVariable<3, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
+  FieldVariable<4, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
 
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
 

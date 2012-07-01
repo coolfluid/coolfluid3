@@ -91,7 +91,7 @@ struct ProtoHeatFixture
   /// Write the analytical solution
   void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
   {
-    MeshTerm<0, ScalarField > Temp(field_name, var_name);
+    FieldVariable<0, ScalarField > Temp(field_name, var_name);
 
       // Zero the field
       for_each_node
@@ -139,9 +139,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> T("Temperature", UFEM::Tags::solution());
-  MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
-  MeshTerm<2, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
+  FieldVariable<0, ScalarField> T("Temperature", UFEM::Tags::solution());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<2, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   UFEM::SUPGCoeffs c;
   c.mu = 1.7894e-5;
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
              element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + c.tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
                    _T(T,T) +=  transpose(N(T) + c.tau_su * u_adv * nabla(T)) * N(T) ),
                    lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
-                   lss_action->system_rhs += -_A * _b
+                   lss_action->system_rhs += -_A * _x
            )
          )
        )

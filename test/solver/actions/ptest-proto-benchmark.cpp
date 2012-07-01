@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( SetupProto )
 {
   Model& model = setup("Proto");
 
-  MeshTerm<0, ScalarField> V("CellVolume", "volume");
+  FieldVariable<0, ScalarField> V("CellVolume", "volume");
 
   model.solver() << create_proto_action("ComputeVolume", elements_expression(ElementsT(), V = volume));
 
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( SimulateVolumeComputer )
 // Check the volume results (uses proto)
 BOOST_AUTO_TEST_CASE( CheckResult )
 {
-  MeshTerm<0, ScalarField> V("CellVolume", "volume");
+  FieldVariable<0, ScalarField> V("CellVolume", "volume");
 
   const Real wanted_volume = width*length*half_height*2.;
 

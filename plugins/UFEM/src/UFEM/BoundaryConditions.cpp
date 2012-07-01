@@ -74,7 +74,7 @@ struct BoundaryConditions::Implementation
 
   boost::shared_ptr< Action > create_constant_scalar_bc(const std::string& region_name, const std::string& variable_name)
   {
-    MeshTerm<0, ScalarField> var(variable_name, m_solution_tag);
+    FieldVariable<0, ScalarField> var(variable_name, m_solution_tag);
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition");
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -82,7 +82,7 @@ struct BoundaryConditions::Implementation
 
   boost::shared_ptr< Action > create_constant_vector_bc(const std::string& region_name, const std::string& variable_name)
   {
-    MeshTerm<0, VectorField> var(variable_name, m_solution_tag);
+    FieldVariable<0, VectorField> var(variable_name, m_solution_tag);
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition");
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -236,7 +236,7 @@ Handle<common::Action> BoundaryConditions::add_constant_bc(const std::string& re
 
 Handle< common::Action > BoundaryConditions::add_constant_component_bc(const std::string& region_name, const std::string& variable_name, const Uint component_idx, const Real default_value)
 {
-  MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
+  FieldVariable<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
   ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
 
   boost::shared_ptr< common::Action > result = create_proto_action("BC"+region_name+variable_name,
@@ -253,7 +253,7 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
 {
   Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
 
-  MeshTerm<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
+  FieldVariable<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
   result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->vector_function() ) );
 
   m_implementation->configure_bc(*result, region_name);

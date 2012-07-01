@@ -81,7 +81,7 @@ struct ProtoUnsteadyFixture
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
   void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
   {
-    MeshTerm<0, ScalarField > T(field_name, var_name);
+    FieldVariable<0, ScalarField > T(field_name, var_name);
 
     if(t == 0.)
     {
@@ -158,8 +158,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
-  MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
+  FieldVariable<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
+  FieldVariable<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
