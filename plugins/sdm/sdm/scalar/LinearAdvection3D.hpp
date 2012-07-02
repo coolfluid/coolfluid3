@@ -32,7 +32,7 @@ public:
     m_advection_speed[YY]= 1.;
     m_advection_speed[ZZ]= 1.;
     
-    options().add_option("advection_speed",m_advection_speed).link_to(&m_advection_speed);
+    options().add("advection_speed",m_advection_speed).link_to(&m_advection_speed);
   }
   virtual ~LinearAdvection3D() {}
 

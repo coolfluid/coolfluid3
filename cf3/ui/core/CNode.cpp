@@ -112,7 +112,7 @@ CNode::CNode( const std::string & name, const QString & component_type, Type typ
       .connect(boost::bind(&CNode::reply_signal_signature, this, _1))
       .hidden(true);
 
-  properties().add_property( "original_component_type", m_component_type.toStdString() );
+  properties().add( "original_component_type", m_component_type.toStdString() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -160,40 +160,40 @@ void CNode::set_properties( const SignalArgs & options )
 
             if(properties().check(key_val))
             {
-              if( typ_val == Protocol::Tags::type<bool>() )
-                properties().configure_property(key_val, from_str<bool>(value));
-              else if( typ_val == Protocol::Tags::type<int>() )
-                properties().configure_property(key_val, from_str<int>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                properties().configure_property(key_val, from_str<cf3::Uint>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                properties().configure_property(key_val, from_str<cf3::Real>(value));
-              else if( typ_val == Protocol::Tags::type<std::string>() )
-                properties().configure_property(key_val, std::string(value));
-              else if( typ_val == Protocol::Tags::type<URI>() )
-                properties().configure_property(key_val, from_str<URI>(value));
-              else if( typ_val == Protocol::Tags::type<UUCount>() )
-                properties().configure_property(key_val, from_str<UUCount>(value));
+              if( typ_val == common::class_name<bool>() )
+                properties().set(key_val, from_str<bool>(value));
+              else if( typ_val == common::class_name<int>() )
+                properties().set(key_val, from_str<int>(value));
+              else if( typ_val == common::class_name<cf3::Uint>() )
+                properties().set(key_val, from_str<cf3::Uint>(value));
+              else if( typ_val == common::class_name<cf3::Real>() )
+                properties().set(key_val, from_str<cf3::Real>(value));
+              else if( typ_val == common::class_name<std::string>() )
+                properties().set(key_val, std::string(value));
+              else if( typ_val == common::class_name<URI>() )
+                properties().set(key_val, from_str<URI>(value));
+              else if( typ_val == common::class_name<UUCount>() )
+                properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
             else
             {
 
-              if( typ_val == Protocol::Tags::type<bool>() )
-                properties().add_property(key_val, from_str<bool>(value));
-              else if( typ_val == Protocol::Tags::type<int>() )
-                properties().add_property(key_val, from_str<int>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
-                properties().add_property(key_val, from_str<cf3::Uint>(value));
-              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
-                properties().add_property(key_val, from_str<cf3::Real>(value));
-              else if( typ_val == Protocol::Tags::type<std::string>() )
-                properties().add_property(key_val, std::string(value));
-              else if( typ_val == Protocol::Tags::type<URI>() )
-                properties().add_property(key_val, from_str<URI>(value));
-              else if( typ_val == Protocol::Tags::type<UUCount>() )
-                properties().configure_property(key_val, from_str<UUCount>(value));
+              if( typ_val == common::class_name<bool>() )
+                properties().add(key_val, from_str<bool>(value));
+              else if( typ_val == common::class_name<int>() )
+                properties().add(key_val, from_str<int>(value));
+              else if( typ_val == common::class_name<cf3::Uint>() )
+                properties().add(key_val, from_str<cf3::Uint>(value));
+              else if( typ_val == common::class_name<cf3::Real>() )
+                properties().add(key_val, from_str<cf3::Real>(value));
+              else if( typ_val == common::class_name<std::string>() )
+                properties().add(key_val, std::string(value));
+              else if( typ_val == common::class_name<URI>() )
+                properties().add(key_val, from_str<URI>(value));
+              else if( typ_val == common::class_name<UUCount>() )
+                properties().set(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -260,18 +260,18 @@ void addValueToXml( const std::string& name,
     std::vector<TYPE> data;
     Map::split_string(value, sep, data);
 
-    options.add_option(name, data);
+    options.add(name, data);
   }
   else
   {
     try
     {
-      options.add_option(name, from_str<TYPE>(value));
+      options.add(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {
       throw CastingFailed(FromHere(), "Unable to cast [" + value + "] to " +
-                          Protocol::Tags::type<TYPE>() + ".");
+                          common::class_name<TYPE>() + ".");
     }
   }
 }
@@ -305,7 +305,7 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
 
     Option& option = this->options().option(name);
     std::string type( option.type() );
-    bool is_array = std::strcmp(option.tag(), "array") == 0;
+    bool is_array = boost::starts_with(option.type(), "array");
 
     // if it is an array, we need to get the element type
     if(is_array)
@@ -314,27 +314,27 @@ void CNode::modify_options( const QMap<QString, QString> & opts )
       sep = option.separator();
     }
 
-    if(type == Protocol::Tags::type<bool>())              // bool
+    if(type == common::class_name<bool>())              // bool
       addValueToXml<bool>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<int>())          // int
+    else if(type == common::class_name<int>())          // int
       addValueToXml<int>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<Uint>())         // Uint
+    else if(type == common::class_name<Uint>())         // Uint
       addValueToXml<Uint>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<Real>())         // Real
+    else if(type == common::class_name<Real>())         // Real
       addValueToXml<Real>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<std::string>())  // string
+    else if(type == common::class_name<std::string>())  // string
       addValueToXml<std::string>(name, value, sep, options);
-    else if(type == Protocol::Tags::type<URI>())          // URI
+    else if(type == common::class_name<URI>())          // URI
     {
       // since OptionT<URI> does not exist, using addValueToXml for
       // this type would lead to an undefined reference linking error
       if( sep.empty() )
-        options.add_option(name, from_str<URI>(value));
+        options.add(name, from_str<URI>(value));
       else
       {
         std::vector<URI> data;
         Map::split_string(value, sep, data);
-        options.add_option(name, data);
+        options.add(name, data);
       }
     }
     else
@@ -638,7 +638,7 @@ boost::shared_ptr< CNode > CNode::create_from_xml_recursive( XmlNode & node,
     root_node->mark_basic();
 
   if( !uuid.is_nil() )
-    root_node->properties().configure_property( "uuid", uuid );
+    root_node->properties().set( "uuid", uuid );
   else
     NLog::global()->add_warning( "Found a Component without no UuiD." );
 
@@ -674,7 +674,7 @@ void CNode::request_signal_signature(const QString & name)
 
   SignalFrame frame("signal_signature", path, path);
 
-  frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
+  frame.map( Protocol::Tags::key_options() ).set_option("name",common::class_name<std::string>(), name.toStdString());
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }

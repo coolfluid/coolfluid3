@@ -73,42 +73,32 @@ Info::Info( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string Info::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string Info::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" +
-      properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void Info::execute()
 {
 
   Mesh& mesh = *m_mesh;
 
   CFinfo << "Element distribution:" << CFendl;
-  boost_foreach( const Region& region, find_components_with_filter<Region>(mesh,IsComponentTrue()))
+  boost_foreach( const Region& region, find_components<Region>(mesh))
   {
     CFinfo << print_region_tree(region) << CFflush;
   }
 
   CFinfo << "Fields:" << CFendl;
-  boost_foreach( const Field& field, find_components<Field>(mesh) )
+  boost_foreach( const Dictionary& dict, find_components_recursively<Dictionary>(mesh))
   {
-    CFinfo << " - " << field.name() << "  (" << (field.continuous()? "continuous" : "discontinuous" ) << ")" << CFendl;
-    for (Uint i=0; i<field.nb_vars(); ++i)
+    CFinfo << "  " << dict.name() << "  ("<<dict.size()<<", " << (dict.continuous()? "continuous" : "discontinuous" ) << ")" << CFendl;
+    boost_foreach( const Field& field, find_components<Field>(dict) )
     {
-      CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;
+      CFinfo << "      " << field.name() << "["<<field.row_size() << "]" << CFendl;
+      for (Uint i=0; i<field.nb_vars(); ++i)
+      {
+        CFinfo << "        - " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;
+      }
     }
+
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -119,7 +109,7 @@ std::string Info::print_region_tree(const Region& region, Uint level)
 
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + to_str(region.recursive_elements_count(true)) +  ")\n";
+  tree += "  " + region.name() + " (" + to_str(region.recursive_elements_count(true)) +  ")\n";
 
   tree += print_elements(region,level+1);
 

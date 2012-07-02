@@ -46,7 +46,7 @@ Entities::Entities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  options().add_option("element_type", "")
+  options().add("element_type", "")
       .description("Element type")
       .pretty_name("Element type")
       .attach_trigger(boost::bind(&Entities::configure_element_type, this));
@@ -73,7 +73,7 @@ Entities::~Entities()
 
 void Entities::initialize(const std::string& element_type_name, Dictionary& geometry_dict)
 {
-  options().configure_option("element_type",element_type_name);
+  options().set("element_type",element_type_name);
   cf3_assert(is_not_null(m_element_type));
   create_geometry_space(geometry_dict);
 }
@@ -86,14 +86,14 @@ void Entities::create_geometry_space(Dictionary& geometry_dict)
   m_geometry_dict = geometry_dict.handle<Dictionary>();
   if ( is_not_null(m_spaces_group->get_child(mesh::Tags::geometry())) )
   {
-    space(geometry_dict).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    space(geometry_dict).options().set("shape_function",m_element_type->shape_function().derived_type_name());
   }
   else
   {
     m_geometry_space = m_spaces_group->create_component<Space>(geometry_dict.name());
     m_spaces_vector.push_back(m_geometry_space);
     m_geometry_space->initialize(*this,geometry_dict);
-    m_geometry_space->options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    m_geometry_space->options().set("shape_function",m_element_type->shape_function().derived_type_name());
     m_geometry_space->add_tag(mesh::Tags::geometry());
   }
 }
@@ -102,7 +102,7 @@ void Entities::create_geometry_space(Dictionary& geometry_dict)
 
 void Entities::configure_element_type()
 {
-  const std::string etype_name = options().option("element_type").value<std::string>();
+  const std::string etype_name = options().value<std::string>("element_type");
   if (is_not_null(m_element_type))
   {
     remove_component(m_element_type->name());
@@ -188,7 +188,7 @@ Space& Entities::create_space(const std::string& shape_function_builder_name, Di
   Handle<Space> space = m_spaces_group->create_component<Space>(space_dict.name());
   m_spaces_vector.push_back(space);
   space->initialize(*this,space_dict);
-  space->options().configure_option("shape_function",shape_function_builder_name);
+  space->options().set("shape_function",shape_function_builder_name);
   return *space;
 }
 

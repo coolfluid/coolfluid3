@@ -40,7 +40,6 @@
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/LinearInterpolator.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/ElementConnectivity.hpp"
@@ -107,7 +106,7 @@ BOOST_FIXTURE_TEST_SUITE( sdm_MPITests_TestSuite, sdm_MPITests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().set("log_level", (Uint)INFO);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +202,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   SDSolver& solver  = *model.solver().handle<SDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -220,21 +219,21 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   std::vector<Real> offsets  = list_of(  -3.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -246,7 +245,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("3-abs(x)");
-  init.options().configure_option("functions",functions);
+  init.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
@@ -255,8 +254,8 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
+  solver.time_stepping().time().options().set("time_step",100.);
+  solver.time_stepping().time().options().set("end_time" , 2.); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" ,std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
@@ -354,7 +353,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   SDSolver& solver  = *model.solver().handle<SDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -371,21 +370,21 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   std::vector<Real> offsets  = list_of(  -3.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -397,7 +396,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("3-abs(x)");
-  init.options().configure_option("functions",functions);
+  init.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
@@ -412,12 +411,12 @@ BOOST_AUTO_TEST_CASE( test_P1 )
 //  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
+  solver.time_stepping().time().options().set("time_step",100.);
+  solver.time_stepping().time().options().set("end_time" , 2.); // instead of 0.3
+  solver.time_stepping().options().set("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -519,7 +518,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   SDSolver& solver  = *model.solver().handle<SDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -536,21 +535,21 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   std::vector<Real> offsets  = list_of(  -3.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -562,7 +561,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("3-abs(x)");
-  init.options().configure_option("functions",functions);
+  init.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
@@ -577,12 +576,12 @@ BOOST_AUTO_TEST_CASE( test_P2 )
 //  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
+  solver.time_stepping().time().options().set("time_step",100.);
+  solver.time_stepping().time().options().set("end_time" , 2.); // instead of 0.3
+  solver.time_stepping().options().set("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -688,7 +687,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   SDSolver& solver  = *model.solver().handle<SDSolver>();
   Domain&   domain  = model.domain();
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -705,21 +704,21 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   std::vector<Real> offsets  = list_of(  -3.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",false);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",false);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -731,7 +730,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("3-abs(x)");
-  init.options().configure_option("functions",functions);
+  init.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
@@ -746,12 +745,12 @@ BOOST_AUTO_TEST_CASE( test_P3 )
 //  ElementCache& dirichlet = solver.domain_discretization().create_ElementCache("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
   // Time stepping
-  solver.time_stepping().time().options().configure_option("time_step",100.);
-  solver.time_stepping().time().options().configure_option("end_time" , 2.); // instead of 0.3
-  solver.time_stepping().options().configure_option("cfl" , std::string("1."));
+  solver.time_stepping().time().options().set("time_step",100.);
+  solver.time_stepping().time().options().set("end_time" , 2.); // instead of 0.3
+  solver.time_stepping().options().set("cfl" , std::string("1."));
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation

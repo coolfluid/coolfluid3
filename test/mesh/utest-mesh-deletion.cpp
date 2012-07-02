@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE( MeshDeletion )
 BOOST_AUTO_TEST_CASE( DeleteMesh )
 {
   // debug output
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 3u);
 
   const Real length = 5.;
   const Real height = 2.;
@@ -66,15 +66,13 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
     Tools::MeshGeneration::create_rectangle(*domain.create_component<Mesh>("Mesh2"), length, height, x_segments, y_segments);
     domain.remove_component("Mesh2");
   }
-
-  Core::instance().terminate();
   
   XML::SignalFrame frame;
-  root.remove_component("Libraries");
-  root.remove_component("Factories");
-  root.remove_component("Tools");
-  Core::instance().event_handler().raise_event("ping", frame);
 
+  Core::instance().terminate();
+
+  // Check if any component pings back. No component should respond
+  Core::instance().event_handler().raise_event("ping", frame);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

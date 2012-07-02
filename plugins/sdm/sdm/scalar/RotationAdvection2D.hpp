@@ -30,11 +30,11 @@ public:
     m_omega = 1.;
     m_rotation_centre.resize(NDIM,0.);
 
-    options().add_option("omega",m_omega)
+    options().add("omega",m_omega)
         .description("Rotational velocity in [rad/s]")
         .link_to(&m_omega);
 
-    options().add_option("rotation_centre",m_rotation_centre)
+    options().add("rotation_centre",m_rotation_centre)
         .description("Centre of rotation")
         .link_to(&m_rotation_centre);
   }

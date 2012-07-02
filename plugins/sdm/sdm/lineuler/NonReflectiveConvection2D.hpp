@@ -126,12 +126,12 @@ public:
   NonReflectiveConvection2D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
     p.gamma = 1.4;
-    options().add_option("gamma",p.gamma)
+    options().add("gamma",p.gamma)
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &NonReflectiveConvection2D::config_constants, this) );
 
     p.rho0 = 1.;
-    options().add_option("rho0",p.rho0)
+    options().add("rho0",p.rho0)
         .description("Uniform mean density")
         .attach_trigger( boost::bind( &NonReflectiveConvection2D::config_constants, this) );
 
@@ -139,11 +139,11 @@ public:
     std::vector<Real> U0(p.u0.size());
     for (Uint d=0; d<U0.size(); ++d)
       U0[d] = p.u0[d];
-    options().add_option("U0",U0)
+    options().add("U0",U0)
         .description("Uniform mean velocity")
         .attach_trigger( boost::bind( &NonReflectiveConvection2D::config_constants, this) );
 
-    options().add_option("p0",p.P0)
+    options().add("p0",p.P0)
         .description("Uniform mean pressure")
         .attach_trigger( boost::bind( &NonReflectiveConvection2D::config_constants, this) );
 
@@ -153,16 +153,16 @@ public:
 
   void config_constants()
   {
-    p.gamma = options().option("gamma").value<Real>();
-    p.rho0  = options().option("rho0").value<Real>();
-    p.P0  = options().option("p0").value<Real>();
+    p.gamma = options().value<Real>("gamma");
+    p.rho0  = options().value<Real>("rho0");
+    p.P0  = options().value<Real>("p0");
 
     p.inv_rho0 = 1./p.rho0;
 
     p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
     p.inv_c = 1./p.c;
 
-    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
+    std::vector<Real> U0 = options().value<std::vector<Real> >("U0");
     for (Uint d=0; d<U0.size(); ++d)
       p.u0[d] = U0[d];
   }

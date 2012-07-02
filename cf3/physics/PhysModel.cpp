@@ -6,6 +6,7 @@
 
 #include "common/Signal.hpp"
 #include "common/OptionT.hpp"
+#include "common/TypeInfo.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -17,6 +18,8 @@ using namespace cf3::common::XML;
 namespace cf3 {
 namespace physics {
 
+common::RegistTypeInfo<PhysModel, LibPhysics> PhysMod_type_info;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 PhysModel::PhysModel( const std::string& name ) :
@@ -65,11 +68,11 @@ void PhysModel::signature_create_variables( SignalArgs& args )
   SignalOptions options( args );
 
   // name
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created variables");
 
   // type
-  options.add_option("type", std::string() )
+  options.add("type", std::string() )
       .description("Type for created variables");
 
 }

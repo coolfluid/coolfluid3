@@ -45,17 +45,21 @@ MeshReader::MeshReader ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option("mesh",m_mesh)
+  options().add("mesh",m_mesh)
       .pretty_name("Mesh")
       .description("Mesh to read into")
       .link_to(&m_mesh)
       .mark_basic();
 
-  options().add_option("file",m_file_path)
+  options().add("file",m_file_path)
       .pretty_name("File")
       .description("File to read")
       .mark_basic()
       .link_to(&m_file_path);
+
+  options().add("dimension", 0u)
+      .description("The coordinate dimension (0 --> maximum dimensionality)")
+      .pretty_name("Dimension");
 
   // signals
   regist_signal( "read" )
@@ -114,7 +118,9 @@ void MeshReader::signal_read( SignalArgs& node  )
     boost_foreach(const URI& file, files)
     {
       // Call the concrete implementation
+      mesh->block_mesh_changed(true);
       do_read_mesh_into(file, *mesh);
+      mesh->block_mesh_changed(false);
 
       // Raise an event to indicate that a mesh was loaded happened
       mesh->raise_mesh_loaded();
@@ -130,10 +136,12 @@ void MeshReader::signal_read( SignalArgs& node  )
 
 void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 {
-  options().configure_option("file",path);
-  options().configure_option("mesh",mesh.handle<Mesh>());
+  options().set("file",path);
+  options().set("mesh",mesh.handle<Mesh>());
 
+  mesh.block_mesh_changed(true);
   execute();
+  mesh.block_mesh_changed(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -148,7 +156,7 @@ std::map<std::string,Handle< Elements > >
     boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
-      Cells& etype_cells = *parent_region.create_component<Cells>(element_type->shape_name());
+      Cells& etype_cells = *parent_region.create_component<Cells>("elements_"+etype);
       etype_cells.initialize(etype,nodes);
       cells_map[etype] = Handle<Elements>(etype_cells.handle<Component>());
     }
@@ -168,7 +176,7 @@ std::map<std::string,Handle< Elements > >
     boost::shared_ptr< ElementType > element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
-      Faces& etype_faces = *parent_region.create_component<Faces>(element_type->shape_name());
+      Faces& etype_faces = *parent_region.create_component<Faces>("elements_"+etype);
       etype_faces.initialize(etype,nodes);
       faces_map[etype] = Handle<Elements>(etype_faces.handle<Component>());
     }
@@ -229,11 +237,11 @@ void MeshReader::read_signature( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("location", URI() )
+  options.add("location", URI() )
       .supported_protocol( URI::Scheme::CPATH )
       .description("Component to load mesh into");
 
-  options.add_option("files", URI("", URI::Scheme::FILE) )
+  options.add("files", URI("", URI::Scheme::FILE) )
       .supported_protocol( URI::Scheme::FILE )
       .description("Files to read");
 }

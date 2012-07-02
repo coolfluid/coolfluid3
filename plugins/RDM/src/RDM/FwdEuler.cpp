@@ -37,7 +37,7 @@ FwdEuler::FwdEuler ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option( "cfl", 1.0 )
+  options().add( "cfl", 1.0 )
       .pretty_name("CFL")
       .description("Courant-Fredrichs-Levy stability number");
 
@@ -60,7 +60,11 @@ void FwdEuler::execute()
   Field& wave_speed   = *m_wave_speed;
   Field& residual     = *m_residual;
 
-  const Real CFL = options().option("cfl").value<Real>();
+  CFinfo << "PPPPPPPPPPPPPP3: " << solution.uri().path() << CFendl;
+  CFinfo << "PPPPPPPPPPPPPP4: " << residual.uri().path() << CFendl;
+  CFinfo << "PPPPPPPPPPPPPP5: " << wave_speed.uri().path() << CFendl;
+
+  const Real CFL = options().value<Real>("cfl");
 
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();

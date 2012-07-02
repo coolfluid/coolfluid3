@@ -30,6 +30,10 @@ public:
 
   virtual QVariant data ( const QModelIndex &index, int role ) const;
 
+protected:
+
+  QMimeData * mimeData(const QModelIndexList &indexes) const;
+
 private: // data
 
   core::NRemoteFSBrowser * m_model;

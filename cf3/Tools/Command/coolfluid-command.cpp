@@ -27,24 +27,25 @@ using namespace cf3::Tools::Shell;
 
 int main(int argc, char * argv[])
 {
-  Core::instance().initiate(argc, argv);
   PE::Comm::instance().init(argc, argv);
+  Core::instance().initiate(argc, argv);
 
   try
   {
 
     // --------------------------------------------------------
 
-    Core::instance().environment().options().configure_option("exception_outputs",false);
-    Core::instance().environment().options().configure_option("exception_backtrace",false);
-    Core::instance().environment().options().configure_option("exception_aborts",false);
-    Core::instance().environment().options().configure_option("assertion_throws",true);
+    Core::instance().environment().options().set("exception_outputs",false);
+    Core::instance().environment().options().set("exception_backtrace",false);
+    Core::instance().environment().options().set("exception_aborts",false);
+    Core::instance().environment().options().set("assertion_throws",true);
 
     // Initialize empty commands
     options_description desc;
 
     // Add basic commands to program
     desc.add(BasicCommands::description());
+    desc.add(StdHelp("help,h","Show help",desc));
 
     // Parse commands that are passed directly on the command line
     Interpreter shell(desc);
@@ -66,8 +67,8 @@ int main(int argc, char * argv[])
     CFerror << "Detected unknown exception" << CFendl;
   }
 
-  PE::Comm::instance().finalize();
   Core::instance().terminate();
+  PE::Comm::instance().finalize();
 
   return 0;
 }

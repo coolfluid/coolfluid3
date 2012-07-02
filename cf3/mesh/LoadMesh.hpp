@@ -20,13 +20,10 @@ namespace mesh {
   class Mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Helper class to load mesh based on a file extension
+/// @author Willem Deconinck
 /// @author Tiago Quintino
 class Mesh_API LoadMesh : public common::Component {
-
-public: // typedefs
-
-
-
 
 public: // functions
 
@@ -55,8 +52,7 @@ public: // functions
   /// Read the file into an existing mesh
   void load_mesh_into(const common::URI& file, Mesh& mesh);
 
-  /// function load the mesh
-  boost::shared_ptr<Mesh> load_mesh(const common::URI& file);
+  void load_multiple_files(const std::vector<common::URI>& files, Mesh& mesh);
 
 protected: // helper functions
 

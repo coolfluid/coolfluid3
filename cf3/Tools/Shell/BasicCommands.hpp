@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#ifndef cf3_Tools_Shell_BasicCommands_hpp
+#define cf3_Tools_Shell_BasicCommands_hpp
+
 #include <boost/program_options.hpp>
 
 #include "common/Handle.hpp"
@@ -15,6 +18,10 @@ namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Defines basic set of commands in the coolfluid shell
+///
+/// Commands include cd, ls, mv, exit, ...
+/// @author Willem Deconinck
 class BasicCommands
 {
 public: // typedefs
@@ -77,3 +84,5 @@ public: // data
 } // Shell
 } // Tools
 } // cf3
+
+#endif // cf3_Tools_Shell_BasicCommands_hpp

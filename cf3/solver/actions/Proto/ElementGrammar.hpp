@@ -14,9 +14,10 @@
 #include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
 #include "ExpressionGroup.hpp"
+#include "GaussPoints.hpp"
 #include "IndexLooping.hpp"
 
-/// @file 
+/// @file
 /// Grammars related to element-wise mesh operations
 
 namespace cf3 {
@@ -34,6 +35,7 @@ struct ElementMathBase :
       InterpolationOp(boost::proto::_value(boost::proto::_child_c<0>), boost::proto::_value(boost::proto::_child_c<1>) )
     >,
     MathTerminals,
+    GaussGrammar,
     ElementIntegration,
     ElementMatrixGrammar
   >
@@ -68,7 +70,7 @@ template<typename I, typename J>
 struct StreamOutputIndexed : StreamOutput< ElementMathIndexed<I, J> >
 {
 };
-  
+
 struct SingleExprElementGrammar :
   boost::proto::or_
   <
@@ -97,7 +99,7 @@ struct ElementGrammar :
     GroupGrammar< SingleExprElementGrammar >
   >
 {
-};  
+};
 } // namespace Proto
 } // namespace actions
 } // namespace solver

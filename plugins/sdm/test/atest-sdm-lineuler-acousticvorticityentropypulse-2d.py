@@ -43,7 +43,7 @@ mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/square100-quad-
 solver.options().set('mesh',mesh)
 solver.options().set('solution_vars','cf3.physics.LinEuler.Cons2D')
 solver.options().set('solution_order',4)
-solver.options().set('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
+solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
 
 ### Configure timestepping
 solver.access_component('Time').options().set('time_step',30);
@@ -178,7 +178,7 @@ mesh_generator.execute()
 visualization_mesh.get_child('geometry').create_field(name='solution',       variables='rho[1],rho0U[2],p[1]')
 visualization_mesh.get_child('geometry').create_field(name='char', variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
 
-interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.actions.Interpolate')
+interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.Interpolator')
 interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
 												 target=visualization_mesh.access_component("geometry/solution").uri())
 interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),

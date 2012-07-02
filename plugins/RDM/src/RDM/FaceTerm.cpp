@@ -30,15 +30,15 @@ FaceTerm::FaceTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  options().add_option(RDM::Tags::solution(), m_solution)
+  options().add(RDM::Tags::solution(), m_solution)
       .pretty_name("Solution Field")
       .link_to(&m_solution);
 
-  options().add_option(RDM::Tags::wave_speed(), m_wave_speed)
+  options().add(RDM::Tags::wave_speed(), m_wave_speed)
       .pretty_name("Wave Speed Field")
       .link_to(&m_wave_speed);
 
-  options().add_option(RDM::Tags::residual(), m_residual)
+  options().add(RDM::Tags::residual(), m_residual)
       .pretty_name("Residual Field")
       .link_to(&m_residual);
 }
@@ -66,7 +66,6 @@ void FaceTerm::link_fields()
   }
 }
 
-
 ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
 {
   // ensure that the fields are present
@@ -82,6 +81,7 @@ ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
         physical_model().get_child( RDM::Tags::update_vars() )
                         ->handle<physics::Variables>()
                         ->type();
+
 
     loop = create_component<FaceLoop>("LOOP", "FaceLoopT<" + type_name + "," + update_vars_type + ">");
   }

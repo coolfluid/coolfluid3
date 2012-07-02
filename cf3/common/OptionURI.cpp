@@ -16,6 +16,7 @@
 
 #include "common/XML/FileOperations.hpp"
 
+#include "common/OptionFactory.hpp"
 #include "common/OptionURI.hpp"
 
 using namespace cf3::common;
@@ -52,7 +53,7 @@ OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void OptionURI::change_value(const boost::any& value)
+void OptionURI::change_value_impl(const boost::any& value)
 {
   try
   {
@@ -69,7 +70,7 @@ void OptionURI::change_value(const boost::any& value)
       throw BadValue(FromHere(), error_str.str());
     }
 
-    Option::change_value(value);
+    m_value = value;
   }
   catch(boost::bad_any_cast& e)
   {
@@ -77,6 +78,32 @@ void OptionURI::change_value(const boost::any& value)
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+std::string OptionURI::restricted_list_str() const
+{
+  std::vector<URI> restr_list_vec;
+  BOOST_FOREACH(const boost::any& restr_item, restricted_list())
+  {
+    restr_list_vec.push_back(boost::any_cast<URI>(restr_item));
+  }
+  return option_vector_to_str(restr_list_vec, separator());
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+class OptionURIBuilder : public OptionBuilder
+{
+public:
+  virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
+  {
+    const URI val = from_str<URI>(boost::any_cast<std::string>(default_value));
+    return boost::shared_ptr<Option>(new OptionURI(name, val));
+  }
+};
+
+RegisterOptionBuilder option_uri_builder(common::class_name<URI>(), new OptionURIBuilder());
 
 //////////////////////////////////////////////////////////////////////////////
 

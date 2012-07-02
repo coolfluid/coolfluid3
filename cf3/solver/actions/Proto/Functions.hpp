@@ -21,7 +21,7 @@ namespace Proto {
 struct FunctionBase
 {
 };
-  
+
 /// Pow function based on Proto docs example
 template<Uint Exp>
 struct pow_fun : FunctionBase
@@ -50,8 +50,8 @@ pow(Arg const &arg)
 }
 
 /// Primitive transform to evaluate a function with the function parser
-struct ParsedFunctionTransform :
-  boost::proto::transform< ParsedFunctionTransform >
+struct ParsedVectorFunctionTransform :
+  boost::proto::transform< ParsedVectorFunctionTransform >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -67,11 +67,40 @@ struct ParsedFunctionTransform :
   };
 };
 
+struct ParsedScalarFunctionTransform :
+boost::proto::transform< ParsedScalarFunctionTransform >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef Real result_type;
+
+    Real operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      std::vector<Real> result(1);
+      boost::proto::value(expr).evaluate(data.coordinates(), result);
+      return result.back();
+    }
+  };
+};
+
+struct ScalarFunction : math::VectorialFunction
+{
+};
+
 struct ParsedFunctionGrammar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::terminal<math::VectorialFunction>,
-    ParsedFunctionTransform
+    boost::proto::when
+    <
+      boost::proto::terminal<math::VectorialFunction>,
+      ParsedVectorFunctionTransform
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal<ScalarFunction>,
+      ParsedScalarFunctionTransform
+    >
   >
 {
 };

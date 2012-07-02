@@ -26,28 +26,18 @@ dx = 0.1
 nb_div = int(length/dx)
 print "nb_div=",nb_div
 mesh = domain.create_component( 'mesh', 'cf3.mesh.Mesh' )
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
+mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
 
 mesh_generator.options() \
-              .set("mesh",mesh.uri()) \
-              .set("x_segments",nb_div) \
-              .set("y_segments_half",nb_div//2) \
-              .set("z_segments",nb_div) \
-              .set("length",length) \
-              .set("half_height",length/2) \
-              .set("width",length) \
-              .set("grading",1.)
-
+              .set('mesh',mesh.uri()) \
+              .set('nb_cells',[nb_div,nb_div,nb_div]) \
+              .set('lengths',[1.,1.,1.]) \
+              .set('offsets',[-length/2,-length/2,-length/2])
 mesh_generator.execute()
-coords=mesh.access_component('geometry/coordinates')
-for index in range(len(coords)) :
-  coords[index][0] -= 0.5
-  coords[index][2] -= 0.5
 
-
-#repartition=mesh.create_component('repartition','cf3.mesh.actions.LoadBalance')
-#repartition.options().configure_option('mesh',mesh)
-#repartition.execute()
+repartition=mesh.create_component('repartition','cf3.mesh.actions.LoadBalance')
+repartition.options().set('mesh',mesh)
+repartition.execute()
 
 ### Configure solver
 
@@ -117,27 +107,12 @@ mesh.write_mesh(file=URI('file:acousticpulse3d.msh'),  fields=fields)
 
 
 vis_mesh = domain.create_component( 'vis_mesh', 'cf3.mesh.Mesh' )
-vis_mesh_generator = domain.create_component("vis_mesh_generator","cf3.mesh.SimpleMeshGenerator")
-vis_mesh_generator.options().set('mesh',vis_mesh.uri())
-vis_mesh_generator.options().set('nb_cells',[80,80])
-vis_mesh_generator.options().set('lengths',[1.,1.])
-vis_mesh_generator.options().set('offsets',[-0.5,-0.5])
-vis_mesh_generator.execute()
+mesh_generator.options().set('nb_cells',[40,40,40]) \
+                        .set('mesh',vis_mesh.uri())
+mesh_generator.execute()
 
-#mesh_generator = domain.create_component("mesh_generator","cf3.mesh.BlockMesh.ChannelGenerator")
-#mesh_generator.options().set("mesh",vis_mesh.uri())
-#mesh_generator.options().set("x_segments",50)
-#mesh_generator.options().set("y_segments_half",25)
-#mesh_generator.options().set("z_segments",50)
-#mesh_generator.options().set("length",1.)
-#mesh_generator.options().set("half_height",0.5)
-#mesh_generator.options().set("width",1.)
-#mesh_generator.options().set("grading",1.)
-#mesh_generator.execute()
-
-vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho,rho0U[3],p')
-
-interpolator = vis_mesh.create_component('interpolator','cf3.mesh.actions.Interpolate')
+vis_solution = vis_mesh.access_component('geometry').create_field(name='solution',variables='rho[s],rho0U[v],p[s]')
+interpolator = vis_mesh.create_component('interpolator','cf3.mesh.Interpolator')
 interpolator.interpolate(source=mesh.access_component('solution_space/solution').uri(),target=vis_solution.uri())
 
 #vis_coords=vis_mesh.access_component('geometry/coordinates')

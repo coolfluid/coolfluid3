@@ -113,11 +113,11 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   std::cout << "dynamic: centroid = " << centroid.transpose() << std::endl;
 
   // Check if compute_normal throws, as it is not implemented in the static implementation
-  Core::instance().environment().options().configure_option("exception_outputs",false);
-  Core::instance().environment().options().configure_option("exception_backtrace",false);
+  Core::instance().environment().options().set("exception_outputs",false);
+  Core::instance().environment().options().set("exception_backtrace",false);
   BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),common::NotImplemented);
-  Core::instance().environment().options().configure_option("exception_outputs",true);
-  Core::instance().environment().options().configure_option("exception_backtrace",true);
+  Core::instance().environment().options().set("exception_outputs",true);
+  Core::instance().environment().options().set("exception_backtrace",true);
 
   boost::shared_ptr< ElementType > quad_face = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Quad3D","etype");
 

@@ -36,19 +36,19 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_AUSMplusUp )
 
   // Creation of physics + variables
   PhysModel& physics = *model.create_component("navierstokes2D","cf3.physics.NavierStokes.NavierStokes2D")->handle<PhysModel>();
-  physics.options().configure_option("gamma",1.4);
-  physics.options().configure_option("R", 287.05);
+  physics.options().set("gamma",1.4);
+  physics.options().set("R", 287.05);
   Variables& sol_vars = *physics.create_variables("Cons2D","solution");
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = *model.create_component("riemann","cf3.RiemannSolvers.AUSMplusUp")->handle<RiemannSolver>();
-  riemann.options().configure_option("machinf", 0.5);
-  riemann.options().configure_option("Ku", 0.75);
-  riemann.options().configure_option("Kp", 0.25);
-  riemann.options().configure_option("sigma", 1.);
-  riemann.options().configure_option("beta", 1./8.);
-  riemann.options().configure_option("physical_model",physics.handle<Component>());
-  riemann.options().configure_option("solution_vars",sol_vars.handle<Component>());
+  riemann.options().set("machinf", 0.5);
+  riemann.options().set("Ku", 0.75);
+  riemann.options().set("Kp", 0.25);
+  riemann.options().set("sigma", 1.);
+  riemann.options().set("beta", 1./8.);
+  riemann.options().set("physical_model",physics.handle<Component>());
+  riemann.options().set("solution_vars",sol_vars.handle<Component>());
 
   std::cout << model.tree() << std::endl;
 

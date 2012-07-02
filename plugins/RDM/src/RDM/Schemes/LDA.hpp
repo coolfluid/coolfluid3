@@ -27,8 +27,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  
-  
+
+
 
 public: // functions
 

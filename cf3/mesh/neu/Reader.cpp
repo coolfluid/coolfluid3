@@ -51,18 +51,18 @@ Reader::Reader( const std::string& name )
   Shared()
 {
   // options
-  options().add_option("read_groups" ,true)
+  options().add("read_groups" ,true)
       .description("Reads neu Groups and splits the mesh in these subgroups")
       .pretty_name("Unified Zones");
 
-  options().add_option("part", PE::Comm::instance().rank())
+  options().add("part", PE::Comm::instance().rank())
       .description("Number of the part of the mesh to read. (e.g. rank of processor)")
       .pretty_name("Part");
 
-  options().add_option("nb_parts", PE::Comm::instance().size())
+  options().add("nb_parts", PE::Comm::instance().size())
       .description("Total nb_partitions. (e.g. number of processors)");
 
-  options().add_option("read_boundaries", true)
+  options().add("read_boundaries", true)
       .description("Read the surface elements for the boundary")
       .pretty_name("Read Boundaries");
 
@@ -120,21 +120,21 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_headerData.NUMNP;
   num_obj[1] = m_headerData.NELEM;
-  m_hash->options().configure_option("nb_obj",num_obj);
+  m_hash->options().set("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
-    m_region = Handle<Region>(m_mesh->topology().create_region(m_headerData.mesh_name).handle<Component>());
+  m_region = m_mesh->topology().handle<Region>();
   //else
   //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Handle<Region>(Merge").value<bool>()).handle<Component>());
 
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-  if (options().option("read_boundaries").value<bool>())
+  if (options().value<bool>("read_boundaries"))
     read_boundaries();
 
-  if (options().option("read_groups").value<bool>())
+  if (options().value<bool>("read_groups"))
     read_groups();
 
   // clean-up
@@ -146,7 +146,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
   {
     elements.rank().resize(elements.size());
-    Uint my_rank = options().option("part").value<Uint>();
+    Uint my_rank = options().value<Uint>("part");
     for (Uint e=0; e<elements.size(); ++e)
     {
       elements.rank()[e] = my_rank;
@@ -239,7 +239,7 @@ void Reader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (options().option("nb_parts").value<Uint>() > 1)
+  if (options().value<Uint>("nb_parts") > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line

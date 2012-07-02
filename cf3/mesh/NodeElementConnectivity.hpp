@@ -31,9 +31,6 @@ class Mesh_API NodeElementConnectivity : public common::Component
 {
 public:
 
-  
-  
-
   /// Contructor
   /// @param name of the component
   NodeElementConnectivity ( const std::string& name );

@@ -53,22 +53,22 @@ public:
 
     m_gamma = 1.4;
     m_gamma_minus_1 = m_gamma-1.;
-    options().add_option("gamma",m_gamma)
+    options().add("gamma",m_gamma)
         .description("Heat capacity ratio")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_R = 287.05;
-    options().add_option("R",m_R)
+    options().add("R",m_R)
         .description("Gas constant")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_k = 2.601e-2;
-    options().add_option("k",m_k)
+    options().add("k",m_k)
         .description("Heat conduction")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
     m_mu = 1.806e-5;
-    options().add_option("mu",m_mu)
+    options().add("mu",m_mu)
         .description("Dynamic viscosity")
         .attach_trigger( boost::bind( &Diffusion2D::config_constants, this));
 
@@ -78,11 +78,11 @@ public:
 
   void config_constants()
   {
-    m_gamma = options().option("gamma").value<Real>();
+    m_gamma = options().value<Real>("gamma");
     m_gamma_minus_1 = m_gamma-1.;
-    m_R     = options().option("R").value<Real>();
-    m_k     = options().option("k").value<Real>();
-    m_mu    = options().option("mu").value<Real>();
+    m_R     = options().value<Real>("R");
+    m_k     = options().value<Real>("k");
+    m_mu    = options().value<Real>("mu");
     m_Cp    = m_gamma*m_R/m_gamma_minus_1;
   }
 

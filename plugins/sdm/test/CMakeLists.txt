@@ -17,6 +17,11 @@ coolfluid_add_test( UTEST      utest-sdm-convection
                     LIBS       coolfluid_sdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
                     MPI        1 )
 
+coolfluid_add_test( UTEST      utest-sdm-diffusion
+                    CPP        utest-sdm-diffusion.cpp
+                    LIBS       coolfluid_sdm coolfluid_mesh_gmsh coolfluid_sdm_scalar
+                    MPI        1 )
+
 coolfluid_add_test( UTEST      utest-sdm-transformation
                     CPP        utest-sdm-transformation.cpp
                     LIBS       coolfluid_sdm )
@@ -52,6 +57,11 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-2d
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 
+coolfluid_add_test( ATEST      atest-sdm-lineuler-wallbc-2d
+                    PYTHON     atest-sdm-lineuler-wallbc-2d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
 coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-3d
                     PYTHON     atest-sdm-lineuler-acousticpulse-3d.py
                     LIBS       coolfluid_sdm_lineuler
@@ -60,12 +70,8 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-3d
 coolfluid_add_test( ATEST      atest-sdm-lineuler-machcone-3d
                     PYTHON     atest-sdm-lineuler-machcone-3d.py
                     LIBS       coolfluid_sdm_lineuler
-                    DEPENDS    copy-resources)
-
-coolfluid_add_test( ATEST      atest-sdm-lineuler-machcone-3d-simple
-                    PYTHON     atest-sdm-lineuler-machcone-3d-simple.py
-                    LIBS       coolfluid_sdm_lineuler
-                    DEPENDS    copy-resources)
+                    DEPENDS    copy-resources
+                    MPI        2)
 
 coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticvorticityentropypulse-2d
                     PYTHON     atest-sdm-lineuler-acousticvorticityentropypulse-2d.py

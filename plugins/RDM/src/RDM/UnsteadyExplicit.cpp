@@ -6,6 +6,8 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "common/Log.hpp"
+
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
@@ -63,7 +65,7 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
 {
   // options
 
-  options().add_option( "rkorder", 1u )
+  options().add( "rkorder", 1u )
       .description("Order of the explicit time stepping")
       .pretty_name("Time Step Order");
 
@@ -89,7 +91,7 @@ UnsteadyExplicit::~UnsteadyExplicit() {}
 Model& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
 
-  const Uint rkorder = options().option("rkorder").value<Uint>();
+  const Uint rkorder = options().value<Uint>("rkorder");
 
   // (1) create the model
 
@@ -111,13 +113,13 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
 
   solver.mark_basic();
 
-  solver.properties().add_property("rkorder", rkorder); // place it somewhere for other components to access
+  solver.properties().add("rkorder", rkorder); // place it somewhere for other components to access
 
   // (4a) setup time step stop condition
 
   CriterionTime& time_limit = *solver.time_stepping().create_component<CriterionTime>("TimeLimit");
 
-  time_limit.options().configure_option( RDM::Tags::time(), solver.time_stepping().time().handle<Time>() /* .uri()*/ );
+  time_limit.options().set( RDM::Tags::time(), solver.time_stepping().time().handle<Time>() /* .uri()*/ );
 
   // (4b) setup iterative solver reset action
 
@@ -130,18 +132,17 @@ Model& UnsteadyExplicit::create_model( const std::string& model_name, const std:
   std::vector<std::string> reset_fields;
   reset_fields.push_back( RDM::Tags::residual() );
   reset_fields.push_back( RDM::Tags::wave_speed() );
-  reset->options().configure_option("FieldTags", reset_fields);
+  reset->options().set("FieldTags", reset_fields);
 
   // (4c) setup iterative solver explicit time stepping  - RK
   solver.iterative_solver().update().create_component<RK>("Step");
 
-  solver.iterative_solver().get_child("MaxIterations")->options().configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
+  solver.iterative_solver().get_child("MaxIterations")->options().set("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
-  solver.iterative_solver().get_child("PostActions")->get_child("IterationSummary")->options().configure_option("print_rate", 0u); // dont print under unsteady iterations
+  solver.iterative_solver().get_child("PostActions")->get_child("IterationSummary")->options().set("print_rate", 0u); // dont print under unsteady iterations
 
   // (4d) setup solver fields
-  solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().configure_option( "nb_levels", rkorder );
-
+  solver.prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields")->options().set( "nb_levels", rkorder );
   solver.prepare_mesh().create_component<ComputeDualArea>("ComputeDualArea");
 
   // (5) configure domain, physical model and solver in all subcomponents
@@ -169,7 +170,7 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("model_name", std::string() )
+  options.add("model_name", std::string() )
       .description("Name for created model" )
       .pretty_name("Model Name");
 
@@ -180,7 +181,7 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ( NavierStokes::NavierStokes2D::type_name() )
       ( LinEuler::LinEuler2D::type_name() ) ;
 
-  options.add_option("physical_model", std::string() )
+  options.add("physical_model", std::string() )
       .description("Name of the Physical Model")
       .pretty_name("Physical Model Type")
       .restricted_list() = models;

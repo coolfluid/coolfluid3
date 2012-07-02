@@ -65,24 +65,36 @@ common::ComponentBuilder < Mesh, Component, LibMesh > Mesh_Builder;
 Mesh::Mesh ( const std::string& name  ) :
   Component ( name ),
   m_dimension(0u),
-  m_dimensionality(0u)
+  m_dimensionality(0u),
+  m_block_mesh_changed(false)
 {
   mark_basic(); // by default meshes are visible
 
-  properties().add_property("nb_cells",Uint(0));
-  properties().add_property("nb_faces",Uint(0));
-  properties().add_property("nb_nodes",Uint(0));
-  properties().add_property("dimensionality",Uint(0));
-  properties().add_property(common::Tags::dimension(),Uint(0));
+  properties().add("local_nb_cells",Uint(0));
+  properties().add("local_nb_faces",Uint(0));
+  properties().add("local_nb_nodes",Uint(0));
+  properties().add("global_nb_cells",Uint(0));
+  properties().add("global_nb_faces",Uint(0));
+  properties().add("global_nb_nodes",Uint(0));
+  properties().add("dimensionality",Uint(0));
+  properties().add(common::Tags::dimension(),Uint(0));
 
   m_topology   = create_static_component<Region>(mesh::Tags::topology());
   m_metadata   = create_static_component<MeshMetadata>("metadata");
+
+  m_local_bounding_box  = create_static_component<BoundingBox>("bounding_box_local");
+  m_global_bounding_box = create_static_component<BoundingBox>("bounding_box_global");
 
   regist_signal ( "write_mesh" )
       .description( "Write mesh, guessing automatically the format" )
       .pretty_name("Write Mesh" )
       .connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       .signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
+      
+  regist_signal ( "raise_mesh_loaded" )
+      .description( "Raise the mesh loaded event" )
+      .pretty_name("Raise Mesh Loaded" )
+      .connect   ( boost::bind ( &Mesh::signal_raise_mesh_loaded,    this, _1 ) );
 
   m_geometry_fields = create_static_component<ContinuousDictionary>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
@@ -105,14 +117,14 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf3_assert(dimension > 0);
 
   geometry_fields().coordinates().set_dict(geometry_fields());
-  geometry_fields().coordinates().descriptor().options().configure_option(common::Tags::dimension(),dimension);
+  geometry_fields().coordinates().descriptor().options().set(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
 
   cf3_assert(geometry_fields().size() == nb_nodes);
   cf3_assert(geometry_fields().coordinates().row_size() == dimension);
   m_dimension = dimension;
   properties().property(common::Tags::dimension()) = m_dimension;
-  properties().property("nb_nodes")  = geometry_fields().size();
+  properties().property("local_nb_nodes")  = geometry_fields().size();
   update_structures();
 }
 
@@ -192,9 +204,26 @@ void Mesh::update_statistics()
 
   properties().property(common::Tags::dimension()) = m_dimension;
   properties().property("dimensionality")= m_dimensionality;
-  properties().property("nb_cells") = nb_cells;
-  properties().property("nb_faces") = nb_faces;
-  properties().property("nb_nodes") = geometry_fields().size();
+  properties().property("local_nb_cells") = nb_cells;
+  properties().property("local_nb_faces") = nb_faces;
+  properties().property("local_nb_nodes") = geometry_fields().size();
+
+  std::vector<Uint> global_stats(3);
+  global_stats[0]=nb_cells;
+  global_stats[1]=nb_faces;
+  global_stats[2]=geometry_fields().size();
+  if (PE::Comm::instance().is_active())
+    PE::Comm::instance().all_reduce(PE::plus(),global_stats,global_stats);
+  properties().property("global_nb_cells") = global_stats[0];
+  properties().property("global_nb_faces") = global_stats[1];
+  properties().property("global_nb_nodes") = global_stats[2];
+
+  m_local_bounding_box->build(*this);
+  m_local_bounding_box->update_properties();
+
+  m_global_bounding_box->define(*m_local_bounding_box);
+  m_global_bounding_box->make_global();
+  m_global_bounding_box->update_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,11 +329,11 @@ void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("file" , URI(name() + ".msh") )
-      .description("File to write" );
+  options.add("file" , URI(name() + ".msh") )
+      .description("File to write" ).mark_basic();
 
   std::vector<URI> fields;
-  options.add_option("fields" , fields )
+  options.add("fields" , fields )
       .description("Field paths to write");
 }
 
@@ -334,6 +363,12 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
 
   write_mesh(fpath,fields);
 }
+
+void Mesh::signal_raise_mesh_loaded ( SignalArgs& node )
+{
+  raise_mesh_loaded();
+}
+
 
 void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 {
@@ -438,7 +473,7 @@ void Mesh::raise_mesh_loaded()
 
   // Raise an event to indicate that this mesh was loaded
   SignalOptions options;
-  options.add_option("mesh_uri", uri());
+  options.add("mesh_uri", uri());
 
   SignalArgs f= options.create_frame();
   Core::instance().event_handler().raise_event( Tags::event_mesh_loaded(), f );
@@ -465,15 +500,25 @@ void Mesh::raise_mesh_changed()
 
   // Raise an event to indicate that this mesh was changed
   SignalOptions options;
-  options.add_option("mesh_uri", uri());
+  options.add("mesh_uri", uri());
 
-  SignalArgs f= options.create_frame();
-  Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+  if(!m_block_mesh_changed)
+  {
+    SignalArgs f= options.create_frame();
+    Core::instance().event_handler().raise_event( Tags::event_mesh_changed(), f );
+  }
 
   update_statistics();
   check_sanity();
-
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::block_mesh_changed ( const bool block )
+{
+  m_block_mesh_changed = block;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

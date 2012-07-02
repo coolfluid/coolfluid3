@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 #ifdef test_is_mpi
   PE::Comm::instance().init(m_argc,m_argv);
 #endif
-  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().options().set("log_level",(Uint)INFO);
 }
 
 //////////////////////////////////////////////////////////////////////////////

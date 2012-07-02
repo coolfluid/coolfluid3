@@ -36,7 +36,7 @@ CopySolution::CopySolution ( const std::string& name ) :
 
   // options
 
-  options().add_option(RDM::Tags::solution(), m_solution)
+  options().add(RDM::Tags::solution(), m_solution)
       .pretty_name("Solution")
       .link_to(&m_solution);
 }
@@ -48,7 +48,7 @@ void CopySolution::execute()
   if (is_null(m_solution))
     m_solution = follow_link(mysolver.fields().get_child( RDM::Tags::solution() ))->handle<Field>();
 
-  boost_foreach( Component& c, find_components_with_tag( mysolver.fields(), "rksteps" ) )
+  boost_foreach( Component& c, find_components_with_tag( mysolver.fields(), "past_step" ) )
   {
     Handle< Field > field(follow_link(c));
     if ( field )

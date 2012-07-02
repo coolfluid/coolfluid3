@@ -72,9 +72,9 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->options().configure_option("mesh",URI("//line"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
+  meshgenerator->options().set("mesh",URI("//line"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->options().set("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
 
 
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","2Dgenerator");
 
-  meshgenerator->options().configure_option("mesh",URI("//rect"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(2,2));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(2,2.));
+  meshgenerator->options().set("mesh",URI("//rect"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(2,2));
+  meshgenerator->options().set("lengths",std::vector<Real>(2,2.));
   Mesh& mesh = meshgenerator->generate();
 
 
@@ -146,9 +146,9 @@ BOOST_AUTO_TEST_CASE( generate_3d_mesh )
 
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","3Dgenerator");
 
-  meshgenerator->options().configure_option("mesh",URI("//box"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(3,6));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(3,2.));
+  meshgenerator->options().set("mesh",URI("//box"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(3,6));
+  meshgenerator->options().set("lengths",std::vector<Real>(3,2.));
   Mesh& mesh = meshgenerator->generate();
 
   CFinfo << "elements count = " << mesh.topology().recursive_elements_count(true) << CFendl;

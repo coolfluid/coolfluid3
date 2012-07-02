@@ -17,18 +17,11 @@
 namespace cf3 {
 namespace mesh {
 
-  class NodeElementConnectivity;
-
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines neutral mesh format reader
+/// @brief Compute the stencil around an element, consisting of rings of neighboring cells
 /// @author Willem Deconinck
-class Mesh_API StencilComputerRings : public StencilComputer
-{
-public: // typedefs
-
-  
-  
+class Mesh_API StencilComputerRings : public StencilComputer {
 
 public: // functions  
   /// constructor
@@ -37,21 +30,15 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "StencilComputerRings"; }
 
-  virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil);
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil);
 
 private: // functions
 
-  void configure_mesh();
-  
-  NodeElementConnectivity& node2cell() { return *m_node2cell; }
-
-  void compute_neighbors(std::set<Uint>& included, const Uint unified_elem_idx, const Uint level=0);
+  void compute_neighbors(std::set<SpaceElem>& included, const SpaceElem& element, const Uint level=0);
 
 private: // data
   
   Uint m_nb_rings;
-
-  Handle<NodeElementConnectivity> m_node2cell;
   
   std::set<Uint> visited_nodes;
 }; // end StencilComputerRings

@@ -135,9 +135,9 @@ BOOST_AUTO_TEST_CASE( init_mpi )
   common::PE::Comm::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
-  common::Core::instance().environment().options().configure_option("log_level", 4u);
-  common::Core::instance().environment().options().configure_option("exception_backtrace", false);
-  common::Core::instance().environment().options().configure_option("exception_outputs", false);
+  common::Core::instance().environment().options().set("log_level", 4u);
+  common::Core::instance().environment().options().set("exception_backtrace", false);
+  common::Core::instance().environment().options().set("exception_outputs", false);
   //common::PE::wait_for_debugger(0);
 }
 
@@ -1035,7 +1035,7 @@ BOOST_AUTO_TEST_CASE( solve_system_blocked )
   boost::shared_ptr<System> sys(common::allocate_component<System>("sys"));
   sys->options().option("matrix_builder").change_value(matrix_builder);
   boost::shared_ptr<math::VariablesDescriptor> vars = common::allocate_component<math::VariablesDescriptor>("vars");
-  vars->options().configure_option("dimension", 1u);
+  vars->options().set("dimension", 1u);
 
   vars->push_back("var1", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
   vars->push_back("var2", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);

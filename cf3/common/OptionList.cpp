@@ -123,7 +123,7 @@ const Option & OptionList::operator [] (const std::string & pname) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OptionList::configure_option(const std::string& pname, const boost::any& val)
+void OptionList::set(const std::string& pname, const boost::any& val)
 {
   OptionStorage_t::iterator itr = store.find(pname);
   if (itr == store.end())
@@ -181,7 +181,7 @@ void set_option_to_list( const std::string & name,
                          OptionList & options )
 {
   if( !options.check(name) )
-    options.add_option(name, value);
+    options.add(name, value);
   else
     options[name].change_value( value );
 }
@@ -204,97 +204,104 @@ void set_array_to_list( const std::string & name,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void OptionList::fill_from_vector( const std::vector<std::string> & args )
+void OptionList::set( const std::string & arg )
 {
   // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
   boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
   boost::match_results<std::string::const_iterator> what;
 
-  boost_foreach (const std::string& arg, args)
+  std::string name;
+  std::string type;
+  std::string subtype; // in case of array<type>
+  std::string value;
+
+  if (regex_search(arg,what,expression))
   {
+    name=what[1];
+    type=what[3];
+    subtype=what[5];
+    value=what[6];
 
-    std::string name;
-    std::string type;
-    std::string subtype; // in case of array<type>
-    std::string value;
+    //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
 
-    if (regex_search(arg,what,expression))
+    if      (type == "bool")
+      set_option_to_list< OptionT<bool> >(name, from_str<bool>( value ), *this );
+    else if (type == "unsigned")
+      set_option_to_list< OptionT<Uint> >(name, from_str<Uint>( value ), *this );
+    else if (type == "integer")
+      set_option_to_list< OptionT<int> >(name, from_str<int>( value ), *this );
+    else if (type == "real")
+      set_option_to_list< OptionT<Real> >(name, from_str<Real>( value ), *this );
+    else if (type == "string")
+      set_option_to_list< OptionT<std::string> >(name, value, *this );
+    else if (type == "uri")
+      set_option_to_list< OptionURI >(name, from_str<URI>( value ), *this );
+    else if (type == "array")
     {
-      name=what[1];
-      type=what[3];
-      subtype=what[5];
-      value=what[6];
+      std::vector<std::string> array;
 
-      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
-
-      if      (type == "bool")
-        set_option_to_list< OptionT<bool> >(name, from_str<bool>( value ), *this );
-      else if (type == "unsigned")
-        set_option_to_list< OptionT<Uint> >(name, from_str<Uint>( value ), *this );
-      else if (type == "integer")
-        set_option_to_list< OptionT<int> >(name, from_str<int>( value ), *this );
-      else if (type == "real")
-        set_option_to_list< OptionT<Real> >(name, from_str<Real>( value ), *this );
-      else if (type == "string")
-        set_option_to_list< OptionT<std::string> >(name, value, *this );
-      else if (type == "uri")
-        set_option_to_list< OptionURI >(name, from_str<URI>( value ), *this );
-      else if (type == "array")
+      // the strings could have comma's inside, brackets, etc...
+      Uint in_brackets(0);
+      std::string::iterator first = value.begin();
+      std::string::iterator it = first;
+      for ( ; it!=value.end(); ++it)
       {
-        std::vector<std::string> array;
-
-        // the strings could have comma's inside, brackets, etc...
-        Uint in_brackets(0);
-        std::string::iterator first = value.begin();
-        std::string::iterator it = first;
-        for ( ; it!=value.end(); ++it)
+        if (*it == '(') // opening bracket
+          ++in_brackets;
+        else if (*it == ')') // closing bracket
+          --in_brackets;
+        else if (*it == ',' && in_brackets == 0)
         {
-          if (*it == '(') // opening bracket
-            ++in_brackets;
-          else if (*it == ')') // closing bracket
-            --in_brackets;
-          else if (*it == ',' && in_brackets == 0)
-          {
-            array.push_back(std::string(first,it));
-            boost::algorithm::trim(array.back());
-            first = it+1;
-          }
+          array.push_back(std::string(first,it));
+          boost::algorithm::trim(array.back());
+          first = it+1;
         }
-        array.push_back(std::string(first,it));
-        boost::algorithm::trim(array.back());
-
-        if (subtype == "bool")
-          set_array_to_list<bool>(name, array, *this);
-        else if (subtype == "unsigned")
-          set_array_to_list<Uint>(name, array, *this);
-        else if (subtype == "integer")
-          set_array_to_list<int>(name, array, *this);
-        else if (subtype == "real")
-          set_array_to_list<Real>(name, array, *this);
-        else if (subtype == "string")
-          set_option_to_list< OptionArray<std::string> >(name, array, *this);
-        else if (subtype == "uri")
-          set_array_to_list<URI>(name, array, *this);
-
       }
-      else
-        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] is invalid.\n"+
-          "Format should be:\n"
-          " -  for simple types:  variable_name:type=value\n"
-          " -  for array types:   variable_name:array[type]=value1,value2\n"
-          "  with possible type: [bool,unsigned,integer,real,string,uri]");
+      array.push_back(std::string(first,it));
+      boost::algorithm::trim(array.back());
+
+      if (subtype == "bool")
+        set_array_to_list<bool>(name, array, *this);
+      else if (subtype == "unsigned")
+        set_array_to_list<Uint>(name, array, *this);
+      else if (subtype == "integer")
+        set_array_to_list<int>(name, array, *this);
+      else if (subtype == "real")
+        set_array_to_list<Real>(name, array, *this);
+      else if (subtype == "string")
+        set_option_to_list< OptionArray<std::string> >(name, array, *this);
+      else if (subtype == "uri")
+        set_array_to_list<URI>(name, array, *this);
+
     }
     else
-      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "].\n"+
-         "Format should be:\n"
-         " -  for simple types:  variable_name:type=value\n"
-         " -  for array types:   variable_name:array[type]=value1,value2\n"
-         "  with possible type: [bool,unsigned,integer,real,string,uri]");
+      throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] is invalid.\n"+
+                          "Format should be:\n"
+                          " -  for simple types:  variable_name:type=value\n"
+                          " -  for array types:   variable_name:array[type]=value1,value2\n"
+                          "  with possible type: [bool,unsigned,integer,real,string,uri]");
+  }
+  else
+    throw ParsingFailed(FromHere(), "Could not parse [" + arg + "].\n"+
+                        "Format should be:\n"
+                        " -  for simple types:  variable_name:type=value\n"
+                        " -  for array types:   variable_name:array[type]=value1,value2\n"
+                        "  with possible type: [bool,unsigned,integer,real,string,uri]");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OptionList::set( const std::vector<std::string> & args )
+{
+  boost_foreach (const std::string& arg, args)
+  {
+    set(arg);
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
-//// "Magic" add_option implementation
+//// "Magic" add implementation
 
 //// Specialization for URI
 //template<>
@@ -322,7 +329,7 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
 //  const std::string& name, const typename SelectOptionType<T>::type::value_type & default_value)
 //{
 //  typedef typename OptionList::SelectOptionType<T>::type OptionType;
-//  return dynamic_cast<OptionType>(add_option(name, default_value));
+//  return dynamic_cast<OptionType>(add(name, default_value));
 //}
 
 //#define EXPLICIT_TEMPLATE_INSTANCIATION(T) \

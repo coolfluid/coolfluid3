@@ -9,8 +9,12 @@ list( APPEND coolfluid_sdm_files
   BCFunction.cpp
   BCWeak.hpp
   BCWeak.cpp
+  BCStrong.hpp
+  BCStrong.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
+  ComputeLNorm.hpp
+  ComputeLNorm.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
   ConvectiveTerm.hpp
@@ -22,6 +26,7 @@ list( APPEND coolfluid_sdm_files
   DomainDiscretization.cpp
   DomainDiscretization.hpp
   ElementCaching.hpp
+  ElementCaching.cpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp
@@ -29,10 +34,10 @@ list( APPEND coolfluid_sdm_files
   IterativeSolver.cpp
   IterativeSolver.hpp
   PhysDataBase.hpp
-  RungeKuttaLowStorage2.hpp
-  RungeKuttaLowStorage2.cpp
-  RungeKuttaLowStorage3.hpp
-  RungeKuttaLowStorage3.cpp
+  ExplicitRungeKuttaLowStorage2.hpp
+  ExplicitRungeKuttaLowStorage2.cpp
+  ExplicitRungeKuttaLowStorage3.hpp
+  ExplicitRungeKuttaLowStorage3.cpp
   LagrangeLocally1D.hpp
   LagrangeLocally1D.cpp
   LibSDM.hpp
@@ -68,3 +73,4 @@ add_subdirectory( scalar       )                 # library coolfluid_sdm_scalar
 add_subdirectory( navierstokes )                 # library coolfluid_sdm_navierstokes
 add_subdirectory( navierstokesmovingreference )  # library coolfluid_sdm_navierstokesmovingreference
 add_subdirectory( lineuler     )                 # library coolfluid_sdm_lineuler
+add_subdirectory( explicit_rungekutta )          # library coolfluid_sdm_explicit_rungekutta

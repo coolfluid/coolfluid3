@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 {
   boost::shared_ptr<BuildFaces> facebuilder = allocate_component<BuildFaces>("facebuilder");
   BOOST_CHECK_EQUAL(facebuilder->name(),"facebuilder");
-  Core::instance().environment().options().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().options().set("log_level",(Uint)INFO);
 }
 
 BOOST_AUTO_TEST_CASE( build_faceconnectivity )
@@ -88,9 +88,13 @@ BOOST_AUTO_TEST_CASE( build_faceconnectivity )
   BOOST_CHECK_EQUAL( f2c.size() , 31u);
 
   Face2Cell face(f2c);
-  Handle<Elements> liquid_triag (mesh->access_component("topology/quadtriag/liquid/Triag"));
-  Handle<Elements> gas_triag    (mesh->access_component("topology/quadtriag/gas/Triag"));
-  Handle<Elements> gas_quad     (mesh->access_component("topology/quadtriag/gas/Quad"));
+  Handle<Elements> liquid_triag (mesh->access_component("topology/liquid/elements_cf3.mesh.LagrangeP1.Triag2D"));
+  Handle<Elements> gas_triag    (mesh->access_component("topology/gas/elements_cf3.mesh.LagrangeP1.Triag2D"));
+  Handle<Elements> gas_quad     (mesh->access_component("topology/gas/elements_cf3.mesh.LagrangeP1.Quad2D"));
+
+  BOOST_CHECK(is_not_null(liquid_triag));
+  BOOST_CHECK(is_not_null(gas_triag));
+  BOOST_CHECK(is_not_null(gas_quad));
 
   face.idx=0;
   BOOST_CHECK_EQUAL( face.is_bdry() , false);
@@ -310,9 +314,9 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   boost::shared_ptr< MeshWriter > mesh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","writer");
 
   std::vector<URI> fields(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())->uri());
-  mesh_writer->options().configure_option("fields",fields);
-  mesh_writer->options().configure_option("mesh",mesh);
-  mesh_writer->options().configure_option("file",URI("facenormals.msh"));
+  mesh_writer->options().set("fields",fields);
+  mesh_writer->options().set("mesh",mesh);
+  mesh_writer->options().set("file",URI("facenormals.msh"));
   mesh_writer->execute();
   BOOST_CHECK(true);
 
@@ -327,9 +331,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   boost::shared_ptr<SimpleMeshGenerator> mesh_gen = allocate_component<SimpleMeshGenerator>("mesh_gen");
   std::vector<Real> lengths  = list_of(10.)(10.);
   std::vector<Uint> nb_cells = list_of(5u)(5u);
-  mesh_gen->options().configure_option("mesh",URI("//rectangle_mesh"));
-  mesh_gen->options().configure_option("lengths",lengths);
-  mesh_gen->options().configure_option("nb_cells",nb_cells);
+  mesh_gen->options().set("mesh",URI("//rectangle_mesh"));
+  mesh_gen->options().set("lengths",lengths);
+  mesh_gen->options().set("nb_cells",nb_cells);
   Mesh& rmesh = mesh_gen->generate();
   BOOST_CHECK(true);
   boost::shared_ptr<BuildFaces> facebuilder = allocate_component<BuildFaces>("facebuilder");

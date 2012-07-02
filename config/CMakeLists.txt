@@ -8,6 +8,9 @@ string( TOUPPER "${CMAKE_BUILD_TYPE}" CF3_BUILD_TYPE )
 # coolfluid generic settings
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-config.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-config.hpp)
 
+# coolfluid git revision. This is a separate file, because otherwise all of coolfluid is rebuilt after each commit
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-git-revision.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-git-revision.hpp)
+
 # coolfluid packages found
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-packages.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp)
 

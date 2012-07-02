@@ -55,9 +55,9 @@ public: // functions
   {
     // options
     URI def_path("cpath:/");
-    options().add_option( "MyRelativeFriend", def_path  )
+    options().add( "MyRelativeFriend", def_path  )
         .description("a path to another component");
-    options().add_option( "MyAbsoluteFriend", def_path  )
+    options().add( "MyAbsoluteFriend", def_path  )
         .description("a path to another component");
   }
 

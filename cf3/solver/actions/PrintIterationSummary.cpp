@@ -41,17 +41,17 @@ PrintIterationSummary::PrintIterationSummary ( const std::string& name ) : Actio
 
   // options
 
-  options().add_option("check_convergence", true)
+  options().add("check_convergence", false)
       .description("checks if the norm contains a non-real number ( either a nan or infinity )");
 
-  options().add_option("print_rate", 1u)
+  options().add("print_rate", 1u)
       .description("how often to print the iteration summary");
 
-  options().add_option("norm", my_norm)
+  options().add("norm", my_norm)
       .description("component holding the norm property")
       .link_to(&my_norm);
 
-  options().add_option("iterator", my_iter)
+  options().add("iterator", my_iter)
       .description("component holding the iteration property")
       .link_to(&my_iter);
 }
@@ -68,8 +68,8 @@ void PrintIterationSummary::execute()
   Uint iter = my_iter->properties().value<Uint>("iteration");
   Real norm = my_norm->properties().value<Real>("norm");
 
-  Uint print_rate = options().option("print_rate").value<Uint>();
-  bool check_convergence = options().option("check_convergence").value<bool>();
+  Uint print_rate = options().value<Uint>("print_rate");
+  bool check_convergence = options().value<bool>("check_convergence");
 
   if( print_rate > 0 && !(iter % print_rate) )
     CFinfo << "iter ["    << std::setw(4)  << iter << "]"

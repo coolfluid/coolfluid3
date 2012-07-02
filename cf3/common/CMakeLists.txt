@@ -97,8 +97,11 @@ list( APPEND coolfluid_common_files
     NotificationQueue.hpp
     Option.cpp
     Option.hpp
-    OptionArray.cpp
     OptionArray.hpp
+    OptionArray.cpp
+    OptionArrayDetail.hpp
+    OptionFactory.hpp
+    OptionFactory.cpp
     OptionT.hpp
     OptionT.cpp
     OptionList.cpp

@@ -98,7 +98,7 @@ struct ProtoParallelFixture :
     BlockMesh::BlockArrays& blocks = *dom.create_component<BlockMesh::BlockArrays>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     blocks.partition_blocks(PE::Comm::instance().size(), XX);
-    blocks.options().configure_option("overlap", 0u);
+    blocks.options().set("overlap", 0u);
     blocks.create_mesh(mesh);
 
     // Set up variables
@@ -141,8 +141,8 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
   Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   model.solver().field_manager().create_field("variables", elems_P0);
 
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
-  MeshTerm<1, ScalarField> R("CellRank", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<1, ScalarField> R("CellRank", "variables");
 
   model.solver()
   << create_proto_action
@@ -180,8 +180,8 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
 
   const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
-  MeshTerm<1, ScalarField> R("CellRank", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<1, ScalarField> R("CellRank", "variables");
 
   model.solver()
   << create_proto_action
@@ -242,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE( SimulateOverlap, ProtoParallelFixture )
 // Check the volume results
 BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 {
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
 
@@ -261,9 +261,9 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("fields",fields);
+  writer.options().set("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
   writer.execute();
 }
 
@@ -271,7 +271,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
 {
   const Uint nb_procs = PE::Comm::instance().size();
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
   std::cout << "wanted_volume: " << wanted_volume << ", nb_procs: " << nb_procs << ", x_segs: " << x_segs << std::endl;
@@ -291,9 +291,9 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   MeshWriter& writer = *root.create_component("Writer", "cf3.mesh.VTKXML.Writer")->handle<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables")->uri());
-  writer.options().configure_option("fields",fields);
-  writer.options().configure_option("mesh",mesh.handle<Mesh>());
-  writer.options().configure_option("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
+  writer.options().set("fields",fields);
+  writer.options().set("mesh",mesh.handle<Mesh>());
+  writer.options().set("file",URI("utest-proto-parallel_output-" + mesh.parent()->parent()->name() + ".pvtu"));
   writer.execute();
 }
 

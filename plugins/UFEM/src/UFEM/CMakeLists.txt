@@ -1,10 +1,18 @@
 list( APPEND coolfluid_ufem_files
+  AdjacentCellToFace.hpp
+  AdjacentCellToFace.cpp
+  BCHoldValue.hpp
+  BCHoldValue.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
-  InitialCondition.hpp
-  InitialCondition.cpp
+  HeatCouplingFlux.hpp
+  HeatCouplingFlux.cpp
+  InitialConditionConstant.hpp
+  InitialConditionConstant.cpp
+  InitialConditionFunction.hpp
+  InitialConditionFunction.cpp
   InitialConditions.hpp
   InitialConditions.cpp
   LibUFEM.cpp
@@ -25,6 +33,8 @@ list( APPEND coolfluid_ufem_files
   ParsedFunctionExpression.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
+  SpalartAllmaras.cpp
+  SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
   Tags.hpp
@@ -36,4 +46,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_ac
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
-set_source_files_properties(HeatConductionSteady.cpp NavierStokesOps.cpp PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(HeatConductionSteady.cpp NavierStokesOps.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")

@@ -8,7 +8,6 @@
 #define cf3_solver_actions_Proto_Expression_hpp
 
 #include <map>
-#include <set>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -57,8 +56,10 @@ public:
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(physics::PhysModel& physical_model) = 0;
 
-  /// Append the field tags to the given vector
-  virtual void insert_tags(std::set<std::string>& tags) const = 0;
+  /// Complete the passed map with field information used by the stored expression. The map is built as follows:
+  /// key: the tag for the field to use or create
+  /// value: space library name, to indicate what kind of field is expected
+  virtual void insert_field_info(std::map<std::string, std::string>& tags) const = 0;
 
   virtual ~Expression() {}
 };
@@ -84,9 +85,10 @@ public:
     for(ConstantStorage::ScalarsT::iterator it = m_constant_values.m_scalars.begin(); it != m_constant_values.m_scalars.end(); ++it)
     {
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add_option(name, it->second);
+      common::Option& option = options.check(name) ? options.option(name) : options.add(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
+      option.mark_basic();
     }
 
     // Add vector options
@@ -103,10 +105,11 @@ public:
       }
 
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add_option(name, vec_proxy);
+      common::Option& option = options.check(name) ? options.option(name) : options.add(name, vec_proxy);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
+      option.mark_basic();
     }
   }
 
@@ -115,7 +118,7 @@ public:
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
   }
 
-  void insert_tags(std::set< std::string >& tags) const
+  void insert_field_info(std::map<std::string, std::string>& tags) const
   {
     boost::fusion::for_each(m_variables, AppendTags(tags));
   }
@@ -193,7 +196,7 @@ private:
   /// Functor to store the tags used by a field
   struct AppendTags
   {
-    AppendTags(std::set<std::string>& tags) :
+    AppendTags(std::map<std::string, std::string>& tags) :
       m_tags(tags)
     {
     }
@@ -201,7 +204,8 @@ private:
     /// Register a scalar
     void operator()(const FieldBase& field) const
     {
-      m_tags.insert(field.field_tag());
+      if(m_tags.insert( std::make_pair(field.field_tag(), field.space_lib_name()) ).first->second != field.space_lib_name())
+        throw common::SetupError(FromHere(), "Field with tag " + field.field_tag() + " uses two different space libs");
     }
 
     /// Skip unused variables
@@ -209,7 +213,7 @@ private:
     {
     }
 
-    std::set<std::string>& m_tags;
+    std::map<std::string, std::string>& m_tags;
   };
 };
 
@@ -253,47 +257,7 @@ public:
       (NodeGrammar));
 
     boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
-
-    // Synchronize fields if needed
-    if(common::PE::Comm::instance().is_active())
-      boost::mpl::for_each< boost::mpl::range_c<Uint, 0, BaseT::NbVarsT::value> >(SynchronizeFields(BaseT::m_variables, region));
   }
-private:
-  /// Fusion functor to synchronize fields if needed
-  struct SynchronizeFields
-  {
-    SynchronizeFields(const typename BaseT::VariablesT& vars, mesh::Region& region) :
-      m_variables(vars),
-      m_region(region)
-    {
-    }
-
-    template<typename VarIdxT>
-    void operator()(const VarIdxT& i)
-    {
-      typedef typename boost::result_of<IsModified<VarIdxT::value>(ExprT)>::type IsModifiedT;
-      apply(IsModifiedT(), i);
-    }
-
-    /// Do nothing if the variable is not modified
-    template<typename VarIdxT>
-    void apply(boost::mpl::false_, const VarIdxT&)
-    {
-    }
-
-    /// Synchronize if modified
-    template<typename VarIdxT>
-    void apply(boost::mpl::true_, const VarIdxT&)
-    {
-      const std::string& tag = boost::fusion::at<VarIdxT>(m_variables).field_tag();
-      mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
-      mesh::Field& field = common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
-      field.synchronize();
-    }
-
-    const typename BaseT::VariablesT& m_variables;
-    mesh::Region& m_region;
-  };
 };
 
 /// Default element types supported by elements expressions

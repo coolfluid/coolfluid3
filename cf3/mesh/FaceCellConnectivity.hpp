@@ -35,9 +35,6 @@ class Mesh_API FaceCellConnectivity : public common::Component
 {
 public:
 
-  
-  
-
   /// Contructor
   /// @param name of the component
   FaceCellConnectivity ( const std::string& name );

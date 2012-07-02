@@ -16,6 +16,7 @@
 #include "mesh/Mesh.hpp"
 
 #include "Tools/mesh_transformer/Transformer.hpp"
+#include "Tools/mesh_transformer/Help.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"
 
@@ -32,6 +33,7 @@ using namespace cf3::Tools::mesh_transformer;
 
 int main(int argc, char * argv[])
 {
+  PE::Comm::instance().init(argc, argv);
   Core::instance().initiate(argc, argv);
 
   try
@@ -49,6 +51,8 @@ int main(int argc, char * argv[])
 
     // Initialize empty commands
     options_description desc;
+
+    desc.add(Help(desc));
 
     // Add basic commands to program
     desc.add(BasicCommands::description());
@@ -77,6 +81,7 @@ int main(int argc, char * argv[])
   }
 
   Core::instance().terminate();
+  PE::Comm::instance().finalize();
 
   return 0;
 }

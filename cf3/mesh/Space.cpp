@@ -64,7 +64,7 @@ Space::Space ( const std::string& name ) :
 
   properties()["description"] = msg.str();
 
-  options().add_option("shape_function", std::string())
+  options().add("shape_function", std::string())
       .description("Shape Function defined in this space")
       .pretty_name("Shape Function")
       .attach_trigger(boost::bind(&Space::configure_shape_function, this))
@@ -111,7 +111,7 @@ void Space::configure_shape_function()
   if (is_null(m_dict))
     throw SetupError(FromHere(), "Space "+uri().string()+" must be created using Entities::create_space()");
 
-  const std::string sf_name = options().option("shape_function").value<std::string>();
+  const std::string sf_name = options().value<std::string>("shape_function");
   if (is_not_null(m_shape_function))
   {
     if (m_shape_function->derived_type_name() != sf_name)
@@ -287,6 +287,13 @@ bool SpaceElem::operator==(const SpaceElem& other) const
 bool SpaceElem::operator!=(const SpaceElem& other) const
 {
   return !(*this==other);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool SpaceElem::operator<(const SpaceElem& other) const
+{
+  return glb_idx()<other.glb_idx();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

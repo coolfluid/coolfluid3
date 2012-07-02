@@ -29,7 +29,7 @@ struct DynamicModel::Implementation
 {
   Implementation(Component& component) : m_component(component), m_type("DynamicModel"), m_updating(false)
   {
-    m_component.options().add_option(common::Tags::dimension(), 0u)
+    m_component.options().add(common::Tags::dimension(), 0u)
       .pretty_name("Dimensions")
       .description("Dimensions for the problem")
       .attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));

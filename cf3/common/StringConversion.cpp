@@ -34,6 +34,18 @@ namespace common {
   }
 
   template <>
+  Common_API std::string to_str<long> (const long & v)
+  {
+    return boost::lexical_cast<std::string>(v);
+  }
+
+  template <>
+  Common_API std::string to_str<long long> (const long long & v)
+  {
+    return boost::lexical_cast<std::string>(v);
+  }
+
+  template <>
   Common_API std::string to_str<unsigned> (const unsigned & v)
   {
     return boost::lexical_cast<std::string>(v);
@@ -73,7 +85,7 @@ namespace common {
   {
     return v.string();
   }
-  
+
   template <>
   Common_API std::string to_str<UUCount> (const UUCount & v)
   {
@@ -191,6 +203,7 @@ namespace common {
     boost::algorithm::is_equal test_equal;
 
     if ( test_equal(str,"true") ||
+         test_equal(str,"True") ||
          test_equal(str,"on")   ||
          test_equal(str,"1")     )
     {
@@ -198,6 +211,7 @@ namespace common {
     }
 
     if ( test_equal(str,"false") ||
+         test_equal(str,"False") ||
          test_equal(str,"off")   ||
          test_equal(str,"0")      )
     {
@@ -213,6 +227,18 @@ namespace common {
   Common_API int from_str<int> (const std::string& str)
   {
     return boost::lexical_cast<int> (str );
+  }
+
+  template <>
+  Common_API long from_str<long> (const std::string& str)
+  {
+    return boost::lexical_cast<long> (str );
+  }
+
+  template <>
+  Common_API long long from_str<long long> (const std::string& str)
+  {
+    return boost::lexical_cast<long long> (str );
   }
 
   template <>
@@ -250,7 +276,7 @@ namespace common {
   {
     return URI( str );
   }
-  
+
   template <>
   Common_API UUCount from_str<UUCount> (const std::string& str)
   {

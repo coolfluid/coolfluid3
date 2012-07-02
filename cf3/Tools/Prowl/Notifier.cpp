@@ -40,17 +40,17 @@ Notifier::Notifier ( const std::string& name ) :
     m_api_key = env_var;
   }
 
-  options().add_option( "priority", m_priority) 
+  options().add( "priority", m_priority) 
       .description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
       .pretty_name("Priority")
       .link_to(&m_priority);
 
-  options().add_option( "application_name", m_application_name) 
+  options().add( "application_name", m_application_name) 
       .description("Name of the application")
       .pretty_name("Application Name")
       .link_to(&m_application_name);
 
-  options().add_option( "api_key", m_api_key) 
+  options().add( "api_key", m_api_key) 
       .description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
       .pretty_name("API key")
       .link_to(&m_api_key)
@@ -111,10 +111,10 @@ void Notifier::signature_notify ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option("event", "new_event")
+  options.add("event", "new_event")
       .description("Event name");
 
-  options.add_option("description" , " ")
+  options.add("description" , " ")
       .description("Description of the event" );
 }
 

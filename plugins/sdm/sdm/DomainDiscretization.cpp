@@ -107,15 +107,15 @@ Term& DomainDiscretization::create_term( const std::string& type,
 {
   Handle< Term > term = m_terms->create_component<Term>(name, type);
 
-  term->options().configure_option( sdm::Tags::solver(),         solver().handle<Component>());
-  term->options().configure_option( sdm::Tags::mesh(),           mesh().handle<Component>());
+  term->options().set( sdm::Tags::solver(),         solver().handle<Component>());
+  term->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    term->options().configure_option("regions", solver().options().option("regions").value< std::vector<common::URI> >() );
+    term->options().set("regions", solver().options().value< std::vector<common::URI> >("regions") );
   else
-    term->options().configure_option("regions", regions);
+    term->options().set("regions", regions);
 
-  term->options().configure_option( sdm::Tags::physical_model(), physical_model().handle<Component>());
+  term->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
 
   term->initialize();
 
@@ -156,7 +156,7 @@ void DomainDiscretization::signal_create_term( SignalArgs& args )
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 }
 
 
@@ -166,14 +166,14 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created term");
 
   // type
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option("type", std::string("cf3.sdm.Convection"))
+  options.add("type", std::string("cf3.sdm.Convection"))
       .description("Type for created term");
 
   // regions
@@ -182,7 +182,7 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the term");
 }
 

@@ -82,13 +82,18 @@ RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
                                                        const std::string& name,
                                                        const std::vector<URI>& regions )
 {
+//  CFinfo << "CREATE CELL TERM: " << name << " of type " << type << CFendl;
+//  CFinfo << "CREATE CELL TERM mesh: " << name << " of type " << m_mesh->uri().path() << CFendl;
+//  CFinfo << "CREATE CELL TERM solver: " << name << " of type " << m_solver->uri().path() << CFendl;
+//  CFinfo << "CREATE CELL TERM physmod: " << name << " of type " << m_physical_model->uri().path() << CFendl;
+
   Handle<RDM::CellTerm> term(m_cell_terms->create_component(name, type));
 
-  term->options().configure_option("regions" , regions);
+  term->options().set("regions" , regions);
 
-  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
-  term->options().configure_option( RDM::Tags::solver() , m_solver );
-  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
+  term->options().set( RDM::Tags::mesh(), m_mesh );
+  term->options().set( RDM::Tags::solver() , m_solver );
+  term->options().set( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }
@@ -99,11 +104,11 @@ RDM::FaceTerm& DomainDiscretization::create_face_term( const std::string& type,
 {
   Handle<FaceTerm> term(m_face_terms->create_component(name, type));
 
-  term->options().configure_option("regions" , regions);
+  term->options().set("regions" , regions);
 
-  term->options().configure_option( RDM::Tags::mesh(), m_mesh );
-  term->options().configure_option( RDM::Tags::solver() , m_solver );
-  term->options().configure_option( RDM::Tags::physical_model() , m_physical_model );
+  term->options().set( RDM::Tags::mesh(), m_mesh );
+  term->options().set( RDM::Tags::solver() , m_solver );
+  term->options().set( RDM::Tags::physical_model() , m_physical_model );
 
   return *term;
 }
@@ -156,7 +161,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created volume term");
 
   // type
@@ -165,7 +170,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -174,7 +179,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the domain term");
 }
 
@@ -185,7 +190,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created volume term");
 
   // type
@@ -194,7 +199,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   //  std::vector< std::string > restricted;
   //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
+  //  XmlNode type_node = options.add("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -203,7 +208,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   /// @todo create here the list of restricted face regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the domain term");
 }
 

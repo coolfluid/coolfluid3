@@ -203,7 +203,7 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    options().add_option("distributed_files", false)
+    options().add("distributed_files", false)
     .pretty_name("Distributed Files")
     .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
@@ -372,7 +372,7 @@ void Writer::write()
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
-      const Uint var_begin = field.var_index(var_name);
+      const Uint var_begin = field.var_offset(var_idx);
       const Uint field_size = field.continuous() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
@@ -469,7 +469,7 @@ void Writer::write()
   fout.close();
 
   // Write the parallel header, if needed
-  if(PE::Comm::instance().rank() == 0 || options().option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || options().value<bool>("distributed_files"))
   {
     URI pvtu_path = my_dir / (basename + ".pvtu");
 

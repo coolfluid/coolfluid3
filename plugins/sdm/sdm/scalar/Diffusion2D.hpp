@@ -37,7 +37,7 @@ public:
   Diffusion2D(const std::string& name) : DiffusiveTerm< PhysData >(name)
   {
     m_mu = 1.;
-    options().add_option("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
+    options().add("mu",m_mu).description("Diffusion coefficient").link_to(&m_mu);
   }
 
   virtual ~Diffusion2D() {}
@@ -45,7 +45,7 @@ public:
   virtual void compute_flux(PhysData& data, const RealVectorNDIM& unit_normal,
                             RealVectorNEQS& flux, Real& wave_speed)
   {
-    flux[0] = m_mu * (data.solution_gradient[XX] * unit_normal[XX] + data.solution_gradient[YY] * unit_normal[YY]);
+    flux[0] = m_mu * data.solution_gradient.dot(unit_normal);
     wave_speed = m_mu;
   }
   

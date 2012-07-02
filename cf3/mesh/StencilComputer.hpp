@@ -9,56 +9,66 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/tuple/tuple.hpp>
-
 #include "common/Component.hpp"
-#include "mesh/UnifiedData.hpp"
+#include "mesh/LibMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
 
-  class Mesh;
-  class Elements;
+  class Dictionary;
+  class SpaceElem;
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines neutral mesh format reader
+/// @brief Base class for stencil computers.
+///
+/// Given one element, a pool of elements is gathered
 /// @author Willem Deconinck
-class Mesh_API StencilComputer : public common::Component
-{
-public: // typedefs
-
-  
-  
+class Mesh_API StencilComputer : public common::Component {
 
 public: // functions  
-  /// constructor
+
+  /// @brief Constructor
   StencilComputer( const std::string& name );
   
-  /// Gets the Class name
+  /// @brief Gets the Class name
   static std::string type_name() { return "StencilComputer"; }
-  
-  UnifiedData& unified_elements() { return *m_elements; }
 
-  virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil) = 0;
-
-  void set_mesh(Mesh& mesh);
-
-private: // functions
-
-  void configure_mesh();
+  /// @brief Compute the stencil around a given element
+  /// @param [in]  element   The element to compute the stencil around
+  /// @param [out] stencil   The computed stencil
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil) = 0;
 
 protected: // data
   
-  Handle<Mesh> m_mesh;
-    
-  Handle< UnifiedData > m_elements;
-  
-  Uint m_min_stencil_size;
+  Handle<Dictionary> m_dict;      ///< The mesh used to compute the stencil
+  Uint m_min_stencil_size;  ///< A minimum stencil size
 
 }; // end StencilComputer
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief A StencilComputer returning one cell
+///
+/// This stencil computer actually doesn't compute, but returns
+/// the given cell as stencil
+/// @author Willem Deconinck
+class Mesh_API StencilComputerOneCell : public StencilComputer {
+
+public: // functions
+
+  /// @brief Constructor
+  StencilComputerOneCell( const std::string& name );
+
+  /// @brief Gets the Class name
+  static std::string type_name() { return "StencilComputerOneCell"; }
+
+  virtual void compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil);
+
+}; // end StencilComputerOneCell
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

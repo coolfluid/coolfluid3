@@ -27,7 +27,7 @@ common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 Roe::Roe ( const std::string& name ) : RiemannSolver(name)
 {
-  options().add_option("roe_vars",m_roe_vars)
+  options().add("roe_vars",m_roe_vars)
       .description("The component describing the Roe variables")
       .pretty_name("Roe Variables")
       .link_to(&m_roe_vars);
@@ -71,7 +71,7 @@ void Roe::trigger_physical_model()
   {
     if (Handle< Component > found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
     {
-      options().configure_option("solution_vars",found_solution_vars);
+      options().set("solution_vars",found_solution_vars);
     }
     else
     {
@@ -86,11 +86,11 @@ void Roe::trigger_physical_model()
   {
     if (Handle< Component > found_roe_vars = find_component_ptr_recursively_with_name(physical_model(),"roe_vars"))
     {
-      options().configure_option("roe_vars",found_roe_vars);
+      options().set("roe_vars",found_roe_vars);
     }
     else if (is_null(m_solution_vars) == false)
     {
-      options().configure_option("roe_vars",solution_vars().handle<Component>());
+      options().set("roe_vars",solution_vars().handle<Component>());
       CFwarn << "Roe RiemannSolver " << uri().string() << " auto-configured \"roe_vars\" to \"solution_vars\".\n"
              << "Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "].\n"
              << "Configure manually for different \"roe_vars\"" << CFendl;

@@ -51,10 +51,10 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
   cp.insert("gid",gid,1,false);
   cp.setup(cp.get_child("gid")->handle<common::PE::CommWrapper>(),rnk);
 
-  lss->options().configure_option("matrix_builder", std::string("cf3.math.LSS.EmptyLSSMatrix"));
+  lss->options().set("matrix_builder", std::string("cf3.math.LSS.EmptyLSSMatrix"));
   lss->create(cp, 4u, conn, startidx);
 
-  solve_action.options().configure_option("lss", lss);
+  solve_action.options().set("lss", lss);
   solve_action.execute();
 }
 

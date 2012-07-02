@@ -36,6 +36,7 @@ namespace ui {
 
 namespace core {
   class PropertyModel;
+  class SSHTunnel;
 }
 
 namespace graphics {
@@ -47,6 +48,8 @@ namespace graphics {
   class TreeView;
   class AboutCFDialog;
   class TreeBrowser;
+  class PythonConsole;
+  class PythonCodeEditor;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +63,10 @@ namespace graphics {
     enum MainWinActions
     {
       ACTION_CONNECT_TO_SERVER,
+
+      ACTION_CREATE_SSH_TUNNEL,
+
+      ACTION_CREATE_REVERSE_SSH_TUNNEL,
 
       ACTION_DISCONNECT_FROM_SERVER,
 
@@ -95,7 +102,11 @@ namespace graphics {
 
       ACTION_ABOUT_COOLFLuiD,
 
-      ACTION_ABOUT_QT
+      ACTION_ABOUT_QT,
+
+      ACTION_NEW_PYTHON_EDITOR,
+
+      ACTION_NEW_REMOTE_FILE_COPY
 
     }; // MainWinActions
 
@@ -111,6 +122,10 @@ namespace graphics {
 
     /// Frees the allocated memory.
     ~MainWindow();
+
+
+    /// @brief create a new PythonCodeEditor, called from the PythonConsole
+    PythonCodeEditor* create_new_python_editor();
 
   protected:
     /// @brief Overrides @c QWidget::closeEvent().
@@ -141,6 +156,10 @@ namespace graphics {
 
     void connect_to_server();
 
+    void create_ssh_tunnel();
+
+    void create_reverse_ssh_tunnel();
+
     void disconnect_from_server();
 
     void network_connected();
@@ -156,6 +175,10 @@ namespace graphics {
     void open_file_remotely();
 
     void run_script();
+
+    void new_python_script_editor();
+
+    void new_remote_file_copy();
 
     void new_log_message(const QString & message, uiCommon::LogMessage::Type type);
 
@@ -222,6 +245,11 @@ namespace graphics {
 
     QSplitter * m_central_splitter;
 
+    QSplitter * m_python_tab_splitter;
+
+    /// @brief Simple console to execute python command on the server
+    PythonConsole * m_python_console;
+
     QTabWidget * m_tab_window;
 
     QTableView * m_property_view;
@@ -235,6 +263,8 @@ namespace graphics {
     TreeBrowser * m_tree_browser;
 
     Tools::Shell::Interpreter * m_script_runner;
+
+    core::SSHTunnel * current_tunnel;
 
     /// @brief Creates actions and menus
     void build_menus();

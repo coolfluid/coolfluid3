@@ -14,6 +14,21 @@
 namespace cf3 {
 namespace python {
 
+/// Helper function to set attributes, since we override the __setattr__ function. This behaves exactly like boost::python::setattr,
+/// except that it calls the generic python setattr and thus does not recurse on components
+inline void generic_setattr(boost::python::object const& target, char const* key, boost::python::object const& value)
+{
+  boost::python::str key_str(key);
+  if(PyObject_GenericSetAttr(target.ptr(), key_str.ptr(), value.ptr()) == -1)
+    boost::python::throw_error_already_set();
+}
+  
+/// Helper function to get a weak reference to the given object
+inline boost::python::object weak_ref(const boost::python::object& source)
+{
+  return boost::python::object(boost::python::handle<>(PyWeakref_NewRef(source.ptr(), NULL)));
+}
+  
 /// Add a function dynamically
 /// @param object Object to add a function to
 /// @param function Function to add (function pointer, ...)
@@ -24,7 +39,8 @@ void add_function(boost::python::object& object, FunctionT function, const std::
 {
   boost::python::object func_obj = boost::python::make_function(function);
   boost::python::setattr(func_obj, "__doc__", boost::python::str(docstring.c_str()));
-  boost::python::setattr(object, name.c_str(), boost::python::import("types").attr("MethodType")(func_obj, object));
+  // TODO: weak ref here doesn't work for some reasons
+  generic_setattr(object, name.c_str(), boost::python::import("types").attr("MethodType")(func_obj, object));
 }
 
 } // python

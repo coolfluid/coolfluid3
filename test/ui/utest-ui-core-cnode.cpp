@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
       "</node>");
 
   SignalArgs args_wrong(XmlNode(wrong_opt->content->first_node("node")));
-  BOOST_CHECK_THROW(MyNode("Node").set_properties(args_wrong), ShouldNotBeHere);
+  BOOST_CHECK_THROW(MyNode("Node").set_properties(args_wrong), ValueNotFound);
 
   SignalArgs args_correct(XmlNode(correct_opt->content->first_node("node")));
   BOOST_REQUIRE_NO_THROW(node.set_properties(args_correct));
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
   // 1. should exist
   BOOST_REQUIRE_NO_THROW( prop = node.properties()["prop"] );
   // 2. should be of type "std::string"
-  BOOST_CHECK_EQUAL( any_type(prop), std::string(Protocol::Tags::type<std::string>()) );
+  BOOST_CHECK_EQUAL( any_type(prop), std::string(common::class_name<std::string>()) );
   // 3. should have the value "Hello, World!"
   BOOST_CHECK_EQUAL( any_to_value<std::string>(prop), std::string("Hello, World!") );
 
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( set_properties )
   // 1. should exist
   BOOST_REQUIRE_NO_THROW( prop = node.properties()["anotherProp"] );
   // 2. should be of type "bool"
-  BOOST_CHECK_EQUAL( class_name_from_typeinfo(prop.type()), std::string(Protocol::Tags::type<bool>()) );
+  BOOST_CHECK_EQUAL( class_name_from_typeinfo(prop.type()), std::string(common::class_name<bool>()) );
   // 3. should have the value false
   BOOST_CHECK( !any_to_value<bool>(prop) );
 
@@ -268,18 +268,18 @@ BOOST_AUTO_TEST_CASE( modify_options )
 
   // call with an empty map, nothing should change
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(42) );
-  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), true );
-  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().value<int>("theAnswer"), int(42) );
+  BOOST_CHECK_EQUAL( node.options().value<bool>("someBool"), true );
+  BOOST_CHECK_EQUAL( node.options().value<std::string>("myString"), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // modify some options
   map["someBool"] = QVariant(false).toString();
   map["theAnswer"] = QString::number(-45782446);
   BOOST_REQUIRE_NO_THROW( node.modify_options(map) );
-  BOOST_CHECK_EQUAL( node.options().option("theAnswer").value<int>(), int(-45782446) );
-  BOOST_CHECK_EQUAL( node.options().option("someBool").value<bool>(), false );
-  BOOST_CHECK_EQUAL( node.options().option("myString").value<std::string>(), std::string("This is a string") );
+  BOOST_CHECK_EQUAL( node.options().value<int>("theAnswer"), int(-45782446) );
+  BOOST_CHECK_EQUAL( node.options().value<bool>("someBool"), false );
+  BOOST_CHECK_EQUAL( node.options().value<std::string>("myString"), std::string("This is a string") );
   BOOST_CHECK_EQUAL( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // try to modify a property (should fail)

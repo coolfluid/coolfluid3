@@ -81,7 +81,7 @@ bool SignatureDialog::show( XmlNode & sig, const QString & title, bool block )
 
   for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
-    m_data_layout->add_option( SignalOptions::xml_to_option(node) );
+    m_data_layout->add( SignalOptions::xml_to_option(node) );
 
     name = node.content->first_attribute( Protocol::Tags::attr_key() )->value();
 

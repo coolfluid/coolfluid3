@@ -41,6 +41,22 @@ struct EigenFixture
     mc = MatrixXd::Zero(5,5);
   }
 
+  // functions
+
+  /// This is how to modify a generic Eigen type
+  /// If you don't do it this way, you cannot modify e.g. rows of matrices:
+  /// @code
+  /// Matrix<int,2,2> m;
+  /// modify(m.row(0));  // This will now work
+  /// @endcode
+  template <typename Derived>
+  void modify(Eigen::MatrixBase<Derived> const& m)
+  {
+    const_cast< MatrixBase<Derived>& >(m).setConstant(2);
+  }
+
+  // data
+
   VectorXd va;
   VectorXd vb;
   VectorXd vc;
@@ -84,6 +100,42 @@ BOOST_AUTO_TEST_CASE( MatrixMatrixOps )
   mc += mb;
 //  cout << mc << endl;
 }
+
+BOOST_AUTO_TEST_CASE( EigenMap )
+{
+
+  // Create an array
+  std::vector<int> v(9);
+  for (int i=0; i<9; ++i)
+    v[i]=i;
+
+  typedef Eigen::Matrix<int,3,3,Eigen::RowMajor> Matrix3x3_t;
+  typedef Eigen::Matrix<int,1,9,Eigen::RowMajor> Matrix1x9_t;
+
+  // Map the array to a 3x3 matrix
+  Eigen::Map< Matrix3x3_t > em1(&v.front());
+  // or equivalent:
+  Matrix3x3_t::MapType em2(&v.front());
+
+  // Map the array to a 1x9 matrix
+  Eigen::Map< Matrix1x9_t > ev1(&v.front());
+  // or equivalent
+  Matrix1x9_t::MapType ev2(&v.front());
+
+
+  // We can now modify the original array as if they were Eigen structures
+
+  // set all elements of row1 to 2
+  modify(em1.row(1));
+
+  // Multiply entire matrix with 2
+  ev1 *= 2;
+
+//  cout << ev2 << endl << endl;
+
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -38,11 +38,11 @@ public:
   /// @name VIRTUAL FUNCTIONS
   //@{
 
-  /// @returns the xml tag for this option
-  virtual const char * tag() const;
-
   /// @returns the value as a std::string
   virtual std::string value_str () const;
+
+  virtual std::string restricted_list_str() const;
+  virtual void set_restricted_list_str(const std::vector< std::string >& list);
 
   //@} END VIRTUAL FUNCTIONS
 
@@ -50,8 +50,10 @@ private: // functions
 
   /// copy the configured update value to all linked parameters
   virtual void copy_to_linked_params (std::vector< boost::any >& linked_params );
-  
+
   virtual boost::any extract_configured_value(XML::XmlNode& node);
+
+  virtual void change_value_impl(const boost::any& value);
 
 }; // class OptionT
 

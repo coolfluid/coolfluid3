@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( CreateVariableDescriptor )
   boost::shared_ptr<VariableManager> manager = allocate_component<VariableManager>("manager");
   VariablesDescriptor& descriptor = manager->create_descriptor("solution", "a, b[v], c[t]");
 
-  descriptor.options().configure_option(common::Tags::dimension(), 2u);
+  descriptor.options().set(common::Tags::dimension(), 2u);
 
   BOOST_CHECK(descriptor.has_tag("solution"));
   BOOST_CHECK_EQUAL(descriptor.size(), 7);

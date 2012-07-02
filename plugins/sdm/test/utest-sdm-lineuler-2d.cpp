@@ -68,7 +68,7 @@ BOOST_FIXTURE_TEST_SUITE( sdm_MPITests_TestSuite, sdm_MPITests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
 //  PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().set("log_level", (Uint)INFO);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( test_source )
   boost::shared_ptr<SourceMonopole2D> source_term = allocate_component<SourceMonopole2D>("source_term");
   boost::shared_ptr<solver::Time>     time        = allocate_component<solver::Time>("time");
   
-  source_term->options().configure_option("time",time->handle<solver::Time>());
+  source_term->options().set("time",time->handle<solver::Time>());
   
   SourceMonopole2D::PhysData data;
   data.coord << 0.,0.;

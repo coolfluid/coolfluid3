@@ -25,7 +25,7 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/FwdEuler.hpp"
-#include "RDM/SetupSingleSolution.hpp"
+#include "RDM/SetupMultipleSolutions.hpp"
 #include "RDM/Reset.hpp"
 
 // supported physical models
@@ -100,18 +100,18 @@ Model& SteadyExplicit::create_model( const std::string& model_name, const std::s
   // (4a) setup iterative solver reset action
 
   Handle<Reset> reset(solver->iterative_solver().pre_actions().create_component<Reset>("Reset"));
-  reset->options().configure_option( RDM::Tags::solver(), solver->handle<Solver>() );
+  reset->options().set( RDM::Tags::solver(), solver->handle<Solver>() );
 
   std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
                                                               ( RDM::Tags::wave_speed() );
-  reset->options().configure_option("FieldTags", reset_tags);
+  reset->options().set("FieldTags", reset_tags);
 
   // (4c) setup iterative solver explicit time stepping  - forward euler
 
   solver->iterative_solver().update().create_component<FwdEuler>("Step");
 
   // (4d) setup solver fields
-  solver->prepare_mesh().create_component<SetupSingleSolution>("SetupFields");
+  solver->prepare_mesh().create_component<SetupMultipleSolutions>("SetupFields");
 
   // (5) configure domain, physical model and solver in all subcomponents
 
@@ -141,7 +141,7 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("model_name", std::string() )
+  options.add("model_name", std::string() )
       .description("Name for created model" )
       .pretty_name("Model Name");
 
@@ -151,7 +151,7 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add_option("physical_model", std::string() )
+  options.add("physical_model", std::string() )
       .description("Name of the Physical Model")
       .pretty_name("Physical Model Type")
       .restricted_list() = models;

@@ -30,7 +30,7 @@ public:
   static std::string type_name() { return "BCFunction<"+common::to_str(NEQS)+","+common::to_str(NDIM)+">"; }
   BCFunction(const std::string& name) : BCWeak< PhysDataBase<NEQS,NDIM> >(name)
   {
-    common::Component::options().add_option("functions", std::vector<std::string>())
+    common::Component::options().add("functions", std::vector<std::string>())
         .description("math function applied as boundary condition (vars x,y,z)")
         .pretty_name("Functions")
         .attach_trigger ( boost::bind ( &BCFunction::config_function, this ) )

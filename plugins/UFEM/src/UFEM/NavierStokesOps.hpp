@@ -89,22 +89,22 @@ struct SUPGSpecialized
 {
   typedef void result_type;
 
-  template<typename PT, typename UT, typename UADVT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
+  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
-    apply(typename UT::EtypeT(), p, u, u_adv, coeffs, A, T);
+    apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, coeffs, A, T);
   }
 
   /// Specialization for triangles
-  template<typename PT, typename UT, typename UADVT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
+  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u_adv.value().colwise().mean();
     const ElementT::NodesT& nodes = u.support().nodes();
     const Real volume = u.support().volume();
     const Real fc = 0.5;
-    const Real nu = coeffs.one_over_rho*coeffs.mu;
+    const Real nu = nu_eff.value().mean();
 
     // Face normals
     ElementT::NodesT normals;
@@ -229,15 +229,15 @@ struct SUPGSpecialized
   }
 
   /// Specialization for tetrahedra
-  template<typename PT, typename UT, typename UADVT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
+  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, SUPGCoeffs& coeffs, MatrixT& A, MatrixT& T)
   {
     typedef mesh::LagrangeP1::Tetra3D ElementT;
     const RealVector3 u_avg = u_adv.value().colwise().mean();
     const ElementT::NodesT& nodes = u.support().nodes();
     const Real volume = u.support().volume();
     const Real fc = 0.5;
-    const Real nu = coeffs.one_over_rho*coeffs.mu;
+    const Real nu = nu_eff.value().mean();
 
     // Face normals
     ElementT::NodesT normals;
@@ -401,8 +401,11 @@ struct SUPGSpecialized
 /// Placeholder for the specialized ops
 static solver::actions::Proto::MakeSFOp<SUPGSpecialized>::type const supg_specialized = {};
 
-/// Precompiled Navier-Stokes assembly expression
-boost::shared_ptr<solver::actions::Proto::Expression> generic_ns_assembly(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
+/// Precompiled Navier-Stokes assembly expression, quads and hexa P1 elements only
+boost::shared_ptr<solver::actions::Proto::Expression> ns_assembly_quad_hexa_p1(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
+
+/// Precompiled Navier-Stokes assembly expression, all 2D and 3D lagrange P1 elements
+boost::shared_ptr<solver::actions::Proto::Expression> ns_assembly_lagrange_p1(LSSActionUnsteady& solver, SUPGCoeffs& coeffs);
 
 } // UFEM
 } // cf3

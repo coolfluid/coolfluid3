@@ -57,7 +57,7 @@ cf3::common::ComponentBuilder < EigenLSS, common::Component, LibSolver > aEigenL
 
 EigenLSS::EigenLSS ( const std::string& name ) : Component ( name )
 {
-  options().add_option("config_file", URI())
+  options().add("config_file", URI())
       .supported_protocol(URI::Scheme::FILE)
       .description("Solver config file")
       .pretty_name("Config File")
@@ -69,7 +69,7 @@ EigenLSS::EigenLSS ( const std::string& name ) : Component ( name )
 
 void EigenLSS::set_config_file(const URI& path)
 {
-  options().configure_option("config_file", path);
+  options().set("config_file", path);
 }
 
 
@@ -209,7 +209,7 @@ void EigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  const URI config_uri = options().option("config_file").value<URI>();
+  const URI config_uri = options().value<URI>("config_file");
   const std::string config_path = config_uri.path();
 
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(config_path); // the most important in general setup
@@ -337,7 +337,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
 
           const Uint solution_begin = var_offsets.back() * row_idx + var_offsets[i];
           const Uint solution_end = solution_begin + var_sizes[i];
-          Uint field_idx = field.var_index(var_names[i]);
+          Uint field_idx = field.var_offset(var_names[i]);
 
           cf3_assert( (Uint) field.var_length(var_names[i]) == (Uint) var_sizes[i]);
 

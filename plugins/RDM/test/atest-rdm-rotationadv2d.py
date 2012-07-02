@@ -22,12 +22,11 @@ wizard = root.create_component('Wizard',  'cf3.RDM.SteadyExplicit')
 wizard.create_model(model_name='Model', physical_model='cf3.physics.Scalar.Scalar2D')
 model = root.get_child('Model')
 
-
 ### read mesh
 domain = model.get_child('Domain')
-domain.load_mesh(file=cf.URI('rotation-tg-p1.neu', cf.URI.Scheme.file), name='mesh')
+domain.load_mesh(file=cf.URI('rotation-tg-p1.msh', cf.URI.Scheme.file), name='mesh')
 
-internal_regions = [cf.URI('//Model/Domain/mesh/topology/default_id1084')]
+internal_regions = [cf.URI('//Model/Domain/mesh/topology/fluid')]
 
 # file:rotation-tg-p1.msh
 # file:rotation-tg-p2.msh
@@ -40,6 +39,7 @@ internal_regions = [cf.URI('//Model/Domain/mesh/topology/default_id1084')]
 ### solver
 solver = model.get_child('RDSolver')
 solver.options().set('update_vars', 'RotationAdv2D')
+solver.options().set('solution_space', 'LagrangeP1')
 
 solver.get_child('IterativeSolver').get_child('MaxIterations').options().set('maxiter', 50)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').options().set('cfl', 0.25)
@@ -58,10 +58,10 @@ iconds.get_child('INIT').options().set('regions', internal_regions)
 
 bcs = solver.get_child('BoundaryConditions')
 
-bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/inlet')])
+bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/inlet')])
 bcs.get_child('INLET').options().set('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 
-bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/farfield')])
+bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/farfield')])
 bcs.get_child('FARFIELD').options().set('functions', ['0'])
 
 ### domain discretization

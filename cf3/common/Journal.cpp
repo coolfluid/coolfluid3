@@ -53,7 +53,7 @@ Journal::Journal (const std::string & name)
 
   signal("list_journal")->hidden(true);
 
-  options().add_option("RecordReplies", false)
+  options().add("RecordReplies", false)
       .description("If true, both signal and reply frames are recorded. If "
                         "false, only signal frames are recorded.\nRecording replies "
                         "will significantly increase the journal size and the memory used.");
@@ -70,8 +70,8 @@ Journal::Journal (const std::string & name)
 
   m_info_node.content.set_attribute( Protocol::Tags::attr_key(), "journalInfo");
 
-  m_info_node.set_value( "hostname", Core::instance().network_info().hostname() );
-  m_info_node.set_value( "port", (Uint)Core::instance().network_info().port());
+  m_info_node.set_value( "hostname", class_name<std::string>(), Core::instance().network_info().hostname() );
+  m_info_node.set_value( "port", common::class_name<std::string>(), to_str(static_cast<Uint>(Core::instance().network_info().port())));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

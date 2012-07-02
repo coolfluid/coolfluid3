@@ -36,7 +36,7 @@ SynchronizeFields::SynchronizeFields ( const std::string& name ) : solver::Actio
   mark_basic();
 
   std::vector< URI > dummy;
-  options().add_option("Fields", dummy)
+  options().add("Fields", dummy)
       .description("Fields to synchronize")
       .attach_trigger ( boost::bind ( &SynchronizeFields::config_fields,   this ) );
 }
@@ -45,7 +45,7 @@ SynchronizeFields::SynchronizeFields ( const std::string& name ) : solver::Actio
 
 void SynchronizeFields::config_fields()
 {
-  std::vector<URI> vec = options().option("Fields").value< std::vector<URI> >();
+  std::vector<URI> vec = options().value< std::vector<URI> >("Fields");
 
   boost_foreach(const URI field_path, vec)
   {

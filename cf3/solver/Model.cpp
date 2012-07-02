@@ -22,6 +22,9 @@
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
 
+/// @todo remove when ready
+#include "mesh/Space.hpp"
+
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
@@ -74,15 +77,15 @@ Model::Model( const std::string& name  ) :
 
   std::string cwd = boost::filesystem::current_path().string();
 
-   options().add_option("WorkingDir", URI( cwd ) )
+   options().add("WorkingDir", URI( cwd ) )
        .description("Your working directory")
        .mark_basic();
 
-   options().add_option("ResultsDir", URI( cwd ) )
+   options().add("ResultsDir", URI( cwd ) )
        .description("Directory to store the output files")
        .mark_basic();
 
-   options().add_option("CPUs", 1u )
+   options().add("CPUs", 1u )
        .description("Number of cpus to use in simulation")
        .mark_basic();
 
@@ -134,7 +137,7 @@ void Model::simulate()
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
   // call all the solvers
-  try
+//  try
   {
     boost_foreach(Solver& solver, find_components<Solver>(*this))
     {
@@ -142,10 +145,10 @@ void Model::simulate()
     }
     CFinfo << name() << ": end simulation\n" << CFendl;
   }
-  catch (common::FailedToConverge& e)
-  {
-    CFerror << "simulation failed\n" << e.what() << CFendl;
-  }
+//  catch (common::FailedToConverge& e)
+//  {
+//    CFerror << "simulation failed\n" << e.what() << CFendl;
+//  }
 
 }
 
@@ -239,7 +242,7 @@ void Model::signature_create_physics ( common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add_option( "builder", std::string() )
+  options.add( "builder", std::string() )
       .description("Choose physical model")
       .restricted_list() = pms;
 }
@@ -254,7 +257,7 @@ void Model::signal_create_physics ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", phys_model.uri());
+  reply_options.add("created_component", phys_model.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +277,7 @@ void Model::signal_create_domain ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", domain.uri());
+  reply_options.add("created_component", domain.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -293,7 +296,7 @@ void Model::signature_create_solver ( common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add_option( "builder", std::string() )
+  options.add( "builder", std::string() )
       .description("Choose solver")
       .restricted_list() = solvers;
 }
@@ -308,7 +311,7 @@ void Model::signal_create_solver ( common::SignalArgs& node )
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", solver.uri());
+  reply_options.add("created_component", solver.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -324,11 +327,11 @@ void Model::signature_setup(SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add_option<std::string>("solver_builder")
+  options.add<std::string>("solver_builder")
     .pretty_name("Solver Builder")
     .description("Builder name");
 
-  options.add_option<std::string>("physics_builder")
+  options.add<std::string>("physics_builder")
     .pretty_name("Physics Builder")
     .description("Builder name for the physics");
 }

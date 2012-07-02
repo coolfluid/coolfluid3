@@ -42,29 +42,29 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 {
   mark_basic();
   // options
-  options().add_option("time_accurate", true)
+  options().add("time_accurate", true)
     .description("Time Accurate")
     .pretty_name("Time Accurate")
     .mark_basic()
     .add_tag("time_accurate");
 
-  options().add_option("cfl", 1.)
+  options().add("cfl", 1.)
     .description("Courant Number")
     .pretty_name("CFL")
     .mark_basic()
     .add_tag("cfl");
 
-  options().add_option(sdm::Tags::update_coeff(), m_update_coeff)
+  options().add(sdm::Tags::update_coeff(), m_update_coeff)
     .description("Update coefficient to multiply with residual")
     .pretty_name("Update Coefficient")
     .link_to(&m_update_coeff);
 
-  options().add_option(sdm::Tags::wave_speed(), m_wave_speed)
+  options().add(sdm::Tags::wave_speed(), m_wave_speed)
     .description("Wave Speed multiplied divided by characteristic length")
     .pretty_name("Wave Speed")
     .link_to(&m_wave_speed);
 
-  options().add_option(sdm::Tags::time(), m_time)
+  options().add(sdm::Tags::time(), m_time)
     .description("Time Tracking component")
     .pretty_name("Time")
     .link_to(&m_time);
@@ -82,8 +82,8 @@ void ComputeUpdateCoefficient::execute()
 
   Field& wave_speed = *m_wave_speed;
   Field& update_coeff = *m_update_coeff;
-  Real cfl = options().option("cfl").value<Real>();
-  if (options().option("time_accurate").value<bool>()) // global time stepping
+  Real cfl = options().value<Real>("cfl");
+  if (options().value<bool>("time_accurate")) // global time stepping
   {
     if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
 
@@ -94,7 +94,7 @@ void ComputeUpdateCoefficient::execute()
     /// compute time step
     //  -----------------
     /// - take user-defined time step
-    Real dt = time.options().option("time_step").value<Real>();
+    Real dt = time.options().value<Real>("time_step");
     if (dt==0.) dt = math::Consts::real_max();
 
     /// - Make time step stricter through the CFL number
@@ -116,7 +116,7 @@ void ComputeUpdateCoefficient::execute()
     dt = glb_min_dt;
 
     /// - Make sure we reach milestones and final simulation time
-    Real tf = limit_end_time(time.current_time(), time.options().option("end_time").value<Real>());
+    Real tf = limit_end_time(time.current_time(), time.options().value<Real>("end_time"));
     if( time.current_time() + dt + m_tolerance > tf )
       dt = tf - time.current_time();
 
@@ -151,7 +151,7 @@ void ComputeUpdateCoefficient::execute()
 
 Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
 {
-  const Real milestone_dt  =  m_time->options().option("time_step").value<Real>();
+  const Real milestone_dt  =  m_time->options().value<Real>("time_step");
   if (milestone_dt == 0)
     return end_time;
 
@@ -166,13 +166,13 @@ void ComputeUpdateCoefficient::link_fields()
   if( is_null( m_update_coeff ) )
   {
     m_update_coeff = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::update_coeff() ) ) );
-    options().configure_option( sdm::Tags::update_coeff(), m_update_coeff );
+    options().set( sdm::Tags::update_coeff(), m_update_coeff );
   }
 
   if( is_null( m_wave_speed ) )
   {
     m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::wave_speed() ) ) );
-    options().configure_option( sdm::Tags::wave_speed(), m_wave_speed );
+    options().set( sdm::Tags::wave_speed(), m_wave_speed );
   }
 }
 

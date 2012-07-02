@@ -102,8 +102,8 @@ void MySim::signal_create_model ( common::SignalArgs& node )
   //  URI file( "file:rectangle2x1-qd-p1-861.msh");
   //  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
-    options.add_option("file", file );
-    options.add_option("name", std::string("Mesh") );
+    options.add("file", file );
+    options.add("name", std::string("Mesh") );
 
     domain->signal_load_mesh( frame );
   }
@@ -128,9 +128,9 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     std::string name ("WEAK_INLET");
 
-    options.add_option("Name",name);
-    options.add_option("Type","cf3.RDM.BcDirichlet");
-    options.add_option("Regions", regions);
+    options.add("Name",name);
+    options.add("Type","cf3.RDM.BcDirichlet");
+    options.add("Regions", regions);
 
     solver->boundary_conditions().signal_create_boundary_condition(frame);
 
@@ -140,7 +140,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
 
-    inletbc->options().configure_option("functions", fns);
+    inletbc->options().set("functions", fns);
   }
 
   // initialization
@@ -150,7 +150,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     std::vector<std::string> functions(1);
     functions[0] = "0.";
-    options.add_option("functions", functions);
+    options.add("functions", functions);
 
     solver->initial_conditions().signal_create_initial_condition( frame );
   }
@@ -180,9 +180,9 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     cf3_assert( regions.size() == 1u);
 
-    options.add_option("Name","INTERNAL");
-    options.add_option("Type","cf3.RDM.Schemes.LDA");
-    options.add_option("Regions", regions);
+    options.add("Name","INTERNAL");
+    options.add("Type","cf3.RDM.Schemes.LDA");
+    options.add("Regions", regions);
 
     solver->domain_discretization().signal_create_cell_term(frame);
 
@@ -197,7 +197,7 @@ void MySim::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option("model_name", std::string())
+  options.add("model_name", std::string())
       .description("Name for created model");
 }
 

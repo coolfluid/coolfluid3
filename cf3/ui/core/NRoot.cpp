@@ -210,11 +210,11 @@ void NRoot::signature_connect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option("hostname", std::string("localhost") )
+  options.add("hostname", std::string("localhost") )
       .pretty_name( "Hostname" )
       .description( "Name or IP address of the server." );
 
-  options.add_option("port_number", Uint(62784) )
+  options.add("port_number", Uint(62784) )
       .pretty_name( "Port Number" )
       .description( "Port number the server is listening to." );
 }
@@ -225,7 +225,7 @@ void NRoot::signature_disconnect_server( SignalArgs & frame )
 {
   SignalOptions options( frame );
 
-  options.add_option("shutdown", false )
+  options.add("shutdown", false )
       .pretty_name( "Shutdown the server" )
       .description( "If checked, the server application will be closed." );
 }

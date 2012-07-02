@@ -33,13 +33,13 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/LinearInterpolator.hpp"
 
 #include "sdm/SDSolver.hpp"
 #include "sdm/Term.hpp"
@@ -116,7 +116,7 @@ BOOST_FIXTURE_TEST_SUITE( sdm_MPITests_TestSuite, sdm_MPITests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().options().set("log_level", (Uint)INFO);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,30 +165,30 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   cfl_array.resize(boost::extents[6][5]);
 
   // RK1 (Forward Euler)
-  cfl_array[1][1] = 0.5;
-  cfl_array[2][1] = 0.16;
-  cfl_array[3][1] = 0.05;
-  cfl_array[4][1] = 0.021;
-  cfl_array[5][1] = 0.009;
+  cfl_array[1][1] = 1.;
+  cfl_array[2][1] = 0.32;
+  cfl_array[3][1] = 0.1;
+  cfl_array[4][1] = 0.042;
+  cfl_array[5][1] = 0.018;
 
   // RK2
-  cfl_array[1][2] = 0.5;
-  cfl_array[2][2] = 0.16;
-  cfl_array[3][2] = 0.05;
-  cfl_array[4][2] = 0.021;
-  cfl_array[5][2] = 0.009;
+  cfl_array[1][2] = 1.;
+  cfl_array[2][2] = 0.32;
+  cfl_array[3][2] = 0.1;
+  cfl_array[4][2] = 0.042;
+  cfl_array[5][2] = 0.018;
 
   // RK4
-  cfl_array[1][4] = 0.72;
-  cfl_array[2][4] = 0.23;
-  cfl_array[3][4] = 0.078;
-  cfl_array[4][4] = 0.028;
-  cfl_array[5][4] = 0.01275;
+  cfl_array[1][4] = 1.44;
+  cfl_array[2][4] = 0.46;
+  cfl_array[3][4] = 0.156;
+  cfl_array[4][4] = 0.056;
+  cfl_array[5][4] = 0.02550;
 
 
   cfl = cfl_array[sol_order][time_order];
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -202,27 +202,27 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   std::vector<Real> offsets  = list_of( 0.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",true);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",true);
 
   generate_mesh.execute();
 
   mesh.write_mesh("generated_line.msh");
 
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
 
   mesh.write_mesh("load_balanced_line.msh");
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
 
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 //  functions.push_back("1+x/"+to_str(lengths[XX]));
 //  functions.push_back("1+2*x^2");
 //  functions.push_back("0");
-  init_gauss.options().configure_option("functions",functions);
+  init_gauss.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(sdm::Tags::solution()) ) );
@@ -249,28 +249,28 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 
 
   // ---------> alpha
-  diffusion.options().configure_option("alpha",1./order);
+  diffusion.options().set("alpha",1./order);
 
-//  convection.options().configure_option("advection_speed",std::vector<Real>(1,2.));
+//  convection.options().set("advection_speed",std::vector<Real>(1,2.));
 //  // Boundary condition
   std::vector<URI> bc_regions(1);
   bc_regions[0]=mesh.topology().uri()/"xneg";
   BC& left_bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,1>","left",bc_regions);
-  left_bc.options().configure_option("constants",std::vector<Real>(1,0.));
+  left_bc.options().set("constants",std::vector<Real>(1,0.));
   bc_regions[0]=mesh.topology().uri()/"xpos";
   BC& right_bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,1>","right",bc_regions);
-  right_bc.options().configure_option("constants",std::vector<Real>(1,0.));
+  right_bc.options().set("constants",std::vector<Real>(1,0.));
 //  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
 
   // Time stepping
-  solver.time().options().configure_option("time_step",100.);
-  solver.time().options().configure_option("end_time",1.0); // instead of 0.3
-  solver.time_stepping().options().configure_option("max_iteration" , 200u );
-  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl) );
+  solver.time().options().set("time_step",100.);
+  solver.time().options().set("end_time",1.0); // instead of 0.3
+  solver.time_stepping().options().set("max_iteration" , 200u );
+  solver.time_stepping().options().set("cfl" , common::to_str(cfl) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
   Uint sol_order = order;
   Uint time_order = 4;
 
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -401,27 +401,27 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
   std::vector<Real> offsets  = list_of( 0.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",true);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",true);
 
   generate_mesh.execute();
 
   mesh.write_mesh("generated_line.msh");
 
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
 
   mesh.write_mesh("load_balanced_line.msh");
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
 
@@ -434,14 +434,14 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("sigma:="+to_str(lengths[XX]/20.)+";mu:="+to_str(lengths[XX]/2.)+";exp(-(x-mu)^2/(2*sigma^2))");
-  init_gauss.options().configure_option("functions",functions);
+  init_gauss.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(sdm::Tags::solution()) ) );
 
   // Discretization
   Term& convection = solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
-  convection.options().configure_option("advection_speed",std::vector<Real>(1,2.));
+  convection.options().set("advection_speed",std::vector<Real>(1,2.));
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
@@ -449,7 +449,7 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
 //  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
 
   std::vector<Real> cfl(5);
@@ -461,9 +461,9 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
   Real cfl_matteo = 1./(2.2*(sol_order-1.)+1.);
 
   // Time stepping
-  solver.time().options().configure_option("time_step",100.);
-  solver.time().options().configure_option("end_time", 2.); // instead of 0.3
-  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
+  solver.time().options().set("time_step",100.);
+  solver.time().options().set("end_time", 2.); // instead of 0.3
+  solver.time_stepping().options().set("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   SDSolver& solver  = *model.solver().handle<SDSolver>();
   Domain&   domain  = model.domain();
 
-//  physics.configure_option("v",1.);
+//  physics.set("v",1.);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
@@ -569,21 +569,21 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   std::vector<Real> offsets  = list_of( 0.  )( 0.  );
 
   SimpleMeshGenerator& generate_mesh = *domain.create_component<SimpleMeshGenerator>("generate_mesh");
-  generate_mesh.options().configure_option("mesh",mesh.uri());
-  generate_mesh.options().configure_option("nb_cells",nb_cells);
-  generate_mesh.options().configure_option("lengths",lengths);
-  generate_mesh.options().configure_option("offsets",offsets);
-  generate_mesh.options().configure_option("bdry",true);
+  generate_mesh.options().set("mesh",mesh.uri());
+  generate_mesh.options().set("nb_cells",nb_cells);
+  generate_mesh.options().set("lengths",lengths);
+  generate_mesh.options().set("offsets",offsets);
+  generate_mesh.options().set("bdry",true);
   generate_mesh.execute();
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
-  solver.options().configure_option(sdm::Tags::mesh(),mesh.handle<Mesh>());
+  solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.options().configure_option(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv2D"));
-  solver.options().configure_option(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().configure_option("nb_stages",time_order);
+  solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv2D"));
+  solver.options().set(sdm::Tags::solution_order(),sol_order);
+  solver.iterative_solver().options().set("nb_stages",time_order);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -595,7 +595,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("sigma:="+to_str(lengths[XX]/20.)+";mu:="+to_str(lengths[XX]/2.)+";exp(-((x-mu)^2+(y-mu)^2)/(2*sigma^2))");
-  init_gauss.options().configure_option("functions",functions);
+  init_gauss.options().set("functions",functions);
   solver.initial_conditions().execute();
 
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
@@ -604,11 +604,11 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Term& convection = solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
   std::vector<Real> advection_speed(2,0.);
   advection_speed[XX]=1;
-  convection.options().configure_option("advection_speed",advection_speed);
+  convection.options().set("advection_speed",advection_speed);
   // BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
-  // bc.options().configure_option("constants",std::vector<Real>(1,.5));
+  // bc.options().set("constants",std::vector<Real>(1,.5));
   BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCFunction<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
-  bc.options().configure_option("functions",std::vector<std::string>(1,"sin(y*2*pi/10)"));
+  bc.options().set("functions",std::vector<std::string>(1,"sin(y*2*pi/10)"));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 //  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
-//  dirichlet.configure_option("functions",dirichlet_functions);
+//  dirichlet.set("functions",dirichlet_functions);
 
 
   std::vector<Real> cfl(5);
@@ -630,9 +630,9 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Real cfl_matteo = 1./(std::pow(2.,1./(sol_order))) * cfl_1d;
 
   // Time stepping
-  solver.time().options().configure_option("time_step",100.);
-  solver.time().options().configure_option("end_time" , lengths[XX]/3.); // instead of 0.3
-  solver.time_stepping().options().configure_option("cfl" , common::to_str(cfl_matteo) );
+  solver.time().options().set("time_step",100.);
+  solver.time().options().set("end_time" , lengths[XX]/3.); // instead of 0.3
+  solver.time_stepping().options().set("cfl" , common::to_str(cfl_matteo) );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation

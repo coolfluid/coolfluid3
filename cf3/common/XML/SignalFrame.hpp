@@ -55,9 +55,8 @@ public:
   /// @param name The option name.
   /// @param value The option value.
   /// @see Map::set_value()
-  template<typename TYPE>
-  XmlNode set_option ( const std::string & name, const TYPE & value,
-                       const std::string & descr = std::string() );
+  XmlNode set_option ( const std::string& value_key, const std::string type_name, const std::string& value_str,
+                       const std::string& descr = std::string());
 
   /// Sets an option to the main map.
   /// @c #Map::set_array_value() is used to acheive this.
@@ -65,10 +64,8 @@ public:
   /// @param value The option value.
   /// @param delimiter The delimiter string.
   /// @see Map::set_value()
-  template<typename TYPE>
-  XmlNode set_array ( const std::string & name, const std::vector<TYPE> & value,
-                      const std::string & delimiter,
-                      const std::string & descr = std::string());
+  XmlNode set_array ( const std::string& value_key, const std::string element_type_name, const std::string& value_str, const std::string& delimiter,
+                      const std::string& descr = std::string());
 
   /// Gets an option from the main map.
   /// @param name The option name.
@@ -128,6 +125,9 @@ public:
 
   /// Converts this signal to a string in the CF script format
   std::string to_script( int indentation = 0 ) const;
+
+  /// Converts this signal to a string in the CF python script format
+  std::string to_python_script( int indentation = 0 ) const;
 
   /// Flushes internal @c SignalOptions maps.
   void flush_maps();

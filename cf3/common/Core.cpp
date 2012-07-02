@@ -61,35 +61,30 @@ Core::Core()
   m_build_info.reset    ( new BuildInfo()    );
   m_network_info.reset  ( new NetworkInfo()  );
 
-  // create singleton components inside core
-  // these are critical to library object registration
 
-  m_environment   = allocate_component<Environment>( "Environment" );
-
-  // this types must be registered immedietly on creation,
+  // this types must be registered immediately on creation,
   // registration could be defered to after the Core has been inialized.
   RegistTypeInfo<Environment,LibCommon>();
   RegistTypeInfo<Libraries,LibCommon>();
   RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
+  m_environment = allocate_component<Environment>( "Environment" );
+  m_libraries   = allocate_component<Libraries>("Libraries");
+  m_factories   = allocate_component<Factories>("Factories");
+
   m_root = allocate_component<Group>( "Root" );
   m_root->mark_basic();
+  m_root->add_component(m_environment);
+  m_root->add_component(m_libraries);
+  m_root->add_component(m_factories);
 
-  m_libraries = m_root->create_component<Libraries>("Libraries");
-  m_factories = m_root->create_component<Factories>("Factories");
-  libraries().mark_basic();
-  factories().mark_basic();
-
-  // these components are placed on the root structure
-  // but ownership is shared with Core, so they get destroyed in ~Core()
-  /// @todo should these be static components?
-  m_root->add_component( m_environment ).mark_basic();
-
+  // create tools
   Handle<Group> tools = m_root->create_component<Group>("Tools");
   tools->mark_basic();
   tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");
+
 }
 
 Core::~Core()
@@ -105,7 +100,7 @@ void Core::initiate ( int argc, char** argv )
   m_argc = argc;
   m_argv = argv;
 
-  if( environment().options().option("regist_signal_handlers").value<bool>() )
+  if( environment().options().value<bool>("regist_signal_handlers") )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
   // initiate the logging facility
@@ -138,6 +133,11 @@ void Core::terminate()
   // terminate all
   if(is_not_null(m_libraries))
     libraries().terminate_all_libraries();
+
+  m_root.reset();
+  m_environment.reset();
+  m_libraries.reset();
+  m_factories.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

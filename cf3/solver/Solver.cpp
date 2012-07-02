@@ -24,9 +24,11 @@
 
 namespace cf3 {
 namespace solver {
-
+  
 using namespace common;
 using namespace mesh;
+
+RegistTypeInfo<Solver, LibSolver> regist_Solver_type;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,13 +88,13 @@ Solver::Solver ( const std::string& name  ) :
 
   // options
 
-  options().add_option(Tags::domain(), URI("cpath:../Domain"))
+  options().add(Tags::domain(), URI("cpath:../Domain"))
       .description("Domain to solve")
       .pretty_name("Domain")
       .link_to(&m_implementation->m_domain_uri)
       .attach_trigger(boost::bind(&Implementation::trigger_domain, m_implementation.get()));
       
-  options().add_option(Tags::physical_model(), m_physics)
+  options().add(Tags::physical_model(), m_physics)
       .pretty_name("Physical Model")
       .description("Physical Model")
       .link_to(&m_physics)
@@ -131,7 +133,7 @@ physics::PhysModel& Solver::physics()
 
 void Solver::trigger_physical_model()
 {
-  m_implementation->m_field_manager.options().configure_option("variable_manager", m_physics->variable_manager().handle<math::VariableManager>());
+  m_implementation->m_field_manager.options().set("variable_manager", m_physics->variable_manager().handle<math::VariableManager>());
 }
 
 

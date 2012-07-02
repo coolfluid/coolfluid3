@@ -49,34 +49,25 @@ coolfluid_add_test( UTEST utest-lss-system-emptylss
                     CPP   utest-lss-system-emptylss.cpp
                     LIBS  coolfluid_math_lss coolfluid_math
                     MPI   1 )
-
+if(CF3_HAVE_TRILINOS)
 coolfluid_add_test( UTEST utest-lss-atomic-fevbr
                     CPP   utest-lss-atomic.cpp
                     LIBS  coolfluid_math_lss coolfluid_math
-                    CONDITION CF3_HAVE_TRILINOS
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
                     MPI   2)
 
-coolfluid_add_test( UTEST utest-lss-atomic-csr
-                    CPP   utest-lss-atomic.cpp
-                    LIBS  coolfluid_math_lss coolfluid_math
-                    CONDITION CF3_HAVE_TRILINOS
-                    ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
-                    MPI   2)
+add_test(utest-lss-atomic-crs ${CF3_MPIRUN_PROGRAM} -np 2 utest-lss-atomic-fevbr cf3.math.LSS.TrilinosCrsMatrix)
 
-coolfluid_add_test( UTEST utest-lss-distributed-matrix-febvbr
+coolfluid_add_test( UTEST utest-lss-distributed-matrix-fevbr
                     CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
                     LIBS  coolfluid_math_lss coolfluid_math
-                    CONDITION CF3_HAVE_TRILINOS
                     ARGUMENTS cf3.math.LSS.TrilinosFEVbrMatrix
                     MPI   4)
 
-coolfluid_add_test( UTEST utest-lss-distributed-matrix-csr
-                    CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
-                    LIBS  coolfluid_math_lss coolfluid_math
-                    CONDITION CF3_HAVE_TRILINOS
-                    ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
-                    MPI   4)
+add_test(utest-lss-distributed-matrix-crs ${CF3_MPIRUN_PROGRAM} -np 4 utest-lss-distributed-matrix-fevbr cf3.math.LSS.TrilinosCrsMatrix)
+else()
+coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp)
+endif()
 
 ################################################################################
 

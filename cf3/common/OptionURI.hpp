@@ -36,11 +36,12 @@ public:
   OptionURI& supported_protocol(URI::Scheme::Type protocol);
 
   const std::vector<URI::Scheme::Type>& supported_protocols() const { return m_protocols; }
-  
-  virtual void change_value(const boost::any& value);
+
+  virtual std::string restricted_list_str() const;
 
 private:
   std::vector<URI::Scheme::Type> m_protocols;
+  virtual void change_value_impl(const boost::any& value);
 }; // class OptionURI
 
   /////////////////////////////////////////////////////////////////////////////

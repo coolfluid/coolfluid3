@@ -80,14 +80,14 @@ Uint Field::var_number ( const std::string& vname ) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint Field::var_index ( const std::string& vname ) const
+Uint Field::var_offset ( const std::string& vname ) const
 {
   return descriptor().offset(vname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint Field::var_index ( const Uint var_nb ) const
+Uint Field::var_offset ( const Uint var_nb ) const
 {
   return descriptor().offset(var_nb);
 }
@@ -170,7 +170,14 @@ CommPattern& Field::parallelize()
 void Field::synchronize()
 {
   if ( is_not_null(m_comm_pattern) )
+  {
+    CFdebug << "Synchronizing field " << uri().path() << CFendl;
     m_comm_pattern->synchronize( name() );
+  }
+  else
+  {
+    CFdebug << "Not synchronizing field " << uri().path() << " due to null comm pattern" << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro CGNS_API
-/// @note build system defines COOLFLUID_CGNS3_EXPORTS when compiling CGNS files
-#ifdef COOLFLUID_MESH_CGNS3_EXPORTS
+/// @note build system defines COOLFLUID_CGNS_EXPORTS when compiling CGNS files
+#ifdef COOLFLUID_MESH_CGNS_EXPORTS
 #   define Mesh_CGNS_API      CF3_EXPORT_API
 #   define Mesh_CGNS_TEMPLATE
 #else

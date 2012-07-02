@@ -36,12 +36,12 @@ public:
   static std::string type_name() { return "SourceMonopole2D"; }
   SourceMonopole2D(const std::string& name) : SourceTerm< PhysData >(name)
   {
-    options().add_option("time",m_time)
+    options().add("time",m_time)
       .description("Time component")
       .link_to(&m_time);
 
     m_omega = 2.*math::Consts::pi()/30.;
-    options().add_option("omega",m_omega)
+    options().add("omega",m_omega)
         .description("Angular frequency")
         .link_to(&m_omega);
 
@@ -49,17 +49,17 @@ public:
     std::vector<Real> source_loc_opt(NDIM);
     source_loc_opt[XX]=0.;
     source_loc_opt[YY]=0.;
-    options().add_option("source_location",source_loc_opt)
+    options().add("source_location",source_loc_opt)
         .description("Source location")
         .attach_trigger( boost::bind( &SourceMonopole2D::config_source_loc, this) );
 
     m_alpha = 0.5*log(2.);
-    options().add_option("alpha",m_alpha)
+    options().add("alpha",m_alpha)
         .description("Source width")
         .link_to(&m_alpha);
 
     m_eps = 0.5;
-    options().add_option("epsilon",m_eps)
+    options().add("epsilon",m_eps)
         .description("Source amplitude")
         .link_to(&m_eps);
   }

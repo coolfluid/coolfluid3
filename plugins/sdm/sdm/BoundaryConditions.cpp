@@ -68,6 +68,8 @@ void BoundaryConditions::execute()
   {
     if (region)
     {
+      bc->initialize();
+
       boost_foreach( const Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::face_entity()) )
       {
         bc->set_face_entities(faces);
@@ -89,17 +91,15 @@ BC& BoundaryConditions::create_boundary_condition( const std::string& type,
 {
   Handle< BC > bc = m_bcs->create_component<BC>(name, type);
 
-  bc->options().configure_option( sdm::Tags::solver(),         solver().handle<Component>());
-  bc->options().configure_option( sdm::Tags::mesh(),           mesh().handle<Component>());
+  bc->options().set( sdm::Tags::solver(),         solver().handle<Component>());
+  bc->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    bc->options().configure_option("regions", solver().options().option("regions").value< std::vector<common::URI> >());
+    bc->options().set("regions", solver().options().value< std::vector<common::URI> >("regions"));
   else
-    bc->options().configure_option("regions", regions);
+    bc->options().set("regions", regions);
 
-  bc->options().configure_option( sdm::Tags::physical_model(), physical_model().handle<Component>());
-
-  bc->initialize();
+  bc->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
 
   boost_foreach(const URI& region_uri, regions)
   {
@@ -136,7 +136,7 @@ void BoundaryConditions::signal_create_boundary_condition( SignalArgs& args )
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 
 }
 
@@ -147,14 +147,14 @@ void BoundaryConditions::signature_signal_create_boundary_condition( SignalArgs&
 
   // name
 
-  options.add_option("name", std::string() )
+  options.add("name", std::string() )
       .description("Name for created term");
 
   // type
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option("type", std::string("cf3.sdm.Convection"))
+  options.add("type", std::string("cf3.sdm.Convection"))
       .description("Type for created term");
 
   // regions
@@ -163,7 +163,7 @@ void BoundaryConditions::signature_signal_create_boundary_condition( SignalArgs&
 
   /// @todo create here the list of restricted volume regions
 
-  options.add_option("regions", dummy )
+  options.add("regions", dummy )
       .description("Regions where to apply the term");
 }
 

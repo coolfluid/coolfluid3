@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
   PE::Comm::instance().init(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",3u);
+  Core::instance().environment().options().set("log_level",3u);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE( test )
   // Generate a mesh
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("mesh");
   boost::shared_ptr< MeshGenerator > generate_mesh = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","meshgenerator");
-  generate_mesh->options().configure_option("nb_cells",std::vector<Uint>(dim,10));
-  generate_mesh->options().configure_option("lengths",std::vector<Real>(dim,10.));
-  generate_mesh->options().configure_option("mesh",mesh->uri());
+  generate_mesh->options().set("nb_cells",std::vector<Uint>(dim,10));
+  generate_mesh->options().set("lengths",std::vector<Real>(dim,10.));
+  generate_mesh->options().set("mesh",mesh->uri());
   generate_mesh->execute();
 
   // Build a bounding box

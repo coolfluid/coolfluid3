@@ -42,7 +42,7 @@ physics.options().set('R',287.05)
 solver.options().set('mesh',mesh)
 solver.options().set('solution_vars','cf3.physics.NavierStokes.Cons1D')
 solver.options().set('solution_order',3)
-solver.options().set('iterative_solver','cf3.sdm.RungeKuttaLowStorage2')
+solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
 
 ### Configure timestepping
 solver.access_component('Time').options().set('time_step',1.);

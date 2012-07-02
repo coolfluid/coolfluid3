@@ -11,6 +11,7 @@
 
 #include "math/VectorialFunction.hpp"
 
+#include "solver/actions/Proto/Functions.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
 namespace cf3 {
@@ -25,15 +26,20 @@ public:
 
   static std::string type_name() { return "ParsedFunctionExpression"; }
 
-  const math::VectorialFunction& function()
+  /// Get the held function as a vector
+  const math::VectorialFunction& vector_function()
   {
     return m_function;
   }
 
+  /// Get the stored function as a scalar. This requires that the values option has exactly one element
+  const solver::actions::Proto::ScalarFunction& scalar_function();
+
 private:
   void trigger_value();
 
-  math::VectorialFunction m_function;
+  // Can also represent a vector function
+  solver::actions::Proto::ScalarFunction m_function;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

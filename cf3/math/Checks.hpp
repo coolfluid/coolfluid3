@@ -31,8 +31,7 @@ namespace Checks {
 inline bool is_equal_with_error(const Real& x, const Real& y, const Real& fuzz)
 {
   // see Knuth section 4.2.2 pages 217-218
-  /// @warning this can give different results if x and y is swapped (Th)
-  return std::abs(x - y) <= fuzz * std::abs(x);
+  return std::abs(x - y) <= fuzz * std::max(std::abs(x),std::abs(y));
 }
 
 /// Function to check if two Real numbers are equal.

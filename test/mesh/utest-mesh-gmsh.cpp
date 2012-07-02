@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_SUITE( gmshReaderMPITests_TestSuite, gmshReaderMPITests_Fixtu
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  Core::instance().environment().options().configure_option("log_level",4u);
+  Core::instance().environment().options().set("log_level",4u);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +84,9 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
   std::vector<std::string> extensions = meshreader->get_extensions();
   BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
 
-//	meshreader->options().configure_option("Repartition",true);
-//	meshreader->options().configure_option("OutputRank",(Uint) 0);
-//	meshreader->options().configure_option("Unified Zones",false);
+//	meshreader->options().set("Repartition",true);
+//	meshreader->options().set("OutputRank",(Uint) 0);
+//	meshreader->options().set("Unified Zones",false);
 
 
   // the mesh to store in
@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
 
 boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-mesh_writer->options().configure_option("file",URI("rectangle-tg-p1-out.msh"));
+mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+mesh_writer->options().set("file",URI("rectangle-tg-p1-out.msh"));
 mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p2 )
 
   boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  mesh_writer->options().configure_option("file",URI("rectangle-tg-p2-out.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+  mesh_writer->options().set("file",URI("rectangle-tg-p2-out.msh"));
   mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p1 )
 
   boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  mesh_writer->options().configure_option("file",URI("rectangle-qd-p1-out.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+  mesh_writer->options().set("file",URI("rectangle-qd-p1-out.msh"));
   mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -180,8 +180,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p2 )
 
   boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  mesh_writer->options().configure_option("file",URI("rectangle-qd-p2-out.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+  mesh_writer->options().set("file",URI("rectangle-qd-p2-out.msh"));
   mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -207,8 +207,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1 )
 
   boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  mesh_writer->options().configure_option("file",URI("rectangle-mix-p1-out.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+  mesh_writer->options().set("file",URI("rectangle-mix-p1-out.msh"));
   mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p2 )
 
   boost::shared_ptr< MeshWriter > mesh_writer =
     build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
-  mesh_writer->options().configure_option("mesh",mesh.handle<Mesh const>());
-  mesh_writer->options().configure_option("file",URI("rectangle-mix-p2-out.msh"));
+  mesh_writer->options().set("mesh",mesh.handle<Mesh const>());
+  mesh_writer->options().set("file",URI("rectangle-mix-p2-out.msh"));
   mesh_writer->execute();
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
   // CFinfo << mesh.tree() << CFendl;
 
   Field& nodal = mesh.geometry_fields().create_field("nodal" , "nodal[vector]");
-  nodal.descriptor().options().configure_option(common::Tags::dimension(),mesh.dimension());
+  nodal.descriptor().options().set(common::Tags::dimension(),mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)
@@ -296,10 +296,10 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   Handle<Mesh> mesh_arg = mesh.handle<Mesh>();
   BOOST_CHECK(true);
-  mesh_writer->options().configure_option("mesh",mesh_arg);
-  mesh_writer->options().configure_option("fields",fields);
-  mesh_writer->options().configure_option("file",URI("rectangle-mix-p1-out-out.msh"));
-  mesh_writer->options().configure_option("regions",regions);
+  mesh_writer->options().set("mesh",mesh_arg);
+  mesh_writer->options().set("fields",fields);
+  mesh_writer->options().set("file",URI("rectangle-mix-p1-out-out.msh"));
+  mesh_writer->options().set("regions",regions);
   mesh_writer->execute();
 
   BOOST_CHECK(true);

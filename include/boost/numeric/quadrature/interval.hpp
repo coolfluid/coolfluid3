@@ -36,7 +36,7 @@ namespace boost
     {
       namespace detail
       {
-        void bisect(null_interval_kernel_space&,null_interval_kernel_space&)
+        inline void bisect(null_interval_kernel_space&,null_interval_kernel_space&)
         {}
 
         template <typename Image>
@@ -50,7 +50,7 @@ namespace boost
         }
 
         template <typename ScalarImage, typename Image>
-        void scale_error(
+        inline void scale_error(
           ScalarImage& scaled_error,
           const Image& error,
           const Image& bound,

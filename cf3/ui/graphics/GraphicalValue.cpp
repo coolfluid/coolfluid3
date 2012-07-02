@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include <QHBoxLayout>
 #include <QRegExpValidator>
 
@@ -65,30 +67,29 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
   if(option.get() == nullptr)
     return value;
 
-  std::string tag(option->tag());
+  std::string type(option->type());
 
-  if(tag != "array" )
+  if(!boost::starts_with(type, "array"))
   {
     if(option->has_restricted_list())
       value = new GraphicalRestrictedList(option, parent);
     else
     {
-      std::string type(option->type());
 
-      if(type == Protocol::Tags::type<bool>())               // bool option
+      if(type == common::class_name<bool>())               // bool option
         value = new GraphicalBool(option->value<bool>(), parent);
-      else if(type == Protocol::Tags::type<Real>())          // Real option
+      else if(type == common::class_name<Real>())          // Real option
         value = new GraphicalDouble(option->value<Real>(), parent);
-      else if(type == Protocol::Tags::type<int>())           // int option
+      else if(type == common::class_name<int>())           // int option
         value = new GraphicalInt(false, option->value<int>(), parent);
-      else if(type == Protocol::Tags::type<Uint>())          // Uint option
+      else if(type == common::class_name<Uint>())          // Uint option
         value = new GraphicalInt(true, option->value<Uint>(), parent);
-      else if(type == Protocol::Tags::type<std::string>())   // string option
+      else if(type == common::class_name<std::string>())   // string option
         value = new GraphicalString(option->value<std::string>().c_str(), parent);
-      else if(type == Protocol::Tags::type<URI>())           // URI option
+      else if(type == common::class_name<URI>())           // URI option
         value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI>(option), parent);
       else
-        throw CastingFailed(FromHere(), tag + ": Unknown type");
+        throw CastingFailed(FromHere(), type + ": Unknown type");
     }
   }
   else
@@ -101,31 +102,31 @@ GraphicalValue * GraphicalValue::create_from_option(boost::shared_ptr< Option > 
       std::string type( option->element_type() );
       QString sep( option->separator().c_str() );
 
-      if(type == Protocol::Tags::type<bool>())                 // bool option
+      if(type == common::class_name<bool>())                 // bool option
       {
         QRegExp regex("(true)|(false)|(1)|(0)|(on)|(off)");
         value = new GraphicalArray(new QRegExpValidator(regex, parent), sep, parent);
       }
-      else if(type == Protocol::Tags::type<Real>())            // Real option
+      else if(type == common::class_name<Real>())            // Real option
       {
         QDoubleValidator * val = new QDoubleValidator(nullptr);
         val->setNotation(QDoubleValidator::ScientificNotation);
         value = new GraphicalArray(val, sep, parent);
       }
-      else if(type == Protocol::Tags::type<int>())              // int option
+      else if(type == common::class_name<int>())              // int option
         value = new GraphicalArray(new QIntValidator(), sep, parent);
-      else if(type == Protocol::Tags::type<Uint>())             // Uint option
+      else if(type == common::class_name<Uint>())             // Uint option
       {
         QIntValidator * val = new QIntValidator();
         val->setBottom(0);
         value = new GraphicalArray(val, sep, parent);
       }
-      else if(type == Protocol::Tags::type<std::string>())      // string option
+      else if(type == common::class_name<std::string>())      // string option
         value = new GraphicalArray(nullptr,sep,  parent);
-      else if(type == Protocol::Tags::type<URI>())              // URI option
+      else if(type == common::class_name<URI>())              // URI option
         value = new GraphicalUriArray(sep, parent);
       else
-        throw CastingFailed(FromHere(), tag + ": Unknown type");
+        throw CastingFailed(FromHere(), type + ": Unknown type");
 
       value->set_value( QString(value_str.c_str()).split(option->separator().c_str()) );
     }

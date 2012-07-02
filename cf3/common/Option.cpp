@@ -11,7 +11,6 @@
 
 #include "common/BasicExceptions.hpp"
 #include "common/Foreach.hpp"
-
 #include "common/Option.hpp"
 #include "common/XML/XmlNode.hpp"
 
@@ -39,7 +38,7 @@ Option::~Option()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Option::configure_option ( XmlNode& node )
+void Option::set ( XmlNode& node )
 {
   cf3_assert ( node.is_valid() );
   change_value(extract_configured_value(node));
@@ -49,9 +48,27 @@ void Option::configure_option ( XmlNode& node )
 
 Option& Option::attach_trigger ( TriggerT trigger )
 {
-  m_triggers.push_back(trigger);
+  attach_trigger_tracked(trigger);
   return *this;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+Option::TriggerID Option::attach_trigger_tracked ( Option::TriggerT trigger )
+{
+  const TriggerID new_id = m_current_connection_id;
+  m_triggers[m_current_connection_id++] = trigger;
+  return new_id;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+void Option::detach_trigger( const Option::TriggerID trigger_id )
+{
+  m_triggers.erase(trigger_id);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +91,7 @@ Option& Option::mark_basic()
 
 void Option::change_value ( const boost::any& value )
 {
-  m_value = value; // update the value
+  change_value_impl(value);
   copy_to_linked_params(m_linked_params);
 
   // call all trigger functors
@@ -85,9 +102,13 @@ void Option::change_value ( const boost::any& value )
 
 void Option::trigger () const
 {
+  // Copy, so we protect against the trigger list being modified during execution
+  Option::TriggerStorageT triggers = m_triggers;
   // call all trigger functors
-  boost_foreach( const Option::TriggerT& call_trigger, m_triggers )
-    call_trigger();
+  for(Option::TriggerStorageT::const_iterator trig_it = triggers.begin(); trig_it != triggers.end(); ++trig_it)
+  {
+    trig_it->second();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

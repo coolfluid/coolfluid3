@@ -93,6 +93,8 @@ int main(int argc, char *argv[])
     /// @warning the below instruction will be broken when installing CF
     mgr->spawn_group("Workers", nb_workers, CF3_BUILD_DIR "/cf3/Tools/solver/coolfluid-solver");
 
+    std::cout << getpid() << std::endl;
+
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
       error_string = "Port number must be an integer between 49153 and 65535\n";

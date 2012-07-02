@@ -24,6 +24,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "common/Table.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/MeshGenerator.hpp"
@@ -83,61 +84,61 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   // create meshreader
   boost::shared_ptr< MeshGenerator > mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"mesh");
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->options().configure_option("part",0u);
-  mesh_generator->options().configure_option("nb_parts",1u);
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"mesh");
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().set("part",0u);
+  mesh_generator->options().set("nb_parts",1u);
 
   Mesh& mesh = mesh_generator->generate();
-
+  Handle<Dictionary> dict = mesh.geometry_fields().handle<Dictionary>();
   Octtree& octtree = *mesh.create_component<Octtree>("octtree");
 
-  // Create and configure interpolator.
-  octtree.options().configure_option("nb_elems_per_cell", 1u );
-  octtree.options().configure_option("mesh", mesh.handle<Mesh>());
+  // Create and configure octtree.
+  octtree.options().set("nb_elems_per_cell", 1u );
+  octtree.options().set("mesh", mesh.handle<Mesh>());
 
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree.options().configure_option("nb_cells", nb_cells );
+  octtree.options().set("nb_cells", nb_cells );
 
   BOOST_CHECK(true);
 
-  Handle< Elements > elements;
-  Uint idx(0);
+  Entity element;
   RealVector2 coord;
 
   coord << 1. , 1. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,0u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,0u);
 
   coord << 3. , 1. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,1u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,1u);
 
   coord << 1 , 3. ;
-  boost::tie(elements,idx) = octtree.find_element(coord);
-  BOOST_CHECK_EQUAL(idx,5u);
+  element = octtree.find_element(coord);
+  BOOST_CHECK_EQUAL(element.idx,5u);
 
 
-  Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");
-  stencil_computer->options().configure_option("mesh", find_component<Mesh>(Core::instance().root()).handle<Mesh>() );
+  Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");  
+  stencil_computer->options().set("dict", dict );
 
-  std::vector<Uint> stencil;
-  stencil_computer->options().configure_option("stencil_size", 1u );
-  stencil_computer->compute_stencil(7, stencil);
+  SpaceElem space_elem = SpaceElem(mesh.elements()[0]->space(*dict),7);
+  std::vector<SpaceElem> stencil;
+  stencil_computer->options().set("stencil_size", 1u );
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 1u);
 
-  stencil_computer->options().configure_option("stencil_size", 2u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->options().set("stencil_size", 2u );
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->options().configure_option("stencil_size", 10u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->options().set("stencil_size", 10u );
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
-  stencil_computer->options().configure_option("stencil_size", 21u );
-  stencil_computer->compute_stencil(7, stencil);
+  stencil_computer->options().set("stencil_size", 21u );
+  stencil_computer->compute_stencil(space_elem, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
 
   CFinfo << stencil_computer->tree() << CFendl;
@@ -149,23 +150,23 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 BOOST_AUTO_TEST_CASE( Octtree_parallel )
 {
   Handle< MeshGenerator > mesh_generator(Core::instance().root().get_child("mesh_generator"));
-  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"parallel_mesh");
-  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->options().configure_option("part",PE::Comm::instance().rank());
-  mesh_generator->options().configure_option("nb_parts",PE::Comm::instance().size());
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"parallel_mesh");
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().set("part",PE::Comm::instance().rank());
+  mesh_generator->options().set("nb_parts",PE::Comm::instance().size());
   Mesh& mesh = mesh_generator->generate();
 
   Octtree& octtree = *mesh.create_component<Octtree>("octtree");
 
   // Create and configure interpolator.
-  octtree.options().configure_option("nb_elems_per_cell", 1u );
-  octtree.options().configure_option("mesh", mesh.handle<Mesh>() );
+  octtree.options().set("nb_elems_per_cell", 1u );
+  octtree.options().set("mesh", mesh.handle<Mesh>() );
   octtree.create_octtree();
 
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree.options().configure_option("nb_cells", nb_cells );
+  octtree.options().set("nb_cells", nb_cells );
 
   boost::multi_array<Real,2> coordinates;
   coordinates.resize(boost::extents[2][2]);

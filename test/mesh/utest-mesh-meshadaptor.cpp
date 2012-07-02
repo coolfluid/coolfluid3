@@ -78,9 +78,9 @@ BOOST_AUTO_TEST_CASE( test_manipulations_general_use )
 {
   // Generate a simple 1D line-mesh of 10 cells
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//line2"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
+  meshgenerator->options().set("mesh",URI("//line2"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->options().set("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
 
   // Create a MeshAdaptor object to manipulate the elements
@@ -123,9 +123,9 @@ BOOST_AUTO_TEST_CASE( test_move_elements )
 {
   // Generate a simple 1D line-mesh of 10 cells
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//line3"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
+  meshgenerator->options().set("mesh",URI("//line3"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->options().set("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
 
   // Create a MeshAdaptor object to manipulate the elements
@@ -177,9 +177,9 @@ BOOST_AUTO_TEST_CASE( test_element_node_connectivity_rebuilding )
 
   // Generate a simple 1D line-mesh of 10 cells
   boost::shared_ptr< MeshGenerator > meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->options().configure_option("mesh",URI("//line"));
-  meshgenerator->options().configure_option("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->options().configure_option("lengths",std::vector<Real>(1,10.));
+  meshgenerator->options().set("mesh",URI("//line"));
+  meshgenerator->options().set("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->options().set("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
   mesh.geometry_fields().rebuild_map_glb_to_loc();
 

@@ -15,6 +15,7 @@
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
+#include "common/Timer.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "math/Consts.hpp"
@@ -23,6 +24,7 @@
 #include "mesh/MeshMetadata.hpp"
 
 #include "solver/Time.hpp"
+#include "solver/History.hpp"
 #include "solver/actions/CriterionTime.hpp"
 #include "solver/actions/CriterionMaxIterations.hpp"
 #include "solver/actions/PeriodicWriteMesh.hpp"
@@ -54,17 +56,18 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
  // properties
 
-  properties().add_property( "iteration", Uint(0) );
+  properties().add( "iteration", 0u );
+  properties().add( "walltime", 0. );
 
-  options().add_option(Tags::time(), m_time)
+  options().add(Tags::time(), m_time)
       .description("Time tracking component")
       .pretty_name("Time")
       .link_to(&m_time);
 
-  options().add_option("max_iteration",math::Consts::uint_max()).mark_basic();
-  options().add_option("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
+  options().add("max_iteration",math::Consts::uint_max()).mark_basic();
+  options().add("cfl",std::string("1.0")).attach_trigger( boost::bind( &TimeStepping::parse_cfl, this)).mark_basic();
   parse_cfl();
-  options().add_option("time_accurate",true).mark_basic();
+  options().add("time_accurate",true).mark_basic();
 
   // static components
 
@@ -74,6 +77,15 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   post_actions().create_component<PeriodicWriteMesh>( "PeriodicWriter" );
 
+  m_history = create_static_component<History>("History");
+  history()->options().set("dimension",1u);
+
+  // Set a few variables in history. More can be added during run-time
+  // following the same way.
+  history()->set("iter",0);
+  history()->set("time",0.);
+  history()->set("walltime",0.);
+  history()->set("cfl",0.);
 }
 
 void TimeStepping::parse_cfl()
@@ -101,13 +113,13 @@ bool TimeStepping::stop_condition()
     ++nb_criteria;
   }
 
-  if (options().option("time_accurate").value<bool>())
+  if (options().value<bool>("time_accurate"))
   {
     if (m_time->current_time() + 1e-12 > m_time->end_time())
       return true;
   }
 
-  if (m_time->iter() >= options().option("max_iteration").value<Uint>())
+  if (m_time->iter() >= options().value<Uint>("max_iteration"))
     return true; // stop
 
   return finish;
@@ -121,17 +133,21 @@ void TimeStepping::execute()
 
   properties().property("iteration") = m_time->iter();
 
+  common::Timer timer;
+  Real walltime = properties().value<Real>("walltime");
   while( ! stop_condition() ) // time loop
   {
+    timer.restart();
+
     // (1) the pre actions - pre-process, user defined actions, etc
 
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option(sdm::Tags::time(),m_time);
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("time_accurate",options().option("time_accurate").value<bool>());
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set(sdm::Tags::time(),m_time);
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("time_accurate",options().value<bool>("time_accurate"));
     std::vector<Real> vars(2);
     vars[0] = properties().value<Uint>("iteration");
     vars[1] = m_time->current_time();
     Real cfl = m_cfl.Eval(&vars[0]);
-    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().configure_option("cfl",cfl);
+    solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->options().set("cfl",cfl);
 
     m_pre_actions->execute();
 
@@ -153,27 +169,40 @@ void TimeStepping::execute()
     m_post_actions->execute();
 
     // raise event of time_step done
-
     //raise_timestep_done();
 
-    Real norm = boost::any_cast<Real>(solver().handle<SDSolver>()->actions().get_child(Tags::L2norm())->properties().property("norm"));
+    // Compute rhs
+    std::vector<Real> norm = solver().handle<SDSolver>()->actions()
+                             .get_child(Tags::L2norm())->properties().value< std::vector<Real> >("norms");
 
-    if (options().option("time_accurate").value<bool>())
-      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm<<"]" << CFendl;
+    walltime += timer.elapsed();
+
+    history()->set("iter",m_time->iter());
+    history()->set("time",m_time->current_time());
+    history()->set("cfl",cfl);
+    history()->set("walltime",walltime);
+    history()->set("rhs",norm);
+
+    properties()["walltime"] = walltime;
+
+    history()->save_entry();
+
+    if (options().value<bool>("time_accurate"))
+      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  dt ["<< std::scientific << std::setw(12) << m_time->dt()<<"]  L2(rhs) ["<< std::scientific <<std::setw(12) << norm[0] <<"]" << CFendl;
     else
-      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm << "]" << CFendl;
-
+      CFinfo << "iter [" << std::setw(4) << m_time->iter() << "]  cfl [" << std::setw(12) << cfl<< "]  L2(rhs) [" << std::scientific << std::setw(12) << norm[0] << "]" << CFendl;
 
   }
+  history()->flush();
 }
 
 void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add_option( "time",  m_time->current_time() );
-  opts.add_option( "dt",    m_time->dt() );
-  opts.add_option( "iteration", properties().value<Uint>("iteration") );
+  opts.add( "time",  m_time->current_time() );
+  opts.add( "dt",    m_time->dt() );
+  opts.add( "iteration", properties().value<Uint>("iteration") );
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 

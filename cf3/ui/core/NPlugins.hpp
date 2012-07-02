@@ -58,7 +58,7 @@ public:
   template<typename LIB>
   Handle< NPlugin > plugin()
   {
-    return get_child_checked( LIB::library_name() )->handle<NPlugin>();
+    return get_child_checked( LIB::library_name() )->template handle<NPlugin>();
   }
 
   virtual QString tool_tip() const;

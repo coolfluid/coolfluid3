@@ -26,7 +26,7 @@ ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools > Googl
 GooglePerfProfiling::GooglePerfProfiling( const std::string& name) : CodeProfiler(name),
     m_profiling(false)
 {    
-  options().configure_option("file_path", URI("perftools-profile.pprof", cf3::common::URI::Scheme::FILE));
+  options().set("file_path", URI("perftools-profile.pprof", cf3::common::URI::Scheme::FILE));
 }
 
 GooglePerfProfiling::~GooglePerfProfiling()
@@ -38,7 +38,7 @@ void GooglePerfProfiling::start_profiling()
 {
   if( !m_profiling )
   {
-    const std::string file_path = options().option("file_path").value<URI>().path();
+    const std::string file_path = options().value<URI>("file_path").path();
     ProfilerStart(file_path.c_str());
     CFinfo <<  type_name() << ": Saving profile data to: " << file_path << CFendl;
     m_profiling = true;

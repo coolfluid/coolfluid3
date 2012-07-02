@@ -49,22 +49,6 @@ BuildArea::BuildArea( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string BuildArea::brief_description() const
-{
-  return properties().value<std::string>("brief");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-std::string BuildArea::help() const
-{
-  return "  " + properties().value<std::string>("brief") + "\n" +
-      properties().value<std::string>("description");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void BuildArea::execute()
 {
 
@@ -73,7 +57,7 @@ void BuildArea::execute()
 
   Dictionary& faces_P0 = *mesh.create_component<DiscontinuousDictionary>("faces_P0");
   boost_foreach(Faces& faces, find_components_recursively<Faces>(mesh.topology()))
-    faces.create_space("cf3.mesh.LagrangeP0"+faces.element_type().shape_name(),faces_P0);
+    faces.create_space("cf3.mesh.LagrangeP0."+faces.element_type().shape_name(),faces_P0);
   faces_P0.build();         // to tell the dictionary that all spaces have been added
   mesh.update_structures(); // to tell the mesh there is a new dictionary added manually
 

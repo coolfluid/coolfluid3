@@ -12,6 +12,8 @@
 #include <QList>
 #include <QMap>
 #include <QTabWidget>
+#include <QTabBar>
+#include <QDragMoveEvent>
 
 #include "common/PropertyList.hpp"
 #include "common/UUCount.hpp"
@@ -76,6 +78,30 @@ public:
   void show_tab( Handle< core::CNode > node );
 
   void queue_tab( Handle< core::CNode > node);
+
+  void dragEnterEvent ( QDragEnterEvent * event){
+    event->accept();
+  }
+
+  void dragLeaveEvent(QDragLeaveEvent * event){
+    event->accept();
+  }
+
+  /// @brief select the tab that is under the cursor when dragging data
+  void dragMoveEvent ( QDragMoveEvent * event )
+  {
+    QTabBar *tab_bar = tabBar();
+    int current_tab;
+    if (tab_bar && (current_tab=tab_bar->tabAt(event->pos())) != -1){
+      setCurrentIndex(current_tab);
+    }
+    event->accept();
+  }
+
+  void dropEvent ( QDragMoveEvent * event )
+  {
+    event->ignore();
+  }
 
 private slots:
 

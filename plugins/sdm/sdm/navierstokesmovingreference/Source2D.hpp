@@ -33,7 +33,7 @@ private:
 
     void config_Omega()
     {
-        std::vector<Real> Omega_vec= options().option("Omega").value< std::vector<Real> >();
+        std::vector<Real> Omega_vec= options().value< std::vector<Real> >("Omega");
         cf3_assert(Omega_vec.size() == 3);
         cf3_assert(Omega_vec[0] == 0);
         cf3_assert(Omega_vec[1] == 0);
@@ -44,7 +44,7 @@ private:
 
     void config_Vtrans()
     {
-        std::vector<Real> Vtrans_vec= options().option("Vtrans").value< std::vector<Real> >();
+        std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
         cf3_assert(Vtrans_vec.size() == 2);
         Vtrans[0] = Vtrans_vec[0];
         Vtrans[1] = Vtrans_vec[1];
@@ -52,7 +52,7 @@ private:
 
     void config_a0()
     {
-        std::vector<Real> a0_vec= options().option("a0").value< std::vector<Real> >();
+        std::vector<Real> a0_vec= options().value< std::vector<Real> >("a0");
         cf3_assert(a0_vec.size() == 3);
         cf3_assert(a0_vec[2] == 0);
         a0[0] = a0_vec[0];
@@ -62,7 +62,7 @@ private:
 
     void config_dOmegadt()
     {
-        std::vector<Real> dOmegadt_vec= options().option("dOmegadt").value< std::vector<Real> >();
+        std::vector<Real> dOmegadt_vec= options().value< std::vector<Real> >("dOmegadt");
         cf3_assert(dOmegadt_vec.size() == 3);
         cf3_assert(dOmegadt_vec[0] == 0);
         cf3_assert(dOmegadt_vec[1] == 0);
@@ -93,27 +93,27 @@ public:
           dOmegadtDefault[1] = dOmegadt[1];
           dOmegadtDefault[2] = dOmegadt[2];
 
-          options().add_option("Omega", OmegaDefault)
+          options().add("Omega", OmegaDefault)
               .description("Rotation vector")
               .mark_basic()
               .attach_trigger(boost::bind( &Source2D::config_Omega, this));
 
-          options().add_option("Vtrans", VtransDefault)
+          options().add("Vtrans", VtransDefault)
               .description("Vector of the translation speeds")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_Vtrans, this));
 
-          options().add_option("a0", a0Default)
+          options().add("a0", a0Default)
               .description("Acceleration of the translation (DVtrans/Dt)")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_a0, this));
 
-          options().add_option("dOmegadt", dOmegadtDefault)
+          options().add("dOmegadt", dOmegadtDefault)
               .description("Acceleration of the rotation")
               .mark_basic()
               .attach_trigger( boost::bind( &Source2D::config_dOmegadt, this));
 
-          options().add_option("gamma", gamma)
+          options().add("gamma", gamma)
               .description("The heat capacity ratio")
               .link_to(&gamma);
     }

@@ -238,8 +238,8 @@ namespace common {
  
  Accessing these properties occurs using the function property().
  @code
- int  my_integer = myComp.options().option("my_integer_number").value<int>();
- Real my_real    = myComp.options().option("my_real_number").value<Real>();
+ int  my_integer = myComp.options().value<int>("my_integer_number");
+ Real my_real    = myComp.options().value<Real>("my_real_number");
  @endcode
  Notice the @c value<int>() part in this code.
  

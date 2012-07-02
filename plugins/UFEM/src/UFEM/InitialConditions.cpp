@@ -58,13 +58,16 @@ InitialConditions::~InitialConditions()
 {
 }
 
-Handle<InitialCondition> InitialConditions::create_initial_condition(const std::string& tag)
+Handle<common::Action> InitialConditions::create_initial_condition(const std::string& tag, const std::string& builder_name)
 {
-  Handle<InitialCondition> ic = create_component<InitialCondition>(tag);
+  Handle<common::Action> ic(create_component(tag, builder_name));
 
-  ic->options().configure_option(solver::Tags::physical_model(), options().option(solver::Tags::physical_model()).value());
-  ic->options().configure_option(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
-  ic->options().configure_option("field_tag", tag);
+  ic->options().set(solver::Tags::physical_model(), options().option(solver::Tags::physical_model()).value());
+  ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  if(ic->options().check("field_tag"))
+    ic->options().set("field_tag", tag);
+  
+  ic->mark_basic();
 
   return ic;
 }
@@ -72,18 +75,27 @@ Handle<InitialCondition> InitialConditions::create_initial_condition(const std::
 void InitialConditions::signature_create_initial_condition(SignalArgs& args)
 {
   SignalOptions options(args);
-  options.add_option("field_tag", "").pretty_name("Field Tag").description("Tag of the field for which the initial condition is to be set");
+  options.add("field_tag", "").pretty_name("Field Tag").description("Tag of the field for which the initial condition is to be set").mark_basic();
+  options.add("builder_name", "cf3.UFEM.InitialConditionConstant").pretty_name("Builder Name").description("Builder to determine the initial condition type");
 }
 
 
 void InitialConditions::signal_create_initial_condition(SignalArgs& args)
 {
   SignalOptions options(args);
-  Handle<InitialCondition> ic = create_initial_condition(options["field_tag"].value<std::string>());
-  
+  Handle<common::Action> ic;
+  if(options.check("builder_name"))
+  {
+    ic = create_initial_condition(options["field_tag"].value<std::string>(), options["builder_name"].value<std::string>());
+  }
+  else
+  {
+    ic = create_initial_condition(options["field_tag"].value<std::string>());
+  }
+
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", ic->uri());
+  reply_options.add("created_component", ic->uri());
 }
 
 

@@ -36,13 +36,13 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
 
   // Creation of physics + variables
   PhysModel& physics = *model.create_component("scalar1D","cf3.physics.Scalar.Scalar1D")->handle<PhysModel>();
-  physics.options().configure_option("v",1.);
+  physics.options().set("v",1.);
   Variables& sol_vars = *physics.create_variables("LinearAdv1D","solution");
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = *model.create_component("riemann","cf3.RiemannSolvers.Central")->handle<RiemannSolver>();
-  riemann.options().configure_option("physical_model",physics.handle<Component>());
-  riemann.options().configure_option("solution_vars",sol_vars.handle<Component>());
+  riemann.options().set("physical_model",physics.handle<Component>());
+  riemann.options().set("solution_vars",sol_vars.handle<Component>());
 
   std::cout << model.tree() << std::endl;
 

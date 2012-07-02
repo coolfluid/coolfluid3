@@ -64,7 +64,7 @@ struct NavierStokesAssemblyFixture
     return *m_domain;
   }
 
-  const Field& create_triangle(Mesh& mesh, const RealVector2& a, const RealVector2& b, const RealVector2& c)
+  void create_triangle(Mesh& mesh, const RealVector2& a, const RealVector2& b, const RealVector2& c)
   {
     // coordinates
     mesh.initialize_nodes(3, 2);
@@ -79,7 +79,9 @@ struct NavierStokesAssemblyFixture
 
     Field& solution = mesh.geometry_fields().create_field("solution", "p[scalar],u[vector]");
     solution.add_tag("solution");
-    return solution;
+
+    Field& visc = mesh.geometry_fields().create_field("navier_stokes_viscosity", "EffectiveViscosity[scalar]");
+    visc.add_tag("navier_stokes_viscosity");
   }
 
   void create_tetra(Mesh& mesh, const RealVector3& a, const RealVector3& b, const RealVector3& c, const RealVector3& d)
@@ -97,6 +99,10 @@ struct NavierStokesAssemblyFixture
 
     Field& solution = mesh.geometry_fields().create_field("solution", "p[scalar],u[vector]");
     solution.add_tag("solution");
+
+
+    Field& visc = mesh.geometry_fields().create_field("navier_stokes_viscosity", "EffectiveViscosity[scalar]");
+    visc.add_tag("navier_stokes_viscosity");
   }
 
   template<typename ElementT, typename UT, typename PT>
@@ -126,8 +132,9 @@ struct NavierStokesAssemblyFixture
   template<typename ElementT>
   void runtest(Mesh& mesh, const Real eps = 1e-12)
   {
-    MeshTerm<0, ScalarField> p("p", "solution");
-    MeshTerm<1, VectorField> u("u", "solution");
+    FieldVariable<0, ScalarField> p("p", "solution");
+    FieldVariable<1, VectorField> u("u", "solution");
+    FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
     RealMatrix A, A_spec, T, T_spec;
 
@@ -139,12 +146,14 @@ struct NavierStokesAssemblyFixture
       group
       (
         _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
-        supg_specialized(p, u, u, c, _A, _T),
+        supg_specialized(p, u, u, nu_eff, c, _A, _T),
         boost::proto::lit(A_spec) = _A, boost::proto::lit(T_spec) = _T
       )
     );
 
     std::cout << "A:\n" << A << "\nT:\n" << T << std::endl;
+    std::cout << "A_spec:\n" << A_spec << "\nT_spec:\n" << T_spec << std::endl;
+    std::cout << "diff A_spec:\n" << A - A_spec << "\ndiff T:\n" << T - T_spec << std::endl;
 
     check_close(A, A_spec, eps);
     check_close(T, T_spec, eps);
@@ -169,9 +178,12 @@ BOOST_AUTO_TEST_CASE( UnitTriangleUniform )
   create_triangle(mesh, RealVector2(0., 0.), RealVector2(1., 0.), RealVector2(0., 1.));
 
   // Initialize u
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   RealVector u_init(2); u_init << 1., 1.;
   for_each_node(mesh.topology(), u = u_init);
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Triag2D>(mesh);
 }
@@ -182,9 +194,12 @@ BOOST_AUTO_TEST_CASE( TetraUniform )
   create_tetra(mesh, RealVector3(0., 0., 0.), RealVector3(1., 0., 0.), RealVector3(0., 1., 0.), RealVector3(0., 0., 1.));
 
   // Initialize u
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   RealVector u_init(3); u_init << 1., 1., 1.;
   for_each_node(mesh.topology(), u = u_init);
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Tetra3D>(mesh);
 }
@@ -195,9 +210,12 @@ BOOST_AUTO_TEST_CASE( GenericTriangleUniform )
   create_triangle(mesh, RealVector2(0.2, 0.1), RealVector2(0.75, -0.1), RealVector2(0.33, 0.83));
 
   // Initialize u
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   RealVector u_init(2); u_init << 1., 1.;
   for_each_node(mesh.topology(), u = u_init);
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Triag2D>(mesh);
 }
@@ -209,9 +227,12 @@ BOOST_AUTO_TEST_CASE( GenericTetraUniform )
   create_tetra(mesh, RealVector3(0.2, 0.1, -0.1), RealVector3(0.75, -0.1, 0.05), RealVector3(0.33, 0.83, 0.23), RealVector3(0.1, -0.1, 0.67));
 
   // Initialize u
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   RealVector u_init(3); u_init << 1., 1., 1.;
   for_each_node(mesh.topology(), u = u_init);
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Tetra3D>(mesh);
 }
@@ -224,9 +245,12 @@ BOOST_AUTO_TEST_CASE( GenericTriangleVortex )
 
   // Initialize u
   RealMatrix2 n_op; n_op << 0., 100., -100., 0.; // Linear operator to create a normal vector in 2D
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   for_each_node<2>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
   for_each_node<2>(mesh.topology(), _cout << transpose(u) << "\n");
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Triag2D>(mesh,0.05); // Tolerance must be higher due to the different interpolation of the advection speed
 }
@@ -238,9 +262,12 @@ BOOST_AUTO_TEST_CASE( GenericTetraVortex )
 
   // Initialize u
   RealMatrix3 n_op; n_op << 0., 1., 0., -1., 0., 0., 0., 0., 0.; // Linear operator to create a normal vector
-  MeshTerm<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("u", "solution");
   for_each_node<3>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
   for_each_node<3>(mesh.topology(), _cout << transpose(u) << "\n");
+
+  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
 
   runtest<LagrangeP1::Tetra3D>(mesh,0.2); // Tolerance must be higher due to the different interpolation of the advection speed
 }

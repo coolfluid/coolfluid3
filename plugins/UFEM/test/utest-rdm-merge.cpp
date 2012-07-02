@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  Core::instance().environment().options().configure_option("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   // Parameters
   Real length            = 1.;
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> fi("FI", UFEM::Tags::solution());
+  FieldVariable<0, ScalarField> fi("FI", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Triag2D> allowed_elements;
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // BCs
   boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
-  MeshTerm<1, VectorField> u_adv("AdvectionSpeed", "linearized_velocity");
+  FieldVariable<1, VectorField> u_adv("AdvectionSpeed", "linearized_velocity");
   RealVector u_ref(2); u_ref << 1.,0.;
 
   // add the top-level actions (assembly, BC and solve)
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
               _A(fi,fi) += transpose(N(fi) /*+ 0.*/ ) * u_adv*nabla(fi)
             ),
             lss_action->system_matrix += _A,
-            lss_action->system_rhs += -_A * _b
+            lss_action->system_rhs += -_A * _x
           )
         )
       )
@@ -166,7 +166,11 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("SetInitial")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  ic->get_child("InitAdvectionSpeed")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
+  
+  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("top",    "FI", 8.);
@@ -175,8 +179,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   bc->add_constant_bc("right",  "FI", 2.);
 
   model.create_time();
-  model.time().options().configure_option("end_time", 10.);
-  model.time().options().configure_option("time_step",1.);
+  model.time().options().set("end_time", 10.);
+  model.time().options().set("time_step",1.);
 
   // Run the solver
   model.simulate();

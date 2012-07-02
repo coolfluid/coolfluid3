@@ -40,7 +40,7 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option(common::Tags::dimension(), 0u)
+    m_component.options().add(common::Tags::dimension(), 0u)
       .pretty_name("Dimension")
       .description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       .mark_basic()
@@ -63,14 +63,30 @@ struct VariablesDescriptor::Implementation
 
     m_types.push_back(type);
     m_offsets.push_back(m_size);
+    m_internal_names.push_back(name);
     m_user_names.push_back(name);
 
-    m_component.options().add_option(variable_property_name(name), name)
+    m_component.options().add(variable_property_name(name), name)
         .pretty_name(name + std::string(" Variable Name"))
         .description("Variable name for variable " + name)
         .link_to(&m_user_names.back());
 
     m_size += to_size(type);
+  }
+
+  void push_back(const std::string& name, const Uint nb_vars)
+  {
+    if (nb_vars == 1)
+    {
+      push_back(name,VariablesDescriptor::Dimensionalities::SCALAR);
+    }
+    else
+    {
+      for (Uint i=0; i<nb_vars; ++i)
+      {
+        push_back(name+"["+to_str(i)+"]",VariablesDescriptor::Dimensionalities::SCALAR);
+      }
+    }
   }
 
   Uint nb_vars() const
@@ -116,6 +132,11 @@ struct VariablesDescriptor::Implementation
   }
 
   const std::string& user_variable_name(const Uint var_nb) const
+  {
+    return m_user_names[var_nb];
+  }
+
+  const std::string& internal_variable_name(const Uint var_nb) const
   {
     return m_user_names[var_nb];
   }
@@ -319,6 +340,7 @@ struct VariablesDescriptor::Implementation
 
   /// User defined variable names
   std::vector<std::string> m_user_names;
+  std::vector<std::string> m_internal_names;
 
 };
 
@@ -368,6 +390,13 @@ VariablesDescriptor::~VariablesDescriptor()
 void VariablesDescriptor::push_back(const std::string& name, const VariablesDescriptor::Dimensionalities::Type type)
 {
   m_implementation->push_back(name, type);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void VariablesDescriptor::push_back(const std::string& name, const Uint nb_vars)
+{
+  m_implementation->push_back(name, nb_vars);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -458,6 +487,13 @@ const std::string& VariablesDescriptor::user_variable_name(const Uint var_nb) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const std::string& VariablesDescriptor::internal_variable_name(const Uint var_nb) const
+{
+  return m_implementation->internal_variable_name(var_nb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 std::string VariablesDescriptor::description() const
 {
   return m_implementation->description();
@@ -473,7 +509,7 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  options().configure_option(common::Tags::dimension(), dimension);
+  options().set(common::Tags::dimension(), dimension);
   m_implementation->set_variables(description);
 }
 

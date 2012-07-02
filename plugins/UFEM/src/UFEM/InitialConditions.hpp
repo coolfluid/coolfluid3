@@ -13,7 +13,6 @@
 #include "solver/Solver.hpp"
 
 #include "LibUFEM.hpp"
-#include "InitialCondition.hpp"
 
 namespace cf3 {
 
@@ -35,8 +34,11 @@ public: // functions
   static std::string type_name () { return "InitialConditions"; }
 
   /// Create an initial condition for the field the given tag
-  Handle<InitialCondition> create_initial_condition(const std::string& tag);
-  
+  /// @param solver A component that acts a solver. If this has an option "regions", it will be used to loop over.
+  /// @param builder Builder to use for the initial condition. By default, constructs an initial condition that accepts a constant value for each variable
+  /// If it has an option "solution_tag", it will be used to find the field where the variavles are found
+  Handle<common::Action> create_initial_condition(const std::string& tag, const std::string& builder_name = "cf3.UFEM.InitialConditionConstant");
+
   void signal_create_initial_condition(common::SignalArgs& args);
   void signature_create_initial_condition(common::SignalArgs& args);
 };

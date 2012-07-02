@@ -60,11 +60,11 @@ void VariableManager::signature_create_descriptor(SignalArgs& node)
 {
   SignalOptions options(node);
 
-  options.add_option<std::string>("name")
+  options.add<std::string>("name")
     .description("Name for the created descriptor, also added to tags")
     .pretty_name("Name");
 
-  options.add_option<std::string>("description")
+  options.add<std::string>("description")
     .description("String to parse into variables")
     .pretty_name("Description");
 }

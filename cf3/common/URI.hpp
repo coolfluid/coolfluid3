@@ -98,6 +98,7 @@ public:
 
   /// comparison operator
   bool operator== (const URI& right) const;
+  bool operator!= (const URI& right) const;
 
   /// assignement operator with URI
   URI& operator=  (const URI& p);

@@ -67,7 +67,7 @@ BasicCommands::commands_description BasicCommands::description()
   ("create",      value< std::vector<std::string> >()->notifier(boost::bind(&create,_1))->multitoken(),           "create component_name builder_name")
   ("ls",          value< std::vector<std::string> >()->multitoken()->zero_tokens()->notifier(boost::bind(&ls,_1)),"list subcomponents")
   ("cd",          value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&cd,_1)),         "change current_component")
-  ("find",        value< std::vector<std::string> >()->multitoken()->zero_tokens()->notifier(boost::bind(&find,_1)),"find components recursevely in path")
+  ("find",        value< std::vector<std::string> >()->multitoken()->zero_tokens()->notifier(boost::bind(&find,_1)),"find components recursively in path")
   ("rm",          value< std::string >()->notifier(boost::bind(&rm,_1)),                                        "remove component")
   ("mv",          value< std::vector<std::string> >()->notifier(&mv)->multitoken(),                             "move/rename component")
   ("tree",        value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&tree,_1)),       "print tree")
@@ -101,9 +101,14 @@ void BasicCommands::call(const std::vector<std::string>& params)
     for (Uint i=0; i<signal_options.size(); ++i)
       signal_options[i] = params[i+1];
 
-    XML::SignalOptions options;
+    // The following 3 lines are added/adapted to get default signature values
+    SignalArgs signal_args;
+    (*signaling_component->signal(name)->signature()) (signal_args);
+    SignalOptions options(signal_args);
 
-    options.fill_from_vector(signal_options);
+    options.set(signal_options);
+    options.flush();
+
 
     XML::SignalFrame frame = options.create_frame(name, signaling_component->uri(), signaling_component->uri() );
 
@@ -436,7 +441,7 @@ void BasicCommands::configure(const std::vector<std::string>& params)
 
     XML::SignalOptions options;
 
-    options.fill_from_vector(conf_options);
+    options.set(conf_options);
 
     XML::SignalFrame frame = options.create_frame("configure", comp->uri(), comp->uri() );
 
@@ -454,7 +459,7 @@ void BasicCommands::export_env(const std::vector<std::string>& params)
     throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
 
   /// @note (QG) this will not work from the GUI
-  environment_component.change_property(params[0]);
+  environment_component.properties().set(params[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -491,8 +496,8 @@ void BasicCommands::create(const std::vector<std::string>& params)
 //  XML::SignalFrame frame("create_component", parent_component->uri(), parent_component->uri());
   //  XML::SignalOptions & options = frame.options();
 
-  options.add_option( "name", new_component_path.name() );
-  options.add_option( "type", params[1] );
+  options.add( "name", new_component_path.name() );
+  options.add( "type", params[1] );
 
   XML::SignalFrame frame = options.create_frame("create_component", parent_component->uri(), parent_component->uri());
   dispatcher->dispatch_signal( "create_component", parent_component->uri(), frame );
@@ -503,7 +508,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
 void BasicCommands::mv(const std::vector<std::string>& params)
 {
   if (params.size() != 2)
-    throw SetupError(FromHere(),"2 parameters needed for command [make cpath1 cpath2]");
+    throw SetupError(FromHere(),"2 parameters needed for command [mv cpath1 cpath2]");
   const URI cpath1(params[0]);
   const URI cpath2(params[1]);
   Handle<Component> component_1 = current_component->access_component(cpath1);
@@ -512,7 +517,7 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   XML::SignalOptions options;
 //  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
 
-  options.add_option( "Path", parent_2->uri() );
+  options.add( "path", parent_2->uri() );
 
   XML::SignalFrame frame = options.create_frame("move_component", component_1->uri(), component_1->uri() );
 

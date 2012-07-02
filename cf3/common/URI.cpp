@@ -128,6 +128,12 @@ bool URI::operator== (const URI& right) const
   return m_scheme == right.m_scheme && m_path == right.m_path;
 }
 
+bool URI::operator!= ( const URI& right ) const
+{
+  return !operator==(right);
+}
+
+
 URI& URI::operator/= (const URI& rhs)
 {
   if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += CF3_URI_SEPARATOR;

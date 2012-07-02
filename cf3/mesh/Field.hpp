@@ -68,10 +68,10 @@ public: // functions
   Uint var_number(const std::string& vname) const;
 
   /// Return the start index of a given variable
-  Uint var_index(const std::string& vname) const;
+  Uint var_offset(const std::string& vname) const;
 
   /// Return the start index of a given variable number
-  Uint var_index(const Uint var_nb) const;
+  Uint var_offset(const Uint var_nb) const;
 
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
   VarType var_length(const std::string& vname) const;

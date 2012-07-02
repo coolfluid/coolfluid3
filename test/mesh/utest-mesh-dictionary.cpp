@@ -58,6 +58,20 @@ struct DictionaryTests_Fixture
 
 Handle< Mesh > DictionaryTests_Fixture::m_mesh = Core::instance().root().create_component<Mesh>("mesh");
 
+template <typename Derived>
+void map(Field& field, Eigen::Map<Derived>& v, const Uint row_idx, const Uint var_idx)
+{
+  new (&v) typename Derived::MapType( &field.array()[row_idx][field.descriptor().offset(var_idx)],field.descriptor().var_length(var_idx) );
+}
+
+
+template <typename Derived>
+typename Derived::MapType map(Field& field, const Uint row_idx, const Uint var_idx)
+{
+  return typename Derived::MapType( &field.array()[row_idx][field.descriptor().offset(var_idx)],field.descriptor().var_length(var_idx) );
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( DictionaryTests_TestSuite, DictionaryTests_Fixture )
@@ -67,9 +81,9 @@ BOOST_FIXTURE_TEST_SUITE( DictionaryTests_TestSuite, DictionaryTests_Fixture )
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
   SimpleMeshGenerator& mesh_gen = *Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
-  mesh_gen.options().configure_option("mesh",m_mesh->uri());
-  mesh_gen.options().configure_option("lengths",std::vector<Real>(2,5.));
-  mesh_gen.options().configure_option("nb_cells",std::vector<Uint>(2,5u));
+  mesh_gen.options().set("mesh",m_mesh->uri());
+  mesh_gen.options().set("lengths",std::vector<Real>(2,5.));
+  mesh_gen.options().set("nb_cells",std::vector<Uint>(2,5u));
   mesh_gen.execute();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,9 +209,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-
 
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
@@ -222,6 +234,31 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   solution_copy -= solution_copy;
   BOOST_CHECK_EQUAL ( solution_copy[0][0] , 0. );
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( FieldVariables )
+{
+  Handle<Dictionary> elems_P0(m_mesh->get_child("elems_P0"));
+  Field& solution = elems_P0->create_field("solution","p[s],U[v],T[s]");
+
+  RealRowVector::MapType sol( &solution.array()[0][0], solution.row_size() );
+  sol.setConstant(3.);
+
+  RealRowVector2::MapType U(nullptr);  // or RealRowVector2::MapType U(nullptr,0);
+  new (&U) RealRowVector2::MapType( &solution.array()[1][solution.var_offset(1)],solution.var_length(1) );
+  U.setConstant(4.);
+
+  BOOST_CHECK_EQUAL ( solution[0][0] , 3. );
+  BOOST_CHECK_EQUAL ( solution[0][1] , 3. );
+  BOOST_CHECK_EQUAL ( solution[0][2] , 3. );
+  BOOST_CHECK_EQUAL ( solution[0][3] , 3. );
+  BOOST_CHECK_EQUAL ( solution[1][0] , 0. );
+  BOOST_CHECK_EQUAL ( solution[1][1] , 4. );
+  BOOST_CHECK_EQUAL ( solution[1][2] , 4. );
+  BOOST_CHECK_EQUAL ( solution[1][3] , 0. );
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

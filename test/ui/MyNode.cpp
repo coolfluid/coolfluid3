@@ -19,16 +19,16 @@ using namespace cf3::ui::CoreTest;
 MyNode::MyNode(const std::string & name)
   : CNode(name, "MyNode", CNode::DEBUG_NODE)
 {
-  options().add_option("theAnswer", 42)
+  options().add("theAnswer", 42)
       .description("The answer to the ultimate question of Life, the Universe, and Everything");
 
-  options().add_option("someBool", true)
+  options().add("someBool", true)
       .description("The bool value");
 
-  options().add_option("myString", std::string("This is a string") )
+  options().add("myString", std::string("This is a string") )
       .description("A string");
 
-  properties().add_property("someProp", Real(3.14));
+  properties().add("someProp", Real(3.14));
 
   m_content_listed = true;
 }

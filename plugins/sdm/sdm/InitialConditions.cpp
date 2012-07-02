@@ -76,26 +76,26 @@ void InitialConditions::execute()
 //  synchronize.execute();
 }
 
-solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
+solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::string& type, const std::vector<URI>& regions)
 {
-  Handle<solver::Action> ic = create_component< sdm::Init >(name);
+  Handle<solver::Action> ic = create_component(name,type)->handle<solver::Action>();
 
   Handle<Field> solution = follow_link(solver().field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
-  ic->options().configure_option( sdm::Tags::solver() , m_solver);
-  ic->options().configure_option( sdm::Tags::mesh(), m_mesh);
-  ic->options().configure_option( "solution_field", solution);
+  ic->options().set( sdm::Tags::solver() , m_solver);
+  ic->options().set( sdm::Tags::mesh(), m_mesh);
+  ic->options().set( "solution_field", solution);
 
   if( regions.empty() ) // if user did not specify, then use the one from the solver
   {
-    ic->options().configure_option("regions" , solver().options().option("regions").value< std::vector<common::URI> >() );
+    ic->options().set("regions" , solver().options().value< std::vector<common::URI> >("regions") );
   }
   else
   {
-    ic->options().configure_option("regions" , regions);
+    ic->options().set("regions" , regions);
   }
 
-  ic->options().configure_option( sdm::Tags::physical_model() , m_physical_model);
+  ic->options().set( sdm::Tags::physical_model() , m_physical_model);
 
   return *ic;
 }
@@ -106,6 +106,8 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
 
   std::string name = options.value<std::string>("name");
 
+  std::string type = options.value<std::string>("type");
+
   std::vector<URI> regions;
   if( options.check("regions") )
   {
@@ -113,14 +115,14 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& args )
   }
   else // if user did not specify, then use the whole topology (all regions)
   {
-    regions = solver().options().option("regions").value< std::vector<common::URI> >();
+    regions = solver().options().value< std::vector<common::URI> >("regions");
   }
 
-  solver::Action& created_component = create_initial_condition(name,regions);
+  solver::Action& created_component = create_initial_condition(name,type,regions);
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add_option("created_component", created_component.uri());
+  reply_options.add("created_component", created_component.uri());
 }
 
 
@@ -129,17 +131,16 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   SignalOptions options( args );
 
   // name
-
-  options.add_option("name", std::string() )
+  options.add("name", std::string("init") )
       .description("Name for created initial condition" );
 
+  // type
+  options.add("type", std::string("cf3.sdm.Init") )
+      .description("Type of initial condition" );
+
   // regions
-
-  std::vector<URI> dummy;
-
   /// @todo create here the list of restricted regions, both volume and surface
-
-  options.add_option("regions", dummy )
+  options.add("regions", std::vector<URI>() )
       .description("Regions where to apply the initial condition [optional]");
 }
 

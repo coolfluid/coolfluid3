@@ -26,7 +26,6 @@
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Dictionary.hpp"
-#include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,65 +43,39 @@ cf3::common::ComponentBuilder < StencilComputerRings, StencilComputer, LibMesh >
 StencilComputerRings::StencilComputerRings( const std::string& name )
   : StencilComputer(name), m_nb_rings(0)
 {
-  options().option("mesh").attach_trigger(boost::bind(&StencilComputerRings::configure_mesh,this));
-
-  options().add_option("nb_rings", m_nb_rings)
+  options().add("nb_rings", m_nb_rings)
       .description("Number of neighboring rings of elements in stencil")
       .pretty_name("Number of Rings")
       .link_to(&m_nb_rings);
 }
 
-//////////////////////////////////////////////////////////////////////
-
-void StencilComputerRings::configure_mesh()
-{
-  if (is_null(m_mesh))
-    throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
-
-  Mesh& mesh = *m_mesh;
-  Handle< NodeElementConnectivity > node2cell_ptr = find_component_ptr<NodeElementConnectivity>(mesh);
-  if (is_null(node2cell_ptr))
-  {
-    node2cell_ptr = mesh.create_component<NodeElementConnectivity>("node_to_cell");
-    boost_foreach(Handle<Component> elements, unified_elements().components())
-      node2cell_ptr->elements().add(dynamic_cast<Elements&>(*elements));
-    node2cell_ptr->build_connectivity();
-  }
-  m_node2cell = node2cell_ptr;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
-void StencilComputerRings::compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil)
+void StencilComputerRings::compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil)
 {
-  std::set<Uint> included;
+  std::set<SpaceElem> included;
   visited_nodes.clear();
-  compute_neighbors(included,unified_elem_idx);
+  compute_neighbors(included,element);
 
   if (included.size() < m_min_stencil_size)
-    CFwarn << "stencil size computed for element " << unified_elem_idx << " is " << included.size() <<". This is smaller than the requested " << m_min_stencil_size << "." << CFendl;
+    CFwarn << "stencil size computed for element " << element << " is " << included.size() <<". This is smaller than the requested " << m_min_stencil_size << "." << CFendl;
 
   stencil.clear(); stencil.reserve(included.size());
-  boost_foreach (const Uint elem, included)
+  boost_foreach (const SpaceElem& elem, included)
     stencil.push_back(elem);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void StencilComputerRings::compute_neighbors(std::set<Uint>& included, const Uint unified_elem_idx, const Uint level)
+void StencilComputerRings::compute_neighbors(std::set<SpaceElem>& included, const SpaceElem& element, const Uint level)
 {
-  included.insert(unified_elem_idx);
+  included.insert(element);
 
   if (level < m_nb_rings)
   {
-    Handle< Component > elements;
-    Uint elem_idx;
-    std::set<Uint>::iterator it;
-    bool inserted;
-    boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
-    boost_foreach(Uint node_idx, dynamic_cast<Elements&>(*elements).geometry_space().connectivity()[elem_idx])
+    boost_foreach(Uint node_idx, element.nodes())
     {
-      boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
+      boost_foreach(const SpaceElem& neighbor_elem, m_dict->connectivity()[node_idx])
       {
         compute_neighbors(included,neighbor_elem,level+1);
       }

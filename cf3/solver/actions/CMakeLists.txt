@@ -19,6 +19,12 @@ list( APPEND coolfluid_solver_actions_files
   Iterate.cpp
   LoopOperation.hpp
   LoopOperation.cpp
+  Probe.hpp
+  Probe.cpp
+  ProbePostProcFunction.hpp
+  ProbePostProcFunction.cpp
+  ProbePostProcHistory.hpp
+  ProbePostProcHistory.cpp
   ForAllCells.hpp
   ForAllCells.cpp
   ForAllElements.hpp
@@ -72,7 +78,9 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ExpressionGroup.hpp
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
+    Proto/GaussPoints.hpp
     Proto/IndexLooping.hpp
+    Proto/LSSWrapper.hpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp

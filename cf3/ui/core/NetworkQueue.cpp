@@ -20,6 +20,7 @@
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 
+#include "ui/core/NScriptEngine.hpp"
 #include "ui/core/NetworkThread.hpp"
 #include "ui/core/NLog.hpp"
 
@@ -29,6 +30,7 @@
 #include "ui/uicommon/ComponentNames.hpp"
 
 #include "ui/core/NetworkQueue.hpp"
+
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -83,17 +85,18 @@ QString NetworkQueue::tool_tip() const
 Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
 {
   Transaction * transaction = nullptr;
-
-  if( priority == IMMEDIATE )
+  std::string python_repr=args.to_python_script();
+  if (python_repr.size())
+    NScriptEngine::global().get()->append_false_command_to_python_console(python_repr);
+  if( priority == IMMEDIATE ){
     ThreadManager::instance().network().send( args );
-  else
+  }else
   {
     QString uuid = start_transaction();
     transaction = m_new_transactions[uuid];
     add_to_transaction( uuid, args );
     insert_transaction( uuid, priority );
   }
-
   return transaction;
 }
 
@@ -303,7 +306,7 @@ void NetworkQueue::execute_script ( const QString & filename )
       const URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
-      options.add_option("script", m_script_stream->readAll().toStdString());
+      options.add("script", m_script_stream->readAll().toStdString());
       SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
       
       dispatch_signal("execute_script", script_engine_path, frame);

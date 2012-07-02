@@ -37,29 +37,30 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  options().add_option(Tags::solver(), m_solver)
+  options().add(Tags::solver(), m_solver)
       .description("Link to the solver discretizing the problem")
       .pretty_name("Solver")
       .mark_basic()
       .link_to(&m_solver);
 
-  options().add_option(Tags::mesh(), m_mesh)
+  options().add(Tags::mesh(), m_mesh)
       .description("Mesh the Discretization Method will be applied to")
       .pretty_name("Mesh")
       .mark_basic()
       .link_to(&m_mesh);
 
-  options().add_option(Tags::physical_model(), m_physical_model)
+  options().add(Tags::physical_model(), m_physical_model)
       .description("Physical model")
       .pretty_name("Physical Model")
       .mark_basic()
       .link_to(&m_physical_model);
 
   std::vector< common::URI > dummy;
-  options().add_option(Tags::regions(), dummy)
+  options().add(Tags::regions(), dummy)
       .description("Regions this action is applied to")
       .pretty_name("Regions")
-      .attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
+      .attach_trigger ( boost::bind ( &Action::config_regions,   this ) )
+      .mark_basic();
 
 }
 

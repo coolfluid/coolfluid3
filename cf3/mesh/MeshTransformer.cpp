@@ -10,6 +10,8 @@
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Mesh.hpp"
@@ -18,6 +20,7 @@ namespace cf3 {
 namespace mesh {
 
 using namespace common;
+using namespace common::XML;
 
 common::ComponentBuilder < MeshTransformer, MeshTransformer, LibMesh> MeshTransformer_Builder;
 
@@ -28,7 +31,7 @@ MeshTransformer::MeshTransformer ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option("mesh", m_mesh)
+  options().add("mesh", m_mesh)
       .description( "The mesh to be transformed" )
       .pretty_name( "Mesh" )
       .mark_basic()

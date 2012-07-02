@@ -33,19 +33,19 @@ public:
   static std::string type_name() { return "Convection3D"; }
   Convection3D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
-    options().add_option("gamma",1.4)
+    options().add("gamma",1.4)
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("rho0",1.)
+    options().add("rho0",1.)
         .description("Uniform mean density")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("U0", std::vector<Real>(NDIM,0.))
+    options().add("U0", std::vector<Real>(NDIM,0.))
         .description("Uniform mean velocity")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
-    options().add_option("p0",1.)
+    options().add("p0",1.)
         .description("Uniform mean pressure")
         .attach_trigger( boost::bind( &Convection3D::config_constants, this) );
 
@@ -54,16 +54,16 @@ public:
 
   void config_constants()
   {
-    p.gamma = options().option("gamma").value<Real>();
-    p.rho0  = options().option("rho0").value<Real>();
-    p.P0  = options().option("p0").value<Real>();
+    p.gamma = options().value<Real>("gamma");
+    p.rho0  = options().value<Real>("rho0");
+    p.P0  = options().value<Real>("p0");
 
     p.inv_rho0 = 1./p.rho0;
 
     p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
     p.inv_c = 1./p.c;
 
-    std::vector<Real> U0 = options().option("U0").value<std::vector<Real> >();
+    std::vector<Real> U0 = options().value<std::vector<Real> >("U0");
     cf3_assert(U0.size() == NDIM);
     for (Uint d=0; d<NDIM; ++d)
       p.u0[d] = U0[d];

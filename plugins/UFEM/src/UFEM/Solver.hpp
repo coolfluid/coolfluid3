@@ -22,6 +22,8 @@ namespace cf3 {
 
 namespace UFEM {
 
+class InitialConditions;
+
 /// Solver for UFEM problems, allowing dynamic configuration and providing access to
 /// * Linear system solver
 /// * Physical model
@@ -49,10 +51,10 @@ public: // functions
   /// An initialization step is added automatically
   /// @param builder_names List of builders for the actions to add
   Handle<common::Action> add_unsteady_solver(const std::string& builder_name);
-  
+
   /// Create an initial conditions component
-  Handle<common::ActionDirector> create_initial_conditions();
-  
+  Handle<InitialConditions> create_initial_conditions();
+
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);
   void signal_add_unsteady_solver(common::SignalArgs& args);
@@ -60,6 +62,16 @@ public: // functions
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);
+
+private:
+  /// Triggered by the "ufem_variables_added" event
+  void on_variables_added_event(common::SignalArgs& args);
+  /// Helper function to create the fields
+  void create_fields();
+  /// Helper function to add a concrete solver to the giving parent, configuring its options as needed
+  Handle<common::Action> add_solver(const std::string& builder_name, Component& parent);
+
+  Handle<InitialConditions> m_initial_conditions;
 };
 
 } // UFEM

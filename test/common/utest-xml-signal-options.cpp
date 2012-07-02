@@ -17,6 +17,9 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
+#include <common/Core.hpp>
+#include <common/Environment.hpp>
+#include <common/OptionList.hpp>
 
 #include "common/XML/FileOperations.hpp"
 #include "common/XML/Protocol.hpp"
@@ -30,7 +33,16 @@ using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( XmlSignalOptions_TestSuite )
+struct XmlFixture
+{
+  XmlFixture()
+  {
+    Core::instance().environment().options().set("exception_backtrace", false);
+    Core::instance().environment().options().set("exception_outputs", false);
+  }
+};
+
+BOOST_FIXTURE_TEST_SUITE( XmlSignalOptions_TestSuite, XmlFixture )
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -50,10 +62,10 @@ BOOST_AUTO_TEST_CASE ( contructors )
   data[2] = "Now we have the third item";
   data[3] = "And then the last item";
 
-  map.set_value<bool>("my_bool", false, "MyBool description").set_attribute( "mode", "adv" );
-  map.set_value<cf3::Real>("cfl", 3.1415, "CFL number").set_attribute( "mode", "basic" );
-  map.set_array<std::string>("strings", data, ";", "Some special data"); // should be advanced by default
-  map.set_value<URI>("website", URI("http://coolfluidsrv.vki.ac.be"), "CF website")
+  map.set_value("my_bool", class_name<bool>(), "false", "MyBool description").set_attribute( "mode", "adv" );
+  map.set_value("cfl", class_name<Real>(), "3.1415", "CFL number").set_attribute( "mode", "basic" );
+  map.set_array("strings", class_name<std::string>(), option_vector_to_str(data, ";"), ";", "Some special data"); // should be advanced by default
+  map.set_value("website", class_name<URI>(), "http://coolfluidsrv.vki.ac.be", "CF website")
       .set_attribute( Protocol::Tags::attr_uri_schemes(), "http");
 
   SignalOptions options( frame );
@@ -66,7 +78,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   my_bool = boost::dynamic_pointer_cast<OptionT<bool> >(options.store["my_bool"]);
   BOOST_CHECK( my_bool.get() != nullptr );
   BOOST_CHECK_EQUAL( my_bool->name(), std::string("my_bool") );
-  BOOST_CHECK_EQUAL( my_bool->type(), std::string( Protocol::Tags::type<bool>() ) );
+  BOOST_CHECK_EQUAL( my_bool->type(), std::string( common::class_name<bool>() ) );
   BOOST_CHECK_EQUAL( my_bool->description(), std::string("MyBool description") );
   BOOST_CHECK_EQUAL( my_bool->value<bool>(), false );
   BOOST_CHECK_EQUAL( my_bool->has_tag("basic"), false );
@@ -80,7 +92,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   cfl = boost::dynamic_pointer_cast<OptionT<cf3::Real> >(options.store["cfl"]);
   BOOST_CHECK( cfl.get() != nullptr );
   BOOST_CHECK_EQUAL( cfl->name(), std::string("cfl") );
-  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<cf3::Real>() ) );
+  BOOST_CHECK_EQUAL( cfl->type(), std::string( common::class_name<cf3::Real>() ) );
   BOOST_CHECK_EQUAL( cfl->description(), std::string("CFL number") );
   BOOST_CHECK_EQUAL( cfl->value<cf3::Real>(), 3.1415 );
   BOOST_CHECK_EQUAL( cfl->has_tag("basic"), true );
@@ -93,7 +105,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   strings = boost::dynamic_pointer_cast<OptionArray<std::string> >(options.store["strings"]);
   BOOST_CHECK( strings.get() != nullptr );
   BOOST_CHECK_EQUAL( strings->name(), std::string("strings") );
-  BOOST_CHECK_EQUAL( std::string(strings->element_type()), std::string(Protocol::Tags::type<std::string>()) );
+  BOOST_CHECK_EQUAL( std::string(strings->element_type()), std::string(common::class_name<std::string>()) );
   BOOST_CHECK_EQUAL( strings->description(), std::string("Some special data") );
   BOOST_CHECK_EQUAL( strings->has_tag("basic"), false );
 
@@ -111,7 +123,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   website = boost::dynamic_pointer_cast<OptionURI>(options.store["website"]);
   BOOST_CHECK( website.get() != nullptr );
   BOOST_CHECK_EQUAL( website->name(), std::string("website") );
-  BOOST_CHECK_EQUAL( website->type(), std::string( Protocol::Tags::type<URI>() ) );
+  BOOST_CHECK_EQUAL( website->type(), std::string( common::class_name<URI>() ) );
   BOOST_CHECK_EQUAL( website->description(), std::string("CF website") );
   BOOST_CHECK_EQUAL( website->value<URI>().string(), std::string("http://coolfluidsrv.vki.ac.be") );
   BOOST_CHECK_EQUAL( website->has_tag("basic"), false );
@@ -179,9 +191,9 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
   XmlDoc doc;
   Map map( doc.add_node( Protocol::Tags::node_map() ) );
 
-  XmlNode theAnswer = map.set_value("theAnswer", int(42) );
-  XmlNode pi = map.set_value("pi", Real(3.14159) );
-  XmlNode euler = map.set_value("euler", Real(2.71) );
+  XmlNode theAnswer = map.set_value("theAnswer", class_name<int>(), "42");
+  XmlNode pi = map.set_value("pi", class_name<Real>(), "3.14159" );
+  XmlNode euler = map.set_value("euler", class_name<Real>(), "2.71" );
 
   // theAnswer is not marked as basic
   pi.set_attribute("mode", "basic");
@@ -201,12 +213,12 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
 
   Map map(xmldoc->add_node("map"));
 
-  XmlNode optBool = map.set_value("optBool", true);
-  XmlNode optInt = map.set_value("optInt", int(-15468));
-  XmlNode optUint = map.set_value("optUint", Uint(17513214));
-  XmlNode optReal = map.set_value("optReal", Real(3.14159));
-  XmlNode optString = map.set_value("optString", std::string("I am a string value"));
-  XmlNode optURI = map.set_value("optURI", URI("cpath:/"));
+  XmlNode optBool = map.set_value("optBool", class_name<bool>(), "true");
+  XmlNode optInt = map.set_value("optInt", class_name<int>(), "-15468");
+  XmlNode optUint = map.set_value("optUint", class_name<Uint>(), "17513214");
+  XmlNode optReal = map.set_value("optReal", class_name<Real>(), "3.14159");
+  XmlNode optString = map.set_value("optString", class_name<std::string>(), std::string("I am a string value"));
+  XmlNode optURI = map.set_value("optURI", class_name<URI>(),  "cpath:/");
 
   XmlNode wrongOpt = map.content.add_node( Protocol::Tags::node_value() );
 
@@ -244,7 +256,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
   BOOST_CHECK_EQUAL( option->value<URI>().string(), std::string("cpath:/") );
 
   // 7. unknown type
-  BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ShouldNotBeHere );
+  BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ValueNotFound );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -255,11 +267,11 @@ BOOST_AUTO_TEST_CASE( xml_to_option_uri_schemes )
   Map map(xmldoc->add_node("map"));
   const char * tag = Protocol::Tags::attr_uri_schemes();
 
-  XmlNode opt1 = map.set_value("opt1", URI());
-  XmlNode opt2 = map.set_value("opt2", URI());
-  XmlNode opt3 = map.set_value("opt3", URI());
-  XmlNode opt4 = map.set_value("opt4", URI());
-  XmlNode opt5 = map.set_value("opt5", URI());
+  XmlNode opt1 = map.set_value("opt1", class_name<URI>(), URI().string());
+  XmlNode opt2 = map.set_value("opt2", class_name<URI>(), URI().string());
+  XmlNode opt3 = map.set_value("opt3", class_name<URI>(), URI().string());
+  XmlNode opt4 = map.set_value("opt4", class_name<URI>(), URI().string());
+  XmlNode opt5 = map.set_value("opt5", class_name<URI>(), URI().string());
 
   // opt1 has no scheme attribute defined
   opt2.set_attribute(tag, "");                  // no scheme defined
@@ -312,10 +324,10 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
   std::vector<int> vectInt = list_of<int>(344646)(544684)(446454)
                                                         (878764)(646316);
 
-  XmlNode optInt = map.set_value("optInt", int(13));
-  XmlNode optIntRestrList = map.set_value("optIntRestrList", int(-15468));
+  XmlNode optInt = map.set_value("optInt", class_name<int>(), "13");
+  XmlNode optIntRestrList = map.set_value("optIntRestrList", class_name<int>(), "-15468");
 
-  Map(optIntRestrList).set_array(Protocol::Tags::key_restricted_values(), vectInt, " ; ");
+  Map(optIntRestrList).set_array(Protocol::Tags::key_restricted_values(), class_name<int>(), option_vector_to_str(vectInt, " ; "), " ; ");
 
   // test without restricted list
   BOOST_CHECK_NO_THROW(option = SignalOptions::xml_to_option( optInt ) );
@@ -338,7 +350,7 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
 
 //////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( fill_from_vector )
+BOOST_AUTO_TEST_CASE ( set_options_from_vector )
 {
   std::vector<std::string> args(12);
   std::vector<std::string> args_mod(2);
@@ -364,7 +376,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   args_mod[0] = "my_int:integer=42";
   args_mod[1] = "my_real_array:array[real]=1.56, 7894.012, 32.768";
 
-  options.fill_from_vector( args );
+  options.set( args );
 
   BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
 
@@ -374,32 +386,32 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 1. my_bool
   BOOST_CHECK ( options.check("my_bool") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_bool"].tag()), std::string("bool") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_bool"].type()), std::string("bool") );
   BOOST_CHECK ( options["my_bool"].value<bool>() );
 
   // 2. my_uint
   BOOST_CHECK ( options.check("my_uint") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_uint"].tag()), std::string("unsigned") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uint"].type()), std::string("unsigned") );
   BOOST_CHECK_EQUAL ( options["my_uint"].value<Uint>(), 7489 );
 
   // 3. my_int
   BOOST_CHECK ( options.check("my_int") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_int"].tag()), std::string("integer") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_int"].type()), std::string("integer") );
   BOOST_CHECK_EQUAL ( options["my_int"].value<int>(), -4567 );
 
   // 4. my_real
   BOOST_CHECK ( options.check("my_real") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_real"].tag()), std::string("real") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_real"].type()), std::string("real") );
   BOOST_CHECK_EQUAL ( options["my_real"].value<Real>(), 3.1415 );
 
   // 5. my_string
   BOOST_CHECK ( options.check("my_string") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_string"].tag()), std::string("string") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_string"].type()), std::string("string") );
   BOOST_CHECK_EQUAL ( options["my_string"].value<std::string>(), std::string("Hello World!") );
 
   // 6. my_uri
   BOOST_CHECK ( options.check("my_uri") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_uri"].tag()), std::string("uri") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uri"].type()), std::string("uri") );
   BOOST_CHECK_EQUAL ( options["my_uri"].value<URI>().path(), URI("cpath:/Tools").path() );
 
 
@@ -409,7 +421,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 1. my_bool_array
   BOOST_CHECK ( options.check("my_bool_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_bool_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_bool_array"].type()), std::string("array[bool]") );
   std::vector<bool> bool_array = options["my_bool_array"].value< std::vector<bool> >();
   BOOST_CHECK_EQUAL ( bool_array.size(), 4 );
   BOOST_CHECK ( bool_array[0] );
@@ -419,7 +431,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 2. my_uint_array
   BOOST_CHECK ( options.check("my_uint_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_uint_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uint_array"].type()), std::string("array[unsigned]") );
   std::vector<Uint> uint_array = options["my_uint_array"].value< std::vector<Uint> >();
   BOOST_CHECK_EQUAL ( uint_array.size(), 4 );
   BOOST_CHECK_EQUAL ( uint_array[0], 7489 );
@@ -429,7 +441,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 3. my_int_array
   BOOST_CHECK ( options.check("my_int_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_int_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_int_array"].type()), std::string("array[integer]") );
   std::vector<int> int_array = options["my_int_array"].value< std::vector<int> >();
   BOOST_CHECK_EQUAL ( int_array.size(), 3 );
   BOOST_CHECK_EQUAL ( int_array[0], -4567 );
@@ -438,7 +450,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 4. my_real_array
   BOOST_CHECK ( options.check("my_real_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_real_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_real_array"].type()), std::string("array[real]") );
   std::vector<Real> real_array = options["my_real_array"].value< std::vector<Real> >();
   BOOST_CHECK_EQUAL ( real_array.size(), 4 );
   BOOST_CHECK_EQUAL ( real_array[0], 3.1415 );
@@ -448,7 +460,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 5. my_string_array
   BOOST_CHECK ( options.check("my_string_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_string_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_string_array"].type()), std::string("array[string]") );
   std::vector<std::string> string_array = options["my_string_array"].value< std::vector<std::string> >();
   BOOST_CHECK_EQUAL ( string_array.size(), 3 );
   BOOST_CHECK_EQUAL ( string_array[0], std::string("Hello World!") );
@@ -457,7 +469,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
 
   // 6. my_uri_array
   BOOST_CHECK ( options.check("my_uri_array") );
-  BOOST_CHECK_EQUAL ( std::string(options["my_uri_array"].tag()), std::string("array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uri_array"].type()), std::string("array[uri]") );
   std::vector<URI> uri_array = options["my_uri_array"].value< std::vector<URI> >();
   BOOST_CHECK_EQUAL ( uri_array.size(), 3 );
   BOOST_CHECK_EQUAL ( uri_array[0].path(), URI("cpath:/Tools").path() );
@@ -468,7 +480,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // III. Modify options
   ////////////
 
-  options.fill_from_vector( args_mod );
+  options.set( args_mod );
 
   BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
 

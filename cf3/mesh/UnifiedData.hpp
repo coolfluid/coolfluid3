@@ -32,8 +32,8 @@ class Mesh_API UnifiedData : public common::Component
 {
 public:
 
-  
-  
+
+
 
   /// Contructor
   /// @param name of the component
@@ -117,7 +117,7 @@ private: // data
 template <typename DATA>
 inline void UnifiedData::add(DATA& data)
 {
-  Handle<DATA> actual_data = Handle<DATA>(data.handle<Component>());
+  Handle<DATA> actual_data = Handle<DATA>(data.template handle<Component>());
 
   // if it is not added yet, add
   if (m_start_idx.find(actual_data.get()) == m_start_idx.end())

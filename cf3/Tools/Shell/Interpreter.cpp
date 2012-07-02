@@ -77,7 +77,7 @@ Interpreter::Interpreter(const commands_description& desc,
 void Interpreter::description(const commands_description& desc)
 {
   m_desc.add_options()
-  ("help,h", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show help")
+  //("help,h", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show help")
   ("interactive,i", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "start shell")
   ("file,f", value< std::vector<std::string> >()->multitoken() , "execute coolfluid script file")
   ("save,s", value< std::string >()->implicit_value(std::string()), "save history")
@@ -208,7 +208,6 @@ void Interpreter::handle_read_line(std::string line)
 
   std::vector<std::string> args;
 
-  // huu, ugly...
   args = split_command_line(std::string("--") + line);
 
   try
@@ -346,10 +345,10 @@ void Interpreter::notify(variables_map& vm)
 {
   boost::program_options::notify(vm);
 
-  if (vm.count("help"))
-  {
-    CFinfo << m_desc << CFendl;
-  }
+//  if (vm.count("help"))
+//  {
+//    CFinfo << m_desc << CFendl;
+//  }
 
   if (vm.count("file"))
   {
@@ -467,6 +466,28 @@ void Interpreter::interpret(std::istream &input_stream, readline_function_pointe
 void Interpreter::write_prompt()
 {
   CFinfo << m_prompt() << CFflush;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Command::Command(const std::string& command, const std::string& description, commands_description& commands) : m_commands(commands)
+{
+  add_options()
+    (command.c_str(), value< std::vector<std::string> >()->notifier(boost::bind(&Command::handle, this, _1))->multitoken()->zero_tokens(), description.c_str());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Command::handle(const std::vector<std::string>& params)
+{
+    execute(params);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void StdHelp::execute(const std::vector<std::string>& params)
+{
+  CFinfo << m_commands << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -62,22 +62,22 @@ public:
   MyC ( const std::string& name ) :  Component(name)
   {
     // POD's (plain old data)
-    options().add_option ( "OptBool", false ).description("bool option");
-    options().add_option ( "OptInt", -5 ).description("int option");
-    options().add_option ( "OptUInt", 10u ).description("Uint option");
-    options().add_option ( "OptReal", 0.0 ).description("real option");
-    options().add_option ( "OptStr", std::string("LOLO") ).description("string option");
-    options().add_option ( "OptURI", URI("cpath:/lolo") ).description( "URI option");
+    options().add ( "OptBool", false ).description("bool option");
+    options().add ( "OptInt", -5 ).description("int option");
+    options().add ( "OptUInt", 10u ).description("Uint option");
+    options().add ( "OptReal", 0.0 ).description("real option");
+    options().add ( "OptStr", std::string("LOLO") ).description("string option");
+    options().add ( "OptURI", URI("cpath:/lolo") ).description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    options().add_option( "VecInt", def ).description("vector ints option");
+    options().add( "VecInt", def ).description("vector ints option");
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    options().add_option( "VecStr", defs ).description("vector strs option");;
+    options().add( "VecStr", defs ).description("vector strs option");;
 
 //    option("OptInt").set_value(10);
 
@@ -91,18 +91,18 @@ public:
     options()["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
     options()["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
-    std::vector<int> vi = options().option("VecInt").value< std::vector<int> >();
+    std::vector<int> vi = options().value< std::vector<int> >("VecInt");
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    options().add_option( "OptC", Handle<CConcrete1>() )
+    options().add( "OptC", Handle<CConcrete1>() )
         .description("component option");
     options().link_to_parameter ( "OptC", &m_component_lnk );
     boost::shared_ptr<Option> opt2 (new OptionComponent<CConcrete1>("OptC2", Handle<CConcrete1>()));
     opt2->description("component option");
-    options().add_option(opt2).link_to( &m_component_lnk2 ).mark_basic();
+    options().add(opt2).link_to( &m_component_lnk2 ).mark_basic();
 
-    Option& opt3 = options().add_option("OptC3",m_component);
+    Option& opt3 = options().add("OptC3",m_component);
     opt3.description("component option");
     CFinfo << opt3.value_str() << CFendl;
   };
@@ -110,27 +110,27 @@ public:
 
   void config_bool ()
   {
-    BOOST_CHECK(options().option("OptBool").value<bool>() == boost::any_cast<bool>(options().option("OptBool").value()));
+    BOOST_CHECK(options().value<bool>("OptBool") == boost::any_cast<bool>(options().option("OptBool").value()));
   }
 
   void config_int ()
   {
-    BOOST_CHECK(options().option("OptInt").value<int>() == boost::any_cast<int>(options().option("OptInt").value()));
+    BOOST_CHECK(options().value<int>("OptInt") == boost::any_cast<int>(options().option("OptInt").value()));
   }
 
   void config_str ()
   {
-    BOOST_CHECK(options().option("OptStr").value<std::string>() == boost::any_cast<std::string>(options().option("OptStr").value()));
+    BOOST_CHECK(options().value<std::string>("OptStr") == boost::any_cast<std::string>(options().option("OptStr").value()));
   }
 
   void config_vecint ()
   {
-    BOOST_CHECK(options().option("VecInt").value< std::vector<int> >() == boost::any_cast< std::vector<int> >(options().option("VecInt").value()));
+    BOOST_CHECK(options().value< std::vector<int> >("VecInt") == boost::any_cast< std::vector<int> >(options().option("VecInt").value()));
   }
 
   void config_uri ()
   {
-    BOOST_CHECK(options().option("OptURI").value<URI>() == boost::any_cast<URI>(options().option("OptURI").value()));
+    BOOST_CHECK(options().value<URI>("OptURI") == boost::any_cast<URI>(options().option("OptURI").value()));
   }
 };
 
@@ -214,31 +214,31 @@ BOOST_AUTO_TEST_CASE( configure )
 
   pm->signal_configure( frame );
 
-  BOOST_CHECK ( pm->options().option("OptBool").value<bool>() );
+  BOOST_CHECK ( pm->options().value<bool>("OptBool") );
   BOOST_CHECK_EQUAL ( pm->options().option("OptBool").value_str() , "true" );
 
-  BOOST_CHECK_EQUAL ( pm->options().option("OptInt").value<int>(),   -156  );
+  BOOST_CHECK_EQUAL ( pm->options().value<int>("OptInt"),   -156  );
   BOOST_CHECK_EQUAL ( pm->options().option("OptInt").value_str() ,  "-156" );
 
-  BOOST_CHECK_EQUAL ( pm->options().option("OptUInt").value<Uint>(), (Uint)  134  );
+  BOOST_CHECK_EQUAL ( pm->options().value<Uint>("OptUInt"), (Uint)  134  );
   BOOST_CHECK_EQUAL ( pm->options().option("OptUInt").value_str()  ,  "134" );
 
-  BOOST_CHECK_EQUAL ( pm->options().option("OptReal").value<Real>(),   6.4564E+5  );
+  BOOST_CHECK_EQUAL ( pm->options().value<Real>("OptReal"),   6.4564E+5  );
 //  BOOST_CHECK_EQUAL ( pm->options().option("OptReal").value_str()  ,  "6.4564E+5" );
 
-  BOOST_CHECK_EQUAL ( pm->options().option("OptStr").value<std::string>(), "lolo" );
+  BOOST_CHECK_EQUAL ( pm->options().value<std::string>("OptStr"), "lolo" );
   BOOST_CHECK_EQUAL ( pm->options().option("OptStr").value_str(),          "lolo" );
 
   std::vector<int> vecint(3);
   vecint[0]=2;
   vecint[1]=8;
   vecint[2]=9;
-  BOOST_CHECK ( pm->options().option("VecInt").value<std::vector<int> >() ==  vecint);
+  BOOST_CHECK ( pm->options().value<std::vector<int> >("VecInt") ==  vecint);
 
   std::vector<std::string> vecstr(2);
   vecstr[0]="aabbcc";
   vecstr[1]="ddeeff";
-  BOOST_CHECK ( pm->options().option("VecStr").value<std::vector<std::string> >() ==  vecstr);
+  BOOST_CHECK ( pm->options().value<std::vector<std::string> >("VecStr") ==  vecstr);
 
   CFinfo << "ending" << CFendl;
 
@@ -255,15 +255,15 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   Handle<CConcrete1> component2 = root->create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->options().configure_option("MyRelativeFriend",URI("cpath:../component2"));
-  component1->options().configure_option("MyAbsoluteFriend",URI("cpath:/component2"));
+  component1->options().set("MyRelativeFriend",URI("cpath:../component2"));
+  component1->options().set("MyAbsoluteFriend",URI("cpath:/component2"));
 
   // Check if everything worked OK.
-  URI absolute_friend_path = component1->options().option("MyAbsoluteFriend").value<URI>();
+  URI absolute_friend_path = component1->options().value<URI>("MyAbsoluteFriend");
   Handle<CConcrete1> absolute_friend(component1->access_component(absolute_friend_path));
   BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
 
-  URI relative_friend_path = component1->options().option("MyRelativeFriend").value<URI>();
+  URI relative_friend_path = component1->options().value<URI>("MyRelativeFriend");
   Handle<CConcrete1> relative_friend(component1->access_component(relative_friend_path));
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }
@@ -278,10 +278,10 @@ BOOST_AUTO_TEST_CASE( optionComponent )
   Handle<CConcrete1> component2 = root.create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->options().configure_option("OptC",component2);
+  component1->options().set("OptC",component2);
 
   BOOST_CHECK( component1->comp() == component2 );
-  BOOST_CHECK(component1->options().option("OptC").value< Handle<CConcrete1> >() == component2);
+  BOOST_CHECK(component1->options().value< Handle<CConcrete1> >("OptC") == component2);
   // // Check if everything worked OK.
   // URI absolute_friend_path = component1->option("MyAbsoluteFriend").value<URI>();
   // Handle<CConcrete1> absolute_friend = component1->access_component(absolute_friend_path)->as_ptr<CConcrete1>();

@@ -54,7 +54,7 @@ public: // functions
 
     SignalOptions options;
 
-    options.add_option( "Counter", 10 );
+    options.add( "Counter", 10 );
 
     signal_frame = options.create_frame("Target", "/", "/");
 

@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( SetupProto )
 {
   Model& model = setup("Proto");
 
-  MeshTerm<0, ScalarField> V("CellVolume", "volume");
+  FieldVariable<0, ScalarField> V("CellVolume", "volume");
 
   model.solver() << create_proto_action("ComputeVolume", elements_expression(ElementsT(), V = volume));
 
@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
   Elements& elements = find_component_recursively_with_filter<Elements>(mesh->topology(), IsElementsVolume());
 
   LoopOperation& volume_computer = elem_loop.create_loop_operation("cf3.solver.actions.ComputeVolume");
-  volume_computer.options().configure_option("volume",vol_field.uri());
-  volume_computer.options().configure_option("elements",elements.uri());
+  volume_computer.options().set("volume",vol_field.uri());
+  volume_computer.options().set("elements",elements.uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( SimulateVolumeComputer )
 // Check the volume results (uses proto)
 BOOST_AUTO_TEST_CASE( CheckResult )
 {
-  MeshTerm<0, ScalarField> V("CellVolume", "volume");
+  FieldVariable<0, ScalarField> V("CellVolume", "volume");
 
   const Real wanted_volume = width*length*half_height*2.;
 

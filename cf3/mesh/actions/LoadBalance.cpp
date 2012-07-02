@@ -55,7 +55,7 @@ LoadBalance::LoadBalance( const std::string& name ) :
 #if (defined CF3_HAVE_PTSCOTCH)
   // no configuration necessary
 #elif (defined CF3_HAVE_ZOLTAN)
-  m_partitioner->options().configure_option("graph_package", std::string("PHG"));
+  m_partitioner->options().set("graph_package", std::string("PHG"));
 #endif
 }
 

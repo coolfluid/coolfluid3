@@ -14,17 +14,12 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
+namespace common { template<typename T> class Table; }
 namespace mesh   { class Field; }
 namespace solver {
 namespace actions {
 
 class solver_actions_API ComputeLNorm : public common::Action {
-
-public: // typedefs
-
-  /// pointers
-  
-  
 
 public: // functions
   /// Contructor
@@ -40,11 +35,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Real compute_norm(mesh::Field&) const;
-
-private: // data
-
-//  boost::weak_ptr<mesh::Field> m_field;
+  std::vector<Real> compute_norm(common::Table<Real>& table) const;
 
 };
 

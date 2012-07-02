@@ -50,13 +50,13 @@ Interpolate::Interpolate( const std::string& name )
     "Shapefunction/Space of the source-field is used to interpolate to the target";
   properties()["description"] = desc;
 
-  options().add_option("source", m_source)
+  options().add("source", m_source)
       .description("Field to interpolate from")
       .pretty_name("Source Field")
       .mark_basic()
       .link_to(&m_source);
 
-  options().add_option("target", m_target)
+  options().add("target", m_target)
       .description("Field to interpolate to")
       .pretty_name("Target Field")
       .mark_basic()
@@ -158,19 +158,21 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   Mesh& source_mesh = find_parent_component<Mesh>(source);
 
   if ( is_null(m_octtree) )
-    m_octtree = create_component<Octtree>("octtree");
-
-  if ( m_octtree->options().option("mesh").value< Handle<Mesh> >() != source_mesh.handle<Mesh>() )
   {
-    m_octtree->options().configure_option("mesh",source_mesh.handle<Mesh>());
-    m_octtree->create_octtree();
+    if (Handle<Component> found = source_mesh.get_child("octtree"))
+      m_octtree = Handle<Octtree>(found);
+    else
+    {
+      m_octtree = source_mesh.create_component<Octtree>("octtree");
+      m_octtree->options().set("mesh",source_mesh.handle<Mesh>());
+    }
   }
+
   const Uint dimension = source_mesh.dimension();
   const Uint nb_vars = source.row_size();
   m_source = Handle<Field const>(source.handle<Component>());
 
-  Handle< Elements > element_component;
-  Uint element_idx;
+  Entity element;
   std::deque<Uint> missing_cells;
 
   RealVector coord(dimension); coord.setZero();
@@ -180,10 +182,9 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   {
     for (Uint d=0; d<target_dim; ++d)
       coord[d] = coordinates[i][d];
-    if( m_octtree->find_element(coord,element_component,element_idx) )
+    if( m_octtree->find_element(coord,element) )
     {
-      cf3_assert(is_not_null(element_component));
-      interpolate_coordinate( coord, *element_component, element_idx, target[i] );
+      interpolate_coordinate( coord, *element.comp, element.idx, target[i] );
 //      std::cout<< PERank << "interpolate for coord (" << coord.transpose() << ") in " << element_component->uri().path() << "["<<element_idx<<"] ... done" << std::endl;
     }
     else
@@ -249,11 +250,11 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
         for (Uint d=0; d<target_dim; ++d)
           coord[d] = recv_coordinates[i][d];
 
-        if( m_octtree->find_element(coord,element_component,element_idx) )
+        if( m_octtree->find_element(coord,element) )
         {
 //          std::cout<< PERank << " send to " << root << ": interpolate for coord (" << coord.transpose() << ") in " << element_component->uri().path() << "["<<element_idx<<"]" << std::endl;
           boost::multi_array<Real,2> target_row(boost::extents[1][nb_vars]);
-          interpolate_coordinate( coord, *element_component, element_idx, target_row[0] );
+          interpolate_coordinate( coord, *element.comp, element.idx, target_row[0] );
           for (Uint v=0; v<nb_vars; ++v)
             send_target_rows[i*nb_vars+v] = target_row[0][v];
         }
@@ -319,17 +320,17 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row)
+void Interpolate::interpolate_coordinate(const RealVector& target_coord, const Entities& element_component, const Uint element_idx, Field::Row target_row)
 {
   cf3_assert(is_null(m_source) == false);
   const Field& source = *m_source;
   const Space& source_space = source.space(element_component);
   const ShapeFunction& sf = source_space.shape_function();
 
-  RealMatrix source_nodes(element_component.element_type().nb_nodes(),element_component.element_type().dimension());
-  element_component.geometry_space().put_coordinates(source_nodes,element_idx);
+  RealMatrix source_geom_nodes(element_component.element_type().nb_nodes(),element_component.element_type().dimension());
+  element_component.geometry_space().put_coordinates(source_geom_nodes,element_idx);
   RealVector local_coord(sf.dimensionality());
-  element_component.element_type().compute_mapped_coordinate(target_coord,source_nodes,local_coord);
+  element_component.element_type().compute_mapped_coordinate(target_coord,source_geom_nodes,local_coord);
   RealRowVector sf_value(sf.nb_nodes());
   sf.compute_value(local_coord,sf_value);
 
@@ -384,15 +385,15 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
 {
   common::XML::SignalOptions options( node );
 
-  options.add_option("source",URI())
+  options.add("source",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Source field");
 
-  options.add_option("target",URI())
+  options.add("target",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Target field or table");
 
-  options.add_option("coordinates",URI())
+  options.add("coordinates",URI())
       .supported_protocol( URI::Scheme::CPATH )
       .description("Table of coordinates if target is not a field");
 
