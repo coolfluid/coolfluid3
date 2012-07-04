@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tests mesh construction"
 
-
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 

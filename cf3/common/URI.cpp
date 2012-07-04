@@ -300,7 +300,7 @@ std::string URI::extension() const
 std::string URI::base_name() const
 {
   const boost::filesystem::path p(path());
-  return boost::filesystem::basename(p);
+  return p.stem().string();
 }
 
 void URI::cleanup()
