@@ -34,6 +34,22 @@ namespace cf3 {
 
 namespace UFEM {
 
+struct SACoeffs
+{
+  /// Constants
+  Real Cb1;
+  Real Cb2;
+  Real Cw2;
+  Real Cw3;
+  Real Cv1;
+  Real Cv2;
+  Real Sigma;
+  Real MuLam;
+  Real K;
+
+  Real omega;
+};
+
 /// solver for SpalartAllmaras turbulence model
 class UFEM_API SpalartAllmaras : public LSSActionUnsteady
 {
@@ -53,10 +69,12 @@ private:
   void trigger_physical_model();
 
   /// Copy of the coefficients stored in the physics. Needed to construct the equations
-  SUPGCoeffs m_coeffs;
+  SUPGCoeffs m_su_coeffs;
 
   /// Ensure the automatic creation of initial conditions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
+
+  SACoeffs m_sa_coeffs;
 
   /// Coefficients for Model
    Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
