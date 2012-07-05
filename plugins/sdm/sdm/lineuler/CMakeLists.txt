@@ -7,6 +7,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   BCWall2D.cpp
   BCWallNonUniformMeanflow2D.hpp
   BCWallNonUniformMeanflow2D.cpp
+  # BCNonReflectiveSubsonicOutlet2D.hpp
+  # BCNonReflectiveSubsonicOutlet2D.cpp
   ConvectionNonUniformMeanflow2D.hpp
   ConvectionNonUniformMeanflow2D.cpp
   Convection2D.hpp
@@ -15,8 +17,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   Convection3D.cpp
   FixMeanFlowBoundaryLayer.hpp
   FixMeanFlowBoundaryLayer.cpp
-  BCChar2D.hpp
-  BCChar2D.cpp
+  BCSubsonicOutletThompson2D.hpp
+  BCSubsonicOutletThompson2D.cpp
   BCSubsonicOutlet2D.hpp
   BCSubsonicOutlet2D.cpp
   NonReflectiveConvection2D.hpp

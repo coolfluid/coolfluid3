@@ -4,15 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_lineuler_BCChar2D_hpp
-#define cf3_sdm_lineuler_BCChar2D_hpp
+#ifndef cf3_sdm_lineuler_BCSubsonicOutletThompson2D_hpp
+#define cf3_sdm_lineuler_BCSubsonicOutletThompson2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include "Physics/LinEuler/LinEuler2D.hpp"
 #include "sdm/BCWeak.hpp"
 #include "sdm/lineuler/LibLinEuler.hpp"
 
@@ -24,54 +23,22 @@ namespace lineuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class sdm_lineuler_API BCChar2D : public BCWeak< PhysDataBase<4u,2u> >
+class sdm_lineuler_API BCSubsonicOutletThompson2D : public BCWeak< PhysDataBase<4u,2u> >
 {
 public:
-  static std::string type_name() { return "BCChar2D"; }
-  BCChar2D(const std::string& name) : BCWeak< PhysData >(name)
+  static std::string type_name() { return "BCSubsonicOutletThompson2D"; }
+  BCSubsonicOutletThompson2D(const std::string& name) : BCWeak< PhysData >(name)
   {
-    p.gamma = 1.4;
-    options().add("gamma",p.gamma)
-        .description("Specific heat reatio")
-        .attach_trigger( boost::bind( &BCChar2D::config_constants, this) );
 
-    p.rho0 = 1.;
-    options().add("rho0",p.rho0)
-        .description("Uniform mean density")
-        .attach_trigger( boost::bind( &BCChar2D::config_constants, this) );
+    m_c0 = 1.;
+    options().add("c0",m_c0)
+        .description("Uniform mean sound speed")
+        .link_to(&m_c0)
+        .mark_basic();
 
-    p.u0.setZero();
-    std::vector<Real> U0(p.u0.size());
-    for (Uint d=0; d<U0.size(); ++d)
-      U0[d] = p.u0[d];
-    options().add("U0",U0)
-        .description("Uniform mean velocity")
-        .attach_trigger( boost::bind( &BCChar2D::config_constants, this) );
-
-    options().add("p0",p.P0)
-        .description("Uniform mean pressure")
-        .attach_trigger( boost::bind( &BCChar2D::config_constants, this) );
-
-    config_constants();
   }
 
-  void config_constants()
-  {
-    p.gamma = options().value<Real>("gamma");
-    p.rho0  = options().value<Real>("rho0");
-    p.P0    = options().value<Real>("p0");
-
-    p.inv_rho0 = 1./p.rho0;
-
-    p.c=sqrt(p.gamma*p.P0*p.inv_rho0);
-    p.inv_c = 1./p.c;
-
-    std::vector<Real> U0 = options().value<std::vector<Real> >("U0");
-    for (Uint d=0; d<U0.size(); ++d)
-      p.u0[d] = U0[d];
-  }
-
-  virtual ~BCChar2D() {}
+  virtual ~BCSubsonicOutletThompson2D() {}
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -109,13 +76,11 @@ private:
     const Real& Omega = char_cell_sol[1];
     const Real& Aplus = char_cell_sol[2];
     const Real& Amin  = char_cell_sol[3];
-    const Real omega = Aplus-Amin;
-    const Real A     = Aplus+Amin;
 
     char_bdry_sol[0] =  S;
     char_bdry_sol[1] =  Omega;
     char_bdry_sol[2] =  Aplus;
-    char_bdry_sol[3] =  Amin;
+    char_bdry_sol[3] =  0.; // Amin zero
 
     char_to_cons(char_bdry_sol,unit_normal,boundary_face_solution);
   }
@@ -133,10 +98,10 @@ private:
     Real& Aplus = characteristic[2];
     Real& Amin  = characteristic[3];
 
-    S     =  rho - press*p.inv_c*p.inv_c;
+    S     =  rho - press/(m_c0*m_c0);
     Omega =  ny*rho0u - nx*rho0v;
-    Aplus =  nx*rho0u + ny*rho0v + press*p.inv_c;
-    Amin  = -nx*rho0u - ny*rho0v + press*p.inv_c;
+    Aplus =  nx*rho0u + ny*rho0v + press/m_c0;
+    Amin  = -nx*rho0u - ny*rho0v + press/m_c0;
   }
 
   void char_to_cons(const RealVectorNEQS& characteristic, const RealVectorNDIM& characteristic_normal, RealVectorNEQS& conservative)
@@ -155,14 +120,15 @@ private:
     const Real A     = Aplus+Amin;
     const Real omega = Aplus-Amin;
 
-    rho   =  S + 0.5*p.inv_c*A;
+    rho   =  S + 0.5*A/m_c0;
     rho0u =  ny*Omega + 0.5*nx*omega;
     rho0v = -nx*Omega + 0.5*ny*omega;
-    press =  0.5*p.c*A;
+    press =  0.5*m_c0*A;
   }
 
   Handle<CacheT<FluxPointPlaneJacobianNormal<NDIM> > > flx_pt_plane_jacobian_normal;
-  physics::LinEuler::LinEuler2D::Properties p;
+
+  Real m_c0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,4 +139,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_lineuler_BCChar2D_hpp
+#endif // cf3_sdm_lineuler_BCSubsonicOutletThompson2D_hpp
