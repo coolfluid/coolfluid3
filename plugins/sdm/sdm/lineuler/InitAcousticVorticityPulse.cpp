@@ -16,6 +16,8 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
+#include "math/Checks.hpp"
+
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
@@ -131,6 +133,13 @@ RealVector InitAcousticVorticityPulse::compute_velocity(const RealVector& coord,
   Real integral = integrate( VelocityIntegrand(m_data), m_data.s0,m_data.s1);
   u[XX] = (coord[XX]-m_data.u0*t)/(2.*m_data.alpha1*m_data.eta) * integral + 0.04*y_vort*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
   u[YY] = (coord[YY]            )/(2.*m_data.alpha1*m_data.eta) * integral - 0.04*x_vort*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
+  for (Uint d=0; d<2; ++d)
+  {
+    if (std::abs(u[d])<1e-12)
+      u[d];
+    if (math::Checks::is_nan(u[d]))
+      u[d]=0.;
+  }
   return u;
 }
 
@@ -138,9 +147,14 @@ Real InitAcousticVorticityPulse::compute_pressure(const RealVector& coord, const
 {
   m_data.time = t;
   m_data.eta = eta(coord,t);
-  Real x_vort = (coord[XX]-67.) - m_data.u0*t;
-  Real y_vort = coord[YY];
-  return 1./(2.*m_data.alpha1) * integrate( PressureIntegrand(m_data), m_data.s0,m_data.s1);
+  const Real x_vort = (coord[XX]-67.) - m_data.u0*t;
+  const Real y_vort = coord[YY];
+  const Real p = 1./(2.*m_data.alpha1) * integrate( PressureIntegrand(m_data), m_data.s0,m_data.s1);
+  if (std::abs(p)<1e-12)
+    return 0.;
+  if (math::Checks::is_nan(p))
+    return 0.;
+  return p;
 }
 
 Real InitAcousticVorticityPulse::compute_density(const Real& pressure, const RealVector& coord, const Real& t)
@@ -149,7 +163,12 @@ Real InitAcousticVorticityPulse::compute_density(const Real& pressure, const Rea
   m_data.eta = eta(coord,t);
   Real x_vort = (coord[XX]-67.) - m_data.u0*t;
   Real y_vort = coord[YY];
-  return pressure + 0.1*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
+  Real rho = pressure + 0.1*std::exp(-m_data.alpha2*(x_vort*x_vort+y_vort*y_vort));
+  if (std::abs(rho)<1e-12)
+    return 0.;
+  if (math::Checks::is_nan(rho))
+    return 0.;
+  return rho;
 }
 
 
