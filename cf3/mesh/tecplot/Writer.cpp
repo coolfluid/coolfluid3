@@ -5,11 +5,12 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <iostream>
-
+#include <set>
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Builder.hpp"
@@ -25,6 +26,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Functions.hpp"
+#include "mesh/MeshMetadata.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +134,7 @@ void Writer::write_file(std::fstream& file)
 
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  std::map<Handle<Component const>,Uint> zone_id;
+//  std::map<Handle<Component const>,Uint> zone_id;
   Uint zone_idx=0;
   boost_foreach (const Handle<Entities const>& elements_h, m_filtered_entities )
   {
@@ -154,6 +156,16 @@ void Writer::write_file(std::fstream& file)
       nb_elems -= nb_ghost_elems;
     }
 
+    std::string zone_name = elements.parent()->uri().path();
+    boost::algorithm::replace_first(zone_name,m_mesh->topology().uri().path()+"/","");
+    std::set<std::string> zone_names;
+    if (zone_names.count(zone_name) == 0)
+    {
+      zone_idx++;
+      zone_names.insert(zone_name);
+    }
+//    zone_id[elements.handle<Component>()] = zone_idx++;
+
     // tecplot doesn't handle zones with 0 elements
     // which can happen in parallel, so skip them
     if (nb_elems == 0)
@@ -163,8 +175,6 @@ void Writer::write_file(std::fstream& file)
     {
       throw NotImplemented(FromHere(), "Tecplot can only output P1 elements. A new P1 space should be created, and used as geometry space");
     }
-
-    zone_id[elements.handle<Component>()] = zone_idx++;
 
     boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(elements,m_mesh->geometry_fields(),m_enable_overlap);
     common::List<Uint>& used_nodes = *used_nodes_ptr;
@@ -179,7 +189,9 @@ void Writer::write_file(std::fstream& file)
     // one zone per element type per cpu
     // therefore the title is dependent on those parameters
     file << "ZONE "
-         << "  T=\"" << elements.uri().path() << "\""
+         << "  T=\"ITER"<<m_mesh->metadata().properties().value<Uint>("iter") << ":" << zone_name << "\""
+         << ", STRANDID="<<zone_idx
+         << ", SOLUTIONTIME="<<m_mesh->metadata().properties().value<Real>("time")
          << ", N=" << used_nodes.size()
          << ", E=" << nb_elems
          << ", DATAPACKING=BLOCK"
