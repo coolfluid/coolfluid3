@@ -59,6 +59,60 @@ struct sdm_MPITests_Fixture
 
 };
 
+struct Data
+{
+    RealVector4 solution;
+    RealVector2 coord;
+    Eigen::Matrix<Real, 4, 2> grad_solution;
+};
+
+void flux_diff(Data d1, RealVector2 unit_normal, Real mu_v, RealVector4& F_Dn)
+{
+    Real mu=1; // moet optie van gemaakt worden
+    Real kappa=1; //moet nog een optie van gemaakt worden
+    Real R=287.05; // optie van maken
+    Real gamma=1.4; // optie van maken
+
+    Real cv = R/(gamma-1);
+
+    RealVector4 f_d, g_d;
+    Eigen::Matrix<RealVector4, 2, 1> F_D;
+
+    Real rho = d1.solution[0];
+    Real rhou = d1.solution[1];
+    Real rhov = d1.solution[2];
+    Real rhoE = d1.solution[3];
+
+    Real drho_dx = d1.grad_solution(0,0);
+    Real drhou_dx = d1.grad_solution(1,0);
+    Real drhov_dx = d1.grad_solution(2,0);
+    Real drhoE_dx = d1.grad_solution(3,0);
+
+    Real drho_dy = d1.grad_solution(0,1);
+    Real drhou_dy = d1.grad_solution(1,1);
+    Real drhov_dy = d1.grad_solution(2,1);
+    Real drhoE_dy = d1.grad_solution(3,1);
+
+    Real dT_dx = 1/(rho*cv)* (drhoE_dx - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dx - (rhou/rho*drhou_dx + rhov/rho*drhov_dx));
+    Real dT_dy = 1/(rho*cv)*(drhoE_dy - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dy - (rhou/rho*drhou_dy+rhov*drhov_dy));
+
+    f_d[0] = 0;
+    f_d[1] = 2*mu*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
+    f_d[2] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
+    f_d[3] = f_d[1]*rhou/rho + f_d[2]*rhov/rho + kappa*dT_dx;
+
+    g_d[0] = 0;
+    g_d[1] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
+    g_d[2] = 2*mu*(1/rho*drhov_dy-rhov/(rho*rho)*drho_dy) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
+    g_d[3] = g_d[1]*rhou/rho + g_d[2]*rhov/rho + kappa*dT_dy;
+
+    F_D(0) = f_d;
+    F_D(1) = g_d;
+
+    F_Dn = F_D(0)*unit_normal(0) + F_D(1)*unit_normal(1);
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +285,7 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
     BOOST_CHECK_CLOSE(flux[3], 353855.4, tol);
 
-    std::cout << "wavespeed analytical = " << wavespeed << std::endl;
+//    std::cout << "wavespeed analytical = " << wavespeed << std::endl;
 
     Omegaoption[0] = 0.;
     Omegaoption[1] = 0.;
@@ -257,8 +311,122 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
     BOOST_CHECK_CLOSE(flux[3], 353875.6, tol);
 
-    std::cout << "wavespeed numerical = " << wavespeed << std::endl;
+//    std::cout << "wavespeed numerical = " << wavespeed << std::endl;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_diffusion )
+{
+    const Real tol (0.000001);
+
+    Data data1;
+    RealVector2 unit_normal;
+    unit_normal << 1, 0;
+    RealVector4 F_Dn = RealVector4::Zero();
+
+    Real mu_v=0; // moet nog optie van gemaakt worden
+
+    data1.solution << 1., 1., 0., 100.;
+    data1.coord << 1., 0;
+    data1.grad_solution << 1., 0.,
+                           1., 0.,
+                           0., 0.,
+                           0., 0.;
+
+    flux_diff(data1, unit_normal, mu_v, F_Dn);
+
+
+    BOOST_CHECK_CLOSE(F_Dn[0], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[1], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[2], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[3], -0.139348546, tol);
+
+////////////////////////////////////////////////////////////////////
+
+    //mu_v different from zero en drhou_dx verschillend van drho_dx
+    unit_normal << 1, 0;
+
+    mu_v=1.; // moet nog optie van gemaakt worden
+
+    data1.solution << 1., 1., 0., 100.;
+    data1.coord << 1., 0;
+    data1.grad_solution << 1., 0.,
+                           2., 0.,
+                           0., 0.,
+                           0., 0.;
+
+    F_Dn = RealVector4::Zero();
+    flux_diff(data1, unit_normal, mu_v, F_Dn);
+
+    BOOST_CHECK_CLOSE(F_Dn[0], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[1], 3., tol);
+    BOOST_CHECK_CLOSE(F_Dn[2], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[3], 2.859257969, tol);
+
+// ////////////////////////////////////////////////////////
+
+    unit_normal << 0., 1.;
+
+    mu_v=1.; // moet nog optie van gemaakt worden
+
+    data1.solution << 1., 0., 1., 100.;
+    data1.coord << 1., 0.;
+    data1.grad_solution << 0., 1.,
+                           0., 0.,
+                           0., 2.,
+                           0., 0.;
+
+    F_Dn = RealVector4::Zero();
+    flux_diff(data1, unit_normal, mu_v, F_Dn);
+
+    BOOST_CHECK_CLOSE(F_Dn[0], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[1], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[2], 3., tol);
+    BOOST_CHECK_CLOSE(F_Dn[3], 2.859257969, tol);
+
+///////////////////////////////////////////////////////////
+    unit_normal << 1, 0;
+
+    mu_v=1.; // moet nog optie van gemaakt worden
+
+    data1.solution << 1., 1., 1., 100.;
+    data1.coord << 1., 0;
+    data1.grad_solution << 1., 1.,
+                           2., 2.,
+                           2., 2.,
+                           1., 0.;
+
+    F_Dn = RealVector4::Zero();
+    flux_diff(data1, unit_normal, mu_v, F_Dn);
+
+    BOOST_CHECK_CLOSE(F_Dn[0], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[1], 4., tol);
+    BOOST_CHECK_CLOSE(F_Dn[2], 2., tol);
+    BOOST_CHECK_CLOSE(F_Dn[3], 5.859257969, tol);
+///////////////////////////////////////////////////////
+
+    unit_normal << 0, 1;
+
+    mu_v=1.; // moet nog optie van gemaakt worden
+
+
+    data1.solution << 1., 1., 1., 100.;
+    data1.coord << 1., 0;
+    data1.grad_solution << 1., 1.,
+                           2., 2.,
+                           2., 2.,
+                           0., 1.;
+
+    F_Dn = RealVector4::Zero();
+    flux_diff(data1, unit_normal, mu_v, F_Dn);
+
+    BOOST_CHECK_CLOSE(F_Dn[0], 0., tol);
+    BOOST_CHECK_CLOSE(F_Dn[1], 2., tol);
+    BOOST_CHECK_CLOSE(F_Dn[2], 4., tol);
+    BOOST_CHECK_CLOSE(F_Dn[3], 5.859257969, tol);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

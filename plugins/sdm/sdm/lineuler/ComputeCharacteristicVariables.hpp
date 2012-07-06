@@ -43,6 +43,8 @@ private: // data
 
   Handle<mesh::Field> m_characteristics;
   Handle<mesh::Field> m_char_resid;
+  Handle<mesh::Field> m_dchardn;
+  Handle<mesh::Field> m_dchards;
   Handle<mesh::Field> m_char_convection;
 
 };

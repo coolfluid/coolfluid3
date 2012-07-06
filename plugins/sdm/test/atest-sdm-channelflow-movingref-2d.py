@@ -103,7 +103,7 @@ outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 
 regions=[
 mesh.access_component('topology/right').uri()
 ])
-outlet.options().set('p', 101300)
+outlet.options().set('p', '101300')
 outlet.options().set('gamma', 1.4)
 
 fields = [
