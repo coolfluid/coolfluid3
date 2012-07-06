@@ -4,7 +4,7 @@ set( Boost_USE_STATIC_LIBS ${CF3_ENABLE_STATIC} )
 set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
 set( CF3_Boost_MINIMAL_VERSION "1.46.1" )
-set( Boost_ADDITIONAL_VERSIONS "1.47" "1.46" )
+set( Boost_ADDITIONAL_VERSIONS "1.49" "1.48" "1.47" "1.46" )
 
 #disable looking in system paths
 set(Boost_NO_SYSTEM_PATHS ON)

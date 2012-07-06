@@ -15,12 +15,10 @@ list( APPEND coolfluid_sdm_lineuler_files
   Convection3D.cpp
   FixMeanFlowBoundaryLayer.hpp
   FixMeanFlowBoundaryLayer.cpp
-  BCChar2D.hpp
-  BCChar2D.cpp
+  BCSubsonicOutletThompson2D.hpp
+  BCSubsonicOutletThompson2D.cpp
   BCSubsonicOutlet2D.hpp
   BCSubsonicOutlet2D.cpp
-  NonReflectiveConvection2D.hpp
-  NonReflectiveConvection2D.cpp
   InitAcousticPulse.hpp
   InitAcousticPulse.cpp
   InitAcousticVorticityPulse.hpp

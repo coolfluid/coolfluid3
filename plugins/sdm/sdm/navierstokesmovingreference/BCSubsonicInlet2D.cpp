@@ -6,21 +6,21 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/lineuler/BCChar2D.hpp"
-#include "solver/Solver.hpp"
+#include "sdm/navierstokesmovingreference/BCSubsonicInlet2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace lineuler {
+namespace navierstokesmovingreference {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCChar2D,BC,LibLinEuler>BCChar2D_builder;
+common::ComponentBuilder<BCSubsonicInletUT2D,BC,LibNavierStokesMovingReference> bcsubsonicinletUT2d_builder;
+common::ComponentBuilder<BCSubsonicInletTtPtAlpha2D,BC,LibNavierStokesMovingReference> bcsubsonicinletTtPtAlpha2d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 
-} // lineuler
+} // navierstokes
 } // sdm
 } // cf3

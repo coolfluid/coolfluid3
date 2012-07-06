@@ -47,7 +47,7 @@ solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
 
 ### Configure timestepping
 solver.access_component('Time').options().set('time_step',30);
-solver.access_component('Time').options().set('end_time',5);
+solver.access_component('Time').options().set('end_time',2);
 solver.access_component('TimeStepping').options().set('cfl','0.2');
 #solver.access_component('TimeStepping').options().set('max_iteration',1);
 solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',4)
@@ -97,8 +97,8 @@ convection.options().set('rho0',1.)
 convection.options().set('U0',[.5,0.])
 convection.options().set('p0',1.)
 
-### extrapolation boundary condition, for visualization of domain-boundary
-null_bc = solver.access_component('BoundaryConditions').create_boundary_condition(name='null',type='cf3.sdm.BCExtrapolate<4,2>',regions=[
+### subsonic outlet BC at tob bottom right
+bc = solver.access_component('BoundaryConditions').create_boundary_condition(name='null',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
 mesh.access_component('topology/right').uri(),
 mesh.access_component('topology/bottom').uri(),
 mesh.access_component('topology/top').uri(),
@@ -108,21 +108,6 @@ mesh.access_component('topology/top').uri(),
 impose = solver.access_component('BoundaryConditions').create_boundary_condition(name='impose',type='cf3.sdm.BCConstant<4,2>',regions=[
 mesh.access_component('topology/left').uri(),])
 impose.options().set('constants',[0,0,0,0])
-
-### Non-reflecting outlet boundary condition. Special treatment is required as it is used as a domain-term in boundary cells
-modify_subsonic_outlet = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('modify_subsonic_outlet','cf3.sdm.BoundaryConditions')
-modify_subsonic_outlet.options().set('solver',solver)
-modify_subsonic_outlet.options().set('mesh',mesh)
-modify_subsonic_outlet.options().set('physical_model',physics)
-non_refl_bc = modify_subsonic_outlet.create_boundary_condition(name='non_refl_bc',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
-mesh.access_component('topology/bottom').uri(),
-mesh.access_component('topology/top').uri(),
-mesh.access_component('topology/right').uri(),
-]);
-non_refl_bc.get_child('non_reflective_convection').options().set('gamma',gamma)
-non_refl_bc.get_child('non_reflective_convection').options().set('rho0',1.)
-non_refl_bc.get_child('non_reflective_convection').options().set('U0',[.5,0.])
-non_refl_bc.get_child('non_reflective_convection').options().set('p0',1.)
 
 #######################################
 # SIMULATE
