@@ -34,14 +34,19 @@ public:
   BCSubsonicOutlet2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     m_p = 101300.;
-    options().add("p",m_p).link_to(&m_p);
+    options().add("p",common::to_str(m_p))
+        .description("pressure as a function of x,y")
+        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_P, this) )
+        .mark_basic();
+    config_P();
 
     m_gamma=1.4;
     m_gamma_minus_1=m_gamma-1.;
 
     options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
-        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) );
+        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) )
+        .mark_basic();
   }
   virtual ~BCSubsonicOutlet2D() {}
 
@@ -51,11 +56,18 @@ public:
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
-  void config_P()    { m_function_P   .parse(options().option("P").value_str()); }
+  void config_P()
+  {
+    m_function_P.parse(options().option("p").value_str(), "x,y" );
+  }
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
+
     m_function_P.evaluate(inner_cell_data.coord,m_p);
+
+    cf3_always_assert(inner_cell_data.solution.size()==NEQS);
+    cf3_always_assert(boundary_face_pt_data.size()==NEQS);
 
     m_rho_inner = inner_cell_data.solution[Rho];
     m_u_inner = inner_cell_data.solution[RhoUx]/m_rho_inner;
