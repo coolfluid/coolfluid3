@@ -6,21 +6,21 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/navierstokes/BCSubsonicOutlet2D.hpp"
+#include "sdm/navierstokesmovingreference/BCSubsonicOutlet2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace navierstokes {
+namespace navierstokesmovingreference {
 	
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibNavierStokes> bcsubsonicoutlet2d_builder;
+common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibNavierStokesMovingReference> bcsubsonicoutlet2d_builder;
 
 
 /////////////////////////////////////////////////////////////////////////////
 
-} // navierstokes
+} // navierstokesmovingreference
 } // sdm
 } // cf3

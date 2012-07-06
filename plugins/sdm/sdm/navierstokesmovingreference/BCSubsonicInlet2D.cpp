@@ -6,18 +6,18 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/navierstokes/BCSubsonicOutlet2D.hpp"
+#include "sdm/navierstokesmovingreference/BCSubsonicInlet2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace navierstokes {
-	
+namespace navierstokesmovingreference {
+
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibNavierStokes> bcsubsonicoutlet2d_builder;
-
+common::ComponentBuilder<BCSubsonicInletUT2D,BC,LibNavierStokesMovingReference> bcsubsonicinletUT2d_builder;
+common::ComponentBuilder<BCSubsonicInletTtPtAlpha2D,BC,LibNavierStokesMovingReference> bcsubsonicinletTtPtAlpha2d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 
