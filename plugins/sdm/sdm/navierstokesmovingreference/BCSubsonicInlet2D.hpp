@@ -19,6 +19,9 @@
 
 #include "math/AnalyticalFunction.hpp"
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "sdm/BCWeak.hpp"
 #include "sdm/navierstokesmovingreference/LibNavierStokesMovingReference.hpp"
 
@@ -48,9 +51,9 @@ public:
 
     options().add("Tt",m_function_Tt.function()).description("Total Temperature")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Tt, this) );
-    options().add("Pt",m_function_Tt.function()).description("Total Pressure")
+    options().add("Pt",m_function_Pt.function()).description("Total Pressure")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Pt, this) );
-    options().add("alpha",m_function_Tt.function()).description("flow angle in rad")
+    options().add("alpha",m_function_alpha.function()).description("flow angle in rad")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_alpha, this) );
 
     m_gamma=1.4;

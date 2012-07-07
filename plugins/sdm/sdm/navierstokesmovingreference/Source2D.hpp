@@ -88,6 +88,7 @@ public:
           V0 = RealVector3::Zero(3);
           Vt = RealVector3::Zero(3);
           at = RealVector3::Zero(3);
+          a0 = RealVector3::Zero(3);
 
 
           std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0), a0Default(3,0), dOmegadtDefault(3,0);
@@ -144,7 +145,7 @@ public:
         source = RealVector4::Zero(4);
         source.block<2,1>(1,0).noalias() = -data.solution[0]*at.head(2);
 
-        source[3] = -data.solution[0]*(Vr.dot(a0) + (Omega.cross(r)).dot(a0) + V0.dot(at - Omega.cross(Vt)) + Vr.dot(dOmegadt.cross(r)) + (Omega.cross(r)).dot(dOmegadt.cross(r)));
+        source[3] = -data.solution[0]*(Vr.dot(a0) + (Omega.cross(r)).dot(a0) + V0.dot(at - Omega.cross(Vr)) + Vr.dot(dOmegadt.cross(r)) + (Omega.cross(r)).dot(dOmegadt.cross(r)));
     }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

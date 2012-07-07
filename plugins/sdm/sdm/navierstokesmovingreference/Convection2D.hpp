@@ -175,8 +175,8 @@ public:
 //      P = properties_roe[0] * (gamma - 1.)/gamma*(properties_roe[3]-0.5
 //                                                 *(properties_roe[1]*properties_roe[1] + properties_roe[2]*properties_roe[2]) + 0.5*(Vt[0] * Vt[0] + Vt[1] * Vt[1]));
 //                                                 //(gamma-1)/gamma * rho (H-0.5*(uu+vv)+0.5*Vt*Vt)
-      P = properties_roe[0] * (properties_roe[3] - 0.5*properties_roe[0]*(properties_roe[1]*properties_roe[1] + properties_roe[2]*properties_roe[2]) + 0.5*properties_roe[0]*(Vt[0]*Vt[0] + Vt[1]*Vt[1]));
-      P /= (1 + properties_roe[0]/(gamma-1));
+      P = properties_roe[0]*(properties_roe[3] - 0.5*(properties_roe[1]*properties_roe[1] + properties_roe[2]*properties_roe[2]) + 0.5*(Vt[0]*Vt[0] + Vt[1]*Vt[1]));
+      P *= ((gamma-1)/gamma);
 
       const Real nx = unit_normal[XX];
       const Real ny = unit_normal[YY];
