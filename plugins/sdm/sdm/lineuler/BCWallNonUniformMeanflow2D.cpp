@@ -6,7 +6,7 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/lineuler/BCChar2D.hpp"
+#include "sdm/lineuler/BCWallNonUniformMeanflow2D.hpp"
 #include "solver/Solver.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace lineuler {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCChar2D,BC,LibLinEuler>BCChar2D_builder;
+common::ComponentBuilder<BCWallNonUniformMeanflow2D,BC,LibLinEuler>BCWallNonUniformMeanflow2D_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 

@@ -115,12 +115,12 @@ struct TableMethods
   {
     return wrapped.component< common::Table<ValueT> >().row_size();
   }
-  
+
   static void resize(ComponentWrapper& wrapped, const Uint nb_rows)
   {
     wrapped.component< common::Table<ValueT> >().resize(nb_rows);
   }
-  
+
   static void set_row_size(ComponentWrapper& wrapped, const Uint nb_cols)
   {
     wrapped.component< common::Table<ValueT> >().set_row_size(nb_cols);
@@ -132,8 +132,6 @@ void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& p
 {
   if(dynamic_cast<const common::Table<ValueT>*>(&wrapped.component()))
   {
-    CFdebug << "adding custom methods for " << common::Table<ValueT>::type_name() << CFendl;
-
     // Add list functionality
     typedef TableList<ValueT> ListInterfaceT;
     wrapped.set_list_interface(new ListInterfaceT(wrapped));

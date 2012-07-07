@@ -17,7 +17,7 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.git )
                      OUTPUT_STRIP_TRAILING_WHITESPACE )
 
     # Get commit date
-    execute_process( COMMAND           "${GIT_EXECUTABLE}" git log -1 --format="%ci" HEAD
+    execute_process( COMMAND           "${GIT_EXECUTABLE}" log -1 --format="%ci" HEAD
                      WORKING_DIRECTORY "${coolfluid_SOURCE_DIR}"
                      RESULT_VARIABLE   GIT_RESULT
                      OUTPUT_VARIABLE   coolfluid_git_revision_date
@@ -33,6 +33,5 @@ endif()
 
 if( NOT coolfluid_git_revision_sha )
   set(coolfluid_git_revision_sha "NOTFOUND")
-  set(coolfluid_git_revision_date "NOTFOUND")
+  set(coolfluid_git_revision_date "\"NOTFOUND\"")
 endif()
-

@@ -104,7 +104,7 @@ void Writer::write()
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path (m_file_path.path());
-  path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
+  path = path.parent_path() / boost::filesystem::path (boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path));
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
   {

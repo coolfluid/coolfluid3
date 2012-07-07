@@ -26,7 +26,7 @@ using namespace boost::fusion;
 
 // Types that can be held by any
 typedef boost::mpl::vector7<std::string, int, bool, Real, common::URI, common::UUCount, Handle<common::Component> > PythonToAnyTypes;
-typedef boost::mpl::vector8<std::string, Uint, int, bool, Real, common::URI, common::UUCount, Handle<common::Component> > AnyToPythonTypes;
+typedef boost::mpl::vector9<std::string, Uint, int, bool, Real, common::URI, common::UUCount, Handle<common::Component>, Handle<common::Component const> > AnyToPythonTypes;
 
 /// Extract the type string for the elements of a python list
 /// Only arrays with the same overall type are supported. Arrays containing a single
@@ -63,35 +63,55 @@ std::string python_list_element_type(const boost::python::list& pylist)
 /// Conversion from any to python for basic types
 struct AnyToPython
 {
-  AnyToPython(const boost::any& value, boost::python::object& result) :
+  AnyToPython(const boost::any& value, boost::python::object& result, bool& found) :
   m_value(value),
-  m_result(result)
+  m_result(result),
+  m_found(found)
   {
   }
 
   template<typename T>
   void operator()(T) const
   {
-    if(typeid(T) != m_value.type())
+    if(m_found || typeid(T) != m_value.type())
     {
       return;
     }
+
+    m_found = true;
 
     m_result = boost::python::object(boost::any_cast<T>(m_value));
   }
 
   void operator()(const Handle<common::Component>&) const
   {
-    if(typeid(Handle<common::Component>) != m_value.type())
+    if(m_found || typeid(Handle<common::Component>) != m_value.type())
     {
       return;
     }
 
+    m_found = true;
+
     m_result = boost::python::object( wrap_component(boost::any_cast< Handle<common::Component> >(m_value)));
+  }
+
+  // TODO: const-correctness for python? This would require a second componentwrapper, for const components...
+  void operator()(const Handle<common::Component const>&) const
+  {
+    if(m_found || typeid(Handle<common::Component const>) != m_value.type())
+    {
+      return;
+    }
+
+    m_found = true;
+
+    common::Component* comp = const_cast<common::Component*>(boost::any_cast< Handle<common::Component const> >(m_value).get());
+    m_result = boost::python::object(wrap_component(is_null(comp) ? Handle<common::Component>() : comp->handle()));
   }
 
   const boost::any& m_value;
   boost::python::object& m_result;
+  bool& m_found;
 };
 
 /// Conversion for lists
@@ -114,7 +134,9 @@ struct AnyListToPython
     BOOST_FOREACH(const T& item, val)
     {
       boost::python::object list_item;
-      AnyToPython(item, list_item)(item);
+      bool found = false;
+      AnyToPython(item, list_item, found)(item);
+      cf3_assert(found);
       result.append(list_item);
     }
 
@@ -225,11 +247,12 @@ struct PythonListToAny
 boost::python::api::object any_to_python(const boost::any& value)
 {
   boost::python::object result;
-  boost::mpl::for_each<AnyToPythonTypes>(AnyToPython(value, result));
-  if(result.is_none()) // try lists if straight conversion failed
+  bool found = false;
+  boost::mpl::for_each<AnyToPythonTypes>(AnyToPython(value, result, found));
+  if(!found) // try lists if straight conversion failed
     boost::mpl::for_each<AnyToPythonTypes>(AnyListToPython(value, result));
-  if(result.is_none())
-    throw common::CastingFailed(FromHere(), "Failed to convert boost any to a valid python object");
+  if(!found && result.is_none())
+    throw common::CastingFailed(FromHere(), std::string("Failed to convert boost any of type ") + value.type().name() + " to a valid python object");
   return result;
 }
 

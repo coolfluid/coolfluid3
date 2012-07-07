@@ -40,6 +40,15 @@ private:
 
   Handle<Octtree> m_octtree;
   Entity m_tmp;
+  bool m_closest;
+
+  std::vector<Uint> m_octtree_idx;
+
+  std::vector<Entity> m_elements_pool;
+
+  RealMatrix m_coordinates;
+
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

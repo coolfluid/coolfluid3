@@ -78,6 +78,7 @@ protected: // data
   std::vector<Real> m_lengths;   ///< Lengths in every direction
   std::vector<Real> m_offsets;   ///< Offset in every direction (coordinate of bottom-left point)
 
+  Uint m_coord_dim;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

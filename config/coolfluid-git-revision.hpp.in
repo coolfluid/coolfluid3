@@ -1,0 +1,7 @@
+#ifndef coolfluid_git_revision_hpp
+#define coolfluid_git_revision_hpp
+
+#define CF3_GIT_COMMIT_SHA   "${coolfluid_git_revision_sha}"
+#define CF3_GIT_COMMIT_DATE  ${coolfluid_git_revision_date}
+
+#endif // !coolfluid_git_revision_hpp

@@ -36,12 +36,14 @@ public:
     p.gamma = 1.4;
     options().add("gamma",p.gamma)
         .description("Specific heat reatio")
-        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) )
+        .mark_basic();
 
     p.rho0 = 1.;
     options().add("rho0",p.rho0)
         .description("Uniform mean density")
-        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) )
+        .mark_basic();
 
     p.u0.setZero();
     std::vector<Real> U0(p.u0.size());
@@ -49,11 +51,13 @@ public:
       U0[d] = p.u0[d];
     options().add("U0",U0)
         .description("Uniform mean velocity")
-        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) )
+        .mark_basic();
 
     options().add("p0",p.P0)
         .description("Uniform mean pressure")
-        .attach_trigger( boost::bind( &Convection2D::config_constants, this) );
+        .attach_trigger( boost::bind( &Convection2D::config_constants, this) )
+        .mark_basic();
 
     config_constants();
   }

@@ -53,6 +53,8 @@ private:
 
   /// Update the copy of the physics coefficients when the physical model changes
   void trigger_physical_model();
+  
+  virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
 
   /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;

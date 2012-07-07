@@ -151,32 +151,32 @@ struct NumberedTermType
 };
 
 template<Uint I, typename T>
-struct MeshTerm :
-  boost::proto::extends< typename NumberedTermType<I, T>::type, MeshTerm<I, T> >
+struct FieldVariable :
+  boost::proto::extends< typename NumberedTermType<I, T>::type, FieldVariable<I, T> >
 {
-  typedef boost::proto::extends< typename NumberedTermType<I, T>::type, MeshTerm<I, T> > base_type;
+  typedef boost::proto::extends< typename NumberedTermType<I, T>::type, FieldVariable<I, T> > base_type;
 
-  MeshTerm() : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>())) {}
-
-  template<typename T1>
-  MeshTerm(const T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1))) {}
+  FieldVariable() : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>())) {}
 
   template<typename T1>
-  MeshTerm(T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1))) {}
+  FieldVariable(const T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1))) {}
+
+  template<typename T1>
+  FieldVariable(T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1))) {}
 
   template<typename T1, typename T2>
-  MeshTerm(const T1& par1, const T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
+  FieldVariable(const T1& par1, const T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
 
   template<typename T1, typename T2>
-  MeshTerm(T1& par1, T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
+  FieldVariable(T1& par1, T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
 
   template<typename T1, typename T2, typename T3>
-  MeshTerm(const T1& par1, const T2& par2, const T3& par3) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2, par3))) {}
+  FieldVariable(const T1& par1, const T2& par2, const T3& par3) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2, par3))) {}
 
   template<typename T1, typename T2, typename T3>
-  MeshTerm(T1& par1, T2& par2, T3& par3) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2, par3))) {}
+  FieldVariable(T1& par1, T2& par2, T3& par3) : base_type(boost::proto::make_expr<boost::proto::tag::terminal>(Var<boost::mpl::int_<I>, T>(par1, par2, par3))) {}
 
-  BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
+  BOOST_PROTO_EXTENDS_USING_ASSIGN(FieldVariable)
 };
 
 /// Match field types

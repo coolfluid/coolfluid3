@@ -17,20 +17,9 @@ namespace lineuler {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibLinEuler> BCSubsonicOutlet2d_builder;
+common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibLinEuler> BCOutlet2d_builder;
 
 /////////////////////////////////////////////////////////////////////////////
-
-void BCSubsonicOutlet2D::execute()
-{
-
-  find_inner_cell(m_face_entities,m_face_elem_idx,cell_entities,cell_idx,cell_face_nb);
-  set_inner_cell();
-  cf3_assert(correct_non_reflective_term);
-  correct_non_reflective_term->handle<NonReflectiveConvection2D>()->set_boundary_face(cell_face_nb);
-  correct_non_reflective_term->execute();
-  unset_inner_cell();
-}
 
 } // lineuler
 } // sdm

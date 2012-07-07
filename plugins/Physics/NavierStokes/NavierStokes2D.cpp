@@ -35,11 +35,11 @@ NavierStokes2D::NavierStokes2D( const std::string& name ) :
 {
   options().add("gamma",m_gamma)
       .description("Specific heat reatio")
-      .link_to(&m_gamma);
+      .link_to(&m_gamma).mark_basic();
 
   options().add("R",m_R)
       .description("Gas constant")
-      .link_to(&m_R);
+      .link_to(&m_R).mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

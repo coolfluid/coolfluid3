@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_NodeLooper_hpp
 #define cf3_solver_actions_Proto_NodeLooper_hpp
 
+#include "mesh/Functions.hpp"
+
 #include "NodeData.hpp"
 #include "NodeGrammar.hpp"
 
@@ -131,10 +133,16 @@ private:
   {
     NodeGrammar grammar;
 
-    std::vector<Uint> nodes;
-    const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
-    make_node_list(m_region, coordinates, nodes);
+    // Build a list of used entities
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
+    std::vector< Handle<mesh::Entities const> > used_entities;
+    BOOST_FOREACH(const mesh::Entities& entities, common::find_components_recursively<mesh::Entities>(m_region))
+    {
+      used_entities.push_back(entities.handle<mesh::Entities>());
+    }
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, mesh.geometry_fields(), true);
 
+    const common::List<Uint>& nodes = *used_nodes_ptr;
     const Uint nb_nodes = nodes.size();
     for(Uint i = 0; i != nb_nodes; ++i)
     {

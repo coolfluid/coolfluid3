@@ -35,8 +35,11 @@ list(APPEND coolfluid_python_cflibs coolfluid_common coolfluid_mesh)
 
 coolfluid_add_library( coolfluid_python )
 
+# Takes a lot of RAM to compile:
+set_source_files_properties(MatrixWrappers.cpp PROPERTIES COMPILE_FLAGS "-g0")
+
 configure_file(coolfluid.py ${coolfluid_DSO_DIR} COPYONLY)
 configure_file(networkxpython.py ${coolfluid_DSO_DIR} COPYONLY)
-configure_file(unittest.py ${coolfluid_DSO_DIR} COPYONLY)
+configure_file(check.py ${coolfluid_DSO_DIR} COPYONLY)
 
 endif()

@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Proposition for new element / shapefunction API"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"

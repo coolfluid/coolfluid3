@@ -23,6 +23,9 @@ coolfluid_add_test( UTEST  utest-python-signal-return
 
 coolfluid_add_test( UTEST  utest-python-matrix
                     PYTHON utest-python-matrix.py )
-                    
+
 coolfluid_add_test( UTEST  utest-python-options
-                    PYTHON utest-python-options.py )                    
+                    PYTHON utest-python-options.py )
+
+coolfluid_add_test( UTEST  utest-python-component
+                    PYTHON utest-python-component.py )

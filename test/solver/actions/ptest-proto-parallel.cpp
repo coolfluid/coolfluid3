@@ -141,8 +141,8 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
   Dictionary& elems_P0 = mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0");
   model.solver().field_manager().create_field("variables", elems_P0);
 
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
-  MeshTerm<1, ScalarField> R("CellRank", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<1, ScalarField> R("CellRank", "variables");
 
   model.solver()
   << create_proto_action
@@ -180,8 +180,8 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
 
   const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
-  MeshTerm<1, ScalarField> R("CellRank", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<1, ScalarField> R("CellRank", "variables");
 
   model.solver()
   << create_proto_action
@@ -242,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE( SimulateOverlap, ProtoParallelFixture )
 // Check the volume results
 BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 {
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
 
@@ -271,7 +271,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
 {
   const Uint nb_procs = PE::Comm::instance().size();
-  MeshTerm<0, ScalarField> V("CellVolume", "variables");
+  FieldVariable<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
   std::cout << "wanted_volume: " << wanted_volume << ", nb_procs: " << nb_procs << ", x_segs: " << x_segs << std::endl;

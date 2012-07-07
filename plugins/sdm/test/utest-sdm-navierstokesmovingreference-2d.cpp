@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::sdm"
 
+#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/test/unit_test.hpp>

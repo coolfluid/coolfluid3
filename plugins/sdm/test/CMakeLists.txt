@@ -57,6 +57,11 @@ coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-2d
                     LIBS       coolfluid_sdm_lineuler
                     DEPENDS    copy-resources)
 
+coolfluid_add_test( ATEST      atest-sdm-lineuler-wallbc-2d
+                    PYTHON     atest-sdm-lineuler-wallbc-2d.py
+                    LIBS       coolfluid_sdm_lineuler
+                    DEPENDS    copy-resources)
+
 coolfluid_add_test( ATEST      atest-sdm-lineuler-acousticpulse-3d
                     PYTHON     atest-sdm-lineuler-acousticpulse-3d.py
                     LIBS       coolfluid_sdm_lineuler

@@ -24,8 +24,8 @@ typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -45,7 +45,7 @@ boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCo
         _T(u[_i], u[_i]) += transpose(N(u))*N(u)
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
-      solver.system_rhs += -_A * _b
+      solver.system_rhs += -_A * _x
     )
   );
 }
@@ -53,8 +53,8 @@ boost::shared_ptr<Expression> stokes_artifdiss(LSSActionUnsteady& solver, SUPGCo
 boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -76,7 +76,7 @@ boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs&
         _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
-      solver.system_rhs += -_A * _b
+      solver.system_rhs += -_A * _x
     )
   );
 }
@@ -84,8 +84,8 @@ boost::shared_ptr<Expression> stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs&
 boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -107,7 +107,7 @@ boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPG
         _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs += -_A * _b
+      solver.system_rhs += -_A * _x
     )
   );
 }
@@ -115,8 +115,8 @@ boost::shared_ptr<Expression> navier_stokes_pspg(LSSActionUnsteady& solver, SUPG
 boost::shared_ptr<Expression> navier_stokes_supg(LSSActionUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "navier_stokes_solution");
-  MeshTerm<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
 
   const Real epsilon = coefs.rho / coefs.mu;
   const Real mu = coefs.mu;
@@ -138,7 +138,7 @@ boost::shared_ptr<Expression> navier_stokes_supg(LSSActionUnsteady& solver, SUPG
         _T(u[_i], u[_i]) += transpose(N(u) + coefs.tau_su*u*nabla(u))         * N(u)          // Time, standard + SUPG
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs += -_A * _b
+      solver.system_rhs += -_A * _x
     )
   );
 }

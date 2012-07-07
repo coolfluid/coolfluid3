@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
+  FieldVariable<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
 
   mesh->geometry_fields().create_field( "Pressure", "Pressure" ).add_tag("solution");
 
-  MeshTerm<1, ScalarField > p("Pressure", "solution"); // Pressure field
+  FieldVariable<1, ScalarField > p("Pressure", "solution"); // Pressure field
 
   typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
 
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
 
   mesh->geometry_fields().create_field( "Temperature", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
+  FieldVariable<0, ScalarField > temperature("Temperature", "solution");
 
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
   mesh->geometry_fields().create_field("Temperature", "Temperature").add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
+  FieldVariable<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   Mesh& line = *Core::instance().root().create_component<Mesh>("Line");
   Tools::MeshGeneration::create_line(line, 1., 1);
 
-  MeshTerm<0, VectorField> u("Velocity", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "solution");
   line.geometry_fields().create_field( "solution", "Velocity[v]" ).add_tag("solution");
 
   RealVector1 center;
@@ -444,8 +444,8 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
-  MeshTerm<0, VectorField> u("Velocity", "solution");
-  MeshTerm<0, ScalarField> T("Temperature", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "solution");
+  FieldVariable<0, ScalarField> T("Temperature", "solution");
 
   Model& model = *Core::instance().root().create_component<Model>("Model");
   Domain& dom = model.create_domain("Domain");
@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE( NodeExprGrouping )
 
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > T("Temperature", "solution");
+  FieldVariable<0, ScalarField > T("Temperature", "solution");
   Real total = 0.;
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
 
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, VectorField > T("Temperature", "solution");
+  FieldVariable<0, VectorField > T("Temperature", "solution");
   RealVector total(1); total.setZero();
 
   math::VectorialFunction f;
@@ -562,7 +562,7 @@ BOOST_AUTO_TEST_CASE( ProtoAccumulators )
   boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean, boost::accumulators::tag::max> > acc;
 
   mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
-  MeshTerm<0, VectorField > T("Temperature", "solution");
+  FieldVariable<0, VectorField > T("Temperature", "solution");
 
   boost::shared_ptr<Expression> init_expr = nodes_expression(T = coordinates);
   init_expr->loop(mesh->topology());
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE( AssignMatrix )
 
   mesh->geometry_fields().create_field( "Temperature", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > T("Temperature", "solution");
+  FieldVariable<0, ScalarField > T("Temperature", "solution");
 
   RealMatrix tmp;
 

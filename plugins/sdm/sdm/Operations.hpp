@@ -159,9 +159,9 @@ public:
   GeometryElement geo;
 
   // extrinsic state
-  std::vector<coord_t>      plane_jacobian_normal;
+  std::vector<coord_t, Eigen::aligned_allocator<coord_t> >      plane_jacobian_normal;
   std::vector<Real>         plane_jacobian;
-  std::vector<coord_t>      plane_unit_normal;
+  std::vector<coord_t, Eigen::aligned_allocator<coord_t> >      plane_unit_normal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

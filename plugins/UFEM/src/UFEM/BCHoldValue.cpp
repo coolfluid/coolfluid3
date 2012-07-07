@@ -58,8 +58,8 @@ BCHoldValue::~BCHoldValue()
 
 void BCHoldValue::set_tags ( const std::string& from_field_tag, const std::string& to_field_tag, const std::string& from_variable, const std::string& to_variable )
 {
-  MeshTerm<0, ScalarField> from(from_variable, from_field_tag);
-  MeshTerm<1, ScalarField> to(to_variable, to_field_tag);
+  FieldVariable<0, ScalarField> from(from_variable, from_field_tag);
+  FieldVariable<1, ScalarField> to(to_variable, to_field_tag);
   
   set_expression(nodes_expression(m_dirichlet(to) = from));
 }

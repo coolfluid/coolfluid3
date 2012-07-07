@@ -170,7 +170,14 @@ CommPattern& Field::parallelize()
 void Field::synchronize()
 {
   if ( is_not_null(m_comm_pattern) )
+  {
+    CFdebug << "Synchronizing field " << uri().path() << CFendl;
     m_comm_pattern->synchronize( name() );
+  }
+  else
+  {
+    CFdebug << "Not synchronizing field " << uri().path() << " due to null comm pattern" << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

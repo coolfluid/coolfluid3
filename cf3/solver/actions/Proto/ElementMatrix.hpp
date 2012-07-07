@@ -57,7 +57,7 @@ struct ElementRHS
 };
 
 /// Terminal for the element RHS vector ("b")
-static boost::proto::terminal<ElementRHS>::type const _b = {};
+static boost::proto::terminal<ElementRHS>::type const _x = {};
 
 /// Match element matrix terminals
 struct ElementMatrixTerm :

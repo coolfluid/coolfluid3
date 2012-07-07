@@ -18,7 +18,6 @@
 
 #include "common/BasicExceptions.hpp"
 #include "common/TaggedObject.hpp"
-#include "common/SignalHandler.hpp"
 #include "common/TypeInfo.hpp"
 #include "StringConversion.hpp"
 
@@ -80,8 +79,11 @@ namespace XML { class XmlNode; }
   public:
     /// Typedef for trigger functions
     typedef boost::function< void() >   TriggerT;
+    /// ID for triggers
+    typedef Uint TriggerID;
     /// Typedef for trigger functions storage.
-    typedef std::vector< TriggerT >    TriggerStorageT;
+    typedef std::map< TriggerID, TriggerT >  TriggerStorageT;
+    
 
     /// Constructor.
     /// @param name Option name.
@@ -160,6 +162,12 @@ namespace XML { class XmlNode; }
     /// attach a function that will be triggered when an option gets configured
     /// @return this option
     Option& attach_trigger ( TriggerT trigger );
+    
+    /// Attach a trigger, returning an ID that can be used to detach again
+    TriggerID attach_trigger_tracked( TriggerT trigger );
+
+    /// Detach the given trigger
+    void detach_trigger(const TriggerID trigger_id);
 
     /// @returns the name of the option
     std::string name() const { return m_name; }
@@ -242,6 +250,9 @@ namespace XML { class XmlNode; }
     std::vector<boost::any> m_restricted_list;
     /// Option separator.
     std::string m_separator;
+    
+    /// Current connection ID for the triggers
+    Uint m_current_connection_id;
 
   private: // function
 

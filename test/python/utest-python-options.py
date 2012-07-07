@@ -55,3 +55,31 @@ check_option(opts01, 'real_vector', [6, 7.2, 8.3])
 check_option(opts01, 'bool_vector', [True, False, True])
 check_option(opts01, 'generic_component_vector', [opts01, testgen])
 check_option(opts01, 'group_component_vector', [testgrp, root])
+
+print '########################### Checking basic access ##########################'
+
+if opts01.string != 'global_config':
+  raise Exception('Bad option value')
+
+opts01.string = 'easy_set'
+check_option(opts01, 'string', 'easy_set')
+if opts01.string != 'easy_set':
+  raise Exception('Bad option value')
+
+opts01.const_component = root
+check_option(opts01, 'const_component', root)
+
+print '########################### Checking access through options attribute ##########################'
+
+opts01.options.generic_component_vector = [testgen, opts01]
+opts01.options['string_vector'] = ['f', 'g']
+check_option(opts01, 'generic_component_vector', [testgen, opts01])
+check_option(opts01, 'string_vector', ['f', 'g'])
+
+print '############## Access methods demo #############'
+
+print opts01.string # Only valid for basic options
+print opts01.options.string
+print opts01.options['string']
+print opts01.options().string
+print opts01.options()['string']

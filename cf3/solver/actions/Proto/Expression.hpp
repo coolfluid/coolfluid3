@@ -88,6 +88,7 @@ public:
       common::Option& option = options.check(name) ? options.option(name) : options.add(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
+      option.mark_basic();
     }
 
     // Add vector options
@@ -108,6 +109,7 @@ public:
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
+      option.mark_basic();
     }
   }
 
@@ -255,47 +257,7 @@ public:
       (NodeGrammar));
 
     boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
-
-    // Synchronize fields if needed
-    if(common::PE::Comm::instance().is_active())
-      boost::mpl::for_each< boost::mpl::range_c<Uint, 0, BaseT::NbVarsT::value> >(SynchronizeFields(BaseT::m_variables, region));
   }
-private:
-  /// Fusion functor to synchronize fields if needed
-  struct SynchronizeFields
-  {
-    SynchronizeFields(const typename BaseT::VariablesT& vars, mesh::Region& region) :
-      m_variables(vars),
-      m_region(region)
-    {
-    }
-
-    template<typename VarIdxT>
-    void operator()(const VarIdxT& i)
-    {
-      typedef typename boost::result_of<IsModified<VarIdxT::value>(ExprT)>::type IsModifiedT;
-      apply(IsModifiedT(), i);
-    }
-
-    /// Do nothing if the variable is not modified
-    template<typename VarIdxT>
-    void apply(boost::mpl::false_, const VarIdxT&)
-    {
-    }
-
-    /// Synchronize if modified
-    template<typename VarIdxT>
-    void apply(boost::mpl::true_, const VarIdxT&)
-    {
-      const std::string& tag = boost::fusion::at<VarIdxT>(m_variables).field_tag();
-      mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
-      mesh::Field& field = common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
-      field.synchronize();
-    }
-
-    const typename BaseT::VariablesT& m_variables;
-    mesh::Region& m_region;
-  };
 };
 
 /// Default element types supported by elements expressions

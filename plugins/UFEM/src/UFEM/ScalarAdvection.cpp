@@ -47,7 +47,8 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
   options().add("scalar_coefficient", 1.)
     .description("Scalar coefficient ")
     .pretty_name("Scalar coefficient")
-    .link_to(&m_alpha);
+    .link_to(&m_alpha)
+    .mark_basic();
 
   options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&ScalarAdvection::trigger_physical_model, this));
 
@@ -60,9 +61,11 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
 
   create_component<ZeroLSS>("ZeroLSS");
   create_component<ProtoAction>("Assembly");
-  create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());;
+  create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());
   create_component<SolveLSS>("SolveLSS");
   create_component<ProtoAction>("Update");
+  
+  get_child("BoundaryConditions")->mark_basic();
 
   // Set the default scalar name
   trigger_scalar_name();
@@ -76,13 +79,13 @@ void ScalarAdvection::trigger_scalar_name()
     if(is_not_null(m_physical_model->variable_manager().get_child(solution_tag())))
       m_physical_model->variable_manager().remove_component(solution_tag());
   }
-  
+
   // The code will only be active for these element types
   boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Scalar name is obtained from an option
-  MeshTerm<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
-  MeshTerm<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
 
   // Set the proto expression that handles the assembly
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
@@ -100,7 +103,7 @@ void ScalarAdvection::trigger_scalar_name()
        _T(Phi,Phi) +=  transpose(N(Phi) + m_coeffs.tau_su * u_adv * nabla(Phi)) * N(Phi)
       ),
       system_matrix += invdt() * _T + 1.0 * _A,
-      system_rhs += -_A * _b
+      system_rhs += -_A * _x
      )
     )
   );
@@ -114,6 +117,12 @@ void ScalarAdvection::trigger_physical_model()
 {
   dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_coeffs);
 }
+
+void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
+{
+  initial_conditions.create_initial_condition(solution_tag());
+}
+
 
 } // UFEM
 } // cf3

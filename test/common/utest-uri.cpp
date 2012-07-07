@@ -108,7 +108,9 @@ BOOST_AUTO_TEST_CASE( protocol_management )
 
 
   // URI with an http address
+  
   URI uri4("http://coolfluidsrv.vki.ac.be");
+  BOOST_CHECK(true);
   BOOST_CHECK_EQUAL( uri4.scheme(), URI::Scheme::HTTP );
   BOOST_CHECK_EQUAL( uri4.string(), std::string("http://coolfluidsrv.vki.ac.be") );
   BOOST_CHECK_EQUAL( uri4.path(), std::string("//coolfluidsrv.vki.ac.be") );
