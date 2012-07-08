@@ -223,6 +223,7 @@ public:
     m_function_T.evaluate(inner_cell_data.coord,m_T);
 
     // solution at inside of face
+    /// @todo must be dx and dy to centre of rotation (check other locations also)
     m_x          = inner_cell_data.coord[0];
     m_y          = inner_cell_data.coord[1];
     m_rho_inner  = inner_cell_data.solution[Rho];
@@ -240,6 +241,12 @@ public:
     boundary_face_pt_data[RhoUx]=m_rho*m_U[XX];
     boundary_face_pt_data[RhoUy]=m_rho*m_U[YY];
     boundary_face_pt_data[RhoE ]=m_rhoE;
+
+//    std::cout << "rho = " << m_rho << std::endl;
+//    std::cout << "U = " << m_U[XX]<< std::endl;
+//    std::cout << "V = " << m_U[YY]<< std::endl;
+//    std::cout << "rhoE = " << m_rhoE<< std::endl;
+//    cf3_always_assert(std::abs(m_U[YY]) < 50.);
   }
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
