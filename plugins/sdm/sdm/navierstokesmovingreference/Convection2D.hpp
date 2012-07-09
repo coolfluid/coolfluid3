@@ -57,6 +57,29 @@ public:
     Omega.setZero();
     Vtrans.setZero();
 
+    m_Vt.setZero();
+
+    properties_left.setZero();
+    properties_right.setZero();
+    properties_roe.setZero();
+
+    roe_avg.setZero();
+    roe_var_left.setZero();
+    roe_var_right.setZero();
+
+    flux_left.setZero();
+    flux_right.setZero();
+    flux.setZero();
+
+    dummy.setZero();
+    dummy_coord.setZero();
+
+    eigenvalues.setZero();
+    right_eigenvectors.setZero();
+    left_eigenvectors.setZero();
+    abs_jacobian.setZero();
+
+
     std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0);
     OmegaDefault[0] = Omega[0];
     OmegaDefault[1] = Omega[1];
@@ -133,7 +156,7 @@ public:
   {
       Real P;
       compute_transformation_velocity(data.coord,m_Vt);
-cf3_assert(data.solution[0]>0);
+      cf3_assert(data.solution[0]>0);
       properties[0]  = data.solution[0];                //rho
       properties[1]  = data.solution[1]/properties[0];  //u
       properties[2]  = data.solution[2]/properties[0];  //v
@@ -186,7 +209,7 @@ cf3_assert(data.solution[0]>0);
       roe_avg.noalias() = 0.5*(roe_var_left + roe_var_right);
 
       cf3_assert(roe_avg[0]>0);
-      cf3_assert(roe_avg[3]>0);
+      cf3_assert(roe_avg[3]>=0);
 
       properties_roe[0] = roe_avg[0]*roe_avg[0];            //rho
       properties_roe[1] = roe_avg[1]/roe_avg[0];            //u
@@ -206,14 +229,14 @@ cf3_assert(data.solution[0]>0);
       const Real rho = properties_roe[0];
       cf3_assert(rho>0);
 
-      const Real u = properties_roe(1);
-      const Real v = properties_roe(2);
-      const Real H = properties_roe(3);
+      const Real u = properties_roe[1];
+      const Real v = properties_roe[2];
+      const Real H = properties_roe[3];
       const Real a = std::sqrt(gamma * P / rho);
       const Real a2 = gamma * P / rho;
 
-      cf3_assert(a2>0);
-      cf3_assert(a>0);
+      cf3_assert(a2>=0);
+      cf3_assert(a>=0);
 
       const Real gamma_minus_1 = gamma - 1.;
       const Real uuvv = u*u + v*v;
@@ -232,7 +255,7 @@ cf3_assert(data.solution[0]>0);
       const Real vDivA = gamma_minus_1 * v * inv_a;
       const Real rho_a = rho * a;
 
-      cf3_assert(rho_a>0);
+      cf3_assert(rho_a>=0);
 
       const Real gm1_ov_rhoa = gamma_minus_1 / rho_a;
 
@@ -289,8 +312,8 @@ cf3_assert(data.solution[0]>0);
       Real um_right = (properties_right[1]*nx + properties_right[2]*ny);
       Real uuvv_left = properties_left[1]*properties_left[1] + properties_left[2]*properties_left[2];
       Real uuvv_right = properties_right[1]*properties_right[1] + properties_right[2]*properties_right[2];
-      Real P_left = (gamma - 1.)/gamma * properties_left[0]*(properties_left(3) - 0.5*uuvv_left + 0.5 * (m_Vt[0] * m_Vt[0] + m_Vt[1] * m_Vt[1]));
-      Real P_right = (gamma - 1.)/gamma * properties_right[0]*(properties_right(3) - 0.5*uuvv_right + 0.5 * (m_Vt[0] * m_Vt[0] + m_Vt[1] * m_Vt[1]));
+      Real P_left = (gamma - 1.)/gamma * properties_left[0]*(properties_left[3] - 0.5*uuvv_left + 0.5 * (m_Vt[0] * m_Vt[0] + m_Vt[1] * m_Vt[1]));
+      Real P_right = (gamma - 1.)/gamma * properties_right[0]*(properties_right[3] - 0.5*uuvv_right + 0.5 * (m_Vt[0] * m_Vt[0] + m_Vt[1] * m_Vt[1]));
 
       flux_left[0] = properties_left[0] * um_left;
       flux_left[1] = flux_left[0] * properties_left[1] + P_left*nx;

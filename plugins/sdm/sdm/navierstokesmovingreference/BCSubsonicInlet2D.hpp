@@ -50,7 +50,7 @@ public:
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Tt, this) );
     options().add("Pt",m_function_Tt.function()).description("Total Pressure")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Pt, this) );
-    options().add("alpha",m_function_Tt.function()).description("flow angle in rad")
+    options().add("alpha",m_function_alpha.function()).description("flow angle in rad")
         .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_alpha, this) );
 
     m_gamma=1.4;
@@ -91,8 +91,8 @@ public:
     m_function_alpha.evaluate(inner_cell_data.coord,m_alpha);
 
     // Compute inner cell data
-    m_x               = inner_cell_data.coord[0];
-    m_y               = inner_cell_data.coord[1];
+    m_x               = inner_cell_data.coord[XX];
+    m_y               = inner_cell_data.coord[YY];
     m_rho_inner       = inner_cell_data.solution[Rho];
     m_uuvv_inner      = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner      = inner_cell_data.solution[RhoE];
@@ -114,7 +114,6 @@ public:
     m_U[YY] = m_tan_alpha*m_U[XX];
     m_uuvv = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY];
     m_rhoE = m_p/m_gamma_minus_1 + 0.5*m_rho*m_uuvv;
-
 
     boundary_face_pt_data[Rho  ]=m_rho;
     boundary_face_pt_data[RhoUx]=m_rho*m_U[XX];

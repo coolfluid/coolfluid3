@@ -29,21 +29,32 @@ mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGe
 mesh_generator.options().set("mesh",mesh.uri())
 mesh_generator.options().set("nb_cells",[40,20])
 mesh_generator.options().set("lengths",[100,10])
-mesh_generator.options().set("offsets",[-50,-5])
+mesh_generator.options().set("offsets",[0,-5])
 mesh_generator.execute()
 load_balance = mesh_generator.create_component("load_balancer","cf3.mesh.actions.LoadBalance")
 load_balance.options().set("mesh",mesh)
 load_balance.execute()
 #####
 
+omega = 2.0
 
-T = 273.15
-u = 50.
-p = 101300.
 g = 1.4
 R = 287.05
+T = 273.15
+u = 50.
+p = 100000.
 rho = p/(R*T)
-omega = 0.5
+c = math.sqrt(g*R*T)
+M = u/c
+alpha = 0.
+Pt=p*( (1.+((g-1.)/2.)*M**2) )**(g/(g-1.))
+Tt=T*(1.+((g-1.)/2.)*M**2)
+
+print "c=",c
+print "M=",M
+print "rho=",rho
+print "Pt=",Pt
+print "Tt=",Tt
 
 ### Configure physics
 physics.options().set('gamma',g)
@@ -53,16 +64,16 @@ physics.options().set('R',R)
 #solver.options().set('time',time)
 solver.options().set('mesh',mesh)
 solver.options().set('solution_vars','cf3.physics.NavierStokes.Cons2D')
-solver.options().set('solution_order',3)
+solver.options().set('solution_order',1)
 solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
 
 ### Configure timestepping
 solver.access_component('Time').options().set('end_time',100)
 solver.access_component('Time').options().set('time_step',1)
 solver.access_component('TimeStepping').options().set('time_accurate',True);
-solver.access_component('TimeStepping').options().set('cfl','0.35');
+solver.access_component('TimeStepping').options().set('cfl','0.5');
 solver.access_component('TimeStepping').options().set('max_iteration',10);
-solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',3)
+solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',1)
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 solver.get_child('PrepareMesh').execute()
@@ -79,14 +90,17 @@ solver.get_child('InitialConditions').get_child('channel').options().set("functi
 solver.get_child('InitialConditions').execute();
 
 ### Create convection term
+## original
 #convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokes.Convection2D')
+
+## movingref
 convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.navierstokesmovingreference.Convection2D')
 convection.options().set("gamma", g)
 convection.options().set("Omega", [0.0, 0.0, omega])
 convection.options().set("Vtrans", [0.0, 0.0])
 
 
-## Create source term
+### Create source term
 source_term = solver.get_child('DomainDiscretization').create_term( name='source_term',
   type='cf3.sdm.navierstokesmovingreference.Source2D',
   regions=[mesh.access_component('topology/interior').uri()] )
@@ -100,18 +114,34 @@ mesh.access_component('topology/top').uri(),
 mesh.access_component('topology/bottom').uri()
 ])
 
-#inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletUT2D',
-inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokesmovingreference.BCSubsonicInletUT2D',
-regions=[
-mesh.access_component('topology/left').uri()
-])
-inlet.options().set('U', [u, 0.])
+# inlet movingref
+inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokesmovingreference.BCSubsonicInletTtPtAlpha2D',
+regions=[mesh.access_component('topology/left').uri()])
 inlet.options().set('gamma',g)
-inlet.options().set('T', str(T))  #string for navierstokesmovingreference, real for navierstokes
+inlet.options().set('Tt',str(Tt))
+inlet.options().set('Pt',str(Pt))
+inlet.options().set('alpha',str(alpha))
 inlet.options().set('R', R)
 inlet.options().set('omega', omega)
 
-#outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokes.BCSubsonicOutlet2D',
+## original inlet TtPtAlpha
+#inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletTtPtAlpha2D',
+#regions=[
+#mesh.access_component('topology/left').uri()
+#])
+#inlet.options().set('gamma',g)
+#inlet.options().set('Tt',str(Tt))
+#inlet.options().set('Pt',str(Pt))
+#inlet.options().set('alpha',str(alpha))
+#inlet.options().set('R', R)
+
+# closed outlet , also nice to see
+#outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokes.BCWallEuler2D',
+#regions=[
+#mesh.access_component('topology/right').uri(),
+#])
+
+# pressure outlet, movingref
 outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokesmovingreference.BCSubsonicOutlet2D',
 regions=[
 mesh.access_component('topology/right').uri()
@@ -119,6 +149,14 @@ mesh.access_component('topology/right').uri()
 outlet.options().set('P', str(p))
 outlet.options().set('gamma', g)
 outlet.options().set('omega', omega)
+
+# original outlet, navierstokes
+#outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokes.BCSubsonicOutlet2D',
+#regions=[
+#mesh.access_component('topology/right').uri()
+#])
+#outlet.options().set('p', str(p))
+#outlet.options().set('gamma', g)
 
 fields = [
 mesh.access_component("solution_space/solution").uri(),
@@ -155,8 +193,8 @@ for index in range(len(solution)):
    p=(gamma-1)*(rhoE - 0.5*rho*(u**2+v**2));
    T=p/(rho*R);
    M=math.sqrt(u**2+v**2)/math.sqrt(abs(gamma*p/rho));
-   Pt=p+0.5*rho*(u**2+v**2);
-   Tt=T*(1+((gamma-1)/2))*M**2;
+   Pt=p*( (1.+((g-1.)/2.)*M**2) )**(g/(g-1.))
+   Tt=T*(1.+((g-1.)/2.)*M**2)
    S=p/(abs(rho)**gamma);
 
    # copy now in post_proc field for this solution point
