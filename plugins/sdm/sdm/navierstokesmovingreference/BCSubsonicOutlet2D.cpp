@@ -18,7 +18,6 @@ namespace navierstokesmovingreference {
 
 common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibNavierStokesMovingReference> bcsubsonicoutlet2d_builder;
 
-
 /////////////////////////////////////////////////////////////////////////////
 
 } // navierstokesmovingreference
