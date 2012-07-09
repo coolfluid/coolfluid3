@@ -45,9 +45,13 @@ struct SACoeffs
   Real Cv2;
   Real Sigma;
   Real MuLam;
-  Real K;
-
   Real omega;
+  Real shat;
+  Real Fv1;
+  Real Fv2;
+  Real Kappa;
+  Real D;
+  Real nu_t_cell;
 };
 
 /// solver for SpalartAllmaras turbulence model
@@ -61,8 +65,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "SpalartAllmaras"; }
-
-
 
 private:
   /// Update the copy of the physics coefficients when the physical model changes
@@ -78,12 +80,11 @@ private:
 
   /// Coefficients for Model
    Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
-   Real r, g, d, S;
+   Real r, g, shat;
 
 };
 
 } // UFEM
 } // cf3
-
 
 #endif // cf3_UFEM_NavierStokes_hpp
