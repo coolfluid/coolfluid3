@@ -343,6 +343,7 @@ public:
     /// @todo must be dx and dy to centre of rotation (check other locations also)
     m_x          = inner_cell_data.coord[0];
     m_y          = inner_cell_data.coord[1];
+    m_Vt2        = m_Vt[XX]*m_Vt[XX]+m_Vt[YY]*m_Vt[YY];
     m_rho_inner  = inner_cell_data.solution[Rho];
     m_uuvv_inner = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner = inner_cell_data.solution[RhoE];
