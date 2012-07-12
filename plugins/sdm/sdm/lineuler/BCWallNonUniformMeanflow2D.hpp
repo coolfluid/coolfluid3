@@ -165,13 +165,13 @@ private:
     Real& rho0v = conservative[2];
     Real& press = conservative[3];
 
-    const Real A     = Aplus+Amin;
-    const Real omega = Aplus-Amin;
+    const Real A     = 0.5*(Aplus+Amin);
+    const Real omega = 0.5*(Aplus-Amin);
 
-    rho   =  S + 0.5*p.inv_c*A;
-    rho0u =  ny*Omega + 0.5*nx*omega;
-    rho0v = -nx*Omega + 0.5*ny*omega;
-    press =  0.5*p.c*A;
+    rho   =  S + p.inv_c*A;
+    rho0u =  ny*Omega + nx*omega;
+    rho0v = -nx*Omega + ny*omega;
+    press =  p.c*A;
   }
 
 

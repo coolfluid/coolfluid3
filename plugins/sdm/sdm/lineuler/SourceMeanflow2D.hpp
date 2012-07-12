@@ -108,6 +108,7 @@ public:
   virtual void compute_source(PhysData& data,
                               RealVectorNEQS& source)
   {
+
     ///      [                                0                                   ]
     ///  H = [    (rho' u0 + rho0 u') du0/dx  +  (rho' v0 + rho0 v') du0/dy       ]
     ///      [    (rho' u0 + rho0 u') dv0/dx  +  (rho' v0 + rho0 v') dv0/dy       ]
@@ -121,13 +122,14 @@ public:
     const Real&       rho0u   = data.solution[1];  // rho0 u'
     const Real&       rho0v   = data.solution[2];  // rho0 v'
     const Real&       p       = data.solution[3];  // p'
+    const RealVector& grad_rho0 = data.meanflow_gradient.col(0);
     const RealVector& grad_u0 = data.meanflow_gradient.col(1);
     const RealVector& grad_v0 = data.meanflow_gradient.col(2);
     const RealVector& grad_p0 = data.meanflow_gradient.col(3);
     const Real        gm1     = m_gamma-1.;
     const Real        u       = rho0u/rho0;
     const Real        v       = rho0v/rho0;
-    source[0] = - (                                   0.                                    );
+    source[0] = - (                                    0                                    );
     source[1] = - (       (rho*u0 + rho0u)*grad_u0[XX] + (rho*v0 + rho0v)*grad_u0[YY]       );
     source[2] = - (       (rho*u0 + rho0u)*grad_v0[XX] + (rho*v0 + rho0v)*grad_v0[YY]       );
     source[3] = - ( gm1*p*(grad_u0[XX] + grad_v0[YY]) - gm1*(u*grad_p0[XX] + v*grad_p0[YY]) );
