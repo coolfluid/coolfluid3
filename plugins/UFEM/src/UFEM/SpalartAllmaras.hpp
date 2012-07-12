@@ -52,6 +52,13 @@ struct SACoeffs
   Real Kappa;
   Real D;
   Real nu_t_cell;
+  Real one_over_D;
+  Real one_over_D_squared;
+  Real one_over_Kappa;
+  Real one_over_shat;
+  Real one_over_Kappa_squared;
+  Real one_over_KappaD_squared;
+  Real chi;
 };
 
 /// solver for SpalartAllmaras turbulence model

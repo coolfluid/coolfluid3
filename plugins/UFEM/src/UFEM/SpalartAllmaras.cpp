@@ -72,7 +72,7 @@ struct ComputeSACoeffs
     const Real nu_t_cell = nu_t.value().mean();
     //coeffs.nu_t_cell = nu_t.value().mean();
     const Real nu_lam = c.one_over_rho*c.mu;
-    const Real chi = nu_t_cell / nu_lam;
+    coeffs.chi = nu_t_cell / nu_lam;
 
     coeffs.Kappa = 0.41;
 
@@ -86,12 +86,21 @@ struct ComputeSACoeffs
     // const Real d = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
     coeffs.D = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
     coeffs.omega = sqrt(2.)*0.5*(nabla_u - nabla_u.transpose()).norm();
-    coeffs.Fv1 = (chi*chi*chi) / (chi*chi*chi + 7.1*7.1*7.1);
-    coeffs.Fv2 = 1 - (chi/(1+chi*coeffs.Fv1));
+    coeffs.Fv1 = (coeffs.chi*coeffs.chi*coeffs.chi) / (coeffs.chi*coeffs.chi*coeffs.chi + 7.1*7.1*7.1);
+    coeffs.Fv2 = 1 - (coeffs.chi/(1+coeffs.chi*coeffs.Fv1));
     coeffs.shat = coeffs.omega + (nu_t_cell * coeffs.Fv2)/(coeffs.Kappa*coeffs.Kappa*coeffs.D*coeffs.D);
+    if(coeffs.shat < 0.3*coeffs.omega)
+    {
+      coeffs.shat = 0.3*coeffs.omega;
+    }
+    coeffs.one_over_D = 1/coeffs.D;
+    coeffs.one_over_D_squared = 1/(coeffs.D*coeffs.D);
+    coeffs.one_over_Kappa = 1/coeffs.Kappa;
+    coeffs.one_over_Kappa_squared = 1/(coeffs.Kappa*coeffs.Kappa);
+    coeffs.one_over_shat = 1/coeffs.shat;
+    coeffs.one_over_KappaD_squared = 1/(coeffs.D * coeffs.D * coeffs.Kappa * coeffs.Kappa);
     // Average cell velocity
     //const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
-    std::cout << "test" << coeffs.D;
   }
 };
 
@@ -215,19 +224,23 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                         element_quadrature
                         (
                            _A(NU) +=
-                             transpose(N(NU)) * u_adv * nabla(NU) + m_su_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)               // advection terms
-                             - cb1 * transpose(N(NU)) * N(NU) *  m_sa_coeffs.shat
-                             + cw1*((transpose(N(NU))*N(NU) * NU) / (m_sa_coeffs.D*m_sa_coeffs.D)) * ((_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*m_sa_coeffs.shat )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*m_sa_coeffs.shat)) )),6)      // cw1 * fw * (NU_hat/d)^2
-                             -(_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*m_sa_coeffs.shat)) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*m_sa_coeffs.shat)) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*
-                             m_sa_coeffs.shat)) )),6)-(_min(10, ((NU)/(kappa*kappa*m_sa_coeffs.D*m_sa_coeffs.D*m_sa_coeffs.shat)) )))),6)+_pow(cw3,6))),1/6)
-                           - (1/sigma) * ((NU + m_su_coeffs.mu * m_su_coeffs.one_over_rho) * transpose(nabla(NU)) * nabla(NU))                            // (NU+NU_hat) partial NU_hat to xj to xj
-                           - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                    // nabla(NU)^2 times the weight function
-                           _T(NU,NU) +=  transpose(N(NU) + m_su_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                // Time, standard and SUPG
+                             transpose(N(NU)) * u_adv * nabla(NU) + m_su_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                             // advection terms
+                             + cb1 * transpose(N(NU)) * N(NU) *  m_sa_coeffs.shat                                                                                   // production
+
+                             + cw1*((transpose(N(NU))*N(NU) * NU) * m_sa_coeffs.one_over_D_squared) * ((_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*m_sa_coeffs.shat )) )) + cw2*(_pow((_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*m_sa_coeffs.shat)) )),6)      // cw1 * fw * (NU_hat/d)^2
+                             -(_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*m_sa_coeffs.shat)) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*m_sa_coeffs.shat)) )) + cw2*(_pow((_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*
+                             m_sa_coeffs.shat)) )),6)-(_min(10, ((NU)*(m_sa_coeffs.one_over_KappaD_squared*m_sa_coeffs.shat)) )))),6)+_pow(cw3,6))),1/6)            // destruction
+
+                             + (1/sigma) * ((NU + m_su_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
+                             + (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                            // diffusion: nabla(NU)^2 times the weight function
+                           _T(NU,NU) +=  transpose(N(NU) + m_su_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                          // Time, standard and SUPG
                         ),
                       system_matrix += invdt() * _T + 1.0 * _A,
-                      system_rhs += -_A * _x,
+                      system_rhs += -_A * _x
 
-             _cout << "_A:" << _A << "\n" << "NU:" << NU(gauss_points_1) << "\n" << "omega:" << m_sa_coeffs.omega << "\n" << "Fv1:" << m_sa_coeffs.Fv1 << "\n" << "Fv2:" << m_sa_coeffs.Fv2 << "\n" << "Kappa:" << m_sa_coeffs.Kappa << "\n" << "shat:" << m_sa_coeffs.shat << "\n" << "D:" << m_sa_coeffs.D << "\n"  << "coeffs.nu_t_cell:" << m_sa_coeffs.nu_t_cell << "\n"
+ //            _cout << "_A:" << _A << "\n" << "NU:" << NU(gauss_points_1) << "\n" << "omega:" << m_sa_coeffs.omega << "\n" << "Fv1:" << m_sa_coeffs.Fv1 << "\n" << "Fv2:" << m_sa_coeffs.Fv2 << "\n" << "Kappa:" << m_sa_coeffs.Kappa << "\n" << "shat:" << m_sa_coeffs.shat << "\n"
+ //            << "D:" << m_sa_coeffs.D << "\n"  << "coeffs.nu_t_cell:" << m_sa_coeffs.nu_t_cell << "\n" << "m_sa_coeffs.one_over_D:" << m_sa_coeffs.one_over_D << "\n" << "m_sa_coeffs.one_over_D_squared:" << m_sa_coeffs.one_over_D_squared << "\n"
+ //            << "m_sa_coeffs.one_over_KappaD_squared:" << m_sa_coeffs.one_over_KappaD_squared << "\n"
                       )
       )
     )
@@ -235,8 +248,10 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     << allocate_component<SolveLSS>("SolveLSS")
     << create_proto_action("Update", nodes_expression(
        group(
-         NU += solution(NU),
-         nu_eff = boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho + boost::proto::lit(m_su_coeffs.rho) * NU * (( ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )) )
+         NU += solution(NU),                                                                                                                                           //update for Navier-Stokes solution
+//         nu_eff = boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho
+//         nu_eff = (boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho) + boost::proto::lit(m_su_coeffs.rho) * NU * ( (m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi)/( (7.1*7.1*7.1) + ((m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi) )) )
+         nu_eff = (boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho) + boost::proto::lit(m_su_coeffs.rho) * NU * (( ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )) )
        )));
 
     get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());

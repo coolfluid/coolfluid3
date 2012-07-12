@@ -108,7 +108,7 @@ satm_lss.Matrix.settings_file = sys.argv[1]
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
-NU_in = 0.0001
+NU_in = 0.001
 NU_wall = 0.
 
 #initial conditions
@@ -143,7 +143,7 @@ time.time_step = 0.01
 time.end_time = 0.
 
 # Setup a time series write
-final_end_time = 0.1
+final_end_time = 0.05
 save_interval = 0.01
 iteration = 0
 
@@ -151,7 +151,7 @@ while time.end_time < final_end_time:
   time.end_time += save_interval
   model.simulate()
   ns_lss.print_system('lss-' +str(iteration) + '.plt')
-  domain.write_mesh(cf.URI('atest-flatplate2d-satm-fv8-Nu00001-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-satm-fully_coupled_limit_b-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])
