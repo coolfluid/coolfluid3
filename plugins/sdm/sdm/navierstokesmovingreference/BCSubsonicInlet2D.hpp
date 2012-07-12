@@ -339,6 +339,8 @@ public:
     // Evaluate analytical functions
     m_function_T.evaluate(inner_cell_data.coord,m_T);
 
+    compute_transformation_velocity(inner_cell_data.coord,m_Vt);
+
     // solution at inside of face
     /// @todo must be dx and dy to centre of rotation (check other locations also)
     m_x          = inner_cell_data.coord[0];
