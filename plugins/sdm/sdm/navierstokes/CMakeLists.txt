@@ -11,12 +11,16 @@ list( APPEND coolfluid_sdm_navierstokes_files
   BCWallEuler2D.cpp
   BCWall2D.hpp
   BCWall2D.cpp
+  BCWall3D.hpp
+  BCWall3D.cpp
   Convection1D.hpp
   Convection1D.cpp
   Convection2D.hpp
   Convection2D.cpp
   Diffusion2D.hpp
   Diffusion2D.cpp
+  Diffusion3D.hpp
+  Diffusion3D.cpp
 )
 
 list( APPEND coolfluid_sdm_navierstokes_cflibs coolfluid_sdm coolfluid_physics_navierstokes )
