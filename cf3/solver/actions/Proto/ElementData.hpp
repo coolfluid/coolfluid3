@@ -340,11 +340,21 @@ public:
 
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  /// Helper to get the connectivity table
+  const mesh::Connectivity& get_connectivity(const std::string& tag, mesh::Elements& elements)
+  {
+    const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
+    Handle<mesh::Dictionary const> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+    if(is_null(dict))
+      dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+    return elements.space(*dict).connectivity();
+  }
 
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(elements.geometry_space().connectivity()),
+    m_connectivity(get_connectivity(placeholder.field_tag(), elements)),
     m_support(support),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
@@ -749,9 +759,13 @@ public:
     for(Uint i = 0; i != CF3_PROTO_MAX_ELEMENT_MATRICES; ++i)
       m_element_matrices[i].setZero();
 
-    // TODO Fix for multi-shapefunction case
-    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (EMatrixSizeT));
-    block_accumulator.resize(SupportShapeFunction::nb_nodes, EMatrixSizeT::value/SupportShapeFunction::nb_nodes);
+    typedef typename boost::mpl::transform
+    <
+      typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      FieldWidth<boost::mpl::_1, SupportEtypeT>
+    >::type NbEqsPerVarT;
+    
+    block_accumulator.resize(SupportShapeFunction::nb_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
   }
 
   ~ElementData()

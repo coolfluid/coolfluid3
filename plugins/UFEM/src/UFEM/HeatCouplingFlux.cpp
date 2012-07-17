@@ -103,7 +103,7 @@ void HeatCouplingFlux::trigger_setup()
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", common::Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>());
+  FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
   // Expression to calculate the gradient, at the cell centroid:
   // nabla(T, center) is the shape function gradient matrix evaluated at the element center

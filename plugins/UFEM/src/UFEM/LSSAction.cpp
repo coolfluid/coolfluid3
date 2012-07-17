@@ -113,6 +113,8 @@ LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
 
   configure_option_recursively("lss", lss);
 
+  cf3_assert(is_not_null(options().value< Handle<LSS::System> >("lss")));
+
   on_regions_set();
 
   return *lss;
@@ -140,14 +142,23 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 void LSSAction::on_regions_set()
 {
   if(m_implementation->m_updating) // avoid recursion
+  {
+    CFdebug << "Skipping on_regions_set to avoid recursion" << CFendl;
     return;
+  }
 
   m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
+  {
+    CFdebug << "Skipping on_regions_set because LSS is null" << CFendl;
     return;
+  }
 
   if(is_null(m_dictionary))
+  {
+    CFdebug << "Skipping on_regions_set because dictionary is null" << CFendl;
     return;
+  }
 
   m_implementation->m_updating = true;
 
@@ -174,6 +185,13 @@ void LSSAction::on_regions_set()
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
     configure_option_recursively("lss", m_implementation->m_lss);
+  }
+  else
+  {
+    if(m_loop_regions.empty())
+      CFdebug << "Skipping on_regions_set because region list is empty" << CFendl;
+    else
+      CFdebug << "Skipping on_regions_set because LSS is already created" << CFendl;
   }
 
   // Update the regions of any owned initial conditions
@@ -204,9 +222,9 @@ void LSSAction::trigger_initial_conditions()
     CFwarn << "Initial conditions for " << uri().path() << " were reset to NULL" << CFendl;
     return;
   }
-  
+
   CFdebug << "Using initial conditions " << m_initial_conditions->uri().path() << " for LSSAction " << uri().path() << CFendl;
-  
+
   m_created_initial_conditions.clear();
 
   std::set< Handle<Component> > existing_conditions;
@@ -214,10 +232,10 @@ void LSSAction::trigger_initial_conditions()
   {
     existing_conditions.insert(ic.handle());
   }
-  
+
   // Give the concrete solver a chance to add its initial conditions
   on_initial_conditions_set(*m_initial_conditions);
-  
+
   // New initial conditions are the ones we need to track
   BOOST_FOREACH(common::Action& ic, find_components<common::Action>(*m_initial_conditions))
   {

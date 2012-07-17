@@ -41,7 +41,7 @@ list( APPEND coolfluid_ufem_files
   Tags.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_actions coolfluid_physics)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics)
 
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 

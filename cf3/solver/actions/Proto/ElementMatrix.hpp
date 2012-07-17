@@ -41,6 +41,12 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
+/// Represents an element matrix that is used as part of the linear system
+template<typename T>
+struct ElementSystemMatrix : T
+{
+};
+
 /// Represents an element matrix
 template<typename T>
 struct ElementMatrix : T
@@ -48,8 +54,9 @@ struct ElementMatrix : T
 };
 
 /// Some predefined element matrices (more can be user-defined, but you have to change the number in the MPL int_ so the type is long and tedious)
-static boost::proto::terminal< ElementMatrix< boost::mpl::int_<0> > >::type const _A = {};
-static boost::proto::terminal< ElementMatrix< boost::mpl::int_<1> > >::type const _T = {};
+static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<0> > >::type const _A = {};
+static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<1> > >::type const _T = {};
+static boost::proto::terminal< ElementMatrix< boost::mpl::int_<2> > >::type const _M = {};
 
 /// Reperesents element RHS vector
 struct ElementRHS
@@ -59,12 +66,22 @@ struct ElementRHS
 /// Terminal for the element RHS vector ("b")
 static boost::proto::terminal<ElementRHS>::type const _x = {};
 
+/// Match only element matrices that are used in a linear system
+struct ElementSystemMatrixTerm :
+  boost::proto::or_
+  <
+    boost::proto::terminal< ElementSystemMatrix<boost::proto::_> >,
+    BlockLhsGrammar<SystemRHSTag>
+  >
+{
+};
+
 /// Match element matrix terminals
 struct ElementMatrixTerm :
   boost::proto::or_
   <
     boost::proto::terminal< ElementMatrix<boost::proto::_> >,
-    BlockLhsGrammar<SystemRHSTag>
+    ElementSystemMatrixTerm
   >
 {
 };
@@ -116,9 +133,9 @@ struct IsEquationVariable :
     <
       boost::proto::or_
       <
-        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
-        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
-        boost::proto::function<ElementMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
         ElementMatrixSubBlocks< boost::mpl::int_<I> >
       >,
       boost::mpl::true_()
@@ -167,6 +184,7 @@ template<typename T, typename SF>
 struct FieldWidth
 {
   static const Uint value = 0;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// Scalars have width 1
@@ -174,6 +192,7 @@ template<typename SF>
 struct FieldWidth<ScalarField, SF>
 {
   static const Uint value = 1;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// VectorFields have the same dimension as the problem domain
@@ -181,6 +200,7 @@ template<typename SF>
 struct FieldWidth<VectorField, SF>
 {
   static const Uint value = SF::dimension;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// Given a variable's data, get the product of the number of nodes with the dimension variable (i.e. the size of the element matrix if this variable would be the only one in the problem)

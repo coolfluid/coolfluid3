@@ -86,8 +86,10 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::Dictionary& dict =  mesh.geometry_fields();
-  return common::find_component_with_tag<mesh::Field>(dict, tag);
+  Handle<mesh::Dictionary> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+  if(is_null(dict))
+    dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+  return common::find_component_with_tag<mesh::Field>(*dict, tag);
 }
 
 template<>
