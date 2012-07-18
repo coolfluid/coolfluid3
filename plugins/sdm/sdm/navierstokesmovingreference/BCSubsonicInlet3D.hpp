@@ -260,7 +260,7 @@ public:
   {
     m_function_T.parse("298.15","x,y,z");
 
-    m_U.resize(1.,0.);
+    m_U.resize(2.,0.);
     options().add("U",m_U)
         .description("Velocity [m/s]")
         .link_to(&m_U);

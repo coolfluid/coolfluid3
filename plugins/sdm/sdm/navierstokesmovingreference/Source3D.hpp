@@ -45,18 +45,18 @@ private:
         cf3_assert(Omega_vec.size() == 3);
 //        cf3_assert(Omega_vec[0] == 0);
 //        cf3_assert(Omega_vec[1] == 0);
-        Omega[0] = Omega_vec[0];
-        Omega[1] = Omega_vec[1];
-        Omega[2] = Omega_vec[2];
+        Omega[XX] = Omega_vec[XX];
+        Omega[YY] = Omega_vec[YY];
+        Omega[ZZ] = Omega_vec[ZZ];
     }
 
     void config_Vtrans()
     {
         std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
         cf3_assert(Vtrans_vec.size() == 3);
-        Vtrans[0] = Vtrans_vec[0];
-        Vtrans[1] = Vtrans_vec[1];
-        Vtrans[2] = Vtrans_vec[2];
+        Vtrans[XX] = Vtrans_vec[XX];
+        Vtrans[YY] = Vtrans_vec[YY];
+        Vtrans[ZZ] = Vtrans_vec[ZZ];
     }
 
     void config_a0()
@@ -64,9 +64,9 @@ private:
         std::vector<Real> a0_vec= options().value< std::vector<Real> >("a0");
         cf3_assert(a0_vec.size() == 3);
 //        cf3_assert(a0_vec[2] == 0);
-        a0[0] = a0_vec[0];
-        a0[1] = a0_vec[1];
-        a0[2] = a0_vec[2];
+        a0[XX] = a0_vec[XX];
+        a0[YY] = a0_vec[YY];
+        a0[ZZ] = a0_vec[ZZ];
     }
 
     void config_dOmegadt()
@@ -75,9 +75,9 @@ private:
         cf3_assert(dOmegadt_vec.size() == 3);
 //        cf3_assert(dOmegadt_vec[0] == 0);
 //        cf3_assert(dOmegadt_vec[1] == 0);
-        dOmegadt[0] = dOmegadt_vec[0];
-        dOmegadt[1] = dOmegadt_vec[1];
-        dOmegadt[2] = dOmegadt_vec[2];
+        dOmegadt[XX] = dOmegadt_vec[XX];
+        dOmegadt[YY] = dOmegadt_vec[YY];
+        dOmegadt[ZZ] = dOmegadt_vec[ZZ];
     }
 
 public:
@@ -99,21 +99,21 @@ public:
       at.setZero();
 
       std::vector<Real> OmegaDefault (3,0), VtransDefault(3,0), a0Default(3,0), dOmegadtDefault(3,0);
-      OmegaDefault[0] = Omega[0];
-      OmegaDefault[1] = Omega[1];
-      OmegaDefault[2] = Omega[2];
+      OmegaDefault[XX] = Omega[XX];
+      OmegaDefault[YY] = Omega[YY];
+      OmegaDefault[ZZ] = Omega[ZZ];
 
-      VtransDefault[0] = Vtrans[0];
-      VtransDefault[1] = Vtrans[1];
-      VtransDefault[2] = Vtrans[2];
+      VtransDefault[XX] = Vtrans[XX];
+      VtransDefault[YY] = Vtrans[YY];
+      VtransDefault[ZZ] = Vtrans[ZZ];
 
-      a0Default[0] = a0[0];
-      a0Default[1] = a0[1];
-      a0Default[2] = a0[2];
+      a0Default[XX] = a0[XX];
+      a0Default[YY] = a0[YY];
+      a0Default[ZZ] = a0[ZZ];
 
-      dOmegadtDefault[0] = dOmegadt[0];
-      dOmegadtDefault[1] = dOmegadt[1];
-      dOmegadtDefault[2] = dOmegadt[2];
+      dOmegadtDefault[XX] = dOmegadt[XX];
+      dOmegadtDefault[YY] = dOmegadt[YY];
+      dOmegadtDefault[ZZ] = dOmegadt[ZZ];
 
       options().add("Omega", OmegaDefault)
           .description("Rotation vector")
@@ -193,7 +193,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // navierstokesmovingreferece
+} // navierstokesmovingreference
 } // sdm
 } // cf3
 

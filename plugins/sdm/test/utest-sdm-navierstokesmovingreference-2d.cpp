@@ -30,7 +30,6 @@
 #include "sdm/navierstokesmovingreference/Convection2D.hpp"
 #include "sdm/navierstokesmovingreference/Diffusion2D.hpp"
 #include "sdm/navierstokesmovingreference/Source2D.hpp"
-#include "sdm/navierstokesmovingreference/SourceCentrifugal2D.hpp"
 
 using namespace cf3;
 using namespace cf3::math;
@@ -61,59 +60,59 @@ struct sdm_MPITests_Fixture
 
 };
 
-struct Datastr
-{
-    RealVector4 solution;
-    RealVector2 coord;
-    Eigen::Matrix<Real, 4, 2> grad_solution;
-};
+//struct Datastr
+//{
+//    RealVector4 solution;
+//    RealVector2 coord;
+//    Eigen::Matrix<Real, 4, 2> grad_solution;
+//};
 
-void flux_diff(Datastr d1, RealVector2 unit_normal, Real mu_v, RealVector4& F_Dn)
-{
-    Real mu=1; // moet optie van gemaakt worden
-    Real kappa=1; //moet nog een optie van gemaakt worden
-    Real R=287.05; // optie van maken
-    Real gamma=1.4; // optie van maken
+//void flux_diff(Datastr d1, RealVector2 unit_normal, Real mu_v, RealVector4& F_Dn)
+//{
+//    Real mu=1; // moet optie van gemaakt worden
+//    Real kappa=1; //moet nog een optie van gemaakt worden
+//    Real R=287.05; // optie van maken
+//    Real gamma=1.4; // optie van maken
 
-    Real cv = R/(gamma-1);
+//    Real cv = R/(gamma-1);
 
-    RealVector4 f_d, g_d;
-    Eigen::Matrix<RealVector4, 2, 1> F_D;
+//    RealVector4 f_d, g_d;
+//    Eigen::Matrix<RealVector4, 2, 1> F_D;
 
-    Real rho = d1.solution[0];
-    Real rhou = d1.solution[1];
-    Real rhov = d1.solution[2];
-    Real rhoE = d1.solution[3];
+//    Real rho = d1.solution[0];
+//    Real rhou = d1.solution[1];
+//    Real rhov = d1.solution[2];
+//    Real rhoE = d1.solution[3];
 
-    Real drho_dx = d1.grad_solution(0,0);
-    Real drhou_dx = d1.grad_solution(1,0);
-    Real drhov_dx = d1.grad_solution(2,0);
-    Real drhoE_dx = d1.grad_solution(3,0);
+//    Real drho_dx = d1.grad_solution(0,0);
+//    Real drhou_dx = d1.grad_solution(1,0);
+//    Real drhov_dx = d1.grad_solution(2,0);
+//    Real drhoE_dx = d1.grad_solution(3,0);
 
-    Real drho_dy = d1.grad_solution(0,1);
-    Real drhou_dy = d1.grad_solution(1,1);
-    Real drhov_dy = d1.grad_solution(2,1);
-    Real drhoE_dy = d1.grad_solution(3,1);
+//    Real drho_dy = d1.grad_solution(0,1);
+//    Real drhou_dy = d1.grad_solution(1,1);
+//    Real drhov_dy = d1.grad_solution(2,1);
+//    Real drhoE_dy = d1.grad_solution(3,1);
 
-    Real dT_dx = 1/(rho*cv)* (drhoE_dx - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dx - (rhou/rho*drhou_dx + rhov/rho*drhov_dx));
-    Real dT_dy = 1/(rho*cv)*(drhoE_dy - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dy - (rhou/rho*drhou_dy+rhov*drhov_dy));
+//    Real dT_dx = 1/(rho*cv)* (drhoE_dx - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dx - (rhou/rho*drhou_dx + rhov/rho*drhov_dx));
+//    Real dT_dy = 1/(rho*cv)*(drhoE_dy - (rhoE/rho-(1/(rho*rho))*(rhou*rhou+rhov*rhov))*drho_dy - (rhou/rho*drhou_dy+rhov*drhov_dy));
 
-    f_d[0] = 0;
-    f_d[1] = 2*mu*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
-    f_d[2] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
-    f_d[3] = f_d[1]*rhou/rho + f_d[2]*rhov/rho + kappa*dT_dx;
+//    f_d[0] = 0;
+//    f_d[1] = 2*mu*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
+//    f_d[2] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
+//    f_d[3] = f_d[1]*rhou/rho + f_d[2]*rhov/rho + kappa*dT_dx;
 
-    g_d[0] = 0;
-    g_d[1] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
-    g_d[2] = 2*mu*(1/rho*drhov_dy-rhov/(rho*rho)*drho_dy) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
-    g_d[3] = g_d[1]*rhou/rho + g_d[2]*rhov/rho + kappa*dT_dy;
+//    g_d[0] = 0;
+//    g_d[1] = mu*(1/rho*drhov_dx-rhov/(rho*rho)*drho_dx+1/rho*drhou_dy-rhou/(rho*rho)*drho_dy);
+//    g_d[2] = 2*mu*(1/rho*drhov_dy-rhov/(rho*rho)*drho_dy) + mu_v*(1/rho*drhou_dx-rhou/(rho*rho)*drho_dx + 1/rho*drhov_dy-rhov/(rho*rho)*drho_dy);
+//    g_d[3] = g_d[1]*rhou/rho + g_d[2]*rhov/rho + kappa*dT_dy;
 
-    F_D(0) = f_d;
-    F_D(1) = g_d;
+//    F_D(0) = f_d;
+//    F_D(1) = g_d;
 
-    F_Dn = F_D(0)*unit_normal(0) + F_D(1)*unit_normal(1);
+//    F_Dn = F_D(0)*unit_normal(0) + F_D(1)*unit_normal(1);
 
-}
+//}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,34 +135,11 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( test_source )
 {
     const Real tol (0.000001);
-    PhysDataBase<4,2> d;
-    RealVector4 s;
-
-    std::vector<Real> Vtransoption(2,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
-    d.solution << 1., 1., 0., 0.;
-    d.coord << 1., 2., 0.;
-
-    Omegaoption[0] = 0.;
-    Omegaoption[1] = 0.;
-    Omegaoption[2] = 10.;
-
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::SourceCentrifugal2D> S = allocate_component<cf3::sdm::navierstokesmovingreference::SourceCentrifugal2D>("source");
-
-    S->options().set("Omega", Omegaoption);
-
-    S->compute_source(d,s);
-    BOOST_CHECK_CLOSE(s[0], 0., tol);
-    BOOST_CHECK_CLOSE(s[1], -1., tol);
-    BOOST_CHECK_CLOSE(s[2], -2., tol);
-    BOOST_CHECK_CLOSE(s[3], 1., tol);
-
-
-
 
     PhysDataBase<4, 2> d0;
     RealVector4 s0;
 
-//    std::vector<Real> Vtransoption(2,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
+    std::vector<Real> Vtransoption(2,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
 
     // Test without relative movement
 
