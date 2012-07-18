@@ -61,6 +61,12 @@ Solver::Solver(const std::string& name) :
     .pretty_name("Create Unsteady Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
 
+  regist_signal( "add_iteration_solver" )
+    .connect( boost::bind( &Solver::signal_add_iteration_solver, this, _1 ) )
+    .description("Create an iteration solver, solving a linear system more than once every time step")
+    .pretty_name("Create iteration Solver")
+    .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
+
   regist_signal( "create_initial_conditions" )
     .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
     .description("Create initial conditions.")
@@ -108,6 +114,34 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   return result;
 }
 
+Handle< common::Action > Solver::add_iteration_solver(const std::string& builder_name)
+{
+  if(is_null(m_initial_conditions))
+  {
+    create_initial_conditions();
+  }
+
+  Handle<Component> timeloop = get_child("TimeLoop");
+  Handle<Component> coupling = get_child("TimeLoop");
+  if(is_null(timeloop))
+  {
+      timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
+      timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
+      coupling = timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate");
+      timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
+  }
+//  else
+//  {
+//    timeloop->remove_component("AdvanceTime");
+//  }
+
+  Handle<common::Action> result = add_solver(builder_name, *coupling);
+
+  timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
+
+  return result;
+}
+
 Handle<InitialConditions> Solver::create_initial_conditions()
 {
   if(is_not_null(m_initial_conditions))
@@ -147,6 +181,16 @@ void Solver::signal_add_unsteady_solver(SignalArgs& args)
 {
   SignalOptions options(args);
   Handle<common::Action> result = add_unsteady_solver(options.option("builder_name").value<std::string>());
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", result->uri());
+}
+
+void Solver::signal_add_iteration_solver(SignalArgs& args)
+{
+  SignalOptions options(args);
+  Handle<common::Action> result = add_iteration_solver(options.option("builder_name").value<std::string>());
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);

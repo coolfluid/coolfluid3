@@ -37,6 +37,7 @@ using namespace common;
 using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
+using namespace boost::proto;
 
 ComponentBuilder < SpalartAllmaras, LSSActionUnsteady, LibUFEM > SpalartAllmaras_builder;
 
@@ -58,6 +59,13 @@ static boost::proto::terminal< double(*)(double) >::type const _ttpo6 = {&ttpo6}
 
 /// Wraps around the std::pow function for the element matrix
 static boost::proto::terminal< double(*)(double, double) >::type const _pow = {&::pow};
+
+inline Real fv1(const Real chi, const Real cv1)
+{
+    return chi*chi*chi / (chi*chi*chi + cv1*cv1*cv1);
+}
+
+static boost::proto::terminal< double(*)(double, double) >::type const _fv1 = {&fv1};
 
 struct ComputeSACoeffs
 {
@@ -86,7 +94,7 @@ struct ComputeSACoeffs
     // const Real d = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
     coeffs.D = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
     coeffs.omega = sqrt(2.)*0.5*(nabla_u - nabla_u.transpose()).norm();
-    coeffs.Fv1 = (coeffs.chi*coeffs.chi*coeffs.chi) / (coeffs.chi*coeffs.chi*coeffs.chi + 7.1*7.1*7.1);
+    coeffs.Fv1 = fv1(coeffs.chi, 7.1);
     coeffs.Fv2 = 1 - (coeffs.chi/(1+coeffs.chi*coeffs.Fv1));
     coeffs.shat = coeffs.omega + (nu_t_cell * coeffs.Fv2)/(coeffs.Kappa*coeffs.Kappa*coeffs.D*coeffs.D);
     if(coeffs.shat < 0.3*coeffs.omega)
@@ -249,9 +257,10 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     << create_proto_action("Update", nodes_expression(
        group(
          NU += solution(NU),                                                                                                                                           //update for Navier-Stokes solution
-//         nu_eff = boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho
-//         nu_eff = (boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho) + boost::proto::lit(m_su_coeffs.rho) * NU * ( (m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi)/( (7.1*7.1*7.1) + ((m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi) )) )
-         nu_eff = (boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho) + boost::proto::lit(m_su_coeffs.rho) * NU * (( ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )) )
+ //        nu_eff = lit(m_su_coeffs.mu) / m_su_coeffs.rho //lit comes from boost::proto
+ //        nu_eff = (boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho) + boost::proto::lit(m_su_coeffs.rho) * NU * ( (m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi)/( (7.1*7.1*7.1) + ((m_sa_coeffs.chi) * (m_sa_coeffs.chi) * (m_sa_coeffs.chi) )) )
+         nu_eff = (lit(m_su_coeffs.mu) / m_su_coeffs.rho) + NU * _fv1(NU/lit(m_su_coeffs.mu)*m_su_coeffs.rho, 7.1)
+
        )));
 
     get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
