@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CreateField_hpp
-#define cf3_mesh_actions_CreateField_hpp
+#ifndef cf3_mesh_actions_ComputeFieldGradient_hpp
+#define cf3_mesh_actions_ComputeFieldGradient_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,43 +17,35 @@
 namespace cf3 {
 namespace mesh {
 
-  class Dictionary;
-  class LoadMesh;
-  class AInterpolator;
+  class Field;
 
 namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @brief Create a field with given functions
+/// @brief Import variables from another mesh
 ///
-/// Given functions are analytic and can use other functions as variables\n
-/// Example function, assuming that a field "myfield" exists with 4 variables,
-/// as well as a "coordinates" field in the same dictionary:\n
-/// @verbatim
-/// coordinates[0]*myfield[2]^myfield[1]
-/// @endverbatim
-///
+/// Optionally, a dictionary can be provided to load the variables into
+/// Every imported variable will have its own field
 /// @author Willem Deconinck
-class mesh_actions_API CreateField : public MeshTransformer
+class mesh_actions_API ComputeFieldGradient : public MeshTransformer
 {   
 public: // functions
   
   /// constructor
-  CreateField( const std::string& name );
+  ComputeFieldGradient( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CreateField"; }
+  static std::string type_name() { return "ComputeFieldGradient"; }
 
   virtual void execute();
   
-private: // functions
+private: // data
 
-  void replace_var_name (const std::string& var_from,
-                         const std::string& var_to,
-                         std::vector<std::string>& functions);
+  Handle<Field const> m_field;
+  Handle<Field>       m_field_gradient;
 
-}; // end CreateField
+}; // end ComputeFieldGradient
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,4 +55,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CreateField_hpp
+#endif // cf3_mesh_actions_ComputeFieldGradient_hpp

@@ -19,8 +19,6 @@
 #include "math/VariablesDescriptor.hpp"
 #include "math/VectorialFunction.hpp"
 
-#include "mesh/AInterpolator.hpp"
-#include "mesh/LoadMesh.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"

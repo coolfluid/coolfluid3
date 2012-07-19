@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_actions_files
   BuildFaceNormals.cpp
   BuildVolume.hpp
   BuildVolume.cpp
+  ComputeFieldGradient.hpp
+  ComputeFieldGradient.cpp
   GlobalNumbering.hpp
   GlobalNumbering.cpp
   GlobalNumberingElements.hpp
