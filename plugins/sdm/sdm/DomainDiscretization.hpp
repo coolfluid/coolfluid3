@@ -14,6 +14,7 @@
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
+namespace mesh { class Cells; }
 namespace sdm {
 
 class Term;
@@ -52,10 +53,18 @@ public: // functions
 
   //@} END SIGNALS
 
+  void update();
+
+  bool loop_cells(const Handle<mesh::Cells const>& cells);
+
+  void compute_element(const Uint elem_idx);
+
 private:
 
   Handle< common::ActionDirector > m_terms;   ///< set of terms
-  std::map< Handle<mesh::Region const> , std::vector< Handle<Term> > > m_terms_per_region;
+  std::map< Handle<mesh::Cells const> , std::vector< Handle<Term> > > m_terms_per_cells;
+  Handle<mesh::Cells const> m_cells;
+  std::vector< Handle<Term> > m_terms_for_cells;
 
 };
 

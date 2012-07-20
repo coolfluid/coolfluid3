@@ -62,6 +62,8 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
   m_terms = create_static_component<ActionDirector>("Terms");
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void DomainDiscretization::execute()
 {
   Field& residual = *follow_link(solver().field_manager().get_child(sdm::Tags::residual()))->handle<Field>();
@@ -70,36 +72,91 @@ void DomainDiscretization::execute()
   Field& wave_speed = *follow_link(solver().field_manager().get_child(sdm::Tags::wave_speed()))->handle<Field>();
   wave_speed = math::Consts::eps();
 
-//  boost_foreach( Component& term , *m_terms)
-//  {
-//    term.handle<Term>()->initialize();
-//  }
-
   CFdebug << "DomainDiscretization EXECUTE" << CFendl;
-  foreach_container( (const Handle<Region const>& region) (std::vector< Handle<Term> >& terms), m_terms_per_region)
+
+  update();
+
+  boost_foreach(const Cells& cells, find_components_recursively<Cells>(mesh()))
   {
-    if (region)
+    if ( loop_cells(cells.handle<Cells>()) )
     {
-      boost_foreach( const Cells& cells, find_components_recursively<Cells>(*region) )
+      // Element-loop
+      const Uint nb_elems = m_cells->size();
+
+      for (Uint elem_idx=0; elem_idx<nb_elems; ++elem_idx)
       {
-        boost_foreach( const Handle<Term>& term, terms)
+        if (m_cells->is_ghost(elem_idx)==false)
         {
-          term->set_entities(cells);
-          CFdebug << "DomainDiscretization: executing " << term->name() << " for cells " << cells.uri() << CFendl;
-          for (Uint elem_idx=0; elem_idx<cells.size(); ++elem_idx)
-          {
-            if (cells.is_ghost(elem_idx)==false)
-            {
-              term->set_element(elem_idx);
-              term->execute();
-              term->unset_element();
-            }
-          }
+          compute_element(elem_idx);
         }
       }
+
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void DomainDiscretization::update()
+{
+  m_terms_per_cells.clear();
+  boost_foreach( Term& term, find_components<Term>(*m_terms))
+  {
+    CFinfo << term.uri() << CFendl;
+    boost_foreach(const URI& region_uri, term.options().value< std::vector<URI> >("regions"))
+    {
+      Handle<Region const> region = mesh().access_component_checked(region_uri)->handle<Region>();
+      CFinfo << region->uri() << CFendl;
+      boost_foreach( const Cells& cells, find_components_recursively<Cells>(*region) )
+      {
+        m_terms_per_cells[cells.handle<Cells>()].push_back( term.handle<Term>() );
+      }
+    }
+  }
+  foreach_container( (const Handle<Cells const>& cells) (std::vector< Handle<Term> >& terms), m_terms_per_cells)
+  {
+    std::sort(terms.begin(), terms.end());
+    terms.erase(std::unique(terms.begin(), terms.end()), terms.end());
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
+{
+  if ( m_terms_per_cells.count(cells) == 0)
+    return false;
+
+  m_cells = cells;
+  m_terms_for_cells = m_terms_per_cells[m_cells];
+
+  boost_foreach( const Handle<Term>& term, m_terms_for_cells )
+  {
+    term->set_entities(*m_cells);
+  }
+
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void DomainDiscretization::compute_element(const Uint elem_idx)
+{
+  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  {
+    term->set_element(elem_idx);
+  }
+  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  {
+    term->execute();
+  }
+  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  {
+    term->unset_element();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 Term& DomainDiscretization::create_term( const std::string& type,
                                          const std::string& name,
@@ -119,15 +176,9 @@ Term& DomainDiscretization::create_term( const std::string& type,
 
   term->initialize();
 
-  const std::string option_name("regions");
-  boost_foreach(const URI& region_uri, term->options().option(option_name).value<std::vector<URI> >())
-  {
-    cf3_assert(mesh().access_component(region_uri));
-    m_terms_per_region[mesh().access_component(region_uri)->handle<Region>()].push_back(term->handle<Term>());
-  }
 
   CFinfo << "Created term   " << name << "(" << type << ") for regions " << CFendl;
-  boost_foreach(const URI& region_uri, term->options().option(option_name).value<std::vector<URI> >())
+  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
   {
     cf3_assert(mesh().access_component(region_uri));
     CFinfo << "    - " << mesh().access_component(region_uri)->uri().path() << CFendl;
@@ -135,6 +186,8 @@ Term& DomainDiscretization::create_term( const std::string& type,
 
   return *term;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void DomainDiscretization::signal_create_term( SignalArgs& args )
 {
@@ -159,6 +212,7 @@ void DomainDiscretization::signal_create_term( SignalArgs& args )
   reply_options.add("created_component", created_component.uri());
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 {
