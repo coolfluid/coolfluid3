@@ -74,3 +74,4 @@ add_subdirectory( navierstokes )                 # library coolfluid_sdm_naviers
 add_subdirectory( navierstokesmovingreference )  # library coolfluid_sdm_navierstokesmovingreference
 add_subdirectory( lineuler     )                 # library coolfluid_sdm_lineuler
 add_subdirectory( explicit_rungekutta )          # library coolfluid_sdm_explicit_rungekutta
+add_subdirectory( lusgs )                        # library coolfluid_sdm_lusgs
