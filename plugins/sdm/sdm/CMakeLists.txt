@@ -15,6 +15,8 @@ list( APPEND coolfluid_sdm_files
   BoundaryConditions.cpp
   ComputeLNorm.hpp
   ComputeLNorm.cpp
+  ComputeCellJacobianPerturb.hpp
+  ComputeCellJacobianPerturb.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
   ConvectiveTerm.hpp
