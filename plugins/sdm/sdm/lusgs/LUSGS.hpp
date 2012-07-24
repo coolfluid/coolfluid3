@@ -12,12 +12,30 @@
 #ifndef cf3_sdm_lusgs_LUSGS_hpp
 #define cf3_sdm_lusgs_LUSGS_hpp
 
+#include "Eigen/LU"
+#include "math/MatrixTypes.hpp"
 #include "sdm/IterativeSolver.hpp"
 #include "sdm/lusgs/LibLUSGS.hpp"
 
 namespace cf3 {
+
+namespace mesh{ class Cells; }
+
 namespace sdm {
 namespace lusgs {
+
+class System: public common::Component
+{
+public:
+  static std::string type_name() { return "System"; }
+  System(const std::string& name) : common::Component(name) {}
+  virtual ~System() {}
+
+  virtual bool loop_cells(mesh::Cells& cells) { return true; }
+  virtual void compute_lhs(const Uint elem, RealMatrix& lhs) {}
+  virtual void compute_rhs(const Uint elem, RealMatrix& rhs) {}
+
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +58,22 @@ public: // functions
 
   /// execute the action
   virtual void execute ();
+
+private: // functions
+
+  /// @brief Compute the left-hand-side of the system,
+  /// and store it in private variable m_lu
+  void compute_system_lhs();
+
+  /// @brief create the private variable m_system,
+  /// according to the configuration option "system"
+  void configure_system();
+
+private: // data
+
+  std::vector< std::vector< Eigen::FullPivLU<RealMatrix> > > m_lu;
+
+  Handle<System> m_system;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
