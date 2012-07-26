@@ -150,7 +150,8 @@ void History::save_entry()
 
 void History::flush()
 {
-  m_buffer->flush();
+  if (m_buffer)
+    m_buffer->flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
