@@ -18,24 +18,9 @@
 #include "sdm/lusgs/LibLUSGS.hpp"
 
 namespace cf3 {
-
-namespace mesh{ class Cells; }
-
 namespace sdm {
+  class System;
 namespace lusgs {
-
-class System: public common::Component
-{
-public:
-  static std::string type_name() { return "System"; }
-  System(const std::string& name) : common::Component(name) {}
-  virtual ~System() {}
-
-  virtual bool loop_cells(mesh::Cells& cells) { return true; }
-  virtual void compute_lhs(const Uint elem, RealMatrix& lhs) {}
-  virtual void compute_rhs(const Uint elem, RealMatrix& rhs) {}
-
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

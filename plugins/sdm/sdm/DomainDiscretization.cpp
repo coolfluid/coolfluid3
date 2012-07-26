@@ -102,11 +102,9 @@ void DomainDiscretization::update()
   m_terms_per_cells.clear();
   boost_foreach( Term& term, find_components<Term>(*m_terms))
   {
-    CFinfo << term.uri() << CFendl;
     boost_foreach(const URI& region_uri, term.options().value< std::vector<URI> >("regions"))
     {
       Handle<Region const> region = mesh().access_component_checked(region_uri)->handle<Region>();
-      CFinfo << region->uri() << CFendl;
       boost_foreach( const Cells& cells, find_components_recursively<Cells>(*region) )
       {
         m_terms_per_cells[cells.handle<Cells>()].push_back( term.handle<Term>() );
@@ -125,7 +123,10 @@ void DomainDiscretization::update()
 bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
 {
   if ( m_terms_per_cells.count(cells) == 0)
+  {
     return false;
+  }
+
 
   m_cells = cells;
   m_terms_for_cells = m_terms_per_cells[m_cells];

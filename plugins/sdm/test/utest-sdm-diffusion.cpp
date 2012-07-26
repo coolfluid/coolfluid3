@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   rotate->options().set("angle",math::Consts::pi()/4.);
   rotate->transform(mesh);
 
-//  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
 
 
   solver.options().set(sdm::Tags::mesh(),mesh.handle<Mesh>());
@@ -144,7 +144,15 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   solver.options().set(sdm::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv2D"));
   solver.options().set(sdm::Tags::solution_order(),sol_order);
-  solver.iterative_solver().options().set("nb_stages",time_order);
+
+  // Solve with LUSGS-BackwardEuler
+  solver.options().set("iterative_solver",std::string("cf3.sdm.lusgs.LUSGS"));
+  solver.iterative_solver().options().set("system",std::string("cf3.sdm.implicit.BackwardEuler"));
+
+  // Solve with ERK(3,3) 2S*
+  //  solver.options().set("iterative_solver",std::string("cf3.sdm.ExplicitRungeKuttaLowStorage2"));
+  //  solver.iterative_solver().options().set("nb_stages",time_order);
+
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
@@ -162,21 +170,26 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   // Discretization
   Term& diffusion = solver.domain_discretization().create_term("cf3.sdm.scalar.Diffusion2D","diffusion");
   diffusion.options().set("mu",1.);
-  diffusion.options().set("alpha",1.);
+  diffusion.options().set("alpha",1./(Real)order);
 
-  std::vector<URI> bc_regions;
-  bc_regions.push_back(mesh.topology().uri()/"left");
-  bc_regions.push_back(mesh.topology().uri()/"right");
-  bc_regions.push_back(mesh.topology().uri()/"top");
-  bc_regions.push_back(mesh.topology().uri()/"bottom");
-  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","walls",bc_regions);
-  bc.options().set("constants",std::vector<Real>(1,0.));
+  std::vector<URI> bc_top_regions;
+  bc_top_regions.push_back(mesh.topology().uri()/"top");
+  BC& bc_top = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","walls",bc_top_regions);
+  bc_top.options().set("constants",std::vector<Real>(1,0.));
+
+  std::vector<URI> bc_bottomleftright_regions;
+  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"right");
+  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"bottom");
+  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"left");
+  BC& bc_bottomleftright = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","walls",bc_bottomleftright_regions);
+  bc_bottomleftright.options().set("constants",std::vector<Real>(1,2.));
 
   // Time stepping
-  solver.time().options().set("time_step",100.);
-  solver.time().options().set("end_time" , 100. );
-  solver.time_stepping().options().set("cfl" , std::string("0.05") );
-  solver.time_stepping().options().set("max_iteration" , 20 );
+  solver.time().options().set("time_step", 10.0);
+  solver.time().options().set("end_time" , 10.0);
+  solver.time_stepping().options().set("cfl" , std::string("100") );
+//  solver.time_stepping().options().set("cfl" , std::string("min(100,0.5*(i+1))") );
+//  solver.time_stepping().options().set("max_iteration" , 10 );
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
@@ -185,6 +198,8 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   fields.push_back(solution_field.uri());
   fields.push_back(solution_field.dict().field("diffusion").uri());
   fields.push_back(solution_field.dict().field("diffusion_wavespeed").uri());
+
+  mesh.write_mesh("diffusion2d_init.msh",fields);
 
   model.simulate();
 

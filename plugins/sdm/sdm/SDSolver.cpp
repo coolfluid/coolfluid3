@@ -168,7 +168,6 @@ void SDSolver::config_iterative_solver()
     m_time_stepping->remove_component(*m_iterative_solver);
   }
   m_iterative_solver = m_time_stepping->create_component("IterativeSolver",options().option("iterative_solver").value_str())->handle<IterativeSolver>();
-  m_iterative_solver->pre_update().add_link(*m_domain_discretization);
   m_iterative_solver->post_update().add_link(*m_boundary_conditions);
 }
 

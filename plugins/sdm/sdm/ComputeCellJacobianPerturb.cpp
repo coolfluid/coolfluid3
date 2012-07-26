@@ -13,6 +13,8 @@
 #include "common/DynTable.hpp"
 
 #include "math/VariablesDescriptor.hpp"
+#include "math/Consts.hpp"
+#include "math/Functions.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -27,7 +29,6 @@
 
 #include "sdm/Tags.hpp"
 #include "sdm/ComputeCellJacobianPerturb.hpp"
-#include "math/Consts.hpp"
 
 #include "sdm/DomainDiscretization.hpp"
 
@@ -43,12 +44,12 @@ namespace sdm {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeCellJacobianPerturb, common::Action, LibSDM > ComputeCellJacobianPerturb_Builder;
+common::ComponentBuilder < ComputeCellJacobianPerturb, common::Component, LibSDM > ComputeCellJacobianPerturb_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeCellJacobianPerturb::ComputeCellJacobianPerturb ( const std::string& name ) :
-  common::Action(name)
+  common::Component(name)
 {
   options().add("residual", m_residual )
     .description("Residual field")
@@ -58,17 +59,11 @@ ComputeCellJacobianPerturb::ComputeCellJacobianPerturb ( const std::string& name
   options().add("solution", m_solution)
     .description("Solution field")
     .pretty_name("Solution")
-    .link_to(&m_solution)
-    .attach_trigger( boost::bind( &ComputeCellJacobianPerturb::create_backup_fields , this) );
+    .link_to(&m_solution);
 
   options().add("reference_solution", std::vector<Real>())
     .description("Reference solution, required for computation of denominator")
     .link_to(&m_ref_sol);
-
-  options().add("cell_jacobian", m_cell_jacobian )
-    .description("Cell Jacobian")
-    .pretty_name("Cell Jacobian")
-    .link_to(&m_cell_jacobian);
 
   options().add("domain_discretization", m_domain_discretization )
     .link_to(&m_domain_discretization);
@@ -78,124 +73,127 @@ ComputeCellJacobianPerturb::ComputeCellJacobianPerturb ( const std::string& name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ComputeCellJacobianPerturb::create_backup_fields()
+bool ComputeCellJacobianPerturb::loop_cells(const Handle<Cells const>& cells)
 {
-  if ( is_null(m_solution) )
+
+//  CFdebug << "ComputeCellJacobianPerturb set loop" << CFendl;
+
+  if ( is_null(m_domain_discretization) ) throw SetupError( FromHere(), "Option 'domain_discretization' not configured for "+uri().string());
+  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
+  if ( is_null(m_residual) )              throw SetupError( FromHere(), "Option 'residual' not configured for "+uri().string());
+
+  if (m_domain_discretization->loop_cells(cells) == false)
   {
-    throw SetupError(FromHere() , "'solution' needs to be configured or doesn't exist");
+//    CFinfo << " --> false " << CFendl;
+    return false;
   }
 
-  if (is_null(m_residual_backup))
-  {
-    m_residual_backup = m_solution->dict().create_field("residual_backup", m_solution->descriptor().description()).handle<Field>();
-  }
+  m_space = m_solution->space(cells);
+  cf3_assert(m_space);
 
-  if (is_null(m_solution_backup))
-  {
-    m_solution_backup = m_solution->dict().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
-  }
+  m_nb_vars = m_solution->row_size();
+  m_nb_sol_pts = m_space->shape_function().nb_nodes();
 
+  m_Q0.resize(m_nb_sol_pts, m_nb_vars);
+  m_R0.resize(m_nb_sol_pts, m_nb_vars);
+
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ComputeCellJacobianPerturb::execute()
+void ComputeCellJacobianPerturb::compute_jacobian(const Uint elem, RealMatrix& cell_jacob)
 {
-  if (is_null(m_solution))      throw SetupError(FromHere(),"'solution' needs to be configured");
-  if (is_null(m_residual))      throw SetupError(FromHere(),"'residual' needs to be configured");
-  if (is_null(m_cell_jacobian)) throw SetupError(FromHere(),"'cell_jacobian' needs to be configured");
+  cf3_assert(m_space);
+  cf3_assert(cell_jacob.rows() == m_nb_sol_pts*m_nb_vars);
+  cf3_assert(cell_jacob.cols() == m_nb_sol_pts*m_nb_vars);
 
   Field& Q  = *m_solution;
   Field& R  = *m_residual;
-  Field& Q0 = *m_solution_backup;
-  Field& R0 = *m_residual_backup;
-  DynTable<Real>& J  = *m_cell_jacobian;
 
-  const Uint nb_vars = Q.row_size();
-  const Uint nb_pts = Q.size();
 
-  // Perturb solution and store in m_solution, put backup in m_solution_backup
-  for (Uint p=0; p<nb_pts; ++p)
+  // Backup and perturb the solution of this element
+  for (Uint s=0; s<m_nb_sol_pts; ++s)
   {
-    for (Uint v=0; v<nb_vars; ++v)
+    Uint p = m_space->connectivity()[elem][s];
+
+    for (Uint v=0; v<m_nb_vars; ++v)
     {
-      Q0[p][v] = Q[p][v];
+      // backup
+      cf3_assert(p<Q.size());
+      cf3_assert(v<Q.row_size());
+      cf3_assert(p<R.size());
+      cf3_assert(v<R.row_size());
 
-      Q[p][v] *= (1. + m_eps);
-
-      R0[p][v] = R[p][v];
+      m_Q0(s,v) = Q[p][v];
+      m_R0(s,v) = R[p][v];
     }
   }
 
-  m_domain_discretization->update();
 
-  boost_foreach( const Handle<Space>& space, m_solution->spaces() )
+  Real dQ;
+  Real dR;
+  // contribution of other variables (ds,dv) to this variable (s,v)
+  for (Uint ds=0; ds<m_nb_sol_pts; ++ds)
   {
-    if ( m_domain_discretization->loop_cells(space->support().handle<Cells>()) )
+    Uint dp = m_space->connectivity()[elem][ds];
+
+    for (Uint dv=0; dv<m_nb_vars; ++dv)
     {
-      const Uint nb_elems = space->size();
-      const Uint nb_pts_per_elem = space->shape_function().nb_nodes();
-      const Uint nb_jacobian_matrix_elements = nb_pts_per_elem*nb_vars;
+      if (m_ref_sol.size())
+        dQ = m_eps*math::Functions::sign(Q[dp][dv]) * std::max( std::abs(Q[dp][dv]) , std::abs(m_ref_sol[dv]) );
+      else
+        dQ = m_eps*Q[dp][dv];
 
-      // for every element in this space
-      for (Uint e=0; e<nb_elems; ++e)
+      // Perturb the other variable (ds,dv)
+      cf3_assert(dp<Q.size());
+      cf3_assert(dv<Q.row_size());
+
+      Q[dp][dv] += dQ;
+
+      // Compute the perturbed residual only for this element
+      for (Uint s=0; s<m_nb_sol_pts; ++s)
       {
-
-        // perturb this element
-        for (Uint s=0; s<nb_pts_per_elem; ++s)
+        Uint p = m_space->connectivity()[elem][s];
+        for (Uint v=0; v<m_nb_vars; ++v)
         {
-          Uint p = space->connectivity()[e][s];
+          cf3_assert(p<R.size());
+          cf3_assert(v<R.row_size());
 
-          for (Uint v=0; v<nb_vars; ++v)
-          {
-            Q0[p][v] = Q[p][v];
-
-            Q[p][v] *= (1. + m_eps);
-
-            R0[p][v] = R[p][v];
-          }
-        }
-
-        // Compute the perturbed residual only for this element
-        m_domain_discretization->compute_element(e);
-
-        // Compute the cell jacobian for this element
-        for (Uint s=0; s<nb_pts_per_elem; ++s)
-        {
-          Uint p = space->connectivity()[e][s];
-          J.set_row_size(p,nb_jacobian_matrix_elements);
-
-          // contribution of other points of this element to this point
-          for (Uint ds=0; ds<nb_pts_per_elem; ++ds)
-          {
-            Uint dp = space->connectivity()[e][ds];
-
-            for (Uint v=0; v<nb_vars; ++v)
-            {
-              J[p][nb_pts*ds+v] = ( R[p][v] - R0[p][v] ) / ( m_eps*Q0[dp][v] - m_ref_sol[v] );
-            }
-          }
-        }
-
-        // Restore element from backup
-        for (Uint s=0; s<nb_pts_per_elem; ++s)
-        {
-          Uint p = space->connectivity()[e][s];
-
-          for (Uint p=0; p<nb_pts; ++p)
-          {
-            for (Uint v=0; v<nb_vars; ++v)
-            {
-              Q[p][v] = Q0[p][v];
-              R[p][v] = R0[p][v];
-            }
-          }
+          R[p][v]  = 0.;  // reset residual of this element
         }
       }
+      m_domain_discretization->compute_element(elem);
+
+      // Compute the cell jacobian for this element
+      for (Uint s=0; s<m_nb_sol_pts; ++s)
+      {
+        Uint p = m_space->connectivity()[elem][s];
+        for (Uint v=0; v<m_nb_vars; ++v)
+        {
+          Real dR = R[p][v] - m_R0(s,v);
+          cell_jacob(s*m_nb_vars+v,m_nb_vars*ds+dv) = dR/dQ;
+        }
+      }
+
+      // restore the other variable (ds,dv)
+      Q[dp][dv] -= dQ;
     }
   }
-}
 
+  // Restore solution and residual from backup
+  for (Uint s=0; s<m_nb_sol_pts; ++s)
+  {
+    Uint p = m_space->connectivity()[elem][s];
+
+    for (Uint v=0; v<m_nb_vars; ++v)
+    {
+      Q[p][v] = m_Q0(s,v);
+      R[p][v] = m_R0(s,v);
+    }
+  }
+
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // sdm

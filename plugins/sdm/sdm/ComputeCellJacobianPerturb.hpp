@@ -8,13 +8,14 @@
 #define cf3_sdm_ComputeCellJacobianPerturb_hpp
 
 #include "common/Action.hpp"
+#include "math/MatrixTypes.hpp"
 #include "sdm/LibSDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3  {
 
-namespace mesh { class Field; }
+namespace mesh { class Field; class Space; class Cells; }
 namespace common {
   template <typename T> class DynTable; }
 
@@ -24,7 +25,7 @@ class DomainDiscretization;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API ComputeCellJacobianPerturb : public common::Action
+class sdm_API ComputeCellJacobianPerturb : public common::Component
 {
 public: // functions
 
@@ -38,13 +39,13 @@ public: // functions
   /// Virtual destructor
   virtual ~ComputeCellJacobianPerturb() {};
 
-  virtual void execute();
+  virtual bool loop_cells(const Handle<mesh::Cells const>& cells);
 
-private:
-
-  void create_backup_fields();
+  virtual void compute_jacobian(const Uint elem, RealMatrix& cell_jacob);
 
 private: // data
+
+  // macro eigen
 
   Handle<DomainDiscretization> m_domain_discretization;
 
@@ -52,15 +53,17 @@ private: // data
 
   Handle<mesh::Field> m_residual;
 
-  Handle<mesh::Field> m_residual_backup;
-
-  Handle<mesh::Field> m_solution_backup;
-
-  Handle< common::DynTable<Real> > m_cell_jacobian;
-
   std::vector<Real>   m_ref_sol;
 
   Real m_eps;
+
+  Handle<mesh::Space const> m_space;
+
+  Uint m_nb_sol_pts;
+  Uint m_nb_vars;
+
+  RealMatrix m_Q0;
+  RealMatrix m_R0;
 
 };
 

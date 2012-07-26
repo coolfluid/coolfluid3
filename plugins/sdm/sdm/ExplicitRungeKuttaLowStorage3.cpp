@@ -191,10 +191,11 @@ void ExplicitRungeKuttaLowStorage3::execute()
 
     time.current_time() = T0 + c * dt;
 
-    // Do actual computations in pre_update
+    // Do actual computations of the domain discretization
+    // - R
     try
     {
-      pre_update().execute();
+      solver().handle<SDSolver>()->domain_discretization().execute();
     }
     catch (const common::FailedToConverge& exception)
     {
@@ -204,9 +205,7 @@ void ExplicitRungeKuttaLowStorage3::execute()
     if (convergence_failed)
       throw (common::FailedToConverge(FromHere(),""));
 
-
-    // now assigned in pre-update
-    // - R
+    pre_update().execute();
 
     // Only in case of the first stage, compute the time-step (= update coefficient)
     if (stage == 0)

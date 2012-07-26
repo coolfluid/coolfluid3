@@ -86,6 +86,11 @@ TimeStepping::TimeStepping ( const std::string& name ) :
   history()->set("time",0.);
   history()->set("walltime",0.);
   history()->set("cfl",0.);
+
+  std::vector<std::string> disabled_actions;
+  disabled_actions.push_back("PreActions");
+  disabled_actions.push_back("PostActions");
+  options().set("disabled_actions",disabled_actions);
 }
 
 void TimeStepping::parse_cfl()
