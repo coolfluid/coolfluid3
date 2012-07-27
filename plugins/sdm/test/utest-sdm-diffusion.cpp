@@ -148,6 +148,7 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   // Solve with LUSGS-BackwardEuler
   solver.options().set("iterative_solver",std::string("cf3.sdm.lusgs.LUSGS"));
   solver.iterative_solver().options().set("system",std::string("cf3.sdm.implicit.BackwardEuler"));
+  solver.iterative_solver().access_component("System/ComputeCellJacobian")->options().set("reference_solution",std::vector<Real>(1,1.));
 
   // Solve with ERK(3,3) 2S*
   //  solver.options().set("iterative_solver",std::string("cf3.sdm.ExplicitRungeKuttaLowStorage2"));

@@ -83,6 +83,7 @@ void ComputeUpdateCoefficient::execute()
   Field& wave_speed = *m_wave_speed;
   Field& update_coeff = *m_update_coeff;
   Real cfl = options().value<Real>("cfl");
+
   if (options().value<bool>("time_accurate")) // global time stepping
   {
     if (is_null(m_time))   throw SetupError(FromHere(), "Time component was not set");
@@ -103,7 +104,7 @@ void ComputeUpdateCoefficient::execute()
     RealVector ws(wave_speed.row_size());
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      if (wave_speed[i][0] > 0)
+      if (wave_speed[i][0] > 0.)
       {
         dt = cfl/wave_speed[i][0];
 
@@ -111,6 +112,7 @@ void ComputeUpdateCoefficient::execute()
         max_dt = std::max(max_dt,dt);
       }
     }
+
     Real glb_min_dt;
     PE::Comm::instance().all_reduce(PE::min(), &min_dt, 1, &glb_min_dt);
     dt = glb_min_dt;
@@ -132,6 +134,17 @@ void ComputeUpdateCoefficient::execute()
     // Update the new time step
     time.dt() = dt;
 
+
+    // Fix wave-speed for visualization
+    Real glb_max_dt;
+    PE::Comm::instance().all_reduce(PE::min(), &max_dt, 1, &glb_max_dt);
+    for (Uint i=0; i<wave_speed.size(); ++i)
+    {
+      if (wave_speed[i][0] == 0.)
+      {
+        wave_speed[i][0] = cfl/glb_max_dt;
+      }
+    }
   }
   else // local time stepping
   {

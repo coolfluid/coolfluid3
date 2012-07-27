@@ -70,7 +70,7 @@ void DomainDiscretization::execute()
   residual = 0.;
 
   Field& wave_speed = *follow_link(solver().field_manager().get_child(sdm::Tags::wave_speed()))->handle<Field>();
-  wave_speed = math::Consts::eps();
+  wave_speed = 0.;
 
   CFdebug << "DomainDiscretization EXECUTE" << CFendl;
 
@@ -126,7 +126,6 @@ bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
   {
     return false;
   }
-
 
   m_cells = cells;
   m_terms_for_cells = m_terms_per_cells[m_cells];

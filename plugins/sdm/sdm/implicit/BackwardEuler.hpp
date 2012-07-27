@@ -44,22 +44,33 @@ class sdm_implicit_API BackwardEuler : public sdm::System {
 
 public: // functions
 
-  /// Get the class name
+  /// @brief Type name
   static std::string type_name () { return "BackwardEuler"; }
 
-  /// Contructor
+  /// @brief Contructor
   /// @param name of the component
   BackwardEuler ( const std::string& name );
 
-  /// Virtual destructor
+  /// @brief Destructor
   virtual ~BackwardEuler() {}
 
+  // Prepare the system before looping
+  virtual void prepare();
+
+  // loop cells
+  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells);
+
+  // compute the left-hand-side
+  virtual void compute_lhs(const Uint elem, RealMatrix& lhs);
+
+  // compute the right-hand-side
+  virtual void compute_rhs(const Uint elem, RealVector& rhs);
+
+private: // fuctions
+
+  /// @brief create field to backup solution, needed for this system
   void create_solution_backup();
 
-  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells);
-  virtual void compute_lhs(const Uint elem, RealMatrix& lhs);
-  virtual void compute_rhs(const Uint elem, RealVector& rhs);
-  virtual void prepare();
 
 private:
 

@@ -24,7 +24,17 @@ namespace lusgs {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief LUSGS iterative solver
+/// @brief LU-SGS iterative solver
+///
+/// Non-linear Lower-Upper Symmetric Gauss Seidel iterative solver.
+///
+/// A non-linear system prescribed over the mesh is solved iteratively.
+/// Computation of a cell's system right-hand-side makes use of
+/// updated values of recently updated cell's solutions.
+/// Alternating between forward and backward sweeps increases the convergence speed.
+///
+/// An example system to be configured is the implicit BackwardEuler system,
+/// to advance the solution in time.
 ///
 /// @author Willem Deconinck, Matteo Parsani
 class sdm_lusgs_API LUSGS : public IterativeSolver {
@@ -54,11 +64,25 @@ private: // functions
   /// according to the configuration option "system"
   void configure_system();
 
+  /// @brief Create a field for the backup of the solution
+  ///
+  /// This is to allow to start over when the solver diverges
+  void create_solution_backup();
+
 private: // data
 
+  /// @brief Component describing how to compute the left- and
+  /// right-hand-side of a system
+  Handle<System> m_system;
+
+  /// @brief Storage of LU-factorized system left-hand-side
   std::vector< std::vector< Eigen::FullPivLU<RealMatrix> > > m_lu;
 
-  Handle<System> m_system;
+  /// @brief Backup of the solution, to revert to if convergence fails
+  Handle<mesh::Field> m_solution_backup;
+
+  /// @brief Flag to alternate between forward and backward sweeps.
+  enum SWEEP_DIR {FORWARD=1, BACKWARD=-1} m_sweep_direction;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

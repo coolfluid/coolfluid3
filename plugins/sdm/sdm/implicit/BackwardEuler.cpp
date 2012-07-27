@@ -91,7 +91,6 @@ void BackwardEuler::prepare()
   *m_solution_backup = *m_solution;
 
   // compute residual of backup, plus wave-speeds! --> used to compute dt
-  m_domain_discretization->update();
   m_domain_discretization->execute();
 }
 
@@ -108,12 +107,8 @@ bool BackwardEuler::loop_cells(const Handle<mesh::Cells const>& cells)
   m_compute_jacobian->options().set("solution",m_solution);
   m_compute_jacobian->options().set("residual",m_residual);
 
-//  CFdebug << "BackwardEuler set loop" << CFendl;
   if (m_compute_jacobian->loop_cells(cells) == false)
-  {
-//    CFdebug << "BackwardEuler set loop  FALSE" << CFendl;
     return false;
-  }
 
   m_space = m_solution->space(cells);
   cf3_assert(m_space);

@@ -28,19 +28,37 @@ namespace sdm {
 /// Inherited classes need to implement the functions
 /// - compute_lhs()
 /// - compute_rhs()
+/// @author Willem Deconinck
 class sdm_API System: public common::Component
 {
 public:
 
+  /// @brief Type name
   // Unfortunately, a factory called System already exists in the math library, so give it different name!
   static std::string type_name() { return "ImplicitSystem"; }
+
+  /// @brief Constructor
   System(const std::string& name) : common::Component(name) {}
+
+  /// @brief Destructor
   virtual ~System() {}
 
-  virtual bool loop_cells(const Handle<mesh::Cells const>& cells) = 0;
-  virtual void compute_lhs(const Uint elem, RealMatrix& lhs) = 0;
-  virtual void compute_rhs(const Uint elem, RealVector& rhs) = 0;
+  /// @brief Prepare the system before looping
   virtual void prepare() = 0;
+
+  /// @brief loop cells
+  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells) = 0;
+
+  /// @brief compute the left-hand-side
+  /// @param [in]   elem   Element index in cells that are looped over
+  /// @param [out]  lhs    Computed left-hand-side of the system for this cell
+  virtual void compute_lhs(const Uint elem, RealMatrix& lhs) = 0;
+
+  /// @brief compute the right-hand-side
+  /// @param [in]   elem   Element index in cells that are looped over
+  /// @param [out]  rhs    Computed right-hand-side of the system for this cell
+  virtual void compute_rhs(const Uint elem, RealVector& rhs) = 0;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

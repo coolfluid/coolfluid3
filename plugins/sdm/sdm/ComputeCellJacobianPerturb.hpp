@@ -25,46 +25,77 @@ class DomainDiscretization;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Compute residual jacobian (dR/dQ) using perturbation method
+///
+/// This jacobian has dimensions (nb_sol_pts*nb_eqs)x(nb_sol_pts*nb_eqs).
+/// It is computed by perturbing every solution variable of every point seperately,
+/// computing the residual for every of these perturbation, and seeing the
+/// influence to the other variables of every point.
+///         [ dR(p1,v1)/dQ(p1,v1)    dR(p1,v1)/dQ(p1,v2)    dR(p1,v1)/dQ(p2,v1)    dR(p1,v1)/dQ(p2,v2) ]
+/// dR/dQ = [ dR(p1,v2)/dQ(p1,v1)    dR(p1,v2)/dQ(p1,v2)    dR(p1,v2)/dQ(p2,v1)    dR(p1,v2)/dQ(p2,v2) ]
+///         [ dR(p2,v1)/dQ(p1,v1)    dR(p2,v1)/dQ(p1,v2)    dR(p2,v1)/dQ(p2,v1)    dR(p2,v1)/dQ(p2,v2) ]
+///         [ dR(p2,v2)/dQ(p1,v1)    dR(p2,v2)/dQ(p1,v2)    dR(p2,v2)/dQ(p2,v1)    dR(p2,v2)/dQ(p2,v2) ]
+///
+/// In computational expense, this means that the residual, computed in
+/// one element, has to be computed (nb_sol_pts*nb_eqs) times!
+///
+/// @author Willem Deconinck, Matteo Parsani
 class sdm_API ComputeCellJacobianPerturb : public common::Component
 {
 public: // functions
 
-  /// Get the class name
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /// @brief Get the class name
   static std::string type_name () { return "ComputeCellJacobianPerturb"; }
 
-  /// Contructor
+  /// @brief Contructor
   /// @param name of the component
   ComputeCellJacobianPerturb ( const std::string& name );
 
-  /// Virtual destructor
+  /// @brief Destructor
   virtual ~ComputeCellJacobianPerturb() {};
 
+  /// @brief Prepare to loop over given cells
+  /// @return true if cells can be used to loop over
   virtual bool loop_cells(const Handle<mesh::Cells const>& cells);
 
+  /// @brief Compute cell jacobian for given cell
+  /// @param [in]  elem         element index in cells that are being looped over
+  /// @param [out] cell_jacob   computed jacobian matrix with dimensions (nb_sol_pts*nb_eqs)x(nb_sol_pts*nb_eqs).
   virtual void compute_jacobian(const Uint elem, RealMatrix& cell_jacob);
 
 private: // data
 
-  // macro eigen
-
+  /// @brief Domain-discretization action, to help compute the residual
   Handle<DomainDiscretization> m_domain_discretization;
 
-  Handle<mesh::Field> m_solution;
-
-  Handle<mesh::Field> m_residual;
-
-  std::vector<Real>   m_ref_sol;
-
-  Real m_eps;
-
+  /// @brief Space defined by the cells and solution
   Handle<mesh::Space const> m_space;
 
+  /// @brief Solution being used to compute the residual
+  Handle<mesh::Field> m_solution;
+
+  /// @brief The residual
+  Handle<mesh::Field> m_residual;
+
+  /// @brief Reference solution (all elements should be different from zero)
+  std::vector<Real>   m_ref_sol;
+
+  /// @brief Small number, defined as sqrt(machine_precision)
+  Real m_eps;
+
+  /// @brief Current cell's number of solution points
   Uint m_nb_sol_pts;
+
+  /// @brief Number of variables or equations to solve for
   Uint m_nb_vars;
 
+  /// @brief Storage for unperturbed solution
   RealMatrix m_Q0;
-  RealMatrix m_R0;
 
+  /// @brief Storage for unperturbed residual
+  RealMatrix m_R0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
