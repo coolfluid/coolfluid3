@@ -78,10 +78,6 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       .description("Time component")
       .pretty_name("Time")
       .link_to(&m_time);
-
-  ComputeLNorm& cnorm = *create_static_component<ComputeLNorm>( "ComputeNorm" );
-  cnorm.options().set("order",2u);
-  cnorm.options().set("scale",true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

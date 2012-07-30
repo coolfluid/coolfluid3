@@ -150,12 +150,27 @@ void ComputeUpdateCoefficient::execute()
   {
     if (is_not_null(m_time))  m_time->dt() = 0.;
 
-    // Calculate the update_coefficient = CFL/wave_speed
-    RealVector ws(wave_speed.row_size());
+    // Check for a minimum value for the wave speeds
+    Real min_wave_speed = math::Consts::real_max();
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      if (wave_speed[i][0] > 0)
-        update_coeff[i][0] = cfl/wave_speed[i][0];
+      if (wave_speed[i][0] > 0.)
+      {
+        min_wave_speed = std::min(min_wave_speed,wave_speed[i][0]);
+      }
+    }
+    PE::Comm::instance().all_reduce(PE::min(), &min_wave_speed, 1, &min_wave_speed);
+    if (min_wave_speed == 0.)
+      throw common::BadValue(FromHere(), "Minimum wave-speed cannot be zero!");
+
+    // Calculate the update_coefficient = CFL/wave_speed
+    for (Uint i=0; i<wave_speed.size(); ++i)
+    {
+      if (wave_speed[i][0] == 0.)
+      {
+        wave_speed[i][0] = min_wave_speed;
+      }
+      update_coeff[i][0] = cfl/wave_speed[i][0];
     }
   }
 }
@@ -165,7 +180,7 @@ void ComputeUpdateCoefficient::execute()
 Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
 {
   const Real milestone_dt  =  m_time->options().value<Real>("time_step");
-  if (milestone_dt == 0)
+  if (milestone_dt == 0.)
     return end_time;
 
   const Real milestone_time = (Uint((time+m_tolerance)/milestone_dt)+1.)*milestone_dt;

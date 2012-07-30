@@ -18,6 +18,7 @@
 #include "sdm/lusgs/LibLUSGS.hpp"
 
 namespace cf3 {
+namespace mesh { class Cells; }
 namespace sdm {
   class System;
 namespace lusgs {
@@ -64,10 +65,9 @@ private: // functions
   /// according to the configuration option "system"
   void configure_system();
 
-  /// @brief Create a field for the backup of the solution
-  ///
-  /// This is to allow to start over when the solver diverges
-  void create_solution_backup();
+  Real forward_sweep(std::vector< Handle<mesh::Cells> >& cell_elements);
+
+  Real backward_sweep(std::vector< Handle<mesh::Cells> >& cell_elements);
 
 private: // data
 
@@ -77,9 +77,6 @@ private: // data
 
   /// @brief Storage of LU-factorized system left-hand-side
   std::vector< std::vector< Eigen::FullPivLU<RealMatrix> > > m_lu;
-
-  /// @brief Backup of the solution, to revert to if convergence fails
-  Handle<mesh::Field> m_solution_backup;
 
   /// @brief Flag to alternate between forward and backward sweeps.
   enum SWEEP_DIR {FORWARD=1, BACKWARD=-1} m_sweep_direction;

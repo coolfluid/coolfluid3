@@ -58,37 +58,28 @@ LUSGS::LUSGS ( const std::string& name ) :
   options().add("max_sweeps",math::Consts::uint_max()).description("Maximum number of sweeps").mark_basic();
   options().add("convergence_level",1e-12).description("Convergence level").mark_basic();
   options().add("recompute_lhs_frequency",1u).description("Recompute left-hand-side every x iterations").mark_basic();
-  options().add("system",std::string("cf3.sdm.implicit.BackwardEuler")).description("system to solve")
+  options().add("system",std::string("cf3.sdm.implicit.BackwardEuler"))
+      .description("system to solve")
       .attach_trigger( boost::bind( &LUSGS::configure_system, this) );
+  configure_system();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void LUSGS::configure_system()
 {
-  CFdebug << "LUSGS: creating system " << options().value<std::string>("system") << CFendl;
   if (is_not_null(m_system))
-    remove_component(*m_system);
-
+  {
+    if (m_system->derived_type_name() != options().value<std::string>("system"))
+    {
+      remove_component(*m_system);
+    }
+    else
+    {
+      return;
+    }
+  }
   m_system = create_component<sdm::System>("System",options().value<std::string>("system"));
-
-  CFdebug << "LUSGS: created system " << CFendl;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void LUSGS::create_solution_backup()
-{
-  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
-
-  if ( is_null(m_solution->dict().get_child("solution_backup")) )
-  {
-    m_solution_backup = m_solution->dict().create_field("solution_backup",m_solution->descriptor().description()).handle<Field>();
-  }
-  else
-  {
-    m_solution_backup = m_solution->dict().get_child("solution_backup")->handle<Field>();
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -97,22 +88,14 @@ void LUSGS::compute_system_lhs()
 {
   cf3_assert(m_system);
 
-  link_fields();
-
-  cf3_assert(m_solution);
-
-  m_system->options().set("domain_discretization",solver().handle<SDSolver>()->domain_discretization().handle());
-  m_system->options().set("solution",m_solution);
-  m_system->options().set("residual",m_residual);
-  m_system->options().set("update_coefficient",m_update_coeff);
-
   const Uint iteration = parent()->properties().value<Uint>("iteration");
   const Uint recompute_lhs_frequency = options().value<Uint>("recompute_lhs_frequency");
 
-  const Uint nb_vars = m_solution->row_size();
-
   if ( iteration % recompute_lhs_frequency == 0 || m_lu.size() == 0)
   {
+    if (options().value<bool>("print_iteration_summary"))
+      CFinfo << "  LUSGS:  Computing system left-hand-side" << CFendl;
+
     // Cells to perform LUSGS to
     std::vector< Handle<Cells> > cell_elements = range_to_vector(find_components_recursively<Cells>(mesh()));
 
@@ -124,19 +107,18 @@ void LUSGS::compute_system_lhs()
     {
       if ( m_system->loop_cells(cell_elements[c]) )
       {
-        const Handle<Space const>& space = m_solution->space(cell_elements[c]);
-
-        // matrix to compute left hand side in (nb_sol_pts x nb_vars) x (nb_sol_pts x nb_vars)
-        const Uint nb_sol_pts = space->shape_function().nb_nodes();
-        RealMatrix lhs(nb_sol_pts*nb_vars,nb_sol_pts*nb_vars);
+        RealMatrix lhs(m_system->nb_rows(),m_system->nb_cols());
 
         const Uint nb_elems = cell_elements[c]->size();
 
         m_lu[c].resize(nb_elems);
         for (Uint e=0; e<nb_elems; ++e)
         {
-          m_system->compute_lhs(e,lhs);
-          m_lu[c][e].compute(lhs);
+          if (cell_elements[c]->is_ghost(e) == false)
+          {
+            m_system->compute_lhs(e,lhs);
+            m_lu[c][e].compute(lhs);
+          }
         }
       }
     }
@@ -150,30 +132,9 @@ void LUSGS::execute()
   CFdebug << "LUSGS: start iteration" << CFendl;
 
   configure_option_recursively( "iterator", handle<Component>() );
-  
+
   link_fields();
-
-  cf3_assert(m_solution);
-  if (is_null(m_solution_backup))
-    create_solution_backup();
-
-  // backup solution
-  *m_solution_backup = *m_solution;
-
-
-  if (is_null(m_system))
-    configure_system();
-
-  m_system->options().set("domain_discretization",solver().handle<SDSolver>()->domain_discretization().handle());
-  m_system->options().set("solution",m_solution);
-  m_system->options().set("residual",m_residual);
-  m_system->options().set("update_coefficient",m_update_coeff);
-
   m_system->prepare();
-
-  solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
-
-  Field& Q  = *m_solution;
 
   Real convergence = math::Consts::real_max();
   const Real convergence_level = options().value<Real>("convergence_level");
@@ -183,134 +144,129 @@ void LUSGS::execute()
   std::vector< Handle<Cells> > cell_elements = range_to_vector(find_components_recursively<Cells>(mesh()));
 
   // Compute the left-hand-side and store it in m_lu to be solved easily during the sweeps
-  if (options().value<bool>("print_iteration_summary") && options().value<Uint>("recompute_lhs_frequency")>1)
-    CFinfo << "  LUSGS:  Computing system left-hand-side" << CFendl;
-  else
-    CFdebug << "LUSGS:    Assemble System left-hand-side" << CFendl;
-
   compute_system_lhs();
+
+  if (options().value<bool>("print_iteration_summary"))
+    CFinfo << "  LUSGS:  Starting sweeps (maximum " << max_sweeps << ")" << CFendl;
 
   // Do the Symmetric Gauss-Seidel sweeps, alternately doing a forward and a backward sweeps
   Uint sweep;
   for (sweep=1; sweep <= max_sweeps && convergence > convergence_level; ++sweep)
   {
-    // Reset convergence to zero. It will be computed during the backward sweep
-    convergence=0.;
-
     pre_update().execute();
 
-    if (m_sweep_direction == FORWARD )
+    switch (m_sweep_direction)
     {
-      // Do a forward sweep
-      CFdebug << "LUSGS:        forward " << sweep << CFendl;
-      for (Uint c=0; c<cell_elements.size(); ++c)
-      {
-        if ( m_system->loop_cells(cell_elements[c]) )
-        {
-          const Handle<Space const>& space = Q.space(cell_elements[c]);
-          const Uint nb_vars = Q.row_size();
-          const Uint nb_sol_pts = space->shape_function().nb_nodes();
-          RealVector dQ(nb_sol_pts*nb_vars);  // nb_sol_pts x nb_vars
-          RealVector rhs(nb_sol_pts*nb_vars); // nb_sol_pts x nb_vars
-
-          // Element loop
-          const Uint nb_elems = cell_elements[c]->size();
-          for (Uint e=0; e<nb_elems; ++e)
-          {
-            if (cell_elements[c]->is_ghost(e) == false)
-            {
-
-              // Compute RHS for this cell
-              m_system->compute_rhs(e,rhs);
-
-              // Solve LU
-              dQ = m_lu[c][e].solve(rhs);
-
-              // Update solution register, and compute convergence
-              for (Uint s=0; s<nb_sol_pts; ++s)
-              {
-                const Uint p = space->connectivity()[e][s];
-                for (Uint v=0; v<nb_vars; ++v)
-                {
-                  Q[p][v] += dQ[s*nb_vars+v];
-                  convergence = std::max( convergence, std::abs(dQ[s*nb_vars+v]/(eps()+Q[p][v])) );
-                }
-              }
-            }
-          }
-        }
-      }
-    } else if (m_sweep_direction == BACKWARD)
-    {
-      // Do a backward sweep (same as forward sweep, except traverse cells backwards)
-      CFdebug << "LUSGS:        backward " << sweep << CFendl;
-      for (Uint c=cell_elements.size(); c-- > 0; )
-      {
-        if ( m_system->loop_cells(cell_elements[c]) )
-        {
-          const Handle<Space const>& space = Q.space(cell_elements[c]);
-          const Uint nb_vars = Q.row_size();
-          const Uint nb_sol_pts = space->shape_function().nb_nodes();
-          RealVector dQ(nb_sol_pts*nb_vars);  // nb_sol_pts x nb_vars
-          RealVector rhs(nb_sol_pts*nb_vars); // nb_sol_pts x nb_vars
-
-          const Uint nb_elems = cell_elements[c]->size();
-          for (Uint e=nb_elems ; e-- > 0 ; )
-          {
-            if (cell_elements[c]->is_ghost(e) == false)
-            {
-              // Compute RHS for this cell
-              m_system->compute_rhs(e,rhs);
-
-              // Solve LU
-              dQ = m_lu[c][e].solve(rhs);
-
-              // Update solution register, and compute convergence
-              for (Uint s=0; s<nb_sol_pts; ++s)
-              {
-                const Uint p = space->connectivity()[e][s];
-                for (Uint v=0; v<nb_vars; ++v)
-                {
-                  Q[p][v] += dQ[s*nb_vars+v];
-
-                  convergence = std::max( convergence, std::abs(dQ[s*nb_vars+v]/(eps()+Q[p][v])) );
-                }
-              }
-            }
-          }
-        }
-      }
+      case FORWARD:
+        convergence = forward_sweep(cell_elements);  break;
+      case BACKWARD:
+        convergence = backward_sweep(cell_elements); break;
     }
-    Q.synchronize();
 
+    // Parallel communication
+    m_solution->synchronize();
     PE::Comm::instance().all_reduce(PE::max(),&convergence,1,&convergence);
 
+    // Apply post-update actions
     post_update().execute();
 
+    // Print Information about every sweep
     if (options().value<bool>("print_iteration_summary"))
       CFinfo  << "  LUSGS:  sweep [" << std::setw(4) << sweep << "]  convergence ["<< std::scientific <<std::setw(12) << convergence <<"]" << CFendl;
-    else
-      CFdebug << "  LUSGS:  sweep [" << std::setw(4) << sweep << "]  convergence ["<< std::scientific <<std::setw(12) << convergence <<"]" << CFendl;
 
+    // Raise iteration finished
     raise_iteration_done();
 
     // reverse sweep direction for next sweep
     if      (m_sweep_direction == FORWARD)    m_sweep_direction = BACKWARD;
     else if (m_sweep_direction == BACKWARD)   m_sweep_direction = FORWARD;
-  }
 
+  } // End sweeps
+
+  // Check if convergence was reached according to configured levels
   if (sweep >= max_sweeps && convergence > convergence_level)
   {
     CFinfo << "  LUSGS warning: convergence not reached after " << max_sweeps << " sweeps.    convergence ["<< std::scientific <<std::setw(12) << convergence <<"]" << CFendl;
   }
   else if ( is_zero(convergence) || is_nan(convergence) || is_inf(convergence) ) // The only time this happens, is when the residuals are nan or inf.
   {
-    // Restore from backup
-    *m_solution = *m_solution_backup;
-
     throw common::FailedToConverge(FromHere(), "LUSGS solver was not able to converge");
   }
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+Real LUSGS::forward_sweep(std::vector< Handle<Cells> >& cell_elements)
+{
+  CFdebug << "  LUSGS: forward sweep" << CFendl;
+  Real convergence = 0.;
+  Real cell_convergence;
+  for (Uint c=0; c<cell_elements.size(); ++c)
+  {
+    if ( m_system->loop_cells(cell_elements[c]) )
+    {
+      RealVector unknowns(m_system->nb_unknowns());
+      RealVector rhs(m_system->nb_rows());
+
+      // Element loop
+      const Uint nb_elems = cell_elements[c]->size();
+      for (Uint e=0; e<nb_elems; ++e)
+      {
+        if (cell_elements[c]->is_ghost(e) == false)
+        {
+          // Compute RHS for this cell
+          m_system->compute_rhs(e,rhs);
+
+          // Solve LU
+          unknowns = m_lu[c][e].solve(rhs);
+
+          // Update unknowns
+          cell_convergence = m_system->update(e,unknowns);
+
+          // Update the convergence
+          convergence = std::max(convergence,cell_convergence);
+        }
+      }
+    }
+  }
+  return convergence;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real LUSGS::backward_sweep(std::vector< Handle<Cells> >& cell_elements)
+{
+  CFdebug << "  LUSGS: backward sweep" << CFendl;
+  Real convergence = 0.;
+  Real cell_convergence;
+  for (Uint c=cell_elements.size(); c-- > 0; )
+  {
+    if ( m_system->loop_cells(cell_elements[c]) )
+    {
+      RealVector unknowns(m_system->nb_unknowns());
+      RealVector rhs(m_system->nb_rows());
+
+      const Uint nb_elems = cell_elements[c]->size();
+      for (Uint e=nb_elems ; e-- > 0 ; )
+      {
+        if (cell_elements[c]->is_ghost(e) == false)
+        {
+          // Compute RHS for this cell
+          m_system->compute_rhs(e,rhs);
+
+          // Solve LU
+          unknowns = m_lu[c][e].solve(rhs);
+
+          // Update unknowns
+          cell_convergence = m_system->update(e,unknowns);
+
+          // Update the convergence
+          convergence = std::max(convergence,cell_convergence);
+        }
+      }
+    }
+  }
+  return convergence;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

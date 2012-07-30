@@ -19,6 +19,7 @@
 
 namespace cf3 {
 
+namespace solver{ class Solver; }
 namespace mesh{ class Field; class Space;}
 
 namespace sdm {
@@ -27,11 +28,26 @@ namespace sdm {
 
 namespace implicit{
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// Backward Euler, to be solved by iterative non-linear system solver
+//             n
+// /     d R (Q )         I    \    n + 1,k + 1    n + 1,k
+// |  -  --------  +   ------- |  (Q            - Q       )
+// \       d Q         Delta t /
+//                                            n + 1,k    n
+//                            n + 1,k       Q        - Q
+//                      =  R(Q       )   -  -------------
+//                                             Delta t
+//
+// n = time-level
+// k = iterative sweep
 
 /// @brief BackwardEuler implicit system
 ///
-/// ( - dR/dQ + I/dt )   dQ   =   R - dQ/dt
+/// @f[ \left( - \frac{\partial R}{\partial Q}(Q^n) + \frac{I}{\Delta t} \right)
+/// \ (Q^{n+1,k+1}-Q^{n+1,k}) = R(Q^{n+1,k}) - \frac{Q^{n+1,k}-Q^{n}}{\Delta t} @f]
+/// with n the time-levels, and k the iterative sweeps
 ///
 /// This component provides functions to compute the LHS and
 /// the RHS on a per element basis
@@ -66,13 +82,25 @@ public: // functions
   // compute the right-hand-side
   virtual void compute_rhs(const Uint elem, RealVector& rhs);
 
+  // update solution with the solved unknowns
+  virtual Real update(const Uint elem, const RealVector& unknowns);
+
+  // Number of columns of the system left-hand-side matrix
+  virtual Uint nb_cols() const;
+
+  // Number of rows of the system matrix
+  virtual Uint nb_rows() const;
+
 private: // fuctions
 
   /// @brief create field to backup solution, needed for this system
   void create_solution_backup();
 
+  void configure();
 
 private:
+
+  Handle<solver::Solver> m_solver;
 
   Handle<DomainDiscretization> m_domain_discretization;
 

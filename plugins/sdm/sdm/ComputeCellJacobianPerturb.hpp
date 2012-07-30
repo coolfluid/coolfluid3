@@ -31,13 +31,15 @@ class DomainDiscretization;
 /// It is computed by perturbing every solution variable of every point seperately,
 /// computing the residual for every of these perturbation, and seeing the
 /// influence to the other variables of every point.
+///
+/// Example: Imagine cell with 2 solution points (p1, p2) and 2 variables (v1, v2)
 ///         [ dR(p1,v1)/dQ(p1,v1)    dR(p1,v1)/dQ(p1,v2)    dR(p1,v1)/dQ(p2,v1)    dR(p1,v1)/dQ(p2,v2) ]
 /// dR/dQ = [ dR(p1,v2)/dQ(p1,v1)    dR(p1,v2)/dQ(p1,v2)    dR(p1,v2)/dQ(p2,v1)    dR(p1,v2)/dQ(p2,v2) ]
 ///         [ dR(p2,v1)/dQ(p1,v1)    dR(p2,v1)/dQ(p1,v2)    dR(p2,v1)/dQ(p2,v1)    dR(p2,v1)/dQ(p2,v2) ]
 ///         [ dR(p2,v2)/dQ(p1,v1)    dR(p2,v2)/dQ(p1,v2)    dR(p2,v2)/dQ(p2,v1)    dR(p2,v2)/dQ(p2,v2) ]
 ///
 /// In computational expense, this means that the residual, computed in
-/// one element, has to be computed (nb_sol_pts*nb_eqs) times!
+/// one element, has to be evaluated (nb_sol_pts*nb_eqs) times, once for every column.
 ///
 /// @author Willem Deconinck, Matteo Parsani
 class sdm_API ComputeCellJacobianPerturb : public common::Component

@@ -59,6 +59,23 @@ public:
   /// @param [out]  rhs    Computed right-hand-side of the system for this cell
   virtual void compute_rhs(const Uint elem, RealVector& rhs) = 0;
 
+  /// @brief Do updates with the solved unknowns
+  ///
+  /// System knows what to do with the solved unknowns
+  /// @param [in]  elem       Element index in cells that are looped over
+  /// @param [in]  unknowns   Solved unknowns by external solver
+  /// @return convergence value
+  virtual Real update(const Uint elem, const RealVector& unknowns) = 0;
+
+  /// @brief Number of unknowns
+  Uint nb_unknowns() const { return nb_cols(); }
+
+  /// @brief Number of columns of the system left-hand-side matrix
+  virtual Uint nb_cols() const = 0;
+
+  /// @brief Number of rows of the system matrix
+  virtual Uint nb_rows() const = 0;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

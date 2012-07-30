@@ -27,6 +27,7 @@
 #include "sdm/DomainDiscretization.hpp"
 #include "sdm/ComputeCellJacobianPerturb.hpp"
 #include "sdm/implicit/BackwardEuler.hpp"
+#include "sdm/SDSolver.hpp"
 
 #include "solver/Solver.hpp"
 
@@ -49,6 +50,11 @@ BackwardEuler::BackwardEuler ( const std::string& name ) :
 {
   CFdebug << "Creating BackwardEuler" << CFendl;
 
+  // This (optional) configuration option is only here so that the remaining options can be auto-configured.
+  // If it is not configured, the others have to be configured manually.
+  options().add("solver",m_solver).link_to(&m_solver);
+
+  // Real options that are used
   options().add("domain_discretization",m_domain_discretization).link_to(&m_domain_discretization);
   options().add("solution",m_solution).link_to(&m_solution).attach_trigger( boost::bind( &BackwardEuler::create_solution_backup , this) );
   options().add("residual",m_residual).link_to(&m_residual);
@@ -57,9 +63,39 @@ BackwardEuler::BackwardEuler ( const std::string& name ) :
     .pretty_name("Update Coefficient")
     .link_to(&m_update_coeff);
 
+  // Create the component that will compute the cell jacobian
   m_compute_jacobian = create_static_component<ComputeCellJacobianPerturb>("ComputeCellJacobian");
 
   CFdebug << "Created BackwardEuler" << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BackwardEuler::configure()
+{
+  // Can auto-configure if solver is set
+  if (is_not_null(m_solver) )
+  {
+    if (is_null(m_solution))
+      options().set("solution",follow_link( m_solver->field_manager().get_child( "solution" ) ) );
+    if (is_null(m_residual))
+      options().set("residual",follow_link( m_solver->field_manager().get_child( "residual" ) ) );
+    if (is_null(m_update_coeff))
+      options().set("update_coefficient",follow_link( m_solver->field_manager().get_child( "update_coefficient" ) ) );
+    if (is_null(m_domain_discretization))
+      options().set("domain_discretization",m_solver->get_child("DomainDiscretization"));
+  }
+
+  if ( is_null(m_domain_discretization) ) throw SetupError( FromHere(), "Option 'domain_discretization' not configured for "+uri().string());
+  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
+  if ( is_null(m_residual) )              throw SetupError( FromHere(), "Option 'residual' not configured for "+uri().string());
+  if ( is_null(m_update_coeff) )          throw SetupError( FromHere(), "Option 'update_coefficient' not configured for "+uri().string());
+
+  // configure m_compute_jacobian
+  m_compute_jacobian->options().set("domain_discretization",m_domain_discretization);
+  m_compute_jacobian->options().set("solution",m_solution);
+  m_compute_jacobian->options().set("residual",m_residual);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,30 +119,42 @@ void BackwardEuler::create_solution_backup()
 
 void BackwardEuler::prepare()
 {
-  // check configuration
-  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
+  // Try to auto-configure in case this did not happen yet
+  configure();
 
-  // backup
-  cf3_assert(m_solution_backup);
   *m_solution_backup = *m_solution;
 
   // compute residual of backup, plus wave-speeds! --> used to compute dt
   m_domain_discretization->execute();
+
+  // compute the time-accurate time step or non-time-accurate update-coefficients per DOF
+  m_domain_discretization->solver().handle<SDSolver>()
+      ->actions().get_child("compute_update_coefficient")->handle<common::Action>()
+      ->execute();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint BackwardEuler::nb_rows() const
+{
+  if ( is_null(m_solution) )  throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
+  cf3_assert_desc("Must first call loop_cells() function", is_not_null(m_space) );
+  return m_space->shape_function().nb_nodes() * m_solution->row_size();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint BackwardEuler::nb_cols() const
+{
+  if ( is_null(m_solution) )  throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
+  cf3_assert_desc("Must first call loop_cells() function", is_not_null(m_space) );
+  return m_space->shape_function().nb_nodes() * m_solution->row_size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool BackwardEuler::loop_cells(const Handle<mesh::Cells const>& cells)
 {
-  if ( is_null(m_domain_discretization) ) throw SetupError( FromHere(), "Option 'domain_discretization' not configured for "+uri().string());
-  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
-  if ( is_null(m_residual) )              throw SetupError( FromHere(), "Option 'residual' not configured for "+uri().string());
-
-  // configure m_compute_jacobian
-  m_compute_jacobian->options().set("domain_discretization",m_domain_discretization);
-  m_compute_jacobian->options().set("solution",m_solution);
-  m_compute_jacobian->options().set("residual",m_residual);
-
   if (m_compute_jacobian->loop_cells(cells) == false)
     return false;
 
@@ -123,10 +171,14 @@ bool BackwardEuler::loop_cells(const Handle<mesh::Cells const>& cells)
 
 void BackwardEuler::compute_lhs(const Uint elem, RealMatrix& lhs)
 {
-  /// lhs = -dR/dQ + I/dt
-
-  cf3_assert(lhs.rows() == m_nb_sol_pts*m_nb_vars);
-  cf3_assert(lhs.cols() == m_nb_sol_pts*m_nb_vars);
+  /// @f[ lhs = -\frac{\partial R}{\partial Q_n}(Q^n) + \frac{I}{\Delta t} @f]
+  //                n
+  //            dR(Q )     I
+  // lhs  =   - ------  +  --
+  //              dQ       dt
+  //
+  cf3_assert(lhs.rows() == nb_rows());
+  cf3_assert(lhs.cols() == nb_cols());
 
   // store dR/dQ in lhs
   m_compute_jacobian->compute_jacobian(elem,lhs);
@@ -151,6 +203,11 @@ void BackwardEuler::compute_lhs(const Uint elem, RealMatrix& lhs)
 
 void BackwardEuler::compute_rhs(const Uint elem, RealVector &rhs)
 {
+  /// @f[ rhs = R(Q) - \frac{Q-Q^n}{\Delta t}  @f]
+  //                       n
+  //                  Q - Q
+  // rhs  =  R(Q)  -  ------
+  //                    dt
   const Field& Q  = *m_solution;
   const Field& Q0 = *m_solution_backup;
   const Field& H  = *m_update_coeff;
@@ -175,6 +232,27 @@ void BackwardEuler::compute_rhs(const Uint elem, RealVector &rhs)
       rhs[s*m_nb_vars+v] = R[p][v] - (Q[p][v] - Q0[p][v])/dt;
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real BackwardEuler::update(const Uint elem, const RealVector& dQ)
+{
+  cf3_assert( is_not_null(m_space) );
+  Field& Q  = *m_solution;
+  Real convergence (0.);
+
+  // Update solution register, and compute convergence
+  for (Uint s=0; s<m_nb_sol_pts; ++s)
+  {
+    const Uint p = m_space->connectivity()[elem][s];
+    for (Uint v=0; v<m_nb_vars; ++v)
+    {
+      Q[p][v] += dQ[s*m_nb_vars+v];
+      convergence = std::max( convergence, std::abs(dQ[s*m_nb_vars+v]/(math::Consts::eps()+Q[p][v])) );
+    }
+  }
+  return convergence;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

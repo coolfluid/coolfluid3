@@ -24,8 +24,6 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
-//#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
-
 #include "solver/History.hpp"
 #include "solver/Time.hpp"
 #include "solver/actions/SynchronizeFields.hpp"
