@@ -117,6 +117,7 @@ void CreateSDFields::execute()
 
     Field& update_coeff = solution_space.create_field(sdm::Tags::update_coeff(), "uc[1]");
     solver().field_manager().create_component<Link>(sdm::Tags::update_coeff())->link_to(update_coeff);
+    update_coeff = 0.;
     update_coeff.parallelize();
 
     Field& jacob_det = solution_space.create_field(sdm::Tags::jacob_det(), "jacob_det[1]");

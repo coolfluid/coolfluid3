@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-/// @file sdm/implicit/BackwardEuler.hpp
+/// @file sdm/implicit/BDF2.hpp
 /// @author Willem Deconinck, Matteo Parsani
 ///
-/// This file includes the BackwardEuler component class.
+/// This file includes the BDF2 component class.
 
-#ifndef cf3_sdm_implicit_BackwardEuler_hpp
-#define cf3_sdm_implicit_BackwardEuler_hpp
+#ifndef cf3_sdm_implicit_BDF2_hpp
+#define cf3_sdm_implicit_BDF2_hpp
 
 #include "math/MatrixTypes.hpp"
 #include "sdm/implicit/LibImplicit.hpp"
@@ -30,20 +30,24 @@ namespace implicit{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Backward Euler, to be solved by iterative non-linear system solver
-//             n
-// /     d R (Q )         I    \    n + 1,k + 1    n + 1,k
-// |  -  --------  +   ------- |  (Q            - Q       )
-// \       d Q         Delta t /
-//                                            n + 1,k    n
-//                            n + 1,k       Q        - Q
-//                      =  R(Q       )   -  -------------
-//                                             Delta t
+// Second order backward difference,
+// to be solved by iterative non-linear system solver
+//                n
+// /        d R (Q )         I    \    n + 1,k + 1    n + 1,k
+// |  - c1  --------  +   ------- |  (Q            - Q       )
+// \          d Q         Delta t /
+//                                                              n + 1,k    n
+//                          n + 1,k            n    n - 1      Q        - Q
+//                =  c1  R(Q       )   + c2  (Q  - Q     )  -  -------------
+//                                                                Delta t
 //
 // n = time-level
 // k = iterative sweep
+// c1 = ( 1 + tau ) / ( 1 + 2 tau )
+// c2 = ( tau*tau ) / ( Delta t^n ( 1 + 2 tau ) )
+// tau = ( Delta t^n ) / ( Delta t^{n-1} )
 
-/// @brief BackwardEuler implicit system
+/// @brief BDF2 implicit system
 ///
 /// @f[ \left( - \frac{\partial R}{\partial Q}(Q^n) + \frac{I}{\Delta t} \right)
 /// \ (Q^{n+1,k+1}-Q^{n+1,k}) = R(Q^{n+1,k}) - \frac{Q^{n+1,k}-Q^{n}}{\Delta t} @f]
@@ -56,19 +60,19 @@ namespace implicit{
 /// or an LUSGS iterative solver
 ///
 /// @author Willem Deconinck, Matteo Parsani
-class sdm_implicit_API BackwardEuler : public sdm::System {
+class sdm_implicit_API BDF2 : public sdm::System {
 
 public: // functions
 
   /// @brief Type name
-  static std::string type_name () { return "BackwardEuler"; }
+  static std::string type_name () { return "BDF2"; }
 
   /// @brief Contructor
   /// @param name of the component
-  BackwardEuler ( const std::string& name );
+  BDF2 ( const std::string& name );
 
   /// @brief Destructor
-  virtual ~BackwardEuler() {}
+  virtual ~BDF2() {}
 
   // Prepare the system before looping
   virtual void prepare();
@@ -94,10 +98,19 @@ public: // functions
 private: // fuctions
 
   /// @brief create field to backup solution, needed for this system
-  void create_solution_backup();
+  void create_solution_backups();
+
+  /// @brief create field to backup update_coefficients, needed for this system
+  void create_update_coeff_backups();
 
   /// @brief Auto-configuration based on "m_solver"
   void configure();
+
+  /// @brief coefficient c1
+  Real coeff_c1(const Real& dt_n, const Real& dt_nm1) const;
+
+  /// @brief coefficient c2
+  Real coeff_c2(const Real& dt_n, const Real& dt_nm1) const;
 
 private:
 
@@ -110,6 +123,9 @@ private:
   /// @brief Component that computes the space-residual for one cell
   Handle<DomainDiscretization> m_domain_discretization;
 
+  /// @brief Storage of the solution at time level "n-1"
+  Handle<mesh::Field> m_solution_previous;
+
   /// @brief Storage of the solution at time level "n"
   Handle<mesh::Field> m_solution_backup;
 
@@ -121,6 +137,9 @@ private:
 
   /// @brief Storage for local time-steps
   Handle<mesh::Field> m_update_coeff;
+
+  /// @brief Storage for local time-steps at time level "n-1"
+  Handle<mesh::Field> m_update_coeff_previous;
 
   /// @brief Temporary component to hold the "space" of a cell patch
   Handle<mesh::Space const> m_space;
@@ -138,4 +157,4 @@ private:
 } // sdm
 } // cf3
 
-#endif // cf3_sdm_implicit_BackwardEuler_hpp
+#endif // cf3_sdm_implicit_BDF2_hpp
