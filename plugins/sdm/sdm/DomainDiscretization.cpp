@@ -19,6 +19,9 @@
 #include "mesh/Cells.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/ShapeFunction.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -66,12 +69,6 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
 
 void DomainDiscretization::execute()
 {
-  Field& residual = *follow_link(solver().field_manager().get_child(sdm::Tags::residual()))->handle<Field>();
-  residual = 0.;
-
-  Field& wave_speed = *follow_link(solver().field_manager().get_child(sdm::Tags::wave_speed()))->handle<Field>();
-  wave_speed = 0.;
-
   CFdebug << "DomainDiscretization EXECUTE" << CFendl;
 
   update();
@@ -116,6 +113,10 @@ void DomainDiscretization::update()
     std::sort(terms.begin(), terms.end());
     terms.erase(std::unique(terms.begin(), terms.end()), terms.end());
   }
+
+  m_residual   = follow_link(solver().field_manager().get_child_checked(sdm::Tags::residual()))->handle<Field>();
+  m_wave_speed = follow_link(solver().field_manager().get_child_checked(sdm::Tags::wave_speed()))->handle<Field>();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,6 +136,7 @@ bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
     term->set_entities(*m_cells);
   }
 
+  m_space = m_residual->space(cells);
   return true;
 }
 
@@ -142,14 +144,31 @@ bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
 
 void DomainDiscretization::compute_element(const Uint elem_idx)
 {
+  // Reset residual and wave_speed for this element to zero.
+  // The term executions add to this.
+  for (Uint s=0; s<m_space->shape_function().nb_nodes(); ++s)
+  {
+    const Uint p = m_space->connectivity()[elem_idx][s];
+    for (Uint v=0; v<m_residual->row_size(); ++v)
+    {
+      m_residual->array()[p][v]=0.;
+    }
+    m_wave_speed->array()[p][0]=0.;
+  }
+
+  // Initialize the terms for this element index
   boost_foreach( const Handle<Term>& term, m_terms_for_cells)
   {
     term->set_element(elem_idx);
   }
+
+  // Execute every term
   boost_foreach( const Handle<Term>& term, m_terms_for_cells)
   {
     term->execute();
   }
+
+  // Unset the element index for the terms
   boost_foreach( const Handle<Term>& term, m_terms_for_cells)
   {
     term->unset_element();

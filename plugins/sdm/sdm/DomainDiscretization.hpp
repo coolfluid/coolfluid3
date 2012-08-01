@@ -14,7 +14,7 @@
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
-namespace mesh { class Cells; }
+namespace mesh { class Cells; class Space; class Field; }
 namespace sdm {
 
 class Term;
@@ -22,8 +22,6 @@ class Term;
 /////////////////////////////////////////////////////////////////////////////////////
 
 class sdm_API DomainDiscretization : public cf3::solver::ActionDirector {
-
-public: // typedefs
 
 public: // functions
   /// Contructor
@@ -64,7 +62,10 @@ private:
   Handle< common::ActionDirector > m_terms;   ///< set of terms
   std::map< Handle<mesh::Cells const> , std::vector< Handle<Term> > > m_terms_per_cells;
   Handle<mesh::Cells const> m_cells;
+  Handle<mesh::Space const> m_space;
   std::vector< Handle<Term> > m_terms_for_cells;
+  Handle<mesh::Field> m_residual;
+  Handle<mesh::Field> m_wave_speed;
 
 };
 

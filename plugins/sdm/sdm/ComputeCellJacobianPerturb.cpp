@@ -146,14 +146,6 @@ void ComputeCellJacobianPerturb::compute_jacobian(const Uint elem, RealMatrix& c
       Q[dp][dv] += dQ;
 
       // Compute the perturbed residual only for this element
-      for (s=0; s<m_nb_sol_pts; ++s)
-      {
-        p = m_space->connectivity()[elem][s];
-        for (v=0; v<m_nb_vars; ++v)
-        {
-          R[p][v]  = 0.;  // reset residual of this element
-        }
-      }
       m_domain_discretization->compute_element(elem);
 
       // Compute the cell jacobian for this element
@@ -185,6 +177,7 @@ void ComputeCellJacobianPerturb::compute_jacobian(const Uint elem, RealMatrix& c
   }
 
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // sdm
