@@ -5,6 +5,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   LibLinEuler.cpp
   BCWall2D.hpp
   BCWall2D.cpp
+  BCWallNoSlip2D.hpp
+  BCWallNoSlip2D.cpp
   BCWallNonUniformMeanflow2D.hpp
   BCWallNonUniformMeanflow2D.cpp
   ConvectionNonUniformMeanflow2D.hpp
