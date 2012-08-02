@@ -82,6 +82,13 @@ void ComputeFieldGradient::execute()
   const Field& field = *m_field;
   Field& grad = *m_field_gradient;
 
+  std::vector<Uint> shared_nodes;
+  if (grad.continuous())
+  {
+    shared_nodes.resize(grad.size(),0);
+    grad = 0.;
+  }
+
   boost_foreach(const Handle<Space>& grad_space_handle, grad.spaces())
   {
     Space& grad_space = *grad_space_handle;
@@ -132,19 +139,47 @@ void ComputeFieldGradient::execute()
           entities.element_type().compute_jacobian(grad_space.shape_function().local_coordinates().row(grad_pt),
                                                    cell_coords,
                                                    jacobian);
-
           // Compute gradient
           grad_values.noalias() = jacobian.inverse() * gradient_matrix_per_point[grad_pt] * field_element_values;
 
           Uint p = grad_space.connectivity()[e][grad_pt];
 
-          for (Uint d=0; d<ndim; ++d)
+          if (grad.continuous()) // just sum up, and divide by shared_nodes[p] later to average
           {
-            for (Uint v=0; v<field.row_size(); ++v)
+            shared_nodes[p] += 1;
+            for (Uint d=0; d<ndim; ++d)
             {
-              grad[p][v+d*field.row_size()] = grad_values(d,v);
+              for (Uint v=0; v<field.row_size(); ++v)
+              {
+                grad[p][v+d*field.row_size()] += grad_values(d,v);
+              }
             }
           }
+          else // if discontinuous
+          {
+            for (Uint d=0; d<ndim; ++d)
+            {
+              for (Uint v=0; v<field.row_size(); ++v)
+              {
+                grad[p][v+d*field.row_size()] = grad_values(d,v);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Divide by number of times the node was visited, to get the average
+  if (grad.continuous())
+  {
+    for (Uint n=0; n<grad.size(); ++n)
+    {
+      if (shared_nodes[n] > 0)
+      {
+        for (Uint v=0; v<grad.row_size(); ++v)
+        {
+          grad[n][v] /= shared_nodes[n];
         }
       }
     }
