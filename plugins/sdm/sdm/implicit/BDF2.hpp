@@ -47,11 +47,14 @@ namespace implicit{
 // c2 = ( tau*tau ) / ( Delta t^n ( 1 + 2 tau ) )
 // tau = ( Delta t^n ) / ( Delta t^{n-1} )
 
-/// @brief BDF2 implicit system
+/// @brief Second-order backward difference implicit system
 ///
-/// @f[ \left( - \frac{\partial R}{\partial Q}(Q^n) + \frac{I}{\Delta t} \right)
-/// \ (Q^{n+1,k+1}-Q^{n+1,k}) = R(Q^{n+1,k}) - \frac{Q^{n+1,k}-Q^{n}}{\Delta t} @f]
-/// with n the time-levels, and k the iterative sweeps
+/// @f[ \left( - c_1\  \frac{\partial R}{\partial Q}(Q^n) + \frac{I}{\Delta t} \right)
+/// \ (Q^{n+1,k+1}-Q^{n+1,k}) = c_1 \ R(Q^{n+1,k}) + c_2\ (Q^n - Q^{n-1}) - \frac{Q^{n+1,k}-Q^{n}}{\Delta t} @f]
+/// with n the time-levels, and k the iterative sweeps,
+/// @f[ \tau = \frac{\Delta t^n}{\Delta t^{n-1}} @f]
+/// @f[ c_1 = \frac{1 + \tau}{1 + 2 \tau} @f]
+/// @f[ c_2 = \frac{\tau^2}{ \Delta t^n\ (1 + 2 \tau)} @f]
 ///
 /// This component provides functions to compute the LHS and
 /// the RHS on a per element basis
@@ -107,9 +110,15 @@ private: // fuctions
   void configure();
 
   /// @brief coefficient c1
+  /// @param [in] dt_n    Current time step
+  /// @param [in] dt_nm1  Previous time step
+  /// @return coefficient c1
   Real coeff_c1(const Real& dt_n, const Real& dt_nm1) const;
 
   /// @brief coefficient c2
+  /// @param [in] dt_n    Current time step
+  /// @param [in] dt_nm1  Previous time step
+  /// @return coefficient c2
   Real coeff_c2(const Real& dt_n, const Real& dt_nm1) const;
 
 private:

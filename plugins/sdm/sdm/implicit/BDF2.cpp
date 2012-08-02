@@ -146,7 +146,7 @@ void BDF2::create_update_coeff_backups()
 
 Real BDF2::coeff_c1(const Real& dt_n, const Real& dt_nm1) const
 {
-  if (dt_nm1 == 0.)
+  if (dt_nm1 == 0.)   // This is the case of the very first time-level "n=0"
     return 1.;        // this will make it BackwardEuler
 
   const Real tau = dt_n/dt_nm1;
@@ -157,7 +157,7 @@ Real BDF2::coeff_c1(const Real& dt_n, const Real& dt_nm1) const
 
 Real BDF2::coeff_c2(const Real& dt_n, const Real& dt_nm1) const
 {
-  if (dt_nm1 == 0.)
+  if (dt_nm1 == 0.)   // This is the case of the very first time-level "n=0"
     return 0.;        // this will make it BackwardEuler
 
   const Real tau = dt_n/dt_nm1;
