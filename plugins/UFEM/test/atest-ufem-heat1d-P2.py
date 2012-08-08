@@ -1,7 +1,11 @@
 import sys
 import coolfluid as cf
-#import pylab as pl
-#import numpy as np
+try:
+  import pylab as pl
+  import numpy as np
+  have_pylab = True
+except:
+  have_pylab = False
 
 # Global configuration
 cf.environment.assertion_backtrace = False
@@ -56,20 +60,21 @@ def run_simulation(sf_name):
   return mesh
 
 mesh_p1 = run_simulation('cf3.mesh.LagrangeP1')
-x = mesh_p1.geometry.coordinates
-T = mesh_p1.geometry.heat_conduction_solution
-#pl.plot(x, T, 'ko', mfc='none', label='P1')
+x_p1 = mesh_p1.geometry.coordinates
+T_p1 = mesh_p1.geometry.heat_conduction_solution
 
-mesh_p1 = run_simulation('cf3.mesh.LagrangeP2')
-x = mesh_p1.geometry.coordinates
-T = mesh_p1.geometry.heat_conduction_solution
-#pl.plot(x, T, 'kx', mfc='none', label='P2')
+mesh_p2 = run_simulation('cf3.mesh.LagrangeP2')
+x_p2 = mesh_p2.geometry.coordinates
+T_p2 = mesh_p2.geometry.heat_conduction_solution
 
-#x_th = np.linspace(-1., 1., 500)
-#pl.plot(x_th, (-x_th**4./12. + 1./12.)/k + Tb, label='Analytical')
-#pl.grid()
-#pl.legend(loc = 'lower center')
-#pl.xlabel('x (m)')
-#pl.ylabel('T (K)')
-#pl.savefig('heat-p1-p2.pdf')
-#pl.show()
+if have_pylab:
+  pl.plot(x_p1, T_p1, 'ko', mfc='none', label='P1')
+  pl.plot(x_p2, T_p2, 'kx', mfc='none', label='P2')
+
+  x_th = np.linspace(-1., 1., 500)
+  pl.plot(x_th, (-x_th**4./12. + 1./12.)/k + Tb, label='Analytical')
+  pl.grid()
+  pl.legend(loc = 'lower center')
+  pl.xlabel('x (m)')
+  pl.ylabel('T (K)')
+  pl.savefig('heat-p1-p2.pdf')
