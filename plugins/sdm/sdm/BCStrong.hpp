@@ -154,12 +154,12 @@ protected: // configuration
         }
         if (!matched)
         {
-          std::cout << "cell_face_pts:\n";
+          CFinfo << "cell_face_pts:"<<CFendl;
           for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-            std::cout << cell_face_coords[face_pt].transpose() << std::endl;
-          std::cout << "bdry_face_pts:\n";
+            CFinfo << cell_face_coords[face_pt].transpose() << CFendl;
+          CFinfo << "bdry_face_pts:"<<CFendl;
           for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
-            std::cout << bdry_face_coords.row(face_pt) << std::endl;
+            CFinfo << bdry_face_coords.row(face_pt) << CFendl;
         }
         cf3_assert_desc(inner_cell->get().space->uri().string()+"["+common::to_str(inner_cell->get().idx)+"]",matched);
       }

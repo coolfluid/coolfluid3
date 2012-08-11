@@ -11,7 +11,7 @@
 //#include <QDir>
 
 #include <ctime>
-
+#include <iostream>
 #include "coolfluid-config.hpp"
 #if defined CF3_OS_LINUX || defined CF3_OS_MACOSX // if we are on a POSIX system...
   #include <pwd.h> // for getpwuid()

@@ -69,15 +69,8 @@ convection.options().set('rho0',1.)
 convection.options().set('U0',[0.,0.])
 convection.options().set('p0',1.)
 
-BCs = solver.access_component('TimeStepping/IterativeSolver/PreUpdate').create_component('BoundaryConditions','cf3.sdm.BoundaryConditions')
-BCs.options().set('solver',solver)
-BCs.options().set('mesh',mesh)
-BCs.options().set('physical_model',physics)
-non_refl_bc = BCs.create_boundary_condition(name='non_refl_bc',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[mesh.access_component('topology/boundary').uri()]);
-non_refl_bc.get_child('non_reflective_convection').options().set('gamma',gamma)
-non_refl_bc.get_child('non_reflective_convection').options().set('rho0',1.)
-non_refl_bc.get_child('non_reflective_convection').options().set('U0',[0.,0.])
-non_refl_bc.get_child('non_reflective_convection').options().set('p0',1.)
+### Extrapolation boundary condition = perfect for simple acoustic pulse
+solver.BoundaryConditions.create_boundary_condition(name='extrapolate',type='cf3.sdm.BCExtrapolate<4,2>',regions=[mesh.topology.boundary.uri()])
 
 #######################################
 # SIMULATE

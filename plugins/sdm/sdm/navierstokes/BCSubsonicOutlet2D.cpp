@@ -18,6 +18,7 @@ namespace navierstokes {
 
 common::ComponentBuilder<BCSubsonicOutlet2D,BC,LibNavierStokes> bcsubsonicoutlet2d_builder;
 
+
 /////////////////////////////////////////////////////////////////////////////
 
 } // navierstokes

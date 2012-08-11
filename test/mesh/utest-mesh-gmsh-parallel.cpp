@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::mesh::gmsh::Reader parallel"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
