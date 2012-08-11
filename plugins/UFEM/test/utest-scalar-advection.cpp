@@ -223,6 +223,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
     mesh.topology(),
         _check_close(-(_exp(Pe2 * coordinates[0])-1.)/(_exp(Pe2)-1.)+1, T, 1.)
   );
+  
+  std::cout << "Finished test" << std::endl;
 
 }
 

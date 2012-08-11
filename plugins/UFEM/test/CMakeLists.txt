@@ -37,7 +37,8 @@ coolfluid_add_test( UTEST utest-ufem-buildsparsity
 coolfluid_add_test( UTEST utest-scalar-advection
                     CPP utest-scalar-advection.cpp
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem)
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    MPI 1)
 
 coolfluid_add_test( UTEST utest-rdm-merge
                     CPP utest-rdm-merge.cpp

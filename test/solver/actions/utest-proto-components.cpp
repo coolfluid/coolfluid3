@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( SimpleSolverTest )
   // Declare a mesh variable
   FieldVariable<0, ScalarField> T("Temperature3", "T3");
 
-  Solver& solver = *model->create_component<SimpleSolver>("GeneriSolver");
+  Solver& solver = *model->create_component<SimpleSolver>("GenericSolver");
 
   // Storage for the result check
   Real temp_sum = 0.;
@@ -242,6 +242,8 @@ BOOST_AUTO_TEST_CASE( SimpleSolverTest )
 
   // Check result
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
+  
+  model->remove_component("GenericSolver");
 }
 
 /// Create a custom actiondomain
