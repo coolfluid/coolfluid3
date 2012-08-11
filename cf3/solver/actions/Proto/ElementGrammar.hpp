@@ -13,9 +13,9 @@
 #include "ElementIntegration.hpp"
 #include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
-#include "ExpressionGroup.hpp"
 #include "GaussPoints.hpp"
 #include "IndexLooping.hpp"
+#include "RestrictExpressionToElementType.hpp"
 
 /// @file
 /// Grammars related to element-wise mesh operations
@@ -96,7 +96,7 @@ struct ElementGrammar :
   boost::proto::or_
   <
     SingleExprElementGrammar,
-    GroupGrammar< SingleExprElementGrammar >
+    RestrictToElementTypeGrammar< SingleExprElementGrammar >
   >
 {
 };

@@ -85,6 +85,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
+    Proto/RestrictExpressionToElementType.hpp
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp

@@ -611,6 +611,31 @@ BOOST_AUTO_TEST_CASE( GaussPointAccess )
   std::cout << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE( RestrictToEtype )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("rect_etypecheck");
+  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 2);
+  
+  boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector1<LagrangeP1::Quad2D> > >::type quads_only;
+  boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector1<LagrangeP1::Line2D> > >::type lines_only;
+  
+  Uint nb_cells = 0;
+  Uint nb_faces = 0;
+
+  for_each_element< boost::mpl::vector2<LagrangeP1::Quad2D, LagrangeP1::Line2D> >(mesh->topology(),
+    group
+    (
+      quads_only(boost::proto::lit(nb_cells) += 1),
+      lines_only(boost::proto::lit(nb_faces) += 1)
+    )
+  );
+
+  BOOST_CHECK_EQUAL(nb_cells, 10);
+  BOOST_CHECK_EQUAL(nb_faces, 16);
+  
+  std::cout << "mesh has " << nb_cells << " cells and " << nb_faces << " faces" << std::endl;
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
