@@ -58,9 +58,9 @@ protected: // configuration
     BC::initialize();
 
     face_elem = shared_caches().template get_cache<SFDElement>("face_elem");
-    face_elem->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
+    face_elem->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
     inner_cell = shared_caches().template get_cache<SFDElement>("inner_cell");
-    inner_cell->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
+    inner_cell->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
     face_pt_solution              = shared_caches().template get_cache< SolutionPointField<NEQS,NDIM> >(sdm::Tags::solution());
     face_pt_solution->options().set("field",solution_field().uri());
   }

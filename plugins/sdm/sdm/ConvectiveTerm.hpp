@@ -266,9 +266,9 @@ void ConvectiveTerm<PHYSDATA>::initialize()
   neighbour_elem        = shared_caches().template get_cache< SFDElement >("neighbour_elem");
   flx_pt_plane_jacobian_normal = shared_caches().template get_cache< FluxPointPlaneJacobianNormal<NDIM> >();
 
-  elem          ->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
-  neighbour_elem->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
-  flx_pt_plane_jacobian_normal->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
+  elem          ->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
+  neighbour_elem->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
+  flx_pt_plane_jacobian_normal->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

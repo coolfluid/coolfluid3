@@ -63,9 +63,9 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+        elements().template handle<mesh::Elements>()->geometry_space().connectivity().template handle< mesh::Connectivity >();
     coordinates =
-        elements().geometry_fields().coordinates().handle< mesh::Field >();
+        elements().geometry_fields().coordinates().template handle< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
