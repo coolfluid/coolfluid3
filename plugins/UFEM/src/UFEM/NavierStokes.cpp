@@ -9,6 +9,9 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+#include <boost/mpl/back_inserter.hpp>
+#include <boost/mpl/copy.hpp>
+
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
@@ -24,7 +27,7 @@
 #include "solver/actions/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
-#include <solver/Tags.hpp>
+#include "solver/Tags.hpp"
 
 #include "NavierStokesOps.hpp"
 #include "Tags.hpp"
@@ -88,55 +91,20 @@ void NavierStokes::trigger_use_specializations()
   }
 
   const bool use_specializations = options().value<bool>("use_specializations");
-
-  FieldVariable<1, ScalarField> p("Pressure", solution_tag());
-  FieldVariable<0, VectorField> u("Velocity", solution_tag());
-
-  FieldVariable<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
-  FieldVariable<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
-  FieldVariable<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
-  FieldVariable<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
-  FieldVariable<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-
-  create_component<ZeroLSS>("ZeroLSS");
-  add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   if(use_specializations)
   {
-    // Quads and hexas have no specialized code
-    add_component(create_proto_action
-    (
-      "GenericAssembly",
-      ns_assembly_quad_hexa_p1(*this, m_coeffs)
-    ));
-    // Specialized code for triags and tetras
-    add_component(create_proto_action
-    (
-      "SpecializedAssembly",
-      elements_expression
-      (
-        boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>(),
-        group
-        (
-          _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
-          supg_specialized(p, u, u_adv, nu_eff, m_coeffs, _A, _T),
-          system_matrix += invdt() * _T + 1.0 * _A,
-          system_rhs += -_A * _x
-        )
-      )
-    ));
+    set_ns_expression< boost::mpl::vector2<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D>, boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> >();
   }
   else
   {
-    add_component(create_proto_action
-    (
-      "GenericAssembly",
-      ns_assembly_lagrange_p1(*this, m_coeffs)
-    ));
+    set_ns_expression< boost::mpl::vector4<mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>, boost::mpl::vector0<> >();
   }
 
-  Handle<BoundaryConditions> bc =  create_component<BoundaryConditions>("BoundaryConditions");
-  bc->mark_basic();
-  bc->set_solution_tag(solution_tag());
+  FieldVariable<0, VectorField> u("Velocity", solution_tag());
+  FieldVariable<1, ScalarField> p("Pressure", solution_tag());
+  FieldVariable<2, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
+  FieldVariable<3, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
+  FieldVariable<4, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
 
   create_component<SolveLSS>("SolveLSS");
   add_component(create_proto_action("Update", nodes_expression(group
@@ -179,6 +147,66 @@ void NavierStokes::trigger_viscosity()
   }
 }
 
+template<typename GenericElementsT, typename SpecializedElementsT>
+void NavierStokes::set_ns_expression()
+{
+  // Get all the relevant types as the concatenation of the generic and specialized element types:
+  typedef typename boost::mpl::copy< SpecializedElementsT, boost::mpl::back_inserter<GenericElementsT> >::type AllElementsT;
+
+  // Proto function that applies expressions only to GenericElementsT
+  static const typename boost::proto::terminal< RestrictToElementTypeTag<GenericElementsT> >::type for_generic_elements = {};
+  // Proto function that applies expressions only to SpecializedElementsT
+  static const typename boost::proto::terminal< RestrictToElementTypeTag<SpecializedElementsT> >::type for_specialized_elements = {};
+
+  FieldVariable<1, ScalarField> p("Pressure", solution_tag());
+  FieldVariable<0, VectorField> u("Velocity", solution_tag());
+
+  FieldVariable<2, VectorField> u_adv("AdvectionVelocity", "linearized_velocity"); // The extrapolated advection velocity (n+1/2)
+  FieldVariable<3, VectorField> u1("AdvectionVelocity1", "linearized_velocity");  // Two timesteps ago (n-1)
+  FieldVariable<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity"); // n-2
+  FieldVariable<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity"); // n-3
+  FieldVariable<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+
+  // This ensures that the linear system matrix is reset to zero each timestep
+  create_component<ZeroLSS>("ZeroLSS");
+  // Extrapolate the velocity
+  add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
+  // The actual matrix assembly
+  add_component(create_proto_action
+  (
+    "SystemAssembly",
+    elements_expression
+    (
+      AllElementsT(),
+      group
+      (
+        _A = _0, _T = _0,
+        for_generic_elements
+        (
+          compute_tau(u, m_coeffs),
+          element_quadrature
+          (
+            _A(p    , u[_i]) += transpose(N(p) + m_coeffs.tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
+            _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p)) * nabla(p) * m_coeffs.one_over_rho, // Continuity, PSPG
+            _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
+            _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+            _A(u[_i], u[_j]) += transpose((m_coeffs.tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+                                + 0.5*u_adv[_i]*(N(u) + m_coeffs.tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
+            _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
+            _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
+          )
+        ),
+        for_specialized_elements(supg_specialized(p, u, u_adv, nu_eff, m_coeffs, _A, _T)),
+        system_matrix += invdt() * _T + 1.0 * _A,
+        system_rhs += -_A * _x
+      )
+    )
+  ));
+
+  Handle<BoundaryConditions> bc =  create_component<BoundaryConditions>("BoundaryConditions");
+  bc->mark_basic();
+  bc->set_solution_tag(solution_tag());
+}
 
 
 } // UFEM

@@ -53,12 +53,17 @@ private:
 
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
+  /// Helper function to set the expression, taking into account the user's option to use specializations or not
+  template<typename GenericElementsT, typename SpecializedElementsT>
+  void set_ns_expression();
+
   /// Copy of the coefficients stored in the physics. Needed to construct the equations
   SUPGCoeffs m_coeffs;
 
   /// Initial condition for the viscosity. This is linked to the value given by the physical model
   Handle<common::Action> m_viscosity_initial_condition;
 
+  /// Keep track of triggers on options from the physical model, so these triggers can be removed on destruction
   common::Option::TriggerID m_viscosity_trigger_id, m_rho_trigger_id;
 };
 
