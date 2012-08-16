@@ -18,8 +18,7 @@ namespace cf3 {
 namespace mesh {
 
   class Dictionary;
-  class LoadMesh;
-  class AInterpolator;
+  class Field;
 
 namespace actions {
 
@@ -45,8 +44,15 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CreateField"; }
 
+  Handle<Field> create_field(const std::string& name, Dictionary& dict, const std::vector<std::string>& function_str);
+
   virtual void execute();
   
+public: // signals
+
+  void signal_create_field( common::SignalArgs& args);
+  void signature_create_field( common::SignalArgs& args);
+
 private: // functions
 
   void replace_var_name (const std::string& var_from,

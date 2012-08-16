@@ -15,6 +15,8 @@
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/XML/SignalOptions.hpp"
+#include "common/Signal.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 #include "math/VectorialFunction.hpp"
@@ -61,13 +63,19 @@ CreateField::CreateField( const std::string& name )
       .mark_basic();
 
   options().add("dict",URI("./"+std::string(mesh::Tags::geometry())))
-      .description("Dictionary where field will be created in");
-
-//  options().add("variables",std::vector<std::string>())
-//      .description("Variable names and types of this field");
+      .description("Dictionary where field will be created in")
+      .mark_basic();
 
   options().add("functions",std::vector<std::string>())
-      .description("");
+      .description("Functions to create of form 'var_1=func_var1 , var2_a=func_var2_a , var2_b=func_var2_b , var3=func_var3'")
+      .mark_basic();
+
+  regist_signal ( "create_field" )
+      .description( "Create a field in a given dictionary" )
+      .pretty_name("Create Field" )
+      .connect   ( boost::bind ( &CreateField::signal_create_field,    this, _1 ) )
+      .signature ( boost::bind ( &CreateField::signature_create_field, this, _1 ) );
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +91,6 @@ std::vector<std::string> CreateField::split_function_list(const std::string& str
   Uint pos = 0;
   boost_foreach(const char& c, trimmed_str)
   {
-    CFinfo << c << CFflush;
     if (c == '(') ++scope_level;
     if (c == ')') --scope_level;
     if (c == ',' && scope_level == 0)
@@ -102,11 +109,21 @@ std::vector<std::string> CreateField::split_function_list(const std::string& str
 void CreateField::execute()
 {
   // Check correct configuration
+  if ( is_null(m_mesh) ) throw SetupError(FromHere(), "mesh is not configured");
   Handle<Dictionary> dict ( m_mesh->access_component_checked( options().value<URI>("dict") ) );
   if (is_null(dict))
     throw SetupError(FromHere(), "Dictionary not found in "+m_mesh->uri().string());
 
   std::vector<std::string> functions_str = options().value< std::vector<std::string> >("functions");
+
+  create_field(options().value<std::string>("name"),*dict,functions_str);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Handle<Field> CreateField::create_field(const std::string& name, Dictionary& dict, const std::vector<std::string>& _functions)
+{
+  std::vector<std::string> functions_str=_functions;
   std::vector<std::string> variables_str(functions_str.size());
 
   for (Uint f=0; f<functions_str.size(); ++f)
@@ -115,7 +132,7 @@ void CreateField::execute()
     std::vector<std::string> split;
     boost::split(split, str, boost::is_any_of("="));
 
-    variables_str[f] = split[0];
+    variables_str[f]  = split[0];
     functions_str[f]  = split[1];
   }
 
@@ -126,7 +143,7 @@ void CreateField::execute()
     var_description += variables_str[i];
   }
 
-  Field& new_field = dict->create_field(options().value<std::string>("name"), var_description);
+  Field& new_field = dict.create_field(name, var_description);
 
   std::vector<std::string> functions;
   boost_foreach(const std::string& function_list, functions_str)
@@ -157,7 +174,7 @@ void CreateField::execute()
   std::string var_name;
   std::string mod_var_name;
 
-  boost_foreach ( Field& field, find_components_recursively<Field>(*dict))
+  boost_foreach ( Field& field, find_components_recursively<Field>(dict))
   {
     for (Uint v=0; v<field.row_size(); ++v)
     {
@@ -173,7 +190,7 @@ void CreateField::execute()
   }
 
   // Add the x, y, z coordinates as aliases
-  const Field& coordinates = dict->coordinates();
+  const Field& coordinates = dict.coordinates();
   std::vector<std::string> xyz(3);
   xyz[0] = "x";
   xyz[1] = "y";
@@ -206,6 +223,8 @@ void CreateField::execute()
     Table<Real>::ArrayT::reference ref = new_field.array()[pt];
     vectorial_function.evaluate(params,ref);
   }
+
+  return new_field.handle<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +233,31 @@ void CreateField::replace_var_name(const std::string& var_from, const std::strin
 {
   for (Uint s=0; s<functions.size(); ++s)
     boost::algorithm::replace_all(functions[s],var_from,var_to);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CreateField::signal_create_field( common::SignalArgs& args)
+{
+  common::XML::SignalOptions options(args);
+  Handle<Dictionary> dict ( access_component_checked( options.value<URI>("dict") ) );
+
+  std::vector<std::string> functions_str = options.array<std::string>("functions");
+
+  Handle<Field> created_component = create_field(options.value<std::string>("name"),*dict,functions_str);
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", created_component->uri());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CreateField::signature_create_field( common::SignalArgs& args)
+{
+  common::XML::SignalOptions options(args);
+  options.add("name",std::string("new_field")).mark_basic();
+  options.add("dict",URI("./geometry")).mark_basic();
+  options.add("functions", std::vector<std::string>() ).mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
