@@ -92,15 +92,16 @@ BOOST_AUTO_TEST_CASE( execute )
   rotate_mesh->execute();
 
   boost::shared_ptr<CreateField> create_field = allocate_component<CreateField>("create_field");
-  create_field->options().set("mesh",rect.handle());
-  create_field->options().set("variables",std::vector<std::string>(1,"f"));
-  create_field->options().set("functions",std::vector<std::string>(1,"cos(coordinates[0])+cos(coordinates[1])"));
+  std::vector<std::string> functions;
+  functions.push_back("f=cos(x)+cos(y)");
+  functions.push_back("U[2]=[x,y]");
+  create_field->options().set("functions",functions);
   create_field->options().set("name",std::string("field"));
   create_field->options().set("dict",rect.geometry_fields().uri());
-  create_field->execute();
+  create_field->transform(rect);
 
   Field& field = *rect.geometry_fields().get_child("field")->handle<Field>();
-  Field& grad = rect.geometry_fields().create_field("grad","dfdx,dfdy");
+  Field& grad = rect.geometry_fields().create_field("grad","dfdx,dudx,dvdx,dfdy,dudy,dvdy");
 
   boost::shared_ptr<ComputeFieldGradient> compute_gradient = allocate_component<ComputeFieldGradient>("compute_gradient");
 

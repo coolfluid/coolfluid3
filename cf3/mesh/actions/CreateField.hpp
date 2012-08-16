@@ -53,6 +53,12 @@ private: // functions
                          const std::string& var_to,
                          std::vector<std::string>& functions);
 
+  /// @brief Split a list of functions in a vector of functions
+  ///
+  /// @param function_list  List of the form "[func1,func2,...]"
+  /// @return vector of func1, func2, ...
+  std::vector<std::string> split_function_list(const std::string& function_list);
+
 }; // end CreateField
 
 ////////////////////////////////////////////////////////////////////////////////
