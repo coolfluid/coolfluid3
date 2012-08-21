@@ -25,8 +25,12 @@ list( APPEND coolfluid_ufem_files
   Solver.cpp
   NavierStokes.hpp
   NavierStokes.cpp
-  NavierStokesOps.hpp
-  NavierStokesOps.cpp
+  NavierStokesAssembly.hpp
+  NavierStokesSpecializations.hpp
+  NavierStokesHexas.cpp
+  NavierStokesQuads.cpp
+  NavierStokesTetras.cpp
+  NavierStokesTriags.cpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
   ParsedFunctionExpression.hpp
@@ -37,6 +41,7 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  SUPG.hpp
   Tags.hpp
   Tags.cpp
 )
@@ -46,4 +51,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagr
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
-set_source_files_properties(HeatConductionSteady.cpp NavierStokes.cpp NavierStokesOps.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(HeatConductionSteady.cpp NavierStokesTriags.cpp NavierStokesTetras.cpp NavierStokesQuads.cpp NavierStokesHexas.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")

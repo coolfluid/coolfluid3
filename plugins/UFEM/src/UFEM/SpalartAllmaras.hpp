@@ -28,7 +28,7 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 
-#include "NavierStokesOps.hpp"
+#include "SUPG.hpp"
 
 namespace cf3 {
 
@@ -62,14 +62,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "SpalartAllmaras"; }
 
-
-
 private:
-  /// Update the copy of the physics coefficients when the physical model changes
-  void trigger_physical_model();
-
-  /// Copy of the coefficients stored in the physics. Needed to construct the equations
-  SUPGCoeffs m_su_coeffs;
 
   /// Ensure the automatic creation of initial conditions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
@@ -79,6 +72,7 @@ private:
   /// Coefficients for Model
    Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
    Real r, g, d, S;
+   Real tau_su;
 
 };
 

@@ -28,8 +28,6 @@
 
 #include "Tags.hpp"
 
-#include "UFEM/NavierStokesOps.hpp"
-
 namespace cf3 {
 namespace UFEM {
 
@@ -64,12 +62,11 @@ struct ComputeSACoeffs
   typedef void result_type;
 
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_t, SACoeffs& coeffs, const SUPGCoeffs& c) const
+  void operator()(const UT& u, const NUT& nu_t, SACoeffs& coeffs, const Real& nu_lam) const
   {
     // nu_t.value() is a column vector with the nodal values of the viscosity for the element.
     // mean comes from the Eigen library
     const Real nu_t_cell = nu_t.value().mean();
-    const Real nu_lam = c.one_over_rho*c.mu;
 
     const Real chi = nu_t_cell / nu_lam;
 
@@ -166,8 +163,6 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     .pretty_name("SA_constant_S")
     .link_to(&S);
 
-  options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&SpalartAllmaras::trigger_physical_model, this));
-
   // The code will only be active for these element types
   boost::mpl::vector3<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D,mesh::LagrangeP1::Triag2D> allowed_elements;
 
@@ -179,6 +174,10 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
 
 
+  PhysicsConstant rho("density");
+  PhysicsConstant mu("dynamic_viscosity");
+  PhysicsConstant nu_lam("kinematic_viscosity");
+
 //  FieldVariable<3, ScalarField> d("Walldistance","walldistance");
 
   //fw = g * _pow(((1+_pow(cw3,6))/(_pow(g,6)+_pow(cw3,6))),1/6)
@@ -188,7 +187,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   // r = (_min(10, ((NU)/(kappa*kappa*d*d*S)) ))
 
   //S = ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-  //(1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+  //(1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
   *this
     << allocate_component<ZeroLSS>("ZeroLSS")
@@ -204,50 +203,50 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
                        (
                         _A = _0, _T = _0,
-                        UFEM::compute_tau(u_adv, m_su_coeffs),
-                        compute_sa_coeffs(u_adv, NU, m_sa_coeffs, m_su_coeffs),
+                        UFEM::compute_tau(u_adv, nu_eff, tau_su),
+                        compute_sa_coeffs(u_adv, NU, m_sa_coeffs, nu_lam),
                         element_quadrature
                         (
                            _A(NU) +=
-                             transpose(N(NU)) * u_adv * nabla(NU) + m_su_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU),               // advection terms
+                             transpose(N(NU)) * u_adv * nabla(NU) + tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU),               // advection terms
 //                           - cb1 * transpose(N(NU)) * N(NU) * ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *  // cb1 * S_hat * NU_hat
-//                           (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))))))),
+//                           (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu))))))),
 
 //                          + cw1 * ((transpose(N(NU)) * N(NU) * NU ) / (d*d)) *  ((_min(10, ((NU)/(kappa*kappa*d*d*                                // cw1 * fw * (NU_hat/d)^2
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )))) * _pow(((1+_pow(cw3,6))/(_pow(((_min(10, ((NU)/(kappa*kappa*d*d*
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )) + cw2*(_pow((_min(10, ((NU)/(kappa*kappa*d*d*
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )),6)-(_min(10, ((NU)/(kappa*kappa*d*d*
 
 //                          ( ( _norm(nabla(u) * nodal_values(u) - transpose(nabla(u) * nodal_values(u)) ) ) +  (NU / (kappa * kappa * d * d)) *
-//                          (1 - ((NU/m_su_coeffs.mu)/(1+(NU/m_su_coeffs.mu)*((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu))/(cv1+((NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)*(NU/m_su_coeffs.mu)))))))
+//                          (1 - ((NU/mu)/(1+(NU/mu)*((NU/mu)*(NU/mu)*(NU/mu))/(cv1+((NU/mu)*(NU/mu)*(NU/mu)))))))
 
 //                          )) )))),6)+_pow(cw3,6))),1/6)
                                                                                                                                                           // wall distance
-//                           - (1/sigma) * ((NU + m_su_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))                                                        // (NU+NU_hat) partial NU_hat to xj to xj
+//                           - (1/sigma) * ((NU + mu) * transpose(nabla(NU)) * nabla(NU))                                                        // (NU+NU_hat) partial NU_hat to xj to xj
 //                           - (1/sigma) * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU)                                     // nabla(NU)^2 times the weight function
-                           _T(NU,NU) +=  transpose(N(NU) + m_su_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
+                           _T(NU,NU) +=  transpose(N(NU) + tau_su * u_adv * nabla(NU)) * N(NU)                                                   // Time, standard and SUPG
                         ),
                       system_matrix += invdt() * _T + 1.0 * _A,
                       system_rhs += -_A * _x,
@@ -261,16 +260,11 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     << create_proto_action("Update", nodes_expression(
        group(
          NU += solution(NU),
-         nu_eff = boost::proto::lit(m_su_coeffs.mu) / m_su_coeffs.rho + boost::proto::lit(m_su_coeffs.rho) * NU * (( ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )/( (7.1*7.1*7.1) + (((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) * ((NU * m_su_coeffs.rho)/m_su_coeffs.mu) )) )
+         nu_eff = boost::proto::lit(mu) / rho + boost::proto::lit(rho) * NU * (( ((NU * rho)/mu) * ((NU * rho)/mu) * ((NU * rho)/mu) )/( (7.1*7.1*7.1) + (((NU * rho)/mu) * ((NU * rho)/mu) * ((NU * rho)/mu) )) )
        )));
 
     get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
 
-}
-
-void SpalartAllmaras::trigger_physical_model()
-{
-  dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_su_coeffs);
 }
 
 void SpalartAllmaras::on_initial_conditions_set(InitialConditions& initial_conditions)

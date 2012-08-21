@@ -340,7 +340,7 @@ public:
 
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
+
   /// Helper to get the connectivity table
   const mesh::Connectivity& get_connectivity(const std::string& tag, mesh::Elements& elements)
   {
@@ -511,10 +511,10 @@ public:
   {
     return ValueResultT(&m_field[m_field_idx][offset]);
   }
-  
+
   typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
   typedef ValueResultT EvalT;
-  
+
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
   {
@@ -586,9 +586,9 @@ public:
   }
 
   typedef Real EvalT;
-  
+
   typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
-  
+
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
   {
@@ -646,7 +646,19 @@ struct MakeVarData
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
 
-    typedef typename boost::mpl::if_c<EtypeT::order == 0, ElementBased<FieldWidth<VarT, SupportEtypeT>::value>, EtypeT>::type EEtypeT;
+    template<typename AVarT, typename AnETypeT>
+    struct GetEETypeT
+    {
+      typedef typename boost::mpl::if_c<AnETypeT::order == 0, ElementBased<FieldWidth<VarT, SupportEtypeT>::value>, AnETypeT>::type type;
+    };
+
+    template<typename AnETypeT>
+    struct GetEETypeT<boost::mpl::void_,  AnETypeT>
+    {
+      typedef boost::mpl::void_ type;
+    };
+
+    typedef typename GetEETypeT<VarT, EtypeT>::type EEtypeT;
 
     typedef typename boost::mpl::if_
     <
@@ -680,6 +692,13 @@ template<typename IsEqVarT, typename VariableSFT>
 struct FilterElementField
 {
   typedef typename boost::mpl::if_c<VariableSFT::order == 0, boost::mpl::false_, IsEqVarT>::type type;
+};
+
+
+template<typename IsEqVarT>
+struct FilterElementField<IsEqVarT, boost::mpl::void_>
+{
+  typedef boost::mpl::false_ type;
 };
 
 /// Filter out element-based fields from the possible equation variables
@@ -727,7 +746,7 @@ public:
 
   /// Filter out element-based fields from the equation variables
   typedef typename FilterEquationVars<EquationVariablesInT, VariablesEtypeTT, SupportEtypeT>::type EquationVariablesT;
-  
+
   /// Size for the element matrix
   typedef typename ElementMatrixSize<MatrixSizesT, EquationVariablesT>::type EMatrixSizeT;
 
@@ -764,7 +783,7 @@ public:
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
       FieldWidth<boost::mpl::_1, SupportEtypeT>
     >::type NbEqsPerVarT;
-    
+
     block_accumulator.resize(SupportShapeFunction::nb_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
   }
 

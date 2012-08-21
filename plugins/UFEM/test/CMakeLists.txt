@@ -48,8 +48,8 @@ coolfluid_add_test( UTEST utest-rdm-merge
 
 coolfluid_add_test( UTEST utest-proto-ns-assembly
                     CPP utest-proto-ns-assembly.cpp
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
-set_source_files_properties(utest-proto-ns-assembly.cpp PROPERTIES COMPILE_FLAGS "-g0")
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver coolfluid_ufem
+                    MPI 1)
 
 coolfluid_add_test( UTEST utest-neumann
                     CPP utest-neumann.cpp

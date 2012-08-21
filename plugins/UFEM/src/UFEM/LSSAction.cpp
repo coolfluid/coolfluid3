@@ -53,6 +53,13 @@ struct LSSAction::Implementation
    solution(m_component.options().option("lss")),
    m_updating(false)
   {
+    m_component.options().option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
+  }
+
+  void trigger_lss()
+  {
+    m_lss = m_component.options().option("lss").value< Handle<LSS::System> >();
+    CFdebug << "lss for " << m_component.uri().path() << " set to " << m_component.options().option("lss").value_str() << CFendl;
   }
 
   Component& m_component;
@@ -100,6 +107,7 @@ LSSAction::~LSSAction()
 
 void LSSAction::execute()
 {
+  CFdebug << "Running with LSS " << options().option("lss").value_str() << CFendl;
   if(is_null(m_implementation->m_lss))
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
 
@@ -197,8 +205,11 @@ void LSSAction::on_regions_set()
   // Update the regions of any owned initial conditions
   BOOST_FOREACH(const Handle<Component>& ic, m_created_initial_conditions)
   {
-    ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+    if(is_not_null(ic))
+      ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   }
+  
+  cf3_assert(is_not_null(m_implementation->m_lss));
 
   m_implementation->m_updating = false;
 }
