@@ -61,7 +61,12 @@ NavierStokes::NavierStokes(const std::string& name) :
   options().add("use_specializations", true)
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
-    .attach_trigger(boost::bind(&NavierStokes::trigger_use_specializations, this));
+    .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+    
+  options().add("theta", 1.)
+    .pretty_name("Theta")
+    .description("Theta coefficient for the theta-method.")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
 
   set_solution_tag("navier_stokes_solution");
 
@@ -91,7 +96,7 @@ NavierStokes::NavierStokes(const std::string& name) :
     p += solution(p)
   ))));
   
-  trigger_use_specializations();
+  trigger_assembly();
 }
 
 NavierStokes::~NavierStokes()
@@ -99,7 +104,7 @@ NavierStokes::~NavierStokes()
 }
 
 
-void NavierStokes::trigger_use_specializations()
+void NavierStokes::trigger_assembly()
 {
   m_assembly->clear();
   

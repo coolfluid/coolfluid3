@@ -45,7 +45,7 @@ public: // functions
 
 private:
   /// Create the solver structure, based on the choice of specialized code
-  void trigger_use_specializations();
+  void trigger_assembly();
 
   /// Called when the initial condition manager is changed
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
