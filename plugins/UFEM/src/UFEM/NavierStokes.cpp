@@ -101,16 +101,7 @@ NavierStokes::~NavierStokes()
 
 void NavierStokes::trigger_use_specializations()
 {
-  std::vector<std::string> child_names;
-  BOOST_FOREACH(const Component& child, *m_assembly)
-  {
-    child_names.push_back(child.name());
-  }
-
-  BOOST_FOREACH(const std::string& name, child_names)
-  {
-    m_assembly->remove_component(name);
-  }
+  m_assembly->clear();
   
   // Add the assembly, depending on the use of specialized code or not
   const bool use_specializations = options().value<bool>("use_specializations");

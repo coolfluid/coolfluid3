@@ -101,6 +101,18 @@ BOOST_AUTO_TEST_CASE( TestOptionURI )
   BOOST_CHECK(root.uri() == root.options().value< URI >("test_uri_option"));
 }
 
+BOOST_AUTO_TEST_CASE( ResetOptions )
+{
+  Component& root = Core::instance().root();
+
+  root.options().add( "test_reset", std::string("test01"));
+  root.options().option("test_reset").change_value(std::string("test02"));
+  BOOST_CHECK_EQUAL(root.options().option("test_reset").value_str(), "test02");
+  
+  root.reset_options();
+  BOOST_CHECK_EQUAL(root.options().option("test_reset").value_str(), "test01");
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 
