@@ -105,7 +105,7 @@ void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
   std::string name = options.value<std::string>("name");
   std::string type = options.value<std::string>("type");
 
-  std::vector<URI> regions = options.array<URI>("regions");
+  std::vector<URI> regions = options.value< std::vector<URI> >("regions");
 
   create_boundary_condition( type, name, regions );
 }

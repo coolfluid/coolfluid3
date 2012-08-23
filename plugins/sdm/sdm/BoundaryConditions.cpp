@@ -128,7 +128,7 @@ void BoundaryConditions::signal_create_boundary_condition( SignalArgs& args )
 
   std::vector<URI> regions;
   if( options.check("regions") )
-    regions = options.array<URI>("regions");
+    regions = options.value< std::vector<URI> >("regions");
   else
     regions.push_back(mesh().topology().uri());
 

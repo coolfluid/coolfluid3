@@ -298,8 +298,8 @@ void SDSolver::signal_add_probe(common::SignalArgs& args)
 
   Handle<Probe> probe = time_stepping().post_actions().create_component<Probe>(sig_opts.value<std::string>("name"));
   probe->options().set("dict",mesh().access_component("solution_space"));
-  probe->options().set("coordinate",sig_opts.array<Real>("coordinate"));
-  std::vector<std::string> functions = sig_opts.array<std::string>("functions");
+  probe->options().set("coordinate",sig_opts.value< std::vector<Real> >("coordinate"));
+  std::vector<std::string> functions = sig_opts.value< std::vector<std::string> >("functions");
   boost_foreach(const std::string& function, functions)
   {
     std::vector<std::string> func_split;
@@ -307,7 +307,7 @@ void SDSolver::signal_add_probe(common::SignalArgs& args)
     Handle<ProbePostProcessor> pp = probe->create_post_processor("func_"+func_split[0],"cf3.solver.actions.ProbePostProcFunction");
     pp->options().set("function",function);
   }
-  std::vector<std::string> log_vars = sig_opts.array<std::string>("log_variables");
+  std::vector<std::string> log_vars = sig_opts.value< std::vector<std::string> >("log_variables");
   if (log_vars.size())
   {
     Handle<ProbePostProcessor> pp = probe->create_post_processor("log_history","cf3.solver.actions.ProbePostProcHistory");

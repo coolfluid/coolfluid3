@@ -92,7 +92,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   std::vector<URI> regions;
   if( options.check("regions") )
   {
-    regions = options.array<URI>("regions");
+    regions = options.value< std::vector<URI> >("regions");
   }
   else // if user did not specify, then use the whole topology (all regions)
   {

@@ -100,7 +100,7 @@ void MeshReader::signal_read( SignalArgs& node  )
   // get the domain
   Handle< Component > location = access_component_checked( path );
 
-  std::vector<URI> files = options.array<URI>("files");
+  std::vector<URI> files = options.value< std::vector<URI> >("files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)

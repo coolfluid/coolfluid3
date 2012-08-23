@@ -157,7 +157,7 @@ void Libraries::signal_load_libraries ( SignalArgs& args )
 {
   SignalOptions opts (args);
 
-  std::vector<URI> files = opts.array<URI>("libs");
+  std::vector<URI> files = opts.value< std::vector<URI> >("libs");
 
   // check protocol for file loading
   if( !files.empty() )
@@ -194,7 +194,7 @@ void Libraries::signal_load ( SignalArgs& args )
 {
   SignalOptions opts (args);
 
-  std::vector<std::string> lib_names = opts.array<std::string>("libs");
+  std::vector<std::string> lib_names = opts.value< std::vector<std::string> >("libs");
 
   // check protocol for file loading
   if( !lib_names.empty() )

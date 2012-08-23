@@ -372,7 +372,7 @@ void Mesh::signal_write_mesh ( SignalArgs& node )
   std::vector<URI> fields;
 
   if (options.check("fields"))
-    fields = options.array<URI>("fields");
+    fields = options.value< std::vector<URI> >("fields");
 
   write_mesh(fpath,fields);
 }

@@ -92,8 +92,8 @@ void NScriptEngine::signal_documentation(common::SignalArgs & node){
 
 void NScriptEngine::signal_completion(common::SignalArgs & node){
   SignalOptions options(node);
-  QStringList add=std_vector_to_QStringList(options.array<std::string>("add"));
-  QStringList sub=std_vector_to_QStringList(options.array<std::string>("sub"));
+  QStringList add=std_vector_to_QStringList(options.value< std::vector<std::string> >("add"));
+  QStringList sub=std_vector_to_QStringList(options.value< std::vector<std::string> >("sub"));
   emit completion_list_received(add,sub);
 }
 

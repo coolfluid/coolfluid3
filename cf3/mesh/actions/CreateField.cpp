@@ -243,7 +243,7 @@ void CreateField::signal_create_field( common::SignalArgs& args)
   common::XML::SignalOptions options(args);
   Handle<Dictionary> dict ( access_component_checked( options.value<URI>("dict") ) );
 
-  std::vector<std::string> functions_str = options.array<std::string>("functions");
+  std::vector<std::string> functions_str = options.value< std::vector<std::string> >("functions");
 
   Handle<Field> created_component = create_field(options.value<std::string>("name"),*dict,functions_str);
   SignalFrame reply = args.create_reply(uri());

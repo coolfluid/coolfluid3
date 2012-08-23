@@ -92,8 +92,8 @@ void AInterpolator::signal_interpolate ( common::SignalArgs& node )
     coordinates = Handle< common::Table<Real> >(Core::instance().root().access_component(coordinates_uri));
   }
 
-  std::vector<Uint> source_vars = options.array<Uint>("source_vars");
-  std::vector<Uint> target_vars = options.array<Uint>("target_vars");
+  std::vector<Uint> source_vars = options.value< std::vector<Uint> >("source_vars");
+  std::vector<Uint> target_vars = options.value< std::vector<Uint> >("target_vars");
   if (source_vars.size())
   {
     interpolate_vars(source,*coordinates,target,source_vars,target_vars);
