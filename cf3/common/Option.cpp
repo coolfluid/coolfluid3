@@ -26,7 +26,8 @@ Option::Option(const std::string & name, boost::any def)
     m_name(name),
     m_pretty_name(),
     m_description(),
-    m_separator(";")
+    m_separator(";"),
+    m_current_connection_id(0)
 {
 }
 
