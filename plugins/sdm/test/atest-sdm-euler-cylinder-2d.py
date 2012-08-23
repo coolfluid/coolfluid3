@@ -5,12 +5,12 @@ import coolfluid as cf
 import math
 
 ### Logging configuration
-cf.environment.assertion_backtrace = True
-cf.environment.exception_backtrace = True
-cf.environment.regist_signal_handlers = True
-cf.environment.exception_log_level = 10
-cf.environment.log_level = 3
-cf.environment.exception_outputs = True
+cf.env.assertion_backtrace = True
+cf.env.exception_backtrace = True
+cf.env.regist_signal_handlers = True
+cf.env.exception_log_level = 10
+cf.env.log_level = 3
+cf.env.exception_outputs = True
 
 ############################
 # Create simulation

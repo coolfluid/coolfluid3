@@ -203,7 +203,7 @@ void Component::rename ( const std::string& name )
     throw BadValue(FromHere(), "Empty new name given for " + uri().string());
 
   if(!URI::is_valid_element(name))
-    throw BadValue(FromHere(), "Invalid new name given for " + uri().string());
+    throw BadValue(FromHere(), "Invalid new name '"+name+"' given for " + uri().string());
 
   if(name == m_name) // skip if name does not change
     return;

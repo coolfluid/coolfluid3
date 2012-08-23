@@ -344,6 +344,7 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
 {
   boost::shared_ptr< common::Component > built_comp = common::build_component(builder_name, name);
   self.component().add_component(built_comp);
+  built_comp->mark_basic();
   return wrap_component(built_comp->handle<common::Component>());
 }
 
