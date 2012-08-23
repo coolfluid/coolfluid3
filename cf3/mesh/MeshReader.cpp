@@ -142,6 +142,9 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
   mesh.block_mesh_changed(true);
   execute();
   mesh.block_mesh_changed(false);
+
+  // Raise an event to indicate that a mesh was loaded happened
+  mesh.raise_mesh_loaded();
 }
 
 //////////////////////////////////////////////////////////////////////////////

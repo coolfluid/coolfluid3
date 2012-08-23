@@ -259,7 +259,7 @@ void Reader::read_zone(Mesh& mesh)
 
   }
 
-
+  m_mesh->geometry_fields().update_structures();
   read_flowsolution();
 }
 

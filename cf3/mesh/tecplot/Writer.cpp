@@ -189,7 +189,7 @@ void Writer::write_file(std::fstream& file)
     // one zone per element type per cpu
     // therefore the title is dependent on those parameters
     file << "ZONE "
-         << "  T=\"ITER"<<m_mesh->metadata().properties().value<Uint>("iter") << ":" << zone_name << "\""
+         << "  T=\"STEP"<<m_mesh->metadata().properties().value<Uint>("iter") << ":" << zone_name << "\""
          << ", STRANDID="<<zone_idx
          << ", SOLUTIONTIME="<<m_mesh->metadata().properties().value<Real>("time")
          << ", N=" << used_nodes.size()
