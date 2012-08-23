@@ -250,7 +250,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent()->handle<SubsonicOutFlowWeakBc>()->pressure_function.evaluate(vars,p_out);
+    this->parent()->template handle<SubsonicOutFlowWeakBc>()->pressure_function.evaluate(vars,p_out);
 
 //    std::cout << "The value of boundary pressure = " << p_out[0] << std::endl;
 //    std::cin.get();

@@ -144,7 +144,7 @@ void SourceTerm<PHYSDATA>::initialize()
 {
   Term::initialize();
   elem = shared_caches().template get_cache< SFDElement >();
-  elem->options().set("space",solution_field().dict().handle<mesh::Dictionary>());
+  elem->options().set("space",solution_field().dict().template handle<mesh::Dictionary>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

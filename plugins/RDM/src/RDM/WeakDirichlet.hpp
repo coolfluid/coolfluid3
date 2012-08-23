@@ -311,7 +311,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent()->handle<WeakDirichlet>()->function.evaluate(vars,return_val);
+    this->parent()->template handle<WeakDirichlet>()->function.evaluate(vars,return_val);
 
     PHYS::compute_properties(X_q.row(q),
                              return_val,
