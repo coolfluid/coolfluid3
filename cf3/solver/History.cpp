@@ -38,11 +38,13 @@ History::History ( const std::string& name ) :
   m_logging = true;
   options().add("logging",m_logging)
       .description("Turn on logging at every entry")
-      .link_to(&m_logging);
+      .link_to(&m_logging)
+      .mark_basic();
 
   // Extension TSV for "Tab Separated Values"
   options().add("file",URI("history.tsv"))
-      .description("Log file for history");
+      .description("Log file for history")
+      .mark_basic();
 
   regist_signal ( "write" )
       .description( "Write history" )

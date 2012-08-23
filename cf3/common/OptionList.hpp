@@ -44,7 +44,7 @@ public:
   template<typename T>
   typename SelectOptionType<T>::type& add (const std::string& name, const T& default_value = T())
   {
-    cf3_assert_desc ( "Class already has an option with same name",
+    cf3_assert_desc ( "Class already has an option with name "+name,
                       this->store.find(name) == store.end() );
 
     typedef typename SelectOptionType<T>::type OptionType;

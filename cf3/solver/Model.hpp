@@ -33,11 +33,6 @@ namespace cf3 {
 /// @author Martin Vymazal
 class solver_API Model : public common::Component {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor
