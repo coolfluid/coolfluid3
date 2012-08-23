@@ -175,6 +175,7 @@ private:
   std::vector< Handle<Entities> > m_entities;
   std::vector< Handle<Field> > m_fields;
 
+  Uint m_dim;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

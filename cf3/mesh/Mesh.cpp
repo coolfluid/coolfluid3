@@ -96,6 +96,18 @@ Mesh::Mesh ( const std::string& name  ) :
       .pretty_name("Raise Mesh Loaded" )
       .connect   ( boost::bind ( &Mesh::signal_raise_mesh_loaded,    this, _1 ) );
 
+  regist_signal ( "create_continuous_space" )
+      .description( "Create a continuous space in the mesh" )
+      .pretty_name("Create continuous space" )
+      .connect   ( boost::bind ( &Mesh::signal_create_continuous_space,    this, _1 ) )
+      .signature ( boost::bind ( &Mesh::signature_create_space, this, _1 ) );
+
+  regist_signal ( "create_discontinuous_space" )
+      .description( "Create a discontinuous space in the mesh" )
+      .pretty_name("Create discontinuous space" )
+      .connect   ( boost::bind ( &Mesh::signal_create_discontinuous_space,    this, _1 ) )
+      .signature ( boost::bind ( &Mesh::signature_create_space, this, _1 ) );
+
   m_geometry_fields = create_static_component<ContinuousDictionary>(mesh::Tags::geometry());
   m_geometry_fields->add_tag(mesh::Tags::geometry());
   Handle< Field > coord_field = m_geometry_fields->create_static_component< Field >(mesh::Tags::coordinates());
@@ -119,6 +131,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry_fields().coordinates().set_dict(geometry_fields());
   geometry_fields().coordinates().descriptor().options().set(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
+  geometry_fields().options().set("dimension",dimension);
 
   cf3_assert(geometry_fields().size() == nb_nodes);
   cf3_assert(geometry_fields().coordinates().row_size() == dimension);
@@ -465,6 +478,7 @@ void Mesh::raise_mesh_loaded()
 
   for (Uint dict_idx=0; dict_idx<m_dictionaries.size(); ++dict_idx)
   {
+    m_dictionaries[dict_idx]->update_structures();
     m_dictionaries[dict_idx]->rebuild_map_glb_to_loc();
     m_dictionaries[dict_idx]->rebuild_node_to_element_connectivity();
   }
@@ -519,6 +533,50 @@ void Mesh::block_mesh_changed ( const bool block )
   m_block_mesh_changed = block;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::signature_create_space ( SignalArgs& node)
+{
+  SignalOptions options( node );
+
+  options.add("name" , std::string("new_space") )
+      .description("Name to give to the created space" ).mark_basic();
+
+  options.add("shape_function" , std::string("cf3.mesh.LagrangeP1") )
+      .description("shape function defining the space" ).mark_basic();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::signal_create_continuous_space ( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  const Dictionary& created_component =
+      create_continuous_space(
+        options.value<std::string>("name"),
+        options.value<std::string>("space"));
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", created_component.uri());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Mesh::signal_create_discontinuous_space ( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  const Dictionary& created_component =
+      create_discontinuous_space(
+        options.value<std::string>("name"),
+        options.value<std::string>("space"));
+
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", created_component.uri());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

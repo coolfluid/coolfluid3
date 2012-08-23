@@ -53,6 +53,7 @@ RegistTypeInfo<Dictionary, LibMesh> regist_Dictionary_type;
 
 Dictionary::Dictionary ( const std::string& name  ) :
   Component( name ),
+  m_dim(0),
   m_is_continuous(true) // default continuous
 {
   mark_basic();
@@ -69,6 +70,8 @@ Dictionary::Dictionary ( const std::string& name  ) :
   m_glb_to_loc->add_tag(mesh::Tags::map_global_to_local());
 
   m_connectivity = create_static_component< common::DynTable<SpaceElem> >("element_connectivity");
+
+  options().add("dimension",m_dim).link_to(&m_dim);
 
   // Signals
   regist_signal ( "create_field" )
@@ -169,15 +172,18 @@ const Handle< Space const>& Dictionary::space(const Handle<Entities const>& enti
 
 Field& Dictionary::create_field(const std::string &name, const std::string& variables_description)
 {
+  CFinfo << "Creating field " << uri()/name << CFendl;
+  if (m_dim == 0) throw SetupError(FromHere(), "dimension not configured");
+
   Handle<Field> field = create_component<Field>(name);
 
   field->set_dict(*this);
-  cf3_assert( is_not_null( parent() ));
+  cf3_assert( m_dim>0 );
 
   if (variables_description == "scalar_same_name")
-    field->create_descriptor(name+"[scalar]",Handle<Mesh>(parent())->dimension());
+    field->create_descriptor(name+"[scalar]",m_dim);
   else
-    field->create_descriptor(variables_description,Handle<Mesh>(parent())->dimension());
+    field->create_descriptor(variables_description,m_dim);
 
   field->resize(size());
 
@@ -197,13 +203,14 @@ Field& Dictionary::create_field(const std::string &name, const std::string& vari
 
 Field& Dictionary::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
+  CFinfo << "Creating field " << uri()/name << CFendl;
+  if (m_dim == 0) throw SetupError(FromHere(), "dimension not configured");
   Handle<Field> field = create_component<Field>(name);
   field->set_dict(*this);
   field->set_descriptor(variables_descriptor);
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
   {
-    cf3_assert( is_not_null( parent() ));
-    field->descriptor().options().set(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
+    field->descriptor().options().set(common::Tags::dimension(),m_dim);
   }
   field->resize(size());
 
@@ -321,7 +328,6 @@ void Dictionary::update_structures()
   m_spaces.clear();
   m_entities.reserve(m_spaces_map.size());
   m_spaces.reserve(m_spaces_map.size());
-
   std::vector< Handle<Entities const> > to_remove_from_spaces_map;
   std::map< std::string, Handle<Entities const> > tmp_entities_map;
   to_remove_from_spaces_map.reserve(m_spaces_map.size());
@@ -337,8 +343,10 @@ void Dictionary::update_structures()
       tmp_entities_map[entities->uri().string()] = entities;
 //      m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
 //      m_spaces.push_back(const_cast<Space&>(*space).handle<Space>());
+      m_dim = std::max(m_dim,entities->element_type().dimension());
     }
   }
+  options().set("dimension",m_dim);
   foreach_container ( (const std::string& uri)(const Handle<Entities const>& entities), tmp_entities_map)
   {
     m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
