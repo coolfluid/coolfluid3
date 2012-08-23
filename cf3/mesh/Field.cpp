@@ -4,12 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/regex.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -25,8 +24,6 @@
 #include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
-
-using namespace boost::assign;
 
 using namespace cf3::common;
 using namespace cf3::common::PE;
@@ -44,6 +41,9 @@ Field::Field ( const std::string& name  ) :
   common::Table<Real> ( name )
 {
   mark_basic();
+  properties()["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
+  properties()["time"] = 0.;
+  properties()["step"] = 0u;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
