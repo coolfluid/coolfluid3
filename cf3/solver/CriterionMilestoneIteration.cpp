@@ -9,24 +9,21 @@
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PropertyList.hpp"
-
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
-#include "solver/actions/CriterionMilestoneTime.hpp"
+#include "solver/CriterionMilestoneIteration.hpp"
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 using namespace common;
 
-ComponentBuilder< CriterionMilestoneTime, Criterion, LibActions > CriterionMilestoneTime_Builder;
+ComponentBuilder< CriterionMilestoneIteration, Criterion, LibSolver > CriterionMilestoneIteration_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CriterionMilestoneTime::CriterionMilestoneTime( const std::string& name  ) :
-  Criterion ( name ),
-  m_tolerance(1e-12)
+CriterionMilestoneIteration::CriterionMilestoneIteration( const std::string& name  ) :
+  Criterion ( name )
 {
   properties()["brief"] = std::string("Time Criterion object");
   std::string description = properties().value<std::string>("description")+
@@ -39,29 +36,34 @@ CriterionMilestoneTime::CriterionMilestoneTime( const std::string& name  ) :
       .mark_basic()
       .link_to(&m_time)
       .add_tag("time");
+
+  options().add("milestone_rate", 1u)
+      .description("Defines the checkpoints for the criterion")
+      .pretty_name("Milestone Rate")
+      .mark_basic();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CriterionMilestoneTime::~CriterionMilestoneTime()
+CriterionMilestoneIteration::~CriterionMilestoneIteration()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CriterionMilestoneTime::operator()()
+bool CriterionMilestoneIteration::operator()()
 {
-  const Real dt = m_time->options().value<Real>("time_step");
-  if ( dt == 0. )
-    return true;
+  /// @bug normally  option("milestone_rate").value<Uint>() should be used
+  /// but that throws a bad any_cast exception somehow !?
+  const Uint rate = options().value<int>("milestone_rate");
+  if ( rate == 0 )
+    return false;
 
-  const Real t = m_time->current_time();
-  if ( t==0 ) return false;
-  return ( t - Uint(t/dt) * dt == 0 );
+  return ( m_time->iter() % rate == 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3

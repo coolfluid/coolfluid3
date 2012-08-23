@@ -25,8 +25,8 @@
 
 #include "solver/Time.hpp"
 #include "solver/History.hpp"
-#include "solver/actions/CriterionTime.hpp"
-#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/CriterionTime.hpp"
+#include "solver/CriterionMaxIterations.hpp"
 #include "solver/actions/PeriodicWriteMesh.hpp"
 
 #include "sdm/TimeStepping.hpp"

@@ -4,56 +4,43 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_actions_CriterionMilestoneIteration_hpp
-#define cf3_solver_actions_CriterionMilestoneIteration_hpp
+#ifndef cf3_solver_Criterion_hpp
+#define cf3_solver_Criterion_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "solver/actions/LibActions.hpp"
-#include "solver/actions/Criterion.hpp"
+#include "solver/LibSolver.hpp"
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CriterionMilestoneIteration models a Unsteady PDE problem
-/// @author Willem Deconinck
-class solver_actions_API CriterionMilestoneIteration : public Criterion {
-
-public: // typedefs
-
-  
-  
-
+/// Criterion models a boolean criterion
+/// @author Tiago Quintino
+class solver_API Criterion : public common::Component
+{
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CriterionMilestoneIteration ( const std::string& name );
+  Criterion ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CriterionMilestoneIteration();
+  virtual ~Criterion();
 
   /// Get the class name
-  static std::string type_name () { return "CriterionMilestoneIteration"; }
+  static std::string type_name () { return "Criterion"; }
 
-  /// Simulates this model
-  virtual bool operator()();
-
-private:
-
-  Handle<Time> m_time;
-
+  /// Return the state of the criterion
+  virtual bool operator()() = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_solver_actions_CriterionMilestoneIteration_hpp
+#endif // cf3_solver_Criterion_hpp

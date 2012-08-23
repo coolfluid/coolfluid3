@@ -16,7 +16,7 @@
 
 #include "solver/actions/PeriodicWriteMesh.hpp"
 #include "solver/actions/SynchronizeFields.hpp"
-#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/CriterionMaxIterations.hpp"
 #include "solver/actions/ComputeLNorm.hpp"
 #include "solver/actions/PrintIterationSummary.hpp"
 
@@ -28,6 +28,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
+using namespace cf3::solver;
 using namespace cf3::solver::actions;
 
 namespace cf3 {

@@ -4,51 +4,46 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_actions_CriterionTime_hpp
-#define cf3_solver_actions_CriterionTime_hpp
+#ifndef cf3_solver_CriterionMaxIterations_hpp
+#define cf3_solver_CriterionMaxIterations_hpp
 
-#include "solver/actions/LibActions.hpp"
-#include "solver/actions/Criterion.hpp"
+#include "solver/Criterion.hpp"
 
 namespace cf3 {
 namespace solver {
-class Time;
-namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Criterion for time limit
+/// Criterion for maximum number of iterations
 /// @author Willem Deconinck
 /// @author Tiago Quintino
-class solver_actions_API CriterionTime : public Criterion
-{
+class solver_API CriterionMaxIterations : public Criterion {
+
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CriterionTime ( const std::string& name );
+  CriterionMaxIterations ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CriterionTime();
+  virtual ~CriterionMaxIterations();
 
   /// Get the class name
-  static std::string type_name () { return "CriterionTime"; }
+  static std::string type_name () { return "CriterionMaxIterations"; }
 
   /// Simulates this model
   virtual bool operator()();
 
 private:
 
-  Handle<Time> m_time;
-
-  Real m_tolerance;
+  /// component where to access the current iteration
+  Handle<Component> m_iter_comp;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3
 
-#endif // cf3_solver_actions_CriterionTime_hpp
+#endif // cf3_solver_CriterionMaxIterations_hpp

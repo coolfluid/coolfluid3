@@ -31,7 +31,7 @@
 #include "solver/Time.hpp"
 #include "RDM/Tags.hpp"
 
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"

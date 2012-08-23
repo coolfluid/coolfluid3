@@ -12,7 +12,7 @@
 #include "common/PropertyList.hpp"
 
 #include "solver/actions/Conditional.hpp"
-#include "solver/actions/Criterion.hpp"
+#include "solver/Criterion.hpp"
 
 namespace cf3 {
 namespace solver {

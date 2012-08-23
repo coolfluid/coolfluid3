@@ -5,6 +5,18 @@ list( APPEND coolfluid_solver_files
   Action.cpp
   ActionDirector.hpp
   ActionDirector.cpp
+  Criterion.hpp
+  Criterion.cpp
+  CriterionAbsResidual.hpp
+  CriterionAbsResidual.cpp
+  CriterionMaxIterations.hpp
+  CriterionMaxIterations.cpp
+  CriterionMilestoneIteration.hpp
+  CriterionMilestoneIteration.cpp
+  CriterionMilestoneTime.hpp
+  CriterionMilestoneTime.cpp
+  CriterionTime.hpp
+  CriterionTime.cpp
   Model.hpp
   Model.cpp
   ModelSteady.hpp
@@ -31,6 +43,8 @@ list( APPEND coolfluid_solver_files
   LibSolver.cpp
   Tags.hpp
   Tags.cpp
+  # TimeStepping.hpp
+  # TimeStepping.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )

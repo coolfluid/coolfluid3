@@ -29,7 +29,7 @@
 
 #include "solver/actions/SolveLSS.hpp"
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   
   boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
-  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
+  time_loop->create_component<solver::CriterionTime>("CriterionTime");
 
   // Proto placeholders
   FieldVariable<0, ScalarField> fi("FI", UFEM::Tags::solution());

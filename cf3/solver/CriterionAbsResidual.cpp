@@ -11,15 +11,14 @@
 #include "common/PropertyList.hpp"
 
 #include "solver/Time.hpp"
-#include "solver/actions/CriterionAbsResidual.hpp"
+#include "solver/CriterionAbsResidual.hpp"
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 using namespace common;
 
-ComponentBuilder< CriterionAbsResidual, Criterion, LibActions > CriterionAbsResidual_Builder;
+ComponentBuilder< CriterionAbsResidual, Criterion, LibSolver > CriterionAbsResidual_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +58,5 @@ bool CriterionAbsResidual::operator()()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3

@@ -6,11 +6,10 @@
 
 #include "common/PropertyList.hpp"
 
-#include "solver/actions/Criterion.hpp"
+#include "solver/Criterion.hpp"
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 using namespace common;
 
@@ -36,6 +35,5 @@ Criterion::~Criterion()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3

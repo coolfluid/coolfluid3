@@ -12,17 +12,16 @@
 
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 
 using namespace cf3::common;
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder< CriterionTime, Criterion, LibActions > CriterionTime_Builder;
+ComponentBuilder< CriterionTime, Criterion, LibSolver > CriterionTime_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -64,6 +63,5 @@ bool CriterionTime::operator()()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3

@@ -11,15 +11,14 @@
 #include "common/PropertyList.hpp"
 
 #include "solver/Time.hpp"
-#include "solver/actions/CriterionMaxIterations.hpp"
+#include "solver/CriterionMaxIterations.hpp"
 
 namespace cf3 {
 namespace solver {
-namespace actions {
 
 using namespace common;
 
-ComponentBuilder< CriterionMaxIterations, Criterion, LibActions > CriterionMaxIterations_Builder;
+ComponentBuilder< CriterionMaxIterations, Criterion, LibSolver > CriterionMaxIterations_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,6 +64,5 @@ bool CriterionMaxIterations::operator()()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3

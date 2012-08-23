@@ -94,7 +94,7 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   if(is_null(timeloop))
   {
     timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
-    timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
+    timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
   }
   else
   {

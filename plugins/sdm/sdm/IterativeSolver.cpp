@@ -20,10 +20,6 @@
 #include "solver/Time.hpp"
 #include "solver/Solver.hpp"
 
-#include "solver/actions/Criterion.hpp"
-#include "solver/actions/CriterionMaxIterations.hpp"
-#include "solver/actions/ComputeLNorm.hpp"
-
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Space.hpp"
@@ -78,6 +74,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       .description("Time component")
       .pretty_name("Time")
       .link_to(&m_time);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

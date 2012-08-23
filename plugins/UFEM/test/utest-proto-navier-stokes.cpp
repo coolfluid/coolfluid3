@@ -21,7 +21,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     Handle<common::ActionDirector> ic(solver.get_child("InitialConditions"));
 
     boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
-    time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
+    time_loop->create_component<solver::CriterionTime>("CriterionTime");
 
     // Expression variables
     FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
