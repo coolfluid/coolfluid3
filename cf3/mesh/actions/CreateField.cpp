@@ -83,6 +83,7 @@ CreateField::CreateField( const std::string& name )
 std::vector<std::string> CreateField::split_function_list(const std::string& str)
 {
   std::string trimmed_str(str);
+  boost::algorithm::trim(trimmed_str);
   boost::algorithm::trim_left_if (trimmed_str,boost::algorithm::is_any_of("["));
   boost::algorithm::trim_right_if(trimmed_str,boost::algorithm::is_any_of("]"));
   std::vector<std::string> split;
