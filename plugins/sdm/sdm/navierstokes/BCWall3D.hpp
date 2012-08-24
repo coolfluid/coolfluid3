@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_navierstokes_BCWall2D_hpp
-#define cf3_sdm_navierstokes_BCWall2D_hpp
+#ifndef cf3_sdm_navierstokes_BCWall3D_hpp
+#define cf3_sdm_navierstokes_BCWall3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ namespace navierstokes {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// PhysData implements only solution and coords
-struct PhysData : PhysDataBase<4u,2u> {};
+struct PhysData : PhysDataBase<5u,3u> {};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,32 +31,37 @@ struct PhysData : PhysDataBase<4u,2u> {};
 /// The wall temperature is interpolated from inside.
 ///
 /// No configuration is necessary.
-class sdm_navierstokes_API BCWall2D : public BCWeak< PhysDataBase<4u,2u> >
+
+/// @todo add option velocity of moving wall
+class sdm_navierstokes_API BCWall3D : public BCWeak< PhysDataBase<5u,3u> >
 {
 private:
-  enum {Rho=0, RhoUx=1, RhoUy=2, RhoE=3};
+  enum {Rho=0, RhoUx=1, RhoUy=2, RhoUz=3, RhoE=4};
 
 public:
-  static std::string type_name() { return "BCWall2D"; }
-  BCWall2D(const std::string& name) : BCWeak< PhysData >(name)
+  static std::string type_name() { return "BCWall3D"; }
+  BCWall3D(const std::string& name) : BCWeak< PhysData >(name)
   {
-      m_wall_velocity = 0.;
-      options().add("wall velocity",m_wall_velocity)
-          .description("The velocity of the wall")
-          .link_to(&m_wall_velocity);
+//      m_wall_velocity = 0.;
+//      options().add("wall velocity",m_wall_velocity)
+//          .description("The velocity of the wall")
+//          .link_to(&m_wall_velocity);
   }
-  virtual ~BCWall2D() {}
+  virtual ~BCWall3D() {}
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
     // Calculate outward normal. (should use argument unit_normal later)
-    outward_normal = flx_pt_plane_jacobian_normal->get().plane_unit_normal[cell_flx_pt]*flx_pt_plane_jacobian_normal->get().sf->flx_pt_sign(cell_flx_pt);
+//    outward_normal = flx_pt_plane_jacobian_normal->get().plane_unit_normal[cell_flx_pt]*flx_pt_plane_jacobian_normal->get().sf->flx_pt_sign(cell_flx_pt);
 
 
     // Set the outside boundary state
     boundary_face_pt_data[Rho  ] =  inner_cell_data.solution[Rho];
-    boundary_face_pt_data[RhoUx] = -inner_cell_data.solution[RhoUx] - 2.*inner_cell_data.solution[Rho]*outward_normal[YY]*m_wall_velocity;
-    boundary_face_pt_data[RhoUy] = -inner_cell_data.solution[RhoUy] + 2.*inner_cell_data.solution[Rho]*outward_normal[XX]*m_wall_velocity;
+//    boundary_face_pt_data[RhoUx] = -inner_cell_data.solution[RhoUx] - 2.*inner_cell_data.solution[Rho]*outward_normal[YY]*m_wall_velocity;
+//    boundary_face_pt_data[RhoUy] = -inner_cell_data.solution[RhoUy] + 2.*inner_cell_data.solution[Rho]*outward_normal[XX]*m_wall_velocity;
+    boundary_face_pt_data[RhoUx] = -inner_cell_data.solution[RhoUx];
+    boundary_face_pt_data[RhoUy] = -inner_cell_data.solution[RhoUy];
+    boundary_face_pt_data[RhoUz] = -inner_cell_data.solution[RhoUz];
     boundary_face_pt_data[RhoE ] =  inner_cell_data.solution[RhoE];
 //    Real u = (boundary_face_pt_data[RhoUx]+inner_cell_data.solution[RhoUx])/boundary_face_pt_data[Rho  ]/2.;
 //    Real v = (boundary_face_pt_data[RhoUy]+inner_cell_data.solution[RhoUy])/boundary_face_pt_data[Rho  ]/2.;
@@ -66,9 +71,9 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   private:
-      Real m_wall_velocity;
-      RealVectorNDIM rhoU;
-      RealVectorNDIM outward_normal;
+//      Real m_wall_velocity;
+//      RealVectorNDIM rhoU;
+//      RealVectorNDIM outward_normal;
 
       virtual void initialize()
       {
@@ -103,4 +108,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_BCWall2D_hpp
+#endif // cf3_sdm_BCWall3D_hpp

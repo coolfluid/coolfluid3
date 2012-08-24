@@ -27,9 +27,10 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 
-#include "sdm/navierstokesmovingreference/Convection2D.hpp"
-#include "sdm/navierstokesmovingreference/Diffusion2D.hpp"
-#include "sdm/navierstokesmovingreference/Source2D.hpp"
+#include "sdm/navierstokesmovingreference/Convection3D.hpp"
+#include "sdm/navierstokes/Diffusion3D.hpp"
+#include "sdm/navierstokesmovingreference/Source3D.hpp"
+//#include "sdm/navierstokesmovingreference/SourceCentrifugal2D.hpp"
 
 using namespace cf3;
 using namespace cf3::math;
@@ -64,7 +65,7 @@ struct sdm_MPITests_Fixture
 //{
 //    RealVector4 solution;
 //    RealVector2 coord;
-//    Eigen::Matrix<Real, 4, 2> grad_solution;
+//    Eigen::Matrix<Real, 5, 3> grad_solution;
 //};
 
 //void flux_diff(Datastr d1, RealVector2 unit_normal, Real mu_v, RealVector4& F_Dn)
@@ -136,24 +137,25 @@ BOOST_AUTO_TEST_CASE( test_source )
 {
     const Real tol (0.000001);
 
-    PhysDataBase<4, 2> d0;
-    RealVector4 s0;
+    PhysDataBase<5, 3> d0;
+    Eigen::Matrix<Real, 5, 1> s0;
 
-    std::vector<Real> Vtransoption(2,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
+    std::vector<Real> Vtransoption(3,0), Omegaoption(3,0), a0option(3,0), dOmegadtoption(3,0);
 
     // Test without relative movement
 
-    d0.solution << 1., 1., 0., 252754.; //P = 101101.4
-    d0.coord << 1., 1.;
+    d0.solution << 1., 1., 0., 0., 252754.; //P = 101101.4
+    d0.coord << 1., 1., 0.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
     Omegaoption[0] = 0.;
     Omegaoption[1] = 0.;
     Omegaoption[2] = 0.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S0 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source0");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source3D> S0 = allocate_component<cf3::sdm::navierstokesmovingreference::Source3D>("source0");
     S0->options().set("Vtrans", Vtransoption);
     S0->options().set("Omega", Omegaoption);
 
@@ -163,67 +165,71 @@ BOOST_AUTO_TEST_CASE( test_source )
     BOOST_CHECK_CLOSE(s0[1], 0., tol);
     BOOST_CHECK_CLOSE(s0[2], 0., tol);
     BOOST_CHECK_CLOSE(s0[3], 0., tol);
+    BOOST_CHECK_CLOSE(s0[4], 0., tol);
 
 
     // Test with relative movement, u only velocity component, no acceleration of the relative reference frame
-    PhysDataBase<4, 2> d1;
-    RealVector4 s1;
+    PhysDataBase<5, 3> d1;
+    Eigen::Matrix<Real, 5, 1> s1;
 
-    d1.solution << 1., 2., 0., 252754.; //P = 101101.4
-    d1.coord << 1., 1.;
+    d1.solution << 1., 1., 2., -1., 252754.; //P = 101101.4
+    d1.coord << 1., 1., 1.;
 
     Vtransoption[0] = 1.;
     Vtransoption[1] = 1.;
+    Vtransoption[2] = -1.;
 
-    Omegaoption[0] = 0.;
-    Omegaoption[1] = 0.;
+    Omegaoption[0] = 10.;
+    Omegaoption[1] = 5.;
     Omegaoption[2] = 10;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S1 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source1");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source3D> S1 = allocate_component<cf3::sdm::navierstokesmovingreference::Source3D>("source1");
     S1->options().set("Vtrans", Vtransoption);
     S1->options().set("Omega", Omegaoption);
 
     S1->compute_source(d1, s1);
 
-    BOOST_CHECK_CLOSE(s1[0],   0., tol);
-    BOOST_CHECK_CLOSE(s1[1],100., tol);
+    BOOST_CHECK_CLOSE(s1[0],  0., tol);
+    BOOST_CHECK_CLOSE(s1[1], 25., tol);
     BOOST_CHECK_CLOSE(s1[2], 60., tol);
-    BOOST_CHECK_CLOSE(s1[3],180., tol);
+    BOOST_CHECK_CLOSE(s1[3],-55., tol);
+    BOOST_CHECK_CLOSE(s1[4], 40., tol);
 
-    // Test with relavite movement, u and v different from zero, no acceleration of the relative reference frame
-    PhysDataBase<4, 2> d2;
-    RealVector4 s2;
+//    // Test with relavite movement, u and v different from zero, no acceleration of the relative reference frame
+//    PhysDataBase<4, 2> d2;
+//    RealVector4 s2;
 
-    d2.solution << 1., 2., 2., 252754.; //P = 101101.4
-    d2.coord << 1., 1.;
+//    d2.solution << 1., 2., 2., 252754.; //P = 101101.4
+//    d2.coord << 1., 1.;
 
-    Vtransoption[0] = 1.;
-    Vtransoption[1] = 1.;
+//    Vtransoption[0] = 1.;
+//    Vtransoption[1] = 1.;
 
-    Omegaoption[0] = 0.;
-    Omegaoption[1] = 0.;
-    Omegaoption[2] = 10;
+//    Omegaoption[0] = 0.;
+//    Omegaoption[1] = 0.;
+//    Omegaoption[2] = 10;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S2 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source2");
-    S2->options().set("Vtrans", Vtransoption);
-    S2->options().set("Omega", Omegaoption);
+//    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S2 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source2");
+//    S2->options().set("Vtrans", Vtransoption);
+//    S2->options().set("Omega", Omegaoption);
 
-    S2->compute_source(d2, s2);
+//    S2->compute_source(d2, s2);
 
-    BOOST_CHECK_CLOSE(s2[0],   0., tol);
-    BOOST_CHECK_CLOSE(s2[1],140., tol);
-    BOOST_CHECK_CLOSE(s2[2], 60., tol);
-    BOOST_CHECK_CLOSE(s2[3],200., tol);
+//    BOOST_CHECK_CLOSE(s2[0],   0., tol);
+//    BOOST_CHECK_CLOSE(s2[1],140., tol);
+//    BOOST_CHECK_CLOSE(s2[2], 60., tol);
+//    BOOST_CHECK_CLOSE(s2[3],200., tol);
 
     // Test without initial relavite velocity, u and v zero, acceleration of the relative reference frame
-    PhysDataBase<4, 2> d3;
-    RealVector4 s3;
+    PhysDataBase<5, 3> d3;
+    Eigen::Matrix<Real, 5, 1> s3;
 
-    d3.solution << 1., 2., 2., 252754.; //P = 101101.4
-    d3.coord << 1., 1.;
+    d3.solution << 1., 2., 2., 2., 252754.; //P = 101101.4
+    d3.coord << 1., 1., 1.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
     Omegaoption[0] = 0.;
     Omegaoption[1] = 0.;
@@ -231,13 +237,13 @@ BOOST_AUTO_TEST_CASE( test_source )
 
     a0option[0] = 1.;
     a0option[1] = 1.;
-    a0option[2] = 0.;
+    a0option[2] = 1.;
 
     dOmegadtoption[0] = 0.;
     dOmegadtoption[1] = 0.;
     dOmegadtoption[2] = 0.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S3 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source3");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source3D> S3 = allocate_component<cf3::sdm::navierstokesmovingreference::Source3D>("source3");
     S3->options().set("Vtrans", Vtransoption);
     S3->options().set("Omega", Omegaoption);
     S3->options().set("a0", a0option);
@@ -245,22 +251,24 @@ BOOST_AUTO_TEST_CASE( test_source )
 
     S3->compute_source(d3, s3);
 
-    BOOST_CHECK_CLOSE(s3[0],  0., tol);
-    BOOST_CHECK_CLOSE(s3[1], -1., tol);
-    BOOST_CHECK_CLOSE(s3[2],- 1., tol);
-    BOOST_CHECK_CLOSE(s3[3], -4., tol);
+    BOOST_CHECK_CLOSE(s3[0], 0., tol);
+    BOOST_CHECK_CLOSE(s3[1],-1., tol);
+    BOOST_CHECK_CLOSE(s3[2],-1., tol);
+    BOOST_CHECK_CLOSE(s3[3],-1., tol);
+    BOOST_CHECK_CLOSE(s3[4],-6., tol);
 
 
-    PhysDataBase<4, 2> d4;
-    RealVector4 s4;
+    PhysDataBase<5, 3> d4;
+    Eigen::Matrix<Real, 5, 1> s4;
 
-    d4.solution << 1., 2., 2., 252754.; //P = 101101.4
-    d4.coord << 1., -1.;
+    d4.solution << 1., 2., 2., 2., 252754.; //P = 101101.4
+    d4.coord << 1., -1., -2.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
-    Omegaoption[0] = 0.;
+    Omegaoption[0] = -500.;
     Omegaoption[1] = 0.;
     Omegaoption[2] = 1000.;
 
@@ -272,7 +280,7 @@ BOOST_AUTO_TEST_CASE( test_source )
     dOmegadtoption[1] = 0.;
     dOmegadtoption[2] = 0.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source2D> S4 = allocate_component<cf3::sdm::navierstokesmovingreference::Source2D>("source4");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Source3D> S4 = allocate_component<cf3::sdm::navierstokesmovingreference::Source3D>("source4");
     S4->options().set("Vtrans", Vtransoption);
     S4->options().set("Omega", Omegaoption);
     S4->options().set("a0", a0option);
@@ -280,24 +288,25 @@ BOOST_AUTO_TEST_CASE( test_source )
 
     S4->compute_source(d4, s4);
 
-    BOOST_CHECK_CLOSE(s4[0],  0., tol);
-    BOOST_CHECK_CLOSE(s4[1], 1004000.0, tol);
-    BOOST_CHECK_CLOSE(s4[2],-1004000.0, tol);
-    BOOST_CHECK_CLOSE(s4[3], 0., tol);
+    BOOST_CHECK_CLOSE(s4[0],       0., tol);
+    BOOST_CHECK_CLOSE(s4[1],    4000., tol);
+    BOOST_CHECK_CLOSE(s4[2],-1256000., tol);
+    BOOST_CHECK_CLOSE(s4[3],    2000., tol);
+    BOOST_CHECK_CLOSE(s4[4],       0., tol);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 BOOST_AUTO_TEST_CASE( test_convection )
 {
     const Real tol (0.000001);
 
-    RealVector2 normal(1, 0);
-    RealVector4 flux;
+    RealVector3 normal(1, 0, 0);
+    Eigen::Matrix<Real, 5, 1> flux;
     Real wavespeed = 0;
 
-    PhysDataBase<4, 2> Data;
+    PhysDataBase<5, 3> Data;
 
-    std::vector<Real> Vtransoption(2,0), Omegaoption(3,0);
+    std::vector<Real> Vtransoption(3,0), Omegaoption(3,0);
 
     Omegaoption[0] = 0.;
     Omegaoption[1] = 0.;
@@ -305,11 +314,12 @@ BOOST_AUTO_TEST_CASE( test_convection )
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
-    Data.coord << 1., 0.;
-    Data.solution << 1., 1., 0, 252754.;
+    Data.coord << 1., 0., 0.;
+    Data.solution << 1., 1., 0., 0., 252754.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection2D> C1 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection2D>("convection1");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection3D> C1 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection3D>("convection1");
 
     C1->options().set("Omega", Omegaoption);
     C1->options().set("Vtrans", Vtransoption);
@@ -320,7 +330,8 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[0],      1. , tol);
     BOOST_CHECK_CLOSE(flux[1], 103295.51605555553, tol);
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
-    BOOST_CHECK_CLOSE(flux[3], 356048.5160555556, tol);
+    BOOST_CHECK_CLOSE(flux[3],      0. , tol);
+    BOOST_CHECK_CLOSE(flux[4], 356048.5160555556, tol);
 
 //    std::cout << "wavespeed analytical = " << wavespeed << std::endl;
     Omegaoption[0] = 0.;
@@ -329,11 +340,12 @@ BOOST_AUTO_TEST_CASE( test_convection )
 
     Vtransoption[0] = 1.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
-    Data.coord << 1., 0.;
-    Data.solution << 1., 1., 0, 252754.;
+    Data.coord << 1., 0., 0.;
+    Data.solution << 1., 1., 0., 0., 252754.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection2D> C2 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection2D>("convection1");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection3D> C2 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection3D>("convection1");
 
     C2->options().set("Omega", Omegaoption);
     C2->options().set("Vtrans", Vtransoption);
@@ -345,21 +357,22 @@ BOOST_AUTO_TEST_CASE( test_convection )
     BOOST_CHECK_CLOSE(flux[0],      1. , tol);
     BOOST_CHECK_CLOSE(flux[1], 101122.6, tol);
     BOOST_CHECK_CLOSE(flux[2],      0. , tol);
-    BOOST_CHECK_CLOSE(flux[3], 353875.6, tol);
+    BOOST_CHECK_CLOSE(flux[3],      0. , tol);
+    BOOST_CHECK_CLOSE(flux[4], 353875.6, tol);
 
-//    std::cout << "wavespeed numerical = " << wavespeed << std::endl;
-    normal << 0.5, 0.866025404;
+    normal << 0.5, 0.5, 0.707106781;
     Omegaoption[0] = 0.;
-    Omegaoption[1] = 0.;
+    Omegaoption[1] = 10.;
     Omegaoption[2] = 200.;
 
     Vtransoption[0] = 0.;
     Vtransoption[1] = 0.;
+    Vtransoption[2] = 0.;
 
-    Data.coord << 2.35, -12.8;
-    Data.solution << 3.5, -8.225, 1.75, 884639.0;
+    Data.coord << 2.35, -12.8, 3.;
+    Data.solution << 3.5, -8.225, 1.75, 3.5, 884639.0;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection2D> C3 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection2D>("convection1");
+    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Convection3D> C3 = allocate_component<cf3::sdm::navierstokesmovingreference::Convection3D>("convection1");
 
     C3->options().set("Omega", Omegaoption);
     C3->options().set("Vtrans", Vtransoption);
@@ -368,10 +381,11 @@ BOOST_AUTO_TEST_CASE( test_convection )
     wavespeed = 0;
     C3->compute_analytical_flux(Data, normal, flux, wavespeed);
 
-    BOOST_CHECK_CLOSE(flux[0],      -2.596955543 , tol);
-    BOOST_CHECK_CLOSE(flux[1], 2548006.8824705253, tol);
-    BOOST_CHECK_CLOSE(flux[2],     4413265.510656339 , tol);
-    BOOST_CHECK_CLOSE(flux[3], -4437559.328867117, tol);
+    BOOST_CHECK_CLOSE(flux[0],-0.7626262665000001, tol);
+    BOOST_CHECK_CLOSE(flux[1],  2602270.509296726, tol);
+    BOOST_CHECK_CLOSE(flux[2], 2602268.3358118664, tol);
+    BOOST_CHECK_CLOSE(flux[3], 3680162.9491002494, tol);
+    BOOST_CHECK_CLOSE(flux[4],-1326790.2543176748, tol);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,18 +394,19 @@ BOOST_AUTO_TEST_CASE( test_diffusion )
 {
     const Real tol (0.000001);
 
-    RealVector2 normal(1, 0);
-    RealVector4 flux;
+    RealVector3 normal(1., 0., 0.);
+    Eigen::Matrix<Real, 5, 1>  flux;
     Real wavespeed;
 
-    navierstokesmovingreference::DiffusionPhysData<4u,2u> Data;
+    navierstokes::DiffusionPhysData<5u,3u> Data;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D1 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
+    boost::shared_ptr<cf3::sdm::navierstokes::Diffusion3D> D1 = allocate_component<cf3::sdm::navierstokes::Diffusion3D>("diffusion1");
 
     Data.coord << 1., 0;
-    Data.solution << 1., 1., 0., 100.;
-    Data.solution_gradient << 1., 1., 0., 0.,
-                              0., 0., 0., 0.;
+    Data.solution << 1., 1., 0., 0., 100.;
+    Data.solution_gradient << 1., 1., 0., 0., 0.,
+                              0., 0., 0., 0., 0.,
+                              0., 0., 0., 0., 0.;
 
     D1->options().set("gamma", 1.4);
     D1->options().set("R", 287.05);
@@ -404,20 +419,22 @@ BOOST_AUTO_TEST_CASE( test_diffusion )
     BOOST_CHECK_CLOSE(flux[0], 0., tol);
     BOOST_CHECK_CLOSE(flux[1], 0., tol);
     BOOST_CHECK_CLOSE(flux[2], 0., tol);
-    BOOST_CHECK_CLOSE(flux[3], -0.139348546, tol);
+    BOOST_CHECK_CLOSE(flux[3], 0., tol);
+    BOOST_CHECK_CLOSE(flux[4], -0.139348546, tol);
 
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 //    //mu_v different from zero en drhou_dx verschillend van drho_dx
-    normal << 1,0;
-    wavespeed=0;
+    normal << 1., 0., 0.;
+    wavespeed=0.;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D2 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
+    boost::shared_ptr<cf3::sdm::navierstokes::Diffusion3D> D2 = allocate_component<cf3::sdm::navierstokes::Diffusion3D>("diffusion1");
 
-    Data.coord << 1., 0;
-    Data.solution << 1., 1., 0., 100.;
-    Data.solution_gradient << 1., 2., 0., 0.,
-                              0., 0., 0., 0.;
+    Data.coord << 1., 0., 0.;
+    Data.solution << 1., 1., 0., 0., 100.;
+    Data.solution_gradient << 1., 2., 0., 0., 0.,
+                              0., 0., 0., 0., 0.,
+                              0., 0., 0., 0., 0.;
 
     D2->options().set("gamma", 1.4);
     D2->options().set("R", 287.05);
@@ -429,78 +446,79 @@ BOOST_AUTO_TEST_CASE( test_diffusion )
     BOOST_CHECK_CLOSE(flux[0], 0., tol);
     BOOST_CHECK_CLOSE(flux[1], 1.33333333333333333333333, tol);
     BOOST_CHECK_CLOSE(flux[2], 0., tol);
-    BOOST_CHECK_CLOSE(flux[3], 1.192591302328282, tol);
+    BOOST_CHECK_CLOSE(flux[3], 0., tol);
+    BOOST_CHECK_CLOSE(flux[4], 1.192591302328282, tol);
 
 //// ////////////////////////////////////////////////////////
 
-    normal << 0., 1.;
-    wavespeed=0;
+//    normal << 0., 1.;
+//    wavespeed=0;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D3 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
+//    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D3 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
 
-    Data.coord << 1., 0;
-    Data.solution << 1., 1., 0., 100.;
-    Data.solution_gradient << 0., 0., 0., 0.,
-                              1., 0., 2., 0.;
+//    Data.coord << 1., 0;
+//    Data.solution << 1., 1., 0., 100.;
+//    Data.solution_gradient << 0., 0., 0., 0.,
+//                              1., 0., 2., 0.;
 
-    D3->options().set("gamma", 1.4);
-    D3->options().set("R", 287.05);
-    D3->options().set("k", 1.);
-    D3->options().set("mu", 1.);
+//    D3->options().set("gamma", 1.4);
+//    D3->options().set("R", 287.05);
+//    D3->options().set("k", 1.);
+//    D3->options().set("mu", 1.);
 
-    D3->compute_flux(Data, normal, flux, wavespeed);
+//    D3->compute_flux(Data, normal, flux, wavespeed);
 
 
-    BOOST_CHECK_CLOSE(flux[0], 0., tol);
-    BOOST_CHECK_CLOSE(flux[1], -1., tol);
-    BOOST_CHECK_CLOSE(flux[2], 2.666666666666667, tol);
-    BOOST_CHECK_CLOSE(flux[3], -1.137955060094060, tol);
+//    BOOST_CHECK_CLOSE(flux[0], 0., tol);
+//    BOOST_CHECK_CLOSE(flux[1], -1., tol);
+//    BOOST_CHECK_CLOSE(flux[2], 2.666666666666667, tol);
+//    BOOST_CHECK_CLOSE(flux[3], -1.137955060094060, tol);
 
-/////////////////////////////////////////////////////////////
-    normal << 1., 0.;
-    wavespeed=0;
+///////////////////////////////////////////////////////////////
+//    normal << 1., 0.;
+//    wavespeed=0;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D4 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
+//    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D4 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
 
-    Data.coord << 1., 0;
-    Data.solution << 1., 1., 0., 100.;
-    Data.solution_gradient << 1., 2., 2., 1.,
-                              1., 2., 2., 0.;
+//    Data.coord << 1., 0;
+//    Data.solution << 1., 1., 0., 100.;
+//    Data.solution_gradient << 1., 2., 2., 1.,
+//                              1., 2., 2., 0.;
 
-    D4->options().set("gamma", 1.4);
-    D4->options().set("R", 287.05);
-    D4->options().set("k", 1.);
-    D4->options().set("mu", 1.);
+//    D4->options().set("gamma", 1.4);
+//    D4->options().set("R", 287.05);
+//    D4->options().set("k", 1.);
+//    D4->options().set("mu", 1.);
 
-    D4->compute_flux(Data, normal, flux, wavespeed);
+//    D4->compute_flux(Data, normal, flux, wavespeed);
 
-    BOOST_CHECK_CLOSE(flux[0], 0., tol);
-    BOOST_CHECK_CLOSE(flux[1], 0., tol);
-    BOOST_CHECK_CLOSE(flux[2], 3., tol);
-    BOOST_CHECK_CLOSE(flux[3], -0.13934854559556, tol);
-/////////////////////////////////////////////////////////
+//    BOOST_CHECK_CLOSE(flux[0], 0., tol);
+//    BOOST_CHECK_CLOSE(flux[1], 0., tol);
+//    BOOST_CHECK_CLOSE(flux[2], 3., tol);
+//    BOOST_CHECK_CLOSE(flux[3], -0.13934854559556, tol);
+///////////////////////////////////////////////////////////
 
-    normal << 0., 1.;
-    wavespeed=0;
+//    normal << 0., 1.;
+//    wavespeed=0;
 
-    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D5 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
+//    boost::shared_ptr<cf3::sdm::navierstokesmovingreference::Diffusion2D> D5 = allocate_component<cf3::sdm::navierstokesmovingreference::Diffusion2D>("diffusion1");
 
-    Data.coord << 1., 0;
-    Data.solution << 1., 1., 0., 100.;
-    Data.solution_gradient << 1., 2., 2., 0.,
-                              1., 2., 2., 1.;
+//    Data.coord << 1., 0;
+//    Data.solution << 1., 1., 0., 100.;
+//    Data.solution_gradient << 1., 2., 2., 0.,
+//                              1., 2., 2., 1.;
 
-    D5->options().set("gamma", 1.4);
-    D5->options().set("R", 287.05);
-    D5->options().set("k", 1.);
-    D5->options().set("mu", 1.);
+//    D5->options().set("gamma", 1.4);
+//    D5->options().set("R", 287.05);
+//    D5->options().set("k", 1.);
+//    D5->options().set("mu", 1.);
 
-    D5->compute_flux(Data, normal, flux, wavespeed);
+//    D5->compute_flux(Data, normal, flux, wavespeed);
 
-    BOOST_CHECK_CLOSE(flux[0], 0., tol);
-    BOOST_CHECK_CLOSE(flux[1], 3., tol);
-    BOOST_CHECK_CLOSE(flux[2], 2., tol);
-    BOOST_CHECK_CLOSE(flux[3], 2.860651454450444, tol);
+//    BOOST_CHECK_CLOSE(flux[0], 0., tol);
+//    BOOST_CHECK_CLOSE(flux[1], 3., tol);
+//    BOOST_CHECK_CLOSE(flux[2], 2., tol);
+//    BOOST_CHECK_CLOSE(flux[3], 2.860651454450444, tol);
 }
 
 

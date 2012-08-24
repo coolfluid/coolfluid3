@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-/// @file BCSubsonicInlet2D.hpp
+/// @file BCSubsonicInlet3D.hpp
 /// @brief Two Navierstokes/Euler subsonic inlet boundary conditions
 ///
-/// - BCSubsonicInletTtPtAlpha2D
-/// - BCSubsonicInletUT2D
+/// - BCSubsonicInletTtPtAlpha3D
+/// - BCSubsonicInletUT3D
 
-#ifndef cf3_sdm_navierstokesmovingreference_BCSubsonicInlet2D_hpp
-#define cf3_sdm_navierstokesmovingreference_BCSubsonicInlet2D_hpp
+#ifndef cf3_sdm_navierstokesmovingreference_BCSubsonicInlet3D_hpp
+#define cf3_sdm_navierstokesmovingreference_BCSubsonicInlet3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,25 +36,28 @@ namespace navierstokesmovingreference {
 /// @brief Subsonic inlet given total temperature, total pressure and flow angle
 ///
 /// Default configuration: Tt = 25 Celsius, Pt = 1 bar , angle = 0 rad, gas = air
-class sdm_navierstokes_API BCSubsonicInletTtPtAlpha2D : public BCWeak< PhysDataBase<4u,2u> >
+class sdm_navierstokes_API BCSubsonicInletTtPtAlpha3D : public BCWeak< PhysDataBase<5u,3u> >
 {
 private:
-  enum {Rho=0, RhoUx=1, RhoUy=2, RhoE=3};
+  enum {Rho=0, RhoUx=1, RhoUy=2, RhoUz=3, RhoE=4};
 
 public:
-  static std::string type_name() { return "BCSubsonicInletTtPtAlpha2D"; }
-  BCSubsonicInletTtPtAlpha2D(const std::string& name) : BCWeak< PhysData >(name)
+  static std::string type_name() { return "BCSubsonicInletTtPtAlpha3D"; }
+  BCSubsonicInletTtPtAlpha3D(const std::string& name) : BCWeak< PhysData >(name)
   {
-    m_function_Tt.parse("298.15","x,y");  // 25 degrees Celcius
-    m_function_Pt.parse("100000","x,y");  // 1 bar
-    m_function_alpha.parse("0","x,y");    // 0 radians
+    m_function_Tt.parse("298.15","x,y,z");  // 25 degrees Celcius
+    m_function_Pt.parse("100000","x,y,z");  // 1 bar
+    m_function_alphaxy.parse("0","x,y,z");  // 0 radians
+    m_function_alphaxz.parse("0","x,y,z");  // 0 radians
 
     options().add("Tt",m_function_Tt.function()).description("Total Temperature in relative frame of reference")
-        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Tt, this) );
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_Tt, this) );
     options().add("Pt",m_function_Pt.function()).description("Total Pressure in relative frame of reference")
-        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Pt, this) );
-    options().add("alpha",m_function_alpha.function()).description("flow angle in rad")
-        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_alpha, this) );
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_Pt, this) );
+    options().add("alphaxy",m_function_alphaxy.function()).description("flow angle projected on xy-plane in rad")
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_alphaxy, this) );
+    options().add("alphaxz",m_function_alphaxz.function()).description("flow angle projected on xz-plane in rad")
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_alphaxz, this) );
 
     m_omega.setZero();
     m_Vtrans.setZero();
@@ -70,32 +73,33 @@ public:
 
     options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
-        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_gamma, this) );
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_gamma, this) );
 
     options().add("R", m_R)
         .description("Gas constant")
         .link_to(&m_R);
 
-    std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0);
+    std::vector<Real> OmegaDefault (3,0), VtransDefault(3,0);
     OmegaDefault[0] = m_omega[0];
     OmegaDefault[1] = m_omega[1];
     OmegaDefault[2] = m_omega[2];
 
     VtransDefault[0] = m_Vtrans[0];
     VtransDefault[1] = m_Vtrans[1];
+    VtransDefault[2] = m_Vtrans[2];
 
     options().add("Omega", OmegaDefault)
         .description("Rotation vector")
         .mark_basic()
-        .attach_trigger(boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Omega, this));
+        .attach_trigger(boost::bind( &BCSubsonicInletTtPtAlpha3D::config_Omega, this));
 
     options().add("Vtrans", VtransDefault)
         .description("Vector of the translation speeds")
         .mark_basic()
-        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha2D::config_Vtrans, this));
+        .attach_trigger( boost::bind( &BCSubsonicInletTtPtAlpha3D::config_Vtrans, this));
 
   }
-  virtual ~BCSubsonicInletTtPtAlpha2D() {}
+  virtual ~BCSubsonicInletTtPtAlpha3D() {}
 
   void config_gamma()
   {
@@ -107,8 +111,8 @@ public:
   {
       std::vector<Real> Omega_vec= options().value< std::vector<Real> >("Omega");
       cf3_assert(Omega_vec.size() == 3);
-      cf3_assert(Omega_vec[0] == 0);
-      cf3_assert(Omega_vec[1] == 0);
+//      cf3_assert(Omega_vec[0] == 0);
+//      cf3_assert(Omega_vec[1] == 0);
       m_omega[0] = Omega_vec[0];
       m_omega[1] = Omega_vec[1];
       m_omega[2] = Omega_vec[2];
@@ -117,26 +121,29 @@ public:
   void config_Vtrans()
   {
       std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
-      cf3_assert(Vtrans_vec.size() == 2);
+      cf3_assert(Vtrans_vec.size() == 3);
       m_Vtrans[0] = Vtrans_vec[0];
       m_Vtrans[1] = Vtrans_vec[1];
+      m_Vtrans[2] = Vtrans_vec[2];
   }
 
-  void config_Tt()    { m_function_Tt   .parse(options().option("Tt").value_str()); }
-  void config_Pt()    { m_function_Pt   .parse(options().option("Pt").value_str()); }
-  void config_alpha() { m_function_alpha.parse(options().option("alpha").value_str()); }
+  void config_Tt()      { m_function_Tt     .parse(options().option("Tt").value_str()); }
+  void config_Pt()      { m_function_Pt     .parse(options().option("Pt").value_str()); }
+  void config_alphaxy() { m_function_alphaxy.parse(options().option("alphaxy").value_str()); }
+  void config_alphaxz() { m_function_alphaxz.parse(options().option("alphaxz").value_str()); }
 
   void compute_transformation_velocity(const RealVector& coord, RealVectorNDIM& Vt)
   {
-      dummy_coord[0] = coord[0];
-      dummy_coord[1] = coord[1];
-      dummy_coord[2] = 0.;
+      dummy_coord[XX] = coord[XX];
+      dummy_coord[YY] = coord[YY];
+      dummy_coord[ZZ] = coord[ZZ];
 
       Vt = m_Vtrans;
       dummy = m_omega.cross(dummy_coord);
 
-      Vt[0] += dummy[0];
-      Vt[1] += dummy[1];
+      Vt[XX] += dummy[XX];
+      Vt[YY] += dummy[YY];
+      Vt[ZZ] += dummy[ZZ];
   }
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
@@ -144,21 +151,23 @@ public:
     // Evaluate analytical functions
     m_function_Tt.evaluate(inner_cell_data.coord,m_Tt);
     m_function_Pt.evaluate(inner_cell_data.coord,m_Pt);
-    m_function_alpha.evaluate(inner_cell_data.coord,m_alpha);
+    m_function_alphaxy.evaluate(inner_cell_data.coord,m_alphaxy);
+    m_function_alphaxz.evaluate(inner_cell_data.coord,m_alphaxz);
 
     compute_transformation_velocity(inner_cell_data.coord,m_Vt);
 
     // Compute inner cell data
     m_x               = inner_cell_data.coord[XX];
     m_y               = inner_cell_data.coord[YY];
-    m_Vt2             = m_Vt[XX]*m_Vt[XX]+m_Vt[YY]*m_Vt[YY];
+    m_z               = inner_cell_data.coord[ZZ];
+    m_Vt2             = m_Vt[XX]*m_Vt[XX]+m_Vt[YY]*m_Vt[YY]+m_Vt[ZZ]*m_Vt[ZZ];
     m_rho_inner       = inner_cell_data.solution[Rho];
-    m_uuvv_inner      = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
+    m_uuvvww_inner      = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy] + inner_cell_data.solution[RhoUz]*inner_cell_data.solution[RhoUz])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner      = inner_cell_data.solution[RhoE];
-    m_p_inner         = m_gamma_minus_1*(m_rhoE_inner - 0.5*m_rho_inner*m_uuvv_inner + 0.5*m_rho_inner*m_Vt2);
+    m_p_inner         = m_gamma_minus_1*(m_rhoE_inner - 0.5*m_rho_inner*m_uuvvww_inner + 0.5*m_rho_inner*m_Vt2);
     m_T_inner         = m_p_inner / (m_R*m_rho_inner);
     m_c2_inner        = (m_gamma*m_R*m_T_inner);
-    m_M2_inner        = m_uuvv_inner/m_c2_inner;
+    m_M2_inner        = m_uuvvww_inner/m_c2_inner;
     m_coeff_inner     = 1. + 0.5*m_gamma_minus_1*m_M2_inner - 0.5*m_gamma_minus_1*(m_Vt2)/m_c2_inner;
     m_pow_coeff_inner = std::pow(m_coeff_inner,m_gamma/m_gamma_minus_1);
     //m_Tt_inner    = m_T_inner*m_coeff_inner;
@@ -166,18 +175,21 @@ public:
 
     // Compute values to impose on boundary
     m_M = sqrt(m_M2_inner);
-    m_tan_alpha=std::tan(m_alpha);
+    m_tan_alphaxy=std::tan(m_alphaxy);
+    m_tan_alphaxz=std::tan(m_alphaxz);
     m_T = m_Tt/m_coeff_inner;
     m_p = m_Pt/m_pow_coeff_inner;
     m_rho = m_p/(m_R*m_T);
-    m_U[XX] = m_M*std::sqrt(m_gamma*m_R*m_T/(1.+m_tan_alpha*m_tan_alpha));
-    m_U[YY] = m_tan_alpha*m_U[XX];
-    m_uuvv = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY];
-    m_rhoE = m_p/m_gamma_minus_1 + 0.5*m_rho*m_uuvv - 0.5*m_rho*(m_Vt2);
+    m_U[XX] = m_M*std::sqrt(m_gamma*m_R*m_T/(1.+m_tan_alphaxy*m_tan_alphaxy + m_tan_alphaxz*m_tan_alphaxz));
+    m_U[YY] = m_tan_alphaxy*m_U[XX];
+    m_U[ZZ] = m_tan_alphaxz*m_U[XX];
+    m_uuvvww = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY]+m_U[ZZ]*m_U[ZZ];
+    m_rhoE = m_p/m_gamma_minus_1 + 0.5*m_rho*m_uuvvww - 0.5*m_rho*(m_Vt2);
 
     boundary_face_pt_data[Rho  ]=m_rho;
     boundary_face_pt_data[RhoUx]=m_rho*m_U[XX];
     boundary_face_pt_data[RhoUy]=m_rho*m_U[YY];
+    boundary_face_pt_data[RhoUz]=m_rho*m_U[ZZ];
     boundary_face_pt_data[RhoE]=m_rhoE;
 
   }
@@ -186,14 +198,17 @@ public:
 private: // data
   math::AnalyticalFunction m_function_Tt;
   math::AnalyticalFunction m_function_Pt;
-  math::AnalyticalFunction m_function_alpha;
+  math::AnalyticalFunction m_function_alphaxy;
+  math::AnalyticalFunction m_function_alphaxz;
 
   Real m_x;
   Real m_y;
+  Real m_z;
 
   Real m_Tt;
   Real m_Pt;
-  Real m_alpha;
+  Real m_alphaxy;
+  Real m_alphaxz;
 
   RealVector3 dummy, dummy_coord;
 
@@ -210,18 +225,19 @@ private: // data
   Real m_rho_inner;
   Real m_p_inner;
   Real m_rhoE_inner;
-  Real m_uuvv_inner;
+  Real m_uuvvww_inner;
   Real m_M2_inner;
   Real m_coeff_inner;
   Real m_pow_coeff_inner;
   Real m_c2_inner;
 
   Real m_M;
-  Real m_tan_alpha;
+  Real m_tan_alphaxy;
+  Real m_tan_alphaxz;
   Real m_T;
   Real m_p;
   Real m_rho;
-  Real m_uuvv;
+  Real m_uuvvww;
   Real m_rhoE;
 
   Real m_gamma_minus_1;
@@ -233,18 +249,18 @@ private: // data
 ///
 /// Default configuration: Tt = 25 Celsius, U = (1,0), gas = air
 /// @note Less performant than BCSubsonicInletTtPtAlpha2D
-class sdm_navierstokes_API BCSubsonicInletUT2D : public BCWeak< PhysDataBase<4u,2u> >
+class sdm_navierstokes_API BCSubsonicInletUT3D : public BCWeak< PhysDataBase<5u,3u> >
 {
 private:
-  enum {Rho=0, RhoUx=1, RhoUy=2, RhoE=3};
+  enum {Rho=0, RhoUx=1, RhoUy=2, RhoUz=3, RhoE=4};
 
 public:
-  static std::string type_name() { return "BCSubsonicInletUT2D"; }
-  BCSubsonicInletUT2D(const std::string& name) : BCWeak< PhysData >(name)
+  static std::string type_name() { return "BCSubsonicInletUT3D"; }
+  BCSubsonicInletUT3D(const std::string& name) : BCWeak< PhysData >(name)
   {
-    m_function_T.parse("298.15","x,y");
+    m_function_T.parse("298.15","x,y,z");
 
-    m_U.resize(1.,0.);
+    m_U.resize(2.,0.);
     options().add("U",m_U)
         .description("Velocity [m/s]")
         .link_to(&m_U);
@@ -263,36 +279,37 @@ public:
     dummy_coord.setZero();
 
     options().add("T",m_function_T.function()).description("Temperature")
-        .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_T, this) );
+        .attach_trigger( boost::bind( &BCSubsonicInletUT3D::config_T, this) );
 
     options().add("gamma", m_gamma)
         .description("The heat capacity ratio")
-        .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_gamma, this) );
+        .attach_trigger( boost::bind( &BCSubsonicInletUT3D::config_gamma, this) );
 
     options().add("R", m_R)
         .description("Gas constant")
         .link_to(&m_R);
 
-    std::vector<Real> OmegaDefault (3,0), VtransDefault(2,0);
-    OmegaDefault[0] = m_omega[0];
-    OmegaDefault[1] = m_omega[1];
-    OmegaDefault[2] = m_omega[2];
+    std::vector<Real> OmegaDefault (3,0), VtransDefault(3,0);
+    OmegaDefault[XX] = m_omega[XX];
+    OmegaDefault[YY] = m_omega[YY];
+    OmegaDefault[ZZ] = m_omega[ZZ];
 
-    VtransDefault[0] = m_Vtrans[0];
-    VtransDefault[1] = m_Vtrans[1];
+    VtransDefault[XX] = m_Vtrans[XX];
+    VtransDefault[YY] = m_Vtrans[YY];
+    VtransDefault[ZZ] = m_Vtrans[ZZ];
 
     options().add("Omega", OmegaDefault)
         .description("Rotation vector")
         .mark_basic()
-        .attach_trigger(boost::bind( &BCSubsonicInletUT2D::config_Omega, this));
+        .attach_trigger(boost::bind( &BCSubsonicInletUT3D::config_Omega, this));
 
     options().add("Vtrans", VtransDefault)
         .description("Vector of the translation speeds")
         .mark_basic()
-        .attach_trigger( boost::bind( &BCSubsonicInletUT2D::config_Vtrans, this));
+        .attach_trigger( boost::bind( &BCSubsonicInletUT3D::config_Vtrans, this));
 
   }
-  virtual ~BCSubsonicInletUT2D() {}
+  virtual ~BCSubsonicInletUT3D() {}
 
   void config_gamma()
   {
@@ -305,33 +322,35 @@ public:
   {
       std::vector<Real> Omega_vec= options().value< std::vector<Real> >("Omega");
       cf3_assert(Omega_vec.size() == 3);
-      cf3_assert(Omega_vec[0] == 0);
-      cf3_assert(Omega_vec[1] == 0);
-      m_omega[0] = Omega_vec[0];
-      m_omega[1] = Omega_vec[1];
-      m_omega[2] = Omega_vec[2];
+//      cf3_assert(Omega_vec[0] == 0);
+//      cf3_assert(Omega_vec[1] == 0);
+      m_omega[XX] = Omega_vec[XX];
+      m_omega[YY] = Omega_vec[YY];
+      m_omega[ZZ] = Omega_vec[ZZ];
   }
 
   void config_Vtrans()
   {
       std::vector<Real> Vtrans_vec= options().value< std::vector<Real> >("Vtrans");
-      cf3_assert(Vtrans_vec.size() == 2);
-      m_Vtrans[0] = Vtrans_vec[0];
-      m_Vtrans[1] = Vtrans_vec[1];
+      cf3_assert(Vtrans_vec.size() == 3);
+      m_Vtrans[XX] = Vtrans_vec[XX];
+      m_Vtrans[YY] = Vtrans_vec[YY];
+      m_Vtrans[ZZ] = Vtrans_vec[ZZ];
   }
 
 
   void compute_transformation_velocity(const RealVector& coord, RealVectorNDIM& Vt)
   {
-      dummy_coord[0] = coord[0];
-      dummy_coord[1] = coord[1];
-      dummy_coord[2] = 0.;
+      dummy_coord[XX] = coord[XX];
+      dummy_coord[YY] = coord[YY];
+      dummy_coord[ZZ] = coord[ZZ];
 
       Vt = m_Vtrans;
       dummy = m_omega.cross(dummy_coord);
 
-      Vt[0] += dummy[0];
-      Vt[1] += dummy[1];
+      Vt[XX] += dummy[XX];
+      Vt[YY] += dummy[YY];
+      Vt[ZZ] += dummy[ZZ];
   }
 
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
@@ -343,23 +362,25 @@ public:
 
     // solution at inside of face
     /// @todo must be dx and dy to centre of rotation (check other locations also)
-    m_x          = inner_cell_data.coord[0];
-    m_y          = inner_cell_data.coord[1];
-    m_Vt2        = m_Vt[XX]*m_Vt[XX]+m_Vt[YY]*m_Vt[YY];
+    m_x          = inner_cell_data.coord[XX];
+    m_y          = inner_cell_data.coord[YY];
+    m_z          = inner_cell_data.coord[ZZ];
+    m_Vt2        = m_Vt[XX]*m_Vt[XX]+m_Vt[YY]*m_Vt[YY]+m_Vt[ZZ]*m_Vt[ZZ];
     m_rho_inner  = inner_cell_data.solution[Rho];
-    m_uuvv_inner = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
+    m_uuvvww_inner = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy] + inner_cell_data.solution[RhoUz]*inner_cell_data.solution[RhoUz])/(m_rho_inner*m_rho_inner);
     m_rhoE_inner = inner_cell_data.solution[RhoE];
-    m_p_inner    = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvv_inner + 0.5*m_rho*(m_Vt2));
+    m_p_inner    = m_gamma_minus_1*(m_rhoE_inner - 0.5 * m_rho_inner * m_uuvvww_inner + 0.5*m_rho*(m_Vt2));
 
     // compute solution at outside of face
     m_rho = m_p_inner/(m_R*m_T);
-    m_uuvv = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY];
-    m_rhoE = m_p_inner/m_gamma_minus_1 + 0.5*m_rho*m_uuvv - 0.5*m_rho*(m_Vt2);
+    m_uuvvww = m_U[XX]*m_U[XX]+m_U[YY]*m_U[YY]+m_U[ZZ]*m_U[ZZ];
+    m_rhoE = m_p_inner/m_gamma_minus_1 + 0.5*m_rho*m_uuvvww - 0.5*m_rho*(m_Vt2);
 
     // set solution at outside of face
     boundary_face_pt_data[Rho  ]=m_rho;
     boundary_face_pt_data[RhoUx]=m_rho*m_U[XX];
     boundary_face_pt_data[RhoUy]=m_rho*m_U[YY];
+    boundary_face_pt_data[RhoUz]=m_rho*m_U[ZZ];
     boundary_face_pt_data[RhoE ]=m_rhoE;
 
 //    std::cout << "rho = " << m_rho << std::endl;
@@ -387,14 +408,15 @@ private: // data
 
   Real m_x;
   Real m_y;
+  Real m_z;
 
   Real m_rho_inner;
   Real m_p_inner;
-  Real m_uuvv_inner;
+  Real m_uuvvww_inner;
   Real m_rhoE_inner;
 
   Real m_rho;
-  Real m_uuvv;
+  Real m_uuvvww;
   Real m_rhoE;
 
   Real m_gamma_minus_1;
@@ -408,4 +430,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_BCSubsonicInlet2D_hpp
+#endif // cf3_sdm_BCSubsonicInlet3D_hpp

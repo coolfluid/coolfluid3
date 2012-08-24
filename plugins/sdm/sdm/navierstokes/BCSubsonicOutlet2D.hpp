@@ -47,6 +47,9 @@ public:
         .description("The heat capacity ratio")
         .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_gamma, this) )
         .mark_basic();
+
+    options().add("P",m_function_P.function()).description("Pressure")
+        .attach_trigger( boost::bind( &BCSubsonicOutlet2D::config_P, this) );
   }
   virtual ~BCSubsonicOutlet2D() {}
 
