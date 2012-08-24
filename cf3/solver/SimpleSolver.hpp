@@ -25,13 +25,6 @@ namespace solver {
 /// @author Bart Janssens
 class solver_API SimpleSolver : public Solver {
 
-public: // typedefs
-
-  /// type of pointer to Component
-  
-  /// type of pointer to constant Component
-  
-
 public: // functions
 
   /// Contructor

@@ -43,8 +43,8 @@ list( APPEND coolfluid_solver_files
   LibSolver.cpp
   Tags.hpp
   Tags.cpp
-  # TimeStepping.hpp
-  # TimeStepping.cpp
+  TimeStepping.hpp
+  TimeStepping.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )
