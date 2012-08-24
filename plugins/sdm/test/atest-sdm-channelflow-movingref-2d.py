@@ -122,7 +122,7 @@ inlet.options().set('Tt',str(Tt))
 inlet.options().set('Pt',str(Pt))
 inlet.options().set('alpha',str(alpha))
 inlet.options().set('R', R)
-inlet.options().set('omega', omega)
+inlet.options().set('Omega', [0.0, 0.0, omega])
 
 ## original inlet TtPtAlpha
 #inlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'inlet', type = 'cf3.sdm.navierstokes.BCSubsonicInletTtPtAlpha2D',
@@ -148,7 +148,7 @@ mesh.access_component('topology/right').uri()
 ])
 outlet.options().set('P', str(p))
 outlet.options().set('gamma', g)
-outlet.options().set('omega', omega)
+outlet.options().set('Omega', [0.0, 0.0, omega])
 
 # original outlet, navierstokes
 #outlet = solver.get_child('BoundaryConditions').create_boundary_condition(name= 'outlet', type = 'cf3.sdm.navierstokes.BCSubsonicOutlet2D',
