@@ -130,10 +130,6 @@ Handle< common::Action > Solver::add_iteration_solver(const std::string& builder
       coupling = timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate");
       timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
   }
-//  else
-//  {
-//    timeloop->remove_component("AdvanceTime");
-//  }
 
   Handle<common::Action> result = add_solver(builder_name, *coupling);
 

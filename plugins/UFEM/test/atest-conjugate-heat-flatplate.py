@@ -1,5 +1,5 @@
 import sys
-#sys.path.append('/data/scholl/coolfluid3/build/dso')
+# sys.path.append('/data/scholl/coolfluid3/build/dso')
 # sys.path.append('/home/sebastian/coolfluid3/build/dso')
 import coolfluid as cf
 
@@ -24,7 +24,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 ic = solver.create_initial_conditions()
 
 # Add the Navier-Stokes solver as an unsteady solver
-nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
+nstokes = solver.add_iteration_solver('cf3.UFEM.NavierStokes')
 
 # Add the scalar advection solver as an unsteady solver
 scalaradv = solver.add_unsteady_solver('cf3.UFEM.ScalarAdvection')
@@ -127,16 +127,15 @@ variables.get_child('heat_conduction_solution').options().set('Temperature_varia
 nstokes.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 scalaradv.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 heatcond.options().set('regions', [mesh.access_component('topology/solid').uri()])
-
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
+ns_lss.Matrix.settings_file = '/data/scholl/coolfluid3/build/plugins/UFEM/test/solver.xml'
 #LSS for scalar advection
 sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-sa_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
+sa_lss.Matrix.settings_file = '/data/scholl/coolfluid3/build/plugins/UFEM/test/solver.xml'
 #LSS for heat conduction
 hc_lss = heatcond.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-hc_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
+hc_lss.Matrix.settings_file = '/data/scholl/coolfluid3/build/plugins/UFEM/test/solver.xml'
 
 u_in = [0.5, 0.]
 u_wall = [0., 0.]
@@ -199,13 +198,15 @@ bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').
 
 # Time setup
 time = model.create_time()
-time.options().set('time_step', 0.01)
+time.options().set('time_step', 0.1)
 
 # Setup a time series write
-final_end_time = 0.1
-save_interval = 0.01
+
+final_end_time = 100.
+save_interval = 0.1
 current_end_time = 0.
-iteration = 0
+iteration = 0.
+m_max_iter = 20
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)

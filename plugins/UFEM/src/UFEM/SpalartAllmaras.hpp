@@ -38,7 +38,6 @@ struct SACoeffs
 {
   /// Constants
   Real Cb1;
-  Real Cb2;
   Real Cw2;
   Real Cw3;
   Real Cv1;
@@ -51,8 +50,8 @@ struct SACoeffs
   Real Fv2;
   Real Kappa;
   Real D;
+  Real min;
   Real nu_t_cell;
-  Real one_over_D;
   Real one_over_D_squared;
   Real one_over_Kappa;
   Real one_over_shat;
@@ -86,7 +85,7 @@ private:
   SACoeffs m_sa_coeffs;
 
   /// Coefficients for Model
-   Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
+   Real cb1, cb2, cw1, cw2, cw3, cv1, one_over_sigma;
    Real r, g, shat;
 
 };
