@@ -163,6 +163,8 @@ public:
   void debug_data(std::vector<Real>& values);
 
   //@} END TEST ONLY
+  
+  void signal_print_native(common::SignalArgs& args);
 
 private:
 
