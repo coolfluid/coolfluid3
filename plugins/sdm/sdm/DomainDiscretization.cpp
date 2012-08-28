@@ -33,6 +33,7 @@
 #include "sdm/DomainDiscretization.hpp"
 #include "sdm/Term.hpp"
 #include "sdm/Tags.hpp"
+#include "sdm/ElementCaching.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -50,19 +51,23 @@ common::ComponentBuilder < DomainDiscretization, common::Action, LibSDM > Domain
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  cf3::solver::ActionDirector(name)
+  cf3::common::Action(name)
 {
   mark_basic();
 
-  // signals
+  options().add(sdm::Tags::solution(),m_solution).link_to(&m_solution);
+  options().add(sdm::Tags::residual(),m_residual).link_to(&m_residual);
+  options().add(sdm::Tags::wave_speed(),m_wave_speed).link_to(&m_wave_speed);
 
+  // signals
   regist_signal( "create_term" )
       .connect  ( boost::bind( &DomainDiscretization::signal_create_term, this, _1 ) )
       .signature( boost::bind( &DomainDiscretization::signature_signal_create_term, this, _1))
       .description("creates a discretization term for cells")
       .pretty_name("Create Cell Term");
 
-  m_terms = create_static_component<ActionDirector>("Terms");
+  m_shared_caches = create_component<SharedCaches>(Tags::shared_caches());
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,9 +78,9 @@ void DomainDiscretization::execute()
 
   update();
 
-  boost_foreach(const Cells& cells, find_components_recursively<Cells>(mesh()))
+  boost_foreach(const Handle<Entities>& cells, m_solution->entities_range())
   {
-    if ( loop_cells(cells.handle<Cells>()) )
+    if ( loop_cells(cells) )
     {
       // Element-loop
       const Uint nb_elems = m_cells->size();
@@ -87,7 +92,6 @@ void DomainDiscretization::execute()
           compute_element(elem_idx);
         }
       }
-
     }
   }
 }
@@ -96,47 +100,36 @@ void DomainDiscretization::execute()
 
 void DomainDiscretization::update()
 {
-  m_terms_per_cells.clear();
-  boost_foreach( Term& term, find_components<Term>(*m_terms))
+  // Configure the solution, residual, wave speed
+  if ( is_null(m_solution) )   throw SetupError(FromHere(), "solution not configured");
+  if ( is_null(m_residual) )   throw SetupError(FromHere(), "residual not configured");
+  if ( is_null(m_wave_speed) ) throw SetupError(FromHere(), "wave_speed not configured");
+  m_terms_vector.clear();
+  boost_foreach( Term& term, find_components<Term>(*this))
   {
-    boost_foreach(const URI& region_uri, term.options().value< std::vector<URI> >("regions"))
-    {
-      Handle<Region const> region = mesh().access_component_checked(region_uri)->handle<Region>();
-      boost_foreach( const Cells& cells, find_components_recursively<Cells>(*region) )
-      {
-        m_terms_per_cells[cells.handle<Cells>()].push_back( term.handle<Term>() );
-      }
-    }
-  }
-  foreach_container( (const Handle<Cells const>& cells) (std::vector< Handle<Term> >& terms), m_terms_per_cells)
-  {
-    std::sort(terms.begin(), terms.end());
-    terms.erase(std::unique(terms.begin(), terms.end()), terms.end());
-  }
+    m_terms_vector.push_back(term.handle<Term>());
+    term.options().set("solution",m_solution);
+    term.options().set("residual",m_residual);
+    term.options().set("wave_speed",m_wave_speed);
 
-  m_residual   = follow_link(solver().field_manager().get_child_checked(sdm::Tags::residual()))->handle<Field>();
-  m_wave_speed = follow_link(solver().field_manager().get_child_checked(sdm::Tags::wave_speed()))->handle<Field>();
-
+    term.initialize();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool DomainDiscretization::loop_cells(const Handle<Cells const>& cells)
+bool DomainDiscretization::loop_cells(const Handle<Entities const>& cells)
 {
-  if ( m_terms_per_cells.count(cells) == 0)
-  {
+  if ( is_null(cells->handle<Cells>()) )
     return false;
-  }
 
-  m_cells = cells;
-  m_terms_for_cells = m_terms_per_cells[m_cells];
-
-  boost_foreach( const Handle<Term>& term, m_terms_for_cells )
+  m_cells = cells->handle<Cells>();
+  boost_foreach( Term& term, find_components<Term>(*this))
   {
-    term->set_entities(*m_cells);
+    term.set_entities(*m_cells);
   }
 
-  m_space = m_residual->space(cells);
+  m_space = m_residual->space(m_cells);
   return true;
 }
 
@@ -157,19 +150,19 @@ void DomainDiscretization::compute_element(const Uint elem_idx)
   }
 
   // Initialize the terms for this element index
-  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  boost_foreach( const Handle<Term>& term, m_terms_vector)
   {
     term->set_element(elem_idx);
   }
 
   // Execute every term
-  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  boost_foreach( const Handle<Term>& term, m_terms_vector)
   {
     term->execute();
   }
 
   // Unset the element index for the terms
-  boost_foreach( const Handle<Term>& term, m_terms_for_cells)
+  boost_foreach( const Handle<Term>& term, m_terms_vector)
   {
     term->unset_element();
   }
@@ -177,31 +170,13 @@ void DomainDiscretization::compute_element(const Uint elem_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Term& DomainDiscretization::create_term( const std::string& type,
-                                         const std::string& name,
-                                         const std::vector<URI>& regions )
+Term& DomainDiscretization::create_term(const std::string& name,const std::string& type)
 {
-  Handle< Term > term = m_terms->create_component<Term>(name, type);
+  Handle< Term > term = create_component<Term>(name, type);
 
-  term->options().set( sdm::Tags::solver(),         solver().handle<Component>());
-  term->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
+  term->options().set("shared_caches",m_shared_caches);
 
-  if (regions.size() == 0)
-    term->options().set("regions", solver().options().value< std::vector<common::URI> >("regions") );
-  else
-    term->options().set("regions", regions);
-
-  term->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
-
-  term->initialize();
-
-
-  CFinfo << "Created term   " << name << "(" << type << ") for regions " << CFendl;
-  boost_foreach(const URI& region_uri, term->options().option("regions").value<std::vector<URI> >())
-  {
-    cf3_assert(mesh().access_component(region_uri));
-    CFinfo << "    - " << mesh().access_component(region_uri)->uri().path() << CFendl;
-  }
+  CFinfo << "Created term   " << name << "(" << type << ")" << CFendl;
 
   return *term;
 }
@@ -215,16 +190,7 @@ void DomainDiscretization::signal_create_term( SignalArgs& args )
   std::string name = options.value<std::string>("name");
   std::string type = options.value<std::string>("type");
 
-  // configure the regions
-  // if user did not specify, then use the whole topology (all regions)
-
-  std::vector<URI> regions;
-  if( options.check("regions") )
-    regions = options.value< std::vector<URI> >("regions");
-  else
-    regions.push_back(mesh().topology().uri());
-
-  Term& created_component = create_term( type, name, regions );
+  Term& created_component = create_term( name, type);
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -238,25 +204,13 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
   SignalOptions options( args );
 
   // name
-
   options.add("name", std::string() )
       .description("Name for created term");
 
   // type
-
   /// @todo loop over the existing CellTerm providers to provide the available list
-
   options.add("type", std::string("cf3.sdm.Convection"))
       .description("Type for created term");
-
-  // regions
-
-  std::vector<URI> dummy;
-
-  /// @todo create here the list of restricted volume regions
-
-  options.add("regions", dummy )
-      .description("Regions where to apply the term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

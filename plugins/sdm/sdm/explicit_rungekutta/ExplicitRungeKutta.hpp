@@ -32,6 +32,9 @@
 
 namespace cf3 {
 namespace sdm {
+
+  class TimeIntegrationStepComputer;
+
 namespace explicit_rungekutta {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +98,7 @@ private: // functions
 
 protected:
   Handle<ButcherTableau> m_butcher;
+  Handle<TimeIntegrationStepComputer> m_time_step_computer;
 
 private: // data
 

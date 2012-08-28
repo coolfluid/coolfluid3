@@ -17,10 +17,12 @@ list( APPEND coolfluid_sdm_files
   ComputeLNorm.cpp
   ComputeCellJacobianPerturb.hpp
   ComputeCellJacobianPerturb.cpp
-  ComputeUpdateCoefficient.hpp
-  ComputeUpdateCoefficient.cpp
+  ImposeCFL.hpp
+  ImposeCFL.cpp
   ConvectiveTerm.hpp
   ConvectiveTerm.cpp
+  Solver.hpp
+  Solver.cpp
   DiffusiveTerm.hpp
   DiffusiveTerm.cpp
   CreateSDFields.hpp
@@ -29,6 +31,8 @@ list( APPEND coolfluid_sdm_files
   DomainDiscretization.hpp
   ElementCaching.hpp
   ElementCaching.cpp
+  ExplicitSolver.hpp
+  ExplicitSolver.cpp
   Init.cpp
   Init.hpp
   InitialConditions.cpp
@@ -50,17 +54,22 @@ list( APPEND coolfluid_sdm_files
   Reconstructions.hpp
   SDSolver.hpp
   SDSolver.cpp
+  Model.hpp
+  Model.cpp
   SourceTerm.hpp
   SourceTerm.cpp
   ShapeFunction.hpp
   ShapeFunction.cpp
   System.hpp
+  System.cpp
   Tags.hpp
   Tags.cpp
   Term.cpp
   Term.hpp
   TimeStepping.cpp
   TimeStepping.hpp
+  TimeIntegrationStepComputer.hpp
+  TimeIntegrationStepComputer.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
 )

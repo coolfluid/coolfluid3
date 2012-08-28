@@ -61,8 +61,8 @@ public:
   static std::string type_name() { return "SourceMeanflow2D"; }
   SourceMeanflow2D(const std::string& name) : SourceTerm< PhysData >(name)
   {
-    options().add("gamma",m_gamma).link_to(&m_gamma);
-    options().add("mean_flow",m_meanflow)
+    options().add("gamma",m_gamma).link_to(&m_gamma).mark_basic();
+    options().add("mean_flow",m_meanflow).mark_basic()
       .description("Field containing the mean flow")
       .link_to(&m_meanflow);
 

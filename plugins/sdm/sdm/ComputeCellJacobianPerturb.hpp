@@ -33,11 +33,12 @@ class DomainDiscretization;
 /// influence to the other variables of every point.
 ///
 /// Example: Imagine cell with 2 solution points (p1, p2) and 2 variables (v1, v2)
-///         [ dR(p1,v1)/dQ(p1,v1)    dR(p1,v1)/dQ(p1,v2)    dR(p1,v1)/dQ(p2,v1)    dR(p1,v1)/dQ(p2,v2) ]
-/// dR/dQ = [ dR(p1,v2)/dQ(p1,v1)    dR(p1,v2)/dQ(p1,v2)    dR(p1,v2)/dQ(p2,v1)    dR(p1,v2)/dQ(p2,v2) ]
-///         [ dR(p2,v1)/dQ(p1,v1)    dR(p2,v1)/dQ(p1,v2)    dR(p2,v1)/dQ(p2,v1)    dR(p2,v1)/dQ(p2,v2) ]
-///         [ dR(p2,v2)/dQ(p1,v1)    dR(p2,v2)/dQ(p1,v2)    dR(p2,v2)/dQ(p2,v1)    dR(p2,v2)/dQ(p2,v2) ]
-///
+/** @verbatim
+         [ dR(p1,v1)/dQ(p1,v1)    dR(p1,v1)/dQ(p1,v2)    dR(p1,v1)/dQ(p2,v1)    dR(p1,v1)/dQ(p2,v2) ]
+ dR/dQ = [ dR(p1,v2)/dQ(p1,v1)    dR(p1,v2)/dQ(p1,v2)    dR(p1,v2)/dQ(p2,v1)    dR(p1,v2)/dQ(p2,v2) ]
+         [ dR(p2,v1)/dQ(p1,v1)    dR(p2,v1)/dQ(p1,v2)    dR(p2,v1)/dQ(p2,v1)    dR(p2,v1)/dQ(p2,v2) ]
+         [ dR(p2,v2)/dQ(p1,v1)    dR(p2,v2)/dQ(p1,v2)    dR(p2,v2)/dQ(p2,v1)    dR(p2,v2)/dQ(p2,v2) ]
+@endverbatim */
 /// In computational expense, this means that the residual, computed in
 /// one element, has to be evaluated (nb_sol_pts*nb_eqs) times, once for every column.
 ///
@@ -46,6 +47,7 @@ class sdm_API ComputeCellJacobianPerturb : public common::Component
 {
 public: // functions
 
+  /// @def Allow Eigen-type members
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @brief Get the class name
@@ -65,6 +67,12 @@ public: // functions
   /// @brief Compute cell jacobian for given cell
   /// @param [in]  elem         element index in cells that are being looped over
   /// @param [out] cell_jacob   computed jacobian matrix with dimensions (nb_sol_pts*nb_eqs)x(nb_sol_pts*nb_eqs).
+  ///
+  /// Every element (i,j) is computed as
+  /// @f[ \frac{R_i(Q + \delta Q_j) - R_i(Q)}{\delta Q_j} @f]
+  /// with @f$ \delta Q_j @f$ defined as
+  /// @f[ \delta Q_j = \sqrt{\varepsilon_{\mathrm{mach}}} \  \mathrm{sign}(Q_j) \ \max( |Q_j| , |Q_{\mathrm{ref},j}| ) @f]
+  /// This makes sure that @f$ \delta Q_j @f$ is small enough, and non-zero.
   virtual void compute_jacobian(const Uint elem, RealMatrix& cell_jacob);
 
 private: // data

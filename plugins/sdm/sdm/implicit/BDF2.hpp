@@ -19,12 +19,14 @@
 
 namespace cf3 {
 
+namespace common{ class Action; }
 namespace solver{ class Solver; }
 namespace mesh{ class Field; class Space;}
 
 namespace sdm {
   class DomainDiscretization;
   class ComputeCellJacobianPerturb;
+  class TimeIntegrationStepComputer;
 
 namespace implicit{
 
@@ -48,6 +50,11 @@ namespace implicit{
 // tau = ( Delta t^n ) / ( Delta t^{n-1} )
 
 /// @brief Second-order backward difference implicit system
+///
+/// @ref M. Parsani, G. Ghorbaniasl, C. Lacor, E. Turkel, An implicit high-order spectral difference
+///      approach for large eddy simulation, Journal of Computational Physics, Volume 229, Issue 14, 20 July 2010,
+///      Pages 5373-5393, ISSN 0021-9991, 10.1016/j.jcp.2010.03.038.
+///      (http://www.sciencedirect.com/science/article/pii/S0021999110001579)
 ///
 /// @f[ \left( - c_1\  \frac{\partial R}{\partial Q}(Q^n) + \frac{I}{\Delta t} \right)
 /// \ (Q^{n+1,k+1}-Q^{n+1,k}) = c_1 \ R(Q^{n+1,k}) + c_2\ (Q^n - Q^{n-1}) - \frac{Q^{n+1,k}-Q^{n}}{\Delta t} @f]
@@ -81,7 +88,7 @@ public: // functions
   virtual void prepare();
 
   // loop cells
-  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells);
+  virtual bool loop_cells(const Handle<const cf3::mesh::Entities> &cells);
 
   // compute the left-hand-side
   virtual void compute_lhs(const Uint elem, RealMatrix& lhs);
@@ -91,6 +98,9 @@ public: // functions
 
   // update solution with the solved unknowns
   virtual Real update(const Uint elem, const RealVector& unknowns);
+
+  // perform parallel synchronization
+  virtual void synchronize();
 
   // Number of columns of the system left-hand-side matrix
   virtual Uint nb_cols() const;
@@ -126,9 +136,6 @@ private:
   /// @brief Delegation to compute a jacobian for one cell
   Handle<ComputeCellJacobianPerturb> m_compute_jacobian;
 
-  /// @brief Storage of solver component used to auto-configure all other options
-  Handle<solver::Solver> m_solver;
-
   /// @brief Component that computes the space-residual for one cell
   Handle<DomainDiscretization> m_domain_discretization;
 
@@ -144,6 +151,9 @@ private:
   /// @brief Storage of the space-residual
   Handle<mesh::Field> m_residual;
 
+  /// @brief Storage of wave-speeds
+  Handle<mesh::Field> m_wave_speed;
+
   /// @brief Storage for local time-steps
   Handle<mesh::Field> m_update_coeff;
 
@@ -152,6 +162,8 @@ private:
 
   /// @brief Temporary component to hold the "space" of a cell patch
   Handle<mesh::Space const> m_space;
+
+  Handle<TimeIntegrationStepComputer> m_time_step_computer;
 
   /// @brief Temporary storage for number of solution points per cell
   Uint m_nb_sol_pts;

@@ -22,7 +22,7 @@ domain  = model.create_domain()
 
 # mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-16x4.msh'), name = 'cylinder2d');
 mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-32x8.msh'), name = 'cylinder2d');
-# mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
+#mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-64x16.msh'), name = 'cylinder2d');
 # mesh = domain.load_mesh(file = cf.URI('../../../resources/cylinder-quad-p2-128x32.msh'), name = 'cylinder2d');
 
 ### Configure physics
@@ -42,16 +42,25 @@ physics.R = R
 ### Configure solver
 solver.mesh = mesh
 solver.solution_vars = 'cf3.physics.NavierStokes.Cons2D'
-solver.solution_order = 3
-solver.iterative_solver = 'cf3.sdm.ExplicitRungeKuttaLowStorage2'
+solver.solution_order = 4
+
 
 ### Configure timestepping
 solver.Time.end_time = 3000000
 solver.Time.time_step = 1
 solver.TimeStepping.time_accurate = True          # time accurate for initial stability
-solver.TimeStepping.cfl = 'min(0.5,0.0001*i)'     # increasing cfl number
-solver.TimeStepping.max_iteration = 100           # limit the number of iterations (default = no limit)
-solver.TimeStepping.IterativeSolver.nb_stages = 3 # Runge Kutta number of stages
+#solver.iterative_solver = 'cf3.sdm.ExplicitRungeKuttaLowStorage2'
+solver.iterative_solver = 'cf3.sdm.lusgs.LUSGS'
+solver.TimeStepping.IterativeSolver.options.system = 'cf3.sdm.implicit.BDF2'
+solver.TimeStepping.cfl = 'min(4,0.05*(i+1.))'     # increasing cfl number
+#solver.TimeStepping.cfl = '0.1'     # increasing cfl number
+solver.TimeStepping.max_iteration = 220           # limit the number of iterations (default = no limit)
+solver.TimeStepping.IterativeSolver.print_iteration_summary = True
+solver.TimeStepping.IterativeSolver.max_sweeps = 100
+solver.TimeStepping.IterativeSolver.convergence_level = 1e-7
+solver.TimeStepping.IterativeSolver.children.System.children.ComputeCellJacobian.options.reference_solution = [rho_inf,rho_inf*u_inf,rho_inf*u_inf,rhoE_inf]
+
+#solver.TimeStepping.IterativeSolver.nb_stages = 3 # Runge Kutta number of stages
 
 ### Prepare the mesh for Spectral Difference (build faces and fields etc...)
 solver.PrepareMesh.execute()

@@ -25,6 +25,7 @@ namespace mesh{ class Field; class Space;}
 namespace sdm {
   class DomainDiscretization;
   class ComputeCellJacobianPerturb;
+  class TimeIntegrationStepComputer;
 
 namespace implicit{
 
@@ -74,7 +75,7 @@ public: // functions
   virtual void prepare();
 
   // loop cells
-  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells);
+  virtual bool loop_cells(const Handle<const cf3::mesh::Entities> &cells);
 
   // compute the left-hand-side
   virtual void compute_lhs(const Uint elem, RealMatrix& lhs);
@@ -84,6 +85,9 @@ public: // functions
 
   // update solution with the solved unknowns
   virtual Real update(const Uint elem, const RealVector& unknowns);
+
+  // perform parallel synchronization
+  virtual void synchronize();
 
   // Number of columns of the system left-hand-side matrix
   virtual Uint nb_cols() const;
@@ -119,11 +123,16 @@ private:
   /// @brief Storage of the space-residual
   Handle<mesh::Field> m_residual;
 
+  /// @brief Storage of wave-speeds
+  Handle<mesh::Field> m_wave_speed;
+
   /// @brief Storage for local time-steps
   Handle<mesh::Field> m_update_coeff;
 
   /// @brief Temporary component to hold the "space" of a cell patch
   Handle<mesh::Space const> m_space;
+
+  Handle<TimeIntegrationStepComputer> m_time_step_computer;
 
   /// @brief Temporary storage for number of solution points per cell
   Uint m_nb_sol_pts;

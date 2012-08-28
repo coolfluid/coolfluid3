@@ -4,58 +4,70 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_IterativeSolver_hpp
-#define cf3_sdm_IterativeSolver_hpp
+#ifndef cf3_sdm_Solver_hpp
+#define cf3_sdm_Solver_hpp
 
-#include "solver/Action.hpp"
+#include "common/Action.hpp"
 
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
-namespace common { class ActionDirector; }
-namespace solver { class Time; }
-namespace mesh   { class Field; }
+namespace common { class Action; class ActionDirector; }
+namespace mesh   { class Dictionary; class Field; }
+namespace solver { class History; class Time; }
 namespace sdm {
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API IterativeSolver : public solver::Action {
+class sdm_API Solver : public common::Action {
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  IterativeSolver ( const std::string& name );
+  Solver ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~IterativeSolver() {}
+  virtual ~Solver() {}
 
   /// Get the class name
-  static std::string type_name () { return "IterativeSolver"; }
+  static std::string type_name () { return "Solver"; }
 
   common::ActionDirector& pre_update()    { return *m_pre_update; }
   common::ActionDirector& post_update()   { return *m_post_update; }
 
-protected: // functions
+  const Handle< solver::History >& history() { return m_history; }
 
-  /// Link the solution field, the residual field and the update-coefficient field
-  virtual void link_fields();
+  virtual void execute();
+
+  virtual void setup() {}
+
+  virtual void step() = 0;
+
+  virtual void advance() {}
+
+  virtual std::string iteration_summary();
+
+  bool stop_condition();
+protected: // functions
 
   /// raises the event when iteration done
   void raise_iteration_done();
 
+  void config_solution();
+
 protected: // data
 
-  Handle<mesh::Field> m_solution;        //!< Solution field
-  Handle<mesh::Field> m_residual;        //!< Residual field
-  Handle<mesh::Field> m_update_coeff;    //!< Update coefficient field
-  Handle<solver::Time> m_time;           //!< Time component
-
+  Handle<Component> m_time_integration;
   /// set of actions called every iteration before non-linear solve
   Handle<common::ActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
   Handle<common::ActionDirector> m_post_update;
+
+  Handle< mesh::Field > m_solution;
+  Handle< mesh::Dictionary > m_dict;
+  Handle< solver::History > m_history;  ///< Component tracking history of several variables
+  Handle< solver::Time > m_time;
 
 };
 
@@ -65,4 +77,4 @@ protected: // data
 } // sdm
 } // cf3
 
-#endif // cf3_sdm_IterativeSolver_hpp
+#endif // cf3_sdm_Solver_hpp

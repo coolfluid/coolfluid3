@@ -51,9 +51,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_update = create_static_component<common::ActionDirector>("PreUpdate");
+  options().add("pre_update",m_pre_update).link_to(&m_pre_update);
 
-  m_post_update = create_static_component<common::ActionDirector>("PostUpdate");
+  options().add("post_update",m_post_update).link_to(&m_post_update);
 
   options().add(sdm::Tags::solution(), m_solution)
       .description("Solution to update")

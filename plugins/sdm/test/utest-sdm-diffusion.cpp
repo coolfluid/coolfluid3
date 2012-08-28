@@ -169,19 +169,19 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  Term& diffusion = solver.domain_discretization().create_term("cf3.sdm.scalar.Diffusion2D","diffusion");
+  Term& diffusion = solver.domain_discretization().create_term("diffusion","cf3.sdm.scalar.Diffusion2D");
   diffusion.options().set("mu",1.);
   diffusion.options().set("alpha",1./(Real)order);
 
-  std::vector<URI> bc_top_regions;
-  bc_top_regions.push_back(mesh.topology().uri()/"top");
+  std::vector< Handle<Region> > bc_top_regions;
+  bc_top_regions.push_back(mesh.topology().get_child("top")->handle<Region>());
   BC& bc_top = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","walls",bc_top_regions);
   bc_top.options().set("constants",std::vector<Real>(1,0.));
 
-  std::vector<URI> bc_bottomleftright_regions;
-  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"right");
-  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"bottom");
-  bc_bottomleftright_regions.push_back(mesh.topology().uri()/"left");
+  std::vector< Handle<Region> > bc_bottomleftright_regions;
+  bc_bottomleftright_regions.push_back(mesh.topology().get_child("right")->handle<Region>());
+  bc_bottomleftright_regions.push_back(mesh.topology().get_child("bottom")->handle<Region>());
+  bc_bottomleftright_regions.push_back(mesh.topology().get_child("left")->handle<Region>());
   BC& bc_bottomleftright = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","walls",bc_bottomleftright_regions);
   bc_bottomleftright.options().set("constants",std::vector<Real>(1,2.));
 
@@ -197,12 +197,13 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
 
   std::vector<URI> fields;
   fields.push_back(solution_field.uri());
-  fields.push_back(solution_field.dict().field("diffusion").uri());
-  fields.push_back(solution_field.dict().field("diffusion_wavespeed").uri());
 
   mesh.write_mesh("diffusion2d_init.msh",fields);
 
   model.simulate();
+
+  fields.push_back(solution_field.dict().uri()/"diffusion");
+  fields.push_back(solution_field.dict().uri()/"diffusion_wavespeed");
 
   mesh.write_mesh("diffusion2d.msh",fields);
 }

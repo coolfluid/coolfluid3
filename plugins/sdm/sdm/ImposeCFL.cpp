@@ -17,7 +17,7 @@
 #include "solver/Solver.hpp"
 
 #include "sdm/Tags.hpp"
-#include "sdm/ComputeUpdateCoefficient.hpp"
+#include "sdm/ImposeCFL.hpp"
 #include "math/Consts.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -32,52 +32,27 @@ namespace sdm {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSDM > ComputeUpdateCoefficient_Builder;
+common::ComponentBuilder < ImposeCFL, sdm::TimeIntegrationStepComputer, LibSDM > ImposeCFL_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
-  solver::Action(name),
-  m_tolerance(1e-12)
+ImposeCFL::ImposeCFL ( const std::string& name ) :
+  TimeIntegrationStepComputer(name)
 {
   mark_basic();
   // options
-  options().add("time_accurate", true)
-    .description("Time Accurate")
-    .pretty_name("Time Accurate")
-    .mark_basic()
-    .add_tag("time_accurate");
-
   options().add("cfl", 1.)
     .description("Courant Number")
     .pretty_name("CFL")
     .mark_basic()
     .add_tag("cfl");
-
-  options().add(sdm::Tags::update_coeff(), m_update_coeff)
-    .description("Update coefficient to multiply with residual")
-    .pretty_name("Update Coefficient")
-    .link_to(&m_update_coeff);
-
-  options().add(sdm::Tags::wave_speed(), m_wave_speed)
-    .description("Wave Speed multiplied divided by characteristic length")
-    .pretty_name("Wave Speed")
-    .link_to(&m_wave_speed);
-
-  options().add(sdm::Tags::time(), m_time)
-    .description("Time Tracking component")
-    .pretty_name("Time")
-    .link_to(&m_time);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ComputeUpdateCoefficient::execute()
+void ImposeCFL::execute()
 {
-  link_fields();
-
-  if (is_null(m_wave_speed))   throw SetupError(FromHere(), "WaveSpeed field was not set");
+  if (is_null(m_wave_speed))   throw SetupError(FromHere(), "wave_speed was not configured");
   if (is_null(m_update_coeff)) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
 
   Field& wave_speed = *m_wave_speed;
@@ -172,35 +147,6 @@ void ComputeUpdateCoefficient::execute()
       }
       update_coeff[i][0] = cfl/wave_speed[i][0];
     }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
-{
-  const Real milestone_dt  =  m_time->options().value<Real>("time_step");
-  if (milestone_dt == 0.)
-    return end_time;
-
-  const Real milestone_time = (Uint((time+m_tolerance)/milestone_dt)+1.)*milestone_dt;
-  return std::min(milestone_time,end_time);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ComputeUpdateCoefficient::link_fields()
-{
-  if( is_null( m_update_coeff ) )
-  {
-    m_update_coeff = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::update_coeff() ) ) );
-    options().set( sdm::Tags::update_coeff(), m_update_coeff );
-  }
-
-  if( is_null( m_wave_speed ) )
-  {
-    m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::wave_speed() ) ) );
-    options().set( sdm::Tags::wave_speed(), m_wave_speed );
   }
 }
 

@@ -25,6 +25,8 @@
 #include "sdm/explicit_rungekutta/ExplicitRungeKutta.hpp"
 #include "sdm/explicit_rungekutta/Types.hpp"
 
+#include "sdm/TimeIntegrationStepComputer.hpp"
+
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::solver;
@@ -40,6 +42,9 @@ namespace explicit_rungekutta {
 ExplicitRungeKuttaBase::ExplicitRungeKuttaBase ( const std::string& name ) :
   IterativeSolver(name)
 {
+
+  options().add("time_step_computer",m_time_step_computer).link_to(&m_time_step_computer).mark_basic();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -129,10 +134,12 @@ void ExplicitRungeKuttaBase::execute()
     properties().property("iteration") = stage+1;
     time.current_time() = T0 + butcher.c(stage) * dt;
 
+    pre_update().execute();
+
     // Do actual computations in pre_update
     try
     {
-      pre_update().execute();
+      solver().handle<SDSolver>()->domain_discretization().execute();
     }
     catch (const common::FailedToConverge& exception)
     {
@@ -207,13 +214,13 @@ void ExplicitRungeKuttaBase::execute()
         }
       }
     }
+    // Parallelization
+    U.synchronize();
 
     // U has now been updated
 
     // Do post-processing per stage after update
     post_update().execute();
-
-    U.synchronize();
 
     // Prepare for next stage
     if (stage == 0)
@@ -232,7 +239,6 @@ void ExplicitRungeKuttaBase::execute()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < ExplicitRungeKutta, ExplicitRungeKuttaBase, LibExplicitRungeKutta > ExplicitRungeKutta_Builder;
 

@@ -27,6 +27,7 @@
 
 #include "sdm/ExplicitRungeKuttaLowStorage3.hpp"
 #include "sdm/Tags.hpp"
+#include "sdm/TimeIntegrationStepComputer.hpp"
 #include "sdm/SDSolver.hpp"
 
 using namespace cf3::common;
@@ -74,6 +75,8 @@ ExplicitRungeKuttaLowStorage3::ExplicitRungeKuttaLowStorage3 ( const std::string
 
   options().add("c", dummy)
       .description("coefficients c from butcher tableau (length = nb_stages)");
+
+  options().add("time_step_computer",m_time_step_computer).link_to(&m_time_step_computer).mark_basic();
 
   config_nb_stages();
 }
@@ -191,6 +194,8 @@ void ExplicitRungeKuttaLowStorage3::execute()
 
     time.current_time() = T0 + c * dt;
 
+    pre_update().execute();
+
     // Do actual computations of the domain discretization
     // - R
     try
@@ -204,8 +209,6 @@ void ExplicitRungeKuttaLowStorage3::execute()
     PE::Comm::instance().all_reduce(PE::max(),&convergence_failed,1,&convergence_failed);
     if (convergence_failed)
       throw (common::FailedToConverge(FromHere(),""));
-
-    pre_update().execute();
 
     // Only in case of the first stage, compute the time-step (= update coefficient)
     if (stage == 0)

@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( test_diffusion1d )
 {
-
+  CFinfo << "begin" << CFendl;
   boost::shared_ptr<Diffusion1D> diffusion1d = allocate_component<Diffusion1D>("diffusion1d");
   Diffusion1D::PhysData phys_data;
   phys_data.solution_gradient[0] = 1.;
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(sdm::Tags::solution()) ) );
 
   // Discretization
-  Term& diffusion = solver.domain_discretization().create_term("cf3.sdm.scalar.Diffusion1D","diffusion",std::vector<URI>(1,mesh.topology().uri()));
+  Term& diffusion = solver.domain_discretization().create_term("diffusion","cf3.sdm.scalar.Diffusion1D");
 
 
   // ---------> alpha
@@ -253,14 +253,14 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 
 //  convection.options().set("advection_speed",std::vector<Real>(1,2.));
 //  // Boundary condition
-  std::vector<URI> bc_regions(1);
-  bc_regions[0]=mesh.topology().uri()/"xneg";
+  std::vector< Handle<Region> > bc_regions(1);
+  bc_regions[0]=mesh.topology().get_child("xneg")->handle<Region>();
   BC& left_bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,1>","left",bc_regions);
   left_bc.options().set("constants",std::vector<Real>(1,0.));
-  bc_regions[0]=mesh.topology().uri()/"xpos";
+  bc_regions[0]=mesh.topology().get_child("xpos")->handle<Region>();
   BC& right_bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,1>","right",bc_regions);
   right_bc.options().set("constants",std::vector<Real>(1,0.));
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
+//  Term& dirichlet = solver.domain_discretization().create_term("dirichlet","cf3.sdm.BCDirichlet");
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
 //  dirichlet.set("functions",dirichlet_functions);
@@ -277,8 +277,6 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 
   Field& residual_field = *follow_link(solver.field_manager().get_child(sdm::Tags::residual()))->handle<Field>();
   Field& wave_speed_field = *follow_link(solver.field_manager().get_child(sdm::Tags::wave_speed()))->handle<Field>();
-  Field& diffusion_field = *solution_field.parent()->get_child("diffusion")->handle<Field>();
-  Field& diffusion_wavespeed = *solution_field.parent()->get_child("diffusion_wavespeed")->handle<Field>();
   Field& jacobian_determinant_field = *solution_field.parent()->get_child("jacobian_determinant")->handle<Field>();
 
   std::vector<std::pair<Real,Real> >exact_diffusion(100);
@@ -310,6 +308,9 @@ BOOST_AUTO_TEST_CASE( test_diffusion1d_solve)
 #endif
 
   model.simulate();
+
+  Field& diffusion_field = *solution_field.parent()->get_child("diffusion")->handle<Field>();
+  Field& diffusion_wavespeed = *solution_field.parent()->get_child("diffusion_wavespeed")->handle<Field>();
 
   CFinfo << "solution = \n" << solution_field << CFendl;
   CFinfo << "diffusion = \n" << diffusion_field << CFendl;
@@ -440,13 +441,13 @@ BOOST_AUTO_TEST_CASE( test_linearadvection1d_solve)
   Field& solution_field = *Handle<Field>( follow_link( solver.field_manager().get_child(sdm::Tags::solution()) ) );
 
   // Discretization
-  Term& convection = solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  Term& convection = solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection1D");
   convection.options().set("advection_speed",std::vector<Real>(1,2.));
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
+//  Term& dirichlet = solver.domain_discretization().create_term("dirichlet","cf3.sdm.BCDirichlet");
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
 //  dirichlet.set("functions",dirichlet_functions);
@@ -601,20 +602,20 @@ BOOST_AUTO_TEST_CASE( solver2d_test )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  Term& convection = solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection2D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  Term& convection = solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection2D");
   std::vector<Real> advection_speed(2,0.);
   advection_speed[XX]=1;
   convection.options().set("advection_speed",advection_speed);
   // BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCConstant<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
   // bc.options().set("constants",std::vector<Real>(1,.5));
-  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCFunction<1,2>","inlet",std::vector<URI>(1,mesh.topology().access_component("left")->uri()));
+  BC& bc = solver.boundary_conditions().create_boundary_condition("cf3.sdm.BCFunction<1,2>","inlet",std::vector<Handle<Region> >(1,mesh.topology().access_component("left")->handle<Region>()));
   bc.options().set("functions",std::vector<std::string>(1,"sin(y*2*pi/10)"));
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
 //  bc_regions.push_back(mesh.topology().uri()/"xneg");
 //  bc_regions.push_back(mesh.topology().uri()/"xpos");
-//  Term& dirichlet = solver.domain_discretization().create_term("cf3.sdm.BCDirichlet","dirichlet",bc_regions);
+//  Term& dirichlet = solver.domain_discretization().create_term("dirichlet","cf3.sdm.BCDirichlet");
 //  std::vector<std::string> dirichlet_functions;
 //  dirichlet_functions.push_back("0.1");
 //  dirichlet.set("functions",dirichlet_functions);

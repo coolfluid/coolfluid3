@@ -11,6 +11,7 @@
 
 namespace cf3 {
 namespace sdm {
+  class TimeIntegrationStepComputer;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +72,9 @@ private: // data
   Handle<mesh::Field> m_S2;
   /// Third register necessary for low-storage runge kutta algorithm  3S*
   Handle<mesh::Field> m_solution_backup; // ( = S3 in algorithm )
+
+  Handle<TimeIntegrationStepComputer> m_time_step_computer;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

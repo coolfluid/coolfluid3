@@ -4,35 +4,35 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_PrepareMesh_hpp
-#define cf3_sdm_PrepareMesh_hpp
+#ifndef cf3_sdm_ExplicitSolver_hpp
+#define cf3_sdm_ExplicitSolver_hpp
 
-#include "solver/ActionDirector.hpp"
+#include "sdm/Solver.hpp"
 
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
 namespace sdm {
 
-class CellTerm;
-
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API PrepareMesh : public cf3::solver::ActionDirector {
+class sdm_API ExplicitSolver : public sdm::Solver {
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
-  PrepareMesh ( const std::string& name );
+  ExplicitSolver ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~PrepareMesh() {}
+  virtual ~ExplicitSolver() {}
 
   /// Get the class name
-  static std::string type_name () { return "PrepareMesh"; }
+  static std::string type_name () { return "ExplicitSolver"; }
 
-  /// execute the action
-  virtual void execute ();
+  virtual void setup() ;
+
+  virtual void step() ;
 
 };
 
@@ -42,4 +42,4 @@ public: // functions
 } // sdm
 } // cf3
 
-#endif // cf3_sdm_PrepareMesh_hpp
+#endif // cf3_sdm_ExplicitSolver_hpp

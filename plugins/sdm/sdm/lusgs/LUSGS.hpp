@@ -12,13 +12,14 @@
 #ifndef cf3_sdm_lusgs_LUSGS_hpp
 #define cf3_sdm_lusgs_LUSGS_hpp
 
-#include "Eigen/LU"
 #include "math/MatrixTypes.hpp"
-#include "sdm/IterativeSolver.hpp"
+#include "Eigen/LU"
+#include "common/Action.hpp"
 #include "sdm/lusgs/LibLUSGS.hpp"
 
 namespace cf3 {
-namespace mesh { class Cells; }
+namespace common { class ActionDirector; }
+namespace mesh { class Cells; class Dictionary; }
 namespace sdm {
   class System;
 namespace lusgs {
@@ -38,7 +39,7 @@ namespace lusgs {
 /// to advance the solution in time.
 ///
 /// @author Willem Deconinck, Matteo Parsani
-class sdm_lusgs_API LUSGS : public IterativeSolver {
+class sdm_lusgs_API LUSGS : public common::Action {
 
 public: // functions
 
@@ -61,13 +62,9 @@ private: // functions
   /// and store it in private variable m_lu
   void compute_system_lhs();
 
-  /// @brief create the private variable m_system,
-  /// according to the configuration option "system"
-  void configure_system();
+  Real forward_sweep();
 
-  Real forward_sweep(std::vector< Handle<mesh::Cells> >& cell_elements);
-
-  Real backward_sweep(std::vector< Handle<mesh::Cells> >& cell_elements);
+  Real backward_sweep();
 
 private: // data
 
@@ -80,6 +77,10 @@ private: // data
 
   /// @brief Flag to alternate between forward and backward sweeps.
   enum SWEEP_DIR {FORWARD=1, BACKWARD=-1} m_sweep_direction;
+
+  Handle<common::ActionDirector> m_pre_update;
+  Handle<common::ActionDirector> m_post_update;
+  Handle<mesh::Dictionary> m_dict;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

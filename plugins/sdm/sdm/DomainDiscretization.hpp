@@ -9,19 +9,20 @@
 
 #include "mesh/Region.hpp"
 
-#include "solver/ActionDirector.hpp"
+#include "common/Action.hpp"
 
 #include "sdm/LibSDM.hpp"
 
 namespace cf3 {
-namespace mesh { class Cells; class Space; class Field; }
+namespace mesh { class Cells; class Entities; class Space; class Field; }
 namespace sdm {
 
+class SharedCaches;
 class Term;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API DomainDiscretization : public cf3::solver::ActionDirector {
+class sdm_API DomainDiscretization : public cf3::common::Action {
 
 public: // functions
   /// Contructor
@@ -37,9 +38,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Term& create_term( const std::string& type,
-                     const std::string& name,
-                     const std::vector<common::URI>& regions = std::vector<common::URI>() );
+  Term& create_term( const std::string& name,const std::string& type);
 
   /// @name SIGNALS
   //@{
@@ -53,19 +52,21 @@ public: // functions
 
   void update();
 
-  bool loop_cells(const Handle<mesh::Cells const>& cells);
+  bool loop_cells(const Handle<mesh::Entities const>& cells);
 
   void compute_element(const Uint elem_idx);
 
 private:
 
-  Handle< common::ActionDirector > m_terms;   ///< set of terms
-  std::map< Handle<mesh::Cells const> , std::vector< Handle<Term> > > m_terms_per_cells;
   Handle<mesh::Cells const> m_cells;
   Handle<mesh::Space const> m_space;
-  std::vector< Handle<Term> > m_terms_for_cells;
+  std::vector< Handle<Term> > m_terms_vector;
+
+  Handle<mesh::Field> m_solution;
   Handle<mesh::Field> m_residual;
   Handle<mesh::Field> m_wave_speed;
+
+  Handle<SharedCaches>               m_shared_caches;
 
 };
 

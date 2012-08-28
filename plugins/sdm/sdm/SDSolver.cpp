@@ -34,7 +34,7 @@
 #include "sdm/IterativeSolver.hpp"
 #include "sdm/ExplicitRungeKuttaLowStorage2.hpp"
 #include "sdm/TimeStepping.hpp"
-#include "sdm/ComputeUpdateCoefficient.hpp"
+#include "sdm/ImposeCFL.hpp"
 #include "sdm/ElementCaching.hpp"
 #include "sdm/ComputeLNorm.hpp"
 
@@ -109,7 +109,7 @@ SDSolver::SDSolver ( const std::string& name  ) :
   L2norm.options().set("order",2u);
   L2norm.options().set("scale",true);
   L2norm.options().set("field",URI("../../FieldManager/")/Tags::residual());
-  ComputeUpdateCoefficient& compute_update_coefficient = *m_actions->create_static_component<ComputeUpdateCoefficient>("compute_update_coefficient");
+  ImposeCFL& compute_update_coefficient = *m_actions->create_static_component<ImposeCFL>("compute_update_coefficient");
 
   // listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &SDSolver::on_mesh_changed_event);
@@ -152,9 +152,9 @@ void SDSolver::execute()
   m_boundary_conditions->execute();
   // Start time stepping
   m_time_stepping->execute();
-  Component& solution_space = *mesh().get_child("solution_space");
-  boost_foreach(mesh::Field& field,  find_components_recursively<Field>(solution_space))
-    field.synchronize();
+//  Component& solution_space = *mesh().get_child("solution_space");
+//  boost_foreach(mesh::Field& field,  find_components_recursively<Field>(solution_space))
+//    field.synchronize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +166,7 @@ void SDSolver::config_iterative_solver()
     m_time_stepping->remove_component(*m_iterative_solver);
   }
   m_iterative_solver = m_time_stepping->create_component("IterativeSolver",options().option("iterative_solver").value_str())->handle<IterativeSolver>();
+  m_iterative_solver->configure_option_recursively("domain_discretization",m_domain_discretization);
   m_iterative_solver->post_update().add_link(*m_boundary_conditions);
 }
 

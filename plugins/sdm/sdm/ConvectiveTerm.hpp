@@ -155,7 +155,6 @@ ConvectiveTerm<PHYSDATA>::ConvectiveTerm( const std::string& name )
 template <typename PHYSDATA>
 void ConvectiveTerm<PHYSDATA>::execute()
 {
-
   /// 1) Calculate flux in interior flux points
   boost_foreach(flx_pt, elem->get().sf->interior_flx_pts())
   {

@@ -1,6 +1,8 @@
 list( APPEND coolfluid_sdm_lusgs_files 
   LUSGS.hpp
   LUSGS.cpp
+  Solver.hpp
+  Solver.cpp
   LibLUSGS.hpp
   LibLUSGS.cpp
 )

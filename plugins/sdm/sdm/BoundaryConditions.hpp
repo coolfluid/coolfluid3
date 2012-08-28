@@ -16,13 +16,12 @@
 namespace cf3 {
 namespace sdm {
 
-class BC;
+  class SharedCaches;
+  class BC;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 class sdm_API BoundaryConditions : public cf3::solver::ActionDirector {
-
-public: // typedefs
 
 public: // functions
   /// Contructor
@@ -40,7 +39,7 @@ public: // functions
 
   BC& create_boundary_condition( const std::string& type,
                                  const std::string& name,
-                                 const std::vector<common::URI>& regions = std::vector<common::URI>() );
+                                 const std::vector< Handle<mesh::Region> >& regions );
 
   /// @name SIGNALS
   //@{
@@ -54,8 +53,10 @@ public: // functions
 
 private:
 
-  Handle< common::ActionDirector > m_bcs;   ///< set of terms
   std::map< Handle<mesh::Region const> , Handle<BC> > m_bc_per_region;
+
+  Handle<mesh::Field>                m_solution;
+  Handle<SharedCaches>               m_shared_caches;
 
 };
 

@@ -17,7 +17,7 @@
 
 namespace cf3 {
 
-namespace mesh{ class Cells; }
+namespace mesh{ class Entities; }
 
 namespace sdm {
 
@@ -47,7 +47,7 @@ public:
   virtual void prepare() = 0;
 
   /// @brief loop cells
-  virtual bool loop_cells(const Handle<const cf3::mesh::Cells> &cells) = 0;
+  virtual bool loop_cells(const Handle<const cf3::mesh::Entities> &cells) = 0;
 
   /// @brief compute the left-hand-side
   /// @param [in]   elem   Element index in cells that are looped over
@@ -58,6 +58,9 @@ public:
   /// @param [in]   elem   Element index in cells that are looped over
   /// @param [out]  rhs    Computed right-hand-side of the system for this cell
   virtual void compute_rhs(const Uint elem, RealVector& rhs) = 0;
+
+  /// @brief Perform parallel synchronization
+  virtual void synchronize() = 0;
 
   /// @brief Do updates with the solved unknowns
   ///

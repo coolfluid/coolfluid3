@@ -32,7 +32,6 @@
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace sdm {
@@ -40,7 +39,7 @@ namespace sdm {
 /////////////////////////////////////////////////////////////////////////////////////
 
 Term::Term ( const std::string& name ) :
-  cf3::solver::Action(name),
+  cf3::common::Component(name),
   m_compute_wave_speed(true)
 {
   mark_basic();
@@ -65,19 +64,6 @@ Term::Term ( const std::string& name ) :
       .pretty_name("Share Caches")
       .link_to(&m_shared_caches);
 
-  options().option(sdm::Tags::physical_model()).attach_trigger( boost::bind ( &Term::trigger_physical_model, this ) );
-
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Term::trigger_physical_model()
-{
-  // try to configure solution vars
-  if (Handle<Component> found_solution_vars = find_component_ptr_with_tag(physical_model(),sdm::Tags::solution_vars()) )
-    m_solution_vars = found_solution_vars->handle<physics::Variables>();
-  else
-    throw SetupError(FromHere(),"solution_vars not found in physical model");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -156,40 +142,17 @@ void Term::set_face(const Handle<Entities const>& entities, const Uint elem_idx,
 
 void Term::link_fields()
 {
-  if( is_null( m_solution ) )
-  {
-    m_solution = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::solution() ) ) );
-    configure_option_recursively( sdm::Tags::solution(), m_solution );
-  }
-
-  if( is_null( m_residual ) )
-  {
-    m_residual = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::residual() ) ) );
-    configure_option_recursively( sdm::Tags::residual(), m_residual );
-  }
-
-  if( is_null( m_wave_speed ) )
-  {
-    m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::wave_speed() ) ) );
-    configure_option_recursively( sdm::Tags::wave_speed(), m_wave_speed );
-  }
+  if( is_null( m_solution ) ) throw SetupError(FromHere(), "solution not configured");
+  if( is_null( m_residual ) ) throw SetupError(FromHere(), "residual not configured");
+  if( is_null( m_wave_speed ) ) throw SetupError(FromHere(), "wave_speed not configured");
 
   if( is_null( m_jacob_det ) )
   {
-    m_jacob_det = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::jacob_det() ) ) );
+    m_jacob_det = Handle<Field>(m_solution->dict().get_child(sdm::Tags::jacob_det() )) ;
     configure_option_recursively( sdm::Tags::jacob_det(), m_jacob_det );
   }
 
-  if( is_null( m_delta ) )
-  {
-    m_delta = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::delta() ) ) );
-    configure_option_recursively( sdm::Tags::delta(), m_delta );
-  }
-
-  if( is_null( m_shared_caches ) )
-  {
-    m_shared_caches = Handle<SharedCaches>( solver().handle<SDSolver>()->shared_caches().handle<SharedCaches>() );
-  }
+  if( is_null( m_shared_caches ) ) throw SetupError(FromHere(), "shared_caches not configured");
 }
 
 /////////////////////////////////////////////////////////////////////////////

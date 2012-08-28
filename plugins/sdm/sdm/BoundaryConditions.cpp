@@ -28,6 +28,7 @@
 #include "sdm/LibSDM.hpp"
 #include "sdm/BoundaryConditions.hpp"
 #include "sdm/BC.hpp"
+#include "sdm/ElementCaching.hpp"
 #include "sdm/Tags.hpp"
 
 using namespace cf3::common;
@@ -58,7 +59,10 @@ BoundaryConditions::BoundaryConditions ( const std::string& name ) :
       .description("creates a boundary condition")
       .pretty_name("Create Boundary Condition");
 
-  m_bcs = create_static_component<ActionDirector>("BCs");
+  options().add(sdm::Tags::solution(),m_solution).link_to(&m_solution);
+
+  m_shared_caches = create_component<SharedCaches>(Tags::shared_caches());
+
 }
 
 void BoundaryConditions::execute()
@@ -68,6 +72,8 @@ void BoundaryConditions::execute()
   {
     if (region)
     {
+      bc->options().set(sdm::Tags::solution(),m_solution);
+
       bc->initialize();
 
       boost_foreach( const Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::face_entity()) )
@@ -87,30 +93,30 @@ void BoundaryConditions::execute()
 
 BC& BoundaryConditions::create_boundary_condition( const std::string& type,
                                                    const std::string& name,
-                                                   const std::vector<URI>& regions )
+                                                   const std::vector< Handle<Region> >& regions )
 {
-  Handle< BC > bc = m_bcs->create_component<BC>(name, type);
+  Handle< BC > bc = create_component<BC>(name, type);
 
-  bc->options().set( sdm::Tags::solver(),         solver().handle<Component>());
-  bc->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
+//  bc->options().set( sdm::Tags::solver(),         solver().handle<Component>());
+//  bc->options().set( sdm::Tags::mesh(),           mesh().handle<Component>());
 
   if (regions.size() == 0)
-    bc->options().set("regions", solver().options().value< std::vector<common::URI> >("regions"));
-  else
-    bc->options().set("regions", regions);
+    throw SetupError(FromHere(), "regions must be given fron now on!");
 
-  bc->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
+  bc->options().set("shared_caches",m_shared_caches);
+  bc->options().set("regions", regions);
 
-  boost_foreach(const URI& region_uri, regions)
+//  bc->options().set( sdm::Tags::physical_model(), physical_model().handle<Component>());
+
+  boost_foreach(const Handle<Region>& region, regions)
   {
-    m_bc_per_region[access_component(region_uri)->handle<Region>()] = bc->handle<BC>();
+    m_bc_per_region[region] = bc->handle<BC>();
   }
 
   CFinfo << "Created BC   " << name << "(" << type << ") for regions " << CFendl;
-  const std::string regions_option_name("regions");
-  boost_foreach(const URI& region_uri, bc->options().option(regions_option_name).value< std::vector<URI> >())
+  boost_foreach(const Handle<Region>& region, regions)
   {
-    CFinfo << "    - " << access_component(region_uri)->uri().path() << CFendl;
+    CFinfo << "    - " << region->uri().path() << CFendl;
   }
 
   return *bc;
@@ -122,22 +128,13 @@ void BoundaryConditions::signal_create_boundary_condition( SignalArgs& args )
 
   std::string name = options.value<std::string>("name");
   std::string type = options.value<std::string>("type");
-
-  // configure the regions
-  // if user did not specify, then use the whole topology (all regions)
-
-  std::vector<URI> regions;
-  if( options.check("regions") )
-    regions = options.value< std::vector<URI> >("regions");
-  else
-    regions.push_back(mesh().topology().uri());
+  std::vector< Handle<Region> > regions = options.value< std::vector< Handle<Region> > >("regions");
 
   BC& created_component = create_boundary_condition( type, name, regions );
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
   reply_options.add("created_component", created_component.uri());
-
 }
 
 
@@ -159,11 +156,9 @@ void BoundaryConditions::signature_signal_create_boundary_condition( SignalArgs&
 
   // regions
 
-  std::vector<URI> dummy;
+  /// @todo create here the list of restricted surface regions
 
-  /// @todo create here the list of restricted volume regions
-
-  options.add("regions", dummy )
+  options.add("regions", std::vector< Handle<Region> >() )
       .description("Regions where to apply the term");
 }
 

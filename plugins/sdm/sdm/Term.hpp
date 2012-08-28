@@ -8,11 +8,10 @@
 #define cf3_sdm_Term_hpp
 
 #include "common/Table_fwd.hpp"
-#include "common/BoostArray.hpp"
+//#include "common/BoostArray.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/Entities.hpp"
-#include "solver/Action.hpp"
 
 #include "sdm/LibSDM.hpp"
 
@@ -27,7 +26,7 @@ class Term;
 class SharedCaches;
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API Term : public cf3::solver::Action {
+class sdm_API Term : public cf3::common::Component {
 
 public: // functions
 
@@ -52,6 +51,8 @@ public: // functions
                 Handle<mesh::Entities const>& neighbour_entities, Uint& neighbour_elem_idx, Uint& neighbour_face_nb,
                 Handle<mesh::Entities const>& face_entities, Uint& face_idx, Uint& face_side);
 
+  virtual void execute() = 0;
+
   sdm::SharedCaches& shared_caches() { return *m_shared_caches; }
   Handle<mesh::Entities const> m_entities;
   Uint m_elem_idx;
@@ -72,19 +73,11 @@ public: // functions
 
   mesh::Field& jacob_det_field()                  { return *m_jacob_det; }
 
-  mesh::Field& delta_field()                      { return *m_delta; }
-
-  physics::Variables& solution_vars()             { return  *m_solution_vars; }
-
   //@} END ACCESSORS
 
 protected: // function
 
   void link_fields();
-
-private: // function
-
-  void trigger_physical_model();
 
 protected: // data
 
@@ -95,10 +88,6 @@ protected: // data
   Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
   Handle<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
-
-  Handle<mesh::Field> m_delta;        ///< access to the delta field (dx, dy, dz)
-
-  Handle<physics::Variables> m_solution_vars; ///< access to the solution variables
 
   /// Compute wave speeds in flx_pts
   /// TRUE:  - computation in flx_pts

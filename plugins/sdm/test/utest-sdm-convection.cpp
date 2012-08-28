@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( test_P0 )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection1D");
 
   // Time stepping
   solver.time_stepping().time().options().set("time_step",100.);
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE( test_P1 )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection1D");
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE( test_P2 )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection1D");
 
 //  // Boundary condition
 //  std::vector<URI> bc_regions;
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE( test_P3 )
   Field& solution_field = *follow_link(solver.field_manager().get_child(sdm::Tags::solution()))->handle<Field>();
 
   // Discretization
-  solver.domain_discretization().create_term("cf3.sdm.scalar.LinearAdvection1D","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("convection","cf3.sdm.scalar.LinearAdvection1D");
 
   // Boundary condition
   std::vector<URI> bc_regions;

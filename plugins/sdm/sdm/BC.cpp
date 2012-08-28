@@ -38,7 +38,7 @@ namespace sdm {
 /////////////////////////////////////////////////////////////////////////////////////
 
 BC::BC ( const std::string& name ) :
-  cf3::solver::Action(name)
+  cf3::common::Action(name)
 {
   mark_basic();
 
@@ -46,13 +46,13 @@ BC::BC ( const std::string& name ) :
       .pretty_name("Solution Field")
       .link_to(&m_solution);
 
-  options().add(sdm::Tags::wave_speed(), m_wave_speed)
-      .pretty_name("Wave Speed Field")
-      .link_to(&m_wave_speed);
+//  options().add(sdm::Tags::wave_speed(), m_wave_speed)
+//      .pretty_name("Wave Speed Field")
+//      .link_to(&m_wave_speed);
 
-  options().add(sdm::Tags::residual(), m_residual)
-      .pretty_name("Residual Field")
-      .link_to(&m_residual);
+//  options().add(sdm::Tags::residual(), m_residual)
+//      .pretty_name("Residual Field")
+//      .link_to(&m_residual);
 
   options().add(sdm::Tags::jacob_det(), m_jacob_det)
       .pretty_name("Jacobian Determinant Field")
@@ -61,46 +61,30 @@ BC::BC ( const std::string& name ) :
   options().add(sdm::Tags::shared_caches(), m_shared_caches)
       .pretty_name("Share Caches")
       .link_to(&m_shared_caches);
+
+  options().add(sdm::Tags::regions(), m_regions)
+      .description("Regions this action is applied to")
+      .pretty_name("Regions")
+      .link_to(&m_regions)
+      .mark_basic();
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void BC::link_fields()
 {
-  if( is_null( m_solution ) )
-  {
-    m_solution = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::solution() ) ) );
-    configure_option_recursively( sdm::Tags::solution(), m_solution );
-  }
-
-  if( is_null( m_residual ) )
-  {
-    m_residual = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::residual() ) ) );
-    configure_option_recursively( sdm::Tags::residual(), m_residual );
-  }
-
-  if( is_null( m_wave_speed ) )
-  {
-    m_wave_speed = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::wave_speed() ) ) );
-    configure_option_recursively( sdm::Tags::wave_speed(), m_wave_speed );
-  }
+  if( is_null( m_solution ) ) throw SetupError(FromHere(), "solution not configured");
+//  if( is_null( m_residual ) ) throw SetupError(FromHere(), "residual not configured");
+//  if( is_null( m_wave_speed ) ) throw SetupError(FromHere(), "wave_speed not configured");
 
   if( is_null( m_jacob_det ) )
   {
-    m_jacob_det = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::jacob_det() ) ) );
+    m_jacob_det = Handle<Field>(m_solution->dict().get_child(sdm::Tags::jacob_det() )) ;
     configure_option_recursively( sdm::Tags::jacob_det(), m_jacob_det );
   }
 
-  if( is_null( m_delta ) )
-  {
-    m_delta = Handle<Field>( follow_link( solver().field_manager().get_child( sdm::Tags::delta() ) ) );
-    configure_option_recursively( sdm::Tags::delta(), m_delta );
-  }
-
-  if( is_null( m_shared_caches ) )
-  {
-    m_shared_caches = Handle<SharedCaches>( solver().handle<SDSolver>()->shared_caches().handle<SharedCaches>() );
-  }
+  if( is_null( m_shared_caches ) ) throw SetupError(FromHere(), "shared_caches not configured");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

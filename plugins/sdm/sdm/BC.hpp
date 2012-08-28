@@ -26,7 +26,7 @@ class SharedCaches;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class sdm_API BC : public cf3::solver::Action {
+class sdm_API BC : public cf3::common::Action {
 
 public: // typedefs
 
@@ -65,13 +65,11 @@ public: // functions
 
   mesh::Field& solution_field()                   { return *m_solution; }
 
-  mesh::Field& residual_field()                   { return *m_residual; }
+//  mesh::Field& residual_field()                   { return *m_residual; }
 
-  mesh::Field& wave_speed_field()                 { return *m_wave_speed; }
+//  mesh::Field& wave_speed_field()                 { return *m_wave_speed; }
 
   mesh::Field& jacob_det_field()                  { return *m_jacob_det; }
-
-  mesh::Field& delta_field()                      { return *m_delta; }
 
   //@} END ACCESSORS
 
@@ -83,13 +81,15 @@ protected: // data
 
   Handle<mesh::Field> m_solution;     ///< access to the solution field
 
-  Handle<mesh::Field> m_residual;     ///< access to the residual field
+//  Handle<mesh::Field> m_residual;     ///< access to the residual field
 
-  Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+//  Handle<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
   Handle<mesh::Field> m_jacob_det;    ///< access to the jacobian_deBCinant field
 
   Handle<mesh::Field> m_delta;        ///< access to the delta field (dx, dy, dz)
+
+  std::vector< Handle<mesh::Region> > m_regions; /// < Regions this bc applies to
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

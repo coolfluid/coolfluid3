@@ -142,7 +142,7 @@ void ComputeCellJacobianPerturb::compute_jacobian(const Uint elem, RealMatrix& c
     {
       // Perturb the other variable (ds,dv)
       dQ = m_eps* sign(Q[dp][dv]) * std::max( std::abs(Q[dp][dv]) , std::abs(m_ref_sol[dv]) );
-      cf3_assert(dQ > eps());
+      cf3_assert_desc(to_str(dQ)+">"+to_str(eps()),std::abs(dQ) > eps());
       Q[dp][dv] += dQ;
 
       // Compute the perturbed residual only for this element

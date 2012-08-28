@@ -91,7 +91,7 @@ int main(int argc, char * argv[])
 
     // Create convection term
 
-    Term& convection = dd.create_term("cf3.sdm.lineuler.Convection3D","convection");
+    Term& convection = dd.create_term("convection","cf3.sdm.lineuler.Convection3D");
     convection.options().set("gamma", 1.);
     convection.options().set("rho0",1.);
     std::vector<Real> U0 = list_of(1.5)(0.)(0.);
@@ -100,7 +100,7 @@ int main(int argc, char * argv[])
 
     // create monopole source term
 
-    Term& monopole = dd.create_term("cf3.sdm.lineuler.SourceMonopole3D","monopole");
+    Term& monopole = dd.create_term("monopole","cf3.sdm.lineuler.SourceMonopole3D");
     monopole.options().set("omega",2.*pi()/30. );
     monopole.options().set("alpha",log(2.)/2.);
     monopole.options().set("epsilon",0.5);

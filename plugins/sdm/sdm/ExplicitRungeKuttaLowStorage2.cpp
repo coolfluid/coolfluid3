@@ -27,6 +27,7 @@
 
 #include "sdm/ExplicitRungeKuttaLowStorage2.hpp"
 #include "sdm/Tags.hpp"
+#include "sdm/TimeIntegrationStepComputer.hpp"
 #include "sdm/SDSolver.hpp"
 
 using namespace cf3::common;
@@ -71,6 +72,12 @@ ExplicitRungeKuttaLowStorage2::ExplicitRungeKuttaLowStorage2 ( const std::string
       .description("RK coefficients gamma")
       .pretty_name("gamma")
       .link_to(&m_gamma);
+
+  options().add("domain_discretization",m_domain_discretization).link_to(&m_domain_discretization);
+
+  options().add("time_step_computer",m_time_step_computer).link_to(&m_time_step_computer).mark_basic();
+
+  options()["solution"].attach_trigger( boost::bind( &ExplicitRungeKuttaLowStorage2::create_solution_backup , this) );
 
   config_nb_stages();
 }
@@ -153,27 +160,17 @@ void ExplicitRungeKuttaLowStorage2::config_nb_stages()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ExplicitRungeKuttaLowStorage2::link_fields()
+void ExplicitRungeKuttaLowStorage2::create_solution_backup()
 {
-  IterativeSolver::link_fields();
+  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
 
-  if ( is_null(m_solution_backup) )  // backup not created --> create field
+  if ( is_null(m_solution->dict().get_child("solution_backup")) )
   {
-    if (Handle< Component > found_solution_backup = solver().field_manager().get_child( "solution_backup" ))
-    {
-      m_solution_backup = Handle<Field>( follow_link(found_solution_backup) );
-    }
-    else if ( Handle< Component > found_solution_backup = m_solution->dict().get_child( "solution_backup" ) )
-    {
-      solver().field_manager().create_component<Link>("solution_backup")->link_to(*found_solution_backup);
-      m_solution_backup = found_solution_backup->handle<Field>();
-    }
-    else
-    {
-      m_solution_backup = m_solution->dict().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
-      m_solution_backup->descriptor().prefix_variable_names("backup_");
-      solver().field_manager().create_component<Link>("solution_backup")->link_to(*m_solution_backup);
-    }
+    m_solution_backup = m_solution->dict().create_field("solution_backup",m_solution->descriptor().description()).handle<Field>();
+  }
+  else
+  {
+    m_solution_backup = m_solution->dict().get_child("solution_backup")->handle<Field>();
   }
 }
 
@@ -203,17 +200,22 @@ void ExplicitRungeKuttaLowStorage2::execute()
   const Real T0 = time.current_time();
   Real dt = 0;
 
+
   for (Uint stage=0; stage<nb_stages; ++stage)
   {
     // Set time and iteration for this stage
     properties().property("iteration") = stage+1;
     time.current_time() = T0 + gamma[stage] * dt;
 
+    pre_update().execute();
+
     // Do actual computations of the domain discretization
     // - R
     try
     {
-      solver().handle<SDSolver>()->domain_discretization().execute();
+      m_domain_discretization->options().set("solution",m_solution);
+      m_domain_discretization->options().set("residual",m_residual);
+      m_domain_discretization->execute();
     }
     catch (const common::FailedToConverge& exception)
     {
@@ -224,11 +226,10 @@ void ExplicitRungeKuttaLowStorage2::execute()
       throw (common::FailedToConverge(FromHere(),""));
 
 
-    pre_update().execute();
-
     if (stage == 0)
     {
-      solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
+      m_time_step_computer->options().set("update_coefficient",m_update_coeff);
+      m_time_step_computer->execute();
     }
     // now assigned:
 

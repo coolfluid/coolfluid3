@@ -27,10 +27,7 @@
 #include "sdm/DomainDiscretization.hpp"
 #include "sdm/ComputeCellJacobianPerturb.hpp"
 #include "sdm/implicit/BackwardEuler.hpp"
-#include "sdm/SDSolver.hpp"
-
-#include "solver/Solver.hpp"
-
+#include "sdm/TimeIntegrationStepComputer.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
@@ -50,10 +47,6 @@ BackwardEuler::BackwardEuler ( const std::string& name ) :
 {
   CFdebug << "Creating BackwardEuler" << CFendl;
 
-  // This (optional) configuration option is only here so that the remaining options can be auto-configured.
-  // If it is not configured, the others have to be configured manually.
-  options().add("solver",m_solver).link_to(&m_solver);
-
   // Real options that are used
   options().add("domain_discretization",m_domain_discretization).link_to(&m_domain_discretization);
   options().add("solution",m_solution).link_to(&m_solution).attach_trigger( boost::bind( &BackwardEuler::create_solution_backup , this) );
@@ -63,8 +56,11 @@ BackwardEuler::BackwardEuler ( const std::string& name ) :
     .pretty_name("Update Coefficient")
     .link_to(&m_update_coeff);
 
+  options().add("time_step_computer",m_time_step_computer).link_to(&m_time_step_computer).mark_basic();
+
   // Create the component that will compute the cell jacobian
   m_compute_jacobian = create_static_component<ComputeCellJacobianPerturb>("ComputeCellJacobian");
+  m_compute_jacobian->mark_basic();
 
   CFdebug << "Created BackwardEuler" << CFendl;
 }
@@ -73,19 +69,6 @@ BackwardEuler::BackwardEuler ( const std::string& name ) :
 
 void BackwardEuler::configure()
 {
-  // Can auto-configure if solver is set
-  if (is_not_null(m_solver) )
-  {
-    if (is_null(m_solution))
-      options().set("solution",follow_link( m_solver->field_manager().get_child( "solution" ) ) );
-    if (is_null(m_residual))
-      options().set("residual",follow_link( m_solver->field_manager().get_child( "residual" ) ) );
-    if (is_null(m_update_coeff))
-      options().set("update_coefficient",follow_link( m_solver->field_manager().get_child( "update_coefficient" ) ) );
-    if (is_null(m_domain_discretization))
-      options().set("domain_discretization",m_solver->get_child("DomainDiscretization"));
-  }
-
   if ( is_null(m_domain_discretization) ) throw SetupError( FromHere(), "Option 'domain_discretization' not configured for "+uri().string());
   if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
   if ( is_null(m_residual) )              throw SetupError( FromHere(), "Option 'residual' not configured for "+uri().string());
@@ -95,7 +78,6 @@ void BackwardEuler::configure()
   m_compute_jacobian->options().set("domain_discretization",m_domain_discretization);
   m_compute_jacobian->options().set("solution",m_solution);
   m_compute_jacobian->options().set("residual",m_residual);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,12 +107,21 @@ void BackwardEuler::prepare()
   *m_solution_backup = *m_solution;
 
   // compute residual of backup, plus wave-speeds! --> used to compute dt
+  m_domain_discretization->options().set("solution",m_solution);
+//  m_domain_discretization->options().set("wave_speed",m_wave_speed);
+  m_domain_discretization->options().set("residual",m_residual);
   m_domain_discretization->execute();
 
   // compute the time-accurate time step or non-time-accurate update-coefficients per DOF
-  m_domain_discretization->solver().handle<SDSolver>()
-      ->actions().get_child("compute_update_coefficient")->handle<common::Action>()
-      ->execute();
+  m_time_step_computer->options().set("update_coefficient",m_update_coeff);
+  m_time_step_computer->execute();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BackwardEuler::synchronize()
+{
+  m_solution->synchronize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,9 +144,10 @@ Uint BackwardEuler::nb_cols() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool BackwardEuler::loop_cells(const Handle<mesh::Cells const>& cells)
+bool BackwardEuler::loop_cells(const Handle<mesh::Entities const>& cells)
 {
-  if (m_compute_jacobian->loop_cells(cells) == false)
+  if ( is_null(cells->handle<mesh::Cells>()) ) return false;
+  if (m_compute_jacobian->loop_cells(cells->handle<Cells>()) == false)
     return false;
 
   m_space = m_solution->space(cells);

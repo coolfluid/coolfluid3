@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_sdm_ComputeUpdateCoefficient_hpp
-#define cf3_sdm_ComputeUpdateCoefficient_hpp
+#ifndef cf3_sdm_TimeIntegrationStepComputer_hpp
+#define cf3_sdm_TimeIntegrationStepComputer_hpp
 
-#include "solver/Action.hpp"
+#include "common/Action.hpp"
 #include "sdm/LibSDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -18,33 +18,24 @@ namespace solver { class Time;   }
 namespace sdm {
 
 
-class sdm_API ComputeUpdateCoefficient : public solver::Action
+class sdm_API TimeIntegrationStepComputer : public common::Action
 {
-public: // typedefs
-
-  /// pointers
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component
-  ComputeUpdateCoefficient ( const std::string& name );
+  TimeIntegrationStepComputer ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ComputeUpdateCoefficient() {};
+  virtual ~TimeIntegrationStepComputer() {};
 
   /// Get the class name
-  static std::string type_name () { return "ComputeUpdateCoefficient"; }
+  static std::string type_name () { return "TimeIntegrationStepComputer"; }
 
-  /// execute the action
-  virtual void execute ();
-
-private: // helper functions
+protected: // helper functions
 
   Real limit_end_time(const Real& time, const Real& end_time);
-  void link_fields();
-private: // data
+
+protected: // data
 
   Handle<mesh::Field> m_update_coeff;
   Handle<mesh::Field> m_wave_speed;
@@ -60,4 +51,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_sdm_ComputeUpdateCoefficient_hpp
+#endif // cf3_sdm_TimeIntegrationStepComputer_hpp
