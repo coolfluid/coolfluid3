@@ -114,7 +114,7 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   return result;
 }
 
-Handle< common::Action > Solver::add_iteration_solver(const std::string& builder_name)
+Handle< common::Action > Solver::add_iteration_solver(const std::string& builder_name)    // the add_iteration_solver for inner itarations in case of a coupling between two solvers
 {
   if(is_null(m_initial_conditions))
   {
@@ -122,18 +122,19 @@ Handle< common::Action > Solver::add_iteration_solver(const std::string& builder
   }
 
   Handle<Component> timeloop = get_child("TimeLoop");
-  Handle<Component> coupling = get_child("TimeLoop");
   if(is_null(timeloop))
   {
       timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
+      timeloop->mark_basic();                                                          //mark_basic to make it visible in python; there a dot replaces the get child method
       timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
-      coupling = timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate");
+      timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate")->mark_basic();
       timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
   }
 
-  Handle<common::Action> result = add_solver(builder_name, *coupling);
+  Handle<Component> coupling = timeloop->get_child("CouplingIteration");
+  cf3_assert(is_not_null(coupling));
 
-  timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
+  Handle<common::Action> result = add_solver(builder_name, *coupling);
 
   return result;
 }
@@ -330,8 +331,6 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
 
   return result;
 }
-
-
 
 } // UFEM
 } // cf3

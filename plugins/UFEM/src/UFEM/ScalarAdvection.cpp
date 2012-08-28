@@ -87,6 +87,8 @@ void ScalarAdvection::trigger_scalar_name()
   FieldVariable<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
 
+  ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor", "factor for relaxation in case of coupling", 0.1);
+
   // Set the proto expression that handles the assembly
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
     elements_expression
@@ -109,7 +111,7 @@ void ScalarAdvection::trigger_scalar_name()
   );
 
   // Set the proto expression for the update step
-  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(Phi += solution(Phi)) );
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(Phi += relaxation_factor_scalar * solution(Phi)) );
 }
 
 

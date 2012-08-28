@@ -46,7 +46,7 @@
   </ParameterList>
 
 
-  <Parameter name="Preconditioner Type" type="string" value="ML"/>
+  <Parameter name="Preconditioner Type" type="string" value="Ifpack"/>
   <ParameterList name="Preconditioner Types">
     <ParameterList name="Ifpack">
       <ParameterList name="Ifpack Settings">
