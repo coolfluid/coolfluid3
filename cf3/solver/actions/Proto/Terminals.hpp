@@ -194,6 +194,13 @@ struct ZeroTag
 /// Placeholder for the zero matrix
 static boost::proto::terminal<ZeroTag>::type _0 = {};
 
+struct IdentityTag
+{
+};
+
+/// Placeholder for the identity matrix
+static boost::proto::terminal<IdentityTag>::type _I = {};
+
 /// Wrap std::cout
 static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 

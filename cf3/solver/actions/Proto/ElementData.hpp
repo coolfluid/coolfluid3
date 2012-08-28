@@ -776,7 +776,10 @@ public:
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data, m_support));
     for(Uint i = 0; i != CF3_PROTO_MAX_ELEMENT_MATRICES; ++i)
+    {
       m_element_matrices[i].setZero();
+      m_element_vectors[i].setZero();
+    }
 
     typedef typename boost::mpl::transform
     <
@@ -890,6 +893,12 @@ public:
     return m_element_matrices[i];
   }
 
+  /// Retrieve the element vector at index i
+  ElementVectorT& element_vector(const int i)
+  {
+    return m_element_vectors[i];
+  }
+
   /// Retrieve the element RHS
   ElementVectorT& element_rhs()
   {
@@ -915,6 +924,7 @@ private:
   Uint m_element_idx;
 
   ElementMatrixT m_element_matrices[CF3_PROTO_MAX_ELEMENT_MATRICES];
+  ElementVectorT m_element_vectors[CF3_PROTO_MAX_ELEMENT_MATRICES];
   ElementVectorT m_element_rhs;
 
   /// Filtered view of the data associated with equation variables
