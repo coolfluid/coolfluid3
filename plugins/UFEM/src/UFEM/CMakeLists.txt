@@ -26,9 +26,13 @@ list( APPEND coolfluid_ufem_files
   NavierStokes.hpp
   NavierStokes.cpp
   NavierStokesAssembly.hpp
-  NavierStokesSpecializations.hpp
+  NavierStokesExplicitPressure.hpp
+  NavierStokesExplicitPressure.cpp
+  NavierStokesExplicitVelocity.hpp
+  NavierStokesExplicitVelocity.cpp
   NavierStokesHexas.cpp
   NavierStokesQuads.cpp
+  NavierStokesSpecializations.hpp
   NavierStokesTetras.cpp
   NavierStokesTriags.cpp
   NavierStokesPhysics.hpp
@@ -51,4 +55,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagr
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
-set_source_files_properties(HeatConductionSteady.cpp NavierStokesTriags.cpp NavierStokesTetras.cpp NavierStokesQuads.cpp NavierStokesHexas.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(HeatConductionSteady.cpp NavierStokesExplicitPressure.cpp NavierStokesExplicitVelocity.cpp NavierStokesTriags.cpp NavierStokesTetras.cpp NavierStokesQuads.cpp NavierStokesHexas.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")
