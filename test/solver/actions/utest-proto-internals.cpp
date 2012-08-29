@@ -105,7 +105,7 @@ void print_variables(const ExprT&)
 
 BOOST_AUTO_TEST_CASE( EquationVars )
 {
-  static const typename boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector0<> > >::type for_generic_elements = {};
+  static const boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector0<> > >::type for_generic_elements = {};
   
   Real tau_ps, tau_su, tau_bulk;
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution");
