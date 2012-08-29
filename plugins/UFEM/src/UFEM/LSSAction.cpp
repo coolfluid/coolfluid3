@@ -99,6 +99,10 @@ LSSAction::LSSAction(const std::string& name) :
     .description("The component that is used to manage the initial conditions in the solver this action belongs to")
     .link_to(&m_initial_conditions)
     .attach_trigger(boost::bind(&LSSAction::trigger_initial_conditions, this));
+    
+  options().add("blocked_system", false)
+    .pretty_name("Blocked System")
+    .description("Store the linear system internally as a set of blocks grouped per variable, rather than keeping the variables per node");
 }
 
 LSSAction::~LSSAction()
@@ -188,8 +192,18 @@ void LSSAction::on_regions_set()
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
-    CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
-    m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+    const bool blocked_system = options().option("blocked_system").value<bool>();
+    if(blocked_system)
+      CFdebug << "Creating blocked LSS for ";
+    else
+      CFdebug << "Creating per-node LSS for ";
+    CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
+    
+    if(blocked_system)
+      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices);
+    else
+      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+    
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
     configure_option_recursively("lss", m_implementation->m_lss);
