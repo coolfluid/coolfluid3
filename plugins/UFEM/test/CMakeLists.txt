@@ -86,11 +86,6 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     MPI 1)
 
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d_satm
-                    PYTHON atest-ufem-navier-stokes-cylinder2d_satm.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 1)
-
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml

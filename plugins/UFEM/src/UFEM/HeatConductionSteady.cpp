@@ -62,6 +62,7 @@ void HeatConductionSteady::trigger()
   set_solution_tag("heat_conduction_solution");
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
+  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor", "factor for relaxation in case of coupling", 0.1);
 
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());
@@ -85,7 +86,7 @@ void HeatConductionSteady::trigger()
     ))
     << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
     << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
-    << create_proto_action("SetSolution", nodes_expression(T += solution(T)));     // Set the solution
+    << create_proto_action("SetSolution", nodes_expression(T += relaxation_factor_hc*solution(T)));     // Set the solution
 
   Handle<BoundaryConditions>(get_child("BoundaryConditions"))->set_solution_tag(solution_tag());
   get_child("BoundaryConditions")->mark_basic();
