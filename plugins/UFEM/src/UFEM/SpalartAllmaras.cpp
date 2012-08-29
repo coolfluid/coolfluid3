@@ -191,9 +191,8 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   FieldVariable<2, VectorField> u("Velocity","navier_stokes_solution");
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
-  FieldVariable<4, ScalarField> nu_lam("LaminarViscosity", "laminar_navier_stokes_viscosity");
-  FieldVariable<5, ScalarField> nu_t("NU_t", "Nu_t");
-  FieldVariable<6, ScalarField> nu_dim("NU_dim", "Nu_dim");
+  FieldVariable<4, ScalarField> nu_t("NU_t", "Nu_t");
+  FieldVariable<5, ScalarField> nu_dim("NU_dim", "Nu_dim");
 
 
   PhysicsConstant rho("density");
@@ -242,7 +241,6 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
          NU = _min(_max(NU,0.),1.e+5),
          nu_t = NU * _fv1((NU/lit(mu))*rho, 7.1),
          nu_eff = (lit(mu) / rho) + NU * _fv1((NU/lit(mu))*rho, 7.1),
-         nu_lam = (lit(mu) / rho),
          nu_dim = nu_t/nu_lam
        )));
 
