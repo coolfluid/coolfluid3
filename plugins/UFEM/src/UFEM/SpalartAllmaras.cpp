@@ -225,7 +225,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                                + cw1*((transpose(N(NU))*N(NU) * NU) * lit(m_sa_coeffs.one_over_D_squared)) * (m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)      // cw1 * fw * (NU_hat/d)^2
                                - m_sa_coeffs.min)) * _pow(((1+_pow(cw3,6))/(_pow((m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)-m_sa_coeffs.min)),6)+_pow(cw3,6))),1/6)            // destruction
 
-                             + one_over_sigma * ((NU + m_su_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
+                             + one_over_sigma * ((NU + mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
                              - one_over_sigma * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                            // diffusion: nabla(NU)^2 times the weight function
                            _T(NU,NU) +=  transpose(N(NU) + tau_su * u_adv * nabla(NU)) * N(NU)                                                          // Time, standard and SUPG
                         ),
@@ -240,9 +240,9 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
        group(
          NU += solution(NU),
          NU = _min(_max(NU,0.),1.e+5),
-         nu_t = NU * _fv1((NU/lit(m_su_coeffs.mu))*m_su_coeffs.rho, 7.1),
-         nu_eff = (lit(m_su_coeffs.mu) / m_su_coeffs.rho) + NU * _fv1((NU/lit(m_su_coeffs.mu))*m_su_coeffs.rho, 7.1),
-         nu_lam = (lit(m_su_coeffs.mu) / m_su_coeffs.rho),
+         nu_t = NU * _fv1((NU/lit(mu))*rho, 7.1),
+         nu_eff = (lit(mu) / rho) + NU * _fv1((NU/lit(mu))*rho, 7.1),
+         nu_lam = (lit(mu) / rho),
          nu_dim = nu_t/nu_lam
        )));
 
