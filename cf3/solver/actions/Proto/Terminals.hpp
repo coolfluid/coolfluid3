@@ -211,6 +211,12 @@ inline Real max(const Real a, const Real b)
   return a > b ? a : b;
 }
 
+/// Minimum between two scalars
+inline Real min(const Real a, const Real b)
+{
+  return a < b ? a : b;
+}
+
 // Wrap some math functions
 static boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 static boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
@@ -219,6 +225,7 @@ static boost::proto::terminal< double(*)(double) >::type const _exp = {&exp};
 static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
 static boost::proto::terminal< double(*)(double) >::type const _abs = {&fabs};
 static boost::proto::terminal< double(*)(double, double) >::type const _max = {&max};
+static boost::proto::terminal< double(*)(double, double) >::type const _min = {&min};
 
 } // namespace Proto
 } // namespace actions

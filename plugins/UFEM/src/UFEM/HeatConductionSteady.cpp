@@ -36,7 +36,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(
   FieldVariable<1, ScalarField> heat("Heat", Tags::source_terms());
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
-  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor", "factor for relaxation in case of coupling", 0.1);
+  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 0.1);
 
   create_component<ZeroLSS>("ZeroLSS");
 
