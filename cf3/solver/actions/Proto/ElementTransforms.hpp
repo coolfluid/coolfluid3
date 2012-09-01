@@ -148,6 +148,36 @@ struct NodalValues :
 {
 };
 
+struct NodesAddAssignTag
+{
+};
+
+static boost::proto::terminal<NodesAddAssignTag>::type const add_nodal_values = {};
+
+struct AddNodeValues : boost::proto::transform<AddNodeValues>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator()(typename impl::expr_param var, typename impl::state_param new_values, typename impl::data_param data)
+    {
+      data.var_data(var).add_nodal_values(new_values);
+    }
+  };
+};
+
+template<typename GrammarT>
+struct SetNodeValuesGrammar :
+  boost::proto::when
+  <
+    boost::proto::function<boost::proto::terminal<NodesAddAssignTag>, FieldTypes, boost::proto::_>,
+    AddNodeValues(boost::proto::_value(boost::proto::_child1), GrammarT(boost::proto::_child2))
+  >
+{
+};
+
 /// Interpolate a field at the current gauss point
 struct FieldInterpolation :
   boost::proto::when

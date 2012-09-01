@@ -242,6 +242,27 @@ struct NodeVarData<VectorField, Dim>
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
+  
+  void set_value_component(boost::proto::tag::assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] = v;
+    m_field[m_idx][m_var_begin + i] = v;
+  }
+
+  void set_value_component(boost::proto::tag::plus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] += v;
+    m_field[m_idx][m_var_begin + i] += v;
+  }
+
+  void set_value_component(boost::proto::tag::minus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] -= v;
+    m_field[m_idx][m_var_begin + i] -= v;
+  }
 
   /// Offset for the variable in the field
   Uint offset;

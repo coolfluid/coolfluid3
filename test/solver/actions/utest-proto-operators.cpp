@@ -83,6 +83,8 @@ typedef boost::mpl::vector5< LagrangeP1::Line1D,
 
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
+using boost::proto::lit;
+
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
@@ -197,7 +199,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
 
   // Set a field with the pressures
-  for_each_node
+  for_each_node<2>
   (
     mesh->topology(),
     p += pow<2>
@@ -480,7 +482,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
     boost::mpl::vector1<LagrangeP1::Quad2D>(),
     element_quadrature(boost::proto::lit(result) += u*nabla(u))
   )->loop(mesh.topology());
-  
+
   std::cout << "advection: " << result.transpose() << std::endl;
 
   //RealMatrix4 gradient_result; gradient_result.setZero();
@@ -615,10 +617,10 @@ BOOST_AUTO_TEST_CASE( RestrictToEtype )
 {
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("rect_etypecheck");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 2);
-  
+
   boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector1<LagrangeP1::Quad2D> > >::type quads_only;
   boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector1<LagrangeP1::Line2D> > >::type lines_only;
-  
+
   Uint nb_cells = 0;
   Uint nb_faces = 0;
 
@@ -632,8 +634,82 @@ BOOST_AUTO_TEST_CASE( RestrictToEtype )
 
   BOOST_CHECK_EQUAL(nb_cells, 10);
   BOOST_CHECK_EQUAL(nb_faces, 16);
-  
+
   std::cout << "mesh has " << nb_cells << " cells and " << nb_faces << " faces" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE( AddElementValues )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("add_elems_mesh");
+  Tools::MeshGeneration::create_line(*mesh, 1., 3);
+
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+
+  FieldVariable<0, ScalarField > T("Temperature", "solution");
+
+  RealVector1 mapped_coords;
+  mapped_coords.setZero();
+
+  RealMatrix2 vals; vals.setConstant(0.5);
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  (
+    mesh->topology(),
+    group(
+      lump(vals),
+      add_nodal_values(T, diagonal(vals))
+    )
+  );
+
+  Real check = 0;
+  for_each_node(mesh->topology(), group(boost::proto::lit(check) += T, _cout << "summed nodal value: " << T << "\n"));
+
+  BOOST_CHECK_EQUAL(check, 6);
+}
+
+
+BOOST_AUTO_TEST_CASE( NodeIndexLoop )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("ArrayOpsGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  FieldVariable<0, VectorField> u("Velocity", "solution");
+  mesh->geometry_fields().create_field( "solution", "Velocity[v]" ).add_tag("solution");
+  
+  RealVector v(2); v << 2. , 4.;
+  RealVector v2(2); v2.setZero();
+
+  for_each_node
+  (
+    mesh->topology(),
+    group
+    (
+      lit(v2)[_i] += lit(v)[_i],
+      u[_i] = lit(v)[_i]
+    )
+  );
+
+  BOOST_CHECK_EQUAL(v2[0], 8.);
+  BOOST_CHECK_EQUAL(v2[1], 16.);
+  
+  Real x_sum = 0.;
+  Real y_sum = 0.;
+  Real total_sum = 0.;
+  
+  for_each_node
+  (
+    mesh->topology(),
+    group
+    (
+      lit(x_sum) += u[0],
+      lit(y_sum) += u[1],
+      lit(total_sum) += u[_i]
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(x_sum, 8.);
+  BOOST_CHECK_EQUAL(y_sum, 16.);
+  BOOST_CHECK_EQUAL(total_sum, 24.);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

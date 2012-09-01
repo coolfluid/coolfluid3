@@ -76,6 +76,7 @@ struct SingleExprElementGrammar :
   <
     // Assignment to system matrix
     BlockAccumulation<ElementMath>,
+    SetNodeValuesGrammar<ElementMath>,
     boost::proto::when
     <
       ElementMath,

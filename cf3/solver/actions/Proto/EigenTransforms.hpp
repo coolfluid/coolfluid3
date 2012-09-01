@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_EigenTransforms_hpp
 #define cf3_solver_actions_Proto_EigenTransforms_hpp
 
+#include <boost/type_traits/is_reference.hpp>
+
 #include <boost/mpl/equal_to.hpp>
 #include <boost/proto/core.hpp>
 
@@ -284,6 +286,31 @@ struct TransposeTransform :
   };
 };
 
+/// Terminal to indicate we want a diagonal
+struct ExtractDiagTag
+{
+};
+
+boost::proto::terminal<ExtractDiagTag>::type const diagonal = {{}};
+
+/// Primitive transform to perform the transpose
+struct ExtractDiag :
+  boost::proto::transform< ExtractDiag >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type MatrixT;
+
+    typedef Eigen::Diagonal<MatrixT> result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return expr.diagonal();
+    }
+  };
+};
+
 /// Primitive transform to access matrix elements using operator()
 struct MatrixElementAccess :
   boost::proto::transform< MatrixElementAccess >
@@ -320,9 +347,10 @@ struct MatrixSubscript :
     // True if the passed expression for the index is a looping index
     typedef boost::proto::matches< IdxExprT, boost::proto::terminal< IndexTag<boost::proto::_> > > IsLoopingIdxT;
 
-    static const bool is_vector = LeftT::ColsAtCompileTime == 1 || LeftT::RowsAtCompileTime == 1;
-    typedef typename boost::mpl::if_c<is_vector, Real, typename LeftT::ConstRowXpr>::type subscript_result_type;
-    typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1> >::type IgnoreLoopingT;
+    static const bool is_vector = LeftT::IsVectorAtCompileTime;
+    typedef typename boost::mpl::if_<typename boost::is_const<LeftT>::type, Real, Real&>::type ScalarTypeT;
+    typedef typename boost::mpl::if_c<is_vector, ScalarTypeT, typename LeftT::ConstRowXpr>::type subscript_result_type;
+    typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1 && (LeftT::MaxRowsAtCompileTime > 1 || LeftT::MaxColsAtCompileTime > 1)> >::type IgnoreLoopingT;
     typedef typename boost::mpl::if_
     <
       IgnoreLoopingT,
@@ -344,7 +372,7 @@ struct MatrixSubscript :
 
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
     template<typename MatrixT, typename IndexT>
-    inline Real do_eval(boost::mpl::true_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const // used for vectors
+    inline ScalarTypeT do_eval(boost::mpl::true_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const // used for vectors
     {
       return matrix[idx];
     }
@@ -498,6 +526,34 @@ struct ComputeNorm :
   };
 };
 
+struct LumpTag
+{
+};
+
+static boost::proto::terminal<LumpTag>::type const lump = {};
+
+/// Lump the matrix
+struct Lump :
+  boost::proto::transform< Lump >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    template<typename MatrixT>
+    result_type operator ()(const MatrixT& mat, typename impl::state_param, typename impl::data_param) const
+    {
+      for(Uint i = 0; i != MatrixT::RowsAtCompileTime; ++i)
+      {
+        const Real rowsum = mat.row(i).sum();
+        const_cast<MatrixT&>(mat).row(i).setZero();
+        const_cast<MatrixT&>(mat)(i,i) = rowsum;
+      }
+    }
+  };
+};
+
 /// Indexing into Eigen expressions
 template<typename GrammarT, typename IntegersT>
 struct EigenIndexing :
@@ -564,6 +620,18 @@ struct EigenMath :
     <
       boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
       ComputeNorm(GrammarT(boost::proto::_right))
+    >,
+    // Row-sum lumping
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<LumpTag>, boost::proto::_>,
+      Lump(GrammarT(boost::proto::_right))
+    >,
+    // Diagonal extraction
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<ExtractDiagTag>, boost::proto::_>,
+      ExtractDiag(GrammarT(boost::proto::_right))
     >,
     MathOpDefault<GrammarT>
   >

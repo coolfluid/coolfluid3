@@ -383,6 +383,17 @@ public:
   {
     return m_element_values;
   }
+  
+  template<typename NodeValsT>
+  void add_nodal_values(const NodeValsT& vals)
+  {
+    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
+    {
+      m_element_values.row(i) += vals.template block<dimension, 1>(i*dimension, 0);
+      m_field.set_row(conn[i], m_element_values.row(i));
+    }
+  }
 
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
   void compute_values(const MappedCoordsT& mapped_coords) const
@@ -451,7 +462,7 @@ private:
   ValueT m_element_values;
 
   /// Data table
-  const mesh::Field& m_field;
+  mesh::Field& m_field;
 
   /// Connectivity table
   const mesh::Connectivity& m_connectivity;

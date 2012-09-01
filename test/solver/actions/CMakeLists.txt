@@ -37,6 +37,7 @@ coolfluid_add_test( PTEST      ptest-proto-benchmark
 coolfluid_add_test( UTEST     utest-proto-operators
                     CPP       utest-proto-operators.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)
+set_source_files_properties(utest-proto-operators.cpp PROPERTIES COMPILE_FLAGS "-g0")
                     
 coolfluid_add_test( UTEST     utest-proto-internals
                     CPP       utest-proto-internals.cpp
