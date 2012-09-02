@@ -394,6 +394,17 @@ public:
       m_field.set_row(conn[i], m_element_values.row(i));
     }
   }
+  
+  template<typename NodeValsT>
+  void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
+  {
+    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
+    {
+      m_element_values(i, component_idx) += vals[i];
+      m_field[conn[i]][component_idx] = m_element_values(i, component_idx);
+    }
+  }
 
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
   void compute_values(const MappedCoordsT& mapped_coords) const

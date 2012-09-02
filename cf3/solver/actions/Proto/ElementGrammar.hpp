@@ -48,6 +48,7 @@ struct ElementMath :
     SFOps< boost::proto::terminal<boost::proto::_> >,
     ElementMathBase,
     ElementMatrixSubBlocks<boost::proto::_>,
+    AssignNodalValues<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,
     EigenMath<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
   >
 {
@@ -61,6 +62,7 @@ struct ElementMathIndexed :
     SFOps< boost::proto::call< ElementMathIndexed<I, J> > >,
     ElementMathBase,
     ElementMatrixGrammarIndexed<I, J>,
+    AssignNodalValues<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >,
     EigenMath<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
   >
 {
@@ -76,7 +78,6 @@ struct SingleExprElementGrammar :
   <
     // Assignment to system matrix
     BlockAccumulation<ElementMath>,
-    SetNodeValuesGrammar<ElementMath>,
     boost::proto::when
     <
       ElementMath,

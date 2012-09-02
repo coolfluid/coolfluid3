@@ -641,30 +641,53 @@ BOOST_AUTO_TEST_CASE( RestrictToEtype )
 BOOST_AUTO_TEST_CASE( AddElementValues )
 {
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("add_elems_mesh");
-  Tools::MeshGeneration::create_line(*mesh, 1., 3);
+  Tools::MeshGeneration::create_rectangle(*mesh, 6., 3., 3, 3);
 
-  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
+  mesh->geometry_fields().create_field( "solution", "Temperature[v]" ).add_tag("solution");
 
-  FieldVariable<0, ScalarField > T("Temperature", "solution");
+  FieldVariable<0, VectorField > T("Temperature", "solution");
 
-  RealVector1 mapped_coords;
-  mapped_coords.setZero();
+  Eigen::Matrix<Real, 8, 8> vals; vals.setConstant(0.125);
 
-  RealMatrix2 vals; vals.setConstant(0.5);
-
-  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
     mesh->topology(),
-    group(
+    group
+    (
       lump(vals),
-      add_nodal_values(T, diagonal(vals))
+      T += diagonal(vals)
     )
   );
 
   Real check = 0;
-  for_each_node(mesh->topology(), group(boost::proto::lit(check) += T, _cout << "summed nodal value: " << T << "\n"));
-
-  BOOST_CHECK_EQUAL(check, 6);
+  for_each_node(mesh->topology(), group(boost::proto::lit(check) += T[_i], _cout << "summed nodal value: " << transpose(T) << "\n"));
+  
+  for_each_node(mesh->topology(), T[_i] = 0.);
+  
+  BOOST_CHECK_EQUAL(check, 72);
+  
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      T[_i] += nabla(T, gauss_points_1)[_i],
+      _cout << nabla(T, gauss_points_1)[_i] << "\n"
+    )
+  );
+  
+  Real x_check = 0.;
+  Real y_check = 0.;
+  
+  for_each_node<2>(mesh->topology(), group
+  (
+    boost::proto::lit(x_check) += T[0],
+    boost::proto::lit(y_check) += T[1],
+    _cout << "checked nodal value: " << transpose(T) << " at (" << transpose(coordinates) << ")\n"
+  ));
+  
+  BOOST_CHECK_EQUAL(x_check, 0.);
+  BOOST_CHECK_EQUAL(y_check, 0.);
 }
 
 

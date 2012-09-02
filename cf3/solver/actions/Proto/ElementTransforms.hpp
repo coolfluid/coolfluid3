@@ -130,6 +130,35 @@ struct NodalValuesTag
 
 static boost::proto::terminal<NodalValuesTag>::type const nodal_values = {};
 
+struct AddNodeValues : boost::proto::transform<AddNodeValues>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator()(typename impl::expr_param var, typename impl::state_param new_values, typename impl::data_param data)
+    {
+      data.var_data(var).add_nodal_values(new_values);
+    }
+  };
+};
+
+template<typename IndexGrammarT>
+struct AddNodeValuesIndex : boost::proto::transform< AddNodeValuesIndex<IndexGrammarT> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator()(typename impl::expr_param expr, typename impl::state_param new_values, typename impl::data_param data)
+    {
+      data.var_data(boost::proto::value(boost::proto::left(expr))).add_nodal_values_component(new_values, IndexGrammarT()(boost::proto::right(expr), new_values, data));
+    }
+  };
+};
+
 /// Get nodal values
 struct NodalValues :
   boost::proto::or_
@@ -148,32 +177,21 @@ struct NodalValues :
 {
 };
 
-struct NodesAddAssignTag
-{
-};
-
-static boost::proto::terminal<NodesAddAssignTag>::type const add_nodal_values = {};
-
-struct AddNodeValues : boost::proto::transform<AddNodeValues>
-{
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  {
-    typedef void result_type;
-
-    result_type operator()(typename impl::expr_param var, typename impl::state_param new_values, typename impl::data_param data)
-    {
-      data.var_data(var).add_nodal_values(new_values);
-    }
-  };
-};
-
-template<typename GrammarT>
-struct SetNodeValuesGrammar :
-  boost::proto::when
+/// Write to element nodal values
+template<typename GrammarT, typename IndexGrammarT>
+struct AssignNodalValues :
+  boost::proto::or_
   <
-    boost::proto::function<boost::proto::terminal<NodesAddAssignTag>, FieldTypes, boost::proto::_>,
-    AddNodeValues(boost::proto::_value(boost::proto::_child1), GrammarT(boost::proto::_child2))
+    boost::proto::when
+    <
+      boost::proto::plus_assign< FieldTypes, boost::proto::_ >,
+      AddNodeValues(boost::proto::_value(boost::proto::_left), GrammarT(boost::proto::_right))
+    >,
+    boost::proto::when
+    <
+      boost::proto::plus_assign< boost::proto::subscript<FieldTypes, IndexGrammarT>, boost::proto::_ >,
+      boost::proto::call< AddNodeValuesIndex<IndexGrammarT> >(boost::proto::_left, GrammarT(boost::proto::_right))
+    >
   >
 {
 };
