@@ -58,7 +58,7 @@ SignalRet SignalHandler::call_signal ( const SignalID& sname, std::vector<std::s
 
   options.insert( sinput );
 
-  call_signal(sname, frame);
+  return call_signal(sname, frame);
 }
 
 SignalPtr SignalHandler::signal ( const SignalID& sname )
