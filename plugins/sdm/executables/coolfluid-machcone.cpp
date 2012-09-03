@@ -11,6 +11,7 @@
 #include "common/Exception.hpp"
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/Group.hpp"
@@ -21,15 +22,16 @@
 #include "mesh/Dictionary.hpp"
 #include "mesh/Domain.hpp"
 #include "mesh/MeshGenerator.hpp"
+#include "mesh/Interpolator.hpp"
 #include "mesh/actions/LoadBalance.hpp"
 #include "mesh/actions/Interpolate.hpp"
 
-#include "solver/ModelUnsteady.hpp"
 #include "solver/Time.hpp"
+#include "solver/TimeStepping.hpp"
 
-#include "physics/PhysModel.hpp"
-#include "sdm/SDSolver.hpp"
 #include "sdm/Term.hpp"
+#include "sdm/Model.hpp"
+#include "sdm/DomainDiscretization.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
@@ -38,7 +40,6 @@ using namespace cf3::math::Consts;
 using namespace cf3::mesh;
 using namespace cf3::mesh::actions;
 using namespace cf3::solver;
-using namespace cf3::physics;
 using namespace cf3::sdm;
 
 
@@ -53,15 +54,11 @@ int main(int argc, char * argv[])
   {
     // Create simulation
 
-    Handle<ModelUnsteady> model = Core::instance().root().create_component<ModelUnsteady>("machcone_3d");
-    Time&      time     = model->create_time();
-    PhysModel& physics  = model->create_physics("cf3.physics.LinEuler.LinEuler3D");
-    Solver&    solver   = model->create_solver("cf3.sdm.SDSolver");
-    Domain&    domain   = model->create_domain("domain");
+    Handle<sdm::Model> model = Core::instance().root().create_component<sdm::Model>("machcone_3d");
 
     // Create mesh
 
-    Handle<Mesh>          mesh           = domain.create_component<Mesh>("mesh");
+    Handle<Mesh>          mesh           = model->domain().create_component<Mesh>("mesh");
     Handle<MeshGenerator> mesh_generator = model->tools().create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")->handle<MeshGenerator>();
     mesh_generator->options().set("mesh",mesh->uri());
     mesh_generator->options().set("nb_cells",std::vector<Uint>(3,10));
@@ -71,27 +68,21 @@ int main(int argc, char * argv[])
     mesh_generator->execute();
     allocate_component<LoadBalance>("repartitioner")->transform(mesh);
 
-    // Configure solver
+    // Configure model
+    model->access_component("time_stepping")->options().set("end_time",1.);
+    model->access_component("time_stepping")->options().set("time_step",1.);
+    model->access_component("time_integration/step")->options().set("cfl",0.2);
+    model->access_component("time_integration/scheme")->options().set("nb_stages",3);
 
-    solver.options().set("mesh",mesh);
-    solver.options().set("time",time.handle<Time>());
-    solver.options().set("solution_vars",std::string("cf3.physics.LinEuler.Cons3D"));
-    solver.options().set("solution_order",5u);
+    Handle<Dictionary> solution_space = model->create_solution_space(4u,std::vector< Handle<Component> >(1, mesh->handle() ));
+    Handle<Field> solution = solution_space->create_field("solution","rho[scal],U[vec],p[scal]").handle<Field>();
+    model->options().set("solution",solution);
 
-    DomainDiscretization& dd = *solver.get_child("DomainDiscretization")->handle<DomainDiscretization>();
-
-    // Configure timestepping
-
-    solver.access_component("TimeStepping")->options().set("cfl",std::string("0.1"));
-    solver.access_component("TimeStepping/IterativeSolver")->options().set("nb_stages",3u);
-
-    // Prepare the mesh for Spectral Difference (build faces and fields etc...)
-
-    solver.get_child("PrepareMesh")->handle<common::Action>()->execute();
+    Handle<DomainDiscretization> dd = model->access_component("domain_discretization")->handle<DomainDiscretization>();
 
     // Create convection term
 
-    Term& convection = dd.create_term("convection","cf3.sdm.lineuler.Convection3D");
+    Term& convection = dd->create_term("convection","cf3.sdm.lineuler.Convection3D");
     convection.options().set("gamma", 1.);
     convection.options().set("rho0",1.);
     std::vector<Real> U0 = list_of(1.5)(0.)(0.);
@@ -100,49 +91,40 @@ int main(int argc, char * argv[])
 
     // create monopole source term
 
-    Term& monopole = dd.create_term("monopole","cf3.sdm.lineuler.SourceMonopole3D");
+    Term& monopole = dd->create_term("monopole","cf3.sdm.lineuler.SourceMonopole3D");
     monopole.options().set("omega",2.*pi()/30. );
     monopole.options().set("alpha",log(2.)/2.);
     monopole.options().set("epsilon",0.5);
     std::vector<Real> monopole_loc = list_of(25.)(0.)(0.);
     monopole.options().set("source_location",monopole_loc);
-    monopole.options().set("time", time.handle<Time>());
+    monopole.options().set("time", model->access_component("time"));
 
     // fields to output
 
     std::vector<URI> fields = list_of
-        (mesh->access_component("solution_space/solution")->uri())
-        (mesh->access_component("solution_space/wave_speed")->uri())
-        (mesh->access_component("solution_space/residual")->uri());
+        (solution_space->access_component("solution")->uri())
+        (solution_space->access_component("wave_speed")->uri())
+        (solution_space->access_component("residual")->uri());
 
     // Simulate
-    Real final_time = 10.;
-    Real step = 20.;
-
-    Real simulate_to_time = 0.;
-    while (simulate_to_time<final_time)
+    while (model->access_component("time_stepping")->properties().value<bool>("finished") == false)
     {
-      simulate_to_time += step;
-      time.options().set("end_time",simulate_to_time);
+      model->access_component("time_stepping")->handle<TimeStepping>()->do_step();
 
-      model->simulate();
-
-      mesh->write_mesh(URI("file:mach_cone_time"+to_str(simulate_to_time)+".plt"),fields);
+      mesh->write_mesh(URI("file:mach_cone_time"+to_str(model->access_component("time")->options().value<Real>("current_time"))+".plt"),fields);
     }
 
     // Output on a fine mesh for visualization
-    Handle<Mesh> vis_mesh = domain.create_component<Mesh>("vis_mesh");
+    Handle<Mesh> vis_mesh = model->domain().create_component<Mesh>("vis_mesh");
     mesh_generator->options().set("mesh",vis_mesh->uri());
     mesh_generator->options().set("nb_cells",std::vector<Uint>(3,60));
     mesh_generator->execute();
 
-    Handle<Interpolate> interpolator = model->tools().create_component<Interpolate>("interpolator");
+    Handle<AInterpolator> interpolator = model->tools().create_component<AInterpolator>("interpolator","cf3.mesh.ShapeFunctionInterpolator");
 
     // need field to interpolate in
     Field& vis_solution = vis_mesh->geometry_fields().create_field("solution","rho[scalar],rho0U[vector],p[scalar]");
-    interpolator->interpolate(*mesh->access_component("solution_space/solution")->handle<Field>(),
-                              vis_solution.coordinates(),
-                              vis_solution);
+    interpolator->interpolate(*solution_space->access_component("solution")->handle<Field>(), vis_solution);
     vis_mesh->write_mesh(URI("file:mach_cone_vis.plt"),std::vector<URI>(1,vis_solution.uri()));
 
   }
