@@ -32,6 +32,8 @@ public:
 
   virtual bool find_element(const RealVector& target_coord, SpaceElem& element);
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 private:
 
   void configure_octtree();
