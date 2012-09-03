@@ -40,7 +40,6 @@ private: // data
   
   Uint m_nb_rings;
   
-  std::set<Uint> visited_nodes;
 }; // end StencilComputerRings
 
 ////////////////////////////////////////////////////////////////////////////////

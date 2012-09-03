@@ -31,7 +31,8 @@ common::ComponentBuilder < Space, Component, LibMesh > Space_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 Space::Space ( const std::string& name ) :
-  Component ( name )
+  Component ( name ),
+  m_dict_idx(0u)
 {
   mark_basic();
 

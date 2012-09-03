@@ -175,7 +175,7 @@ private: // data
   /// Handle to the supporting Entities component
   Handle<Entities> m_support;
 
-  Uint m_dict_idx;
+  Uint m_dict_idx; // friend class Mesh can assign this
 };
 
 ////////////////////////////////////////////////////////////////////////////////

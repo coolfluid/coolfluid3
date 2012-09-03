@@ -34,10 +34,6 @@ namespace mesh {
 template <typename ETYPE>
 class ElementTypeT : public ElementType
 {
-public: // typedefs
-
-
-
 
 public: // functions
   /// @name Constructor / Destructor / Type name

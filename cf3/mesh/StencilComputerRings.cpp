@@ -54,7 +54,6 @@ StencilComputerRings::StencilComputerRings( const std::string& name )
 void StencilComputerRings::compute_stencil(const SpaceElem& element, std::vector<SpaceElem>& stencil)
 {
   std::set<SpaceElem> included;
-  visited_nodes.clear();
   compute_neighbors(included,element);
 
   if (included.size() < m_min_stencil_size)

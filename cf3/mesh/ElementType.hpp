@@ -35,10 +35,8 @@ class Mesh_API ElementType : public common::Component {
 
 public: // typedefs
 
-
-
-
   typedef ElementTypeFaceConnectivity FaceConnectivity;
+
 public: // functions
 
   /// @name Constructor / Destructor / Type name
