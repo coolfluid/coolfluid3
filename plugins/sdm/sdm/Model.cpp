@@ -202,7 +202,13 @@ Handle<mesh::Dictionary> Model::create_solution_space(const Uint& order, const s
     build_faces(mesh);
   }
 
-  Handle<Dictionary> dict = create_component<DiscontinuousDictionary>("solution_space");
+  /// @todo Support dictionary for more meshes.
+  ///       This involves changing the element-finder configuration for interpolation, as it is searched for a parent of the dictionary,
+  ///       to be a mesh always.
+  if (find_components<Mesh>(domain()).size() > 1)
+    throw NotImplemented(FromHere(),"Multiple mesh not supported yet");
+  Handle<Mesh> mesh = find_component_ptr<Mesh>(domain());
+  Handle<Dictionary> dict = mesh->create_component<DiscontinuousDictionary>("solution_space");
 
   std::string space_lib_name = "cf3.sdm.P"+to_str(order-1);
   CFinfo << "Creating Disontinuous space " << dict->uri() << " ("<<space_lib_name<<") for entities" << CFendl;

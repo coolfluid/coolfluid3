@@ -57,13 +57,15 @@ public: // signals
   void signal_create_field( common::SignalArgs& args );
   void signature_create_field( common::SignalArgs& args );
 
-private: // functions
+public: // functions
 
   void set_time_integration_scheme(const std::string& type);
 
   void set_time_integration_step(const std::string& type);
 
   void set_time_integration_solver(const std::string& solver);
+
+private:
 
   void config_solution();
 
