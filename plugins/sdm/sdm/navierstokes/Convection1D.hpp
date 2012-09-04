@@ -35,14 +35,32 @@ public:
   static std::string type_name() { return "Convection1D"; }
   Convection1D(const std::string& name) : ConvectiveTerm< PhysData >(name)
   {
+    p.gamma = 1.4;
+    options().add("gamma",p.gamma)
+        .description("Specific heat reatio")
+        .attach_trigger( boost::bind( &Convection1D::config_constants, this) )
+        .mark_basic();
+    p.R = 287.05;
+    options().add("R",p.R)
+        .description("Gas constant")
+        .attach_trigger( boost::bind( &Convection1D::config_constants, this) )
+        .mark_basic();
+    config_constants();
   }
 
-  virtual void initialize()
+  void config_constants()
   {
-    ConvectiveTerm< PhysData >::initialize();
-    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p);
-    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_left);
-    physical_model().handle<PHYS::MODEL>()->set_gas_constants(p_right);
+    p.gamma = options().value<Real>("gamma");
+    p.R = options().value<Real>("R");
+    p.gamma_minus_1 = p.gamma-1.;
+
+    p_left.gamma = options().value<Real>("gamma");
+    p_left.R = options().value<Real>("R");
+    p_left.gamma_minus_1 = p_left.gamma-1.;
+
+    p_right.gamma = options().value<Real>("gamma");
+    p_right.R = options().value<Real>("R");
+    p_right.gamma_minus_1 = p_right.gamma-1.;
   }
 
   virtual ~Convection1D() {}

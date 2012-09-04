@@ -22,7 +22,7 @@
 #include "common/Table.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
-#include "common/xml/SignalFrame.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "math/MatrixTypesConversion.hpp"
 

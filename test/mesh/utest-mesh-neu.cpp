@@ -14,7 +14,7 @@
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/Environment.hpp"
-#include "common/xml/SignalFrame.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
