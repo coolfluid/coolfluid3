@@ -52,24 +52,14 @@ Solver::Solver( const std::string& name ) :
   mark_basic();
 
   // options
+  options().add( "print_iteration_summary", true);
   options().add( "time_integration", m_time_integration ).link_to(&m_time_integration);
   options().add( "dict", m_dict).link_to(&m_dict);
   options().add( "time", m_time).link_to(&m_time);
   options().add( "max_iteration",math::Consts::uint_max()).mark_basic();
-
-  // static components
-
-  m_pre_update = create_static_component<common::ActionDirector>("pre_update");
-
-  m_post_update = create_static_component<common::ActionDirector>("post_update");
-
-  m_history = create_static_component<solver::History>("history");
-  history()->options().set("file",URI("file:history.tsv"));
-  history()->options().set("dimension",1u);
-
-  // Set a few variables in history. More can be added during run-time
-  // following the same way.
-  history()->set("iter",0);
+  options().add( "history", m_history).link_to(&m_history);
+  options().add( "pre_iteration", m_pre_iteration).link_to(&m_pre_iteration);
+  options().add( "post_iteration", m_post_iteration).link_to(&m_post_iteration);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,8 +90,6 @@ bool Solver::stop_condition()
 
 void Solver::execute()
 {
-  CFinfo << CFendl;
-
   setup();
 ////  configure_option_recursively( sdm::Tags::time(),    m_time);
 //  configure_option_recursively( "iterator", handle<Component>() );
@@ -115,17 +103,26 @@ void Solver::execute()
   {
     //    timer.restart();
 
-    step();
+    if (m_pre_iteration) m_pre_iteration->execute();
 
+    step();
     m_time->current_time() += m_time->dt();
     ++m_time->iter();
 
-    CFinfo << "  " << iteration_summary() << CFendl;
+    history()->set("iter",m_time->iter());
+    history()->set("time",m_time->current_time());
+    history()->set("dt",m_time->dt());
+
+    if (m_post_iteration) m_post_iteration->execute();
+
+    history()->save_entry();
+
+//    CFinfo << "  " << iteration_summary() << CFendl;
+    if ( options().value<bool>("print_iteration_summary") )
+      CFinfo << "  " << history()->entry().summary() << CFendl;
 
   }
-  CFinfo << CFendl;
-
-//  history()->flush();
+  history()->flush();
 }
 
 std::string Solver::iteration_summary()

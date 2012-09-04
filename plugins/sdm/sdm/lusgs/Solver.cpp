@@ -38,8 +38,8 @@ Solver::Solver ( const std::string& name ) :
 void Solver::configure_lusgs()
 {
   m_lusgs->options().set("system",m_time_integration);
-  m_lusgs->options().set("pre_update",m_pre_update);
-  m_lusgs->options().set("post_update",m_post_update);
+//  m_lusgs->options().set("pre_update",m_pre_update);
+//  m_lusgs->options().set("post_update",m_post_update);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

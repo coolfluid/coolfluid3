@@ -33,18 +33,16 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Solver"; }
 
-  common::ActionDirector& pre_update()    { return *m_pre_update; }
-  common::ActionDirector& post_update()   { return *m_post_update; }
+//  common::ActionDirector& pre_update()    { return *m_pre_update; }
+//  common::ActionDirector& post_update()   { return *m_post_update; }
 
-  const Handle< solver::History >& history() { return m_history; }
+  const Handle< solver::History >& history() { cf3_always_assert(m_history); return m_history; }
 
   virtual void execute();
 
   virtual void setup() {}
 
   virtual void step() = 0;
-
-  virtual void advance() {}
 
   virtual std::string iteration_summary();
 
@@ -60,9 +58,9 @@ protected: // data
 
   Handle<Component> m_time_integration;
   /// set of actions called every iteration before non-linear solve
-  Handle<common::ActionDirector> m_pre_update;
-  /// set of actions called every iteration after non-linear solve
-  Handle<common::ActionDirector> m_post_update;
+  Handle<common::ActionDirector> m_pre_iteration;
+//  /// set of actions called every iteration after non-linear solve
+  Handle<common::ActionDirector> m_post_iteration;
 
   Handle< mesh::Field > m_solution;
   Handle< mesh::Dictionary > m_dict;

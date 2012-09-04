@@ -12,8 +12,9 @@
 #include "solver/Model.hpp"
 
 namespace cf3 {
+namespace common { class ActionDirector; }
 namespace mesh { class Dictionary; }
-namespace solver { class Time; class TimeStepping; }
+namespace solver { class Time; class TimeStepping; class History; }
 namespace sdm {
 
 // Forward declarations
@@ -21,6 +22,7 @@ class BoundaryConditions;
 class DomainDiscretization;
 class Solver;
 class TimeIntegrationStepComputer;
+class ComputeLNorm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +59,9 @@ public: // signals
   void signal_create_field( common::SignalArgs& args );
   void signature_create_field( common::SignalArgs& args );
 
+  void signal_add_probe(common::SignalArgs& args);
+  void signature_add_probe(common::SignalArgs& args);
+
 public: // functions
 
   void set_time_integration_scheme(const std::string& type);
@@ -83,8 +88,12 @@ private: // data
   Handle<sdm::TimeIntegrationStepComputer>  m_time_integration_step;
   Handle<mesh::Dictionary>                  m_solution_space;
   Handle<mesh::Field>                       m_solution;
-
-
+  Handle<common::ActionDirector>            m_pre_update;
+  Handle<common::ActionDirector>            m_post_update;
+  Handle<common::ActionDirector>            m_pre_iteration;
+  Handle<common::ActionDirector>            m_post_iteration;
+  Handle<solver::History>                   m_history;
+  Handle<sdm::ComputeLNorm>                 m_residual_norm_computer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

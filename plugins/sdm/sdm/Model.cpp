@@ -32,11 +32,11 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Space.hpp"
 
-//#include "solver/History.hpp"
+#include "solver/History.hpp"
 #include "solver/Time.hpp"
 #include "solver/TimeStepping.hpp"
-//#include "solver/actions/SynchronizeFields.hpp"
-//#include "solver/actions/Probe.hpp"
+#include "solver/actions/ProbePostProcHistory.hpp"
+#include "solver/actions/Probe.hpp"
 
 #include "sdm/BoundaryConditions.hpp"
 #include "sdm/Tags.hpp"
@@ -44,13 +44,14 @@
 #include "sdm/TimeIntegrationStepComputer.hpp"
 #include "sdm/DomainDiscretization.hpp"
 #include "sdm/Solver.hpp"
+#include "sdm/ComputeLNorm.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::mesh::actions;
 using namespace cf3::physics;
 using namespace cf3::solver;
-//using namespace cf3::solver::actions;
+using namespace cf3::solver::actions;
 
 
 namespace cf3 {
@@ -99,8 +100,20 @@ Model::Model ( const std::string& name  ) :
       .connect   ( boost::bind ( &Model::signal_set_time_integration,    this, _1 ) )
       .signature ( boost::bind ( &Model::signature_set_time_integration, this, _1 ) );
 
+  regist_signal("add_probe")
+      .description("Add a probe in one coordinate to inspect and log variables")
+      .pretty_name("Add Probe")
+      .connect   ( boost::bind ( &Model::signal_add_probe   , this , _1 ) )
+      .signature ( boost::bind ( &Model::signature_add_probe, this , _1 ) );
+
   m_time_integration = create_static_component<Group>("time_integration");
   m_time_integration->mark_basic();
+  m_pre_update = m_time_integration->create_static_component<common::ActionDirector>("pre_update");
+  m_post_update = m_time_integration->create_static_component<common::ActionDirector>("post_update");
+  m_pre_iteration = m_time_integration->create_static_component<common::ActionDirector>("pre_iteration");
+  m_post_iteration = m_time_integration->create_static_component<common::ActionDirector>("post_iteration");
+  m_history = m_time_integration->create_static_component<solver::History>("history");
+  m_history->options().set("file",URI("file:history.tsv"));
 
   // Set some defaults
   set_time_integration_scheme("cf3.sdm.ExplicitRungeKuttaLowStorage2");
@@ -113,6 +126,11 @@ Model::Model ( const std::string& name  ) :
       .attach_trigger(boost::bind( &Model::config_solution, this));
 
   m_time_stepping->post_actions() << *m_boundary_conditions;
+  (*m_pre_update) << *m_boundary_conditions;
+
+  m_residual_norm_computer = tools().create_static_component<sdm::ComputeLNorm>("compute_residual_norm");
+  m_residual_norm_computer->options().set("history",m_history);
+  (*m_post_iteration) << *m_residual_norm_computer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +150,9 @@ void Model::set_time_integration_scheme(const std::string& type)
   m_time_integration_scheme = m_time_integration->create_component("scheme",type);
   m_time_integration_scheme->mark_basic();
   m_time_integration_scheme->configure_option_recursively("domain_discretization",m_domain_discretization);
+  m_time_integration_scheme->configure_option_recursively("pre_update",m_time_integration->get_child("pre_update"));
+  m_time_integration_scheme->configure_option_recursively("post_update",m_time_integration->get_child("post_update"));
+
   if (m_time_integration_scheme->options().check("time"))
     m_time_integration_scheme->options().set("time",m_time);
 
@@ -178,13 +199,20 @@ void Model::set_time_integration_solver(const std::string& type)
   m_time_integration_solver->mark_basic();
   m_time_integration_solver->options().set("time",m_time);
   m_time_integration_solver->options().set("time_integration",m_time_integration_scheme);
+  m_time_integration_solver->options().set("history",m_history);
+  m_time_integration_solver->options().set("pre_iteration",m_time_integration->get_child("pre_iteration"));
+  m_time_integration_solver->options().set("post_iteration",m_time_integration->get_child("post_iteration"));
+  m_time_integration_solver->configure_option_recursively("pre_update",m_time_integration->get_child("pre_update"));
+  m_time_integration_solver->configure_option_recursively("post_update",m_time_integration->get_child("post_update"));
+  m_time_integration_scheme->configure_option_recursively("pre_update",m_time_integration->get_child("pre_update"));
+  m_time_integration_scheme->configure_option_recursively("post_update",m_time_integration->get_child("post_update"));
+
 
   if (m_solution)
   {
     m_time_integration_solver->options().set("dict",m_solution->dict().handle());
   }
 
-  *m_time_integration_solver->get_child("pre_update")->handle<common::ActionDirector>() << *m_boundary_conditions;
   *m_time_stepping << *m_time_integration_solver;
 
 
@@ -356,6 +384,8 @@ void Model::config_solution()
     m_time_integration_step->options().set(sdm::Tags::time(),m_time);
   }
 
+  m_residual_norm_computer->options().set("field",residual);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -436,6 +466,42 @@ void Model::signature_create_field( common::SignalArgs& args)
   opts.add("name",std::string("solution"));
   opts.add("functions",std::vector<std::string>());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Model::signal_add_probe(common::SignalArgs& args)
+{
+  XML::SignalOptions sig_opts(args);
+
+  Handle<Probe> probe = m_post_iteration->create_component<Probe>(sig_opts.value<std::string>("name"));
+  probe->options().set("dict",m_solution_space);
+  probe->options().set("coordinate",sig_opts.value< std::vector<Real> >("coordinate"));
+  std::vector<std::string> functions = sig_opts.value< std::vector<std::string> >("functions");
+  boost_foreach(const std::string& function, functions)
+  {
+    std::vector<std::string> func_split;
+    boost::split(func_split,function,boost::is_any_of("="));
+    Handle<ProbePostProcessor> pp = probe->create_post_processor("func_"+func_split[0],"cf3.solver.actions.ProbePostProcFunction");
+    pp->options().set("function",function);
+  }
+  std::vector<std::string> log_vars = sig_opts.value< std::vector<std::string> >("log_variables");
+  if (log_vars.size())
+  {
+    Handle<ProbePostProcessor> pp = probe->create_post_processor("log_history","cf3.solver.actions.ProbePostProcHistory");
+    pp->options().set("history",m_history);
+    pp->options().set("variables",log_vars);
+  }
+}
+
+void Model::signature_add_probe(common::SignalArgs& args)
+{
+  XML::SignalOptions sig_opts(args);
+  sig_opts.add("name",std::string("probe"));
+  sig_opts.add("coordinate",std::vector<Real>());
+  sig_opts.add("functions",std::vector<std::string>());
+  sig_opts.add("log_variables",std::vector<std::string>());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

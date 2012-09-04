@@ -53,8 +53,8 @@ ExplicitSolver::ExplicitSolver( const std::string& name ) :
 
 void ExplicitSolver::setup()
 {
-  m_time_integration->options().set("pre_update",m_pre_update);
-  m_time_integration->options().set("post_update",m_post_update);
+//  m_time_integration->options().set("pre_update",m_pre_update);
+//  m_time_integration->options().set("post_update",m_post_update);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
