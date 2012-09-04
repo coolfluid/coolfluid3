@@ -197,7 +197,7 @@ void TimeStepping::do_step()
   raise_timestep_done();
 
   /// (6) Statistics
-  memory = common::OSystem::instance().layer()->memory_usage(); // in Bytes
+  memory = common::OSystem::instance().layer()->memory_usage()/1024/1024; // in MB
   cputime = timer.elapsed();
   walltime += cputime;
   options().set("walltime",walltime);
@@ -214,21 +214,21 @@ void TimeStepping::do_step()
   history()->save_entry();
 
   /// (8) Output info
-
-  if (options().value<bool>("time_accurate"))
-    CFinfo << "step [" << std::setw(4) << step << "]  "
-           << "time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  "
-           << "dt ["<< std::scientific << std::setw(12) << time_step <<"]  "
-           << "walltime ["<< std::scientific << std::setw(12) << walltime<<"]  "
-           << "cputime ["<< std::scientific << std::setw(12) << cputime<<"]  "
-           << "memory ["<< std::setw(11) << common::OSystem::instance().layer()->memory_usage_str() <<"]  "
-           << CFendl;
-  else
-    CFinfo << "step [" << std::setw(4) << step << "]  "
-           << "walltime ["<< std::scientific << std::setw(11) << walltime << "]  "
-           << "cputime ["<< std::scientific << std::setw(12) << cputime<<"]  "
-           << "memory ["<< std::setw(12) << common::OSystem::instance().layer()->memory_usage_str() <<"]  "
-           << CFendl;
+  CFinfo << history()->entry().summary() << CFendl;
+//  if (options().value<bool>("time_accurate"))
+//    CFinfo << "step [" << std::setw(4) << step << "]  "
+//           << "time [" << std::setw(12) << std::scientific << m_time->current_time() << "]  "
+//           << "dt ["<< std::scientific << std::setw(12) << time_step <<"]  "
+//           << "walltime ["<< std::scientific << std::setw(12) << walltime<<"]  "
+//           << "cputime ["<< std::scientific << std::setw(12) << cputime<<"]  "
+//           << "memory ["<< std::setw(11) << common::OSystem::instance().layer()->memory_usage_str() <<"]  "
+//           << CFendl;
+//  else
+//    CFinfo << "step [" << std::setw(4) << step << "]  "
+//           << "walltime ["<< std::scientific << std::setw(11) << walltime << "]  "
+//           << "cputime ["<< std::scientific << std::setw(12) << cputime<<"]  "
+//           << "memory ["<< std::setw(12) << common::OSystem::instance().layer()->memory_usage_str() <<"]  "
+//           << CFendl;
 
   properties()["finished"] = stop_condition();
 }

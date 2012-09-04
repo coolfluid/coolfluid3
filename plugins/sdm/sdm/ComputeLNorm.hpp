@@ -15,6 +15,7 @@
 
 namespace cf3 {
 namespace mesh   { class Field; }
+namespace solver { class History; }
 namespace sdm {
 
 class sdm_API ComputeLNorm : public common::Action {
@@ -33,11 +34,15 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  std::vector<Real> compute_norm(const mesh::Field& field) const;
+  std::vector<Real> compute_norm( mesh::Field& field) const;
 
 private:
 
   Uint compute_nb_rows(const mesh::Field& field) const;
+
+  Handle<mesh::Field> m_field;
+
+  Handle<solver::History> m_history;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

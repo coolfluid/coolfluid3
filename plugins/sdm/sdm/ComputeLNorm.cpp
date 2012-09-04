@@ -20,7 +20,7 @@
 #include "mesh/Connectivity.hpp"
 
 #include "sdm/ComputeLNorm.hpp"
-
+#include "solver/History.hpp"
 
 using namespace cf3::common;
 using namespace cf3::mesh;
@@ -63,6 +63,8 @@ void compute_L2( const Field& field, std::vector<Real>& norms )
     norms[i] = std::sqrt(glb_norm[i]);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void compute_L1( const Field& field, std::vector<Real>& norms )
 {
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
@@ -91,6 +93,8 @@ void compute_L1( const Field& field, std::vector<Real>& norms )
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm[0], norms.size(), &norms[0] );
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void compute_Linf( const Field& field, std::vector<Real>& norms )
 {
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
@@ -118,6 +122,8 @@ void compute_Linf( const Field& field, std::vector<Real>& norms )
 
   PE::Comm::instance().all_reduce( PE::max(), &loc_norm[0], norms.size(), &norms[0] );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void compute_Lp( const Field& field, std::vector<Real>& norms, Uint order )
 {
@@ -161,8 +167,6 @@ common::ComponentBuilder < ComputeLNorm, Action, LibSDM > ComputeLNorm_Builder;
 
 ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
 {
-  mark_basic();
-
   // properties
 
   properties().add("norm", Real(0.) );
@@ -175,10 +179,12 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
   options().add("order", 2u)
       .description("Order of the p-norm, zero if L-inf");
 
-  options().add("field", URI())
+  options().add("field", m_field).link_to(&m_field)
       .pretty_name("Field")
-      .description("URI to the field to use, or to a link");
-  }
+      .description("Field to compute norm of");
+
+  options().add("history", m_history).link_to(&m_history);
+ }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -203,7 +209,9 @@ Uint ComputeLNorm::compute_nb_rows(const Field& field) const
   return r;
 }
 
-std::vector<Real> ComputeLNorm::compute_norm(const Field& field) const
+////////////////////////////////////////////////////////////////////////////////
+
+std::vector<Real> ComputeLNorm::compute_norm(Field& field) const
 {
 
   const Uint loc_nb_rows = compute_nb_rows(field); // table size on local processor
@@ -213,7 +221,7 @@ std::vector<Real> ComputeLNorm::compute_norm(const Field& field) const
 
   if ( !nb_rows ) throw SetupError(FromHere(), "Table is empty");
 
-  std::vector<Real> norms(field.row_size(), 0.);
+  std::vector<Real> norm(field.row_size(), 0.);
 
   const Uint order = options().value<Uint>("order");
 
@@ -221,35 +229,52 @@ std::vector<Real> ComputeLNorm::compute_norm(const Field& field) const
 
   switch(order) {
 
-  case 2:  compute_L2( field, norms );    break;
+    case 2:  compute_L2( field, norm );    break;
 
-  case 1:  compute_L1( field, norms );    break;
+    case 1:  compute_L1( field, norm );    break;
 
-  case 0:  compute_Linf( field, norms );  break; // consider order 0 as Linf
+    case 0:  compute_Linf( field, norm );  break; // consider order 0 as Linf
 
-  default: compute_Lp( field, norms, order );    break;
+    default: compute_Lp( field, norm, order );  break;
 
   }
 
   if( options().value<bool>("scale") && order )
   {
-    for (Uint i=0; i<norms.size(); ++i)
-      norms[i] /= nb_rows;
+    for (Uint i=0; i<norm.size(); ++i)
+      norm[i] /= nb_rows;
   }
 
-  return norms;
+  field.properties()["norm"] = norm;
+
+  return norm;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void ComputeLNorm::execute()
 {
-  Handle< Field > field( follow_link(access_component(options().value<URI>("field"))) );
-  if(is_not_null(field))
+  if (is_null(m_field)) throw SetupError( FromHere(), "Option 'field' not configured in "+uri().string());
+  std::vector<Real> norm = compute_norm(*m_field);
+  properties()["norm"] = norm;
+  if (m_history)
   {
-    std::vector<Real> norms = compute_norm(*field);
-    properties()["norms"] = norms;
+    for (Uint v=0; v<m_field->nb_vars(); ++v)
+    {
+      for (Uint j=0; j<m_field->var_length(v); ++j)
+      {
+        if (m_field->var_length(v) > 1)
+        {
+          m_history->set("L2("+m_field->descriptor().user_variable_name(v)+"["+to_str(j)+"])",norm[m_field->var_offset(v)+j]);
+        }
+        else
+        {
+          m_history->set("L2("+m_field->descriptor().user_variable_name(v)+")",norm[m_field->var_offset(v)+j]);
+        }
+      }
+    }
+//    m_history->set("L2("+m_field->name()+")",norm);
   }
-  else
-    CFinfo << "Not computing norm in action " << uri() << " because option field is invalid." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

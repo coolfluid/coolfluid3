@@ -305,10 +305,26 @@ const std::vector<Real>& HistoryEntry::data() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string HistoryEntry::summary() const
+{
+  std::stringstream ss;
+  for (Uint i=0; i<m_entry.size(); ++i)
+  {
+    if (i!=0) ss << "  ";
+    if (std::floor(m_entry[i]) == m_entry[i])
+      ss << variables()->user_variable_name(i) << " [" << std::setw(3) << m_entry[i] << "]";
+    else
+      ss << variables()->user_variable_name(i) << " [" << std::scientific << std::setw(12) << m_entry[i] << "]";
+  }
+  return ss.str();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 std::ostream& operator<< ( std::ostream& os, const HistoryEntry& history_entry )
 {
   for (Uint i=0; i<history_entry.m_entry.size(); ++i)
-    os << "\t" <<  std::scientific << std::setw(16) << history_entry.m_entry[i];
+    os << "\t" <<  std::scientific << std::setw(12) << history_entry.m_entry[i];
   return os;
 }
 
