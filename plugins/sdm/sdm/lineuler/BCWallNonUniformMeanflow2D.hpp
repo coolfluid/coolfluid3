@@ -40,11 +40,11 @@ public:
   BCWallNonUniformMeanflow2D(const std::string& name) : BCWeak< PhysData >(name)
   {
     p.gamma = 1.4;
-    options().add("gamma",p.gamma)
+    options().add("gamma",p.gamma).mark_basic()
         .description("Specific heat reatio")
         .attach_trigger( boost::bind( &BCWallNonUniformMeanflow2D::config_constants, this) );
 
-    options().add("mean_flow",m_meanflow)
+    options().add("mean_flow",m_meanflow).mark_basic()
         .description("Field containing mean flow (rho0, U0[x], U0[y], p0)")
         .link_to(&m_meanflow);
 
