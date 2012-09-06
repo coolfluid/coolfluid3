@@ -59,7 +59,6 @@ CriterionConvergence::CriterionConvergence( const std::string& name  ) :
   FieldVariable<0, ScalarField> conduction_temperature("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> Phi("Temperature", "scalar_advection_solution");
 
-
 add_component(create_proto_action("ComputeMinError", nodes_expression(
           lit(m_min_error) = _min(_abs(Phi - conduction_temperature), m_min_error)
        )));
@@ -78,6 +77,12 @@ CriterionConvergence::~CriterionConvergence() {}
 
 bool CriterionConvergence::operator()()
 {
+
+  std::ofstream convergence_history;
+
+    convergence_history.open ("convergence_history_temperature.txt",std::ios_base::app);
+    convergence_history << m_max_error << "\n";
+
   m_min_error = 0.;
   m_max_error = 0.;
   m_cond_temperature = 0.;
