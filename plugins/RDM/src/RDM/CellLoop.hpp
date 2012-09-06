@@ -82,7 +82,7 @@ struct CellLoopT1 : public CellLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent()->handle<ACTION>()) )
+    if( is_null(parent()->template handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
@@ -144,7 +144,7 @@ struct CellLoopT : public CellLoop
   {
 CFinfo << "ERERERERER: " << SF::type_name() << "   " << ACTION::type_name() << "  "<< PHYS::type_name() << CFendl;
 
-    if( is_null(parent()->handle<ACTION>()) )
+    if( is_null(parent()->template handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type

@@ -28,8 +28,6 @@
 
 #include "Tags.hpp"
 
-#include "UFEM/NavierStokesOps.hpp"
-
 namespace cf3 {
 namespace UFEM {
 
@@ -37,6 +35,8 @@ using namespace common;
 using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
+
+using boost::proto::lit;
 
 ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection_builder;
 
@@ -50,8 +50,6 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .link_to(&m_alpha)
     .mark_basic();
 
-  options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&ScalarAdvection::trigger_physical_model, this));
-
   options().add("scalar_name", "Scalar")
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
@@ -64,7 +62,7 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
   create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());
   create_component<SolveLSS>("SolveLSS");
   create_component<ProtoAction>("Update");
-  
+
   get_child("BoundaryConditions")->mark_basic();
 
   // Set the default scalar name
@@ -86,6 +84,7 @@ void ScalarAdvection::trigger_scalar_name()
   // Scalar name is obtained from an option
   FieldVariable<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 0.1);
 
@@ -98,11 +97,11 @@ void ScalarAdvection::trigger_scalar_name()
      group
      (
        _A = _0, _T = _0,
-      UFEM::compute_tau(u_adv, m_coeffs),
+      UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
       element_quadrature
       (
-        _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + m_coeffs.tau_su * transpose(u_adv*nabla(Phi))  * u_adv * nabla(Phi) +  m_alpha * transpose(nabla(Phi)) * nabla(Phi) ,
-       _T(Phi,Phi) +=  transpose(N(Phi) + m_coeffs.tau_su * u_adv * nabla(Phi)) * N(Phi)
+        _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi))  * u_adv * nabla(Phi) +  m_alpha * transpose(nabla(Phi)) * nabla(Phi) ,
+       _T(Phi,Phi) +=  transpose(N(Phi) + tau_su * u_adv * nabla(Phi)) * N(Phi)
       ),
       system_matrix += invdt() * _T + 1.0 * _A,
       system_rhs += -_A * _x
@@ -114,17 +113,10 @@ void ScalarAdvection::trigger_scalar_name()
   Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(Phi += relaxation_factor_scalar * solution(Phi)) );
 }
 
-
-void ScalarAdvection::trigger_physical_model()
-{
-  dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_coeffs);
-}
-
 void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
 {
   initial_conditions.create_initial_condition(solution_tag());
 }
-
 
 } // UFEM
 } // cf3

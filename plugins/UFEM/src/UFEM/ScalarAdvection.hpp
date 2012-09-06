@@ -28,7 +28,7 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 
-#include "NavierStokesOps.hpp"
+#include "SUPG.hpp"
 
 namespace cf3 {
 
@@ -51,16 +51,13 @@ private:
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
-  /// Update the copy of the physics coefficients when the physical model changes
-  void trigger_physical_model();
-  
   virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
-
-  /// Copy of the coefficients stored in the physics. Needed to construct the equations
-  SUPGCoeffs m_coeffs;
 
   /// Scalar diffusivity
   Real m_alpha;
+
+  /// Stabilization coefficient
+  Real tau_su;
 };
 
 } // UFEM

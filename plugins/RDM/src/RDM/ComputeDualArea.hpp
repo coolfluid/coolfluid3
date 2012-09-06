@@ -93,12 +93,12 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
-    coordinates = elements().geometry_fields().coordinates().handle< mesh::Field >();
-    Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
-    solution   = fields->get_child(RDM::Tags::solution())->handle<mesh::Field>();
-    dual_area  = fields->get_child(RDM::Tags::dual_area())->handle<mesh::Field>();
-    coordinates = fields->get_child(mesh::Tags::coordinates())->handle<mesh::Field>();
+    connectivity = elements().template handle<mesh::Elements>()->geometry_space().connectivity().template handle< mesh::Connectivity >();
+    coordinates = elements().geometry_fields().coordinates().template handle< mesh::Field >();
+    Handle<Component> fields=parent()->template handle<ComputeDualArea>()->dual_area().parent();
+    solution   = fields->get_child(RDM::Tags::solution())->template handle<mesh::Field>();
+    dual_area  = fields->get_child(RDM::Tags::dual_area())->template handle<mesh::Field>();
+    coordinates = fields->get_child(mesh::Tags::coordinates())->template handle<mesh::Field>();
 
     CFinfo << elements().tree() << CFendl;
 
@@ -110,7 +110,7 @@ protected: // helper functions
 
     if( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) )
     {
-      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>();
+      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->template handle<mesh::Space>();
       cf3_assert( is_not_null(space) );
       connectivity = space->connectivity().handle<mesh::Connectivity>();
       coordinates  = space->dict().coordinates().handle<mesh::Field>();

@@ -11,8 +11,6 @@ list( APPEND coolfluid_solver_files
   ModelSteady.cpp
   ModelUnsteady.hpp
   ModelUnsteady.cpp
-  EigenLSS.cpp
-  EigenLSS.hpp
   History.hpp
   History.cpp
   SimpleSolver.hpp

@@ -298,6 +298,10 @@ void Solver::create_fields()
     }
 
     cf3_assert(is_not_null(dict));
+    
+    // We also tag the dict now, so the proto code can find it
+    if(!dict->has_tag(tag))
+      dict->add_tag(tag);
 
     Handle< Field > field = find_component_ptr_with_tag<Field>(*dict, tag);
 

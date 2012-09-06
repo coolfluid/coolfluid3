@@ -86,8 +86,10 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::Dictionary& dict =  mesh.geometry_fields();
-  return common::find_component_with_tag<mesh::Field>(dict, tag);
+  Handle<mesh::Dictionary> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+  if(is_null(dict))
+    dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+  return common::find_component_with_tag<mesh::Field>(*dict, tag);
 }
 
 template<>
@@ -239,6 +241,27 @@ struct NodeVarData<VectorField, Dim>
     m_value -= v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
+  }
+  
+  void set_value_component(boost::proto::tag::assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] = v;
+    m_field[m_idx][m_var_begin + i] = v;
+  }
+
+  void set_value_component(boost::proto::tag::plus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] += v;
+    m_field[m_idx][m_var_begin + i] += v;
+  }
+
+  void set_value_component(boost::proto::tag::minus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] -= v;
+    m_field[m_idx][m_var_begin + i] -= v;
   }
 
   /// Offset for the variable in the field

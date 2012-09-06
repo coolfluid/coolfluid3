@@ -169,6 +169,8 @@ public:
   static std::string type_name() { return "BCSubsonicInletUT2D"; }
   BCSubsonicInletUT2D(const std::string& name) : BCWeak< PhysData >(name)
   {
+    m_function_T.parse("298.15","x,y");
+
     m_U.resize(1.,0.);
     options().add("U",m_U)
         .description("Velocity [m/s]")
@@ -200,8 +202,13 @@ public:
     m_gamma_minus_1 = m_gamma - 1.;
   }
 
+  void config_T()    { m_function_T.parse(options().option("T").value_str()); }
+
   virtual void compute_solution(const PhysData& inner_cell_data, const RealVectorNDIM& unit_normal, RealVectorNEQS& boundary_face_pt_data)
   {
+    // Evaluate analytical functions
+    m_function_T.evaluate(inner_cell_data.coord,m_T);
+
     // solution at inside of face
     m_rho_inner  = inner_cell_data.solution[Rho];
     m_uuvv_inner = (inner_cell_data.solution[RhoUx]*inner_cell_data.solution[RhoUx] + inner_cell_data.solution[RhoUy]*inner_cell_data.solution[RhoUy])/(m_rho_inner*m_rho_inner);
@@ -222,6 +229,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private: // data
+  math::AnalyticalFunction m_function_T;
+
   Real m_T;
   Real m_R;
   Real m_gamma;

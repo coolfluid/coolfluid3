@@ -341,10 +341,20 @@ public:
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  /// Helper to get the connectivity table
+  const mesh::Connectivity& get_connectivity(const std::string& tag, mesh::Elements& elements)
+  {
+    const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
+    Handle<mesh::Dictionary const> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+    if(is_null(dict))
+      dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+    return elements.space(*dict).connectivity();
+  }
+
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(elements.geometry_space().connectivity()),
+    m_connectivity(get_connectivity(placeholder.field_tag(), elements)),
     m_support(support),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
@@ -372,6 +382,28 @@ public:
   ValueResultT value() const
   {
     return m_element_values;
+  }
+  
+  template<typename NodeValsT>
+  void add_nodal_values(const NodeValsT& vals)
+  {
+    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
+    {
+      m_element_values.row(i) += vals.template block<dimension, 1>(i*dimension, 0);
+      m_field.set_row(conn[i], m_element_values.row(i));
+    }
+  }
+  
+  template<typename NodeValsT>
+  void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
+  {
+    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
+    {
+      m_element_values(i, component_idx) += vals[i];
+      m_field[conn[i]][component_idx] = m_element_values(i, component_idx);
+    }
   }
 
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
@@ -441,7 +473,7 @@ private:
   ValueT m_element_values;
 
   /// Data table
-  const mesh::Field& m_field;
+  mesh::Field& m_field;
 
   /// Connectivity table
   const mesh::Connectivity& m_connectivity;
@@ -501,10 +533,10 @@ public:
   {
     return ValueResultT(&m_field[m_field_idx][offset]);
   }
-  
+
   typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
   typedef ValueResultT EvalT;
-  
+
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
   {
@@ -576,9 +608,9 @@ public:
   }
 
   typedef Real EvalT;
-  
+
   typedef typename SupportEtypeT::MappedCoordsT MappedCoordsT;
-  
+
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords=MappedCoordsT()) const
   {
@@ -636,7 +668,19 @@ struct MakeVarData
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
 
-    typedef typename boost::mpl::if_c<EtypeT::order == 0, ElementBased<FieldWidth<VarT, SupportEtypeT>::value>, EtypeT>::type EEtypeT;
+    template<typename AVarT, typename AnETypeT>
+    struct GetEETypeT
+    {
+      typedef typename boost::mpl::if_c<AnETypeT::order == 0, ElementBased<FieldWidth<VarT, SupportEtypeT>::value>, AnETypeT>::type type;
+    };
+
+    template<typename AnETypeT>
+    struct GetEETypeT<boost::mpl::void_,  AnETypeT>
+    {
+      typedef boost::mpl::void_ type;
+    };
+
+    typedef typename GetEETypeT<VarT, EtypeT>::type EEtypeT;
 
     typedef typename boost::mpl::if_
     <
@@ -670,6 +714,13 @@ template<typename IsEqVarT, typename VariableSFT>
 struct FilterElementField
 {
   typedef typename boost::mpl::if_c<VariableSFT::order == 0, boost::mpl::false_, IsEqVarT>::type type;
+};
+
+
+template<typename IsEqVarT>
+struct FilterElementField<IsEqVarT, boost::mpl::void_>
+{
+  typedef boost::mpl::false_ type;
 };
 
 /// Filter out element-based fields from the possible equation variables
@@ -717,7 +768,7 @@ public:
 
   /// Filter out element-based fields from the equation variables
   typedef typename FilterEquationVars<EquationVariablesInT, VariablesEtypeTT, SupportEtypeT>::type EquationVariablesT;
-  
+
   /// Size for the element matrix
   typedef typename ElementMatrixSize<MatrixSizesT, EquationVariablesT>::type EMatrixSizeT;
 
@@ -747,11 +798,18 @@ public:
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data, m_support));
     for(Uint i = 0; i != CF3_PROTO_MAX_ELEMENT_MATRICES; ++i)
+    {
       m_element_matrices[i].setZero();
+      m_element_vectors[i].setZero();
+    }
 
-    // TODO Fix for multi-shapefunction case
-    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (EMatrixSizeT));
-    block_accumulator.resize(SupportShapeFunction::nb_nodes, EMatrixSizeT::value/SupportShapeFunction::nb_nodes);
+    typedef typename boost::mpl::transform
+    <
+      typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      FieldWidth<boost::mpl::_1, SupportEtypeT>
+    >::type NbEqsPerVarT;
+
+    block_accumulator.resize(SupportShapeFunction::nb_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
   }
 
   ~ElementData()
@@ -857,6 +915,12 @@ public:
     return m_element_matrices[i];
   }
 
+  /// Retrieve the element vector at index i
+  ElementVectorT& element_vector(const int i)
+  {
+    return m_element_vectors[i];
+  }
+
   /// Retrieve the element RHS
   ElementVectorT& element_rhs()
   {
@@ -882,6 +946,7 @@ private:
   Uint m_element_idx;
 
   ElementMatrixT m_element_matrices[CF3_PROTO_MAX_ELEMENT_MATRICES];
+  ElementVectorT m_element_vectors[CF3_PROTO_MAX_ELEMENT_MATRICES];
   ElementVectorT m_element_rhs;
 
   /// Filtered view of the data associated with equation variables

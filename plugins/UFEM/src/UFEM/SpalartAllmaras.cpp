@@ -28,8 +28,6 @@
 
 #include "Tags.hpp"
 
-#include "UFEM/NavierStokesOps.hpp"
-
 namespace cf3 {
 namespace UFEM {
 
@@ -82,7 +80,7 @@ struct ComputeSACoeffs
   typedef void result_type;
 
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_t, SACoeffs& coeffs, const SUPGCoeffs& c) const
+  void operator()(const UT& u, const NUT& nu_t, SACoeffs& coeffs, const Real& nu_lam) const
   {
 
     // nu_t.value() is a column vector with the nodal values of the viscosity for the element.
@@ -93,7 +91,6 @@ struct ComputeSACoeffs
       nu_t_cell = 0.;
     }
     //coeffs.nu_t_cell = nu_t.value().mean();
-    const Real nu_lam = c.one_over_rho*c.mu;
     coeffs.chi = nu_t_cell / nu_lam;
 
     coeffs.Kappa = 0.41;
@@ -185,8 +182,6 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     .pretty_name("SA_constant_g")
     .link_to(&g);
 
-  options().option(solver::Tags::physical_model()).attach_trigger(boost::bind(&SpalartAllmaras::trigger_physical_model, this));
-
   // The code will only be active for these element types
   boost::mpl::vector3<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D,mesh::LagrangeP1::Triag2D> allowed_elements;
 
@@ -196,10 +191,13 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   FieldVariable<2, VectorField> u("Velocity","navier_stokes_solution");
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
-  FieldVariable<4, ScalarField> nu_lam("LaminarViscosity", "laminar_navier_stokes_viscosity");
-  FieldVariable<5, ScalarField> nu_t("NU_t", "Nu_t");
-  FieldVariable<6, ScalarField> nu_dim("NU_dim", "Nu_dim");
+  FieldVariable<4, ScalarField> nu_t("NU_t", "Nu_t");
+  FieldVariable<5, ScalarField> nu_dim("NU_dim", "Nu_dim");
 
+
+  PhysicsConstant rho("density");
+  PhysicsConstant mu("dynamic_viscosity");
+  PhysicsConstant nu_lam("kinematic_viscosity");
 
   *this
     << allocate_component<ZeroLSS>("ZeroLSS")
@@ -215,20 +213,20 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
                        (
                         _A = _0, _T = _0,
-                        UFEM::compute_tau(u_adv, m_su_coeffs),
-                        compute_sa_coeffs(u_adv, NU, m_sa_coeffs, m_su_coeffs),
+                        UFEM::compute_tau(u_adv, nu_eff, tau_su),
+                        compute_sa_coeffs(u_adv, NU, m_sa_coeffs, nu_lam),
                         element_quadrature
                         (
                            _A(NU) +=
-                             transpose(N(NU)) * u_adv * nabla(NU) + m_su_coeffs.tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                             // advection terms
+                             transpose(N(NU)) * u_adv * nabla(NU) + tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                             // advection terms
                              - cb1 * transpose(N(NU)) * N(NU) *  m_sa_coeffs.shat                                                                                   // production
 
                                + cw1*((transpose(N(NU))*N(NU) * NU) * lit(m_sa_coeffs.one_over_D_squared)) * (m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)      // cw1 * fw * (NU_hat/d)^2
                                - m_sa_coeffs.min)) * _pow(((1+_pow(cw3,6))/(_pow((m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)-m_sa_coeffs.min)),6)+_pow(cw3,6))),1/6)            // destruction
 
-                             + one_over_sigma * ((NU + m_su_coeffs.mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
+                             + one_over_sigma * ((NU + mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
                              - one_over_sigma * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                            // diffusion: nabla(NU)^2 times the weight function
-                           _T(NU,NU) +=  transpose(N(NU) + m_su_coeffs.tau_su * u_adv * nabla(NU)) * N(NU)                                                          // Time, standard and SUPG
+                           _T(NU,NU) +=  transpose(N(NU) + tau_su * u_adv * nabla(NU)) * N(NU)                                                          // Time, standard and SUPG
                         ),
                       system_matrix += invdt() * _T + 1.0 * _A,
                       system_rhs += -_A * _x
@@ -241,19 +239,13 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
        group(
          NU += solution(NU),
          NU = _min(_max(NU,0.),1.e+5),
-         nu_t = NU * _fv1((NU/lit(m_su_coeffs.mu))*m_su_coeffs.rho, 7.1),
-         nu_eff = (lit(m_su_coeffs.mu) / m_su_coeffs.rho) + NU * _fv1((NU/lit(m_su_coeffs.mu))*m_su_coeffs.rho, 7.1),
-         nu_lam = (lit(m_su_coeffs.mu) / m_su_coeffs.rho),
+         nu_t = NU * _fv1((NU/lit(mu))*rho, 7.1),
+         nu_eff = (lit(mu) / rho) + NU * _fv1((NU/lit(mu))*rho, 7.1),
          nu_dim = nu_t/nu_lam
        )));
 
     get_child("BoundaryConditions")->handle<BoundaryConditions>()->set_solution_tag(solution_tag());
 
-}
-
-void SpalartAllmaras::trigger_physical_model()
-{
-  dynamic_cast<NavierStokesPhysics&>(physical_model()).link_properties(m_su_coeffs);
 }
 
 void SpalartAllmaras::on_initial_conditions_set(InitialConditions& initial_conditions)

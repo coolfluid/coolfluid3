@@ -82,7 +82,7 @@ protected: // helper functions
     //Handle<Component> fields=parent()->handle<ComputeDualArea>()->dual_area().parent();
     CFinfo << uri().path() << CFendl;
 
-    connectivity = elements().handle<mesh::Elements>()->geometry_space().connectivity().handle< mesh::Connectivity >();
+    connectivity = elements().template handle<mesh::Elements>()->geometry_space().connectivity().template handle< mesh::Connectivity >();
     coordinates = csolution->parent()->get_child(mesh::Tags::coordinates())->handle< mesh::Field >();
     solution   = csolution;
     residual   = cresidual;
@@ -97,7 +97,7 @@ protected: // helper functions
 
     if( is_not_null(elements().get_child("spaces")->get_child(RDM::Tags::solution())) )
     {
-      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->handle<mesh::Space>();
+      Handle<mesh::Space> space=elements().get_child("spaces")->get_child(RDM::Tags::solution())->template handle<mesh::Space>();
       cf3_assert( is_not_null(space) );
       connectivity = space->connectivity().handle<mesh::Connectivity>();
       coordinates  = space->dict().coordinates().handle<mesh::Field>();

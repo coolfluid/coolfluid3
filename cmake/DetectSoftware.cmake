@@ -2,6 +2,11 @@
 # finding boost (essential)
 
 include( DetectBoost )
+# find Eigen (falls back to included code if not found)
+find_package(Eigen3 QUIET)
+if(EIGEN3_FOUND)
+  include_directories(${EIGEN3_INCLUDE_DIR}) # must be before the included Eigen, while we still include a copy
+endif()
 
 ##############################################################################
 # finding MPI (essential) must be after the GlobalOptions

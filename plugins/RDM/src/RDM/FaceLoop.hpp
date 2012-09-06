@@ -74,7 +74,7 @@ struct FaceLoopT1 : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent()->handle<ACTION>()) )
+    if( is_null(parent()->template handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
@@ -128,7 +128,7 @@ struct FaceLoopT : public FaceLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent()->handle<ACTION>()) )
+    if( is_null(parent()->template handle<ACTION>()) )
       throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type

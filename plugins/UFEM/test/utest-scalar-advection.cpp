@@ -43,7 +43,7 @@
 #include "UFEM/Solver.hpp"
 #include "UFEM/Tags.hpp"
 
-#include "UFEM/NavierStokesOps.hpp"
+#include "UFEM/SUPG.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -53,7 +53,7 @@ using namespace cf3::common;
 using namespace cf3::math::Consts;
 using namespace cf3::mesh;
 
-using namespace boost;
+using boost::proto::lit;
 
 
 typedef std::vector<std::string> StringsT;
@@ -142,14 +142,13 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   FieldVariable<0, ScalarField> T("Temperature", UFEM::Tags::solution());
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   FieldVariable<2, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
+  FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
-  UFEM::SUPGCoeffs c;
-  c.mu = 1.7894e-5;
-  c.rho = 1.;
-  c.one_over_rho = 1./c.rho;
-  c.u_ref = 1.;
+  PhysicsConstant nu("kinematic_viscosity");
 
   const Real alpha = 1;
+
+  Real tau_su;
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
@@ -160,7 +159,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   RealVector initial_u(1); initial_u.setConstant(-10.);
 
   // add the top-level actions (assembly, BC and solve)
-  *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u)));
+  *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u, nu_eff = nu)));
   *lss_action
     << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
     << create_proto_action
@@ -172,9 +171,9 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
            group
            (
              _A = _0, _T = _0,
-             UFEM::compute_tau(u_adv, c),
-             element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + c.tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
-                   _T(T,T) +=  transpose(N(T) + c.tau_su * u_adv * nabla(T)) * N(T) ),
+             UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
+             element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
+                   _T(T,T) +=  transpose(N(T) + tau_su * u_adv * nabla(T)) * N(T) ),
                    lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
                    lss_action->system_rhs += -_A * _x
            )
@@ -187,7 +186,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << T << "\n"));
 
   // Setup physics
-  model.create_physics("cf3.physics.DynamicModel");
+  physics::PhysModel& physical_model = model.create_physics("cf3.UFEM.NavierStokesPhysics");
+  physical_model.options().set("dynamic_viscosity", 1.7894e-5);
+  physical_model.options().set("density", 1.);
+  physical_model.options().set("reference_velocity", 1.);
 
   // Setup mesh
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");
@@ -200,7 +202,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   ic->get_child("Initialize")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
-  
+
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
@@ -223,6 +225,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 //    mesh.topology(),
 //        _check_close(-(_exp(Pe2 * coordinates[0])-1.)/(_exp(Pe2)-1.)+1, T, 1.)
 //  );
+
+  std::cout << "Finished test" << std::endl;
 
 }
 

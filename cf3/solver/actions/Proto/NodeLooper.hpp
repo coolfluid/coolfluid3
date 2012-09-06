@@ -120,27 +120,33 @@ struct NodeLooperDim
   void operator()() const
   {
     // Create data used for the evaluation
-    const mesh::Field& coordinates = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
+    Handle<mesh::Dictionary const> dict;
+    boost::fusion::for_each(m_variables, FindDict(mesh, dict));
+    if(is_null(dict))
+      dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+
+    const mesh::Field& coordinates = dict->coordinates();
     DataT node_data(m_variables, m_region, coordinates, m_expr);
 
     // Wrap things up so that we can store the intermediate product results
-    do_run(WrapExpression()(m_expr, 0, node_data), node_data);
+    do_run(WrapExpression()(m_expr, 0, node_data), node_data, *dict);
   }
 
 private:
   template<typename FilteredExprT>
-  void do_run(const FilteredExprT& expr, DataT& data) const
+  void do_run(const FilteredExprT& expr, DataT& data, const mesh::Dictionary& dict) const
   {
     NodeGrammar grammar;
 
     // Build a list of used entities
-    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
     std::vector< Handle<mesh::Entities const> > used_entities;
     BOOST_FOREACH(const mesh::Entities& entities, common::find_components_recursively<mesh::Entities>(m_region))
     {
       used_entities.push_back(entities.handle<mesh::Entities>());
     }
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, mesh.geometry_fields(), true);
+
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, dict, true);
 
     const common::List<Uint>& nodes = *used_nodes_ptr;
     const Uint nb_nodes = nodes.size();
@@ -150,6 +156,33 @@ private:
       grammar(expr, 0, data); // The "0" is the proto state, which is unused at the top-level expression
     }
   }
+
+  struct FindDict
+  {
+    FindDict(const mesh::Mesh& mesh, Handle<mesh::Dictionary const>& dict) :m_mesh(mesh), m_dict(dict)
+    {
+    }
+
+    template<typename T>
+    void operator()(const T& var) const
+    {
+      Handle<mesh::Dictionary const> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(m_mesh, var.field_tag());
+      if(is_not_null(dict))
+      {
+        if(is_not_null(m_dict) && dict != m_dict)
+          throw common::SetupError(FromHere(), "Dict " + dict->uri().path() + " for variabe " + var.name() + " does not match previously found dict " + m_dict->uri().path());
+
+        m_dict = dict;
+      }
+    }
+
+    void operator()(const boost::mpl::void_&) const
+    {
+    }
+
+    const mesh::Mesh& m_mesh;
+    Handle<mesh::Dictionary const>& m_dict;
+  };
 
   const ExprT& m_expr;
   mesh::Region& m_region;

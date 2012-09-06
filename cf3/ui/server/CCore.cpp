@@ -11,7 +11,7 @@
 //#include <QDir>
 
 #include <ctime>
-
+#include <iostream>
 #include "coolfluid-config.hpp"
 #if defined CF3_OS_LINUX || defined CF3_OS_MACOSX // if we are on a POSIX system...
   #include <pwd.h> // for getpwuid()
@@ -200,7 +200,7 @@ bool CCore::get_dir_content( const std::string &directory,
                              bool include_no_ext,
                              DirContent & content) const
 {
-  using namespace boost::filesystem3;
+  using namespace boost::filesystem;
 
   path p(directory);
   bool dir_exists = exists(p) && is_directory(p);
@@ -281,7 +281,7 @@ void CCore::read_dir(SignalArgs & args)
     directory = dirPath;
 
   // get the absolute path
-  directory = boost::filesystem3::complete(directory).string();
+  directory = boost::filesystem::absolute(directory).string();
 //  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
@@ -339,7 +339,7 @@ void CCore::read_special_dir(SignalArgs & args)
                          "Unknown special directory [" + directory + "]." );
 
   // get the absolute path
-  directory = boost::filesystem3::complete(directory).string();
+  directory = boost::filesystem::absolute(directory).string();
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!

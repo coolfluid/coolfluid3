@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", "solution");
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> GradT("GradT", "element_fields", Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>());
+  FieldVariable<1, VectorField> GradT("GradT", "element_fields", Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>()->library_namespace());
 
   // For quads, the center is at mapped coordinates (0,0)
   RealVector2 center; center.setZero();
