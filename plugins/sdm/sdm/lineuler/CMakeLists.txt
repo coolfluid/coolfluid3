@@ -25,6 +25,8 @@ list( APPEND coolfluid_sdm_lineuler_files
   InitAcousticPulse.cpp
   InitAcousticVorticityPulse.hpp
   InitAcousticVorticityPulse.cpp
+  InitCorotatingVortexPair.hpp
+  InitCorotatingVortexPair.cpp
   ComputeCharacteristicVariables.hpp
   ComputeCharacteristicVariables.cpp
   SourceMeanflow2D.hpp
@@ -33,8 +35,6 @@ list( APPEND coolfluid_sdm_lineuler_files
   SourceMonopole2D.cpp
   SourceMonopole3D.hpp
   SourceMonopole3D.cpp
-  SourceLighthill2D.hpp
-  SourceLighthill2D.cpp
 )
 
 list( APPEND coolfluid_sdm_lineuler_cflibs coolfluid_sdm coolfluid_physics_lineuler )

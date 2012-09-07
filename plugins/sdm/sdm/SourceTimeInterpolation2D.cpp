@@ -6,20 +6,18 @@
 
 #include "common/Builder.hpp"
 
-#include "sdm/lineuler/SourceLighthill2D.hpp"
+#include "sdm/SourceTimeInterpolation2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace sdm {
-namespace lineuler {
 
 //////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder<SourceLighthill2D,Term,LibLinEuler> SourceLighthill2D_builder;
+common::ComponentBuilder<SourceTimeInterpolation2D,Term,LibSDM> SourceTimeInterpolation2D_builder;
 
 /////////////////////////////////////////////////////////////////////////////
 
-} // lineuler
 } // sdm
 } // cf3

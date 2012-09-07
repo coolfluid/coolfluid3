@@ -60,6 +60,8 @@ list( APPEND coolfluid_sdm_files
   SourceTerm.cpp
   ShapeFunction.hpp
   ShapeFunction.cpp
+  SourceTimeInterpolation2D.hpp
+  SourceTimeInterpolation2D.cpp
   System.hpp
   System.cpp
   Tags.hpp
