@@ -108,7 +108,6 @@ void ComputeFieldGradient::execute()
         gradient_matrix_per_point[grad_pt].resize(ndim,field_space.shape_function().nb_nodes());
         field_space.shape_function().compute_gradient(grad_space.shape_function().local_coordinates().row(grad_pt),
                                                       gradient_matrix_per_point[grad_pt]);
-        CFinfo << gradient_matrix_per_point[grad_pt] << CFendl;
       }
 
       RealMatrix field_element_values( field_space.shape_function().nb_nodes() , field.row_size() );

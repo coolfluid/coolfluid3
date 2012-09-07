@@ -23,11 +23,19 @@ namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @brief Import variables from another mesh
-///
-/// Optionally, a dictionary can be provided to load the variables into
-/// Every imported variable will have its own field
+/// @brief Compute the gradient of a field
 /// @author Willem Deconinck
+///
+/// If field contains variables (in order) "a , b , c",
+/// then field_gradient will contain variables (in order, e.g. 2D)
+/// "da/dx  db/dx  dc/dx  da/dy db/dy dc/dy"
+///
+/// Shapefunctions are used to compute the gradient.
+///
+/// @note In the case of a P0 shape-function,
+///       the gradient will be thus wrongly calculated to
+///       be zero, as variables are piece-wise constant.
+///
 class mesh_actions_API ComputeFieldGradient : public MeshTransformer
 {   
 public: // functions
