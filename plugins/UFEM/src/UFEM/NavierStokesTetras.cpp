@@ -17,14 +17,14 @@ using namespace solver::actions::Proto;
 
 void NavierStokes::set_tetra_assembly(const bool use_specialization)
 {
-  if(use_specialization)
-  {
-    set_assembly_expression< boost::mpl::vector0<>, boost::mpl::vector1<mesh::LagrangeP1::Tetra3D> >("AssemblyTetras");
-  }
-  else
-  {
-    set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Tetra3D>, boost::mpl::vector0<> >("AssemblyTetras");
-  }
+//   if(use_specialization)
+//   {
+//     set_assembly_expression< boost::mpl::vector0<>, boost::mpl::vector1<mesh::LagrangeP1::Tetra3D> >("AssemblyTetras");
+//   }
+//   else
+//   {
+//     set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Tetra3D>, boost::mpl::vector0<> >("AssemblyTetras");
+//   }
 }
 
 

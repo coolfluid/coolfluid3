@@ -17,7 +17,7 @@ using namespace solver::actions::Proto;
 
 void NavierStokes::set_hexa_assembly()
 {
-  set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Hexa3D>, boost::mpl::vector0<> >("AssemblyHexas");
+//   set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Hexa3D>, boost::mpl::vector0<> >("AssemblyHexas");
 }
 
 } // UFEM
