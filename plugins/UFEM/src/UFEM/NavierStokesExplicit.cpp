@@ -31,6 +31,7 @@
 #include "solver/Tags.hpp"
 
 #include "NavierStokesSpecializations.hpp"
+#include "ParsedFunctionExpression.hpp"
 #include "SUPG.hpp"
 #include "Tags.hpp"
 
@@ -109,7 +110,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_inner_loop->clear();
 
   m_inner_loop->add_component(create_proto_action("ZeroLumpedSystem", nodes_expression(group(M[_i] = 0., R[_i] = 0.))));
-  
+
   // Apply boundary conditions to the explicit "system". These are applied first to make sure the nodal values are correct for assembly
   Handle<BoundaryConditions> bc_u = m_inner_loop->create_component<BoundaryConditions>("VelocityBC");
   bc_u->mark_basic();
@@ -120,7 +121,7 @@ void NavierStokesExplicit::trigger_assembly()
   set_quad_u_assembly();
 
   m_inner_loop->add_link(*bc_u); // Make sure the system is updated to reflect the BC
-  
+
   // Save the last residual
   FieldVariable<0, VectorField> saved_R("residual", "ns_residual");
   m_inner_loop->add_component(create_proto_action("SaveResidual", nodes_expression(saved_R = R)));
@@ -129,7 +130,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_inner_loop->add_component(create_proto_action("SetPressureInput", nodes_expression(group
   (
     delta_a_star[_i] = R[_i]/M[_i],
-    u_star = u + lit(gamma_u)*dt()*delta_a_star,
+    //u_star = u + lit(gamma_u)*dt()*delta_a_star,
     R[_i] = 0. // We reuse the residual vector later on, so reset it to zero
   ))));
 
@@ -161,7 +162,7 @@ void NavierStokesExplicit::trigger_assembly()
       compute_tau(u, nu_eff, lit(tau_su)),
       element_quadrature
       (
-        _a[u[_i]] += transpose(N(u) + tau_su*u*nabla(u)) * nabla(p)[_i] / rho * nodal_values(delta_p)
+        _a[u[_i]] += transpose(nabla(u)[_i]) * N(p) * nodal_values(delta_p)
       ),
       R += _a
     )
@@ -170,7 +171,7 @@ void NavierStokesExplicit::trigger_assembly()
   // Update the rest of the variables
   m_inner_loop->add_component(create_proto_action("Update", nodes_expression(group
   (
-    delta_a[_i] = delta_a_star[_i] - R[_i] / M[_i],
+    delta_a[_i] = delta_a_star[_i] + R[_i] / M[_i],
     u += gamma_u*lit(dt())*delta_a,
     a += delta_a,
     p += delta_p,
@@ -196,12 +197,10 @@ void NavierStokesExplicit::on_initial_conditions_set(InitialConditions& initial_
   initial_conditions.create_initial_condition("navier_stokes_explicit_iteration");
 }
 
-struct NavierStokesExplicitVelocityBC : ProtoAction
+struct NavierStokesExplicitVelocityBC : ParsedFunctionExpression
 {
-  NavierStokesExplicitVelocityBC(const std::string& name) : ProtoAction(name)
+  NavierStokesExplicitVelocityBC(const std::string& name) : ParsedFunctionExpression(name)
   {
-    ConfigurableConstant<RealVector> value("value", "Value for the prescribed velocity");
-
     FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution");
     FieldVariable<1, VectorField> R("R", "navier_stokes_explicit_iteration");
     FieldVariable<2, VectorField> M("M", "navier_stokes_explicit_iteration");
@@ -209,7 +208,7 @@ struct NavierStokesExplicitVelocityBC : ProtoAction
 
     set_expression(nodes_expression(group
     (
-      u = value,
+      u = vector_function(),
       R[_i] = 0.,
       M[_i] = 1.,
       a[_i] = 0.

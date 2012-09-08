@@ -44,13 +44,13 @@ void NavierStokesExplicit::set_velocity_assembly_expression(const std::string& b
         (
           _a[u[_i]] += (nu_eff * transpose(nabla(u)) * nabla(u) // Diffusion
                     +  transpose(N(u) + tau_su*u*nabla(u)) * u*nabla(u)) * transpose(transpose(nodal_values(u))[_i]) // Advection
-                    +  transpose(N(u) + tau_su*u*nabla(u)) * nabla(p)[_i] / rho * nodal_values(p) // Pressure gradient (standard and SUPG)
+                    -  (transpose(nabla(u)[_i])*N(p) - tau_su*transpose(u*nabla(u)) * nabla(p)[_i]) / rho * nodal_values(p) // Pressure gradient (standard and SUPG)
                     +  transpose(N(u) + tau_su*u*nabla(u)) * N(u) * transpose(transpose(nodal_values(a))[_i]), // Time, standard and SUPG
-          _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u*nabla(u)) * N(u)
+          _T(u[_i], u[_i]) += transpose(N(u)) * N(u)
         ),
         lump(_T),
-        M += diagonal(_T),
-        R += -_a
+        M += rho*diagonal(_T),
+        R += -lit(rho)*_a
       )
   )));
 }
@@ -70,7 +70,6 @@ struct PressureMatrix
 
     Eigen::Matrix<Real, dim*nb_nodes, nb_nodes> Aup;
     Eigen::Matrix<Real, nb_nodes, dim*nb_nodes> Apu;
-    Eigen::Matrix<Real, nb_nodes, dim*nb_nodes> Tpu;
 
     typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
 
@@ -84,9 +83,8 @@ struct PressureMatrix
 
       for(Uint i = 0; i != dim; ++i)
       {
-        Aup.template block<nb_nodes, nb_nodes>(i*nb_nodes, 0) = (u.shape_function() + tau_su * u.eval() * u.nabla()).transpose() * u.nabla().row(i) / rho;
-        Apu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = u.shape_function().transpose() * u.nabla().row(i) + tau_ps * u.nabla().row(i).transpose() * u.eval() * u.nabla();
-        Tpu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = tau_ps * u.nabla().row(i).transpose() * u.shape_function();
+        Aup.template block<nb_nodes, nb_nodes>(i*nb_nodes, 0) = u.shape_function().transpose() * u.nabla().row(i);
+        Apu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = Aup.template block<nb_nodes, nb_nodes>(i*nb_nodes, 0).transpose();
 
         // Apply the inverse of the lumped mass matrix:
         for(Uint j = 0; j != nb_nodes; ++j)
@@ -95,7 +93,7 @@ struct PressureMatrix
         }
       }
 
-      A += GaussT::instance().weights[gauss_idx] * ( (Apu + Tpu / (gamma_u*dt)) * Aup - tau_ps*u.nabla().transpose()*u.nabla()/(rho*gamma_u*dt) );
+      A += GaussT::instance().weights[gauss_idx] * ( tau_ps*u.nabla().transpose()*u.nabla()/rho + gamma_u*dt*Apu*Aup );
     }
   }
 };
@@ -118,12 +116,12 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
         pressure_matrix(u, M, rho, lit(tau_ps), lit(tau_su), lit(gamma_u), lit(dt()), _A(p, p)),
         element_quadrature
         (
-          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
-                        +  (transpose(N(p)) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u*nabla(u)) * transpose(transpose(nodal_values(u_star))[_i]), // Continuity and advection PSPG
+          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(u))[_i]) // PSPG, time part
+                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(dt())*transpose(nodal_values(delta_a_star))[_i]), // G'u + gamma_u dt G'Delta_a*
           _a[p]         += tau_ps*transpose(nabla(p)) * nabla(p) / rho * nodal_values(p) // Pressure PSPG
         ),
         system_matrix += _A,
-        system_rhs += lit(invdt()) * _a / gamma_u
+        system_rhs += -_a
       )
   )));
 }
