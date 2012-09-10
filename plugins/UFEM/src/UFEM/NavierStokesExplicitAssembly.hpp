@@ -93,7 +93,7 @@ struct PressureMatrix
         }
       }
 
-      A += GaussT::instance().weights[gauss_idx] * ( tau_ps*u.nabla().transpose()*u.nabla()/rho + gamma_u*dt*Apu*Aup );
+      A += GaussT::instance().weights[gauss_idx] * ( gamma_u*dt*Apu*Aup );
     }
   }
 };
@@ -116,7 +116,7 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
         pressure_matrix(u, M, rho, lit(tau_ps), lit(tau_su), lit(gamma_u), lit(dt()), _A(p, p)),
         element_quadrature
         (
-          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(u))[_i]) // PSPG, time part
+          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i]) // PSPG, time part
                         +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(dt())*transpose(nodal_values(delta_a_star))[_i]), // G'u + gamma_u dt G'Delta_a*
           _a[p]         += tau_ps*transpose(nabla(p)) * nabla(p) / rho * nodal_values(p) // Pressure PSPG
         ),
