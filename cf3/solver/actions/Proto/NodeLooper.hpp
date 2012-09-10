@@ -206,12 +206,16 @@ struct NodeLooper
   template<typename NbDimsT>
   void operator()(const NbDimsT&)
   {
-    common::Table<Real>& coords = common::find_parent_component<mesh::Mesh>(m_region).geometry_fields().coordinates();
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
+    
+    common::Table<Real>& coords = mesh.geometry_fields().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
 
     // Execute with known dimension
     NodeLooperDim<ExprT, NbDimsT>(m_expr, m_region, m_variables)();
+    
+    FieldSynchronizer::instance().synchronize();
   }
 
 private:
