@@ -388,10 +388,11 @@ public:
   void add_nodal_values(const NodeValsT& vals)
   {
     const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
-    for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
+    for(Uint i = 0; i != dimension; ++i)
     {
-      m_element_values.row(i) += vals.template block<dimension, 1>(i*dimension, 0);
-      m_field.set_row(conn[i], m_element_values.row(i));
+      m_element_values.col(i) += vals.template block<EtypeT::nb_nodes, 1>(i*EtypeT::nb_nodes, 0);
+      for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
+        m_field[conn[j]][offset+i] = m_element_values(j,i);
     }
   }
   
@@ -402,7 +403,7 @@ public:
     for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
     {
       m_element_values(i, component_idx) += vals[i];
-      m_field[conn[i]][component_idx] = m_element_values(i, component_idx);
+      m_field[conn[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
   }
 

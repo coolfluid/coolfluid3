@@ -16,5 +16,5 @@ short_edge_action = root.create_component('ShortestEdge', 'cf3.mesh.actions.Shor
 short_edge_action.mesh = mesh
 short_edge_action.execute()
 
-if abs(short_edge_action.properties.shortest_length - 1.) > 1e-10:
+if abs(short_edge_action.properties.h_xi - 1.) > 1e-10:
   raise Exception('Incorrect length')

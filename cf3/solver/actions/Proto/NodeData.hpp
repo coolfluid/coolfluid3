@@ -14,6 +14,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"
+#include <common/Core.hpp>
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -34,6 +35,45 @@ namespace cf3 {
 namespace solver {
 namespace actions {
 namespace Proto {
+
+/// Helper struct to synchronize fields at the end of a loop
+class FieldSynchronizer : public boost::noncopyable
+{
+public:
+  inline static FieldSynchronizer& instance()
+  {
+    static FieldSynchronizer instance;
+    return instance;
+  }
+
+  /// Insert a field to synchronize
+  inline void insert(mesh::Field& f)
+  {
+    m_fields[f.uri().path()] = f.handle<mesh::Field>();
+  }
+
+  /// Sync fields and clear the list
+  inline void synchronize()
+  {
+    if(common::PE::Comm::instance().is_active())
+    {
+      for(FieldsT::iterator field_it = m_fields.begin(); field_it != m_fields.end(); ++field_it)
+      {
+        field_it->second->synchronize();
+      }
+    }
+
+    m_fields.clear();
+  }
+
+private:
+  FieldSynchronizer() {}
+
+  // Fields to synchronize are put in a map using the URI as key, so ensure they are sorted the same way
+  // on each cpu.
+  typedef std::map< std::string, Handle<mesh::Field> > FieldsT;
+  FieldsT m_fields;
+};
 
 /// Extract the coordinates, given a specific region
 inline const common::Table<Real>& extract_coordinates(const mesh::Region& region)
@@ -110,12 +150,16 @@ struct NodeVarData< ScalarField >
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
   }
-  
+
   ~NodeVarData()
   {
-    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
     {
-      m_field.synchronize();
+      const Uint my_sync = m_need_synchronization ? 1 : 0;
+      Uint global_sync = 0;
+      common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
+      if(global_sync != 0)
+        FieldSynchronizer::instance().insert(m_field);
     }
   }
 
@@ -193,12 +237,16 @@ struct NodeVarData<VectorField, Dim>
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
   }
-  
+
   ~NodeVarData()
   {
-    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
     {
-      m_field.synchronize();
+      const Uint my_sync = m_need_synchronization ? 1 : 0;
+      Uint global_sync = 0;
+      common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
+      if(global_sync != 0)
+        FieldSynchronizer::instance().insert(m_field);
     }
   }
 
@@ -242,7 +290,7 @@ struct NodeVarData<VectorField, Dim>
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
-  
+
   void set_value_component(boost::proto::tag::assign, const Real& v, const Uint i)
   {
     m_need_synchronization = true;

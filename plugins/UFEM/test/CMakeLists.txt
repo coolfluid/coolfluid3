@@ -90,6 +90,11 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     MPI 2)
+                    
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
+                    PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    MPI 1)
 
 coolfluid_add_test( ATEST atest-quadtriag
                     PYTHON atest-quadtriag.py
