@@ -37,6 +37,7 @@
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
+#include "FieldSync.hpp"
 #include "Terminals.hpp"
 
 namespace cf3 {
@@ -356,8 +357,21 @@ public:
     m_field(find_field(elements, placeholder.field_tag())),
     m_connectivity(get_connectivity(placeholder.field_tag(), elements)),
     m_support(support),
-    offset(m_field.descriptor().offset(placeholder.name()))
+    offset(m_field.descriptor().offset(placeholder.name())),
+    m_need_sync(false)
   {
+  }
+  
+  ~EtypeTVariableData()
+  {
+    if(common::PE::Comm::instance().is_active())
+    {
+      const Uint my_sync = m_need_sync ? 1 : 0;
+      Uint global_sync = 0;
+      common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
+      if(global_sync != 0)
+        FieldSynchronizer::instance().insert(m_field);
+    }
   }
 
   /// Update nodes for the current element
@@ -394,6 +408,8 @@ public:
       for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
         m_field[conn[j]][offset+i] = m_element_values(j,i);
     }
+    
+    m_need_sync = true;
   }
   
   template<typename NodeValsT>
@@ -405,6 +421,8 @@ public:
       m_element_values(i, component_idx) += vals[i];
       m_field[conn[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
+    
+    m_need_sync = true;
   }
 
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
@@ -490,6 +508,8 @@ private:
   mutable GradientT m_gradient;
 
   InterpolationImpl<Dim> m_eval;
+  
+  bool m_need_sync;
 
 public:
   /// Index of where the variable we need is in the field data row

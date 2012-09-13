@@ -238,6 +238,8 @@ struct ElementLooper
       return;
 
     dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ElementTypesT, mesh::IsCompatibleWith<ETYPE> > >::value>(), sf);
+    
+    FieldSynchronizer::instance().synchronize();
   }
 
   /// Static dispatch in case everything has the same ETYPE

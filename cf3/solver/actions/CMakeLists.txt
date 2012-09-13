@@ -62,6 +62,8 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/BlockAccumulator.hpp
     Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
+    Proto/FieldSync.hpp
+    Proto/FieldSync.cpp
     Proto/ProtoAction.hpp
     Proto/ProtoAction.cpp
     Proto/DirichletBC.hpp
@@ -100,6 +102,6 @@ endif()
 
 set( coolfluid_solver_actions_kernellib TRUE )
 
-list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_math_lss )
+list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_math_lss coolfluid_mesh )
 
 coolfluid_add_library( coolfluid_solver_actions )

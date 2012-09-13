@@ -11,6 +11,8 @@
 #include "common/Foreach.hpp"
 #include "common/PropertyList.hpp"
 
+#include "common/PE/Comm.hpp"
+
 #include "mesh/actions/ShortestEdge.hpp"
 #include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Faces.hpp"
@@ -93,9 +95,16 @@ void ShortestEdge::execute()
     }
   }
 
-  properties()["h_xi"] = sqrt(min_h[0]);
-  properties()["h_eta"] = sqrt(min_h[1]);
-  properties()["h_zeta"] = sqrt(min_h[2]);
+  RealVector global_min_h = min_h;
+  
+  if(PE::Comm::instance().is_active())
+  {
+    PE::Comm::instance().all_reduce(PE::min(), min_h.data(), 3, global_min_h.data());
+  }
+  
+  properties()["h_xi"] = sqrt(global_min_h[0]);
+  properties()["h_eta"] = sqrt(global_min_h[1]);
+  properties()["h_zeta"] = sqrt(global_min_h[2]);
 }
 
 //////////////////////////////////////////////////////////////////////////////

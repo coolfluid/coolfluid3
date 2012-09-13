@@ -9,6 +9,7 @@
 
 #include "mesh/Functions.hpp"
 
+#include "FieldSync.hpp"
 #include "NodeData.hpp"
 #include "NodeGrammar.hpp"
 

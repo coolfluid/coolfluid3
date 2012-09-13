@@ -26,6 +26,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 
+#include "FieldSync.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -35,45 +36,6 @@ namespace cf3 {
 namespace solver {
 namespace actions {
 namespace Proto {
-
-/// Helper struct to synchronize fields at the end of a loop
-class FieldSynchronizer : public boost::noncopyable
-{
-public:
-  inline static FieldSynchronizer& instance()
-  {
-    static FieldSynchronizer instance;
-    return instance;
-  }
-
-  /// Insert a field to synchronize
-  inline void insert(mesh::Field& f)
-  {
-    m_fields[f.uri().path()] = f.handle<mesh::Field>();
-  }
-
-  /// Sync fields and clear the list
-  inline void synchronize()
-  {
-    if(common::PE::Comm::instance().is_active())
-    {
-      for(FieldsT::iterator field_it = m_fields.begin(); field_it != m_fields.end(); ++field_it)
-      {
-        field_it->second->synchronize();
-      }
-    }
-
-    m_fields.clear();
-  }
-
-private:
-  FieldSynchronizer() {}
-
-  // Fields to synchronize are put in a map using the URI as key, so ensure they are sorted the same way
-  // on each cpu.
-  typedef std::map< std::string, Handle<mesh::Field> > FieldsT;
-  FieldsT m_fields;
-};
 
 /// Extract the coordinates, given a specific region
 inline const common::Table<Real>& extract_coordinates(const mesh::Region& region)
