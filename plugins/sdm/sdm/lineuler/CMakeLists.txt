@@ -33,6 +33,10 @@ list( APPEND coolfluid_sdm_lineuler_files
   SourceMeanflow2D.cpp
   SourceMonopole2D.hpp
   SourceMonopole2D.cpp
+  SourceDipole2D.hpp
+  SourceDipole2D.cpp
+  SourceQuadrupole2D.hpp
+  SourceQuadrupole2D.cpp
   SourceMonopole3D.hpp
   SourceMonopole3D.cpp
 )
