@@ -56,7 +56,7 @@ struct ComputeTau
     Real element_nu = fabs(nu_eff.value().mean());
 
     const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
-    const Real ree=u_ref*he/(2.*element_nu);
+    const Real ree=1000.;//u_ref*he/(2.*element_nu);
     cf3_assert(ree > 0.);
     const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
     tau_ps = he*xi/(2.*u_ref);
@@ -85,7 +85,7 @@ struct ComputeTau
       typename ElementNormals<ElementT>::NormalsT normals;
       ElementNormals<ElementT>()(u.support().nodes(), normals);
       const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*element_nu);
+      Real ree=1000.;//umag*h/(2.*element_nu);
       cf3_assert(ree > 0.);
       const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
       return h*xi/(2.*umag);
