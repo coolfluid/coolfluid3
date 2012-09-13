@@ -57,8 +57,8 @@ private:
   void set_pressure_assembly_expression(const std::string& base_name);
 
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
-//   void set_triag_u_assembly();
-//   void set_triag_p_assembly();
+  void set_triag_u_assembly();
+  void set_triag_p_assembly();
   void set_quad_u_assembly();
   void set_quad_p_assembly();
 //   void set_tetra_assembly();
@@ -80,10 +80,12 @@ private:
 
   /// Iteration variables
   FieldVariable<5, ScalarField> p_dot;
-  FieldVariable<6, VectorField> u_star;
   FieldVariable<7, VectorField> delta_a_star;
   FieldVariable<8, VectorField> delta_a;
   FieldVariable<9, ScalarField> delta_p;
+
+  /// Velocity linearization
+  FieldVariable<6, VectorField> u_adv;
 
   /// Access to the physics
   PhysicsConstant u_ref;
@@ -95,6 +97,9 @@ private:
 
   /// Explcit algorithm constants
   Real gamma_u, gamma_p;
+
+  /// Maximum Peclet number for the current timestep
+  Real alpha;
 
   Handle<solver::actions::Iterate> m_inner_loop;
 };

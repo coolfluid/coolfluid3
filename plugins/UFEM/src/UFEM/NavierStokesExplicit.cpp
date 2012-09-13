@@ -56,10 +56,10 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   M("M", "navier_stokes_explicit_iteration"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   p_dot("p_dot", "navier_stokes_explicit_iteration"),
-  u_star("u_star", "navier_stokes_explicit_iteration"),
   delta_a_star("delta_a_star", "navier_stokes_explicit_iteration"),
   delta_a("delta_a", "navier_stokes_explicit_iteration"),
-  delta_p("delta_p", ",navier_stokes_explicit_iteration"),
+  delta_p("delta_p", "navier_stokes_explicit_iteration"),
+  u_adv("AdvectionVelocity", "linearized_velocity"),
   u_ref("reference_velocity"),
   rho("density"),
   nu("kinematic_viscosity"),
@@ -109,7 +109,7 @@ void NavierStokesExplicit::trigger_assembly()
 {
   m_inner_loop->clear();
 
-  m_inner_loop->add_component(create_proto_action("ZeroLumpedSystem", nodes_expression(group(M[_i] = 0., R[_i] = 0.))));
+  m_inner_loop->add_component(create_proto_action("InnerLoopInit", nodes_expression(group(M[_i] = 0., R[_i] = 0., u_adv = u))));
 
   // Apply boundary conditions to the explicit "system". These are applied first to make sure the nodal values are correct for assembly
   Handle<BoundaryConditions> bc_u = m_inner_loop->create_component<BoundaryConditions>("VelocityBC");
@@ -117,7 +117,7 @@ void NavierStokesExplicit::trigger_assembly()
   bc_u->set_solution_tag("navier_stokes_u_solution");
 
   // First assemble the explicit momentum equation
-  //set_triag_u_assembly();
+  set_triag_u_assembly();
   set_quad_u_assembly();
 
   m_inner_loop->add_link(*bc_u); // Make sure the system is updated to reflect the BC
@@ -130,7 +130,6 @@ void NavierStokesExplicit::trigger_assembly()
   m_inner_loop->add_component(create_proto_action("SetPressureInput", nodes_expression(group
   (
     delta_a_star[_i] = R[_i]/M[_i],
-    //u_star = u + lit(gamma_u)*dt()*delta_a_star,
     R[_i] = 0. // We reuse the residual vector later on, so reset it to zero
   ))));
 
@@ -138,7 +137,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_inner_loop->create_component<ZeroLSS>("ZeroLSS");
 
   // Assembly of the pressure LSS
-  //set_triag_p_assembly();
+  set_triag_p_assembly();
   set_quad_p_assembly();
 
   // Pressure BC
@@ -155,7 +154,7 @@ void NavierStokesExplicit::trigger_assembly()
   // Apply the pressure gradient, storing the result in no longer needed R
   m_inner_loop->add_component(create_proto_action("ApplyGrad", elements_expression
   (
-    boost::mpl::vector1<mesh::LagrangeP1::Quad2D>(),
+    boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D>(),
     group
     (
       _a[u] = _0, _A(u) = _0,
