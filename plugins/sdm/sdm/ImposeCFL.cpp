@@ -92,9 +92,9 @@ void ImposeCFL::execute()
     PE::Comm::instance().all_reduce(PE::min(), &min_dt, 1, &glb_min_dt);
     dt = glb_min_dt;
 
-    /// - Make sure we reach milestones and final simulation time
-    Real tf = limit_end_time(time.current_time(), time.options().value<Real>("end_time"));
-    if( time.current_time() + dt + m_tolerance > tf )
+    /// - Make sure we reach final simulation time
+    Real tf = time.options().value<Real>("end_time");
+    if( time.current_time() + dt*(1+sqrt(eps()))> tf )
       dt = tf - time.current_time();
 
     /// Calculate the update_coefficient

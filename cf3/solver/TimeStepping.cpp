@@ -136,7 +136,7 @@ bool TimeStepping::stop_condition()
 
   if (options().value<bool>("time_accurate"))
   {
-    if (m_time->current_time() + 100*math::Consts::eps() > options().value<Real>("end_time"))
+    if (m_time->current_time() >= options().value<Real>("end_time"))
       return true;
   }
 

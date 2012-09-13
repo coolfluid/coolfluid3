@@ -40,6 +40,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::solver;
+using namespace cf3::math::Consts;
 
 namespace cf3 {
 namespace sdm {
@@ -76,7 +77,7 @@ bool Solver::stop_condition()
 
 //  if (options().value<bool>("time_accurate"))
   {
-    if (m_time->current_time() + 100*math::Consts::eps() > m_time->end_time())
+    if (m_time->current_time() >= m_time->end_time())
       return true;
   }
 

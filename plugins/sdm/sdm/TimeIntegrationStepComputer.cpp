@@ -33,8 +33,7 @@ namespace sdm {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 TimeIntegrationStepComputer::TimeIntegrationStepComputer ( const std::string& name ) :
-  common::Action(name),
-  m_tolerance(1e-12)
+  common::Action(name)
 {
   mark_basic();
   // options
@@ -59,18 +58,6 @@ TimeIntegrationStepComputer::TimeIntegrationStepComputer ( const std::string& na
     .pretty_name("Time")
     .link_to(&m_time);
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Real TimeIntegrationStepComputer::limit_end_time(const Real& time, const Real& end_time)
-{
-  const Real milestone_dt  =  m_time->options().value<Real>("time_step");
-  if (milestone_dt == 0.)
-    return end_time;
-
-  const Real milestone_time = (Uint((time+m_tolerance)/milestone_dt)+1.)*milestone_dt;
-  return std::min(milestone_time,end_time);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

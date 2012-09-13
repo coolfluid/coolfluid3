@@ -31,17 +31,12 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "TimeIntegrationStepComputer"; }
 
-protected: // helper functions
-
-  Real limit_end_time(const Real& time, const Real& end_time);
-
 protected: // data
 
   Handle<mesh::Field> m_update_coeff;
   Handle<mesh::Field> m_wave_speed;
   Handle<solver::Time> m_time;
 
-  Real m_tolerance;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
