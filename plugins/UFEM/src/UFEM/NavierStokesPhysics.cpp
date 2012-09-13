@@ -44,6 +44,37 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .description("Kinematic Viscosity (m^2/s)")
     .pretty_name("Kinematic Viscosity")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this));
+
+  options().add<Real>("reference_temperature")
+    .description("Reference temperature for the boussinesq approximation (K)")
+    .pretty_name("Reference temperature")
+    .mark_basic();
+
+  options().add("reference_density", 1.0)
+    .description("Reference mass density (kg / m^3)")
+    .pretty_name("Reference_density")
+    .mark_basic();
+
+  options().add("thermal_expansion_coefficient", 1.0)
+    .description("Thermal expansion coefficient betha ()")
+    .pretty_name("Thermal_expansion_coefficient")
+    .mark_basic();
+
+  options().add("specific_heat_capacity", 1.0)
+    .description("Specific heat capacity cp ()")
+    .pretty_name("Specific_heat_capacity")
+    .mark_basic();
+
+  options().add("heat_conductivity", 1.0)
+    .description("Heat conductivity kappa ()")
+    .pretty_name("Heat_conductivity")
+    .mark_basic();
+
+  options().add<RealVector>("gravitatonal_acceleration")
+    .description("Acceleration due to gravitation ()")
+    .pretty_name("Gravitatonal_acceleration")
+    .mark_basic();
+
 }
 
 void NavierStokesPhysics::trigger_rho()

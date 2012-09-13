@@ -34,6 +34,7 @@
 #include "Tags.hpp"
 
 #include "BoussinesqAssembly.hpp"
+#include "BoussinesqAssemblyExtended.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -42,7 +43,6 @@ using namespace common;
 using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
-
 
 
 ComponentBuilder < NavierStokes, LSSActionUnsteady, LibUFEM > NavierStokes_builder;
@@ -58,7 +58,15 @@ NavierStokes::NavierStokes(const std::string& name) :
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   u_ref("reference_velocity"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+
+  temp_ref("reference_temperature"),
+  rho_ref("reference_density"),
+  betha("thermal_expansion_coefficient"),
+  cp_heat_capacity("specific_heat_capacity"),
+  kappa_heat_cond("heat_conductivity"),
+  g_acceleration("gravitatonal_acceleration")
+
 {
   options().add("use_specializations", true)
     .pretty_name("Use Specializations")
@@ -73,6 +81,11 @@ NavierStokes::NavierStokes(const std::string& name) :
   options().add("use_boussinesq", false)
     .pretty_name("Use Boussinesq")
     .description("Use the Boussinesq approximation assembly instead of the Navier-Stokes assembly")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("use_boussinesq_extended", false)
+    .pretty_name("Use Boussinesq Extended")
+    .description("Use an extended Boussinesq approximation assembly instead of the Navier-Stokes assembly")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
 
   set_solution_tag("navier_stokes_solution");
