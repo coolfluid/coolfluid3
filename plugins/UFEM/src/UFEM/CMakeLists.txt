@@ -6,6 +6,7 @@ list( APPEND coolfluid_ufem_files
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   BoussinesqAssembly.hpp
+  BoussinesqAssemblyExtended.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
   HeatConductionSteady.hpp
@@ -61,4 +62,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagr
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
-set_source_files_properties(HeatConductionSteady.cpp NavierStokesExplicit.cpp NavierStokesExplicitQuadsVelocity.cpp NavierStokesExplicitQuadsPressure.cpp NavierStokesTriags.cpp NavierStokesTetras.cpp NavierStokesQuads.cpp NavierStokesHexas.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(NavierStokes.cpp HeatConductionSteady.cpp NavierStokesExplicit.cpp NavierStokesExplicitQuadsVelocity.cpp NavierStokesExplicitQuadsPressure.cpp NavierStokesTriags.cpp NavierStokesTetras.cpp NavierStokesQuads.cpp NavierStokesHexas.cpp SpalartAllmaras.cpp PROPERTIES COMPILE_FLAGS "-g0")
