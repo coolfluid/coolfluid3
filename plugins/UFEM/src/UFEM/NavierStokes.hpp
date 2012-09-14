@@ -11,11 +11,11 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/max.hpp>
 
-#define BOOST_PROTO_MAX_ARITY 10
+#define BOOST_PROTO_MAX_ARITY 11
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
   #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
 #endif
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 11
 
 #include <boost/scoped_ptr.hpp>
 
@@ -89,6 +89,8 @@ private:
 
   /// Temperature field
   FieldVariable<7, ScalarField> Temp;
+  /// Temperature field
+  FieldVariable<8, ScalarField> Temp_ref;
 
 
   /// Access to the physics

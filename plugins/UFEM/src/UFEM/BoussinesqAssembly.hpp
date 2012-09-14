@@ -40,7 +40,7 @@ void NavierStokes::set_boussinesq_assembly_expression(const std::string& action_
   if(theta < 0. || theta > 1.)
     throw SetupError(FromHere(), "Value " + to_str(theta) + " for theta option of " + uri().path() + " is outside of the valid range from 0 to 1.");
 
-  // ConfigurableConstant<RealVector> g_acceleration;
+  ConfigurableConstant<RealVector> g_acceleration("g", "Gravity");
 
   // The actual matrix assembly
   m_assembly->add_component(create_proto_action
@@ -63,11 +63,11 @@ void NavierStokes::set_boussinesq_assembly_expression(const std::string& action_
               _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i] / rho, // Pressure gradient (standard and SUPG)
               _A(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
                                   + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
-              //_A(u[_i], Temp)  += N(Temp),
               _A(Temp, Temp)   += transpose(N(Temp)) * u_adv * nabla(Temp) + tau_su * transpose(u_adv*nabla(Temp)) * u_adv * nabla(Temp)
                                   + boost::proto::lit(kappa_heat_cond) * transpose(nabla(Temp)) * nabla(Temp)  / boost::proto::lit(rho_ref) * cp_heat_capacity,
               _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
+              _T(u[_i], Temp)  += -transpose(N(u)) * N(u) * betha * boost::proto::lit(g_acceleration)[_i],
               _T(Temp,Temp)    += transpose(N(Temp) + tau_su * u_adv * nabla(Temp)) * N(Temp)                  // Time, standard and SUPG
             )
           ),

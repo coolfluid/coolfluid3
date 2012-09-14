@@ -70,10 +70,10 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Heat_conductivity")
     .mark_basic();
 
-  options().add<RealVector>("gravitatonal_acceleration")
-    .description("Acceleration due to gravitation ()")
-    .pretty_name("Gravitatonal_acceleration")
-    .mark_basic();
+  //options().add<RealVector>("gravitatonal_acceleration")
+  //  .description("Acceleration due to gravitation ()")
+  //  .pretty_name("Gravitatonal_acceleration")
+  //  .mark_basic();
 
 }
 
