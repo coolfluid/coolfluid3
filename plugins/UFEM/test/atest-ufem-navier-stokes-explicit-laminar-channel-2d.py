@@ -84,7 +84,7 @@ tstep = 1./(2*physics.options.kinematic_viscosity * (1./dx**2 + 1./dy**2 + 1./dz
 ns_solver.regions = [mesh.topology.uri()]
 
 # lss setup
-lss = ns_solver.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
+lss = ns_solver.InnerLoop.PressureSystem.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
 lss.Matrix.settings_file = sys.argv[1]
 
 # Initial conditions
@@ -94,7 +94,6 @@ ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFE
 ic_u.variable_name = 'Velocity'
 ic_u.regions = [mesh.topology.uri()]
 ic_u.value = ['y*(2-y)', '0']
-solver.InitialConditions.navier_stokes_p_solution.Pressure = 0.
 ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
 ic_p.variable_name = 'Pressure'
 ic_p.regions = [mesh.topology.uri()]
@@ -105,7 +104,7 @@ bc_u = ns_solver.InnerLoop.VelocityBC
 bc_u.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ['0.', '0.']
 bc_u.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ['0.', '0.']
 bc_u.create_bc_action(region_name = 'left', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ic_u.value
-ns_solver.InnerLoop.PressureBC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
+ns_solver.InnerLoop.PressureSystem.PressureBC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
 
 # Time setup
 time = model.create_time()

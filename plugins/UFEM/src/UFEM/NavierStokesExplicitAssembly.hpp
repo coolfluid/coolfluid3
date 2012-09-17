@@ -107,7 +107,7 @@ static solver::actions::Proto::MakeSFOp<PressureMatrix>::type const pressure_mat
 template<typename ElementsT>
 void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& base_name)
 {
-  m_inner_loop->add_component(create_proto_action
+  m_pressure_lss->add_component(create_proto_action
   (
     base_name+"PressureAssembly",
     elements_expression
@@ -117,16 +117,16 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
       (
         _A(p,p) = _0, _a = _0, _T(p,p) = _0,
         compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
-        pressure_matrix(u_adv, M, lit(gamma_u), lit(dt()), lit(tau_ps), _A(p, p)),
+        pressure_matrix(u_adv, M, lit(gamma_u), lit(m_dt), lit(tau_ps), _A(p, p)),
         element_quadrature
         (
           _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
-                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(dt())*transpose(nodal_values(delta_a_star))[_i]) // G'u + gamma_u dt G'Delta_a*
-                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(dt())*transpose(nodal_values(delta_a_star))[_i]), // Standard + Skew symmetric advection PSPG term
+                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*transpose(nodal_values(delta_a_star))[_i]) // G'u + gamma_u dt G'Delta_a*
+                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*transpose(nodal_values(delta_a_star))[_i]), // Standard + Skew symmetric advection PSPG term
           _T(p,p)       += tau_ps*transpose(nabla(p)) * nabla(p) / rho // Pressure PSPG
         ),
-        system_matrix += _A + _T,
-        system_rhs += -_a - _T * nodal_values(p)
+        m_pressure_lss->system_matrix += _A + _T,
+        m_pressure_lss->system_rhs += -_a - _T * nodal_values(p)
       )
   )));
 }

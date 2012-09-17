@@ -17,7 +17,7 @@
 #endif
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
-#include <boost/scoped_ptr.hpp>
+#include "solver/ActionDirector.hpp"
 
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
@@ -29,8 +29,10 @@ namespace cf3 {
 
 namespace UFEM {
 
+  class InitialConditions;
+
 /// solver for the unsteady incompressible Navier-Stokes equations
-class UFEM_API NavierStokesExplicit : public LSSActionUnsteady
+class UFEM_API NavierStokesExplicit : public solver::ActionDirector
 {
 public: // functions
 
@@ -46,6 +48,9 @@ public: // functions
 private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
+
+  void trigger_time();
+  void trigger_initial_conditions();
 
   /// Called when the initial condition manager is changed
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
@@ -63,6 +68,8 @@ private:
   void set_quad_p_assembly();
 //   void set_tetra_assembly();
 //   void set_hexa_assembly();
+
+  virtual void on_regions_set();
 
 
   /// The velocity solution field
@@ -101,7 +108,16 @@ private:
   /// Maximum Peclet number for the current timestep
   Real alpha;
 
+  /// Timings
+  Real m_dt, m_inv_dt;
+
   Handle<solver::actions::Iterate> m_inner_loop;
+  Handle<LSSActionUnsteady> m_pressure_lss;
+  Handle<common::Action> m_viscosity_initial_condition;
+  Handle<common::Action> m_iteration_initial_condition;
+  Handle<common::Action> m_velocity_initial_condition;
+
+  bool m_recursing;
 };
 
 } // UFEM
