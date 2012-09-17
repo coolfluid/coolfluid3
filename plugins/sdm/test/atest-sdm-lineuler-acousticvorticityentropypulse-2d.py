@@ -1,130 +1,133 @@
 # import sys
 # sys.path.append('/Users/willem/workspace/coolfluid3/dev/builds/clang/release/dso/')
 
-import coolfluid
-
-# The cf root component
-root = coolfluid.Core.root()
-env =  coolfluid.Core.environment()
+from coolfluid import *
+from math import *
 
 ### Logging configuration
-env.options().set('assertion_backtrace', True)
-env.options().set('exception_backtrace', True)
-env.options().set('regist_signal_handlers', True)
-env.options().set('exception_log_level', 10)
-env.options().set('log_level', 3)
-env.options().set('exception_outputs', True)
+env.assertion_backtrace = True
+env.exception_backtrace = True
+env.exception_log_level = 4
+env.log_level = 3
 
 ############################
 # Create simulation
 ############################
-model   = root.create_component('accousticpulse_2d','cf3.solver.Model');
-solver  = model.create_solver('cf3.sdm.SDSolver')
-physics = model.create_physics('cf3.physics.LinEuler.LinEuler2D')
-domain  = model.create_domain()
+model   = root.create_component('accousticpulse_2d','cf3.sdm.Model');
 
 ### Load the mesh
-mesh = domain.load_mesh(file = coolfluid.URI('../../../resources/square100-quad-p2-50x50.msh'), name = 'square');
+mesh = model.domain.load_mesh(file = URI('../../../resources/square100-quad-p2-50x50.msh'), name = 'square');
 
 ####### Alternatively, following generates the same square mesh with P1 elements
-#mesh = domain.create_component('mesh','cf3.mesh.Mesh')
-#mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
-#mesh_generator.options().set("mesh",mesh.uri())
-#mesh_generator.options().set("nb_cells",[50,50])
-#mesh_generator.options().set("lengths",[200,200])
-#mesh_generator.options().set("offsets",[-100,-100])
+#mesh = model.domain.create_component('mesh','cf3.mesh.Mesh')
+#mesh_generator = model.tools.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
+#mesh_generator.mesh     = mesh
+#mesh_generator.nb_cells = [60,60]
+#mesh_generator.lengths  = [250,250]
+#mesh_generator.offsets  = [-100,-100]
 #mesh_generator.execute()
 #load_balance = mesh_generator.create_component("load_balancer","cf3.mesh.actions.LoadBalance")
-#load_balance.options().set("mesh",mesh)
+#load_balance.mesh = mesh
 #load_balance.execute()
 ######
 
 ### Configure solver
-solver.options().set('mesh',mesh)
-solver.options().set('solution_vars','cf3.physics.LinEuler.Cons2D')
-solver.options().set('solution_order',4)
-solver.options().set('iterative_solver','cf3.sdm.ExplicitRungeKuttaLowStorage2')
+solution_space = model.create_solution_space( order=4, regions=[mesh.topology])
 
-### Configure timestepping
-solver.access_component('Time').options().set('time_step',30);
-solver.access_component('Time').options().set('end_time',2);
-solver.access_component('TimeStepping').options().set('cfl','0.2');
-#solver.access_component('TimeStepping').options().set('max_iteration',1);
-solver.access_component('TimeStepping/IterativeSolver').options().set('nb_stages',4)
-
-### Prepare the mesh for Spectral Difference (build faces and fields etc...)
-solver.get_child('PrepareMesh').execute()
-
-### Set the initial condition
 gamma = 1.
 rho0 = 1.
 p0 = 1.
+U0 = [0.5,0]
 c2 = gamma*p0/rho0
-initial_condition = solver.get_child('InitialConditions').create_initial_condition( name = 'init')
+c0 = sqrt(c2)
 
-# function describing an acoustic pulse, with entropy and vortex
-acoustic_entropy_vortex = [
- 'exp( -log(2.)*((x)^2+y^2)/9. ) + 0.1*exp( -log(2.)*((x-67.)^2 + y^2)/25. )',
- ' 0.04*y      *exp( -log(2.)*((x-67.)^2+y^2)/25. )',
- '-0.04*(x-67.)*exp( -log(2.)*((x-67.)^2+y^2)/25. )',
- 'exp( -log(2.)*((x)^2+y^2)/9. )'
-]
+solution = model.create_field( name='solution',
+    functions=[ 'rho[scal]  =  exp( -log(2.)*((x)^2+y^2)/9. ) + 0.1*exp( -log(2.)*((x-67.)^2 + y^2)/25. )',
+                'rho0U[vec] =  [0.04*y      *exp( -log(2.)*((x-67.)^2+y^2)/25. ), -0.04*(x-67.)*exp( -log(2.)*((x-67.)^2+y^2)/25. )]',
+                'p[scal]    =  '+str(c2)+'*exp( -log(2.)*((x)^2+y^2)/9. )' ])
 
-# function describing entropy and vortex without acoustic pulse
-entropy_vortex = [
- '0.1*exp( -log(2.)*((x-67)^2 + y^2)/25. )',
- ' 0.04*y      *exp( -log(2.)*((x-67)^2+y^2)/25. )',
- '-0.04*(x-67)*exp( -log(2.)*((x-67)^2+y^2)/25. )',
- '0'
-]
+mean_flow = model.create_field( name='mean_flow',
+    functions=[ 'rho0[scal] = '+str(rho0),
+                'U0[vec]    = '+str(U0),
+                'p0[scal]   = '+str(p0) ])
 
-# function describing acoustic pulse only
-acoustic = [
- 'exp( -log(2.)*((x)^2+y^2)/9. )',
- ' 0',
- '-0',
- 'exp( -log(2.)*((x)^2+y^2)/9. )'
-]
+# Time integration
+time_integration = model.set_time_integration( scheme='cf3.sdm.ExplicitRungeKuttaLowStorage2' )
+time_integration.scheme.nb_stages = 4
+time_integration.step.cfl = 0.2
 
-# Configure which of the above functions to set as initial condition
-initial_condition.options().set('functions',acoustic_entropy_vortex)
-solver.get_child('InitialConditions').execute();
+# Domain discretization
+convection = model.domain_discretization.create_term(name='convection',type='cf3.sdm.lineuler.ConvectionNonUniformMeanflow2D')
+convection.mean_flow = mean_flow
+convection.gamma = gamma
 
-### Create convection term
-convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection2D', regions=[mesh.access_component('topology/domain').uri()])
-convection.options().set('gamma',gamma)
-convection.options().set('rho0',1.)
-convection.options().set('U0',[.5,0.])
-convection.options().set('p0',1.)
+model.time_stepping.end_time = 90
+model.time_stepping.end_time = 1
+model.time_stepping.time_step = 10
+
+## function describing entropy and vortex without acoustic pulse
+#entropy_vortex = [
+# '0.1*exp( -log(2.)*((x-67)^2 + y^2)/25. )',
+# ' 0.04*y      *exp( -log(2.)*((x-67)^2+y^2)/25. )',
+# '-0.04*(x-67)*exp( -log(2.)*((x-67)^2+y^2)/25. )',
+# '0'
+#]
+
+## function describing acoustic pulse only
+#acoustic = [
+# 'exp( -log(2.)*((x)^2+y^2)/9. )',
+# ' 0',
+# '-0',
+# 'exp( -log(2.)*((x)^2+y^2)/9. )'
+#]
+
+## Configure which of the above functions to set as initial condition
+#initial_condition.options().set('functions',acoustic_entropy_vortex)
+#solver.get_child('InitialConditions').execute();
+
+#### Create convection term
+#convection = solver.get_child('DomainDiscretization').create_term(name = 'convection', type = 'cf3.sdm.lineuler.Convection2D', regions=[mesh.access_component('topology/domain').uri()])
+#convection.options().set('gamma',gamma)
+#convection.options().set('rho0',1.)
+#convection.options().set('U0',[.5,0.])
+#convection.options().set('p0',1.)
 
 ### subsonic outlet BC at tob bottom right
-bc = solver.access_component('BoundaryConditions').create_boundary_condition(name='null',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
-mesh.access_component('topology/right').uri(),
-mesh.access_component('topology/bottom').uri(),
-mesh.access_component('topology/top').uri(),
+bc = model.boundary_conditions.create_boundary_condition(name='null',type='cf3.sdm.lineuler.BCSubsonicOutlet2D',regions=[
+mesh.topology.right,
+mesh.topology.bottom,
+mesh.topology.top,
 ])
+bc.c0 = c0
+bc.U0 = U0
 
 ### Impose zero variation at left boundary. This should be replaced by a subsonic inlet BC
-impose = solver.access_component('BoundaryConditions').create_boundary_condition(name='impose',type='cf3.sdm.BCConstant<4,2>',regions=[
-mesh.access_component('topology/left').uri(),])
+impose = model.boundary_conditions.create_boundary_condition(
+  name='impose',
+  type='cf3.sdm.BCConstant<4,2>',
+  regions=[mesh.topology.left] )
 impose.options().set('constants',[0,0,0,0])
 
 #######################################
 # SIMULATE
 #######################################
 
-model.simulate()
+while not model.time_stepping.properties.finished :
+
+    model.time_stepping.do_step()
+
+    mesh.write_mesh(file=URI('solution'+str(model.time_stepping.step)+'.msh'),fields=[solution.uri()])
 
 #######################################
 # POST-PROCESSING
 #######################################
 
-compute_char = model.create_component('compute_characteristics','cf3.sdm.lineuler.ComputeCharacteristicVariables')
-compute_char.options().set('normal',[1.,0.])
-compute_char.options().set('solver',solver)
-compute_char.options().set('mesh',mesh)
-compute_char.options().set('physical_model',physics)
-compute_char.execute()
+#compute_char = model.tools.create_component('compute_characteristics','cf3.sdm.lineuler.ComputeCharacteristicVariables')
+#compute_char.options().set('normal',[1.,0.])
+#compute_char.options().set('solver',solver)
+#compute_char.options().set('mesh',mesh)
+#compute_char.options().set('physical_model',physics)
+#compute_char.execute()
 
 ########################
 # OUTPUT
@@ -132,7 +135,7 @@ compute_char.execute()
 
 fields = [
 mesh.access_component('solution_space/solution').uri(),
-mesh.access_component('solution_space/char').uri()
+#mesh.access_component('solution_space/char').uri()
 ]
 
 # gmsh
@@ -140,7 +143,7 @@ mesh.access_component('solution_space/char').uri()
 gmsh_writer = model.create_component('writer','cf3.mesh.gmsh.Writer')
 gmsh_writer.options().set('mesh',mesh)
 gmsh_writer.options().set('fields',fields)
-gmsh_writer.options().set('file',coolfluid.URI('file:sdm_output.msh'))
+gmsh_writer.options().set('file',URI('file:sdm_output.msh'))
 gmsh_writer.execute()
 
 
@@ -151,8 +154,8 @@ gmsh_writer.execute()
 # the high-order solution better.
 
 # Generate visualization mesh
-visualization_mesh = domain.create_component('visualization_mesh','cf3.mesh.Mesh')
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
+visualization_mesh = model.domain.create_component('visualization_mesh','cf3.mesh.Mesh')
+mesh_generator = model.domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
 mesh_generator.options().set("mesh",visualization_mesh.uri())
 mesh_generator.options().set("nb_cells",[400,400])
 mesh_generator.options().set("lengths",[200,200])
@@ -161,17 +164,17 @@ mesh_generator.execute()
 
 # Interpolate fields using solution polynomial
 visualization_mesh.get_child('geometry').create_field(name='solution',       variables='rho[1],rho0U[2],p[1]')
-visualization_mesh.get_child('geometry').create_field(name='char', variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
+#visualization_mesh.get_child('geometry').create_field(name='char', variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
 
 interpolator = model.get_child('tools').create_component('interpolator','cf3.mesh.Interpolator')
 interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
 												 target=visualization_mesh.access_component("geometry/solution").uri())
-interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),
-												 target=visualization_mesh.access_component("geometry/char").uri())
+#interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),
+#												 target=visualization_mesh.access_component("geometry/char").uri())
 
 fields = [
 visualization_mesh.access_component('geometry/solution').uri(),
-visualization_mesh.access_component('geometry/char').uri()
+#visualization_mesh.access_component('geometry/char').uri()
 ]
 
 # Write visualization mesh
@@ -179,7 +182,7 @@ tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplo
 tec_writer.options().set('mesh',visualization_mesh)
 tec_writer.options().set('fields',fields)
 tec_writer.options().set('cell_centred',True)
-tec_writer.options().set('file',coolfluid.URI('file:sdm_output.plt'))
+tec_writer.options().set('file',URI('file:sdm_output.plt'))
 tec_writer.execute()
 
 #####################
@@ -187,8 +190,8 @@ tec_writer.execute()
 #####################
 
 # Generate 1D line mesh, for now only y=0 can be probed as the line has 1D coordinates only
-probe_mesh = domain.create_component('probe_mesh','cf3.mesh.Mesh')
-mesh_generator = domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
+probe_mesh = model.domain.create_component('probe_mesh','cf3.mesh.Mesh')
+mesh_generator = model.domain.create_component("mesh_generator","cf3.mesh.SimpleMeshGenerator")
 mesh_generator.options().set("mesh",probe_mesh.uri())
 mesh_generator.options().set("nb_cells",[1000])
 mesh_generator.options().set("lengths",[200])
@@ -197,16 +200,16 @@ mesh_generator.execute()
 
 # Interpolate fields
 probe_mesh.get_child('geometry').create_field(name='solution', variables='rho[1],rho0U[2],p[1]')
-probe_mesh.get_child('geometry').create_field(name='char',     variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
+#probe_mesh.get_child('geometry').create_field(name='char',     variables='S[1],Shear[1],Aplus[1],Amin[1],A[1],omega[1]')
 
 interpolator.interpolate(source=mesh.access_component("solution_space/solution").uri(),
 												 target=probe_mesh.access_component("geometry/solution").uri())
-interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),
-												 target=probe_mesh.access_component("geometry/char").uri())
+#interpolator.interpolate(source=mesh.access_component("solution_space/char").uri(),
+#												 target=probe_mesh.access_component("geometry/char").uri())
 
 fields = [
 probe_mesh.access_component('geometry/solution').uri(),
-probe_mesh.access_component('geometry/char').uri()
+#probe_mesh.access_component('geometry/char').uri()
 ]
 
 # Write probe mesh
@@ -214,6 +217,6 @@ tec_writer = model.get_child('tools').create_component('writer','cf3.mesh.tecplo
 tec_writer.options().set('mesh',probe_mesh)
 tec_writer.options().set('fields',fields)
 tec_writer.options().set('cell_centred',True)
-tec_writer.options().set('file',coolfluid.URI('file:probe_liney0.plt'))
+tec_writer.options().set('file',URI('file:probe_liney0.plt'))
 tec_writer.execute()
 
