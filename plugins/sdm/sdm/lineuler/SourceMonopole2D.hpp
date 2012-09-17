@@ -160,9 +160,10 @@ private:
   /// spatial part of the source term
   Real f(const RealVectorNDIM& coord)
   {
-    return m_eps * exp( -log(2.)/m_alpha*(
-      (coord[XX]-m_source_loc[XX])*(coord[XX]-m_source_loc[XX]) +
-      (coord[YY]-m_source_loc[YY])*(coord[YY]-m_source_loc[YY])  ) );
+    using namespace std;
+    const Real dx = coord[XX]-m_source_loc[XX];
+    const Real dy = coord[YY]-m_source_loc[YY];
+    return m_eps * exp( -log(2.)/m_alpha*(pow(dx,2) + pow(dy,2)) );
   }
 
   Real m_source;                      ///< dummy variable

@@ -30,7 +30,7 @@ public:
 //    m_u0n = 0.5;
 //    m_u0s = 0.;
     std::vector<Real> U0(NDIM);
-    U0[XX] = 0.5;
+    U0[XX] = 0.;
     U0[YY] = 0.;
     options().add("U0",U0).mark_basic();
     options().add("c0",m_c0).mark_basic();

@@ -25,8 +25,6 @@ list( APPEND coolfluid_sdm_lineuler_files
   InitAcousticPulse.cpp
   InitAcousticVorticityPulse.hpp
   InitAcousticVorticityPulse.cpp
-  InitCorotatingVortexPair.hpp
-  InitCorotatingVortexPair.cpp
   ComputeCharacteristicVariables.hpp
   ComputeCharacteristicVariables.cpp
   SourceMeanflow2D.hpp
