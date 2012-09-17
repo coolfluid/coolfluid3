@@ -11,6 +11,8 @@
 
 namespace cf3 {
 namespace sdm {
+
+  class DomainDiscretization;
   class TimeIntegrationStepComputer;
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +66,7 @@ private: // functions
 
   void config_nb_stages();
 
-  virtual void link_fields();
+  void create_solution_backup();
 
 private: // data
 
@@ -72,6 +74,9 @@ private: // data
   Handle<mesh::Field> m_S2;
   /// Third register necessary for low-storage runge kutta algorithm  3S*
   Handle<mesh::Field> m_solution_backup; // ( = S3 in algorithm )
+
+  /// @brief Component that computes the space-residual for one cell
+  Handle<DomainDiscretization> m_domain_discretization;
 
   Handle<TimeIntegrationStepComputer> m_time_step_computer;
 

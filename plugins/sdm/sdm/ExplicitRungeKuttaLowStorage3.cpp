@@ -76,7 +76,11 @@ ExplicitRungeKuttaLowStorage3::ExplicitRungeKuttaLowStorage3 ( const std::string
   options().add("c", dummy)
       .description("coefficients c from butcher tableau (length = nb_stages)");
 
+  options().add("domain_discretization",m_domain_discretization).link_to(&m_domain_discretization);
+
   options().add("time_step_computer",m_time_step_computer).link_to(&m_time_step_computer).mark_basic();
+
+  options()["solution"].attach_trigger( boost::bind( &ExplicitRungeKuttaLowStorage3::create_solution_backup , this) );
 
   config_nb_stages();
 }
@@ -92,47 +96,29 @@ void ExplicitRungeKuttaLowStorage3::config_nb_stages()
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ExplicitRungeKuttaLowStorage3::link_fields()
+void ExplicitRungeKuttaLowStorage3::create_solution_backup()
 {
-  IterativeSolver::link_fields();
+  if ( is_null(m_solution) )              throw SetupError( FromHere(), "Option 'solution' not configured for "+uri().string());
 
-  if ( is_null(m_solution_backup) )  // backup not created --> create field
+  if ( is_null(m_solution->dict().get_child("solution_backup")) )
   {
-    if (Handle< Component > found_solution_backup = solver().field_manager().get_child( "solution_backup" ))
-    {
-      m_solution_backup = Handle<Field>( follow_link(found_solution_backup) );
-    }
-    else if ( Handle< Component > found_solution_backup = m_solution->dict().get_child( "solution_backup" ) )
-    {
-      solver().field_manager().create_component<Link>("solution_backup")->link_to(*found_solution_backup);
-      m_solution_backup = found_solution_backup->handle<Field>();
-    }
-    else
-    {
-      m_solution_backup = m_solution->dict().create_field("solution_backup", m_solution->descriptor().description()).handle<Field>();
-      m_solution_backup->descriptor().prefix_variable_names("backup_");
-      solver().field_manager().create_component<Link>("solution_backup")->link_to(*m_solution_backup);
-    }
+    m_solution_backup = m_solution->dict().create_field("solution_backup",m_solution->descriptor().description()).handle<Field>();
+  }
+  else
+  {
+    m_solution_backup = m_solution->dict().get_child("solution_backup")->handle<Field>();
   }
 
-  if ( is_null(m_S2) )  // register not created --> create field
+  if ( is_null(m_solution->dict().get_child( "solution_register" ) ) )
   {
-    if (Handle< Component > found_register = solver().field_manager().get_child( "solution_register" ))
-    {
-      m_S2 = Handle<Field>( follow_link(found_register) );
-    }
-    else if ( Handle< Component > found_register = m_solution->dict().get_child( "solution_register" ) )
-    {
-      solver().field_manager().create_component<Link>("solution_register")->link_to(*found_register);
-      m_S2 = found_register->handle<Field>();
-    }
-    else
-    {
-      m_S2 = m_solution->dict().create_field("solution_register", m_solution->descriptor().description()).handle<Field>();
-      m_S2->descriptor().prefix_variable_names("S2_");
-      solver().field_manager().create_component<Link>("solution_register")->link_to(*m_S2);
-    }
+    m_S2 = m_solution->dict().create_field("solution_register", m_solution->descriptor().description()).handle<Field>();
+    m_S2->descriptor().prefix_variable_names("S2_");
   }
+  else
+  {
+    m_S2 = m_solution->dict().get_child( "solution_register" )->handle<Field>();
+  }
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +186,9 @@ void ExplicitRungeKuttaLowStorage3::execute()
     // - R
     try
     {
-      solver().handle<SDSolver>()->domain_discretization().execute();
+      m_domain_discretization->options().set("solution",m_solution);
+      m_domain_discretization->options().set("residual",m_residual);
+      m_domain_discretization->execute();
     }
     catch (const common::FailedToConverge& exception)
     {
@@ -212,7 +200,10 @@ void ExplicitRungeKuttaLowStorage3::execute()
 
     // Only in case of the first stage, compute the time-step (= update coefficient)
     if (stage == 0)
-      solver().handle<SDSolver>()->actions().get_child("compute_update_coefficient")->handle<common::Action>()->execute();
+    {
+      m_time_step_computer->options().set("update_coefficient",m_update_coeff);
+      m_time_step_computer->execute();
+    }
     // now assigned:
 
     // - H
