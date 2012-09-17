@@ -169,6 +169,7 @@ void TimeStepping::do_step()
   Uint step = options().value<Uint>("step");
   Real time = m_time->current_time();
   Real time_step = options().value<Real>("time_step");
+  time_step = std::min(time_step,options().value<Real>("end_time")-time);
 
   // Configure end_time of this step
   m_time->options().set("end_time",time + time_step);
