@@ -81,6 +81,16 @@ private:
   void set_quad_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
   void set_quad_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
   void set_quad_implicit_u_assembly();
+  void set_hexa_u_assembly();
+  void set_hexa_p_assembly();
+  void set_hexa_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
+  void set_hexa_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
+  void set_hexa_implicit_u_assembly();
+  void set_tetra_u_assembly();
+  void set_tetra_p_assembly();
+  void set_tetra_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
+  void set_tetra_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
+  void set_tetra_implicit_u_assembly();
 
 //   void set_tetra_assembly();
 //   void set_hexa_assembly();

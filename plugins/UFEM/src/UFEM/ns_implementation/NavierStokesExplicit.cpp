@@ -133,6 +133,8 @@ void NavierStokesExplicit::trigger_assembly()
     // First assemble the explicit momentum equation
     set_triag_u_assembly();
     set_quad_u_assembly();
+    set_hexa_u_assembly();
+    set_tetra_u_assembly();
 
     m_inner_loop->add_link(*bc_u); // Make sure the system is updated to reflect the BC
 
@@ -159,6 +161,8 @@ void NavierStokesExplicit::trigger_assembly()
 
     set_quad_implicit_u_assembly();
     set_triag_implicit_u_assembly();
+    set_hexa_implicit_u_assembly();
+    set_tetra_implicit_u_assembly();
 
     m_velocity_lss->add_link(*bc_u);
     m_velocity_lss->create_component<SolveLSS>("SolveVelocityLSS");
@@ -184,6 +188,8 @@ void NavierStokesExplicit::trigger_assembly()
   // Assembly of the pressure LSS
   set_triag_p_assembly();
   set_quad_p_assembly();
+  set_hexa_p_assembly();
+  set_tetra_p_assembly();
 
   // Pressure BC
   Handle<BoundaryConditions> bc_p = m_pressure_lss->create_component<BoundaryConditions>("PressureBC");
@@ -201,11 +207,15 @@ void NavierStokesExplicit::trigger_assembly()
   {
     set_quad_grad_p_assembly(m_velocity_lss->system_rhs);
     set_triag_grad_p_assembly(m_velocity_lss->system_rhs);
+    set_hexa_grad_p_assembly(m_velocity_lss->system_rhs);
+    set_tetra_grad_p_assembly(m_velocity_lss->system_rhs);
   }
   else
   {
     set_quad_grad_p_assembly(R);
     set_triag_grad_p_assembly(R);
+    set_hexa_grad_p_assembly(R);
+    set_tetra_grad_p_assembly(R);
   }
 
   m_inner_loop->add_link(*bc_u);

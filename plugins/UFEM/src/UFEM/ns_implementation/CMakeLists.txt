@@ -1,10 +1,18 @@
 list( APPEND ns_implementation_files
   NavierStokes.cpp
   NavierStokesExplicit.cpp
+  NavierStokesExplicitHexasPressure.cpp
+  NavierStokesExplicitHexasPressureGradient.cpp
+  NavierStokesExplicitHexasVelocity.cpp
+  NavierStokesExplicitHexasVelocityImplicit.cpp
   NavierStokesExplicitQuadsPressure.cpp
   NavierStokesExplicitQuadsPressureGradient.cpp
   NavierStokesExplicitQuadsVelocity.cpp
   NavierStokesExplicitQuadsVelocityImplicit.cpp
+  NavierStokesExplicitTetrasPressure.cpp
+  NavierStokesExplicitTetrasPressureGradient.cpp
+  NavierStokesExplicitTetrasVelocity.cpp
+  NavierStokesExplicitTetrasVelocityImplicit.cpp
   NavierStokesExplicitTriagsPressure.cpp
   NavierStokesExplicitTriagsPressureGradient.cpp
   NavierStokesExplicitTriagsVelocity.cpp
