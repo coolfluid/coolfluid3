@@ -25,7 +25,11 @@
 
 namespace cf3 {
 
-  namespace solver { namespace actions { class Iterate; } }
+  namespace solver
+  {
+    namespace actions { class Iterate; }
+    class Time;
+  }
 
 namespace UFEM {
 
@@ -50,6 +54,7 @@ private:
   void trigger_assembly();
 
   void trigger_time();
+  void trigger_timestep();
   void trigger_initial_conditions();
 
   /// Called when the initial condition manager is changed
@@ -59,13 +64,24 @@ private:
   template<typename ElementsT>
   void set_velocity_assembly_expression(const std::string& base_name);
   template<typename ElementsT>
+  void set_velocity_implicit_assembly_expression(const std::string& base_name);
+  template<typename ElementsT>
   void set_pressure_assembly_expression(const std::string& base_name);
+  template<typename ElementsT, typename RHST>
+  void set_pressure_gradient_assembly_expression(const std::string& base_name, RHST& rhs);
 
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
   void set_triag_u_assembly();
   void set_triag_p_assembly();
+  void set_triag_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
+  void set_triag_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
+  void set_triag_implicit_u_assembly();
   void set_quad_u_assembly();
   void set_quad_p_assembly();
+  void set_quad_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
+  void set_quad_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
+  void set_quad_implicit_u_assembly();
+
 //   void set_tetra_assembly();
 //   void set_hexa_assembly();
 
@@ -113,11 +129,16 @@ private:
 
   Handle<solver::actions::Iterate> m_inner_loop;
   Handle<LSSActionUnsteady> m_pressure_lss;
+  Handle<LSSActionUnsteady> m_velocity_lss;
   Handle<common::Action> m_viscosity_initial_condition;
   Handle<common::Action> m_iteration_initial_condition;
   Handle<common::Action> m_velocity_initial_condition;
+  Handle<common::Action> m_pressure_initial_condition;
 
   bool m_recursing;
+
+  common::Option::TriggerID m_time_trigger_id;
+  Handle<solver::Time> time;
 };
 
 } // UFEM

@@ -56,6 +56,37 @@ void NavierStokesExplicit::set_velocity_assembly_expression(const std::string& b
   )));
 }
 
+template<typename ElementsT>
+void NavierStokesExplicit::set_velocity_implicit_assembly_expression(const std::string& base_name)
+{
+  m_velocity_lss->add_component(create_proto_action
+  (
+    base_name+"VelocityAssembly",
+    elements_expression
+    (
+      ElementsT(),
+      group
+      (
+        _a = _0, _T = _0, _A = _0,
+        compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+        element_quadrature
+        (
+           _A(a[_i], a[_i]) += nu_eff * transpose(nabla(u)) * nabla(u), // Diffusion
+           _a[a[_i]]        += (nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)) * transpose(transpose(nodal_values(u))[_i]) // Advection
+                    -  (transpose(nabla(u)[_i])*N(p) - tau_su*transpose(u_adv*nabla(u)) * nabla(p)[_i]) / rho * nodal_values(p) // Pressure gradient (standard and SUPG)
+                    +  transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(a))[_i]), // Time, standard and SUPG
+          _a[a[_i]] += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u)) + (tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]), // Skew symmetry for advection and bulk viscosity
+          _A(a[_i], a[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity and second viscosity
+          _T(a[_i], a[_i]) += transpose(N(u)) * N(u)
+        ),
+        m_velocity_lss->system_matrix += rho*(_T + lit(gamma_u)*lit(m_dt)*_A),
+        lump(_T),
+        M += rho*diagonal(_T),
+        m_velocity_lss->system_rhs += -lit(rho)*(_a + lit(gamma_u)*lit(m_dt)*_A*_x)
+      )
+  )));
+}
+
 struct PressureMatrix
 {
   typedef void result_type;
@@ -128,6 +159,25 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
         m_pressure_lss->system_matrix += _A + _T,
         m_pressure_lss->system_rhs += -_a - _T * nodal_values(p)
       )
+  )));
+}
+
+template<typename ElementsT, typename RHST>
+void NavierStokesExplicit::set_pressure_gradient_assembly_expression(const std::string& base_name, RHST& rhs)
+{
+  m_inner_loop->add_component(create_proto_action(base_name + "ApplyGrad", elements_expression
+  (
+    ElementsT(),
+    group
+    (
+      _a[u] = _0, _A(u) = _0,
+      compute_tau(u, nu_eff, lit(tau_su)),
+      element_quadrature
+      (
+        _a[u[_i]] += transpose(nabla(u)[_i]) * N(p) * nodal_values(delta_p)
+      ),
+      rhs += _a
+    )
   )));
 }
 

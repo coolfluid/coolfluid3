@@ -68,9 +68,9 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   gamma_p(0.5),
   m_recursing(false)
 {
-  options().add("use_specializations", true)
-    .pretty_name("Use Specializations")
-    .description("Activate the use of specialized high performance code")
+  options().add("implicit_diffusion", false)
+    .pretty_name("Implicit Diffusion")
+    .description("Make the diffsive terms implicit, adding a large linear system for the velocity but increasing the allowed time step")
     .attach_trigger(boost::bind(&NavierStokesExplicit::trigger_assembly, this));
 
   options().add("gamma_u", gamma_u)
@@ -116,31 +116,64 @@ NavierStokesExplicit::~NavierStokesExplicit()
 
 void NavierStokesExplicit::trigger_assembly()
 {
+  const bool implicit_diffusion = options().option("implicit_diffusion").value<bool>();
+
   m_inner_loop->clear();
 
   m_inner_loop->add_component(create_proto_action("InnerLoopInit", nodes_expression(group(M[_i] = 0., R[_i] = 0., u_adv = u))));
 
   // Apply boundary conditions to the explicit "system". These are applied first to make sure the nodal values are correct for assembly
-  Handle<BoundaryConditions> bc_u = m_inner_loop->create_component<BoundaryConditions>("VelocityBC");
+  boost::shared_ptr<BoundaryConditions> bc_u = allocate_component<BoundaryConditions>("VelocityBC");
   bc_u->mark_basic();
   bc_u->set_solution_tag("navier_stokes_u_solution");
 
-  // First assemble the explicit momentum equation
-  set_triag_u_assembly();
-  set_quad_u_assembly();
+  if(!implicit_diffusion)
+  {
+    m_inner_loop->add_component(bc_u);
 
-  m_inner_loop->add_link(*bc_u); // Make sure the system is updated to reflect the BC
+    // First assemble the explicit momentum equation
+    set_triag_u_assembly();
+    set_quad_u_assembly();
 
-  // Save the last residual
-  FieldVariable<0, VectorField> saved_R("residual", "ns_residual");
-  m_inner_loop->add_component(create_proto_action("SaveResidual", nodes_expression(saved_R = R)));
+    m_inner_loop->add_link(*bc_u); // Make sure the system is updated to reflect the BC
 
-  // Update variables needed for the pressure system
-  m_inner_loop->add_component(create_proto_action("SetPressureInput", nodes_expression(group
-  (
-    delta_a_star[_i] = R[_i]/M[_i],
-    R[_i] = 0. // We reuse the residual vector later on, so reset it to zero
-  ))));
+    // Save the last residual
+    FieldVariable<0, VectorField> saved_R("residual", "ns_residual");
+    m_inner_loop->add_component(create_proto_action("SaveResidual", nodes_expression(saved_R = R)));
+
+    // Update variables needed for the pressure system
+    m_inner_loop->add_component(create_proto_action("SetPressureInput", nodes_expression(group
+    (
+      delta_a_star[_i] = R[_i]/M[_i],
+      R[_i] = 0. // We reuse the residual vector later on, so reset it to zero
+    ))));
+  }
+  else // Create a linear system for the velocity
+  {
+    m_velocity_lss = m_inner_loop->create_component<LSSActionUnsteady>("VelocitySystem");
+    m_velocity_lss->set_solution_tag("navier_stokes_u_solution");
+    m_velocity_lss->mark_basic();
+
+    m_velocity_lss->create_component<ZeroLSS>("ZeroLSS");
+
+    m_velocity_lss->add_component(bc_u);
+
+    set_quad_implicit_u_assembly();
+    set_triag_implicit_u_assembly();
+
+    m_velocity_lss->add_link(*bc_u);
+    m_velocity_lss->create_component<SolveLSS>("SolveVelocityLSS");
+
+    // Update variables needed for the pressure system
+    m_velocity_lss->add_component(create_proto_action("SetPressureInput", nodes_expression
+    (
+      delta_a_star = m_velocity_lss->solution(u)
+    )));
+
+    Handle<Component> reset_rhs = m_velocity_lss->create_component<ZeroLSS>("ZeroVelocityRHS");
+    reset_rhs->options().set("reset_matrix", false);
+    reset_rhs->options().set("reset_solution", false);
+  }
 
   m_pressure_lss = m_inner_loop->create_component<LSSActionUnsteady>("PressureSystem");
   m_pressure_lss->set_solution_tag("navier_stokes_p_solution");
@@ -165,32 +198,37 @@ void NavierStokesExplicit::trigger_assembly()
   m_inner_loop->add_component(create_proto_action("SetDeltaP", nodes_expression(delta_p = m_pressure_lss->solution(p))));
 
   // Apply the pressure gradient, storing the result in no longer needed R
-  m_inner_loop->add_component(create_proto_action("ApplyGrad", elements_expression
-  (
-    boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D>(),
-    group
-    (
-      _a[u] = _0, _A(u) = _0,
-      compute_tau(u, nu_eff, lit(tau_su)),
-      element_quadrature
-      (
-        _a[u[_i]] += transpose(nabla(u)[_i]) * N(p) * nodal_values(delta_p)
-      ),
-      R += _a
-    )
-  )));
+  if(implicit_diffusion)
+  {
+    set_quad_grad_p_assembly(m_velocity_lss->system_rhs);
+    set_triag_grad_p_assembly(m_velocity_lss->system_rhs);
+  }
+  else
+  {
+    set_quad_grad_p_assembly(R);
+    set_triag_grad_p_assembly(R);
+  }
+
+  m_inner_loop->add_link(*bc_u);
+
+  if(implicit_diffusion)
+  {
+    m_inner_loop->add_link(*m_velocity_lss->get_child("SolveVelocityLSS"));
+    m_inner_loop->add_component(create_proto_action("UpdateDeltaA", nodes_expression(delta_a = delta_a_star + m_velocity_lss->solution(u))));
+  }
+  else
+  {
+    m_inner_loop->add_component(create_proto_action("UpdateDeltaA", nodes_expression(delta_a[_i] = delta_a_star[_i] + R[_i] / M[_i])));
+  }
 
   // Update the rest of the variables
   m_inner_loop->add_component(create_proto_action("Update", nodes_expression(group
   (
-    delta_a[_i] = delta_a_star[_i] + R[_i] / M[_i],
     u += gamma_u*lit(m_dt)*delta_a,
     a += delta_a,
     p += delta_p,
     p_dot += m_inv_dt * delta_p / gamma_p
   ))));
-
-  m_inner_loop->add_link(*bc_u);
 
   if(is_not_null(m_physical_model))
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
@@ -200,13 +238,21 @@ void NavierStokesExplicit::trigger_assembly()
 
 void NavierStokesExplicit::trigger_time()
 {
-  Handle<solver::Time> time = options().option("time").value< Handle<solver::Time> >();
-  if(is_not_null(time))
-  {
-    m_dt = time->dt();
-    m_inv_dt = time->invdt();
-  }
+  if(is_not_null(m_time))
+    m_time->options().option("time_step").detach_trigger(m_time_trigger_id);
+
+  m_time = options().option("time").value< Handle<solver::Time> >();
+  m_time_trigger_id = m_time->options().option("time_step").attach_trigger_tracked(boost::bind(&NavierStokesExplicit::trigger_timestep, this));
+  trigger_timestep();
 }
+
+void NavierStokesExplicit::trigger_timestep()
+{
+  cf3_assert(is_not_null(m_time));
+  m_dt = m_time->dt();
+  m_inv_dt = m_time->invdt();
+}
+
 
 void NavierStokesExplicit::trigger_initial_conditions()
 {
@@ -224,6 +270,7 @@ void NavierStokesExplicit::on_initial_conditions_set(InitialConditions& initial_
   m_viscosity_initial_condition = visc_ic;
 
   m_velocity_initial_condition = initial_conditions.create_initial_condition("navier_stokes_u_solution");
+  m_pressure_initial_condition = initial_conditions.create_initial_condition("navier_stokes_p_solution");
   m_iteration_initial_condition = initial_conditions.create_initial_condition("navier_stokes_explicit_iteration");
 }
 
@@ -241,6 +288,8 @@ void NavierStokesExplicit::on_regions_set()
     m_viscosity_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   if(is_not_null(m_velocity_initial_condition))
     m_velocity_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  if(is_not_null(m_pressure_initial_condition))
+    m_pressure_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   if(is_not_null(m_iteration_initial_condition))
     m_iteration_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 
@@ -272,6 +321,35 @@ struct NavierStokesExplicitVelocityBC : ParsedFunctionExpression
 };
 
 common::ComponentBuilder < NavierStokesExplicitVelocityBC, common::Action, LibUFEM > NavierStokesExplicitVelocityBC_Builder;
+
+struct NavierStokesSemiExplicitVelocityBC : ParsedFunctionExpression
+{
+  NavierStokesSemiExplicitVelocityBC(const std::string& name) :
+    ParsedFunctionExpression(name),
+    m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  {
+    FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution");
+    FieldVariable<1, VectorField> R("R", "navier_stokes_explicit_iteration");
+    FieldVariable<2, VectorField> M("M", "navier_stokes_explicit_iteration");
+    FieldVariable<3, VectorField> a("a", "navier_stokes_explicit_iteration");
+
+    set_expression(nodes_expression(group
+    (
+      u = vector_function(),
+      R[_i] = 0.,
+      M[_i] = 1.,
+      a[_i] = 0.,
+      m_dirichlet(a) = a
+    )));
+  }
+
+  static std::string type_name () { return "NavierStokesSemiExplicitVelocityBC"; }
+
+  cf3::solver::actions::Proto::DirichletBC m_dirichlet;
+};
+
+common::ComponentBuilder < NavierStokesSemiExplicitVelocityBC, common::Action, LibUFEM > NavierStokesSemiExplicitVelocityBC_Builder;
+
 
 } // UFEM
 } // cf3
