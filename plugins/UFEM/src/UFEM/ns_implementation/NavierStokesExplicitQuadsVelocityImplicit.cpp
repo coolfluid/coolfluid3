@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokesExplicitAssembly.hpp"
+#include "../NavierStokesExplicitAssembly.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -29,9 +29,6 @@
 #include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
-
-#include "SUPG.hpp"
-#include "Tags.hpp"
 
 namespace cf3 {
 namespace UFEM {

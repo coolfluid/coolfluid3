@@ -1,10 +1,11 @@
+
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokesExplicitAssembly.hpp"
+#include "../NavierStokesExplicitAssembly.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -30,10 +31,6 @@
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
-#include "NavierStokesSpecializations.hpp"
-#include "SUPG.hpp"
-#include "Tags.hpp"
-
 namespace cf3 {
 namespace UFEM {
 
@@ -44,14 +41,9 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
-void NavierStokesExplicit::set_triag_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs)
+void NavierStokesExplicit::set_quad_p_assembly()
 {
-  set_pressure_gradient_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags", rhs);
-}
-
-void NavierStokesExplicit::set_triag_grad_p_assembly(FieldVariable<3, VectorField>& rhs)
-{
-  set_pressure_gradient_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags", rhs);
+  set_pressure_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >("Quads");
 }
 
 } // UFEM

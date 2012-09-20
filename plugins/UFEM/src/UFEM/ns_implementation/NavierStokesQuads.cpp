@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokes.hpp"
-#include "NavierStokesAssembly.hpp"
+#include "../NavierStokes.hpp"
+#include "../NavierStokesAssembly.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -15,9 +15,9 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-void NavierStokes::set_hexa_assembly()
+void NavierStokes::set_quad_assembly()
 {
-//   set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Hexa3D>, boost::mpl::vector0<> >("AssemblyHexas");
+  set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Quad2D>, boost::mpl::vector0<> >("AssemblyQuads");
 }
 
 } // UFEM

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokes.hpp"
+#include "../NavierStokes.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -29,9 +29,9 @@
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
-#include "NavierStokesSpecializations.hpp"
-#include "SUPG.hpp"
-#include "Tags.hpp"
+#include "../NavierStokesSpecializations.hpp"
+#include "../SUPG.hpp"
+#include "../Tags.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -62,7 +62,7 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
-    
+
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
@@ -95,7 +95,7 @@ NavierStokes::NavierStokes(const std::string& name) :
     u += solution(u),
     p += solution(p)
   ))));
-  
+
   trigger_assembly();
 }
 
@@ -107,7 +107,7 @@ NavierStokes::~NavierStokes()
 void NavierStokes::trigger_assembly()
 {
   m_assembly->clear();
-  
+
   // Add the assembly, depending on the use of specialized code or not
   const bool use_specializations = options().value<bool>("use_specializations");
   set_triag_assembly(use_specializations);
@@ -117,7 +117,7 @@ void NavierStokes::trigger_assembly()
 
   if(is_not_null(m_physical_model))
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
-  
+
   configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 }
 

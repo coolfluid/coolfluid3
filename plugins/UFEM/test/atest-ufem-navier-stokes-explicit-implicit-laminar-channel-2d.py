@@ -114,23 +114,8 @@ ns_solver.InnerLoop.PressureSystem.PressureBC.add_constant_bc(region_name = 'rig
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-#time.end_time = 10.*tstep
-#model.simulate()
-
-
-# Setup a time series write
-final_end_time = 200.*tstep
-save_interval = tstep
-current_end_time = 0.
-iteration = 0
-while current_end_time < final_end_time:
-  current_end_time += save_interval
-  time.options().set('end_time', current_end_time)
-  model.simulate()
-  domain.write_mesh(cf.URI('impl-' +str(iteration) + '.pvtu'))
-  iteration += 1
-  if iteration == 1:
-    solver.options().set('disabled_actions', ['InitialConditions'])
+time.end_time = 10.*tstep
+model.simulate()
 
 domain.write_mesh(cf.URI('explicit-implicit-laminar-channel-2d.pvtu'))
 

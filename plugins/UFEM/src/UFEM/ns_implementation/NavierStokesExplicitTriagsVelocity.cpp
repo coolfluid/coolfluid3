@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokesExplicitAssembly.hpp"
+#include "../NavierStokesExplicitAssembly.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -30,10 +30,6 @@
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
-#include "NavierStokesSpecializations.hpp"
-#include "SUPG.hpp"
-#include "Tags.hpp"
-
 namespace cf3 {
 namespace UFEM {
 
@@ -44,9 +40,10 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
-void NavierStokesExplicit::set_triag_p_assembly()
+
+void NavierStokesExplicit::set_triag_u_assembly()
 {
-  set_pressure_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags");
+  set_velocity_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags");
 }
 
 } // UFEM

@@ -1,3 +1,5 @@
+add_subdirectory(ns_implementation)
+
 list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.hpp
   AdjacentCellToFace.cpp
@@ -24,24 +26,10 @@ list( APPEND coolfluid_ufem_files
   Solver.hpp
   Solver.cpp
   NavierStokes.hpp
-  NavierStokes.cpp
   NavierStokesAssembly.hpp
   NavierStokesExplicit.hpp
-  NavierStokesExplicit.cpp
   NavierStokesExplicitAssembly.hpp
-  NavierStokesExplicitQuadsPressure.cpp
-  NavierStokesExplicitQuadsPressureGradient.cpp
-  NavierStokesExplicitQuadsVelocity.cpp
-  NavierStokesExplicitQuadsVelocityImplicit.cpp
-  NavierStokesExplicitTriagsPressure.cpp
-  NavierStokesExplicitTriagsPressureGradient.cpp
-  NavierStokesExplicitTriagsVelocity.cpp
-  NavierStokesExplicitTriagsVelocityImplicit.cpp
-  NavierStokesHexas.cpp
-  NavierStokesQuads.cpp
   NavierStokesSpecializations.hpp
-  NavierStokesTetras.cpp
-  NavierStokesTriags.cpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
   ParsedFunctionExpression.hpp
@@ -58,24 +46,11 @@ list( APPEND coolfluid_ufem_files
 )
 
 list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics)
-
+set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation>)
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
 set_source_files_properties(
   HeatConductionSteady.cpp
-  NavierStokesExplicit.cpp
-  NavierStokesExplicitQuadsPressure.cpp
-  NavierStokesExplicitQuadsPressureGradient.cpp
-  NavierStokesExplicitQuadsVelocity.cpp
-  NavierStokesExplicitQuadsVelocityImplicit.cpp
-  NavierStokesExplicitTriagsPressure.cpp
-  NavierStokesExplicitTriagsPressureGradient.cpp
-  NavierStokesExplicitTriagsVelocity.cpp
-  NavierStokesExplicitTriagsVelocityImplicit.cpp
-  NavierStokesTriags.cpp
-  NavierStokesTetras.cpp
-  NavierStokesQuads.cpp
-  NavierStokesHexas.cpp
   SpalartAllmaras.cpp
 PROPERTIES COMPILE_FLAGS "-g0")
