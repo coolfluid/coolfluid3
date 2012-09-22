@@ -7,6 +7,8 @@ list( APPEND coolfluid_ufem_files
   BCHoldValue.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
+  ComputeCFL.hpp
+  ComputeCFL.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp

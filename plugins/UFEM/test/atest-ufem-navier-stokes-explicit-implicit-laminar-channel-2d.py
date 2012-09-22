@@ -73,14 +73,7 @@ physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
 physics.options().set('reference_velocity', 1.)
 
-# Calculate timestep
-short_edge_action = domain.create_component('ShortestEdge', 'cf3.mesh.actions.ShortestEdge')
-short_edge_action.mesh = mesh
-short_edge_action.execute()
-dx = short_edge_action.properties.h_xi
-dy = short_edge_action.properties.h_eta
-dz = short_edge_action.properties.h_zeta
-tstep = 0.5/math.sqrt(1./dx**2 + 1./dy**2 + 1./dz**2)
+tstep = 0.15
 
 ns_solver.regions = [mesh.topology.uri()]
 
@@ -114,7 +107,7 @@ ns_solver.InnerLoop.PressureSystem.PressureBC.add_constant_bc(region_name = 'rig
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-time.end_time = 10.*tstep
+time.end_time = 1.*tstep
 model.simulate()
 
 domain.write_mesh(cf.URI('explicit-implicit-laminar-channel-2d.pvtu'))

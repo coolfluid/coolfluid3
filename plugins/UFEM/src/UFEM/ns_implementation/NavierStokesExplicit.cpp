@@ -92,6 +92,9 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
     .description("The component that is used to manage the initial conditions in the solver this action belongs to")
     .attach_trigger(boost::bind(&NavierStokesExplicit::trigger_initial_conditions, this));
 
+  // CFL adjustment
+  create_component("ComputeCFL", "cf3.UFEM.ComputeCFL");
+
   // Initialization for the inner loop
   add_component(create_proto_action("InitializeIteration", nodes_expression(group
   (
@@ -260,6 +263,7 @@ void NavierStokesExplicit::trigger_timestep()
   cf3_assert(is_not_null(m_time));
   m_dt = m_time->dt();
   m_inv_dt = m_time->invdt();
+  get_child("ComputeCFL")->options().set("time_step", m_dt);
 }
 
 
