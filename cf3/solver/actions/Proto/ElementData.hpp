@@ -625,6 +625,7 @@ public:
 
   Real& value() const
   {
+    cf3_assert(m_field_idx < m_field.size());
     return m_field[m_field_idx][offset];
   }
 

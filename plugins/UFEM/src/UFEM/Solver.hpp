@@ -68,6 +68,8 @@ public: // functions
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);
+  
+  virtual void execute();
 
 private:
   /// Triggered by the "ufem_variables_added" event
@@ -78,6 +80,7 @@ private:
   Handle<common::Action> add_solver(const std::string& builder_name, Component& parent);
 
   Handle<InitialConditions> m_initial_conditions;
+  bool m_need_field_creation;
 };
 
 } // UFEM

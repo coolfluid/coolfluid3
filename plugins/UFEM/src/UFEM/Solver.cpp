@@ -47,7 +47,8 @@ using namespace solver::actions::Proto;
 common::ComponentBuilder < UFEM::Solver, solver::Solver, LibUFEM > UFEMSolver_Builder;
 
 Solver::Solver(const std::string& name) :
-  SimpleSolver(name)
+  SimpleSolver(name),
+  m_need_field_creation(true)
 {
   regist_signal( "add_direct_solver" )
     .connect( boost::bind( &Solver::signal_add_direct_solver, this, _1 ) )
@@ -213,18 +214,22 @@ void Solver::mesh_loaded(mesh::Mesh& mesh)
 void Solver::mesh_changed(Mesh& mesh)
 {
   CFdebug << "UFEM::Solver: Reacting to mesh_changed signal" << CFendl;
-  create_fields();
+  configure_option_recursively("dictionary", mesh.geometry_fields().handle<Dictionary>());
+  m_need_field_creation = true;
 }
 
 void Solver::on_variables_added_event(SignalArgs& args)
 {
   // TODO: Check if the event comes from one of our children
   CFdebug << "UFEM::Solver: Reacting to ufem_variables_added event" << CFendl;
-  create_fields();
+  m_need_field_creation = true;
 }
 
 void Solver::create_fields()
 {
+  if(!m_need_field_creation)
+    return;
+  
   if(is_null(m_mesh))
     return;
   
@@ -317,9 +322,8 @@ void Solver::create_fields()
       field->parallelize_with(dict->comm_pattern());
     }
   }
-
-  // Set the field lookup dict for all subcomponents
-  configure_option_recursively("dictionary", mesh().geometry_fields().handle<Dictionary>());
+  
+  m_need_field_creation = false;
 }
 
 Handle< common::Action > Solver::add_solver(const std::string& builder_name, Component& parent)
@@ -335,6 +339,13 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
 
   return result;
 }
+
+void Solver::execute()
+{
+  create_fields();
+  solver::SimpleSolver::execute();
+}
+
 
 } // UFEM
 } // cf3
