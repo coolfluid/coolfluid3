@@ -102,7 +102,7 @@ struct PressureMatrix
 
     Eigen::Matrix<Real, dim*nb_nodes, nb_nodes> Aup;
     Eigen::Matrix<Real, nb_nodes, dim*nb_nodes> Apu;
-//     Eigen::Matrix<Real, nb_nodes, dim*nb_nodes> Tpu;
+    //Eigen::Matrix<Real, nb_nodes, dim*nb_nodes> Tpu;
 
     typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
 
@@ -118,8 +118,8 @@ struct PressureMatrix
       {
         Aup.template block<nb_nodes, nb_nodes>(i*nb_nodes, 0) = u.shape_function().transpose() * u.nabla().row(i);
         Apu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = Aup.template block<nb_nodes, nb_nodes>(i*nb_nodes, 0).transpose();
-//           + tau_ps * (u.nabla().row(i).transpose() * u.eval()*u.nabla() + (u.eval()*u.nabla()*0.5).transpose() * u.nabla().row(i));
-//         Tpu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = tau_ps * u.nabla().row(i).transpose() * u.shape_function();
+          + tau_ps * (u.nabla().row(i).transpose() * u.eval()*u.nabla() + (u.eval()*u.nabla()*0.5).transpose() * u.nabla().row(i));
+        //Tpu.template block<nb_nodes, nb_nodes>(0, i*nb_nodes) = tau_ps * u.nabla().row(i).transpose() * u.shape_function();
 
         // Apply the inverse of the lumped mass matrix:
         for(Uint j = 0; j != nb_nodes; ++j)
@@ -151,9 +151,9 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
         pressure_matrix(u_adv, M, lit(gamma_u), lit(m_dt), lit(tau_ps), _A(p, p)),
         element_quadrature
         (
-          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i])// + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
+          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] /*+ transpose(nodal_values(delta_a_star))[_i]*/) // PSPG, time part
                         +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])) // G'u + gamma_u dt G'Delta_a*
-                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i]),// + lit(gamma_u)*lit(m_dt)*transpose(nodal_values(delta_a_star))[_i]), // Standard + Skew symmetric advection PSPG term
+                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])), // Standard + Skew symmetric advection PSPG term
           _T(p,p)       += tau_ps*transpose(nabla(p)) * nabla(p) / rho // Pressure PSPG
         ),
         m_pressure_lss->system_matrix += _A + _T,
