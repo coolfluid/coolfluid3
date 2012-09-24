@@ -107,7 +107,7 @@ ns_solver.InnerLoop.PressureSystem.PressureBC.add_constant_bc(region_name = 'rig
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-time.end_time = 1.*tstep
+time.end_time = 10.*tstep
 model.simulate()
 
 domain.write_mesh(cf.URI('explicit-implicit-laminar-channel-2d.pvtu'))

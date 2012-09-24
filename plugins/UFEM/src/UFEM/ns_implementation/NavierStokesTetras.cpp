@@ -7,6 +7,8 @@
 #include "../NavierStokes.hpp"
 #include "../NavierStokesAssembly.hpp"
 
+#include <coolfluid-ufem-config.hpp>
+
 namespace cf3 {
 namespace UFEM {
 
@@ -17,6 +19,7 @@ using namespace solver::actions::Proto;
 
 void NavierStokes::set_tetra_assembly(const bool use_specialization)
 {
+#ifdef CF3_UFEM_ENABLE_TETRAS
   if(use_specialization)
   {
     set_assembly_expression< boost::mpl::vector0<>, boost::mpl::vector1<mesh::LagrangeP1::Tetra3D> >("AssemblyTetras");
@@ -25,6 +28,7 @@ void NavierStokes::set_tetra_assembly(const bool use_specialization)
   {
     set_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Tetra3D>, boost::mpl::vector0<> >("AssemblyTetras");
   }
+#endif
 }
 
 

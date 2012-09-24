@@ -1,3 +1,14 @@
+option(CF3_UFEM_ENABLE_TRIAGS "Enable code generation for triangular elements, for solvers provide compile-time element selection"      ON)
+option(CF3_UFEM_ENABLE_QUADS  "Enable code generation for quadrilateral elements, for solvers provide compile-time element selection"   ON)
+option(CF3_UFEM_ENABLE_TETRAS "Enable code generation for tetrahedral elements, for solvers provide compile-time element selection"     ON)
+option(CF3_UFEM_ENABLE_HEXAS  "Enable code generation for hexahedral elements, for solvers provide compile-time element selection"      ON)
+
+mark_as_advanced(CF3_UFEM_ENABLE_TRIAGS)
+mark_as_advanced(CF3_UFEM_ENABLE_QUADS)
+mark_as_advanced(CF3_UFEM_ENABLE_TETRAS)
+mark_as_advanced(CF3_UFEM_ENABLE_HEXAS)
+
+add_subdirectory(config)
 add_subdirectory(ns_implementation)
 
 list( APPEND coolfluid_ufem_files
@@ -47,7 +58,7 @@ list( APPEND coolfluid_ufem_files
   Tags.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics coolfluid_mesh)
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation>)
 set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 

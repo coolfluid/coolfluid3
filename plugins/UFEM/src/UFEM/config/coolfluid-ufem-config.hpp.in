@@ -1,0 +1,9 @@
+#ifndef coolfluid_ufem_config_hpp
+#define coolfluid_ufem_config_hpp
+
+#cmakedefine CF3_UFEM_ENABLE_TRIAGS
+#cmakedefine CF3_UFEM_ENABLE_QUADS
+#cmakedefine CF3_UFEM_ENABLE_TETRAS
+#cmakedefine CF3_UFEM_ENABLE_HEXAS
+
+#endif

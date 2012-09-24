@@ -5,6 +5,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <coolfluid-ufem-config.hpp>
+
 #include "../NavierStokesExplicitAssembly.hpp"
 
 #include <boost/bind.hpp>
@@ -43,7 +45,9 @@ using boost::proto::lit;
 
 void NavierStokesExplicit::set_hexa_p_assembly()
 {
+#ifdef CF3_UFEM_ENABLE_HEXAS
   set_pressure_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Hexa3D> >("Hexas");
+#endif
 }
 
 } // UFEM

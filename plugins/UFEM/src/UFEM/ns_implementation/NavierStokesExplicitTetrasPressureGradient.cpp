@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <coolfluid-config.hpp>
+
 #include "../NavierStokesExplicitAssembly.hpp"
 
 #include <boost/bind.hpp>
@@ -42,12 +44,16 @@ using boost::proto::lit;
 
 void NavierStokesExplicit::set_tetra_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs)
 {
+#ifdef CF3_UFEM_ENABLE_TETRAS
   set_pressure_gradient_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Tetra3D> >("Tetras", rhs);
+#endif
 }
 
 void NavierStokesExplicit::set_tetra_grad_p_assembly(FieldVariable<3, VectorField>& rhs)
 {
+#ifdef CF3_UFEM_ENABLE_TETRAS
   set_pressure_gradient_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Tetra3D> >("Tetras", rhs);
+#endif
 }
 
 } // UFEM
