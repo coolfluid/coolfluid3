@@ -27,21 +27,26 @@ namespace math {
 
 AnalyticalFunction::AnalyticalFunction()
   : m_is_parsed(false),
-    m_vars(""),
-    m_nbvars(0),
+    m_vars(),
     m_function("")
 {
 }
 
-AnalyticalFunction::AnalyticalFunction( const std::string& func, const std::string& vars)
+AnalyticalFunction::AnalyticalFunction( const std::string& func, const std::string& vars, const std::string& separator)
   : m_is_parsed(false),
-    m_vars(""),
-    m_nbvars(0),
+    m_vars(),
+    m_function("")
+{
+  parse(func,vars,separator);
+}
+
+AnalyticalFunction::AnalyticalFunction( const std::string& func, const std::vector<std::string>& vars )
+  : m_is_parsed(false),
+    m_vars(),
     m_function("")
 {
   parse(func,vars);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,56 +68,76 @@ void AnalyticalFunction::clear()
 Uint AnalyticalFunction::nbvars() const
 {
   cf3_assert ( is_parsed() );
-  return m_nbvars;
+  return m_vars.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AnalyticalFunction::set_variables(const std::string& vars)
+void AnalyticalFunction::set_variables(const std::string& vars, const std::string& separator)
 {
-  m_vars = vars;
-  // count nb_vars
-  boost::char_separator<char> sep(",");
+  boost::char_separator<char> sep(separator.c_str());
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   tokenizer tok (vars,sep);
 
-  m_nbvars = 0;
-  for (tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el, ++m_nbvars )
+  for (tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
   {
+    m_vars.push_back(*el);
     //  CFinfo << "var" << m_nbvars << " [" << *el << "]" << CFendl;
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AnalyticalFunction::parse (const std::string& function)
+void AnalyticalFunction::set_variables(const std::vector<std::string>& vars)
 {
-  parse(function,m_vars);
+  m_vars = vars;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void AnalyticalFunction::parse (const std::string& function, const std::string& vars)
+void AnalyticalFunction::parse (const std::string& function)
 {
   clear();
-  set_variables(vars);
   m_function = function;
 
   m_parser = boost::shared_ptr<FunctionParser>( new FunctionParser() );
   m_parser->AddConstant("pi", Consts::pi());
 
     // CFinfo << "Parsing Function: \'" << m_functions[i] << "\' Vars: \'" << m_vars << "\'\n" << CFendl;
-  m_parser->Parse(m_function,m_vars);
+  std::stringstream ss;
+  for (Uint i=0; i<m_vars.size(); ++i)
+  {
+    if (i!=0) ss << ",";
+    ss << m_vars[i];
+  }
+  m_parser->Parse(m_function,ss.str());
 
   if ( m_parser->GetParseErrorType() !=  FunctionParser::FP_NO_ERROR )
   {
     std::string msg("ParseError in AnalyticalFunction::parse(): ");
     msg += " Error [" +std::string(m_parser->ErrorMsg()) + "]";
     msg += " Function [" + m_function + "]";
-    msg += " Vars: ["    + m_vars + "]";
+    msg += " Vars: ["    + ss.str() + "]";
     throw common::ParsingFailed (FromHere(),msg);
   }
   m_is_parsed = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void AnalyticalFunction::parse (const std::string& function, const std::vector<std::string>& vars)
+{
+  set_variables(vars);
+  parse(function);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void AnalyticalFunction::parse (const std::string& function, const std::string& vars, const std::string& separator)
+{
+  set_variables(vars,separator);
+  parse(function);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
