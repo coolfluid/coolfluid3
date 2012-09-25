@@ -107,7 +107,7 @@ void Writer::write_file(std::fstream& file)
     const Field& field = *field_ptr;
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
-      Field::VarType var_type = field.var_length(iVar);
+      VarType var_type = field.var_length(iVar);
       std::string var_name = field.var_name(iVar);
 
       if ( static_cast<Uint>(var_type) > 1)
@@ -236,7 +236,7 @@ void Writer::write_file(std::fstream& file)
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        Field::VarType var_type = field.var_length(iVar);
+        VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
         file << "\n### variable " << var_name << "\n\n"; // var name in comment
 
