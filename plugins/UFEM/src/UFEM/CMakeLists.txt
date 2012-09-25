@@ -13,6 +13,8 @@ list( APPEND coolfluid_ufem_files
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
+  HeatCouplingRobin.hpp
+  HeatCouplingRobin.cpp
   InitialConditionConstant.hpp
   InitialConditionConstant.cpp
   InitialConditionFunction.hpp

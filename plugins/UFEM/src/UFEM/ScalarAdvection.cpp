@@ -38,7 +38,11 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection_builder;
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name)
