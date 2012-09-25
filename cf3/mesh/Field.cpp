@@ -38,7 +38,7 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Field::Field ( const std::string& name  ) :
-  common::Table<Real> ( name )
+  common::Table<Real> ( name ), m_var_type(ARRAY)
 {
   mark_basic();
   properties()["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
@@ -94,16 +94,16 @@ Uint Field::var_offset ( const Uint var_nb ) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-Field::VarType Field::var_length(const Uint var_nb) const
+VarType Field::var_length(const Uint var_nb) const
 {
-  return (Field::VarType)descriptor().var_length(var_nb);
+  return (VarType)descriptor().var_length(var_nb);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Field::VarType Field::var_length ( const std::string& vname ) const
+VarType Field::var_length ( const std::string& vname ) const
 {
-  return (Field::VarType)descriptor().var_length(vname);
+  return (VarType)descriptor().var_length(vname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,14 +119,6 @@ Dictionary& Field::dict() const
 {
   cf3_assert(is_null(m_dict) == false);
   return *m_dict;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Field::resize(const Uint size)
-{
-  set_row_size(descriptor().size());
-  common::Table<Real>::resize(size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +191,132 @@ void Field::create_descriptor(const std::string& description, const Uint dimensi
   descriptor().set_variables(description,dimension);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+Field::View Field::view(const Uint start, const Uint size)
+{
+  return Table<Real>::array()[ boost::indices[range(start,start+size)][range()] ];
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+Field::View Field::view(common::Table<Uint>::ConstRow& indices)
+{
+  return Table<Real>::array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+common::List<Uint>& Field::glb_idx() const
+{
+  return dict().glb_idx();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+common::List<Uint>& Field::rank() const
+{
+  return dict().rank();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Field::is_ghost(const Uint idx) const
+{
+  return dict().is_ghost(idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Field::continuous() const
+{
+  return dict().continuous();
+}
+////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Field::discontinuous() const
+{
+  return dict().discontinuous();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+const Handle<Space const>& Field::space(const Handle<Entities const>& entities) const
+{
+  return dict().space(entities);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+const Space& Field::space(const Entities& entities) const
+{
+  return dict().space(entities);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Field& Field::coordinates() const
+{
+  return dict().coordinates();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Field::Ref Field::ref()
+{
+  return Ref( &array()[0][0], size(), row_size(), Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>(row_size(),row_size()-1));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field::Ref  Field::col(const Uint c)
+{
+  return Ref( &array()[0][c], size(), 1, Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>(row_size(),0) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field::RowArrayRef  Field::row(const Uint r)
+{
+  return RowArrayRef( &array()[r][0], 1, row_size() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real& Field::scalar(const Uint r)
+{
+  return array()[r][0];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field::RowVectorRef Field::vector(const Uint r)
+{
+  return RowVectorRef( &array()[r][0], 1, row_size() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field::RowTensorRef Field::tensor(const Uint r)
+{
+  return RowTensorRef( &array()[r][0],  sqrt(row_size()), sqrt(row_size()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Field::set_var_type(const VarType var_type)
+{
+  m_var_type = var_type;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+VarType Field::var_type() const
+{
+  return m_var_type;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // mesh
 } // cf3
