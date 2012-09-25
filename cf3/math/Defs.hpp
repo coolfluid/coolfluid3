@@ -19,6 +19,8 @@ namespace cf3 {
   enum CoordRef             { KSI, ETA, ZTA };
   /// Enumeration of sides
   enum Side                 { LEFT, RIGHT };
+  /// Variable types
+  enum VarType              { ARRAY=0, SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
 } // cf3
 
