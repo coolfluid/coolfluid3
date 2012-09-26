@@ -71,18 +71,17 @@ void NavierStokesExplicit::set_velocity_implicit_assembly_expression(const std::
         compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
         element_quadrature
         (
-           _A(a[_i], a[_i]) += nu_eff * transpose(nabla(u)) * nabla(u), // Diffusion
-           _a[a[_i]]        += (nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)) * transpose(transpose(nodal_values(u))[_i]) // Advection
-                    -  (transpose(nabla(u)[_i])*N(p) - tau_su*transpose(u_adv*nabla(u)) * nabla(p)[_i]) / rho * nodal_values(p) // Pressure gradient (standard and SUPG)
-                    +  transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(a))[_i]), // Time, standard and SUPG
-          _a[a[_i]] += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u)) + (tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]), // Skew symmetry for advection and bulk viscosity
-          _A(a[_i], a[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity and second viscosity
-          _T(a[_i], a[_i]) += transpose(N(u)) * N(u)
+          _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u), // Diffusion
+          _a[u[_i]]        += (transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)) * transpose(transpose(nodal_values(u))[_i]) // Advection
+                           -  (transpose(nabla(u)[_i])*N(p) - tau_su*transpose(u_adv*nabla(u)) * nabla(p)[_i]) / rho * nodal_values(p) // Pressure gradient (standard and SUPG)
+                           +  transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(a))[_i]), // Time, standard and SUPG
+          _a[u[_i]] += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]), // Skew symmetry for advection
+          _A(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity and second viscosity
+          _T(u[_i], u[_i]) += transpose(N(u)) * N(u)
         ),
+        _a[u[_i]] += _A(u[_i], u[_j])*transpose(transpose(nodal_values(u))[_j] + lit(gamma_u)*lit(m_dt)*transpose(nodal_values(a))[_j]),
         m_velocity_lss->system_matrix += rho*(_T + lit(gamma_u)*lit(m_dt)*_A),
-        lump(_T),
-        M += rho*diagonal(_T),
-        m_velocity_lss->system_rhs += -lit(rho)*(_a + lit(gamma_u)*lit(m_dt)*_A*_x)
+        m_velocity_lss->system_rhs += -lit(rho)*(_a)
       )
   )));
 }
@@ -107,7 +106,7 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
                         +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i]), // Standard + Skew symmetric advection PSPG term
           _T(p,p)       += transpose(nabla(p)) * nabla(p) // Pressure PSPG
         ),
-       m_pressure_lss->system_matrix += (lit(tau_ps)/rho + rho*(lit(gamma_u)*lit(m_dt) + lit(tau_ps)))*_T,
+        m_pressure_lss->system_matrix += (lit(tau_ps)/rho + rho*(lit(gamma_u)*lit(m_dt) + lit(tau_ps)))*_T,
         m_pressure_lss->system_rhs += -_a - tau_ps * _T * nodal_values(p) / rho
       )
   )));
