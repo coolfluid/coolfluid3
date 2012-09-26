@@ -104,7 +104,7 @@ struct RestrictToElementTypeGrammar :
   boost::proto::or_
   <
     RestrictToElementTypeGrammarSingle<GrammarT>,
-    GroupGrammar< RestrictToElementTypeGrammarSingle<GrammarT> >
+    GroupGrammar< RestrictToElementTypeGrammar<GrammarT> >
   >
 {
 };
