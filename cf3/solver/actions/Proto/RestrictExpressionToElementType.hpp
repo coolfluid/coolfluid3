@@ -62,12 +62,12 @@ struct RestrictToElementType :
         evaluate_expr(expr, state, data)
       );
     }
-    
+
     /// Do nothing if the element supprot type is not in the required list
     void apply(boost::mpl::false_, typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
     }
-    
+
     void operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       typedef typename boost::remove_reference<typename boost::proto::result_of::value<typename boost::proto::result_of::child_c<ExprT, 0>::type>::type>::type::AllowedSupportTypesT AllowedSupportTypesT;
@@ -104,7 +104,7 @@ struct RestrictToElementTypeGrammar :
   boost::proto::or_
   <
     RestrictToElementTypeGrammarSingle<GrammarT>,
-    GroupGrammar< RestrictToElementTypeGrammar<GrammarT> >
+    GroupGrammar< RestrictToElementTypeGrammarSingle<GrammarT> >
   >
 {
 };

@@ -70,10 +70,14 @@ static boost::proto::terminal< ExpressionGroupTag >::type group = {};
 /// Matches and evaluates groups of expressions matching GrammarT
 template<typename GrammarT>
 struct GroupGrammar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::function< boost::proto::terminal<ExpressionGroupTag>, boost::proto::vararg< boost::proto::_ > >,
-    ExpressionGroup<GrammarT>
+    boost::proto::when
+    <
+      boost::proto::function< boost::proto::terminal<ExpressionGroupTag>, boost::proto::vararg< boost::proto::_ > >,
+      ExpressionGroup< GroupGrammar<GrammarT> >
+    >,
+    GrammarT
   >
 {
 };
