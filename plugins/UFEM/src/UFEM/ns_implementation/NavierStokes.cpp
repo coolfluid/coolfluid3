@@ -33,8 +33,8 @@
 #include "../SUPG.hpp"
 #include "../Tags.hpp"
 
-#include "BoussinesqAssembly.hpp"
-#include "BoussinesqAssemblyExtended.hpp"
+#include "../BoussinesqAssembly.hpp"
+#include "../BoussinesqAssemblyExtended.hpp"
 
 namespace cf3 {
 namespace UFEM {
