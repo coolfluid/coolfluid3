@@ -60,7 +60,7 @@ struct ComputeTau
     cf3_assert(ree > 0.);
     const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
     tau_ps = he*xi/(2.*u_ref);
-    tau_bulk = he*u_ref;//xi;
+    tau_bulk = he*u_ref/xi;
     tau_su = compute_tau_su(u, element_nu);
   }
 
