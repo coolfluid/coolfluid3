@@ -33,7 +33,7 @@ public:
   static std::string type_name () { return "BCNeumannConstant"; }
 
   /// Sets the tags and variable names used in the expression
-  void set_tags(const std::string& Neumann_Constantz, const std::string& gradient_field );
+  void set_tags(const std::string& neumann_variable, const std::string& neumann_field );
 private:
   void signal_set_tags(common::SignalArgs& node);
   void signature_set_tags(common::SignalArgs& node);

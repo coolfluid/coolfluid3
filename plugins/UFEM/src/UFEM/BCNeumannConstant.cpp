@@ -64,14 +64,14 @@ BCNeumannConstant::~BCNeumannConstant()
 
 
 
-void BCNeumannConstant::set_tags (const std::string& Neumann_Constant, const std::string& gradient_field )
+void BCNeumannConstant::set_tags (const std::string& neumann_variable, const std::string& gradient_field )
 {
-  FieldVariable<0, ScalarField> neumann_variable(Neumann_Constant, gradient_field);
+  FieldVariable<0, ScalarField> neumann(neumann_variable, gradient_field);
   
   (elements_expression
   (
     boost::mpl::vector1 <mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    m_rhs(neumann_variable) += integral<1>(transpose(N(neumann_variable))*boost::proto::lit(m_flux)*_norm(normal)) // Classical Neumann condition formulation for finite elements
+    m_rhs(neumann_variable) += integral<1>(transpose(N(neumann))*boost::proto::lit(m_flux)*_norm(normal)) // Classical Neumann condition formulation for finite elements
   ));
 }
 
@@ -79,7 +79,7 @@ void BCNeumannConstant::signal_set_tags ( common::SignalArgs& node )
 {
   common::XML::SignalOptions options(node);
   set_tags(options.option("neumann_field").value<std::string>(),
-           options.option("Neumann_Constant").value<std::string>()
+           options.option("neumann_variable").value<std::string>()
            );
 }
 
