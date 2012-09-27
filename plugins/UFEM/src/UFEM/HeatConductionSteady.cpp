@@ -62,7 +62,7 @@ void HeatConductionSteady::trigger()
   set_solution_tag("heat_conduction_solution");
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
-  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor", "factor for relaxation in case of coupling", 0.1);
+  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 0.5);
 
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());

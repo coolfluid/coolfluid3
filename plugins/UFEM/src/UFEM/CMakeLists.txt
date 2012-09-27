@@ -16,14 +16,22 @@ list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
+  BCNeumannConstant.cpp
+  BCNeumannConstant.hpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
+  BoussinesqAssembly.hpp
+  BoussinesqAssemblyExtended.hpp
   ComputeCFL.hpp
   ComputeCFL.cpp
+  CriterionConvergence.cpp
+  CriterionConvergence.hpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
+  HeatCouplingRobin.hpp
+  HeatCouplingRobin.cpp
   InitialConditionConstant.hpp
   InitialConditionConstant.cpp
   InitialConditionFunction.hpp

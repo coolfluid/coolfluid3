@@ -615,23 +615,26 @@ struct EigenMath :
       boost::proto::assign<GrammarT, boost::proto::terminal<IdentityTag> >,
       SetIdentity(GrammarT(boost::proto::_left))
     >,
-    // Norm calculation
-    boost::proto::when
+    boost::proto::or_
     <
-      boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
-      ComputeNorm(GrammarT(boost::proto::_right))
-    >,
-    // Row-sum lumping
-    boost::proto::when
-    <
-      boost::proto::function<boost::proto::terminal<LumpTag>, boost::proto::_>,
-      Lump(GrammarT(boost::proto::_right))
-    >,
-    // Diagonal extraction
-    boost::proto::when
-    <
-      boost::proto::function<boost::proto::terminal<ExtractDiagTag>, boost::proto::_>,
-      ExtractDiag(GrammarT(boost::proto::_right))
+        // Norm calculation
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
+          ComputeNorm(GrammarT(boost::proto::_right))
+        >,
+        // Row-sum lumping
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<LumpTag>, boost::proto::_>,
+          Lump(GrammarT(boost::proto::_right))
+        >,
+        // Diagonal extraction
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<ExtractDiagTag>, boost::proto::_>,
+          ExtractDiag(GrammarT(boost::proto::_right))
+        >
     >,
     MathOpDefault<GrammarT>
   >

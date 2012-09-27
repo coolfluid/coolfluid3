@@ -33,6 +33,9 @@
 #include "../SUPG.hpp"
 #include "../Tags.hpp"
 
+#include "BoussinesqAssembly.hpp"
+#include "BoussinesqAssemblyExtended.hpp"
+
 namespace cf3 {
 namespace UFEM {
 
@@ -40,7 +43,6 @@ using namespace common;
 using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
-
 
 
 ComponentBuilder < NavierStokes, LSSActionUnsteady, LibUFEM > NavierStokes_builder;
@@ -56,7 +58,15 @@ NavierStokes::NavierStokes(const std::string& name) :
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   u_ref("reference_velocity"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+
+  temp_ref("reference_temperature"),
+  rho_ref("reference_density"),
+  betha("thermal_expansion_coefficient"),
+  cp_heat_capacity("specific_heat_capacity"),
+  kappa_heat_cond("heat_conductivity"),
+  g_acceleration("gravitatonal_acceleration")
+
 {
   options().add("use_specializations", true)
     .pretty_name("Use Specializations")
@@ -66,6 +76,16 @@ NavierStokes::NavierStokes(const std::string& name) :
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("use_boussinesq", false)
+    .pretty_name("Use Boussinesq")
+    .description("Use the Boussinesq approximation assembly instead of the Navier-Stokes assembly")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("use_boussinesq_extended", false)
+    .pretty_name("Use Boussinesq Extended")
+    .description("Use an extended Boussinesq approximation assembly instead of the Navier-Stokes assembly")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
 
   set_solution_tag("navier_stokes_solution");
@@ -107,14 +127,20 @@ NavierStokes::~NavierStokes()
 void NavierStokes::trigger_assembly()
 {
   m_assembly->clear();
-
+  const bool use_boussinesq = options().value<bool>("use_boussinesq");
+  if (use_boussinesq == true)
+    {
+    set_boussinesq_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Quad2D>, boost::mpl::vector0<> >("BoussinesqAssemblyQuads");
+    }
+  else
+  {
   // Add the assembly, depending on the use of specialized code or not
   const bool use_specializations = options().value<bool>("use_specializations");
   set_triag_assembly(use_specializations);
   set_tetra_assembly(use_specializations);
   set_quad_assembly();
   set_hexa_assembly();
-
+  }
   if(is_not_null(m_physical_model))
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
 
