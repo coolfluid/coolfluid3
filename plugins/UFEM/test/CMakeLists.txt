@@ -108,6 +108,10 @@ coolfluid_add_test( ATEST atest-flatplate2d-scalar
                     PYTHON atest-flatplate2d-scalar.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
+coolfluid_add_test( ATEST atest-flatplate2d-scalar-neumann
+                    PYTHON atest-flatplate2d-scalar-neumann.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
 coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras
                     PYTHON atest-flatplate2d-spalartallmaras.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)

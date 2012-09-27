@@ -3,6 +3,8 @@ list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
+  BCNeumannConstant.cpp
+  BCNeumannConstant.hpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   BoussinesqAssembly.hpp
