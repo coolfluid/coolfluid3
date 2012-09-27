@@ -60,22 +60,24 @@ public: // functions
   /// Create an initial conditions component
   Handle<InitialConditions> create_initial_conditions();
 
+  /// Create the fields, based on the current solver structure
+  void create_fields();
+
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);
   void signal_add_unsteady_solver(common::SignalArgs& args);
   void signal_add_iteration_solver(common::SignalArgs& args);
   void signal_create_initial_conditions(common::SignalArgs& args);
+  void signal_create_fields(common::SignalArgs& args);
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);
-  
+
   virtual void execute();
 
 private:
   /// Triggered by the "ufem_variables_added" event
   void on_variables_added_event(common::SignalArgs& args);
-  /// Helper function to create the fields
-  void create_fields();
   /// Helper function to add a concrete solver to the giving parent, configuring its options as needed
   Handle<common::Action> add_solver(const std::string& builder_name, Component& parent);
 

@@ -69,10 +69,10 @@ struct NavierStokesAssemblyFixture
     time.options().set("time_step", 1.);
 
     ic->remove_component(lss_action->solution_tag());
-    
+
     domain.add_component(mesh);
     mesh->raise_mesh_loaded();
-    
+
     solver->configure_option_recursively("regions", std::vector<URI>(1, mesh->topology().uri()));
     math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
 
@@ -81,25 +81,26 @@ struct NavierStokesAssemblyFixture
 
     lss_action->options().set("use_specializations", true);
     time.options().set("end_time", 1.);
+    solver->create_fields();
     for_each_node<Dim>(mesh->topology(), initial_condition_expression);
     model->simulate();
 
     const Uint matsize = lss.matrix()->blockcol_size()*lss.matrix()->neq();
-    
+
     RealMatrix spec_result(matsize, matsize);
     for(Uint i = 0; i != matsize; ++i)
       for(Uint j = 0; j != matsize; ++j)
-	 lss.matrix()->get_value(i, j, spec_result(i,j));
-    
+        lss.matrix()->get_value(i, j, spec_result(i,j));
+
     lss_action->options().set("use_specializations", false);
     time.options().set("end_time", 2.);
     model->simulate();
-    
+
     RealMatrix generic_result(matsize, matsize);
     for(Uint i = 0; i != matsize; ++i)
       for(Uint j = 0; j != matsize; ++j)
-	 lss.matrix()->get_value(i, j, generic_result(i,j));
-      
+        lss.matrix()->get_value(i, j, generic_result(i,j));
+
     check_close(generic_result, spec_result, eps);
   }
 
@@ -117,7 +118,7 @@ struct NavierStokesAssemblyFixture
     Elements& cells = mesh.topology().create_region("cells").create_elements("cf3.mesh.LagrangeP1.Triag2D", geometry_dict);
     cells.resize(1);
     cells.geometry_space().connectivity() << 0 << 1 << 2;
-    
+
     return mesh_ptr;
   }
 
@@ -135,7 +136,7 @@ struct NavierStokesAssemblyFixture
     Elements& cells = mesh.topology().create_region("cells").create_elements("cf3.mesh.LagrangeP1.Tetra3D", geometry_dict);
     cells.resize(1);
     cells.geometry_space().connectivity() << 0 << 1 << 2 << 3;
-    
+
     return mesh_ptr;
   }
 
@@ -160,7 +161,7 @@ BOOST_AUTO_TEST_CASE( UnitTriangleUniform )
 {
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   RealVector u_init(2); u_init << 1., 1.;
- 
+
   run_model<2>(create_triangle(RealVector2(0., 0.), RealVector2(1., 0.), RealVector2(0., 1.)), u = u_init);
 }
 

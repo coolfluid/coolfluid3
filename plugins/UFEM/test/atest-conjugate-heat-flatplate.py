@@ -191,6 +191,7 @@ save_interval = 0.01
 current_end_time = 0.
 iteration = 0.
 solver.TimeLoop.CouplingIteration.options.max_iter = 10
+solver.create_fields()
 solver.InitialConditions.execute()
 domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-initial.pvtu'))
 while current_end_time < final_end_time:

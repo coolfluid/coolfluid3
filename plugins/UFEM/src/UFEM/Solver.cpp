@@ -73,6 +73,11 @@ Solver::Solver(const std::string& name) :
     .description("Create initial conditions.")
     .pretty_name("Create Initial Conditions");
 
+  regist_signal( "create_fields" )
+    .connect( boost::bind( &Solver::signal_create_fields, this, _1 ) )
+    .description("Create the fields required for the solver.")
+    .pretty_name("Create Fields");
+
   Core::instance().event_handler().connect_to_event("ufem_variables_added", this, &Solver::on_variables_added_event);
 }
 
@@ -204,6 +209,12 @@ void Solver::signal_create_initial_conditions(SignalArgs& args)
   reply_options.add("created_component", ic->uri());
 }
 
+void Solver::signal_create_fields(SignalArgs& args)
+{
+  create_fields();
+}
+
+
 void Solver::mesh_loaded(mesh::Mesh& mesh)
 {
   cf3::solver::SimpleSolver::mesh_loaded(mesh);
@@ -229,10 +240,10 @@ void Solver::create_fields()
 {
   if(!m_need_field_creation)
     return;
-  
+
   if(is_null(m_mesh))
     return;
-  
+
   // Reset comm patterns in case they became invalid
   BOOST_FOREACH(Dictionary& dict, find_components_recursively<Dictionary>(*m_mesh))
   {
@@ -241,7 +252,7 @@ void Solver::create_fields()
       dict.remove_component("CommPattern");
     }
   }
-  
+
   // Find out what tags are used
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
@@ -303,7 +314,7 @@ void Solver::create_fields()
     }
 
     cf3_assert(is_not_null(dict));
-    
+
     // We also tag the dict now, so the proto code can find it
     if(!dict->has_tag(tag))
       dict->add_tag(tag);
@@ -322,7 +333,7 @@ void Solver::create_fields()
       field->parallelize_with(dict->comm_pattern());
     }
   }
-  
+
   m_need_field_creation = false;
 }
 
