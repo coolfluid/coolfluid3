@@ -10,16 +10,19 @@
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
+#include "mesh/Dictionary.hpp"
+
 #include "solver/SimpleSolver.hpp"
 
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/SolutionVector.hpp"
 
+
 #include "LibUFEM.hpp"
 
 namespace cf3 {
-
+namespace solver { namespace actions { class Probe; } }
 namespace UFEM {
 
 class InitialConditions;
@@ -62,6 +65,8 @@ public: // functions
 
   /// Create the fields, based on the current solver structure
   void create_fields();
+  
+  Handle<solver::actions::Probe> add_probe( const std::string& name, const Handle<mesh::Dictionary>& dict = Handle<mesh::Dictionary>() );
 
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);
@@ -69,6 +74,8 @@ public: // functions
   void signal_add_iteration_solver(common::SignalArgs& args);
   void signal_create_initial_conditions(common::SignalArgs& args);
   void signal_create_fields(common::SignalArgs& args);
+  void signature_add_probe(common::SignalArgs& args);
+  void signal_add_probe(common::SignalArgs& args);
 
   virtual void mesh_loaded(mesh::Mesh& mesh);
   virtual void mesh_changed(mesh::Mesh& mesh);

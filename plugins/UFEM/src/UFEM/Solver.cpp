@@ -25,7 +25,9 @@
 #include <mesh/Space.hpp>
 
 #include "solver/Tags.hpp"
+#include "solver/actions/Probe.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
+#include "solver/History.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -77,6 +79,12 @@ Solver::Solver(const std::string& name) :
     .connect( boost::bind( &Solver::signal_create_fields, this, _1 ) )
     .description("Create the fields required for the solver.")
     .pretty_name("Create Fields");
+
+  regist_signal( "add_probe" )
+    .connect( boost::bind( &Solver::signal_add_probe, this, _1 ) )
+    .description("Add a probe to log data")
+    .pretty_name("Add Probe")
+    .signature( boost::bind ( &Solver::signature_add_probe, this, _1) );
 
   Core::instance().event_handler().connect_to_event("ufem_variables_added", this, &Solver::on_variables_added_event);
 }
@@ -351,10 +359,63 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
   return result;
 }
 
+Handle< Probe > Solver::add_probe ( const std::string& name, const Handle<Dictionary>& dict)
+{
+  Handle<Probe> probe = create_component<Probe>(name);
+  if(is_null(dict))
+  {
+    probe->options().set("dict", mesh().geometry_fields().handle<Dictionary>());
+  }
+  else
+  {
+    probe->options().set("dict", dict);
+  }
+  Handle<ProbePostProcessor> pp = probe->create_post_processor("Log","cf3.solver.actions.ProbePostProcHistory");
+  pp->mark_basic();
+
+  Handle<History> hist(get_child("History"));
+  if(is_null(hist))
+  {
+    hist = create_component<History>("History");
+    hist->options().set("dimension",1u);
+    hist->mark_basic();
+  }
+  pp->options().set("history", hist);
+
+  return probe;
+}
+
+void Solver::signal_add_probe ( SignalArgs& args )
+{
+  SignalOptions options(args);
+  Handle<Dictionary> dict;
+  if(options.check("dict"))
+    dict = options.option("dict").value< Handle<Dictionary> >();
+
+  Handle<Probe> probe = add_probe(options.option("name").value<std::string>(), dict);
+
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", probe->uri());
+}
+
+void Solver::signature_add_probe ( SignalArgs& args )
+{
+  SignalOptions options(args);
+  options.add("name", "SomeProbe").pretty_name("Name").description("Name of the probe to add");
+}
+
+
+
 void Solver::execute()
 {
   create_fields();
   solver::SimpleSolver::execute();
+  Handle<History> hist(get_child("History"));
+  if(is_not_null(hist))
+  {
+    hist->save_entry();
+  }
 }
 
 
