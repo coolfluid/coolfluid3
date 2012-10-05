@@ -359,9 +359,9 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
   return result;
 }
 
-Handle< Probe > Solver::add_probe ( const std::string& name, const Handle<Dictionary>& dict)
+Handle< Probe > Solver::add_probe ( const std::string& name, Component& parent, const Handle<Dictionary>& dict)
 {
-  Handle<Probe> probe = create_component<Probe>(name);
+  Handle<Probe> probe = parent.create_component<Probe>(name);
   if(is_null(dict))
   {
     probe->options().set("dict", mesh().geometry_fields().handle<Dictionary>());
@@ -392,7 +392,13 @@ void Solver::signal_add_probe ( SignalArgs& args )
   if(options.check("dict"))
     dict = options.option("dict").value< Handle<Dictionary> >();
 
-  Handle<Probe> probe = add_probe(options.option("name").value<std::string>(), dict);
+  const std::string name = options.option("name").value<std::string>();
+
+  Handle<Component> parent = options.option("parent").value< Handle<Component> >();
+  if(is_null(parent))
+    throw common::SetupError(FromHere(), "Invalid parent component supplied when adding probe " + name);
+
+  Handle<Probe> probe = add_probe(name, *parent, dict);
 
   SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -402,7 +408,8 @@ void Solver::signal_add_probe ( SignalArgs& args )
 void Solver::signature_add_probe ( SignalArgs& args )
 {
   SignalOptions options(args);
-  options.add("name", "SomeProbe").pretty_name("Name").description("Name of the probe to add");
+  options.add("name", "SomeProbe").pretty_name("Name").description("Name of the probe to add").mark_basic();
+  options.add("parent", Handle<Component>()).pretty_name("Parent").description("Component that will be the parent of the probe").mark_basic();
 }
 
 
@@ -411,11 +418,6 @@ void Solver::execute()
 {
   create_fields();
   solver::SimpleSolver::execute();
-  Handle<History> hist(get_child("History"));
-  if(is_not_null(hist))
-  {
-    hist->save_entry();
-  }
 }
 
 

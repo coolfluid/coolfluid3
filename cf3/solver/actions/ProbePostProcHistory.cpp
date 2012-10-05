@@ -56,6 +56,7 @@ void ProbePostProcHistory::execute()
 
     m_history->set(m_probe->name()+"_"+var_name,m_probe->properties().value<Real>(var_name));
   }
+  m_history->save_entry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
