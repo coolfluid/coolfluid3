@@ -94,6 +94,14 @@ bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
 
+pressure_integral = solver.add_unsteady_solver('cf3.UFEM.SurfaceIntegral')
+pressure_integral.variable_name = 'Pressure'
+pressure_integral.field_tag = 'navier_stokes_solution'
+pressure_integral.regions = [mesh.topology.access_component('bottom').uri()]
+pressure_integral.history = solver.create_component('ForceHistory', 'cf3.solver.History')
+pressure_integral.history.file = cf.URI('force-implicit.tsv')
+pressure_integral.history.dimension = 2
+
 # Time setup
 time = model.create_time()
 time.options().set('time_step', 0.1)
@@ -110,6 +118,7 @@ writer = root.create_component('Writer', 'cf3.mesh.gmsh.Writer')
 writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
 writer.enable_overlap = True
 writer.mesh = mesh
+
 
 
 while current_end_time < final_end_time:
