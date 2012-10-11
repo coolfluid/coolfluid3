@@ -71,8 +71,8 @@ public: // functions
 
   /// Create the fields, based on the current solver structure
   void create_fields();
-  
-  Handle<solver::actions::Probe> add_probe( const std::string& name, const Handle<mesh::Dictionary>& dict = Handle<mesh::Dictionary>() );
+
+  Handle<solver::actions::Probe> add_probe( const std::string& name, Component& parent, const Handle<mesh::Dictionary>& dict = Handle<mesh::Dictionary>() );
 
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);

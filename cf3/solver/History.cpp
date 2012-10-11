@@ -32,7 +32,7 @@ History::History ( const std::string& name ) :
   m_table = create_static_component< Table<Real> >("table");
   m_variables = create_static_component< math::VariablesDescriptor >("variables");
 
-  options().add("dimension",0u);
+  options().add("dimension",0u).mark_basic();
 
 
   m_logging = true;

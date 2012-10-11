@@ -172,11 +172,8 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, neuFixture )
   // Create the face connectivity data for the last Elements
   CFaceConnectivity::BoolsT face_has_neighbour;
   CFaceConnectivity::IndicesT face_element_connectivity;
-  create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity);
-
-  // Face-face connectivity
   CFaceConnectivity::IndicesT face_face_connectivity;
-  create_face_face_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
 
   // Output data
   const Elements& elements = *celements_vector.back();
