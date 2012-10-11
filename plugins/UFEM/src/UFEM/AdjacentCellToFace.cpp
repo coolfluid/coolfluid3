@@ -69,10 +69,12 @@ void AdjacentCellToFace::on_regions_set()
 {
   if(m_loop_regions.empty())
     return;
-  
+
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*m_loop_regions.front());
   m_node_connectivity->initialize(find_components_recursively_with_filter<Elements>(mesh, IsElementsVolume()));
-  
+
+  std::set<std::string> adjacent_regions;
+
   BOOST_FOREACH(Handle<Region> region, m_loop_regions)
   {
     BOOST_FOREACH(Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementsSurface()))
@@ -84,8 +86,23 @@ void AdjacentCellToFace::on_regions_set()
         face_conn->add_tag("face_to_cell_connectivity");
         face_conn->initialize(*m_node_connectivity);
       }
+
+      const Uint nb_elems = elements.size();
+      for(Uint i = 0; i != nb_elems; ++i)
+      {
+        cf3_assert(face_conn->has_adjacent_element(i, 0));
+        const CFaceConnectivity::ElementReferenceT adj_elem = face_conn->adjacent_element(i, 0);
+        adjacent_regions.insert(adj_elem.first->parent()->name());
+      }
     }
   }
+
+  CFdebug << "AdjacentCellToFace at " << uri().path() << " uses adjacent regions ";
+  BOOST_FOREACH(const std::string& region, adjacent_regions)
+  {
+    CFdebug << region << " ";
+  }
+  CFdebug << CFendl;
 }
 
 

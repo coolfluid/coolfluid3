@@ -355,6 +355,19 @@ struct BlockArrays::Implementation
       for(Uint i = 0; i != dimensions; ++i)
       {
         // Add the block
+        if(!face_conn.has_adjacent_element(block_idx, positive_faces[i]) || !face_conn.has_adjacent_element(block_idx, negative_faces[i]))
+        {
+          std::stringstream error_str;
+          error_str << "Block " << block_idx << " has no adjacent element for patch [ ";
+          const ElementType::FaceConnectivity& faces = dimensions == 3 ? LagrangeP1::Hexa3D::faces() : LagrangeP1::Quad2D::faces();
+          const Uint bad_face_idx = !face_conn.has_adjacent_element(block_idx, positive_faces[i]) ? positive_faces[i] : negative_faces[i];
+          BOOST_FOREACH(const Uint i, faces.nodes_range(bad_face_idx))
+          {
+            error_str << row[i] << " ";
+          }
+          error_str << "]. Did you flip the ordering of patch nodes?";
+          throw common::SetupError(FromHere(), error_str.str()); 
+        }
         CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
         block.strides[i] = stride;
         block.bounded[i] = adj_elem.first->element_type().dimensionality() != dimensions;

@@ -55,7 +55,7 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));
-    
+
   // First compute the gradient
   create_static_component<ProtoAction>("ComputeGradient");
     // Then set the gradient on the boundary elements, and configure its tag
@@ -118,7 +118,7 @@ void HeatCouplingFlux::trigger_setup()
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
+    m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
   ));
 
   // Raise an event to indicate that we added a variable (GradT)
