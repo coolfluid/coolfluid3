@@ -55,6 +55,12 @@ public: // functions
   /// @param builder_names List of builders for the actions to add
   Handle<common::Action> add_unsteady_solver(const std::string& builder_name);
 
+  /// Create a solver where each LSS only requires a single solve to reach steady state.
+  /// An initialization step is added automatically
+  /// the unsteady solver is advanced multiple times
+  /// @param builder_names List of builders for the actions to add
+  Handle<common::Action> add_unsteady_advance_solver(const std::string& builder_name);
+
   /// Create a solver where each LSS requires a multiple solve to reach steady state.
   /// An initialization step is added automatically
   /// @param builder_names List of builders for the actions to add
@@ -71,6 +77,7 @@ public: // functions
   void signature_add_solver(common::SignalArgs& args);
   void signal_add_direct_solver(common::SignalArgs& args);
   void signal_add_unsteady_solver(common::SignalArgs& args);
+  void signal_add_unsteady_advance_solver(common::SignalArgs& args);
   void signal_add_iteration_solver(common::SignalArgs& args);
   void signal_create_initial_conditions(common::SignalArgs& args);
   void signal_create_fields(common::SignalArgs& args);

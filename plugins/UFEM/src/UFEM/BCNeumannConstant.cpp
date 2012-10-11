@@ -68,7 +68,7 @@ void BCNeumannConstant::set_tags (const std::string& neumann_variable, const std
 {
   FieldVariable<0, ScalarField> neumann(neumann_variable, gradient_field);
   
-  (elements_expression
+  set_expression(elements_expression
   (
     boost::mpl::vector1 <mesh::LagrangeP1::Line2D>(), // Valid for surface element types
     m_rhs(neumann) += integral<1>(transpose(N(neumann))*boost::proto::lit(m_flux)*_norm(normal)) // Classical Neumann condition formulation for finite elements
