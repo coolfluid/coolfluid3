@@ -55,7 +55,7 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));
-    
+
   // First compute the gradient
   create_static_component<ProtoAction>("ComputeGradient");
     // Then set the gradient on the boundary elements, and configure its tag

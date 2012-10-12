@@ -85,8 +85,8 @@ gradings[6] = [1., 1., 1., 1.]
 
 # fluid block
 inlet_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 2)
-inlet_patch[0] = [10, 9]
-inlet_patch[1] = [11, 10]
+inlet_patch[0] = [9, 10]
+inlet_patch[1] = [10, 11]
 
 bottom_patch1 = blocks.create_patch_nb_faces(name = 'solid_bottom', nb_faces = 1)
 bottom_patch1[0] = [12, 13]
@@ -109,8 +109,8 @@ outlet_patch[1] = [7, 8]
 
 top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
 top_patch[0] = [5, 4]
-top_patch[1] = [8, 5]
-top_patch[2] = [4, 11]
+top_patch[1] = [5, 8]
+top_patch[2] = [11, 4]
 
 blocks.options().set('block_regions', ['fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'fluid', 'solid'])
 
@@ -171,14 +171,6 @@ bc_wall_temp.set_tags(from_field_tag = 'heat_conduction_solution', to_field_tag 
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  phi_in)
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  phi_in)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_in)
-
-# Boundary conditions for HeatConduction
-bc = heatcond.get_child('BoundaryConditions')
-bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-heat_coupling = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
-heat_coupling.options().set('gradient_region', mesh.access_component('topology/fluid'))
-heat_coupling.options().set('temperature_field_tag', 'scalar_advection_solution')
-bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().set('value',  phi_wall)
 
 # Time setup
 time = model.create_time()

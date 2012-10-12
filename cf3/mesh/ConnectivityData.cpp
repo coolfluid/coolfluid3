@@ -54,7 +54,7 @@ void CFaceConnectivity::initialize(const Elements& own_celements, const CNodeCon
 {
   m_node_connectivity = &node_connectivity;
   m_element_nb_faces = own_celements.element_type().nb_faces();
-  
+
   CFdebug << "Creating face connectivity for " << own_celements.uri().path() << CFendl;
 
   create_face_element_connectivity(own_celements,
@@ -206,7 +206,7 @@ void create_face_element_connectivity(const Elements& own_celements,
         const Uint node_elements_end = node_element_counts[face_node] + node_elements_begin;
         adjacent_elements.insert(adjacent_elements.end(), node_elements.begin() + node_elements_begin, node_elements.begin() + node_elements_end);
       }
-      
+
       // Find the adjacent element, if any
       std::sort(adjacent_elements.begin(), adjacent_elements.end());
       const Uint adjacent_count = adjacent_elements.size();
@@ -248,7 +248,7 @@ void create_face_element_connectivity(const Elements& own_celements,
                 // Roll the node list of the candidate match to start at the same node
                 std::rotate(adjacent_face_nodes.begin(), first_matching_node, adjacent_face_nodes.end());
               }
-              
+
               if(adjacent_face_nodes == face_nodes) // now we have a match if the node lists are identical
               {
                 const Uint global_face_idx = elem_idx * face_count + face_idx;

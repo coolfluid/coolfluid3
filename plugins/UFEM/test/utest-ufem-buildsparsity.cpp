@@ -225,12 +225,12 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   *blocks.create_block_subdivisions() << nb_segments << nb_segments << nb_segments;
   *blocks.create_block_gradings() << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1.;
 
-  *blocks.create_patch("bottomWall", 1) << 0 << 1 << 3 << 2;
+  *blocks.create_patch("bottomWall", 1) << 0 << 2 << 3 << 1;
   *blocks.create_patch("topWall", 1) << 4 << 5 << 7 << 6;
-  *blocks.create_patch("side1", 1) << 1 << 5 << 7 << 3;
-  *blocks.create_patch("side2", 1) << 0 << 4 << 5 << 1;
-  *blocks.create_patch("side3", 1) << 6 << 4 << 0 << 2;
-  *blocks.create_patch("side4", 1) << 2 << 3 << 7 << 6;
+  *blocks.create_patch("side1", 1) << 1 << 3 << 7 << 5;
+  *blocks.create_patch("side2", 1) << 0 << 1 << 5 << 4;
+  *blocks.create_patch("side3", 1) << 0 << 4 << 6 << 2;
+  *blocks.create_patch("side4", 1) << 2 << 6 << 7 << 3;
 
   blocks.create_mesh(mesh);
 

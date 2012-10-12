@@ -72,8 +72,8 @@ gradings[5] = [1., 1., 10., 10.]
 
 # fluid block
 inlet_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 2)
-inlet_patch[0] = [9, 10]
-inlet_patch[1] = [10, 11]
+inlet_patch[0] = [10, 9]
+inlet_patch[1] = [11, 10]
 
 bottom_patch1 = blocks.create_patch_nb_faces(name = 'bottom1', nb_faces = 1)
 bottom_patch1[0] = [0, 1]
@@ -90,8 +90,8 @@ outlet_patch[1] = [7, 8]
 
 top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
 top_patch[0] = [5, 4]
-top_patch[1] = [5, 8]
-top_patch[2] = [11, 4]
+top_patch[1] = [8, 5]
+top_patch[2] = [4, 11]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
