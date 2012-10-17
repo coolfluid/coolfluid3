@@ -51,6 +51,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
   p("Pressure", "navier_stokes_solution"),
+  Temp("Temperature", "navier_stokes_solution"),
   u_adv("AdvectionVelocity", "linearized_velocity"),
   u1("AdvectionVelocity1", "linearized_velocity"),
   u2("AdvectionVelocity2", "linearized_velocity"),
@@ -60,7 +61,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   rho("density"),
   nu("kinematic_viscosity"),
 
-  temp_ref("reference_temperature"),
+  temp_ref("temp_ref"),
   rho_ref("reference_density"),
   betha("thermal_expansion_coefficient"),
   cp_heat_capacity("specific_heat_capacity"),
@@ -114,6 +115,7 @@ NavierStokes::NavierStokes(const std::string& name) :
     u1 = u,
     u += solution(u),
     p += solution(p)
+    //Temp += solution(Temp)
   ))));
 
   trigger_assembly();

@@ -58,7 +58,7 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
 
   // First compute the gradient
   create_static_component<ProtoAction>("ComputeGradient");
-    // Then set the gradient on the boundary elements, and configure its tag
+  // Then set the gradient on the boundary elements, and configure its tag
   Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
   set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
   // Finally set the boundary condition
@@ -118,7 +118,7 @@ void HeatCouplingFlux::trigger_setup()
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    group(m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal), // Classical Neumann condition formulation for finite elements
+    group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal), // Classical Neumann condition formulation for finite elements
           _cout << "rhs" << integral<1>(transpose(N(T))*GradT*normal) << "\n",
           _cout << "GradT" << GradT << "\n")
   ));

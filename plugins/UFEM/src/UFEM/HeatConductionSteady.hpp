@@ -32,6 +32,11 @@ public: // functions
 private:
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
   void trigger();
+
+  /// Access to the physics
+  PhysicsConstant heat_cond;
+
+
 };
 
 } // UFEM

@@ -164,8 +164,6 @@ Handle< common::Action > Solver::add_unsteady_advance_solver(const std::string& 
   return result;
 }
 
-
-
 Handle< common::Action > Solver::add_iteration_solver(const std::string& builder_name)    // the add_iteration_solver for inner itarations in case of a coupling between two solvers
 {
   if(is_null(m_initial_conditions))

@@ -194,7 +194,6 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   FieldVariable<4, ScalarField> nu_t("NU_t", "Nu_t");
   FieldVariable<5, ScalarField> nu_dim("NU_dim", "Nu_dim");
 
-
   PhysicsConstant rho("density");
   PhysicsConstant mu("dynamic_viscosity");
   PhysicsConstant nu_lam("kinematic_viscosity");

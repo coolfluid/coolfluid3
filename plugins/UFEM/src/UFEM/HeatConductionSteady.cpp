@@ -24,6 +24,8 @@
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
 
+#include "NavierStokesPhysics.hpp"
+
 namespace cf3 {
 namespace UFEM {
 
@@ -35,7 +37,8 @@ using namespace mesh;
 
 ComponentBuilder < HeatConductionSteady, LSSAction, LibUFEM > HeatConductionSteady_builder;
 
-HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name )
+HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ),
+  heat_cond("heat_conductivity")
 {
   options().add("heat_space_name", "geometry")
     .pretty_name("Heat Space Name")
@@ -81,7 +84,7 @@ void HeatConductionSteady::trigger()
           _A(T) += k * transpose(nabla(T)) * nabla(T)
         ),
         system_matrix +=  _A,
-        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q) * heat_cond
       )
     ))
     << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions

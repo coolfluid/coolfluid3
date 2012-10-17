@@ -24,6 +24,8 @@ list( APPEND coolfluid_ufem_files
   BoussinesqAssemblyExtended.hpp
   ComputeCFL.hpp
   ComputeCFL.cpp
+  CouplingIterationControl.cpp
+  CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
   HeatConductionSteady.hpp
