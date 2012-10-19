@@ -27,6 +27,8 @@ ic = solver.create_initial_conditions()
 boussinesq = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 boussinesq.options().set('use_boussinesq', True)
 
+boussinesq.Assembly.BoussinesqAssemblyQuads.g = [0., 9.81]
+
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 4)
@@ -70,21 +72,18 @@ bouss_lss = boussinesq.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 bouss_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
 u_in = [1., 0.]
-u_in_linear = ['y/2.']
-u_in_parabolic = ['1-(y/(1*1))']
-u_in_sinusoidal = ['y*sin(3.1416/2)']
 u_wall = [0., 0.]
 phi_in = 10.
 phi_wall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+solver.InitialConditions.navier_stokes_solution.Temperature = phi_in
 
 #properties for Navier-Stokes
 physics.density = 1.
 physics.dynamic_viscosity = 1.e-5
 physics.reference_velocity = u_in[0]
-boussinesq.scalar_coefficient = 1.
 
 # Boundary conditions for Boussinesq
 bc = boussinesq.get_child('BoundaryConditions')
@@ -100,7 +99,6 @@ bc.add_constant_bc(region_name = 'bottom', variable_name = 'Temperature').option
 bc.add_constant_bc(region_name = 'right', variable_name = 'Temperature').options().set('value',  phi_wall)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_wall)
 
-
 # Time setup
 time = model.create_time()
 time.options().set('time_step', 0.01)
@@ -112,10 +110,6 @@ save_interval = 0.01
 current_end_time = 0.
 iteration = 0.
 
-solver.TimeLoop.CouplingIteration.options.max_iter = 1
-
-solver.InitialConditions.execute()
-domain.write_mesh(cf.URI('atest-boussinesq.pvtu'))
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)

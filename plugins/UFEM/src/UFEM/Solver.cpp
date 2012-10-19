@@ -182,6 +182,13 @@ Handle< common::Action > Solver::add_iteration_solver(const std::string& builder
   }
 
   Handle<Component> coupling = timeloop->get_child("CouplingIteration");
+  if(is_null(coupling))
+  {
+    boost::shared_ptr<Component> advance_time = timeloop->remove_component("AdvanceTime");
+    coupling = timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate");
+    coupling->mark_basic();
+    timeloop->add_component(advance_time);
+  }
   cf3_assert(is_not_null(coupling));
 
   Handle<common::Action> result = add_solver(builder_name, *coupling);

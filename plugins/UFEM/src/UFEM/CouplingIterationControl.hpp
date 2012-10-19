@@ -12,6 +12,9 @@
 #include "solver/actions/Iterate.hpp"
 
 #include "LibUFEM.hpp"
+#include "LibUFEM.hpp"
+
+#include "solver/Time.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -43,9 +46,11 @@ private:
   Handle<common::Component> m_pseudo_iter_comp;
 
   /// component for max number of iterations without iterating between two solvers to advance in time
-  int m_max_pseudo_iteration, m_time;
 
+  int m_interval;
+  int m_int_time;
   std::vector<std::string> m_list_of_disabled_actions;
+  Handle<solver::Time> m_time;
 
 };
 

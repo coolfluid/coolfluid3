@@ -108,15 +108,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   create_component<SolveLSS>("SolveLSS");
 
   // Update of the solution
-  add_component(create_proto_action("Update", nodes_expression(group
-  (
-    u3 = u2,
-    u2 = u1,
-    u1 = u,
-    u += solution(u),
-    p += solution(p)
-    //Temp += solution(Temp)
-  ))));
+  m_update = create_component<solver::ActionDirector>("UpdateActions");
 
   trigger_assembly();
 }
@@ -129,6 +121,7 @@ NavierStokes::~NavierStokes()
 void NavierStokes::trigger_assembly()
 {
   m_assembly->clear();
+  m_update->clear();
   const bool use_boussinesq = options().value<bool>("use_boussinesq");
   if (use_boussinesq == true)
     {
@@ -147,6 +140,38 @@ void NavierStokes::trigger_assembly()
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
 
   configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+
+  if(is_not_null(m_initial_conditions))
+  {
+    Handle<InitialConditions> solver_ic(m_initial_conditions->parent());
+    cf3_assert(is_not_null(solver_ic));
+    solver_ic->remove_component(*m_initial_conditions);
+    m_initial_conditions = solver_ic->create_initial_condition(solution_tag());
+  }
+
+  if(use_boussinesq)
+  {
+    m_update->add_component(create_proto_action("Update", nodes_expression(group
+    (
+      u3 = u2,
+      u2 = u1,
+      u1 = u,
+      u += solution(u),
+      p += solution(p),
+      Temp += solution(Temp)
+    ))));
+  }
+  else
+  {
+    m_update->add_component(create_proto_action("Update", nodes_expression(group
+    (
+      u3 = u2,
+      u2 = u1,
+      u1 = u,
+      u += solution(u),
+      p += solution(p)
+    ))));
+  }
 }
 
 void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditions)
@@ -155,7 +180,7 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   Handle<ProtoAction> visc_ic(initial_conditions.create_initial_condition("navier_stokes_viscosity", "cf3.solver.ProtoAction"));
   visc_ic->set_expression(nodes_expression(nu_eff = nu));
 
-  initial_conditions.create_initial_condition(solution_tag());
+  m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 
   // Use a proto action to set the linearized_velocity easily
   Handle<ProtoAction> lin_vel_ic (initial_conditions.create_initial_condition("linearized_velocity", "cf3.solver.ProtoAction"));
