@@ -1,6 +1,6 @@
 import sys
 #sys.path.append('/data/scholl/coolfluid3/build/dso')
-# sys.path.append('/home/sebastian/coolfluid3/build/dso')
+#sys.path.append('/home/sebastian/coolfluid3/build/dso')
 import coolfluid as cf
 
 # Some shortcuts
@@ -102,13 +102,16 @@ satm.regions = [mesh.topology.uri()]
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 ns_lss.Matrix.settings_file = sys.argv[1]
+#ns_lss.Matrix.settings_file = '/home/sebastian/coolfluid3/build/plugins/UFEM/test/solver.xml'
+
 #LSS for Spalart-Allmaras turbulence model
 satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 satm_lss.Matrix.settings_file = sys.argv[1]
+#satm_lss.Matrix.settings_file = '/home/sebastian/coolfluid3/build/plugins/UFEM/test/solver.xml'
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
-NU_in = 0.0001
+NU_in = 0.001
 NU_wall = 0.
 
 #initial conditions
@@ -143,7 +146,7 @@ time.time_step = 0.01
 time.end_time = 0.
 
 # Setup a time series write
-final_end_time = 0.1
+final_end_time = 0.05
 save_interval = 0.01
 iteration = 0
 
@@ -151,7 +154,7 @@ while time.end_time < final_end_time:
   time.end_time += save_interval
   model.simulate()
   ns_lss.print_system('lss-' +str(iteration) + '.plt')
-  domain.write_mesh(cf.URI('atest-flatplate2d-satm-fv8-Nu00001-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-satm-coupled_limit-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

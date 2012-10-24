@@ -41,15 +41,29 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
+/// Represents an element matrix that is used as part of the linear system
+template<typename T>
+struct ElementSystemMatrix : T
+{
+};
+
 /// Represents an element matrix
 template<typename T>
 struct ElementMatrix : T
 {
 };
 
+/// Represents an element vector
+template<typename T>
+struct ElementVector : T
+{
+};
+
 /// Some predefined element matrices (more can be user-defined, but you have to change the number in the MPL int_ so the type is long and tedious)
-static boost::proto::terminal< ElementMatrix< boost::mpl::int_<0> > >::type const _A = {};
-static boost::proto::terminal< ElementMatrix< boost::mpl::int_<1> > >::type const _T = {};
+static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<0> > >::type const _A = {};
+static boost::proto::terminal< ElementVector< boost::mpl::int_<0> > >::type const _a = {};
+static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<1> > >::type const _T = {};
+static boost::proto::terminal< ElementMatrix< boost::mpl::int_<2> > >::type const _M = {};
 
 /// Reperesents element RHS vector
 struct ElementRHS
@@ -59,20 +73,52 @@ struct ElementRHS
 /// Terminal for the element RHS vector ("b")
 static boost::proto::terminal<ElementRHS>::type const _x = {};
 
+/// Match only element matrices that are used in a linear system
+struct ElementSystemMatrixTerm :
+  boost::proto::or_
+  <
+    boost::proto::terminal< ElementSystemMatrix<boost::proto::_> >,
+    BlockLhsGrammar<SystemRHSTag>
+  >
+{
+};
+
 /// Match element matrix terminals
 struct ElementMatrixTerm :
   boost::proto::or_
   <
     boost::proto::terminal< ElementMatrix<boost::proto::_> >,
-    BlockLhsGrammar<SystemRHSTag>
+    ElementSystemMatrixTerm
   >
+{
+};
+
+/// Match element matrix terminals
+struct ElementVectorTerm :
+  boost::proto::terminal< ElementVector<boost::proto::_> >
 {
 };
 
 /// Match subrows
 template<typename IdxT>
 struct IsSubRows :
-  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >, boost::proto::terminal< Var<IdxT, boost::proto::_> > >
+  boost::proto::function
+  <
+    ElementMatrixTerm,
+    boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >,
+    boost::proto::terminal< Var<IdxT, boost::proto::_> >
+  >
+{
+};
+
+/// Match subrows for vectors
+template<typename IdxT>
+struct IsVectorSubRows :
+  boost::proto::subscript
+  <
+    ElementVectorTerm,
+    boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >
+  >
 {
 };
 
@@ -116,9 +162,9 @@ struct IsEquationVariable :
     <
       boost::proto::or_
       <
-        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
-        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
-        boost::proto::function<ElementMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::function<ElementSystemMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
         ElementMatrixSubBlocks< boost::mpl::int_<I> >
       >,
       boost::mpl::true_()
@@ -167,6 +213,7 @@ template<typename T, typename SF>
 struct FieldWidth
 {
   static const Uint value = 0;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// Scalars have width 1
@@ -174,6 +221,7 @@ template<typename SF>
 struct FieldWidth<ScalarField, SF>
 {
   static const Uint value = 1;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// VectorFields have the same dimension as the problem domain
@@ -181,6 +229,7 @@ template<typename SF>
 struct FieldWidth<VectorField, SF>
 {
   static const Uint value = SF::dimension;
+  typedef boost::mpl::int_<value> type;
 };
 
 /// Given a variable's data, get the product of the number of nodes with the dimension variable (i.e. the size of the element matrix if this variable would be the only one in the problem)
@@ -258,6 +307,23 @@ struct ElementMatrixValue :
   };
 };
 
+/// Get a given element matrix
+struct ElementVectorValue :
+boost::proto::transform<ElementVectorValue>
+{
+
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<DataT>::type::ElementVectorT& result_type;
+
+    result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return data.element_vector(state);
+    }
+  };
+};
+
 /// Only get the rows relevant for a given variable
 struct ElementMatrixRowsValue :
   boost::proto::transform<ElementMatrixRowsValue>
@@ -279,6 +345,36 @@ struct ElementMatrixRowsValue :
     result_type operator ()(typename impl::expr_param var, typename impl::state_param state, typename impl::data_param data) const
     {
       return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::EtypeT::nb_nodes, ElementMatrixT::ColsAtCompileTime>(VarDataT::EtypeT::nb_nodes*data.var_data(var).offset, 0);
+    }
+  };
+};
+
+/// Only get the rows relevant for a given variable
+struct ElementVectorRowsValue :
+  boost::proto::transform< ElementVectorRowsValue >
+{
+
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
+
+    typedef Eigen::Block
+    <
+      typename boost::remove_reference<DataT>::type::ElementVectorT,
+      RowVarDataT::dimension * RowVarDataT::EtypeT::nb_nodes,
+      1
+    > result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
+    {
+      return data.element_vector(boost::proto::value(boost::proto::child_c<0>(expr))).template block
+      <
+        RowVarDataT::dimension * RowVarDataT::EtypeT::nb_nodes,
+        1
+        >(data.var_data(RowVarIdxT()).offset * RowVarDataT::EtypeT::nb_nodes, 0);
     }
   };
 };
@@ -363,6 +459,37 @@ struct SubRows : boost::proto::transform< SubRows<I, J> >
   };
 };
 
+/// A subblock for the element vector
+template<typename I, typename J>
+struct VectorSubRows : boost::proto::transform< VectorSubRows<I, J> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
+
+    typedef typename boost::remove_reference<StateT>::type VectorT;
+
+    typedef Eigen::Block
+    <
+    VectorT,
+    RowVarDataT::EtypeT::nb_nodes,
+    1
+    > result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
+    {
+      return matrix.template block<RowVarDataT::EtypeT::nb_nodes, 1>
+      (
+        RowVarDataT::EtypeT::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
+        0
+      );
+    }
+  };
+};
+
 /// A subblock of columns
 template<typename I, typename J>
 struct SubCols : boost::proto::transform< SubCols<I, J> >
@@ -438,8 +565,18 @@ struct ElementMatrixGrammar :
     >,
     boost::proto::when
     <
+      ElementVectorTerm,
+      ElementVectorValue(boost::proto::_expr, boost::proto::_value)
+    >,
+    boost::proto::when
+    <
       boost::proto::function<ElementMatrixTerm, FieldTypes>,
       ElementMatrixRowsValue(boost::proto::_value(boost::proto::_child1), boost::proto::_value(boost::proto::_child0))
+    >,
+    boost::proto::when
+    <
+      boost::proto::subscript<ElementVectorTerm, FieldTypes>,
+      ElementVectorRowsValue
     >,
     boost::proto::when
     <
@@ -464,6 +601,11 @@ struct ElementMatrixGrammarIndexed :
     <
       IsSubRows<boost::proto::_>,
       boost::proto::call< SubRows<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
+    >,
+    boost::proto::when
+    <
+      IsVectorSubRows<boost::proto::_>,
+      boost::proto::call< VectorSubRows<I, J> >(boost::proto::_expr, ElementVectorRowsValue)
     >,
     boost::proto::when
     <

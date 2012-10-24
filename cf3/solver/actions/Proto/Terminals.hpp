@@ -126,8 +126,7 @@ struct ScalarField : FieldBase
 {
   ScalarField() : FieldBase() {}
   ScalarField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
-  template<typename LibraryT>
-  ScalarField(const std::string& varname, const std::string& field_tag, const Handle<LibraryT>& space_lib) : FieldBase(varname, field_tag, LibraryT::library_namespace()) {}
+  ScalarField(const std::string& varname, const std::string& field_tag, const std::string& space_lib_name) : FieldBase(varname, field_tag, space_lib_name) {}
 };
 
 /// Field data for a vector having the dimension of the problem
@@ -135,8 +134,7 @@ struct VectorField : FieldBase
 {
   VectorField() : FieldBase() {}
   VectorField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
-  template<typename LibraryT>
-  VectorField(const std::string& varname, const std::string& field_tag, const Handle<LibraryT>& space_lib) : FieldBase(varname, field_tag, LibraryT::library_namespace()) {}
+  VectorField(const std::string& varname, const std::string& field_tag, const std::string& space_lib_name) : FieldBase(varname, field_tag, space_lib_name) {}
 };
 
 /// Shorthand for terminals containing a numbered variable
@@ -196,6 +194,13 @@ struct ZeroTag
 /// Placeholder for the zero matrix
 static boost::proto::terminal<ZeroTag>::type _0 = {};
 
+struct IdentityTag
+{
+};
+
+/// Placeholder for the identity matrix
+static boost::proto::terminal<IdentityTag>::type _I = {};
+
 /// Wrap std::cout
 static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 
@@ -211,6 +216,12 @@ inline Real max(const Real a, const Real b)
   return a > b ? a : b;
 }
 
+/// Minimum between two scalars
+inline Real min(const Real a, const Real b)
+{
+  return a < b ? a : b;
+}
+
 // Wrap some math functions
 static boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 static boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
@@ -219,6 +230,7 @@ static boost::proto::terminal< double(*)(double) >::type const _exp = {&exp};
 static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
 static boost::proto::terminal< double(*)(double) >::type const _abs = {&fabs};
 static boost::proto::terminal< double(*)(double, double) >::type const _max = {&max};
+static boost::proto::terminal< double(*)(double, double) >::type const _min = {&min};
 
 } // namespace Proto
 } // namespace actions

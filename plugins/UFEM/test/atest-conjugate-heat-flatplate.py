@@ -1,6 +1,5 @@
 import sys
-#sys.path.append('/data/scholl/coolfluid3/build/dso')
-# sys.path.append('/home/sebastian/coolfluid3/build/dso')
+# sys.path.append('/data/scholl/coolfluid3/build/dso')
 import coolfluid as cf
 
 # Some shortcuts
@@ -23,15 +22,15 @@ solver = model.create_solver('cf3.UFEM.Solver')
 # Create a component to manage initial conditions
 ic = solver.create_initial_conditions()
 
-# Add the Navier-Stokes solver as an unsteady solver
-nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-
 # Add the scalar advection solver as an unsteady solver
-scalaradv = solver.add_unsteady_solver('cf3.UFEM.ScalarAdvection')
+scalaradv = solver.add_iteration_solver('cf3.UFEM.ScalarAdvection')
 scalaradv.options().set('scalar_name', 'Temperature')
 
 # Add the heat conduction solver for the solid
-heatcond = solver.add_unsteady_solver('cf3.UFEM.HeatConductionSteady')
+heatcond = solver.add_iteration_solver('cf3.UFEM.HeatConductionSteady')
+
+# Add the Navier-Stokes solver as an unsteady solver
+nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -127,7 +126,6 @@ variables.get_child('heat_conduction_solution').options().set('Temperature_varia
 nstokes.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 scalaradv.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 heatcond.options().set('regions', [mesh.access_component('topology/solid').uri()])
-
 # LSS for Navier-Stokes
 ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
@@ -138,34 +136,19 @@ sa_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 hc_lss = heatcond.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
 hc_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
-u_in = [0.5, 0.]
+u_in = [1., 0.]
 u_wall = [0., 0.]
-phi_in = 100
-phi_wall = 200
-
-# Add initial conditions for the Navier-Stokes solver, which uses 'navier_stokes_solution' as a tag for its solution fields
-ic_ns = ic.create_initial_condition('navier_stokes_solution')
-# Initial advection velocity and its previous values, using linearized_velocity as tag
-ic_linearized_vel = ic.create_initial_condition('linearized_velocity')
-# Initial conditions for the scalar advection solver
-ic_phi = ic.create_initial_condition('scalar_advection_solution')
-#Initial condition for the temperature
-ic_hc = ic.create_initial_condition('heat_conduction_solution')
-
-ic_ns.options().set('regions', [mesh.access_component('topology').uri()])
-ic_linearized_vel.options().set('regions', [mesh.access_component('topology').uri()])
-ic_phi.options().set('regions', [mesh.access_component('topology').uri()])
-ic_hc.options().set('regions', [mesh.access_component('topology').uri()])
+phi_in = 10.
+phi_wall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-
 solver.InitialConditions.scalar_advection_solution.Scalar = phi_wall
 solver.InitialConditions.heat_conduction_solution.Temperature = phi_wall
 
 #properties for Navier-Stokes
-physics.density = 1.2
-physics.dynamic_viscosity = 1.7894e-5
+physics.density = 1.
+physics.dynamic_viscosity = 1.e-5
 physics.reference_velocity = u_in[0]
 scalaradv.scalar_coefficient = 1.
 
@@ -176,7 +159,7 @@ bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().
 bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
-bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 10.)
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
 # Boundary conditions for ScalarAdvection
@@ -202,15 +185,20 @@ time = model.create_time()
 time.options().set('time_step', 0.01)
 
 # Setup a time series write
-final_end_time = 0.1
+
+final_end_time = 0.02
 save_interval = 0.01
 current_end_time = 0.
-iteration = 0
+iteration = 0.
+solver.TimeLoop.CouplingIteration.options.max_iter = 10
+solver.create_fields()
+solver.InitialConditions.execute()
+domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-initial.pvtu'))
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)
   model.simulate()
-  domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-cht-flatplate_10-iterations-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

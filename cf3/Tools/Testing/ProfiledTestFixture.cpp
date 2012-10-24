@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <fstream>
+#include <iostream>
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>

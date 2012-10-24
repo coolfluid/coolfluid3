@@ -13,9 +13,9 @@
 #include "ElementIntegration.hpp"
 #include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
-#include "ExpressionGroup.hpp"
 #include "GaussPoints.hpp"
 #include "IndexLooping.hpp"
+#include "RestrictExpressionToElementType.hpp"
 
 /// @file
 /// Grammars related to element-wise mesh operations
@@ -48,6 +48,7 @@ struct ElementMath :
     SFOps< boost::proto::terminal<boost::proto::_> >,
     ElementMathBase,
     ElementMatrixSubBlocks<boost::proto::_>,
+    AssignNodalValues<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,
     EigenMath<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
   >
 {
@@ -61,6 +62,7 @@ struct ElementMathIndexed :
     SFOps< boost::proto::call< ElementMathIndexed<I, J> > >,
     ElementMathBase,
     ElementMatrixGrammarIndexed<I, J>,
+    AssignNodalValues<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >,
     EigenMath<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
   >
 {
@@ -96,7 +98,7 @@ struct ElementGrammar :
   boost::proto::or_
   <
     SingleExprElementGrammar,
-    GroupGrammar< SingleExprElementGrammar >
+    RestrictToElementTypeGrammar< SingleExprElementGrammar >
   >
 {
 };

@@ -63,6 +63,11 @@ InitialConditionFunction::InitialConditionFunction(const std::string& name) : Pa
     .pretty_name("Field Tag")
     .description("Tag for the field in which the initial conditions will be set")
     .attach_trigger(boost::bind(&InitialConditionFunction::trigger, this));
+    
+  options().add("field_space_name", "geometry")
+    .pretty_name("Field Space Name")
+    .description("Name of the space used by the field in the initial condition")
+    .attach_trigger(boost::bind(&InitialConditionFunction::trigger, this));
 }
 
 InitialConditionFunction::~InitialConditionFunction()
@@ -74,6 +79,7 @@ void InitialConditionFunction::trigger()
 {
   const std::string field_tag = options().value<std::string>("field_tag");
   const std::string var_name = options().value<std::string>("variable_name");
+  const std::string field_space_name = options().value<std::string>("field_space_name");
   if(field_tag.empty() || var_name.empty())
     return;
 
@@ -84,12 +90,12 @@ void InitialConditionFunction::trigger()
 
   if(descriptor.var_length(var_name) == 1)
   {
-    FieldVariable<0, ScalarField> v(var_name, field_tag);
+    FieldVariable<0, ScalarField> v(var_name, field_tag, field_space_name);
     set_expression(nodes_expression(v = scalar_function()));
   }
   else
   {
-    FieldVariable<0, VectorField> v(var_name, field_tag);
+    FieldVariable<0, VectorField> v(var_name, field_tag, field_space_name);
     set_expression(nodes_expression(v = vector_function()));
   }
 }

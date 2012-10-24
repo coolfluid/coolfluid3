@@ -3,6 +3,10 @@
 list( APPEND coolfluid_sdm_navierstokesmovingreference_files
   LibNavierStokesMovingReference.hpp
   LibNavierStokesMovingReference.cpp
+  BCSubsonicInlet2D.hpp
+  BCSubsonicInlet2D.cpp
+  BCSubsonicOutlet2D.hpp
+  BCSubsonicOutlet2D.cpp
   Convection2D.hpp
   Convection2D.cpp
   Source2D.hpp

@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_EigenTransforms_hpp
 #define cf3_solver_actions_Proto_EigenTransforms_hpp
 
+#include <boost/type_traits/is_reference.hpp>
+
 #include <boost/mpl/equal_to.hpp>
 #include <boost/proto/core.hpp>
 
@@ -185,7 +187,7 @@ struct EigenPlusAssignProductEval :
       StoreResult<typename boost::remove_reference<LeftT>::type>()(LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)), GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data));
       //LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
     }
-    
+
     template<typename T, int Dummy=0>
     struct StoreResult
     {
@@ -195,7 +197,7 @@ struct EigenPlusAssignProductEval :
         stored.noalias() += result;
       }
     };
-    
+
     template<int Dummy>
     struct StoreResult<Real, Dummy>
     {
@@ -205,7 +207,7 @@ struct EigenPlusAssignProductEval :
         stored += result;
       }
     };
-    
+
     template<typename MatT, int R, int C, int Dummy>
     struct StoreResult<Eigen::Block<MatT, R, C>, Dummy>
     {
@@ -284,6 +286,31 @@ struct TransposeTransform :
   };
 };
 
+/// Terminal to indicate we want a diagonal
+struct ExtractDiagTag
+{
+};
+
+boost::proto::terminal<ExtractDiagTag>::type const diagonal = {{}};
+
+/// Primitive transform to perform the transpose
+struct ExtractDiag :
+  boost::proto::transform< ExtractDiag >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type MatrixT;
+
+    typedef Eigen::Diagonal<MatrixT> result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return expr.diagonal();
+    }
+  };
+};
+
 /// Primitive transform to access matrix elements using operator()
 struct MatrixElementAccess :
   boost::proto::transform< MatrixElementAccess >
@@ -314,15 +341,16 @@ struct MatrixSubscript :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
-    typedef typename boost::remove_const<typename boost::remove_reference<typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type>::type LeftT;
+    typedef typename boost::remove_reference<typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type LeftT;
     typedef typename boost::proto::result_of::right<ExprT>::type IdxExprT;
 
     // True if the passed expression for the index is a looping index
     typedef boost::proto::matches< IdxExprT, boost::proto::terminal< IndexTag<boost::proto::_> > > IsLoopingIdxT;
 
-    static const bool is_vector = LeftT::ColsAtCompileTime == 1 || LeftT::RowsAtCompileTime == 1;
-    typedef typename boost::mpl::if_c<is_vector, Real, typename LeftT::ConstRowXpr>::type subscript_result_type;
-    typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1> >::type IgnoreLoopingT;
+    static const bool is_vector = LeftT::IsVectorAtCompileTime;
+    typedef typename boost::mpl::if_<typename boost::is_const<LeftT>::type, Real, Real&>::type ScalarTypeT;
+    typedef typename boost::mpl::if_c<is_vector, ScalarTypeT, typename LeftT::ConstRowXpr>::type subscript_result_type;
+    typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1 && (LeftT::MaxRowsAtCompileTime > 1 || LeftT::MaxColsAtCompileTime > 1)> >::type IgnoreLoopingT;
     typedef typename boost::mpl::if_
     <
       IgnoreLoopingT,
@@ -330,27 +358,39 @@ struct MatrixSubscript :
       subscript_result_type
     >::type result_type;
 
+    template<typename MatrixT>
+    struct MatrixRef
+    {
+      typedef MatrixT& type;
+    };
+
+    template<typename MatrixT>
+    struct MatrixRef< Eigen::Transpose<MatrixT> >
+    {
+      typedef const Eigen::Transpose<MatrixT> type;
+    };
+
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
     template<typename MatrixT, typename IndexT>
-    inline Real do_eval(boost::mpl::true_, MatrixT& matrix, const IndexT idx) const // used for vectors
+    inline ScalarTypeT do_eval(boost::mpl::true_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const // used for vectors
     {
       return matrix[idx];
     }
 
     template<typename MatrixT, typename IndexT>
-    inline typename LeftT::ConstRowXpr do_eval(boost::mpl::false_, MatrixT& matrix, const IndexT idx) const // used for matrices
+    inline typename LeftT::ConstRowXpr do_eval(boost::mpl::false_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const // used for matrices
     {
       return matrix.row(idx);
     }
 
     template<typename MatrixT, typename IndexT>
-    inline result_type apply(boost::mpl::false_, MatrixT& matrix, const IndexT idx) const
+    inline result_type apply(boost::mpl::false_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const
     {
-      return do_eval(boost::mpl::bool_<is_vector>(), matrix, idx);
+      return do_eval<MatrixT>(boost::mpl::bool_<is_vector>(), matrix, idx);
     }
 
     template<typename MatrixT, typename IndexT>
-    inline result_type apply(boost::mpl::true_, MatrixT& matrix, const IndexT idx) const
+    inline result_type apply(boost::mpl::true_, typename MatrixRef<MatrixT>::type matrix, const IndexT idx) const
     {
       return matrix;
     }
@@ -358,7 +398,7 @@ struct MatrixSubscript :
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       // go through overloaded do_eval to get the correct expression, depending on if we are subscripting a vector or a matrix
-      return apply(IgnoreLoopingT(), GrammarT()(boost::proto::left(expr), state, data), IntegersT()(boost::proto::right(expr), state, data));
+      return apply<LeftT>(IgnoreLoopingT(), GrammarT()(boost::proto::left(expr), state, data), IntegersT()(boost::proto::right(expr), state, data));
     }
   };
 };
@@ -424,6 +464,33 @@ struct SetZero :
   };
 };
 
+struct SetIdentity :
+boost::proto::transform< SetIdentity >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    template<typename MatrixT>
+    result_type operator ()(MatrixT& expr, typename impl::state_param, typename impl::data_param) const
+    {
+      expr.setIdentity();
+    }
+  };
+
+  template<typename MatT, int R, int C, typename StateT, typename DataT>
+  struct impl<Eigen::Block<MatT, R, C>, StateT, DataT> : boost::proto::transform_impl<Eigen::Block<MatT, R, C>, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator ()(Eigen::Block<MatT, R, C> expr, typename impl::state_param, typename impl::data_param) const
+    {
+      expr.setIdentity();
+    }
+  };
+};
+
 /// Placeholders to indicate if we should get a row or a column
 struct RowTag
 {
@@ -455,6 +522,34 @@ struct ComputeNorm :
     result_type operator ()(const MatrixT& expr, typename impl::state_param, typename impl::data_param) const
     {
       return expr.norm();
+    }
+  };
+};
+
+struct LumpTag
+{
+};
+
+static boost::proto::terminal<LumpTag>::type const lump = {};
+
+/// Lump the matrix
+struct Lump :
+  boost::proto::transform< Lump >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    template<typename MatrixT>
+    result_type operator ()(const MatrixT& mat, typename impl::state_param, typename impl::data_param) const
+    {
+      for(Uint i = 0; i != MatrixT::RowsAtCompileTime; ++i)
+      {
+        const Real rowsum = mat.row(i).sum();
+        const_cast<MatrixT&>(mat).row(i).setZero();
+        const_cast<MatrixT&>(mat)(i,i) = rowsum;
+      }
     }
   };
 };
@@ -515,11 +610,31 @@ struct EigenMath :
       boost::proto::assign<GrammarT, boost::proto::terminal<ZeroTag> >,
       SetZero(GrammarT(boost::proto::_left))
     >,
-    // Norm calculation
     boost::proto::when
     <
-      boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
-      ComputeNorm(GrammarT(boost::proto::_right))
+      boost::proto::assign<GrammarT, boost::proto::terminal<IdentityTag> >,
+      SetIdentity(GrammarT(boost::proto::_left))
+    >,
+    boost::proto::or_
+    <
+        // Norm calculation
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<NormTag>, boost::proto::_>,
+          ComputeNorm(GrammarT(boost::proto::_right))
+        >,
+        // Row-sum lumping
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<LumpTag>, boost::proto::_>,
+          Lump(GrammarT(boost::proto::_right))
+        >,
+        // Diagonal extraction
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<ExtractDiagTag>, boost::proto::_>,
+          ExtractDiag(GrammarT(boost::proto::_right))
+        >
     >,
     MathOpDefault<GrammarT>
   >

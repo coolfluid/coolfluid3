@@ -53,10 +53,12 @@ LinEuler2D::LinEuler2D( const std::string& name ) :
 {
   options().add("gamma",m_gamma)
       .description("Specific heat reatio")
+      .mark_basic()
       .link_to(&m_gamma);
 
   options().add("rho0",m_rho0)
       .description("Uniform mean density")
+      .mark_basic()
       .link_to(&m_rho0);
 
   std::vector<Real> U0(m_u0.size());
@@ -64,9 +66,11 @@ LinEuler2D::LinEuler2D( const std::string& name ) :
   U0[YY] = m_u0[YY];
   options().add("U0",U0)
       .description("Uniform mean velocity")
+      .mark_basic()
       .attach_trigger( boost::bind( &LinEuler2D::config_mean_velocity, this) );
 
   options().add("P0",m_P0)
+      .mark_basic()
       .description("Uniform mean pressure")
       .link_to(&m_P0);
 }

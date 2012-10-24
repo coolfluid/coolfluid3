@@ -11,7 +11,7 @@
 //#include <QDir>
 
 #include <ctime>
-
+#include <iostream>
 #include "coolfluid-config.hpp"
 #if defined CF3_OS_LINUX || defined CF3_OS_MACOSX // if we are on a POSIX system...
   #include <pwd.h> // for getpwuid()
@@ -281,7 +281,11 @@ void CCore::read_dir(SignalArgs & args)
     directory = dirPath;
 
   // get the absolute path
+<<<<<<< HEAD
   directory = boost::filesystem::complete(directory).string();
+=======
+  directory = boost::filesystem::absolute(directory).string();
+>>>>>>> 2d5fade43a7a7d562c6b9f028fed34f2cc0fc159
 //  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
@@ -339,7 +343,11 @@ void CCore::read_special_dir(SignalArgs & args)
                          "Unknown special directory [" + directory + "]." );
 
   // get the absolute path
+#if BOOST_FILESYSTEM_VERSION == 3
+  directory = boost::filesystem::absolute(directory).string();
+#else
   directory = boost::filesystem::complete(directory).string();
+#endif
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!

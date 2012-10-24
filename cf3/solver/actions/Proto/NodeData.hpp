@@ -14,6 +14,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"
+#include <common/Core.hpp>
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -25,6 +26,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 
+#include "FieldSync.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -86,8 +88,10 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::Dictionary& dict =  mesh.geometry_fields();
-  return common::find_component_with_tag<mesh::Field>(dict, tag);
+  Handle<mesh::Dictionary> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+  if(is_null(dict))
+    dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+  return common::find_component_with_tag<mesh::Field>(*dict, tag);
 }
 
 template<>
@@ -108,12 +112,16 @@ struct NodeVarData< ScalarField >
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
   }
-  
+
   ~NodeVarData()
   {
-    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
     {
-      m_field.synchronize();
+      const Uint my_sync = m_need_synchronization ? 1 : 0;
+      Uint global_sync = 0;
+      common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
+      if(global_sync != 0)
+        FieldSynchronizer::instance().insert(m_field);
     }
   }
 
@@ -191,12 +199,16 @@ struct NodeVarData<VectorField, Dim>
     offset = descriptor.offset(placeholder.name());
     nb_dofs = descriptor.size();
   }
-  
+
   ~NodeVarData()
   {
-    if(m_need_synchronization && common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
     {
-      m_field.synchronize();
+      const Uint my_sync = m_need_synchronization ? 1 : 0;
+      Uint global_sync = 0;
+      common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
+      if(global_sync != 0)
+        FieldSynchronizer::instance().insert(m_field);
     }
   }
 
@@ -239,6 +251,27 @@ struct NodeVarData<VectorField, Dim>
     m_value -= v;
     for(Uint i = 0; i != Dim; ++i)
       m_field[m_idx][m_var_begin + i] -= v[i];
+  }
+
+  void set_value_component(boost::proto::tag::assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] = v;
+    m_field[m_idx][m_var_begin + i] = v;
+  }
+
+  void set_value_component(boost::proto::tag::plus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] += v;
+    m_field[m_idx][m_var_begin + i] += v;
+  }
+
+  void set_value_component(boost::proto::tag::minus_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] -= v;
+    m_field[m_idx][m_var_begin + i] -= v;
   }
 
   /// Offset for the variable in the field

@@ -104,13 +104,13 @@ public: // functions
   /// const access to the LoopOperation
   virtual const LoopOperation& action(const std::string& name = ActionT::type_name()) const
   {
-    return *m_action->handle<LoopOperation>();
+    return *m_action->template handle<LoopOperation>();
   }
 
   /// non-const access to the LoopOperation
   virtual LoopOperation& action(const std::string& name = ActionT::type_name())
   {
-    return *m_action->handle<LoopOperation>();
+    return *m_action->template handle<LoopOperation>();
   }
 
   /// Execute the loop for all elements

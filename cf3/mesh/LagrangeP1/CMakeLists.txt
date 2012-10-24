@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_lagrangep1_files
   Line2D.cpp
   Line3D.hpp
   Line3D.cpp
+  Point.hpp
+  Point.cpp
   Quad.hpp
   Quad.cpp
   Quad2D.hpp

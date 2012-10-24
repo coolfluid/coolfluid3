@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
@@ -16,18 +17,20 @@
 
 #include "physics/PhysModel.hpp"
 
+#include "solver/LibSolver.hpp"
 #include "solver/Time.hpp"
 #include "solver/ActionDirector.hpp"
 #include "solver/Solver.hpp"
 #include "solver/Tags.hpp"
 
+namespace cf3 {
+  common::ComponentBuilder < solver::ActionDirector, common::ActionDirector, solver::LibSolver > SolverActionDirector_Builder;
+namespace solver {
+
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-
-namespace cf3 {
-namespace solver {
-
+  
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ActionDirector::ActionDirector ( const std::string& name ) :

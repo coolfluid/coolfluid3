@@ -73,6 +73,8 @@ lss.Matrix.settings_file = sys.argv[2]
 
 u_in = [2., 0.]
 
+solver.create_fields()
+
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
 ic_visc.value = ['10. + 2*sin(2/pi*x)']

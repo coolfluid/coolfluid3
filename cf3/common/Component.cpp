@@ -176,7 +176,16 @@ Component::Component ( const std::string& name ) :
       .hidden(true)
       .pretty_name("Store Timings")
       .description("Store calculated timing information into properties timer_mean, timer_minimum and timer_maximum for the tree starting at this component");
-
+      
+  regist_signal( "clear" )
+      .connect( boost::bind( &Component::signal_clear, this, _1 ) )
+      .description("Removes all sub-components, except for the static ones")
+      .pretty_name("Clear");
+      
+  regist_signal( "reset_options" )
+      .connect( boost::bind( &Component::signal_reset_options, this, _1 ) )
+      .description("Sets all options of this component to their default value")
+      .pretty_name("Reset Options");
 
   // properties
 
@@ -387,6 +396,23 @@ boost::shared_ptr<Component> Component::remove_component ( const std::string& na
 boost::shared_ptr<Component> Component::remove_component ( Component& subcomp )
 {
   return remove_component(subcomp.name());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void Component::clear()
+{
+  std::vector<std::string> child_names;
+  BOOST_FOREACH(const Component& child, *this)
+  {
+    if(!child.has_tag(Tags::static_component()))
+      child_names.push_back(child.name());
+  }
+
+  BOOST_FOREACH(const std::string& name, child_names)
+  {
+    remove_component(name);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -801,6 +827,16 @@ const OptionList& Component::options() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void Component::reset_options()
+{
+  for(OptionList::iterator opt_it = options().begin(); opt_it != options().end(); ++opt_it)
+  {
+    opt_it->second->restore_default();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
@@ -1046,6 +1082,19 @@ void Component::signal_store_timings ( SignalArgs& args )
   store_timings(*this);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_clear ( SignalArgs& args )
+{
+  clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_reset_options ( SignalArgs& args )
+{
+  reset_options();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

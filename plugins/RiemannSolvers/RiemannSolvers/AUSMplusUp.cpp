@@ -115,7 +115,7 @@ Real AUSMplusUp::M1(Real Mach, char chsign)
         sign = -1.;
         break;
       default:
-        std::cout << "sign M1 is unknown \n";
+        CFinfo << "sign M1 is unknown" << CFendl;
       }
     return 0.5*(Mach + sign*abs(Mach));
 }
@@ -131,7 +131,7 @@ Real AUSMplusUp::M2(Real Mach, char chsign)
         sign = -1.;
         break;
       default:
-        std::cout << "sign M1 is unknown \n";
+        CFinfo << "sign M1 is unknown"<<CFendl;
       }
     return sign*0.25*(Mach + sign*1.)*(Mach + sign*1.);
 }
@@ -149,7 +149,7 @@ Real AUSMplusUp::M4(Real Mach, char chsign)
         sign = -1.;
         break;
       default:
-        std::cout << "sign M1 is unknown \n";
+        CFinfo << "sign M1 is unknown" << CFendl;
       }
     return abs(Mach) >= 1. ? M1(Mach, chsign) : M2(Mach, chsign)*(1.-sign*16. * m_Beta * M2(Mach, invchsign));
 }
@@ -167,7 +167,7 @@ Real AUSMplusUp::P5(Real Mach, Real alpha, char chsign)
         sign = -1.;
         break;
       default:
-        std::cout << "sign M1 is unknown \n";
+        CFinfo << "sign M1 is unknown "<<CFendl;
       }
 
     return abs(Mach) >= 1. ? 1./Mach*M1(Mach, chsign) : M2(Mach, chsign)*((sign*2.-Mach)-sign*16.*alpha*Mach*M2(Mach, invchsign));

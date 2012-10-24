@@ -37,7 +37,8 @@ coolfluid_add_test( UTEST utest-ufem-buildsparsity
 coolfluid_add_test( UTEST utest-scalar-advection
                     CPP utest-scalar-advection.cpp
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem)
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem
+                    MPI 1)
 
 coolfluid_add_test( UTEST utest-rdm-merge
                     CPP utest-rdm-merge.cpp
@@ -47,8 +48,8 @@ coolfluid_add_test( UTEST utest-rdm-merge
 
 coolfluid_add_test( UTEST utest-proto-ns-assembly
                     CPP utest-proto-ns-assembly.cpp
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver)
-set_source_files_properties(utest-proto-ns-assembly.cpp PROPERTIES COMPILE_FLAGS "-g0")
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_solver coolfluid_ufem
+                    MPI 1)
 
 coolfluid_add_test( UTEST utest-neumann
                     CPP utest-neumann.cpp
@@ -61,6 +62,10 @@ set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
 
 set( UFEM_LSS_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
+
+coolfluid_add_test( ATEST atest-ufem-heat1d-P2
+                    PYTHON atest-ufem-heat1d-P2.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 
 coolfluid_add_test( ATEST atest-ufem-heat2d-disk
                     PYTHON atest-ufem-heat2d-disk.py
@@ -81,15 +86,20 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     MPI 1)
 
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d_satm
-                    PYTHON atest-ufem-navier-stokes-cylinder2d_satm.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
-                    MPI 1)
-
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                     MPI 2)
+
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
+                    PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    MPI 1)
+
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d
+                    PYTHON atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                    MPI 1)
 
 coolfluid_add_test( ATEST atest-quadtriag
                     PYTHON atest-quadtriag.py
@@ -101,6 +111,10 @@ coolfluid_add_test( ATEST atest-flatplate2d-laminar
 
 coolfluid_add_test( ATEST atest-flatplate2d-scalar
                     PYTHON atest-flatplate2d-scalar.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
+coolfluid_add_test( ATEST atest-flatplate2d-scalar-neumann
+                    PYTHON atest-flatplate2d-scalar-neumann.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
 
 coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras

@@ -105,7 +105,7 @@ protected: // helper function
 //    CFinfo << "CHANGE ELEMS" << CFendl;
     //change_elements();
 
-    RDSolver& mysolver = *this->parent()->handle<CellTerm>()->solver().handle<RDSolver>();
+    RDSolver& mysolver = *this->parent()->template handle<CellTerm>()->solver().template handle<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
     dt      = mysolver.time_stepping().get_child("Time")->options().option("time_step").template value<Real>();

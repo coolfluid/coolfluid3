@@ -242,6 +242,9 @@ public: // functions
 
   /// Remove a (sub)component of this component
   boost::shared_ptr<Component> remove_component ( Component& subcomp );
+  
+  /// Remove all sub-components of this component, except for the static ones
+  void clear();
 
   /// Move this component to within another one
   /// @param to_parent will be the new parent of this component
@@ -281,6 +284,9 @@ public: // functions
 
   /// @return Returns a constant reference to the options list
   const OptionList& options() const;
+  
+  /// Reset all options to their default value
+  void reset_options();
 
   /// Configures one property recursevely through this component children,
   /// triggering its actions. If an option has the tag "norecurse" recursion is inhibited
@@ -360,6 +366,12 @@ public: // functions
   
   /// Signal to store the timings (if enabled) into properties, i.e. for readout from python or the GUI
   void signal_store_timings( SignalArgs& args );
+  
+  /// Signal to remove all sub-components
+  void signal_clear( SignalArgs& args );
+  
+  /// Signal to set all options to their default value
+  void signal_reset_options( SignalArgs& args );
 
   //@} END SIGNALS
 

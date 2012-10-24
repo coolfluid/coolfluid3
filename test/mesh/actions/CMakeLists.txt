@@ -26,3 +26,5 @@ coolfluid_add_test( UTEST utest-mesh-actions-rotate-translate
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1
                   )
 
+coolfluid_add_test( UTEST utest-mesh-actions-shortest-edge
+                    PYTHON utest-mesh-actions-shortest-edge.py )

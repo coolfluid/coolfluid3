@@ -31,6 +31,7 @@ public: // functions
 
 private:
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
+  void trigger();
 };
 
 } // UFEM

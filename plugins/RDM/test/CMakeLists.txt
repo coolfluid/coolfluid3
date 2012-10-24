@@ -35,7 +35,8 @@ coolfluid_add_test( ATEST     atest-rdm-linearadv3d
                     PYTHON    atest-rdm-linearadv3d.py )
 
 coolfluid_add_test( ATEST     atest-rdm-sinusbump
-                    PYTHON   atest-rdm-sinusbump.py )
+                    PYTHON    atest-rdm-sinusbump.py
+                    CONDITION FALSE) # Disabled since nobody maintains this atest
 
 coolfluid_add_test( ATEST     atest-rdm-ramp2d
                     PYTHON    atest-rdm-ramp2d.py )
