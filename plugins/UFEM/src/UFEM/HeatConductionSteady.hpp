@@ -11,6 +11,7 @@
 
 #include "LibUFEM.hpp"
 #include "LSSAction.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 
 namespace cf3 {
 
@@ -32,6 +33,8 @@ public: // functions
 private:
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
   void trigger();
+  Handle<solver::actions::Proto::ProtoAction> m_assembly;
+  Handle<solver::actions::Proto::ProtoAction> m_update;
 };
 
 } // UFEM
