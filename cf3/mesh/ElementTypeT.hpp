@@ -114,6 +114,51 @@ public: // functions
     jacobian = jacob;
   }
 
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,1>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,1>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,3,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
   virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const
   {
     return ETYPE::jacobian(mapped_coord,nodes);

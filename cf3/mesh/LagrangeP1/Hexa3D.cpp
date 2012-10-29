@@ -249,7 +249,8 @@ Real Hexa3D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Nodes
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Hexa3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template<>
+void Hexa3D::compute_jacobian<Hexa3D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   const Real xi = mapped_coord[KSI];
   const Real eta = mapped_coord[ETA];
