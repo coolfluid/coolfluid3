@@ -42,17 +42,17 @@ public:
   HeatConductionVirtualAssembly ( const std::string& name ) : solver::Action(name)
   {
   }
-  
+
   static std::string type_name () { return "HeatConductionVirtualAssembly"; }
-  
+
   virtual void execute()
   {
     typedef mesh::Integrators::GaussMappedCoords<2, GeoShape::TRIAG> GaussT;
-    
-    
+
+
     if(is_null(m_lss))
       throw common::SetupError(FromHere(), "LSS not set for " + uri().path());
-    
+
     BOOST_FOREACH(const Handle<mesh::Region>& region, m_loop_regions)
     {
       BOOST_FOREACH(const mesh::Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementType<mesh::LagrangeP1::Triag2D>()))
@@ -65,35 +65,38 @@ public:
         math::LSS::BlockAccumulator acc;
         const Uint nb_nodes = sf.nb_nodes();
         acc.resize(nb_nodes, 1);
-        RealMatrix gradient;
-        gradient.resize(sf.dimensionality(), nb_nodes);
-        RealMatrix jacobian;
-        jacobian.resize(sf.dimensionality(), sf.dimensionality());
+        RealMatrix jacobian_adj;
+        jacobian_adj.resize(sf.dimensionality(), sf.dimensionality());
         RealMatrix nodes;
         nodes.resize(nb_nodes, sf.dimensionality());
         RealMatrix nabla;
         nabla.resize(sf.dimensionality(), nb_nodes);
         
+        std::vector<RealMatrix> gauss_gradients(GaussT::nb_points, RealMatrix(sf.dimensionality(), nb_nodes));
+        for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
+        {
+          sf.compute_gradient(GaussT::instance().coords.col(gauss_idx), gauss_gradients[gauss_idx]);
+        }
+
         for(Uint i = 0; i != nb_elems; ++i)
         {
           acc.neighbour_indices(connectivity[i]);
           mesh::fill(nodes, coordinates, connectivity[i]);
           acc.reset();
-          
+
           for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
           {
-            sf.compute_gradient(GaussT::instance().coords.col(gauss_idx), gradient);
-            et.compute_jacobian(GaussT::instance().coords.col(gauss_idx), nodes, jacobian);
-            nabla.noalias() = jacobian.inverse()*gradient;
-            acc.mat.noalias() += GaussT::instance().weights[gauss_idx] * et.jacobian_determinant(GaussT::instance().coords.col(gauss_idx), nodes) * nabla.transpose()*nabla;
+            et.compute_jacobian_adjoint(GaussT::instance().coords.col(gauss_idx), nodes, jacobian_adj);
+            nabla.noalias() = jacobian_adj*gauss_gradients[gauss_idx];
+            acc.mat.noalias() += GaussT::instance().weights[gauss_idx] / et.jacobian_determinant(GaussT::instance().coords.col(gauss_idx), nodes) * nabla.transpose()*nabla;
           }
-            
+
           m_lss->add_values(acc);
         }
       }
     }
   }
-  
+
   Handle<math::LSS::System> m_lss;
 };
 
@@ -102,22 +105,22 @@ ComponentBuilder < HeatConductionVirtualAssembly, common::Component, LibUFEM > H
 HeatConductionVirtual::HeatConductionVirtual ( const std::string& name ) : LSSAction ( name )
 {
   set_solution_tag("heat_conduction_solution");
-  
+
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
-  
+
   create_component<ZeroLSS>("ZeroLSS");
   Handle<HeatConductionVirtualAssembly> assembly = create_component<HeatConductionVirtualAssembly>("Assembly");
-  
+
   Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
-  
+
   create_component<SolveLSS>("SolveLSS");
   create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(T += solution(T)));
-  
+
   configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
-  
+
   options().option("lss").link_to(&assembly->m_lss);
 }
 
