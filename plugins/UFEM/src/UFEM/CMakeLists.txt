@@ -26,8 +26,12 @@ list( APPEND coolfluid_ufem_files
   ComputeCFL.cpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
+  HeatConductionManual.hpp
+  HeatConductionManual.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
+  HeatConductionVirtual.hpp
+  HeatConductionVirtual.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
   HeatCouplingRobin.hpp
