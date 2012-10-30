@@ -65,6 +65,8 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  StokesSteady.hpp
+  StokesSteady.cpp
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
   SUPG.hpp
