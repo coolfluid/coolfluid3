@@ -120,7 +120,7 @@ public:
       {
         options.erase(name);
       }
-      common::Option& option = options.add(name, it->second);
+      common::Option& option = options.add(name, vec_proxy);
 
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
