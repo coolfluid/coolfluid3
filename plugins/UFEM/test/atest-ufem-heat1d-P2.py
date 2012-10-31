@@ -78,4 +78,4 @@ if have_pylab:
   pl.legend(loc = 'lower center')
   pl.xlabel('x')
   pl.ylabel('T')
-  pl.savefig('heat-p1-p2.pdf')
+  pl.savefig('heat-p1-p2.eps')

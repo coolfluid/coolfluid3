@@ -89,7 +89,13 @@ public:
     for(ConstantStorage::ScalarsT::iterator it = m_constant_values.m_scalars.begin(); it != m_constant_values.m_scalars.end(); ++it)
     {
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add(name, it->second);
+
+      if(options.check(name))
+      {
+        options.erase(name);
+      }
+
+      common::Option& option = options.add(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
       option.mark_basic();
@@ -109,7 +115,13 @@ public:
       }
 
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add(name, vec_proxy);
+
+      if(options.check(name))
+      {
+        options.erase(name);
+      }
+      common::Option& option = options.add(name, it->second);
+
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
