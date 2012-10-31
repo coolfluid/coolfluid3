@@ -8,6 +8,7 @@
 #include <boost/multi_array/storage_order.hpp>
 #include "common/BoostArray.hpp"
 
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/XML/Protocol.hpp"
 #include "common/XML/MultiArray.hpp"
@@ -16,6 +17,7 @@
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/QwtTab/Graph.hpp"
 #include "ui/QwtTab/NPlotXY.hpp"
+#include "ui/QwtTab/LibQwtTab.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +32,8 @@ namespace ui {
 namespace QwtTab {
 
 //////////////////////////////////////////////////////////////////////////////
+
+ComponentBuilder < NPlotXY, core::CNode, LibQwtTab > NPlotXY_builder;
 
 NPlotXY::NPlotXY(const std::string & name) :
     CNode( name, "PlotXY", CNode::STANDARD_NODE )
