@@ -55,7 +55,7 @@ public:
 
   /// Setup sparsity structure
   void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
-  
+
   void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs);
 
   /// Deallocate underlying data
@@ -107,6 +107,8 @@ public:
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
   void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values);
 
+  virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
+
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);
 
@@ -135,7 +137,7 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
-  
+
   void print_native(ostream& stream);
 
   /// Accessor to the state of create

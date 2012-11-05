@@ -121,8 +121,14 @@ void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq,
 
 void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
 {
-    // if already created
+  // if already created
   if (m_is_created) destroy();
+
+  // Copy node connectivity
+  m_node_connectivity.resize(node_connectivity.size());
+  m_starting_indices.resize(starting_indices.size());
+  std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
+  std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
 
   const Uint total_nb_eq = vars.size();
 
@@ -395,6 +401,61 @@ void TrilinosCrsMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagv
 void TrilinosCrsMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
 {
   throw common::NotImplemented(FromHere(), "get_column_and_replace_to_zero is not implemented for TrilinosCrsMatrix");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
+{
+  const int columns_begin = m_starting_indices[blockrow];
+  const int columns_end = m_starting_indices[blockrow+1];
+
+  int num_entries;
+  Real* extracted_values;
+  int* extracted_indices;
+
+  const Uint bc_col = m_p2m[blockrow*m_neq+ieq];
+
+  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  {
+    const int col = m_node_connectivity[col_idx];
+    const Uint other_row = m_p2m[col*m_neq+ieq];
+    if(other_row >= m_num_my_elements)
+      continue;
+
+    TRILINOS_THROW(m_mat->ExtractMyRowView(other_row, num_entries, extracted_values, extracted_indices));
+    const int nb_entries_const = num_entries;
+    Uint i;
+    if(other_row != bc_col)
+    {
+      for(i = 0; i != nb_entries_const; )
+      {
+        if(extracted_indices[i] == bc_col)
+        {
+          rhs.add_value(col, ieq, -extracted_values[i] * value);
+          extracted_values[i] = 0;
+          break;
+        }
+        ++i;
+      }
+      cf3_assert(i != num_entries);
+    }
+    else
+    {
+      for(i = 0; i != nb_entries_const; ++i)
+      {
+        if(extracted_indices[i] == bc_col)
+        {
+          extracted_values[i] = 1.;
+        }
+        else
+        {
+          extracted_values[i] = 0;
+        }
+      }
+    }
+  }
+  rhs.set_value(blockrow, ieq, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

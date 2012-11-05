@@ -567,6 +567,14 @@ void TrilinosFEVbrMatrix::get_column_and_replace_to_zero(const Uint iblockcol, U
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
+{
+  throw common::NotImplemented(FromHere(), "symmetric_dirichlet not implemented for TrilinosFEVbrMatrix");
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosFEVbrMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf3_assert(m_is_created);

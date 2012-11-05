@@ -106,6 +106,8 @@ public:
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
   void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values);
 
+  virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
+
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);
 
@@ -134,7 +136,7 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
-  
+
   void print_native(ostream& stream);
 
   /// Accessor to the state of create
@@ -182,6 +184,9 @@ private:
 
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
+
+  /// Copy of the connectivity data
+  std::vector<int> m_node_connectivity, m_starting_indices;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

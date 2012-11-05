@@ -57,7 +57,7 @@ public:
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
   virtual void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
-  
+
   /// Keep the equations for one variable together, forming big subsystems in the global matrix
   virtual void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
 
@@ -111,6 +111,11 @@ public:
   /// @attention by the definitiona of the compresssed sparse row matrices, this operation tends to be very heavy
   virtual void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values) = 0;
 
+  /// Apply a dirichlet boundary condition, preserving symmetry by moving entries to the RHS
+  /// @pre The matrix must be structurally symmetric
+  /// @warning Structural symmetry is not checked, incorrect results will appear if you use this on a non structurally symmetric matrix
+  virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, LSS::Vector& rhs) = 0;
+
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   virtual void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from) = 0;
 
@@ -139,7 +144,7 @@ public:
 
   /// Print to file given by filename
   virtual void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) = 0;
-  
+
   /// Use the native printing functionality of the matrix implementation
   virtual void print_native(std::ostream& stream) = 0;
 
