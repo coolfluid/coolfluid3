@@ -75,6 +75,12 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   // if already created
   if (m_is_created) destroy();
 
+  // Copy node connectivity
+  m_node_connectivity.resize(node_connectivity.size());
+  m_starting_indices.resize(starting_indices.size());
+  std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
+  std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
+
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
 
@@ -569,7 +575,63 @@ void TrilinosFEVbrMatrix::get_column_and_replace_to_zero(const Uint iblockcol, U
 
 void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
 {
-  throw common::NotImplemented(FromHere(), "symmetric_dirichlet not implemented for TrilinosFEVbrMatrix");
+  const int columns_begin = m_starting_indices[blockrow];
+  const int columns_end = m_starting_indices[blockrow+1];
+
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummy_neq;
+
+  const Uint bc_col = m_p2m[blockrow];
+
+  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  {
+    const int col = m_node_connectivity[col_idx];
+    const Uint other_row = m_p2m[col];
+    if(other_row >= m_blockrow_size)
+      continue;
+
+    TRILINOS_THROW(m_mat->ExtractMyBlockRowView(other_row,dummy_neq,blockrowsize,colindices,val));
+    const int nb_entries_const = blockrowsize;
+    Uint i;
+
+    for(i = 0; i != nb_entries_const; )
+    {
+      if(colindices[i] == bc_col)
+      {
+        for(int j = 0; j != m_neq; ++j)
+        {
+          rhs.add_value(col, j, -val[i][0](j, ieq) * value);
+          val[i][0](j, ieq) = 0;
+        }
+        break;
+      }
+      ++i;
+    }
+    
+    cf3_assert(i != nb_entries_const);
+    
+    if(other_row == bc_col)
+    {
+      for(i = 0; i != nb_entries_const; ++i)
+      {
+        if(colindices[i] == bc_col)
+        {
+          val[i][0](ieq, ieq) = 1.;
+        }
+        else
+        {
+          for(int j = 0; j != m_neq; ++j)
+          {
+            val[i][0](ieq, j) = 0;
+          }
+        }
+      }
+    }
+  }
+  
+  rhs.set_value(blockrow, ieq, value);
 }
 
 

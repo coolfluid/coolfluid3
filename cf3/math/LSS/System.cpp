@@ -197,16 +197,18 @@ void LSS::System::get_values(LSS::BlockAccumulator& values)
 void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry)
 {
   cf3_assert(is_created());
+  
   if (preserve_symmetry)
   {
-    std::vector<Real> v;
-    m_mat->get_column_and_replace_to_zero(iblockrow,ieq,v);
-    for (int i=0; i<(const int)v.size(); i++)
-      m_rhs->add_value(i,-v[i]*value);
+    m_mat->symmetric_dirichlet(iblockrow, ieq, value, *m_rhs);
   }
-  m_mat->set_row(iblockrow,ieq,1.,0.);
+  else
+  { 
+    m_mat->set_row(iblockrow,ieq,1.,0.);
+    m_rhs->set_value(iblockrow,ieq,value);
+  }
+  
   m_sol->set_value(iblockrow,ieq,value);
-  m_rhs->set_value(iblockrow,ieq,value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

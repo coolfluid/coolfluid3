@@ -419,42 +419,46 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
   for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
   {
     const int col = m_node_connectivity[col_idx];
-    const Uint other_row = m_p2m[col*m_neq+ieq];
-    if(other_row >= m_num_my_elements)
-      continue;
+    for(int j = 0; j != m_neq; ++j)
+    {
+      const Uint other_row = m_p2m[col*m_neq+j];
+      if(other_row >= m_num_my_elements)
+        continue;
 
-    TRILINOS_THROW(m_mat->ExtractMyRowView(other_row, num_entries, extracted_values, extracted_indices));
-    const int nb_entries_const = num_entries;
-    Uint i;
-    if(other_row != bc_col)
-    {
-      for(i = 0; i != nb_entries_const; )
+      TRILINOS_THROW(m_mat->ExtractMyRowView(other_row, num_entries, extracted_values, extracted_indices));
+      const int nb_entries_const = num_entries;
+      Uint i;
+      if(other_row != bc_col)
       {
-        if(extracted_indices[i] == bc_col)
+        for(i = 0; i != nb_entries_const; )
         {
-          rhs.add_value(col, ieq, -extracted_values[i] * value);
-          extracted_values[i] = 0;
-          break;
+          if(extracted_indices[i] == bc_col)
+          {
+            rhs.add_value(col, j, -extracted_values[i] * value);
+            extracted_values[i] = 0;
+            break;
+          }
+          ++i;
         }
-        ++i;
+        cf3_assert(i != nb_entries_const);
       }
-      cf3_assert(i != num_entries);
-    }
-    else
-    {
-      for(i = 0; i != nb_entries_const; ++i)
+      else
       {
-        if(extracted_indices[i] == bc_col)
+        for(i = 0; i != nb_entries_const; ++i)
         {
-          extracted_values[i] = 1.;
-        }
-        else
-        {
-          extracted_values[i] = 0;
+          if(extracted_indices[i] == bc_col)
+          {
+            extracted_values[i] = 1.;
+          }
+          else
+          {
+            extracted_values[i] = 0;
+          }
         }
       }
     }
   }
+  
   rhs.set_value(blockrow, ieq, value);
 }
 

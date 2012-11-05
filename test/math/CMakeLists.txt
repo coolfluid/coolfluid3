@@ -72,6 +72,8 @@ coolfluid_add_test( UTEST utest-lss-symmetric-dirichlet-crs
                     ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
                     MPI   2)
 
+add_test(utest-lss-symmetric-dirichlet-fevbr ${CF3_MPIRUN_PROGRAM} -np 2 utest-lss-symmetric-dirichlet-crs cf3.math.LSS.TrilinosFEVbrMatrix)
+
 else()
 coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp)
 endif()
