@@ -119,8 +119,6 @@ writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
 writer.enable_overlap = True
 writer.mesh = mesh
 
-
-
 while current_end_time < final_end_time:
   current_end_time += save_interval
   time.options().set('end_time', current_end_time)

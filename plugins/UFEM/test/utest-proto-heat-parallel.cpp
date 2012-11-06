@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   Model& model = *root.create_component<Model>("Model");
   Domain& domain = model.create_domain("Domain");
   UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
-  
+
   Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
 
   // Proto placeholders
@@ -146,9 +146,9 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   *blocks.create_patch("top", 1) << 2 << 3;
   *blocks.create_patch("left", 1) << 3 << 0;
 
-  blocks.partition_blocks(PE::Comm::instance().size(), XX);
+  blocks.partition_blocks(PE::Comm::instance().size(), YY);
   blocks.create_mesh(mesh);
-  
+
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
 
   lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

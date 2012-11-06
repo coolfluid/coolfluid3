@@ -609,28 +609,25 @@ void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ie
       }
       ++i;
     }
-    
+
     cf3_assert(i != nb_entries_const);
-    
+
     if(other_row == bc_col)
     {
       for(i = 0; i != nb_entries_const; ++i)
       {
+        for(int j = 0; j != m_neq; ++j)
+        {
+          val[i][0](ieq, j) = 0;
+        }
         if(colindices[i] == bc_col)
         {
           val[i][0](ieq, ieq) = 1.;
         }
-        else
-        {
-          for(int j = 0; j != m_neq; ++j)
-          {
-            val[i][0](ieq, j) = 0;
-          }
-        }
       }
     }
   }
-  
+
   rhs.set_value(blockrow, ieq, value);
 }
 
