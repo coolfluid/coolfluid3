@@ -191,6 +191,9 @@ private:
 
   /// Copy of the connectivity data
   std::vector<int> m_node_connectivity, m_starting_indices;
+
+  /// For each element of m_node_connectivity, indicate if the entry is kept in the matrix (used to build symmetric matrices keeping only the upper-diagonal)
+  std::vector<bool> m_keep_node;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

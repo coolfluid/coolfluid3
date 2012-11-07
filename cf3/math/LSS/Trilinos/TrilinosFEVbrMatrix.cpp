@@ -81,6 +81,28 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
   std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
 
+  // Symmetric matrix
+  const int nb_nodes = cp.isUpdatable().size();
+  m_keep_node.assign(m_node_connectivity.size(), true);
+//   for(int this_node = 0; this_node != nb_nodes; ++this_node)
+//   {
+//     const int this_node_begin = m_starting_indices[this_node];
+//     const int this_node_end = m_starting_indices[this_node+1];
+//     for(int i = this_node_begin; i != this_node_end; ++i)
+//     {
+//       const int other_node = m_node_connectivity[i];
+//       if(other_node == this_node || !m_keep_node[i])
+//         continue;
+//       const int other_node_begin = m_starting_indices[other_node];
+//       const int other_node_end = m_starting_indices[other_node+1];
+//       for(int j = other_node_begin; j != other_node_end; ++j)
+//       {
+//         if(m_node_connectivity[j] == this_node)
+//           m_keep_node[j] = false;
+//       }
+//     }
+//   }
+
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
 
@@ -133,10 +155,16 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
     {
-//      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=myglobalelements[m_p2m[node_connectivity[j]]];
-      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],(int)(starting_indices[i+1]-starting_indices[i]),&global_columns[0]));
+      int nb_added = 0;
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
+      {
+        if(m_keep_node[j])
+        {
+          global_columns[nb_added++]=myglobalelements[m_p2m[node_connectivity[j]]];
+        }
+      }
+      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],nb_added,&global_columns[0]));
+      for(int j=0; j<(const int)nb_added; j++)
         TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
       TRILINOS_THROW(m_mat->EndSubmitEntries());
     }
@@ -247,6 +275,8 @@ void TrilinosFEVbrMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
   cf3_assert(m_is_created);
   cf3_assert(solution.is_created());
   cf3_assert(rhs.is_created());
+
+
 
   // general setup phase
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
@@ -590,6 +620,21 @@ void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ie
     const int col = m_node_connectivity[col_idx];
     const Uint other_row = m_p2m[col];
     if(other_row >= m_blockrow_size)
+      continue;
+
+    const int other_cols_begin = m_starting_indices[col];
+    const int other_cols_end = m_starting_indices[col+1];
+    bool row_has_node = false;
+    for(int i = other_cols_begin; i != other_cols_end; ++i)
+    {
+      if(m_node_connectivity[i] == blockrow && m_keep_node[i])
+      {
+        row_has_node = true;
+        break;
+      }
+    }
+
+    if(!row_has_node)
       continue;
 
     TRILINOS_THROW(m_mat->ExtractMyBlockRowView(other_row,dummy_neq,blockrowsize,colindices,val));
