@@ -125,6 +125,8 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 
   FieldVariable<0, ScalarField > temperature("Temperature", "solution");
 
+  for_each_node(mesh->topology(), temperature = 5.);
+
   RealVector1 mapped_coords;
   mapped_coords.setZero();
 
@@ -145,6 +147,17 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
     boost::proto::lit(result) = integral<1>(transpose(nabla(temperature))*nabla(temperature)) * 0.5
   );
 
+  check_close(result, exact, 1e-10);
+
+  result.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  (
+    mesh->topology(),
+    element_quadrature( boost::proto::lit(result) += transpose(N(temperature))*N(temperature) * (1. / temperature) * boost::proto::lit(3.) )
+  );
+
+  exact << 0.2, 0.1, 0.1, 0.2;
   check_close(result, exact, 1e-10);
 }
 
