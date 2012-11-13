@@ -78,6 +78,11 @@ else()
 coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp)
 endif()
 
+coolfluid_add_test( UTEST utest-lss-solvelss
+                    CPP   utest-lss-solvelss.cpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    MPI   1 )
+
 ################################################################################
 
 #if( CMAKE_COMPILER_IS_GNUCC )

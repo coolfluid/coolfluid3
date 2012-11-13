@@ -9,10 +9,16 @@ list( APPEND coolfluid_math_lss_files
   Vector.hpp
   BlockAccumulator.hpp
   SolutionStrategy.hpp
+  SolveLSS.hpp
+  SolveLSS.cpp
+  ZeroLSS.hpp
+  ZeroLSS.cpp
   EmptyLSS/EmptyLSSVector.hpp
   EmptyLSS/EmptyLSSVector.cpp
   EmptyLSS/EmptyLSSMatrix.hpp
   EmptyLSS/EmptyLSSMatrix.cpp
+  EmptyLSS/EmptyStrategy.hpp
+  EmptyLSS/EmptyStrategy.cpp
 )
 
 list( APPEND coolfluid_math_lss_libs coolfluid_math coolfluid_common )
