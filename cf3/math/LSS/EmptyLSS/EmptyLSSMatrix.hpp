@@ -97,15 +97,6 @@ public:
 
   //@} END INDIVIDUAL ACCESS
 
-  /// @name SOLVE THE SYSTEM
-  //@{
-
-  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
-  /// We bow on our knees before your greatness.
-  void solve(LSS::Vector& solution, LSS::Vector& rhs) { cf3_assert(m_is_created); }
-
-  //@} END SOLVE THE SYSTEM
-
   /// @name EFFICCIENT ACCESS
   //@{
 

@@ -18,6 +18,8 @@
 #include "math/LSS/Vector.hpp"
 #include "math/LSS/Matrix.hpp"
 
+#include "ThyraOperator.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,7 +37,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosCrsMatrix : public LSS::Matrix {
+class LSS_API TrilinosCrsMatrix : public LSS::Matrix, public ThyraOperator {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -75,15 +77,6 @@ public:
   void get_value(const Uint icol, const Uint irow, Real& value);
 
   //@} END INDIVIDUAL ACCESS
-
-  /// @name SOLVE THE SYSTEM
-  //@{
-
-  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
-  /// We bow on our knees before your greatness.
-  void solve(LSS::Vector& solution, LSS::Vector& rhs);
-
-  //@} END SOLVE THE SYSTEM
 
   /// @name EFFICCIENT ACCESS
   //@{
@@ -161,6 +154,9 @@ public:
   void debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
 
   //@} END TEST ONLY
+  
+  virtual Teuchos::RCP< const Thyra::LinearOpBase< Real > > thyra_operator() const;
+  virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
 
 private:
 

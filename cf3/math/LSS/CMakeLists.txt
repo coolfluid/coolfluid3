@@ -8,6 +8,7 @@ list( APPEND coolfluid_math_lss_files
   Matrix.hpp
   Vector.hpp
   BlockAccumulator.hpp
+  SolutionStrategy.hpp
   EmptyLSS/EmptyLSSVector.hpp
   EmptyLSS/EmptyLSSVector.cpp
   EmptyLSS/EmptyLSSMatrix.hpp
@@ -17,12 +18,21 @@ list( APPEND coolfluid_math_lss_files
 list( APPEND coolfluid_math_lss_libs coolfluid_math coolfluid_common )
 
 list( APPEND coolfluid_math_lss_trilinos_files
+    Trilinos/BelosGMRESParameters.hpp
+    Trilinos/BelosGMRESParameters.cpp
+    Trilinos/ParameterList.hpp
+    Trilinos/ParameterList.cpp
+    Trilinos/ParameterListDefaults.hpp
+    Trilinos/ThyraMultiVector.hpp
+    Trilinos/ThyraOperator.hpp
     Trilinos/TrilinosCrsMatrix.hpp
     Trilinos/TrilinosCrsMatrix.cpp
     Trilinos/TrilinosDetail.hpp
     Trilinos/TrilinosDetail.cpp
     Trilinos/TrilinosFEVbrMatrix.hpp
     Trilinos/TrilinosFEVbrMatrix.cpp
+    Trilinos/TrilinosStratimikosStrategy.hpp
+    Trilinos/TrilinosStratimikosStrategy.cpp
     Trilinos/TrilinosVector.hpp
     Trilinos/TrilinosVector.cpp
 )

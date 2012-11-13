@@ -80,15 +80,6 @@ public:
 
   //@} END INDIVIDUAL ACCESS
 
-  /// @name SOLVE THE SYSTEM
-  //@{
-
-  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
-  /// We bow on our knees before your greatness.
-  virtual void solve(LSS::Vector& solution, LSS::Vector& rhs) = 0;
-
-  //@} END SOLVE THE SYSTEM
-
   /// @name EFFICCIENT ACCESS
   //@{
 

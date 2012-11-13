@@ -181,9 +181,6 @@ BOOST_AUTO_TEST_CASE( check_emptylss_implementations )
   build_input_data();
   build_system();
 
-  BOOST_TEST_CHECKPOINT( "solve" );
-  sys->solve();
-
   BOOST_TEST_CHECKPOINT( "get_values" );
   ba.reset(1.0);
   sys->get_values(ba);
@@ -258,17 +255,11 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
   sys2->rhs()->rename("RHS2");
   sys2->solution()->rename("Solution2");
 
-  sys->swap(sys2->matrix(),sys->solution(),sys->rhs());
-  BOOST_CHECK_EQUAL(sys->matrix()->name(),"Matrix2");
-  BOOST_CHECK_EQUAL(sys->solution()->name(),"Solution");
-  BOOST_CHECK_EQUAL(sys->rhs()->name(),"RHS");
-
-  sys->swap(sys->matrix(),sys2->solution(),sys->rhs());
-  BOOST_CHECK_EQUAL(sys->matrix()->name(),"Matrix2");
-  BOOST_CHECK_EQUAL(sys->solution()->name(),"Solution2");
-  BOOST_CHECK_EQUAL(sys->rhs()->name(),"RHS");
-
-  sys->swap(sys->matrix(),sys->solution(),sys2->rhs());
+  boost::shared_ptr<Matrix> sw_mat = boost::dynamic_pointer_cast<Matrix>(sys2->remove_component("Matrix2"));
+  boost::shared_ptr<Vector> sw_sol = boost::dynamic_pointer_cast<Vector>(sys2->remove_component("Solution2"));
+  boost::shared_ptr<Vector> sw_rhs = boost::dynamic_pointer_cast<Vector>(sys2->remove_component("RHS2"));
+  
+  sys->swap(sw_mat, sw_sol, sw_rhs);
   BOOST_CHECK_EQUAL(sys->matrix()->name(),"Matrix2");
   BOOST_CHECK_EQUAL(sys->solution()->name(),"Solution2");
   BOOST_CHECK_EQUAL(sys->rhs()->name(),"RHS2");
