@@ -62,6 +62,7 @@ struct HeatSpecialized
 
 static solver::actions::Proto::MakeSFOp<HeatSpecialized>::type const heat_specialized = {};
 
+HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), heat_cond("heat_conductivity")
 {
   options().add("heat_space_name", "geometry")
     .pretty_name("Heat Space Name")
