@@ -98,13 +98,6 @@ blocks.create_mesh(mesh.uri())
 nstokes.options().set('regions', [mesh.access_component('topology').uri()])
 scalaradv.options().set('regions', [mesh.access_component('topology').uri()])
 
-# LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-#LSS for scalar advection
-sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-sa_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-
 u_in = [1., 0.]
 u_wall = [0., 0.]
 phi_in = 100

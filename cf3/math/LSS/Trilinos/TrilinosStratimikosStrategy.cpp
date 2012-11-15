@@ -61,21 +61,25 @@ struct TrilinosStratimikosStrategy::Implementation
     m_self.options().add("verbosity_level", 1)
       .pretty_name("Verbosity Level")
       .description("Verbosity level for the solver")
-      .attach_trigger(boost::bind(&Implementation::trigger_verbosity, this));
+      .attach_trigger(boost::bind(&Implementation::trigger_verbosity, this))
+      .mark_basic();
 
     m_self.options().add("compute_residual", false)
       .pretty_name("Compute Residual")
-      .description("Indicate if the residual should be computed. This incurs storage of an extra vector and an extra matrix application after each solve");
+      .description("Indicate if the residual should be computed. This incurs storage of an extra vector and an extra matrix application after each solve")
+      .mark_basic();
 
     m_self.options().add("print_settings", true)
       .pretty_name("Print Settings")
-      .description("Print out the solver settings upon first solve");
+      .description("Print out the solver settings upon first solve")
+      .mark_basic();
       
     m_self.options().add("settings_file", common::URI("", cf3::common::URI::Scheme::FILE))
       .supported_protocol(cf3::common::URI::Scheme::FILE)
       .pretty_name("Settings File")
       .description("If set, the settings will initially be read from this file")
-      .attach_trigger(boost::bind(&Implementation::trigger_settings_file, this));
+      .attach_trigger(boost::bind(&Implementation::trigger_settings_file, this))
+      .mark_basic();
   }
 
   void trigger_verbosity()

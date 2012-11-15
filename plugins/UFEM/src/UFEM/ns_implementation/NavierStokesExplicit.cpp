@@ -19,8 +19,8 @@
 #include "common/PropertyList.hpp"
 
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -158,7 +158,7 @@ void NavierStokesExplicit::trigger_assembly()
     m_velocity_lss->set_solution_tag("navier_stokes_u_solution");
     m_velocity_lss->mark_basic();
 
-    m_velocity_lss->create_component<ZeroLSS>("ZeroLSS");
+    m_velocity_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
 
     m_velocity_lss->add_component(bc_u);
 
@@ -168,7 +168,7 @@ void NavierStokesExplicit::trigger_assembly()
     set_tetra_implicit_u_assembly();
 
     m_velocity_lss->add_link(*bc_u);
-    m_velocity_lss->create_component<SolveLSS>("SolveVelocityLSS");
+    m_velocity_lss->create_component<math::LSS::SolveLSS>("SolveVelocityLSS");
 
     // Update variables needed for the pressure system
     m_velocity_lss->add_component(create_proto_action("SetPressureInput", nodes_expression
@@ -176,7 +176,7 @@ void NavierStokesExplicit::trigger_assembly()
       delta_a_star = m_velocity_lss->solution(u)
     )));
 
-    Handle<Component> reset_rhs = m_velocity_lss->create_component<ZeroLSS>("ZeroVelocityRHS");
+    Handle<Component> reset_rhs = m_velocity_lss->create_component<math::LSS::ZeroLSS>("ZeroVelocityRHS");
     reset_rhs->options().set("reset_matrix", false);
     reset_rhs->options().set("reset_solution", false);
   }
@@ -186,7 +186,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_pressure_lss->mark_basic();
 
   // Set the pressure LSS to zero
-  m_pressure_lss->create_component<ZeroLSS>("ZeroLSS");
+  m_pressure_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
 
   // Assembly of the pressure LSS
   set_triag_p_assembly();
@@ -200,7 +200,7 @@ void NavierStokesExplicit::trigger_assembly()
   bc_p->set_solution_tag("navier_stokes_p_solution");
 
   // Solution of the system
-  m_pressure_lss->create_component<SolveLSS>("SolvePressureLSS");
+  m_pressure_lss->create_component<math::LSS::SolveLSS>("SolvePressureLSS");
 
   // Update deltap
   m_inner_loop->add_component(create_proto_action("SetDeltaP", nodes_expression(delta_p = m_pressure_lss->solution(p))));

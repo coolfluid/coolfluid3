@@ -67,10 +67,6 @@ blocks.create_mesh(mesh.uri())
 
 ns_solver.regions = [mesh.topology.uri()]
 
-# lss setup
-lss = ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.Matrix.settings_file = sys.argv[2]
-
 u_in = [2., 0.]
 
 solver.create_fields()

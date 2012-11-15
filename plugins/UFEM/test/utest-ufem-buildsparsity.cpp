@@ -32,7 +32,7 @@
 #include "UFEM/Solver.hpp"
 #include "UFEM/SparsityBuilder.hpp"
 #include "UFEM/Tags.hpp"
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       )
     )
     << allocate_component<UFEM::BoundaryConditions>("BoundaryConditions")
-    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+    << allocate_component<math::LSS::SolveLSS>("SolveLSS")
     << create_proto_action("Increment", nodes_expression(temperature += lss_action->solution(temperature)))
     << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"));
 

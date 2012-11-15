@@ -14,8 +14,8 @@
 #include "mesh/LagrangeP2/LibLagrangeP2.hpp"
 #include "mesh/LagrangeP1/LibLagrangeP1.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
@@ -42,7 +42,7 @@ StokesSteady::StokesSteady ( const std::string& name ) : LSSAction ( name )
   FieldVariable<0, ScalarField> p("pressure", "stokes_solution");
   FieldVariable<1, VectorField> u("velocity", "stokes_solution");
 
-  create_component<ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
   
   add_component(create_proto_action("Assembly", elements_expression
   (
@@ -65,7 +65,7 @@ StokesSteady::StokesSteady ( const std::string& name ) : LSSAction ( name )
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
 
-  create_component<SolveLSS>("SolveLSS");
+  create_component<math::LSS::SolveLSS>("SolveLSS");
   
   add_component(create_proto_action("SetSolution", nodes_expression(group(p = solution(p), u = solution(u)))));
 }

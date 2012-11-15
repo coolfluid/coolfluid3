@@ -14,8 +14,8 @@
 #include "mesh/LagrangeP2/LibLagrangeP2.hpp"
 #include "mesh/LagrangeP1/LibLagrangeP1.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
@@ -74,14 +74,14 @@ HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSActi
 
   set_solution_tag("heat_conduction_solution");
 
-  create_component<ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
   m_assembly = create_component<ProtoAction>("Assembly");
 
   Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
 
-  create_component<SolveLSS>("SolveLSS");
+  create_component<math::LSS::SolveLSS>("SolveLSS");
   m_update = create_component<ProtoAction>("SetSolution");
 
   trigger();

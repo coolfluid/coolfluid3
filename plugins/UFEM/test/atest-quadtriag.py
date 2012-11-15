@@ -18,10 +18,6 @@ mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 hc.options().set('regions', [mesh.access_component('topology').uri()])
 hc.children.SetSolution.options.relaxation_factor_hc = 1.
 
-# lss setup
-lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.get_child('Matrix').options().set('settings_file', sys.argv[2]);
-
 # Boundary conditions
 bc = hc.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', 10)

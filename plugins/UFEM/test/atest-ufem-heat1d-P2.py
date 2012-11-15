@@ -46,9 +46,6 @@ def run_simulation(sf_name):
   # Set the region for the simulation
   hc.regions = [mesh.topology.uri()]
   ic_heat.regions = hc.regions
-  # lss setup
-  lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-  lss.Matrix.settings_file = sys.argv[1];
 
   # Boundary conditions
   bc = hc.BoundaryConditions

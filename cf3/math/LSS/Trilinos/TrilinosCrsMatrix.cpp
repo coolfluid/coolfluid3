@@ -101,7 +101,6 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
   m_comm(common::PE::Comm::instance().communicator())
 {
   properties().add("vector_type", std::string("cf3.math.LSS.TrilinosVector"));
-  options().add( "settings_file", "trilinos_settings.xml" ).mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -101,6 +101,7 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
   m_solution_strategy->set_matrix(m_mat);
   m_solution_strategy->set_solution(m_sol);
   m_solution_strategy->set_rhs(m_rhs);
+  m_solution_strategy->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +133,7 @@ void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDes
   m_solution_strategy->set_matrix(m_mat);
   m_solution_strategy->set_solution(m_sol);
   m_solution_strategy->set_rhs(m_rhs);
+  m_solution_strategy->mark_basic();
 }
 
 

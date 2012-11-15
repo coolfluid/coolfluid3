@@ -16,8 +16,8 @@
 #include "mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "mesh/ShapeFunction.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
@@ -109,14 +109,14 @@ HeatConductionVirtual::HeatConductionVirtual ( const std::string& name ) : LSSAc
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
 
-  create_component<ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
   Handle<HeatConductionVirtualAssembly> assembly = create_component<HeatConductionVirtualAssembly>("Assembly");
 
   Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
 
-  create_component<SolveLSS>("SolveLSS");
+  create_component<math::LSS::SolveLSS>("SolveLSS");
   create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(T += solution(T)));
 
   configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
