@@ -23,6 +23,8 @@
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
 
+#include "NavierStokesPhysics.hpp"
+
 namespace cf3 {
 namespace UFEM {
 
@@ -60,7 +62,6 @@ struct HeatSpecialized
 
 static solver::actions::Proto::MakeSFOp<HeatSpecialized>::type const heat_specialized = {};
 
-HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name )
 {
   options().add("heat_space_name", "geometry")
     .pretty_name("Heat Space Name")
@@ -94,7 +95,7 @@ void HeatConductionSteady::trigger()
   const bool use_specializations = options().option("use_specializations").value<bool>();
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
-  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 0.5);
+  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 0.1);
 
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());
@@ -118,7 +119,7 @@ void HeatConductionSteady::trigger()
         ),
         specialized_elements(heat_specialized(T, k, _A(T))),
         system_matrix +=  _A,
-        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q) * heat_cond
       )
     ));
   }

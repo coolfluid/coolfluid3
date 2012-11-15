@@ -130,7 +130,7 @@ bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().
 bc.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().set('value', phi_in)
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().set('value', phi_in)
 bc_wall_flux = bc.create_bc_action(region_name = 'bottom1', builder_name = 'cf3.UFEM.BCNeumannConstant')
-bc_wall_flux.set_tags(neumann_field = '', neumann_variable = 'Scalar')
+bc_wall_flux.set_tags(neumann_field = 'scalar_advection_solution', neumann_variable = 'Scalar')
 
 
 # Time setup
