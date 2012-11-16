@@ -104,7 +104,10 @@ struct TrilinosStratimikosStrategy::Implementation
       return;
     }
     
-    Teuchos::updateParametersFromXmlFile(settings_path, m_parameter_list.ptr());
+    m_parameter_list = Teuchos::getParametersFromXmlFile(settings_path);
+    m_linear_solver_builder.setParameterList(m_parameter_list);
+    
+    setup_solver();
   }
 
   void setup_solver()
