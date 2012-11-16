@@ -1,4 +1,3 @@
-
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
@@ -43,10 +42,10 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
-void NavierStokesExplicit::set_hexa_p_assembly()
+void NavierStokesExplicit::set_triag_p_rhs_assembly()
 {
-#ifdef CF3_UFEM_ENABLE_HEXAS
-  set_pressure_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Hexa3D> >("Hexas");
+#ifdef CF3_UFEM_ENABLE_TRIAGS
+  set_pressure_rhs_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags");
 #endif
 }
 

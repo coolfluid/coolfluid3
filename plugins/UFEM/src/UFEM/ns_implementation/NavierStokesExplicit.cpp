@@ -103,7 +103,7 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
     p = p + m_dt*(1. - lit(gamma_p))*p_dot,
     p_dot = 0.
   ))));
-
+  
   // Inner loop, executed several times per timestep
   m_inner_loop = create_component<solver::actions::Iterate>("InnerLoop");
   m_inner_loop->mark_basic();
@@ -114,6 +114,12 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
 
 NavierStokesExplicit::~NavierStokesExplicit()
 {
+}
+
+void NavierStokesExplicit::execute()
+{
+  solver::ActionDirector::execute();
+  m_pressure_lss->options().set("disabled_actions", std::vector<std::string>(1, "PressureMatrixAssembly"));
 }
 
 void NavierStokesExplicit::trigger_assembly()
@@ -188,11 +194,19 @@ void NavierStokesExplicit::trigger_assembly()
   // Set the pressure LSS to zero
   m_pressure_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
 
-  // Assembly of the pressure LSS
-  set_triag_p_assembly();
-  set_quad_p_assembly();
-  set_hexa_p_assembly();
-  set_tetra_p_assembly();
+  m_pressure_matrix_assembly = m_pressure_lss->create_component<solver::ActionDirector>("PressureMatrixAssembly");
+  
+  // Assembly of the pressure LSS RHS
+  set_triag_p_rhs_assembly();
+  set_quad_p_rhs_assembly();
+  set_hexa_p_rhs_assembly();
+  set_tetra_p_rhs_assembly();
+  
+  // Assembly of the pressure LSS matrix
+  set_triag_p_mat_assembly();
+  set_quad_p_mat_assembly();
+  set_hexa_p_mat_assembly();
+  set_tetra_p_mat_assembly();
 
   // Pressure BC
   Handle<BoundaryConditions> bc_p = m_pressure_lss->create_component<BoundaryConditions>("PressureBC");
@@ -264,6 +278,8 @@ void NavierStokesExplicit::trigger_timestep()
   m_dt = m_time->dt();
   m_inv_dt = m_time->invdt();
   get_child("ComputeCFL")->options().set("time_step", m_dt);
+  if(is_not_null(m_pressure_lss))
+    m_pressure_lss->options().set("disabled_actions", std::vector<std::string>());
 }
 
 
@@ -295,6 +311,7 @@ void NavierStokesExplicit::on_regions_set()
   m_recursing = true;
 
   cf3_assert(is_not_null(m_pressure_lss));
+  m_pressure_lss->options().set("disabled_actions", std::vector<std::string>());
   configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 
   if(is_not_null(m_viscosity_initial_condition))

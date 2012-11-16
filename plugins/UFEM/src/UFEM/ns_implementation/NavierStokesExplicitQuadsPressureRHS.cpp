@@ -43,10 +43,10 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
-void NavierStokesExplicit::set_quad_p_assembly()
+void NavierStokesExplicit::set_quad_p_rhs_assembly()
 {
 #ifdef CF3_UFEM_ENABLE_QUADS
-  set_pressure_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >("Quads");
+  set_pressure_rhs_assembly_expression< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >("Quads");
 #endif
 }
 
