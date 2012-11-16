@@ -135,11 +135,11 @@ struct PressureMatrix
 static solver::actions::Proto::MakeSFOp<PressureMatrix>::type const pressure_matrix = {};
 
 template<typename ElementsT>
-void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& base_name)
+void NavierStokesExplicit::set_pressure_matrix_assembly_expression(const std::string& base_name)
 {
-  m_pressure_lss->add_component(create_proto_action
+  boost::shared_ptr<ProtoAction> assembly_action = create_proto_action
   (
-    base_name+"PressureAssembly",
+    base_name+"PressureMatrixAssembly",
     elements_expression
     (
       ElementsT(),
@@ -150,13 +150,36 @@ void NavierStokesExplicit::set_pressure_assembly_expression(const std::string& b
         pressure_matrix(u_adv, M, lit(gamma_u), lit(m_dt), lit(tau_ps), _A(p, p)),
         element_quadrature
         (
-          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
-                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])) // G'u + gamma_u dt G'Delta_a*
-                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i]), // Standard + Skew symmetric advection PSPG term
           _T(p,p)       += tau_ps*transpose(nabla(p)) * nabla(p) / rho // Pressure PSPG
         ),
-        m_pressure_lss->system_matrix += _T + _A,
-        m_pressure_lss->system_rhs += -_a - _T * nodal_values(p)
+        m_pressure_lss->system_matrix += _T + _A
+      )
+  ));
+  
+  m_pressure_matrix_assembly->add_component(assembly_action);
+}
+
+template<typename ElementsT>
+void NavierStokesExplicit::set_pressure_rhs_assembly_expression(const std::string& base_name)
+{
+  m_pressure_lss->add_component(create_proto_action
+  (
+    base_name+"PressureRHSAssembly",
+    elements_expression
+    (
+      ElementsT(),
+      group
+      (
+        _A(p,p) = _0, _a = _0, _T(p,p) = _0,
+        compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+        element_quadrature
+        (
+          _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
+                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])) // G'u + gamma_u dt G'Delta_a*
+                        +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i]) // Standard + Skew symmetric advection PSPG term
+                        +  tau_ps * transpose(nabla(p)) * nabla(p) / rho * transpose(transpose(nodal_values(p)))
+        ),
+        m_pressure_lss->system_rhs += -_a
       )
   )));
 }

@@ -62,7 +62,7 @@ public:
     m_blockcol_size=(*max_element(node_connectivity.begin(),node_connectivity.end(),std::less<Uint>()))+1;
     m_is_created=true;
   }
-  
+
   void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
   {
     destroy();
@@ -97,15 +97,6 @@ public:
 
   //@} END INDIVIDUAL ACCESS
 
-  /// @name SOLVE THE SYSTEM
-  //@{
-
-  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
-  /// We bow on our knees before your greatness.
-  void solve(LSS::Vector& solution, LSS::Vector& rhs) { cf3_assert(m_is_created); }
-
-  //@} END SOLVE THE SYSTEM
-
   /// @name EFFICCIENT ACCESS
   //@{
 
@@ -126,6 +117,8 @@ public:
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
   void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values) { cf3_assert(m_is_created); values.resize(m_blockcol_size*m_neq,0.); }
+
+  void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs) { cf3_assert(m_is_created); }
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from) { cf3_assert(m_is_created); }
@@ -155,7 +148,7 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) { cf3_assert(m_is_created); }
-  
+
   void print_native(std::ostream& stream) {}
 
   /// Accessor to the state of create

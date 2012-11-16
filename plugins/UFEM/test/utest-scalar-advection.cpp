@@ -29,8 +29,8 @@
 #include "solver/actions/CriterionTime.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/Time.hpp"
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -82,11 +82,9 @@ struct ProtoHeatFixture
 
     root( Core::instance().root() )
   {
-    solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
   Component& root;
-  std::string solver_config;
 
   /// Write the analytical solution
   void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
@@ -161,7 +159,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // add the top-level actions (assembly, BC and solve)
   *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u, nu_eff = nu)));
   *lss_action
-    << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
+    << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
     << create_proto_action
        (
          "Assembly",
@@ -180,7 +178,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
          )
        )
   << bc
-  << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+  << allocate_component<math::LSS::SolveLSS>("SolveLSS")
   << create_proto_action("Increment", nodes_expression(T += lss_action->solution(T)))
   << allocate_component<solver::actions::AdvanceTime>("AdvanceTime")
   << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << T << "\n"));
@@ -202,8 +200,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   ic->get_child("Initialize")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
-
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("xneg", "Temperature", 1.);

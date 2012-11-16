@@ -77,10 +77,11 @@ CriterionConvergence::~CriterionConvergence() {}
 
 bool CriterionConvergence::operator()()
 {
-  std::ofstream convergence_history;
+
+  /*std::ofstream convergence_history;
 
     convergence_history.open ("convergence_history_temperature.txt",std::ios_base::app);
-    convergence_history << m_max_error << "\n";
+    convergence_history << m_max_error << "\n"; */
 
   m_min_error = 0.;
   m_max_error = 0.;
@@ -94,10 +95,10 @@ bool CriterionConvergence::operator()()
   Handle<common::Action>(get_child("ComputeMaxError"))->execute();
   Handle<common::Action>(get_child("GetMaxFluidTemperature"))->execute();
   Handle<common::Action>(get_child("GetMaxCondTemperature"))->execute();
-  std::cout << "min error is " << m_min_error << std::endl;
+ /* std::cout << "min error is " << m_min_error << std::endl;
   std::cout << "max error is " << m_max_error << std::endl;
   std::cout << "max conduction temperature is " << m_cond_temperature << std::endl;
-  std::cout << "max fluid temperature is " << m_fluid_temperature << std::endl;
+  std::cout << "max fluid temperature is " << m_fluid_temperature << std::endl;*/
   if (m_max_error <= 10.e-1 && iterate->iter() > 1)
   {
       return true;

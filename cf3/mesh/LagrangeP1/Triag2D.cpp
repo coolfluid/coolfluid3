@@ -22,7 +22,19 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ElementTypeT<Triag2D>, ElementType , LibLagrangeP1 >
+struct ElementTypeTriag2D : ElementTypeT<Triag2D>
+{
+  ElementTypeTriag2D( const std::string& name = type_name() ) : ElementTypeT<Triag2D>(name) {}
+  
+  virtual void compute_jacobian_adjoint ( const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian_adjoint ) const
+  {
+    Triag2D::compute_jacobian_adjoint(mapped_coord, nodes, jacobian_adjoint);
+  }
+  
+  static std::string type_name() { return  ElementTypeT<Triag2D>::type_name(); }
+};
+
+common::ComponentBuilder < ElementTypeTriag2D, ElementType , LibLagrangeP1 >
    Triag2D_Builder(LibLagrangeP1::library_namespace()+"."+Triag2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,16 +145,6 @@ Triag2D::JacobianT Triag2D::jacobian(const MappedCoordsT& mapped_coord, const No
   JacobianT result;
   compute_jacobian(mapped_coord, nodes, result);
   return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Triag2D::compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
-{
-  result(KSI,XX) = nodes(2, YY) - nodes(0, YY);
-  result(KSI,YY) = nodes(0, YY) - nodes(1, YY);
-  result(ETA,XX) = nodes(0, XX) - nodes(2, XX);
-  result(ETA,YY) = nodes(1, XX) - nodes(0, XX);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

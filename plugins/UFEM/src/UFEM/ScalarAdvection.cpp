@@ -15,8 +15,8 @@
 #include "common/OptionArray.hpp"
 #include "common/PropertyList.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -61,10 +61,10 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
 
   set_solution_tag("scalar_advection_solution");
 
-  create_component<ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
   create_component<ProtoAction>("Assembly");
   create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag(solution_tag());
-  create_component<SolveLSS>("SolveLSS");
+  create_component<math::LSS::SolveLSS>("SolveLSS");
   create_component<ProtoAction>("Update");
 
   get_child("BoundaryConditions")->mark_basic();

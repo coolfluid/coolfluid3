@@ -65,9 +65,23 @@ coolfluid_add_test( UTEST utest-lss-distributed-matrix-fevbr
                     MPI   4)
 
 add_test(utest-lss-distributed-matrix-crs ${CF3_MPIRUN_PROGRAM} -np 4 utest-lss-distributed-matrix-fevbr cf3.math.LSS.TrilinosCrsMatrix)
+
+coolfluid_add_test( UTEST utest-lss-symmetric-dirichlet-crs
+                    CPP   utest-lss-symmetric-dirichlet.cpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    ARGUMENTS cf3.math.LSS.TrilinosCrsMatrix
+                    MPI   2)
+
+add_test(utest-lss-symmetric-dirichlet-fevbr ${CF3_MPIRUN_PROGRAM} -np 2 utest-lss-symmetric-dirichlet-crs cf3.math.LSS.TrilinosFEVbrMatrix)
+
 else()
-coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp)
+coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp)
 endif()
+
+coolfluid_add_test( UTEST utest-lss-solvelss
+                    CPP   utest-lss-solvelss.cpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    MPI   1 )
 
 ################################################################################
 

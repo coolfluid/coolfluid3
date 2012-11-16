@@ -849,7 +849,10 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   BOOST_CHECK_EQUAL(sys2->solvertype(),solvertype);
   sys->reset(1.);
   sys2->reset(2.);
-  sys->swap(sys->matrix(),sys2->solution(),sys2->rhs());
+  boost::shared_ptr<Matrix> sw_mat = boost::dynamic_pointer_cast<Matrix>(sys->remove_component("Matrix"));
+  boost::shared_ptr<Vector> sw_sol = boost::dynamic_pointer_cast<Vector>(sys2->remove_component("Solution"));
+  boost::shared_ptr<Vector> sw_rhs = boost::dynamic_pointer_cast<Vector>(sys2->remove_component("RHS"));
+  sys->swap(sw_mat,sw_sol,sw_rhs);
   sys->matrix()->debug_data(rows,cols,vals);
   BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,1.);
   sys->solution()->debug_data(vals);
@@ -923,28 +926,10 @@ BOOST_AUTO_TEST_CASE( solve_system )
   sys->options().option("matrix_builder").change_value(matrix_builder);
   sys->create(cp,2,node_connectivity,starting_indices);
 
-  // write a settings file for trilinos, using GMRES
-  if (irank==0)
-  {
-    std::ofstream trilinos_xml("trilinos_settings.xml");
-    trilinos_xml << "<ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
-    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
-    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
-    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
-    trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
-    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
-    trilinos_xml << "      </ParameterList>\n";
-    trilinos_xml << "    </ParameterList>\n";
-    trilinos_xml << "  </ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
-    trilinos_xml << "</ParameterList>\n";
-    trilinos_xml.close();
-  }
-  common::PE::Comm::instance().barrier();
+  sys->solution_strategy()->options().set("compute_residual", true);
+  sys->solution_strategy()->options().set("verbosity_level", 3);
+  sys->solution_strategy()->access_component("Parameters")->options().set("preconditioner_type", std::string("None"));
+  sys->solution_strategy()->access_component("Parameters/LinearSolverTypes/Belos/SolverTypes/BlockGMRES")->options().set("verbosity", 1);
 
   // set intital values and boundary conditions
   sys->matrix()->reset(-0.5);
@@ -1041,28 +1026,11 @@ BOOST_AUTO_TEST_CASE( solve_system_blocked )
   vars->push_back("var2", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
   sys->create_blocked(cp,*vars,node_connectivity,starting_indices);
 
-  // write a settings file for trilinos, using GMRES
-  if (irank==0)
-  {
-    std::ofstream trilinos_xml("trilinos_settings.xml");
-    trilinos_xml << "<ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
-    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
-    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
-    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
-    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"GMRES\"/>\n";
-    trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
-    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
-    trilinos_xml << "      </ParameterList>\n";
-    trilinos_xml << "    </ParameterList>\n";
-    trilinos_xml << "  </ParameterList>\n";
-    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
-    trilinos_xml << "</ParameterList>\n";
-    trilinos_xml.close();
-  }
-  common::PE::Comm::instance().barrier();
+  sys->solution_strategy()->options().set("compute_residual", true);
+  sys->solution_strategy()->options().set("verbosity_level", 3);
+  sys->solution_strategy()->access_component("Parameters")->options().set("preconditioner_type", std::string("None"));
+  sys->solution_strategy()->access_component("Parameters/LinearSolverTypes/Belos/SolverTypes/BlockGMRES")->options().set("verbosity", 1);
+  sys->solution_strategy()->access_component("Parameters/LinearSolverTypes/Belos/SolverTypes/BlockGMRES")->options().set("convergence_tolerance", 0.1);
 
   // set intital values and boundary conditions
   sys->matrix()->reset(-0.5);

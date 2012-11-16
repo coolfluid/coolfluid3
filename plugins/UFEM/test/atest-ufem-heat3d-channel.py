@@ -28,10 +28,6 @@ generator.execute()
 
 hc.options().set('regions', [domain.access_component('mesh/topology').uri()])
 
-# lss setup
-lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.get_child('Matrix').options().set('settings_file', sys.argv[1]);
-
 # Boundary conditions
 bc = hc.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'left', variable_name = 'Temperature')

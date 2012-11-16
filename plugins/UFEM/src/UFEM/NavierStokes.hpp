@@ -109,6 +109,8 @@ private:
   Real tau_ps, tau_su, tau_bulk;
   
   Handle<solver::ActionDirector> m_assembly;
+  Handle<solver::ActionDirector> m_update;
+  Handle<common::Action> m_initial_conditions;
 };
 
 } // UFEM
