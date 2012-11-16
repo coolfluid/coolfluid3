@@ -48,14 +48,10 @@ list( APPEND coolfluid_solver_actions_files
   ComputeLNorm.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
-  SolveLSS.hpp
-  SolveLSS.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
-  ZeroLSS.hpp
-  ZeroLSS.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files

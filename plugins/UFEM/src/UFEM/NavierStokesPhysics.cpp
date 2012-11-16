@@ -98,7 +98,5 @@ void NavierStokesPhysics::trigger_nu()
   throw common::BadValue(FromHere(), "Setting a value for the kinematic_viscosity at " + uri().path() + " is not allowed. Please set rho and mu to obtain the correct value");
 }
 
-
-
 } // UFEM
 } // cf3

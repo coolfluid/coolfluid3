@@ -83,10 +83,6 @@ tstep = 1./(2*physics.options.kinematic_viscosity * (1./dx**2 + 1./dy**2 + 1./dz
 
 ns_solver.regions = [mesh.topology.uri()]
 
-# lss setup
-lss = ns_solver.InnerLoop.PressureSystem.create_lss('cf3.math.LSS.TrilinosCrsMatrix')
-lss.Matrix.settings_file = sys.argv[1]
-
 # Initial conditions
 #solver.InitialConditions.navier_stokes_u_solution.Velocity = [1., 0.]
 #solver.InitialConditions.navier_stokes_p_solution.Pressure = 0.

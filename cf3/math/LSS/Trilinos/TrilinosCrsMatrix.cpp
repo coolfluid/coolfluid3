@@ -22,9 +22,6 @@
 #include "EpetraExt_CrsMatrixIn.h"
 #include "EpetraExt_VectorIn.h"
 
-// Teko includes
-#include "Teko_StratimikosFactory.hpp"
-
 #include "Thyra_EpetraLinearOp.hpp"
 #include "Thyra_EpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveBase.hpp"
@@ -104,7 +101,6 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
   m_comm(common::PE::Comm::instance().communicator())
 {
   properties().add("vector_type", std::string("cf3.math.LSS.TrilinosVector"));
-  options().add( "settings_file", "trilinos_settings.xml" ).mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,8 +117,14 @@ void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq,
 
 void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
 {
-    // if already created
+  // if already created
   if (m_is_created) destroy();
+
+  // Copy node connectivity
+  m_node_connectivity.resize(node_connectivity.size());
+  m_starting_indices.resize(starting_indices.size());
+  std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
+  std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
 
   const Uint total_nb_eq = vars.size();
 
@@ -238,40 +240,6 @@ void TrilinosCrsMatrix::get_value(const Uint icol, const Uint irow, Real& value)
     }
   }
   throw common::BadValue(FromHere(),"Trying to access an illegal entry.");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void TrilinosCrsMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
-{
-  cf3_assert(m_is_created);
-  cf3_assert(solution.is_created());
-  cf3_assert(rhs.is_created());
-
-  LSS::TrilinosVector& tsol = dynamic_cast<LSS::TrilinosVector&>(solution);
-  LSS::TrilinosVector& trhs = dynamic_cast<LSS::TrilinosVector&>(rhs);
-
-  Teuchos::RCP<Teuchos::ParameterList> paramList = Teuchos::getParametersFromXmlFile(options().option("settings_file").value_str());
-
-  // Build Thyra linear algebra objects
-  Teuchos::RCP<const Thyra::LinearOpBase<double> > th_mat = Thyra::epetraLinearOp(m_mat);
-  Teuchos::RCP<const Thyra::VectorBase<double> > th_rhs = Thyra::create_Vector(trhs.epetra_vector(),th_mat->range());
-  Teuchos::RCP<Thyra::VectorBase<double> > th_sol = Thyra::create_Vector(tsol.epetra_vector(),th_mat->domain());
-
-  // Build stratimikos solver
-  /////////////////////////////////////////////////////////
-
-  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder;
-
-  Teko::addTekoToStratimikosBuilder(linearSolverBuilder);
-  linearSolverBuilder.setParameterList(paramList);
-
-  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = Thyra::createLinearSolveStrategy(linearSolverBuilder);
-  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > th_invA = Thyra::linearOpWithSolve(*lowsFactory, th_mat);
-
-  Thyra::assign(th_sol.ptr(), 0.0);
-  Thyra::SolveStatus<double> status = Thyra::solve<double>(*th_invA, Thyra::NOTRANS, *th_rhs, th_sol.ptr());
-  CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,6 +363,65 @@ void TrilinosCrsMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagv
 void TrilinosCrsMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
 {
   throw common::NotImplemented(FromHere(), "get_column_and_replace_to_zero is not implemented for TrilinosCrsMatrix");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
+{
+  const int columns_begin = m_starting_indices[blockrow];
+  const int columns_end = m_starting_indices[blockrow+1];
+
+  int num_entries;
+  Real* extracted_values;
+  int* extracted_indices;
+
+  const Uint bc_col = m_p2m[blockrow*m_neq+ieq];
+
+  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  {
+    const int col = m_node_connectivity[col_idx];
+    for(int j = 0; j != m_neq; ++j)
+    {
+      const Uint other_row = m_p2m[col*m_neq+j];
+      if(other_row >= m_num_my_elements)
+        continue;
+
+      TRILINOS_THROW(m_mat->ExtractMyRowView(other_row, num_entries, extracted_values, extracted_indices));
+      const int nb_entries_const = num_entries;
+      Uint i;
+      if(other_row != bc_col)
+      {
+        for(i = 0; i != nb_entries_const; )
+        {
+          if(extracted_indices[i] == bc_col)
+          {
+            rhs.add_value(col, j, -extracted_values[i] * value);
+            extracted_values[i] = 0;
+            break;
+          }
+          ++i;
+        }
+        cf3_assert(i != nb_entries_const);
+      }
+      else
+      {
+        for(i = 0; i != nb_entries_const; ++i)
+        {
+          if(extracted_indices[i] == bc_col)
+          {
+            extracted_values[i] = 1.;
+          }
+          else
+          {
+            extracted_values[i] = 0;
+          }
+        }
+      }
+    }
+  }
+
+  rhs.set_value(blockrow, ieq, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -561,7 +588,7 @@ void TrilinosCrsMatrix::print(std::ostream& stream)
       TRILINOS_THROW(m_mat->ExtractMyRowView(row, num_entries, extracted_values, extracted_indices));
       for(int i = 0; i != num_entries; ++i)
       {
-        stream << m2p[row] << " " << -m2p[extracted_indices[i]] << " " << extracted_values[i] << std::endl;
+        stream << m2p[extracted_indices[i]] << " " << -m2p[row] << " " << extracted_values[i] << std::endl;
       }
       sumentries += num_entries;
     }
@@ -624,6 +651,20 @@ void TrilinosCrsMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<U
       values.push_back(extracted_values[i]);
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< const Thyra::LinearOpBase< Real > > TrilinosCrsMatrix::thyra_operator() const
+{
+  return Thyra::epetraLinearOp(m_mat);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosCrsMatrix::thyra_operator()
+{
+  return Thyra::nonconstEpetraLinearOp(m_mat);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,18 +11,19 @@
 
 #include "common/Action.hpp"
 
-#include "solver/actions/LibActions.hpp"
+#include "LibLSS.hpp"
 
 namespace cf3 {
-  namespace math { namespace LSS { class System; } }
-namespace solver {
-namespace actions {
+namespace math {
+namespace LSS {
+
+class System;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// ZeroLSS wraps a linear system solver in an action that will execute the solve
 /// @author Bart Janssens
-class solver_actions_API ZeroLSS : public common::Action
+class LSS_API ZeroLSS : public common::Action
 {
 public: // functions
 
@@ -37,13 +38,13 @@ public: // functions
   void execute();
 
 private:
-  Handle<math::LSS::System> m_lss;
+  Handle<System> m_lss;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
-} // solver
+} // LSS
+} // math
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

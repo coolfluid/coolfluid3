@@ -19,6 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Vector.hpp"
 
+#include "ThyraMultiVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosVector : public LSS::Vector {
+class LSS_API TrilinosVector : public LSS::Vector, public ThyraMultiVector {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -165,7 +166,10 @@ public:
   //@} END TEST ONLY
   
   void signal_print_native(common::SignalArgs& args);
-
+  
+  Teuchos::RCP< const Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const;
+  Teuchos::RCP< Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space );
+  
 private:
 
   /// teuchos style smart pointer wrapping an epetra vector

@@ -27,7 +27,7 @@
 #include "solver/ModelUnsteady.hpp"
 #include "solver/Time.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/actions/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
@@ -69,11 +69,9 @@ struct RDMMergeFixture
   RDMMergeFixture() :
     root( Core::instance().root() )
   {
-    solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
   Component& root;
-  std::string solver_config;
 
 };
 
@@ -156,7 +154,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         )
       )
       << bc
-      << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+      << allocate_component<math::LSS::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(fi += lss_action->solution(fi)));
 
   // Setup physics
@@ -169,8 +167,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   ic->get_child("SetInitial")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   ic->get_child("InitAdvectionSpeed")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
-  
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   bc->add_constant_bc("top",    "FI", 8.);

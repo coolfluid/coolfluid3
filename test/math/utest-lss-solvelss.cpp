@@ -10,15 +10,13 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/test/unit_test.hpp>
 
-
-#include "solver/actions/SolveLSS.hpp"
-
 #include "common/Core.hpp"
 
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/CommWrapper.hpp"
 
 #include "math/MatrixTypes.hpp"
+#include "math/LSS/SolveLSS.hpp"
 #include "math/LSS/System.hpp"
 
 using namespace boost::assign;
@@ -26,8 +24,6 @@ using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::solver;
-using namespace cf3::solver::actions;
 using namespace cf3::math;
 
 BOOST_AUTO_TEST_SUITE( SolveSystemSuite )
@@ -39,7 +35,7 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
   Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
 
   Component& root = Core::instance().root();
-  SolveLSS& solve_action = *root.create_component<SolveLSS>("solve_action");
+  LSS::SolveLSS& solve_action = *root.create_component<LSS::SolveLSS>("solve_action");
   Handle<LSS::System> lss = root.create_component<LSS::System>("LSS");
   CommPattern& cp = *root.create_component<CommPattern>("commpattern");
 
@@ -52,6 +48,7 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
   cp.setup(cp.get_child("gid")->handle<common::PE::CommWrapper>(),rnk);
 
   lss->options().set("matrix_builder", std::string("cf3.math.LSS.EmptyLSSMatrix"));
+  lss->options().set("solution_strategy", std::string("cf3.math.LSS.EmptyStrategy"));
   lss->create(cp, 4u, conn, startidx);
 
   solve_action.options().set("lss", lss);
