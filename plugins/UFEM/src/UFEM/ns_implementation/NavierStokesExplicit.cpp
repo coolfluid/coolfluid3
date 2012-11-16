@@ -119,7 +119,10 @@ NavierStokesExplicit::~NavierStokesExplicit()
 void NavierStokesExplicit::execute()
 {
   solver::ActionDirector::execute();
-  m_pressure_lss->options().set("disabled_actions", std::vector<std::string>(1, "PressureMatrixAssembly"));
+  std::vector<std::string> disabled(2);
+  disabled[0] = "PressureBC";
+  disabled[1] = "PressureMatrixAssembly";
+  m_pressure_lss->options().set("disabled_actions", disabled);
 }
 
 void NavierStokesExplicit::trigger_assembly()
@@ -190,9 +193,6 @@ void NavierStokesExplicit::trigger_assembly()
   m_pressure_lss = m_inner_loop->create_component<LSSActionUnsteady>("PressureSystem");
   m_pressure_lss->set_solution_tag("navier_stokes_p_solution");
   m_pressure_lss->mark_basic();
-
-  // Set the pressure LSS to zero
-  m_pressure_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
 
   m_pressure_matrix_assembly = m_pressure_lss->create_component<solver::ActionDirector>("PressureMatrixAssembly");
   
