@@ -195,6 +195,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_pressure_lss->mark_basic();
 
   m_pressure_matrix_assembly = m_pressure_lss->create_component<solver::ActionDirector>("PressureMatrixAssembly");
+  m_pressure_matrix_assembly->create_component<math::LSS::ZeroLSS>("ZeroPressureLSS");
   
   // Assembly of the pressure LSS RHS
   set_triag_p_rhs_assembly();
