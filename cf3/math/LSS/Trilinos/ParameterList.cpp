@@ -42,6 +42,7 @@ namespace detail
   std::string param_name_to_option(std::string param_name)
   {
     boost::to_lower(param_name);
+    boost::replace_all(param_name, ":", "");
     boost::replace_all(param_name, " ", "_");
     return param_name;
   }
