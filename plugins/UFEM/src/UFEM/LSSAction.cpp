@@ -121,13 +121,14 @@ void LSSAction::execute()
   solver::ActionDirector::execute();
 }
 
-LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
+LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std::string& solution_strategy)
 {
   if(is_not_null(get_child("LSS")))
     remove_component("LSS");
   Handle<LSS::System> lss = create_component<LSS::System>("LSS");
   lss->mark_basic();
   lss->options().set("matrix_builder", matrix_builder);
+  lss->options().set("solution_strategy", solution_strategy);
 
   configure_option_recursively("lss", lss);
 
@@ -143,13 +144,18 @@ void LSSAction::signature_create_lss(SignalArgs& node)
   SignalOptions options(node);
   options.add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
     .pretty_name("Matrix Builder")
-    .description("Name for the matrix builder to use when constructing the LSS");
+    .description("Name for the matrix builder to use when constructing the LSS")
+    .mark_basic();
+
+  options.add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
+    .pretty_name("Solution Strategy")
+    .description("Builder name for the solution strategy to use.");
 }
 
 void LSSAction::signal_create_lss(SignalArgs& node)
 {
   SignalOptions options(node);
-  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>());
+  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>(), options.option("solution_strategy").value<std::string>());
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);

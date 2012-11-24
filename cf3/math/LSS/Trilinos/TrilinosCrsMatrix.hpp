@@ -144,6 +144,18 @@ public:
   /// Accessor to the number of block columns
   const Uint blockcol_size() {  cf3_assert(m_is_created); return m_p2m.size()/neq(); }
 
+  /// Get the matrix in native format
+  Teuchos::RCP<Epetra_CrsMatrix> epetra_matrix()
+  {
+    return m_mat;
+  }
+
+  /// Get the matrix in native format
+  Teuchos::RCP<Epetra_CrsMatrix const> epetra_matrix() const
+  {
+    return m_mat;
+  }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY
@@ -154,7 +166,7 @@ public:
   void debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
 
   //@} END TEST ONLY
-  
+
   virtual Teuchos::RCP< const Thyra::LinearOpBase< Real > > thyra_operator() const;
   virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
 
