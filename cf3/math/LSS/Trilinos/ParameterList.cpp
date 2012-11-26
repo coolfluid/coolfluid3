@@ -44,6 +44,7 @@ namespace detail
     boost::to_lower(param_name);
     boost::replace_all(param_name, ":", "");
     boost::replace_all(param_name, " ", "_");
+    boost::replace_all(param_name, "-", "_");
     return param_name;
   }
 

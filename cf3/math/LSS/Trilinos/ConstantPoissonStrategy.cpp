@@ -21,6 +21,7 @@
 #include "Epetra_LinearProblem.h"
 
 #include "Ifpack.h"
+#include "Ifpack_ShyLU.h"
 
 #include "Teuchos_ConfigDefs.hpp"
 #include "Teuchos_RCP.hpp"
@@ -81,6 +82,16 @@ struct ConstantPoissonStrategy::Implementation
     // "Add", "Zero", "Insert", "InsertAdd", "Average", "AbsMax"
     // Their meaning is as defined in file Epetra_CombineMode.h
     m_ifpack_parameter_list->set("schwarz: combine mode", "Add");
+    // ShyLU parameters
+    m_ifpack_parameter_list->set("Symmetry", 1);
+    m_ifpack_parameter_list->set("Outer Solver Library", "None");
+    m_ifpack_parameter_list->set("Schur Approximation Method", "Threshold");
+    m_ifpack_parameter_list->set("Schur Complement Solver", "Amesos");
+    m_ifpack_parameter_list->set("Relative Threshold", 1e-3);
+    m_ifpack_parameter_list->set("Inner Solver Tolerance", 1e-3);
+    m_ifpack_parameter_list->set("Inner Solver MaxIters", 200);
+    m_ifpack_parameter_list->set("Separator Type", "Wide");
+    m_ifpack_parameter_list->set("Debug Level", 1);
 
     // Default solver parameters
     m_solver_parameter_list->set( "Verbosity", Belos::TimingDetails | Belos::FinalSummary );
@@ -119,7 +130,16 @@ struct ConstantPoissonStrategy::Implementation
     else
     {
       Ifpack factory;
-      m_ifpack_prec = Teuchos::rcp(factory.Create("ICT", m_matrix->epetra_matrix().get(), 0));
+      const std::string ifpack_type = m_self.options().value<std::string>("ifpack_type");
+      if(ifpack_type != "ShyLU")
+      {
+        m_ifpack_prec = Teuchos::rcp(factory.Create(ifpack_type, m_matrix->epetra_matrix().get(), 0));
+      }
+      else
+      {
+        CFdebug << "Creating ShyLU preconditioner" << CFendl;
+        m_ifpack_prec = Teuchos::rcp(new Ifpack_ShyLU(m_matrix->epetra_matrix().get()));
+      }
       cf3_assert(m_ifpack_prec != Teuchos::null);
       IFPACK_CHK_ERR(m_ifpack_prec->SetParameters(*m_ifpack_parameter_list));
       IFPACK_CHK_ERR(m_ifpack_prec->Initialize());
@@ -162,9 +182,9 @@ struct ConstantPoissonStrategy::Implementation
     m_ml_parameters->set_parameter_list(*m_ml_parameter_list);
 
     if(is_not_null(m_ifpack_parameters))
-      m_self.remove_component("MLParameters");
+      m_self.remove_component("IfpackParameters");
 
-    m_ifpack_parameters = m_self.create_component<ParameterList>("MLParameters");
+    m_ifpack_parameters = m_self.create_component<ParameterList>("IfpackParameters");
     m_ifpack_parameters->mark_basic();
     m_ifpack_parameters->set_parameter_list(*m_ifpack_parameter_list);
 
@@ -208,6 +228,12 @@ ConstantPoissonStrategy::ConstantPoissonStrategy(const string& name) :
   options().add("use_ml_preconditioner", false)
     .pretty_name("Use ML Preconditioner")
     .description("Use the ML preconditioner. If False, the Ifpack preconditioner is used instead")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
+    .mark_basic();
+
+  options().add("ifpack_type", "ICT")
+    .pretty_name("Ifpack Type")
+    .description("Type of Ifpack preconditioner to use.")
     .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
     .mark_basic();
 }
