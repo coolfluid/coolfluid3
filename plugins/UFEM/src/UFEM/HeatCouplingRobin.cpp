@@ -66,6 +66,11 @@ HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
     .description("Tag for the ambient temperature field(for the Robin BC)")
     .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
+  options().add("robin_pre", true)
+    .pretty_name("Robin precalculation")
+    .description("Do a first of two steps to calculate an 'ambient' fluid temperature for the Robin BC")
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
+
   // Finally set the boundary condition
   create_static_component<ProtoAction>("NeumannHeatFlux");
 
@@ -94,20 +99,42 @@ void HeatCouplingRobin::trigger_setup()
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
   FieldVariable<1, ScalarField> Tfl("Temperature", temperaturefluid_field_tag);
+
+  // to do first of two steps for the Robin BC
+  const bool robin_pre = options().value<bool>("robin_pre");
+
+  if (robin_pre == true)
+  {
   // Expression for the Robin BC
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
 
-    group
-    (
+      group
+      (
       _A(T) = _0,
-      system_matrix +=  h * (integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
-      m_rhs +=  h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))),
+      system_matrix +=  h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
+      m_rhs +=  h * (integral<1>(transpose(N(T))*Tfl*_norm(normal))),
       _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
-    )
+        )
   ));
+  }
+  else
+  {
+    // Expression for the Robin BC
+    neumann_heat_flux->set_expression(elements_expression
+    (
+      boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
 
+     group
+     (
+     _A(T) = _0,
+     system_matrix +=  h * (integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
+     m_rhs +=  h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))),
+     _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
+     )
+    ));
+  }
   // Raise an event to indicate that we added a variable (GradT)
   common::XML::SignalOptions options;
   common::SignalArgs f = options.create_frame();
