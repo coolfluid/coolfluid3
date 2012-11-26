@@ -20,6 +20,8 @@
 
 #include "Epetra_LinearProblem.h"
 
+#include "Ifpack.h"
+
 #include "Teuchos_ConfigDefs.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
@@ -59,24 +61,28 @@ struct ConstantPoissonStrategy::Implementation
   Implementation(common::Component& self) :
     m_self(self),
     m_ml_parameter_list(Teuchos::createParameterList()),
+    m_ifpack_parameter_list(Teuchos::createParameterList()),
     m_solver_parameter_list(Teuchos::createParameterList())
   {
+    // ML default parameters
     ML_Epetra::SetDefaults("SA", *m_ml_parameter_list);
     m_ml_parameter_list->set("ML output", 10);
-    // maximum number of levels
     m_ml_parameter_list->set("max levels",10);
-
-    // use Uncoupled scheme to create the aggregate
     m_ml_parameter_list->set("aggregation: type", "MIS");
-
     m_ml_parameter_list->set("smoother: type","Chebyshev");
     m_ml_parameter_list->set("smoother: sweeps",3);
-
-    // use both pre and post smoothing
     m_ml_parameter_list->set("smoother: pre or post", "both");
-
     m_ml_parameter_list->set("coarse: type","Amesos-KLU");
 
+    // Default ifpack parameters
+    m_ifpack_parameter_list->set("fact: drop tolerance", 1e-9);
+    m_ifpack_parameter_list->set("fact: ict level-of-fill", 1.0);
+    // the combine mode is on the following:
+    // "Add", "Zero", "Insert", "InsertAdd", "Average", "AbsMax"
+    // Their meaning is as defined in file Epetra_CombineMode.h
+    m_ifpack_parameter_list->set("schwarz: combine mode", "Add");
+
+    // Default solver parameters
     m_solver_parameter_list->set( "Verbosity", Belos::TimingDetails | Belos::FinalSummary );
     m_solver_parameter_list->set( "Block Size", 1 );
     m_solver_parameter_list->set( "Num Blocks", 300 );
@@ -86,7 +92,7 @@ struct ConstantPoissonStrategy::Implementation
     update_parameters();
   }
 
-  void setup_solver()
+  int setup_solver()
   {
     if(is_null(m_matrix))
       throw common::SetupError(FromHere(), "Null matrix for " + m_self.uri().path());
@@ -97,26 +103,35 @@ struct ConstantPoissonStrategy::Implementation
     if(is_null(m_solution))
       throw common::SetupError(FromHere(), "Null solution vector for " + m_self.uri().path());
 
-    m_ml_parameter_list->print();
-
-    m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
-
+    // Start from zero initial guess the first time
     m_solution->reset();
 
     // Create the problem
     m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->thyra_operator(), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()), m_rhs->thyra_vector(m_matrix->thyra_operator()->range())) );
 
     // Set the preconditioner
-    Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ml_prec ) );
-    m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+    if(m_self.options().value<bool>("use_ml_preconditioner"))
+    {
+      m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
+      Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ml_prec ) );
+      m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+    }
+    else
+    {
+      Ifpack factory;
+      m_ifpack_prec = Teuchos::rcp(factory.Create("ICT", m_matrix->epetra_matrix().get(), 0));
+      cf3_assert(m_ifpack_prec != Teuchos::null);
+      IFPACK_CHK_ERR(m_ifpack_prec->SetParameters(*m_ifpack_parameter_list));
+      IFPACK_CHK_ERR(m_ifpack_prec->Initialize());
+      IFPACK_CHK_ERR(m_ifpack_prec->Compute());
+      Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ifpack_prec ) );
+      m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+    }
     m_problem->setHermitian();
 
-    m_problem->setProblem();
-
-    if(!m_problem->setProblem())
-      throw common::SetupError(FromHere(), "Error setting up Belos problem");
-
     m_solver = Teuchos::rcp(new Belos::BlockCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
+
+    return 0;
   }
 
   void solve()
@@ -125,6 +140,9 @@ struct ConstantPoissonStrategy::Implementation
     {
       setup_solver();
     }
+
+    if(!m_problem->setProblem())
+      throw common::SetupError(FromHere(), "Error setting up Belos problem");
 
     m_solver->solve();
   }
@@ -143,6 +161,13 @@ struct ConstantPoissonStrategy::Implementation
     m_ml_parameters->mark_basic();
     m_ml_parameters->set_parameter_list(*m_ml_parameter_list);
 
+    if(is_not_null(m_ifpack_parameters))
+      m_self.remove_component("MLParameters");
+
+    m_ifpack_parameters = m_self.create_component<ParameterList>("MLParameters");
+    m_ifpack_parameters->mark_basic();
+    m_ifpack_parameters->set_parameter_list(*m_ifpack_parameter_list);
+
     if(is_not_null(m_solver_parameters))
       m_self.remove_component("SolverParameters");
 
@@ -151,10 +176,20 @@ struct ConstantPoissonStrategy::Implementation
     m_solver_parameters->set_parameter_list(*m_solver_parameter_list);
   }
 
+  void reset_solver()
+  {
+    m_solver.reset();
+    m_problem.reset();
+    m_ml_prec.reset();
+    m_ifpack_prec.reset();
+  }
+
   common::Component& m_self;
   Teuchos::RCP<Teuchos::ParameterList> m_ml_parameter_list;
+  Teuchos::RCP<Teuchos::ParameterList> m_ifpack_parameter_list;
   Teuchos::RCP<Teuchos::ParameterList> m_solver_parameter_list;
   Teuchos::RCP<ML_Epetra::MultiLevelPreconditioner> m_ml_prec;
+  Teuchos::RCP<Ifpack_Preconditioner> m_ifpack_prec;
   Teuchos::RCP< Belos::LinearProblem<Real,MV,OP> > m_problem;
   Teuchos::RCP< Belos::BlockCGSolMgr<double,MV,OP> > m_solver;
 
@@ -162,6 +197,7 @@ struct ConstantPoissonStrategy::Implementation
   Handle<TrilinosVector> m_rhs;
   Handle<TrilinosVector> m_solution;
   Handle<ParameterList> m_ml_parameters;
+  Handle<ParameterList> m_ifpack_parameters;
   Handle<ParameterList> m_solver_parameters;
 };
 
@@ -169,6 +205,11 @@ ConstantPoissonStrategy::ConstantPoissonStrategy(const string& name) :
   SolutionStrategy(name),
   m_implementation(new Implementation(*this))
 {
+  options().add("use_ml_preconditioner", false)
+    .pretty_name("Use ML Preconditioner")
+    .description("Use the ML preconditioner. If False, the Ifpack preconditioner is used instead")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
+    .mark_basic();
 }
 
 ConstantPoissonStrategy::~ConstantPoissonStrategy()
@@ -208,7 +249,7 @@ void ConstantPoissonStrategy::on_parameters_changed_event(common::SignalArgs& ar
   if(boost::starts_with(parameters_uri.path(), uri().path()))
   {
     CFdebug << "Acting on trilinos_parameters_changed event from paramater list " << parameters_uri.string() << CFendl;
-    m_implementation->m_solver.reset();
+    m_implementation->reset_solver();
   }
   else
   {
