@@ -10,9 +10,13 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind.hpp>
 
+#include "BelosLinearProblem.hpp"
+#include "BelosEpetraAdapter.hpp"
+#include "BelosThyraAdapter.hpp"
+#include "BelosBlockCGSolMgr.hpp"
+
 #include "ml_include.h"
 #include "ml_MultiLevelPreconditioner.h"
-#include "AztecOO.h"
 
 #include "Epetra_LinearProblem.h"
 
@@ -27,6 +31,7 @@
 #include "Thyra_LinearOpWithSolveBase.hpp"
 #include "Thyra_VectorBase.hpp"
 #include "Thyra_MultiVectorStdOps.hpp"
+#include "Thyra_MLPreconditionerFactory.hpp"
 
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
 
@@ -47,25 +52,36 @@ common::ComponentBuilder<ConstantPoissonStrategy, SolutionStrategy, LibLSS> Cons
 
 struct ConstantPoissonStrategy::Implementation
 {
+  typedef Thyra::MultiVectorBase<Real> MV;
+  typedef Thyra::LinearOpBase<Real> OP;
+  typedef Belos::MultiVecTraits< Real, Thyra::MultiVectorBase<Real> > MVT;
+
   Implementation(common::Component& self) :
     m_self(self),
-    m_parameter_list(Teuchos::createParameterList())
+    m_ml_parameter_list(Teuchos::createParameterList()),
+    m_solver_parameter_list(Teuchos::createParameterList())
   {
-    ML_Epetra::SetDefaults("SA", *m_parameter_list);
-    m_parameter_list->set("ML output", 10);
+    ML_Epetra::SetDefaults("SA", *m_ml_parameter_list);
+    m_ml_parameter_list->set("ML output", 10);
     // maximum number of levels
-    m_parameter_list->set("max levels",10);
+    m_ml_parameter_list->set("max levels",10);
 
     // use Uncoupled scheme to create the aggregate
-    m_parameter_list->set("aggregation: type", "MIS");
+    m_ml_parameter_list->set("aggregation: type", "MIS");
 
-    m_parameter_list->set("smoother: type","Chebyshev");
-    m_parameter_list->set("smoother: sweeps",3);
+    m_ml_parameter_list->set("smoother: type","Chebyshev");
+    m_ml_parameter_list->set("smoother: sweeps",3);
 
     // use both pre and post smoothing
-    m_parameter_list->set("smoother: pre or post", "both");
+    m_ml_parameter_list->set("smoother: pre or post", "both");
 
-    m_parameter_list->set("coarse: type","Amesos-KLU");
+    m_ml_parameter_list->set("coarse: type","Amesos-KLU");
+
+    m_solver_parameter_list->set( "Verbosity", Belos::TimingDetails | Belos::FinalSummary );
+    m_solver_parameter_list->set( "Block Size", 1 );
+    m_solver_parameter_list->set( "Num Blocks", 300 );
+    m_solver_parameter_list->set( "Maximum Iterations", 500 );
+    m_solver_parameter_list->set( "Convergence Tolerance", 1.0e-6 );
 
     update_parameters();
   }
@@ -81,15 +97,26 @@ struct ConstantPoissonStrategy::Implementation
     if(is_null(m_solution))
       throw common::SetupError(FromHere(), "Null solution vector for " + m_self.uri().path());
 
-    m_parameter_list->print();
+    m_ml_parameter_list->print();
 
-    m_ml_prec.reset(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_parameter_list, true));
+    m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
 
-    m_problem.reset(new Epetra_LinearProblem(m_matrix->epetra_matrix().get(), m_solution->epetra_vector().get(), m_rhs->epetra_vector().get()));
-    m_solver.reset(new AztecOO(*m_problem));
-    m_solver->SetPrecOperator(m_ml_prec.get());
-    m_solver->SetAztecOption(AZ_solver, AZ_cg);
-    m_solver->SetAztecOption(AZ_output, 1);
+    m_solution->reset();
+
+    // Create the problem
+    m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->thyra_operator(), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()), m_rhs->thyra_vector(m_matrix->thyra_operator()->range())) );
+
+    // Set the preconditioner
+    Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ml_prec ) );
+    m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+    m_problem->setHermitian();
+
+    m_problem->setProblem();
+
+    if(!m_problem->setProblem())
+      throw common::SetupError(FromHere(), "Error setting up Belos problem");
+
+    m_solver = Teuchos::rcp(new Belos::BlockCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
   }
 
   void solve()
@@ -99,7 +126,7 @@ struct ConstantPoissonStrategy::Implementation
       setup_solver();
     }
 
-    m_solver->Iterate(500, 1e-6);
+    m_solver->solve();
   }
 
   Real compute_residual()
@@ -109,24 +136,33 @@ struct ConstantPoissonStrategy::Implementation
 
   void update_parameters()
   {
-    if(is_not_null(m_parameters))
-      m_self.remove_component("Parameters");
+    if(is_not_null(m_ml_parameters))
+      m_self.remove_component("MLParameters");
 
-    m_parameters = m_self.create_component<ParameterList>("Parameters");
-    m_parameters->mark_basic();
-    m_parameters->set_parameter_list(*m_parameter_list);
+    m_ml_parameters = m_self.create_component<ParameterList>("MLParameters");
+    m_ml_parameters->mark_basic();
+    m_ml_parameters->set_parameter_list(*m_ml_parameter_list);
+
+    if(is_not_null(m_solver_parameters))
+      m_self.remove_component("SolverParameters");
+
+    m_solver_parameters = m_self.create_component<ParameterList>("SolverParameters");
+    m_solver_parameters->mark_basic();
+    m_solver_parameters->set_parameter_list(*m_solver_parameter_list);
   }
 
   common::Component& m_self;
-  Teuchos::RCP<Teuchos::ParameterList> m_parameter_list;
-  boost::scoped_ptr<ML_Epetra::MultiLevelPreconditioner> m_ml_prec;
-  boost::scoped_ptr<Epetra_LinearProblem> m_problem;
-  boost::scoped_ptr<AztecOO> m_solver;
+  Teuchos::RCP<Teuchos::ParameterList> m_ml_parameter_list;
+  Teuchos::RCP<Teuchos::ParameterList> m_solver_parameter_list;
+  Teuchos::RCP<ML_Epetra::MultiLevelPreconditioner> m_ml_prec;
+  Teuchos::RCP< Belos::LinearProblem<Real,MV,OP> > m_problem;
+  Teuchos::RCP< Belos::BlockCGSolMgr<double,MV,OP> > m_solver;
 
   Handle<TrilinosCrsMatrix> m_matrix;
   Handle<TrilinosVector> m_rhs;
   Handle<TrilinosVector> m_solution;
-  Handle<ParameterList> m_parameters;
+  Handle<ParameterList> m_ml_parameters;
+  Handle<ParameterList> m_solver_parameters;
 };
 
 ConstantPoissonStrategy::ConstantPoissonStrategy(const string& name) :
