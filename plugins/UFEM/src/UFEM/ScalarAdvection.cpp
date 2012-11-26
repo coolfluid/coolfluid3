@@ -90,7 +90,7 @@ void ScalarAdvection::trigger_scalar_name()
   FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
-  ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 0.1);
+  ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 1.);
 
   // Set the proto expression that handles the assembly
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
