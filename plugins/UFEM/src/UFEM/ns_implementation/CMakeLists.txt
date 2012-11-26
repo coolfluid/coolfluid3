@@ -1,19 +1,23 @@
 list( APPEND ns_implementation_files_no_debug
   NavierStokes.cpp
   NavierStokesExplicit.cpp
-  NavierStokesExplicitHexasPressure.cpp
+  NavierStokesExplicitHexasPressureRHS.cpp
+  NavierStokesExplicitHexasPressureMatrix.cpp
   NavierStokesExplicitHexasPressureGradient.cpp
   NavierStokesExplicitHexasVelocity.cpp
   NavierStokesExplicitHexasVelocityImplicit.cpp
-  NavierStokesExplicitQuadsPressure.cpp
+  NavierStokesExplicitQuadsPressureRHS.cpp
+  NavierStokesExplicitQuadsPressureMatrix.cpp
   NavierStokesExplicitQuadsPressureGradient.cpp
   NavierStokesExplicitQuadsVelocity.cpp
   NavierStokesExplicitQuadsVelocityImplicit.cpp
-  NavierStokesExplicitTetrasPressure.cpp
+  NavierStokesExplicitTetrasPressureRHS.cpp
+  NavierStokesExplicitTetrasPressureMatrix.cpp
   NavierStokesExplicitTetrasPressureGradient.cpp
   NavierStokesExplicitTetrasVelocity.cpp
   NavierStokesExplicitTetrasVelocityImplicit.cpp
-  NavierStokesExplicitTriagsPressure.cpp
+  NavierStokesExplicitTriagsPressureRHS.cpp
+  
   NavierStokesExplicitTriagsPressureGradient.cpp
   NavierStokesExplicitTriagsVelocity.cpp
   NavierStokesExplicitTriagsVelocityImplicit.cpp
@@ -23,7 +27,7 @@ list( APPEND ns_implementation_files_no_debug
   NavierStokesTriags.cpp
 )
 list( APPEND ns_implementation_files_with_debug
-
+NavierStokesExplicitTriagsPressureMatrix.cpp
 )
 
 list( APPEND ns_implementation_files ${ns_implementation_files_no_debug} ${ns_implementation_files_with_debug})

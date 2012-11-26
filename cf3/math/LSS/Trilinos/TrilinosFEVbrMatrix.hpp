@@ -18,6 +18,8 @@
 #include "math/LSS/Vector.hpp"
 #include "math/LSS/Matrix.hpp"
 
+#include "ThyraOperator.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,7 +37,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosFEVbrMatrix : public LSS::Matrix {
+class LSS_API TrilinosFEVbrMatrix : public LSS::Matrix, public ThyraOperator {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -55,7 +57,7 @@ public:
 
   /// Setup sparsity structure
   void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
-  
+
   void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs);
 
   /// Deallocate underlying data
@@ -77,15 +79,6 @@ public:
 
   //@} END INDIVIDUAL ACCESS
 
-  /// @name SOLVE THE SYSTEM
-  //@{
-
-  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
-  /// We bow on our knees before your greatness.
-  void solve(LSS::Vector& solution, LSS::Vector& rhs);
-
-  //@} END SOLVE THE SYSTEM
-
   /// @name EFFICCIENT ACCESS
   //@{
 
@@ -106,6 +99,8 @@ public:
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
   void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values);
+
+  virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);
@@ -135,7 +130,7 @@ public:
 
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
-  
+
   void print_native(ostream& stream);
 
   /// Accessor to the state of create
@@ -160,6 +155,9 @@ public:
   void debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
 
   //@} END TEST ONLY
+  
+  virtual Teuchos::RCP< const Thyra::LinearOpBase< Real > > thyra_operator() const;
+  virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
 
 private:
 
@@ -187,6 +185,11 @@ private:
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
 
+  /// Copy of the connectivity data
+  std::vector<int> m_node_connectivity, m_starting_indices;
+
+  /// For each element of m_node_connectivity, indicate if the entry is kept in the matrix (used to build symmetric matrices keeping only the upper-diagonal)
+  std::vector<bool> m_keep_node;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

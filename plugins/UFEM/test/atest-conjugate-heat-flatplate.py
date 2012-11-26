@@ -126,15 +126,6 @@ variables.get_child('heat_conduction_solution').options().set('Temperature_varia
 nstokes.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 scalaradv.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 heatcond.options().set('regions', [mesh.access_component('topology/solid').uri()])
-# LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-#LSS for scalar advection
-sa_lss = scalaradv.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-sa_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-#LSS for heat conduction
-hc_lss = heatcond.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-hc_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
 
 u_in = [1., 0.]
 u_wall = [0., 0.]

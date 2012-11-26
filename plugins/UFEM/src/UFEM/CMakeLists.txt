@@ -28,8 +28,12 @@ list( APPEND coolfluid_ufem_files
   CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
+  HeatConductionManual.hpp
+  HeatConductionManual.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
+  HeatConductionVirtual.hpp
+  HeatConductionVirtual.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
   HeatCouplingRobin.hpp
@@ -63,6 +67,8 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  StokesSteady.hpp
+  StokesSteady.cpp
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
   SUPG.hpp

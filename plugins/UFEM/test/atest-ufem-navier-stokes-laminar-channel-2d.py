@@ -67,10 +67,6 @@ blocks.create_mesh(mesh.uri())
 
 ns_solver.regions = [mesh.topology.uri()]
 
-# lss setup
-lss = ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.Matrix.settings_file = sys.argv[2]
-
 u_in = [2., 0.]
 
 solver.create_fields()
@@ -118,8 +114,6 @@ writer = root.create_component('Writer', 'cf3.mesh.gmsh.Writer')
 writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
 writer.enable_overlap = True
 writer.mesh = mesh
-
-
 
 while current_end_time < final_end_time:
   current_end_time += save_interval

@@ -93,10 +93,6 @@ mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 nstokes.regions = [mesh.topology.uri()]
 
-# LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.Matrix.settings_file = sys.argv[1]
-
 u_in = [1., 0.]
 u_wall = [0., 0.]
 

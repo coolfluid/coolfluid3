@@ -18,8 +18,8 @@
 #include "common/OptionArray.hpp"
 #include "common/PropertyList.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -92,7 +92,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   set_solution_tag("navier_stokes_solution");
 
   // This ensures that the linear system matrix is reset to zero each timestep
-  create_component<ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
   // Extrapolate the velocity
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
 
@@ -105,7 +105,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   bc->set_solution_tag(solution_tag());
 
   // Solution of the LSS
-  create_component<SolveLSS>("SolveLSS");
+  create_component<math::LSS::SolveLSS>("SolveLSS");
 
   // Update of the solution
   m_update = create_component<solver::ActionDirector>("UpdateActions");

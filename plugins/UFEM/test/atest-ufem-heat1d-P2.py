@@ -27,6 +27,7 @@ def run_simulation(sf_name):
   hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
   hc.options.heat_space_name = sf_name
   hc.children.Assembly.options.k = k
+  hc.children.SetSolution.options.relaxation_factor_hc = 1.
 
   ic_heat = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'source_terms')
   ic_heat.variable_name = 'Heat'
@@ -45,9 +46,6 @@ def run_simulation(sf_name):
   # Set the region for the simulation
   hc.regions = [mesh.topology.uri()]
   ic_heat.regions = hc.regions
-  # lss setup
-  lss = hc.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-  lss.Matrix.settings_file = sys.argv[1];
 
   # Boundary conditions
   bc = hc.BoundaryConditions
@@ -72,9 +70,9 @@ if have_pylab:
   pl.plot(x_p2, T_p2, 'kx', mfc='none', label='P2')
 
   x_th = np.linspace(-1., 1., 500)
-  pl.plot(x_th, (-x_th**4./12. + 1./12.)/k + Tb, label='Analytical')
+  pl.plot(x_th, (-x_th**4. + 1.) + Tb, 'k-', label='Analytical')
   pl.grid()
   pl.legend(loc = 'lower center')
-  pl.xlabel('x (m)')
-  pl.ylabel('T (K)')
-  pl.savefig('heat-p1-p2.pdf')
+  pl.xlabel('x')
+  pl.ylabel('T')
+  pl.savefig('heat-p1-p2.eps')

@@ -29,7 +29,7 @@
 
 #include "solver/Model.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -72,11 +72,9 @@ struct NeumannFixture
   NeumannFixture() :
     root( Core::instance().root() )
   {
-    solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
   Component& root;
-  std::string solver_config;
 
 };
 
@@ -182,11 +180,7 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   hc_top->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
   math::LSS::System& bot_lss = hc_bottom->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  bot_lss.matrix()->options().set("settings_file", solver_config);
-
   math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  top_lss.matrix()->options().set("settings_file", solver_config);
-
   
   bc_bot->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
   bc_bot->add_constant_bc("bottom", "Temperature")->options().set("value", 10.);

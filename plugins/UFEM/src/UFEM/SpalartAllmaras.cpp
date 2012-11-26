@@ -15,8 +15,8 @@
 #include "common/OptionArray.hpp"
 #include "common/PropertyList.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -199,7 +199,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   PhysicsConstant nu_lam("kinematic_viscosity");
 
   *this
-    << allocate_component<ZeroLSS>("ZeroLSS")
+    << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
 //    << create_proto_action("set_wall_distance", nodes_expression(d=coordinates[1]))
     << create_proto_action
     (
@@ -233,7 +233,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
       )
     )
     << allocate_component<BoundaryConditions>("BoundaryConditions")
-    << allocate_component<SolveLSS>("SolveLSS")
+    << allocate_component<math::LSS::SolveLSS>("SolveLSS")
     << create_proto_action("Update", nodes_expression(
        group(
          NU += solution(NU),

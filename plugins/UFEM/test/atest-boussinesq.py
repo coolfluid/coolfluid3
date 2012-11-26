@@ -67,10 +67,6 @@ blocks.create_mesh(mesh.uri())
 # For each solver, set the region in which it operates
 boussinesq.options().set('regions', [mesh.access_component('topology/fluid').uri()])
 
-# LSS for Navier-Stokes
-bouss_lss = boussinesq.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-bouss_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-
 u_in = [1., 0.]
 u_wall = [0., 0.]
 phi_in = 1.

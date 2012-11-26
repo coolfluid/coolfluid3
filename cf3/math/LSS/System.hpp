@@ -19,6 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Matrix.hpp"
 #include "math/LSS/Vector.hpp"
+#include "SolutionStrategy.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,7 @@ public:
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it
-  void swap(const Handle<LSS::Matrix>& matrix, const Handle<LSS::Vector>& solution, const Handle<LSS::Vector>& rhs);
+  void swap(const boost::shared_ptr<LSS::Matrix>& matrix, const boost::shared_ptr<LSS::Vector>& solution, const boost::shared_ptr<LSS::Vector>& rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -141,13 +142,16 @@ public:
   void print(const std::string& filename);
 
   /// Accessor to matrix
-  Handle<LSS::Matrix> matrix() { return m_mat; };
+  Handle<LSS::Matrix> matrix() { return m_mat; }
 
   /// Accessor to right hand side
-  Handle<LSS::Vector> rhs() { return m_rhs; };
+  Handle<LSS::Vector> rhs() { return m_rhs; }
 
   /// Accessor to solution
-  Handle<LSS::Vector> solution() { return m_sol; };
+  Handle<LSS::Vector> solution() { return m_sol; }
+
+  /// Accessor to the solution strategy
+  Handle<LSS::SolutionStrategy> solution_strategy() { return m_solution_strategy; }
 
   /// Accessor to the state of create
   const bool is_created();
@@ -177,6 +181,9 @@ private:
 
   /// shared_ptr to right hand side vector
   Handle<LSS::Vector> m_rhs;
+
+  /// Strategy for the solution
+  Handle<LSS::SolutionStrategy> m_solution_strategy;
 
 }; // end of class System
 
