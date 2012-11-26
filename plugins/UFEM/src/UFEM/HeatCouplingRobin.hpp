@@ -13,6 +13,8 @@
 
 #include "LibUFEM.hpp"
 
+#include "LSSAction.hpp"
+
 namespace cf3 {
   namespace math { namespace LSS { class System; } }
   namespace mesh { class Region; }
@@ -51,6 +53,11 @@ private:
   Handle<math::LSS::System> m_lss;
   cf3::solver::actions::Proto::SystemRHS m_rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
+
+  // Access to the physics
+
+  PhysicsConstant h;
+
 };
 
 } // UFEM

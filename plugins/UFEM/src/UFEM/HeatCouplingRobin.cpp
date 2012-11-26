@@ -31,6 +31,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
+
 namespace cf3
 {
 
@@ -46,14 +47,14 @@ common::ComponentBuilder < HeatCouplingRobin, common::ActionDirector, LibUFEM > 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
+
+  h("heat_transfer_coefficient"),
+
   ActionDirector(name),
   m_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
-
-  system_matrix(options().add("systemmatrix", Handle<math::LSS::System>())
-  .pretty_name("SystemMatrix")
-  .description("The linear system for which the boundary condition is applied"))
+  system_matrix(options().option("lss"))
 {
   options().add("gradient_region", m_gradient_region)
     .pretty_name("Gradient Region")
@@ -73,6 +74,7 @@ HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
   set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
   // Finally set the boundary condition
   create_static_component<ProtoAction>("NeumannHeatFlux");
+
 }
 
 HeatCouplingRobin::~HeatCouplingRobin()
@@ -140,10 +142,14 @@ void HeatCouplingRobin::trigger_setup()
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+
     group
     (
-      system_matrix += integral<1>(transpose(N(T))*N(T)*_norm(normal)), // Formulation of Robin Boundary condition
-      m_rhs += integral<1>(transpose(N(T))*T*_norm(normal))
+      _A(T) = _0,
+      system_matrix +=  h * integral<1>(transpose(N(T))*N(T)*_norm(normal)), // Formulation of Robin Boundary condition
+      m_rhs +=  h * (-integral<1>(transpose(N(T))*T*_norm(normal))),
+      _cout << "system_matrix" << h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))) << "\n",
+      _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*T*_norm(normal))) << "\n"
     )
   // m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Formulation of Robin Boundary condition
   ));
