@@ -84,7 +84,7 @@ HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSActi
   bc->set_solution_tag(solution_tag());
 
   create_component<math::LSS::SolveLSS>("SolveLSS");
-  m_update = create_component<ProtoAction>("SetSolution");
+  m_update = create_component<ProtoAction>("Update");
 
   trigger();
 
