@@ -13,7 +13,7 @@
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosThyraAdapter.hpp"
-#include "BelosBlockCGSolMgr.hpp"
+#include "BelosRCGSolMgr.hpp"
 
 #include "ml_include.h"
 #include "ml_MultiLevelPreconditioner.h"
@@ -41,6 +41,8 @@
 #include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionList.hpp"
+#include <common/Table.hpp>
+#include <common/List.hpp>
 
 #include "ParameterList.hpp"
 #include "TrilinosVector.hpp"
@@ -99,6 +101,7 @@ struct ConstantPoissonStrategy::Implementation
     m_solver_parameter_list->set( "Num Blocks", 300 );
     m_solver_parameter_list->set( "Maximum Iterations", 500 );
     m_solver_parameter_list->set( "Convergence Tolerance", 1.0e-6 );
+    m_solver_parameter_list->set( "Num Recycled Blocks", 50 );
 
     update_parameters();
   }
@@ -123,9 +126,39 @@ struct ConstantPoissonStrategy::Implementation
     // Set the preconditioner
     if(m_self.options().value<bool>("use_ml_preconditioner"))
     {
+      Handle< common::Table<Real> const > coordinates = m_self.options().value< Handle< common::Table<Real> const > >("coordinates");
+      Handle< common::List<Uint> const > used_nodes = m_self.options().value< Handle< common::List<Uint> const > >("used_nodes");
+
+      if(is_not_null(coordinates) && is_not_null(used_nodes))
+      {
+        const int dim = coordinates->row_size();
+        const Uint nb_nodes = used_nodes->size();
+        for(Uint i = 0; i != dim; ++i)
+        {
+          m_coords[i].resize(nb_nodes);
+        }
+
+        for(Uint inode = 0; inode != nb_nodes; ++inode)
+        {
+          // Get local matrix index
+          const int mat_idx = m_matrix->matrix_index(inode, 0);
+          cf3_assert(mat_idx < nb_nodes);
+          // Store coord at location
+          const common::Table<Real>::ConstRow r = (*coordinates)[(*used_nodes)[inode]];
+          for(int i = 0; i != dim; ++i)
+          {
+            m_coords[i][mat_idx] = r[i];
+          }
+        }
+
+        m_ml_parameter_list->set("x-coordinates", &m_coords[0][0]);
+        m_ml_parameter_list->set("y-coordinates", &m_coords[1][0]);
+        m_ml_parameter_list->set("z-coordinates", &m_coords[2][0]);
+      }
+
       m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
       Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ml_prec ) );
-      m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+      m_problem->setLeftPrec(Thyra::epetraLinearOp(belos_prec));
     }
     else
     {
@@ -145,11 +178,11 @@ struct ConstantPoissonStrategy::Implementation
       IFPACK_CHK_ERR(m_ifpack_prec->Initialize());
       IFPACK_CHK_ERR(m_ifpack_prec->Compute());
       Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ifpack_prec ) );
-      m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
+      m_problem->setLeftPrec(Thyra::epetraLinearOp(belos_prec));
     }
     m_problem->setHermitian();
 
-    m_solver = Teuchos::rcp(new Belos::BlockCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
+    m_solver = Teuchos::rcp(new Belos::RCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
 
     return 0;
   }
@@ -211,7 +244,7 @@ struct ConstantPoissonStrategy::Implementation
   Teuchos::RCP<ML_Epetra::MultiLevelPreconditioner> m_ml_prec;
   Teuchos::RCP<Ifpack_Preconditioner> m_ifpack_prec;
   Teuchos::RCP< Belos::LinearProblem<Real,MV,OP> > m_problem;
-  Teuchos::RCP< Belos::BlockCGSolMgr<double,MV,OP> > m_solver;
+  Teuchos::RCP< Belos::RCGSolMgr<double,MV,OP> > m_solver;
 
   Handle<TrilinosCrsMatrix> m_matrix;
   Handle<TrilinosVector> m_rhs;
@@ -219,6 +252,8 @@ struct ConstantPoissonStrategy::Implementation
   Handle<ParameterList> m_ml_parameters;
   Handle<ParameterList> m_ifpack_parameters;
   Handle<ParameterList> m_solver_parameters;
+
+  std::vector<Real> m_coords[3];
 };
 
 ConstantPoissonStrategy::ConstantPoissonStrategy(const string& name) :
@@ -234,6 +269,18 @@ ConstantPoissonStrategy::ConstantPoissonStrategy(const string& name) :
   options().add("ifpack_type", "ICT")
     .pretty_name("Ifpack Type")
     .description("Type of Ifpack preconditioner to use.")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
+    .mark_basic();
+
+  options().add("coordinates", Handle< common::Table<Real> const>())
+    .pretty_name("Coordinates")
+    .description("Coordinates table for the meh with which the linear system is associated")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
+    .mark_basic();
+
+  options().add("used_nodes", Handle< common::List<Uint> const>())
+    .pretty_name("Used Nodes")
+    .description("List of nodes that is udes from the coordinates")
     .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()))
     .mark_basic();
 }

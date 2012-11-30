@@ -156,6 +156,12 @@ public:
     return m_mat;
   }
 
+  /// Get the index for the given node and equation in matrix local format
+  inline int matrix_index(const Uint inode, const Uint ieq)
+  {
+    return m_p2m[inode*m_neq+ieq];
+  }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

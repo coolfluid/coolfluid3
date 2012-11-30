@@ -196,9 +196,13 @@ void LSSAction::on_regions_set()
 
     std::vector<Uint> node_connectivity, starting_indices;
     boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+    if(is_not_null(get_child(used_nodes->name())))
+      remove_component(used_nodes->name());
     add_component(used_nodes);
 
     // This comm pattern is valid only over the used nodes for the supplied regions
+    if(is_not_null(get_child("CommPattern")))
+      remove_component("CommPattern");
     PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
