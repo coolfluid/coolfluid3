@@ -18,6 +18,7 @@
 #include "LagrangeP1/Quad3D.hpp"
 #include "Space.hpp"
 #include "Connectivity.hpp"
+#include "Field.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -63,9 +64,9 @@ void MeshTriangulator::execute()
 
     to_remove.push_back(quads.handle());
   }
-  
+
   // Convert 3D mesh
-  
+
   // Keeps track of the per-tetrahedron indices
   const Uint tetra_indices[5][4] = {
     {0, 1, 2, 5},
@@ -74,7 +75,7 @@ void MeshTriangulator::execute()
     {4, 7, 5, 0},
     {0, 7, 5, 2}
   };
-    
+
   // local node indices for the triangles that split each side of the hexahedron
   const Uint face_nodes[6][2][3] = {
     {{0, 3, 2}, {2, 1, 0}},
@@ -84,21 +85,27 @@ void MeshTriangulator::execute()
     {{2, 3, 7}, {7, 6, 2}},
     {{0, 4, 7}, {7, 3, 0}}
   };
-  
+
   // We use connectivity information to ensure that quad surface patches are subdivided the same way as the adjacent cell
   boost::shared_ptr<CNodeConnectivity> node_connectivity = allocate_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Quad3D>()));
-  
+
   // Build a mapping between Quad3D and Triag3D element patches
   std::map<Elements const*, Elements*> surface_patches;
+  Uint triags_to_add = 0;
   BOOST_FOREACH(Elements& quads, find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Quad3D>()))
   {
     Elements& triags = find_parent_component<Region>(quads).create_elements("cf3.mesh.LagrangeP1.Triag3D", quads.geometry_fields());
     triags.resize(quads.size()*2);
+    triags_to_add += triags.size();
     surface_patches[&quads] = &triags;
     to_remove.push_back(quads.handle());
   }
-  
+
+  const Table<Real>& coords = mesh().geometry_fields().coordinates();
+
+  Uint added_triags = 0;
+
   BOOST_FOREACH(Elements& hexas, find_components_recursively_with_filter<Elements>(mesh(), IsElementType<LagrangeP1::Hexa3D>()))
   {
     const Uint nb_hexas = hexas.size();
@@ -106,15 +113,15 @@ void MeshTriangulator::execute()
     tetras.resize(nb_hexas*5);
     const Connectivity& hexa_conn = hexas.geometry_space().connectivity();
     Connectivity& tetra_conn = tetras.geometry_space().connectivity();
-    
+
     // Connectivity to any adjacent surface patches
     CFaceConnectivity& face_connectivity = *hexas.create_component<CFaceConnectivity>("CellToFaceConnectivity");
     face_connectivity.initialize(*node_connectivity);
-    
+
     for(Uint i = 0; i != nb_hexas; ++i)
     {
       const Connectivity::ConstRow hexa_row = hexa_conn[i];
-      
+
       // Split up the volume cells
       for(Uint j = 0; j != 5; ++j) // loop over the tetras
       {
@@ -124,7 +131,7 @@ void MeshTriangulator::execute()
           tetra_row[k] = hexa_row[tetra_indices[j][k]];
         }
       }
-      
+
       // Split up the surface patches
       for(Uint j = 0; j != 6; ++j)
       {
@@ -134,14 +141,32 @@ void MeshTriangulator::execute()
           Elements& triags = *surface_patches[adj_elem.first];
           Connectivity::Row triag_row1 = triags.geometry_space().connectivity()[adj_elem.second*2];
           Connectivity::Row triag_row2 = triags.geometry_space().connectivity()[adj_elem.second*2+1];
-          
+
           triag_row1[0] = hexa_row[face_nodes[j][0][0]];
           triag_row1[1] = hexa_row[face_nodes[j][0][1]];
           triag_row1[2] = hexa_row[face_nodes[j][0][2]];
 
+          cf3_assert(triag_row1[0] != triag_row1[1]);
+          cf3_assert(triag_row1[0] != triag_row1[2]);
+          cf3_assert(triag_row1[1] != triag_row1[2]);
+
+          cf3_assert(coords[triag_row1[0]] != coords[triag_row1[1]]);
+          cf3_assert(coords[triag_row1[0]] != coords[triag_row1[2]]);
+          cf3_assert(coords[triag_row1[1]] != coords[triag_row1[2]]);
+
           triag_row2[0] = hexa_row[face_nodes[j][1][0]];
           triag_row2[1] = hexa_row[face_nodes[j][1][1]];
           triag_row2[2] = hexa_row[face_nodes[j][1][2]];
+
+          cf3_assert(triag_row2[0] != triag_row2[1]);
+          cf3_assert(triag_row2[0] != triag_row2[2]);
+          cf3_assert(triag_row2[1] != triag_row2[2]);
+
+          cf3_assert(coords[triag_row2[0]] != coords[triag_row2[1]]);
+          cf3_assert(coords[triag_row2[0]] != coords[triag_row2[2]]);
+          cf3_assert(coords[triag_row2[1]] != coords[triag_row2[2]]);
+
+          added_triags += 2;
         }
       }
     }
@@ -149,22 +174,29 @@ void MeshTriangulator::execute()
     to_remove.push_back(hexas.handle());
   }
 
+  if(triags_to_add != added_triags)
+  {
+    std::stringstream error_str;
+    error_str << "Expected to add " << triags_to_add << " triangles, but only " << added_triags << " were added";
+    throw common::ShouldNotBeHere(FromHere(), error_str.str());
+  }
+
   // Remove the quads and hexas
   BOOST_FOREACH(const Handle<Component>& comp, to_remove)
   {
     comp->parent()->remove_component(*comp);
   }
-  
+
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
-  
+
   // Total number of elements on this rank
   Uint mesh_nb_elems = 0;
   boost_foreach(Elements& elements , find_components_recursively<Elements>(mesh()))
   {
     mesh_nb_elems += elements.size();
   }
-  
+
   std::vector<Uint> nb_elements_accumulated;
   if(PE::Comm::instance().is_active())
   {
