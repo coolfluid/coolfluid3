@@ -58,16 +58,9 @@ struct PressureLSS : LSSActionUnsteady
   
   void execute()
   {
-    LSSActionUnsteady::execute();
     std::vector<std::string> disabled = options().option("disabled_actions").value< std::vector<std::string> >();
     if(disabled.empty())
     {
-      disabled.reserve(3);
-      disabled.push_back("PressureBC");
-      disabled.push_back("PressureMatrixAssembly");
-      disabled.push_back("SavePressureBC");
-      options().set("disabled_actions", disabled);
-      
       Handle<Component> bc = get_child("PressureBC");
       cf3_assert(bc);
       std::set<std::string> bc_region_set;
@@ -85,6 +78,17 @@ struct PressureLSS : LSSActionUnsteady
         bc_regions.push_back(URI(s));
       }
       get_child("RestorePressureDirichlet")->options().set(solver::Tags::regions(), bc_regions);
+    }
+    
+    LSSActionUnsteady::execute();
+    
+    if(disabled.empty())
+    {
+      disabled.reserve(3);
+      disabled.push_back("PressureBC");
+      disabled.push_back("PressureMatrixAssembly");
+      disabled.push_back("SavePressureBC");
+      options().set("disabled_actions", disabled);
     }
   }
 };
