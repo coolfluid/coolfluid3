@@ -67,6 +67,24 @@ struct PressureLSS : LSSActionUnsteady
       disabled.push_back("PressureMatrixAssembly");
       disabled.push_back("SavePressureBC");
       options().set("disabled_actions", disabled);
+      
+      Handle<Component> bc = get_child("PressureBC");
+      cf3_assert(bc);
+      std::set<std::string> bc_region_set;
+      BOOST_FOREACH(const solver::Action& a, find_components_recursively<solver::Action>(*bc))
+      {
+        std::vector<URI> regions = a.options().option(solver::Tags::regions()).value< std::vector<URI> >();
+        BOOST_FOREACH(const URI& u, regions)
+        {
+          bc_region_set.insert(u.string());
+        }
+      }
+      std::vector<URI> bc_regions; bc_regions.reserve(bc_region_set.size());
+      BOOST_FOREACH(const std::string& s, bc_region_set)
+      {
+        bc_regions.push_back(URI(s));
+      }
+      get_child("RestorePressureDirichlet")->options().set(solver::Tags::regions(), bc_regions);
     }
   }
 };
@@ -231,6 +249,7 @@ void NavierStokesExplicit::trigger_assembly()
   m_save_pressure_bc = m_pressure_lss->create_component<ProtoAction>("SavePressureBC");
   m_save_pressure_bc->set_expression(nodes_expression(p_rhs = m_pressure_lss->system_rhs(p)));
   
+  // This sets the RHS back to the initial one
   m_restore_pressure_bc = m_pressure_lss->create_component<ProtoAction>("RestorePressureBC");
   m_restore_pressure_bc->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
 
@@ -239,6 +258,10 @@ void NavierStokesExplicit::trigger_assembly()
   set_quad_p_rhs_assembly();
   set_hexa_p_rhs_assembly();
   set_tetra_p_rhs_assembly();
+  
+  // After RHS assembly, we need to reapply the RHS part of the dirichlet on the boundary nodes
+  m_restore_pressure_dirichlet = m_pressure_lss->create_component<ProtoAction>("RestorePressureDirichlet");
+  m_restore_pressure_dirichlet->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
 
   // Solution of the system
   m_pressure_lss->create_component<math::LSS::SolveLSS>("SolvePressureLSS");

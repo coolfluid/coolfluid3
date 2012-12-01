@@ -153,6 +153,7 @@ private:
   Handle<solver::actions::Proto::ProtoAction> m_save_pressure_bc;
   // Restores the pressure BC RHS every iteration, since the RHS needs reassembly every time
   Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_bc;
+  Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_dirichlet;
 
   bool m_recursing;
 
