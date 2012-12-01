@@ -47,6 +47,32 @@ using boost::proto::lit;
 
 ComponentBuilder < NavierStokesExplicit, common::Action, LibUFEM > NavierStokesExplicit_builder;
 
+/// Override basic LSSActionUnsteady to make sure some actions get disabled after the first execute
+struct PressureLSS : LSSActionUnsteady
+{
+  PressureLSS ( const std::string& name ) : LSSActionUnsteady(name)
+  {
+  }
+  
+  static std::string type_name () { return "PressureLSS"; }
+  
+  void execute()
+  {
+    LSSActionUnsteady::execute();
+    std::vector<std::string> disabled = options().option("disabled_actions").value< std::vector<std::string> >();
+    if(disabled.empty())
+    {
+      disabled.reserve(3);
+      disabled.push_back("PressureBC");
+      disabled.push_back("PressureMatrixAssembly");
+      disabled.push_back("SavePressureBC");
+      options().set("disabled_actions", disabled);
+    }
+  }
+};
+
+ComponentBuilder < PressureLSS, common::Action, LibUFEM > PressureLSS_builder;
+
 NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   solver::ActionDirector(name),
   u("Velocity", "navier_stokes_u_solution"),
@@ -116,15 +142,6 @@ NavierStokesExplicit::~NavierStokesExplicit()
 {
 }
 
-void NavierStokesExplicit::execute()
-{
-  solver::ActionDirector::execute();
-  std::vector<std::string> disabled(2);
-  disabled[0] = "PressureBC";
-  disabled[1] = "PressureMatrixAssembly";
-  m_pressure_lss->options().set("disabled_actions", disabled);
-}
-
 void NavierStokesExplicit::trigger_assembly()
 {
   const bool implicit_diffusion = options().option("implicit_diffusion").value<bool>();
@@ -190,29 +207,38 @@ void NavierStokesExplicit::trigger_assembly()
     reset_rhs->options().set("reset_solution", false);
   }
 
-  m_pressure_lss = m_inner_loop->create_component<LSSActionUnsteady>("PressureSystem");
+  m_pressure_lss = m_inner_loop->create_component<PressureLSS>("PressureSystem");
   m_pressure_lss->set_solution_tag("navier_stokes_p_solution");
   m_pressure_lss->mark_basic();
 
   m_pressure_matrix_assembly = m_pressure_lss->create_component<solver::ActionDirector>("PressureMatrixAssembly");
   m_pressure_matrix_assembly->create_component<math::LSS::ZeroLSS>("ZeroPressureLSS");
   
-  // Assembly of the pressure LSS RHS
-  set_triag_p_rhs_assembly();
-  set_quad_p_rhs_assembly();
-  set_hexa_p_rhs_assembly();
-  set_tetra_p_rhs_assembly();
-  
   // Assembly of the pressure LSS matrix
   set_triag_p_mat_assembly();
   set_quad_p_mat_assembly();
   set_hexa_p_mat_assembly();
   set_tetra_p_mat_assembly();
-
+  
   // Pressure BC
   Handle<BoundaryConditions> bc_p = m_pressure_lss->create_component<BoundaryConditions>("PressureBC");
   bc_p->mark_basic();
   bc_p->set_solution_tag("navier_stokes_p_solution");
+  
+  // Management of BCs on the pressure LSS
+  FieldVariable<0, ScalarField> p_rhs("PressureBC", "navier_stokes_pressure_bc");
+  
+  m_save_pressure_bc = m_pressure_lss->create_component<ProtoAction>("SavePressureBC");
+  m_save_pressure_bc->set_expression(nodes_expression(p_rhs = m_pressure_lss->system_rhs(p)));
+  
+  m_restore_pressure_bc = m_pressure_lss->create_component<ProtoAction>("RestorePressureBC");
+  m_restore_pressure_bc->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
+
+  // Assembly of the pressure LSS RHS
+  set_triag_p_rhs_assembly();
+  set_quad_p_rhs_assembly();
+  set_hexa_p_rhs_assembly();
+  set_tetra_p_rhs_assembly();
 
   // Solution of the system
   m_pressure_lss->create_component<math::LSS::SolveLSS>("SolvePressureLSS");
@@ -323,6 +349,12 @@ void NavierStokesExplicit::on_regions_set()
     m_pressure_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   if(is_not_null(m_iteration_initial_condition))
     m_iteration_initial_condition->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  
+  if(is_not_null(m_save_pressure_bc) && is_not_null(m_restore_pressure_bc))
+  {
+    m_save_pressure_bc->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+    m_restore_pressure_bc->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+  }
 
   cf3::solver::ActionDirector::on_regions_set();
 
