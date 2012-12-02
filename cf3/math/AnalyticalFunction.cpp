@@ -78,7 +78,7 @@ void AnalyticalFunction::set_variables(const std::string& vars, const std::strin
   boost::char_separator<char> sep(separator.c_str());
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   tokenizer tok (vars,sep);
-
+  m_vars.clear();
   for (tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
   {
     m_vars.push_back(*el);
