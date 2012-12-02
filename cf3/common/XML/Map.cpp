@@ -38,40 +38,95 @@ namespace XML {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//template <typename TYPE>
+//void Map::split_string ( const std::string & str, const std::string & delimiter,
+//                         std::vector<TYPE> & result, int size )
+//{
+//  // make the code a bit more readable
+//  using namespace boost;            // first_finder() and is_iequal()
+//  using namespace boost::algorithm; // split_iterator and make_split_iterator()
+//  typedef split_iterator<std::string::iterator> StringSplitIterator;
+
+//  // make a copy of the string (it will be modified) and initialize the iterator
+//  std::string value_str(str);
+//  StringSplitIterator it = make_split_iterator(value_str, first_finder(delimiter, is_iequal()));
+
+//  // reserve memory if the number of elements was given
+//  if(size >= 0)
+//    result.reserve( result.size() + size );
+
+//  for ( ; it != StringSplitIterator() ; ++it )
+//  {
+//    try
+//    {
+//      // take the item, cast it to TYPE and add it to the result vector
+//      std::string str = boost::copy_range<std::string>(*it);
+
+//      if( !str.empty() )
+//        result.push_back(  from_str<TYPE>( str ) );
+//    }
+//    catch(boost::bad_lexical_cast e)
+//    {
+//      throw CastingFailed(FromHere(), "Unable to cast [" + boost::copy_range<std::string>(*it) + "] to " +
+//                          common::class_name<TYPE>() + ".");
+//    }
+//  }
+//}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename TYPE>
-void Map::split_string ( const std::string & str, const std::string & delimiter,
-                         std::vector<TYPE> & result, int size )
+void Map::split_string ( const std::string& str, const std::string& delimiter,
+                         std::vector<TYPE>& result, int size )
 {
-  // make the code a bit more readable
-  using namespace boost;            // first_finder() and is_iequal()
-  using namespace boost::algorithm; // split_iterator and make_split_iterator()
-  typedef split_iterator<std::string::iterator> StringSplitIterator;
+  if (delimiter.size() > 1) throw ProtocolError(FromHere(), "Delimiter should be 1 char");
+  const char delim = delimiter[0];
 
-  // make a copy of the string (it will be modified) and initialize the iterator
-  std::string value_str(str);
-  StringSplitIterator it = make_split_iterator(value_str, first_finder(delimiter, is_iequal()));
-
-  // reserve memory if the number of elements was given
   if(size >= 0)
     result.reserve( result.size() + size );
 
-  for ( ; it != StringSplitIterator() ; ++it )
+  Uint in_brackets(0);
+  std::string::const_iterator first = str.begin();
+  std::string::const_iterator it = first;
+  std::string elem;
+  for ( ; it!=str.end(); ++it)
   {
-    try
+    if (*it == '(') // opening bracket
+      ++in_brackets;
+    else if (*it == ')') // closing bracket
+      --in_brackets;
+    else if (*it == delim && in_brackets == 0)
     {
-      // take the item, cast it to TYPE and add it to the result vector
-      std::string str = boost::copy_range<std::string>(*it);
+      elem = std::string(first,it);
+      boost::algorithm::trim(elem);
+      try
+      {
+        if( !elem.empty() )
+          result.push_back( from_str<TYPE>(elem) );
+      }
+      catch(boost::bad_lexical_cast e)
+      {
+        throw CastingFailed(FromHere(), "Unable to cast [" + elem + "] to " +
+                            common::class_name<TYPE>() + ".");
+      }
 
-      if( !str.empty() )
-        result.push_back(  from_str<TYPE>( str ) );
-    }
-    catch(boost::bad_lexical_cast e)
-    {
-      throw CastingFailed(FromHere(), "Unable to cast [" + boost::copy_range<std::string>(*it) + "] to " +
-                          common::class_name<TYPE>() + ".");
+      first = it+1;
     }
   }
+  elem = std::string(first,it);
+  boost::algorithm::trim(elem);
+  try
+  {
+    if( !elem.empty() )
+      result.push_back( from_str<TYPE>(elem) );
+  }
+  catch(boost::bad_lexical_cast e)
+  {
+    throw CastingFailed(FromHere(), "Unable to cast [" + elem + "] to " +
+                        common::class_name<TYPE>() + ".");
+  }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
