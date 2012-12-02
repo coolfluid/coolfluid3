@@ -187,6 +187,10 @@ function( coolfluid_add_test )
 
     if( _PAR_CPP )
 
+      foreach( plugin ${_PAR_PLUGINS} )
+        list( APPEND ${_TEST_NAME}_includedirs ${${plugin}_DIR} )
+      endforeach()
+
       if( DEFINED ${_TEST_NAME}_includedirs )
         include_directories(${${_TEST_NAME}_includedirs})
       endif()

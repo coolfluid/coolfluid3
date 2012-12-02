@@ -62,6 +62,10 @@ macro( coolfluid_add_library LIBNAME )
     coolfluid_log_file( " +++ LIB   [${LIBNAME}]" )
 
     # add include dirs if defined
+    foreach( req_plugin ${${LIBNAME}_requires_plugins} )
+      list( APPEND ${LIBNAME}_includedirs ${${req_plugin}_DIR} )
+    endforeach()
+
     if( DEFINED ${LIBNAME}_includedirs )
       include_directories(${${LIBNAME}_includedirs})
     endif()
