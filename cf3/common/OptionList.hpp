@@ -79,6 +79,9 @@ public:
   /// get an option from the list
   Option& option( const std::string& pname );
 
+  /// get a constant option from the list
+  const boost::shared_ptr<Option>& option_ptr( const std::string& pname );
+
   /// contant access operator to properties
   const Option& operator [] (const std::string & pname) const;
   /// access operator to properties
@@ -88,6 +91,11 @@ public:
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
   void set(const std::string& pname, const boost::any& val);
+
+  /// Configure one option, and trigger its actions
+  /// @param [in] optname  The option name
+  /// @param [in] val      The new value assigned to the option
+  bool set_if_exists(const std::string& pname, const boost::any& val);
 
   /// @brief Get the value of the option with given name
   /// @param [in] opt_name  The option name

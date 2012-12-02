@@ -1093,8 +1093,8 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 boost::shared_ptr<Component> build_component(const std::string& builder_name,
-                               const std::string& name,
-                               const std::string& factory_type_name )
+                                             const std::string& name,
+                                             const std::string& factory_type_name )
 {
   // get the factories
 
