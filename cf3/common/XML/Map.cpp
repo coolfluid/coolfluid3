@@ -79,7 +79,6 @@ template <typename TYPE>
 void Map::split_string ( const std::string& str, const std::string& delimiter,
                          std::vector<TYPE>& result, int size )
 {
-  if (delimiter.size() > 1) throw ProtocolError(FromHere(), "Delimiter should be 1 char");
   const char delim = delimiter[0];
 
   if(size >= 0)
@@ -97,20 +96,32 @@ void Map::split_string ( const std::string& str, const std::string& delimiter,
       --in_brackets;
     else if (*it == delim && in_brackets == 0)
     {
-      elem = std::string(first,it);
-      boost::algorithm::trim(elem);
-      try
-      {
-        if( !elem.empty() )
-          result.push_back( from_str<TYPE>(elem) );
-      }
-      catch(boost::bad_lexical_cast e)
-      {
-        throw CastingFailed(FromHere(), "Unable to cast [" + elem + "] to " +
-                            common::class_name<TYPE>() + ".");
-      }
+      bool is_delim=true;
 
-      first = it+1;
+      for (Uint i=0; i<delimiter.size(); ++i)
+      {
+        if (it+i==str.end() || *(it+i)!=delimiter[i])
+        {
+          is_delim=false;
+          break;
+        }
+      }
+      if (is_delim)
+      {
+        elem = std::string(first,it);
+        boost::algorithm::trim(elem);
+        try
+        {
+          if( !elem.empty() )
+            result.push_back( from_str<TYPE>(elem) );
+        }
+        catch(boost::bad_lexical_cast e)
+        {
+          throw CastingFailed(FromHere(), "Unable to cast [" + elem + "] to " +
+                              common::class_name<TYPE>() + ".");
+        }
+        first = it+delimiter.size();
+      }
     }
   }
   elem = std::string(first,it);
