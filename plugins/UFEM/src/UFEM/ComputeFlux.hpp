@@ -43,7 +43,7 @@ public:
 private:
 
   /// Called when the boundary regions are set
-//  virtual void on_regions_set();
+  virtual void on_regions_set();
 
 //  void trigger_gradient_region();
 

@@ -41,6 +41,8 @@ public:
   static std::string type_name () { return "ComputeTfluid"; }
 
 private:
+  /// Called when the boundary regions are set
+  virtual void on_regions_set();
 
   /// Called when the "lss" or "temperature_field_tag" options are changed
   void trigger_setup();

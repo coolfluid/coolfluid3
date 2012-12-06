@@ -30,7 +30,7 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
-
+using namespace boost::proto;
 namespace cf3
 {
 
@@ -111,6 +111,11 @@ ComputeFlux::~ComputeFlux()
 //  }
 //}
 
+void ComputeFlux::on_regions_set()
+{
+  get_child("ComputeQFluid")->options().set("regions", options()["regions"].value());
+}
+
 void ComputeFlux::trigger_setup()
 {
   // Get the tags for the used fields
@@ -136,7 +141,7 @@ void ComputeFlux::trigger_setup()
 
  compute_q_fluid->set_expression(nodes_expression
   (group(
-    q_fluid = h*(T-Tfl), // Calculate fluid flux applied in the Neumann condition formulation
+    q_fluid = lit(h)*(T-Tfl), // Calculate fluid flux applied in the Neumann condition formulation
                                     _cout << "q_fluid:" <<  h*(T-Tfl) << "\n")
   ));
 

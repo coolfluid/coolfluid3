@@ -75,6 +75,11 @@ ComputeTfluid::~ComputeTfluid()
 {
 }
 
+void ComputeTfluid::on_regions_set()
+{
+  get_child("ComputeTFluid")->options().set("regions", options()["regions"].value());
+}
+
 void ComputeTfluid::trigger_setup()
 {
   // Get the tags for the used fields
@@ -94,7 +99,7 @@ void ComputeTfluid::trigger_setup()
  compute_t_fluid->set_expression(nodes_expression
                                  (group(
     Tfl = T - (q_fluid/h), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "Tfl:" << T - (q_fluid/h) << "\n")
+                                    _cout << "Tfl:" << (T - (q_fluid/h)) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n"  << "h:" << h << "\n")
   ));
 
   // Raise an event to indicate that we added a variable
