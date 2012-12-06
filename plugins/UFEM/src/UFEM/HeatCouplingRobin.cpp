@@ -61,7 +61,7 @@ HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
-  options().add("temperaturefluid_field_tag", UFEM::Tags::solution())
+  options().add("temperature_fluid_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Fluid Field Tag")
     .description("Tag for the ambient temperature field(for the Robin BC)")
     .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
@@ -91,14 +91,14 @@ void HeatCouplingRobin::trigger_setup()
 {
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
-  const std::string temperaturefluid_field_tag = options().value<std::string>("temperaturefluid_field_tag");
+  const std::string temperature_fluid_field_tag = options().value<std::string>("temperature_fluid_field_tag");
 
   //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
   Handle<ProtoAction> neumann_heat_flux(get_child("NeumannHeatFlux"));
 
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
-  FieldVariable<1, ScalarField> Tfl("Temperature", temperaturefluid_field_tag);
+  FieldVariable<1, ScalarField> Tfl("Temperature", temperature_fluid_field_tag);
 
   // to do first of two steps for the Robin BC
   const bool robin_pre = options().value<bool>("robin_pre");
