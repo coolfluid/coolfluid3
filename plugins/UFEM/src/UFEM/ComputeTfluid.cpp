@@ -96,10 +96,12 @@ void ComputeTfluid::trigger_setup()
 
   FieldVariable<2, ScalarField> q_fluid("robin_flux", "robin_flux");
 
+  FieldVariable<3, ScalarField> Tfluid("Temperature", "Tfluid");
+
  compute_t_fluid->set_expression(nodes_expression
                                  (group(
-    Tfl = T - (q_fluid/h), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "Tfl:" << (T - (q_fluid/h)) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n"  << "h:" << h << "\n")
+    Tfluid = Tfl - (q_fluid/h), // Calculate fluid flux applied in the Neumann condition formulation
+                                    _cout << "Tfluid:" << Tfl - (q_fluid/h) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n" << "Tfl:" << Tfl << "\n" << "h:" << h << "\n")
   ));
 
   // Raise an event to indicate that we added a variable

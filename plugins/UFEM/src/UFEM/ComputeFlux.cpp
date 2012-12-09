@@ -134,6 +134,7 @@ void ComputeFlux::trigger_setup()
 
   FieldVariable<2, ScalarField> q_fluid("robin_flux", "robin_flux");
 
+  FieldVariable<3, ScalarField> Tfluid("Temperature", "Tfluid");
 //  compute_t_fluid->set_expression(nodes_expression
 //   (
 //     Tfl = T - (q_fluid/h) // Calculate ambient fluid temperature
@@ -141,8 +142,8 @@ void ComputeFlux::trigger_setup()
 
  compute_q_fluid->set_expression(nodes_expression
   (group(
-    q_fluid = lit(h)*(T-Tfl), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "q_fluid:" <<  h*(T-Tfl) << "\n")
+    q_fluid = lit(h)*(T-Tfluid), // Calculate fluid flux applied in the Neumann condition formulation
+                                    _cout << "q_fluid:" <<  h*(T-Tfluid) << "\n" << "T:" << T << "\n" << "Tfluid: " << Tfluid << "\n")
   ));
 
  // Expression for the Neumann BC itself
