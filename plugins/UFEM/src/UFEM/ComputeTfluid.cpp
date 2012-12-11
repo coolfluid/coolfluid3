@@ -101,7 +101,7 @@ void ComputeTfluid::trigger_setup()
  compute_t_fluid->set_expression(nodes_expression
                                  (group(
     Tfluid = Tfl - (q_fluid/h), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "Tfluid:" << Tfl - (q_fluid/h) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n" << "Tfl:" << Tfl << "\n" << "h:" << h << "\n")
+                                    _cout << "ComputeTFluid:" << "\n" << "Tfluid:" << Tfl - (q_fluid/h) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n" << "Tfl:" << Tfl << "\n" << "h:" << h << "\n")
   ));
 
   // Raise an event to indicate that we added a variable
