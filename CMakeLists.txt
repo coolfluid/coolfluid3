@@ -31,7 +31,7 @@ cmake_policy( VERSION 2.8.3 )
 # project definition and versioning
 ##############################################################################
 
-project( coolfluid C CXX Fortran )
+project( coolfluid C CXX )
 
 # disallow in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")

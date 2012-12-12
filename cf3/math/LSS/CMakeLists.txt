@@ -26,6 +26,8 @@ list( APPEND coolfluid_math_lss_libs coolfluid_math coolfluid_common )
 list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/BelosGMRESParameters.hpp
     Trilinos/BelosGMRESParameters.cpp
+    Trilinos/ConstantPoissonStrategy.hpp
+    Trilinos/ConstantPoissonStrategy.cpp
     Trilinos/ParameterList.hpp
     Trilinos/ParameterList.cpp
     Trilinos/ParameterListDefaults.hpp

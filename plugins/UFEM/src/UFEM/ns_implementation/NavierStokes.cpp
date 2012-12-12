@@ -92,7 +92,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   set_solution_tag("navier_stokes_solution");
 
   // This ensures that the linear system matrix is reset to zero each timestep
-  create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_solution", false);
   // Extrapolate the velocity
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
 

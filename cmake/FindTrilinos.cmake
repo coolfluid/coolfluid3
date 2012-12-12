@@ -9,7 +9,7 @@
 #   CF3_HAVE_TRILINOS
 #
 option( CF3_SKIP_TRILINOS "Skip search for Trilinos library" OFF )
-
+set(CF3_TRILINOS_EXTRA_LIBS "" CACHE  STRING "Extra libraries needed to link with Trilinos")
 # Try to find Trilinos using Trilinos recommendations
 
 if( DEFINED TRILINOS_HOME )
@@ -85,6 +85,8 @@ else()
   endif()
 
 endif()
+
+list(APPEND TRILINOS_LIBRARIES ${CF3_TRILINOS_EXTRA_LIBS})
 
 coolfluid_log_file("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
 coolfluid_log_file("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )

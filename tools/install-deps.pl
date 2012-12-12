@@ -1010,6 +1010,7 @@ sub install_trilinos() {
       -D Didasko_ENABLE_EXAMPLES:BOOL=OFF \\
       -D Trilinos_ENABLE_Epetra:BOOL=ON \\
       -D Trilinos_ENABLE_EpetraExt:BOOL=ON \\
+      -D Trilinos_ENABLE_ShyLU:BOOL=ON \\
       -D Trilinos_ENABLE_Tpetra:BOOL=ON \\
       -D Trilinos_ENABLE_Teko:BOOL=ON \\
       -D Trilinos_ENABLE_TpetraExt:BOOL=ON \\

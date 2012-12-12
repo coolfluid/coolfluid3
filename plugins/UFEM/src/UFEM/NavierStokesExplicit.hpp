@@ -18,6 +18,7 @@
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include "solver/ActionDirector.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
@@ -49,8 +50,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "NavierStokesExplicit"; }
   
-  void execute();
-
 private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
@@ -150,6 +149,11 @@ private:
   Handle<common::Action> m_velocity_initial_condition;
   Handle<common::Action> m_pressure_initial_condition;
   Handle<solver::ActionDirector> m_pressure_matrix_assembly;
+  // Saves the pressure BC after the first application of the boundary conditions
+  Handle<solver::actions::Proto::ProtoAction> m_save_pressure_bc;
+  // Restores the pressure BC RHS every iteration, since the RHS needs reassembly every time
+  Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_bc;
+  Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_dirichlet;
 
   bool m_recursing;
 

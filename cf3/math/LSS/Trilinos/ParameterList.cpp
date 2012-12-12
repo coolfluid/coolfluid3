@@ -42,7 +42,9 @@ namespace detail
   std::string param_name_to_option(std::string param_name)
   {
     boost::to_lower(param_name);
+    boost::replace_all(param_name, ":", "");
     boost::replace_all(param_name, " ", "_");
+    boost::replace_all(param_name, "-", "_");
     return param_name;
   }
 
@@ -102,6 +104,42 @@ namespace detail
     bool& m_found;
   };
 
+  struct AddNewParameter
+  {
+    AddNewParameter(ParameterList& parameters, Teuchos::ParameterList& teuchos_parameters, const std::string& name, const boost::any& value, bool& found) :
+      m_parameters(parameters),
+      m_teuchos_parameters(teuchos_parameters),
+      m_name(name),
+      m_value(value),
+      m_found(found)
+    {
+    }
+
+    template<typename T>
+    void operator()(const T&)
+    {
+      if(m_value.type() == typeid(T))
+      {
+        const T typed_val = boost::any_cast<T>(m_value);
+        cf3_assert(!m_found);
+        m_parameters.options().add(param_name_to_option(m_name), typed_val)
+          .pretty_name(m_name)
+          .attach_trigger(boost::bind(&ParameterList::trigger_parameter_changed, &m_parameters))
+          .mark_basic();
+
+        m_teuchos_parameters.set(m_name, typed_val);
+
+        m_found = true;
+      }
+    }
+
+    ParameterList& m_parameters;
+    Teuchos::ParameterList& m_teuchos_parameters;
+    const std::string& m_name;
+    const boost::any& m_value;
+    bool& m_found;
+  };
+
 } // namespace detail
 
 common::ComponentBuilder<ParameterList, common::Component, LibLSS> ParameterList_builder;
@@ -110,6 +148,16 @@ typedef boost::mpl::vector4<int, double, std::string, bool> ParameterTypesT;
 
 ParameterList::ParameterList(const std::string& name): Component(name)
 {
+  regist_signal("add_parameter")
+    .connect(boost::bind( &ParameterList::signal_add_parameter, this, _1 ))
+    .description("Add a new parameter to the underlying list.")
+    .pretty_name("Add Parameter");
+
+  regist_signal( "create_parameter_list" )
+    .connect( boost::bind( &ParameterList::signal_create_parameter_list, this, _1 ) )
+    .description("Create a new ParameterList")
+    .pretty_name("Create ParameterList")
+    .signature( boost::bind ( &ParameterList::signature_create_parameter_list, this, _1) );
 }
 
 ParameterList::~ParameterList()
@@ -140,6 +188,14 @@ void ParameterList::set_parameter_list(Teuchos::ParameterList& parameters)
   }
 }
 
+Handle< ParameterList > ParameterList::create_parameter_list ( const std::string& trilinos_name )
+{
+  Handle<ParameterList> new_list = create_component<ParameterList>(detail::param_list_name_to_comp(trilinos_name));
+  new_list->set_parameter_list(m_parameters->sublist(trilinos_name));
+  new_list->mark_basic();
+  return new_list;
+}
+
 void ParameterList::trigger_parameter_changed()
 {
   for(common::OptionList::const_iterator it = options().begin(); it != options().end(); ++it)
@@ -155,6 +211,40 @@ void ParameterList::trigger_parameter_changed()
   common::SignalArgs f = options.create_frame();
   common::Core::instance().event_handler().raise_event( "trilinos_parameters_changed", f );
 }
+
+void ParameterList::signal_add_parameter(common::SignalArgs& args)
+{
+  common::XML::SignalOptions options(args);
+  const std::string name = args.options().option("name").value<std::string>();
+  const boost::any val = args.options().option("value").value();
+
+  bool found = false;
+  boost::mpl::for_each<ParameterTypesT>(detail::AddNewParameter(*this, *m_parameters, name, val, found));
+
+  common::XML::SignalOptions event_options;
+  event_options.add("parameters_uri", uri());
+  common::SignalArgs f = event_options.create_frame();
+  common::Core::instance().event_handler().raise_event( "trilinos_parameters_changed", f );
+}
+
+void ParameterList::signal_create_parameter_list ( common::SignalArgs& args )
+{
+  common::XML::SignalOptions options(args);
+  Handle<ParameterList> new_list = create_parameter_list(options.option("trilinos_name").value<std::string>());
+
+  common::XML::SignalFrame reply = args.create_reply(uri());
+  common::XML::SignalOptions reply_options(reply);
+  reply_options.add("created_component", new_list->uri());
+}
+
+void ParameterList::signature_create_parameter_list ( common::SignalArgs& args )
+{
+  common::XML::SignalOptions options(args);
+  options.add("trilinos_name", "unknown")
+    .pretty_name("Trilinos Name")
+    .description("Name of the new parameter list, as required by Trilinos");
+}
+
 
 
 } // namespace LSS

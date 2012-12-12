@@ -11,7 +11,7 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 4
+env.log_level = 3
 env.only_cpu0_writes = True
 
 # setup a model
@@ -76,6 +76,19 @@ physics.options().set('reference_velocity', 1.)
 tstep = 0.15
 
 ns_solver.regions = [mesh.topology.uri()]
+
+lss_p = ns_solver.InnerLoop.PressureSystem.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy')
+lss_p.SolutionStrategy.use_ml_preconditioner = True
+lss_p.SolutionStrategy.MLParameters.coarse_max_size = 100
+lss_p.SolutionStrategy.MLParameters.smoother_sweeps = 4
+lss_p.SolutionStrategy.MLParameters.smoother_pre_or_post = 'both'
+lss_p.SolutionStrategy.MLParameters.aggregation_type = 'MIS'
+lss_p.SolutionStrategy.coordinates = mesh.geometry.coordinates
+lss_p.SolutionStrategy.used_nodes = ns_solver.InnerLoop.PressureSystem.children.nodes_used
+
+lss_u = ns_solver.InnerLoop.VelocitySystem.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
+lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
+lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-8
 
 # Initial conditions
 #solver.InitialConditions.navier_stokes_u_solution.Velocity = [1., 0.]

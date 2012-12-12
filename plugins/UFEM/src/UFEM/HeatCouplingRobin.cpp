@@ -47,14 +47,12 @@ common::ComponentBuilder < HeatCouplingRobin, common::ActionDirector, LibUFEM > 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
-
-  h("heat_transfer_coefficient"),
-
   ActionDirector(name),
   m_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
-  system_matrix(options().option("lss"))
+  system_matrix(options().option("lss")),
+  h("heat_transfer_coefficient")
 {
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
@@ -98,7 +96,7 @@ void HeatCouplingRobin::trigger_setup()
 
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
-  FieldVariable<1, ScalarField> Tfl("Temperature", temperature_fluid_field_tag);
+  FieldVariable<1, ScalarField> Tfluid("Temperature", temperature_fluid_field_tag);
 
   // to do first of two steps for the Robin BC
   const bool robin_pre = options().value<bool>("robin_pre");
@@ -114,8 +112,8 @@ void HeatCouplingRobin::trigger_setup()
       (
       _A(T) = _0,
       system_matrix +=  h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
-      m_rhs +=  h * (integral<1>(transpose(N(T))*Tfl*_norm(normal))),
-      _cout << "Robin_rhs pre" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
+      m_rhs +=  h * (integral<1>(transpose(N(T))*Tfluid*_norm(normal))),
+      _cout << "Robin_rhs pre" << h * (-integral<1>(transpose(N(T))*Tfluid*_norm(normal))) << "\n"
         )
   ));
   }
@@ -130,8 +128,8 @@ void HeatCouplingRobin::trigger_setup()
      (
      _A(T) = _0,
      system_matrix +=  h * (integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
-     m_rhs +=  h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))),
-     _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
+     m_rhs +=  h * (-integral<1>(transpose(N(T))*Tfluid*_norm(normal))),
+     _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*Tfluid*_norm(normal))) << "\n"
      )
     ));
   }

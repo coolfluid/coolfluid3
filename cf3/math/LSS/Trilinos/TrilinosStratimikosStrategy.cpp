@@ -73,7 +73,7 @@ struct TrilinosStratimikosStrategy::Implementation
       .pretty_name("Print Settings")
       .description("Print out the solver settings upon first solve")
       .mark_basic();
-      
+
     m_self.options().add("settings_file", common::URI("", cf3::common::URI::Scheme::FILE))
       .supported_protocol(cf3::common::URI::Scheme::FILE)
       .pretty_name("Settings File")
@@ -91,22 +91,22 @@ struct TrilinosStratimikosStrategy::Implementation
       m_lows.reset();
     }
   }
-  
+
   void trigger_settings_file()
   {
     const std::string settings_path = m_self.options().option("settings_file").value<common::URI>().path();
     if(settings_path.empty())
       return;
-    
+
     if(!boost::filesystem::exists(settings_path))
     {
       CFwarn << "Settings file " << settings_path << " doesn't exist, solver parameters not changed!" << CFendl;
       return;
     }
-    
+
     m_parameter_list = Teuchos::getParametersFromXmlFile(settings_path);
     m_linear_solver_builder.setParameterList(m_parameter_list);
-    
+
     setup_solver();
   }
 
@@ -117,9 +117,9 @@ struct TrilinosStratimikosStrategy::Implementation
     m_lows_factory->setVerbLevel(static_cast<Teuchos::EVerbosityLevel>(verb));
     m_lows.reset();
     m_residual_vec.reset();
-    
+
     // Update the component tree that represents the parameters. This automatically exposes available options
-    update_parameters();    
+    update_parameters();
   }
 
   void solve()
@@ -135,11 +135,13 @@ struct TrilinosStratimikosStrategy::Implementation
 
     if(m_lows.is_null())
     {
-      m_lows = Thyra::linearOpWithSolve(*m_lows_factory, m_matrix->thyra_operator());
-      
       if(m_self.options().option("print_settings").value<bool>())
         m_parameter_list->print();
+
+      m_lows = m_lows_factory->createOp();
     }
+
+    Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
 
     Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *m_rhs->thyra_vector(m_matrix->thyra_operator()->range()), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()).ptr());
     CFinfo << "Thyra::solve finished with status " << status.message << CFendl;

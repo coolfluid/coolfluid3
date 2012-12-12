@@ -23,7 +23,7 @@ list( APPEND resources_files
    sqduct_3000e.msh
 )
 
-set( CF3_RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "build dir" )
+set( CF3_RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/ CACHE INTERNAL "build dir" )
 
 # copy files to test dir in build tree
 foreach( rfile ${resources_files} )

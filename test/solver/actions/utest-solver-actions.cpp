@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   Handle<Mesh> mesh = root.create_component<Mesh>("mesh");
 
   // read mesh from file
-  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("rotation-tg-p1.neu", *mesh);
+  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("../../../resources/rotation-tg-p1.neu", *mesh);
 
   std::vector<URI> regions = list_of(mesh->topology().uri()/URI("inlet"))
                                     (mesh->topology().uri()/URI("outlet"));
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   Handle<Mesh> mesh = root.create_component<Mesh>("mesh");
 
   // read mesh from file
-  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("rotation-tg-p1.neu", *mesh);
+  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("../../../resources/rotation-tg-p1.neu", *mesh);
 
   std::vector<URI> regions = list_of(mesh->topology().uri());
 
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   // read mesh from file
 
-  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("rotation-tg-p1.neu", *mesh);
+  Core::instance().tools().get_child("LoadMesh")->handle<LoadMesh>()->load_mesh_into("../../../resources/rotation-tg-p1.neu", *mesh);
 
   BOOST_CHECK(true);
 

@@ -225,10 +225,16 @@ struct BlockArrays::Implementation
 
   struct Patch
   {
-    Patch(const Block& a_block, const Uint fixed_dir, const Uint idx) :
+    /// Create a new patch
+    /// @param a_block The block that is adjacent to the patch
+    /// @param fixed_dir THe component of corrdinates in which all points of the patch lie
+    /// @param idx Index of the patch layer in the adjacent block
+    /// @param orientation Direction of the patch normal
+    Patch(const Block& a_block, const Uint fixed_dir, const Uint idx, const Uint orientation) :
       block(a_block),
       fixed_direction(fixed_dir),
-      fixed_idx(idx)
+      fixed_idx(idx),
+      m_orientation(orientation)
     {
       nb_elems = 1;
       segments.reserve(block.dimensions-1);
@@ -275,6 +281,7 @@ struct BlockArrays::Implementation
     std::vector<Uint> segments;
     Uint fixed_direction;
     Uint fixed_idx;
+    Uint m_orientation;
   };
 
   void trigger_block_distribution()
@@ -366,7 +373,7 @@ struct BlockArrays::Implementation
             error_str << row[i] << " ";
           }
           error_str << "]. Did you flip the ordering of patch nodes?";
-          throw common::SetupError(FromHere(), error_str.str()); 
+          throw common::SetupError(FromHere(), error_str.str());
         }
         CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
         block.strides[i] = stride;
@@ -389,9 +396,10 @@ struct BlockArrays::Implementation
         // check for a patch both in the positive and negative direction
         for(Uint dir = 0; dir != 2; ++dir)
         {
+          const Uint patch_orientation = dir == 0 ? negative_faces[i] : positive_faces[i];
           if(adj_elems[dir].first->element_type().dimensionality() == (dimensions-1))
           {
-            patch_map[adj_elems[dir].first->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1)));
+            patch_map[adj_elems[dir].first->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1), patch_orientation));
           }
           else
           {
@@ -401,7 +409,7 @@ struct BlockArrays::Implementation
             if(other_region != my_region)
             {
               const std::string internal_patch_name = std::string("region_bnd_") + my_region + "_" + other_region;
-              patch_map[internal_patch_name].push_back(new Patch(block, i, dir * (block.nb_points[i])));
+              patch_map[internal_patch_name].push_back(new Patch(block, i, dir * (block.nb_points[i]), patch_orientation));
             }
           }
         }
@@ -628,6 +636,15 @@ struct BlockArrays::Implementation
 
     if(dimensions == 3)
     {
+      const Uint idx_offsets[6][4][2] = {
+        {{0,0},{0,1},{1,1},{1,0}},
+        {{0,0},{0,1},{1,1},{1,0}},
+        {{0,0},{0,1},{1,1},{1,0}},
+        {{0,0},{1,0},{1,1},{0,1}},
+        {{0,0},{0,1},{1,1},{1,0}},
+        {{0,0},{1,0},{1,1},{0,1}}
+      };
+
       Uint elem_idx = 0;
       BOOST_FOREACH(const Patch& patch, patch_map[name])
       {
@@ -638,10 +655,10 @@ struct BlockArrays::Implementation
           for(Uint j = 0; j != patch.segments[1]; ++j)
           {
             Connectivity::Row elem_row = patch_conn[elem_idx++];
-            elem_row[0] = to_local(patch.global_idx(i,   j  ));
-            elem_row[1] = to_local(patch.global_idx(i+1, j  ));
-            elem_row[2] = to_local(patch.global_idx(i+1, j+1));
-            elem_row[3] = to_local(patch.global_idx(i,   j+1));
+            elem_row[0] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][0][0], j + idx_offsets[patch.m_orientation][0][1]));
+            elem_row[1] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][1][0], j + idx_offsets[patch.m_orientation][1][1]));
+            elem_row[2] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][2][0], j + idx_offsets[patch.m_orientation][2][1]));
+            elem_row[3] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][3][0], j + idx_offsets[patch.m_orientation][3][1]));
           }
         }
       }

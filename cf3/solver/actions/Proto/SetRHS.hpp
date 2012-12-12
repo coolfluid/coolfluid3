@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_actions_Proto_NeumannBC_hpp
-#define cf3_solver_actions_Proto_NeumannBC_hpp
+#ifndef cf3_solver_actions_Proto_SetRHS_hpp
+#define cf3_solver_actions_Proto_SetRHS_hpp
 
 #include <boost/proto/core.hpp>
 
@@ -13,6 +13,7 @@
 #include "math/LSS/System.hpp"
 #include "math/LSS/Vector.hpp"
 
+#include "BlockAccumulator.hpp"
 #include "Transforms.hpp"
 
 namespace cf3 {
@@ -20,16 +21,8 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
-/// Tag for a Neumann BC
-struct NeumannBCTag
-{
-};
-
-/// Used to create placeholders for a Neumann condition
-typedef LSSWrapper<NeumannBCTag> NeumannBC;
-
-struct NeumannBCSetter :
-  boost::proto::transform< NeumannBCSetter >
+struct SetRHSSetter :
+  boost::proto::transform< SetRHSSetter >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -51,19 +44,19 @@ struct NeumannBCSetter :
 
 /// Matches the proper formulation of Neumann BC
 template<typename GrammarT>
-struct NeumannBCGrammar :
+struct SetRHSGrammar :
   boost::proto::when
   <
     boost::proto::assign
     <
       boost::proto::function
       <
-        boost::proto::terminal< LSSWrapperImpl<NeumannBCTag> >,
+        boost::proto::terminal< LSSWrapperImpl<SystemRHSTag> >,
         FieldTypes
       >,
       GrammarT
     >,
-    NeumannBCSetter(boost::proto::_left, GrammarT(boost::proto::_right))
+    SetRHSSetter(boost::proto::_left, GrammarT(boost::proto::_right))
   >
 {
 };
@@ -73,4 +66,4 @@ struct NeumannBCGrammar :
 } // namespace solver
 } // namespace cf3
 
-#endif // cf3_solver_actions_Proto_NeumannBC_hpp
+#endif // cf3_solver_actions_Proto_SetRHS_hpp
