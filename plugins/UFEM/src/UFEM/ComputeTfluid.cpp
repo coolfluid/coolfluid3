@@ -46,26 +46,14 @@ common::ComponentBuilder < ComputeTfluid, common::ActionDirector, LibUFEM > Comp
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ComputeTfluid::ComputeTfluid(const std::string& name) :
-
-  h("heat_transfer_coefficient"),
   ActionDirector(name),
-  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
+  h("heat_transfer_coefficient")
 {
-
-  options().add("temperature_field_tag", UFEM::Tags::solution())
-    .pretty_name("Temperature Field Tag")
-    .description("Tag for the temperature field in the region where the gradient needs to be calculated")
-    .attach_trigger(boost::bind(&ComputeTfluid::trigger_setup, this));
-
-  options().add("temperature_fluid_field_tag", UFEM::Tags::solution())
+  options().add("fluid_temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Fluid Field Tag")
     .description("Tag for the ambient fluid temperature field")
     .attach_trigger(boost::bind(&ComputeTfluid::trigger_setup, this));
-
-//  options().add("robin_flux_field_tag", 0.)
-//    .pretty_name("Robin Flux")
-//    .description("Tag for heat flux evaluated by heat transfer equation")
-//    .attach_trigger(boost::bind(&ComputeTfluid::trigger_setup, this));
 
   // Compute ambient fluid temperature
   create_static_component<ProtoAction>("ComputeTFluid");
@@ -83,16 +71,12 @@ void ComputeTfluid::on_regions_set()
 void ComputeTfluid::trigger_setup()
 {
   // Get the tags for the used fields
-  const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
-  const std::string temperature_fluid_field_tag = options().value<std::string>("temperature_fluid_field_tag");
+  const std::string fluid_temperature_field_tag = options().value<std::string>("fluid_temperature_field_tag");
  // const std::string robin_flux_field_tag = options().value<std::string>("robin_flux_field_tag");
 
   Handle<ProtoAction> compute_t_fluid(get_child("ComputeTFluid"));
 
-  // Represents the temperature field, as calculated
-  FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag); // solid region
-
-  FieldVariable<1, ScalarField> Tfl("Temperature", temperature_fluid_field_tag);
+  FieldVariable<1, ScalarField> Tfl("Temperature", fluid_temperature_field_tag);
 
   FieldVariable<2, ScalarField> q_fluid("robin_flux", "robin_flux");
 
@@ -101,7 +85,7 @@ void ComputeTfluid::trigger_setup()
  compute_t_fluid->set_expression(nodes_expression
                                  (group(
     Tfluid = Tfl - (q_fluid/h), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "ComputeTFluid:" << "\n" << "Tfluid:" << Tfl - (q_fluid/h) << "\n" << "q_fluid:" << q_fluid << "\n"  << "T:" << T << "\n" << "Tfl:" << Tfl << "\n" << "h:" << h << "\n")
+                                    _cout << "ComputeTFluid:" << "\n" << "Tfluid:" << Tfl - (q_fluid/h) << "\n" << "q_fluid:" << q_fluid << "\nTfl:" << Tfl << "\n" << "h:" << h << "\n")
   ));
 
   // Raise an event to indicate that we added a variable

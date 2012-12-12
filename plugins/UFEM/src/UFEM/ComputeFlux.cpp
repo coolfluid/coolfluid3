@@ -46,81 +46,47 @@ common::ComponentBuilder < ComputeFlux, common::ActionDirector, LibUFEM > Comput
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ComputeFlux::ComputeFlux(const std::string& name) :
-
-  h("heat_transfer_coefficient"),
   ActionDirector(name),
-  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
+  h("heat_transfer_coefficient")
 {
-//  options().add("gradient_region", m_gradient_region)
-//    .pretty_name("Gradient Region")
-//    .description("The (volume) region in which to calculate the temperature gradient")
-//    .attach_trigger(boost::bind(&ComputeFlux::trigger_gradient_region, this))
-//    .link_to(&m_gradient_region);
-
-  options().add("temperature_field_tag", UFEM::Tags::solution())
-    .pretty_name("Temperature Field Tag")
-    .description("Tag for the temperature field in the region where the gradient needs to be calculated")
+  options().add("solid_temperature_field_tag", UFEM::Tags::solution())
+    .pretty_name("Solid temperature Field Tag")
+    .description("Tag for the solid temperature field")
     .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
 
-  options().add("temperature_fluid_field_tag", UFEM::Tags::solution())
-    .pretty_name("Temperature Fluid Field Tag")
+  options().add("fluid_temperature_field_tag", UFEM::Tags::solution())
+    .pretty_name("Fluid temperature Field Tag")
     .description("Tag for the ambient fluid temperature field")
     .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
-
- // options().add("robin_flux_field_tag", 0.)
- //   .pretty_name("Robin Flux")
- //   .description("Tag for heat flux evaluated by heat transfer equation")
- //   .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
 
   // Set the gradient on the boundary elements, and configure its tag
   Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
   set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
 
-  // Set the boundary condition
-  create_static_component<ProtoAction>("NeumannHeatFlux");
-
-//  // Compute ambient fluid temperature
-//  create_static_component<ProtoAction>("ComputeTFluid");
-
-  // Compute ambient fluid flux
+  // The order matters here: the actions are executed in the order they are added
+  // First compute ambient fluid flux...
   create_static_component<ProtoAction>("ComputeQFluid");
+
+  // Then set it as a Neumann boundary condition
+  create_static_component<ProtoAction>("NeumannHeatFlux");
 }
 
 ComputeFlux::~ComputeFlux()
 {
 }
 
-//void ComputeFlux::on_regions_set()
-//{
-//  Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
-//  if(is_not_null(set_boundary_gradient))
-//  {
-//    // Set the boundary regions of the component that copies the gradient from the volume to the boundary
-//    set_boundary_gradient->options().set("regions", options()["regions"].value());
-//    // Set the regions on which to apply the Neumann BC
-//    get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
-//  }
-//}
-
-//void ComputeFlux::trigger_gradient_region()
-//{
-//  Handle<Component> compute_gradient = get_child("ComputeGradient");
-//  if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
-//  {
-//    compute_gradient->options().set("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
-//  }
-//}
-
 void ComputeFlux::on_regions_set()
 {
+  get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
   get_child("ComputeQFluid")->options().set("regions", options()["regions"].value());
 }
 
 void ComputeFlux::trigger_setup()
 {
   // Get the tags for the used fields
-  const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
-  const std::string temperature_fluid_field_tag = options().value<std::string>("temperature_fluid_field_tag");
+  const std::string solid_temperature_field_tag = options().value<std::string>("solid_temperature_field_tag");
+  const std::string fluid_temperature_field_tag = options().value<std::string>("fluid_temperature_field_tag");
   //const std::string robin_flux_field_tag = options().value<std::string>("robin_flux_field_tag");
 
   //Handle<ProtoAction> compute_t_fluid(get_child("ComputeTFluid"));
@@ -128,9 +94,9 @@ void ComputeFlux::trigger_setup()
   Handle<ProtoAction> neumann_heat_flux(get_child("NeumannHeatFlux"));
 
   // Represents the temperature field, as calculated
-  FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag); // solid region
+  FieldVariable<0, ScalarField> T("Temperature", solid_temperature_field_tag); // solid region
 
-  FieldVariable<1, ScalarField> Tfl("Temperature", temperature_fluid_field_tag);
+  FieldVariable<1, ScalarField> Tfl("Temperature", fluid_temperature_field_tag);
 
   FieldVariable<2, ScalarField> q_fluid("robin_flux", "robin_flux");
 
@@ -150,7 +116,8 @@ void ComputeFlux::trigger_setup()
  neumann_heat_flux->set_expression(elements_expression
  (
    boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-   m_rhs(Tfl) += integral<1>(transpose(N(Tfl))*q_fluid*_norm(normal)) // Classical Neumann condition formulation for finite elements
+   group(m_rhs(Tfl) += integral<1>(transpose(N(Tfl))*q_fluid*_norm(normal)), // Classical Neumann condition formulation for finite elements
+   _cout << "imposed Neumann RHS: " << transpose(integral<1>(transpose(N(Tfl))*q_fluid*_norm(normal))) << "\n")
          ));
 
 
