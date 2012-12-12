@@ -67,10 +67,10 @@ ComputeFlux::ComputeFlux(const std::string& name) :
     .description("Tag for the ambient fluid temperature field")
     .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
 
-  options().add("robin_flux_field_tag", 0.)
-    .pretty_name("Robin Flux")
-    .description("Tag for heat flux evaluated by heat transfer equation")
-    .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
+ // options().add("robin_flux_field_tag", 0.)
+ //   .pretty_name("Robin Flux")
+ //   .description("Tag for heat flux evaluated by heat transfer equation")
+ //   .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
 
   // Set the gradient on the boundary elements, and configure its tag
   Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
@@ -143,14 +143,14 @@ void ComputeFlux::trigger_setup()
  compute_q_fluid->set_expression(nodes_expression
   (group(
     q_fluid = lit(h)*(T-Tfluid), // Calculate fluid flux applied in the Neumann condition formulation
-                                    _cout << "q_fluid:" <<  h*(T-Tfluid) << "\n" << "T:" << T << "\n" << "Tfluid: " << Tfluid << "\n")
+                                    _cout << "ComputeFlux:" << "\n" << "Tfl:" << Tfl << "\n"  << "q_fluid:" <<  h*(T-Tfluid) << "\n" << "T:" << T << "\n" << "Tfluid: " << Tfluid << "\n")
   ));
 
  // Expression for the Neumann BC itself
  neumann_heat_flux->set_expression(elements_expression
  (
    boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-   m_rhs(Tfl) += - integral<1>(transpose(N(Tfl))*q_fluid*_norm(normal)) // Classical Neumann condition formulation for finite elements
+   m_rhs(Tfl) += integral<1>(transpose(N(Tfl))*q_fluid*_norm(normal)) // Classical Neumann condition formulation for finite elements
          ));
 
 
