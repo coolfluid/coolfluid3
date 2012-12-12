@@ -65,8 +65,8 @@ NavierStokes::NavierStokes(const std::string& name) :
   rho_ref("reference_density"),
   betha("thermal_expansion_coefficient"),
   cp_heat_capacity("specific_heat_capacity"),
-  kappa_heat_cond("heat_conductivity"),
-  g_acceleration("gravitatonal_acceleration")
+  kappa_heat_cond("heat_conductivity")
+  // g_acceleration("gravitatonal_acceleration")
 
 {
   options().add("use_specializations", true)

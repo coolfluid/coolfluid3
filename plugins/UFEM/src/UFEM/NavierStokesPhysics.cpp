@@ -70,6 +70,11 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Heat_conductivity")
     .mark_basic();
 
+  options().add("heat_transfer_coefficient", 1.0)
+    .description("Heat transfer coefficient h for Robin boundary condition ()")
+    .pretty_name("Heat_transfer_coefficient")
+    .mark_basic();
+
   //options().add<RealVector>("gravitatonal_acceleration")
   //  .description("Acceleration due to gravitation ()")
   //  .pretty_name("Gravitatonal_acceleration")

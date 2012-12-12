@@ -36,6 +36,10 @@ list( APPEND coolfluid_ufem_files
   HeatConductionVirtual.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
+  ComputeFlux.hpp
+  ComputeFlux.cpp
+  ComputeTfluid.hpp
+  ComputeTfluid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
   InitialConditionConstant.hpp

@@ -31,6 +31,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
+
 namespace cf3
 {
 
@@ -46,108 +47,94 @@ common::ComponentBuilder < HeatCouplingRobin, common::ActionDirector, LibUFEM > 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
+
+  h("heat_transfer_coefficient"),
+
   ActionDirector(name),
   m_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
-
-  system_matrix(options().add("systemmatrix", Handle<math::LSS::System>())
-  .pretty_name("SystemMatrix")
-  .description("The linear system for which the boundary condition is applied"))
+  system_matrix(options().option("lss"))
 {
-  options().add("gradient_region", m_gradient_region)
-    .pretty_name("Gradient Region")
-    .description("The (volume) region in which to calculate the temperature gradient")
-    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_gradient_region, this))
-    .link_to(&m_gradient_region);
-
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
-  // First compute the gradient
-  create_static_component<ProtoAction>("ComputeGradient");
-    // Then set the gradient on the boundary elements, and configure its tag
-  Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
-  set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
+  options().add("temperature_fluid_field_tag", UFEM::Tags::solution())
+    .pretty_name("Temperature Fluid Field Tag")
+    .description("Tag for the ambient temperature field(for the Robin BC)")
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
+
+  options().add("robin_pre", true)
+    .pretty_name("Robin precalculation")
+    .description("Do a first of two steps to calculate an 'ambient' fluid temperature for the Robin BC")
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
+
   // Finally set the boundary condition
   create_static_component<ProtoAction>("NeumannHeatFlux");
+
+  trigger_setup();
 }
 
 HeatCouplingRobin::~HeatCouplingRobin()
-
 {
 }
 
 
 void HeatCouplingRobin::on_regions_set()
 {
-  Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
-  if(is_not_null(set_boundary_gradient))
-  {
-    // Set the boundary regions of the component that copies the gradient from the volume to the boundary
-    set_boundary_gradient->options().set("regions", options()["regions"].value());
-    // Set the regions on which to apply the Neumann BC
-    get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
-  }
-}
-
-void HeatCouplingRobin::trigger_gradient_region()
-{
-  Handle<Component> compute_gradient = get_child("ComputeGradient");
-  if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
-  {
-    compute_gradient->options().set("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
-  }
+  get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
 }
 
 void HeatCouplingRobin::trigger_setup()
 {
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
+  const std::string temperature_fluid_field_tag = options().value<std::string>("temperature_fluid_field_tag");
 
-  Handle<ProtoAction> compute_gradient(get_child("ComputeGradient"));
   //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
   Handle<ProtoAction> neumann_heat_flux(get_child("NeumannHeatFlux"));
 
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
-  // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
-  // Represents the unknown temperature field for Robin BC
-  //FieldVariable<2, ScalarField> Tw("Temperature", temperature_field_tag);
-  // Represents the unknown temperature field for Robin BC
-  //FieldVariable<3, ScalarField> Tfl("Temperature", "Temperature in the fluid");
+  FieldVariable<1, ScalarField> Tfl("Temperature", temperature_fluid_field_tag);
 
-  // Expression to calculate the gradient, at the cell centroid:
-  // nabla(T, center) is the shape function gradient matrix evaluated at the element center
-  // T are the nodal values for the temperature
-  compute_gradient->set_expression(elements_expression
-  (
-    boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
-    GradT = nabla(T, gauss_points_1)*nodal_values(T) // Calculate the gradient at the first gauss point, i.e. the cell center
-  ));
+  // to do first of two steps for the Robin BC
+  const bool robin_pre = options().value<bool>("robin_pre");
 
- //compute_temperature_fluid->set_expression(elements_expression
- // (
- //   boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
- //   Tfl = nodal_values(T) // get the fluid temperature
- // ));
-
-
+  if (robin_pre == true)
+  {
   // Expression for the Robin BC
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    group
-    (
-      system_matrix += integral<1>(transpose(N(T))*N(T)*_norm(normal)), // Formulation of Robin Boundary condition
-      m_rhs += integral<1>(transpose(N(T))*T*_norm(normal))
-    )
-  // m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Formulation of Robin Boundary condition
-  ));
 
+      group
+      (
+      _A(T) = _0,
+      system_matrix +=  h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
+      m_rhs +=  h * (integral<1>(transpose(N(T))*Tfl*_norm(normal))),
+      _cout << "Robin_rhs pre" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
+        )
+  ));
+  }
+  else
+  {
+    // Expression for the Robin BC
+    neumann_heat_flux->set_expression(elements_expression
+    (
+      boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+
+     group
+     (
+     _A(T) = _0,
+     system_matrix +=  h * (integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
+     m_rhs +=  h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))),
+     _cout << "Robin_rhs" << h * (-integral<1>(transpose(N(T))*Tfl*_norm(normal))) << "\n"
+     )
+    ));
+  }
   // Raise an event to indicate that we added a variable (GradT)
   common::XML::SignalOptions options;
   common::SignalArgs f = options.create_frame();

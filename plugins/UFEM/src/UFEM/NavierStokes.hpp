@@ -89,8 +89,6 @@ private:
 
   /// Temperature field
   FieldVariable<7, ScalarField> Temp;
-  /// Temperature field
-  FieldVariable<8, ScalarField> Temp_ref;
 
 
   /// Access to the physics
@@ -103,7 +101,7 @@ private:
   PhysicsConstant betha;
   PhysicsConstant cp_heat_capacity;
   PhysicsConstant kappa_heat_cond;
-  PhysicsConstant g_acceleration;
+  // PhysicsConstant g_acceleration;
 
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
