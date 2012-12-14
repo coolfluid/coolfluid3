@@ -57,8 +57,8 @@ public:
 
 protected:
 
-  std::map<ElementType_t,std::string> m_elemtype_CGNS_to_CF;
-  std::map<std::string,ElementType_t> m_elemtype_CF3_to_CGNS;
+  std::map<CGNS_ENUMT( ElementType_t ),std::string> m_elemtype_CGNS_to_CF;
+  std::map<std::string,CGNS_ENUMT( ElementType_t )> m_elemtype_CF3_to_CGNS;
 
   struct CGNS_Size
   {
@@ -92,9 +92,9 @@ protected:
     int idx;
     bool unique;
     std::string name;
-    ZoneType_t type;
-    int total_nbVertices;
-    int nbVertices[3];
+    CGNS_ENUMT( ZoneType_t ) type;
+    cgsize_t total_nbVertices;
+    cgsize_t nbVertices[3];
     int nbElements;
     int nbBdryVertices;
     int coord_dim;
@@ -113,14 +113,14 @@ protected:
     int idx;
     bool unique;
     std::string name;
-    ElementType_t type;
-    int eBegin;
-    int eEnd;
+    CGNS_ENUMT( ElementType_t ) type;
+    cgsize_t eBegin;
+    cgsize_t eEnd;
     int nbBdry;
     int parentFlag;
     int elemNodeCount;
-    int elemDataSize;
-    int parentData;
+    cgsize_t elemDataSize;
+    cgsize_t parentData;
     int elemStartIdx;
     int elemEndIdx;
   } m_section;
@@ -130,12 +130,12 @@ protected:
     int idx;
     bool unique;
     std::string name;
-    BCType_t boco_type;  // e.g. BCDirichlet, BCSubsonicInflow, ...
-    PointSetType_t ptset_type; // PointList / PointRange / ElementList / ElementRange
-    int nBC_elem;
+    CGNS_ENUMT( BCType_t ) boco_type;  // e.g. BCDirichlet, BCSubsonicInflow, ...
+    CGNS_ENUMT( PointSetType_t ) ptset_type; // PointList / PointRange / ElementList / ElementRange
+    cgsize_t nBC_elem;
     int normalIndex;
-    int normalListFlag;
-    DataType_t normalDataType;
+    cgsize_t normalListFlag;
+    CGNS_ENUMT( DataType_t normalDataType );
     int nDataSet;
   } m_boco;
 
@@ -146,8 +146,8 @@ protected:
     int nbFields;
     int data_dim;
     cgsize_t dim_vals[3];
-    GridLocation_t grid_loc;   // Vertex, CellCenter, IFaceCenter, JFaceCenter, KFaceCenter.
-    PointSetType_t ptset_type; // PointList / PointRange / ElementList / ElementRange
+    CGNS_ENUMT( GridLocation_t ) grid_loc;   // Vertex, CellCenter, IFaceCenter, JFaceCenter, KFaceCenter.
+    CGNS_ENUMT( PointSetType_t ) ptset_type; // PointList / PointRange / ElementList / ElementRange
     cgsize_t npnts;
   } m_flowsol;
 
@@ -155,7 +155,7 @@ protected:
   {
     int idx;
     std::string name;
-    DataType_t datatype;
+    CGNS_ENUMT( DataType_t ) datatype;
   } m_field;
 
 
