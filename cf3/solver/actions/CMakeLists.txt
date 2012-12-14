@@ -21,6 +21,8 @@ list( APPEND coolfluid_solver_actions_files
   LoopOperation.cpp
   Probe.hpp
   Probe.cpp
+  ProbePoints.hpp
+  ProbePoints.cpp
   ProbePostProcFunction.hpp
   ProbePostProcFunction.cpp
   ProbePostProcHistory.hpp
