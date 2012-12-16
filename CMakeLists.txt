@@ -23,7 +23,7 @@
 # cmake behavior
 ##############################################################################
 
-cmake_minimum_required( VERSION 2.8.3 FATAL_ERROR )
+cmake_minimum_required( VERSION 2.8.8 FATAL_ERROR )
 
 cmake_policy( VERSION 2.8.3 )
 
@@ -31,7 +31,7 @@ cmake_policy( VERSION 2.8.3 )
 # project definition and versioning
 ##############################################################################
 
-project( coolfluid C CXX )
+project( coolfluid C CXX Fortran )
 
 # disallow in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
