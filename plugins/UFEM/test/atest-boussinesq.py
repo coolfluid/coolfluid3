@@ -73,6 +73,7 @@ phi_in = 1.
 phi_wall = 0.
 
 #initial conditions
+solver.InitialConditions.navier_stokes_solution.regions = [mesh.access_component('topology').uri()]
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
 solver.InitialConditions.navier_stokes_solution.Temperature = phi_in
 

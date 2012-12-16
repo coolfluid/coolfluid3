@@ -27,7 +27,7 @@ def run_simulation(sf_name):
   hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
   hc.options.heat_space_name = sf_name
   hc.children.Assembly.options.k = k
-  hc.children.SetSolution.options.relaxation_factor_hc = 1.
+  hc.children.Update.options.relaxation_factor_hc = 1.
 
   ic_heat = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'source_terms')
   ic_heat.variable_name = 'Heat'

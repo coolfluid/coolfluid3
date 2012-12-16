@@ -16,7 +16,7 @@ hc = solver.add_direct_solver('cf3.UFEM.HeatConductionSteady')
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 hc.options().set('regions', [mesh.access_component('topology').uri()])
-hc.children.SetSolution.options.relaxation_factor_hc = 1.
+hc.children.Update.options.relaxation_factor_hc = 1.
 
 # Boundary conditions
 bc = hc.get_child('BoundaryConditions')
