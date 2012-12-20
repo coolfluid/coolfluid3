@@ -281,12 +281,12 @@ void CCore::read_dir(SignalArgs & args)
     directory = dirPath;
 
   // get the absolute path
-<<<<<<< HEAD
-  directory = boost::filesystem::complete(directory).string();
-=======
+#if BOOST_FILESYSTEM_VERSION == 3
   directory = boost::filesystem::absolute(directory).string();
->>>>>>> 2d5fade43a7a7d562c6b9f028fed34f2cc0fc159
-//  directory = QDir::cleanPath(directory.c_str()).toStdString();
+#else
+  directory = boost::filesystem::complete(directory).string();
+#endif
+  //  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!
