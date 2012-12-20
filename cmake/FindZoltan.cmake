@@ -10,6 +10,8 @@
 #
 option( CF3_SKIP_ZOLTAN "Skip search for Zoltan library" OFF )
 
+if( NOT CF3_HAVE_ZOLTAN ) # skip if already found
+
 # Try to find Zoltan using Trilinos recommendations
 if( DEFINED TRILINOS_HOME AND NOT DEFINED ZOLTAN_HOME )
     set( ZOLTAN_HOME ${TRILINOS_HOME} )
@@ -35,6 +37,7 @@ if(Zoltan_FOUND)
   foreach( test_lib ${Zoltan_LIBRARIES} )
     find_library( ${test_lib}_lib ${test_lib} PATHS  ${Zoltan_LIBRARY_DIRS}  NO_DEFAULT_PATH)
     find_library( ${test_lib}_lib ${test_lib})
+    mark_as_advanced( ${test_lib}_lib )
     list( APPEND ZOLTAN_LIBRARIES ${${test_lib}_lib} )
   endforeach()
 
@@ -88,3 +91,5 @@ if( Zoltan_FOUND )
 else()
     set( CF3_HAVE_ZOLTAN 0 )
 endif()
+
+endif( NOT CF3_HAVE_ZOLTAN )
