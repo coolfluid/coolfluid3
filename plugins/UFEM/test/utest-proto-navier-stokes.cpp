@@ -34,8 +34,8 @@
 #include "UFEM/ParsedFunctionExpression.hpp"
 
 #include "NavierStokes.hpp"
-#include "solver/actions/ZeroLSS.hpp"
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -155,10 +155,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     *lss_action
         << create_proto_action("AdvectionVel", nodes_expression(u_adv = u))
         << create_proto_action("InitNu", nodes_expression(nu_eff = nu))
-        << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
+        << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
         << factories[i](*lss_action)
         << bc
-        << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+        << allocate_component<math::LSS::SolveLSS>("SolveLSS")
         << create_proto_action("IncrementU", nodes_expression(u += lss_action->solution(u)))
         << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)));
     solver
@@ -188,8 +188,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     Mesh& mesh = create_rectangle->generate();
 
     solver.configure_option_recursively("regions", std::vector<URI>(1, mesh.topology().uri()));
-
-    lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
     if(is_not_null(ns_solver))
     {

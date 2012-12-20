@@ -120,6 +120,8 @@ void ProtoAction::execute()
 
   boost_foreach(const Handle< Region >& region, m_loop_regions)
   {
+    if(is_null(m_implementation->m_expression))
+      throw SetupError(FromHere(), "Expression for ProtoAction " + uri().path() + " is not set.");
     CFdebug << "  Action " << name() << ": running over region " << region->uri().path() << CFendl;
     m_implementation->m_expression->loop(*region);
   }

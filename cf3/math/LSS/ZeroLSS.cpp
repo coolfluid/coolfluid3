@@ -10,25 +10,24 @@
 
 #include "math/LSS/System.hpp"
 
-#include "SolveLSS.hpp"
+#include "ZeroLSS.hpp"
 
 namespace cf3 {
-namespace solver {
-namespace actions {
+namespace math {
+namespace LSS {
 
 using namespace common;
-using namespace math;
 
-common::ComponentBuilder < SolveLSS, common::Action, LibActions > SolveLSS_Builder;
+common::ComponentBuilder < ZeroLSS, common::Action, LibLSS > ZeroLSS_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SolveLSS::SolveLSS( const std::string& name  ) :
+ZeroLSS::ZeroLSS( const std::string& name  ) :
   Action ( name )
 {
   mark_basic();
 
-  properties()["brief"] = std::string("Runs a linear system solver");
+  properties()["brief"] = std::string("Sets  linear system solver back to zero");
   std::string description =
     "This object executes a linear system solver\n";
   properties()["description"] = description;
@@ -38,25 +37,43 @@ SolveLSS::SolveLSS( const std::string& name  ) :
       .pretty_name("LSS")
       .mark_basic()
       .link_to(&m_lss);
+
+  options().add("reset_matrix", true)
+    .pretty_name("Reset Matrix")
+    .description("Should the system matrix be reset to zero?");
+
+  options().add("reset_rhs", true)
+    .pretty_name("Reset RHS")
+    .description("Should the system Right Hand Side be reset to zero?");
+
+  options().add("reset_solution", true)
+    .pretty_name("Reset Solution")
+    .description("Should the system solution vector be reset to zero?");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SolveLSS::execute ()
+void ZeroLSS::execute ()
 {
   if(is_null(m_lss))
     throw SetupError(FromHere(), "LSS not set for component " + uri().string());
 
-  LSS::System& lss = *m_lss;
+  bool reset_matrix = options().option("reset_matrix").value<bool>();
+  bool reset_rhs = options().option("reset_rhs").value<bool>();
+  bool reset_solution = options().option("reset_solution").value<bool>();
 
-  if(!lss.is_created())
-    throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is not created!");
+  if(reset_matrix)
+    m_lss->matrix()->reset();
 
-  lss.solve();
+  if(reset_rhs)
+    m_lss->rhs()->reset();
+
+  if(reset_solution)
+    m_lss->solution()->reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
-} // solver
+} // LSS
+} // Math
 } // cf3

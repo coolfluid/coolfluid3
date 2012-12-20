@@ -12,8 +12,9 @@
 #include "ElementOperations.hpp"
 #include "ExpressionGroup.hpp"
 #include "Functions.hpp"
-#include "NeumannBC.hpp"
+#include "SetRHS.hpp"
 #include "NodeData.hpp"
+#include "RHSVector.hpp"
 #include "SolutionVector.hpp"
 #include "Transforms.hpp"
 
@@ -160,7 +161,8 @@ struct NodeMathBase :
       VarValue(boost::proto::_value)
     >,
     CoordinatesGrammar,
-    SolutionVectorGrammar
+    SolutionVectorGrammar,
+    RHSVectorGrammar
   >
 {
 };
@@ -199,7 +201,7 @@ struct SingleExprNodeGrammar :
   boost::proto::or_
   <
     DirichletBCGrammar<NodeMath>,
-    NeumannBCGrammar<NodeMath>,
+    SetRHSGrammar<NodeMath>,
     boost::proto::when
     <
       NodeMath,

@@ -21,7 +21,7 @@ namespace common {
 /////////////////////////////////////////////////////////////////////////////////////
 
 /// Executes actions or links to actions that are direct children of this component.
-/// Actions cn be deactivated through a list of booleans
+/// Actions can be deactivated through a list of booleans
 class Common_API ActionDirector : public Action
 {
 public: // functions

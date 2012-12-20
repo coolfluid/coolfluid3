@@ -179,7 +179,7 @@ void DiscontinuousDictionary::rebuild_spaces_from_geometry()
       if (! inserted)
       {
         std::stringstream msg;
-        msg <<"Duplicate hash " << hash << " detected for element " << entities.uri() << " with centroid (" << compute_centroid.centroid.transpose() << ")\n";
+        msg <<"Duplicate hash " << hash << " detected for element " << entities.uri() << " with centroid (" << compute_centroid.centroid.transpose() << ") and coords:\n" << compute_centroid.elem_coords;
         throw ValueExists(FromHere(), msg.str());
       }
       if(entities.rank()[e] == UNKNOWN)

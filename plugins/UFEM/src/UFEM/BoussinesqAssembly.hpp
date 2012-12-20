@@ -67,17 +67,19 @@ void NavierStokes::set_boussinesq_assembly_expression(const std::string& action_
                                   + boost::proto::lit(kappa_heat_cond) * transpose(nabla(Temp)) * nabla(Temp)  / boost::proto::lit(rho_ref) * cp_heat_capacity,
               _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-              _T(u[_i], Temp)  += -transpose(N(u)) * N(u) * betha * boost::proto::lit(g_acceleration)[_i],
+              _T(u[_i], Temp)  += -transpose(N(u)) *  N(u) * boost::proto::lit(1.)/Temp * boost::proto::lit(g_acceleration)[_i], // thermal expansion coefficient 1/temp
               _T(Temp,Temp)    += transpose(N(Temp) + tau_su * u_adv * nabla(Temp)) * N(Temp)                  // Time, standard and SUPG
             )
           ),
                            //        for_specialized_elements(supg_specialized(p, u, u_adv, nu_eff, u_ref, rho, _A, _T)),
           system_matrix += invdt() * _T + theta * _A,
           system_rhs += -_A * _x
+
         )
       )
 
   ));
+
 }
 
 } // UFEM

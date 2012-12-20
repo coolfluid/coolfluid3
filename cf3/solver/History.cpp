@@ -32,7 +32,7 @@ History::History ( const std::string& name ) :
   m_table = create_static_component< Table<Real> >("table");
   m_variables = create_static_component< math::VariablesDescriptor >("variables");
 
-  options().add("dimension",0u);
+  options().add("dimension",0u).mark_basic();
 
 
   m_logging = true;
@@ -42,7 +42,7 @@ History::History ( const std::string& name ) :
 
   // Extension TSV for "Tab Separated Values"
   options().add("file",URI("history.tsv"))
-      .description("Log file for history");
+      .description("Log file for history").mark_basic();
 
   regist_signal ( "write" )
       .description( "Write history" )
@@ -150,7 +150,8 @@ void History::save_entry()
 
 void History::flush()
 {
-  m_buffer->flush();
+  if(is_not_null(m_buffer))
+    m_buffer->flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

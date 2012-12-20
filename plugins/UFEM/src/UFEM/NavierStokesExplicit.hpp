@@ -18,6 +18,7 @@
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include "solver/ActionDirector.hpp"
+#include "solver/actions/Proto/ProtoAction.hpp"
 
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
@@ -48,7 +49,7 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "NavierStokesExplicit"; }
-
+  
 private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
@@ -66,34 +67,37 @@ private:
   template<typename ElementsT>
   void set_velocity_implicit_assembly_expression(const std::string& base_name);
   template<typename ElementsT>
-  void set_pressure_assembly_expression(const std::string& base_name);
+  void set_pressure_matrix_assembly_expression(const std::string& base_name);
+  template<typename ElementsT>
+  void set_pressure_rhs_assembly_expression(const std::string& base_name);
   template<typename ElementsT, typename RHST>
   void set_pressure_gradient_assembly_expression(const std::string& base_name, RHST& rhs);
 
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
   void set_triag_u_assembly();
-  void set_triag_p_assembly();
+  void set_triag_p_rhs_assembly();
+  void set_triag_p_mat_assembly();
   void set_triag_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
   void set_triag_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
   void set_triag_implicit_u_assembly();
   void set_quad_u_assembly();
-  void set_quad_p_assembly();
+  void set_quad_p_rhs_assembly();
+  void set_quad_p_mat_assembly();
   void set_quad_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
   void set_quad_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
   void set_quad_implicit_u_assembly();
   void set_hexa_u_assembly();
-  void set_hexa_p_assembly();
+  void set_hexa_p_rhs_assembly();
+  void set_hexa_p_mat_assembly();
   void set_hexa_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
   void set_hexa_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
   void set_hexa_implicit_u_assembly();
   void set_tetra_u_assembly();
-  void set_tetra_p_assembly();
+  void set_tetra_p_rhs_assembly();
+  void set_tetra_p_mat_assembly();
   void set_tetra_grad_p_assembly(const solver::actions::Proto::SystemRHS& rhs);
   void set_tetra_grad_p_assembly(FieldVariable<3, VectorField>& rhs);
   void set_tetra_implicit_u_assembly();
-
-//   void set_tetra_assembly();
-//   void set_hexa_assembly();
 
   virtual void on_regions_set();
 
@@ -144,6 +148,12 @@ private:
   Handle<common::Action> m_iteration_initial_condition;
   Handle<common::Action> m_velocity_initial_condition;
   Handle<common::Action> m_pressure_initial_condition;
+  Handle<solver::ActionDirector> m_pressure_matrix_assembly;
+  // Saves the pressure BC after the first application of the boundary conditions
+  Handle<solver::actions::Proto::ProtoAction> m_save_pressure_bc;
+  // Restores the pressure BC RHS every iteration, since the RHS needs reassembly every time
+  Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_bc;
+  Handle<solver::actions::Proto::ProtoAction> m_restore_pressure_dirichlet;
 
   bool m_recursing;
 

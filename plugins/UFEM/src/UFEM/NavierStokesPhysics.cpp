@@ -70,6 +70,11 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Heat_conductivity")
     .mark_basic();
 
+  options().add("heat_transfer_coefficient", 1.0)
+    .description("Heat transfer coefficient h for Robin boundary condition ()")
+    .pretty_name("Heat_transfer_coefficient")
+    .mark_basic();
+
   //options().add<RealVector>("gravitatonal_acceleration")
   //  .description("Acceleration due to gravitation ()")
   //  .pretty_name("Gravitatonal_acceleration")
@@ -97,8 +102,6 @@ void NavierStokesPhysics::trigger_nu()
   trigger_mu();
   throw common::BadValue(FromHere(), "Setting a value for the kinematic_viscosity at " + uri().path() + " is not allowed. Please set rho and mu to obtain the correct value");
 }
-
-
 
 } // UFEM
 } // cf3

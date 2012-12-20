@@ -59,7 +59,7 @@
 
   add_custom_command( TARGET utest-ui-core-cnode
                       POST_BUILD
-                      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
+                      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/ )
 
 #
 # uTests for coolfluid_ui_graphics library

@@ -4,25 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_SolveLSS_hpp
-#define cf3_solver_SolveLSS_hpp
+#ifndef cf3_math_lss_SolveLSS_hpp
+#define cf3_math_lss_SolveLSS_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Action.hpp"
 
-#include "solver/actions/LibActions.hpp"
+#include "LibLSS.hpp"
 
 namespace cf3 {
-  namespace math { namespace LSS { class System; } }
-namespace solver {
-namespace actions {
+namespace math {
+namespace LSS {
+
+class System;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// SolveLSS wraps a linear system solver in an action that will execute the solve
+/// SolveLSS wraps a linear system math in an action that will execute the solve
 /// @author Bart Janssens
-class solver_actions_API SolveLSS : public common::Action
+class LSS_API SolveLSS : public common::Action
 {
 public: // functions
 
@@ -33,7 +34,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "SolveLSS"; }
 
-  /// Run the underlying linear system solver
+  /// Run the underlying linear system math
   void execute();
 
 private:
@@ -42,10 +43,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
-} // solver
+} // LSS
+} // math
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_solver_SolveLSS_hpp
+#endif // cf3_math_lss_SolveLSS_hpp

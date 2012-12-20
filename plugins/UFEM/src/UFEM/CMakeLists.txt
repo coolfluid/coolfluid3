@@ -24,12 +24,22 @@ list( APPEND coolfluid_ufem_files
   BoussinesqAssemblyExtended.hpp
   ComputeCFL.hpp
   ComputeCFL.cpp
+  CouplingIterationControl.cpp
+  CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
+  HeatConductionManual.hpp
+  HeatConductionManual.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
+  HeatConductionVirtual.hpp
+  HeatConductionVirtual.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
+  ComputeFlux.hpp
+  ComputeFlux.cpp
+  ComputeTfluid.hpp
+  ComputeTfluid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
   InitialConditionConstant.hpp
@@ -61,6 +71,10 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  StokesSteady.hpp
+  StokesSteady.cpp
+  SurfaceIntegral.hpp
+  SurfaceIntegral.cpp
   SUPG.hpp
   Tags.hpp
   Tags.cpp

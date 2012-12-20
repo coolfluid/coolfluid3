@@ -61,7 +61,6 @@ TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
   m_converted_indices(0),
   m_comm(common::PE::Comm::instance().communicator())
 {
-  options().add( "settings_file", "trilinos_settings.xml" ).mark_basic();
   properties().add("vector_type", std::string("cf3.math.LSS.TrilinosVector"));
 }
 
@@ -74,6 +73,34 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
 
   // if already created
   if (m_is_created) destroy();
+
+  // Copy node connectivity
+  m_node_connectivity.resize(node_connectivity.size());
+  m_starting_indices.resize(starting_indices.size());
+  std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
+  std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
+
+  // Symmetric matrix
+  const int nb_nodes = cp.isUpdatable().size();
+  m_keep_node.assign(m_node_connectivity.size(), true);
+//   for(int this_node = 0; this_node != nb_nodes; ++this_node)
+//   {
+//     const int this_node_begin = m_starting_indices[this_node];
+//     const int this_node_end = m_starting_indices[this_node+1];
+//     for(int i = this_node_begin; i != this_node_end; ++i)
+//     {
+//       const int other_node = m_node_connectivity[i];
+//       if(other_node == this_node || !m_keep_node[i])
+//         continue;
+//       const int other_node_begin = m_starting_indices[other_node];
+//       const int other_node_end = m_starting_indices[other_node+1];
+//       for(int j = other_node_begin; j != other_node_end; ++j)
+//       {
+//         if(m_node_connectivity[j] == this_node)
+//           m_keep_node[j] = false;
+//       }
+//     }
+//   }
 
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
@@ -127,10 +154,16 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
     {
-//      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=myglobalelements[m_p2m[node_connectivity[j]]];
-      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],(int)(starting_indices[i+1]-starting_indices[i]),&global_columns[0]));
+      int nb_added = 0;
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
+      {
+        if(m_keep_node[j])
+        {
+          global_columns[nb_added++]=myglobalelements[m_p2m[node_connectivity[j]]];
+        }
+      }
+      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],nb_added,&global_columns[0]));
+      for(int j=0; j<(const int)nb_added; j++)
         TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
       TRILINOS_THROW(m_mat->EndSubmitEntries());
     }
@@ -232,81 +265,6 @@ void TrilinosFEVbrMatrix::get_value(const Uint icol, const Uint irow, Real& valu
       return;
     }
   throw common::BadValue(FromHere(),"Trying to access an illegal entry.");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void TrilinosFEVbrMatrix::solve(LSS::Vector& solution, LSS::Vector& rhs)
-{
-  cf3_assert(m_is_created);
-  cf3_assert(solution.is_created());
-  cf3_assert(rhs.is_created());
-
-  // general setup phase
-  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
-  /// @todo decouple from fancyostream to ostream or to C stdout when possible
-  Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-  Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
-  linearSolverBuilder.setupCLP(&clp); // not used, TODO: see if can be removed safely since not really used
-  /// @todo check whgats wrtong with input options via string
-  //clp.setOption( "tol",            &tol,            "Tolerance to check against the scaled residual norm." ); // input options via string, not working for some reason
-  int argc=0; char** argv=0; Teuchos::CommandLineProcessor::EParseCommandLineReturn parse_return = clp.parse(argc,argv);
-  if( parse_return != Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL ) throw common::ParsingFailed(FromHere(),"Emulated command line parsing for stratimikos failed");
-
-  // wrapping epetra to thyra
-  Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( m_mat );
-  LSS::TrilinosVector& tsol = dynamic_cast<LSS::TrilinosVector&>(solution);
-  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( tsol.epetra_vector() , A->domain() );
-  LSS::TrilinosVector& trhs = dynamic_cast<LSS::TrilinosVector&>(rhs);
-  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs.epetra_vector() , A->range() );
-
-  // r = b - A*x, initial L2 norm
-  double norm2_in=0.;
-  {
-    Epetra_Vector epetra_r(*trhs.epetra_vector());
-    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
-    epetra_r.Update(-1.0,m_mat_x,1.0);
-    epetra_r.Norm2(&norm2_in);
-  }
-
-  // Reading in the solver parameters from the parameters file and/or from
-  // the command line.  This was setup by the command-line options
-  // set by the setupCLP(...) function above.
-  linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
-  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
-/// @todo verbosity level from option
-  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)4); // set verbosity
-
-  // print back default and current settings
-  if (false) {
-    std::ofstream ofs("./trilinos_default.txt");
-    linearSolverBuilder.getValidParameters()->print(ofs,Teuchos::ParameterList::PrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
-    ofs.flush();ofs.close();
-    ofs.open("./trilinos_default.xml");
-    Teuchos::writeParameterListToXmlOStream(*linearSolverBuilder.getValidParameters(),ofs);
-    ofs.flush();ofs.close();
-  }
-  if (false) {
-    linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
-  }
-
-  // solve the matrix
-  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);
-  lows->solve(Thyra::NOTRANS,*b,x.ptr());
-
-  // r = b - A*x, final L2 norm
-  double norm2_out=0.;
-  {
-    Epetra_Vector epetra_r(*trhs.epetra_vector());
-    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
-    m_mat->Apply(*tsol.epetra_vector(),m_mat_x);
-    epetra_r.Update(-1.0,m_mat_x,1.0);
-    epetra_r.Norm2(&norm2_out);
-  }
-
-  // print in and out residuals
-  CFinfo << "Solver residuals: in " << norm2_in << ", out " << norm2_out << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -567,6 +525,82 @@ void TrilinosFEVbrMatrix::get_column_and_replace_to_zero(const Uint iblockcol, U
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
+{
+  const int columns_begin = m_starting_indices[blockrow];
+  const int columns_end = m_starting_indices[blockrow+1];
+
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummy_neq;
+
+  const Uint bc_col = m_p2m[blockrow];
+
+  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  {
+    const int col = m_node_connectivity[col_idx];
+    const Uint other_row = m_p2m[col];
+    if(other_row >= m_blockrow_size)
+      continue;
+
+    const int other_cols_begin = m_starting_indices[col];
+    const int other_cols_end = m_starting_indices[col+1];
+    bool row_has_node = false;
+    for(int i = other_cols_begin; i != other_cols_end; ++i)
+    {
+      if(m_node_connectivity[i] == blockrow && m_keep_node[i])
+      {
+        row_has_node = true;
+        break;
+      }
+    }
+
+    if(!row_has_node)
+      continue;
+
+    TRILINOS_THROW(m_mat->ExtractMyBlockRowView(other_row,dummy_neq,blockrowsize,colindices,val));
+    const int nb_entries_const = blockrowsize;
+    Uint i;
+
+    for(i = 0; i != nb_entries_const; )
+    {
+      if(colindices[i] == bc_col)
+      {
+        for(int j = 0; j != m_neq; ++j)
+        {
+          rhs.add_value(col, j, -val[i][0](j, ieq) * value);
+          val[i][0](j, ieq) = 0;
+        }
+        break;
+      }
+      ++i;
+    }
+
+    cf3_assert(i != nb_entries_const);
+
+    if(other_row == bc_col)
+    {
+      for(i = 0; i != nb_entries_const; ++i)
+      {
+        for(int j = 0; j != m_neq; ++j)
+        {
+          val[i][0](ieq, j) = 0;
+        }
+        if(colindices[i] == bc_col)
+        {
+          val[i][0](ieq, ieq) = 1.;
+        }
+      }
+    }
+  }
+
+  rhs.set_value(blockrow, ieq, value);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosFEVbrMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf3_assert(m_is_created);
@@ -789,6 +823,20 @@ void TrilinosFEVbrMatrix::debug_data(std::vector<Uint>& row_indices, std::vector
           values.push_back(vals[k][0](j,l));
         }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< const Thyra::LinearOpBase< Real > > TrilinosFEVbrMatrix::thyra_operator() const
+{
+  return Thyra::epetraLinearOp(m_mat);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosFEVbrMatrix::thyra_operator()
+{
+  return Thyra::nonconstEpetraLinearOp(m_mat);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
