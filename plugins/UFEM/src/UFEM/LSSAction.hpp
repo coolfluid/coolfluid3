@@ -14,7 +14,9 @@
 
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/PhysicsConstant.hpp"
 #include "solver/actions/Proto/SolutionVector.hpp"
+#include "solver/actions/Proto/Terminals.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "InitialConditions.hpp"
@@ -25,6 +27,12 @@ namespace cf3 {
 
 
 namespace UFEM {
+
+// Some commonly used proto types that can be used in class declarations
+using solver::actions::Proto::FieldVariable;
+using solver::actions::Proto::ScalarField;
+using solver::actions::Proto::VectorField;
+using solver::actions::Proto::PhysicsConstant;
 
 /// LSSAction for UFEM problems, allowing dynamic configuration and providing access to
 /// * Linear system solver
@@ -48,7 +56,7 @@ public: // functions
 
   /// Create the LSS to use
   /// @param matrix_builder Name of the matrix builder to use for the LSS
-  math::LSS::System& create_lss(const std::string& matrix_builder);
+  math::LSS::System& create_lss(const std::string& matrix_builder = "cf3.math.LSS.TrilinosFEVbrMatrix", const std::string& solution_strategy = "cf3.math.LSS.TrilinosStratimikosStrategy");
 
   /// Access to the tag this component uses for finding its solution field
   std::string solution_tag();
@@ -75,7 +83,7 @@ private:
 
   /// Component that sets initial conditions
   Handle<InitialConditions> m_initial_conditions;
-  
+
   /// The initial conditions that apply to the current LSSAction
   std::vector< Handle<common::Component> > m_created_initial_conditions;
 

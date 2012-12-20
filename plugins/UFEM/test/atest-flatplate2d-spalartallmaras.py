@@ -1,6 +1,6 @@
 import sys
 #sys.path.append('/data/scholl/coolfluid3/build/dso')
-# sys.path.append('/home/sebastian/coolfluid3/build/dso')
+#sys.path.append('/home/sebastian/coolfluid3/build/dso')
 import coolfluid as cf
 
 # Some shortcuts
@@ -71,8 +71,8 @@ gradings[5] = [1., 1., 10., 10.]
 
 # fluid block
 inlet_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 2)
-inlet_patch[0] = [9, 10]
-inlet_patch[1] = [10, 11]
+inlet_patch[0] = [10, 9]
+inlet_patch[1] = [11, 10]
 
 bottom_patch1 = blocks.create_patch_nb_faces(name = 'bottom1', nb_faces = 1)
 bottom_patch1[0] = [0, 1]
@@ -89,8 +89,8 @@ outlet_patch[1] = [7, 8]
 
 top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
 top_patch[0] = [5, 4]
-top_patch[1] = [5, 8]
-top_patch[2] = [11, 4]
+top_patch[1] = [8, 5]
+top_patch[2] = [4, 11]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
@@ -99,16 +99,9 @@ blocks.create_mesh(mesh.uri())
 nstokes.regions = [mesh.topology.uri()]
 satm.regions = [mesh.topology.uri()]
 
-# LSS for Navier-Stokes
-ns_lss = nstokes.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-ns_lss.Matrix.settings_file = sys.argv[1]
-#LSS for Spalart-Allmaras turbulence model
-satm_lss = satm.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-satm_lss.Matrix.settings_file = sys.argv[1]
-
 u_in = [1., 0.]
 u_wall = [0., 0.]
-NU_in = 0.0001
+NU_in = 0.001
 NU_wall = 0.
 
 #initial conditions
@@ -143,15 +136,14 @@ time.time_step = 0.01
 time.end_time = 0.
 
 # Setup a time series write
-final_end_time = 0.1
+final_end_time = 0.05
 save_interval = 0.01
 iteration = 0
 
 while time.end_time < final_end_time:
   time.end_time += save_interval
   model.simulate()
-  ns_lss.print_system('lss-' +str(iteration) + '.plt')
-  domain.write_mesh(cf.URI('atest-flatplate2d-satm-fv8-Nu00001-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-satm-coupled_limit-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])

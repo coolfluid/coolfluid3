@@ -8,15 +8,22 @@
 #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 10
 
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
-#include "solver/actions/ZeroLSS.hpp"
+#include "mesh/LagrangeP2/Line1D.hpp"
+#include "mesh/LagrangeP2/LibLagrangeP2.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
 
-#include "solver/actions/Proto/ProtoAction.hpp"
+#include "math/LSS/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
+
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/Tags.hpp"
 
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
+
+#include "NavierStokesPhysics.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -25,41 +32,117 @@ using namespace common;
 using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
+using namespace mesh;
 
 ComponentBuilder < HeatConductionSteady, LSSAction, LibUFEM > HeatConductionSteady_builder;
 
-HeatConductionSteady::HeatConductionSteady(const std::string& name) : LSSAction(name)
+// Specialized code for triangles
+struct HeatSpecialized
 {
+  typedef void result_type;
+
+  template<typename TempT, typename MatrixT>
+  void operator()(const TempT& T, const Real& k, MatrixT& A) const
+  {
+    typedef mesh::LagrangeP1::Triag2D ElementT;
+    const ElementT::NodesT& nodes = T.support().nodes();
+
+    ElementT::NodesT normals;
+    normals(0, XX) = nodes(1, YY) - nodes(2, YY); normals(0, YY) = nodes(2, XX) - nodes(1, XX);
+    normals(1, XX) = nodes(2, YY) - nodes(0, YY); normals(1, YY) = nodes(0, XX) - nodes(2, XX);
+    normals(2, XX) = nodes(0, YY) - nodes(1, YY); normals(2, YY) = nodes(1, XX) - nodes(0, XX);
+
+    const Real c = k / (2.*(normals(2, YY)*normals(1, XX) - normals(1, YY)*normals(2, XX)));
+
+    for(Uint i = 0; i != 3; ++i)
+      for(Uint j = 0; j != 3; ++j)
+        A(i, j) = c * (normals(i, XX)*normals(j, XX) + normals(i, YY)*normals(j, YY));
+  }
+};
+
+static solver::actions::Proto::MakeSFOp<HeatSpecialized>::type const heat_specialized = {};
+
+HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), heat_cond("heat_conductivity")
+{
+  options().add("heat_space_name", "geometry")
+    .pretty_name("Heat Space Name")
+    .description("The space to use for the heat source term")
+    .attach_trigger(boost::bind(&HeatConductionSteady::trigger, this));
+
+  options().add("use_specializations", true)
+    .pretty_name("Use specializations")
+    .description("Use sepcialized code if available")
+    .attach_trigger(boost::bind(&HeatConductionSteady::trigger, this));
+
   set_solution_tag("heat_conduction_solution");
 
-  FieldVariable<0, ScalarField> temperature("Temperature", solution_tag());
-  FieldVariable<1, ScalarField> heat("Heat", Tags::source_terms());
+  create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  m_assembly = create_component<ProtoAction>("Assembly");
+
+  Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
+  bc->mark_basic();
+  bc->set_solution_tag(solution_tag());
+
+  create_component<math::LSS::SolveLSS>("SolveLSS");
+  m_update = create_component<ProtoAction>("Update");
+
+  trigger();
+
+  configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
+}
+
+void HeatConductionSteady::trigger()
+{
+  const bool use_specializations = options().option("use_specializations").value<bool>();
 
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
+  ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 1.);
 
-  create_component<ZeroLSS>("ZeroLSS");
+  FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
+  FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());
 
-  *this <<                                                                                          // The linear problem (= inner loop, but executed once here)
-    create_proto_action("Assembly", elements_expression                                             // Assembly action added to linear problem
+
+  if(use_specializations)
+  {
+    boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector5<LagrangeP1::Line1D, LagrangeP1::Tetra3D, LagrangeP1::Quad2D, LagrangeP1::Hexa3D, LagrangeP2::Line1D> > >::type generic_elements;
+    boost::proto::terminal< RestrictToElementTypeTag< boost::mpl::vector1<LagrangeP1::Triag2D> > >::type specialized_elements;
+    m_assembly->set_expression(elements_expression                                             // Assembly action added to linear problem
     (
+      boost::mpl::vector6<LagrangeP1::Line1D, LagrangeP1::Triag2D, LagrangeP1::Tetra3D, LagrangeP1::Quad2D, LagrangeP1::Hexa3D, LagrangeP2::Line1D>(),
       group
       (
-        _A = _0, _T = _0,
+        generic_elements(
+          _A = _0,
+          element_quadrature
+          (
+            _A(T) += k * transpose(nabla(T)) * nabla(T)
+          )
+        ),
+        specialized_elements(heat_specialized(T, k, _A(T))),
+        system_matrix +=  _A,
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q) * heat_cond
+      )
+    ));
+  }
+  else
+  {
+    m_assembly->set_expression(elements_expression                                             // Assembly action added to linear problem
+    (
+      boost::mpl::vector6<LagrangeP1::Line1D, LagrangeP1::Triag2D, LagrangeP1::Tetra3D, LagrangeP1::Quad2D, LagrangeP1::Hexa3D, LagrangeP2::Line1D>(),
+      group
+      (
+        _A = _0,
         element_quadrature
         (
-          _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
-          _T(temperature) += transpose(N(temperature))*N(temperature)
+          _A(T) += k * transpose(nabla(T)) * nabla(T)
         ),
         system_matrix +=  _A,
-        system_rhs += -_A * _x + _T * nodal_values(heat)
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
       )
-    ))
-    << allocate_component<BoundaryConditions>("BoundaryConditions")                                                                        // boundary conditions
-    << allocate_component<SolveLSS>("SolveLSS")                                                       // Solve the LSS
-    << create_proto_action("SetSolution", nodes_expression(temperature += solution(temperature)));     // Set the solution
+    ));
+  }
 
-  Handle<BoundaryConditions>(get_child("BoundaryConditions"))->set_solution_tag(solution_tag());
-  get_child("BoundaryConditions")->mark_basic();
+  m_update->set_expression(nodes_expression(T += relaxation_factor_hc*solution(T)));     // Set the solution
 }
 
 void HeatConductionSteady::on_initial_conditions_set(InitialConditions& initial_conditions)

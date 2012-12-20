@@ -36,20 +36,18 @@ list( APPEND coolfluid_solver_actions_files
   ComputeLNorm.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
-  SolveLSS.hpp
-  SolveLSS.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
-  ZeroLSS.hpp
-  ZeroLSS.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
     Proto/BlockAccumulator.hpp
     Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
+    Proto/FieldSync.hpp
+    Proto/FieldSync.cpp
     Proto/ProtoAction.hpp
     Proto/ProtoAction.cpp
     Proto/DirichletBC.hpp
@@ -69,10 +67,13 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/GaussPoints.hpp
     Proto/IndexLooping.hpp
     Proto/LSSWrapper.hpp
-    Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
+    Proto/PhysicsConstant.hpp
+    Proto/RestrictExpressionToElementType.hpp
+    Proto/RHSVector.hpp
+    Proto/SetRHS.hpp
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
@@ -86,6 +87,6 @@ endif()
 
 set( coolfluid_solver_actions_kernellib TRUE )
 
-list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_math_lss )
+list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_math_lss coolfluid_mesh )
 
 coolfluid_add_library( coolfluid_solver_actions )

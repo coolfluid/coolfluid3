@@ -101,7 +101,7 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
     typedef typename boost::result_of<HasIdx<1>(ExprT)>::type HasJT;
 
     /// Dimension of the problem
-    typedef boost::mpl::int_<boost::remove_reference<DataT>::type::SupportT::EtypeT::dimension> DimensionT;
+    typedef boost::mpl::int_<boost::remove_reference<DataT>::type::dimension> DimensionT;
     /// Number iterations over _i
     typedef typename boost::mpl::if_< HasIT, DimensionT, boost::mpl::int_<1> >::type IterationsIT;
     /// Number iterations over _j

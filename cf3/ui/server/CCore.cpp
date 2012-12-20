@@ -200,7 +200,7 @@ bool CCore::get_dir_content( const std::string &directory,
                              bool include_no_ext,
                              DirContent & content) const
 {
-  using namespace boost::filesystem3;
+  using namespace boost::filesystem;
 
   path p(directory);
   bool dir_exists = exists(p) && is_directory(p);
@@ -281,7 +281,11 @@ void CCore::read_dir(SignalArgs & args)
     directory = dirPath;
 
   // get the absolute path
-  directory = boost::filesystem3::complete(directory).string();
+<<<<<<< HEAD
+  directory = boost::filesystem::complete(directory).string();
+=======
+  directory = boost::filesystem::absolute(directory).string();
+>>>>>>> 2d5fade43a7a7d562c6b9f028fed34f2cc0fc159
 //  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
@@ -339,7 +343,11 @@ void CCore::read_special_dir(SignalArgs & args)
                          "Unknown special directory [" + directory + "]." );
 
   // get the absolute path
-  directory = boost::filesystem3::complete(directory).string();
+#if BOOST_FILESYSTEM_VERSION == 3
+  directory = boost::filesystem::absolute(directory).string();
+#else
+  directory = boost::filesystem::complete(directory).string();
+#endif
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!

@@ -1,4 +1,6 @@
 list( APPEND coolfluid_tools_googleperftools_files
+    GoogleHeapProfiling.cpp
+    GoogleHeapProfiling.hpp
     GooglePerfProfiling.cpp
     GooglePerfProfiling.hpp
     LibGooglePerfTools.cpp

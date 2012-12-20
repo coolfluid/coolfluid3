@@ -34,6 +34,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "LSSActionUnsteady"; }
 
+  /// Reference to the timestep
+  Real& dt();
+
   /// Reference to the inverse timestep, linked to the model time step
   Real& invdt();
 
@@ -45,7 +48,7 @@ private:
   void trigger_timestep();
 
   Handle<solver::Time> m_time;
-  Real m_invdt;
+  Real m_dt, m_invdt;
 };
 
 } // UFEM

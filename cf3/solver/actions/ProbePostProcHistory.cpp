@@ -41,7 +41,8 @@ ProbePostProcHistory::ProbePostProcHistory(const std::string &name) : ProbePostP
       .link_to(&m_history);
   options().add("variables",m_vars)
       .description("Variables to log in the history component")
-      .link_to(&m_vars);
+      .link_to(&m_vars)
+      .mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,7 @@ void ProbePostProcHistory::execute()
 
     m_history->set(m_probe->name()+"_"+var_name,m_probe->properties().value<Real>(var_name));
   }
+  m_history->save_entry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 
 #include "mesh/ElementTypeBase.hpp"
 #include "mesh/LagrangeP1/Line.hpp"
+#include "mesh/ElementType.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -40,7 +41,7 @@ struct Mesh_LagrangeP1_API Line3D : public ElementTypeBase<Line3D,Line3D_traits>
   //  ------------------------
   //@{
 
-  static const ElementType::FaceConnectivity& faces();
+  static const ElementTypeFaceConnectivity& faces();
   static const ElementType& face_type(const Uint face);
 
   //@}

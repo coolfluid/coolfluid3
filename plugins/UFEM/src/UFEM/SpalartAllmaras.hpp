@@ -28,11 +28,37 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 
-#include "NavierStokesOps.hpp"
+#include "SUPG.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
+
+struct SACoeffs
+{
+  /// Constants
+  Real Cb1;
+  Real Cw2;
+  Real Cw3;
+  Real Cv1;
+  Real Cv2;
+  Real Sigma;
+  Real MuLam;
+  Real omega;
+  Real shat;
+  Real Fv1;
+  Real Fv2;
+  Real Kappa;
+  Real D;
+  Real min;
+  Real nu_t_cell;
+  Real one_over_D_squared;
+  Real one_over_Kappa;
+  Real one_over_shat;
+  Real one_over_Kappa_squared;
+  Real one_over_KappaD_squared;
+  Real chi;
+};
 
 /// solver for SpalartAllmaras turbulence model
 class UFEM_API SpalartAllmaras : public LSSActionUnsteady
@@ -46,26 +72,21 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "SpalartAllmaras"; }
 
-
-
 private:
-  /// Update the copy of the physics coefficients when the physical model changes
-  void trigger_physical_model();
-
-  /// Copy of the coefficients stored in the physics. Needed to construct the equations
-  SUPGCoeffs m_coeffs;
 
   /// Ensure the automatic creation of initial conditions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
+  SACoeffs m_sa_coeffs;
+
   /// Coefficients for Model
-   Real cb1, cb2, cw1, cw2, cw3, cv1, ct3, ct4, kappa, sigma;
-   Real r, g, d, S;
+   Real cb1, cb2, cw1, cw2, cw3, cv1, one_over_sigma;
+   Real r, g, shat;
+   Real tau_su;
 
 };
 
 } // UFEM
 } // cf3
-
 
 #endif // cf3_UFEM_NavierStokes_hpp

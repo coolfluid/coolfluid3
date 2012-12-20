@@ -134,7 +134,7 @@ public:
   }
 
 private:
-  /// Buider for OptionComponents
+  /// Builder for OptionComponents
   class OptionComponentBuilder : public OptionBuilder
   {
   public:

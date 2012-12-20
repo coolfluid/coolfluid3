@@ -41,6 +41,8 @@ list( APPEND coolfluid_mesh_actions_files
   LoadBalance.cpp
   Rotate.hpp
   Rotate.cpp
+  ShortestEdge.hpp
+  ShortestEdge.cpp
   Translate.hpp
   Translate.cpp
 )

@@ -11,9 +11,13 @@
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/Signal.hpp"
+
 #include "math/VariablesDescriptor.hpp"
 #include "math/LSS/Trilinos/TrilinosDetail.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
+
+#include "Thyra_EpetraThyraWrappers.hpp"
 
 /// @todo remove when no debug any more
 #include "common/PE/debug.hpp"
@@ -46,6 +50,10 @@ TrilinosVector::TrilinosVector(const std::string& name) :
   m_converted_indices(0),
   m_comm(common::PE::Comm::instance().communicator())
 {
+  regist_signal( "print_native" )
+      .connect( boost::bind( &TrilinosVector::signal_print_native, this, _1 ) )
+      .description("Prints the native representation of the vector")
+      .pretty_name("Print Native");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -349,3 +357,24 @@ void TrilinosVector::debug_data(std::vector<Real>& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosVector::signal_print_native(common::SignalArgs& args)
+{
+  print_native(std::cout);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< const Thyra::MultiVectorBase< Real > > TrilinosVector::thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const
+{
+  return Thyra::create_Vector(m_vec, space);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Teuchos::RCP< Thyra::MultiVectorBase< Real > > TrilinosVector::thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space )
+{
+  return Thyra::create_Vector(m_vec, space);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////

@@ -34,6 +34,7 @@
 #include "ElementMatrix.hpp"
 #include "NodeLooper.hpp"
 #include "NodeGrammar.hpp"
+#include "PhysicsConstant.hpp"
 #include "Transforms.hpp"
 
 namespace cf3 {
@@ -52,6 +53,9 @@ public:
   /// If an option already existed, only a link will be created
   /// @param options The optionlist that will hold the generated options
   virtual void add_options(common::OptionList& options) = 0;
+
+  /// Returns the list of physics constants referred to by this expression
+  virtual PhysicsConstantStorage& physics_constants() = 0;
 
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(physics::PhysModel& physical_model) = 0;
@@ -72,7 +76,7 @@ public:
 
   ExpressionBase(const ExprT& expr) :
     m_constant_values(),
-    m_expr( DeepCopy()( ReplaceConfigurableConstants()(expr, m_constant_values) ) )
+    m_expr( DeepCopy()( ReplaceConfigurableConstants()(ReplacePhysicsConstants()(expr, m_physics_values), m_constant_values) ) )
   {
     // Store the variables
     CopyNumberedVars<VariablesT> ctx(m_variables);
@@ -85,7 +89,13 @@ public:
     for(ConstantStorage::ScalarsT::iterator it = m_constant_values.m_scalars.begin(); it != m_constant_values.m_scalars.end(); ++it)
     {
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add(name, it->second);
+
+      if(options.check(name))
+      {
+        options.erase(name);
+      }
+
+      common::Option& option = options.add(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
       option.mark_basic();
@@ -105,12 +115,23 @@ public:
       }
 
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : options.add(name, vec_proxy);
+
+      if(options.check(name))
+      {
+        options.erase(name);
+      }
+      common::Option& option = options.add(name, vec_proxy);
+
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&vec_proxy);
       option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
       option.mark_basic();
     }
+  }
+
+  virtual PhysicsConstantStorage& physics_constants()
+  {
+    return m_physics_values;
   }
 
   void register_variables(physics::PhysModel& physical_model)
@@ -126,10 +147,12 @@ public:
 private:
   /// Values for configurable constants
   ConstantStorage m_constant_values;
+  /// Values for physics constants
+  PhysicsConstantStorage m_physics_values;
 protected:
 
   /// Store a copy of the expression
-  typedef typename boost::result_of< DeepCopy(typename boost::result_of<ReplaceConfigurableConstants(ExprT, ConstantStorage)>::type) >::type CopiedExprT;
+  typedef typename boost::result_of< DeepCopy(typename boost::result_of<ReplaceConfigurableConstants(typename boost::result_of<ReplacePhysicsConstants(ExprT, PhysicsConstantStorage)>::type, ConstantStorage)>::type) >::type CopiedExprT;
   CopiedExprT m_expr;
 
   // Number of variables

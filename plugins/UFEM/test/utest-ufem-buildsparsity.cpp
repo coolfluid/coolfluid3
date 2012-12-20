@@ -32,7 +32,7 @@
 #include "UFEM/Solver.hpp"
 #include "UFEM/SparsityBuilder.hpp"
 #include "UFEM/Tags.hpp"
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -225,12 +225,12 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   *blocks.create_block_subdivisions() << nb_segments << nb_segments << nb_segments;
   *blocks.create_block_gradings() << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1. << 1.;
 
-  *blocks.create_patch("bottomWall", 1) << 0 << 1 << 3 << 2;
+  *blocks.create_patch("bottomWall", 1) << 0 << 2 << 3 << 1;
   *blocks.create_patch("topWall", 1) << 4 << 5 << 7 << 6;
-  *blocks.create_patch("side1", 1) << 1 << 5 << 7 << 3;
-  *blocks.create_patch("side2", 1) << 0 << 4 << 5 << 1;
-  *blocks.create_patch("side3", 1) << 6 << 4 << 0 << 2;
-  *blocks.create_patch("side4", 1) << 2 << 3 << 7 << 6;
+  *blocks.create_patch("side1", 1) << 1 << 3 << 7 << 5;
+  *blocks.create_patch("side2", 1) << 0 << 1 << 5 << 4;
+  *blocks.create_patch("side3", 1) << 0 << 4 << 6 << 2;
+  *blocks.create_patch("side4", 1) << 2 << 6 << 7 << 3;
 
   blocks.create_mesh(mesh);
 
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
       )
     )
     << allocate_component<UFEM::BoundaryConditions>("BoundaryConditions")
-    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+    << allocate_component<math::LSS::SolveLSS>("SolveLSS")
     << create_proto_action("Increment", nodes_expression(temperature += lss_action->solution(temperature)))
     << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"));
 

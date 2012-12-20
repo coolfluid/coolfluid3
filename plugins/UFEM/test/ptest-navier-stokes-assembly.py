@@ -20,9 +20,9 @@ def make_square(x_segs, y_segs):
   blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 3]
   blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [3, 2]
   blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
-  
+
   blocks.options().set('overlap', 0)
-  
+
   return blocks
 
 class TestCase:
@@ -43,33 +43,33 @@ class TestCase:
       m2 = self.nb_procs/m1
       self.segments[0] *= m2
       self.segments[1] *= m1
-    
+
     self.physics.options().set('density', 1000.)
     self.physics.options().set('dynamic_viscosity', 10.)
     self.physics.options().set('reference_velocity', 1.)
-    
+
     self.ns_solver = self.solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
     self.ns_solver.options().set('use_specializations', use_spec)
     self.ns_solver.options().set('disabled_actions', ['SolveLSS'])
     self.use_spec = use_spec
-    
+
   def grow_overlap(self):
     if self.nb_procs > 1:
       globconn = self.domain.create_component('GlobalConnectivity', 'cf3.mesh.actions.GlobalConnectivity')
       globconn.options().set('mesh', self.mesh)
       globconn.execute()
-      
+
       grow = self.domain.create_component('GrowOverlap', 'cf3.mesh.actions.GrowOverlap')
       grow.options().set('mesh', self.mesh)
       grow.execute()
-    
+
   def square_mesh_quads(self):
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
     blocks=make_square(self.segments[0], self.segments[1])
     blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
-    
+
   def square_mesh_triags(self):
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
     blocks=make_square(self.segments[0], self.segments[1])
@@ -81,7 +81,7 @@ class TestCase:
     self.mesh.move_component(self.domain.uri())
     self.mesh.raise_mesh_loaded()
     self.setup_lss()
-    
+
   def cube_mesh_hexas(self):
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
@@ -89,7 +89,7 @@ class TestCase:
     blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
     blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
-    
+
   def cube_mesh_tetras(self):
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
@@ -102,12 +102,12 @@ class TestCase:
     self.mesh.move_component(self.domain.uri())
     self.mesh.raise_mesh_loaded()
     self.setup_lss()
-    
+
   def setup_lss(self):
     self.grow_overlap()
     self.ns_solver.options().set('regions', [self.mesh.access_component('topology').uri()])
     self.ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-    
+
   def run(self):
     time = self.model.create_time()
     time.options().set('time_step', 1.)
@@ -115,9 +115,7 @@ class TestCase:
     self.model.simulate()
     self.ns_solver.store_timings()
     try:
-      assembly_name = 'GenericAssembly'
-      if(self.use_spec):
-        assembly_name = 'SpecializedAssembly'
+      assembly_name = 'Assembly'
       print '<DartMeasurement name=\"' + self.model.name() + ' time\" type=\"numeric/double\">' + str(self.ns_solver.get_child(assembly_name).properties()['timer_mean']) + '</DartMeasurement>'
     except:
       print 'Could not find timing info'

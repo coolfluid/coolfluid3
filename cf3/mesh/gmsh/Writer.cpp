@@ -388,7 +388,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
             Uint local_nb_elms = elements.size();
 
             const Uint nb_states = field_space.shape_function().nb_nodes();
-            RealMatrix field_data (nb_states,var_type);
+            RealMatrix field_data (nb_states,static_cast<int>(var_type));
 
             const Uint nb_nodes = elements.element_type().nb_nodes();
 
@@ -549,7 +549,7 @@ void Writer::write_nodal_data(std::fstream& file)
           const Uint nb_elems = elements_handle->size();
 
           const Uint nb_states = field_space.shape_function().nb_nodes();
-          RealMatrix field_data (nb_states,var_type);
+          RealMatrix field_data (nb_states, static_cast<int>(var_type));
 
           for (Uint elem_idx=0; elem_idx<nb_elems; ++elem_idx)
           {

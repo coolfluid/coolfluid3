@@ -53,6 +53,13 @@ struct LSSAction::Implementation
    solution(m_component.options().option("lss")),
    m_updating(false)
   {
+    m_component.options().option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
+  }
+
+  void trigger_lss()
+  {
+    m_lss = m_component.options().option("lss").value< Handle<LSS::System> >();
+    CFdebug << "lss for " << m_component.uri().path() << " set to " << m_component.options().option("lss").value_str() << CFendl;
   }
 
   Component& m_component;
@@ -92,6 +99,10 @@ LSSAction::LSSAction(const std::string& name) :
     .description("The component that is used to manage the initial conditions in the solver this action belongs to")
     .link_to(&m_initial_conditions)
     .attach_trigger(boost::bind(&LSSAction::trigger_initial_conditions, this));
+
+  options().add("blocked_system", false)
+    .pretty_name("Blocked System")
+    .description("Store the linear system internally as a set of blocks grouped per variable, rather than keeping the variables per node");
 }
 
 LSSAction::~LSSAction()
@@ -101,17 +112,27 @@ LSSAction::~LSSAction()
 void LSSAction::execute()
 {
   if(is_null(m_implementation->m_lss))
-    throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
+  {
+    throw SetupError(FromHere(), "Error executing " + uri().string() + ": LSS is not created");
+  }
+
+  CFdebug << "Running with LSS " << options().option("lss").value_str() << CFendl;
 
   solver::ActionDirector::execute();
 }
 
-LSS::System& LSSAction::create_lss(const std::string& matrix_builder)
+LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std::string& solution_strategy)
 {
+  if(is_not_null(get_child("LSS")))
+    remove_component("LSS");
   Handle<LSS::System> lss = create_component<LSS::System>("LSS");
+  lss->mark_basic();
   lss->options().set("matrix_builder", matrix_builder);
+  lss->options().set("solution_strategy", solution_strategy);
 
   configure_option_recursively("lss", lss);
+
+  cf3_assert(is_not_null(options().value< Handle<LSS::System> >("lss")));
 
   on_regions_set();
 
@@ -123,13 +144,18 @@ void LSSAction::signature_create_lss(SignalArgs& node)
   SignalOptions options(node);
   options.add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
     .pretty_name("Matrix Builder")
-    .description("Name for the matrix builder to use when constructing the LSS");
+    .description("Name for the matrix builder to use when constructing the LSS")
+    .mark_basic();
+
+  options.add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
+    .pretty_name("Solution Strategy")
+    .description("Builder name for the solution strategy to use.");
 }
 
 void LSSAction::signal_create_lss(SignalArgs& node)
 {
   SignalOptions options(node);
-  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>());
+  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>(), options.option("solution_strategy").value<std::string>());
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -140,14 +166,22 @@ void LSSAction::signal_create_lss(SignalArgs& node)
 void LSSAction::on_regions_set()
 {
   if(m_implementation->m_updating) // avoid recursion
+  {
+    CFdebug << "Skipping on_regions_set to avoid recursion" << CFendl;
     return;
+  }
 
   m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
-    return;
+  {
+    create_lss();
+  }
 
   if(is_null(m_dictionary))
+  {
+    CFdebug << "Skipping on_regions_set because dictionary is null" << CFendl;
     return;
+  }
 
   m_implementation->m_updating = true;
 
@@ -162,25 +196,49 @@ void LSSAction::on_regions_set()
 
     std::vector<Uint> node_connectivity, starting_indices;
     boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
+    if(is_not_null(get_child(used_nodes->name())))
+      remove_component(used_nodes->name());
     add_component(used_nodes);
 
     // This comm pattern is valid only over the used nodes for the supplied regions
+    if(is_not_null(get_child("CommPattern")))
+      remove_component("CommPattern");
     PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
-    CFdebug << "Creating LSS for " << starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
-    m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+    const bool blocked_system = options().option("blocked_system").value<bool>();
+    if(blocked_system)
+      CFdebug << "Creating blocked LSS for ";
+    else
+      CFdebug << "Creating per-node LSS for ";
+    CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
+
+    if(blocked_system)
+      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices);
+    else
+      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
     configure_option_recursively("lss", m_implementation->m_lss);
+  }
+  else
+  {
+    if(m_loop_regions.empty())
+      CFdebug << "Skipping on_regions_set because region list is empty" << CFendl;
+    else
+      CFdebug << "Skipping on_regions_set because LSS is already created" << CFendl;
   }
 
   // Update the regions of any owned initial conditions
   BOOST_FOREACH(const Handle<Component>& ic, m_created_initial_conditions)
   {
-    ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+    if(is_not_null(ic))
+      ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
   }
+
+  cf3_assert(is_not_null(m_implementation->m_lss));
 
   m_implementation->m_updating = false;
 }
@@ -204,9 +262,9 @@ void LSSAction::trigger_initial_conditions()
     CFwarn << "Initial conditions for " << uri().path() << " were reset to NULL" << CFendl;
     return;
   }
-  
+
   CFdebug << "Using initial conditions " << m_initial_conditions->uri().path() << " for LSSAction " << uri().path() << CFendl;
-  
+
   m_created_initial_conditions.clear();
 
   std::set< Handle<Component> > existing_conditions;
@@ -214,10 +272,10 @@ void LSSAction::trigger_initial_conditions()
   {
     existing_conditions.insert(ic.handle());
   }
-  
+
   // Give the concrete solver a chance to add its initial conditions
   on_initial_conditions_set(*m_initial_conditions);
-  
+
   // New initial conditions are the ones we need to track
   BOOST_FOREACH(common::Action& ic, find_components<common::Action>(*m_initial_conditions))
   {

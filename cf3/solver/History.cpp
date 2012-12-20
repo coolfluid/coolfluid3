@@ -32,7 +32,7 @@ History::History ( const std::string& name ) :
   m_table = create_static_component< Table<Real> >("table");
   m_variables = create_static_component< math::VariablesDescriptor >("variables");
 
-  options().add("dimension",1u);
+  options().add("dimension",0u).mark_basic();
 
 
   m_logging = true;
@@ -152,7 +152,7 @@ void History::save_entry()
 
 void History::flush()
 {
-  if (m_buffer)
+  if(is_not_null(m_buffer))
     m_buffer->flush();
 }
 

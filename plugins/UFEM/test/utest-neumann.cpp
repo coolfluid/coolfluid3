@@ -29,7 +29,7 @@
 
 #include "solver/Model.hpp"
 
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
@@ -72,11 +72,9 @@ struct NeumannFixture
   NeumannFixture() :
     root( Core::instance().root() )
   {
-    solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
   Component& root;
-  std::string solver_config;
 
 };
 
@@ -118,7 +116,7 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", "solution");
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> GradT("GradT", "element_fields", Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>());
+  FieldVariable<1, VectorField> GradT("GradT", "element_fields", Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>()->library_namespace());
 
   // For quads, the center is at mapped coordinates (0,0)
   RealVector2 center; center.setZero();
@@ -182,11 +180,7 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   hc_top->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
   math::LSS::System& bot_lss = hc_bottom->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  bot_lss.matrix()->options().set("settings_file", solver_config);
-
   math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  top_lss.matrix()->options().set("settings_file", solver_config);
-
   
   bc_bot->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
   bc_bot->add_constant_bc("bottom", "Temperature")->options().set("value", 10.);

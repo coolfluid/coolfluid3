@@ -75,7 +75,7 @@ void TimedActionImpl::stop_timing()
 
 void TimedActionImpl::store_timings()
 {
-  m_implementation->m_timed_component.properties().set("timer_count", boost::accumulators::count(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().set("timer_count", static_cast<Uint>(boost::accumulators::count(m_implementation->m_timing_stats)));
   m_implementation->m_timed_component.properties().set("timer_minimum", boost::accumulators::min(m_implementation->m_timing_stats));
   m_implementation->m_timed_component.properties().set("timer_mean", boost::accumulators::mean(m_implementation->m_timing_stats));
   m_implementation->m_timed_component.properties().set("timer_maximum", boost::accumulators::max(m_implementation->m_timing_stats));

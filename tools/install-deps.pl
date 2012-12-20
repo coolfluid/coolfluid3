@@ -69,7 +69,7 @@ my $priority = 0;
 
 # these packages are listed by priority
 my %packages = (  #  version   default install priority      function
-    "cmake"      => [ "2.8.5",    'on' ,   'off', $priority++,  \&install_cmake ],
+    "cmake"      => [ "2.8.9",    'on' ,   'off', $priority++,  \&install_cmake ],
     "wget"       => [ "1.12",     'off',   'off', $priority++,  \&install_wgetprog],
     "blas"       => [ "3.0.3",    'off',   'off', $priority++,  \&install_blas ],
     "lapack"     => [ "3.0.3",    'off',   'off', $priority++,  \&install_lapack ],
@@ -85,12 +85,13 @@ my %packages = (  #  version   default install priority      function
     "qt"         => [ "4.7.4",    'off',   'off', $priority++,  \&install_qt ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
-    "trilinos"   => [ "10.10.1",   'off',   'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "11.0.3",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p8",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.1.3-2",  'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.8",      'off',   'off', $priority++,  \&install_cgal ],
     "superlu"    => [ "4.1",      'off',   'off', $priority++,  \&install_superlu ],
+    "eigen"    => [ "3.1.1",      'off',   'off', $priority++,  \&install_eigen ],
 );
 
 # supported extensions for downloading and uncompressing
@@ -133,7 +134,7 @@ install-deps.pl : Install software dependencies for coolfluid
 
 usage: install-deps.pl [options]
 
-By default will install the 'basic' set of dependencies: 
+By default will install the 'basic' set of dependencies:
  [cmake,boost,openmpi,parmetis]
 
 options:
@@ -156,7 +157,7 @@ options:
 
         --install-dir=     Install location of the packages [$opt_install_dir]
         --install-mpi-dir= Install location for the mpi dependent installations [$opt_install_mpi_dir]
-        
+
         --cmake-dir=       Location for the cmake installation []
         --mpi-dir=         Location for the MPI implementation []
         --tmp-dir=         Location of the temporary directory for complation [$opt_tmp_dir]
@@ -174,8 +175,8 @@ ZZZ
 	if($opt_list != 0)
 	{
 		print my_colored("install-deps.pl - can install the following packages:\n",$OKCOLOR);
-		
-		foreach my $pname (keys %packages) 
+
+		foreach my $pname (keys %packages)
 		{
 			print "Package $pname\t[$packages{$pname}[$vrs]]\n";
 	  	}
@@ -333,7 +334,7 @@ sub prepare ()
     # set the mpi dir if the user did not set
     if ($opt_mpi_dir eq "")
     {
-        $opt_mpi_dir = $opt_install_mpi_dir;	  
+        $opt_mpi_dir = $opt_install_mpi_dir;
     }
 
 
@@ -433,17 +434,17 @@ sub remote_file_exists($) {
 #==========================================================================
 
 sub download_src ($) {
-  
+
   my ($stem)=@_;
   my $gotit = 0;
 
-  foreach my $ext (@extensions) 
+  foreach my $ext (@extensions)
   {
 	my $cfile = "$stem.$ext";
 	if ( not -e $cfile ) # download only if does not exist
-	{ 
-      if ( remote_file_exists($cfile) ) { 
-		my $status = download_file("$opt_dwnldsrc/$cfile"); 
+	{
+      if ( remote_file_exists($cfile) ) {
+		my $status = download_file("$opt_dwnldsrc/$cfile");
 		die "Download of $cfile exited with error" unless $status == 0;
 		$gotit = 1;
 	  }
@@ -504,11 +505,11 @@ sub untar_src ($) {
   my ($stem)=@_;
   my $gotit = 0;
 
-  foreach my $ext (@extensions) 
+  foreach my $ext (@extensions)
   {
 	my $cfile = "$stem.$ext";
 	my $status = -1;
-	if ( -e $cfile ) 
+	if ( -e $cfile )
 	{
 	    $status = get_command_status("tar zxf $stem.$ext") if( $ext eq "tar.gz" );
 	    $status = get_command_status("tar zxf $stem.$ext") if( $ext eq "tgz" );
@@ -727,7 +728,7 @@ sub install_openmpi() {
   {
 	# support fortran but not f90
 	$fortran_opts = "FC=$ENV{F77} --disable-mpi-f90";
-  } 
+  }
 
   unless ($opt_fetchonly)
   {
@@ -774,7 +775,7 @@ sub install_cgns() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    
+
     mkpath("build",1);
     safe_chdir("build");
     run_command_or_die("cmake ../ -DCMAKE_C_FLAGS=\"-Wno-return-type\" -DHDF5_LIBRARY_DIR=$opt_install_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_install_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_install_mpi_dir");
@@ -850,7 +851,7 @@ sub install_parmetis () {
         safe_copy($filename,"$filename.orig");
         open(OUT, ">$filename") or die ("Error opening config file $filename !\n");
         open(IN,  "<$filename.orig") or die ("Error opening config file $filename.orig !\n");
-        while (<IN>) 
+        while (<IN>)
         {
         chomp;
         my $line = $_;
@@ -889,7 +890,7 @@ sub install_petsc3 ()
   my $fblas_file = "$opt_tmp_dir/$fblas_name";
 
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
-    
+
 
   safe_chdir($opt_tmp_dir);
 
@@ -983,13 +984,13 @@ sub install_trilinos() {
                        -D PaToH_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
                        -D PaToH_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
 
- 
+
   my $tri_fortran_opt = "";
   if ($opt_no_fortran) { $tri_fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
 
-  unless ($opt_fetchonly) 
+  unless ($opt_fetchonly)
   {
-    my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build"; 
+    my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build";
 
     rmtree "$opt_tmp_dir/$lib-$version-Source";
     untar_src("$lib-$version");
@@ -1009,6 +1010,7 @@ sub install_trilinos() {
       -D Didasko_ENABLE_EXAMPLES:BOOL=OFF \\
       -D Trilinos_ENABLE_Epetra:BOOL=ON \\
       -D Trilinos_ENABLE_EpetraExt:BOOL=ON \\
+      -D Trilinos_ENABLE_ShyLU:BOOL=ON \\
       -D Trilinos_ENABLE_Tpetra:BOOL=ON \\
       -D Trilinos_ENABLE_Teko:BOOL=ON \\
       -D Trilinos_ENABLE_TpetraExt:BOOL=ON \\
@@ -1050,21 +1052,21 @@ sub install_trilinos() {
 sub boost_arch()
 {
 	my $boost_arch;
-    
+
     # linux
 	if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
     if($arch eq "i686")   { $boost_arch = "linuxx86" ;  }
 
-    if(is_mac())         
-    { 
-        $boost_arch = "macosxx86"; 
-      
+    if(is_mac())
+    {
+        $boost_arch = "macosxx86";
+
         # If Snow Leopard
         my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
         my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
-        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && ( $OSversion =~ /10\.6\.*/ || $OSversion =~ /10\.7\.*/ ) ) 
+        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && ( $OSversion =~ /10\.6\.*/ || $OSversion =~ /10\.7\.*/ ) )
         {
-           $boost_arch = "macosxx86_64";    
+           $boost_arch = "macosxx86_64";
         }
     }
 	return $boost_arch;
@@ -1101,7 +1103,7 @@ sub install_boost_jam()
     }
 
     if( is_mac() and $toolset eq "gcc" ) { $toolset = "darwin"; }
-	
+
     my $output = run_command("sh build.sh $toolset");
 
     my $boost_arch = boost_arch();
@@ -1144,7 +1146,7 @@ sub install_boost()
     if( is_mac() and $toolset eq "gcc" ) { $toolset = "darwin"; }
 
     # check if we need to build bjam and build if needed
- 
+
   	my $bjampath = run_command("which bjam");
     chomp $bjampath;
 
@@ -1177,7 +1179,7 @@ sub install_boost()
       print "building tools/jam/src\n";
 
       safe_chdir("tools/jam/src");
-      
+
       run_command_or_die("sh build.sh $toolset");
 
       $bjampath="$opt_tmp_dir/$pack/tools/jam/src/bin.$boost_arch/bjam";
@@ -1192,7 +1194,7 @@ sub install_boost()
 
     # build boost libs
     safe_chdir("$opt_tmp_dir/$pack");
-   
+
     if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) )
     {
       open  ( USERCONFIGJAM, ">>$bjamcfg" ) || die("Cannot open file $bjamcfg") ;
@@ -1203,7 +1205,7 @@ sub install_boost()
 using clang ;
 
 ZZZ
-      close (USERCONFIGJAM); 
+      close (USERCONFIGJAM);
     }
 
     my $boostmpiopt=" --without-mpi ";
@@ -1218,7 +1220,7 @@ ZZZ
 using mpi : $opt_mpi_dir/bin/mpicxx ;
 
 ZZZ
-      close (USERCONFIGJAM); 
+      close (USERCONFIGJAM);
     }
 
     if ( $opt_python ne "" )
@@ -1307,7 +1309,7 @@ sub install_superlu() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    
+
     mkpath("build",1);
     safe_chdir("build");
     run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir -DCMAKE_BUILD_TYPE=Release" );
@@ -1342,7 +1344,7 @@ sub install_qt() {
     run_command_or_die ("make $opt_makeopts");
     run_command_or_die ("make install");
   }
-    
+
 }
 
 #==========================================================================
@@ -1360,7 +1362,7 @@ sub install_paraview() {
     rmtree "$opt_tmp_dir/ParaView-$version";
     untar_src("ParaView-$version");
     safe_chdir("$opt_tmp_dir/ParaView-$version/");
-   
+
     mkpath("build",1);
     safe_chdir("build");
     run_command_or_die("cmake ../ -DCMAKE_INSTALL_PREFIX=$opt_install_dir \\
@@ -1384,8 +1386,8 @@ sub install_paraview() {
     # According to ParaView wiki, it's not safe to do 'make install' because
     # it might raise some issues. They advice instead to generate a package and
     # extract it to the installation directory. This operation asks about 1GB
-    # free disk space and takes some minutes. The archive contains a main 
-    # directory which contains the directories we want, so the process is a 
+    # free disk space and takes some minutes. The archive contains a main
+    # directory which contains the directories we want, so the process is a
     # bit trickier that just "extracting".
     run_command_or_die("cpack -G TGZ");
     mkpath("extracting",1);
@@ -1393,7 +1395,7 @@ sub install_paraview() {
     safe_chdir("extracting");
     # extract the archive and delete it (to gain disk space)
     run_command("tar zvxf IceT-*.tar.gz 2> /dev/null #; rm *.tar.gz");
-    # Qt libraries were copied inside the archive. We have our own Qt libraries, 
+    # Qt libraries were copied inside the archive. We have our own Qt libraries,
     # so it's better to remove them in order to gain about 200MB of disk space and
     # avoid potential "duplicate symbols" errors. Note that QtTesting is not
     # removed since it's a ParaView library.
@@ -1412,19 +1414,45 @@ sub install_paraview() {
 
 #==========================================================================
 
+sub install_eigen() {
+
+  my $lib = "eigen";
+  my $version = $packages{$lib}[$vrs];
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("$lib-$version");
+
+  unless ($opt_fetchonly)
+  {
+    my $build_dir =  "$opt_tmp_dir/$lib-$version/build";
+
+    rmtree "$opt_tmp_dir/$lib-$version";
+    untar_src("$lib-$version");
+    # make build dir - newer versions dont support in-source builds
+    mkpath $build_dir or die ("could not create dir $build_dir\n");
+    safe_chdir($build_dir);
+    run_command_or_die("$opt_cmake_dir/bin/cmake -D CMAKE_INSTALL_PREFIX:PATH=$opt_install_dir $opt_tmp_dir/$lib-$version");
+
+    run_command_or_die("make install/fast");
+  }
+}
+
+#==========================================================================
+
 sub print_info() # print information about the
 {
     print my_colored("Installing coolfluid dependencies\n",$HIGHLIGHTCOLOR);
 
-    print "---------------------------------\n"; 
-    
+    print "---------------------------------\n";
+
     print "Install     dir : $opt_install_dir\n";
     print "Install MPI dir : $opt_install_mpi_dir\n";
     print "CMake       dir : $opt_cmake_dir\n";
     print "MPI         dir : $opt_mpi_dir\n";
     print "Temporary   dir : $opt_tmp_dir\n";
 
-    print "---------------------------------\n"; 
+    print "---------------------------------\n";
 
 # Env vars
     print "PATH            : $ENV{PATH}\n";
@@ -1438,8 +1466,8 @@ sub print_info() # print information about the
     print "F77FLAGS : $ENV{F77FLAGS}\n" unless ($opt_no_fortran);
     print "F90FLAGS : $ENV{F90FLAGS}\n" unless ($opt_no_fortran);
 
-    print "---------------------------------\n"; 
-    
+    print "---------------------------------\n";
+
 # Options
 #     while ( my ($key, $value) = each(%options) ) {
 #         print "$key : get_option($key)";
@@ -1471,7 +1499,7 @@ sub set_install_recommended()
 
 sub set_install_all()
 {
-  foreach my $pname (keys %packages) 
+  foreach my $pname (keys %packages)
   {
     unless ( $pname eq 'lam' or $pname eq 'openmpi' or $pname eq 'mpich' or $pname eq 'mpich2' )
     {

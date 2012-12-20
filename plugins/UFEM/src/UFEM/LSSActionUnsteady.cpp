@@ -22,7 +22,7 @@
 
 namespace cf3 {
 namespace UFEM {
-  
+
 using namespace common;
 
 common::ComponentBuilder < LSSActionUnsteady, common::ActionDirector, LibUFEM > LSSActionUnsteady_Builder;
@@ -39,6 +39,11 @@ LSSActionUnsteady::LSSActionUnsteady(const std::string& name) :
 
 LSSActionUnsteady::~LSSActionUnsteady()
 {
+}
+
+Real& LSSActionUnsteady::dt()
+{
+  return m_dt;
 }
 
 Real& LSSActionUnsteady::invdt()
@@ -62,6 +67,7 @@ void LSSActionUnsteady::trigger_time()
 void LSSActionUnsteady::trigger_timestep()
 {
   m_invdt = m_time->invdt();
+  m_dt = m_time->dt();
 }
 
 

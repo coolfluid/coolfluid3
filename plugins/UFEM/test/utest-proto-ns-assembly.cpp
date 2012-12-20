@@ -17,6 +17,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/Group.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
@@ -26,8 +27,12 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include <solver/ModelUnsteady.hpp>
+#include <solver/Solver.hpp>
 
-#include "UFEM/NavierStokesOps.hpp"
+#include "UFEM/SUPG.hpp"
+#include <UFEM/Solver.hpp>
+#include <UFEM/LSSActionUnsteady.hpp>
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -44,29 +49,66 @@ typedef std::vector<Uint> SizesT;
 
 struct NavierStokesAssemblyFixture
 {
-  NavierStokesAssemblyFixture()
+  template<Uint Dim, typename ExprT>
+  void run_model(const boost::shared_ptr<Mesh>& mesh, const ExprT& initial_condition_expression, const Real eps = 1e-12)
   {
-    c.rho = 1.;
-    c.mu = 1.;
-    c.one_over_rho = 1.;
-    c.u_ref = 1.;
-    c.tau_bulk = 1.;
-    c.tau_ps = 1.;
-    c.tau_su = 1.;
-  }
-  Domain& domain()
-  {
-    if(is_null(m_domain))
-      m_domain = Handle<Domain>(Core::instance().root().get_child("domain"));
-    if(is_null(m_domain))
-      m_domain = Core::instance().root().create_component<Domain>("domain");
+    boost::shared_ptr<common::Group> root = allocate_component<Group>("Root");
+    Handle<ModelUnsteady> model = root->create_component<ModelUnsteady>("NavierStokes");
+    Domain& domain = model->create_domain("Domain");
+    physics::PhysModel& physical_model = model->create_physics("cf3.UFEM.NavierStokesPhysics");
 
-    return *m_domain;
+    Handle<UFEM::Solver> solver(model->create_solver("cf3.UFEM.Solver").handle());
+    Handle<InitialConditions> ic = solver->create_initial_conditions();
+    Handle<UFEM::LSSActionUnsteady> lss_action(solver->add_unsteady_solver("cf3.UFEM.NavierStokes"));
+
+    physical_model.options().set("density", 1.);
+    physical_model.options().set("dynamic_viscosity", 1.);
+    physical_model.options().set("reference_velocity", 1.);
+
+    Time& time = model->create_time();
+    time.options().set("time_step", 1.);
+
+    ic->remove_component(lss_action->solution_tag());
+
+    domain.add_component(mesh);
+    mesh->raise_mesh_loaded();
+
+    solver->configure_option_recursively("regions", std::vector<URI>(1, mesh->topology().uri()));
+    math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+
+    const std::vector<std::string> disabled_actions = boost::assign::list_of("BoundaryConditions")("SolveLSS")("Update");
+    lss_action->options().set("disabled_actions", disabled_actions);
+
+    lss_action->options().set("use_specializations", true);
+    time.options().set("end_time", 1.);
+    solver->create_fields();
+    for_each_node<Dim>(mesh->topology(), initial_condition_expression);
+    model->simulate();
+
+    const Uint matsize = lss.matrix()->blockcol_size()*lss.matrix()->neq();
+
+    RealMatrix spec_result(matsize, matsize);
+    for(Uint i = 0; i != matsize; ++i)
+      for(Uint j = 0; j != matsize; ++j)
+        lss.matrix()->get_value(i, j, spec_result(i,j));
+
+    lss_action->options().set("use_specializations", false);
+    time.options().set("end_time", 2.);
+    model->simulate();
+
+    RealMatrix generic_result(matsize, matsize);
+    for(Uint i = 0; i != matsize; ++i)
+      for(Uint j = 0; j != matsize; ++j)
+        lss.matrix()->get_value(i, j, generic_result(i,j));
+
+    check_close(generic_result, spec_result, eps);
   }
 
-  void create_triangle(Mesh& mesh, const RealVector2& a, const RealVector2& b, const RealVector2& c)
+  boost::shared_ptr<Mesh> create_triangle(const RealVector2& a, const RealVector2& b, const RealVector2& c)
   {
     // coordinates
+    boost::shared_ptr<Mesh> mesh_ptr = allocate_component<Mesh>("mesh");
+    Mesh& mesh = *mesh_ptr;
     mesh.initialize_nodes(3, 2);
     Dictionary& geometry_dict = mesh.geometry_fields();
     Field& coords = geometry_dict.coordinates();
@@ -77,15 +119,13 @@ struct NavierStokesAssemblyFixture
     cells.resize(1);
     cells.geometry_space().connectivity() << 0 << 1 << 2;
 
-    Field& solution = mesh.geometry_fields().create_field("solution", "p[scalar],u[vector]");
-    solution.add_tag("solution");
-
-    Field& visc = mesh.geometry_fields().create_field("navier_stokes_viscosity", "EffectiveViscosity[scalar]");
-    visc.add_tag("navier_stokes_viscosity");
+    return mesh_ptr;
   }
 
-  void create_tetra(Mesh& mesh, const RealVector3& a, const RealVector3& b, const RealVector3& c, const RealVector3& d)
+  boost::shared_ptr<Mesh> create_tetra(const RealVector3& a, const RealVector3& b, const RealVector3& c, const RealVector3& d)
   {
+    boost::shared_ptr<Mesh> mesh_ptr = allocate_component<Mesh>("mesh");
+    Mesh& mesh = *mesh_ptr;
     // coordinates
     mesh.initialize_nodes(4, 3);
     Dictionary& geometry_dict = mesh.geometry_fields();
@@ -97,66 +137,7 @@ struct NavierStokesAssemblyFixture
     cells.resize(1);
     cells.geometry_space().connectivity() << 0 << 1 << 2 << 3;
 
-    Field& solution = mesh.geometry_fields().create_field("solution", "p[scalar],u[vector]");
-    solution.add_tag("solution");
-
-
-    Field& visc = mesh.geometry_fields().create_field("navier_stokes_viscosity", "EffectiveViscosity[scalar]");
-    visc.add_tag("navier_stokes_viscosity");
-  }
-
-  template<typename ElementT, typename UT, typename PT>
-  boost::shared_ptr<Expression> generic_ns_assembly(RealMatrix& A, RealMatrix& T, UT& u, PT& p, SUPGCoeffs& c)
-  {
-    return elements_expression(boost::mpl::vector1<ElementT>(),
-      group
-      (
-        _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
-        compute_tau(u, c),
-        element_quadrature
-        (
-          _A(p    , u[_i]) += transpose(N(p) + c.tau_ps*u*nabla(p)*0.5) * nabla(u)[_i] + c.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
-          _A(p    , p)     += c.tau_ps * transpose(nabla(p)) * nabla(p) * c.one_over_rho, // Continuity, PSPG
-          _A(u[_i], u[_i]) += c.mu * transpose(nabla(u)) * nabla(u) * c.one_over_rho + transpose(N(u) + c.tau_su*u*nabla(u)) * u*nabla(u), // Diffusion + advection
-          _A(u[_i], p)     += c.one_over_rho * transpose(N(u) + c.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-          _A(u[_i], u[_j]) += transpose((c.tau_bulk + 0.33333333333333*boost::proto::lit(c.mu)*c.one_over_rho)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
-                                          + 0.5*u[_i]*(N(u) + c.tau_su*u*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
-          _T(p    , u[_i]) += c.tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
-          _T(u[_i], u[_i]) += transpose(N(u) + c.tau_su*u*nabla(u)) * N(u) // Time, standard and SUPG
-        ),
-        boost::proto::lit(A) = _A, boost::proto::lit(T) = _T
-      )
-    );
-  }
-
-  template<typename ElementT>
-  void runtest(Mesh& mesh, const Real eps = 1e-12)
-  {
-    FieldVariable<0, ScalarField> p("p", "solution");
-    FieldVariable<1, VectorField> u("u", "solution");
-    FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-
-    RealMatrix A, A_spec, T, T_spec;
-
-    generic_ns_assembly<ElementT>(A, T, u, p, c)->loop(mesh.topology());
-
-    for_each_element< boost::mpl::vector1<ElementT> >
-    (
-      mesh.topology(),
-      group
-      (
-        _A(p) = _0, _A(u) = _0, _T(p) = _0, _T(u) = _0,
-        supg_specialized(p, u, u, nu_eff, c, _A, _T),
-        boost::proto::lit(A_spec) = _A, boost::proto::lit(T_spec) = _T
-      )
-    );
-
-    std::cout << "A:\n" << A << "\nT:\n" << T << std::endl;
-    std::cout << "A_spec:\n" << A_spec << "\nT_spec:\n" << T_spec << std::endl;
-    std::cout << "diff A_spec:\n" << A - A_spec << "\ndiff T:\n" << T - T_spec << std::endl;
-
-    check_close(A, A_spec, eps);
-    check_close(T, T_spec, eps);
+    return mesh_ptr;
   }
 
   void check_close(const RealMatrix& a, const RealMatrix& b, const Real eps)
@@ -165,111 +146,60 @@ struct NavierStokesAssemblyFixture
       for(Uint j = 0; j != a.cols(); ++j)
         BOOST_CHECK_CLOSE(a(i,j), b(i,j), eps);
   }
-
-  SUPGCoeffs c;
-  Handle<Domain> m_domain;
 };
 
 BOOST_FIXTURE_TEST_SUITE( NavierStokesAssemblySuite, NavierStokesAssemblyFixture )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().size(), 1);
+  Core::instance().environment().options().set("log_level", 4u);
+}
+
 BOOST_AUTO_TEST_CASE( UnitTriangleUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("TriangleUniform");
-  create_triangle(mesh, RealVector2(0., 0.), RealVector2(1., 0.), RealVector2(0., 1.));
-
-  // Initialize u
-  FieldVariable<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   RealVector u_init(2); u_init << 1., 1.;
-  for_each_node(mesh.topology(), u = u_init);
 
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Triag2D>(mesh);
+  run_model<2>(create_triangle(RealVector2(0., 0.), RealVector2(1., 0.), RealVector2(0., 1.)), u = u_init);
 }
 
 BOOST_AUTO_TEST_CASE( TetraUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("TetraUniform");
-  create_tetra(mesh, RealVector3(0., 0., 0.), RealVector3(1., 0., 0.), RealVector3(0., 1., 0.), RealVector3(0., 0., 1.));
-
-  // Initialize u
-  FieldVariable<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   RealVector u_init(3); u_init << 1., 1., 1.;
-  for_each_node(mesh.topology(), u = u_init);
-
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Tetra3D>(mesh);
+  run_model<3>(create_tetra(RealVector3(0., 0., 0.), RealVector3(1., 0., 0.), RealVector3(0., 1., 0.), RealVector3(0., 0., 1.)), u = u_init);
 }
 
 BOOST_AUTO_TEST_CASE( GenericTriangleUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("GenericTriangleUniform");
-  create_triangle(mesh, RealVector2(0.2, 0.1), RealVector2(0.75, -0.1), RealVector2(0.33, 0.83));
-
-  // Initialize u
-  FieldVariable<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   RealVector u_init(2); u_init << 1., 1.;
-  for_each_node(mesh.topology(), u = u_init);
-
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Triag2D>(mesh);
+  run_model<2>(create_triangle(RealVector2(0.2, 0.1), RealVector2(0.75, -0.1), RealVector2(0.33, 0.83)), u = u_init);
 }
 
 
 BOOST_AUTO_TEST_CASE( GenericTetraUniform )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("GenericTetraUniform");
-  create_tetra(mesh, RealVector3(0.2, 0.1, -0.1), RealVector3(0.75, -0.1, 0.05), RealVector3(0.33, 0.83, 0.23), RealVector3(0.1, -0.1, 0.67));
-
-  // Initialize u
-  FieldVariable<0, VectorField> u("u", "solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   RealVector u_init(3); u_init << 1., 1., 1.;
-  for_each_node(mesh.topology(), u = u_init);
-
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Tetra3D>(mesh);
+  run_model<3>(create_tetra(RealVector3(0.2, 0.1, -0.1), RealVector3(0.75, -0.1, 0.05), RealVector3(0.33, 0.83, 0.23), RealVector3(0.1, -0.1, 0.67)), u = u_init);
 }
 
 
 BOOST_AUTO_TEST_CASE( GenericTriangleVortex )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("GenericTriangleVortex");
-  create_triangle(mesh, RealVector2(100.2, 100.1), RealVector2(100.75, 99.9), RealVector2(100.33, 100.83));
-
-  // Initialize u
   RealMatrix2 n_op; n_op << 0., 100., -100., 0.; // Linear operator to create a normal vector in 2D
-  FieldVariable<0, VectorField> u("u", "solution");
-  for_each_node<2>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
-  for_each_node<2>(mesh.topology(), _cout << transpose(u) << "\n");
-
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Triag2D>(mesh,0.05); // Tolerance must be higher due to the different interpolation of the advection speed
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  run_model<2>(create_triangle(RealVector2(100.2, 100.1), RealVector2(100.75, 99.9), RealVector2(100.33, 100.83)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 0.05);
 }
 
 BOOST_AUTO_TEST_CASE( GenericTetraVortex )
 {
-  Mesh& mesh = *domain().create_component<Mesh>("GenericTetraVortex");
-  create_tetra(mesh, RealVector3(100.2, 100.1, 99.9), RealVector3(100.75, 99.9, 100.05), RealVector3(100.33, 100.83, 100.23), RealVector3(100.1, 99.9, 100.67));
-
-  // Initialize u
   RealMatrix3 n_op; n_op << 0., 1., 0., -1., 0., 0., 0., 0., 0.; // Linear operator to create a normal vector
-  FieldVariable<0, VectorField> u("u", "solution");
-  for_each_node<3>(mesh.topology(), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]));
-  for_each_node<3>(mesh.topology(), _cout << transpose(u) << "\n");
-
-  FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  for_each_node(mesh.topology(), nu_eff = c.mu*c.one_over_rho);
-
-  runtest<LagrangeP1::Tetra3D>(mesh,0.2); // Tolerance must be higher due to the different interpolation of the advection speed
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  run_model<3>(create_tetra(RealVector3(100.2, 100.1, 99.9), RealVector3(100.75, 99.9, 100.05), RealVector3(100.33, 100.83, 100.23), RealVector3(100.1, 99.9, 100.67)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 0.2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

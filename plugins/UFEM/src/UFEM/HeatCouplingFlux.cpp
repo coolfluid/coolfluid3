@@ -55,10 +55,10 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));
-    
+
   // First compute the gradient
   create_static_component<ProtoAction>("ComputeGradient");
-    // Then set the gradient on the boundary elements, and configure its tag
+  // Then set the gradient on the boundary elements, and configure its tag
   Handle<AdjacentCellToFace> set_boundary_gradient = create_static_component<AdjacentCellToFace>("SetBoundaryGradient");
   set_boundary_gradient->options().set("field_tag", std::string("gradient_field"));
   // Finally set the boundary condition
@@ -103,7 +103,7 @@ void HeatCouplingFlux::trigger_setup()
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", common::Core::instance().libraries().library<mesh::LagrangeP0::LibLagrangeP0>());
+  FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
   // Expression to calculate the gradient, at the cell centroid:
   // nabla(T, center) is the shape function gradient matrix evaluated at the element center
@@ -118,7 +118,9 @@ void HeatCouplingFlux::trigger_setup()
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal) // Classical Neumann condition formulation for finite elements
+    group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal), // Classical Neumann condition formulation for finite elements
+          _cout << "rhs" << integral<1>(transpose(N(T))*GradT*normal) << "\n",
+          _cout << "GradT" << GradT << "\n")
   ));
 
   // Raise an event to indicate that we added a variable (GradT)

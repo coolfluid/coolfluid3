@@ -265,7 +265,8 @@ Handle< common::Action > BoundaryConditions::create_bc_action(const std::string&
 {
   Handle<common::Action> result(create_component(builder_name+region_name, builder_name));
   m_implementation->configure_bc(*result, region_name);
-  result->options().set("lss", options().option("lss").value());
+  if(result->options().check("lss"))
+    result->options().set("lss", options().option("lss").value());
   return result;
 }
 

@@ -16,6 +16,7 @@
 #include "common/Core.hpp"
 #include "common/Log.hpp"
 #include "common/TimedComponent.hpp"
+#include <common/Environment.hpp>
 
 #include "math/MatrixTypes.hpp"
 
@@ -87,6 +88,8 @@ static boost::proto::terminal< void(*)(const Uint, const Uint) >::type const _ch
 /// Check if copying references works as expected
 BOOST_AUTO_TEST_CASE( CopiedReference )
 {
+  Core::instance().environment().options().set("log_level", 4);
+  
   Uint a = 1;
   Uint b = 2;
   Uint& b_ref = b;
@@ -222,7 +225,7 @@ BOOST_AUTO_TEST_CASE( SimpleSolverTest )
   // Declare a mesh variable
   FieldVariable<0, ScalarField> T("Temperature3", "T3");
 
-  Solver& solver = *model->create_component<SimpleSolver>("GeneriSolver");
+  Solver& solver = *model->create_component<SimpleSolver>("GenericSolver");
 
   // Storage for the result check
   Real temp_sum = 0.;
@@ -242,6 +245,52 @@ BOOST_AUTO_TEST_CASE( SimpleSolverTest )
 
   // Check result
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
+  
+  model->remove_component("GenericSolver");
+}
+
+/// Test Physics constants
+BOOST_AUTO_TEST_CASE( PhysicsSolverTest )
+{
+  const Uint nb_segments = 5;
+  Handle<Model> model(Core::instance().root().get_child("Model"));
+  Handle<Mesh> mesh(model->domain().get_child("mesh"));
+
+  model->physics().options().add("input_temperature", 288.);
+  
+  // Declare a mesh variable
+  FieldVariable<0, ScalarField> T("TemperaturePhysics", "TP");
+  PhysicsConstant Tin("input_temperature");
+
+  Solver& solver = *model->create_component<SimpleSolver>("PhysicsSolver");
+
+  // Storage for the result check
+  Real temp_sum = 0.;
+
+  // Add the actions to run on the domain
+  solver << create_proto_action( "SetTemp",     nodes_expression(T = Tin) )
+         << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
+
+  solver.configure_option_recursively(solver::Tags::regions(), std::vector<URI>(1, mesh->topology().uri()));
+  solver.configure_option_recursively("physical_model", model->physics().handle<physics::PhysModel>());
+  solver.mesh_loaded(*mesh);
+
+  solver.field_manager().create_field("TP", mesh->geometry_fields());
+  
+  // Run the actions
+  model->simulate();
+
+  // Check result
+  BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
+  
+  // Change value and re-run
+  temp_sum = 0;
+  model->physics().options().set("input_temperature", 100.);
+  model->simulate();
+  BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 100.);
+  
+  
+  model->remove_component("PhysicsSolver");
 }
 
 /// Create a custom actiondomain

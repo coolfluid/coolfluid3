@@ -12,8 +12,9 @@
 #include "ElementOperations.hpp"
 #include "ExpressionGroup.hpp"
 #include "Functions.hpp"
-#include "NeumannBC.hpp"
+#include "SetRHS.hpp"
 #include "NodeData.hpp"
+#include "RHSVector.hpp"
 #include "SolutionVector.hpp"
 #include "Transforms.hpp"
 
@@ -34,7 +35,7 @@ struct GetCoordinates :
   {
     /// The geometric support is also a functor that adheres to the TR1 result_of protocol, so we can easily determine the result type in a generic way
     typedef const typename boost::remove_reference<DataT>::type::CoordsT& result_type;
-  
+
     result_type operator ()(
                 typename impl::expr_param tag
               , typename impl::state_param state
@@ -72,7 +73,7 @@ struct NodeAssign :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef void result_type;
-  
+
     result_type operator ()(
                 typename impl::expr_param expr // The expression
               , typename impl::state_param state // The evaluated RHS
@@ -84,24 +85,63 @@ struct NodeAssign :
   };
 };
 
+/// Modify only a single component of a field
+template<typename IndexGrammarT>
+struct IndexedNodeAssign :
+boost::proto::transform< IndexedNodeAssign<IndexGrammarT> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator ()(
+                typename impl::expr_param expr // The expression
+              , typename impl::state_param state // The evaluated RHS
+              , typename impl::data_param data
+    ) const
+    {
+      data.var_data( boost::proto::value( boost::proto::left(boost::proto::left(expr)) ) ).set_value_component( typename boost::proto::tag_of<ExprT>::type(), state, IndexGrammarT()(boost::proto::right(boost::proto::left(expr)), state, data) );
+    }
+  };
+};
+
 
 template<typename GrammarT>
 struct NodeAssignmentCases
 {
   template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
-  
+
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<FieldTypes, GrammarT> {};
 };
 
+template<typename GrammarT, typename IndexGrammarT>
+struct IndexedNodeAssignmentCases
+{
+  template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
 
-template<typename GrammarT>
+  template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign< boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
+};
+
+
+template<typename GrammarT, typename IndexGrammarT>
 struct NodeAssignGrammar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::switch_< NodeAssignmentCases<GrammarT> >,
-    NodeAssign(boost::proto::_expr, GrammarT(boost::proto::_right))
+    boost::proto::when
+    <
+      boost::proto::switch_< NodeAssignmentCases<GrammarT> >,
+      NodeAssign(boost::proto::_expr, GrammarT(boost::proto::_right))
+    >,
+    boost::proto::when
+    <
+      boost::proto::switch_< IndexedNodeAssignmentCases<GrammarT, IndexGrammarT> >,
+      boost::proto::call< IndexedNodeAssign<IndexGrammarT> >(boost::proto::_expr, GrammarT(boost::proto::_right))
+    >
   >
 {
 };
@@ -110,10 +150,10 @@ struct NodeAssignGrammar :
 struct NodeMath;
 
 /// Matches expressions that can be used as terms in math formulas for element expressions
-struct NodeMath :
+struct NodeMathBase :
   boost::proto::or_
   <
-    boost::proto::or_<MathTerminals, ParsedFunctionGrammar>, // Scalars and matrices
+    boost::proto::or_<MathTerminals, ParsedFunctionGrammar, boost::proto::terminal< IndexTag<boost::proto::_> > >, // Scalars and matrices
     // Value of numbered variables
     boost::proto::when
     <
@@ -122,20 +162,56 @@ struct NodeMath :
     >,
     CoordinatesGrammar,
     SolutionVectorGrammar,
-    NodeAssignGrammar<NodeMath>,
-    EigenMath<NodeMath, Integers> // Special Eigen functions and Eigen multiplication (overrides default product)
+    RHSVectorGrammar
   >
 {
 };
+
+struct NodeMath :
+  boost::proto::or_
+  <
+    NodeMathBase,
+    NodeAssignGrammar<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,
+    EigenMath<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
+    
+  >
+{
+};
+
+template<typename I, typename J>
+struct NodeMathIndexed :
+boost::proto::or_
+<
+  IndexValues<I, J>,
+  NodeMathBase,
+  NodeAssignGrammar<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >,
+  EigenMath<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
   
+>
+{
+};
+
+template<typename I, typename J>
+struct NodeStreamOutputIndexed : StreamOutput< NodeMathIndexed<I, J> >
+{
+};
+
 /// Matches and evaluates element-wise expressions
 struct SingleExprNodeGrammar :
   boost::proto::or_
   <
     DirichletBCGrammar<NodeMath>,
-    NeumannBCGrammar<NodeMath>,
-    NodeMath, // math expressions
-    StreamOutput<SingleExprNodeGrammar>
+    SetRHSGrammar<NodeMath>,
+    boost::proto::when
+    <
+      NodeMath,
+      IndexLooper<NodeMathIndexed>
+    >,
+    boost::proto::when
+    <
+      StreamOutput<NodeMath>,
+      IndexLooper<NodeStreamOutputIndexed>
+    >
   >
 {
 };
