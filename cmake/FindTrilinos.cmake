@@ -69,8 +69,8 @@ else()
       belos
       ifpack
       thyra
-      thyracore
       thyraepetra
+      thyracore
   )
 
   foreach( test_lib ${trilinos_req_libs} )
