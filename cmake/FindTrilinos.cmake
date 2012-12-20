@@ -9,7 +9,11 @@
 #   CF3_HAVE_TRILINOS
 #
 option( CF3_SKIP_TRILINOS "Skip search for Trilinos library" OFF )
+
+if( NOT CF3_HAVE_TRILINOS ) # skip if already have
+
 set(CF3_TRILINOS_EXTRA_LIBS "" CACHE  STRING "Extra libraries needed to link with Trilinos")
+
 # Try to find Trilinos using Trilinos recommendations
 
 if( DEFINED TRILINOS_HOME )
@@ -26,10 +30,10 @@ if( Trilinos_FOUND )
     list( APPEND TRILINOS_INCLUDE_DIRS ${Trilinos_INCLUDE_DIRS})
     list( APPEND TRILINOS_INCLUDE_DIRS ${Trilinos_TPL_INCLUDE_DIRS})
 
-    foreach (test_lib ${Trilinos_LIBRARIES})
+    foreach( test_lib ${Trilinos_LIBRARIES})
       find_library( ${test_lib}_lib ${test_lib} PATHS  ${Trilinos_LIBRARY_DIRS}  NO_DEFAULT_PATH)
       find_library( ${test_lib}_lib ${test_lib})
-      mark_as_advanced( ${test_lib} )
+      mark_as_advanced( ${test_lib}_lib )
       list( APPEND TRILINOS_LIBRARIES ${${test_lib}_lib} )
     endforeach()
 
@@ -64,15 +68,14 @@ else()
       ml
       belos
       ifpack
-      thyra
-      thyraepetra
       thyracore
+      thyraepetra
   )
 
   foreach( test_lib ${trilinos_req_libs} )
     find_library( ${test_lib}_lib ${test_lib} PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
     find_library( ${test_lib}_lib ${test_lib})
-    mark_as_advanced( ${test_lib} )
+    mark_as_advanced( ${test_lib}_lib )
     list( APPEND TRILINOS_LIBRARIES ${${test_lib}_lib} )
   endforeach()
 
@@ -90,8 +93,8 @@ endif()
 
 list(APPEND TRILINOS_LIBRARIES ${CF3_TRILINOS_EXTRA_LIBS})
 
-coolfluid_log_file("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
-coolfluid_log_file("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
+coolfluid_log("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
+coolfluid_log("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Trilinos
                        DESCRIPTION "parallel linear system solver and other libraries"
@@ -105,3 +108,5 @@ if( Trilinos_FOUND )
 else()
     set( CF3_HAVE_TRILINOS 0 )
 endif()
+
+endif( NOT CF3_HAVE_TRILINOS )
