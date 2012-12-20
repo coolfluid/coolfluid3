@@ -68,6 +68,7 @@ else()
       ml
       belos
       ifpack
+      thyra
       thyracore
       thyraepetra
   )
