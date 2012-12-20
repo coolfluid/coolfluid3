@@ -68,8 +68,10 @@ else()
       ml
       belos
       ifpack
-      thyracore
       thyraepetra
+      thyratpetra
+      thyrapetraext
+      thyracore
   )
 
   foreach( test_lib ${trilinos_req_libs} )
