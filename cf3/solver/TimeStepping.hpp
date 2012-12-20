@@ -59,6 +59,11 @@ public: // functions
   /// @brief Access to the history
   const Handle< solver::History >& history() { return m_history; }
 
+  void add_time( const Handle<solver::Time>& time );
+
+  bool finished();
+  bool not_finished();
+
 public: // signals
 
   /// @brief Do a step
@@ -80,7 +85,7 @@ private: // functions
 
 private: // data
 
-  Handle< solver::Time >           m_time;           ///< component tracking time
+  std::vector< Handle< solver::Time > > m_times;           ///< component tracking time
   Handle< common::ActionDirector > m_pre_actions;    ///< set of actions before non-linear solve
   Handle< common::ActionDirector > m_post_actions;   ///< set of actions after non-linear solve
   Handle< solver::History >        m_history;        ///< Component tracking history of several variables

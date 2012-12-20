@@ -250,9 +250,8 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
 
   cf3_assert(result.ptr()->ob_refcnt == 1); // Make sure there are no circular references
 
-  // Add extra functionality for derved classes
+  // Add extra functionality for derived classes
   add_ctable_methods(wrapped, result);
-
   return result;
 }
 

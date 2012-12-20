@@ -61,23 +61,52 @@ ComputeFieldGradient::ComputeFieldGradient( const std::string& name )
   options().add("field_gradient",m_field_gradient).link_to(&m_field_gradient)
       .description("Output: gradient of option \"field\"")
       .mark_basic();
+
+  options().add("normal",m_normal).link_to(&m_normal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void ComputeFieldGradient::execute()
 {
-  const Uint ndim = m_mesh->dimension();
-
   // Check correct configuration
   if (is_null(m_field)) throw SetupError(FromHere(), "Option field not set in "+uri().string());
   if (is_null(m_field_gradient)) throw SetupError(FromHere(), "Option field_gradient not set in "+uri().string());
+
+  const Uint ndim = m_field->coordinates().row_size();
 
   if (m_field_gradient->row_size() != ndim*m_field->row_size())
   {
     throw SetupError(FromHere(), "Field "+m_field_gradient->uri().string()+" must have row-size of "+to_str(ndim*m_field->row_size())+". Currently it is "+to_str(m_field_gradient->row_size()));
   }
 
+  RealMatrix n(ndim,ndim);
+
+  if (m_normal.size() == 0)
+  {
+    n.setZero();
+    for (Uint d=0; d<ndim; ++d)
+    {
+      n(d,d) = 1.;
+    }
+  }
+  else
+  {
+    if (ndim == 1)
+    {
+      n << m_normal[XX];
+    }
+    else if (ndim == 2)
+    {
+      n <<  // rows are n, s
+           m_normal[XX], m_normal[YY],
+           m_normal[YY], -m_normal[XX];
+    }
+    else if (ndim == 3)
+    {
+      throw NotImplemented(FromHere(), "3d normal not implemented yet");
+    }
+  }
   // Dereference the handles
   const Field& field = *m_field;
   Field& grad = *m_field_gradient;
@@ -139,7 +168,7 @@ void ComputeFieldGradient::execute()
                                                    cell_coords,
                                                    jacobian);
           // Compute gradient
-          grad_values.noalias() = jacobian.inverse() * gradient_matrix_per_point[grad_pt] * field_element_values;
+          grad_values.noalias() = n * jacobian.inverse() * gradient_matrix_per_point[grad_pt] * field_element_values;
 
           Uint p = grad_space.connectivity()[e][grad_pt];
 

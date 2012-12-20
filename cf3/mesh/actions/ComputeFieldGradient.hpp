@@ -52,6 +52,7 @@ private: // data
 
   Handle<Field const> m_field;
   Handle<Field>       m_field_gradient;
+  std::vector<Real>   m_normal;
 
 }; // end ComputeFieldGradient
 

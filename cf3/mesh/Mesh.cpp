@@ -130,6 +130,7 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 
   geometry_fields().coordinates().set_dict(geometry_fields());
   geometry_fields().coordinates().descriptor().options().set(common::Tags::dimension(),dimension);
+  geometry_fields().coordinates().set_row_size(dimension);
   geometry_fields().resize(nb_nodes);
   geometry_fields().options().set("dimension",dimension);
 
@@ -405,7 +406,7 @@ bool Mesh::check_sanity(std::vector<std::string>& messages) const
     messages.push_back("dimensionality ["+to_str(dimensionality())+"]  >  dimension ["+to_str(dimension())+"]");
 
   if(geometry_fields().coordinates().row_size() != dimension())
-    messages.push_back("coordinates dimension does not match mesh.dimension");
+    messages.push_back("coordinates dimension ["+to_str(geometry_fields().coordinates().row_size())+"] does not match mesh.dimension ["+to_str(dimension())+"]");
 
   boost_foreach(const Dictionary& dict, find_components_recursively<Dictionary>(*this))
   {

@@ -13,6 +13,8 @@
 
 #include <Eigen/Dense>
 
+////////////////////////////////////////////////////////////////////////////////
+
 using namespace std;
 using namespace Eigen;
 
@@ -133,6 +135,29 @@ BOOST_AUTO_TEST_CASE( EigenMap )
 
 //  cout << ev2 << endl << endl;
 
+  int nb_pts  = 5;
+  int nb_vars = 3;
+  std::vector<int> array(nb_pts*nb_vars);
+  for(int i = 0; i < array.size(); ++i) array[i] = i;
+
+  int var_size = 2;
+  int var_idx = 1;
+
+  typedef Map< Matrix<int,Dynamic,Dynamic,Eigen::RowMajor> , Unaligned, Stride<Dynamic,Dynamic> > VariableMapT;
+  VariableMapT var (&array.front()+var_idx, nb_pts, var_size, Stride<Dynamic,Dynamic>(nb_vars, var_size-1));
+  cout << var  << endl;
+  cout << endl;
+  cout << var.transpose()*var << endl;
+  cout << endl;
+  var.array() = var.array()*var.array();
+  cout << var << endl;
+
+
+  Array<double,2,2,RowMajor> test;
+  test.setOnes();
+  test += 1.;
+  std::stringstream ss; ss << test;
+  cout << ss.str() << endl;
 }
 
 

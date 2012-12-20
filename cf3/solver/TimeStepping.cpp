@@ -56,15 +56,21 @@ TimeStepping::TimeStepping ( const std::string& name ) :
   properties().add("finished",true);
   properties().add("cputime", 0. );
 
-  options().add(Tags::time(), m_time)
-      .description("Time tracking component")
-      .pretty_name("Time")
-      .link_to(&m_time);
+  options().add("walltime",0.)
+      .description("Wall time to start with");
+  options().add("step",0u)
+      .mark_basic()
+      .description("Step to start with");
+  options().add("time",0.)
+      .mark_basic()
+      .description("Time to start with");
+  options().add("time_step",0.)
+      .mark_basic()
+      .attach_trigger( boost::bind( &TimeStepping::config_time_step, this) );
+  options().add("end_time",0.)
+      .mark_basic()
+      .attach_trigger( boost::bind( &TimeStepping::config_end_time, this) );
 
-  options().add("walltime",0.).description("Wall time to start with");
-  options().add("step",0u).mark_basic().description("Step to start with");
-  options().add("time_step",0.).mark_basic().attach_trigger( boost::bind( &TimeStepping::config_time_step, this) );
-  options().add("end_time",0.).mark_basic().attach_trigger( boost::bind( &TimeStepping::config_end_time, this) );
   options().add("max_steps",math::Consts::uint_max());
   options().add("time_accurate",true).mark_basic();
 
@@ -74,7 +80,7 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_post_actions = create_static_component<ActionDirector>("post_actions");
 
-  m_history      = create_static_component<History>("History");
+  m_history      = create_static_component<History>("history");
   history()->options().set("file",URI("file:timestepping.tsv"));
 
   // Set a few variables in history. More can be added during run-time
@@ -101,12 +107,15 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
 void TimeStepping::config_end_time()
 {
-  if (is_null(m_time)) throw SetupError (FromHere(), "Time not configured");
   Real end_time  = options().value<Real>("end_time");
   Real time_step = options().value<Real>("time_step");
   if (time_step == 0.)
     time_step = end_time;
-  m_time->options().set("end_time",options().value<Real>("end_time"));
+
+  boost_foreach( const Handle<Time>& time_comp, m_times)
+  {
+    if (is_not_null(time_comp)) time_comp->options().set("end_time",end_time);
+  }
   options().set("time_step",time_step);
   properties()["finished"] = stop_condition();
 }
@@ -115,14 +124,33 @@ void TimeStepping::config_end_time()
 
 void TimeStepping::config_time_step()
 {
-  if (is_null(m_time)) throw SetupError (FromHere(), "Time not configured");
-  Real end_time  = options().value<Real>("end_time");
   Real time_step = options().value<Real>("time_step");
-  m_time->options().set("time_step",options().value<Real>("time_step"));
+  boost_foreach( const Handle<Time>& time_comp, m_times)
+  {
+    if (is_not_null(time_comp)) time_comp->options().set("time_step",options().value<Real>("time_step"));
+  }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void TimeStepping::add_time( const Handle<solver::Time>& time )
+{
+  m_times.push_back(time);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+bool TimeStepping::finished()
+{
+  return properties().value<bool>("finished");
+}
+
+bool TimeStepping::not_finished()
+{
+  return ! finished();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 bool TimeStepping::stop_condition()
 {
@@ -136,11 +164,15 @@ bool TimeStepping::stop_condition()
 
   if (options().value<bool>("time_accurate"))
   {
-    if (m_time->current_time() >= options().value<Real>("end_time"))
-      return true;
+    Real time = options().value<Real>("time");
+    Real end_time = options().value<Real>("end_time");
+    if (time >= end_time)
+      return true; // stop
   }
 
-  if (options().value<Uint>("step") >= options().value<Uint>("max_steps"))
+  Uint step = options().value<Uint>("step");
+  Uint max_steps = options().value<Uint>("max_steps");
+  if (step >= max_steps)
     return true; // stop
 
   return finish;
@@ -167,13 +199,15 @@ void TimeStepping::do_step()
   Real cputime;
   Real memory;
   Uint step = options().value<Uint>("step");
-  Real time = m_time->current_time();
+  Real time = options().value<Real>("time");
   Real time_step = options().value<Real>("time_step");
   time_step = std::min(time_step,options().value<Real>("end_time")-time);
 
   // Configure end_time of this step
-  m_time->options().set("end_time",time + time_step);
-
+  boost_foreach( const Handle<Time>& time_comp, m_times)
+  {
+    if (is_not_null(time_comp)) time_comp->options().set("end_time",time + time_step);
+  }
   /// (1) the pre actions - pre-process, user defined actions, etc
 
   m_pre_actions->execute();
@@ -186,7 +220,7 @@ void TimeStepping::do_step()
 
   ++step;
   time += time_step;
-  m_time->options().set("current_time",time);
+  options().set("time",time);
   options().set("step",step);
 
   /// (4) the post actions - compute norm, post-process something, etc
@@ -207,7 +241,7 @@ void TimeStepping::do_step()
   /// (7) Write history
 
   history()->set("step",step);
-  history()->set("time",m_time->current_time());
+  history()->set("time",time);
   history()->set("time_step",time_step);
   history()->set("walltime",walltime);
   history()->set("cputime",cputime);
@@ -240,7 +274,7 @@ void TimeStepping::raise_timestep_done()
 {
   SignalOptions opts;
 
-  opts.add( "time",  m_time->current_time() );
+  opts.add( "time",  options().value<Real>("time") );
   opts.add( "time_step", options().value<Real>("time_step") );
   opts.add( "step", options().value<Uint>("step") );
 

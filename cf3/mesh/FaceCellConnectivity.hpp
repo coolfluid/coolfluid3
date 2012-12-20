@@ -33,6 +33,10 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API FaceCellConnectivity : public common::Component
 {
+public: // types
+
+  enum FaceOrientation {MATCHED=0, INVERTED=1};
+
 public:
 
   /// Contructor
@@ -75,6 +79,14 @@ public:
 
   const common::Table<Uint>& face_number() const { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
+  common::Table<Uint>& cell_rotation() { cf3_assert( is_not_null(m_cell_rotation) ); return *m_cell_rotation; }
+
+  const common::Table<Uint>& cell_rotation() const { cf3_assert( is_not_null(m_cell_rotation) ); return *m_cell_rotation; }
+
+  common::Table<bool>& cell_orientation() { cf3_assert( is_not_null(m_cell_orientation) ); return *m_cell_orientation; }
+
+  const common::Table<bool>& cell_orientation() const { cf3_assert( is_not_null(m_cell_orientation) ); return *m_cell_orientation; }
+
   Uint size() const;
 
   std::vector<Uint> face_nodes(const Uint face) const;
@@ -94,10 +106,13 @@ private: // data
   /// Actual connectivity table
   Handle<ElementConnectivity> m_connectivity;
 
-  Handle<common::Table<Uint> > m_face_nb_in_elem;
+  Handle< common::Table<Uint> > m_face_nb_in_elem;
 
-  // @todo make a common::List<bool> (some bug prevents using common::List<bool>::Buffer with common::List<bool> )
-  Handle<common::List<bool> > m_is_bdry_face;
+  Handle< common::List<bool> > m_is_bdry_face;
+
+  Handle< common::Table<bool> > m_cell_orientation; // matched (0) / inverted (1)
+
+  Handle< common::Table<Uint> > m_cell_rotation;
 
   bool m_face_building_algorithm;
 

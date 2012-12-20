@@ -30,11 +30,6 @@ namespace mesh {
 /// @author Willem Deconinck
 class Mesh_API ShapeFunction : public common::Component {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// @name Constructor / Destructor / Type name
