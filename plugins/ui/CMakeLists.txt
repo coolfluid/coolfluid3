@@ -8,10 +8,10 @@ project( UI CXX )
 
 coolfluid_define_plugin( UI ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if(${QT4_FOUND} AND ${CF3_ENABLE_GUI} AND ${CF3_PLUGIN_UI})
+if( QT4_FOUND AND CF3_ENABLE_GUI AND CF3_PLUGIN_UI )
   set(CF3_HAVE_GUI ON CACHE INTERNAL   "GUI can be built")
 else()
-  set(CF3_HAVE_GUI OFF CACHE INTERNAL   "GUI can be built")
+  set(CF3_HAVE_GUI OFF CACHE INTERNAL  "GUI cannot be built")
 endif()
 
 if( CF3_HAVE_GUI )
