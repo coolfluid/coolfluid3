@@ -143,6 +143,8 @@ void ComputeCharacteristicVariables::execute()
   boost_foreach(const Handle<Entities>& elements, char_field.entities_range()  )
   {
     const Space& space = char_field.space(*elements);
+    if(space.shape_function().dimensionality() < 2)
+      continue;
     RealMatrix grad_sf(space.shape_function().dimensionality(),space.shape_function().nb_nodes());
 
     for (Uint elem=0; elem<elements->size(); ++elem)

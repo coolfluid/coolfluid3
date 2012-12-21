@@ -149,6 +149,8 @@ namespace core {
     /// @param type Node type.
     CNode( const std::string & name, const QString & component_type, Type type );
 
+    static std::string type_name () { return "CNode"; }
+
     /// Component::derived_type_name implementation
     std::string derived_type_name() const
     {

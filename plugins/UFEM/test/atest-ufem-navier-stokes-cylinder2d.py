@@ -27,10 +27,6 @@ mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 ns_solver.regions = [mesh.topology.uri()]
 
-# lss setup
-lss = ns_solver.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-lss.Matrix.settings_file = sys.argv[2]
-
 u_in = [2., 0.]
 
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero

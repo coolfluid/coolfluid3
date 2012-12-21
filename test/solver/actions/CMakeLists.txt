@@ -11,13 +11,6 @@ foreach( mfile ${mesh_files} )
                      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF3_RESOURCES_DIR}/${mfile} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
 endforeach()
 
-
-
-coolfluid_add_test( UTEST utest-solver-solvelss
-                    CPP   utest-solver-solvelss.cpp
-                    LIBS  coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss
-                    MPI   1 )
-
 ################################################################################
 # proto tests
 
@@ -38,7 +31,7 @@ coolfluid_add_test( UTEST     utest-proto-operators
                     CPP       utest-proto-operators.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)
 set_source_files_properties(utest-proto-operators.cpp PROPERTIES COMPILE_FLAGS "-g0")
-                    
+
 coolfluid_add_test( UTEST     utest-proto-internals
                     CPP       utest-proto-internals.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)

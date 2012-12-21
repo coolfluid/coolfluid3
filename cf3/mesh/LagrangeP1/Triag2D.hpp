@@ -53,7 +53,14 @@ struct Mesh_LagrangeP1_API Triag2D : public ElementTypeBase<Triag2D,Triag2D_trai
   static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
-  static void compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result);
+  template<typename ResultT>
+  inline static void compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, ResultT& result)
+  {
+    result(KSI,XX) = nodes(2, YY) - nodes(0, YY);
+    result(KSI,YY) = nodes(0, YY) - nodes(1, YY);
+    result(ETA,XX) = nodes(0, XX) - nodes(2, XX);
+    result(ETA,YY) = nodes(1, XX) - nodes(0, XX);
+  }
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);

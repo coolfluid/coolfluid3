@@ -218,10 +218,10 @@ function( coolfluid_add_test )
 
       set(_TEST_COMMAND ${_TEST_NAME})
       if(_RUN_MPI)
-        set(_TEST_COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} ${_TEST_COMMAND})
+        add_test(NAME ${_TEST_NAME} COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} $<TARGET_FILE:${_TEST_NAME}> ${_PAR_ARGUMENTS})
+      else()
+        add_test( ${_TEST_NAME} ${_TEST_COMMAND} ${_PAR_ARGUMENTS} )
       endif()
-      add_test( ${_TEST_NAME} ${_TEST_COMMAND} ${_PAR_ARGUMENTS} )
-
       if(_TEST_SCALING)
         add_test("${_TEST_NAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF3_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${_TEST_NAME} ${CF3_MPI_TESTS_MAX_NB_PROCS} ${_PAR_ARGUMENTS})
       endif()

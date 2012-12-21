@@ -35,8 +35,8 @@
 #include "UFEM/LSSActionUnsteady.hpp"
 #include "UFEM/Solver.hpp"
 #include "UFEM/Tags.hpp"
-#include "solver/actions/ZeroLSS.hpp"
-#include "solver/actions/SolveLSS.hpp"
+#include "math/LSS/ZeroLSS.hpp"
+#include "math/LSS/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   *ic << create_proto_action("Initialize", nodes_expression(v = initial_temp));
   
   *lss_action
-    << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
+    << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
     << create_proto_action
     (
       "Assembly",
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
       )
     )
     << bc
-    << allocate_component<solver::actions::SolveLSS>("SolveLSS")
+    << allocate_component<math::LSS::SolveLSS>("SolveLSS")
     << create_proto_action("Increment", nodes_expression(v += lss_action->solution(v)));
 
   // Setup physics
@@ -127,8 +127,6 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   ic->get_child("Initialize")->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
-  
-  lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix").matrix()->options().set("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   bc->add_constant_bc("left", "VectorVariable", outside_temp);
   bc->add_constant_bc("right", "VectorVariable", outside_temp);

@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( create_from_xml )
   Handle< NRoot > root;
   Handle< NGeneric > group;
 
-  BOOST_REQUIRE_NO_THROW(root = makeTreeFromFile());
+  root = makeTreeFromFile();
 
   BOOST_REQUIRE_NO_THROW(node = root->get_child("Tools") );
   BOOST_REQUIRE_NO_THROW(group = node->handle<NGeneric>());

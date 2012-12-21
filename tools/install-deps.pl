@@ -69,7 +69,7 @@ my $priority = 0;
 
 # these packages are listed by priority
 my %packages = (  #  version   default install priority      function
-    "cmake"      => [ "2.8.5",    'on' ,   'off', $priority++,  \&install_cmake ],
+    "cmake"      => [ "2.8.9",    'on' ,   'off', $priority++,  \&install_cmake ],
     "wget"       => [ "1.12",     'off',   'off', $priority++,  \&install_wgetprog],
     "blas"       => [ "3.0.3",    'off',   'off', $priority++,  \&install_blas ],
     "lapack"     => [ "3.0.3",    'off',   'off', $priority++,  \&install_lapack ],
@@ -85,7 +85,7 @@ my %packages = (  #  version   default install priority      function
     "qt"         => [ "4.7.4",    'off',   'off', $priority++,  \&install_qt ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
-    "trilinos"   => [ "10.12.2",   'off',   'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "11.0.3",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p8",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.1.3-2",  'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
@@ -1010,6 +1010,7 @@ sub install_trilinos() {
       -D Didasko_ENABLE_EXAMPLES:BOOL=OFF \\
       -D Trilinos_ENABLE_Epetra:BOOL=ON \\
       -D Trilinos_ENABLE_EpetraExt:BOOL=ON \\
+      -D Trilinos_ENABLE_ShyLU:BOOL=ON \\
       -D Trilinos_ENABLE_Tpetra:BOOL=ON \\
       -D Trilinos_ENABLE_Teko:BOOL=ON \\
       -D Trilinos_ENABLE_TpetraExt:BOOL=ON \\

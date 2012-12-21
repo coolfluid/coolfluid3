@@ -48,14 +48,10 @@ list( APPEND coolfluid_solver_actions_files
   ComputeLNorm.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
-  SolveLSS.hpp
-  SolveLSS.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
-  ZeroLSS.hpp
-  ZeroLSS.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
@@ -83,12 +79,13 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/GaussPoints.hpp
     Proto/IndexLooping.hpp
     Proto/LSSWrapper.hpp
-    Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
     Proto/PhysicsConstant.hpp
     Proto/RestrictExpressionToElementType.hpp
+    Proto/RHSVector.hpp
+    Proto/SetRHS.hpp
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp

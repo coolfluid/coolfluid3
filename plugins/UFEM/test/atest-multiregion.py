@@ -67,13 +67,6 @@ blocks.create_mesh(mesh.uri())
 hc_bottom.options().set('regions', [mesh.access_component('topology/solid_bottom').uri()])
 hc_top.options().set('regions', [mesh.access_component('topology/solid_top').uri()])
 
-# LSS for bottom part
-bot_lss = hc_bottom.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-bot_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-#LSS for top part
-top_lss = hc_top.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-top_lss.get_child('Matrix').options().set('settings_file', sys.argv[1])
-
 # Boundary conditions for the bottom part
 bc_bot = hc_bottom.get_child('BoundaryConditions')
 bc_bot.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work

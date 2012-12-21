@@ -35,7 +35,7 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
   static const typename boost::proto::terminal< RestrictToElementTypeTag<GenericElementsT> >::type for_generic_elements = {};
   // Proto function that applies expressions only to SpecializedElementsT
   static const typename boost::proto::terminal< RestrictToElementTypeTag<SpecializedElementsT> >::type for_specialized_elements = {};
-  
+
   const Real theta = options().option("theta").value<Real>();
   if(theta < 0. || theta > 1.)
     throw SetupError(FromHere(), "Value " + to_str(theta) + " for theta option of " + uri().path() + " is outside of the valid range from 0 to 1.");
@@ -66,6 +66,7 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
           )
         ),
         for_specialized_elements(supg_specialized(p, u, u_adv, nu_eff, u_ref, rho, _A, _T)),
+        _A(p) = _A(p) / theta,
         system_matrix += invdt() * _T + theta * _A,
         system_rhs += -_A * _x
       )

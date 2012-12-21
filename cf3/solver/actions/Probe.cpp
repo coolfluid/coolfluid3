@@ -52,7 +52,9 @@ Probe::Probe( const std::string& name  ) : common::Action(name)
   properties()["description"] = description;
   
   options().add("coordinate",std::vector<Real>())
-    .description("Coordinate to interpolate fields to");
+    .pretty_name("Coordinate")
+    .description("Coordinate to interpolate fields to")
+    .mark_basic();
     
   options().add("dict",m_dict)
       .description("Dictionary that will be probed")

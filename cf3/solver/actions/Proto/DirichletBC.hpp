@@ -33,7 +33,7 @@ typedef LSSWrapper<DirichletBCTag> DirichletBC;
 /// Helper function for assignment
 inline void assign_dirichlet(math::LSS::System& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset)
 {
-  lss.dirichlet(node_idx, offset, new_value - old_value);
+  lss.dirichlet(node_idx, offset, new_value - old_value, true);
 }
 
 /// Overload for vector types
@@ -41,7 +41,7 @@ template<typename NewT, typename OldT>
 inline void assign_dirichlet(math::LSS::System& lss, const NewT& new_value, const OldT& old_value, const Uint node_idx, const Uint offset)
 {
   for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
-    lss.dirichlet(node_idx, offset+i, new_value[i] - old_value[i]);
+    lss.dirichlet(node_idx, offset+i, new_value[i] - old_value[i], true);
 }
 
 /// Sets whole-variable dirichlet BC, allowing the use of a complete vector as value

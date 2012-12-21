@@ -40,9 +40,10 @@ endif()
 # add MPI include path
 
 # if mpi was found add it to the include path if needed
-if( CF3_HAVE_MPI )
+if( CF3_HAVE_MPI AND ( NOT MPI_CXX_COMPILER OR CF3_MPI_USE_HEADERS ) )
   include_directories( ${MPI_INCLUDE_PATH} )
   list( APPEND CF3_DEPS_LIBRARIES ${MPI_LIBRARIES} )
+  message("Explicitly added MPI headers: ${MPI_INCLUDE_PATH}")
 endif()
 
 set(CF3_MPIRUN_PROGRAM ${MPIEXEC} CACHE FILEPATH "Filepath to the MPIRUN program file")

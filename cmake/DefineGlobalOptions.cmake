@@ -49,6 +49,9 @@ option( CF3_ENABLE_ACCEPTANCE_TESTS  "Run the acceptance tests"         ON  )
 
 option( CF3_INSTALL_UNIT_TESTS       "Enable testing applications install"   OFF )
 
+# MPI options
+option( CF3_MPI_USE_HEADERS             "Force including MPI headers (useful for Xcode)"               OFF  )
+
 # MPI testing options
 
 option( CF3_MPI_TESTS_RUN             "Run the MPI tests"               ON  )

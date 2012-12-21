@@ -55,12 +55,14 @@ void print_timing_tree(cf3::common::Component& root, const bool print_untimed, c
     const Real local_mean = root.properties().value<Real>("timer_mean");
     const Real local_min = root.properties().value<Real>("timer_minimum");
     const Real local_max = root.properties().value<Real>("timer_maximum");
+    const Uint local_count = root.properties().value<Uint>("timer_count");
 
     // Only bother with global averages if we have more than 1 process
     if(PE::Comm::instance().is_active() && PE::Comm::instance().size() > 1)
     {
       // Average, minimum and maximum of each statistic over all CPUs
       Real mean_mean, mean_min, mean_max, max_mean, max_min, max_max, min_mean, min_min, min_max;
+      Uint min_count, max_count;
       PE::Comm::instance().all_reduce(PE::plus(), &local_mean, 1, &mean_mean);
       PE::Comm::instance().all_reduce(PE::min(), &local_mean, 1, &mean_min);
       PE::Comm::instance().all_reduce(PE::max(), &local_mean, 1, &mean_max);
@@ -72,6 +74,10 @@ void print_timing_tree(cf3::common::Component& root, const bool print_untimed, c
       PE::Comm::instance().all_reduce(PE::plus(), &local_max, 1, &max_mean);
       PE::Comm::instance().all_reduce(PE::min(), &local_max, 1, &max_min);
       PE::Comm::instance().all_reduce(PE::max(), &local_max, 1, &max_max);
+      
+      PE::Comm::instance().all_reduce(PE::min(), &local_count, 1, &min_count);
+      PE::Comm::instance().all_reduce(PE::max(), &local_count, 1, &max_count);
+      cf3_assert(min_count == max_count);
 
       const Real nb_procs = static_cast<Real>(PE::Comm::instance().size());
       mean_mean /= nb_procs; min_mean /= nb_procs; max_mean /= nb_procs;
@@ -82,12 +88,13 @@ void print_timing_tree(cf3::common::Component& root, const bool print_untimed, c
         std::cout << prefix << root.name()
           << ": mean: "  << mean_mean
           << ", min: " << min_min
-          << ", max: " << max_max << "\n";
+          << ", max: " << max_max
+          << ", count: " << min_count << "\n";
       }
     }
     else
     {
-      std::cout << prefix << root.name() << ": mean: " << local_mean << ", max: " << local_max << ", min: " << local_min << "\n";
+      std::cout << prefix << root.name() << ": mean: " << local_mean << ", max: " << local_max << ", min: " << local_min << ", count: " << local_count << "\n";
     }
   }
 
