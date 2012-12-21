@@ -89,50 +89,65 @@ function( coolfluid_set_package )
     message(FATAL_ERROR "The call to coolfluid_set_package() doesn't set the required PACKAGE argument.")
   endif()
 
+  if( NOT _PAR_VARS )
+    message(FATAL_ERROR "The call to coolfluid_set_package() doesn't set the required VARS argument.")
+  endif()
+
   string( TOUPPER ${_PAR_PACKAGE} PACKAGE_CAPS )
 
   if( NOT CF3_SKIP_${PACKAGE_CAPS} )
 
-    set( CF3_HAVE_${PACKAGE_CAPS} 1 )
+    set( _${PACKAGE_CAPS}_vars_ok 1 )
 
     # all vars must be defined and found
 
-    if(_PAR_VARS)
-      foreach( LISTVAR ${_PAR_VARS} )
+    # coolfluid_debug_var( _PAR_VARS )
 
-        if(DEFINED ${LISTVAR}) # ignore variables that are not even defined (not searched for)
+    foreach( vvar ${_PAR_VARS} )
 
-          foreach( VAR ${${LISTVAR}} )
-            if( NOT VAR ) # found ?
-              set( CF3_HAVE_${PACKAGE_CAPS} 0 )
+      if( DEFINED ${vvar} )
+
+        list(LENGTH ${vvar} sizevar)
+        if( ${sizevar} GREATER 1 ) # is list ( so must loop over each entry )
+
+          foreach( svar ${${vvar}} )
+            if( NOT ${svar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, FAIL" )
+                set( _${PACKAGE_CAPS}_vars_ok 0 )
             endif()
-          endforeach( VAR ) # var
+          endforeach()
+        
+        else() # single var (not list)
 
-        endif(DEFINED ${LISTVAR})
-      endforeach(LISTVAR) # listvar
-    endif(_PAR_VARS)
+            if( NOT ${vvar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, FAIL" )
+                set( _${PACKAGE_CAPS}_vars_ok 0 )
+            endif()
+    
+        endif()
+
+      else()
+        coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar} not defined, FAIL" )
+        set( _${PACKAGE_CAPS}_vars_ok 0 ) # not defined -- so fail
+      endif()
+
+    endforeach() # _PAR_VARS
 
     # set CF3_HAVE in cache
 
-    if(CF3_HAVE_${PACKAGE_CAPS})
+    if( _${PACKAGE_CAPS}_vars_ok )
+
       set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
+
       if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
         list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
       endif()
       if(DEFINED ${PACKAGE_CAPS}_EXTRA_LIBRARIES)
         list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
       endif()
+
     else()
       set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
-    endif()
-
-    # logging
-
-    coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: [${CF3_HAVE_${PACKAGE_CAPS}}]" )
-    if(CF3_HAVE_${PACKAGE_CAPS})
-      foreach( LISTVAR ${ARGN} ) # log to file
-        coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
-      endforeach()
     endif()
 
   else()
@@ -142,48 +157,40 @@ function( coolfluid_set_package )
 
   endif() # skip
 
-  if( NOT ${_PAR_PACKAGE}_FOUND)
+  mark_as_advanced( CF3_HAVE_${PACKAGE_CAPS} ) # advanced marking
+
+  if( NOT DEFINED ${_PAR_PACKAGE}_FOUND )
     set( ${_PAR_PACKAGE}_FOUND ${CF3_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
+    mark_as_advanced( ${_PAR_PACKAGE}_FOUND )
   endif()
 
   if(NOT _PAR_TYPE)
     set(_PAR_TYPE OPTIONAL)
   endif()
 
-#  coolfluid_debug_var(  _PAR_PACKAGE )
-#  coolfluid_debug_var(  _PAR_DESCRIPTION )
-#  coolfluid_debug_var(  _PAR_URL )
-#  coolfluid_debug_var(  _PAR_TYPE )
+  # logging
 
-  if( COMMAND set_package_properties )
+  coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: [${CF3_HAVE_${PACKAGE_CAPS}}]" )
 
-    set_package_properties( ${_PAR_PACKAGE} PROPERTIES
-                            DESCRIPTION "${_PAR_DESCRIPTION}"
-                            URL "${_PAR_URL}"
-                            TYPE "${_PAR_TYPE}"
-                            PURPOSE "${_PAR_PURPOSE}" )
-
-  # for older versions of cmake (<=2.8.5)
-  elseif( COMMAND set_package_info )
-    set_package_info( ${_PAR_PACKAGE} "${_PAR_DESCRIPTION}" "${_PAR_URL}" "${_PAR_PURPOSE}" )
-  # for even older versions of cmake
-  else()
-
-    if( DEFINED ${_PAR_PACKAGE}_FOUND )
-      coolfluid_log_file( "${_PAR_PACKAGE} [${${_PAR_PACKAGE}_FOUND}]" )
-    else()
-      if( DEFINED ${PACKAGE_CAPS}_FOUND )
-        coolfluid_log_file( "${_PAR_PACKAGE} [${${PACKAGE_CAPS}_FOUND}]" )
-      else()
-        if( DEFINED CF3_HAVE_${PACKAGE_CAPS} )
-          coolfluid_log_file( "${_PAR_PACKAGE} [${CF3_HAVE_${PACKAGE_CAPS}}]" )
-        endif()
-      endif()
-    endif()
-
+  if(CF3_HAVE_${PACKAGE_CAPS})
+      coolfluid_log_file( "  PACKAGE:      [${_PAR_PACKAGE}]" )
+      coolfluid_log_file( "  URL:          [${_PAR_URL}]" )
+      coolfluid_log_file( "  TYPE:         [${_PAR_TYPE}]" )
+      coolfluid_log_file( "  PURPOSE:      [${_PAR_PURPOSE}]" )
+      coolfluid_log_file( "  DESCRIPTION:  [${_PAR_DESCRIPTION}]" )
+      foreach( VAR ${_PAR_VARS} ) 
+        coolfluid_log_file( "  VAR ${VAR}:       [${${VAR}}]" )
+      endforeach()
   endif()
 
+  set_package_properties( ${_PAR_PACKAGE} PROPERTIES
+                          DESCRIPTION "${_PAR_DESCRIPTION}"
+                          URL "${_PAR_URL}"
+                          TYPE "${_PAR_TYPE}"
+                          PURPOSE "${_PAR_PURPOSE}" )
+
   # override _CMAKE_${_PAR_PACKAGE}_QUIET
+
   if(NOT _PAR_QUIET)
     set_property(GLOBAL PROPERTY _CMAKE_${_PAR_PACKAGE}_QUIET FALSE )
   else()
@@ -193,9 +200,7 @@ function( coolfluid_set_package )
   # get_property(_is_quiet GLOBAL PROPERTY _CMAKE_${_PAR_PACKAGE}_QUIET)
   # coolfluid_log("${_PAR_PACKAGE}_is_quiet = ${_is_quiet}")
 
-  if(_PAR_VARS)
-    mark_as_advanced( ${_PAR_VARS} ) # advanced marking
-  endif()
+  mark_as_advanced( ${_PAR_VARS} ) # advanced marking
 
 endfunction( coolfluid_set_package )
 ##############################################################################

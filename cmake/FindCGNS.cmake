@@ -38,4 +38,5 @@ coolfluid_set_package( PACKAGE CGNS
                        URL "http://cgns.sourceforge.net"
                        PURPOSE "For CGNS format IO"
                        TYPE OPTIONAL
-                       VARS CGNS_INCLUDE_DIRS CGNS_LIBRARIES )
+                       VARS CGNS_INCLUDE_DIRS CGNS_LIBRARIES
+                       QUIET )

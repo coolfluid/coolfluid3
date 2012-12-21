@@ -39,4 +39,5 @@ coolfluid_set_package( PACKAGE Parmetis
                        TYPE OPTIONAL
                        VARS
                        PARMETIS_INCLUDE_DIRS
-                       PARMETIS_LIBRARIES)
+                       PARMETIS_LIBRARIES 
+                       QUIET )

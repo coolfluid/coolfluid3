@@ -56,10 +56,5 @@ coolfluid_set_package( PACKAGE Zoltan
                        TYPE OPTIONAL
                        VARS
                        ZOLTAN_INCLUDE_DIRS
-                       ZOLTAN_LIBRARIES  )
-
-if( Zoltan_FOUND )
-    set( CF3_HAVE_ZOLTAN 1 )
-else()
-    set( CF3_HAVE_ZOLTAN 0 )
-endif()
+                       ZOLTAN_LIBRARIES
+                       QUIET )
