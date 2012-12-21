@@ -70,7 +70,7 @@ else()
       ifpack
       thyraepetra
       thyratpetra
-      thyrapetraext
+      thyraepetraext
       thyracore
   )
 
@@ -86,12 +86,12 @@ else()
     list( APPEND TRILINOS_INCLUDE_DIRS ${PARMETIS_INCLUDE_DIRS} )
   endif()
 
+endif()
+
   if( CF3_HAVE_PTSCOTCH )
     list( APPEND TRILINOS_LIBRARIES ${PTSCOTCH_LIBRARIES} )
     list( APPEND TRILINOS_INCLUDE_DIRS ${PTSCOTCH_INCLUDE_DIRS} )
   endif()
-
-endif()
 
 list(APPEND TRILINOS_LIBRARIES ${CF3_TRILINOS_EXTRA_LIBS})
 
