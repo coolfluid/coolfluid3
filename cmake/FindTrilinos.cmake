@@ -43,18 +43,11 @@ if( NOT CF3_SKIP_TRILINOS )
 
 endif( NOT CF3_SKIP_TRILINOS )
 
-coolfluid_log("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
-coolfluid_log("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
+coolfluid_log_file("TRILINOS_INCLUDE_DIRS = ${TRILINOS_INCLUDE_DIRS}" )
+coolfluid_log_file("TRILINOS_LIBRARIES = ${TRILINOS_LIBRARIES}" )
 
 coolfluid_set_package( PACKAGE Trilinos
-                       DESCRIPTION "parallel linear system solver and other libraries"
+                       DESCRIPTION "Parallel linear system solver and other libraries"
                        URL "http://trilinos.sandia.gov"
-                       VARS
-                       TRILINOS_INCLUDE_DIRS
-                       TRILINOS_LIBRARIES  )
-
-if( Trilinos_FOUND )
-    set( CF3_HAVE_TRILINOS 1 )
-else()
-    set( CF3_HAVE_TRILINOS 0 )
-endif()
+                       VARS TRILINOS_INCLUDE_DIRS TRILINOS_LIBRARIES
+                       QUIET )

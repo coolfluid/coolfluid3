@@ -28,4 +28,5 @@ coolfluid_set_package( PACKAGE METIS
                        DESCRIPTION "Serial graph partitioning"
                        URL "http://glaros.dtc.umn.edu/gkhome/views/metis"
                        TYPE OPTIONAL
-                       VARS METIS_INCLUDE_DIRS METIS_LIBRARIES )
+                       VARS METIS_INCLUDE_DIRS METIS_LIBRARIES
+                       QUIET )
