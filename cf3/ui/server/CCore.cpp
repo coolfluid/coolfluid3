@@ -281,8 +281,12 @@ void CCore::read_dir(SignalArgs & args)
     directory = dirPath;
 
   // get the absolute path
+#if BOOST_FILESYSTEM_VERSION == 3
   directory = boost::filesystem::absolute(directory).string();
-//  directory = QDir::cleanPath(directory.c_str()).toStdString();
+#else
+  directory = boost::filesystem::complete(directory).string();
+#endif
+  //  directory = QDir::cleanPath(directory.c_str()).toStdString();
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!
@@ -339,7 +343,11 @@ void CCore::read_special_dir(SignalArgs & args)
                          "Unknown special directory [" + directory + "]." );
 
   // get the absolute path
+#if BOOST_FILESYSTEM_VERSION == 3
   directory = boost::filesystem::absolute(directory).string();
+#else
+  directory = boost::filesystem::complete(directory).string();
+#endif
 
   // if the directory is not the root
   /// @todo test this on Windows!!!!
