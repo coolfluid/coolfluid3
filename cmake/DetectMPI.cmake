@@ -14,20 +14,26 @@ coolfluid_log_file( "     MPI_C_LIBRARIES       : [${MPI_C_LIBRARIES}]")
 
 coolfluid_log_file( "     MPI_CXX_FOUND         : [${MPI_CXX_FOUND}]")
 coolfluid_log_file( "     MPI_CXX_COMPILER      : [${MPI_CXX_COMPILER}]")
-coolfluid_log_file( "     MPI_CXX_INCLUDE_PATH  : [${MPI_INCLUDE_PATH}]")
-coolfluid_log_file( "     MPI_CXX_LIBRARIES     : [${MPI_LIBRARIES}]")
+coolfluid_log_file( "     MPI_CXX_INCLUDE_PATH  : [${MPI_CXX_INCLUDE_PATH}]")
+coolfluid_log_file( "     MPI_CXX_LIBRARIES     : [${MPI_CXX_LIBRARIES}]")
 
 coolfluid_log_file( "     MPIEXEC               : [${MPIEXEC}]")
 
 #######################################################################
 # add MPI include path
 
-# FindMPI has new behavior 
+# FindMPI has new behavior
 # Lets add MPI_CXX_INCLUDE_PATH, iff regular compiler is not MPI compiler
 
 if( MPI_CXX_FOUND )
 
-    if( CMAKE_CXX_COMPILER STREQUAL MPI_CXX_COMPILER AND NOT CF3_MPI_USE_HEADERS )
+    if( CMAKE_CXX_COMPILER STREQUAL MPI_CXX_COMPILER )
+        set( CF3_USES_MPI_COMPILER 1 CACHE "CF3 is using MPI compiler directly" INTERNAL )
+    else()
+        set( CF3_USES_MPI_COMPILER 0 CACHE "CF3 does not use MPI compiler directly" INTERNAL )
+    endif()
+
+    if( CF3_USES_MPI_COMPILER AND NOT CF3_MPI_USE_HEADERS )
       coolfluid_log_file( "MPI headers *NOT* explicitly added: ${MPI_CXX_INCLUDE_PATH}")
     else()
       include_directories( ${MPI_CXX_INCLUDE_PATH} )
@@ -43,7 +49,7 @@ coolfluid_set_package( PACKAGE MPI DESCRIPTION "MPI communication"
                        VARS MPI_CXX_FOUND
                        )
 
-### FAIL - FTM, MPI is required 
+### FAIL - FTM, MPI is required
 if( NOT MPI_CXX_FOUND )
   message( FATAL_ERROR "[MPI] no MPI compiler or libraries were found.\n   MPI is required to compile coolfluid." )
 endif()
