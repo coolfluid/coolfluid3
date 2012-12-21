@@ -101,7 +101,7 @@ macro( coolfluid_add_application APPNAME )
     add_executable( ${APPNAME} ${${APPNAME}_platform} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 
     # if mpi was found add it to the libraries
-    if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
+    if(CF3_HAVE_MPI AND NOT MPI_COMPILER)
       target_link_libraries( ${APPNAME} ${MPI_LIBRARIES} )
       if( MPI_CXX_LIBRARIES )
           target_link_libraries( ${APPNAME} ${MPI_CXX_LIBRARIES} )

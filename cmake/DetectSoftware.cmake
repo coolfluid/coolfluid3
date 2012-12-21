@@ -119,8 +119,12 @@ if( CF3_ENABLE_PYTHON )
                          TYPE OPTIONAL
                          QUIET)
   if(CF3_HAVE_PYTHONLIBS AND CF3_HAVE_PYTHONINTERP AND Boost_PYTHON_FOUND)
-    set(CF3_HAVE_PYTHON ON CACHE INTERNAL   "Python Features can be built")
+    set(CF3_HAVE_PYTHON ON CACHE INTERNAL  "Python features can be built")
+  else()
+    set(CF3_HAVE_PYTHON OFF CACHE INTERNAL "Python features cannot be built")
   endif()
   coolfluid_set_feature(Python ${CF3_HAVE_PYTHON} "Python interface")
 
+else()
+    set(CF3_HAVE_PYTHON OFF CACHE INTERNAL "Python features disabled")
 endif()
