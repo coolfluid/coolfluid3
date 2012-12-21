@@ -35,3 +35,9 @@ coolfluid_add_test(ATEST atest-blockmesh-backstep
 
 coolfluid_add_test(ATEST atest-blockmesh-multiregion
                    PYTHON atest-blockmesh-multiregion.py)
+
+################################################################################
+
+coolfluid_add_test(ATEST atest-blockmesh-backstep2d-zoltan
+                   PYTHON atest-blockmesh-backstep2d-zoltan.py
+                   MPI 8)

@@ -46,6 +46,8 @@ list( APPEND coolfluid_solver_actions_files
   ComputeVolume.cpp
   ComputeLNorm.hpp
   ComputeLNorm.cpp
+  ParallelDataToFields.hpp
+  ParallelDataToFields.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
   LibActions.hpp
