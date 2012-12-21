@@ -111,15 +111,23 @@ function( coolfluid_set_package )
         if( ${sizevar} GREATER 1 ) # is list ( so must loop over each entry )
 
           foreach( svar ${${vvar}} )
-            if( NOT ${svar} )
+
+            if( ${svar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, OK" )
+            else()
                 coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, FAIL" )
                 set( _${PACKAGE_CAPS}_vars_ok 0 )
             endif()
+
           endforeach()
         
         else() # single var (not list)
 
-            if( NOT ${vvar} )
+        coolfluid_debug_var( vvar )
+
+            if( ${vvar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, OK" )
+            else()
                 coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, FAIL" )
                 set( _${PACKAGE_CAPS}_vars_ok 0 )
             endif()
