@@ -202,7 +202,7 @@ function( coolfluid_add_test )
       endif()
 
       # if mpi was found add it to the libraries
-      if(CF3_HAVE_MPI AND NOT MPI_COMPILER)
+      if(CF3_HAVE_MPI AND NOT MPI_CXX_COMPILER)
         target_link_libraries( ${_TEST_NAME} ${MPI_LIBRARIES} )
       endif()
 
@@ -218,12 +218,12 @@ function( coolfluid_add_test )
 
       set(_TEST_COMMAND ${_TEST_NAME})
       if(_RUN_MPI)
-        add_test(NAME ${_TEST_NAME} COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} $<TARGET_FILE:${_TEST_NAME}> ${_PAR_ARGUMENTS})
+        add_test(NAME ${_TEST_NAME} COMMAND ${MPIEXEC} -np ${_MPI_NB_PROCS} $<TARGET_FILE:${_TEST_NAME}> ${_PAR_ARGUMENTS})
       else()
         add_test( ${_TEST_NAME} ${_TEST_COMMAND} ${_PAR_ARGUMENTS} )
       endif()
       if(_TEST_SCALING)
-        add_test("${_TEST_NAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF3_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${_TEST_NAME} ${CF3_MPI_TESTS_MAX_NB_PROCS} ${_PAR_ARGUMENTS})
+        add_test("${_TEST_NAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${MPIEXEC} ${CMAKE_CURRENT_BINARY_DIR}/${_TEST_NAME} ${CF3_MPI_TESTS_MAX_NB_PROCS} ${_PAR_ARGUMENTS})
       endif()
 
     endif( _PAR_CPP )
@@ -232,7 +232,7 @@ function( coolfluid_add_test )
     if( _PAR_PYTHON AND CF3_HAVE_PYTHON )
       set(SCRIPT_COMMAND ${PYTHON_EXECUTABLE})
       if(_RUN_MPI AND CF3_HAVE_MPI)
-        set(SCRIPT_COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} ${SCRIPT_COMMAND})
+        set(SCRIPT_COMMAND ${MPIEXEC} -np ${_MPI_NB_PROCS} ${SCRIPT_COMMAND})
       endif()
       add_custom_target(${_TEST_NAME} SOURCES ${${_TEST_NAME}_headers} ${${_TEST_NAME}_sources})
       add_test(NAME ${_TEST_NAME}

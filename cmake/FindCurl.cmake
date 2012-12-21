@@ -24,5 +24,6 @@ coolfluid_set_package( PACKAGE Curl
                        URL "http://curl.haxx.se"
                        PURPOSE "Runtime downloading"
                        TYPE RUNTIME
-                       VARS CURL_INCLUDE_DIRS CURL_LIBRARIES )
+                       VARS CURL_INCLUDE_DIRS CURL_LIBRARIES
+                       QUIET )
 

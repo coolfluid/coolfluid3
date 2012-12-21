@@ -32,4 +32,5 @@ coolfluid_set_package( PACKAGE SuperLU
                        TYPE OPTIONAL
                        VARS
                        SUPERLU_INCLUDE_DIRS
-                       SUPERLU_LIBRARIES )
+                       SUPERLU_LIBRARIES
+                       QUIET )

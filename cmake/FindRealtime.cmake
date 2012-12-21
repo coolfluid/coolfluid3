@@ -15,5 +15,5 @@ option( CF3_SKIP_RT "Skip search for RT library" OFF )
 coolfluid_set_package( PACKAGE Realtime
                        DESCRIPTION "linux real time library"
                        TYPE OPTIONAL
-                       VARS
-                       RT_LIBRARIES )
+                       VARS RT_LIBRARIES
+                       QUIET )

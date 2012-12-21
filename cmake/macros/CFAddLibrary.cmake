@@ -122,7 +122,7 @@ macro( coolfluid_add_library LIBNAME )
     endif()
 
     # if mpi was found add it to the libraries
-    if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
+    if(CF3_HAVE_MPI AND NOT MPI_CXX_COMPILER)
         target_link_libraries( ${LIBNAME} ${MPI_LIBRARIES} )
         if( MPI_CXX_LIBRARIES )
              target_link_libraries( ${LIBNAME} ${MPI_CXX_LIBRARIES} )

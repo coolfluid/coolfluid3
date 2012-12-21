@@ -77,4 +77,5 @@ coolfluid_set_package( PACKAGE PTScotch
                        TYPE OPTIONAL
                        VARS
                        PTSCOTCH_INCLUDE_DIRS
-                       PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )
+                       PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES
+                       QUIET )
