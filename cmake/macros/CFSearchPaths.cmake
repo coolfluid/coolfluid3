@@ -105,38 +105,10 @@ function( coolfluid_set_package )
 
     foreach( vvar ${_PAR_VARS} )
 
-      if( DEFINED ${vvar} )
-
-        list(LENGTH ${vvar} sizevar)
-        if( ${sizevar} GREATER 1 ) # is list ( so must loop over each entry )
-
-          foreach( svar ${${vvar}} )
-
-            if( ${svar} )
-                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, OK" )
-            else()
-                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, FAIL" )
-                set( _${PACKAGE_CAPS}_vars_ok 0 )
-            endif()
-
-          endforeach()
+      if( NOT ${vvar} )
         
-        else() # single var (not list)
-
-        coolfluid_debug_var( vvar )
-
-            if( ${vvar} )
-                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, OK" )
-            else()
-                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, FAIL" )
-                set( _${PACKAGE_CAPS}_vars_ok 0 )
-            endif()
+        set( _${PACKAGE_CAPS}_vars_ok 0 )
     
-        endif()
-
-      else()
-        coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar} not defined, FAIL" )
-        set( _${PACKAGE_CAPS}_vars_ok 0 ) # not defined -- so fail
       endif()
 
     endforeach() # _PAR_VARS
@@ -145,7 +117,7 @@ function( coolfluid_set_package )
 
     if( _${PACKAGE_CAPS}_vars_ok )
 
-      set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
+      set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}" FORCE)
 
       if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
         list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )

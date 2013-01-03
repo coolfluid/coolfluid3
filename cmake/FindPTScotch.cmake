@@ -9,6 +9,7 @@
 
 option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
 
+if( NOT CF3_SKIP_PTSCOTCH )
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -70,6 +71,8 @@ option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
   if(ZLIB_FOUND)
       list( APPEND PTSCOTCH_EXTRA_LIBRARIES ${ZLIB_LIBRARIES} )
   endif()
+
+endif( NOT CF3_SKIP_PTSCOTCH )
 
 coolfluid_set_package( PACKAGE PTScotch
                        DESCRIPTION "parallel graph partitioning"
