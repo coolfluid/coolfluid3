@@ -123,7 +123,7 @@ int growl_tcp_parse_hostname( const char *const server , int default_port , stru
     return -1;
   }
 
-  memset( sockaddr , 0 , sizeof(sockaddr) );
+  memset( sockaddr , 0 , sizeof(*sockaddr) );
   sockaddr->sin_family = AF_INET;
   memcpy( &sockaddr->sin_addr , host_ent->h_addr_list[0] , host_ent->h_length );
   sockaddr->sin_port = htons(default_port);

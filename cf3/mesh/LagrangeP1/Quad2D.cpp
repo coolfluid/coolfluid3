@@ -224,7 +224,8 @@ Real Quad2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Nodes
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Quad2D::compute_jacobian<Quad2D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   JacobianCoefficients jc(nodes);
 
@@ -243,6 +244,15 @@ Quad2D::JacobianT Quad2D::jacobian(const MappedCoordsT& mapped_coord, const Node
 {
   JacobianT result;
   compute_jacobian(mapped_coord, nodes, result);
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Quad2D::JacobianT Quad2D::jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
+  JacobianT result;
+  compute_jacobian_adjoint(mapped_coord, nodes, result);
   return result;
 }
 

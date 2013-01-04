@@ -57,6 +57,10 @@ public: // functions
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Region>   >& regions);
   Dictionary& create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name);
 
+  void signal_create_continuous_space       ( common::SignalArgs& args );
+  void signature_create_space    ( common::SignalArgs& args );
+  void signal_create_discontinuous_space    ( common::SignalArgs& args );
+
   void update_structures();
   void update_statistics();
 

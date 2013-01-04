@@ -30,8 +30,6 @@ Time::Time ( const std::string& name  ) :
   m_invdt(0.),
   m_iter(0)
 {
-  mark_basic();
-
   properties()["brief"] = std::string("Time Tracking object");
   std::string description =
     "Offers configuration options for users to set a time step, the end time,\n"

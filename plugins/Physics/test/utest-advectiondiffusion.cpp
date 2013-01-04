@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 
-#include "common/Log.hpp"
+#include "cf3/common/Log.hpp"
 
 #include "AdvectionDiffusion/Physics.hpp"
 #include "AdvectionDiffusion/State1D.hpp"

@@ -56,7 +56,8 @@ struct Mesh_LagrangeP2_API Quad2D : public ElementTypeBase<Quad2D,Quad2D_traits>
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
   static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
+  template < typename MatrixType >
+  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
   static CoordsT plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation);
   static void compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation, CoordsT& result);
 

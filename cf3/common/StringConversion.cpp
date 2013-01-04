@@ -189,6 +189,20 @@ namespace common {
     return s;
   }
 
+
+  template <>
+  Common_API std::string to_str<std::vector<UUCount> > (const std::vector<UUCount> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
 
   /// Converts from std::string

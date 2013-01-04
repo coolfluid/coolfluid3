@@ -123,17 +123,17 @@ void Reader::read_base(Mesh& parent_region)
 
 void Reader::read_zone(Mesh& mesh)
 {
-  // get zone type (Structured or Unstructured)
+  // get zone type (CGNS_ENUMV( Structured ) or CGNS_ENUMV( Unstructured ))
   CALL_CGNS(cg_zone_type(m_file.idx,m_base.idx,m_zone.idx,&m_zone.type));
 
-  // For now only Unstructured and Structured zone types are supported
-  if (m_zone.type != Structured && m_zone.type != Unstructured)
-    throw NotImplemented (FromHere(),"Only Unstructured and Structured zone types are supported");
+  // For now only CGNS_ENUMV( Unstructured ) and CGNS_ENUMV( Structured ) zone types are supported
+  if (m_zone.type != CGNS_ENUMV( Structured ) && m_zone.type != CGNS_ENUMV( Unstructured ))
+    throw NotImplemented (FromHere(),"Only CGNS_ENUMV( Unstructured ) and CGNS_ENUMV( Structured ) zone types are supported");
 
   // Read zone size and name
-  if (m_zone.type == Unstructured)
+  if (m_zone.type == CGNS_ENUMV( Unstructured ))
   {
-    int size[3][1];
+    cgsize_t size[3][1];
     char zone_name_char[CGNS_CHAR_MAX];
     CALL_CGNS(cg_zone_read(m_file.idx,m_base.idx,m_zone.idx,zone_name_char,size[0]));
     m_zone.name = zone_name_char;
@@ -205,9 +205,9 @@ void Reader::read_zone(Mesh& mesh)
 
 
   }
-  else if(m_zone.type == Structured)
+  else if(m_zone.type == CGNS_ENUMV( Structured ))
   {
-    int isize[3][3];
+    cgsize_t isize[3][3];
     char zone_name_char[CGNS_CHAR_MAX];
     CALL_CGNS(cg_zone_read(m_file.idx,m_base.idx,m_zone.idx,zone_name_char,isize[0]));
     m_zone.name = zone_name_char;
@@ -259,7 +259,7 @@ void Reader::read_zone(Mesh& mesh)
 
   }
 
-
+  m_mesh->geometry_fields().update_structures();
   read_flowsolution();
 }
 
@@ -275,7 +275,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
   m_zone.nodes_start_idx = nodes.size();
 
   // read coordinates
-  int one = 1;
+  cgsize_t one = 1;
   Real *xCoord;
   Real *yCoord;
   Real *zCoord;
@@ -283,13 +283,13 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
   {
     case 3:
       zCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", RealDouble, &one, &m_zone.total_nbVertices, zCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", CGNS_ENUMV( RealDouble ), &one, &m_zone.total_nbVertices, zCoord));
     case 2:
       yCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", RealDouble, &one, &m_zone.total_nbVertices, yCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", CGNS_ENUMV( RealDouble ), &one, &m_zone.total_nbVertices, yCoord));
     case 1:
       xCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", CGNS_ENUMV( RealDouble ), &one, &m_zone.total_nbVertices, xCoord));
   }
 
   m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
@@ -333,7 +333,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
-  int one[3];
+  cgsize_t one[3];
   one[0]= 1;
   one[1]= 1;
   one[2]= 1;
@@ -346,13 +346,13 @@ void Reader::read_coordinates_structured(Region& parent_region)
   {
     case 3:
       zCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", RealDouble, one, m_zone.nbVertices, zCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", CGNS_ENUMV( RealDouble ), one, m_zone.nbVertices, zCoord));
     case 2:
       yCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", RealDouble, one, m_zone.nbVertices, yCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", CGNS_ENUMV( RealDouble ), one, m_zone.nbVertices, yCoord));
     case 1:
       xCoord = new Real[m_zone.total_nbVertices];
-      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, one, m_zone.nbVertices, xCoord));
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", CGNS_ENUMV( RealDouble ), one, m_zone.nbVertices, xCoord));
   }
 
   common::Table<Real>& coords = nodes.coordinates();
@@ -419,7 +419,7 @@ void Reader::read_section(Region& parent_region)
   Dictionary& all_nodes = *m_zone.nodes;
   Uint start_idx = m_zone.nodes_start_idx;
 
-  if (m_section.type == MIXED) // Different element types, Can also be faces
+  if (m_section.type == CGNS_ENUMV( MIXED )) // Different element types, Can also be faces
   {
     // Create Elements component for each element type.
     std::map<std::string,Handle< Elements > > cells = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
@@ -433,17 +433,17 @@ void Reader::read_section(Region& parent_region)
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
     {
       // Read the amount of nodes this 1 element contains
-      CALL_CGNS(cg_ElementPartialSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,&m_section.elemNodeCount));
+      CALL_CGNS(cg_ElementPartialSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,(cgsize_t*)&m_section.elemNodeCount));
       m_section.elemNodeCount--; // subtract 1 as there is one index too many storing the element type
 
       // Storage for element type (index 0) and element nodes (index 1->elemNodeCount)
-      int elemNodes[1][1+m_section.elemNodeCount];
+      cgsize_t elemNodes[1][1+m_section.elemNodeCount];
 
       // Read nodes of 1 element
       CALL_CGNS(cg_elements_partial_read(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,*elemNodes,&m_section.parentData));
 
       // Store the cgns element type
-      ElementType_t etype_cgns = static_cast<ElementType_t>(elemNodes[0][0]);
+      CGNS_ENUMT( ElementType_t ) etype_cgns = static_cast<CGNS_ENUMT( ElementType_t )>(elemNodes[0][0]);
 
       // Put the element nodes in a vector
       std::vector<Uint> row(m_section.elemNodeCount);
@@ -484,7 +484,7 @@ void Reader::read_section(Region& parent_region)
     Connectivity& node_connectivity = element_region.geometry_space().connectivity();
 
     // Create storage for element nodes
-    int* elemNodes = new int [m_section.elemDataSize];
+    cgsize_t* elemNodes = new cgsize_t [m_section.elemDataSize];
 
     // Read in the element nodes
     cg_elements_read	(m_file.idx,m_base.idx,m_zone.idx,m_section.idx, elemNodes,&m_section.parentData);
@@ -628,7 +628,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
   boost::algorithm::replace_all(m_boco.name,"/","_");
 
   // Read the element ID's
-  int* boco_elems = new int [m_boco.nBC_elem];
+  cgsize_t* boco_elems = new cgsize_t [m_boco.nBC_elem];
   void* NormalList(NULL);
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
@@ -642,11 +642,11 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
   switch (m_boco.ptset_type)
   {
-    case PointRange:
-    case ElementRange : // all bc elements are within a range given by 2 global element numbers
+    case CGNS_ENUMV( PointRange ):
+    case CGNS_ENUMV( ElementRange ) : // all bc elements are within a range given by 2 global element numbers
     {
-      if (m_zone.type != Unstructured)
-        throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementRange\" is only supported for Unstructured grids");
+      if (m_zone.type != CGNS_ENUMV( Unstructured ))
+        throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"CGNS_ENUMV( ElementRange )\" is only supported for CGNS_ENUMV( Unstructured ) grids");
 
       // First do some simple checks to see if an entire region can be taken as a BC.
       Handle< Elements > first_elements = m_global_to_region[boco_elems[0]-1].first;
@@ -700,11 +700,11 @@ void Reader::read_boco_unstructured(Region& parent_region)
       remove_empty_element_regions(this_region);
       break;
     }
-    case PointList:
-    case ElementList : // all bc elements are listed as global element numbers
+    case CGNS_ENUMV( PointList ):
+    case CGNS_ENUMV( ElementList ) : // all bc elements are listed as global element numbers
     {
-      if (m_zone.type != Unstructured)
-        throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for Unstructured grids");
+      if (m_zone.type != CGNS_ENUMV( Unstructured ))
+        throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for CGNS_ENUMV( Unstructured ) grids");
 
       // First do some simple checks to see if an entire region can be taken as a BC.
       std::cout << "boco_elems[0]-1 = " << boco_elems[0]-1 << std::endl;
@@ -821,18 +821,18 @@ void Reader::read_boco_structured(Region& parent_region)
 
 
   // Read the Node ID's
-  int* boco_elems = new int [m_boco.nBC_elem*m_base.cell_dim];
+  cgsize_t* boco_elems = new cgsize_t [m_boco.nBC_elem*m_base.cell_dim];
   void* NormalList(NULL);
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
 
   switch (m_boco.ptset_type)
   {
-    case ElementRange : // all bc elements are within a range given by 2 global element numbers
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementRange\" is only supported for Unstructured grids");
-    case ElementList : // all bc elements are listed as global element numbers
-      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for Unstructured grids");
-    case PointRange : // bc elements are given by node index range
+    case CGNS_ENUMV( ElementRange ) : // all bc elements are within a range given by 2 global element numbers
+      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"CGNS_ENUMV( ElementRange )\" is only supported for CGNS_ENUMV( Unstructured ) grids");
+    case CGNS_ENUMV( ElementList ) : // all bc elements are listed as global element numbers
+      throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for CGNS_ENUMV( Unstructured ) grids");
+    case CGNS_ENUMV( PointRange ) : // bc elements are given by node index range
     {
       int imin(0), jmin(0), kmin(0);
       int imax(0), jmax(0), kmax(0);
@@ -925,7 +925,7 @@ void Reader::read_boco_structured(Region& parent_region)
 
       break;
     }
-    case PointList : // bc elements are given by node index list
+    case CGNS_ENUMV( PointList ) : // bc elements are given by node index list
     default :
       throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + to_str<int>(m_boco.ptset_type) + " supported in CF yet");
   }
@@ -956,25 +956,25 @@ void Reader::read_flowsolution()
     CALL_CGNS(cg_nfields(m_file.idx,m_base.idx,m_zone.idx,m_flowsol.idx,&m_flowsol.nbFields));
 
     /// m_flowsol.ptset_type == CG_NULL    , m_flowsol.npnts == 0      --> flowsol covers entire zone
-    /// m_flowsol.ptset_type == PointRange , m_flowsol.npnts == 2      --> flowsol covers range
-    /// m_flowsol.ptset_type == PointList  , m_flowsol.npnts == npnts  --> flowsol covers given list of points
+    /// m_flowsol.ptset_type == CGNS_ENUMV( PointRange ) , m_flowsol.npnts == 2      --> flowsol covers range
+    /// m_flowsol.ptset_type == CGNS_ENUMV( PointList )  , m_flowsol.npnts == npnts  --> flowsol covers given list of points
 
 
     Handle<Dictionary> dict;
     Uint datasize=0;
     switch (m_flowsol.grid_loc)
     {
-      case Vertex:
+      case CGNS_ENUMV( Vertex ):
         datasize = m_zone.total_nbVertices;
         dict = m_mesh->geometry_fields().handle<Dictionary>();
         break;
-      case CellCenter:
-        throw NotImplemented(FromHere(), "CellCenter not implemented yet");
+      case CGNS_ENUMV( CellCenter ):
+        throw NotImplemented(FromHere(), "CGNS_ENUMV( CellCenter ) not implemented yet");
         datasize = m_zone.total_nbElements;
-        if ( Handle<Component> found = m_mesh->get_child("CellCenter") )
+        if ( Handle<Component> found = m_mesh->get_child("CGNS_ENUMV( CellCenter )") )
           dict = found->handle<Dictionary>();
         else
-          dict = m_mesh->create_discontinuous_space("CellCenter","cf3.mesh.LagrangeP0").handle<Dictionary>();
+          dict = m_mesh->create_discontinuous_space("CGNS_ENUMV( CellCenter )","cf3.mesh.LagrangeP0").handle<Dictionary>();
         break;
       default:
         throw NotSupported(FromHere(), "Flow solution Grid location ["+to_str((int)m_flowsol.grid_loc)+"] is not supported");
@@ -1012,7 +1012,7 @@ void Reader::read_flowsolution()
       cgsize_t imin = 1;
       cgsize_t imax = datasize;
       CALL_CGNS(cg_field_read( m_file.idx,m_base.idx,m_zone.idx,m_flowsol.idx,
-                               field_name_char,RealDouble,&imin,&imax,(void*)(&field_data[0]) ));
+                               field_name_char,CGNS_ENUMV( RealDouble ),&imin,&imax,(void*)(&field_data[0]) ));
 
       cf3_assert(field_data.size() == flowsol_field.size());
       cf3_assert(flowsol_field.nb_vars() == m_flowsol.nbFields);
@@ -1031,7 +1031,7 @@ Uint Reader::get_total_nbElements()
 {
   Uint nbElements = 0;
 
-  if (m_zone.type == Unstructured)
+  if (m_zone.type == CGNS_ENUMV( Unstructured ))
   {
     nbElements=0;
     // read sections (or subregions) in this zone
@@ -1043,7 +1043,7 @@ Uint Reader::get_total_nbElements()
       nbElements += m_section.eEnd - m_section.eBegin + 1;
     }
   }
-  else if (m_zone.type == Structured)
+  else if (m_zone.type == CGNS_ENUMV( Structured ))
   {
     nbElements=1;
     for (int d=0; d<m_zone.coord_dim; ++d)

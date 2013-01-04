@@ -434,7 +434,7 @@ void ScriptEngine::signal_execute_script(SignalArgs& node)
     fragment=options.option("fragment").value<int>();
   }
   if (options.check("breakpoints")){
-    std::vector<int> break_lines=options.array<int>("breakpoints");
+    std::vector<int> break_lines=options.value< std::vector<int> >("breakpoints");
     for (int i=0;i<break_lines.size();i++){
       break_points.push_back(std::pair<int,int>(fragment,break_lines[i]));
     }

@@ -53,8 +53,12 @@ FaceCellConnectivity::FaceCellConnectivity ( const std::string& name ) :
   m_connectivity = create_static_component<common::Table<Entity> >(mesh::Tags::connectivity_table());
   m_face_nb_in_elem = create_static_component<common::Table<Uint> >("face_number");
   m_is_bdry_face = create_static_component<common::List<bool> >("is_bdry_face");
+  m_cell_rotation = create_static_component<common::Table<Uint> >("cell_rotation");
+  m_cell_orientation = create_static_component<common::Table<bool> >("cell_orientation");
   m_connectivity->set_row_size(2);
   m_face_nb_in_elem->set_row_size(2);
+  m_cell_rotation->set_row_size(2);
+  m_cell_orientation->set_row_size(2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,24 +117,20 @@ void FaceCellConnectivity::build_connectivity()
     return;
   }
 
-  // sanity check
-//  CFinfo << "building face_cell connectivity using " << CFendl;
-//  boost_foreach(Handle< Component > cells, used() )
-//  {
-//    CFinfo << "  " << cells->uri().path() << CFendl;
-//  }
-
   // declartions
   m_connectivity->resize(0);
   common::Table<Entity>::Buffer f2c = m_connectivity->create_buffer();
   common::Table<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
   common::List<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
+  common::Table<Uint>::Buffer cell_rotation = m_cell_rotation->create_buffer();
+  common::Table<bool>::Buffer cell_orientation = m_cell_orientation->create_buffer();
+
   Dictionary& geometry_fields = find_parent_component<Mesh>(*used()[0]).geometry_fields();
   Uint tot_nb_nodes = geometry_fields.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
   std::vector<Entity> dummy_element_row(2);
-  std::vector<Uint> dummy_idx_row(2);
+  std::vector<Uint> tmp_row(2);
   Uint max_nb_faces(0);
 
   // calculate max_nb_faces
@@ -206,6 +206,7 @@ void FaceCellConnectivity::build_connectivity()
         // construct sets of nodes that make the corresponding face in this element
         nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
         face_nodes.resize(nb_nodes);
+
         Uint i(0);
         boost_foreach(const Uint face_node_idx, elements.element_type().faces().nodes_range(face_idx))
             face_nodes[i++] = elem_nodes[face_node_idx];
@@ -242,13 +243,30 @@ void FaceCellConnectivity::build_connectivity()
                 // that the face is an internal one, shared by two elements
                 // here you set the second element (==state) neighbor of the face
                 found_face = true;
-                //(*m_connectivity)[elemID][iFace] = currFaceID;
                 f2c.get_row(face)[1]=element;
                 face_number.get_row(face)[1]=face_idx;
-                is_bdry_face.get_row(face)=false;
                 // since it has two neighbor cells,
                 // this face is surely NOT a boundary face
-                // m_isBFace[currFaceID] = false;
+                is_bdry_face.get_row(face)=false;
+
+                // First node in first face element:
+                Uint first_node_loc_idx = f2c.get_row(face)[0].get_nodes()[
+                                            f2c.get_row(face)[0].element_type().faces().nodes_range(
+                                              face_number.get_row(face)[0])[0]
+                                          ];
+
+                // Find orientation ( or find match between first face-nodes of both neighbouring elements )
+                Uint rotation;
+                for (rotation=0; rotation<=nb_nodes; ++rotation)
+                {
+                  if (face_nodes[rotation] == first_node_loc_idx)
+                  {
+                    cell_rotation.get_row(face)[1]=rotation;
+                    break;
+                  }
+                }
+                // Following assertion fails, it means the correct orientation was not found! This should never happen!
+                cf3_always_assert(rotation != nb_nodes);
 
                 // increment number of inner faces (they always have 2 states)
                 ++nb_inner_faces;
@@ -286,9 +304,14 @@ void FaceCellConnectivity::build_connectivity()
           dummy_element_row[0]=element;
           f2c.add_row(dummy_element_row);
 
-          dummy_idx_row[0]=face_idx;
-          face_number.add_row(dummy_idx_row);
-
+          tmp_row[0]=face_idx;
+          face_number.add_row(tmp_row);
+          tmp_row[0] = MATCHED;
+          tmp_row[1] = INVERTED;
+          cell_orientation.add_row(tmp_row);
+          tmp_row[0] = 0;
+          tmp_row[1] = 0;
+          cell_rotation.add_row(tmp_row);
           is_bdry_face.add_row(true);
           ++m_nb_faces;
         }
@@ -300,6 +323,8 @@ void FaceCellConnectivity::build_connectivity()
   f2c.flush();
   face_number.flush();
   is_bdry_face.flush();
+  cell_rotation.flush();
+  cell_orientation.flush();
 
   // CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
   // CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
@@ -329,23 +354,6 @@ void FaceCellConnectivity::build_connectivity()
       }
     }
   }
-
-#if 0
-  for (Uint f=0; f<m_connectivity->size(); ++f)
-  {
-    if ( is_bdry_face[f] )
-    {
-      bdry_faces.add_row(f2c.get_row(f)[0]);
-      bdry_face_number.add_row(face_number.get_row(f));
-      f2c.rm_row(f);
-      face_number.rm_row(f);
-      --m_nb_faces;
-    }
-  }
-  f2c.flush();
-  face_number.flush();
-#endif
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

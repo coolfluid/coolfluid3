@@ -42,7 +42,8 @@ cf3::common::ComponentBuilder < ElementFinderOcttree, ElementFinder, LibMesh > E
 
 ElementFinderOcttree::ElementFinderOcttree(const std::string &name) : 
   ElementFinder(name),
-  m_closest(true)
+  m_closest(true),
+  m_coordinates(1,1)
 {
   options().option("dict").attach_trigger( boost::bind( &ElementFinderOcttree::configure_octtree, this ) );
 
@@ -50,7 +51,7 @@ ElementFinderOcttree::ElementFinderOcttree(const std::string &name) :
     .description("If true, an inexact match is allowed, finding the closest element")
     .link_to(&m_closest);
 
-  m_octtree_idx.resize(3);
+  m_octtree_idx.resize(3,0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,9 +88,10 @@ bool ElementFinderOcttree::find_element(const RealVector& target_coord, SpaceEle
   for (Uint d=0; d<target_coord.size(); ++d)
     t_coord[d] = target_coord[d];
 
+  m_elements_pool.clear();
+
   if (m_octtree->find_octtree_cell(t_coord,m_octtree_idx))
   {
-    m_elements_pool.clear();
     Uint pool_size = 0;
     Uint rings=0;
     for ( ; pool_size==0 ; ++rings)

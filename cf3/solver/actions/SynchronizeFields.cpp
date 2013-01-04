@@ -41,7 +41,7 @@ SynchronizeFields::SynchronizeFields ( const std::string& name ) : solver::Actio
       .attach_trigger ( boost::bind ( &SynchronizeFields::config_fields,   this ) );
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 void SynchronizeFields::config_fields()
 {
@@ -60,7 +60,7 @@ void SynchronizeFields::config_fields()
   }
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 
 void SynchronizeFields::execute()
 {

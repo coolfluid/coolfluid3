@@ -105,7 +105,7 @@ ComputeLNorm::ComputeLNorm ( const std::string& name ) : Action(name)
 
   // properties
 
-  properties().add("norm", Real(0.) );
+  properties().add("norm", std::vector<Real>(1,0.) );
 
   // options
 
@@ -156,8 +156,12 @@ std::vector<Real> ComputeLNorm::compute_norm(Table<Real>& table) const
       norms[i] /= nb_rows;
   }
 
+  table.properties()["norm"] = norms;
+
   return norms;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void ComputeLNorm::execute()
 {
@@ -167,8 +171,8 @@ void ComputeLNorm::execute()
     std::vector<Real> norms = compute_norm(*table);
 
     /// @todo this first one should dissapear
-    properties().set("norm", norms[0] );
-    properties()["norms"] = norms;
+//    properties().set("norm", norms[0] );
+    properties()["norm"] = norms;
   }
   else
     CFinfo << "Not computing norm in action " << uri() << " because option table is invalid." << CFendl;

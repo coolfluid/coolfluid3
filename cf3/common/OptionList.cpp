@@ -27,34 +27,14 @@
 namespace cf3 {
 namespace common {
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-const Option & OptionList::option( const std::string& pname) const
-{
-  OptionStorage_t::const_iterator itr = store.find(pname);
-
-  if ( itr != store.end() )
-    return *itr->second.get();
-  else
-  {
-    std::string msg;
-    msg += "Option with name ["+pname+"] not found. Available options are:\n";
-    OptionStorage_t::const_iterator it = store.begin();
-    for (; it!=store.end(); it++)
-      msg += "  - " + it->first + "\n";
-    throw ValueNotFound(FromHere(),msg);
-  }
-
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-Option & OptionList::option( const std::string& pname)
+const boost::shared_ptr<Option>& OptionList::option_ptr( const std::string& pname)
 {
   OptionStorage_t::iterator itr = store.find(pname);
 
   if ( itr != store.end() )
-    return *itr->second.get();
+    return itr->second;
   else
   {
     std::string msg;
@@ -65,6 +45,32 @@ Option & OptionList::option( const std::string& pname)
     throw ValueNotFound(FromHere(),msg);
   }
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Option & OptionList::option( const std::string& pname) const
+{
+  OptionStorage_t::const_iterator itr = store.find(pname);
+
+  if ( itr != store.end() )
+    return *itr->second;
+  else
+  {
+    std::string msg;
+    msg += "Option with name ["+pname+"] not found. Available options are:\n";
+    OptionStorage_t::const_iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Option& OptionList::option( const std::string& pname)
+{
+  return *option_ptr(pname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +163,7 @@ std::string OptionList::list_options() const
       opt_list=opt_list+"\n";
     }
 
-    opt_list = "  - " + opt_list + name + ":" + option->type() + "=" + option->value_str();
+    opt_list = opt_list + "  - " + name + ":" + option->type() + "=" + option->value_str();
 
     if (option->has_restricted_list())
     {
@@ -200,6 +206,19 @@ void set_array_to_list( const std::string & name,
     vec.push_back( from_str<TYPE>(str_val) );
 
   set_option_to_list< OptionArray<TYPE> >( name, vec, options);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool OptionList::set_if_exists(const std::string& pname, const boost::any& val)
+{
+  if (check(pname))
+  {
+    set(pname,val);
+    return true;
+  }
+  else
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////

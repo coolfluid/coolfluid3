@@ -129,7 +129,8 @@ Real Tetra3D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Node
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Tetra3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Tetra3D::compute_jacobian<Tetra3D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   const Real x0 = nodes(0, XX);
   const Real y0 = nodes(0, YY);

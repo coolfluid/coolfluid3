@@ -212,7 +212,7 @@ void Component::rename ( const std::string& name )
     throw BadValue(FromHere(), "Empty new name given for " + uri().string());
 
   if(!URI::is_valid_element(name))
-    throw BadValue(FromHere(), "Invalid new name given for " + uri().string());
+    throw BadValue(FromHere(), "Invalid new name '"+name+"' given for " + uri().string());
 
   if(name == m_name) // skip if name does not change
     return;
@@ -1142,8 +1142,8 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 boost::shared_ptr<Component> build_component(const std::string& builder_name,
-                               const std::string& name,
-                               const std::string& factory_type_name )
+                                             const std::string& name,
+                                             const std::string& factory_type_name )
 {
   // get the factories
 

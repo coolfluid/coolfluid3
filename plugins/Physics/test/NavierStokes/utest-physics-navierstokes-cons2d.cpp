@@ -9,11 +9,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "common/Log.hpp"
-#include "common/Core.hpp"
-#include "common/Environment.hpp"
+#include "cf3/common/Log.hpp"
+#include "cf3/common/Core.hpp"
+#include "cf3/common/Environment.hpp"
 
-#include "NavierStokes/Cons2D.hpp"
+#include "cf3/physics/NavierStokes/Cons2D.hpp"
 
 using namespace cf3;
 using namespace cf3::common;

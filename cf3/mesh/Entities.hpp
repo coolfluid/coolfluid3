@@ -144,8 +144,8 @@ public:
   Entity() : comp(nullptr), idx(0) {}
   Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
 
-  Entity(Entities& entities, const Uint index=0) :
-    comp( &entities ),
+  Entity(const Entities& entities, const Uint index=0) :
+    comp( const_cast<Entities*>(&entities) ),
     idx(index)
   {
     cf3_assert(idx<comp->size());

@@ -31,7 +31,8 @@ common::ComponentBuilder < Space, Component, LibMesh > Space_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 Space::Space ( const std::string& name ) :
-  Component ( name )
+  Component ( name ),
+  m_dict_idx(0u)
 {
   mark_basic();
 
@@ -213,10 +214,11 @@ SpaceElem::SpaceElem(const SpaceElem& other) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SpaceElem::SpaceElem(Space& space, const Uint index) :
-  comp( &space ),
+SpaceElem::SpaceElem(const Space& space, const Uint index) :
+  comp( const_cast<Space*>(&space) ),
   idx(index)
 {
+  cf3_assert(idx<space.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

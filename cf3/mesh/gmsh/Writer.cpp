@@ -324,8 +324,8 @@ void Writer::write_elem_nodal_data(std::fstream& file)
     const Field& field = *field_h;
     if(field.discontinuous())
     {
-      const Real field_time = m_mesh->metadata().properties().value<Real>("time");
-      const Uint field_iter = m_mesh->metadata().properties().value<Uint>("iter");
+      const Real field_time = field.properties().value<Real>("time");
+      const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
@@ -349,17 +349,17 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        Field::VarType var_type = field.var_length(iVar);
+        VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
 
         Uint datasize(var_type);
         switch (var_type)
         {
-          case Field::VECTOR_2D:
-            datasize=Uint(Field::VECTOR_3D);
+          case VECTOR_2D:
+            datasize=Uint(VECTOR_3D);
             break;
-          case Field::TENSOR_2D:
-            datasize=Uint(Field::TENSOR_3D);
+          case TENSOR_2D:
+            datasize=Uint(TENSOR_3D);
             break;
           default:
             break;
@@ -415,7 +415,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
                   RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
                   cf3_assert(node_data.size() == var_type);
 
-                  if (var_type==Field::TENSOR_2D)
+                  if (var_type==TENSOR_2D)
                   {
                     data[0]=node_data[0];
                     data[1]=node_data[1];
@@ -428,7 +428,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
                   {
                     for (Uint j=0; j<var_type; ++j)
                       file << " " << node_data[j];
-                    if (var_type == Field::VECTOR_2D)
+                    if (var_type == VECTOR_2D)
                       file << " " << 0.0;
                   }
                 }
@@ -490,8 +490,8 @@ void Writer::write_nodal_data(std::fstream& file)
     {
       cf3_assert(is_null(field_h) == false);
       const Field& field = *field_h;
-      const Real field_time = m_mesh->metadata().properties().value<Real>("time");
-      const Uint field_iter = m_mesh->metadata().properties().value<Uint>("iter");
+      const Real field_time = field.properties().value<Real>("time");
+      const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
       Uint nb_elements = 0;
       std::vector< Handle<Entities const> > filtered_used_entities_by_field;
@@ -512,17 +512,17 @@ void Writer::write_nodal_data(std::fstream& file)
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
         is_node_visited.assign(m_mesh->geometry_fields().size(),false);
-        Field::VarType var_type = field.var_length(iVar);
+        VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
 
         Uint datasize(var_type);
         switch (var_type)
         {
-          case Field::VECTOR_2D:
-            datasize=Uint(Field::VECTOR_3D);
+          case VECTOR_2D:
+            datasize=Uint(VECTOR_3D);
             break;
-          case Field::TENSOR_2D:
-            datasize=Uint(Field::TENSOR_3D);
+          case TENSOR_2D:
+            datasize=Uint(TENSOR_3D);
             break;
           default:
             break;
@@ -586,7 +586,7 @@ void Writer::write_nodal_data(std::fstream& file)
                   // * write
                   file << m_mesh->geometry_fields().glb_idx()[geom_space_node]+1 << " ";
 
-                  if (var_type==Field::TENSOR_2D)
+                  if (var_type==TENSOR_2D)
                   {
                     data[0]=node_data[0];
                     data[1]=node_data[1];
@@ -599,7 +599,7 @@ void Writer::write_nodal_data(std::fstream& file)
                   {
                     for (Uint j=0; j<var_type; ++j)
                       file << " " << node_data[j];
-                    if (var_type == Field::VECTOR_2D)
+                    if (var_type == VECTOR_2D)
                       file << " " << 0.0;
                   }
                   file << "\n";

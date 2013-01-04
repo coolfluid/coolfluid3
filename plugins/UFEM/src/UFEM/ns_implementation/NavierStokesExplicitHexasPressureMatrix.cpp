@@ -28,7 +28,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"

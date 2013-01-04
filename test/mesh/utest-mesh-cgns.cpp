@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( TestLibCGNS )
 
  int maxelemi = 20*16*8;
  double x[21*17*9],y[21*17*9],z[21*17*9];
- int isize[3][1],ielem[maxelemi][8];
+ cgsize_t isize[3][1],ielem[maxelemi][8];
  int ni,nj,nk,iset,i,j,k,index_file,icelldim,iphysdim;
  int index_base,index_zone,index_coord,ielem_no,nelem_start;
  int ifirstnode,nelem_end,nbdyelem,index_section;
@@ -162,14 +162,14 @@ BOOST_AUTO_TEST_CASE( TestLibCGNS )
 /* boundary vertex size (zero if elements not sorted) */
  isize[2][0]=0;
 /* create zone */
- CALL_CGNS(cg_zone_write(index_file,index_base,zonename,isize[0],Unstructured,&index_zone));
+ CALL_CGNS(cg_zone_write(index_file,index_base,zonename,isize[0],CGNS_ENUMV( Unstructured ),&index_zone));
 /* write grid coordinates (user must use SIDS-standard names here) */
- CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,&index_coord));
- CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,&index_coord));
- CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,&index_coord));
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateX",x,&index_coord));
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateY",y,&index_coord));
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateZ",z,&index_coord));
 /* set element connectivity: */
 /* ---------------------------------------------------------- */
-/* do all the HEXA_8 elements (this part is mandatory): */
+/* do all the CGNS_ENUMV( HEXA_8 ) elements (this part is mandatory): */
 /* maintain SIDS-standard ordering */
  ielem_no=0;
 /* index no of first element */
@@ -207,12 +207,12 @@ relationships:
  }
 /* unsorted boundary elements */
  nbdyelem=0;
-/* write HEXA_8 element connectivity (user can give any name) */
- CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"Elem",HEXA_8,nelem_start,  \
+/* write CGNS_ENUMV( HEXA_8 ) element connectivity (user can give any name) */
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"Elem",CGNS_ENUMV( HEXA_8 ),nelem_start,  \
                   nelem_end,nbdyelem,ielem[0],&index_section));
 /* ---------------------------------------------------------- */
 int maxelemj = 1216;
-int jelem[maxelemj][4];
+cgsize_t jelem[maxelemj][4];
 /*
 do boundary (QUAD) elements (this part is optional,
 but you must do it if you eventually want to define BCs
@@ -244,7 +244,7 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for inflow face (user can give any name) */
- CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"InflowElem",QUAD_4,nelem_start,  \
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"InflowElem",CGNS_ENUMV( QUAD_4 ),nelem_start,  \
                   nelem_end,nbdyelem,jelem[0],&index_section));
 /* OUTFLOW: */
  ielem_no=0;
@@ -271,7 +271,7 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for outflow face (user can give any name) */
- CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"OutflowElem",QUAD_4,nelem_start,  \
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"OutflowElem",CGNS_ENUMV( QUAD_4 ),nelem_start,  \
                   nelem_end,nbdyelem,jelem[0],&index_section));
 /* SIDEWALLS: */
  ielem_no=0;
@@ -337,14 +337,14 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for sidewall face (user can give any name) */
- CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"SidewallElem",CGNS_ENUMV( QUAD_4 ),nelem_start,  \
                   nelem_end,nbdyelem,jelem[0],&index_section));
 /* ---------------------------------------------------------- */
 
  // part 2: add boundary conditions
  int icount, n, index_bc;
  int maxcount(960);
- int ipnts[maxcount];
+ cgsize_t ipnts[maxcount];
  // BC inflow
  nelem_start=2561;
  nelem_end=2688;
@@ -359,11 +359,11 @@ maintain SIDS-standard ordering
    printf("\nError. Need to increase maxcount to at least %i\n",icount);
    exit(0);
  }
- PointSetType_t bc_type = ElementList;
+ CGNS_ENUMT( PointSetType_t ) bc_type = CGNS_ENUMV( ElementList );
 /* write boundary conditions for ilo face */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,bc_type, \
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"inflow",CGNS_ENUMV( BCTunnelInflow ),bc_type, \
                icount,ipnts,&index_bc));
- std::cout << "\nSuccessfully wrote BC inflow (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
+ std::cout << "\nSuccessfully wrote BC inflow (ElementList = "<<to_str<int>(CGNS_ENUMV( ElementList ))<<") to grid_c.cgns"<<std::endl;
 
  // BC outflow
  /* we know that for the unstructured zone, the following face elements */
@@ -382,8 +382,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
  /* write boundary conditions for ihi face */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,bc_type,icount,ipnts,&index_bc));
- std::cout << "\nSuccessfully wrote BC outflow (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"outflow",CGNS_ENUMV( BCExtrapolate ),bc_type,icount,ipnts,&index_bc));
+ std::cout << "\nSuccessfully wrote BC outflow (ElementList = "<<to_str<int>(CGNS_ENUMV( ElementList ))<<") to grid_c.cgns"<<std::endl;
 
 
 /* we know that for the unstructured zone, the following face elements */
@@ -402,8 +402,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
  /* write boundary conditions for wall faces */
- CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,bc_type,icount,ipnts,&index_bc));
- std::cout << "\nSuccessfully wrote BC Walls (ElementList = "<<to_str<int>(ElementList)<<") to grid_c.cgns"<<std::endl;
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"Walls",CGNS_ENUMV( BCWallInviscid ),bc_type,icount,ipnts,&index_bc));
+ std::cout << "\nSuccessfully wrote BC Walls (ElementList = "<<to_str<int>(CGNS_ENUMV( ElementList ))<<") to grid_c.cgns"<<std::endl;
 
 /* ---------------------------------------------------------- */
 
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
    */
   double x1[2][3][5],y1[2][3][5],z1[2][3][5];
   double x2[2][3][5],y2[2][3][5],z2[2][3][5];
-  int isize[3][3], ipnts[2][3];
+  cgsize_t isize[3][3], ipnts[2][3];
   int ni,nj,nk,i,j,k;
   int index_file,icelldim,iphysdim,index_base;
   int index_zone,index_coord,index_bc;
@@ -480,11 +480,11 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   /*  define zone 1 name (user can give any name) */
   strcpy(zonename,"Zone 1");
   /*  create zone */
-  cg_zone_write(index_file,index_base,zonename,*isize,Structured,&index_zone);
+  cg_zone_write(index_file,index_base,zonename,*isize,CGNS_ENUMV( Structured ),&index_zone);
   /*  write grid coordinates (user must use SIDS-standard names here) */
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x1,&index_coord);
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y1,&index_coord);
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z1,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateX",x1,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateY",y1,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateZ",z1,&index_coord);
 
   ilo=1;
   ihi=isize[0][0];
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ilo;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Ilo",CGNS_ENUMV( BCTunnelInflow ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for ihi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Ihi",CGNS_ENUMV( BCExtrapolate ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for jlo face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jlo;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Jlo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Jlo",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for jhi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Jhi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Jhi",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for klo face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -546,7 +546,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=klo;
-  cg_boco_write(index_file,index_base,index_zone,"Klo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Klo",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for khi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -557,17 +557,17 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Khi",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
 
 
   /*  define zone 2 name (user can give any name) */
   strcpy(zonename,"Zone 2");
   /*  create zone */
-  cg_zone_write(index_file,index_base,zonename,*isize,Structured,&index_zone);
+  cg_zone_write(index_file,index_base,zonename,*isize,CGNS_ENUMV( Structured ),&index_zone);
   /*  write grid coordinates (user must use SIDS-standard names here) */
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x2,&index_coord);
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y2,&index_coord);
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z2,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateX",x2,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateY",y2,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV( RealDouble ),"CoordinateZ",z2,&index_coord);
 
 
   ilo=1;
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ilo;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Ilo",CGNS_ENUMV( BCTunnelInflow ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for ihi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Ihi",CGNS_ENUMV( BCExtrapolate ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for jlo face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jlo;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Jlo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Jlo",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for jhi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Jhi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Jhi",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for klo face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=klo;
-  cg_boco_write(index_file,index_base,index_zone,"Klo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Klo",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* write boundary conditions for khi face, defining range first */
   /* (user can give any name) */
   /* lower point of range */
@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][0]=ihi;
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
-  cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  cg_boco_write(index_file,index_base,index_zone,"Khi",CGNS_ENUMV( BCWallInviscid ),CGNS_ENUMV( PointRange ),2,ipnts[0],&index_bc);
   /* close CGNS file */
   cg_close(index_file);
   printf("\nSuccessfully added BCs (PointRange) to file grid_str_2zones.cgns\n");
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
+BOOST_AUTO_TEST_CASE( ReadUnstructured )
 {
   Core::instance().environment().options().set("log_level",(Uint)DEBUG);
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","meshreader");

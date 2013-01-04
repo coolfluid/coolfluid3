@@ -179,7 +179,7 @@ void LoadMesh::signal_load_mesh ( common::SignalArgs& node )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // std::vector<URI> files = option("Files").value<std::vector<URI> >();
-  std::vector<URI> files = options.array<URI>("files");
+  std::vector<URI> files = options.value< std::vector<URI> >("files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
