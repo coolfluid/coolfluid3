@@ -35,13 +35,6 @@ macro( coolfluid3_add_library )
 
     get_filename_component( DIRNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 
-    if( DEFINED _PAR_KERNEL )
-        set( CF3_KERNEL_LIBS ${CF3_KERNEL_LIBS} ${LIBNAME} CACHE INTERNAL "" )
-        set( ${LIBNAME}_kernellib ${_PAR_KERNEL} )
-    else()
-        set( ${LIBNAME}_kernellib )
-    endif()
-
     # check if all required plugins are present
     set( ${LIBNAME}_has_all_plugins 1 )
     if( _PAR_PLUGINS )
@@ -89,6 +82,11 @@ macro( coolfluid3_add_library )
     if( ${LIBNAME}_builds )
 
         coolfluid_log_file( " +++ LIB   [${LIBNAME}]" )
+
+        # kernel library (?)
+        if( _PAR_KERNEL )
+            set( CF3_KERNEL_LIBS ${CF3_KERNEL_LIBS} ${LIBNAME} CACHE INTERNAL "" )
+        endif()
 
         # defines the type of library
         if( DEFINED _PAR_TYPE )
@@ -216,7 +214,7 @@ macro( coolfluid3_add_library )
   coolfluid_log_file("${LIBNAME} user option     : [${CF3_BUILD_${LIBNAME}}]")
   coolfluid_log_file("${LIBNAME}_builds          : [${${LIBNAME}_builds}]")
   coolfluid_log_file("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
-  coolfluid_log_file("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
+  coolfluid_log_file("${LIBNAME} kernel lib      : [${_PAR_KERNEL}]")
   coolfluid_log_file("${LIBNAME}_includedirs     : [${_PAR_INCLUDES}]")
   coolfluid_log_file("${LIBNAME}_libs            : [${_PAR_LIBS}]")
   coolfluid_log_file("${LIBNAME}_has_all_plugins : [${${LIBNAME}_has_all_plugins}]")
