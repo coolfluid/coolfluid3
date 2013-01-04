@@ -104,9 +104,9 @@ macro( coolfluid3_add_library )
         endforeach()
 
         # include dirs from plugins
-        if( DEFINED _PAR_INCLUDES )
+        if( _PAR_INCLUDES )
           foreach( path ${_PAR_INCLUDES} )
-            list( APPEND ${LIBNAME}_includedirs ${${plugin}_DIR} )
+            list( APPEND ${LIBNAME}_includedirs ${path} )
           endforeach()
         endif()
 

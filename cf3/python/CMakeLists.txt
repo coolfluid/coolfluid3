@@ -31,7 +31,8 @@ if( CF3_HAVE_PYTHON )
                             KERNEL
                             PYTHON_MODULE
                             SOURCES  ${coolfluid_python_files}
-                            INCLUDES ${PYTHON_INCLUDE_DIR}
+                            INCLUDES
+                                ${PYTHON_INCLUDE_DIR}
                             LIBS coolfluid_common coolfluid_mesh
                                 ${Boost_PYTHON_LIBRARY}
                                 ${PYTHON_LIBRARIES} )
