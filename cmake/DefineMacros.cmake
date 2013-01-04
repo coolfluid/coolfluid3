@@ -35,3 +35,5 @@ include(macros/CFAddResources)
 include(macros/CFAddCompilationFlags)
 include(macros/CFDefinePlugin)
 include(macros/GetDate)
+
+include(macros/coolfluid3_add_library)
