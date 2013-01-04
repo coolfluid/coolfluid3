@@ -105,11 +105,42 @@ function( coolfluid_set_package )
 
     foreach( vvar ${_PAR_VARS} )
 
-      if( NOT ${vvar} )
-        
-        set( _${PACKAGE_CAPS}_vars_ok 0 )
-    
-      endif()
+      if( DEFINED ${vvar} )
+
+        coolfluid_debug_var( vvar )
+
+        list(LENGTH ${vvar} sizevar)
+
+        if( ${sizevar} GREATER 1 ) # is list ( so must loop over each entry )
+            foreach( svar ${${vvar}} )
+                coolfluid_debug_var( svar )
+
+            if( ${svar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, OK" )
+            else()
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- in ${vvar}, ${svar}, FAIL" )
+                set( _${PACKAGE_CAPS}_vars_ok 0 )
+            endif()
+        endforeach()
+
+      else() # single var (not list)
+
+         coolfluid_debug_var( vvar )
+
+            if( ${vvar} )
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, OK" )
+            else()
+                coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar}, FAIL" )
+                set( _${PACKAGE_CAPS}_vars_ok 0 )
+            endif()
+        endif()
+
+     else()
+
+        coolfluid_log_file( "Package ${PACKAGE_CAPS} -- ${vvar} not defined, FAIL" )
+        set( _${PACKAGE_CAPS}_vars_ok 0 ) # not defined -- so fail
+
+     endif()
 
     endforeach() # _PAR_VARS
 
@@ -158,7 +189,7 @@ function( coolfluid_set_package )
       coolfluid_log_file( "  TYPE:         [${_PAR_TYPE}]" )
       coolfluid_log_file( "  PURPOSE:      [${_PAR_PURPOSE}]" )
       coolfluid_log_file( "  DESCRIPTION:  [${_PAR_DESCRIPTION}]" )
-      foreach( VAR ${_PAR_VARS} ) 
+      foreach( VAR ${_PAR_VARS} )
         coolfluid_log_file( "  VAR ${VAR}:       [${${VAR}}]" )
       endforeach()
   endif()
