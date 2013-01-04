@@ -13,4 +13,10 @@ set( coolfluid_mesh_zoltan_kernellib TRUE )
 
 set( coolfluid_mesh_zoltan_condition ${CF3_HAVE_ZOLTAN} )
 
-coolfluid_add_library( coolfluid_mesh_zoltan )
+coolfluid3_add_library( TARGET    coolfluid_mesh_zoltan 
+                        KERNEL 
+                        SOURCES   ${coolfluid_mesh_zoltan_files} 
+                        LIBS      coolfluid_mesh
+                                  ${ZOLTAN_LIBRARIES} ${ZOLTAN_EXTRA_LIBRARIES}
+                        INCLUDES  ${ZOLTAN_INCLUDE_DIRS} ${ZOLTAN_EXTRA_INCLUDE_DIRS}
+                        CONDITION CF3_HAVE_ZOLTAN )

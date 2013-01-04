@@ -5,13 +5,11 @@ list( APPEND coolfluid_mesh_ptscotch_files
       LibPTScotch.hpp
     )
 
-list( APPEND coolfluid_mesh_ptscotch_cflibs coolfluid_mesh )
-list( APPEND coolfluid_mesh_ptscotch_libs ${PTSCOTCH_LIBRARIES} )
-list( APPEND coolfluid_mesh_ptscotch_includedirs ${PTSCOTCH_INCLUDE_DIRS} )
-
-set( coolfluid_mesh_ptscotch_kernellib TRUE )
-
-set( coolfluid_mesh_ptscotch_condition ${CF3_HAVE_PTSCOTCH} )
-
-coolfluid_add_library( coolfluid_mesh_ptscotch )
+coolfluid3_add_library( TARGET    coolfluid_mesh_ptscotch
+                        KERNEL
+                        SOURCES   ${coolfluid_mesh_ptscotch_files}
+                        LIBS      coolfluid_mesh
+                                  ${PTSCOTCH_LIBRARIES}
+                        INCLUDES  ${PTSCOTCH_INCLUDE_DIRS} 
+                        CONDITION ${CF3_HAVE_PTSCOTCH} )
 
