@@ -17,6 +17,8 @@
 # set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # * try using precompiled headers and add a check to their support
 #
+# * implement coolfluid_add_library and coolfluid_add_executable
+#
 ##############################################################################
 
 ##############################################################################
