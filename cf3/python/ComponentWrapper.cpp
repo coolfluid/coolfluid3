@@ -250,9 +250,8 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
 
   cf3_assert(result.ptr()->ob_refcnt == 1); // Make sure there are no circular references
 
-  // Add extra functionality for derved classes
+  // Add extra functionality for derived classes
   add_ctable_methods(wrapped, result);
-
   return result;
 }
 
@@ -344,6 +343,7 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
 {
   boost::shared_ptr< common::Component > built_comp = common::build_component(builder_name, name);
   self.component().add_component(built_comp);
+  built_comp->mark_basic();
   return wrap_component(built_comp->handle<common::Component>());
 }
 

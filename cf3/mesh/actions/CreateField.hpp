@@ -18,17 +18,21 @@ namespace cf3 {
 namespace mesh {
 
   class Dictionary;
-  class LoadMesh;
-  class AInterpolator;
+  class Field;
 
 namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @brief Import variables from another mesh
+/// @brief Create a field with given functions
 ///
-/// Optionally, a dictionary can be provided to load the variables into
-/// Every imported variable will have its own field
+/// Given functions are analytic and can use other functions as variables\n
+/// Example function, assuming that a field "myfield" exists with 4 variables,
+/// as well as a "coordinates" field in the same dictionary:\n
+/// @verbatim
+/// coordinates[0]*myfield[2]^myfield[1]
+/// @endverbatim
+///
 /// @author Willem Deconinck
 class mesh_actions_API CreateField : public MeshTransformer
 {   
@@ -40,21 +44,26 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CreateField"; }
 
+  Handle<Field> create_field(const std::string& name, Dictionary& dict, const std::vector<std::string>& function_str);
+
   virtual void execute();
   
+public: // signals
+
+  void signal_create_field( common::SignalArgs& args);
+  void signature_create_field( common::SignalArgs& args);
+
 private: // functions
 
   void replace_var_name (const std::string& var_from,
                          const std::string& var_to,
                          std::vector<std::string>& functions);
 
-private: // data
-
-  std::vector<std::string> m_import_var_names;
-  std::vector<std::string> m_var_names;
-
-  Handle<LoadMesh> m_mesh_loader;
-  Handle<AInterpolator> m_interpolator;
+  /// @brief Split a list of functions in a vector of functions
+  ///
+  /// @param function_list  List of the form "[func1,func2,...]"
+  /// @return vector of func1, func2, ...
+  std::vector<std::string> split_function_list(const std::string& function_list);
 
 }; // end CreateField
 

@@ -73,7 +73,8 @@ Real Line3D::length(const NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template<>
+void Line3D::compute_jacobian<Line3D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
   result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));

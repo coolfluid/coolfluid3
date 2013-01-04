@@ -11,6 +11,8 @@
 
 option( CF3_SKIP_CGNS "Skip search for CGNS library" OFF )
 
+if( NOT CF3_SKIP_CGNS )
+
     coolfluid_set_trial_include_path("") # clear include search path
     coolfluid_set_trial_library_path("") # clear library search path
 
@@ -32,6 +34,8 @@ option( CF3_SKIP_CGNS "Skip search for CGNS library" OFF )
     if( HDF5_LIBRARIES )
         set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
     endif()
+
+endif( NOT CF3_SKIP_CGNS )
 
 coolfluid_set_package( PACKAGE CGNS
                        DESCRIPTION "CFD General Notation System"

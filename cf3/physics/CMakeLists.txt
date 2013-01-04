@@ -3,6 +3,7 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_physics_files
   LibPhysics.hpp
   LibPhysics.cpp
+  MatrixTypes.hpp
   PhysModel.cpp
   PhysModel.hpp
   Variables.hpp
@@ -16,6 +17,6 @@ list( APPEND coolfluid_physics_files
 
 set( coolfluid_physics_kernellib TRUE )
 
-list(APPEND coolfluid_physics_cflibs coolfluid_math )
+list(APPEND coolfluid_physics_cflibs coolfluid_math)
 
 coolfluid_add_library( coolfluid_physics )

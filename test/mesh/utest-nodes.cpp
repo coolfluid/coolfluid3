@@ -128,6 +128,7 @@ BOOST_AUTO_TEST_CASE( Construct_Geometry )
   BOOST_CHECK( is_not_null(geometry) );
 
   Handle<Field> coords = geometry->create_component<Field>("coordinates");
+  coords->set_row_size(2u);
   coords->create_descriptor("coords[vec]",2u);
 
   // Tagging this component will cache it to geometry->coordinates()

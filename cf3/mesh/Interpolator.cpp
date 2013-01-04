@@ -35,7 +35,19 @@ common::ComponentBuilder<Interpolator,AInterpolator,LibMesh> Interpolator_builde
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Interpolator::Interpolator(const std::string &name) : AInterpolator(name)
+Interpolator::Interpolator(const std::string &name) :
+  AInterpolator(name),
+  m_source_dict_size(0),
+  m_target_size(0),
+  m_proc(0),
+  m_expect_recv(0),
+  m_stored_element(0),
+  m_stored_stencil(0),
+  m_stored_source_field_points(0),
+  m_stored_source_field_weights(0),
+  m_source_vars(0),
+  m_target_vars(0)
+
 {
   options().add("store", false)
       .description("Flag to store weights and stencils used for faster interpolation in the future")

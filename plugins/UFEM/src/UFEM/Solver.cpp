@@ -120,7 +120,7 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
   if(is_null(timeloop))
   {
     timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
-    timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
+    timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
   }
   else
   {
@@ -146,7 +146,7 @@ Handle< common::Action > Solver::add_unsteady_advance_solver(const std::string& 
   {
     timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
     timeloop->mark_basic();
-    timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
+    timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
     timeloop->create_component("SelfIteration","cf3.solver.actions.Iterate")->mark_basic();
   }
   else
@@ -176,7 +176,7 @@ Handle< common::Action > Solver::add_iteration_solver(const std::string& builder
   {
       timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
       timeloop->mark_basic();                                                          //mark_basic to make it visible in python; there, a dot replaces the get child method
-      timeloop->create_component("CriterionTime", "cf3.solver.actions.CriterionTime");
+      timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
       timeloop->create_component("CouplingIteration","cf3.solver.actions.Iterate")->mark_basic();
       timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
   }

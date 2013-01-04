@@ -99,6 +99,11 @@ public: // functions
   /// Signature of the signal to load a list of libraries
   void signature_load_libraries ( SignalArgs& args );
 
+  /// Signal to autoload a list of libraries by namespace names
+  void signal_load ( SignalArgs& args );
+  /// Signature of the signal to autoload a list of libraries by namespace names
+  void signature_load ( SignalArgs& args );
+
   //@} END SIGNALS
 
 }; // Libraries

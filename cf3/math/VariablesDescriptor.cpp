@@ -163,7 +163,7 @@ struct VariablesDescriptor::Implementation
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
     const boost::regex e_vector("v(ec(tor)?)?",boost::regex::perl|boost::regex::icase);
     const boost::regex e_tensor("t(ens(or)?)?",boost::regex::perl|boost::regex::icase);
-    const boost::regex e_array("[2-9][0-9]*");
+    const boost::regex e_array("[1-9][0-9]*");
 
     std::vector<std::string> tokenized_variables;
     boost::split(tokenized_variables, description, boost::is_any_of(","));

@@ -309,22 +309,6 @@ void SignalOptions::add_to_map( Map & map, const OptionList & list )
 
 //////////////////////////////////////////////////////////////////////////////
 
-template<typename TYPE>
-TYPE SignalOptions::value( const std::string & name ) const
-{
-  return option(name).value<TYPE>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename TYPE>
-std::vector<TYPE> SignalOptions::array( const std::string & name ) const
-{
-  return option(name).template value< std::vector<TYPE> >();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 void SignalOptions::flush()
 {
   if( main_map.content.is_valid() )
@@ -344,22 +328,6 @@ SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sen
 
   return reply;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-#define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
-  Common_TEMPLATE template T SignalOptions::value<T>(const std::string&) const;\
-  Common_TEMPLATE template std::vector<T> SignalOptions::array<T>(const std::string&) const
-
-/// explicit instantiation to avoid missing symbols on certain compilers
-TEMPLATE_EXPLICIT_INSTANTIATION( bool );
-TEMPLATE_EXPLICIT_INSTANTIATION( int );
-TEMPLATE_EXPLICIT_INSTANTIATION( std::string );
-TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Uint );
-TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Real );
-TEMPLATE_EXPLICIT_INSTANTIATION( URI );
-
-#undef TEMPLATE_EXPLICIT_INSTANTIATION
 
 //////////////////////////////////////////////////////////////////////////////
 

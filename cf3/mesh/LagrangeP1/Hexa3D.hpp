@@ -52,7 +52,21 @@ struct Mesh_LagrangeP1_API Hexa3D : public ElementTypeBase<Hexa3D,Hexa3D_traits>
   static void compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mapped_coord);
   static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
+
+//    template < typename MatrixType >
+//    static typename boost::enable_if< boost::mpl::not_<boost::is_same< MatrixType, JacobianT > > >::type
+//    compute_jacobian( const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian )
+//    {
+//      throw common::ShouldNotBeHere(FromHere(), "Jacobian matrix dimensions are wrong!");
+//    }
+
+//  template < typename MatrixType >
+//  static typename boost::enable_if< boost::is_same< MatrixType, JacobianT > >::type
+//  compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
+
+  template < typename MatrixType >
+  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
+
   static void compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result);
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);

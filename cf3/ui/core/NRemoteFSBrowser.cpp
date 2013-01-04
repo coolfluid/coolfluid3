@@ -83,11 +83,11 @@ void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
 //  else
 //    m_updatingCompletion = false;
 
-  dirs = options.array<std::string>("dirs");
-  files = options.array<std::string>("files");
-  dir_dates = options.array<std::string>("dirDates");
-  file_dates = options.array<std::string>("fileDates");
-  file_sizes = options.array<Uint>("fileSizes");
+  dirs = options.value<std::vector<std::string> >("dirs");
+  files = options.value<std::vector<std::string> >("files");
+  dir_dates = options.value<std::vector<std::string> >("dirDates");
+  file_dates = options.value< std::vector<std::string> >("fileDates");
+  file_sizes = options.value< std::vector<Uint> >("fileSizes");
 
   // notice the view(s) that the model is about to be completely changed
   emit layoutAboutToBeChanged();

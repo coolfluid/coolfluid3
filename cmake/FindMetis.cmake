@@ -9,6 +9,8 @@
 
 option( CF3_SKIP_METIS "Skip search for Metis library" OFF )
 
+if( NOT CF3_SKIP_METIS )
+
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -23,6 +25,8 @@ option( CF3_SKIP_METIS "Skip search for Metis library" OFF )
 
   find_library(METIS_LIBRARIES metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(METIS_LIBRARIES metis )
+
+endif( NOT CF3_SKIP_METIS )
 
 coolfluid_set_package( PACKAGE METIS
                        DESCRIPTION "Serial graph partitioning"

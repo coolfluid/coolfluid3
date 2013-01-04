@@ -48,7 +48,8 @@ struct Mesh_LagrangeP1_API Line2D : public ElementTypeBase<Line2D,Line2D_traits>
   //@{
 
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
+  template < typename MatrixType >
+  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);

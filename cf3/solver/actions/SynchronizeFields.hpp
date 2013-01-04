@@ -22,12 +22,6 @@ namespace actions {
 
 class solver_actions_API SynchronizeFields : public cf3::solver::Action {
 
-public: // typedefs
-
-  /// pointers
-  
-  
-
 public: // functions
   /// Contructor
   /// @param name of the component

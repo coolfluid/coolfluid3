@@ -51,7 +51,7 @@ namespace detail
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type Uint");
+        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + demangle(new_value.type().name()) + " to type Uint");
       }
     }
   }
@@ -72,7 +72,7 @@ namespace detail
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type int");
+        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + demangle(new_value.type().name()) + " to type int");
       }
     }
   }
@@ -93,7 +93,36 @@ namespace detail
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + new_value.type().name() + " to type Real");
+        throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + demangle(new_value.type().name()) + " to type Real");
+      }
+    }
+  }
+
+  template<>
+  void change_value<std::string>(boost::any& to_set, const boost::any& new_value)
+  {
+    if(new_value.type() == to_set.type())
+    {
+      to_set = new_value;
+    }
+    else
+    {
+      try
+      {
+        Real rval = boost::any_cast<Real>(new_value);
+        to_set = to_str(rval);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        try
+        {
+          int uval = boost::any_cast<int>(new_value);
+          to_set = to_str(uval);
+        }
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed(FromHere(), std::string("Failed to cast object of type ") + demangle(new_value.type().name()) + " to type Real");
+        }
       }
     }
   }

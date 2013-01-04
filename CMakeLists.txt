@@ -17,6 +17,8 @@
 # set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # * try using precompiled headers and add a check to their support
 #
+# * implement coolfluid_add_library and coolfluid_add_executable
+#
 ##############################################################################
 
 ##############################################################################
@@ -113,8 +115,9 @@ coolfluid_log(" kernel configuration ")
 
 # dir includes
 include_directories( ${coolfluid_BINARY_DIR} )
-include_directories( ${coolfluid_SOURCE_DIR}/include )
+include_directories( ${coolfluid_SOURCE_DIR} )
 include_directories( ${coolfluid_SOURCE_DIR}/cf3 )
+include_directories( ${coolfluid_SOURCE_DIR}/include )
 include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 
 # add dir with kernel config (automatic generated headers)

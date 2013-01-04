@@ -197,6 +197,11 @@ namespace XML { class XmlNode; }
       return *this;
     }
 
+    /// @brief Link another option to this option.
+    ///
+    /// so that when this option is changed, the other option will be changed as well
+    Option& link_option ( const boost::shared_ptr<common::Option>& linked );
+
     /// this option is tagged as a basic option on the GUI
     /// @return this option
     Option& mark_basic ();
@@ -234,6 +239,8 @@ namespace XML { class XmlNode; }
     boost::any m_value;
     /// parameters that also get updated when option is changed
     std::vector< boost::any > m_linked_params;
+    /// options that also get updated when option is changed
+    std::vector< Handle<Option> > m_linked_opts;
 
   private: // data
     /// storage of the default value of the option
@@ -258,6 +265,8 @@ namespace XML { class XmlNode; }
 
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params (std::vector< boost::any >& linked_params) = 0;
+
+    void copy_to_linked_options ();
 
     /// Get the value to use from XML
     /// @param node XML node with data for this option

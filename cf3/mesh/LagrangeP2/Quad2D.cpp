@@ -106,7 +106,8 @@ Real Quad2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Nodes
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Quad2D::compute_jacobian<Quad2D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   // get mapped coordinates
 

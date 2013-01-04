@@ -12,6 +12,9 @@
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/Core.hpp"
+#include "common/EventHandler.hpp"
+#include "common/Environment.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -185,6 +188,15 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   PE::Comm::instance().finalize();
+  XML::SignalFrame frame;
+
+  Core::instance().environment().options().set("log_level",4);
+
+  Core::instance().terminate();
+
+  // Check if any component pings back. No component should respond
+  Core::instance().event_handler().raise_event("ping", frame);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

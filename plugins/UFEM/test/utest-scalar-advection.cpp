@@ -26,7 +26,7 @@
 #include "solver/ModelUnsteady.hpp"
 
 #include "solver/actions/AdvanceTime.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/Time.hpp"
 #include "math/LSS/SolveLSS.hpp"

@@ -22,11 +22,6 @@ namespace actions {
 /// @author Tiago Quintino
 class solver_actions_API Conditional : public common::Action {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor

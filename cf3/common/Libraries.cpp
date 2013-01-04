@@ -42,15 +42,20 @@ Libraries::Libraries ( const std::string& name) : Component ( name )
   // signals
   regist_signal( "load_libraries" )
     .connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
+    .signature( boost::bind(&Libraries::signature_load_libraries, this, _1) )
     .description("loads libraries")
     .pretty_name("Load Libraries");
+
+  regist_signal( "load" )
+    .connect( boost::bind( &Libraries::signal_load, this, _1 ) )
+    .signature( boost::bind(&Libraries::signature_load, this, _1) )
+    .description("Autoload library given namespace")
+    .pretty_name("Load");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
   signal("move_component")->hidden(true);
   signal("delete_component")->hidden(true);
-
-  signal("load_libraries")->signature( boost::bind(&Libraries::signature_load_libraries, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +75,7 @@ std::string Libraries::namespace_to_libname( const std::string& libnamespace )
       boost::replace_first(result, "cf3", "coolfluid");
 
   boost::replace_all(result, ".", "_");
+  boost::replace_all(result, "::", "_");
   boost::to_lower(result);
 
   return result;
@@ -151,7 +157,7 @@ void Libraries::signal_load_libraries ( SignalArgs& args )
 {
   SignalOptions opts (args);
 
-  std::vector<URI> files = opts.array<URI>("libs");
+  std::vector<URI> files = opts.value< std::vector<URI> >("libs");
 
   // check protocol for file loading
   if( !files.empty() )
@@ -181,6 +187,39 @@ void Libraries::signature_load_libraries ( SignalArgs& args )
       //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Libraries::signal_load ( SignalArgs& args )
+{
+  SignalOptions opts (args);
+
+  std::vector<std::string> lib_names = opts.value< std::vector<std::string> >("libs");
+
+  // check protocol for file loading
+  if( !lib_names.empty() )
+  {
+    boost_foreach( std::string& lib_name, lib_names)
+    {
+      autoload_library_with_namespace(lib_name);
+    }
+  }
+  else
+    throw BadValue( FromHere(), "No library was loaded because no library names were given." );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Libraries::signature_load ( SignalArgs& args )
+{
+  SignalOptions options( args );
+
+  std::vector<std::string> dummy;
+
+  options.add("libs", dummy)
+      .description("Libraries to load");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

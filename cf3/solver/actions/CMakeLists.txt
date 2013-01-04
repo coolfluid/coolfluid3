@@ -3,18 +3,6 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_solver_actions_files
   AdvanceTime.hpp
   AdvanceTime.cpp
-  Criterion.hpp
-  Criterion.cpp
-  CriterionAbsResidual.hpp
-  CriterionAbsResidual.cpp
-  CriterionMaxIterations.hpp
-  CriterionMaxIterations.cpp
-  CriterionMilestoneIteration.hpp
-  CriterionMilestoneIteration.cpp
-  CriterionMilestoneTime.hpp
-  CriterionMilestoneTime.cpp
-  CriterionTime.hpp
-  CriterionTime.cpp
   Iterate.hpp
   Iterate.cpp
   LoopOperation.hpp

@@ -273,7 +273,7 @@ void CCore::read_dir(SignalArgs & args)
   std::string dirPath = options.value<std::string>("dirPath");
   bool includeFiles = options.value<bool>("includeFiles");
   bool includeNoExt = options.value<bool>("includeNoExtensions");
-  std::vector<std::string> exts = options.array<std::string>("extensions");
+  std::vector<std::string> exts = options.value< std::vector<std::string> >("extensions");
 
   if(dirPath.empty())
     directory = this->default_path;
@@ -329,7 +329,7 @@ void CCore::read_special_dir(SignalArgs & args)
   std::string dir_path = options.value<std::string>("dirPath");
   bool includeFiles = options.value<bool>("includeFiles");
   bool includeNoExt = options.value<bool>("includeNoExtensions");
-  std::vector<std::string> exts = options.array<std::string>("extensions");
+  std::vector<std::string> exts = options.value< std::vector<std::string> >("extensions");
 
 //  if(dirPath.isEmpty())
 //    directory = this->DEFAULT_PATH;

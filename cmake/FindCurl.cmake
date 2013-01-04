@@ -5,6 +5,8 @@
 
 option( CF3_SKIP_CURL "Skip search for Curl library" OFF )
 
+if( NOT CF3_SKIP_CURL )
+
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -18,6 +20,8 @@ option( CF3_SKIP_CURL "Skip search for Curl library" OFF )
 
   find_library(CURL_LIBRARIES curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CURL_LIBRARIES curl )
+
+endif( NOT CF3_SKIP_CURL )
 
 coolfluid_set_package( PACKAGE Curl
                        DESCRIPTION "URL data access"

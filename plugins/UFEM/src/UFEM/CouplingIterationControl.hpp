@@ -4,12 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_actions_CriterionConvergence_hpp
-#define cf3_solver_actions_CriterionConvergence_hpp
+#ifndef cf3_UFEM_CouplingIterationControl_hpp
+#define cf3_UFEM_CouplingIterationControl_hpp
 
 #include "solver/actions/LibActions.hpp"
-#include "solver/actions/Criterion.hpp"
-#include "solver/actions/Iterate.hpp"
+// #include "solver/actions/Iterate.hpp"
 
 #include "LibUFEM.hpp"
 #include "LibUFEM.hpp"
@@ -58,4 +57,4 @@ private:
 } // UFEM
 } // cf3
 
-#endif // cf3_solver_actions_CriterionConvergence_hpp
+#endif // cf3_UFEM_CouplingIterationControl_hpp

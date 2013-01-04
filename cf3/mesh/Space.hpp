@@ -175,7 +175,7 @@ private: // data
   /// Handle to the supporting Entities component
   Handle<Entities> m_support;
 
-  Uint m_dict_idx;
+  Uint m_dict_idx; // friend class Mesh can assign this
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ public:
   static std::string type_name() { return "SpaceElem"; }
 
   /// Constructor, taking component and index
-  SpaceElem(Space& space, const Uint index);
+  SpaceElem(const Space& space, const Uint index);
 
   /// Default constructor for container-allocations
   SpaceElem();

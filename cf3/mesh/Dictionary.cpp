@@ -53,6 +53,7 @@ RegistTypeInfo<Dictionary, LibMesh> regist_Dictionary_type;
 
 Dictionary::Dictionary ( const std::string& name  ) :
   Component( name ),
+  m_dim(0),
   m_is_continuous(true) // default continuous
 {
   mark_basic();
@@ -69,6 +70,8 @@ Dictionary::Dictionary ( const std::string& name  ) :
   m_glb_to_loc->add_tag(mesh::Tags::map_global_to_local());
 
   m_connectivity = create_static_component< common::DynTable<SpaceElem> >("element_connectivity");
+
+  options().add("dimension",m_dim).link_to(&m_dim);
 
   // Signals
   regist_signal ( "create_field" )
@@ -153,7 +156,9 @@ bool Dictionary::is_ghost(const Uint idx) const
 
 const Space& Dictionary::space(const Entities& entities) const
 {
-  return *space(entities.handle<Entities>());
+  const Handle< Space const>& s = m_raw_spaces_map.find(&entities)->second;
+  cf3_assert(s);
+  return *s;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,44 +172,83 @@ const Handle< Space const>& Dictionary::space(const Handle<Entities const>& enti
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& Dictionary::create_field(const std::string &name, const std::string& variables_description)
+Field& Dictionary::create_field(const std::string &name, const Uint cols)
 {
   Handle<Field> field = create_component<Field>(name);
-
   field->set_dict(*this);
-  cf3_assert( is_not_null( parent() ));
+  field->set_var_type(ARRAY);
 
-  if (variables_description == "scalar_same_name")
-    field->create_descriptor(name+"[scalar]",Handle<Mesh>(parent())->dimension());
-  else
-    field->create_descriptor(variables_description,Handle<Mesh>(parent())->dimension());
+  // @todo remove next line when ready
+  field->create_descriptor(name+"["+to_str(cols)+"]",m_dim);
 
+  field->set_row_size(cols);
   field->resize(size());
 
   update_structures();
-
-  CFinfo << "Created field " << field->uri() << " with variables \n";
-  for (Uint var=0; var<field->descriptor().nb_vars(); ++var)
-  {
-    CFinfo << "    - " << field->descriptor().user_variable_name(var) << " [" << field->descriptor().var_length(var) << "]\n";
-  }
-  CFinfo << CFflush;
 
   return *field;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Field& Dictionary::create_field(const std::string &name, const VarType var_type)
+{
+  if (var_type == ARRAY)
+    throw SetupError(FromHere(), "Should not call this for array types. use create_field(name,cols)");
+
+  Handle<Field> field = create_component<Field>(name);
+  field->set_dict(*this);
+  field->set_var_type(var_type);
+
+  // @todo remove next lines when ready
+  if (var_type == SCALAR)
+    field->create_descriptor(name+"[scalar]",m_dim);
+  else if (var_type == VECTOR_2D || var_type == VECTOR_3D)
+    field->create_descriptor(name+"[vector]",m_dim);
+  else if (var_type == TENSOR_2D || var_type == TENSOR_3D)
+    field->create_descriptor(name+"[tensor]",m_dim);
+
+  field->set_row_size( (Uint) var_type );
+  field->resize(size());
+
+  update_structures();
+
+  return *field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& Dictionary::create_field(const std::string &name, const std::string& description)
+{
+  Handle<Field> field = create_component<Field>(name);
+  field->set_dict(*this);
+
+  // @todo remove next line when ready
+  field->create_descriptor(description,m_dim);
+
+  field->set_row_size(field->descriptor().size());
+  field->resize(size());
+
+  update_structures();
+
+  return *field;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 Field& Dictionary::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
+  CFinfo << "Creating field " << uri()/name << CFendl;
+  if (m_dim == 0) throw SetupError(FromHere(), "dimension not configured");
   Handle<Field> field = create_component<Field>(name);
   field->set_dict(*this);
   field->set_descriptor(variables_descriptor);
   if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
   {
-    cf3_assert( is_not_null( parent() ));
-    field->descriptor().options().set(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
+    field->descriptor().options().set(common::Tags::dimension(),m_dim);
   }
+  field->set_row_size(field->descriptor().size());
   field->resize(size());
 
   update_structures();
@@ -321,7 +365,6 @@ void Dictionary::update_structures()
   m_spaces.clear();
   m_entities.reserve(m_spaces_map.size());
   m_spaces.reserve(m_spaces_map.size());
-
   std::vector< Handle<Entities const> > to_remove_from_spaces_map;
   std::map< std::string, Handle<Entities const> > tmp_entities_map;
   to_remove_from_spaces_map.reserve(m_spaces_map.size());
@@ -337,8 +380,10 @@ void Dictionary::update_structures()
       tmp_entities_map[entities->uri().string()] = entities;
 //      m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
 //      m_spaces.push_back(const_cast<Space&>(*space).handle<Space>());
+      m_dim = std::max(m_dim,entities->element_type().dimension());
     }
   }
+  options().set("dimension",m_dim);
   foreach_container ( (const std::string& uri)(const Handle<Entities const>& entities), tmp_entities_map)
   {
     m_entities.push_back(const_cast<Entities&>(*entities).handle<Entities>());
@@ -349,6 +394,13 @@ void Dictionary::update_structures()
   {
     m_spaces_map.erase(entities);
   }
+
+  m_raw_spaces_map.clear();
+  foreach_container( (const Handle<Entities const>& entities) (const Handle<Space const>& space), m_spaces_map)
+  {
+    m_raw_spaces_map[entities.get()]=space;
+  }
+
 
   m_fields.clear();
   boost_foreach (Field& field, find_components<Field>(*this))
@@ -451,6 +503,8 @@ Field& Dictionary::create_coordinates()
   }
 
   m_coordinates = coordinates.handle<Field>();
+  m_coordinates->add_tag(mesh::Tags::coordinates());
+
   return coordinates;
 }
 
@@ -475,11 +529,14 @@ void Dictionary::signature_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add<std::string>("name")
+  options.add("name",std::string(""))
       .description("Name of the field" );
 
-  options.add<std::string>("variables")
+  options.add("variables",std::string(""))
       .description("Variables description of the field" );
+
+  options.add("size",Uint(1u))
+      .description("Variable length" );
 
 }
 
@@ -490,16 +547,20 @@ void Dictionary::signal_create_field( SignalArgs& node )
   SignalOptions options( node );
 
   std::string name = options.value<std::string>("name");
-  std::string variables = name;
-  if(options.check("variables"))
-  {
-    variables = options.value<std::string>("variables");
-  }
-  Field& created_component = create_field(name,variables);
+  std::string variables = options.value<std::string>("variables");
+  Uint cols = options.value<Uint>("size");
+
+  Handle<Field> field;
+  if ( variables.empty() && !name.empty() )
+    field = create_field(name,cols).handle<Field>();
+  else if ( !variables.empty() && !name.empty() )
+    field = create_field(name,variables).handle<Field>();
+  else
+    throw SetupError(FromHere(), "name and variables/size must be specified");
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
-  reply_options.add("created_component", created_component.uri());
+  reply_options.add("created_component", field->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

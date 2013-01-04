@@ -39,6 +39,21 @@ std::string any_to_str( const boost::any & value )
       return to_str(boost::any_cast<URI>(value));
     else if (value_type == "uucount")
       return to_str(boost::any_cast<UUCount>(value));
+    if (value_type == "array[bool]")
+      return to_str(boost::any_cast< std::vector<bool> >(value));
+    else if (value_type == "array[unsigned]")
+      return to_str(boost::any_cast< std::vector<Uint> >(value));
+    else if (value_type == "array[integer]")
+      return to_str(boost::any_cast< std::vector<int> >(value));
+    else if (value_type == "array[real]")
+      return to_str(boost::any_cast< std::vector<Real> >(value));
+    else if (value_type == "array[string]")
+      return to_str(boost::any_cast< std::vector<std::string> >(value));
+    else if (value_type == "array[uri]")
+      return to_str(boost::any_cast< std::vector<URI> >(value));
+    else if (value_type == "array[uucount]")
+      return to_str(boost::any_cast< std::vector<UUCount> >(value));
+
     else
       throw ProtocolError(FromHere(),"Value has illegal type: "+value_type);
   }

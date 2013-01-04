@@ -24,7 +24,7 @@
 #include "solver/ModelUnsteady.hpp"
 #include "solver/Time.hpp"
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/CriterionTime.hpp"
+#include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 
 #include "solver/actions/Proto/ProtoAction.hpp"
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 
 
   boost::shared_ptr<solver::actions::Iterate> time_loop = allocate_component<solver::actions::Iterate>("TimeLoop");
-  time_loop->create_component<solver::actions::CriterionTime>("CriterionTime");
+  time_loop->create_component<solver::CriterionTime>("CriterionTime");
 
   // Proto placeholders
   FieldVariable<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());

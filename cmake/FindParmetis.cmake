@@ -9,6 +9,7 @@
 
 option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 
+if( NOT CF3_SKIP_PARMETIS)
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -32,6 +33,7 @@ option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
   else()
     set( PARMETIS_LIBRARIES NOT-FOUND )
   endif()
+endif( NOT CF3_SKIP_PARMETIS)
 
 coolfluid_set_package( PACKAGE Parmetis
                        DESCRIPTION "parallel graph partitioning"
