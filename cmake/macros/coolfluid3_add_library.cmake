@@ -149,7 +149,7 @@ macro( coolfluid3_add_library )
         endif()
 
         # python module support
-        if( DEFINED _PAR_PYTHON_MODULE )
+        if( _PAR_PYTHON_MODULE )
           if( APPLE )
             get_target_property(LIB_LOCNAME ${LIBNAME} LOCATION)
             set(DSO_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}${CMAKE_SHARED_LIBRARY_SUFFIX}${LIB_SUFFIX})
