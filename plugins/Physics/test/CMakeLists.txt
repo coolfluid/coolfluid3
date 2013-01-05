@@ -12,10 +12,15 @@ coolfluid_add_test( UTEST utest-advectiondiffusion
 #########################################################################################
 # utest-euler
 
-coolfluid_add_test( UTEST utest-euler
-                    CPP   utest-euler.cpp
-                    LIBS  coolfluid_euler coolfluid_solver
-                    CONDITION FALSE)
+coolfluid_add_test( UTEST utest-physics-euler
+                    CPP   utest-physics-euler.cpp
+                    LIBS  coolfluid_physics_euler )
+
+#########################################################################################
+
+coolfluid_add_test( UTEST utest-physics-lineuler
+                    CPP   utest-physics-lineuler.cpp
+                    LIBS  coolfluid_physics_lineuler )
 
 #########################################################################################
 

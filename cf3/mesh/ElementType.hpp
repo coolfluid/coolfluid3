@@ -35,10 +35,8 @@ class Mesh_API ElementType : public common::Component {
 
 public: // typedefs
 
-
-
-
   typedef ElementTypeFaceConnectivity FaceConnectivity;
+
 public: // functions
 
   /// @name Constructor / Destructor / Type name
@@ -127,6 +125,15 @@ public: // functions
   /// @param [in]  nodes          coordinates of the element nodes (nb_nodes x dimension)
   /// @param [out] jacobian       jacobian (size = dimensionality x dimension)
   virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,1>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,2>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,3>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,1>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,2>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,3>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,2>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,3>& jacobian) const = 0;
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,3,3>& jacobian) const = 0;
 
   /// Compute the jacobian of the transformation
   /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)

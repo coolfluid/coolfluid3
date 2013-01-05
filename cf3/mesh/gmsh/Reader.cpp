@@ -740,7 +740,7 @@ void Reader::read_element_node_data()
 
               mesh::Field::Row field_data = field[space.connectivity()[cf_idx][n]] ;
 
-              if (var_end-var_begin == mesh::Field::TENSOR_2D)
+              if (var_end-var_begin == TENSOR_2D)
               {
                 data[2]=data[3];
                 data[3]=data[4];
@@ -794,12 +794,8 @@ void Reader::read_element_data()
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
       std::vector<std::string> var_types_str;
-      //boost_foreach(const Uint var_type, gmsh_field.var_types)
-      //    var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-      mesh::Field& field = dict.create_field(gmsh_field.name);
-      field.options().set("var_names",gmsh_field.var_names);
-      field.options().set("var_types",var_types_str);
+      mesh::Field& field = dict.create_field(gmsh_field.name,gmsh_field.description());
 
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
@@ -897,7 +893,7 @@ void Reader::read_node_data()
           cf_idx = it->second;
           mesh::Field::Row field_data = field[cf_idx];
 
-          if (var_end-var_begin == mesh::Field::TENSOR_2D)
+          if (var_end-var_begin == TENSOR_2D)
           {
             data[2]=data[3];
             data[3]=data[4];

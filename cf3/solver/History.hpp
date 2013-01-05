@@ -172,6 +172,9 @@ public:
   /// @brief The entry data
   const std::vector<Real>& data() const;
 
+  /// @brief Pretty summary of the form "var1 [value]  var2 [value]  var3 [value]"
+  std::string summary() const;
+
 private: // data
 
   std::vector<Real> m_entry; ///< entry data

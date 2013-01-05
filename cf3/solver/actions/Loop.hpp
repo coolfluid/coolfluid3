@@ -28,12 +28,6 @@ namespace actions {
 
 class solver_actions_API Loop : public solver::Action
 {
-public: // typedefs
-
-  /// provider
-  
-  
-
 public: // functions
 
   /// Contructor

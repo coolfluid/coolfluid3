@@ -1,7 +1,7 @@
 if( CF3_ENABLE_DOCS )
 
 find_package(Doxygen QUIET)
-coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" QUIET)
+coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" QUIET VARS DOXYGEN_EXECUTABLE )
 
  if( DOXYGEN_FOUND )
 

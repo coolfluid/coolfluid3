@@ -24,7 +24,10 @@ if sys.__dict__.has_key('argv'):
 root = Core.root()
 
 # shortcut for environment
-environment = Core.environment()
+env = Core.environment()
+
+# shortcut for libraries
+libs = Core.libraries()
 
 # shortcut for tools
 tools = Core.tools()

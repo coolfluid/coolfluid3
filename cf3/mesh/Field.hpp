@@ -15,13 +15,11 @@
 
 namespace cf3 {
 
-namespace common
-{
-  class Link;
+namespace common {
   namespace PE { class CommPattern; }
 }
-namespace math { class VariablesDescriptor; }
 
+namespace math { class VariablesDescriptor; }
 
 namespace mesh {
 
@@ -39,7 +37,20 @@ public: // typedefs
 
   typedef ArrayT::array_view<2>::type View;
 
-  enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
+
+  typedef Eigen::Array<Real,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> ArrayStorage ;
+  typedef Eigen::Map< ArrayStorage , Eigen::Unaligned, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> > Ref ;
+
+  typedef Eigen::Block<Ref, Eigen::Dynamic, 1, false, true> RefCol;
+
+  typedef Eigen::Array<Real,1,Eigen::Dynamic,Eigen::RowMajor> RowArrayStorage ;
+  typedef Eigen::Map< RowArrayStorage , Eigen::Unaligned > RowArrayRef ;
+
+  typedef Eigen::Matrix<Real,1,Eigen::Dynamic,Eigen::RowMajor> RowVectorStorage ;
+  typedef Eigen::Map< RowVectorStorage , Eigen::Unaligned > RowVectorRef ;
+
+  typedef Eigen::Matrix<Real,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowTensorStorage ;
+  typedef Eigen::Map< RowTensorStorage , Eigen::Unaligned > RowTensorRef ;
 
 private: // typedefs
 
@@ -83,34 +94,29 @@ public: // functions
 
   Dictionary& dict() const;
 
-  virtual void resize(const Uint size);
+  View view(const Uint start, const Uint size);
 
-  View view(const Uint start, const Uint size)
-  {
-    return array()[ boost::indices[range(start,start+size)][range()] ];
-  }
+  View view(common::Table<Uint>::ConstRow& indices);
 
-  View view(common::Table<Uint>::ConstRow& indices)
-  {
-    return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
-  }
+  common::List<Uint>& glb_idx() const;
 
-  common::List<Uint>& glb_idx() const { return dict().glb_idx(); }
+  common::List<Uint>& rank() const;
 
-  common::List<Uint>& rank() const { return dict().rank(); }
+  bool is_ghost(const Uint idx) const;
 
-  bool is_ghost(const Uint idx) const { return dict().is_ghost(idx); }
+  bool continuous() const;
 
-  bool continuous() const { return dict().continuous(); }
-  bool discontinuous() const { return dict().discontinuous(); }
+  bool discontinuous() const;
 
-  const Handle<Space const>& space(const Handle<Entities const>& entities) const { return dict().space(entities); }
-  const Space& space(const Entities& entities) const { return dict().space(entities); }
+  const Handle<Space const>& space(const Handle<Entities const>& entities) const;
+
+  const Space& space(const Entities& entities) const;
 
   const std::vector< Handle<Entities> >& entities_range() const;
+
   const std::vector< Handle<Space> >& spaces() const;
 
-  Field& coordinates() const { return dict().coordinates(); }
+  Field& coordinates() const;
 
   common::PE::CommPattern& parallelize_with( common::PE::CommPattern& comm_pattern );
 
@@ -124,6 +130,21 @@ public: // functions
 
   void create_descriptor(const std::string& description, const Uint dimension=0);
 
+  Ref ref();
+
+  Ref col(const Uint c);
+
+  RowArrayRef row(const Uint r);
+
+  Real& scalar(const Uint r);
+
+  RowVectorRef vector(const Uint r);
+
+  RowTensorRef tensor(const Uint r);
+
+  void set_var_type(const VarType var_type);
+
+  VarType var_type() const ;
 
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -303,6 +324,8 @@ private:
   Handle< common::PE::CommPattern > m_comm_pattern;
 
   Handle< math::VariablesDescriptor > m_descriptor;
+
+  VarType m_var_type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

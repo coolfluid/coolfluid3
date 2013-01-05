@@ -26,11 +26,6 @@ namespace solver {
 /// @author Tiago Quintino
 class solver_API ModelUnsteady : public solver::Model {
 
-public: // typedefs
-
-  
-  
-
 public: // functions
 
   /// Contructor

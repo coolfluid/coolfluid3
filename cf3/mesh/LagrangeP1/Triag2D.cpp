@@ -130,7 +130,8 @@ Real Triag2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const Node
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Triag2D::compute_jacobian<Triag2D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   result(KSI,XX) = nodes(1, XX) - nodes(0, XX);
   result(KSI,YY) = nodes(1, YY) - nodes(0, YY);

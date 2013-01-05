@@ -240,25 +240,71 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
 BOOST_AUTO_TEST_CASE( FieldVariables )
 {
   Handle<Dictionary> elems_P0(m_mesh->get_child("elems_P0"));
-  Field& solution = elems_P0->create_field("solution","p[s],U[v],T[s]");
+  Field& solution = elems_P0->create_field("solution",4);
 
-  RealRowVector::MapType sol( &solution.array()[0][0], solution.row_size() );
-  sol.setConstant(3.);
+  Field& velocity = elems_P0->create_field("U",VECTOR_2D);
+  Field& pressure = elems_P0->create_field("p",SCALAR);
+  Field& temperature = elems_P0->create_field("T",SCALAR);
+  Field::Ref U = velocity.ref();
+  Field::Ref p = pressure.ref();
+  Field::Ref T = temperature.ref();
 
-  RealRowVector2::MapType U(nullptr);  // or RealRowVector2::MapType U(nullptr,0);
-  new (&U) RealRowVector2::MapType( &solution.array()[1][solution.var_offset(1)],solution.var_length(1) );
-  U.setConstant(4.);
+  Field::RefCol u = U.col(XX);
+  Field::RefCol v = U.col(YY);
 
-  BOOST_CHECK_EQUAL ( solution[0][0] , 3. );
-  BOOST_CHECK_EQUAL ( solution[0][1] , 3. );
-  BOOST_CHECK_EQUAL ( solution[0][2] , 3. );
-  BOOST_CHECK_EQUAL ( solution[0][3] , 3. );
-  BOOST_CHECK_EQUAL ( solution[1][0] , 0. );
-  BOOST_CHECK_EQUAL ( solution[1][1] , 4. );
-  BOOST_CHECK_EQUAL ( solution[1][2] , 4. );
-  BOOST_CHECK_EQUAL ( solution[1][3] , 0. );
+  p.setConstant(101000);
+  u.setConstant(30.);
+  U.col(YY).setZero();
+  T.setConstant(298.15);
+
+  Real gamma = 1.4;
+  Real R = 287.05;
+
+  Field::Ref rho   = solution.col(0);
+  Field::Ref rhoUx = solution.col(1);
+  Field::Ref rhoUy = solution.col(2);
+  Field::Ref rhoE  = solution.col(3);
+  rho = p/(R*T);
+  rhoUx = rho*u;
+  rhoUy = rho*v;
+  rhoE = p/(gamma-1) + 0.5 * rho * (u.pow(2) + v.pow(2));
+
+  std::cout << U << std::endl;
+  std::cout << solution << std::endl;
+
+  BOOST_CHECK_EQUAL( U.rows() , solution.size() );
+  BOOST_CHECK_EQUAL( U.cols() , 2u );
+  BOOST_CHECK_EQUAL( p.rows() , solution.size() );
+  BOOST_CHECK_EQUAL( p.cols() , 1u );
+
+  for (int i=0; i<solution.size(); ++i)
+  {
+    BOOST_CHECK_EQUAL( solution[i][0] , 101000./(R*298.15) );
+    BOOST_CHECK_EQUAL( solution[i][1] , 30. * solution[i][0] );
+    BOOST_CHECK_EQUAL( solution[i][2] , 0. );
+    BOOST_CHECK_EQUAL( solution[i][3] , 101000./(gamma-1.) + 0.5*solution[i][0]*30*30 );
+  }
+
+  for (int i=0; i<solution.size(); ++i)
+  {
+    solution[i][0] = pressure.scalar(i)/(R*temperature.scalar(i));
+    solution[i][1] = velocity[i][XX] * solution[i][0];
+    solution[i][2] = velocity[i][YY] * solution[i][0];
+    solution[i][3] = pressure.scalar(i)/(gamma-1.) + 0.5 * solution[i][0] * velocity.vector(i).squaredNorm();
+  }
+
+  for (int i=0; i<solution.size(); ++i)
+  {
+    BOOST_CHECK_EQUAL( solution[i][0] , 101000./(R*298.15) );
+    BOOST_CHECK_EQUAL( solution[i][1] , 30. * solution[i][0] );
+    BOOST_CHECK_EQUAL( solution[i][2] , 0. );
+    BOOST_CHECK_EQUAL( solution[i][3] , 101000./(gamma-1.) + 0.5*solution[i][0]*30*30 );
+  }
+
+
+  std::cout << "type of var       = " << common::demangle( typeid(p).name() ) << std::endl;
+  std::cout << "type of varcol    = " << common::demangle( typeid(u).name() ) << std::endl;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

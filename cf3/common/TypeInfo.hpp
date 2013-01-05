@@ -56,7 +56,7 @@ std::string class_name ()
   std::map<std::string, std::string>::const_iterator it =
       ti.portable_types.find(typeid(TYPE).name());
 
-  cf3_assert_desc("type "+std::string(typeid(TYPE).name())+" not registered", it != ti.portable_types.end() );
+  cf3_assert_desc("type "+demangle(typeid(TYPE).name())+" not registered", it != ti.portable_types.end() );
 
   return it->second;
 }
@@ -95,7 +95,14 @@ struct RegistTypeInfo
 template< typename TYPE >
 void regist_typeinfo( TYPE* self )
 {
-  TypeInfo::instance().regist<TYPE>( TYPE::type_name() );
+  const std::string name = TYPE::type_name();
+  const std::string handle_name = "handle[" + name + "]";
+  const std::string array_name = "array[" + handle_name + "]";
+
+  TypeInfo::instance().regist< TYPE                        >( name );
+  TypeInfo::instance().regist< Handle<TYPE>                >( handle_name );
+  TypeInfo::instance().regist< std::vector< Handle<TYPE> > >( array_name );
+
 }
 
 } // common

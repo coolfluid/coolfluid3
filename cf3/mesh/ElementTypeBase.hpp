@@ -19,6 +19,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/mpl/not.hpp>
 #include "common/StringConversion.hpp"
 #include "math/MatrixTypes.hpp"
 #include "mesh/GeoShape.hpp"
@@ -59,15 +65,37 @@ public:
   // Typedefs for special matrices
   // -----------------------------
   typedef typename TR::SF::MappedCoordsT                 MappedCoordsT;
-  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodesT;
-  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+  typedef Eigen::Matrix<Real, TR::dimension, 1>              CoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, TR::dimension>       NodesT;
+  typedef Eigen::Matrix<Real, TR::SF::dimensionality, TR::dimension> JacobianT;
 
   // Not-implemented static functions
   // --------------------------------
   static void compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mapped_coord);
   static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
+
+
+  template < typename MatrixType >
+  static void compute_jacobian( const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian )
+  {
+    throw_not_implemented(FromHere());
+  }
+
+  template < typename MatrixType >
+  static typename boost::enable_if< boost::is_same< MatrixType, JacobianT > >::type
+  compute_jacobian_if_enabled( const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian )
+  {
+    ETYPE::compute_jacobian( mapped_coord, nodes, jacobian );
+  }
+
+  template < typename MatrixType >
+  static typename boost::enable_if< boost::mpl::not_<boost::is_same< MatrixType, JacobianT > > >::type
+  compute_jacobian_if_enabled( const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian )
+  {
+    throw common::ShouldNotBeHere(FromHere(), "Jacobian matrix dimensions are wrong!");
+  }
+
+
   static void compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result);
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);
@@ -156,11 +184,13 @@ typename ElementTypeBase<ETYPE,TR>::JacobianT ElementTypeBase<ETYPE,TR>::jacobia
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename ETYPE,typename TR>
-void ElementTypeBase<ETYPE,TR>::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian)
-{
-  throw_not_implemented(FromHere());
-}
+//template <typename ETYPE,typename TR>
+//void ElementTypeBase<ETYPE,TR>::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, Eigen::Matrix<Real,0,1>& jacobian)
+//{
+//  throw_not_implemented(FromHere());
+//}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

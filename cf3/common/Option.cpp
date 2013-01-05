@@ -4,17 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/assign/std/vector.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <boost/function.hpp>
-
 #include "common/BasicExceptions.hpp"
 #include "common/Foreach.hpp"
 #include "common/Option.hpp"
 #include "common/XML/XmlNode.hpp"
 
-using namespace boost::assign;
 using namespace cf3::common::XML;
 
 namespace cf3 {
@@ -26,7 +22,8 @@ Option::Option(const std::string & name, boost::any def)
     m_name(name),
     m_pretty_name(),
     m_description(),
-    m_separator(";")
+    m_separator(","),
+    m_current_connection_id(0)
 {
 }
 
@@ -93,10 +90,31 @@ void Option::change_value ( const boost::any& value )
 {
   change_value_impl(value);
   copy_to_linked_params(m_linked_params);
-
   // call all trigger functors
   trigger();
+  copy_to_linked_options();
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+Option& Option::link_option ( const boost::shared_ptr<common::Option>& linked )
+{
+  m_linked_opts.push_back( Handle<Option>(linked) );
+  return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Option::copy_to_linked_options ()
+{
+  boost_foreach( const Handle<Option>& linked, m_linked_opts )
+  {
+    if ( is_not_null(linked) )
+    {
+      linked->change_value(value());
+    }
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

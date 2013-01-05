@@ -82,19 +82,7 @@ void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh;
 
-  Handle<BoundingBox> global_bounding_box;
-
-  if (Handle<Component> found = mesh.get_child("global_bounding_box"))
-  {
-    global_bounding_box = found->handle<BoundingBox>();
-  }
-  if ( is_null(global_bounding_box)  )
-  {
-    global_bounding_box = mesh.create_component<BoundingBox>("global_bounding_box");
-    global_bounding_box->build(mesh);
-    global_bounding_box->make_global();
-    global_bounding_box->update_properties();
-  }
+  const Handle<BoundingBox>& global_bounding_box = mesh.global_bounding_box();
 
   math::Hilbert compute_glb_idx(*global_bounding_box,20);
 
@@ -282,10 +270,6 @@ void GlobalNumbering::execute()
       nodes_glb_idx[i] = uint_max();
     }
   }
-
-
-  if (node_hilbert2loc.count(267565322921))
-    std::cout << PERank << "++++++ hilbert 267565322921 found at local idx "<< node_hilbert2loc[267565322921] << ", owned by " << nodes.rank()[node_hilbert2loc[267565322921]] << std::endl;
 
   for (Uint root=0; root<PE::Comm::instance().size(); ++root)
   {

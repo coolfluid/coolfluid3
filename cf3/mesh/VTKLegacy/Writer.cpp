@@ -166,7 +166,7 @@ void Writer::write()
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_offset(var_name);
-      if(field.var_length(var_idx) == Field::SCALAR)
+      if(field.var_length(var_idx) == SCALAR)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)

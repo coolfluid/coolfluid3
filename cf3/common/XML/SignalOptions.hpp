@@ -88,22 +88,6 @@ public:
   /// @param map Map options will be added to. Must be valid.
   static void add_to_map( Map & main_map, const OptionList & list ) ;
 
-  /// Gives an option value converted to a specified TYPE.
-  /// This method is a shortcut provided to make the calling code more readable.
-  /// This is equivalent to calling: option(name).value<TYPE>()
-  /// @param name Option name
-  /// @return Returns the cast value.
-  template<typename TYPE>
-  TYPE value( const std::string & name ) const;
-
-  /// Gives an option array value converted to a specified TYPE.
-  /// This method is a shortcut provided to make the calling code more readable.
-  /// This is equivalent to calling: option(name).value< std::vector<TYPE> >()
-  /// @param name Option name
-  /// @return Returns the cast value as a vector.
-  template<typename TYPE>
-  std::vector<TYPE> array( const std::string & name ) const;
-
   /// Writes option to the managed map.
   /// If the managed map is not valid, nothing is done.
   void flush();

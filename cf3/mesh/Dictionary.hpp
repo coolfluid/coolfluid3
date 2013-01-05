@@ -10,8 +10,8 @@
 #include <boost/cstdint.hpp>
 
 #include "common/Map.hpp"
-
 #include "mesh/LibMesh.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
 namespace common {
@@ -54,10 +54,16 @@ public: // functions
   static std::string type_name () { return "Dictionary"; }
 
   /// Create a new field in this group
-  Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
+  Field& create_field(const std::string& name, const Uint cols );
 
   /// Create a new field in this group
-  Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
+  Field& create_field( const std::string& name, const VarType var_type = SCALAR );
+
+  /// Create a new field in this group
+  Field& create_field( const std::string& name, const std::string& variables_description );
+
+  /// Create a new field in this group
+  Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor );
 
   /// Number of rows of contained fields
   Uint size() const;
@@ -167,14 +173,16 @@ protected:
   /// Connectivity with the element of the space
   Handle<common::DynTable<SpaceElem> > m_connectivity;
 
-
 private:
 
   std::map< Handle<Entities const> , Handle<Space const> > m_spaces_map;
+  std::map< Entities const* , Handle<Space const> > m_raw_spaces_map;
+
   std::vector< Handle<Space   > > m_spaces;
   std::vector< Handle<Entities> > m_entities;
   std::vector< Handle<Field> > m_fields;
 
+  Uint m_dim;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -61,7 +61,7 @@ int main ( int argc, char * argv[])
   SignalFrame reply_frame = signal_frame.get_reply();
   SignalFrame & roptions = reply_frame.map("options");
 
-  vect = roptions.array<int>("ArrayOne");
+  vect = roptions.value< std::vector<int> >("ArrayOne");
 
   for(int i = 0 ; i < vect.size() ; ++i)
     CFinfo << "ArrayOne[" << i << "] value is " << vect[i] << CFendl;

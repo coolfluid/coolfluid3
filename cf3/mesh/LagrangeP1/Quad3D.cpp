@@ -68,7 +68,8 @@ void Quad3D::compute_normal(const NodesT& nodes , CoordsT& normal)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Quad3D::compute_jacobian<Quad3D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   JacobianCoefficients jc(nodes);
 

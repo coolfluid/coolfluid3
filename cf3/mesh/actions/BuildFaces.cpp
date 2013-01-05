@@ -264,6 +264,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
   std::map<std::string,boost::shared_ptr< ElementConnectivity::Buffer > > f2c_buffer_map;
   std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > fnb_buffer_map;
   std::map<std::string,boost::shared_ptr< common::List<bool>::Buffer > > bdry_buffer_map;
+  std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > cell_rotation_buffer_map;
+  std::map<std::string,boost::shared_ptr< common::Table<bool>::Buffer > > cell_orientation_buffer_map;
 
   Handle< Component > elem_comp;
   Uint elem_idx;
@@ -326,6 +328,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     f2c_buffer_map[face_type] = raw_table.create_buffer_ptr();
     fnb_buffer_map[face_type] = Handle< common::Table<Uint> >(f2c.get_child("face_number"))->create_buffer_ptr();
     bdry_buffer_map[face_type] = Handle< common::List<bool> >(f2c.get_child("is_bdry_face"))->create_buffer_ptr();
+    cell_rotation_buffer_map[face_type] = Handle< common::Table<Uint> >(f2c.get_child("cell_rotation"))->create_buffer_ptr();
+    cell_orientation_buffer_map[face_type] = Handle< common::Table<bool> >(f2c.get_child("cell_orientation"))->create_buffer_ptr();
   }
 
   for (Uint f=0; f<face_to_cell.size(); ++f)
@@ -343,6 +347,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
         f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
+        cell_rotation_buffer_map[face_type]->add_row(face_to_cell.cell_rotation()[f]);
+        cell_orientation_buffer_map[face_type]->add_row(face_to_cell.cell_orientation()[f]);
       }
     }
     else
@@ -353,6 +359,8 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
         f2c_buffer_map[face_type]->add_row(dummy);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
+        cell_rotation_buffer_map[face_type]->add_row(face_to_cell.cell_rotation()[f]);
+        cell_orientation_buffer_map[face_type]->add_row(face_to_cell.cell_orientation()[f]);
       }
     }
   }
@@ -362,6 +370,9 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
     bdry_buffer_map[face_type]->flush();
+    cell_rotation_buffer_map[face_type]->flush();
+    cell_orientation_buffer_map[face_type]->flush();
+
 
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CellFaces& faces = *Handle<CellFaces>(region.get_child(shape_name));
@@ -408,9 +419,13 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 
     Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
     Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
+    Handle< common::Table<Uint> >          cell_rotation(f2c.get_child("cell_rotation"));
+    Handle< common::Table<bool> >          cell_orientation(f2c.get_child("cell_orientation"));
     cf3_assert_desc(to_str(f2c.size())+"=="+to_str(fnb->size()),(f2c.size() == fnb->size()));
     cf3_assert_desc(to_str(fnb->size())+"=="+to_str(faces.size()),fnb->size() == faces.size());
     cf3_assert_desc(to_str(bdry->size())+"=="+to_str(faces.size()),bdry->size() == faces.size());
+    cf3_assert_desc(to_str(cell_rotation->size())+"=="+to_str(faces.size()),cell_rotation->size() == faces.size());
+    cf3_assert_desc(to_str(cell_orientation->size())+"=="+to_str(faces.size()),cell_orientation->size() == faces.size());
   }
 
   if (PE::Comm::instance().is_active())
@@ -436,12 +451,16 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
   ElementConnectivity::Buffer i2c = find_component_with_name<ElementConnectivity>(*interface,mesh::Tags::connectivity_table()).create_buffer();
   common::Table<Uint>::Buffer fnb = find_component_with_name<common::Table<Uint> >(*interface,"face_number").create_buffer();
   common::List<bool>::Buffer bdry = find_component_with_name<common::List<bool> >(*interface,"is_bdry_face").create_buffer();
+  common::Table<bool>::Buffer cell_orientation = find_component_with_name<common::Table<bool> >(*interface,"cell_orientation").create_buffer();
+  common::Table<Uint>::Buffer cell_rotation = find_component_with_name<common::Table<Uint> >(*interface,"cell_rotation").create_buffer();
 
 
   // create buffers for each sub-face_cell_connectivity
   std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> > buf_fnb;
   std::map<FaceCellConnectivity*,boost::shared_ptr<common::List<bool>::Buffer> >  buf_bdry;
   std::map<FaceCellConnectivity*,boost::shared_ptr<ElementConnectivity::Buffer> > buf_f2c;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<bool>::Buffer> > buf_cell_orientation;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> > buf_cell_rotation;
 
   // Build a node to face connectivity matching faces2
   boost::shared_ptr<Node2FaceCellConnectivity> node2faces2_ptr = allocate_component<Node2FaceCellConnectivity>("node2faces");
@@ -451,6 +470,8 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
     buf_fnb [&faces2] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces2.face_number().create_buffer()));
     buf_bdry[&faces2] = boost::shared_ptr<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces2.is_bdry_face().create_buffer()));
     buf_f2c [&faces2] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces2.connectivity().create_buffer()));
+    buf_cell_rotation [&faces2] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces2.cell_rotation().create_buffer()));
+    buf_cell_orientation [&faces2] = boost::shared_ptr<common::Table<bool>::Buffer> ( new common::Table<bool>::Buffer(faces2.cell_orientation().create_buffer()));
     node2faces2.add_used(faces2); // it is assumed this is only face types
   }
   node2faces2.set_nodes(mesh.geometry_fields());
@@ -461,13 +482,18 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
   boost_foreach(FaceCellConnectivity& faces1, find_components_recursively_with_tag<FaceCellConnectivity>(region1,mesh::Tags::inner_faces()))
   {
     buf_fnb [&faces1] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces1.face_number().create_buffer()));
-    buf_bdry[&faces1] = boost::shared_ptr<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces1.is_bdry_face().create_buffer()));
+    buf_bdry[&faces1] = boost::shared_ptr<common::List<bool>::Buffer>  ( new common::List<bool>::Buffer(faces1.is_bdry_face().create_buffer()));
     buf_f2c [&faces1] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces1.connectivity().create_buffer()));
+    buf_cell_rotation [&faces1] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces1.cell_rotation().create_buffer()));
+    buf_cell_orientation [&faces1] = boost::shared_ptr<common::Table<bool>::Buffer> ( new common::Table<bool>::Buffer(faces1.cell_orientation().create_buffer()));
 
 
-    std::vector<Uint> face_nodes;
+    std::vector<Uint> face1_nodes;
+    std::vector<Uint> face2_nodes;
     std::vector<Entity> elems(2);
     std::vector<Uint> face_nb(2);
+    std::vector<Uint> rotation(2);
+    std::vector<bool> orientation(2);
     enum {LEFT=0,RIGHT=1};
     Uint nb_matches(0);
 
@@ -475,16 +501,16 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
     for (Uint idx=0; idx<faces1.size(); ++idx)
     {
       Face2Cell face1(faces1,idx);
-      face_nodes = face1.nodes();
-      const Uint nb_nodes_per_face = face_nodes.size();
+      face1_nodes = face1.nodes();
+      const Uint nb_nodes_per_face = face1_nodes.size();
 
       std::map<Face2Cell,Uint,FaceCompare> found_faces;
       std::map<Face2Cell,Uint,FaceCompare>::iterator not_found = found_faces.end();
 
       bool match_found = false;
-      boost_foreach(const Uint face_node, face_nodes)
+      boost_foreach(const Uint face1_node, face1_nodes)
       {
-        boost_foreach(const Face2Cell face2, node2faces2.connectivity()[face_node])
+        boost_foreach(Face2Cell face2, node2faces2.connectivity()[face1_node])
         {
           std::map<Face2Cell,Uint,FaceCompare>::iterator it = found_faces.find(face2);
           if ( it == not_found)
@@ -502,13 +528,33 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
               elems[RIGHT] = face2.cells()[0];
               face_nb[LEFT] = face1.face_nb_in_cells()[0];
               face_nb[RIGHT] = face2.face_nb_in_cells()[0];
-//              CFdebug << PERank << "match found: " << elems[LEFT] << " <--> " << elems[RIGHT] << CFendl;
+              orientation[LEFT] = FaceCellConnectivity::MATCHED;
+              orientation[RIGHT] = FaceCellConnectivity::INVERTED;
+              rotation[LEFT] = 0;
+
+              // NOW find the rotation and orientation of this new face to the RIGHT cell
+
+              // Find orientation ( or find match between first face-nodes of both neighbouring elements )
+              face2_nodes = face2.nodes();
+
+              Uint rot;
+              for (rot=0; rot<=nb_nodes_per_face; ++rot)
+              {
+                if (face2_nodes[rot] == face1_nodes[0])
+                {
+                  rotation[RIGHT] = rot;
+                  break;
+                }
+              }
+              cf3_assert(rot != nb_nodes_per_face); // means that the break worked and the rotation was found
+
 
               // Remove matches from the 2 connectivity tables and add to the interface
               i2c.add_row(elems);
               fnb.add_row(face_nb);
-//              fnb.add_row(buf_fnb[face1.comp]->get_row(face1.idx));
               bdry.add_row(false);
+              cell_rotation.add_row(rotation);
+              cell_orientation.add_row(orientation);
 
               buf_f2c [face1.comp]->rm_row(face1.idx);
               buf_f2c [face2.comp]->rm_row(face2.idx);
@@ -516,7 +562,10 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
               buf_fnb [face2.comp]->rm_row(face2.idx);
               buf_bdry[face1.comp]->rm_row(face1.idx);
               buf_bdry[face2.comp]->rm_row(face2.idx);
-
+              buf_cell_orientation[face1.comp]->rm_row(face1.idx);
+              buf_cell_orientation[face2.comp]->rm_row(face2.idx);
+              buf_cell_rotation[face1.comp]->rm_row(face1.idx);
+              buf_cell_rotation[face2.comp]->rm_row(face2.idx);
               ++nb_matches;
               break;
             }
@@ -539,11 +588,13 @@ boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region
 void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 {
   Mesh& mesh = *m_mesh;
-
+  const Uint INNER=0;
   // create buffers for each face_cell_connectivity of unified_inner_faces_to_cells
   std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> >  buf_inner_face_nb;
   std::map<FaceCellConnectivity*,boost::shared_ptr<common::List<bool>::Buffer> >   buf_inner_face_is_bdry;
   std::map<FaceCellConnectivity*,boost::shared_ptr<ElementConnectivity::Buffer> >  buf_inner_face_connectivity;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<bool>::Buffer> >  buf_inner_orientation;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> >  buf_inner_rotation;
 
   // Build a node to face connectivity matching faces2
   boost::shared_ptr<Node2FaceCellConnectivity> nodes_to_inner_faces_ptr = allocate_component<Node2FaceCellConnectivity>("node2faces");
@@ -553,6 +604,9 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
     buf_inner_face_nb          [&f2c] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(f2c.face_number().create_buffer()));
     buf_inner_face_is_bdry     [&f2c] = boost::shared_ptr<common::List<bool>::Buffer>  ( new common::List<bool>::Buffer(f2c.is_bdry_face().create_buffer()));
     buf_inner_face_connectivity[&f2c] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(f2c.connectivity().create_buffer()));
+    buf_inner_rotation          [&f2c] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(f2c.cell_rotation().create_buffer()));
+    buf_inner_orientation       [&f2c] = boost::shared_ptr<common::Table<bool>::Buffer> ( new common::Table<bool>::Buffer(f2c.cell_orientation().create_buffer()));
+
     nodes_to_inner_faces.add_used(f2c);
   }
   nodes_to_inner_faces.set_nodes(mesh.geometry_fields());
@@ -560,8 +614,6 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 
   boost_foreach(Elements& bdry_faces, find_components<Elements>(bdry_region))
   {
-//    PECheckPoint(100, "matching boundary " << bdry_faces.uri());
-//    bdry_faces.add_tag(mesh::Tags::outer_faces());
     Handle< FaceCellConnectivity > bdry_face_to_cell = find_component_ptr<FaceCellConnectivity>(bdry_faces);
     if (is_null(bdry_face_to_cell))
     {
@@ -574,12 +626,16 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
     ElementConnectivity& bdry_face_connectivity = bdry_face_to_cell->connectivity();
     common::Table<Uint>& bdry_face_nb = bdry_face_to_cell->face_number();
     common::List<bool>& bdry_face_is_bdry = bdry_face_to_cell->is_bdry_face();
-
+    common::Table<bool>& bdry_orientation = bdry_face_to_cell->cell_orientation();
+    common::Table<Uint>& bdry_rotation = bdry_face_to_cell->cell_rotation();
     bdry_face_connectivity.set_row_size(1);
     bdry_face_connectivity.resize(bdry_faces.size());
     bdry_face_nb.resize(bdry_faces.size());
     bdry_face_is_bdry.resize(bdry_faces.size());
-
+    bdry_orientation.set_row_size(1);
+    bdry_orientation.resize(bdry_faces.size());
+    bdry_rotation.set_row_size(1);
+    bdry_rotation.resize(bdry_faces.size());
     // initialize a row of size 1, in which connected cells will be stored, and copied into
     // the bdry_face_connectivity table
     std::vector<Entity> elems(1);
@@ -596,43 +652,35 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
       std::map<Face2Cell,Uint,FaceCompare> found_faces;
       std::map<Face2Cell,Uint,FaceCompare>::iterator not_found = found_faces.end();
 
-      //      CFdebug << "    searching for match for " << bdry_entity << "  ( ";
-      //      boost_foreach(const Uint bdry_face_node, bdry_face_nodes)
-      //          CFdebug << bdry_face_node << " " ;
-      //      CFdebug << ")"<< CFendl;
       bool match_found = false;
       boost_foreach(const Uint bdry_face_node, bdry_face_nodes)
       {
-        //        CFdebug << "         node = " << bdry_face_node << CFendl;
         boost_foreach( Face2Cell& inner_face, nodes_to_inner_faces.connectivity()[bdry_face_node])
         {
-          //          CFdebug << "           check inner_face["<<inner_face.idx<<"]  ( ";
-          //          boost_foreach(const Uint face_node, inner_face.nodes())
-          //              CFdebug << face_node << " ";
-          //          CFdebug << " )"<<CFendl;
           std::map<Face2Cell,Uint,FaceCompare>::iterator it = found_faces.find(inner_face);
           if ( it == not_found)
           {
             found_faces[inner_face]=1;
 
             it = found_faces.find(inner_face);
-            //            CFdebug << "               bump " << it->first.comp->uri().path() << "  " << it->first.idx << CFendl;
 
             if (nb_nodes_per_face == 1)
             {
               match_found = true;
-              elems[0] = inner_face.cells()[0];
-
-              //              CFdebug << PERank << "match found: " << inner_face.comp->uri().string()<<"["<<inner_face.idx<<"]" << " <--> " << elems[0] << CFendl;
+              elems[INNER] = inner_face.cells()[INNER];
 
               // Remove matches from the inner_faces_connectivity tables and add to the boundary
               bdry_face_connectivity.set_row(bdry_entity.idx,elems);
-              bdry_face_nb[bdry_entity.idx][0] = inner_face.face_nb_in_cells()[0];
+              bdry_face_nb[bdry_entity.idx][INNER] = inner_face.face_nb_in_cells()[INNER];
               bdry_face_is_bdry[bdry_entity.idx] = true;
+              bdry_rotation[bdry_entity.idx][INNER] = 0;
+              bdry_orientation[bdry_entity.idx][INNER] = FaceCellConnectivity::MATCHED;
 
               buf_inner_face_connectivity[inner_face.comp]->rm_row(inner_face.idx);
               buf_inner_face_nb[inner_face.comp]->rm_row(inner_face.idx);
               buf_inner_face_is_bdry[inner_face.comp]->rm_row(inner_face.idx);
+              buf_inner_orientation[inner_face.comp]->rm_row(inner_face.idx);
+              buf_inner_rotation[inner_face.comp]->rm_row(inner_face.idx);
 
               ++nb_matches;
               break;
@@ -642,70 +690,45 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
           {
             Uint& nb_faces = it->second;
             ++nb_faces;
-            //            CFdebug << "               bump " << it->first.comp->uri().path() << "  " << it->first.idx << CFendl;
 
             if (nb_faces == nb_nodes_per_face)
             {
-
               match_found = true;
-              elems[0] = inner_face.cells()[0];
-
-//              CFdebug << PERank << "match found: " << inner_face.comp->uri().string()<<"["<<inner_face.idx<<"]" << " <--> " << elems[0] << CFendl;
+              elems[0] = inner_face.cells()[INNER];
 
               // Remove matches from the inner_faces_connectivity tables and add to the boundary
               bdry_face_connectivity.set_row(bdry_entity.idx,elems);
-              bdry_face_nb[bdry_entity.idx][0] = inner_face.face_nb_in_cells()[0];
+              bdry_face_nb[bdry_entity.idx][INNER] = inner_face.face_nb_in_cells()[INNER];
               bdry_face_is_bdry[bdry_entity.idx] = true;
+
+              std::vector<Uint> inner_face_nodes = inner_face.nodes();
+              Uint rot;
+              for (rot=0; rot<=nb_nodes_per_face; ++rot)
+              {
+                if (inner_face_nodes[rot] == bdry_face_nodes[0])
+                {
+                  bdry_rotation[bdry_entity.idx][INNER] = rot;
+                  break;
+                }
+              }
+
+              // Now find the orientation (outward or inward)
+              Uint next_node = rot+1;
+              if (next_node == nb_nodes_per_face)
+                next_node = 0;
+              if (inner_face_nodes[next_node]==bdry_face_nodes[1])
+                bdry_orientation[bdry_entity.idx][INNER] = FaceCellConnectivity::MATCHED;
+              else
+                bdry_orientation[bdry_entity.idx][INNER] = FaceCellConnectivity::INVERTED;
 
               buf_inner_face_connectivity[inner_face.comp]->rm_row(inner_face.idx);
               buf_inner_face_nb[inner_face.comp]->rm_row(inner_face.idx);
               buf_inner_face_is_bdry[inner_face.comp]->rm_row(inner_face.idx);
+              buf_inner_orientation[inner_face.comp]->rm_row(inner_face.idx);
+              buf_inner_rotation[inner_face.comp]->rm_row(inner_face.idx);
 
               ++nb_matches;
               break;
-
-
-
-
-//              match_found = true;
-//              Handle< FaceCellConnectivity > inner_faces_to_cells;
-//              Uint inner_face_idx;
-//              Uint inner_faces_comp_idx;
-//              boost::tie(inner_faces_comp_idx,inner_face_idx) = nodes_to_inner_faces.face_cell_connectivity().location_idx(unified_inner_face_idx);
-//              inner_faces_to_cells = Handle<FaceCellConnectivity>(unified_inner_faces_to_cells->components()[inner_faces_comp_idx]);
-//              elems[0] = inner_faces_to_cells->connectivity()[inner_face_idx][0];
-
-//              // ----------- debug -----------
-//              //Handle< Component > inner_cell_comp;
-//              //Uint inner_cell_idx;
-//              //boost::tie(inner_cell_comp,inner_cell_idx) = inner_faces_to_cells->lookup().location(inner_faces_to_cells->connectivity()[inner_face_idx][0]);
-//              //CFdebug << PERank << "match found: " << bdry_faces.parent().name() << "/" << bdry_faces.name() << "["<<local_bdry_face_idx<<"] <--> " << inner_cell_comp->parent().name()<<"/"<<inner_cell_comp->name()<<"["<<inner_cell_idx<<"]" << CFendl;
-//              // -----------------------------
-
-//               // RealMatrix cell_coordinates = inner_cell_comp->as_type<Elements>().get_coordinates(inner_cell_idx);
-//               // RealVector face_coordinates = bdry_faces.get_coordinates(local_bdry_face_idx).row(0);
-//               // bool match_found_double_check = false;
-//               // for (Uint i=0; i<cell_coordinates.rows(); ++i)
-//               // {
-//               //   if (cell_coordinates.row(i) == face_coordinates.transpose())
-//               //   {
-//               //     match_found_double_check = true;
-//               //     break;
-//               //   }
-//               // }
-//               // cf3_assert(match_found_double_check);
-
-//              // Remove matches from the 2 connectivity tables and add to the interface
-//              bdry_face_connectivity.set_row(local_bdry_face_idx,elems);
-//              bdry_face_nb[local_bdry_face_idx] = buf_vec_inner_face_nb[inner_faces_comp_idx]->get_row(inner_face_idx);
-//              bdry_face_is_bdry[local_bdry_face_idx] = true;
-
-//              buf_vec_inner_face_connectivity[inner_faces_comp_idx]->rm_row(inner_face_idx);
-//              buf_vec_inner_face_nb[inner_faces_comp_idx]->rm_row(inner_face_idx);
-//              buf_vec_inner_face_is_bdry[inner_faces_comp_idx]->rm_row(inner_face_idx);
-
-//              ++nb_matches;
-//              break;
             }
           }
         }
@@ -734,20 +757,16 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
 
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
-//    CFdebug << PERank << face_elements.tree() << CFendl;
     FaceCellConnectivity& f2c = *face_elements.get_child_checked("cell_connectivity")->handle<FaceCellConnectivity>();
     const ElementConnectivity& connectivity = f2c.connectivity();
-    const common::List<bool>& is_bdry       = f2c.is_bdry_face();
+    const common::List<bool>&  is_bdry      = f2c.is_bdry_face();
     const common::Table<Uint>& face_nb      = f2c.face_number();
 
-//    CFdebug << PERank << connectivity.uri().path() << CFendl;
 
     for (Uint idx=0; idx<face_elements.size(); ++idx)
     {
       Face2Cell face(f2c,idx);
       Entity left_cell = face.cells()[LEFT];
-//      CFdebug << PERank << "    face "<< face.comp->uri()<< "["<<face.idx<<"]" << CFendl;
-//      CFdebug << PERank << "        --->  cell "<< left_cell.comp->uri() << "["<<left_cell.idx<<"]["<<face.face_nb_in_cells()[LEFT]<<"]"<< CFendl;
 
       ElementConnectivity& left_c2f = *left_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
       cf3_assert(left_cell.idx < left_c2f.size());
@@ -757,7 +776,6 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
-//        CFdebug << PERank << "        --->  cell" << right_cell.comp->uri() << "[" << right_cell.idx<<"]["<<face.face_nb_in_cells()[RIGHT]<<"]"<< CFendl;
 
         ElementConnectivity& right_c2f = *right_cell.comp->get_child("face_connectivity")->handle<ElementConnectivity>();
         cf3_assert(right_cell.idx < right_c2f.size());
@@ -766,7 +784,6 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
         cf3_assert(right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]].comp);
       }
     }
-//    PECheckArrivePoint(100,"built " << face_elements.uri());
   }
 }
 

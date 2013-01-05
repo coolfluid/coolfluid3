@@ -88,7 +88,8 @@ void Triag3D::compute_normal(const NodesT& nodes, CoordsT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+template <>
+void Triag3D::compute_jacobian<Triag3D::JacobianT>(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   const Real x0 = nodes(0, XX);
   const Real x1 = nodes(1, XX);

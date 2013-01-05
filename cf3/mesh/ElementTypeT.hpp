@@ -34,10 +34,6 @@ namespace mesh {
 template <typename ETYPE>
 class ElementTypeT : public ElementType
 {
-public: // typedefs
-
-
-
 
 public: // functions
   /// @name Constructor / Destructor / Type name
@@ -116,6 +112,51 @@ public: // functions
     const typename ETYPE::JacobianT& jacob( const_cast<RealMatrix const&>(jacobian) );
     ETYPE::compute_jacobian(mapped_coord, nodes, const_cast<typename ETYPE::JacobianT&>(jacob));
     jacobian = jacob;
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,1>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,0,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,1>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,1,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,2>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,2,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
+  }
+
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, Eigen::Matrix<Real,3,3>& jacobian) const
+  {
+    ETYPE::compute_jacobian_if_enabled(mapped_coord, nodes, jacobian);
   }
 
   virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const

@@ -18,4 +18,4 @@ coolfluid_set_package( PACKAGE Cmath
                        TYPE OPTIONAL
                        PURPOSE " "
                        VARS CMATH_LIBRARIES
-                       Quiet)
+                       QUIET)

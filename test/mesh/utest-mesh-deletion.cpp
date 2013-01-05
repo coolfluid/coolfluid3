@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE( MeshDeletion )
 BOOST_AUTO_TEST_CASE( DeleteMesh )
 {
   // debug output
-  Core::instance().environment().options().set("log_level", 3u);
+  Core::instance().environment().options().set("log_level", 4u);
 
   const Real length = 5.;
   const Real height = 2.;
@@ -67,9 +67,10 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
     domain.remove_component("Mesh2");
   }
   
-  XML::SignalFrame frame;
 
   Core::instance().terminate();
+
+  XML::SignalFrame frame;
 
   // Check if any component pings back. No component should respond
   Core::instance().event_handler().raise_event("ping", frame);

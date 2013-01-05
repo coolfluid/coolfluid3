@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -8,6 +8,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
+#include "common/Libraries.hpp"
 #include "common/Group.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -27,6 +28,11 @@ struct CoreWrapper
   static boost::python::object environment()
   {
     return wrap_component(common::Core::instance().environment().handle<common::Component>());
+  }
+
+  static boost::python::object libraries()
+  {
+    return wrap_component(common::Core::instance().libraries().handle<common::Component>());
   }
 
   static boost::python::object tools()
@@ -53,7 +59,7 @@ struct CoreWrapper
     }
   }
 
-  static Uint proc()
+  static Uint rank()
   {
     return common::PE::Comm::instance().rank();
   }
@@ -76,14 +82,16 @@ void def_core()
     .staticmethod("root")
     .def("environment", CoreWrapper::environment, "Access to the environment for setting global options")
     .staticmethod("environment")
+    .def("libraries", CoreWrapper::libraries, "Access to the environment for setting global options")
+    .staticmethod("libraries")
     .def("tools", CoreWrapper::tools, "Access to the tools")
     .staticmethod("tools")
     .def("initiate", CoreWrapper::initiate)
     .staticmethod("initiate")
     .def("terminate", CoreWrapper::terminate)
     .staticmethod("terminate")
-    .def("proc", CoreWrapper::proc)
-    .staticmethod("proc")
+    .def("rank", CoreWrapper::rank)
+    .staticmethod("rank")
     .def("nb_procs", CoreWrapper::nb_procs)
     .staticmethod("nb_procs");
 }

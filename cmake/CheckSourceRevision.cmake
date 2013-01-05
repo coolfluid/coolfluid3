@@ -3,7 +3,7 @@
 if( EXISTS ${coolfluid_SOURCE_DIR}/.git )
 
   find_package(Git QUIET) # no need to inform user about this
-  coolfluid_set_package(PACKAGE Git DESCRIPTION "Git version control" QUIET)
+  coolfluid_set_package(PACKAGE Git DESCRIPTION "Git version control" QUIET VARS GIT_EXECUTABLE )
 
   # Check if this is a git repository, and get revision information
   if(GIT_FOUND)

@@ -107,7 +107,7 @@ void Writer::write_file(std::fstream& file)
     const Field& field = *field_ptr;
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
-      Field::VarType var_type = field.var_length(iVar);
+      VarType var_type = field.var_length(iVar);
       std::string var_name = field.var_name(iVar);
 
       if ( static_cast<Uint>(var_type) > 1)
@@ -189,7 +189,7 @@ void Writer::write_file(std::fstream& file)
     // one zone per element type per cpu
     // therefore the title is dependent on those parameters
     file << "ZONE "
-         << "  T=\"ITER"<<m_mesh->metadata().properties().value<Uint>("iter") << ":" << zone_name << "\""
+         << "  T=\"STEP"<<m_mesh->metadata().properties().value<Uint>("iter") << ":" << zone_name << "\""
          << ", STRANDID="<<zone_idx
          << ", SOLUTIONTIME="<<m_mesh->metadata().properties().value<Real>("time")
          << ", N=" << used_nodes.size()
@@ -236,7 +236,7 @@ void Writer::write_file(std::fstream& file)
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        Field::VarType var_type = field.var_length(iVar);
+        VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
         file << "\n### variable " << var_name << "\n\n"; // var name in comment
 
@@ -321,7 +321,7 @@ void Writer::write_file(std::fstream& file)
 
               if (options().value<bool>("cell_centred"))
               {
-                boost::shared_ptr< ShapeFunction > P0_cell_centred = boost::dynamic_pointer_cast<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
+                boost::shared_ptr< ShapeFunction > P0_cell_centred = boost::dynamic_pointer_cast<ShapeFunction>(build_component("cf3.mesh.LagrangeP0."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {

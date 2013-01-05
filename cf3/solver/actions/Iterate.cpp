@@ -19,7 +19,7 @@
 #include "math/Consts.hpp"
 
 #include "solver/actions/Iterate.hpp"
-#include "solver/actions/Criterion.hpp"
+#include "solver/Criterion.hpp"
 
 namespace cf3 {
 namespace solver {

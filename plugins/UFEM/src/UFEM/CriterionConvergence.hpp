@@ -8,7 +8,7 @@
 #define cf3_solver_actions_CriterionConvergence_hpp
 
 #include "solver/actions/LibActions.hpp"
-#include "solver/actions/Criterion.hpp"
+#include "solver/Criterion.hpp"
 #include "solver/actions/Iterate.hpp"
 
 #include "LibUFEM.hpp"
@@ -18,7 +18,7 @@ namespace UFEM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class solver_actions_API CriterionConvergence : public solver::actions::Criterion {
+class solver_actions_API CriterionConvergence : public solver::Criterion {
 
 public: // typedefs
 

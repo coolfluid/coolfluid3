@@ -11,6 +11,8 @@
 #include <boost/multi_array/base.hpp>
 #undef BOOST_MULTI_ARRAY_NO_GENERATORS
 
+#include "common/CF.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {

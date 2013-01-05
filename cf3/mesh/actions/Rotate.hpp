@@ -54,7 +54,7 @@ private: // functions
   /// @return transformation matrix (3x4), the 4th column being a translation vector.
   ///         P' = M(:,1:3)*P + M(:,4)   in matlab notation
   Eigen::Matrix<Real,3,4> compute_rotation_matrix_3d(const RealVector3& point_on_axis, const RealVector3& axis_direction, const Real& theta);
-  
+
   template <typename vector_t>
   void rotate_point_2d(const Eigen::Matrix<Real,2,3>& matrix, vector_t& point);
 

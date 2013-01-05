@@ -101,13 +101,13 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
 
   m_zone.nbBdryVertices = 0;
 
-  int size[3][1];
+  cgsize_t size[3][1];
   size[0][0] = m_zone.total_nbVertices;
   size[1][0] = m_zone.nbElements;
   size[2][0] = m_zone.nbBdryVertices;
 
   CFdebug << "Writing zone " << m_zone.name << CFendl;
-  CALL_CGNS(cg_zone_write(m_file.idx,m_base.idx,m_zone.name.c_str(),size[0],Unstructured,&m_zone.idx));
+  CALL_CGNS(cg_zone_write(m_file.idx,m_base.idx,m_zone.name.c_str(),size[0],CGNS_ENUMV( Unstructured ),&m_zone.idx));
 
   Real* xCoord(NULL);
   Real* yCoord(NULL);
@@ -167,19 +167,19 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
     case 3:
     {
       CFdebug << "Writing CoordinateZ" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,RealDouble,"CoordinateZ",zCoord,&cgns_coord_idx));
+      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateZ",zCoord,&cgns_coord_idx));
       delete_ptr(zCoord);
     }
     case 2:
     {
       CFdebug << "Writing CoordinateY" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,RealDouble,"CoordinateY",yCoord,&cgns_coord_idx));
+      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateY",yCoord,&cgns_coord_idx));
       delete_ptr(yCoord);
     }
     case 1:
     {
       CFdebug << "Writing CoordinateX" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,RealDouble,"CoordinateX",xCoord,&cgns_coord_idx));
+      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateX",xCoord,&cgns_coord_idx));
       delete_ptr(xCoord);
     }
   }
@@ -216,11 +216,11 @@ void Writer::write_section(const GroupedElements& grouped_elements)
   Handle<Region const> section_region = Handle<Region const>(grouped_elements[0]->parent());
 
   m_section.name = section_region->name();
-  m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF3_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];
+  m_section.type = grouped_elements.size() != 1 ? CGNS_ENUMV( MIXED ) : m_elemtype_CF3_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];
 
   switch (m_section.type)
   {
-    case MIXED:
+    case CGNS_ENUMV( MIXED ):
     {
       CGNS_Section mixed_section;
       int total_nbElems = section_region->recursive_elements_count(true);
@@ -234,11 +234,11 @@ void Writer::write_section(const GroupedElements& grouped_elements)
       {
         m_boco.name = m_section.name;
         m_section.name = m_section.name + "_bc";
-        int range[2];
+        cgsize_t range[2];
         range[0] = m_section.elemStartIdx;
         range[1] = m_section.elemEndIdx;
         CFdebug << "Writing boco " << m_boco.name << CFendl;
-        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);
+        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),CGNS_ENUMV( BCTypeNull ),CGNS_ENUMV( ElementRange ),2,range,&m_boco.idx);
       }
 
 
@@ -252,11 +252,11 @@ void Writer::write_section(const GroupedElements& grouped_elements)
         m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
         m_section.nbBdry = 0; // unsorted boundary
 
-        ElementType_t type = m_elemtype_CF3_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
+        CGNS_ENUMT( ElementType_t ) type = m_elemtype_CF3_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
         const Connectivity::ArrayT& connectivity_table = elements->geometry_space().connectivity().array();
         int start_idx = m_global_start_idx[&elements->geometry_fields().coordinates()];
 
-        int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
+        cgsize_t* elemNodes = new cgsize_t [nbElems*(m_section.elemNodeCount+1)];
         for (int iElem=0; iElem<nbElems; ++iElem)
         {
           elemNodes[0 + iElem*(m_section.elemNodeCount+1)] = type;
@@ -284,7 +284,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
       const Connectivity::ArrayT& connectivity_table = elements.geometry_space().connectivity().array();
       int start_idx = m_global_start_idx[&elements.geometry_fields().coordinates()];
 
-      int* elemNodes = new int [nbElems*m_section.elemNodeCount];
+      cgsize_t* elemNodes = new cgsize_t [nbElems*m_section.elemNodeCount];
       for (int iElem=0; iElem<nbElems; ++iElem)
       {
         for (int iNode=0; iNode<m_section.elemNodeCount; ++iNode)
@@ -299,11 +299,11 @@ void Writer::write_section(const GroupedElements& grouped_elements)
       {
         m_boco.name = m_section.name;
         m_section.name = m_section.name + "_bc";
-        int range[2];
+        cgsize_t range[2];
         range[0] = m_section.elemStartIdx;
         range[1] = m_section.elemEndIdx;
         CFdebug << "Writing boco " << m_boco.name << CFendl;
-        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);
+        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),CGNS_ENUMV( BCTypeNull ),CGNS_ENUMV( ElementRange ),2,range,&m_boco.idx);
       }
 
 

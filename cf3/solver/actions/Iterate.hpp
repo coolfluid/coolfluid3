@@ -21,7 +21,7 @@ namespace actions {
 /// @brief Action component that iteratively executes all contained actions.
 ///
 /// To stop iterating, the configuration "max_iter" can be specified for the amount
-/// of iterations, or a stop-criterion, derived from the type solver::actions::Criterion
+/// of iterations, or a stop-criterion, derived from the type solver::Criterion
 ///
 /// @author Willem Deconinck
 class solver_actions_API Iterate : public common::ActionDirector
