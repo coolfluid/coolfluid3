@@ -8,9 +8,10 @@ list( APPEND coolfluid_ui_network_files
   ErrorHandler.hpp
 )
 
-list( APPEND coolfluid_ui_network_cflibs coolfluid_common )
-
-set( coolfluid_ui_network_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_ui_network )
+coolfluid3_add_library( TARGET coolfluid_ui_network
+                        KERNEL
+                        SOURCES
+                            ${coolfluid_ui_network_files}
+                        LIBS
+                            coolfluid_common )
 

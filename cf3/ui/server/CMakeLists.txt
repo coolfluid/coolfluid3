@@ -1,5 +1,3 @@
-
-# Add the project files (including the moc files)
 list( APPEND coolfluid_ui_server_files
   CCore.cpp
   CCore.hpp
@@ -10,11 +8,10 @@ list( APPEND coolfluid_ui_server_files
   ServerRoot.cpp
   ServerRoot.hpp )
 
-# Use Qt Libraries
-#list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
+coolfluid3_add_library( TARGET  coolfluid_ui_server
+                       SOURCES
+                            ${coolfluid_ui_server_files}
+                       LIBS
+                            coolfluid_ui_network coolfluid_ui_common )
 
-list( APPEND coolfluid_ui_server_cflibs coolfluid_ui_network coolfluid_ui_common )
-
-coolfluid_add_library(coolfluid_ui_server)
-
-configure_file( machine.txt   ${CMAKE_CURRENT_BINARY_DIR}/machine.txt    @ONLY)
+configure_file( machine.txt ${CMAKE_CURRENT_BINARY_DIR}/machine.txt  @ONLY)

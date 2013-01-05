@@ -11,9 +11,8 @@
 #
 # * try using precompiled headers and add a check to their support
 #
-# * implement coolfluid_add_library and coolfluid_add_executable
+# * implement and coolfluid3_add_executable
 # * add license to cmake files
-#
 
 ##############################################################################
 # cmake behavior
