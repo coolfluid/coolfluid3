@@ -6,11 +6,11 @@ list( APPEND coolfluid_meshdiff_files
   MeshDiff.hpp
 )
 
-list( APPEND coolfluid_meshdiff_libs ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-
-list( APPEND coolfluid_meshdiff_cflibs coolfluid_mesh)
-
-coolfluid_add_library( coolfluid_meshdiff )
+coolfluid3_add_library( TARGET  coolfluid_meshdiff 
+                        KERNEL
+                        SOURCES ${coolfluid_meshdiff_files} 
+                        LIBS    coolfluid_mesh
+                                ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
 ############################################################################################################
 # The application

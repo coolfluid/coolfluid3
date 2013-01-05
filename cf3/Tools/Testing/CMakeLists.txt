@@ -7,12 +7,8 @@ list( APPEND coolfluid_testing_files
   TimedTestFixture.hpp
 )
 
-list( APPEND coolfluid_testing_libs   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-list( APPEND coolfluid_testing_cflibs coolfluid_common )
-
-if( CF3_OS_LINUX AND CF3_HAVE_RT )
-  list( APPEND coolfluid_testing_libs ${RT_LIB} )
-endif()
-
-
-coolfluid_add_library( coolfluid_testing )
+coolfluid3_add_library( TARGET  coolfluid_testing
+                        KERNEL
+                        SOURCES ${coolfluid_testing_files}
+                        LIBS    coolfluid_common
+                                ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${RT_LIB} )

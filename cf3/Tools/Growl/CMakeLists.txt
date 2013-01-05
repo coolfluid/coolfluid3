@@ -22,6 +22,8 @@ list( APPEND coolfluid_tools_growl_files
   Notifier.cpp
 )
 
-list( APPEND coolfluid_tools_growl_cflibs coolfluid_common growl )
-
-coolfluid_add_library( coolfluid_tools_growl )
+coolfluid3_add_library( TARGET  coolfluid_tools_growl 
+                        KERNEL
+                        SOURCES ${coolfluid_tools_growl_files}
+                        LIBS    coolfluid_common
+                                growl )
