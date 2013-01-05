@@ -151,7 +151,7 @@ function( coolfluid_set_package )
 
     if( _${PACKAGE_CAPS}_vars_ok )
 
-      set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}" FORCE)
+      set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
 
       if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
         list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
