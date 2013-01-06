@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "cf3/physics/euler/euler1D/Data.hpp"
+#include "Data.hpp"
 
 namespace cf3 {
 namespace physics {

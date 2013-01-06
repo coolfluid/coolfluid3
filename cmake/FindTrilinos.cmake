@@ -13,6 +13,8 @@ option( CF3_SKIP_TRILINOS "Skip search for Trilinos library" OFF )
 
 if( NOT CF3_SKIP_TRILINOS )
 
+    set(CF3_TRILINOS_EXTRA_LIBS "" CACHE STRING "Extra libraries needed to link with Trilinos")
+
     # Try to find Trilinos using Trilinos recommendations
 
     if( DEFINED TRILINOS_HOME )
@@ -38,6 +40,7 @@ if( NOT CF3_SKIP_TRILINOS )
         endforeach()
 
         list( APPEND TRILINOS_LIBRARIES ${Trilinos_TPL_LIBRARIES} )
+        list( APPEND TRILINOS_LIBRARIES ${CF3_TRILINOS_EXTRA_LIBS} )
 
     endif()
 
