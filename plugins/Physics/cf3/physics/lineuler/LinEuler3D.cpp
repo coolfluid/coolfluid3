@@ -14,7 +14,7 @@
 
 #include "cf3/physics/Variables.hpp"
 
-#include "cf3/physics/LinEuler/LinEuler3D.hpp"
+#include "LinEuler3D.hpp"
 
 namespace cf3 {
 namespace physics {

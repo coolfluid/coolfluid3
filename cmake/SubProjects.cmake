@@ -13,10 +13,7 @@ list(APPEND CF3_SUBPROJECTS
   "BlockMeshReader"
   "CGAL"
   "Physics"
-  "RDM"
-  "RiemannSolvers"
   "UFEM"
-  "sdm"
   "ui"
 )
 

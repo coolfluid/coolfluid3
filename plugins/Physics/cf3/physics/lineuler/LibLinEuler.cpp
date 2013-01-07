@@ -6,7 +6,7 @@
 
 #include "cf3/common/RegistLibrary.hpp"
 
-#include "cf3/physics/LinEuler/LibLinEuler.hpp"
+#include "LibLinEuler.hpp"
 
 namespace cf3 {
 namespace physics {
