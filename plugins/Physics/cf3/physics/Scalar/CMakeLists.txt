@@ -31,7 +31,6 @@ list( APPEND coolfluid_physics_scalar_files
   LinearAdvSys2D.cpp
 )
 
-list( APPEND coolfluid_physics_scalar_cflibs coolfluid_physics )
-
-coolfluid_add_library( coolfluid_physics_scalar )
-
+coolfluid3_add_library( TARGET   coolfluid_physics_scalar
+                        SOURCES  ${coolfluid_physics_scalar_files}
+                        LIBS     coolfluid_physics )

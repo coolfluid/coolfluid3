@@ -9,8 +9,7 @@ list( APPEND coolfluid_mesh_neu_files
   Shared.cpp
 )
 
-list( APPEND coolfluid_mesh_neu_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_actions)
-
-set( coolfluid_mesh_neu_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_neu )
+coolfluid3_add_library( TARGET  coolfluid_mesh_neu 
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_neu_files}
+                        LIBS    coolfluid_mesh_lagrangep1 coolfluid_mesh_actions )

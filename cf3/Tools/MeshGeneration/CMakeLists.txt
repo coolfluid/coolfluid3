@@ -5,7 +5,8 @@ list(APPEND coolfluid_mesh_generation_files
   MeshGeneration.hpp
 )
 
-list( APPEND coolfluid_mesh_generation_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh )
-
-coolfluid_add_library( coolfluid_mesh_generation )
+coolfluid3_add_library( TARGET  coolfluid_mesh_generation
+                        KERNEL 
+                        SOURCES ${coolfluid_mesh_generation_files}
+                        LIBS    coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh )
 

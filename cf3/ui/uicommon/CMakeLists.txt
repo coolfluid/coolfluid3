@@ -1,5 +1,3 @@
-
-# Add the project files
 list( APPEND coolfluid_ui_common_files
   ComponentNames.hpp
   LibUICommon.cpp
@@ -7,10 +5,7 @@ list( APPEND coolfluid_ui_common_files
   LogMessage.cpp
   LogMessage.hpp )
 
-set( coolfluid_ui_common_kernellib TRUE )
-
-# Use Qt Libraries
-list( APPEND coolfluid_ui_common_libs  )
-list( APPEND coolfluid_ui_common_cflibs coolfluid_common )
-
-coolfluid_add_library( coolfluid_ui_common )
+coolfluid3_add_library( TARGET coolfluid_ui_common
+                        KERNEL
+						SOURCES ${coolfluid_ui_common_files}
+                        LIBS coolfluid_common )

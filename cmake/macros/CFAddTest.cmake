@@ -201,6 +201,8 @@ function( coolfluid_add_test )
         add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers} )
       endif()
 
+      set_target_properties( ${_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
+
       if( DEFINED _PAR_DEPENDS)
         add_dependencies( ${_TEST_NAME} ${_PAR_DEPENDS} )
       endif()

@@ -62,22 +62,23 @@ list( APPEND coolfluid_solver_files
   TimeStepComputer.cpp
 )
 
-set( coolfluid_solver_kernellib TRUE )
-
-list(APPEND coolfluid_solver_cflibs coolfluid_physics coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_gmsh coolfluid_mesh_neu)
-
-if( CF3_HAVE_TRILINOS )
-  list(APPEND coolfluid_solver_cflibs ${TRILINOS_LIBRARIES})
-  list(APPEND coolfluid_solver_includedirs ${TRILINOS_INCLUDE_DIRS})
-elseif( CF3_HAVE_SUPERLU )
-  list(APPEND coolfluid_solver_cflibs ${SUPERLU_LIBRARIES})
-  list(APPEND coolfluid_solver_includedirs ${SUPERLU_INCLUDE_DIRS})
-endif()
+list(APPEND coolfluid_solver_libs 
+  coolfluid_physics 
+  coolfluid_mesh 
+  coolfluid_mesh_lagrangep1 
+  coolfluid_mesh_gmsh 
+  coolfluid_mesh_neu
+)
 
 if( coolfluid_mesh_cgns_builds )
-  list(APPEND coolfluid_solver_cflibs coolfluid_mesh_cgns )
+  list(APPEND coolfluid_solver_libs coolfluid_mesh_cgns )
 endif()
 
-coolfluid_add_library( coolfluid_solver )
+coolfluid3_add_library( TARGET   coolfluid_solver 
+                        KERNEL
+                        SOURCES  ${coolfluid_solver_files}
+                        LIBS     ${coolfluid_solver_libs}
+                                 ${TRILINOS_LIBRARIES} ${SUPERLU_LIBRARIES}
+                        INCLUDES ${TRILINOS_INCLUDE_DIRS} ${SUPERLU_INCLUDE_DIRS} )
 
 add_subdirectory( actions ) # actions the solver uses

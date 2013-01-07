@@ -7,10 +7,10 @@ list( APPEND coolfluid_tools_googleperftools_files
     LibGooglePerfTools.hpp
 )
 
-list( APPEND coolfluid_tools_googleperftools_cflibs      coolfluid_common )
-list( APPEND coolfluid_tools_googleperftools_libs        ${GOOGLEPERFTOOLS_PROFILER_LIBRARY} )
-list( APPEND coolfluid_tools_googleperftools_includedirs ${GOOGLEPERFTOOLS_INCLUDE_DIRS} )
-
-set( coolfluid_tools_googleperftools_condition ${CF3_HAVE_GOOGLEPERFTOOLS} )
-
-coolfluid_add_library( coolfluid_tools_googleperftools )
+coolfluid3_add_library( TARGET    coolfluid_tools_googleperftools 
+                        KERNEL
+                        SOURCES   ${coolfluid_tools_googleperftools_files} 
+                        LIBS      coolfluid_common
+                                  ${GOOGLEPERFTOOLS_PROFILER_LIBRARY}
+                        INCLUDES  ${GOOGLEPERFTOOLS_INCLUDE_DIRS}
+                        CONDITION CF3_HAVE_GOOGLEPERFTOOLS )

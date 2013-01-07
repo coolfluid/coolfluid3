@@ -6,14 +6,14 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_ui_graphics_moc_classes
-  Application.hpp # needs to be added because base class emits signals
+  Application.hpp             # needs to be added because base class emits signals
   BrowserDialog.hpp
   CentralPanel.hpp
   ModifiedOptionsDialog.hpp
   ConfirmCommitDialog.hpp
   FavoritesModel.hpp
-  FileFilter.hpp # needs to be added because base class emits signals
-  FilteringModel.hpp # needs to be added because base class emits signals
+  FileFilter.hpp              # needs to be added because base class emits signals
+  FilteringModel.hpp          # needs to be added because base class emits signals
   GraphicalArray.hpp
   GraphicalArrayRestrictedList.hpp
   GraphicalBool.hpp
@@ -128,21 +128,22 @@ list( APPEND coolfluid_ui_graphics_files
   TabBuilder.hpp
  )
 
-list( APPEND coolfluid_ui_graphics_cflibs coolfluid_ui_core )
-
-list(APPEND coolfluid_ui_graphics_includedirs ${PYTHON_INCLUDE_DIR})
-list(APPEND coolfluid_ui_graphics_libs ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
-
-# Use Qt Libraries
-list( APPEND coolfluid_ui_graphics_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser)
-
 if( CF3_ENABLE_GUI AND QT4_FOUND )
-
     QT4_ADD_RESOURCES(coolfluid_ui_graphics_RCC Resources/coolfluid-client.qrc)
-
-    set( coolfluid_ui_graphics_condition TRUE )
-else()
-    set( coolfluid_ui_graphics_condition FALSE )
 endif()
 
-coolfluid_add_library(coolfluid_ui_graphics)
+coolfluid3_add_library( TARGET coolfluid_ui_graphics
+                        SOURCES
+                            ${coolfluid_ui_graphics_moc_files}
+                            ${coolfluid_ui_graphics_files}
+                            ${coolfluid_ui_graphics_RCC}
+                        INCLUDES
+                            ${PYTHON_INCLUDE_DIR}
+                        LIBS
+                            coolfluid_ui_core
+                            ${Boost_PYTHON_LIBRARY}
+                            ${PYTHON_LIBRARIES}
+                            ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser
+                        CONDITION
+                            CF3_ENABLE_GUI AND QT4_FOUND )
+

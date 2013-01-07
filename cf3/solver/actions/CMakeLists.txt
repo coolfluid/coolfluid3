@@ -87,8 +87,7 @@ else()
   coolfluid_mark_not_orphan( ${coolfluid_solver_actions_proto_files} )
 endif()
 
-set( coolfluid_solver_actions_kernellib TRUE )
-
-list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_math_lss coolfluid_mesh )
-
-coolfluid_add_library( coolfluid_solver_actions )
+coolfluid3_add_library( TARGET coolfluid_solver_actions
+                        KERNEL
+                        SOURCES ${coolfluid_solver_actions_files}
+                        LIBS    coolfluid_solver coolfluid_math_lss coolfluid_mesh)

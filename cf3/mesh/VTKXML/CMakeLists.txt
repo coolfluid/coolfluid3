@@ -5,8 +5,7 @@ list( APPEND coolfluid_mesh_vtkxml_files
   LibVTKXML.hpp
 )
 
-list( APPEND coolfluid_mesh_vtkxml_cflibs coolfluid_mesh )
-
-set( coolfluid_mesh_vtkxml_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_vtkxml )
+coolfluid3_add_library( TARGET  coolfluid_mesh_vtkxml 
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_vtkxml_files} 
+                        LIBS    coolfluid_mesh )

@@ -23,8 +23,7 @@ list( APPEND coolfluid_mesh_lagrangep0_files
   Triag.cpp
 )
 
-list( APPEND coolfluid_mesh_lagrangep0_cflibs coolfluid_mesh )
-
-set( coolfluid_mesh_lagrangep0_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_lagrangep0 )
+coolfluid3_add_library( TARGET  coolfluid_mesh_lagrangep0 
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_lagrangep0_files}
+                        LIBS    coolfluid_mesh )

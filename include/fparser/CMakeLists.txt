@@ -41,12 +41,11 @@ coolfluid_mark_not_orphan(
   mpfr/MpfrFloat.cc
 )
 
-if(CF3_HAVE_CMATH)
-  list( APPEND coolfluid_fparser_libs ${CMATH_LIBRARIES} )
-endif()
-set( coolfluid_fparser_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_fparser )
+coolfluid3_add_library( TARGET    coolfluid_fparser
+                        KERNEL
+                        SOURCES   ${coolfluid_fparser_files}
+                        LIBS      ${coolfluid_fparser_libs}
+                                  ${CMATH_LIBRARIES} )
 
 # first example
 coolfluid_add_test( UTEST utest-fparser-1

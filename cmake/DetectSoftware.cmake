@@ -54,7 +54,6 @@ find_package(OpenSSL           QUIET ) # OpenSSL library
 coolfluid_set_package(PACKAGE OpenSSL DESCRIPTION "OpenSSL library" VARS OPENSSL_FOUND QUIET )
 find_package(CMath             QUIET ) # find the math library
 find_package(Realtime          QUIET ) # POSIX Realtime library
-coolfluid_set_package(PACKAGE PythonInterp VARS PYTHONINTERP_FOUND QUIET )
 find_package(Valgrind          QUIET ) # valgrind for profiling and memmory leak detection
 find_package(GooglePerftools   QUIET ) # dynamic profiler and memory checker
 find_package(PThread           QUIET ) # POSIX Threads library
