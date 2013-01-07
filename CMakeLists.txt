@@ -1,25 +1,18 @@
-##############################################################################
 # coolfluid cmake build system
-##############################################################################
+#
 # Command line options for cmake:
 # -DCMAKE_BUILD_TYPE=DEBUG will set the build type
 # -DCF3_SKIP_FORTRAN=:BOOL=ON will not test for fortran language
 # -G"Visual Studio 9 2008" will generate for WIN32
 # -DCMAKE_INSTALL_PREFIX=DIR will specify where to install
 # -DCF3_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
-##############################################################################
 #
 # TODO
 #
-# * use EXECUTABLE_OUTPUT_PATH to specify a common place where CMake puts all executable files
-# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-# * use LIBRARY_OUTPUT_PATH to specify a common place where CMake puts all libraries
-# set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # * try using precompiled headers and add a check to their support
 #
-# * implement coolfluid_add_library and coolfluid_add_executable
-#
-##############################################################################
+# * implement and coolfluid3_add_executable
+# * add license to cmake files
 
 ##############################################################################
 # cmake behavior

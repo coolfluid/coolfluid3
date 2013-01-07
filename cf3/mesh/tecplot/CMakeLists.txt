@@ -7,8 +7,7 @@ list( APPEND coolfluid_mesh_tecplot_files
   Shared.hpp
 )
 
-list( APPEND coolfluid_mesh_tecplot_cflibs coolfluid_mesh )
-
-set( coolfluid_mesh_tecplot_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_tecplot )
+coolfluid3_add_library( TARGET  coolfluid_mesh_tecplot 
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_tecplot_files} 
+                        LIBS    coolfluid_mesh )

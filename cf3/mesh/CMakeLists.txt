@@ -123,20 +123,19 @@ list( APPEND coolfluid_mesh_files
   WriteMesh.cpp
   Functions.hpp
   Functions.cpp
-
-# directories with headers only can have their contents appended to base dir
+         
+  # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
   Integrators/GaussImplementation.hpp
 )
-
-list( APPEND coolfluid_mesh_cflibs coolfluid_common coolfluid_math )
-
-set( coolfluid_mesh_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh )
+  
+coolfluid3_add_library( TARGET   coolfluid_mesh
+                        KERNEL
+                        SOURCES  ${coolfluid_mesh_files}
+                        LIBS     coolfluid_math coolfluid_common )
 
 ############################################################################################
-# sub modules of cf3Mesh
+# sub modules of cf3 Mesh
 
 add_subdirectory(LagrangeP0)      # LagrangeP0 shape functions
 

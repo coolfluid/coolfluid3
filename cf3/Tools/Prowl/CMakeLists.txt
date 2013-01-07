@@ -7,11 +7,11 @@ list( APPEND coolfluid_tools_prowl_files
   prowl/prowl.c
 )
 
-list( APPEND coolfluid_tools_prowl_cflibs coolfluid_common )
-list( APPEND coolfluid_tools_prowl_libs ${OPENSSL_LIBRARIES} )
-
-set( coolfluid_tools_prowl_condition ${OPENSSL_FOUND} )
-
-coolfluid_add_library( coolfluid_tools_prowl )
+coolfluid3_add_library( TARGET coolfluid_tools_prowl 
+                        KERNEL
+                        SOURCES   ${coolfluid_tools_prowl_files}
+                        LIBS      coolfluid_common
+                                  ${OPENSSL_LIBRARIES}
+                        CONDITION ${OPENSSL_FOUND} )
 
 coolfluid_mark_not_orphan( prowl/main.c )

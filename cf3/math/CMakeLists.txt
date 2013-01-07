@@ -32,9 +32,8 @@ list( APPEND coolfluid_math_files
 # lssinterface provide connection with linear system solvers
 add_subdirectory( LSS )
 
-list( APPEND coolfluid_math_cflibs coolfluid_fparser coolfluid_common )
-
-set( coolfluid_math_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_math )
+coolfluid3_add_library( TARGET   coolfluid_math
+                        KERNEL
+                        SOURCES  ${coolfluid_math_files}
+                        LIBS     coolfluid_fparser coolfluid_common  )
 

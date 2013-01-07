@@ -1,13 +1,11 @@
-list( APPEND coolfluid_tutorial_files
-  LibTutorial.hpp
-  LibTutorial.cpp
-
-  Hello.hpp
-  Hello.cpp 
-)
-list( APPEND coolfluid_tutorial_cflibs coolfluid_common)
-coolfluid_add_library( coolfluid_tutorial )
-
+coolfluid3_add_library( TARGET coolfluid_tutorial
+                        TEST
+                        SOURCES
+                           LibTutorial.hpp
+                           LibTutorial.cpp
+                           Hello.hpp
+                           Hello.cpp
+                        LIBS  coolfluid_common )
 
 ### Tutorial 1
 list( APPEND tut1_files  tut1.cpp  )

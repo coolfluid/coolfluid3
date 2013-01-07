@@ -15,8 +15,7 @@ list( APPEND coolfluid_physics_files
   DynamicVars.hpp
 )
 
-set( coolfluid_physics_kernellib TRUE )
-
-list(APPEND coolfluid_physics_cflibs coolfluid_math)
-
-coolfluid_add_library( coolfluid_physics )
+coolfluid3_add_library( TARGET    coolfluid_physics
+                        KERNEL
+                        SOURCES   ${coolfluid_physics_files}
+                        LIBS      coolfluid_math )

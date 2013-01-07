@@ -9,8 +9,7 @@ list( APPEND coolfluid_mesh_gmsh_files
   Shared.hpp
 )
 
-list( APPEND coolfluid_mesh_gmsh_cflibs coolfluid_mesh )
-
-set( coolfluid_mesh_gmsh_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_gmsh )
+coolfluid3_add_library( TARGET  coolfluid_mesh_gmsh 
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_gmsh_files}
+                        LIBS    coolfluid_mesh )

@@ -3,5 +3,7 @@ list( APPEND coolfluid_tools_gnuplot_files
   Gnuplot.cpp
 )
 
-list( APPEND coolfluid_tools_gnuplot_cflibs   coolfluid_common )
-coolfluid_add_library( coolfluid_tools_gnuplot )
+coolfluid3_add_library( TARGET  coolfluid_tools_gnuplot
+                        KERNEL
+                        SOURCES ${coolfluid_tools_gnuplot_files}
+                        LIBS    coolfluid_common )
