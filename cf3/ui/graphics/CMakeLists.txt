@@ -134,8 +134,10 @@ endif()
 
 coolfluid3_add_library( TARGET coolfluid_ui_graphics
                         SOURCES
+							${coolfluid_ui_graphics_files}
+						MOC
                             ${coolfluid_ui_graphics_moc_files}
-                            ${coolfluid_ui_graphics_files}
+						RCC
                             ${coolfluid_ui_graphics_RCC}
                         INCLUDES
                             ${PYTHON_INCLUDE_DIR}

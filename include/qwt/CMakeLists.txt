@@ -1,6 +1,7 @@
 coolfluid_find_orphan_files()
 
 if( QT4_FOUND )
+	
   # deactivate some c++ warnings in Qt
   if( CMAKE_COMPILER_IS_GNUCC )
     set( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
@@ -180,12 +181,10 @@ if( QT4_FOUND )
 
   #source_group( Headers FILES ${coolfluid_qwt_files} )
 
-  list( APPEND coolfluid_qwt_libs ${QT_LIBRARIES})
+  coolfluid3_add_library( TARGET    coolfluid_qwt 
+                          SOURCES   ${coolfluid_qwt_files} 
+						  MOC       ${coolfluid_qwt_moc_files}
+						  LIBS      ${QT_LIBRARIES} 
+					      CONDITION QT4_FOUND )
 
-  coolfluid_add_library(coolfluid_qwt)
-
-  # install rapidxml headers since tests dont install sources
-  #install( FILES ${rapidxml_files}
-  #         DESTINATION
-  #         ${CF3_INSTALL_INCLUDE_DIR}/rapidxml )
 endif( QT4_FOUND )
