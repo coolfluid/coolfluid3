@@ -15,8 +15,7 @@ if( QT4_FOUND )
   # Create the moc files
   # -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -> fixes compilation of MOC files
   # when Boost 1.48 is in use
-  QT4_WRAP_CPP(coolfluid_ui_qwt_tab_moc_files ${coolfluid_ui_qwt_tab_moc_classes}
-                 OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED )
+  QT4_WRAP_CPP(coolfluid_ui_qwt_tab_moc_files ${coolfluid_ui_qwt_tab_moc_classes} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED )
 
   # Add the project files
   list( APPEND coolfluid_ui_qwt_tab_files
@@ -36,12 +35,16 @@ if( QT4_FOUND )
   )
 
   include( ${QT_USE_FILE} )
-  list( APPEND coolfluid_ui_qwt_tab_cflibs coolfluid_ui_graphics )
-
-  # Use Qt Libraries
-  list( APPEND coolfluid_ui_qwt_tab_libs ${QT_LIBRARIES} coolfluid_qwt )
-
-  coolfluid_add_library(coolfluid_ui_qwt_tab)
+  
+  coolfluid3_add_library( TARGET     coolfluid_ui_qwt_tab
+  	 					  SOURCES    
+						  	${coolfluid_ui_qwt_tab_files} 
+						  MOC
+						  	${coolfluid_ui_qwt_tab_moc_files}
+					      LIBS 
+					  		coolfluid_ui_graphics ${QT_LIBRARIES} coolfluid_qwt
+						  CONDITION 
+					  		QT4_FOUND )
 
 else()
 
