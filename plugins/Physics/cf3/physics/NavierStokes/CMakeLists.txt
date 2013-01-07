@@ -27,6 +27,6 @@ list( APPEND coolfluid_physics_navierstokes_files
   Roe3D.cpp
 )
 
-list( APPEND coolfluid_physics_navierstokes_cflibs coolfluid_physics )
-
-coolfluid_add_library( coolfluid_physics_navierstokes )
+coolfluid3_add_library( TARGET   coolfluid_physics_navierstokes
+                        SOURCES  ${coolfluid_physics_navierstokes_files}
+                        LIBS     coolfluid_physics )

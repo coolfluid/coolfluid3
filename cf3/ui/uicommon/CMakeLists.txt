@@ -7,4 +7,5 @@ list( APPEND coolfluid_ui_common_files
 
 coolfluid3_add_library( TARGET coolfluid_ui_common
                         KERNEL
+						SOURCES ${coolfluid_ui_common_files}
                         LIBS coolfluid_common )

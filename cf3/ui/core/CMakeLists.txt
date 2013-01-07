@@ -85,6 +85,7 @@ TreeThread.hpp
 
 coolfluid3_add_library( TARGET coolfluid_ui_core
                         SOURCES
+                            ${coolfluid_ui_core_files}
                             ${coolfluid_ui_core_moc_files}
                         CONDITION
                             CF3_ENABLE_GUI AND QT4_FOUND
