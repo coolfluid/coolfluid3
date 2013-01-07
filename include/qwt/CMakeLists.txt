@@ -1,17 +1,12 @@
 coolfluid_find_orphan_files()
 
-if( QT4_FOUND )
-	
-  # deactivate some c++ warnings in Qt
-  if( CMAKE_COMPILER_IS_GNUCC )
-    set( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
-  endif()
+# deactivate some c++ warnings in Qt
+if( CMAKE_COMPILER_IS_GNUCC )
+  set( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
+endif()
 
-  # Add useful macros and variables
-  include(${QT_USE_FILE})
-
-  # List of classes to "moc"
-  list( APPEND coolfluid_qwt_moc_classes
+# moc classes
+list( APPEND coolfluid_qwt_moc_classes
     qwt_abstract_slider.h
     qwt_analog_clock.h
     qwt_compass.h
@@ -35,12 +30,9 @@ if( QT4_FOUND )
     qwt_text_label.h
     qwt_thermo.h
     qwt_wheel.h
-  )
+)
 
-  # Create the moc files
-  QT4_WRAP_CPP(coolfluid_qwt_moc_files ${coolfluid_qwt_moc_classes})
-
-  list( APPEND coolfluid_qwt_files
+list( APPEND coolfluid_qwt_files
     qwt.h
     qwt_abstract_scale.cpp
     qwt_abstract_scale.h
@@ -177,14 +169,13 @@ if( QT4_FOUND )
     qwt_thermo.h
     qwt_valuelist.h
     qwt_wheel.cpp
-    qwt_wheel.h  )
+    qwt_wheel.h
+)
 
-  #source_group( Headers FILES ${coolfluid_qwt_files} )
+#source_group( Headers FILES ${coolfluid_qwt_files} )
 
-  coolfluid3_add_library( TARGET    coolfluid_qwt 
-                          SOURCES   ${coolfluid_qwt_files} 
-						  MOC       ${coolfluid_qwt_moc_files}
-						  LIBS      ${QT_LIBRARIES} 
-					      CONDITION QT4_FOUND )
-
-endif( QT4_FOUND )
+coolfluid3_add_library( TARGET    coolfluid_qwt
+                        SOURCES   ${coolfluid_qwt_files}
+                        MOC       ${coolfluid_qwt_moc_classes}
+                        LIBS      ${QT_LIBRARIES}
+                        CONDITION QT4_FOUND )

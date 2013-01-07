@@ -119,8 +119,14 @@ macro( coolfluid3_add_library )
             endif()
         endforeach()
 
+        # create the moc files
+        #    -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED -> fixes compilation of MOC fileswhen Boost 1.48 is in use
+        if( QT4_FOUND AND DEFINED _PAR_MOC )
+          qt4_wrap_cpp(_gen_MOC ${_PAR_MOC} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED )
+        endif()
+
         # add the library target
-        add_library( ${_PAR_TARGET} ${_PAR_TYPE} ${_PAR_SOURCES} ${_PAR_MOC} ${_PAR_RCC} )
+        add_library( ${_PAR_TARGET} ${_PAR_TYPE} ${_PAR_SOURCES} ${_gen_MOC} ${_PAR_RCC} )
 
         set_target_properties( ${_PAR_TARGET} PROPERTIES LINK_FLAGS "${CF3_LIBRARY_LINK_FLAGS}" )
         set_target_properties( ${_PAR_TARGET} PROPERTIES DEFINE_SYMBOL ${LIBNAME_CAPS}_EXPORTS )
