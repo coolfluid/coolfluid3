@@ -24,11 +24,6 @@ TreeNode.hpp
 TreeThread.hpp
 )
 
-# Create the moc files
-if( QT4_FOUND )
-  QT4_WRAP_CPP(coolfluid_ui_core_moc_files ${coolfluid_ui_core_moc_classes})
-endif()
-
 # Add the project files (including the moc files)
 list( APPEND coolfluid_ui_core_files
 CNode.cpp
@@ -87,7 +82,7 @@ coolfluid3_add_library( TARGET    coolfluid_ui_core
                         SOURCES   
 							${coolfluid_ui_core_files}
                         MOC       
-							${coolfluid_ui_core_moc_files}
+                            ${coolfluid_ui_core_moc_classes}
                         CONDITION
                             CF3_ENABLE_GUI AND QT4_FOUND
                         LIBS
