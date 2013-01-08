@@ -32,3 +32,7 @@ coolfluid_add_test( UTEST utest-mesh-actions-rotate-translate
 
 coolfluid_add_test( UTEST utest-mesh-actions-shortest-edge
                     PYTHON utest-mesh-actions-shortest-edge.py )
+                    
+coolfluid_add_test( UTEST utest-mesh-make-boundary-global
+                    PYTHON utest-mesh-make-boundary-global.py
+                    MPI 4)                    

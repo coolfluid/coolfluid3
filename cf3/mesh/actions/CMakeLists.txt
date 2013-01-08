@@ -37,6 +37,8 @@ list( APPEND coolfluid_mesh_actions_files
   Interpolate.cpp
   LibActions.hpp
   LibActions.cpp
+  MakeBoundaryGlobal.hpp
+  MakeBoundaryGlobal.cpp
   LoadBalance.hpp
   LoadBalance.cpp
   Rotate.hpp
