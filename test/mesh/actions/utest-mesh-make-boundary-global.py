@@ -3,6 +3,7 @@ import coolfluid as cf
 
 env = cf.Core.environment()
 env.log_level = 4
+env.only_cpu0_writes = True
 
 root = cf.Core.root()
 mesh = root.create_component('mesh','cf3.mesh.Mesh')
@@ -32,4 +33,8 @@ make_boundary_global = root.create_component('MakeBoundaryGlobal', 'cf3.mesh.act
 make_boundary_global.mesh = mesh
 make_boundary_global.execute()
 
-mesh.write_mesh(cf.URI('make-boundary-global.msh'))
+writer = root.create_component('MshWriter', 'cf3.mesh.gmsh.Writer')
+writer.enable_overlap = True
+writer.mesh = mesh
+writer.file = cf.URI('make-boundary-global.msh')
+writer.execute()

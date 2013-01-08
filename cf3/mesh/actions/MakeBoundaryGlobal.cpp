@@ -47,6 +47,7 @@ void MakeBoundaryGlobal::execute()
 {
   common::PE::Comm& comm = common::PE::Comm::instance();
   const Uint nb_procs = comm.size();
+  const Uint my_rank = comm.rank();
 
   if(nb_procs == 1)
     return; // Boundary is always global if we only have one process
@@ -54,60 +55,45 @@ void MakeBoundaryGlobal::execute()
   cf3_assert(comm.is_active());
 
   Mesh& mesh = *m_mesh;
-  common::List<Uint>& node_gids = mesh.geometry_fields().glb_idx();
-  const std::set<Uint> my_gid_set(node_gids.array().begin(), node_gids.array().end());
-
   MeshAdaptor adaptor(mesh);
   adaptor.prepare();
 
-  std::vector< std::vector< std::vector< Uint > > > elements_to_send (PE::Comm::instance().size(),
-                                                                              std::vector< std::vector<Uint> > (m_mesh->elements().size()));
-
-  std::vector<Uint> new_gids, new_ranks;
+  std::vector< std::vector< std::vector<Uint> > > elements_to_send(nb_procs, std::vector< std::vector<Uint> > (m_mesh->elements().size()));
   boost_foreach(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()))
   {
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = build_used_nodes_list(elements, mesh.geometry_fields(), false);
-    common::List<Uint>& used_nodes = *used_nodes_ptr;
-    const Uint nb_used_nodes = used_nodes.size();
-    std::vector<Uint> used_gids(nb_used_nodes);
-    for(Uint i = 0; i != nb_used_nodes; ++i)
+    const Uint elements_idx = elements.entities_idx();
+    const Uint nb_elems = elements.size();
+    std::vector<Uint> own_elements; own_elements.reserve(nb_elems);
+    for(Uint i = 0; i != nb_elems; ++i)
     {
-      used_gids[i] = node_gids[used_nodes[i]];
-    }
-
-    std::vector< std::vector<Uint> > received_used_gids;
-    comm.all_gather(used_gids, received_used_gids);
-    Uint total_nb_gids = 0;
-    for(Uint rank = 0; rank != nb_procs; ++rank)
-    {
-      total_nb_gids += received_used_gids[rank].size();
-    }
-    new_gids.reserve(new_gids.size() + total_nb_gids);
-    new_ranks.reserve(new_ranks.size() + total_nb_gids);
-
-    for(Uint rank = 0; rank != nb_procs; ++rank)
-    {
-      if(rank == comm.rank())
-        continue;
-
-      BOOST_FOREACH(const Uint gid, received_used_gids[rank])
+      if(!elements.is_ghost(i))
       {
-        if(!my_gid_set.count(gid))
-        {
-          new_gids.push_back(gid);
-          new_ranks.push_back(rank);
-        }
+        own_elements.push_back(i);
       }
     }
+    for(Uint rank = 0; rank != nb_procs; ++rank)
+    {
+      if(rank != my_rank)
+        elements_to_send[rank][elements_idx] = own_elements;
+    }
+
+    CFdebug << "sending " << own_elements.size() << " (out of " << nb_elems << ") elements from [" << elements_idx << "] " << elements.uri().path() << " on rank " << my_rank << CFendl;
   }
-  const Uint old_node_count = node_gids.size();
-  mesh.geometry_fields().resize(old_node_count + new_gids.size());
-  common::List<Uint>& node_ranks = mesh.geometry_fields().rank();
-  std::copy(new_gids.begin(), new_gids.end(), node_gids.array().begin() + old_node_count);
-  std::copy(new_ranks.begin(), new_ranks.end(), node_ranks.array().begin() + old_node_count);
-  mesh.update_structures();
-  mesh.geometry_fields().coordinates().parallelize();
-  mesh.geometry_fields().coordinates().synchronize();
+
+  std::vector< std::vector< std::vector<Uint> > > nodes_to_send;
+  adaptor.find_nodes_to_export(elements_to_send,nodes_to_send);
+
+  std::vector< std::vector< std::vector<boost::uint64_t> > > imported_elements;
+  adaptor.send_elements(elements_to_send, imported_elements);
+
+  adaptor.flush_elements();
+
+  std::vector< std::vector< std::vector<boost::uint64_t> > > imported_nodes;
+  adaptor.send_nodes(nodes_to_send,imported_nodes);
+
+  adaptor.flush_nodes();
+
+  adaptor.finish();
 }
 
 //////////////////////////////////////////////////////////////////////////////
