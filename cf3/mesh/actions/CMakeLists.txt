@@ -47,6 +47,8 @@ list( APPEND coolfluid_mesh_actions_files
   ShortestEdge.cpp
   Translate.hpp
   Translate.cpp
+  WallDistance.hpp
+  WallDistance.cpp
 )
 
 list( APPEND coolfluid_mesh_actions_cflibs coolfluid_mesh )

@@ -36,3 +36,8 @@ coolfluid_add_test( UTEST utest-mesh-actions-shortest-edge
 coolfluid_add_test( UTEST utest-mesh-make-boundary-global
                     PYTHON utest-mesh-make-boundary-global.py
                     MPI 4)                    
+
+coolfluid_add_test( UTEST utest-mesh-wall-distance
+                    PYTHON utest-mesh-wall-distance.py
+                    MPI 4)        
+                    

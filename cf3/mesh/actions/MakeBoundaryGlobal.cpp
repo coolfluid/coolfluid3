@@ -12,7 +12,6 @@
 #include "common/Foreach.hpp"
 
 #include "common/PE/Comm.hpp"
-#include "common/PE/debug.hpp"
 
 #include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Faces.hpp"
