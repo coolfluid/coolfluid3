@@ -56,4 +56,13 @@ wall_distance = root.create_component('WallDistance', 'cf3.mesh.actions.WallDist
 wall_distance.mesh = mesh
 wall_distance.execute()
 
-domain.write_mesh(cf.URI('wall-distance.pvtu'))
+domain.write_mesh(cf.URI('wall-distance-step.pvtu'))
+
+mesh.delete_component()
+
+mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'mesh')
+make_boundary_global.mesh = mesh
+make_boundary_global.execute()
+wall_distance.mesh = mesh
+wall_distance.execute()
+domain.write_mesh(cf.URI('wall-distance-sphere.pvtu'))

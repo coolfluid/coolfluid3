@@ -24,6 +24,7 @@
 #include "mesh/ElementData.hpp"
 
 #include "WallDistance.hpp"
+#include <mesh/LagrangeP1/Triag2D.hpp>
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +56,7 @@ struct WallProjection
     RealMatrix elem_coords;
     const Uint dim = m_coords.row_size();
     const RealVector inner_coord = to_vector(m_coords[inner_node_idx]);
+    std::vector<Uint> neighbor_nodes; // Collect neighboring nodes, so we can project onto a sharp corner in 3D if needed (i.e. near a step)
     // Loop over all surface elements around the given node
     BOOST_FOREACH(const Uint elem_idx, m_node_connectivity.node_element_range(surface_node_idx))
     {
@@ -62,29 +64,76 @@ struct WallProjection
       const CNodeConnectivity::ElementReferenceT element_ref = m_node_connectivity.element(elem_idx);
       const ElementType& etype = element_ref.first->element_type();
       const Uint element_nb_nodes = etype.nb_nodes();
-      const Uint element_dim = etype.dimension();
-      elem_coords.resize(element_nb_nodes, element_dim);
-      fill(elem_coords, m_coords, element_ref.first->geometry_space().connectivity()[element_ref.second]);
+      elem_coords.resize(element_nb_nodes, dim);
+      const Connectivity::ConstRow conn_row = element_ref.first->geometry_space().connectivity()[element_ref.second];
+      fill(elem_coords, m_coords, conn_row);
 
       // We consider lines, triangles and quads as viable surface elements
       if(element_nb_nodes < 2 || element_nb_nodes > 4 || etype.order() != 1)
       {
         throw common::SetupError(FromHere(), "Unsupported surface element of type " + etype.name() + " in surface region " + element_ref.first->uri().path());
       }
+      
+      bool in_element = false;
 
       if(element_nb_nodes == 2) // line segment
       {
-        RealVector n(2); // normal vector
+        cf3_assert(dim == 2);
+        cf3_assert(etype.shape() == GeoShape::LINE);
         RealVector e1 = elem_coords.row(1) - elem_coords.row(0); // line segment vector
         Real e1_len = e1.norm();
         e1 /= e1_len;
-        Real projection = e1.dot(inner_coord - elem_coords.row(0).transpose());
+        const Real projection = e1.dot(inner_coord - elem_coords.row(0).transpose());
         // If the projection of the node along the normal fits inside the element, we can take the normal distance
-        if(projection > 0 && projection < e1_len)
-        {
-          etype.compute_normal(elem_coords, n);
-          return (n/n.norm()).dot(inner_coord - elem_coords.row(0).transpose());
-        }
+        in_element = projection > 0 && projection < e1_len;
+      }
+      if(element_nb_nodes == 3)
+      {
+        cf3_assert(dim == 3);
+        cf3_assert(etype.shape() == GeoShape::TRIAG);
+        RealVector3 e1 = (elem_coords.row(1) - elem_coords.row(0)).normalized();
+        RealVector3 en = elem_coords.row(2) - elem_coords.row(0);
+        RealVector3 e2 = (e1.cross(en)).cross(e1).normalized();
+        RealVector3 p = inner_coord - elem_coords.row(0).transpose();
+        
+        // Construct 2D coordinates for the boundary element
+        Eigen::Matrix<Real, 3, 2> triag_coords_2d;
+        triag_coords_2d.row(0).setZero();
+        triag_coords_2d(1,0) = e1.dot(elem_coords.row(1) - elem_coords.row(0));
+        triag_coords_2d(1,1) = 0.;
+        triag_coords_2d(2,0) = e1.dot(elem_coords.row(2) - elem_coords.row(0));
+        triag_coords_2d(2,1) = e2.dot(elem_coords.row(2) - elem_coords.row(0));
+        
+        RealVector2 p_proj(2);
+        p_proj[0] = p.dot(e1);
+        p_proj[1] = p.dot(e2);
+        
+        in_element = LagrangeP1::Triag2D::is_coord_in_element(p_proj, triag_coords_2d);
+        neighbor_nodes.push_back(conn_row[1]);
+        neighbor_nodes.push_back(conn_row[2]);
+      }
+      
+      // If the projection was in an element, we can just proceed to compute the normal distance
+      if(in_element)
+      {
+        RealVector n(dim); // normal vector
+        etype.compute_normal(elem_coords, n);
+        return fabs((n/n.norm()).dot(inner_coord - elem_coords.row(0).transpose()));
+      }
+    }
+    // If we got here, no projections on the elements gave a result
+    // First, verify the 3D case where we need to project on "step" edges
+    BOOST_FOREACH(const Uint neighbor_node, neighbor_nodes)
+    {
+      const RealVector surface_coord = to_vector(m_coords[surface_node_idx]);
+      const RealVector neighbor_coord = to_vector(m_coords[neighbor_node]);
+      RealVector e1 = neighbor_coord - surface_coord;
+      Real e1_len = e1.norm();
+      e1 /= e1_len;
+      const Real projection = e1.dot(inner_coord - surface_coord);
+      if(projection > 0 && projection < e1_len)
+      {
+        return (inner_coord - (surface_coord + e1*projection)).norm();
       }
     }
     return (inner_coord - to_vector(m_coords[surface_node_idx])).norm();
