@@ -23,8 +23,10 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/LagrangeP1/Quad2D.hpp"
+
 #include "WallDistance.hpp"
-#include <mesh/LagrangeP1/Triag2D.hpp>
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -109,8 +111,57 @@ struct WallProjection
         p_proj[1] = p.dot(e2);
         
         in_element = LagrangeP1::Triag2D::is_coord_in_element(p_proj, triag_coords_2d);
-        neighbor_nodes.push_back(conn_row[1]);
-        neighbor_nodes.push_back(conn_row[2]);
+        const Uint origin_corner = std::find(conn_row.begin(), conn_row.end(), surface_node_idx) - conn_row.begin();
+        if(origin_corner == 0)
+        {
+          neighbor_nodes.push_back(conn_row[1]);
+          neighbor_nodes.push_back(conn_row[2]);
+        }
+        else if(origin_corner == 1)
+        {
+          neighbor_nodes.push_back(conn_row[0]);
+          neighbor_nodes.push_back(conn_row[2]);
+        }
+        else
+        {
+          neighbor_nodes.push_back(conn_row[0]);
+          neighbor_nodes.push_back(conn_row[1]);
+        }
+      }
+      if(element_nb_nodes == 4)
+      {
+        cf3_assert(dim == 3);
+        cf3_assert(etype.shape() == GeoShape::QUAD);
+        RealVector3 e1 = (elem_coords.row(1) - elem_coords.row(0)).normalized();
+        RealVector3 en = elem_coords.row(3) - elem_coords.row(0);
+        RealVector3 e2 = (e1.cross(en)).cross(e1).normalized();
+        RealVector3 p = inner_coord - elem_coords.row(0).transpose();
+
+        // Construct 2D coordinates for the boundary element
+        Eigen::Matrix<Real, 4, 2> quad_coords_2d;
+        quad_coords_2d.row(0).setZero();
+        for(int i = 1; i != 4; ++i)
+        {
+          quad_coords_2d(i, 0) = e1.dot(elem_coords.row(i) - elem_coords.row(0));
+          quad_coords_2d(i, 1) = e2.dot(elem_coords.row(i) - elem_coords.row(0));
+        }
+
+        RealVector2 p_proj(2);
+        p_proj[0] = p.dot(e1);
+        p_proj[1] = p.dot(e2);
+
+        in_element = LagrangeP1::Quad2D::is_coord_in_element(p_proj, quad_coords_2d);
+        const Uint origin_corner = std::find(conn_row.begin(), conn_row.end(), surface_node_idx) - conn_row.begin();
+        if(origin_corner == 0 || origin_corner == 2)
+        {
+          neighbor_nodes.push_back(conn_row[1]);
+          neighbor_nodes.push_back(conn_row[3]);
+        }
+        else
+        {
+          neighbor_nodes.push_back(conn_row[0]);
+          neighbor_nodes.push_back(conn_row[2]);
+        }
       }
       
       // If the projection was in an element, we can just proceed to compute the normal distance
