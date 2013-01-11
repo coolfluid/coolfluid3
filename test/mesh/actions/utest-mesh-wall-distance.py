@@ -55,6 +55,7 @@ make_boundary_global.execute()
 
 wall_distance = root.create_component('WallDistance', 'cf3.mesh.actions.WallDistance')
 wall_distance.mesh = mesh
+wall_distance.regions = [mesh.topology.step]
 wall_distance.execute()
 
 domain.write_mesh(cf.URI('wall-distance-2dstep.pvtu'))
@@ -62,14 +63,15 @@ domain.write_mesh(cf.URI('wall-distance-2dstep.pvtu'))
 mesh.delete_component()
 
 # 3D, triangle surface elements
-# mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'mesh')
-# make_boundary_global.mesh = mesh
-# make_boundary_global.execute()
-# wall_distance.mesh = mesh
-# wall_distance.execute()
-# domain.write_mesh(cf.URI('wall-distance-sphere.pvtu'))
-# 
-# mesh.delete_component()
+mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'mesh')
+make_boundary_global.mesh = mesh
+make_boundary_global.execute()
+wall_distance.mesh = mesh
+wall_distance.regions = [mesh.topology.inner]
+wall_distance.execute()
+domain.write_mesh(cf.URI('wall-distance-sphere.pvtu'))
+
+mesh.delete_component()
 
 # 3D, quad surface elements
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
@@ -116,5 +118,6 @@ blocks.create_mesh(mesh.uri())
 make_boundary_global.mesh = mesh
 make_boundary_global.execute()
 wall_distance.mesh = mesh
+wall_distance.regions = [mesh.topology.step, mesh.topology.back]
 wall_distance.execute()
 domain.write_mesh(cf.URI('wall-distance-3dstep.pvtu'))

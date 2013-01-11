@@ -10,6 +10,8 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/Option.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/DiscontinuousDictionary.hpp"
@@ -197,6 +199,11 @@ struct WallProjection
 
 WallDistance::WallDistance(const std::string& name) : MeshTransformer(name)
 {
+  options().add("regions", m_regions)
+      .pretty_name("Regions")
+      .description("Regions that are to be considered as part of the wall")
+      .link_to(&m_regions)
+      .mark_basic();
 }
 
 void WallDistance::execute()
@@ -208,13 +215,16 @@ void WallDistance::execute()
   const Uint nb_nodes = coords.size();
 
   boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("NodeConnectivity");
-  node_connectivity->initialize(nb_nodes, common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()));
-
   std::vector< Handle<Entities const> > surface_entities;
-  BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()))
+  BOOST_FOREACH(const Handle<Region const>& region, m_regions)
   {
-    surface_entities.push_back(elements.handle<Entities const>());
+    BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(*region, IsElementsSurface()))
+    {
+      surface_entities.push_back(elements.handle<Entities const>());
+    }
   }
+
+  node_connectivity->initialize(nb_nodes, surface_entities);
 
   boost::shared_ptr< common::List< Uint > > surface_nodes_ptr = build_used_nodes_list(surface_entities, mesh.geometry_fields(), true);
   const common::List<Uint>& surface_nodes = *surface_nodes_ptr;

@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshTransformer.hpp"
+#include "mesh/Region.hpp"
 
 #include "mesh/actions/LibActions.hpp"
 
@@ -27,6 +28,10 @@ public:
   WallDistance(const std::string& name);
   static std::string type_name() { return "WallDistance"; }
   virtual void execute();
+
+private:
+  /// Wall regions to operate over
+  std::vector< Handle<Region> > m_regions;
 };
 
 
