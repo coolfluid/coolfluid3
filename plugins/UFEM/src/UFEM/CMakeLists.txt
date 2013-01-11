@@ -80,11 +80,21 @@ list( APPEND coolfluid_ufem_files
   Tags.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics coolfluid_mesh)
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation>)
-set( coolfluid_ufem_condition ${CF3_ENABLE_PROTO} )
 
-coolfluid_add_library( coolfluid_ufem )
+coolfluid3_add_library( TARGET     coolfluid_ufem 
+						SOURCES    
+							${coolfluid_ufem_files} 
+						RCC 
+							${coolfluid_ufem_RCC}
+						LIBS	   
+							coolfluid_mesh_lagrangep1 
+							coolfluid_mesh_lagrangep2 
+							coolfluid_solver_actions 
+							coolfluid_physics 
+							coolfluid_mesh
+					    CONDITION  CF3_ENABLE_PROTO )
+
 set_source_files_properties(
   HeatConductionSteady.cpp
   SpalartAllmaras.cpp

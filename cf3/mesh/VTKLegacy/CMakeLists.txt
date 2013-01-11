@@ -5,8 +5,7 @@ list( APPEND coolfluid_mesh_vtklegacy_files
   LibVTKLegacy.hpp
 )
 
-list( APPEND coolfluid_mesh_vtklegacy_cflibs coolfluid_mesh )
-
-set( coolfluid_mesh_vtklegacy_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_vtklegacy )
+coolfluid3_add_library( TARGET  coolfluid_mesh_vtklegacy
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_vtklegacy_files}
+                        LIBS    coolfluid_mesh )

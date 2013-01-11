@@ -7,8 +7,7 @@ list( APPEND coolfluid_mesh_blockmesh_files
   LibBlockMesh.hpp
 )
 
-list( APPEND coolfluid_mesh_blockmesh_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )
-
-set( coolfluid_mesh_blockmesh_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_blockmesh )
+coolfluid3_add_library( TARGET  coolfluid_mesh_blockmesh
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_blockmesh_files}
+                        LIBS    coolfluid_mesh coolfluid_mesh_lagrangep1 )

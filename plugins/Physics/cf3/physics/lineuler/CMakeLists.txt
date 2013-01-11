@@ -18,7 +18,9 @@ list( APPEND coolfluid_physics_lineuler_files
   lineuler2d/Functions.cpp
 )
 
-list( APPEND coolfluid_physics_lineuler_cflibs coolfluid_physics )
+list( APPEND coolfluid_physics_lineuler_cflibs  )
 
-coolfluid_add_library( coolfluid_physics_lineuler )
+coolfluid3_add_library( TARGET   coolfluid_physics_lineuler
+                        SOURCES  ${coolfluid_physics_lineuler_files}
+                        LIBS     coolfluid_physics )
 

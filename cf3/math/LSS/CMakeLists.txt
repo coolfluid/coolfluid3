@@ -21,8 +21,6 @@ list( APPEND coolfluid_math_lss_files
   EmptyLSS/EmptyStrategy.cpp
 )
 
-list( APPEND coolfluid_math_lss_libs coolfluid_math coolfluid_common )
-
 list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/BelosGMRESParameters.hpp
     Trilinos/BelosGMRESParameters.cpp
@@ -45,16 +43,17 @@ list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/TrilinosVector.cpp
 )
 
-# happen to have trilinos
 if(CF3_HAVE_TRILINOS)
     list( APPEND coolfluid_math_lss_files ${coolfluid_math_lss_trilinos_files} )
-    list( APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIRS})
-    list( APPEND coolfluid_math_lss_libs ${TRILINOS_LIBRARIES} )
-    ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
+    list( APPEND coolfluid_math_lss_defs  CF3_HAVE_TRILINOS )
 else()
-  coolfluid_mark_not_orphan( ${coolfluid_math_lss_trilinos_files} )
+    coolfluid_mark_not_orphan( ${coolfluid_math_lss_trilinos_files} )
 endif()
 
-set( coolfluid_math_lss_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_math_lss )
+coolfluid3_add_library( TARGET      coolfluid_math_lss
+                        KERNEL
+                        DEFINITIONS ${coolfluid_math_lss_defs}
+                        SOURCES     ${coolfluid_math_lss_files}
+                        INCLUDES    ${TRILINOS_INCLUDE_DIRS}
+                        LIBS        coolfluid_math coolfluid_common
+                                    ${TRILINOS_LIBRARIES} )

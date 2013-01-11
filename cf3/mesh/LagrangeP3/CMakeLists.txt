@@ -17,8 +17,8 @@ list( APPEND coolfluid_mesh_lagrangep3_files
   Triag2D.cpp
 )
 
-list( APPEND coolfluid_mesh_lagrangep3_cflibs coolfluid_mesh_lagrangep0 )
 
-set( coolfluid_mesh_lagrangep3_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_lagrangep3 )
+coolfluid3_add_library( TARGET  coolfluid_mesh_lagrangep3
+                        KERNEL
+                        SOURCES ${coolfluid_mesh_lagrangep3_files}
+                        LIBS    coolfluid_mesh )

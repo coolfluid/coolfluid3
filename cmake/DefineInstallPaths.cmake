@@ -24,6 +24,10 @@ set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}" )
 
 # create the dso directory for shared libraries
 
-set( coolfluid_DSO_DIR ${coolfluid_BINARY_DIR}/dso )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dso ) # should be change to /lib
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 
-file( MAKE_DIRECTORY ${coolfluid_DSO_DIR} )
+set( CF3_DSO_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
+
+file( MAKE_DIRECTORY ${CF3_DSO_DIR} )

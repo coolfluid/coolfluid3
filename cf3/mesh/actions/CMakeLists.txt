@@ -51,8 +51,7 @@ list( APPEND coolfluid_mesh_actions_files
   WallDistance.cpp
 )
 
-list( APPEND coolfluid_mesh_actions_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )
-
-set( coolfluid_mesh_actions_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_mesh_actions )
+coolfluid3_add_library( TARGET   coolfluid_mesh_actions
+                        KERNEL
+                        SOURCES  ${coolfluid_mesh_actions_files}
+                        LIBS     coolfluid_mesh coolfluid_mesh_lagrangep1 )

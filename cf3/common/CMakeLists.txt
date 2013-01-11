@@ -270,9 +270,10 @@ if( CF3_ENABLE_TCMALLOC )
   list(APPEND coolfluid_common_libs ${GOOGLEPERFTOOLS_TCMALLOC_LIBRARY} )
 endif()
 
-set( coolfluid_common_kernellib TRUE )
-
-coolfluid_add_library( coolfluid_common )
+coolfluid3_add_library( TARGET   coolfluid_common
+                        KERNEL
+                        SOURCES  ${coolfluid_common_files}
+                        LIBS     ${coolfluid_common_libs} )
 
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux

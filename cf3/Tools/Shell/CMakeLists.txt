@@ -7,6 +7,7 @@ list(APPEND coolfluid_shell_files
   BasicCommands.cpp
 )
 
-list( APPEND coolfluid_shell_cflibs coolfluid_common )
-
-coolfluid_add_library( coolfluid_shell )
+coolfluid3_add_library( TARGET  coolfluid_shell
+                        KERNEL
+                        SOURCES ${coolfluid_shell_files}
+                        LIBS    coolfluid_common )
