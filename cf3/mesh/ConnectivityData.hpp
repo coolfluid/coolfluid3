@@ -180,6 +180,20 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
   }
 }
 
+inline void create_celements_vector(const std::vector< Handle<Entities const> >& range, CFaceConnectivity::ElementsT& celements_vector, CFaceConnectivity::IndicesT& celements_first_elements)
+{
+  celements_vector.clear();
+
+  Uint sum = 0;
+  celements_first_elements.clear();
+  BOOST_FOREACH(const Handle<Entities const>& entity, range)
+  {
+    celements_vector.push_back(Handle<Elements const>(entity));
+    celements_first_elements.push_back(sum);
+    sum += entity->geometry_space().connectivity().array().size();
+  }
+}
+
 /// Store connectivity from a node to the elements that use it
 /// @param [in] nb_nodes The total number of nodes to consider. This should be equal to the size of the coordinate table.
 /// @param [in] elements The vector with the Elements to consider. The index of this vector is used to uniquely identify an element
