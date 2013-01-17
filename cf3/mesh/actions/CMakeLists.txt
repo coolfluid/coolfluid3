@@ -37,10 +37,14 @@ list( APPEND coolfluid_mesh_actions_files
   Interpolate.cpp
   LibActions.hpp
   LibActions.cpp
+  LinkPeriodicNodes.hpp
+  LinkPeriodicNodes.cpp
   MakeBoundaryGlobal.hpp
   MakeBoundaryGlobal.cpp
   LoadBalance.hpp
   LoadBalance.cpp
+  RemoveGhostElements.hpp
+  RemoveGhostElements.cpp
   Rotate.hpp
   Rotate.cpp
   ShortestEdge.hpp
