@@ -38,7 +38,8 @@ coolfluid_add_test( UTEST utest-mesh-make-boundary-global
                     MPI 4)
                     
 coolfluid_add_test( UTEST utest-mesh-periodic
-                    PYTHON utest-mesh-periodic.py)
+                    PYTHON utest-mesh-periodic.py
+                    MPI 4)
 
 coolfluid_add_test( UTEST utest-mesh-wall-distance
                     PYTHON utest-mesh-wall-distance.py

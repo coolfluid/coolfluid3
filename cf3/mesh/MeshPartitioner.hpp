@@ -94,8 +94,8 @@ public: // functions
   template <typename VectorT>
   Uint nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const;
 
-  template <typename VectorT>
-  void list_of_connected_objects_in_part(const Uint part, VectorT& connections_per_obj) const;
+  template <typename VectorT, typename WeightsT>
+  void list_of_connected_objects_in_part(const Uint part, VectorT& connections_per_obj, WeightsT& edge_weights) const;
 
   template <typename VectorT>
   void list_of_connected_procs_in_part(const Uint part, VectorT& proc_per_neighbor) const;
@@ -164,6 +164,7 @@ private: // data
 
   Handle< UnifiedData > m_lookup;
 
+  std::vector< std::pair<bool, Uint > > m_periodic_links;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -206,6 +207,8 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
+        if(m_periodic_links[loc_idx].first)
+          ++nb_connections_per_obj[idx];
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
@@ -222,8 +225,8 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
 
 //////////////////////////////////////////////////////////////////////////////
 
-template <typename VectorT>
-void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
+template <typename VectorT, typename WeightsT>
+void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects, WeightsT& edge_weights) const
 {
   // declaration for boost::tie
   Handle< common::Component > comp;
@@ -239,7 +242,16 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
+        {
+          edge_weights[idx] = 1.;
           connected_objects[idx++] = glb_elm;
+        }
+        if(m_periodic_links[loc_idx].first)
+        {
+          const common::List<Uint>& glb_node_indices = nodes->glb_idx();
+          edge_weights[idx] = 1e60;
+          connected_objects[idx++] = glb_node_indices[m_periodic_links[loc_idx].second];
+        }
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
@@ -247,7 +259,10 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
+        {
+          edge_weights[idx] = 1.;
           connected_objects[idx++] = glb_node_indices[ loc_node ];
+        }
       }
     }
   }
@@ -276,6 +291,11 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
+        if(m_periodic_links[loc_idx].first)
+        {
+          const common::List<Uint>& glb_node_indices = nodes->glb_idx();
+          connected_procs[idx++] = part_of_obj(glb_node_indices[m_periodic_links[loc_idx].second]);
+        }
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
