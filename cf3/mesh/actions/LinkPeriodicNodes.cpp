@@ -70,7 +70,7 @@ LinkPeriodicNodes::LinkPeriodicNodes(const std::string& name) : MeshTransformer(
       .link_to(&m_translation_vector)
       .mark_basic();
 
-  options().add("link_ghosts", false)
+  options().add("link_ghosts", true)
       .pretty_name("Link Ghosts")
       .description("Create links for ghost nodes in the source region")
       .mark_basic();

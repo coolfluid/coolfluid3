@@ -95,8 +95,13 @@ void Partitioner::partition_graph()
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
+  if(numExport < 0)
+  {
+    throw common::ParallelError(FromHere(), "Partitioning failed");
+  }
+  
   Uint comp; Uint loc_idx; bool found;
-  for (Uint i=0; i<(Uint)numExport; ++i)
+  for (int i=0; i<numExport; ++i)
   {
     boost::tie(comp,loc_idx) = location_idx(exportGlobalIds[i]);
     if (comp == 0) // if is node

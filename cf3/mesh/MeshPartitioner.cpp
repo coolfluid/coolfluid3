@@ -120,6 +120,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
 
   const Uint nb_nodes = mesh.geometry_fields().size();
   m_periodic_links.assign(nb_nodes, std::make_pair(false, 0));
+  m_inverse_periodic_links.assign(nb_nodes, std::vector<Uint>());
 
   if(is_not_null(periodic_links_active))
   {
@@ -130,8 +131,13 @@ void MeshPartitioner::initialize(Mesh& mesh)
     {
       if(links_active[i])
       {
-        m_periodic_links[links_nodes[i]] = std::make_pair(true, i);
         m_periodic_links[i] = std::make_pair(true, links_nodes[i]);
+        Uint final_target_node = links_nodes[i];
+        while(links_active[final_target_node])
+        {
+          final_target_node = links_nodes[final_target_node];
+        }
+        m_inverse_periodic_links[final_target_node].push_back(i);
       }
     }
   }
@@ -208,7 +214,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
   const Uint nb_nodes = nodes.size();
   for (Uint i=0; i<nb_nodes; ++i)
   {
-    if (!nodes.is_ghost(i))
+    if (!nodes.is_ghost(i) && !m_periodic_links[i].first)
     {
       //std::cout << PE::Comm::instance().rank() << " --   owning node " << node_glb_idx[i] << std::endl;
       ++m_nb_owned_obj;
@@ -386,6 +392,17 @@ void MeshPartitioner::migrate()
   mesh_adaptor.finish();
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+Uint MeshPartitioner::periodic_target_node ( Uint node ) const
+{
+  while(m_periodic_links[node].first)
+    node = m_periodic_links[node].second;
+  
+  return node;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 
