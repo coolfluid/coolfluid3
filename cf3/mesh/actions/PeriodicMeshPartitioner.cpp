@@ -46,6 +46,21 @@ common::ComponentBuilder < PeriodicMeshPartitioner, MeshTransformer, mesh::actio
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
+
+Uint final_target_node(const common::List<Uint>& periodic_links_nodes, const common::List<bool>& periodic_links_active, Uint node)
+{
+  while(periodic_links_active[node])
+  {
+    node = periodic_links_nodes[node];
+  }
+
+  return node;
+}
+
+}
+
 PeriodicMeshPartitioner::PeriodicMeshPartitioner(const std::string& name) :
   MeshTransformer(name),
   m_make_boundary_global(create_static_component<MakeBoundaryGlobal>("MakeBoundaryGlobal")),
@@ -76,40 +91,62 @@ void PeriodicMeshPartitioner::execute()
 
   common::PE::Comm& comm = common::PE::Comm::instance();
 
-  // balance if parallel run with multiple processors
-  if( comm.size() > 1 )
+  CFinfo << "loadbalancing mesh:" << CFendl;
+
+  comm.barrier();
+  CFinfo << "  + building joint node & element global numbering ... " << CFendl;
+
+  // build global numbering and connectivity of nodes and elements (necessary for partitioning)
+  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
+
+  CFinfo << "  + building joint node & element global numbering ... done" << CFendl;
+  comm.barrier();
+
+  CFinfo << "  + building global node-element connectivity ... " << CFendl;
+
+  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_connectivity")->transform(mesh);
+
+  CFinfo << "  + building global node-element connectivity ... done" << CFendl;
+  comm.barrier();
+
+  CFinfo << "  + partitioning and migrating ..." << CFendl;
+  m_mesh_partitioner->transform(mesh);
+  CFinfo << "  + partitioning and migrating ... done" << CFendl;
+
+  mesh.geometry_fields().remove_component("periodic_links_nodes");
+  mesh.geometry_fields().remove_component("periodic_links_active");
+
+  m_make_boundary_global->execute();
+  m_periodic_boundary_linkers->execute();
+
+  Handle< common::List<Uint> > periodic_links_nodes_h(mesh.geometry_fields().get_child("periodic_links_nodes"));
+  Handle< common::List<bool> > periodic_links_active_h(mesh.geometry_fields().get_child("periodic_links_active"));
+  cf3_assert(periodic_links_nodes_h);
+  cf3_assert(periodic_links_active_h);
+
+  const common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+  const common::List<bool>& periodic_links_active = *periodic_links_active_h;
+
+  const Uint nb_nodes = mesh.geometry_fields().size();
+  cf3_assert(nb_nodes == periodic_links_nodes.size());
+  cf3_assert(nb_nodes == periodic_links_active.size());
+
+  common::List<Uint>& ranks = mesh.geometry_fields().rank();
+
+  for(Uint i = 0; i != nb_nodes; ++i)
   {
-
-    CFinfo << "loadbalancing mesh:" << CFendl;
-
-    comm.barrier();
-    CFinfo << "  + building joint node & element global numbering ... " << CFendl;
-
-    // build global numbering and connectivity of nodes and elements (necessary for partitioning)
-    common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
-
-    CFinfo << "  + building joint node & element global numbering ... done" << CFendl;
-    comm.barrier();
-
-    CFinfo << "  + building global node-element connectivity ... " << CFendl;
-
-    common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_connectivity")->transform(mesh);
-
-    CFinfo << "  + building global node-element connectivity ... done" << CFendl;
-    comm.barrier();
-
-    CFinfo << "  + partitioning and migrating ..." << CFendl;
-    m_mesh_partitioner->transform(mesh);
-    CFinfo << "  + partitioning and migrating ... done" << CFendl;
-  }
-  else
-  {
-    /// @todo disable this when below is re-enabled
-    CFinfo << "  + building joint node & element global numbering ..." << CFendl;
-    common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
-    CFinfo << "  + building joint node & element global numbering ... done" << CFendl;
+    ranks[i] = ranks[detail::final_target_node(periodic_links_nodes, periodic_links_active, i)];
   }
 
+  m_remove_ghosts->execute();
+
+  CFinfo << "  + growing overlap layer ..." << CFendl;
+  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
+  CFinfo << "  + growing overlap layer ... done" << CFendl;
+
+  CFinfo << "  + building joint node & element global numbering ..." << CFendl;
+  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
+  CFinfo << "  + building joint node & element global numbering ... done" << CFendl;
 }
 
 Handle< MeshTransformer > PeriodicMeshPartitioner::create_link_periodic_nodes()
