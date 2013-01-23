@@ -56,9 +56,9 @@ public:
   TrilinosFEVbrMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs);
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Deallocate underlying data
   void destroy();
@@ -188,8 +188,6 @@ private:
   /// Copy of the connectivity data
   std::vector<int> m_node_connectivity, m_starting_indices;
 
-  /// For each element of m_node_connectivity, indicate if the entry is kept in the matrix (used to build symmetric matrices keeping only the upper-diagonal)
-  std::vector<bool> m_keep_node;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

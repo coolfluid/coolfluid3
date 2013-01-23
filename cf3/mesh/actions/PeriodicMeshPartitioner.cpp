@@ -147,6 +147,12 @@ void PeriodicMeshPartitioner::execute()
   CFinfo << "  + building joint node & element global numbering ..." << CFendl;
   common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
   CFinfo << "  + building joint node & element global numbering ... done" << CFendl;
+
+  // Make sure we finish with a valid node linking
+  mesh.geometry_fields().remove_component("periodic_links_nodes");
+  mesh.geometry_fields().remove_component("periodic_links_active");
+  m_make_boundary_global->execute();
+  m_periodic_boundary_linkers->execute();
 }
 
 Handle< MeshTransformer > PeriodicMeshPartitioner::create_link_periodic_nodes()

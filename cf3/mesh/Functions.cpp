@@ -31,6 +31,8 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   const Uint all_nb_nodes = dictionary.size();
 
   std::vector<bool> node_is_used(all_nb_nodes, false);
+  const List<Uint>* periodic_links_nodes = dynamic_cast< const List<Uint>* >(dictionary.get_child("periodic_links_nodes").get());
+  const List<bool>* periodic_links_active = dynamic_cast< const List<bool>* >(dictionary.get_child("periodic_links_active").get());
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
@@ -50,6 +52,11 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
           if(!node_is_used[node])
           {
             node_is_used[node] = true;
+            ++nb_nodes;
+          }
+          if(periodic_links_active && (*periodic_links_active)[node] && !node_is_used[(*periodic_links_active)[node]])
+          {
+            node_is_used[(*periodic_links_nodes)[node]] = true;
             ++nb_nodes;
           }
         }
@@ -79,6 +86,11 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
           {
             node_is_used[node] = true;
             nodes_array[back++] = node;
+          }
+          if(periodic_links_active && (*periodic_links_active)[node] && !node_is_used[(*periodic_links_active)[node]])
+          {
+            node_is_used[(*periodic_links_nodes)[node]] = true;
+            nodes_array[back++] = (*periodic_links_nodes)[node];
           }
         }
       }

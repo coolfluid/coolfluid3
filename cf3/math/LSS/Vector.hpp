@@ -49,10 +49,10 @@ public:
   Vector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(common::PE::CommPattern& cp, Uint neq) = 0;
+  virtual void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Vector is split up keeping entries related to the same variable continuously
-  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars) = 0;
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;

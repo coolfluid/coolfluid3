@@ -57,7 +57,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(common::PE::CommPattern& cp, Uint neq)
+  void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=neq;
@@ -65,7 +65,7 @@ public:
     m_is_created=true;
   }
   
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars)
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=vars.size();

@@ -207,6 +207,30 @@ void LSSAction::on_regions_set()
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
+    // Build node periodicity based on the used nodes, if needed
+    std::vector<Uint> periodic_links_nodes_vec;
+    std::vector<bool> periodic_links_active_vec;
+
+    Handle< List<Uint> > periodic_links_nodes_h(m_dictionary->get_child("periodic_links_nodes"));
+    Handle< List<bool> > periodic_links_active_h(m_dictionary->get_child("periodic_links_active"));
+    if(is_not_null(periodic_links_nodes_h))
+    {
+      const List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+      const List<bool>& periodic_links_active = *periodic_links_active_h;
+      const List<Uint>& used_nodes_list = *used_nodes;
+      const Uint nb_used_nodes = used_nodes_list.size();
+      periodic_links_active_vec.resize(nb_used_nodes);
+      periodic_links_nodes_vec.resize(nb_used_nodes);
+      for(Uint i = 0; i != nb_used_nodes; ++i)
+      {
+        if(periodic_links_active[used_nodes_list[i]])
+        {
+          periodic_links_active_vec[i] = true;
+          periodic_links_nodes_vec[i] = (*used_node_map)[periodic_links_nodes[used_nodes_list[i]]];
+        }
+      }
+    }
+
     const bool blocked_system = options().option("blocked_system").value<bool>();
     if(blocked_system)
       CFdebug << "Creating blocked LSS for ";
@@ -215,9 +239,9 @@ void LSSAction::on_regions_set()
     CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
 
     if(blocked_system)
-      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices);
+      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
     else
-      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
 
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());

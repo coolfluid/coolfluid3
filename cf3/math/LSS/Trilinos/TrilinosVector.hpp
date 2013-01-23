@@ -63,8 +63,8 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(common::PE::CommPattern& cp, Uint neq);
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars);
+  void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Deallocate underlying data
   void destroy();

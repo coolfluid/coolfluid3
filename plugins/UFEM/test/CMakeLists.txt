@@ -59,6 +59,10 @@ coolfluid_add_test( ATEST atest-ufem-heat2d-disk
                     PYTHON atest-ufem-heat2d-disk.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
+coolfluid_add_test( ATEST utest-ufem-heat2d-periodic
+                    PYTHON utest-ufem-heat2d-periodic.py
+                    MPI 4 )
+
 coolfluid_add_test( ATEST atest-ufem-heat3d-channel
                     PYTHON atest-ufem-heat3d-channel.py
                     MPI 4 )

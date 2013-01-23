@@ -58,15 +58,15 @@ TrilinosVector::TrilinosVector(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::create(common::PE::CommPattern& cp, Uint neq)
+void TrilinosVector::create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
   single_var_descriptor->options().set(common::Tags::dimension(), neq);
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
-  create_blocked(cp, *single_var_descriptor);
+  create_blocked(cp, *single_var_descriptor, periodic_links_nodes, periodic_links_active);
 }
 
-void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars)
+void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   // if built
   if (m_is_created) destroy();
@@ -75,7 +75,7 @@ void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const Variables
   int nmyglobalelements=0;
   std::vector<int> myglobalelements(0);
 
-  create_map_data(cp, vars, m_p2m, myglobalelements, nmyglobalelements);
+  create_map_data(cp, vars, m_p2m, myglobalelements, nmyglobalelements, periodic_links_nodes, periodic_links_active);
 
   // map (its actually blockmap insteady of rowmap, to involve ghosts)
   Epetra_Map map(-1,cp.isUpdatable().size()*vars.size(),&myglobalelements[0],0,m_comm);

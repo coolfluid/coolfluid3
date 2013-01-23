@@ -105,17 +105,17 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
   single_var_descriptor->options().set(common::Tags::dimension(), neq);
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
-  create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs);
+  create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs, periodic_links_nodes, periodic_links_active);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   // if already created
   if (m_is_created) destroy();
@@ -132,7 +132,7 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
   std::vector<int> num_indices_per_row;
   std::vector<int> my_global_elements;
 
-  create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements);
+  create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements, periodic_links_nodes, periodic_links_active);
   create_nb_indices_per_row(cp, vars, starting_indices, num_indices_per_row);
 
   // rowmap, ghosts not present
