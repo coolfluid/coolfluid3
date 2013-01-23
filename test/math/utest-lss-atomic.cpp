@@ -86,6 +86,8 @@ struct LSSAtomicFixture
   /// build a test system
   void build_system(LSS::System& sys, common::PE::CommPattern& cp)
   {
+    starting_indices.clear();
+    node_connectivity.clear();
     if (irank==0)
     {
       node_connectivity += 0,2,4,6,1,2,3,5,1,3,5,7,1,2,3,5,0,1,3,4,5,6;
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
   common::Core::instance().environment().options().set("log_level", 4u);
   common::Core::instance().environment().options().set("exception_backtrace", false);
   common::Core::instance().environment().options().set("exception_outputs", false);
-  //common::PE::wait_for_debugger(0);
+//  common::PE::wait_for_debugger(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

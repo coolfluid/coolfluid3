@@ -50,12 +50,17 @@ void create_map_data(cf3::common::PE::CommPattern& cp,
 /// @param p2m Mapping from node index to local matrix index
 /// @param num_indices_per_row Will contain the number of indices for each row
 /// @param indices_per_row Flattened list of the indices for each row
+/// @param periodic_links_nodes For each node, its periodic link. Empty if no periodicity
+/// @param periodic_links_active For each node, indicate if it has a periodic link. Empty if no periodicity.
 void create_indices_per_row(cf3::common::PE::CommPattern& cp,
                      const VariablesDescriptor& variables,
                      const std::vector<Uint>& node_connectivity,
                      const std::vector<Uint>& starting_indices,
                      const std::vector<int>& p2m,
-                     std::vector<int>& num_indices_per_row
+                     std::vector<int>& num_indices_per_row,
+                     std::vector<int>& indices_per_row,
+                     const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(),
+                     const std::vector<bool>& periodic_links_active = std::vector<bool>()
                     );
 
 } // namespace LSS

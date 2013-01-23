@@ -6,6 +6,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <set>
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/Log.hpp"
@@ -228,6 +230,138 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
         for(int j = 0; j != neq; ++j)
           my_global_elements.push_back(start_gid+j);
       }
+    }
+  }
+}
+
+void create_indices_per_row(cf3::common::PE::CommPattern& cp,
+                     const VariablesDescriptor& variables,
+                     const std::vector<Uint>& node_connectivity,
+                     const std::vector<Uint>& starting_indices,
+                     const std::vector<int>& p2m,
+                     std::vector<int>& num_indices_per_row,
+                     std::vector<int>& indices_per_row,
+                     const std::vector<Uint>& periodic_links_nodes,
+                     const std::vector<bool>& periodic_links_active
+                    )
+{
+  const Uint nb_vars = variables.nb_vars();
+  const Uint total_nb_eq = variables.size();
+
+  const Uint nb_nodes_for_rank = cp.isUpdatable().size();
+  if(nb_nodes_for_rank+1 != starting_indices.size())
+  {
+    std::cout << "ERROR: starting indices size: " << starting_indices.size() << ", nodes for rank+1: " << nb_nodes_for_rank+1 << std::endl;
+  }
+  cf3_assert(nb_nodes_for_rank+1 == starting_indices.size());
+
+
+  if(periodic_links_active.empty())
+  {
+    // Count the entries for each row
+    Uint total_elements = 0;
+    for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
+    {
+      const Uint neq = variables.var_length(var_idx);
+      for (int i=0; i<nb_nodes_for_rank; i++)
+      {
+        if (cp.isUpdatable()[i])
+        {
+          for(int j = 0; j != neq; ++j)
+          {
+            num_indices_per_row.push_back(total_nb_eq*(starting_indices[i+1]-starting_indices[i]));
+            total_elements += num_indices_per_row.back();
+          }
+        }
+      }
+    }
+
+    // Store the indices for each row
+    indices_per_row.reserve(total_elements);
+    for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
+    {
+      const Uint neq = variables.var_length(var_idx);
+      for (int i=0; i<nb_nodes_for_rank; i++)
+      {
+        if (cp.isUpdatable()[i])
+        {
+          for(int j = 0; j != neq; ++j)
+          {
+            const Uint columns_begin = starting_indices[i];
+            const Uint columns_end = starting_indices[i+1];
+            for(Uint l = columns_begin; l != columns_end; ++l)
+            {
+              const Uint node_idx = node_connectivity[l]*total_nb_eq;
+              for(int k = 0; k != total_nb_eq; ++k)
+              {
+                indices_per_row.push_back(p2m[node_idx+k]);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    std::vector< std::vector<Uint> > inverse_periodic_links(nb_nodes_for_rank);
+
+    cf3_assert(nb_nodes_for_rank == periodic_links_active.size());
+    for(Uint i = 0; i != nb_nodes_for_rank; ++i)
+    {
+      if(periodic_links_active[i])
+      {
+        Uint final_target_node = periodic_links_nodes[i];
+        while(periodic_links_active[final_target_node])
+        {
+          final_target_node = periodic_links_nodes[final_target_node];
+        }
+        inverse_periodic_links[final_target_node].push_back(i);
+      }
+    }
+
+    // With periodic links, we need to make sure each column is only accounted for once, hence the use of a set.
+    std::vector< std::set<Uint> > indices_per_row_sets;
+    indices_per_row_sets.reserve(nb_nodes_for_rank);
+    Uint total_elements = 0;
+    std::vector<int> row_nodes(8); // 3D full periodic collapses at most 8 nodes
+    for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
+    {
+      const Uint neq = variables.var_length(var_idx);
+      for (int i=0; i<nb_nodes_for_rank; i++)
+      {
+        if (cp.isUpdatable()[i] && !periodic_links_active[i])
+        {
+          for(int j = 0; j != neq; ++j)
+          {
+            indices_per_row_sets.push_back( std::set<Uint>() );
+            row_nodes[0] = i;
+            std::copy(inverse_periodic_links[i].begin(), inverse_periodic_links[i].end(), row_nodes.begin()+1);
+            const Uint nb_row_nodes = 1 + inverse_periodic_links[i].size();
+            for(int m = 0; m != nb_row_nodes; ++m)
+            {
+              const Uint columns_begin = starting_indices[row_nodes[m]];
+              const Uint columns_end = starting_indices[row_nodes[m]+1];
+              for(Uint l = columns_begin; l != columns_end; ++l)
+              {
+                const Uint node_idx = node_connectivity[l]*total_nb_eq;
+                for(int k = 0; k != total_nb_eq; ++k)
+                {
+                  indices_per_row_sets.back().insert(p2m[node_idx+k]);
+                }
+              }
+            }
+            total_elements += indices_per_row_sets.back().size();
+          }
+        }
+      }
+    }
+
+    indices_per_row.reserve(total_elements);
+    BOOST_FOREACH(const std::set<Uint>& row_nodes, indices_per_row_sets)
+    {
+      num_indices_per_row.push_back(row_nodes.size());
+      indices_per_row.insert(indices_per_row.end(), row_nodes.begin(), row_nodes.end());
     }
   }
 }

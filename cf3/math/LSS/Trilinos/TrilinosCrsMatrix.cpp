@@ -58,36 +58,6 @@ using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void create_nb_indices_per_row(cf3::common::PE::CommPattern& cp,
-                     const VariablesDescriptor& variables,
-                     const std::vector<Uint>& starting_indices,
-                     std::vector<int>& num_indices_per_row
-                    )
-{
-  const Uint nb_vars = variables.nb_vars();
-  const Uint total_nb_eq = variables.size();
-
-  const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  cf3_assert(nb_nodes_for_rank+1 == starting_indices.size());
-  num_indices_per_row.reserve(nb_nodes_for_rank*total_nb_eq);
-
-  for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
-  {
-    const Uint neq = variables.var_length(var_idx);
-    const Uint var_offset = variables.offset(var_idx);
-    for (int i=0; i<nb_nodes_for_rank; i++)
-    {
-      if (cp.isUpdatable()[i])
-      {
-        for(int j = 0; j != neq; ++j)
-        {
-          num_indices_per_row.push_back(total_nb_eq*(starting_indices[i+1]-starting_indices[i]));
-        }
-      }
-    }
-  }
-}
-
 common::ComponentBuilder < LSS::TrilinosCrsMatrix, LSS::Matrix, LSS::LibLSS > TrilinosCrsMatrix_Builder;
 
 TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
@@ -129,11 +99,14 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
   const Uint total_nb_eq = vars.size();
 
   // prepare intermediate data
-  std::vector<int> num_indices_per_row;
   std::vector<int> my_global_elements;
 
   create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements, periodic_links_nodes, periodic_links_active);
-  create_nb_indices_per_row(cp, vars, starting_indices, num_indices_per_row);
+  std::vector<int> num_indices_per_row; num_indices_per_row.reserve(m_num_my_elements);
+  std::vector<int> indices_per_row;
+  create_indices_per_row(cp, vars, node_connectivity, starting_indices, m_p2m, num_indices_per_row, indices_per_row, periodic_links_nodes, periodic_links_active);
+
+  m_converted_indices.resize(*std::max_element(num_indices_per_row.begin(), num_indices_per_row.end()));
 
   // rowmap, ghosts not present
   Epetra_Map rowmap(-1,m_num_my_elements,&my_global_elements[0],0,m_comm);
@@ -141,40 +114,20 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
   // colmap, has ghosts at the end
   const Uint nb_nodes_for_rank = cp.isUpdatable().size();
   Epetra_Map colmap(-1,nb_nodes_for_rank*total_nb_eq,&my_global_elements[0],0,m_comm);
-  my_global_elements.clear();
+  my_global_elements.clear(); // no longer needed
 
   // Create the graph, using static profile for performance
   Epetra_CrsGraph graph(Copy, rowmap, colmap, &num_indices_per_row[0], true);
 
   // Fill the graph
-  int max_nb_row_entries=0;
-  for(int i = 0; i != nb_nodes_for_rank; ++i)
+  int row_start = 0;
+  cf3_assert(num_indices_per_row.size() == m_num_my_elements);
+  for(int i = 0; i != m_num_my_elements; ++i)
   {
-    const int nb_row_nodes = starting_indices[i+1] - starting_indices[i];
-    max_nb_row_entries = nb_row_nodes > max_nb_row_entries ? nb_row_nodes : max_nb_row_entries;
-  }
-  m_converted_indices.resize(max_nb_row_entries*total_nb_eq);
-  for(int i = 0; i != nb_nodes_for_rank; ++i)
-  {
-    if(cp.isUpdatable()[i])
-    {
-      const Uint columns_begin = starting_indices[i];
-      const Uint columns_end = starting_indices[i+1];
-      for(Uint j = columns_begin; j != columns_end; ++j)
-      {
-        const Uint column = j-columns_begin;
-        const Uint node_idx = node_connectivity[j]*total_nb_eq;
-        for(int k = 0; k != total_nb_eq; ++k)
-        {
-          m_converted_indices[column*total_nb_eq+k] = m_p2m[node_idx+k];
-        }
-      }
-      for(int k = 0; k != total_nb_eq; ++k)
-      {
-        const int row = m_p2m[i*total_nb_eq+k];
-        TRILINOS_THROW(graph.InsertMyIndices(row, static_cast<int>(total_nb_eq*(columns_end - columns_begin)), &m_converted_indices[0]));
-      }
-    }
+    const int row_nb_elems = num_indices_per_row[i];
+    cf3_assert( (row_start + row_nb_elems) <= indices_per_row.size() );
+    TRILINOS_THROW(graph.InsertMyIndices(i, row_nb_elems, &indices_per_row[row_start]));
+    row_start += row_nb_elems;
   }
 
   TRILINOS_THROW(graph.FillComplete());

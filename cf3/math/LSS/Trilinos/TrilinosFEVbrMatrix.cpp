@@ -90,18 +90,13 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   single_var_descriptor->options().set(common::Tags::dimension(), 1); // Use one equation that represents the entire block
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
   create_map_data(cp, *single_var_descriptor, m_p2m, myglobalelements, nmyglobalelements, periodic_links_nodes, periodic_links_active);
-  std::vector<int> rowelements(0);
-  int maxrowentries = 0;
 
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-    if (cp.isUpdatable()[i])
-    {
-      rowelements.push_back((int)(starting_indices[i+1]-starting_indices[i]));
-      maxrowentries=maxrowentries< rowelements.back() ? rowelements.back() : maxrowentries;
-    }
+  std::vector<int> rowelements; rowelements.reserve(nmyglobalelements);
+  std::vector<int> indices_per_row;
+  create_indices_per_row(cp, *single_var_descriptor, node_connectivity, starting_indices, m_p2m, rowelements, indices_per_row, periodic_links_nodes, periodic_links_active);
+  const int maxrowentries = *std::max_element(rowelements.begin(), rowelements.end());
 
   std::vector<double>dummy_entries(maxrowentries*neq*neq,0.);
-  std::vector<int>local_columns(maxrowentries);
 
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
@@ -110,31 +105,22 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
 
   // create matrix
   m_mat=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,&rowelements[0]));
-/*must be a bug in Trilinos, Epetra_FEVbrMatrix constructor is in Copy mode but it hangs up anyway
-  more funny, when it gets out of scope and gets dealloc'd, everything survives according to memcheck
-  rowmap.~Epetra_BlockMap();
-  colmap.~Epetra_BlockMap();
-*/
-  rowelements.clear();
 
   // prepare the entries
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-    if (cp.isUpdatable()[i] && !(periodic_links_active.size() && periodic_links_active[i]))
+  int row_start = 0;
+  cf3_assert(rowelements.size() == nmyglobalelements);
+  for(int i = 0; i != nmyglobalelements; ++i)
+  {
+    const int row_nb_elems = rowelements[i];
+    cf3_assert( (row_start + row_nb_elems) <= indices_per_row.size() );
+    TRILINOS_THROW(m_mat->BeginInsertMyValues(i,row_nb_elems,&indices_per_row[row_start]));
+    for(int j=0; j<row_nb_elems; j++)
     {
-      int nb_added = 0;
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
-      {
-        local_columns[nb_added++]=m_p2m[node_connectivity[j]];
-      }
-      std::cout << "adding local node " << i << " which maps to " << m_p2m[i] << " and has global element " << myglobalelements[m_p2m[i]] << std::endl;
-      TRILINOS_THROW(m_mat->BeginInsertMyValues(m_p2m[i],nb_added,&local_columns[0]));
-      for(int j=0; j<(const int)nb_added; j++)
-      {
-        std::cout << "  adding column " << local_columns[j] << std::endl;
-        TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
-      }
-      TRILINOS_THROW(m_mat->EndSubmitEntries());
+      TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
     }
+    TRILINOS_THROW(m_mat->EndSubmitEntries());
+    row_start += row_nb_elems;
+  }
   TRILINOS_THROW(m_mat->FillComplete());
 
   // set class properties
