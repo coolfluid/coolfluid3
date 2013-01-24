@@ -3,7 +3,7 @@
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
-#include <iostream>
+
 #include "cf3/physics/euler/euler2d/Functions.hpp"
 #include "cf3/math/Defs.hpp"
 
