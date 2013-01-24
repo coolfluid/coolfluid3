@@ -26,21 +26,21 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Reference velocity")
     .mark_basic();
 
-  options().add("density", 1.2)
+  options().add("density", 1.) // 1.2
     .description("Mass density (kg / m^3)")
     .pretty_name("Density")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_rho, this))
     .link_to(&m_rho)
     .mark_basic();
 
-  options().add("dynamic_viscosity", 1.7894e-5)
+  options().add("dynamic_viscosity", 1.) //1.7894e-5
     .description("Dynamic Viscosity (kg / m s)")
     .pretty_name("Dynamic Viscosity")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_mu, this))
     .link_to(&m_mu)
     .mark_basic();
 
-  options().add("kinematic_viscosity", 1.7894e-5/1.2)
+  options().add("kinematic_viscosity", 1.) // 1.7894e-5/1.
     .description("Kinematic Viscosity (m^2/s)")
     .pretty_name("Kinematic Viscosity")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this));
