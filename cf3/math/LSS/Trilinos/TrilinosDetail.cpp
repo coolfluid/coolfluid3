@@ -116,9 +116,7 @@ struct GidConverter
       {
         if(cp.isUpdatable()[i])
         {
-          std::cout << "mapping GID " << gids[i] << " to ";
           gids[i] = periodic_links_active[i] ? -1 : base_gid_counter++;
-          std::cout << gids[i] << std::endl;
         }
       }
 
@@ -224,11 +222,6 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
     }
   }
 
-  for(Uint i = 0; i != p2m.size(); ++i)
-  {
-    std::cout << "rank " << common::PE::Comm::instance().rank() << " node " << i << " p2ms to " << p2m[i] << std::endl;
-  }
-
   // append the ghosts at the end of the element list
   for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
   {
@@ -245,11 +238,6 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
       }
     }
   }
-
-  std::cout << "global elements:";
-  BOOST_FOREACH(const Uint gid, my_global_elements)
-      std::cout << " " << gid;
-  std::cout << std::endl;
 }
 
 void create_indices_per_row(cf3::common::PE::CommPattern& cp,
@@ -376,16 +364,6 @@ void create_indices_per_row(cf3::common::PE::CommPattern& cp,
     {
       num_indices_per_row.push_back(row_nodes.size());
       indices_per_row.insert(indices_per_row.end(), row_nodes.begin(), row_nodes.end());
-    }
-
-    for(Uint i = 0; i != indices_per_row_sets.size(); ++i)
-    {
-      std::cout << "rank " << common::PE::Comm::instance().rank() << " matrix row " << i << " links to columns";
-      BOOST_FOREACH(const int col, indices_per_row_sets[i])
-      {
-        std::cout << " " << col;
-      }
-      std::cout << std::endl;
     }
   }
 }

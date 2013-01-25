@@ -96,12 +96,9 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   Handle< common::List<Uint> const > periodic_links_nodes(dictionary.get_child("periodic_links_nodes"));
   Handle< common::List<bool> const > periodic_links_active(dictionary.get_child("periodic_links_active"));
 
-  std::cout << "Used GIDs on rank " << my_rank << ":";
-  std::set<Uint> used_gids;
   // Fill gid list
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
-    used_gids.insert(dict_gid[used_nodes[i]]);
     if(ranks[i] == my_rank)
     {
       gids[i] = gid_counter++;
@@ -111,19 +108,6 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
     {
       lids_to_receive[ranks[i]].push_back(used_nodes[i]);
       gids_to_receive[ranks[i]].push_back(dict_gid[used_nodes[i]]);
-    }
-  }
-  BOOST_FOREACH(const Uint ugid, used_gids)
-      std::cout << " " << ugid;
-  std::cout << std::endl;
-
-  for(Uint i = 0; i != nb_used_nodes; ++i)
-  {
-    if(periodic_links_active && (*periodic_links_active)[used_nodes[i]])
-    {
-      const Uint ugid = dict_gid[(*periodic_links_nodes)[used_nodes[i]]];
-      std::cout << "rank " << my_rank << ": checking GID " << ugid << std::endl;
-      cf3_assert(used_gids.count(ugid));
     }
   }
 
