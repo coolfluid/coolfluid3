@@ -1205,7 +1205,6 @@ void MeshAdaptor::grow_overlap()
     {
       boost_foreach(const Uint node, face2cell->face_nodes(f))
       {
-        cf3_assert(node<geometry_dict.glb_idx().size());
         bdry_nodes.insert(node);
       }
     }
@@ -1236,8 +1235,10 @@ void MeshAdaptor::grow_overlap()
       if(periodic_links_active[i])
       {
         Uint final_target_node = periodic_links_nodes[i];
+        Uint count = 0;
         while(periodic_links_active[final_target_node])
         {
+          cf3_assert(++count < 10);
           final_target_node = periodic_links_nodes[final_target_node];
         }
         inverse_periodic_links[final_target_node].push_back(i);
@@ -1249,9 +1250,11 @@ void MeshAdaptor::grow_overlap()
     {
       Uint tgt_node = node;
       cf3_assert(tgt_node < nb_links);
+      Uint count = 0;
       while(periodic_links_active[tgt_node])
       {
-        tgt_node = periodic_links_nodes[node];
+        cf3_assert(++count < 10);
+        tgt_node = periodic_links_nodes[tgt_node];
         periodic_nodes.insert(tgt_node);
       }
       boost_foreach(const Uint inverse_link, inverse_periodic_links[node])
