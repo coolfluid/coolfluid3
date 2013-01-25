@@ -28,7 +28,7 @@ using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks, List<Uint>& used_node_map)
+boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks, List<int>& used_node_map)
 {
   // Get some data from the dictionary
   const Uint nb_global_nodes = dictionary.size();
@@ -55,6 +55,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   gids.resize(nb_used_nodes);
   ranks.resize(nb_used_nodes);
   used_node_map.resize(nb_global_nodes);
+  std::fill(used_node_map.array().begin(), used_node_map.array().end(), -1);
   Uint nb_local_nodes = 0;
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
@@ -64,7 +65,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
     {
       ++nb_local_nodes;
     }
-    ranks[i] = dict_rank[i];
+    ranks[i] = dict_rank[node_idx];
   }
 
   // Get the layout of the new GIDs across CPUs
@@ -92,9 +93,15 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   std::vector< std::vector<Uint> > lids_to_receive(nb_procs);
   std::vector< std::vector<Uint> > gids_to_send(nb_procs);
 
+  Handle< common::List<Uint> const > periodic_links_nodes(dictionary.get_child("periodic_links_nodes"));
+  Handle< common::List<bool> const > periodic_links_active(dictionary.get_child("periodic_links_active"));
+
+  std::cout << "Used GIDs on rank " << my_rank << ":";
+  std::set<Uint> used_gids;
   // Fill gid list
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
+    used_gids.insert(dict_gid[used_nodes[i]]);
     if(ranks[i] == my_rank)
     {
       gids[i] = gid_counter++;
@@ -104,6 +111,19 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
     {
       lids_to_receive[ranks[i]].push_back(used_nodes[i]);
       gids_to_receive[ranks[i]].push_back(dict_gid[used_nodes[i]]);
+    }
+  }
+  BOOST_FOREACH(const Uint ugid, used_gids)
+      std::cout << " " << ugid;
+  std::cout << std::endl;
+
+  for(Uint i = 0; i != nb_used_nodes; ++i)
+  {
+    if(periodic_links_active && (*periodic_links_active)[used_nodes[i]])
+    {
+      const Uint ugid = dict_gid[(*periodic_links_nodes)[used_nodes[i]]];
+      std::cout << "rank " << my_rank << ": checking GID " << ugid << std::endl;
+      cf3_assert(used_gids.count(ugid));
     }
   }
 

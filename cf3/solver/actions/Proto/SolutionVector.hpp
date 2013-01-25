@@ -59,7 +59,9 @@ struct GetSolutionVector :
     ) const
     {
       math::LSS::Vector& sol = expr.solution();
-      const Uint node_idx = expr.node_to_lss(data.node_idx);
+      const int node_idx = expr.node_to_lss(data.node_idx);
+      if(node_idx < 0)
+        throw common::SetupError(FromHere(), "Error accessing solution: attempt to use node that is not in the LSS");
       const Uint sys_idx = node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
       for(Uint i = 0; i != VarDataT::dimension; ++i)

@@ -78,8 +78,7 @@ void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const Variables
   create_map_data(cp, vars, m_p2m, myglobalelements, nmyglobalelements, periodic_links_nodes, periodic_links_active);
 
   // map (its actually blockmap insteady of rowmap, to involve ghosts)
-  Epetra_Map map(-1,cp.isUpdatable().size()*vars.size(),&myglobalelements[0],0,m_comm);
-
+  Epetra_Map map(-1,myglobalelements.size(),&myglobalelements[0],0,m_comm);
   // create vector
   m_vec=Teuchos::rcp(new Epetra_Vector(map));
 

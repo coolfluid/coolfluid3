@@ -29,7 +29,7 @@ namespace mesh {
 /// @param [in]  dictionary           dictionary where the nodes are stored
 /// @param [in]  include_ghost_elems  if true, ghost elements will be included in the search
 /// @return used_nodes  List of used nodes
-boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities, const Dictionary& dictionary, bool include_ghost_elems);
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links = true);
 
 /// create_used_nodes_list
 /// @brief Create a List<Uint> containing unique entries of all the nodes used by a vector of entities
@@ -37,7 +37,7 @@ boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const std::vect
 /// @param [in]  dictionary  dictionary where the nodes are stored
 /// @param [in]  include_ghost_elems  if true, ghost elements will be included in the search
 /// @return used_nodes  List of used nodes
-boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const common::Component& node_user, const Dictionary& dictionary, bool include_ghost_elems);
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const common::Component& node_user, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links = true);
 
 ////////////////////////////////////////////////////////////////////////////////
 

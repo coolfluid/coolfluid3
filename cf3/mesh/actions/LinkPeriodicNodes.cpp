@@ -100,8 +100,8 @@ void LinkPeriodicNodes::execute()
   cf3_assert(periodic_links_nodes.size() == mesh.geometry_fields().size());
   cf3_assert(periodic_links_active.size() == mesh.geometry_fields().size());
 
-  boost::shared_ptr< common::List< Uint > > source_nodes = build_used_nodes_list(*m_source_region, mesh.geometry_fields(), true);
-  boost::shared_ptr< common::List< Uint > > destination_nodes = build_used_nodes_list(*m_destination_region, mesh.geometry_fields(), true);
+  boost::shared_ptr< common::List< Uint > > source_nodes = build_used_nodes_list(*m_source_region, mesh.geometry_fields(), true, false);
+  boost::shared_ptr< common::List< Uint > > destination_nodes = build_used_nodes_list(*m_destination_region, mesh.geometry_fields(), true, false);
 
   if(source_nodes->size() != destination_nodes->size())
     throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes");

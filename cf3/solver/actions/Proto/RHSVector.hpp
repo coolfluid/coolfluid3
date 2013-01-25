@@ -52,7 +52,9 @@ struct GetRHSVector :
     ) const
     {
       math::LSS::Vector& rhs = expr.rhs();
-      const Uint node_idx = expr.node_to_lss(data.node_idx);
+      const int node_idx = expr.node_to_lss(data.node_idx);
+      if(node_idx < 0)
+        throw common::SetupError(FromHere(), "RHS access error: attempt to use node that is not in the LSS");
       const Uint sys_idx = node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
       for(Uint i = 0; i != VarDataT::dimension; ++i)

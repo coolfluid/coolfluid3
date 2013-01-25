@@ -91,7 +91,7 @@ public:
       indices[i] = (*m_used_node_map)[indices[i]];
   }
   
-  Uint node_to_lss(const Uint node)
+  int node_to_lss(const Uint node)
   {
     if(is_null(m_used_node_map))
       return node;
@@ -110,7 +110,7 @@ private:
   
   // Used in case there is no 1-to-1 mapping between the mesh nodes and the LSS indices
   common::List<Uint>* m_used_nodes;
-  common::List<Uint>* m_used_node_map;
+  common::List<int>* m_used_node_map;
   
   void trigger_component()
   {
@@ -122,7 +122,7 @@ private:
       m_solution = m_cached_component->solution().get();
       
       m_used_nodes = Handle< common::List<Uint> >(m_cached_component->get_child(mesh::Tags::nodes_used())).get();
-      m_used_node_map = Handle< common::List<Uint> >(m_cached_component->get_child("used_node_map")).get();
+      m_used_node_map = Handle< common::List<int> >(m_cached_component->get_child("used_node_map")).get();
     }
     else
     {

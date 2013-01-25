@@ -100,7 +100,7 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
 
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
-  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),&myglobalelements[0],neq,0,m_comm);
+  Epetra_BlockMap colmap(-1,myglobalelements.size(),&myglobalelements[0],neq,0,m_comm);
   myglobalelements.clear();
 
   // create matrix

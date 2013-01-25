@@ -70,10 +70,16 @@ struct GidConverter
       {
         if(cp.isUpdatable()[i])
         {
-          if(periodic_links_active[i])
+          if(!periodic_links_active[i])
             nb_local_nodes++;
           else
+          {
+            cf3_assert_desc("Periodic link for owned node " + common::to_str(i) + "is on a different process", cp.isUpdatable()[periodic_links_nodes[i]]);
             nb_local_periodic++;
+          }
+        } else if (periodic_links_active[i])
+        {
+          cf3_assert_desc("Periodic link for ghost node " + common::to_str(i) + "is on a my process", !cp.isUpdatable()[periodic_links_nodes[i]]);
         }
       }
 
@@ -110,7 +116,9 @@ struct GidConverter
       {
         if(cp.isUpdatable()[i])
         {
-          gids[i] = periodic_links_active[i] ? periodic_gid_counter++ : base_gid_counter++;
+          std::cout << "mapping GID " << gids[i] << " to ";
+          gids[i] = periodic_links_active[i] ? -1 : base_gid_counter++;
+          std::cout << gids[i] << std::endl;
         }
       }
 
@@ -125,6 +133,7 @@ struct GidConverter
 
   inline int operator[](const int i) const
   {
+    cf3_assert(gids[i] >= 0);
     return gids[i];
   }
 
@@ -138,7 +147,6 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
 {
   // get global ids vector
   const detail::GidConverter gid(periodic_links_nodes, periodic_links_active, cp);
-  CFdebug << "Number of GIDs: " << gid.global_nb_gid << CFendl;
 
   num_my_elements = 0;
 
@@ -216,6 +224,11 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
     }
   }
 
+  for(Uint i = 0; i != p2m.size(); ++i)
+  {
+    std::cout << "rank " << common::PE::Comm::instance().rank() << " node " << i << " p2ms to " << p2m[i] << std::endl;
+  }
+
   // append the ghosts at the end of the element list
   for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
   {
@@ -232,6 +245,11 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
       }
     }
   }
+
+  std::cout << "global elements:";
+  BOOST_FOREACH(const Uint gid, my_global_elements)
+      std::cout << " " << gid;
+  std::cout << std::endl;
 }
 
 void create_indices_per_row(cf3::common::PE::CommPattern& cp,
@@ -249,10 +267,6 @@ void create_indices_per_row(cf3::common::PE::CommPattern& cp,
   const Uint total_nb_eq = variables.size();
 
   const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  if(nb_nodes_for_rank+1 != starting_indices.size())
-  {
-    std::cout << "ERROR: starting indices size: " << starting_indices.size() << ", nodes for rank+1: " << nb_nodes_for_rank+1 << std::endl;
-  }
   cf3_assert(nb_nodes_for_rank+1 == starting_indices.size());
 
 
@@ -362,6 +376,16 @@ void create_indices_per_row(cf3::common::PE::CommPattern& cp,
     {
       num_indices_per_row.push_back(row_nodes.size());
       indices_per_row.insert(indices_per_row.end(), row_nodes.begin(), row_nodes.end());
+    }
+
+    for(Uint i = 0; i != indices_per_row_sets.size(); ++i)
+    {
+      std::cout << "rank " << common::PE::Comm::instance().rank() << " matrix row " << i << " links to columns";
+      BOOST_FOREACH(const int col, indices_per_row_sets[i])
+      {
+        std::cout << " " << col;
+      }
+      std::cout << std::endl;
     }
   }
 }

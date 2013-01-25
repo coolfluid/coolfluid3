@@ -192,7 +192,7 @@ void LSSAction::on_regions_set()
 
     Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
     Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
-    Handle< List<Uint> > used_node_map = m_implementation->m_lss->create_component< List<Uint> >("used_node_map");
+    Handle< List<int> > used_node_map = m_implementation->m_lss->create_component< List<int> >("used_node_map");
 
     std::vector<Uint> node_connectivity, starting_indices;
     boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
@@ -207,6 +207,22 @@ void LSSAction::on_regions_set()
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
+    if(is_not_null(m_dictionary->get_child("node_gids")))
+    {
+      Field& node_gids = *(Handle<Field>(m_dictionary->get_child("node_gids")));
+      const Uint nb_nodes = node_gids.size();
+
+      for(Uint i = 0; i != nb_nodes; ++i)
+      {
+        node_gids[i][0] = -1.;
+      }
+      const Uint nb_used = used_nodes->size();
+      for(Uint i = 0; i != nb_used; ++i)
+      {
+        node_gids[used_nodes->array()[i]][0] = gids->array()[i];
+      }
+    }
+
     // Build node periodicity based on the used nodes, if needed
     std::vector<Uint> periodic_links_nodes_vec;
     std::vector<bool> periodic_links_active_vec;
@@ -219,7 +235,7 @@ void LSSAction::on_regions_set()
       const List<bool>& periodic_links_active = *periodic_links_active_h;
       const List<Uint>& used_nodes_list = *used_nodes;
       const Uint nb_used_nodes = used_nodes_list.size();
-      periodic_links_active_vec.resize(nb_used_nodes);
+      periodic_links_active_vec.resize(nb_used_nodes, false);
       periodic_links_nodes_vec.resize(nb_used_nodes);
       for(Uint i = 0; i != nb_used_nodes; ++i)
       {

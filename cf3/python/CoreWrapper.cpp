@@ -11,6 +11,7 @@
 #include "common/Libraries.hpp"
 #include "common/Group.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 #include "python/CoreWrapper.hpp"
 #include "python/ComponentWrapper.hpp"
@@ -56,6 +57,8 @@ struct CoreWrapper
 
       common::Core::instance().initiate(argc, argv);
       common::PE::Comm::instance().init(argc, argv);
+
+      //common::PE::wait_for_debugger(0);
     }
   }
 

@@ -234,6 +234,7 @@ void LSS::System::get_values(LSS::BlockAccumulator& values)
 
 void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry)
 {
+  std::cout << "rank " << common::PE::Comm::instance().rank() << ": dirichlet at row " << iblockrow << " of value " << value << std::endl;
   cf3_assert(is_created());
 
   if (preserve_symmetry)

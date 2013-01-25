@@ -112,8 +112,7 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
   Epetra_Map rowmap(-1,m_num_my_elements,&my_global_elements[0],0,m_comm);
 
   // colmap, has ghosts at the end
-  const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  Epetra_Map colmap(-1,nb_nodes_for_rank*total_nb_eq,&my_global_elements[0],0,m_comm);
+  Epetra_Map colmap(-1,my_global_elements.size(),&my_global_elements[0],0,m_comm);
   my_global_elements.clear(); // no longer needed
 
   // Create the graph, using static profile for performance

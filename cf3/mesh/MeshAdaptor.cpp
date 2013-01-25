@@ -1206,7 +1206,7 @@ void MeshAdaptor::grow_overlap()
       boost_foreach(const Uint node, face2cell->face_nodes(f))
       {
         cf3_assert(node<geometry_dict.glb_idx().size());
-        bdry_nodes.insert(geometry_dict.glb_idx()[node]);
+        bdry_nodes.insert(node);
       }
     }
   }
@@ -1215,12 +1215,59 @@ void MeshAdaptor::grow_overlap()
 
   //////PECheckArrivePoint(100, "boundary nodes found");
 
-  // Copy set into vector
+  // Also add periodic links, if any
+  Handle< List<Uint> const > periodic_links_nodes_h(geometry_dict.get_child("periodic_links_nodes"));
+  if(is_not_null(periodic_links_nodes_h))
+  {
+    std::set<boost::uint64_t> periodic_nodes;
+    const Uint nb_links = periodic_links_nodes_h->size();
+    cf3_assert(nb_links == geometry_dict.size());
+
+    // Get the periodic data structures
+    const List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+    Handle< List<bool> const > periodic_links_active_h(geometry_dict.get_child("periodic_links_active"));
+    cf3_assert(is_not_null(periodic_links_active_h));
+    const List<bool>& periodic_links_active = *periodic_links_active_h;
+
+    // Build inverse periodic links
+    std::vector< std::vector<Uint> > inverse_periodic_links(nb_links);
+    for(Uint i = 0; i != nb_links; ++i)
+    {
+      if(periodic_links_active[i])
+      {
+        Uint final_target_node = periodic_links_nodes[i];
+        while(periodic_links_active[final_target_node])
+        {
+          final_target_node = periodic_links_nodes[final_target_node];
+        }
+        inverse_periodic_links[final_target_node].push_back(i);
+      }
+    }
+
+    // Add linked nodes
+    boost_foreach (Uint node, bdry_nodes)
+    {
+      Uint tgt_node = node;
+      cf3_assert(tgt_node < nb_links);
+      while(periodic_links_active[tgt_node])
+      {
+        tgt_node = periodic_links_nodes[node];
+        periodic_nodes.insert(tgt_node);
+      }
+      boost_foreach(const Uint inverse_link, inverse_periodic_links[node])
+      {
+        periodic_nodes.insert(inverse_link);
+      }
+    }
+    bdry_nodes.insert(periodic_nodes.begin(), periodic_nodes.end());
+  }
+
+  // Copy set into vector and convert to global indices
   std::vector<boost::uint64_t> glb_boundary_nodes;
   glb_boundary_nodes.reserve(bdry_nodes.size());
   boost_foreach (Uint node, bdry_nodes)
   {
-    glb_boundary_nodes.push_back(node);
+    glb_boundary_nodes.push_back(geometry_dict.glb_idx()[node]);
   }
   bdry_nodes.clear();
 

@@ -65,7 +65,8 @@ struct BoundaryConditions::Implementation
     m_component.options().add(solver::Tags::regions(), std::vector<URI>())
       .pretty_name("Regions")
       .description("Regions the boundary condition applies to")
-      .link_to(&m_region_uris);
+      .link_to(&m_region_uris)
+      .mark_basic();
     m_component.options().add< Handle<physics::PhysModel> >(solver::Tags::physical_model())
       .pretty_name("Physical Model")
       .description("Physical Model")
