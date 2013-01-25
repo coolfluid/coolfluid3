@@ -79,7 +79,10 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu
+                    MPI 2)
+                    
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-periodic-channel-2d
+                    PYTHON atest-ufem-navier-stokes-periodic-channel-2d.py
                     MPI 2)
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
