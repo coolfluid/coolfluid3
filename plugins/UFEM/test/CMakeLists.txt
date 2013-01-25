@@ -85,6 +85,10 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-periodic-channel-2d
                     PYTHON atest-ufem-navier-stokes-periodic-channel-2d.py
                     MPI 2)
 
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-taylor-green
+                    PYTHON atest-ufem-navier-stokes-taylor-green.py
+                    MPI 2)
+
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
                     MPI 1)
