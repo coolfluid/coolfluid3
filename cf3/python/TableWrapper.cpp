@@ -41,7 +41,10 @@ struct TableRowWrapper
   static ValueT get_item(RowT& self, const Uint i)
   {
     if(i >= self.size())
-      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table row of size " + boost::lexical_cast<std::string>(self.size()));
+    {
+      PyErr_SetString(PyExc_IndexError, ("Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table row of size " + boost::lexical_cast<std::string>(self.size())).c_str());
+      boost::python::throw_error_already_set();
+    }
     return self[i];
   }
 
@@ -78,7 +81,10 @@ struct TableList : PythonListInterface
   virtual object get_item(const Uint i) const
   {
     if(i >= m_table.size())
-      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table with number of rows: " + boost::lexical_cast<std::string>(m_table.size()));
+    {
+      PyErr_SetString(PyExc_IndexError, ("Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table with number of rows: " + boost::lexical_cast<std::string>(m_table.size())).c_str());
+      boost::python::throw_error_already_set();
+    }
     return object(m_table[i]);
   }
 
