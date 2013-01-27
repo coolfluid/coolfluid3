@@ -69,7 +69,6 @@ void ImposeCFL::execute()
 
   if (options().value<bool>("time_accurate")) // global time stepping
   {
-
     Time& time = *m_time;
 
     cf3_assert_desc("Fields not compatible: "+to_str(time_step.size())+"!="+to_str(wave_speed.size()),time_step.size() == wave_speed.size());
@@ -83,7 +82,6 @@ void ImposeCFL::execute()
     /// - Make time step stricter through the CFL number
     Real min_dt = dt;
     Real max_dt = 0.;
-    RealVector ws(wave_speed.row_size());
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
       if (wave_speed[i][0] > 0.)
@@ -116,17 +114,18 @@ void ImposeCFL::execute()
     // Update the new time step
     time.dt() = dt;
 
-
-    // Fix wave-speed for visualization
-    Real glb_max_dt;
-    PE::Comm::instance().all_reduce(PE::min(), &max_dt, 1, &glb_max_dt);
-    for (Uint i=0; i<wave_speed.size(); ++i)
-    {
-      if (wave_speed[i][0] == 0.)
-      {
-        wave_speed[i][0] = cfl/glb_max_dt;
-      }
-    }
+// UNCOMMENTING THIS WILL FIX THE UPPER-LIMIT OF THE WAVESPEED FOREVER :(
+// DUE TO LINE 88
+//    // Fix wave-speed for visualization
+//    Real glb_max_dt;
+//    PE::Comm::instance().all_reduce(PE::min(), &max_dt, 1, &glb_max_dt);
+//    for (Uint i=0; i<wave_speed.size(); ++i)
+//    {
+//      if (wave_speed[i][0] == 0.)
+//      {
+//        wave_speed[i][0] = cfl/glb_max_dt;
+//      }
+//    }
   }
   else // local time stepping
   {

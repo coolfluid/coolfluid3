@@ -91,6 +91,7 @@ PDESolver::PDESolver( const std::string& name ) :
 void PDESolver::config_history()
 {
   m_history->options().set("file",URI("solve_"+m_pde->name()+".tsv"));
+  m_history->options().set("dimension",m_pde->nb_dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

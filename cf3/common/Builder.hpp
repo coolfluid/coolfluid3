@@ -204,7 +204,7 @@ struct ComponentBuilder
     // put builder in correct factory
     Handle<Factory> factory(common::Core::instance().factories().get_factory< BASE >());
 
-    cf3_assert ( is_not_null(factory) );
+    cf3_assert_desc ( BASE::type_name()+" is not a valid factory type", is_not_null(factory) );
 
     Handle< common::BuilderT<BASE,CONCRETE> > builder =
         factory->create_component< BuilderT<BASE,CONCRETE> >( name );

@@ -3,7 +3,7 @@
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
-#include <iostream>
+
 #include "cf3/physics/euler/euler2d/Functions.hpp"
 #include "cf3/math/Defs.hpp"
 
@@ -15,12 +15,10 @@ namespace euler2d {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void compute_convective_flux( const Data& p, const ColVector_NDIM& normal,
-                                    RowVector_NEQS& flux, Real& wave_speed )
+                              RowVector_NEQS& flux, Real& wave_speed )
 {
-  static Real un;
-  static Real rho_un;
-  un = p.U.dot(normal);
-  rho_un = p.rho * un;
+  const Real un = p.U.dot(normal);
+  const Real rho_un = p.rho * un;
   flux[0] = rho_un;
   flux[1] = rho_un * p.U[XX] + p.p * normal[XX];
   flux[2] = rho_un * p.U[YY] + p.p * normal[YY];
@@ -29,12 +27,10 @@ void compute_convective_flux( const Data& p, const ColVector_NDIM& normal,
 }
     
 void compute_convective_flux( const Data& p, const ColVector_NDIM& normal,
-                                    RowVector_NEQS& flux )
+                              RowVector_NEQS& flux )
 {
-  static Real un;
-  static Real rho_un;
-  un = p.U.dot(normal);
-  rho_un = p.rho * un;
+  const Real un = p.U.dot(normal);
+  const Real rho_un = p.rho * un;
   flux[0] = rho_un;
   flux[1] = rho_un * p.U[XX] + p.p * normal[XX];
   flux[2] = rho_un * p.U[YY] + p.p * normal[YY];
@@ -42,16 +38,15 @@ void compute_convective_flux( const Data& p, const ColVector_NDIM& normal,
 }
 
 void compute_convective_wave_speed( const Data& p, const ColVector_NDIM& normal,
-                                          Real& wave_speed )
+                                    Real& wave_speed )
 {
   wave_speed=std::abs(p.U.dot(normal))+p.c;
 }
 
 void compute_convective_eigenvalues( const Data& p, const ColVector_NDIM& normal,
-                                           RowVector_NEQS& eigen_values )
+                                     RowVector_NEQS& eigen_values )
 {
-  static Real un;
-  un = p.U.dot(normal);
+  const Real un = p.U.dot(normal);
   eigen_values <<
       un,
       un,
@@ -60,7 +55,7 @@ void compute_convective_eigenvalues( const Data& p, const ColVector_NDIM& normal
 }
 
 void compute_convective_right_eigenvectors( const Data& p, const ColVector_NDIM& normal,
-                                                 Matrix_NEQSxNEQS& right_eigenvectors )
+                                            Matrix_NEQSxNEQS& right_eigenvectors )
 {
   const Real& u = p.U[XX];
   const Real& v = p.U[YY];
@@ -100,8 +95,8 @@ void compute_convective_left_eigenvectors( const Data& p, const ColVector_NDIM& 
 void compute_rusanov_flux( const Data& left, const Data& right, const ColVector_NDIM& normal,
                            RowVector_NEQS& flux, Real& wave_speed )
 {
-  static RowVector_NEQS left_flux, right_flux;
-  static Real left_wave_speed, right_wave_speed;
+  RowVector_NEQS left_flux, right_flux;
+  Real left_wave_speed, right_wave_speed;
   compute_convective_flux( left,  normal, left_flux,  left_wave_speed );
   compute_convective_flux( right, normal, right_flux, right_wave_speed);
   wave_speed = std::max(left_wave_speed,right_wave_speed);
@@ -112,10 +107,8 @@ void compute_rusanov_flux( const Data& left, const Data& right, const ColVector_
 void compute_roe_average( const Data& left, const Data& right,
                           Data& roe )
 {
-  static Real sqrt_rhoL;
-  static Real sqrt_rhoR;
-  sqrt_rhoL = std::sqrt(left.rho);
-  sqrt_rhoR = std::sqrt(right.rho);
+  const Real sqrt_rhoL = std::sqrt(left.rho);
+  const Real sqrt_rhoR = std::sqrt(right.rho);
   roe.gamma = 0.5*(left.gamma+right.gamma);
   roe.rho   = sqrt_rhoL*sqrt_rhoR;
   roe.U     = (sqrt_rhoL*left.U + sqrt_rhoR*right.U) / (sqrt_rhoL + sqrt_rhoR);
@@ -130,20 +123,18 @@ void compute_roe_flux( const Data& left, const Data& right, const ColVector_NDIM
                        RowVector_NEQS& flux, Real& wave_speed )
 {
   // Compute Roe average
-  static Data roe;
+  Data roe;
   compute_roe_average(left,right,roe);
 
   // Compute the wave strengths dW
-  static RowVector_NEQS dW;
-  static ColVector_NDIM dU;
-  static ColVector_NDIM s;
-  static Real drho, dun, dus, dp;
+  RowVector_NEQS dW;
+  ColVector_NDIM s;
   s << normal[YY], -normal[XX];
-  drho = (right.rho - left.rho);
-  dU   = (right.U   - left.U);
-  dp   = (right.p   - left.p);
-  dun  = dU.dot(normal);
-  dus  = dU.dot(s);
+  const ColVector_NDIM dU = (right.U - left.U);
+  const Real drho = (right.rho - left.rho);
+  const Real dp   = (right.p   - left.p);
+  const Real dun  = dU.dot(normal);
+  const Real dus  = dU.dot(s);
   
   dW[0] = drho - dp/roe.c2;
   dW[1] = dus * roe.rho;
@@ -151,13 +142,13 @@ void compute_roe_flux( const Data& left, const Data& right, const ColVector_NDIM
   dW[3] = 0.5*(dp/roe.c2 - dun*roe.rho/roe.c);
 
   // Compute the wave speeds
-  static RowVector_NEQS lambda;
+  RowVector_NEQS lambda;
   compute_convective_eigenvalues(roe, normal, lambda);
 
-  static Matrix_NEQSxNEQS R;
+  Matrix_NEQSxNEQS R;
   compute_convective_right_eigenvectors(roe, normal, R);
 
-  static RowVector_NEQS flux_left, flux_right;
+  RowVector_NEQS flux_left, flux_right;
   compute_convective_flux(left,normal,flux_left);
   compute_convective_flux(right,normal,flux_right);
   flux.noalias() = 0.5*(flux_left+flux_right);
@@ -174,15 +165,15 @@ void compute_hlle_flux( const Data& left, const Data& right, const ColVector_NDI
                         RowVector_NEQS& flux, Real& wave_speed )
 {
   // Compute Roe average
-  static Data roe;
+  Data roe;
   compute_roe_average(left,right,roe);
 
-  static RowVector_NEQS lambda_left, lambda_right, lambda_roe;
+  RowVector_NEQS lambda_left, lambda_right, lambda_roe;
   compute_convective_eigenvalues(left,  normal, lambda_left);
   compute_convective_eigenvalues(right, normal, lambda_right);
   compute_convective_eigenvalues(roe,   normal, lambda_roe);
 
-  static Real wave_speed_left, wave_speed_right;
+  Real wave_speed_left, wave_speed_right;
   wave_speed_left  = std::min(lambda_left.minCoeff(),  lambda_roe.minCoeff()); // u - c
   wave_speed_right = std::max(lambda_right.maxCoeff(), lambda_roe.maxCoeff()); // u + c
 
@@ -196,7 +187,7 @@ void compute_hlle_flux( const Data& left, const Data& right, const ColVector_NDI
   }
   else // intermediate state
   {
-    static RowVector_NEQS flux_left, flux_right;
+    RowVector_NEQS flux_left, flux_right;
     compute_convective_flux(left,  normal, flux_left );
     compute_convective_flux(right, normal, flux_right);
     for (Uint eq=0; eq<NEQS; ++eq)
