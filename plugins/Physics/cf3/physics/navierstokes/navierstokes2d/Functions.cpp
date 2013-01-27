@@ -7,6 +7,7 @@
 #include "cf3/physics/navierstokes/navierstokes2d/Functions.hpp"
 #include "cf3/math/Defs.hpp"
 #include "cf3/common/BasicExceptions.hpp"
+
 namespace cf3 {
 namespace physics {
 namespace navierstokes {
@@ -30,6 +31,7 @@ void compute_diffusive_flux( const Data& p, const ColVector_NDIM& normal,
   Real two_third_divergence_U = 2./3.*(p.grad_u[XX] + p.grad_v[YY]);
 
   // Viscous stress tensor
+  // tau_ij = mu ( du_i/dx_j + du_j/dx_i - delta_ij 2/3 div(u) )
   Real tau_xx = p.mu*(2.*p.grad_u[XX] - two_third_divergence_U);
   Real tau_yy = p.mu*(2.*p.grad_v[YY] - two_third_divergence_U);
   Real tau_xy = p.mu*(p.grad_u[YY] + p.grad_v[XX]);
