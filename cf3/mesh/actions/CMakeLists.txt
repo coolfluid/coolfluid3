@@ -37,6 +37,8 @@ list( APPEND coolfluid_mesh_actions_files
   Interpolate.cpp
   LibActions.hpp
   LibActions.cpp
+  MakeBoundaryGlobal.hpp
+  MakeBoundaryGlobal.cpp
   LoadBalance.hpp
   LoadBalance.cpp
   Rotate.hpp
@@ -45,9 +47,11 @@ list( APPEND coolfluid_mesh_actions_files
   ShortestEdge.cpp
   Translate.hpp
   Translate.cpp
+  WallDistance.hpp
+  WallDistance.cpp
 )
 
 coolfluid3_add_library( TARGET   coolfluid_mesh_actions
                         KERNEL
                         SOURCES  ${coolfluid_mesh_actions_files}
-                        LIBS     coolfluid_mesh )
+                        LIBS     coolfluid_mesh coolfluid_mesh_lagrangep1 )
