@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_NavierStokes_LibNavierStokes_hpp
-#define cf3_NavierStokes_LibNavierStokes_hpp
+#ifndef cf3_physics_euler_LibEuler_hpp
+#define cf3_physics_euler_LibEuler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro NavierStokes_API
+/// Define the macro Euler_API
 /// @note build system defines COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
 #ifdef COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS
-#   define NavierStokes_API      CF3_EXPORT_API
+#   define euler_API      CF3_EXPORT_API
 #   define TEMPLATE
 #else
-#   define NavierStokes_API      CF3_IMPORT_API
-#   define NavierStokes_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define euler_API      CF3_IMPORT_API
+#   define euler_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,17 +28,17 @@
 namespace cf3 {
 namespace physics {
 
-/// @brief %Physics %NavierStokes classes
+/// @brief %Physics %Euler classes
 ///
-/// NavierStokes functionality for the %Physics is added in this library
+/// Euler functionality for the %Physics is added in this library
 /// @author Willem Deconinck
-namespace NavierStokes {
+namespace euler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the NavierStokes library
+/// Class defines the Euler library
 /// @author Tiago Quintino
-class NavierStokes_API LibNavierStokes : public common::Library
+class euler_API LibEuler : public common::Library
 {
 public:
 
@@ -46,19 +46,19 @@ public:
   
 
   /// Constructor
-  LibNavierStokes ( const std::string& name) : common::Library(name) { }
+  LibEuler ( const std::string& name) : common::Library(name) { }
 
-  virtual ~LibNavierStokes() { }
+  virtual ~LibEuler() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.physics.NavierStokes"; }
+  static std::string library_namespace() { return "cf3.physics.euler"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "NavierStokes"; }
+  static std::string library_name() { return "Euler"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
@@ -70,16 +70,16 @@ public: // functions
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibNavierStokes"; }
+  static std::string type_name() { return "LibEuler"; }
 
-}; // end LibNavierStokes
+}; // end LibEuler
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // NavierStokes
+} // euler
 } // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_NavierStokes_LibNavierStokes_hpp
+#endif // cf3_physics_euler_LibEuler_hpp

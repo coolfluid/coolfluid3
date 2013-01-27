@@ -82,7 +82,8 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_history      = create_static_component<History>("history");
   history()->options().set("file",URI("file:timestepping.tsv"));
-
+  history()->options().set("dimension",3u);
+  
   // Set a few variables in history. More can be added during run-time
   // following the same way.
   history()->set("step",0);
@@ -239,6 +240,7 @@ void TimeStepping::do_step()
   properties()["cputime"] = cputime;
 
   /// (7) Write history
+  CFinfo << "Writing history" << CFendl;
 
   history()->set("step",step);
   history()->set("time",time);
@@ -246,9 +248,12 @@ void TimeStepping::do_step()
   history()->set("walltime",walltime);
   history()->set("cputime",cputime);
   history()->set("memory",memory);
+  
+    CFinfo << "Saving entry" << CFendl;
   history()->save_entry();
 
   /// (8) Output info
+      CFinfo << "output summary" << CFendl;
   CFinfo << history()->entry().summary() << CFendl;
 //  if (options().value<bool>("time_accurate"))
 //    CFinfo << "step [" << std::setw(4) << step << "]  "
