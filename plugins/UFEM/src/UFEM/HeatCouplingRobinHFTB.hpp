@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_HeatCouplingFlux_hpp
-#define cf3_UFEM_HeatCouplingFlux_hpp
+#ifndef cf3_UFEM_HeatCouplingRobinHFTB_hpp
+#define cf3_UFEM_HeatCouplingRobinHFTB_hpp
 
 
 #include "solver/ActionDirector.hpp"
@@ -20,25 +20,24 @@ namespace cf3 {
   namespace mesh { class Region; }
 namespace UFEM {
 
-/// Calculate the heat flux from the one domain and apply is as a Neumann
-/// boundary condition to problem on the adjacent domain
+/// Calculate the heat flux from the one domain using the wall heat transfer equation
+/// and apply it as a Robin boundary condition to the problem on the adjacent domain
 /// The "regions" option determines the boundary on which to set the condition
-/// The "gradient_region" option determines the region in which the temperature gradient
-/// is calculated
+/// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API HeatCouplingFlux : public solver::ActionDirector
+class UFEM_API HeatCouplingRobinHFTB : public solver::ActionDirector
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  HeatCouplingFlux ( const std::string& name );
+  HeatCouplingRobinHFTB ( const std::string& name );
   
-  virtual ~HeatCouplingFlux();
+  virtual ~HeatCouplingRobinHFTB();
 
   /// Get the class name
-  static std::string type_name () { return "HeatCouplingFlux"; }
+  static std::string type_name () { return "HeatCouplingRobinHFTB"; }
 
 private:
   /// Called when the boundary regions are set
@@ -53,11 +52,11 @@ private:
   Handle<mesh::Region> m_gradient_region;
   Handle<math::LSS::System> m_lss;
   cf3::solver::actions::Proto::SystemRHS m_rhs;
-
+  cf3::solver::actions::Proto::SystemMatrix system_matrix;
 
   // Access to the physics
 
-  PhysicsConstant heat_cond;
+  PhysicsConstant h;
   PhysicsConstant m_alpha;
 
 };
@@ -66,4 +65,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_HeatCouplingFlux_hpp
+#endif // cf3_UFEM_HeatCouplingRobinHFTB_hpp

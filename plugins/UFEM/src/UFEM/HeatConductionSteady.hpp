@@ -37,7 +37,6 @@ private:
   Handle<solver::actions::Proto::ProtoAction> m_update;
   PhysicsConstant heat_cond;
 
-
 };
 
 } // UFEM

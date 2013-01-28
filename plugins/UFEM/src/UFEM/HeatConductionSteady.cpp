@@ -115,12 +115,12 @@ void HeatConductionSteady::trigger()
           _A = _0,
           element_quadrature
           (
-            _A(T) += k * transpose(nabla(T)) * nabla(T)
+            _A(T) += heat_cond * transpose(nabla(T)) * nabla(T)
           )
         ),
         specialized_elements(heat_specialized(T, k, _A(T))),
         system_matrix +=  _A,
-        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q) * heat_cond
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
       )
     ));
   }
@@ -134,7 +134,7 @@ void HeatConductionSteady::trigger()
         _A = _0,
         element_quadrature
         (
-          _A(T) += k * transpose(nabla(T)) * nabla(T)
+          _A(T) += heat_cond * transpose(nabla(T)) * nabla(T)
         ),
         system_matrix +=  _A,
         system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)

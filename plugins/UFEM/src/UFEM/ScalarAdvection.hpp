@@ -54,7 +54,7 @@ private:
   virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
 
   /// Scalar diffusivity
-  Real m_alpha;
+  PhysicsConstant m_alpha;
 
   /// Stabilization coefficient
   Real tau_su;

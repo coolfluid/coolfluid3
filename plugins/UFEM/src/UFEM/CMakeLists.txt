@@ -42,6 +42,8 @@ list( APPEND coolfluid_ufem_files
   ComputeTfluid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
+  HeatCouplingRobinHFTB.hpp
+  HeatCouplingRobinHFTB.cpp
   InitialConditionConstant.hpp
   InitialConditionConstant.cpp
   InitialConditionFunction.hpp
