@@ -57,9 +57,10 @@ private:
 
   // Access to the physics
 
-  PhysicsConstant heat_cond;
-  PhysicsConstant m_alpha;
-
+  PhysicsConstant lambda_f;
+  PhysicsConstant lambda_s;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
 };
 
 } // UFEM

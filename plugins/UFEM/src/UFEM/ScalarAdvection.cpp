@@ -47,12 +47,6 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name), m_alpha("scalar_coefficient")
 {
-  // TODO: Move this to the physical model
-  //options().add("scalar_coefficient", 1.)
-  //  .description("Scalar coefficient ")
-  //  .pretty_name("Scalar coefficient")
-  // .link_to(&m_alpha)
-  //  .mark_basic();
 
   options().add("scalar_name", "Scalar")
     .pretty_name("Scalar Name")

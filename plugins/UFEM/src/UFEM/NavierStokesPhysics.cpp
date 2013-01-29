@@ -60,22 +60,27 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Thermal_expansion_coefficient")
     .mark_basic();
 
-  options().add("specific_heat_capacity", 1.0)
+  options().add("specific_heat_capacity", 1.0) //cp
     .description("Specific heat capacity cp ()")
     .pretty_name("Specific_heat_capacity")
     .mark_basic();
 
-  options().add("heat_conductivity", 1.0)
-    .description("Heat conductivity kappa ()")
-    .pretty_name("Heat_conductivity")
+  options().add("thermal_conductivity_solid", 1.0) //lambda_s
+    .description("thermal conductivity in the solid ()")
+    .pretty_name("Thermal_Conductivity_Solid")
     .mark_basic();
 
-  options().add("scalar_coefficient", 1.0)
-    .description("scalar_coefficient alpha ()")
-    .pretty_name("Scalar_coefficient")
+  options().add("scalar_coefficient", 1.0)  //m_alpha
+    .description("scalar coefficient for scalar advection equaiton ()")
+    .pretty_name("Scalar_Coefficient")
     .mark_basic();
 
-  options().add("heat_transfer_coefficient", 1.0)
+  options().add("thermal_conductivity_fluid", 1.0) //lambda_f
+    .description("thermal conductivity in the fluid ()")
+    .pretty_name("Thermal_Conductivity_Fluid")
+    .mark_basic();
+
+  options().add("heat_transfer_coefficient", 1.0) //h
     .description("Heat transfer coefficient h for Robin boundary condition ()")
     .pretty_name("Heat_transfer_coefficient")
     .mark_basic();

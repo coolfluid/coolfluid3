@@ -62,7 +62,7 @@ struct HeatSpecialized
 
 static solver::actions::Proto::MakeSFOp<HeatSpecialized>::type const heat_specialized = {};
 
-HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), heat_cond("heat_conductivity")
+HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), lambda_s("thermal_conductivity_solid")
 {
   options().add("heat_space_name", "geometry")
     .pretty_name("Heat Space Name")
@@ -115,7 +115,7 @@ void HeatConductionSteady::trigger()
           _A = _0,
           element_quadrature
           (
-            _A(T) += heat_cond * transpose(nabla(T)) * nabla(T)
+            _A(T) += lambda_s * transpose(nabla(T)) * nabla(T)
           )
         ),
         specialized_elements(heat_specialized(T, k, _A(T))),
@@ -134,7 +134,7 @@ void HeatConductionSteady::trigger()
         _A = _0,
         element_quadrature
         (
-          _A(T) += heat_cond * transpose(nabla(T)) * nabla(T)
+          _A(T) += lambda_s * transpose(nabla(T)) * nabla(T)
         ),
         system_matrix +=  _A,
         system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)

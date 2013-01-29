@@ -35,7 +35,7 @@ private:
   void trigger();
   Handle<solver::actions::Proto::ProtoAction> m_assembly;
   Handle<solver::actions::Proto::ProtoAction> m_update;
-  PhysicsConstant heat_cond;
+  PhysicsConstant lambda_s;
 
 };
 
