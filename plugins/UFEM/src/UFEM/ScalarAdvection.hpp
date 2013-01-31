@@ -55,8 +55,9 @@ private:
 
   /// Scalar diffusivity
   PhysicsConstant m_alpha;
- // PhysicsConstant cp;
- // PhysicsConstant rho;
+  PhysicsConstant lambda_f;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
 
   /// Stabilization coefficient
   Real tau_su;

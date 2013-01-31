@@ -45,7 +45,7 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ScalarAdvection::ScalarAdvection(const std::string& name) :
-  LSSActionUnsteady(name), m_alpha("scalar_coefficient")
+  LSSActionUnsteady(name), m_alpha("scalar_coefficient"), lambda_f("thermal_conductivity_fluid"), cp("specific_heat_capacity"), rho("density")
 {
 
   options().add("scalar_name", "Scalar")
@@ -98,7 +98,7 @@ void ScalarAdvection::trigger_scalar_name()
       UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
       element_quadrature
       (
-        _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi))  * u_adv * nabla(Phi) +  m_alpha * transpose(nabla(Phi)) * nabla(Phi) ,
+       _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi)) * u_adv * nabla(Phi) + transpose(nabla(Phi)) * nabla(Phi) * lambda_f/(boost::proto::lit(rho)*cp) ,
        _T(Phi,Phi) +=  transpose(N(Phi) + tau_su * u_adv * nabla(Phi)) * N(Phi)
       ),
       system_matrix += invdt() * _T + 1.0 * _A,
