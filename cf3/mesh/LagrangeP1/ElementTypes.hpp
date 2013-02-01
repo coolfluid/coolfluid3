@@ -21,6 +21,7 @@
 #include "mesh/LagrangeP1/Triag3D.hpp"
 #include "mesh/LagrangeP1/Hexa3D.hpp"
 #include "mesh/LagrangeP1/Tetra3D.hpp"
+#include "mesh/LagrangeP1/Prism3D.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -38,7 +39,8 @@ Quad3D,
 Triag2D,
 Triag3D,
 Hexa3D,
-Tetra3D
+Tetra3D,
+Prism3D
 > ElementTypes;
 
 typedef boost::mpl::filter_view<ElementTypes, IsCellType> CellTypes;

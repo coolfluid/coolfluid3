@@ -51,7 +51,7 @@ const cf3::mesh::ElementType& Prism3D::face_type(const cf3::Uint face)
 {
   static const boost::shared_ptr< ElementType > quad( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
   static const boost::shared_ptr< ElementType > triag( common::allocate_component<ElementTypeT<LagrangeP1::Triag3D> >(LagrangeP1::Triag3D::type_name()) );
-  if(face < 3)
+  if(face < 2)
     return *triag;
 
   return *quad;

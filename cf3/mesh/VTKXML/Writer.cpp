@@ -248,7 +248,8 @@ void Writer::write()
     (GeoShape::TRIAG,5)
     (GeoShape::QUAD, 9)
     (GeoShape::TETRA, 10)
-    (GeoShape::HEXA, 12);
+    (GeoShape::HEXA, 12)
+    (GeoShape::PRISM, 13);
 
   // Count number of elements
   Uint nb_elems = 0;

@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <set>
+
 #include "mesh/GeoShape.hpp"
 
 #include "mesh/neu/LibNeu.hpp"
@@ -37,7 +39,7 @@ public:
 
 protected:
 
-  enum neuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
+  enum neuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4, PRISM=5, TETRA=6};
   
   std::map<GeoShape::Type,Uint> m_CFelement_to_neuElement;
   std::vector<std::string> m_supported_types;    
@@ -45,6 +47,8 @@ protected:
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
   std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
   std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
+
+  std::set<Uint> m_supported_neu_types;
 
 }; // end Shared
 
