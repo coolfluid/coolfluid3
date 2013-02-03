@@ -114,14 +114,14 @@ Shared::Shared() :
   m_faces_cf_to_neu[PRISM].resize(5);
   m_faces_cf_to_neu[PRISM][0]=4;
   m_faces_cf_to_neu[PRISM][1]=5;
-  m_faces_cf_to_neu[PRISM][2]=1;
-  m_faces_cf_to_neu[PRISM][3]=3;
+  m_faces_cf_to_neu[PRISM][2]=3;
+  m_faces_cf_to_neu[PRISM][3]=1;
   m_faces_cf_to_neu[PRISM][4]=2;
   
   m_faces_neu_to_cf[PRISM].resize(6);
-  m_faces_neu_to_cf[PRISM][1]=2;
+  m_faces_neu_to_cf[PRISM][1]=3;
   m_faces_neu_to_cf[PRISM][2]=4;
-  m_faces_neu_to_cf[PRISM][3]=3;
+  m_faces_neu_to_cf[PRISM][3]=2;
   m_faces_neu_to_cf[PRISM][4]=0;
   m_faces_neu_to_cf[PRISM][5]=1;
 
@@ -200,19 +200,19 @@ Shared::Shared() :
   // prism
   m_nodes_cf_to_neu[PRISM].resize(6);
   m_nodes_cf_to_neu[PRISM][0]=0;
-  m_nodes_cf_to_neu[PRISM][1]=2;
-  m_nodes_cf_to_neu[PRISM][2]=1;
+  m_nodes_cf_to_neu[PRISM][1]=1;
+  m_nodes_cf_to_neu[PRISM][2]=2;
   m_nodes_cf_to_neu[PRISM][3]=3;
-  m_nodes_cf_to_neu[PRISM][4]=5;
-  m_nodes_cf_to_neu[PRISM][5]=4;
+  m_nodes_cf_to_neu[PRISM][4]=4;
+  m_nodes_cf_to_neu[PRISM][5]=5;
   
   m_nodes_neu_to_cf[PRISM].resize(6);
   m_nodes_neu_to_cf[PRISM][0]=0;
-  m_nodes_neu_to_cf[PRISM][1]=2;
-  m_nodes_neu_to_cf[PRISM][2]=1;
+  m_nodes_neu_to_cf[PRISM][1]=1;
+  m_nodes_neu_to_cf[PRISM][2]=2;
   m_nodes_neu_to_cf[PRISM][3]=3;
-  m_nodes_neu_to_cf[PRISM][4]=5;
-  m_nodes_neu_to_cf[PRISM][5]=4;
+  m_nodes_neu_to_cf[PRISM][4]=4;
+  m_nodes_neu_to_cf[PRISM][5]=5;
 }
 
 //////////////////////////////////////////////////////////////////////////////

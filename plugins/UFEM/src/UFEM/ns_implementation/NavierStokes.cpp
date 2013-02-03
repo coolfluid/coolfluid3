@@ -129,12 +129,13 @@ void NavierStokes::trigger_assembly()
     }
   else
   {
-  // Add the assembly, depending on the use of specialized code or not
-  const bool use_specializations = options().value<bool>("use_specializations");
-  set_triag_assembly(use_specializations);
-  set_tetra_assembly(use_specializations);
-  set_quad_assembly();
-  set_hexa_assembly();
+    // Add the assembly, depending on the use of specialized code or not
+    const bool use_specializations = options().value<bool>("use_specializations");
+    set_triag_assembly(use_specializations);
+    set_tetra_assembly(use_specializations);
+    set_quad_assembly();
+    set_hexa_assembly();
+    set_prism_assembly();
   }
   if(is_not_null(m_physical_model))
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);

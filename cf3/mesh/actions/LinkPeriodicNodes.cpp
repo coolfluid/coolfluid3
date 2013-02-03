@@ -38,7 +38,7 @@ namespace detail {
 /// Check if two points are close to each other
 inline bool is_close(const RealVector& a, const RealVector& b)
 {
-  return (b-a).squaredNorm() < 1e-16;
+  return (b-a).squaredNorm() < 1e-8;
 }
 
 }
@@ -102,6 +102,8 @@ void LinkPeriodicNodes::execute()
 
   boost::shared_ptr< common::List< Uint > > source_nodes = build_used_nodes_list(*m_source_region, mesh.geometry_fields(), true, false);
   boost::shared_ptr< common::List< Uint > > destination_nodes = build_used_nodes_list(*m_destination_region, mesh.geometry_fields(), true, false);
+  
+  CFdebug << "Linking source region " << m_source_region->uri().string() << " to destination region " << m_destination_region->uri().string() << CFendl;
 
   if(source_nodes->size() != destination_nodes->size())
     throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes");
@@ -111,6 +113,8 @@ void LinkPeriodicNodes::execute()
 
   const RealVector translation_vector = to_vector(m_translation_vector);
 
+  bool matched_region = true;
+  
   BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
   {
     if(periodic_links_active[source_node_idx])
@@ -124,14 +128,39 @@ void LinkPeriodicNodes::execute()
     {
       if(detail::is_close(source_coord, to_vector(coords[dest_node_idx])))
       {
-        CFdebug << "linking GID " << mesh.geometry_fields().glb_idx()[source_node_idx] << " to GID " << mesh.geometry_fields().glb_idx()[dest_node_idx] << CFendl;
         periodic_links_active[source_node_idx] = true;
         periodic_links_nodes[source_node_idx] = dest_node_idx;
         found_match = true;
       }
     }
     if(!found_match)
-      throw common::SetupError(FromHere(), "Error: source and destination boundaries do not match at source node " + common::to_str(source_node_idx));
+    {
+      matched_region = false;
+      break;
+    }
+  }
+  
+  if(!matched_region)
+  {
+    RealVector source_centroid(coords.row_size());
+    source_centroid.setZero();
+    BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
+    {
+      source_centroid += to_vector(coords[source_node_idx]);
+    }
+    source_centroid /= source_nodes->size();
+    
+    RealVector dest_centroid(coords.row_size());
+    dest_centroid.setZero();
+    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
+    {
+      dest_centroid += to_vector(coords[dest_node_idx]);
+    }
+    dest_centroid /= destination_nodes->size();
+    
+    std::stringstream errstr;
+    errstr << "source and destination boundaries do not match. Centroid offset vector is " << (dest_centroid - source_centroid).transpose();
+    throw common::SetupError(FromHere(), errstr.str());
   }
 
 }

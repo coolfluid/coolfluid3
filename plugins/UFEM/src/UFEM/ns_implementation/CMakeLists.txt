@@ -17,11 +17,11 @@ list( APPEND ns_implementation_files_no_debug
   NavierStokesExplicitTetrasVelocity.cpp
   NavierStokesExplicitTetrasVelocityImplicit.cpp
   NavierStokesExplicitTriagsPressureRHS.cpp
-  
   NavierStokesExplicitTriagsPressureGradient.cpp
   NavierStokesExplicitTriagsVelocity.cpp
   NavierStokesExplicitTriagsVelocityImplicit.cpp
   NavierStokesHexas.cpp
+  NavierStokesPrisms.cpp
   NavierStokesQuads.cpp
   NavierStokesTetras.cpp
   NavierStokesTriags.cpp

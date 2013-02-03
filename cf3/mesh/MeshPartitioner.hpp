@@ -263,8 +263,6 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
             edge_weights[idx] = 1.;
             connected_objects[idx++] = glb_elm;
           }
-          if(!m_inverse_periodic_links[loc_idx].empty())
-            CFdebug << "rank " << common::PE::Comm::instance().rank() << ": adding " << m_inverse_periodic_links[loc_idx].size() << " inverse links for node " << loc_idx << CFendl;
           BOOST_FOREACH(const Uint linked_loc_idx, m_inverse_periodic_links[loc_idx])
           {
             boost_foreach (const Uint glb_elm , node_to_glb_elm[linked_loc_idx])

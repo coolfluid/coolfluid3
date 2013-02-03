@@ -2,6 +2,7 @@ option(CF3_UFEM_ENABLE_TRIAGS "Enable code generation for triangular elements, f
 option(CF3_UFEM_ENABLE_QUADS  "Enable code generation for quadrilateral elements, for solvers provide compile-time element selection"   ON)
 option(CF3_UFEM_ENABLE_TETRAS "Enable code generation for tetrahedral elements, for solvers provide compile-time element selection"     ON)
 option(CF3_UFEM_ENABLE_HEXAS  "Enable code generation for hexahedral elements, for solvers provide compile-time element selection"      ON)
+option(CF3_UFEM_ENABLE_PRISMS "Enable code generation for prism (wedge) elements, for solvers provide compile-time element selection"   ON)
 
 mark_as_advanced(CF3_UFEM_ENABLE_TRIAGS)
 mark_as_advanced(CF3_UFEM_ENABLE_QUADS)
