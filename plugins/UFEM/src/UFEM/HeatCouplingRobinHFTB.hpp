@@ -59,6 +59,13 @@ private:
   PhysicsConstant h;
   PhysicsConstant m_alpha;
 
+  PhysicsConstant lambda_f;
+  PhysicsConstant lambda_s;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
+
+  Real m_area;
+
 };
 
 } // UFEM

@@ -113,7 +113,7 @@ void HeatCouplingRobin::trigger_setup()
       _A(T) = _0,
       system_matrix +=  h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
       m_rhs +=  h * (integral<1>(transpose(N(T))*Tfluid*_norm(normal))),
-      _cout << "Robin_rhs pre" << h * (-integral<1>(transpose(N(T))*Tfluid*_norm(normal))) << "\n"
+      _cout << "Robin_rhs pre" << h * (integral<1>(transpose(N(T))*Tfluid*_norm(normal))) << "\n"
         )
   ));
   }

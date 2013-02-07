@@ -53,7 +53,11 @@ HeatCouplingRobinHFTB::HeatCouplingRobinHFTB(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss")),
   h("heat_transfer_coefficient"),
-  m_alpha("scalar_coefficient")
+  m_alpha("scalar_coefficient"),
+  lambda_f("thermal_conductivity_fluid"),
+  lambda_s("thermal_conductivity_solid"),
+  rho("density"),
+  cp("specific_heat_capacity")
 {
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
@@ -68,11 +72,6 @@ HeatCouplingRobinHFTB::HeatCouplingRobinHFTB(const std::string& name) :
   options().add("temperature_solid_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Solid Field Tag")
     .description("Tag for the temperature in the solid for Robin BC")
-    .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_setup, this));
-
-  options().add("robin_pre", true)
-    .pretty_name("Robin precalculation")
-    .description("Do a first of two steps to calculate an 'ambient' fluid temperature for the Robin BC")
     .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_setup, this));
 
   options().add("gradient_region", m_gradient_region)
@@ -112,7 +111,6 @@ void HeatCouplingRobinHFTB::trigger_setup()
 {
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
-  const std::string temperature_fluid_field_tag = options().value<std::string>("temperature_fluid_field_tag");
   const std::string temperature_solid_field_tag = options().value<std::string>("temperature_solid_field_tag");
 
   //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
@@ -121,38 +119,11 @@ void HeatCouplingRobinHFTB::trigger_setup()
 
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
-  FieldVariable<1, ScalarField> Tfluid("Temperature", temperature_fluid_field_tag);
   FieldVariable<2, ScalarField> Tsolid("Temperature", temperature_solid_field_tag);
   // Represents the gradient of the temperature, to be stored in an (element based) field
   FieldVariable<3, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
-  // to do first of two steps for the Robin BC
-  const bool robin_pre = options().value<bool>("robin_pre");
-
-  if (robin_pre == true)
-  {
-    // Expression for the Robin BC
-    neumann_heat_flux->set_expression(elements_expression
-    (
-     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-     group
-     (
-     _A(T) = _0,
-     system_matrix +=  h * (-integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
-     m_rhs +=  h * (integral<1>(transpose(N(T))*(Tsolid *_norm(normal)))), //-/m_alpha * _norm(GradT * normal)))))         // Tfluid = Tfl * normal - m_alpha * GradT * normal
-     _cout << "RobinHFTB_rhs:" << h * (integral<1>(transpose(N(T))*(Tsolid *_norm(normal)))) << "\n"
-     )
-    ));
-
-    second_heat_flux->set_expression(elements_expression
-    (
-      boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal*m_alpha))
-                           //            _cout << "RobinHFTB_rhs_second_flux:" << - integral<1>(transpose(N(T))*GradT*normal*m_alpha) << "\n"
-    ));
-  }
-  else
-  {
+  m_area = 0;
 
     // Expression for the Robin BC
     neumann_heat_flux->set_expression(elements_expression
@@ -160,20 +131,21 @@ void HeatCouplingRobinHFTB::trigger_setup()
      boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
      group
      (
-     _A(T) = _0,
-     system_matrix +=  h * (integral<1>(transpose(N(T))*N(T)*_norm(normal))), // Formulation of Robin Boundary condition
-     m_rhs +=  h * (-integral<1>(transpose(N(T))*(Tsolid *_norm(normal)))), //-/m_alpha * _norm(GradT * normal)))))         // Tfluid = Tfl * normal - m_alpha * GradT * normal
-     _cout << "RobinHFTB_rhs" << h * (-integral<1>(transpose(N(T))*(Tsolid *_norm(normal)))) << "\n"
+     _A(Tsolid) = _0,
+     system_matrix +=  h * ( - integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal))), // Formulation of Robin Boundary condition
+     _cout << " system "<< transpose(h * ( - integral<1>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n",
+     m_rhs +=  h * ( integral<2>(transpose(N(T))*(T *_norm(normal)))), //-/m_alpha * _norm(GradT * normal)))))         // Tfluid = Tfl * normal - m_alpha * GradT * normal
+     boost::proto::lit(m_area )+= integral<1>(_norm(normal)), _cout << "area: " << m_area << " Tsolid = " << transpose(nodal_values(Tsolid)) << "T:" << transpose(nodal_values(T)) << "rhs_first: " << h * ( integral<1>(transpose(N(T))*(T*_norm(normal)))) << "\n"
      )
     ));
 
     second_heat_flux->set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += integral<1>(transpose(N(T))*GradT*normal*m_alpha))
-                               //        _cout << "RobinHFTB_rhs_second_flux:" << - integral<1>(transpose(N(T))*GradT*normal*m_alpha)  << "\n"
+      group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal*lambda_f),
+      _cout << "rhs_second:" << - integral<1>(transpose(N(T))*GradT*normal*lambda_f) << "\n"
+            )
     ));
-  }
   // Raise an event to indicate that we added a variable (GradT)
   common::XML::SignalOptions options;
   common::SignalArgs f = options.create_frame();
