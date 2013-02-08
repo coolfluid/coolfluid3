@@ -123,7 +123,6 @@ void HeatCouplingRobinHFTB::trigger_setup()
   // Represents the gradient of the temperature, to be stored in an (element based) field
   FieldVariable<3, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
-  m_area = 0;
 
     // Expression for the Robin BC
     neumann_heat_flux->set_expression(elements_expression
@@ -132,18 +131,17 @@ void HeatCouplingRobinHFTB::trigger_setup()
      group
      (
      _A(Tsolid) = _0,
-     system_matrix +=  h * ( - integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal))), // Formulation of Robin Boundary condition
-     _cout << " system "<< transpose(h * ( - integral<1>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n",
-     m_rhs +=  h * ( integral<2>(transpose(N(T))*(T *_norm(normal)))), //-/m_alpha * _norm(GradT * normal)))))         // Tfluid = Tfl * normal - m_alpha * GradT * normal
-     boost::proto::lit(m_area )+= integral<1>(_norm(normal)), _cout << "area: " << m_area << " Tsolid = " << transpose(nodal_values(Tsolid)) << "T:" << transpose(nodal_values(T)) << "rhs_first: " << h * ( integral<1>(transpose(N(T))*(T*_norm(normal)))) << "\n"
+     system_matrix +=  -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
+     m_rhs += -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) + (h * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))), // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
+     _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n"
      )
     ));
 
     second_heat_flux->set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal*lambda_f),
-      _cout << "rhs_second:" << - integral<1>(transpose(N(T))*GradT*normal*lambda_f) << "\n"
+      group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_f),
+      _cout << "rhs_second:" << transpose(- integral<1>(transpose(N(T))*GradT*normal*lambda_f)) << "\n"
             )
     ));
   // Raise an event to indicate that we added a variable (GradT)
