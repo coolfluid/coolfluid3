@@ -133,7 +133,7 @@ private:
   Real tau_ps, tau_su, tau_bulk;
 
   /// Explcit algorithm constants
-  Real gamma_u, gamma_p;
+  Real gamma_u;
 
   /// Maximum Peclet number for the current timestep
   Real alpha;

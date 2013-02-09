@@ -1,11 +1,6 @@
 import sys
 import coolfluid as cf
 import numpy as np
-try:
-  import pylab as pl
-  have_pylab = True
-except:
-  have_pylab = False
 
 env = cf.Core.environment()
 
@@ -14,35 +9,27 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 1
+env.log_level = 4
 
 class TaylorGreen:
   Ua = 0.
   Va = 0.
   D = 0.5
-  t = 0.
   
+  t = np.array([])
   max_error = np.array([])
   
   model = None
+  solver = None
   mesh = None
   
   
-  def setup(self, segments, Ua, Va, D):
-    if self.model != None:
-      self.model.delete_component()
-      
-    self.Ua = Ua
-    self.Va = Va
-    self.D = D
-    
-    model = cf.Core.root().create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
-    self.model = model
-    domain = model.create_domain()
-    physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
-    solver = model.create_solver('cf3.UFEM.Solver')
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-    
+  def __init__(self, dt, element):
+    self.dt = dt
+    self.element = element
+  
+  def create_mesh(self, segments):
+    domain = self.model.Domain
     blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
     points = blocks.create_points(dimensions = 2, nb_points = 6)
     points[0]  = [-0.5, -0.5]
@@ -78,10 +65,24 @@ class TaylorGreen:
     right_patch[0] = [1, 3]
     right_patch[1] = [3, 5]
     
+    blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+    
     mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
     self.mesh = mesh
     
     blocks.create_mesh(mesh.uri())
+    
+    create_point_region = domain.create_component('CreatePointRegion', 'cf3.mesh.actions.AddPointRegion')
+    create_point_region.coordinates = [0., 0.]
+    create_point_region.region_name = 'center'
+    create_point_region.mesh = mesh
+    create_point_region.execute()
+    
+    
+    if self.element == 'triag':
+      triangulator = domain.create_component('Triangulator', 'cf3.mesh.MeshTriangulator')
+      triangulator.mesh = mesh
+      triangulator.execute()
     
     partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
     partitioner.mesh = mesh
@@ -97,35 +98,121 @@ class TaylorGreen:
     link_vertical.translation_vector = [0., -1.]
 
     partitioner.execute()
-
-    ns_solver.regions = [mesh.topology.interior.uri()]
-
-    solver.create_fields()
-
+    
+    coords = self.mesh.geometry.coordinates
+    self.sample_coords = range(len(coords))
+    
+    # for i in range(len(coords)):
+    #   (x,y) = coords[i]
+    #   if x == 0 and y == 0:
+    #     self.sample_coords = [i]
+    
+    return mesh
+    
+  def setup_ic(self, u_tag, p_tag):
     #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
-    ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
+    ic_u = self.solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
     ic_u.variable_name = 'Velocity'
-    ic_u.regions = [mesh.topology.interior.uri()]
-    ic_u.value = ['{Ua} - cos(pi/{D}*x)*sin(pi/{D}*y)'.format(Ua = Ua, D = D), '{Va} + sin(pi/{D}*x)*cos(pi/{D}*y)'.format(Va = Va, D = D)]
+    ic_u.regions = [self.mesh.topology.interior.uri()]
+    ic_u.value = ['{Ua} - cos(pi/{D}*x)*sin(pi/{D}*y)'.format(Ua = self.Ua, D = self.D), '{Va} + sin(pi/{D}*x)*cos(pi/{D}*y)'.format(Va = self.Va, D = self.D)]
 
-    ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
-    ic_p.regions = [mesh.topology.interior.uri()]
+    ic_p = self.solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
+    ic_p.regions = [self.mesh.topology.interior.uri()]
     ic_p.variable_name = 'Pressure'
-    ic_p.value = ['-0.25*(cos(2*pi/{D}*x) + cos(2*pi/{D}*y))'.format(D = D)]
-
+    ic_p.value = ['-0.25*(cos(2*pi/{D}*x) + cos(2*pi/{D}*y))'.format(D = self.D)]
+    
     ic_u.execute()
     ic_p.execute()
-    domain.write_mesh(cf.URI('taylor-green-init.pvtu'))
-
+    self.model.Domain.write_mesh(cf.URI('init.pvtu'))
+    
+    #ic_p.value = ['0.']
+  
+  def setup_model(self):
+    if self.model != None:
+      self.model.delete_component()
+    
+    model = cf.Core.root().create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
+    self.model = model
+    domain = model.create_domain()
+    physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
+    self.solver = model.create_solver('cf3.UFEM.Solver')
+    
     # Physical constants
     physics.density = 1.
-    physics.dynamic_viscosity = 0.0001
+    physics.dynamic_viscosity = 0.001
     physics.reference_velocity = 1.
+    
+    return self.solver
   
-  def iterate(self, tstep, numsteps, save_interval = 1):
+  def setup_implicit(self, segments, Ua, Va, D, theta):
+    self.Ua = Ua
+    self.Va = Va
+    self.D = D
+    self.segments = segments
+    
+    self.implicit = True
+    
+    solver = self.setup_model()
+    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
+    ns_solver.options.theta = theta
+    self.theta = theta
+    
+    mesh = self.create_mesh(segments)
+    ns_solver.regions = [mesh.topology.interior.uri()]
+    
+    bc = ns_solver.BoundaryConditions
+    bc.regions = [mesh.topology.uri()]
+    nu = self.model.NavierStokesPhysics.kinematic_viscosity
+    bc.add_function_bc(region_name = 'center', variable_name = 'Pressure').value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
+    
+    
+    lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
+    lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.solver_type = 'Mumps'
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.create_parameter_list('Amesos Settings').add_parameter(name = 'MaxProcs', value=1)
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.add_parameter(name = 'Redistribute', value=True)
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.create_parameter_list('Mumps').add_parameter(name='Equilibrate', value = False)
+
+    solver.create_fields()
+    self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
+    
+  def setup_semi_implicit(self, segments, Ua, Va, D):  
+    self.Ua = Ua
+    self.Va = Va
+    self.D = D
+    self.segments = segments
+    
+    self.implicit = False
+    
+    solver = self.setup_model()
+    
+    # Add the Navier-Stokes solver as an unsteady solver
+    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesExplicit')
+    ns_solver.options.implicit_diffusion = True
+    ns_solver.InnerLoop.options.max_iter = 2
+    ns_solver.options.gamma_u = 1.
+    self.theta = ns_solver.options.gamma_u
+    
+    mesh = self.create_mesh(segments)
+
+    ns_solver.regions = [mesh.topology.interior.uri()]
+    
+    lss_u = ns_solver.InnerLoop.VelocitySystem.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
+    lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
+    lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-8
+
+    solver.create_fields()
+    self.setup_ic('navier_stokes_u_solution', 'navier_stokes_p_solution')
+  
+  def iterate(self, numsteps, save_interval = 1, process_interval = 1):
+    
+    tstep = self.dt
     
     if (numsteps % save_interval) != 0:
       raise RuntimeError('Number of time steps cannot be divided by save_interval')
+
+    self.outfile = open('uv_error-{element}-{segments}-dt_{tstep}-theta_{theta}.txt'.format(element = self.element, segments = self.segments, tstep = tstep, theta = self.theta), 'w', 1)
+    self.outfile.write('# time (s), max u error, max v error\n')
     
     # Time setup
     time = self.model.create_time()
@@ -137,31 +224,48 @@ class TaylorGreen:
     time.end_time = 0.
     
     # Resize the error array
-    self.max_error = np.zeros((3, numsteps/save_interval))
+    self.max_error = np.zeros((3, numsteps))
+    self.t = np.zeros(numsteps)
 
     while time.current_time < final_end_time:
-      time.end_time += save_interval*tstep
+      time.end_time += tstep
       self.model.simulate()
-      self.check_result()
-      self.model.Domain.write_mesh(cf.URI('taylor-green-' +str(self.iteration) + '.pvtu'))
+      self.t[self.iteration] = time.current_time
+      if self.iteration % process_interval == 0:
+        self.check_result()
+      if self.iteration % save_interval == 0:
+        self.model.Domain.write_mesh(cf.URI('taylor-green-' +str(self.iteration) + '.pvtu'))
       self.iteration += 1
-      self.t = time.current_time
       if self.iteration == 1:
         self.model.Solver.options.disabled_actions = ['InitialConditions']
+
+    self.outfile.close()
 
     # print timings
     self.model.print_timing_tree()
 
 
   def check_result(self):
-    t = self.t
+    t = self.t[self.iteration]
     Ua = self.Ua
     Va = self.Va
     D = self.D
     
     nu = self.model.NavierStokesPhysics.kinematic_viscosity
     
-    sol = self.mesh.geometry.navier_stokes_solution
+    try:
+      u_sol = self.mesh.geometry.navier_stokes_solution
+      p_sol = self.mesh.geometry.navier_stokes_solution
+      u_idx = 0
+      v_idx = 1
+      p_idx = 2
+    except AttributeError:
+      u_sol = self.mesh.geometry.navier_stokes_u_solution
+      p_sol = self.mesh.geometry.navier_stokes_p_solution
+      u_idx = 0
+      v_idx = 1
+      p_idx = 0
+      
     coords = self.mesh.geometry.coordinates
     x_arr = np.zeros(len(coords))
     y_arr = np.zeros(len(coords))
@@ -171,26 +275,24 @@ class TaylorGreen:
     p_th = np.zeros(len(coords))
     u_th = np.zeros(len(coords))
     v_th = np.zeros(len(coords))
-    for i in range(len(coords)):
+    for i in self.sample_coords:
       (x, y) = (x_arr[i], y_arr[i]) = coords[i]
-      (u_num[i], v_num[i], p_num[i]) = sol[i]
+      (u_num[i], v_num[i], p_num[i]) = ( u_sol[i][u_idx], u_sol[i][v_idx], p_sol[i][p_idx] )
       u_th[i] = Ua - np.cos(np.pi/D*(x-Ua*t))*np.sin(np.pi/D*(y-Va*t))*np.exp(-2.*nu*np.pi**2/D**2*t)
       v_th[i] = Va + np.sin(np.pi/D*(x-Ua*t))*np.cos(np.pi/D*(y-Va*t))*np.exp(-2.*nu*np.pi**2/D**2*t)
-      p_th[i] = -0.25 * (np.cos(2*np.pi/D*(x - Ua*t)) + np.cos(2*np.pi/D*(x - Ua*t)))*np.exp(-4.*nu*np.pi**2/D**2*t)
-    
-    print p_th
-    print u_th
-    print v_th
-    print p_num
-    print u_num
-    print v_num
+      p_th[i] = -0.25 * (np.cos(2*np.pi/D*(x - Ua*t)) + np.cos(2*np.pi/D*(y - Va*t)))*np.exp(-4.*nu*np.pi**2/D**2*t)
       
     self.max_error[0, self.iteration] = np.max(np.abs(u_th - u_num))
     self.max_error[1, self.iteration] = np.max(np.abs(v_th - v_num))
     self.max_error[2, self.iteration] = np.max(np.abs(p_th - p_num))
+    
+    # np.savetxt('duv-{t}.txt'.format(t = t), (x_arr, y_arr, np.abs(u_th-u_num), np.abs(v_th-v_num)))
+    
+    self.outfile.write('{t},{u},{v}\n'.format(t = t, u = self.max_error[0, self.iteration], v = self.max_error[1, self.iteration]))
 
 
-taylor_green = TaylorGreen()
-taylor_green.setup(40, 0.3, 0.2, 0.5)
-taylor_green.iterate(0.01, 100)
-print taylor_green.max_error
+taylor_green = TaylorGreen(dt = 0.004, element='quad')
+taylor_green.setup_implicit(64, 0.3, 0.2, 0.5, 0.5)
+#taylor_green.setup_semi_implicit(64, 0.3, 0.2, 0.5)
+taylor_green.iterate(50, 10, 1)
+

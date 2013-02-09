@@ -112,7 +112,6 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   rho("density"),
   nu("kinematic_viscosity"),
   gamma_u(0.5),
-  gamma_p(0.5),
   m_recursing(false)
 {
   options().add("implicit_diffusion", false)
@@ -124,11 +123,6 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
     .pretty_name("Gamma U")
     .description("Velocity update parameter")
     .link_to(&gamma_u);
-
-  options().add("gamma_p", gamma_p)
-    .pretty_name("Gamma P")
-    .description("Pressure update parameter")
-    .link_to(&gamma_p);
 
   options().add(solver::Tags::time(), Handle< solver::Time >())
     .pretty_name("Time")
@@ -146,9 +140,9 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   // Initialization for the inner loop
   add_component(create_proto_action("InitializeIteration", nodes_expression(group
   (
-    u = u + m_dt*(1. - lit(gamma_u))*a,
+    //u = u + m_dt*(1. - lit(gamma_u))*a,
     a[_i] = 0.,
-    p = p + m_dt*(1. - lit(gamma_p))*p_dot,
+    p = p + m_dt*(1. - lit(gamma_u))*p_dot,
     p_dot = 0.
   ))));
   
@@ -304,10 +298,10 @@ void NavierStokesExplicit::trigger_assembly()
   // Update the rest of the variables
   m_inner_loop->add_component(create_proto_action("Update", nodes_expression(group
   (
-    u += gamma_u*lit(m_dt)*delta_a,
+    u += lit(m_dt)*delta_a,
     a += delta_a,
     p += delta_p,
-    p_dot += m_inv_dt * delta_p / gamma_p
+    p_dot += m_inv_dt * delta_p
   ))));
 
   if(is_not_null(m_physical_model))

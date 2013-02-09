@@ -127,7 +127,7 @@ struct PressureMatrix
         }
       }
 
-      A += GaussT::instance().weights[gauss_idx] * (gamma_u*dt + tau_ps)*Apu*Aup*u.support().jacobian_determinant();
+      A += GaussT::instance().weights[gauss_idx] * (dt + tau_ps)*Apu*Aup*u.support().jacobian_determinant();
     }
   }
 };
@@ -175,7 +175,7 @@ void NavierStokesExplicit::set_pressure_rhs_assembly_expression(const std::strin
         element_quadrature
         (
           _a[p]         += tau_ps * transpose(nabla(p)[_i]) * N(u) * transpose(transpose(nodal_values(a))[_i] + transpose(nodal_values(delta_a_star))[_i]) // PSPG, time part
-                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(gamma_u)*lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])) // G'u + gamma_u dt G'Delta_a*
+                        +  transpose(N(p)) * nabla(u)[_i] * transpose(transpose(nodal_values(u))[_i] + lit(m_dt)*(transpose(nodal_values(delta_a_star))[_i] + transpose(nodal_values(a))[_i])) // G'u + gamma_u dt G'Delta_a*
                         +  tau_ps * (transpose(nabla(p)[_i]) * u_adv*nabla(u) + transpose(u_adv*nabla(p)*0.5) * nabla(u)[_i]) * transpose(transpose(nodal_values(u))[_i]) // Standard + Skew symmetric advection PSPG term
                         +  tau_ps * transpose(nabla(p)) * nabla(p) / rho * transpose(transpose(nodal_values(p)))
         ),
