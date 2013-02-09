@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_actions_files
+  AddPointRegion.hpp
+  AddPointRegion.cpp
   Info.hpp
   Info.cpp
   CreateField.hpp
