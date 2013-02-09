@@ -49,6 +49,34 @@ pow(Arg const &arg)
   );
 }
 
+
+/// Wrap the vectorial function, adding extra data that may be filled before expression evaluation
+struct ProtoEvaluatedFunction : math::VectorialFunction
+{
+  mutable std::vector<Real> predefined_values;
+};
+
+
+struct ScalarFunction : ProtoEvaluatedFunction
+{
+};
+
+struct VectorFunction : ScalarFunction
+{
+};
+
+template<typename ResultT, typename CoordsT>
+void evaluate_function(const ProtoEvaluatedFunction& func, const CoordsT& coords, ResultT& result)
+{
+  cf3_assert(func.predefined_values.size() >= CoordsT::RowsAtCompileTime);
+  for(int i = 0; i != CoordsT::RowsAtCompileTime; ++i)
+  {
+    func.predefined_values[i] = coords[i];
+  }
+
+  func.evaluate(func.predefined_values, result);
+}
+
 /// Primitive transform to evaluate a function with the function parser
 struct ParsedVectorFunctionTransform :
   boost::proto::transform< ParsedVectorFunctionTransform >
@@ -61,7 +89,7 @@ struct ParsedVectorFunctionTransform :
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       result_type result;
-      boost::proto::value(expr).evaluate(data.coordinates(), result);
+      evaluate_function(boost::proto::value(expr), data.coordinates(), result);
       return result;
     }
   };
@@ -78,14 +106,10 @@ boost::proto::transform< ParsedScalarFunctionTransform >
     Real operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       std::vector<Real> result(1);
-      boost::proto::value(expr).evaluate(data.coordinates(), result);
+      evaluate_function(boost::proto::value(expr), data.coordinates(), result);
       return result.back();
     }
   };
-};
-
-struct ScalarFunction : math::VectorialFunction
-{
 };
 
 struct ParsedFunctionGrammar :
@@ -93,7 +117,7 @@ struct ParsedFunctionGrammar :
   <
     boost::proto::when
     <
-      boost::proto::terminal<math::VectorialFunction>,
+      boost::proto::terminal<VectorFunction>,
       ParsedVectorFunctionTransform
     >,
     boost::proto::when

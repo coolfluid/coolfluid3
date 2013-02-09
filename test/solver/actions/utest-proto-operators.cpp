@@ -547,10 +547,11 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
   FieldVariable<0, VectorField > T("Temperature", "solution");
   RealVector total(1); total.setZero();
 
-  math::VectorialFunction f;
+  solver::actions::Proto::VectorFunction f;
   f.variables("x");
   f.functions(std::vector<std::string>(1, "x+1"));
   f.parse();
+  f.predefined_values.resize(1);
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
   (
