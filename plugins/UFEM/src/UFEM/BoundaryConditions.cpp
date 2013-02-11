@@ -168,6 +168,7 @@ struct BoundaryConditions::Implementation
 
     bc_action.options().set(solver::Tags::regions(), bc_regions);
     bc_action.configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
+    bc_action.options().option(solver::Tags::regions()).add_tag("norecurse");
   }
 
   void set_scalar_function_expression(const std::string& variable_name, ParsedFunctionExpression& func)
