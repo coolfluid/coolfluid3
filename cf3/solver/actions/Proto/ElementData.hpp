@@ -315,6 +315,9 @@ public:
   /// The value type for all element values
   typedef Eigen::Matrix<Real, EtypeT::nb_nodes, Dim> ValueT;
 
+  /// The value type for a linearised representation of the element values
+  typedef Eigen::Matrix<Real, EtypeT::nb_nodes*Dim, 1> ElementVectorT;
+
   /// Return type of the value() method
   typedef const ValueT& ValueResultT;
 
@@ -397,6 +400,15 @@ public:
   {
     return m_element_values;
   }
+
+  const ElementVectorT& element_vector() const
+  {
+    for(int i = 0; i != Dim; ++i)
+    {
+      m_element_vector.template segment<EtypeT::nb_nodes>(EtypeT::nb_nodes*i) = m_element_values.col(i);
+    }
+    return m_element_vector;
+  }
   
   template<typename NodeValsT>
   void add_nodal_values(const NodeValsT& vals)
@@ -444,7 +456,6 @@ public:
     return m_eval.stored_result;
   }
 
-
   /// Shape function matrix at mapped coordinates (calculates and returns)
   const typename EtypeT::SF::ValueT& shape_function(const MappedCoordsT& mapped_coords) const
   {
@@ -490,6 +501,8 @@ private:
 
   /// Value of the field in each element node
   ValueT m_element_values;
+
+  mutable ElementVectorT m_element_vector;
 
   /// Data table
   mesh::Field& m_field;
