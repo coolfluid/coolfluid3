@@ -133,7 +133,9 @@ void HeatCouplingRobinHFTB::trigger_setup()
      _A(Tsolid) = _0,
      system_matrix +=  -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
      m_rhs += -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) + (h * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))), // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
-     _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n"
+     _cout << " m_rhs_first(Tfluid first part): = " << -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) << "\n",
+     _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n",
+     _cout << " system_matrix = " << -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n"
      )
     ));
 
