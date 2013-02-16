@@ -116,7 +116,6 @@ private:
   FieldVariable<5, ScalarField> nu_eff;
 
   /// Iteration variables
-  FieldVariable<5, ScalarField> p_dot;
   FieldVariable<7, VectorField> delta_a_star;
   FieldVariable<8, VectorField> delta_a;
   FieldVariable<9, ScalarField> delta_p;
@@ -133,7 +132,7 @@ private:
   Real tau_ps, tau_su, tau_bulk;
 
   /// Explcit algorithm constants
-  Real gamma_u;
+  Real theta;
 
   /// Maximum Peclet number for the current timestep
   Real alpha;

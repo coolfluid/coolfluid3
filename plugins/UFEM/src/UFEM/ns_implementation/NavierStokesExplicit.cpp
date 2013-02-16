@@ -58,6 +58,7 @@ struct PressureLSS : LSSActionUnsteady
   
   void execute()
   {
+    /*
     std::vector<std::string> disabled = options().option("disabled_actions").value< std::vector<std::string> >();
     if(disabled.empty())
     {
@@ -79,9 +80,9 @@ struct PressureLSS : LSSActionUnsteady
       }
       get_child("RestorePressureDirichlet")->options().set(solver::Tags::regions(), bc_regions);
     }
-    
+    */
     LSSActionUnsteady::execute();
-    
+    /*
     if(disabled.empty())
     {
       disabled.reserve(3);
@@ -90,6 +91,7 @@ struct PressureLSS : LSSActionUnsteady
       disabled.push_back("SavePressureBC");
       options().set("disabled_actions", disabled);
     }
+    */
   }
 };
 
@@ -103,7 +105,6 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   R("R", "navier_stokes_explicit_iteration"),
   M("M", "navier_stokes_explicit_iteration"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
-  p_dot("p_dot", "navier_stokes_explicit_iteration"),
   delta_a_star("delta_a_star", "navier_stokes_explicit_iteration"),
   delta_a("delta_a", "navier_stokes_explicit_iteration"),
   delta_p("delta_p", "navier_stokes_explicit_iteration"),
@@ -111,7 +112,7 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   u_ref("reference_velocity"),
   rho("density"),
   nu("kinematic_viscosity"),
-  gamma_u(0.5),
+  theta(0.5),
   m_recursing(false)
 {
   options().add("implicit_diffusion", false)
@@ -119,10 +120,10 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
     .description("Make the diffsive terms implicit, adding a large linear system for the velocity but increasing the allowed time step")
     .attach_trigger(boost::bind(&NavierStokesExplicit::trigger_assembly, this));
 
-  options().add("gamma_u", gamma_u)
-    .pretty_name("Gamma U")
-    .description("Velocity update parameter")
-    .link_to(&gamma_u);
+  options().add("theta", theta)
+    .pretty_name("Theta")
+    .description("Time stepping scheme parameter")
+    .link_to(&theta);
 
   options().add(solver::Tags::time(), Handle< solver::Time >())
     .pretty_name("Time")
@@ -140,10 +141,8 @@ NavierStokesExplicit::NavierStokesExplicit(const std::string& name) :
   // Initialization for the inner loop
   add_component(create_proto_action("InitializeIteration", nodes_expression(group
   (
-    //u = u + m_dt*(1. - lit(gamma_u))*a,
     a[_i] = 0.,
-    p = p + m_dt*(1. - lit(gamma_u))*p_dot,
-    p_dot = 0.
+    delta_p = 0.
   ))));
   
   // Inner loop, executed several times per timestep
@@ -236,30 +235,30 @@ void NavierStokesExplicit::trigger_assembly()
   set_hexa_p_mat_assembly();
   set_tetra_p_mat_assembly();
   
-  // Pressure BC
-  Handle<BoundaryConditions> bc_p = m_pressure_lss->create_component<BoundaryConditions>("PressureBC");
-  bc_p->mark_basic();
-  bc_p->set_solution_tag("navier_stokes_p_solution");
-  
   // Management of BCs on the pressure LSS
-  FieldVariable<0, ScalarField> p_rhs("PressureBC", "navier_stokes_pressure_bc");
+  //FieldVariable<0, ScalarField> p_rhs("PressureBC", "navier_stokes_pressure_bc");
   
-  m_save_pressure_bc = m_pressure_lss->create_component<ProtoAction>("SavePressureBC");
-  m_save_pressure_bc->set_expression(nodes_expression(p_rhs = m_pressure_lss->system_rhs(p)));
+  //m_save_pressure_bc = m_pressure_lss->create_component<ProtoAction>("SavePressureBC");
+  //m_save_pressure_bc->set_expression(nodes_expression(p_rhs = m_pressure_lss->system_rhs(p)));
   
   // This sets the RHS back to the initial one
-  m_restore_pressure_bc = m_pressure_lss->create_component<ProtoAction>("RestorePressureBC");
-  m_restore_pressure_bc->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
+  //m_restore_pressure_bc = m_pressure_lss->create_component<ProtoAction>("RestorePressureBC");
+  //m_restore_pressure_bc->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
 
   // Assembly of the pressure LSS RHS
   set_triag_p_rhs_assembly();
   set_quad_p_rhs_assembly();
   set_hexa_p_rhs_assembly();
   set_tetra_p_rhs_assembly();
+
+  // Pressure BC
+  Handle<BoundaryConditions> bc_p = m_pressure_lss->create_component<BoundaryConditions>("PressureBC");
+  bc_p->mark_basic();
+  bc_p->set_solution_tag("navier_stokes_p_solution");
   
   // After RHS assembly, we need to reapply the RHS part of the dirichlet on the boundary nodes
-  m_restore_pressure_dirichlet = m_pressure_lss->create_component<ProtoAction>("RestorePressureDirichlet");
-  m_restore_pressure_dirichlet->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
+  //m_restore_pressure_dirichlet = m_pressure_lss->create_component<ProtoAction>("RestorePressureDirichlet");
+  //m_restore_pressure_dirichlet->set_expression(nodes_expression(m_pressure_lss->system_rhs(p) = p_rhs));
 
   // Solution of the system
   m_pressure_lss->create_component<math::LSS::SolveLSS>("SolvePressureLSS");
@@ -288,7 +287,7 @@ void NavierStokesExplicit::trigger_assembly()
   if(implicit_diffusion)
   {
     m_inner_loop->add_link(*m_velocity_lss->get_child("SolveVelocityLSS"));
-    m_inner_loop->add_component(create_proto_action("UpdateDeltaA", nodes_expression(delta_a = delta_a_star + m_velocity_lss->solution(u))));
+    m_inner_loop->add_component(create_proto_action("UpdateDeltaA", nodes_expression(delta_a = delta_a_star - m_velocity_lss->solution(u))));
   }
   else
   {
@@ -300,8 +299,7 @@ void NavierStokesExplicit::trigger_assembly()
   (
     u += lit(m_dt)*delta_a,
     a += delta_a,
-    p += delta_p,
-    p_dot += m_inv_dt * delta_p
+    p += delta_p
   ))));
 
   if(is_not_null(m_physical_model))
