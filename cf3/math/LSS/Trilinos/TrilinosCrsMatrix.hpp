@@ -155,6 +155,11 @@ public:
   {
     return m_mat;
   }
+  
+  /// Store the local matrix GIDs belonging to each variable in the given vector
+  /// @param var_descriptor Descriptor for the variables that are used in the matrix
+  /// @param var_gids Output containing the gids for each variable
+  void blocked_var_gids(const math::VariablesDescriptor& var_descriptor, std::vector<std::vector<int> > & var_gids);
 
   /// Get the index for the given node and equation in matrix local format
   inline int matrix_index(const Uint inode, const Uint ieq)

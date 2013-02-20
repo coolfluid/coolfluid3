@@ -1,3 +1,5 @@
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 # UFEM tests
 coolfluid_add_test( UTEST utest-proto-heat
                     CPP utest-proto-heat.cpp
@@ -86,7 +88,8 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-periodic-channel-2d
                     MPI 2)
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-taylor-green
-                    PYTHON atest-ufem-navier-stokes-taylor-green.py)
+                    PYTHON atest-ufem-navier-stokes-taylor-green.py
+                    MPI 1)
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
@@ -123,3 +126,8 @@ coolfluid_add_test( ATEST atest-boussinesq
 
 coolfluid_add_test( PTEST ptest-navier-stokes-assembly
                     PYTHON ptest-navier-stokes-assembly.py)
+
+coolfluid_add_test( UTEST utest-ufem-teko-blocks
+                    CPP utest-ufem-teko-blocks.cpp
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
+                    MPI 1)

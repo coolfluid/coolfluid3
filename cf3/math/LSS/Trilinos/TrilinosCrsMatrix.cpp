@@ -578,6 +578,38 @@ void TrilinosCrsMatrix::print_native(ostream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosCrsMatrix::blocked_var_gids ( const VariablesDescriptor& var_descriptor, std::vector< std::vector< int > >& var_gids )
+{
+  cf3_assert(var_descriptor.size() == m_neq);
+  const Uint nb_block_rows = m_num_my_elements / m_neq;
+  
+  const Epetra_Map & range_map = m_mat->OperatorRangeMap();
+  cf3_assert(range_map.NumMyElements() == m_num_my_elements);
+  int * matrix_global_ids = range_map.MyGlobalElements();
+  
+  const Uint nb_vars = var_descriptor.nb_vars();
+  var_gids.resize(nb_vars);
+  for(Uint j = 0; j != nb_vars; ++j)
+  {
+    var_gids[j].reserve(var_descriptor.var_length(j)*nb_block_rows);
+  }
+  
+  for(Uint i = 0; i != nb_block_rows; ++i)
+  {
+    for(Uint j = 0; j != nb_vars; ++j)
+    {
+      const Uint var_begin = var_descriptor.offset(j);
+      const Uint var_end = var_begin + var_descriptor.var_length(j);
+      for(Uint k = var_begin; k != var_end; ++k)
+      {
+        var_gids[j].push_back(matrix_global_ids[m_p2m[i*m_neq+k]]);
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosCrsMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
 {
   row_indices.clear(); col_indices.clear(); values.clear();

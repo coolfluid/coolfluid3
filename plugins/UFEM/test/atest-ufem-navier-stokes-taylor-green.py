@@ -188,30 +188,26 @@ class TaylorGreen:
     self.modelname = 'semi'
     
     solver = self.setup_model()
-    
-    # Add the Navier-Stokes solver as an unsteady solver
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesExplicit')
-    ns_solver.options.implicit_diffusion = True
-    ns_solver.InnerLoop.options.max_iter = 20
+    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
+    ns_solver.options.blocked_system = True
     ns_solver.options.theta = theta
     self.theta = theta
     
+    lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
+    
     mesh = self.create_mesh(segments)
-
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    self.add_pressure_bc(ns_solver.InnerLoop.PressureSystem.PressureBC)
-
-    lss_p = ns_solver.InnerLoop.PressureSystem.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
-    lss_p.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    self.add_pressure_bc(ns_solver.BoundaryConditions)
     
-    
-    # lss_u = ns_solver.InnerLoop.VelocitySystem.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
-    # lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
-    # lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-8
+    lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.solver_type = 'Mumps'
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.create_parameter_list('Amesos Settings').add_parameter(name = 'MaxProcs', value=1)
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.add_parameter(name = 'Redistribute', value=True)
+    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.create_parameter_list('Mumps').add_parameter(name='Equilibrate', value = False)
 
     solver.create_fields()
-    self.setup_ic('navier_stokes_u_solution', 'navier_stokes_p_solution')
+    self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
   
   def iterate(self, numsteps, save_interval = 1, process_interval = 1):
     
@@ -220,7 +216,7 @@ class TaylorGreen:
     if (numsteps % save_interval) != 0:
       raise RuntimeError('Number of time steps cannot be divided by save_interval')
 
-    self.outfile = open('uv_error-{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}.txt'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta), 'w', 1)
+    self.outfile = open('uv_error-{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}-P{rank}.txt'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta, rank = cf.Core.rank()), 'w', 1)
     self.outfile.write('# time (s), max u error, max v error, max p error')
     for i in range(len(self.probe_points)):
       self.outfile.write(', probe {probe} u error, probe {probe} v error, probe {probe} p error'.format(probe = i))
@@ -309,6 +305,6 @@ class TaylorGreen:
 
 taylor_green = TaylorGreen(dt = 0.004, element='quad')
 #taylor_green.setup_implicit(64, 0.3, 0.2, D=0.5, theta=0.5)
-taylor_green.setup_semi_implicit(64, 0.3, 0.2, D=0.5, theta=1)
-taylor_green.iterate(1, 1, 1)
+taylor_green.setup_semi_implicit(64, 0.3, 0.2, D=0.5, theta=0.5)
+taylor_green.iterate(3000, 50, 1)
 
