@@ -183,6 +183,13 @@ current_end_time = 0.
 iteration = 0.
 solver.TimeLoop.CouplingIteration.options.max_iter = 10
 solver.create_fields()
+
+# must be after create_fields
+probe0 = solver.add_probe(name = 'Probe', parent = scalaradv, dict = mesh.children['cf3.mesh.LagrangeP0'])
+probe0.Log.variables = ['TemperatureGradient[0]', 'TemperatureGradient[1]']
+probe0.coordinate = [0.5, 0.5]
+probe0.History.file = cf.URI('grad_t.tsv')
+
 solver.InitialConditions.execute()
 domain.write_mesh(cf.URI('atest-conjugate-heat-flatplate_output-initial.pvtu'))
 while current_end_time < final_end_time:
