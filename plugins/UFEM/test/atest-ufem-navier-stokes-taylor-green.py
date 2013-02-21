@@ -1,6 +1,8 @@
 import sys
 import coolfluid as cf
 import numpy as np
+import os
+from optparse import OptionParser
 
 env = cf.Core.environment()
 
@@ -105,7 +107,7 @@ class TaylorGreen:
     
     for i in range(len(coords)):
       (x,y) = coords[i]
-      if x == 0 and y == 0:
+      if x == (segments/4) * 1./float(segments) and y == 0.:
         self.probe_points.append(i)
         
     print 'probe_points', self.probe_points, coords[self.probe_points[0]]
@@ -126,7 +128,6 @@ class TaylorGreen:
     
     ic_u.execute()
     ic_p.execute()
-    self.model.Domain.write_mesh(cf.URI('init.pvtu'))
   
   def setup_model(self):
     if self.model != None:
@@ -216,6 +217,10 @@ class TaylorGreen:
     if (numsteps % save_interval) != 0:
       raise RuntimeError('Number of time steps cannot be divided by save_interval')
 
+    self.basename = '{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta)
+    if not os.path.exists(self.basename):
+      os.makedirs(self.basename)
+
     self.outfile = open('uv_error-{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}-P{rank}.txt'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta, rank = cf.Core.rank()), 'w', 1)
     self.outfile.write('# time (s), max u error, max v error, max p error')
     for i in range(len(self.probe_points)):
@@ -243,7 +248,7 @@ class TaylorGreen:
       if self.iteration % process_interval == 0:
         self.check_result()
       if self.iteration % save_interval == 0:
-        self.model.Domain.write_mesh(cf.URI('taylor-green-' +str(self.iteration) + '.pvtu'))
+        self.model.Domain.write_mesh(cf.URI(self.basename+'/taylor-green-' +str(self.iteration) + '.pvtu'))
       self.iteration += 1
       if self.iteration == 1:
         self.model.Solver.options.disabled_actions = ['InitialConditions']
@@ -302,9 +307,16 @@ class TaylorGreen:
       self.outfile.write(',{u},{v},{p}'.format(u = u_th[i] - u_num[i], v = v_th[i] - v_num[i], p = p_th[i] - p_num[i]))
     self.outfile.write('\n')
 
+parser = OptionParser()
+parser.add_option('--dt', type='float')
+parser.add_option('--elem', type='string')
+parser.add_option('--segs', type='int')
+parser.add_option('--theta', type='float')
+parser.add_option('--tsteps', type='int')
+(options, args) = parser.parse_args()
 
-taylor_green = TaylorGreen(dt = 0.004, element='quad')
-#taylor_green.setup_implicit(64, 0.3, 0.2, D=0.5, theta=0.5)
-taylor_green.setup_semi_implicit(64, 0.3, 0.2, D=0.5, theta=0.5)
-taylor_green.iterate(3000, 50, 1)
+
+taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
+taylor_green.setup_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
+taylor_green.iterate(options.tsteps, np.min((options.tsteps,100)), 1)
 
