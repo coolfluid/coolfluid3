@@ -38,8 +38,6 @@ list( APPEND coolfluid_ufem_files
   HeatCouplingFlux.cpp
   ComputeFlux.hpp
   ComputeFlux.cpp
-  ComputeTfluid.hpp
-  ComputeTfluid.cpp
   HeatCouplingRobinHFTB.hpp
   HeatCouplingRobinHFTB.cpp
   InitialConditionConstant.hpp
