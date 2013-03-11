@@ -24,7 +24,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "HeatCouplingRobinHFTB.hpp"
+#include "HeatCouplingRobin.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -42,11 +42,11 @@ using namespace solver::actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < HeatCouplingRobinHFTB, common::ActionDirector, LibUFEM > HeatCouplingRobinHFTB_Builder;
+common::ComponentBuilder < HeatCouplingRobin, common::ActionDirector, LibUFEM > HeatCouplingRobin_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-HeatCouplingRobinHFTB::HeatCouplingRobinHFTB(const std::string& name) :
+HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
   ActionDirector(name),
   m_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
@@ -62,22 +62,22 @@ HeatCouplingRobinHFTB::HeatCouplingRobinHFTB(const std::string& name) :
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
-    .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_setup, this));
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
   options().add("temperature_fluid_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Fluid Field Tag")
     .description("Tag for the ambient temperature field(for the Robin BC)")
-    .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_setup, this));
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
   options().add("temperature_solid_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Solid Field Tag")
     .description("Tag for the temperature in the solid for Robin BC")
-    .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_setup, this));
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
   options().add("gradient_region", m_gradient_region)
     .pretty_name("Gradient Region")
     .description("The (volume) region in which to calculate the temperature gradient")
-    .attach_trigger(boost::bind(&HeatCouplingRobinHFTB::trigger_gradient_region, this))
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_gradient_region, this))
     .link_to(&m_gradient_region);
 
   // Finally set the boundary condition
@@ -87,18 +87,18 @@ HeatCouplingRobinHFTB::HeatCouplingRobinHFTB(const std::string& name) :
   trigger_setup();
 }
 
-HeatCouplingRobinHFTB::~HeatCouplingRobinHFTB()
+HeatCouplingRobin::~HeatCouplingRobin()
 {
 }
 
 
-void HeatCouplingRobinHFTB::on_regions_set()
+void HeatCouplingRobin::on_regions_set()
 {
   get_child("NeumannHeatFlux")->options().set("regions", options()["regions"].value());
   get_child("SecondHeatFlux")->options().set("regions", options()["regions"].value());
 }
 
-void HeatCouplingRobinHFTB::trigger_gradient_region()
+void HeatCouplingRobin::trigger_gradient_region()
 {
   Handle<Component> compute_gradient = get_child("ComputeGradient");
   if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
@@ -107,7 +107,7 @@ void HeatCouplingRobinHFTB::trigger_gradient_region()
   }
 }
 
-void HeatCouplingRobinHFTB::trigger_setup()
+void HeatCouplingRobin::trigger_setup()
 {
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_HeatCouplingRobinHFTB_hpp
-#define cf3_UFEM_HeatCouplingRobinHFTB_hpp
+#ifndef cf3_UFEM_HeatCouplingRobin_hpp
+#define cf3_UFEM_HeatCouplingRobin_hpp
 
 
 #include "solver/ActionDirector.hpp"
@@ -26,18 +26,18 @@ namespace UFEM {
 /// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API HeatCouplingRobinHFTB : public solver::ActionDirector
+class UFEM_API HeatCouplingRobin : public solver::ActionDirector
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  HeatCouplingRobinHFTB ( const std::string& name );
+  HeatCouplingRobin ( const std::string& name );
   
-  virtual ~HeatCouplingRobinHFTB();
+  virtual ~HeatCouplingRobin();
 
   /// Get the class name
-  static std::string type_name () { return "HeatCouplingRobinHFTB"; }
+  static std::string type_name () { return "HeatCouplingRobin"; }
 
 private:
   /// Called when the boundary regions are set
@@ -72,4 +72,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_HeatCouplingRobinHFTB_hpp
+#endif // cf3_UFEM_HeatCouplingRobin_hpp
