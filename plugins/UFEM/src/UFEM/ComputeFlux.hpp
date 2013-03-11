@@ -34,7 +34,7 @@ public:
   /// Contructor
   /// @param name of the component
   ComputeFlux ( const std::string& name );
-  
+
   virtual ~ComputeFlux();
 
   /// Get the class name
@@ -42,18 +42,15 @@ public:
 
 private:
 
-  /// Called when the boundary regions are set
-  virtual void on_regions_set();
-
-//  void trigger_gradient_region();
-
   /// Called when the "lss" or "temperature_field_tag" options are changed
   void trigger_setup();
 
-//  Handle<mesh::Region> m_gradient_region;
-  cf3::solver::actions::Proto::SystemRHS m_rhs;
-  PhysicsConstant h;
+  // Access to the physics
 
+  PhysicsConstant lambda_f;
+  PhysicsConstant lambda_s;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
 };
 
 } // UFEM
