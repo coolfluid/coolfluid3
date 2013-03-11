@@ -49,6 +49,13 @@ ComputeFlux::ComputeFlux(const std::string& name) :
   rho("density"),
   cp("specific_heat_capacity")
 {
+
+  options().add("gradient_region", m_gradient_region)
+    .pretty_name("Gradient Region")
+    .description("The (volume) region in which to calculate the temperature gradient")
+    .attach_trigger(boost::bind(&ComputeFlux::trigger_gradient_region, this))
+    .link_to(&m_gradient_region);
+
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
@@ -62,6 +69,15 @@ ComputeFlux::~ComputeFlux()
 {
 }
 
+void ComputeFlux::trigger_gradient_region()
+{
+  Handle<Component> compute_gradient = get_child("ComputeGradient");
+  if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
+  {
+    compute_gradient->options().set("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
+  }
+}
+
 void ComputeFlux::trigger_setup()
 {
   // Get the tags for the used fields
@@ -73,8 +89,8 @@ void ComputeFlux::trigger_setup()
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> FluxFluid("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
-  FieldVariable<2, VectorField> FluxSolid("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
+  FieldVariable<1, VectorField> FluxFluid("TemperatureFluxFluid", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
+  FieldVariable<2, VectorField> FluxSolid("TemperatureFluxSolid", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
   // Expression to calculate the gradient, at the cell centroid:
   // nabla(T, center) is the shape function gradient matrix evaluated at the element center

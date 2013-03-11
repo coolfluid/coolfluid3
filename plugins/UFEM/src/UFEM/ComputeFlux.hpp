@@ -42,8 +42,13 @@ public:
 
 private:
 
+  /// Called when the "gradient_region" option is changed
+  void trigger_gradient_region();
+
   /// Called when the "lss" or "temperature_field_tag" options are changed
   void trigger_setup();
+
+  Handle<mesh::Region> m_gradient_region;
 
   // Access to the physics
 
