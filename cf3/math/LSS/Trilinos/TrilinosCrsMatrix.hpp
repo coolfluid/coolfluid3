@@ -155,6 +155,12 @@ public:
   {
     return m_mat;
   }
+
+  /// Replace the internal matrix with the supplied one
+  void replace_epetra_matrix(Teuchos::RCP<Epetra_CrsMatrix>& mat)
+  {
+    m_mat = mat;
+  }
   
   /// Store the local matrix GIDs belonging to each variable in the given vector
   /// @param var_descriptor Descriptor for the variables that are used in the matrix
@@ -206,6 +212,11 @@ private:
 
   /// Copy of the connectivity data
   std::vector<int> m_node_connectivity, m_starting_indices;
+
+  /// Cache matrix values in case of symmetric dirichlet, so they can be applied multiple times even if the matrix is not changed
+  typedef std::map<int, Real> DirichletEntryT;
+  typedef std::map<int, DirichletEntryT> DirichletMapT;
+  DirichletMapT m_symmetric_dirichlet_values;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

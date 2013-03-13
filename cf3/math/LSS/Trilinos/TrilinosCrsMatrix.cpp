@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <set>
 
 #include <boost/pointer_cast.hpp>
 
@@ -321,21 +322,25 @@ void TrilinosCrsMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uin
 
 void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
 {
-  const int columns_begin = m_starting_indices[blockrow];
-  const int columns_end = m_starting_indices[blockrow+1];
+  // We assume that we have an epetra RHS with the same storage structure as the matrix!
+  Epetra_Vector& epetra_rhs = *dynamic_cast<TrilinosVector&>(rhs).epetra_vector();
 
-  int num_entries;
+  int num_entries, row_size;
   Real* extracted_values;
   int* extracted_indices;
+  int* row_indices;
 
-  const Uint bc_col = m_p2m[blockrow*m_neq+ieq];
+  const int bc_col = m_p2m[blockrow*m_neq+ieq];
+  TRILINOS_THROW(m_mat->ExtractMyRowView(bc_col, row_size, extracted_values, row_indices));
 
-  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  DirichletEntryT& cached_col_values = m_symmetric_dirichlet_values[bc_col];
+
+  if(cached_col_values.empty())
   {
-    const int col = m_node_connectivity[col_idx];
-    for(int j = 0; j != m_neq; ++j)
+    std::cout << "diri: generating cached values" << std::endl;
+    for(int other_row_idx = 0; other_row_idx != row_size; ++other_row_idx)
     {
-      const Uint other_row = m_p2m[col*m_neq+j];
+      const int other_row = row_indices[other_row_idx];
       if(other_row >= m_num_my_elements)
         continue;
 
@@ -348,7 +353,8 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
         {
           if(extracted_indices[i] == bc_col)
           {
-            rhs.add_value(col, j, -extracted_values[i] * value);
+            cached_col_values[other_row] = extracted_values[i];
+            epetra_rhs[other_row] -= extracted_values[i] * value;
             extracted_values[i] = 0;
             break;
           }
@@ -372,7 +378,16 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
       }
     }
   }
+  else // Reuse the cached values, if the matrix wasn't reset since the previous BC application
+  {
+    std::cout << "diri: using cached values" << std::endl;
+    for(DirichletEntryT::const_iterator it = cached_col_values.begin(); it != cached_col_values.end(); ++it)
+    {
+      epetra_rhs[it->first] -= it->second * value;
+    }
+  }
 
+  std::cout << "diri: setting value to " << value << std::endl;
   rhs.set_value(blockrow, ieq, value);
 }
 
@@ -476,6 +491,8 @@ void TrilinosCrsMatrix::reset(Real reset_to)
   cf3_assert(m_is_created);
   CFdebug << "Resetting CrsMatrix to " << reset_to << CFendl;
   TRILINOS_THROW(m_mat->PutScalar(reset_to));
+
+  m_symmetric_dirichlet_values.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,18 +598,15 @@ void TrilinosCrsMatrix::print_native(ostream& stream)
 void TrilinosCrsMatrix::blocked_var_gids ( const VariablesDescriptor& var_descriptor, std::vector< std::vector< int > >& var_gids )
 {
   cf3_assert(var_descriptor.size() == m_neq);
-  const Uint nb_block_rows = m_num_my_elements / m_neq;
+  cf3_assert(m_p2m.size() % m_neq == 0);
+  const Uint nb_block_rows = m_p2m.size() / m_neq;
   
   const Epetra_Map & range_map = m_mat->OperatorRangeMap();
   cf3_assert(range_map.NumMyElements() == m_num_my_elements);
   int * matrix_global_ids = range_map.MyGlobalElements();
   
   const Uint nb_vars = var_descriptor.nb_vars();
-  var_gids.resize(nb_vars);
-  for(Uint j = 0; j != nb_vars; ++j)
-  {
-    var_gids[j].reserve(var_descriptor.var_length(j)*nb_block_rows);
-  }
+  std::vector< std::set<int> > var_gid_sets(nb_vars);
   
   for(Uint i = 0; i != nb_block_rows; ++i)
   {
@@ -602,9 +616,19 @@ void TrilinosCrsMatrix::blocked_var_gids ( const VariablesDescriptor& var_descri
       const Uint var_end = var_begin + var_descriptor.var_length(j);
       for(Uint k = var_begin; k != var_end; ++k)
       {
-        var_gids[j].push_back(matrix_global_ids[m_p2m[i*m_neq+k]]);
+        const int lid = m_p2m[i*m_neq+k];
+        if(lid < m_num_my_elements)
+        {
+          var_gid_sets[j].insert(matrix_global_ids[lid]);
+        }
       }
     }
+  }
+
+  var_gids.assign(nb_vars, std::vector<int>());
+  for(Uint i = 0; i != nb_vars; ++i)
+  {
+    var_gids[i].assign(var_gid_sets[i].begin(), var_gid_sets[i].end());
   }
 }
 
