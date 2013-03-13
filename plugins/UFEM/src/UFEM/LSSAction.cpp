@@ -86,8 +86,7 @@ LSSAction::LSSAction(const std::string& name) :
   regist_signal( "create_lss" )
     .connect( boost::bind( &LSSAction::signal_create_lss, this, _1 ) )
     .description("Create the Linear System Solver")
-    .pretty_name("Create LSS")
-    .signature( boost::bind( &LSSAction::signature_create_lss, this, _1 ) );
+    .pretty_name("Create LSS");
 
   options().add("dictionary", m_dictionary)
     .pretty_name("Dictionary")
@@ -103,6 +102,16 @@ LSSAction::LSSAction(const std::string& name) :
   options().add("blocked_system", false)
     .pretty_name("Blocked System")
     .description("Store the linear system internally as a set of blocks grouped per variable, rather than keeping the variables per node");
+
+  options().add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
+    .pretty_name("Matrix Builder")
+    .description("Builder to use when creating the LSS")
+    .mark_basic();
+
+  options().add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
+    .pretty_name("Solution Strategy")
+    .description("Builder to use when creating the initial LSS solution strategy")
+    .mark_basic();
 }
 
 LSSAction::~LSSAction()
@@ -121,14 +130,14 @@ void LSSAction::execute()
   solver::ActionDirector::execute();
 }
 
-LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std::string& solution_strategy)
+LSS::System& LSSAction::create_lss()
 {
   if(is_not_null(get_child("LSS")))
     remove_component("LSS");
   Handle<LSS::System> lss = create_component<LSS::System>("LSS");
   lss->mark_basic();
-  lss->options().set("matrix_builder", matrix_builder);
-  lss->options().set("solution_strategy", solution_strategy);
+  lss->options().set("matrix_builder", options().option("matrix_builder").value());
+  lss->options().set("solution_strategy", options().option("solution_strategy").value());
 
   configure_option_recursively("lss", lss);
 
@@ -139,23 +148,9 @@ LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std:
   return *lss;
 }
 
-void LSSAction::signature_create_lss(SignalArgs& node)
-{
-  SignalOptions options(node);
-  options.add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
-    .pretty_name("Matrix Builder")
-    .description("Name for the matrix builder to use when constructing the LSS")
-    .mark_basic();
-
-  options.add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
-    .pretty_name("Solution Strategy")
-    .description("Builder name for the solution strategy to use.");
-}
-
 void LSSAction::signal_create_lss(SignalArgs& node)
 {
-  SignalOptions options(node);
-  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>(), options.option("solution_strategy").value<std::string>());
+  LSS::System& lss = create_lss();
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);

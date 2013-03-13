@@ -56,7 +56,7 @@ public: // functions
 
   /// Create the LSS to use
   /// @param matrix_builder Name of the matrix builder to use for the LSS
-  math::LSS::System& create_lss(const std::string& matrix_builder = "cf3.math.LSS.TrilinosFEVbrMatrix", const std::string& solution_strategy = "cf3.math.LSS.TrilinosStratimikosStrategy");
+  math::LSS::System& create_lss();
 
   /// Access to the tag this component uses for finding its solution field
   std::string solution_tag();
@@ -69,7 +69,6 @@ private:
   boost::scoped_ptr<Implementation> m_implementation;
 
   /// Signals
-  void signature_create_lss( common::SignalArgs& node );
   void signal_create_lss( common::SignalArgs& node );
 
   /// trigger for the dictionary
