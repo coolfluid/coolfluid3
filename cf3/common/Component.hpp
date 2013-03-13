@@ -83,7 +83,7 @@ class Common_API Component :
   public SignalHandler,
   public ConnectionManager,
   public TaggedObject,
-  private boost::enable_shared_from_this<Component>
+  public boost::enable_shared_from_this<Component>
 {
 
 public: // typedef
