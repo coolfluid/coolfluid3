@@ -24,7 +24,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "ComputeFlux.hpp"
+#include "ComputeFluxFluid.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -40,57 +40,48 @@ namespace UFEM
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-common::ComponentBuilder < ComputeFlux, common::ActionDirector, LibUFEM > ComputeFlux_Builder;
+////////////////////////////////////////////////////////////////////////////////////////////
 
-ComputeFlux::ComputeFlux(const std::string& name) :
+common::ComponentBuilder < ComputeFluxFluid, common::ActionDirector, LibUFEM > ComputeFluxFluid_Builder;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+ComputeFluxFluid::ComputeFluxFluid(const std::string& name) :
   ActionDirector(name),
   lambda_f("thermal_conductivity_fluid"),
-  lambda_s("thermal_conductivity_solid"),
   rho("density"),
   cp("specific_heat_capacity")
 {
 
-  options().add("gradient_region", m_gradient_region)
-    .pretty_name("Gradient Region")
-    .description("The (volume) region in which to calculate the temperature gradient")
-    .attach_trigger(boost::bind(&ComputeFlux::trigger_gradient_region, this))
-    .link_to(&m_gradient_region);
-
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
-    .attach_trigger(boost::bind(&ComputeFlux::trigger_setup, this));
+    .attach_trigger(boost::bind(&ComputeFluxFluid::trigger_setup, this));
 
   // Compute the gradient
-  create_static_component<ProtoAction>("ComputeGradient");
+  create_static_component<ProtoAction>("FluxFluid");
 }
 
-ComputeFlux::~ComputeFlux()
+ComputeFluxFluid::~ComputeFluxFluid()
 {
 }
 
-void ComputeFlux::trigger_gradient_region()
+void ComputeFluxFluid::on_regions_set()
 {
-  Handle<Component> compute_gradient = get_child("ComputeGradient");
-  if(is_not_null(compute_gradient) && is_not_null(m_gradient_region))
-  {
-    compute_gradient->options().set("regions", std::vector<common::URI>(1, m_gradient_region->uri()));
-  }
+  get_child("FluxFluid")->options().set("regions", options()["regions"].value());
 }
 
-void ComputeFlux::trigger_setup()
+void ComputeFluxFluid::trigger_setup()
 {
   // Get the tags for the used fields
   const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
 
-  Handle<ProtoAction> compute_flux_fluid(get_child("ComputeGradientFluid"));
-  Handle<ProtoAction> compute_flux_solid(get_child("ComputeGradientSolid"));
+  Handle<ProtoAction> compute_flux_fluid(get_child("FluxFluid"));
 
   // Represents the temperature field, as calculated
   FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
   // Represents the gradient of the temperature, to be stored in an (element based) field
-  FieldVariable<1, VectorField> FluxFluid("TemperatureFluxFluid", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
-  FieldVariable<2, VectorField> FluxSolid("TemperatureFluxSolid", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
+  FieldVariable<1, VectorField> FluxF("FluxFluid", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
   // Expression to calculate the gradient, at the cell centroid:
   // nabla(T, center) is the shape function gradient matrix evaluated at the element center
@@ -98,15 +89,8 @@ void ComputeFlux::trigger_setup()
   compute_flux_fluid->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
-    FluxFluid = nabla(T, gauss_points_1)*nodal_values(T)*lambda_s/(boost::proto::lit(rho)*cp) // Calculate the gradient at the first gauss point, i.e. the cell center
-  ));
-
-  compute_flux_solid->set_expression(elements_expression
-  (
-    boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
-    FluxSolid = nabla(T, gauss_points_1)*nodal_values(T)*lambda_f // Calculate the gradient at the first gauss point, i.e. the cell center
-  ));
-
+    FluxF = nabla(T, gauss_points_1)*nodal_values(T)*lambda_f/(boost::proto::lit(rho)*cp) // Calculate the gradient at the first gauss point, i.e. the cell center
+    ));
 }
 
 } // namespace UFEM
