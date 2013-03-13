@@ -32,8 +32,6 @@ list( APPEND coolfluid_solver_actions_files
   ComputeArea.cpp
   ComputeVolume.hpp
   ComputeVolume.cpp
-  ComputeLNorm.hpp
-  ComputeLNorm.cpp
   ParallelDataToFields.hpp
   ParallelDataToFields.cpp
   PeriodicWriteMesh.hpp

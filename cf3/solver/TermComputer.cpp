@@ -58,7 +58,7 @@ void TermComputer::compute_term(mesh::Field& term, mesh::Field& wave_speed)
         for (Uint s=0; s<nb_nodes_per_elem; ++s)
         {
           const Uint p=space.connectivity()[e][s];
-          for (Uint eq=0; eq<m_tmp_term.size(); ++eq)
+          for (Uint eq=0; eq<m_tmp_term[s].size(); ++eq)
           {
             term[p][eq] += m_tmp_term[s][eq];
           }

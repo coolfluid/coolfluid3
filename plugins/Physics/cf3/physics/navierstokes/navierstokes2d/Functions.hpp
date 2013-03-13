@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 /// @file Functions.hpp
-/// @brief Functions describing navierstokes 1D physics
+/// @brief Functions describing navierstokes 2D physics
 /// @author Willem Deconinck
 
 #ifndef cf3_physics_navierstokes_navierstokes2d_Functions_hpp

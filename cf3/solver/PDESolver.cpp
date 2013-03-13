@@ -28,12 +28,9 @@
 #include "solver/Criterion.hpp"
 #include "solver/Time.hpp"
 #include "solver/PDESolver.hpp"
-
-#include "solver/PDESolver.hpp"
+#include "solver/ComputeLNorm.hpp"
 #include "solver/TimeStepComputer.hpp"
-
 #include "solver/History.hpp"
-#include "solver/Time.hpp"
 #include "solver/PDE.hpp"
 
 using namespace cf3::common;
@@ -55,6 +52,7 @@ PDESolver::PDESolver( const std::string& name ) :
       .link_to(&m_pde)
       .attach_trigger( boost::bind( &PDESolver::config_time_step_computer, this) )
       .attach_trigger( boost::bind( &PDESolver::config_history, this) )
+      .attach_trigger( boost::bind( &PDESolver::config_norm_computer, this) )
       .mark_basic();
 
   options().add( "time_step_computer", std::string("cf3.solver.ImposeCFL") )
@@ -84,7 +82,9 @@ PDESolver::PDESolver( const std::string& name ) :
 
 
   m_history = create_static_component<History>("history");
+  m_norm_computer = create_static_component<ComputeLNorm>("norm_computer");
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,6 +92,14 @@ void PDESolver::config_history()
 {
   m_history->options().set("file",URI("solve_"+m_pde->name()+".tsv"));
   m_history->options().set("dimension",m_pde->nb_dim());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PDESolver::config_norm_computer()
+{
+  m_norm_computer->options().set("field",m_pde->rhs());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,14 +164,9 @@ void PDESolver::do_iteration()
   m_pde->time()->current_time() += m_pde->time()->dt();
   ++m_pde->time()->iter();
 
-  history()->set("iter",m_pde->time()->iter());
-  if (m_time_step_computer->options().value<bool>("time_accurate"))
-  {
-    history()->set("time",m_pde->time()->current_time());
-    history()->set("dt",m_pde->time()->dt());
-  }
-
   if (m_post_iteration) m_post_iteration->execute();
+
+  iteration_summary();
 
   history()->save_entry();
 
@@ -190,10 +193,17 @@ void PDESolver::solve_time_step(const Real time_step)
 void PDESolver::solve_iterations(const Uint nb_iterations)
 {
   setup();
-  for (Uint iter=0; iter<nb_iterations; ++iter)
-  {
-    do_iteration();
-  }
+//  try {
+    for (Uint iter=0; iter<nb_iterations; ++iter)
+    {
+      do_iteration();
+    }
+//  }
+//  catch ( common::FailedToConverge& e )
+//  {
+//    CFerror << "Aborting simulation..." << CFendl;
+//  }
+
   if (m_history) history()->flush();
 }
 
@@ -202,23 +212,35 @@ void PDESolver::solve_iterations(const Uint nb_iterations)
 void PDESolver::execute()
 {
   setup();
-  while( ! stop_condition() ) // time loop
-  {
-    do_iteration();
+  try {
+    while( ! stop_condition() ) // time loop
+    {
+      do_iteration();
+    }
   }
+  catch ( common::FailedToConverge& e )
+  {
+    CFerror << "Aborting simulation..." << CFendl;
+  }
+
   if (m_history) history()->flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string PDESolver::iteration_summary()
+void PDESolver::iteration_summary()
 {
-  std::stringstream ss;
-  CFinfo << "iter [" << std::setw(4) << m_pde->time()->iter() << "]  "
-         << "time [" << std::setw(12) << std::scientific << m_pde->time()->current_time() << "]  "
-         << "dt ["<< std::scientific << std::setw(12) << m_pde->time()->dt() <<"]  ";
-  return ss.str();
+  history()->set("iter",m_pde->time()->iter());
+  if (m_time_step_computer->options().value<bool>("time_accurate"))
+  {
+    history()->set("time",m_pde->time()->current_time());
+    history()->set("dt",m_pde->time()->dt());
+  }
+  history()->set("cfl",m_time_step_computer->max_cfl());
+  history()->set("L2_rhs",m_norm_computer->compute_norm(*m_pde->rhs()));
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void PDESolver::raise_iteration_done()
 {

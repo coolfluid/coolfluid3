@@ -44,6 +44,10 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "TimeStepComputer"; }
 
+  virtual void change_with_factor(const Real& factor) = 0;
+
+  virtual const Real& max_cfl() const = 0;
+
 protected: // data
 
   Handle<mesh::Field>  m_time_step;

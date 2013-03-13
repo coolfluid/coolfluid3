@@ -31,11 +31,17 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  void change_with_factor(const Real& factor);
+
+  virtual const Real& max_cfl() const { return m_cfl; }
+
 private:
 
   void parse_cfl();
 
-  math::AnalyticalFunction m_cfl;
+  math::AnalyticalFunction m_cfl_function;
+
+  Real m_cfl;
 
 };
 

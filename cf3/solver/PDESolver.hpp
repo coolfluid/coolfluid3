@@ -26,6 +26,7 @@ namespace cf3 {
     class History; 
     class Time;
     class TimeStepComputer ;
+    class ComputeLNorm;
     class PDE; 
   }
 }
@@ -55,6 +56,8 @@ public: // functions
 
   const Handle< solver::History >& history() { return m_history; }
 
+  const Handle< solver::ComputeLNorm >& norm_computer() { return m_norm_computer; }
+
   virtual void execute();
 
   virtual void setup() {}
@@ -67,7 +70,7 @@ public: // functions
 
   virtual void step() = 0;
 
-  virtual std::string iteration_summary();
+  virtual void iteration_summary();
 
   bool stop_condition();
 
@@ -96,6 +99,8 @@ private: // functions
 
   void config_history();
 
+  void config_norm_computer();
+
 protected: // data
 
   Handle<solver::PDE> m_pde;
@@ -115,6 +120,8 @@ protected: // data
   Handle<common::ActionDirector> m_post_update;
 
   Handle< solver::History > m_history;  ///< Component tracking history of several variables
+
+  Handle< solver::ComputeLNorm > m_norm_computer;
 
 };
 

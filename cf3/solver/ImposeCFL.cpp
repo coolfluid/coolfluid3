@@ -32,7 +32,8 @@ common::ComponentBuilder < ImposeCFL, common::Action, LibSolver > ImposeCFL_Buil
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ImposeCFL::ImposeCFL ( const std::string& name ) :
-  TimeStepComputer(name)
+  TimeStepComputer(name),
+  m_cfl(0.)
 {
   mark_basic();
   // options
@@ -48,7 +49,16 @@ ImposeCFL::ImposeCFL ( const std::string& name ) :
 
 void ImposeCFL::parse_cfl()
 {
-  m_cfl.parse( options().value<std::string>("cfl"), "i,t" );
+  m_cfl_function.parse( options().value<std::string>("cfl"), "i,t,cfl" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ImposeCFL::change_with_factor(const Real& factor)
+{
+  m_cfl *= factor;
+  *m_time_step *= factor;
+  m_time->dt() *= factor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,10 +72,11 @@ void ImposeCFL::execute()
   Field& wave_speed = *m_wave_speed;
   Field& time_step = *m_time_step;
 
-  std::vector<Real> args(2);
-  args[0]=m_time->iter();
-  args[1]=m_time->current_time();
-  Real cfl = m_cfl(args);
+  std::vector<Real> args(3);
+  args[0] = m_time->iter();
+  args[1] = m_time->current_time();
+  args[2] = m_cfl;
+  m_cfl = m_cfl_function(args);
 
   if (options().value<bool>("time_accurate")) // global time stepping
   {
@@ -86,7 +97,7 @@ void ImposeCFL::execute()
     {
       if (wave_speed[i][0] > 0.)
       {
-        dt = cfl/wave_speed[i][0];
+        dt = m_cfl/wave_speed[i][0];
 
         min_dt = std::min(min_dt,dt);
         max_dt = std::max(max_dt,dt);
@@ -151,7 +162,7 @@ void ImposeCFL::execute()
       {
         wave_speed[i][0] = min_wave_speed;
       }
-      time_step[i][0] = cfl/wave_speed[i][0];
+      time_step[i][0] = m_cfl/wave_speed[i][0];
     }
   }
 }

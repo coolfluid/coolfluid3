@@ -19,6 +19,8 @@ list( APPEND coolfluid_solver_files
   CriterionMilestoneTime.cpp
   CriterionTime.hpp
   CriterionTime.cpp
+  ComputeLNorm.cpp
+  ComputeLNorm.hpp
   ComputeRHS.hpp
   ComputeRHS.cpp
   Model.hpp
