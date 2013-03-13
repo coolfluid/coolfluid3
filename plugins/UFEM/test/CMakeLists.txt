@@ -92,12 +92,8 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-taylor-green
                     MPI 1
                     ARGUMENTS --dt=0.004 --elem=quad --segs=64 --theta=0.5 --tsteps=10)
 
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
-                    PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
-                    MPI 1)
-
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d
-                    PYTHON atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d.py
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d
+                    PYTHON atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d.py
                     MPI 1)
 
 coolfluid_add_test( ATEST atest-quadtriag

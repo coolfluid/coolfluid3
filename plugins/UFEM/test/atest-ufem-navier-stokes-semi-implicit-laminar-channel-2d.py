@@ -21,7 +21,8 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
-ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesExplicit')
+ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
+ns_solver.InnerLoop.options.max_iter = 2
 
 refinement_level = 1
 
@@ -40,7 +41,7 @@ block_nodes[0] = [0, 1, 3, 2]
 block_nodes[1] = [2, 3, 5, 4]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [refinement_level*40, refinement_level*20]
+block_subdivs[0] = [refinement_level*20, refinement_level*10]
 block_subdivs[1] = block_subdivs[0]
 
 gradings = blocks.create_block_gradings()
@@ -72,35 +73,43 @@ physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
 physics.options().set('reference_velocity', 1.)
 
-# Calculate timestep
-short_edge_action = domain.create_component('ShortestEdge', 'cf3.mesh.actions.ShortestEdge')
-short_edge_action.mesh = mesh
-short_edge_action.execute()
-dx = short_edge_action.properties.h_xi
-dy = short_edge_action.properties.h_eta
-dz = short_edge_action.properties.h_zeta
-tstep = 1./(2*physics.options.kinematic_viscosity * (1./dx**2 + 1./dy**2 + 1./dz**2)) * 0.5
+tstep = 0.15
 
 ns_solver.regions = [mesh.topology.uri()]
 
+#lss_p = ns_solver.InnerLoop.PressureSystem.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy')
+lss_p = ns_solver.InnerLoop.PressureSystem.LSS
+lss_p.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+#lss_p.SolutionStrategy.use_ml_preconditioner = True
+#lss_p.SolutionStrategy.MLParameters.coarse_max_size = 100
+#lss_p.SolutionStrategy.MLParameters.smoother_sweeps = 4
+#lss_p.SolutionStrategy.MLParameters.smoother_pre_or_post = 'both'
+#lss_p.SolutionStrategy.MLParameters.aggregation_type = 'MIS'
+#lss_p.SolutionStrategy.coordinates = mesh.geometry.coordinates
+#lss_p.SolutionStrategy.used_nodes = ns_solver.InnerLoop.PressureSystem.children.nodes_used
+
+#lss_u = ns_solver.InnerLoop.VelocitySystem.create_lss('cf3.math.LSS.TrilinosFEVbrMatrix')
+#lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
+#lss_u.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-8
+
 # Initial conditions
-#solver.InitialConditions.navier_stokes_u_solution.Velocity = [1., 0.]
-#solver.InitialConditions.navier_stokes_p_solution.Pressure = 0.
-ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
+ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
 ic_u.variable_name = 'Velocity'
 ic_u.regions = [mesh.topology.uri()]
 ic_u.value = ['y*(2-y)', '0']
-ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
+ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
 ic_p.variable_name = 'Pressure'
 ic_p.regions = [mesh.topology.uri()]
 ic_p.value = ['20*(1-x/10)']
 
 # Boundary conditions
-bc_u = ns_solver.InnerLoop.VelocityBC
-bc_u.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ['0.', '0.']
-bc_u.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ['0.', '0.']
-bc_u.create_bc_action(region_name = 'left', builder_name = 'cf3.UFEM.NavierStokesExplicitVelocityBC').value = ic_u.value
-ns_solver.InnerLoop.PressureSystem.PressureBC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
+bc_u = ns_solver.InnerLoop.VelocitySystem.BC
+bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'a').value = [0., 0.]
+bc_u.add_constant_bc(region_name = 'top', variable_name = 'a').value = [0., 0.]
+bc_u.add_constant_bc(region_name = 'left', variable_name = 'a').value = [0., 0.]
+bc_u.add_constant_bc(region_name = 'right', variable_name = 'a').value = [0., 0.]
+# The variable name here is delta_p, but we really are setting the pressure
+ns_solver.InnerLoop.PressureSystem.BC.add_constant_bc(region_name = 'right', variable_name = 'delta_p').value = 0.
 
 # Time setup
 time = model.create_time()
@@ -108,7 +117,7 @@ time.time_step = tstep
 time.end_time = 10.*tstep
 model.simulate()
 
-domain.write_mesh(cf.URI('explicit-laminar-channel-2d.pvtu'))
+domain.write_mesh(cf.URI('explicit-implicit-laminar-channel-2d.pvtu'))
 
 # print timings
 model.print_timing_tree()

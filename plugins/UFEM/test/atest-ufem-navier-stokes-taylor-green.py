@@ -112,6 +112,8 @@ class TaylorGreen:
         
     print 'probe_points', self.probe_points, coords[self.probe_points[0]]
     
+    domain.write_mesh(cf.URI('tg-mesh.msh'))
+    
     return mesh
     
   def setup_ic(self, u_tag, p_tag):
@@ -146,10 +148,13 @@ class TaylorGreen:
     
     return self.solver
 
-  def add_pressure_bc(self, bc):
+  def add_pressure_bc(self, bc, var_name = 'Pressure'):
     bc.regions = [self.mesh.topology.uri()]
     nu = self.model.NavierStokesPhysics.kinematic_viscosity
-    bc.add_function_bc(region_name = 'center', variable_name = 'Pressure').value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
+    if var_name == 'Pressure':
+      bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
+    else:
+      bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) + 0.25 * (cos(2*pi/{D}*(x - {Ua}*(t))) + cos(2*pi/{D}*(y - {Va}*(t)))) * exp(-4*{nu}*pi^2/{D}^2*(t))'.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
   
   def setup_implicit(self, segments, Ua, Va, D, theta):
     self.Ua = Ua
@@ -180,6 +185,12 @@ class TaylorGreen:
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
     
+    kinetic_energy = solver.add_unsteady_solver('cf3.UFEM.KineticEnergyIntegral')
+    kinetic_energy.regions = [mesh.topology.interior.uri()]
+    kinetic_energy.history = solver.create_component('KEHistory', 'cf3.solver.History')
+    kinetic_energy.history.file = cf.URI('ke-history.tsv')
+    kinetic_energy.history.dimension = 1
+    
   def setup_semi_implicit(self, segments, Ua, Va, D, theta):  
     self.Ua = Ua
     self.Va = Va
@@ -190,22 +201,18 @@ class TaylorGreen:
     
     solver = self.setup_model()
     ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
-    ns_solver.options.blocked_system = True
     ns_solver.options.theta = theta
     self.theta = theta
-    
-    lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
+    ns_solver.InnerLoop.options.max_iter = 1
+    ns_solver.children.PressureMatrixAssembly.children.GlobalLSS.options.blocked_system = True
     
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    self.add_pressure_bc(ns_solver.BoundaryConditions)
+    #self.add_pressure_bc(ns_solver.InnerLoop.PressureSystem.BC, 'delta_p')
     
-    lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.solver_type = 'Mumps'
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.create_parameter_list('Amesos Settings').add_parameter(name = 'MaxProcs', value=1)
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.add_parameter(name = 'Redistribute', value=True)
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.create_parameter_list('Mumps').add_parameter(name='Equilibrate', value = False)
+    lss_p = ns_solver.InnerLoop.PressureSystem.LSS
+    lss_p.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
@@ -245,21 +252,20 @@ class TaylorGreen:
       self.model.simulate()
       #self.model.Solver.TimeLoop.NavierStokesExplicit.InnerLoop.PressureSystem.LSS.print_system('pressure_system.plt')
       self.t[self.iteration] = time.current_time
-      if self.iteration % process_interval == 0:
-        self.check_result()
+      if (self.iteration % process_interval == 0) or time.current_time >= final_end_time:
+        self.check_result(time.current_time >= final_end_time)
       if self.iteration % save_interval == 0:
         self.model.Domain.write_mesh(cf.URI(self.basename+'/taylor-green-' +str(self.iteration) + '.pvtu'))
       self.iteration += 1
       if self.iteration == 1:
         self.model.Solver.options.disabled_actions = ['InitialConditions']
-
     self.outfile.close()
 
     # print timings
     self.model.print_timing_tree()
 
 
-  def check_result(self):
+  def check_result(self, dumpfile = False):
     t = self.t[self.iteration]
     Ua = self.Ua
     Va = self.Va
@@ -300,7 +306,8 @@ class TaylorGreen:
     self.max_error[1, self.iteration] = np.max(np.abs(v_th - v_num))
     self.max_error[2, self.iteration] = np.max(np.abs(p_th - p_num))
     
-    # np.savetxt('duv-{t}.txt'.format(t = t), (x_arr, y_arr, np.abs(u_th-u_num), np.abs(v_th-v_num)))
+    if dumpfile:
+      np.savetxt('uvcontours-{t}.txt'.format(t = t), (x_arr, y_arr, u_num, v_num))
     
     self.outfile.write('{t},{u},{v},{p}'.format(t = t, u = self.max_error[0, self.iteration], v = self.max_error[1, self.iteration], p = self.max_error[2, self.iteration]))
     for i in self.probe_points:
@@ -317,6 +324,6 @@ parser.add_option('--tsteps', type='int')
 
 
 taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
-taylor_green.setup_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
-taylor_green.iterate(options.tsteps, np.min((options.tsteps,100)), 1)
+taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
+taylor_green.iterate(options.tsteps, 1, 1)
 

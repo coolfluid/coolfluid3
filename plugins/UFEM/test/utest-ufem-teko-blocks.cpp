@@ -11,6 +11,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Teko_EpetraHelpers.hpp>
+#include <Teko_Utilities.hpp>
+
+#include <Thyra_EpetraLinearOp.hpp>
+#include <Thyra_VectorStdOps.hpp>
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
@@ -62,11 +66,13 @@ struct UFEMBuildSparsityFixture
     const Teuchos::RCP<const Epetra_Operator> block = blocked_op->GetBlock(i,j);
     Epetra_Vector testvec(block->OperatorDomainMap());
     int num_entries = block->OperatorDomainMap().NumMyElements();
-    std::vector<Real> testvec_init(num_entries, 1.);
     std::vector<int> indices(num_entries);
     for(int i = 0; i != num_entries; ++i)
       indices[i] = i;
-    testvec.ReplaceMyValues(num_entries, &testvec_init[0], &indices[0]);
+    if(j ==0)
+      testvec.ReplaceMyValues(num_entries, &u_test_vec[0], &indices[0]);
+    else
+      testvec.ReplaceMyValues(num_entries, &p_test_vec[0], &indices[0]);
 
     output = Teuchos::rcp(new Epetra_Vector(block->OperatorRangeMap()));
     block->Apply(testvec, *output);
@@ -74,6 +80,7 @@ struct UFEMBuildSparsityFixture
 
   Component& root;
   Teuchos::RCP<Teko::Epetra::BlockedEpetraOperator> blocked_op;
+  std::vector<Real> u_test_vec, p_test_vec;
 };
 
 
@@ -92,7 +99,7 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
 
   // Parameters
   Real length            = 5.;
-  const Uint nb_segments = 64;
+  const Uint nb_segments = 3;
   const Uint nb_nodes = (nb_segments+1) * (nb_segments+1);
 
   // Setup a model
@@ -102,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
   UFEM::Solver& solver = *model.create_component<UFEM::Solver>("Solver");
 
   Handle<UFEM::LSSAction> lss_action(solver.add_direct_solver("cf3.UFEM.LSSAction"));
-  lss_action->options().set("blocked_system", true);
+  lss_action->options().set("blocked_system", false);
 
   // Proto placeholders
   FieldVariable<0, VectorField> u("u", UFEM::Tags::solution());
@@ -110,11 +117,6 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
-
-  RealMatrix ones(8,8); ones.setZero(); ones.diagonal().setConstant(1.);
-  RealMatrix twos(8,4); twos.setZero(); twos.diagonal().setConstant(2.);
-  RealMatrix threes(4,8); threes.setZero(); threes.diagonal().setConstant(3.);
-  RealMatrix fours(4,4); fours.setZero(); fours.diagonal().setConstant(4.);
 
   // add the top-level actions (assembly, BC and solve)
   lss_action->add_component(create_proto_action
@@ -125,10 +127,14 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
         allowed_elements,
         group
         (
-          _A(u, u) = ones,
-          _A(u,p) = twos,
-          _A(p,u) = threes,
-          _A(p,p) = fours,
+          _A = _0,
+          element_quadrature
+          (
+            _A(u[_i], u[_i]) += transpose(N(u))*N(u),
+            _A(u[_i],p) += -transpose(nabla(u)[_i])*N(p),
+            _A(p,u[_i]) += transpose(N(p))*nabla(u)[_i],
+            _A(p,p) += transpose(nabla(p))*nabla(p)
+          ),
           lss_action->system_matrix += _A
         )
       )
@@ -158,14 +164,27 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
   
   model.simulate();
 
-  lss.solution()->reset(1.);
+  // Initialize the solution vector
+  u_test_vec.resize(nb_nodes*2);
+  p_test_vec.resize(nb_nodes);
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    lss.solution()->set_value(i, 0, i*3);
+    lss.solution()->set_value(i, 1, i*3+1);
+    lss.solution()->set_value(i, 2, i*3+2);
+    u_test_vec[i*2] = i*3;
+    u_test_vec[i*2+1] = i*3+1;
+    p_test_vec[i] = i*3+2;
+  }
   
+  // Apply the complete matrix to the solution vector
   Handle<math::LSS::TrilinosCrsMatrix> crs_mat(lss.matrix());
   Handle<math::LSS::TrilinosVector> tri_sol(lss.solution());
   Handle<math::LSS::TrilinosVector> tri_rhs(lss.rhs());
   BOOST_CHECK(crs_mat);
   crs_mat->epetra_matrix()->Apply(*tri_sol->epetra_vector(), *tri_rhs->epetra_vector());
 
+  // Create matrix subblocks
   math::VariablesDescriptor& descriptor = common::find_component_with_tag<VariablesDescriptor>(physical_model.variable_manager(), UFEM::Tags::solution());
   blocked_op = math::LSS::create_teko_blocked_operator(*crs_mat, descriptor);
   
@@ -181,6 +200,7 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
   Teuchos::RCP<Epetra_Vector> pp_output;
   apply_block(1, 1, pp_output);
   
+  // Check if the result of applying blocks is the same as the result of applying the whole matrix
   for(Uint i = 0; i != nb_nodes; ++i)
   {
     Real u_check, v_check, p_check;
@@ -188,10 +208,36 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
     tri_rhs->get_value(i, 1, v_check);
     tri_rhs->get_value(i, 2, p_check);
     
-    BOOST_CHECK_EQUAL((*uu_output)[i*2] + (*up_output)[i*2], u_check);
-    BOOST_CHECK_EQUAL((*uu_output)[i*2+1] + (*up_output)[i*2+1], v_check);
-    BOOST_CHECK_EQUAL((*pu_output)[i] + (*pp_output)[i], p_check);
+    BOOST_CHECK_CLOSE((*uu_output)[i*2] + (*up_output)[i*2], u_check, 1e-8);
+    BOOST_CHECK_CLOSE((*uu_output)[i*2+1] + (*up_output)[i*2+1], v_check, 1e-8);
+    BOOST_CHECK_CLOSE((*pu_output)[i] + (*pp_output)[i], p_check, 1e-8);
   }
+
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > Aup = Thyra::epetraLinearOp(blocked_op->GetBlock(0,1));
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > Apu = Thyra::epetraLinearOp(blocked_op->GetBlock(1,0));
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > K = Teko::explicitMultiply(Apu,Aup);
+  Teuchos::RCP<Thyra::VectorBase<Real> > b = Thyra::createMember(K->range());
+  Teuchos::RCP<Thyra::VectorBase<Real> > x = Thyra::createMember(K->domain());
+
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    Thyra::set_ele(i, p_test_vec[i], b.ptr());
+  }
+  Thyra::apply(*K, Thyra::NOTRANS, *b, x.ptr());
+
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    BOOST_CHECK((*pp_output)[i] != Thyra::get_ele(*x, i));
+  }
+
+  Teuchos::RCP<std::ofstream> k_out = Teuchos::rcp(new  std::ofstream("K.txt", std::ios::out));
+  Teuchos::RCP<Teuchos::FancyOStream> k_fancy_out = Teuchos::fancyOStream(k_out);
+  Thyra::describeLinearOp(*K, *k_fancy_out, Teuchos::VERB_EXTREME);
+
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > App = Thyra::epetraLinearOp(blocked_op->GetBlock(1,1));
+  Teuchos::RCP<std::ofstream> app_out = Teuchos::rcp(new  std::ofstream("App.txt", std::ios::out));
+  Teuchos::RCP<Teuchos::FancyOStream> app_fancy_out = Teuchos::fancyOStream(app_out);
+  Thyra::describeLinearOp(*App, *app_fancy_out, Teuchos::VERB_EXTREME);
 }
 
 BOOST_AUTO_TEST_CASE( FinalizeMPI )

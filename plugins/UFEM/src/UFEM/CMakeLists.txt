@@ -1,3 +1,5 @@
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 option(CF3_UFEM_ENABLE_TRIAGS "Enable code generation for triangular elements, for solvers provide compile-time element selection"      ON)
 option(CF3_UFEM_ENABLE_QUADS  "Enable code generation for quadrilateral elements, for solvers provide compile-time element selection"   ON)
 option(CF3_UFEM_ENABLE_TETRAS "Enable code generation for tetrahedral elements, for solvers provide compile-time element selection"     ON)
@@ -11,6 +13,7 @@ mark_as_advanced(CF3_UFEM_ENABLE_HEXAS)
 
 add_subdirectory(config)
 add_subdirectory(ns_implementation)
+add_subdirectory(ns_semi_implicit)
 
 list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.hpp
@@ -49,6 +52,8 @@ list( APPEND coolfluid_ufem_files
   InitialConditionFunction.cpp
   InitialConditions.hpp
   InitialConditions.cpp
+  KineticEnergyIntegral.hpp
+  KineticEnergyIntegral.cpp
   LibUFEM.cpp
   LibUFEM.hpp
   LSSAction.hpp
@@ -79,9 +84,17 @@ list( APPEND coolfluid_ufem_files
   SUPG.hpp
   Tags.hpp
   Tags.cpp
+  
+  ns_semi_implicit/NavierStokesSemiImplicit.hpp
+  ns_semi_implicit/PressureGradientApply.hpp
+  ns_semi_implicit/PressureMatrixAssembly.hpp
+  ns_semi_implicit/PressureRHSAssembly.hpp
+  ns_semi_implicit/SegregatedSolveStrategy.hpp
+  ns_semi_implicit/SegregatedSolveStrategy.cpp
+  ns_semi_implicit/VelocityMatrixAssembly.hpp
 )
 
-set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation>)
+set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)
 
 coolfluid3_add_library( TARGET     coolfluid_ufem 
 						SOURCES    
