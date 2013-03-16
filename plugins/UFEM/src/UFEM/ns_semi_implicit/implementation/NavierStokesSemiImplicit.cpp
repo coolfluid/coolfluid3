@@ -170,15 +170,15 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .link_to(&m_initial_conditions)
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_initial_conditions, this));
 
-  m_pressure_matrix_assembly = create_component<solver::ActionDirector>("PressureMatrixAssembly");
+//  m_pressure_matrix_assembly = create_component<solver::ActionDirector>("PressureMatrixAssembly");
   
-  create_component<ProtoAction>("InitializeInnerLoop")->set_expression(nodes_expression(a[_i] = 0.));
+//  create_component<ProtoAction>("InitializeInnerLoop")->set_expression(nodes_expression(a[_i] = 0.));
   
-  m_inner_loop = create_component<solver::actions::Iterate>("InnerLoop");
-  m_inner_loop->options().set("max_iter", 2u);
-  m_inner_loop->mark_basic();
+//  m_inner_loop = create_component<solver::actions::Iterate>("InnerLoop");
+//  m_inner_loop->options().set("max_iter", 2u);
+//  m_inner_loop->mark_basic();
 
-  m_actions_to_disable.push_back(m_pressure_matrix_assembly->name());
+  //m_actions_to_disable.push_back(m_pressure_matrix_assembly->name());
 
   trigger_assembly();
 }
@@ -189,92 +189,110 @@ NavierStokesSemiImplicit::~NavierStokesSemiImplicit()
 
 void NavierStokesSemiImplicit::execute()
 {
-  Handle<math::LSS::System> velocity_lss(m_inner_loop->get_child("VelocitySystem")->get_child("LSS"));
-  Handle<math::LSS::ZeroLSS> zero_rhs(m_inner_loop->get_child("ZeroVelocityRHS"));
-  zero_rhs->options().set("lss", velocity_lss);
+//   Handle<math::LSS::System> velocity_lss(m_inner_loop->get_child("VelocitySystem")->get_child("LSS"));
+//   Handle<math::LSS::ZeroLSS> zero_rhs(m_inner_loop->get_child("ZeroVelocityRHS"));
+//   zero_rhs->options().set("lss", velocity_lss);
+
+  CFdebug << "Executing SemiImplicit" << CFendl;
+
+  const Handle<math::VariablesDescriptor> descriptor = common::find_component_ptr_with_tag<math::VariablesDescriptor>(physical_model().variable_manager(), "navier_stokes_solution");
+  access_component("GlobalLSS/LSS/SolutionStrategy")->options().set("variables_descriptor", descriptor);
+
   solver::ActionDirector::execute();
-  options().set("disabled_actions", m_actions_to_disable);
+//  options().set("disabled_actions", m_actions_to_disable);
 }
 
 void NavierStokesSemiImplicit::trigger_assembly()
 {
-  m_pressure_matrix_assembly->clear();
-  m_inner_loop->clear();
-  Handle<LSSActionUnsteady> global_lss = m_pressure_matrix_assembly->create_component<LSSActionUnsteady>("GlobalLSS");
+  clear();
+  Handle<LSSActionUnsteady> global_lss = create_component<LSSActionUnsteady>("GlobalLSS");
   global_lss->set_solution_tag("navier_stokes_solution");
   global_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  global_lss->options().set("solution_strategy", std::string("cf3.UFEM.SegregatedSolveStrategy"));
+  global_lss->mark_basic();
+  
+  global_lss->create_component<ProtoAction>("SetAdvectionVelocity")->set_expression(nodes_expression(u_adv = u));
+  global_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
   
   set_pressure_matrix_assembly_quad(*global_lss);
+
+  // Apply BC
+  Handle<BoundaryConditions> bc =  global_lss->create_component<BoundaryConditions>("BC");
+  bc->mark_basic();
+  bc->set_solution_tag(global_lss->solution_tag());
   
-  Handle<BuildPressureMatrix> build_pressure_matrix = m_pressure_matrix_assembly->create_component<BuildPressureMatrix>("BuildPressureMatrix");
+//  Handle<BuildPressureMatrix> build_pressure_matrix = m_pressure_matrix_assembly->create_component<BuildPressureMatrix>("BuildPressureMatrix");
   
-  // Initialize variables for this iteration
-  m_inner_loop->create_component<ProtoAction>("InitializeIteration")->set_expression(nodes_expression(u_adv = u));
+//  // Initialize variables for this iteration
+//  m_inner_loop->create_component<ProtoAction>("InitializeIteration")->set_expression(nodes_expression(u_adv = u));
 
-  // Assemble the velocity system
-  Handle<LSSActionUnsteady> velocity_lss = m_inner_loop->create_component<LSSActionUnsteady>("VelocitySystem");
-  velocity_lss->set_solution_tag("navier_stokes_acceleration");
-  velocity_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  velocity_lss->mark_basic();
-  velocity_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+//  // Assemble the velocity system
+//  Handle<LSSActionUnsteady> velocity_lss = m_inner_loop->create_component<LSSActionUnsteady>("VelocitySystem");
+//  velocity_lss->set_solution_tag("navier_stokes_acceleration");
+//  velocity_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+//  velocity_lss->mark_basic();
+//  velocity_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
 
-  set_velocity_matrix_assembly_quad(*velocity_lss);
+//  set_velocity_matrix_assembly_quad(*velocity_lss);
 
-  // Apply acceleration BC
-  Handle<BoundaryConditions> u_bc =  velocity_lss->create_component<BoundaryConditions>("BC");
-  u_bc->mark_basic();
-  u_bc->set_solution_tag(velocity_lss->solution_tag());
+//  // Apply acceleration BC
+//  Handle<BoundaryConditions> u_bc =  velocity_lss->create_component<BoundaryConditions>("BC");
+//  u_bc->mark_basic();
+//  u_bc->set_solution_tag(velocity_lss->solution_tag());
 
-  // Solve for Delta a*
-  Handle<math::LSS::SolveLSS> solve_velocity_lss = velocity_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
+//  // Solve for Delta a*
+//  Handle<math::LSS::SolveLSS> solve_velocity_lss = velocity_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
 
-  // Set the Delta a* field
-  velocity_lss->create_component<ProtoAction>("UpdateDeltaAStar")->set_expression(nodes_expression(delta_a_star = velocity_lss->solution(a)));
+//  // Set the Delta a* field
+//  velocity_lss->create_component<ProtoAction>("UpdateDeltaAStar")->set_expression(nodes_expression(delta_a_star = velocity_lss->solution(a)));
 
-  // Assemble pressure RHS
-  Handle<LSSActionUnsteady> pressure_lss = m_inner_loop->create_component<LSSActionUnsteady>("PressureSystem");
-  pressure_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  //pressure_lss->options().set("solution_strategy", std::string("cf3.math.LSS.ConstantPoissonStrategy"));
-  pressure_lss->set_solution_tag("navier_stokes_delta_p");
-  pressure_lss->mark_basic();
-  build_pressure_matrix->options().set("global_lss", global_lss);
-  build_pressure_matrix->options().set("pressure_lss", pressure_lss);
-  Handle<math::LSS::ZeroLSS> zero_pressure_rhs = pressure_lss->create_component<math::LSS::ZeroLSS>("ZeroPressureRHS");
-  zero_pressure_rhs->options().set("reset_matrix", false);
+//  // Assemble pressure RHS
+//  Handle<LSSActionUnsteady> pressure_lss = m_inner_loop->create_component<LSSActionUnsteady>("PressureSystem");
+//  pressure_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+//  //pressure_lss->options().set("solution_strategy", std::string("cf3.math.LSS.ConstantPoissonStrategy"));
+//  pressure_lss->set_solution_tag("navier_stokes_delta_p");
+//  pressure_lss->mark_basic();
+//  build_pressure_matrix->options().set("global_lss", global_lss);
+//  build_pressure_matrix->options().set("pressure_lss", pressure_lss);
+//  Handle<math::LSS::ZeroLSS> zero_pressure_rhs = pressure_lss->create_component<math::LSS::ZeroLSS>("ZeroPressureRHS");
+//  zero_pressure_rhs->options().set("reset_matrix", false);
 
-  set_pressure_rhs_assembly_quad(*pressure_lss);
+//  set_pressure_rhs_assembly_quad(*pressure_lss);
 
-  // Apply pressure BC
-  Handle<BoundaryConditions> dp_bc =  pressure_lss->create_component<BoundaryConditions>("BC");
-  dp_bc->mark_basic();
-  dp_bc->set_solution_tag(pressure_lss->solution_tag());
+//  // Apply pressure BC
+//  Handle<BoundaryConditions> dp_bc =  pressure_lss->create_component<BoundaryConditions>("BC");
+//  dp_bc->mark_basic();
+//  dp_bc->set_solution_tag(pressure_lss->solution_tag());
 
-  // Solve for Delta p
-  pressure_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
+//  // Solve for Delta p
+//  pressure_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
 
-  // Update delta_p value
-  pressure_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(dp = pressure_lss->solution(dp)));
+//  // Update delta_p value
+//  pressure_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(dp = pressure_lss->solution(dp)));
 
-  // Assemble new velocity RHS
-  Handle<math::LSS::ZeroLSS> zero_velocity_rhs = m_inner_loop->create_component<math::LSS::ZeroLSS>("ZeroVelocityRHS");
-  zero_velocity_rhs->options().set("reset_matrix", false);
+//  // Assemble new velocity RHS
+//  Handle<math::LSS::ZeroLSS> zero_velocity_rhs = m_inner_loop->create_component<math::LSS::ZeroLSS>("ZeroVelocityRHS");
+//  zero_velocity_rhs->options().set("reset_matrix", false);
 
-  set_pressure_gradient_apply_quad(*velocity_lss);
+//  set_pressure_gradient_apply_quad(*velocity_lss);
 
-  // Apply velocity BC
-  m_inner_loop->add_link(*u_bc);
+//  // Apply velocity BC
+//  m_inner_loop->add_link(*u_bc);
 
-  // Solve system for Delta a - Delta a*
-  m_inner_loop->add_link(*solve_velocity_lss);
+//  // Solve system for Delta a - Delta a*
+//  m_inner_loop->add_link(*solve_velocity_lss);
 
-  // Update solution variables
-  m_inner_loop->create_component<ProtoAction>("Update")->set_expression(nodes_expression(group
-  (
-    delta_a = delta_a_star - velocity_lss->solution(a),
-    a += delta_a,
-    u += delta_a * lit(velocity_lss->dt()),
-    p += dp
-  )));
+//  // Update solution variables
+//  m_inner_loop->create_component<ProtoAction>("Update")->set_expression(nodes_expression(group
+//  (
+//    delta_a = delta_a_star - velocity_lss->solution(a),
+//    a += delta_a,
+//    u += delta_a * lit(velocity_lss->dt()),
+//    p += dp
+//  )));
+
+  global_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
+  global_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(u = global_lss->solution(u), p = global_lss->solution(p))));
 
   
   if(is_not_null(m_physical_model))

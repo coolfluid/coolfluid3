@@ -42,23 +42,25 @@ void NavierStokesSemiImplicit::set_pressure_matrix_assembly(LSSActionUnsteady& l
       ElementsT(),
       group
       (
-        _A = _0, _T(u) = _0, _T(p) = _0,
+        _A = _0, _T = _0,
         group
         (
           compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
-            _A(p    , u[_i]) += lit(lss.dt()) * (transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)) + tau_ps * transpose(nabla(p)[_i]) * N(u), // dt*Apu + Tpu
-            _A(p    , p)     += -lit(tau_ps) * transpose(nabla(p)) * nabla(p), // The minus accounts for the fact that we will subtract this part from the pressure matrix
-            _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i],
-  _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) + lit(theta)*lit(lss.dt())*(nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)),
-  _T(u[_i], u[_j]) += lit(theta)*lit(lss.dt())*(transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
-  + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j])
-
+            _A(p    , u[_i]) += transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
+            _A(p    , p)     += tau_ps * transpose(nabla(p)) * nabla(p), // Continuity, PSPG
+            _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
+            _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+            _A(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
+                                + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
+            _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
+            _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
           )
         ),
-        lump(_T),
-        lss.system_matrix += _T + _A
+        lss.system_rhs += -_A * _x,
+        _A(p) = _A(p) / theta,
+        lss.system_matrix += _T + lit(theta) * lit(lss.dt()) * _A
       )
     )
   ));

@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 env = cf.Core.environment()
 
-# Global confifuration
+# Global configuration
 env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
@@ -151,10 +151,7 @@ class TaylorGreen:
   def add_pressure_bc(self, bc, var_name = 'Pressure'):
     bc.regions = [self.mesh.topology.uri()]
     nu = self.model.NavierStokesPhysics.kinematic_viscosity
-    if var_name == 'Pressure':
-      bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
-    else:
-      bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) + 0.25 * (cos(2*pi/{D}*(x - {Ua}*(t))) + cos(2*pi/{D}*(y - {Va}*(t)))) * exp(-4*{nu}*pi^2/{D}^2*(t))'.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
+    bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
   
   def setup_implicit(self, segments, Ua, Va, D, theta):
     self.Ua = Ua
@@ -203,16 +200,12 @@ class TaylorGreen:
     ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
     ns_solver.options.theta = theta
     self.theta = theta
-    ns_solver.InnerLoop.options.max_iter = 1
-    ns_solver.children.PressureMatrixAssembly.children.GlobalLSS.options.blocked_system = True
+    #ns_solver.children.GlobalLSS.options.blocked_system = False
     
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
     #self.add_pressure_bc(ns_solver.InnerLoop.PressureSystem.BC, 'delta_p')
-    
-    lss_p = ns_solver.InnerLoop.PressureSystem.LSS
-    lss_p.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
