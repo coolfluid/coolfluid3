@@ -48,23 +48,29 @@ public: // functions
 
 private:
 
+  /// Create the solver
+  void trigger_assembly();
+
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
   virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
 
   /// Scalar diffusivity
-  PhysicsConstant m_alpha;
-  PhysicsConstant lambda_f;
-  PhysicsConstant cp;
-  PhysicsConstant rho;
+  Real m_alpha;
 
   /// Stabilization coefficient
   Real tau_su;
+
+  Handle<solver::ActionDirector> m_assembly;
+  Handle<solver::ActionDirector> m_update;
+  Handle<common::Action> m_initial_conditions;
+
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_NavierStokes_hpp
+#endif // cf3_UFEM_ScalarAdvection_hpp
+
