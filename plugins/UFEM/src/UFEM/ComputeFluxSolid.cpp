@@ -88,7 +88,7 @@ void ComputeFluxSolid::trigger_setup()
   compute_flux_solid->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D>(),
-    FluxS = nabla(T, gauss_points_1)*nodal_values(T)*lambda_s // Calculate the gradient at the first gauss point, i.e. the cell center
+    FluxS = - nabla(T, gauss_points_1)*nodal_values(T)*lambda_s // Calculate the gradient at the first gauss point, i.e. the cell center
   ));
 
 }
