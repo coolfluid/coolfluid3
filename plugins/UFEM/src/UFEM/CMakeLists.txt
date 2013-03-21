@@ -78,6 +78,10 @@ list( APPEND coolfluid_ufem_files
   SUPG.hpp
   Tags.hpp
   Tags.cpp
+  TemperatureHistoryScalarAdvection.cpp
+  TemperatureHistoryScalarAdvection.hpp
+  TemperatureHistoryHeatConduction.cpp
+  TemperatureHistoryHeatConduction.hpp
 )
 
 list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_solver_actions coolfluid_physics coolfluid_mesh)

@@ -100,7 +100,9 @@ void HeatConductionSteady::trigger()
 
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());
-
+  FieldVariable<3, ScalarField> temperature1_hc("TemperatureHistoryHC1", "temperature_history_hc");
+  FieldVariable<4, ScalarField> temperature2_hc("TemperatureHistoryHC2", "temperature_history_hc");
+  FieldVariable<5, ScalarField> temperature3_hc("TemperatureHistoryHC3", "temperature_history_hc");
 
   if(use_specializations)
   {
@@ -143,13 +145,35 @@ void HeatConductionSteady::trigger()
   }
 
   m_update->set_expression(nodes_expression(T += relaxation_factor_hc*solution(T)));     // Set the solution
+
+  // Set the proto expression for the update step
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression
+        (group
+        (
+        (T += relaxation_factor_hc*solution(T)),
+        temperature3_hc = temperature2_hc,
+        temperature2_hc = temperature1_hc,
+        temperature1_hc = T
+        ))
+        );
+
 }
 
 void HeatConductionSteady::on_initial_conditions_set(InitialConditions& initial_conditions)
-{
-  initial_conditions.create_initial_condition(solution_tag());
-}
 
+  {
+  FieldVariable<0, ScalarField> T("Temperature", solution_tag());
+  FieldVariable<3, ScalarField> temperature1_hc("TemperatureHistoryHC1", "temperature_history_hc");
+  FieldVariable<4, ScalarField> temperature2_hc("TemperatureHistoryHC2", "temperature_history_hc");
+  FieldVariable<5, ScalarField> temperature3_hc("TemperatureHistoryHC3", "temperature_history_hc");
+
+  initial_conditions.create_initial_condition(solution_tag());
+
+    // Use a proto action to set the temperature_history easily
+  Handle<ProtoAction> temp_history_ic (initial_conditions.create_initial_condition("temperature_history", "cf3.solver.ProtoAction"));
+  temp_history_ic->set_expression(nodes_expression(group(temperature1_hc = T, temperature2_hc = T, temperature3_hc = T)));
+
+  }
 
 } // UFEM
 } // cf3
