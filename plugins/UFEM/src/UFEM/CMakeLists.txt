@@ -86,12 +86,9 @@ list( APPEND coolfluid_ufem_files
   Tags.cpp
   
   ns_semi_implicit/NavierStokesSemiImplicit.hpp
-  ns_semi_implicit/PressureGradientApply.hpp
-  ns_semi_implicit/PressureMatrixAssembly.hpp
-  ns_semi_implicit/PressureRHSAssembly.hpp
+  ns_semi_implicit/MatrixAssembly.hpp
   ns_semi_implicit/SegregatedSolveStrategy.hpp
   ns_semi_implicit/SegregatedSolveStrategy.cpp
-  ns_semi_implicit/VelocityMatrixAssembly.hpp
 )
 
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)

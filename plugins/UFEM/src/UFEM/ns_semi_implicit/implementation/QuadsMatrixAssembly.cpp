@@ -7,7 +7,7 @@
 #include <coolfluid-ufem-config.hpp>
 
 #include "../NavierStokesSemiImplicit.hpp"
-#include "../PressureRHSAssembly.hpp"
+#include "../MatrixAssembly.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -17,10 +17,10 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-void NavierStokesSemiImplicit::set_pressure_rhs_assembly_quad( cf3::UFEM::LSSActionUnsteady& lss )
+void NavierStokesSemiImplicit::set_matrix_assembly_quad( cf3::UFEM::LSSAction& rhs_lss )
 {
 #ifdef CF3_UFEM_ENABLE_QUADS
-  set_pressure_rhs_assembly< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >(lss, "RHSAssemblyQuads");
+  set_matrix_assembly< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >(rhs_lss, "AssemblyQuads");
 #endif
 }
 

@@ -24,7 +24,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// solver for the unsteady incompressible Navier-Stokes equations
-class UFEM_API NavierStokesSemiImplicit : public solver::ActionDirector
+class UFEM_API NavierStokesSemiImplicit : public LSSActionUnsteady
 {
 public: // functions
 
@@ -40,47 +40,32 @@ public: // functions
   void execute();
 
 private:
-  /// Create the solver structure, based on the choice of specialized code
-  void trigger_assembly();
-
   /// Executed when the initial conditions are set
-  void trigger_initial_conditions();
+  void on_initial_conditions_set(InitialConditions& initial_conditions);
+  
+  virtual void on_regions_set();
 
   /// Helper functions to set the expression, taking into account the user's option to use specializations or not.
   template<typename ElementsT>
-  void set_pressure_matrix_assembly(LSSActionUnsteady& lss, const std::string& action_name);
+  void set_matrix_assembly(LSSAction& rhs_lss, const std::string& action_name);
 
-  void set_pressure_matrix_assembly_quad(LSSActionUnsteady& lss);
-
-  template<typename ElementsT>
-  void set_pressure_rhs_assembly(LSSActionUnsteady& lss, const std::string& action_name);
-
-  void set_pressure_rhs_assembly_quad(LSSActionUnsteady& lss);
-
-  template<typename ElementsT>
-  void set_pressure_gradient_apply(LSSActionUnsteady& lss, const std::string& action_name);
-
-  void set_pressure_gradient_apply_quad(LSSActionUnsteady& lss);
-
-  template<typename ElementsT>
-  void set_velocity_matrix_assembly(LSSActionUnsteady& lss, const std::string& action_name);
-
-  void set_velocity_matrix_assembly_quad(LSSActionUnsteady& lss);
-
-  void on_regions_set();
+  void set_matrix_assembly_quad(LSSAction& rhs_lss);
   
   /// Variables
+  /// The velocity solution field
   FieldVariable<0, VectorField> u;
+  /// The pressure solution field
   FieldVariable<1, ScalarField> p;
-  FieldVariable<2, ScalarField> nu_eff;
-  FieldVariable<3, VectorField> u_adv;
-  
-  FieldVariable<4, VectorField> a;
-
-  FieldVariable<5, VectorField> delta_a_star;
-  FieldVariable<6, VectorField> delta_a;
-
-  FieldVariable<7, ScalarField> dp;
+  /// The linearized advection velocity
+  FieldVariable<2, VectorField> u_adv;
+  /// Velocity at time n-1
+  FieldVariable<3, VectorField> u1;
+  /// Velocity at time n-2
+  FieldVariable<4, VectorField> u2;
+  /// Velocity at time n-3
+  FieldVariable<5, VectorField> u3;
+  /// Effective viscosity field
+  FieldVariable<6, ScalarField> nu_eff;
   
   /// Access to the physics
   PhysicsConstant u_ref;
@@ -89,14 +74,13 @@ private:
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
   
-  Handle<solver::ActionDirector> m_pressure_matrix_assembly;
-  Handle<solver::actions::Iterate> m_inner_loop;
-  Handle<solver::ActionDirector> m_update;
-  Handle<InitialConditions> m_initial_conditions;
-  // These actions are disabled after the first execution
-  std::vector<std::string> m_actions_to_disable;
-
-  bool m_recursing;
+  /// Theta scheme parameter
+  Real theta;
+    
+  Handle<math::VariablesDescriptor> m_variables_descriptor;
+  
+  // This LSS stores a matrix that is used to construct the RHS vector
+  Handle<LSSAction> m_rhs_lss;
 };
 
 } // UFEM

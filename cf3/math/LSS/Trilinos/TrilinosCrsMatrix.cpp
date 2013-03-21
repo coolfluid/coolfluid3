@@ -497,6 +497,28 @@ void TrilinosCrsMatrix::reset(Real reset_to)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosCrsMatrix::clone_to(Matrix &other)
+{
+  if(!m_is_created)
+    throw common::SetupError(FromHere(), "Matrix to clone " + uri().string() + " is not created");
+
+  TrilinosCrsMatrix* other_ptr = dynamic_cast<TrilinosCrsMatrix*>(&other);
+  if(is_null(other_ptr))
+    throw common::SetupError(FromHere(), "clone_to method of TrilinosCrsMatrix needs another TrilinosCrsMatrix, but a " + other.derived_type_name() + " was supplied instead.");
+
+  other_ptr->m_mat = Teuchos::rcp(new Epetra_CrsMatrix(*m_mat));
+  other_ptr->m_is_created = m_is_created;
+  other_ptr->m_neq = m_neq;
+  other_ptr->m_num_my_elements = m_num_my_elements;
+  other_ptr->m_p2m = m_p2m;
+  other_ptr->m_converted_indices = m_converted_indices;
+  other_ptr->m_node_connectivity = m_node_connectivity;
+  other_ptr->m_starting_indices = m_starting_indices;
+  other_ptr->m_symmetric_dirichlet_values = m_symmetric_dirichlet_values;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosCrsMatrix::print(common::LogStream& stream)
 {
   if (m_is_created)

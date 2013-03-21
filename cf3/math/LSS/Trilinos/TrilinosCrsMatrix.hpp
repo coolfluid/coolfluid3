@@ -187,6 +187,8 @@ public:
   virtual Teuchos::RCP< const Thyra::LinearOpBase< Real > > thyra_operator() const;
   virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
 
+  virtual void clone_to(Matrix &other);
+
 private:
 
   /// teuchos style smart pointer wrapping the matrix

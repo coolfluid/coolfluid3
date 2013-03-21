@@ -89,7 +89,7 @@ private:
 protected:
 
   /// Called when the regions are set
-  void on_regions_set();
+  virtual void on_regions_set();
 
   /// Called when the initial conditions are set
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);

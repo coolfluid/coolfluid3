@@ -138,7 +138,7 @@ LSS::System& LSSAction::create_lss()
   lss->mark_basic();
   lss->options().set("matrix_builder", options().option("matrix_builder").value());
   lss->options().set("solution_strategy", options().option("solution_strategy").value());
-
+  
   configure_option_recursively("lss", lss);
 
   cf3_assert(is_not_null(options().value< Handle<LSS::System> >("lss")));

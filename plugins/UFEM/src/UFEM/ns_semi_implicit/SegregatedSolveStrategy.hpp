@@ -18,8 +18,12 @@
 
 #include "math/VariablesDescriptor.hpp"
 #include "math/LSS/SolutionStrategy.hpp"
+#include "math/LSS/Trilinos/ParameterList.hpp"
 #include "math/LSS/Trilinos/ThyraMultiVector.hpp"
 #include "math/LSS/Trilinos/TrilinosCrsMatrix.hpp"
+#include "math/LSS/System.hpp"
+
+#include "solver/Time.hpp"
 
 #include "../LibUFEM.hpp"
 
@@ -60,6 +64,7 @@ private:
 
   Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
   Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
+  Teuchos::RCP<Teko::InverseFactory> m_pp_inv_factory;
 
   Handle<math::LSS::TrilinosCrsMatrix> m_full_matrix;
   Handle<math::LSS::ThyraMultiVector> m_rhs;
@@ -68,10 +73,21 @@ private:
   Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > m_blocked_rhs;
   Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > m_blocked_solution;
   
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_u_solution;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_p_solution;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_u;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_p;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_u_rhs;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_p_rhs;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_a_star;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_a;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_p;
+  
+  Handle<math::LSS::System> m_rhs_system;
+  Handle<math::LSS::ParameterList> m_parameters;
+  Teuchos::RCP<Teuchos::ParameterList> m_parameter_list;
+  
+  Handle<solver::Time> m_time;
+
+  Uint m_nb_iterations;
 };
 
 } // UFEM

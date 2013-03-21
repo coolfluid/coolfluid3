@@ -151,6 +151,12 @@ public:
   /// Accessor to the number of block columns
   virtual const Uint blockcol_size() = 0;
 
+  /// Make a deep copy of the current matrix into other
+  virtual void clone_to(Matrix& other)
+  {
+    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+  }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

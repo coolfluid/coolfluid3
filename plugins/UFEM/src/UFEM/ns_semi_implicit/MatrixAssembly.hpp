@@ -28,13 +28,9 @@ using namespace solver::actions::Proto;
 using boost::proto::lit;
 
 template<typename ElementsT>
-void NavierStokesSemiImplicit::set_pressure_matrix_assembly(LSSActionUnsteady& lss, const std::string& action_name)
+void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, const std::string& action_name)
 {  
-  const Real theta = options().option("theta").value<Real>();
-  if(theta < 0. || theta > 1.)
-    throw SetupError(FromHere(), "Value " + to_str(theta) + " for theta option of " + uri().path() + " is outside of the valid range from 0 to 1.");
-
-  lss.add_component(create_proto_action
+  add_component(create_proto_action
   (
     action_name,
     elements_expression
@@ -58,9 +54,9 @@ void NavierStokesSemiImplicit::set_pressure_matrix_assembly(LSSActionUnsteady& l
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) // Time, standard and SUPG
           )
         ),
-        lss.system_rhs += -_A * _x,
+        rhs_lss.system_matrix += _A,
         _A(p) = _A(p) / theta,
-        lss.system_matrix += _T + lit(theta) * lit(lss.dt()) * _A
+        system_matrix += _T + lit(theta) * lit(dt()) * _A
       )
     )
   ));
