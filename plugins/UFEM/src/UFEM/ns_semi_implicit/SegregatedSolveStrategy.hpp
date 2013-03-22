@@ -50,17 +50,20 @@ private:
 
   Uint m_p_idx;
   Uint m_u_idx;
+  Uint m_p_offset;
 
   /// VariablesDescriptor that describes the blocking of the system
   Handle<math::VariablesDescriptor> m_variables_descriptor;
 
   Teuchos::RCP<Teko::Epetra::BlockedMappingStrategy> m_blocked_mapping;
   Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_thyra_op;
+  Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_t_op;
 
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Auu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Aup;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Apu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_App;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Tpu;
 
   Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
   Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
@@ -82,6 +85,7 @@ private:
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_p;
   
   Handle<math::LSS::System> m_rhs_system;
+  Handle<math::LSS::System> m_t_system;
   Handle<math::LSS::ParameterList> m_parameters;
   Teuchos::RCP<Teuchos::ParameterList> m_parameter_list;
   

@@ -28,7 +28,7 @@ using namespace solver::actions::Proto;
 using boost::proto::lit;
 
 template<typename ElementsT>
-void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, const std::string& action_name)
+void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name)
 {  
   add_component(create_proto_action
   (
@@ -55,6 +55,7 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, const std
           )
         ),
         rhs_lss.system_matrix += _A,
+        t_lss.system_matrix += _T,
         _A(p) = _A(p) / theta,
         system_matrix += _T + lit(theta) * lit(dt()) * _A
       )

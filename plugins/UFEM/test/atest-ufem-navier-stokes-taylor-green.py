@@ -205,7 +205,7 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 1
+    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 10
     
     #self.add_pressure_bc(ns_solver.InnerLoop.PressureSystem.BC, 'delta_p')
 
@@ -319,6 +319,6 @@ parser.add_option('--tsteps', type='int')
 
 
 taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
-taylor_green.setup_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
+taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
 taylor_green.iterate(options.tsteps, 1, 1)
 

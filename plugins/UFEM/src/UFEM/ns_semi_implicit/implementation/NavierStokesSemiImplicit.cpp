@@ -72,16 +72,26 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   create_component<math::LSS::ZeroLSS>("ZeroLSS");
   
   m_rhs_lss = create_component<LSSAction>("RhsLSS");
-  Handle<math::LSS::ZeroLSS> zero_lss = m_rhs_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  zero_lss->options().option("lss").add_tag("norecurse");
+  Handle<math::LSS::ZeroLSS> zero_rhs_lss = m_rhs_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  zero_rhs_lss->options().option("lss").add_tag("norecurse");
   m_rhs_lss->options().option("lss").add_tag("norecurse");
   m_rhs_lss->set_solution_tag(solution_tag());
-  Handle<math::LSS::System> lss = m_rhs_lss->create_component<math::LSS::System>("LSS");
-  lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  m_rhs_lss->options().set("lss", lss);
-  zero_lss->options().set("lss", lss);
+  Handle<math::LSS::System> rhs_lss = m_rhs_lss->create_component<math::LSS::System>("LSS");
+  rhs_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  m_rhs_lss->options().set("lss", rhs_lss);
+  zero_rhs_lss->options().set("lss", rhs_lss);
+
+  m_t_lss = create_component<LSSAction>("TLSS");
+  Handle<math::LSS::ZeroLSS> zero_t_lss = m_t_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  zero_t_lss->options().option("lss").add_tag("norecurse");
+  m_t_lss->options().option("lss").add_tag("norecurse");
+  m_t_lss->set_solution_tag(solution_tag());
+  Handle<math::LSS::System> t_lss = m_t_lss->create_component<math::LSS::System>("LSS");
+  t_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  m_t_lss->options().set("lss", t_lss);
+  zero_t_lss->options().set("lss", t_lss);
   
-  set_matrix_assembly_quad(*m_rhs_lss);
+  set_matrix_assembly_quad(*m_rhs_lss, *m_t_lss);
   
   create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(group(solution(u) = u, solution(p) = p)));
 
@@ -108,9 +118,11 @@ void NavierStokesSemiImplicit::execute()
 {
   if(is_null(m_variables_descriptor))
   {
+    
+    access_component("LSS/SolutionStrategy")->options().set("rhs_system", Handle<math::LSS::System>(m_rhs_lss->get_child("LSS")));
+    access_component("LSS/SolutionStrategy")->options().set("t_system", Handle<math::LSS::System>(m_t_lss->get_child("LSS")));
     m_variables_descriptor = common::find_component_ptr_with_tag<math::VariablesDescriptor>(physical_model().variable_manager(), "navier_stokes_solution");
     access_component("LSS/SolutionStrategy")->options().set("variables_descriptor", m_variables_descriptor);
-    access_component("LSS/SolutionStrategy")->options().set("rhs_system", Handle<math::LSS::System>(m_rhs_lss->get_child("LSS")));
   }
   solver::ActionDirector::execute();
 }
@@ -130,6 +142,7 @@ void NavierStokesSemiImplicit::on_regions_set()
 {
   LSSActionUnsteady::on_regions_set();
   m_rhs_lss->options().set("lss", Handle<math::LSS::System>(m_rhs_lss->get_child("LSS")));
+  m_t_lss->options().set("lss", Handle<math::LSS::System>(m_t_lss->get_child("LSS")));
 }
 
 } // UFEM

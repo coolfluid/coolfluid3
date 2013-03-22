@@ -44,6 +44,11 @@ SegregatedSolveStrategy::SegregatedSolveStrategy ( const std::string& name ) :
     .pretty_name("RHS system")
     .description("Matrix used in RHS assembly (stiffness part)")
     .link_to(&m_rhs_system);
+
+  options().add("t_system", m_t_system)
+    .pretty_name("t system")
+    .description("Matrix used in t assembly (mass matrix part)")
+    .link_to(&m_t_system);
     
   options().add("time", m_time).pretty_name("Time").description("Time keeping component").link_to(&m_time);
 
@@ -89,10 +94,21 @@ void SegregatedSolveStrategy::solve()
   Handle<math::LSS::TrilinosVector> solution(m_solution);
   cf3_assert(is_not_null(solution));
   
+  Handle<math::LSS::TrilinosVector> rhs_trilvec(m_rhs);
+  cf3_assert(is_not_null(rhs_trilvec));
+  math::LSS::TrilinosVector& rhs = *rhs_trilvec;
+  const Uint nb_nodes = rhs.blockrow_size();
+  
   CFdebug << "Begin SegregatedSolve" << CFendl;
+
+  // Rebuild blocked ops
+  m_blocked_mapping->rebuildBlockedThyraOp(m_full_matrix->epetra_matrix(), m_blocked_thyra_op);
+  Handle<math::LSS::TrilinosCrsMatrix> crs_t_mat(m_t_system->matrix());
+  m_blocked_mapping->rebuildBlockedThyraOp(crs_t_mat->epetra_matrix(), m_blocked_t_op);
 
   // Loop initialization
   Thyra::assign(m_a.ptr(), 0.);
+  Thyra::assign(m_delta_p.ptr(), 0.);
   Thyra::assign(m_rhs->thyra_vector(m_full_matrix->thyra_operator()->domain()).ptr(), 0.);
 
   for(Uint i = 0; i != m_nb_iterations; ++i)
@@ -111,8 +127,6 @@ void SegregatedSolveStrategy::solve()
 
     Thyra::apply(*m_Auu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), -1., 1.);
 
-    m_blocked_mapping->rebuildBlockedThyraOp(m_full_matrix->epetra_matrix(), m_blocked_thyra_op);
-
     std::vector<Real> da_norms(m_delta_a_star->domain()->dim());
     std::vector<Real> da_star_norms(m_delta_a_star->domain()->dim());
     std::vector<Real> dp_norms(m_delta_p->domain()->dim());
@@ -125,6 +139,7 @@ void SegregatedSolveStrategy::solve()
     
     // Pressure system
     Thyra::apply(*m_Apu, Thyra::NOTRANS, *m_delta_a_star, m_p_rhs.ptr(), 1., -1.); // Add in RHS delta a* terms
+    Thyra::apply(*m_Tpu, Thyra::NOTRANS, *m_a, m_p_rhs.ptr(), 1., 1.); // RHS a term
 
     // Assemble the matrix operator
     Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::scale(m_time->invdt(), Thyra::subtract(Thyra::multiply(m_Apu, Auu_inv, m_Aup), m_App));
@@ -155,9 +170,14 @@ void SegregatedSolveStrategy::solve()
     Thyra::apply(*rhs_thyra->thyra_operator(), Thyra::NOTRANS,
       *m_solution->thyra_vector(m_full_matrix->thyra_operator()->range()), m_rhs->thyra_vector(m_full_matrix->thyra_operator()->domain()).ptr());
 
-
     // Copy the final solution back to the original solution vector
     m_blocked_mapping->copyThyraIntoEpetra(m_blocked_solution, *solution->epetra_vector());
+
+    // This operation also affected the pressure RHS, so we need to fix that
+    for(Uint node = 0; node != nb_nodes; ++node)
+    {
+      rhs.set_value(node, m_p_offset, 0.);
+    }
   }
   CFdebug << "End SegregatedSolve" << CFendl;
 }
@@ -188,7 +208,7 @@ Real SegregatedSolveStrategy::compute_residual()
 
 void SegregatedSolveStrategy::trigger_variables_descriptor()
 {
-  if(is_null(m_full_matrix) || is_null(m_rhs) || is_null(m_solution))
+  if(is_null(m_full_matrix) || is_null(m_rhs) || is_null(m_solution) || is_null(m_t_system))
     return;
 
   if(is_null(m_variables_descriptor))
@@ -200,6 +220,7 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   // Find out what the locations of the pressure and velocity variables are
   m_p_idx = descriptor.var_number("Pressure");
   m_u_idx = descriptor.var_number("Velocity");
+  m_p_offset = descriptor.offset(m_p_idx);
   cf3_assert(m_p_idx == 0 || m_p_idx == 1);
   cf3_assert(m_u_idx == 0 || m_u_idx == 1);
   cf3_assert(descriptor.nb_vars() == 2);
@@ -209,13 +230,17 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   std::vector< std::vector<int> > vars;
   m_full_matrix->blocked_var_gids(descriptor, vars);
   m_blocked_mapping = Teuchos::rcp(new Teko::Epetra::BlockedMappingStrategy(vars, Teuchos::rcpFromRef(crs_matrix->OperatorDomainMap()), crs_matrix->Comm()));
-  Teko::Epetra::BlockedMappingStrategy& blocked_mapping = *m_blocked_mapping;
 
   m_blocked_thyra_op = Teuchos::rcp_dynamic_cast< Thyra::PhysicallyBlockedLinearOpBase<Real> >(m_blocked_mapping->buildBlockedThyraOp(crs_matrix));
   m_Auu = Teko::getBlock(m_u_idx, m_u_idx, m_blocked_thyra_op);
   m_Aup = Teko::getBlock(m_u_idx, m_p_idx, m_blocked_thyra_op);
   m_Apu = Teko::getBlock(m_p_idx, m_u_idx, m_blocked_thyra_op);
   m_App = Teko::getBlock(m_p_idx, m_p_idx, m_blocked_thyra_op);
+
+  Handle<math::LSS::TrilinosCrsMatrix> crs_t_mat(m_t_system->matrix());
+  cf3_assert(is_not_null(crs_t_mat));
+  m_blocked_t_op = Teuchos::rcp_dynamic_cast< Thyra::PhysicallyBlockedLinearOpBase<Real> >(m_blocked_mapping->buildBlockedThyraOp(crs_t_mat->epetra_matrix()));
+  m_Tpu = Teko::getBlock(m_p_idx, m_u_idx, m_blocked_t_op);
 
   m_inv_lib = Teko::InverseLibrary::buildFromParameterList(*m_parameter_list);
 

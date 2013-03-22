@@ -47,9 +47,9 @@ private:
 
   /// Helper functions to set the expression, taking into account the user's option to use specializations or not.
   template<typename ElementsT>
-  void set_matrix_assembly(LSSAction& rhs_lss, const std::string& action_name);
+  void set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name);
 
-  void set_matrix_assembly_quad(LSSAction& rhs_lss);
+  void set_matrix_assembly_quad(LSSAction& rhs_lss, LSSAction &t_lss);
   
   /// Variables
   /// The velocity solution field
@@ -81,6 +81,7 @@ private:
   
   // This LSS stores a matrix that is used to construct the RHS vector
   Handle<LSSAction> m_rhs_lss;
+  Handle<LSSAction> m_t_lss;
 };
 
 } // UFEM

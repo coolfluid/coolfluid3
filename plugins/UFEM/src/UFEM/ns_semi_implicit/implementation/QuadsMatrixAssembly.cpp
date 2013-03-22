@@ -17,10 +17,10 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-void NavierStokesSemiImplicit::set_matrix_assembly_quad( cf3::UFEM::LSSAction& rhs_lss )
+void NavierStokesSemiImplicit::set_matrix_assembly_quad( cf3::UFEM::LSSAction& rhs_lss, cf3::UFEM::LSSAction& t_lss )
 {
 #ifdef CF3_UFEM_ENABLE_QUADS
-  set_matrix_assembly< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >(rhs_lss, "AssemblyQuads");
+  set_matrix_assembly< boost::mpl::vector1<mesh::LagrangeP1::Quad2D> >(rhs_lss, t_lss, "AssemblyQuads");
 #endif
 }
 
