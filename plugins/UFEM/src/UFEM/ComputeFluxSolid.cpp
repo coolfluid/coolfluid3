@@ -48,7 +48,7 @@ common::ComponentBuilder < ComputeFluxSolid, common::ActionDirector, LibUFEM > C
 
 ComputeFluxSolid::ComputeFluxSolid(const std::string& name) :
   ActionDirector(name),
-  lambda_s("thermal_conductivity_fluid")
+  lambda_s("thermal_conductivity_solid")
 {
 
   options().add("temperature_field_tag", UFEM::Tags::solution())
