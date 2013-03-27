@@ -205,9 +205,9 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 10
+    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 1
     
-    #self.add_pressure_bc(ns_solver.InnerLoop.PressureSystem.BC, 'delta_p')
+    #self.add_pressure_bc(ns_solver.BC)
 
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')

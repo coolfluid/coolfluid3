@@ -56,14 +56,20 @@ private:
   Handle<math::VariablesDescriptor> m_variables_descriptor;
 
   Teuchos::RCP<Teko::Epetra::BlockedMappingStrategy> m_blocked_mapping;
-  Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_thyra_op;
+  Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_system_op;
+  Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_rhs_op;
   Teuchos::RCP< Thyra::PhysicallyBlockedLinearOpBase<Real> > m_blocked_t_op;
 
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Muu;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Mup;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Mpu;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Mpp;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Tpu;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Tuu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Auu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Aup;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Apu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_App;
-  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Tpu;
 
   Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
   Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
@@ -72,14 +78,20 @@ private:
   Handle<math::LSS::TrilinosCrsMatrix> m_full_matrix;
   Handle<math::LSS::ThyraMultiVector> m_rhs;
   Handle<math::LSS::ThyraMultiVector> m_solution;
+  // Copy of the initial RHS, which contains the boundary conditions
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_bc_rhs;
 
   Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > m_blocked_rhs;
   Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > m_blocked_solution;
   
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_u;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_p;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_u_rhs;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_p_rhs;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_u_rhs;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_p_rhs;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_u_rhs_mask;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_u_bc;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_p_rhs_mask;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_p_bc;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_a_star;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_a;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_p;
@@ -92,6 +104,9 @@ private:
   Handle<solver::Time> m_time;
 
   Uint m_nb_iterations;
+  std::vector< std::pair<Uint, Uint> > m_dirichlet_nodes;
+
+  Real m_theta;
 };
 
 } // UFEM

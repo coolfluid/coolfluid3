@@ -331,6 +331,12 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
   int* row_indices;
 
   const int bc_col = m_p2m[blockrow*m_neq+ieq];
+
+  if(bc_col >= m_num_my_elements)
+    return;
+
+  m_dirichlet_nodes.push_back(std::make_pair(blockrow, ieq));
+
   TRILINOS_THROW(m_mat->ExtractMyRowView(bc_col, row_size, extracted_values, row_indices));
 
   DirichletEntryT& cached_col_values = m_symmetric_dirichlet_values[bc_col];
@@ -392,6 +398,13 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::get_dirichlet_nodes(std::vector<std::pair<Uint, Uint> > &dirichlet_nodes)
+{
+  dirichlet_nodes = m_dirichlet_nodes;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosCrsMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
@@ -493,6 +506,7 @@ void TrilinosCrsMatrix::reset(Real reset_to)
   TRILINOS_THROW(m_mat->PutScalar(reset_to));
 
   m_symmetric_dirichlet_values.clear();
+  m_dirichlet_nodes.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

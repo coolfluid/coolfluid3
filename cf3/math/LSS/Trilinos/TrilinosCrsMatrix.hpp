@@ -101,6 +101,9 @@ public:
 
   virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
 
+  /// Get the nodes and equations for all dirichlet boundary conditions
+  void get_dirichlet_nodes(std::vector< std::pair<Uint,Uint> >& dirichlet_nodes);
+
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);
 
@@ -219,6 +222,8 @@ private:
   typedef std::map<int, Real> DirichletEntryT;
   typedef std::map<int, DirichletEntryT> DirichletMapT;
   DirichletMapT m_symmetric_dirichlet_values;
+
+  std::vector< std::pair<Uint,Uint> > m_dirichlet_nodes;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////
