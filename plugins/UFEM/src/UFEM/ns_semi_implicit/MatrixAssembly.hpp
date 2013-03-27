@@ -30,7 +30,7 @@ using boost::proto::lit;
 template<typename ElementsT>
 void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name)
 {
-  static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<1> > >::type const M = {};
+  static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<2> > >::type const M = {};
 
   add_component(create_proto_action
   (

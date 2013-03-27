@@ -183,7 +183,7 @@ void SegregatedSolveStrategy::solve()
     //Thyra::update(-1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()));
 
     // Assemble the matrix operator
-    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::subtract(Thyra::multiply(m_Mpu, Muu_inv, m_Aup), m_App);
+    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::subtract(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_App);
     Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_inv = Teko::buildInverse(*m_pp_inv_factory, p_mat);
     std::cout << m_pp_inv_factory->toString() << std::endl;
     Thyra::apply(*p_inv, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
@@ -195,7 +195,6 @@ void SegregatedSolveStrategy::solve()
     // Compute u
     Thyra::update(m_time->dt(), *m_delta_a_star, m_u.ptr());
     // Compute p
-    Thyra::assign(m_p.ptr(), 0.);
     Thyra::update(1., *m_delta_p, m_p.ptr());
 
     Thyra::norms(*m_delta_p, Teuchos::arrayViewFromVector(dp_norms));
