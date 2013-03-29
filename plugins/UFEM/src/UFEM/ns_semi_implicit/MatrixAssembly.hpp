@@ -59,7 +59,7 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
           )
         ),
   M(u,u) = _T(u,u) + lit(theta) * lit(dt()) * _A(u,u),
-  M(p,p) = _A(p,p),
+  M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
         rhs_lss.system_matrix += _A,
         t_lss.system_matrix += _T,
         system_matrix += M

@@ -104,7 +104,6 @@ void SegregatedSolveStrategy::solve()
   Handle<math::LSS::TrilinosVector> rhs_trilvec(m_rhs);
   cf3_assert(is_not_null(rhs_trilvec));
   math::LSS::TrilinosVector& rhs = *rhs_trilvec;
-  const Uint nb_nodes = rhs.blockrow_size();
   
   CFdebug << "Begin SegregatedSolve" << CFendl;
 
@@ -113,7 +112,7 @@ void SegregatedSolveStrategy::solve()
   blocked_bc = get_blocked_vector(m_rhs, m_blocked_system_op->domain());
   Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_u_bc.ptr()), *Teko::getBlock(m_u_idx, blocked_bc));
   Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc.ptr()), *Teko::getBlock(m_p_idx, blocked_bc));
-  
+
   // Build a mask to be able to keep the dirichlet BCs
   if(m_dirichlet_nodes.empty())
   {
@@ -128,6 +127,9 @@ void SegregatedSolveStrategy::solve()
     Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_u_rhs_mask.ptr()), *Teko::getBlock(m_u_idx, blocked_rhs_mask));
     Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs_mask.ptr()), *Teko::getBlock(m_p_idx, blocked_rhs_mask));
   }
+
+//  m_u_rhs_mask->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+//  m_p_rhs_mask->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
   
   // Rebuild blocked ops
   m_blocked_mapping->rebuildBlockedThyraOp(m_full_matrix->epetra_matrix(), m_blocked_system_op);
@@ -143,10 +145,6 @@ void SegregatedSolveStrategy::solve()
   m_blocked_solution = get_blocked_vector(m_solution, m_blocked_system_op->range());
   m_u = Teko::getBlock(m_u_idx, m_blocked_solution);
   m_p = Teko::getBlock(m_p_idx, m_blocked_solution);
-
-  //m_blocked_rhs = get_blocked_vector(m_rhs, m_blocked_system_op->domain());
-  //Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_u_rhs.ptr()), *Teko::getBlock(m_u_idx, m_blocked_rhs));
-  //Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()), *Teko::getBlock(m_p_idx, m_blocked_rhs));
 
   for(Uint i = 0; i != m_nb_iterations; ++i)
   {
@@ -178,15 +176,17 @@ void SegregatedSolveStrategy::solve()
     Thyra::apply(*m_Apu, Thyra::NOTRANS, *m_delta_a_star, m_p_rhs.ptr(), m_time->dt(), 1.);
     Thyra::apply(*m_Tpu, Thyra::NOTRANS, *m_delta_a_star, m_p_rhs.ptr(), 1., 1.);
     Thyra::apply(*m_Tpu, Thyra::NOTRANS, *m_a, m_p_rhs.ptr(), 1., 1.); // RHS a term
-    // Velocity system BC
-    //Thyra::ele_wise_prod_update(1., *m_p_rhs_mask, m_p_rhs.ptr());
-    //Thyra::update(-1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()));
+    // BC
+    Thyra::ele_wise_prod_update(1., *m_p_rhs_mask, m_p_rhs.ptr());
+    Thyra::update(1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()));
+    Thyra::apply(*Thyra::multiply(m_Mpu, Muu_inv), Thyra::NOTRANS, *m_u_bc, m_p_rhs.ptr(), 1., 1.);
 
     // Assemble the matrix operator
-    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::subtract(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_App);
+    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::add(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_Mpp); // add here, since Mpp already conains the minus
     Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_inv = Teko::buildInverse(*m_pp_inv_factory, p_mat);
     std::cout << m_pp_inv_factory->toString() << std::endl;
     Thyra::apply(*p_inv, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
+    //m_delta_p->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
 
     // Compute new delta a (stored in m_delta_a_star)
     Thyra::apply(*Thyra::multiply(Muu_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a_star.ptr(), -1., 1.);

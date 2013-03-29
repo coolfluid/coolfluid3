@@ -93,12 +93,12 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   
   set_matrix_assembly_quad(*m_rhs_lss, *m_t_lss);
   
-  create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(group(solution(u) = u, solution(p) = p)));
-
   // Apply BC
   Handle<BoundaryConditions> bc =  create_component<BoundaryConditions>("BC");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
+
+  create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(group(solution(u) = u, solution(p) = p)));
   
   create_component<math::LSS::SolveLSS>("SolveLSS");
   create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(u3 = u2, u2 = u1, u1 = u, u = solution(u), p = solution(p))));

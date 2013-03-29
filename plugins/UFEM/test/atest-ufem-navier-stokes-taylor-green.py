@@ -170,7 +170,7 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    #self.add_pressure_bc(ns_solver.BoundaryConditions)
+    self.add_pressure_bc(ns_solver.BoundaryConditions)
     
     lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
     lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
@@ -207,7 +207,7 @@ class TaylorGreen:
     
     ns_solver.LSS.SolutionStrategy.options.nb_iterations = 1
     
-    #self.add_pressure_bc(ns_solver.BC)
+    self.add_pressure_bc(ns_solver.BC)
 
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
