@@ -73,7 +73,9 @@ private:
 
   Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
   Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
-  Teuchos::RCP<Teko::InverseFactory> m_pp_inv_factory;
+  Stratimikos::DefaultLinearSolverBuilder m_p_linear_solver_builder;
+  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Real> > m_p_lows_factory;
+  Teuchos::RCP<Thyra::LinearOpWithSolveBase<Real> > m_p_lows;
 
   Handle<math::LSS::TrilinosCrsMatrix> m_full_matrix;
   Handle<math::LSS::ThyraMultiVector> m_rhs;
@@ -98,8 +100,10 @@ private:
   
   Handle<math::LSS::System> m_rhs_system;
   Handle<math::LSS::System> m_t_system;
-  Handle<math::LSS::ParameterList> m_parameters;
-  Teuchos::RCP<Teuchos::ParameterList> m_parameter_list;
+  Handle<math::LSS::ParameterList> m_pressure_parameters;
+  Teuchos::RCP<Teuchos::ParameterList> m_pressure_parameter_list;
+  Handle<math::LSS::ParameterList> m_velocity_parameters;
+  Teuchos::RCP<Teuchos::ParameterList> m_velocity_parameter_list;
   
   Handle<solver::Time> m_time;
 

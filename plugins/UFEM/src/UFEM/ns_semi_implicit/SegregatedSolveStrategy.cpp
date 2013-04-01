@@ -64,19 +64,20 @@ SegregatedSolveStrategy::SegregatedSolveStrategy ( const std::string& name ) :
     .description("Theta scheme parameter")
     .link_to(&m_theta);
 
-  m_parameter_list = Teuchos::rcp(new Teuchos::ParameterList(Stratimikos::DefaultLinearSolverBuilder().getValidParameters()->sublist("Linear Solver Types")));
+  m_pressure_parameter_list = Teuchos::rcp(new Teuchos::ParameterList(*Stratimikos::DefaultLinearSolverBuilder().getValidParameters()));
+  m_velocity_parameter_list = Teuchos::rcp(new Teuchos::ParameterList(*Stratimikos::DefaultLinearSolverBuilder().getValidParameters()));
 
-  m_parameters = create_component<math::LSS::ParameterList>("Parameters");
-  m_parameters->mark_basic();
+  m_pressure_parameters = create_component<math::LSS::ParameterList>("PressureLSSParameters");
+  m_pressure_parameters->mark_basic();
+  
+  m_velocity_parameters = create_component<math::LSS::ParameterList>("VelocityLSSParameters");
+  m_velocity_parameters->mark_basic();
 
-  // loop over all entries in solver list
-  for(Teuchos::ParameterList::ConstIterator itr = m_parameter_list->begin(); itr!=m_parameter_list->end(); ++itr)
-  {
-    itr->second.getValue(static_cast<Teuchos::ParameterList*>(0)).set("Type", itr->first);
-  }
-
-  m_parameters->set_parameter_list(*m_parameter_list);
-  m_parameter_list->print();
+  m_pressure_parameters->set_parameter_list(*m_pressure_parameter_list);
+  m_velocity_parameters->set_parameter_list(*m_pressure_parameter_list);
+  
+  m_p_linear_solver_builder.setParameterList(m_pressure_parameter_list);
+  m_pressure_parameter_list->print();
 }
 
 SegregatedSolveStrategy::~SegregatedSolveStrategy()
@@ -183,10 +184,12 @@ void SegregatedSolveStrategy::solve()
 
     // Assemble the matrix operator
     Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::add(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_Mpp); // add here, since Mpp already conains the minus
-    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_inv = Teko::buildInverse(*m_pp_inv_factory, p_mat);
-    std::cout << m_pp_inv_factory->toString() << std::endl;
-    Thyra::apply(*p_inv, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
-    //m_delta_p->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+    
+    // Solve the pressure system
+    m_p_lows = m_p_lows_factory->createOp();
+    Thyra::initializeOp(*m_p_lows_factory, p_mat, m_p_lows.ptr());
+    Thyra::SolveStatus<Real> status = Thyra::solve<Real>(*m_p_lows, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
+    CFinfo << "Pressure system: Thyra::solve finished with status " << status.message << CFendl;
 
     // Compute new delta a (stored in m_delta_a_star)
     Thyra::apply(*Thyra::multiply(Muu_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a_star.ptr(), -1., 1.);
@@ -239,6 +242,9 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   if(is_null(m_variables_descriptor))
     return;
 
+  m_p_lows_factory = Thyra::createLinearSolveStrategy(m_p_linear_solver_builder);
+  m_p_lows_factory->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+
   const Teuchos::RCP<Epetra_CrsMatrix const> crs_matrix = m_full_matrix->epetra_matrix();
   const math::VariablesDescriptor& descriptor = *m_variables_descriptor;
 
@@ -276,10 +282,9 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   m_Apu = Teko::getBlock(m_p_idx, m_u_idx, m_blocked_rhs_op);
   m_App = Teko::getBlock(m_p_idx, m_p_idx, m_blocked_rhs_op);
 
-  m_inv_lib = Teko::InverseLibrary::buildFromParameterList(*m_parameter_list);
+  m_inv_lib = Teko::InverseLibrary::buildFromStratimikos();
 
   m_uu_inv_factory = m_inv_lib->getInverseFactory("Amesos");
-  m_pp_inv_factory = m_inv_lib->getInverseFactory("Belos");
   
   m_delta_a_star = Thyra::createMembers(m_Auu->range(), 1);
   m_a = Thyra::createMembers(m_Auu->range(), 1);

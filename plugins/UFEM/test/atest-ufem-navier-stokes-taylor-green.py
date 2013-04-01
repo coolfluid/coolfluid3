@@ -29,6 +29,10 @@ class TaylorGreen:
   def __init__(self, dt, element):
     self.dt = dt
     self.element = element
+    
+  def __del__(self):
+    if self.model != None:
+      self.model.delete_component()
   
   def create_mesh(self, segments):
     domain = self.model.Domain
@@ -206,6 +210,15 @@ class TaylorGreen:
     ns_solver.regions = [mesh.topology.interior.uri()]
     
     ns_solver.LSS.SolutionStrategy.options.nb_iterations = 1
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Belos'
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
+    belos_solver = 'Block GMRES'
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.solver_type = belos_solver
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].convergence_tolerance = 1e-10
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_iterations = 5000
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].num_blocks = 1000
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_restarts = 1000
     
     self.add_pressure_bc(ns_solver.BC)
 
@@ -321,4 +334,6 @@ parser.add_option('--tsteps', type='int')
 taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
 taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
 taylor_green.iterate(options.tsteps, 1, 1)
+
+
 
