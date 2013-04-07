@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_LagrangeP1_Quad3D_hpp
-#define cf3_mesh_LagrangeP1_Quad3D_hpp
+#ifndef cf3_mesh_LagrangeP2_Quad3D_hpp
+#define cf3_mesh_LagrangeP2_Quad3D_hpp
 
 #include "mesh/ElementTypeBase.hpp"
-#include "mesh/LagrangeP1/Quad.hpp"
+#include "mesh/LagrangeP2/Quad.hpp"
 
 namespace cf3 {
 namespace mesh {
-namespace LagrangeP1 {
+namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Mesh_LagrangeP1_API Quad3D_traits
+struct Mesh_LagrangeP2_API Quad3D_traits
 {
   typedef Quad SF;
 
@@ -25,15 +25,15 @@ struct Mesh_LagrangeP1_API Quad3D_traits
   enum { nb_edges       = 4 };
 };
 
-/// @brief 2D Lagrange P1 Quadrilateral Element type
+/// @brief 2D Lagrange P2 Quadrilateral Element type
 /// This class provides the lagrangian shape function describing the
-/// representation of the solution and/or the geometry in a P1 (linear)
-/// quadrilateral element.
+/// representation of the solution and/or the geometry in a P2 (bilinear)
+/// quadrilateral element.k
 /// @see ElementType for documentation of undocumented functions
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Quad3D : public ElementTypeBase<Quad3D,Quad3D_traits>
+struct Mesh_LagrangeP2_API Quad3D : public ElementTypeBase<Quad3D,Quad3D_traits>
 {
   /// @name Accessor functions
   //  ------------------------
@@ -49,7 +49,6 @@ struct Mesh_LagrangeP1_API Quad3D : public ElementTypeBase<Quad3D,Quad3D_traits>
   //@{
 
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  
   template < typename MatrixType >
   static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
 
@@ -119,8 +118,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP1
+} // LagrangeP2
 } // mesh
 } // cf3
 
-#endif // cf3_mesh_LagrangeP1_Quad3D_hpp
+#endif // cf3_mesh_LagrangeP2_Quad3D_hpp
