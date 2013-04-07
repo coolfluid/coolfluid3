@@ -78,8 +78,11 @@ public: // functions
   /// @brief Handle to the configured solution
   const Handle<mesh::Field>& solution() { return m_solution; }
 
-  /// @brief Handle to the configured solution
+  /// @brief Handle to the configured rhs
   const Handle<mesh::Field>& rhs() { return m_rhs; }
+
+  /// @brief Handle to the configured wave_speed
+  const Handle<mesh::Field>& wave_speed() { if (is_null(m_wave_speed)) throw common::BadValue(FromHere(), ""); return m_wave_speed; }
 
   const Handle<solver::Time> time() { return m_time; }
   /// @brief Handle to the ODE right-hand-side computer
@@ -122,6 +125,7 @@ protected: // data
   Handle<mesh::Dictionary>                      m_fields;
   Handle<mesh::Field>                           m_solution;
   Handle<mesh::Field>                           m_rhs;
+  Handle<mesh::Field>                           m_wave_speed;
   Handle<solver::ComputeRHS>                    m_rhs_computer;
   Handle<common::ActionDirector>                m_bc;
   Handle<solver::Time>                          m_time;

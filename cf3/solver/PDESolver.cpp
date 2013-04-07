@@ -161,6 +161,7 @@ void PDESolver::do_iteration()
   if (m_pre_iteration) m_pre_iteration->execute();
 
   step();
+
   m_pde->time()->current_time() += m_pde->time()->dt();
   ++m_pde->time()->iter();
 

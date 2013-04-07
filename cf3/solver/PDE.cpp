@@ -48,10 +48,11 @@ PDE::PDE ( const std::string& name  ) :
       .attach_trigger( boost::bind( &PDE::create_fields, this) );
   options().add("solution", m_solution ).mark_basic().link_to(&m_solution);
   options().add("rhs", m_rhs ).mark_basic().link_to(&m_rhs);
+  options().add("wave_speed", m_wave_speed ).mark_basic().link_to(&m_wave_speed);
 
   m_nb_eqs = 0u;
 
-  m_rhs_computer = create_static_component<solver::ComputeRHS>("rhs");
+  m_rhs_computer = create_static_component<solver::ComputeRHS>("rhs_computer");
   m_rhs_computer->mark_basic();
 
   m_bc = create_static_component<common::ActionDirector>("bc");
@@ -118,7 +119,21 @@ void PDE::create_fields()
     }
     options().set("rhs",m_rhs);
   }
-
+  if ( is_null(m_wave_speed) || ( &m_wave_speed->dict() != m_fields.get() ) )
+  {
+    if ( Handle<Component> found = m_fields->get_child("rhs_ws") )
+    {
+      m_wave_speed = found->handle<Field>();
+    }
+    else
+    {
+      m_wave_speed = m_fields->create_field("rhs_ws",1u).handle<Field>();
+      m_wave_speed->parallelize();
+    }
+    options().set("wave_speed",m_wave_speed);
+  }
+  m_rhs_computer->options().set("rhs",m_rhs);
+  m_rhs_computer->options().set("wave_speed",m_wave_speed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +180,9 @@ Handle<solver::Term> PDE::add_term(const std::string& term_name, const std::stri
   configure(term->handle());
 
   std::string tct = ( ! term_computer_type.empty() ? term_computer_type : term_type+"Computer" );
-  Handle<Component> term_computer = m_rhs_computer->create_component(term_name,tct);
+  CFinfo << "term_computer = " << tct << CFendl;
+  Handle<Component> term_computer = m_rhs_computer->create_component(term_name+"_computer",tct);
+  term_computer->mark_basic();
   term_computer->options().set("term",term->handle());
 
   // - Return the created term
