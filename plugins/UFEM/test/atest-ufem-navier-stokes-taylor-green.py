@@ -212,7 +212,7 @@ class TaylorGreen:
     ns_solver.LSS.SolutionStrategy.options.nb_iterations = 1
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Belos'
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
+    #ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
     belos_solver = 'Block GMRES'
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.solver_type = belos_solver
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].convergence_tolerance = 1e-10

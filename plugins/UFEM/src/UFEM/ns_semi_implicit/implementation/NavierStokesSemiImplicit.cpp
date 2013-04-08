@@ -118,7 +118,7 @@ void NavierStokesSemiImplicit::execute()
 {
   if(is_null(m_variables_descriptor))
   {
-    
+    access_component("LSS/SolutionStrategy")->options().set("theta", theta);
     access_component("LSS/SolutionStrategy")->options().set("rhs_system", Handle<math::LSS::System>(m_rhs_lss->get_child("LSS")));
     access_component("LSS/SolutionStrategy")->options().set("t_system", Handle<math::LSS::System>(m_t_lss->get_child("LSS")));
     m_variables_descriptor = common::find_component_ptr_with_tag<math::VariablesDescriptor>(physical_model().variable_manager(), "navier_stokes_solution");

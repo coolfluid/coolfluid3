@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <Thyra_DefaultDiagonalLinearOp.hpp>
 #include <Thyra_DefaultScaledAdjointLinearOp.hpp>
 #include <Thyra_DefaultSpmdMultiVector.hpp>
 #include <Thyra_VectorStdOps.hpp>
@@ -99,6 +100,15 @@ void SegregatedSolveStrategy::solve()
   if(is_null(rhs_thyra))
     throw common::SetupError(FromHere(), "Option rhs_system is not a math::LSS::ThyraOperator for " + uri().string() + " (provided was: " + m_rhs_system->matrix()->derived_type_name() + ")");
 
+  // Get the lumped mass matrix
+  Handle<math::LSS::ThyraMultiVector> lumped_mass_diagonal_in(m_t_system->rhs());
+  Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > blocked_lumped_mass_diagonal = get_blocked_vector(lumped_mass_diagonal_in, m_blocked_system_op->domain());
+  Thyra::assign(Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_lumped_mass_diagonal.ptr()), *Teko::getBlock(m_u_idx, blocked_lumped_mass_diagonal));
+  // Invert by taking the inverse of each element
+  Thyra::reciprocal(*m_lumped_mass_diagonal, m_lumped_mass_diagonal.ptr());
+  // Build the linear op
+  m_Ml_inv = Thyra::diagonal(m_lumped_mass_diagonal);
+
   Handle<math::LSS::TrilinosVector> solution(m_solution);
   cf3_assert(is_not_null(solution));
   
@@ -142,6 +152,8 @@ void SegregatedSolveStrategy::solve()
   // Loop initialization
   Thyra::assign(m_a.ptr(), 0.);
   Thyra::assign(m_delta_p.ptr(), 0.);
+  Thyra::assign(m_delta_p_sum.ptr(), 0.);
+  Thyra::assign(m_delta_a.ptr(), 0.);
 
   m_blocked_solution = get_blocked_vector(m_solution, m_blocked_system_op->range());
   m_u = Teko::getBlock(m_u_idx, m_blocked_solution);
@@ -154,8 +166,10 @@ void SegregatedSolveStrategy::solve()
     Thyra::apply(*m_Aup, Thyra::NOTRANS, *m_p, m_u_rhs.ptr(), -1., 1.);
     // Velocity system a RHS terms
     Thyra::apply(*m_Muu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), -1., 1.);
-    // Apply RHS matrix to current a vector
+    // Apply RHS matrix to current delta_a vector
     Thyra::apply(*m_Auu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), m_time->dt(), 1.);
+    // RHS theta scheme adjustment
+    Thyra::apply(*m_Aup, Thyra::NOTRANS, *m_delta_p_sum, m_u_rhs.ptr(), 1. - m_theta, 1.);
     // Velocity system BC
     //Thyra::ele_wise_prod_update(1., *m_u_rhs_mask, m_u_rhs.ptr());
     //Thyra::update(1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_u_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_u_rhs.ptr()));
@@ -180,7 +194,11 @@ void SegregatedSolveStrategy::solve()
     // BC
     Thyra::ele_wise_prod_update(1., *m_p_rhs_mask, m_p_rhs.ptr());
     Thyra::update(1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()));
-    Thyra::apply(*Thyra::multiply(m_Mpu, Muu_inv), Thyra::NOTRANS, *m_u_bc, m_p_rhs.ptr(), 1., 1.);
+    if(i == 0)
+    {
+      Thyra::apply(*Thyra::multiply(m_Mpu, Muu_inv), Thyra::NOTRANS, *m_u_bc, m_p_rhs.ptr(), 1., 1.);
+      Thyra::assign(m_p_bc.ptr(), 0.);
+    }
 
     // Assemble the matrix operator
     Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::add(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_Mpp); // add here, since Mpp already conains the minus
@@ -189,19 +207,25 @@ void SegregatedSolveStrategy::solve()
     m_p_lows = m_p_lows_factory->createOp();
     Thyra::initializeOp(*m_p_lows_factory, p_mat, m_p_lows.ptr());
     Thyra::SolveStatus<Real> status = Thyra::solve<Real>(*m_p_lows, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
-    CFinfo << "Pressure system: Thyra::solve finished with status " << status.message << CFendl;
+    if(status.solveStatus != Thyra::SOLVE_STATUS_CONVERGED)
+    {
+      CFwarn << "Pressure solve did not converge: " << status.message << CFendl;
+    }
 
-    // Compute new delta a (stored in m_delta_a_star)
-    Thyra::apply(*Thyra::multiply(Muu_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a_star.ptr(), -1., 1.);
+    // Compute new delta a
+    Thyra::apply(*Thyra::multiply(Muu_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a.ptr(), -1.);
+    Thyra::update(1., *m_delta_a_star, m_delta_a.ptr());
+    
     // Compute a
-    Thyra::update(1., *m_delta_a_star, m_a.ptr());
+    Thyra::update(1., *m_delta_a, m_a.ptr());
     // Compute u
-    Thyra::update(m_time->dt(), *m_delta_a_star, m_u.ptr());
+    Thyra::update(m_time->dt(), *m_delta_a, m_u.ptr());
     // Compute p
     Thyra::update(1., *m_delta_p, m_p.ptr());
+    Thyra::update(1., *m_delta_p, m_delta_p_sum.ptr());
 
     Thyra::norms(*m_delta_p, Teuchos::arrayViewFromVector(dp_norms));
-    Thyra::norms(*m_delta_a_star, Teuchos::arrayViewFromVector(da_norms));
+    Thyra::norms(*m_delta_a, Teuchos::arrayViewFromVector(da_norms));
 
     CFdebug << "  Iteration " << i << " norms: delta_a_star: " << da_star_norms[0] << ", delta_a: " << da_norms[0] << ", delta p: " << dp_norms[0] << CFendl;
   }
@@ -287,13 +311,16 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   m_uu_inv_factory = m_inv_lib->getInverseFactory("Amesos");
   
   m_delta_a_star = Thyra::createMembers(m_Auu->range(), 1);
+  m_delta_a = Thyra::createMembers(m_Auu->range(), 1);
   m_a = Thyra::createMembers(m_Auu->range(), 1);
   m_delta_p = Thyra::createMembers(m_App->range(), 1);
+  m_delta_p_sum = Thyra::createMembers(m_App->range(), 1);
   m_bc_rhs = Thyra::createMembers(m_full_matrix->thyra_operator()->domain(), 1);
 
   m_u_rhs = Thyra::createMember(m_Auu->range());
   m_u_bc = Thyra::createMember(m_Auu->range());
   m_u_rhs_mask = Thyra::createMember(m_Auu->range());
+  m_lumped_mass_diagonal = Thyra::createMember(m_Auu->range());
   
   m_p_rhs = Thyra::createMember(m_App->range());
   m_p_bc = Thyra::createMember(m_App->range());

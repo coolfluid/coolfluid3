@@ -70,6 +70,7 @@ private:
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Aup;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Apu;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_App;
+  Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Ml_inv; // Lumped mass matrix inverse
 
   Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
   Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
@@ -94,9 +95,12 @@ private:
   Teuchos::RCP<Thyra::VectorBase<Real> > m_u_bc;
   Teuchos::RCP<Thyra::VectorBase<Real> > m_p_rhs_mask;
   Teuchos::RCP<Thyra::VectorBase<Real> > m_p_bc;
+  Teuchos::RCP<Thyra::VectorBase<Real> > m_lumped_mass_diagonal;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_a_star;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_a;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_a;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_p;
+  Teuchos::RCP<Thyra::MultiVectorBase<Real> > m_delta_p_sum; // total iteration delta p
   
   Handle<math::LSS::System> m_rhs_system;
   Handle<math::LSS::System> m_t_system;

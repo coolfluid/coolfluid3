@@ -31,6 +31,7 @@ template<typename ElementsT>
 void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name)
 {
   static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<2> > >::type const M = {};
+  static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<3> > >::type const Ml = {}; // Lumped mass matrix
 
   add_component(create_proto_action
   (
@@ -40,7 +41,7 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
       ElementsT(),
       group
       (
-        group(_A = _0, _T = _0, M = _0),
+  group(_A = _0, _T = _0, M = _0, Ml(u) = _0, Ml(p) = _0),
         group
         (
           compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
@@ -54,15 +55,21 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
                                 + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-  M(p, u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)),
-  M(u[_i], p) += lit(theta) * transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i]
-          )
+            M(p, u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)),
+            M(u[_i], p) += lit(theta) * transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i]
+          ),
+  element_quadrature
+  (
+  Ml(u[_i], u[_i]) += transpose(N(u)) * N(u)
+  )
         ),
-  M(u,u) = _T(u,u) + lit(theta) * lit(dt()) * _A(u,u),
-  M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
+        M(u,u) = _T(u,u) + lit(theta) * lit(dt()) * _A(u,u),
+        M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
         rhs_lss.system_matrix += _A,
         t_lss.system_matrix += _T,
-        system_matrix += M
+        system_matrix += M,
+        lump(Ml),
+        t_lss.system_rhs(u) += diagonal(Ml)
       )
     )
   ));
