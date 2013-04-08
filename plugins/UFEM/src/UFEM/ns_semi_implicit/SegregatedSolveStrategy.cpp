@@ -196,12 +196,12 @@ void SegregatedSolveStrategy::solve()
     Thyra::update(1., *Teuchos::rcp_static_cast< Thyra::MultiVectorBase<Real> >(m_p_bc), Teuchos::ptr_static_cast< Thyra::MultiVectorBase<Real> >(m_p_rhs.ptr()));
     if(i == 0)
     {
-      Thyra::apply(*Thyra::multiply(m_Mpu, Muu_inv), Thyra::NOTRANS, *m_u_bc, m_p_rhs.ptr(), 1., 1.);
+      Thyra::apply(*Thyra::multiply(m_Mpu, m_Ml_inv), Thyra::NOTRANS, *m_u_bc, m_p_rhs.ptr(), 1., 1.);
       Thyra::assign(m_p_bc.ptr(), 0.);
     }
 
     // Assemble the matrix operator
-    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Thyra::add(Thyra::multiply(m_Mpu, Muu_inv, m_Mup), m_Mpp); // add here, since Mpp already conains the minus
+    Teuchos::RCP<Thyra::LinearOpBase<Real> const> p_mat =  Teko::explicitAdd(Teko::explicitMultiply(m_Mpu, m_Ml_inv, m_Mup), m_Mpp); // add here, since Mpp already conains the minus
     
     // Solve the pressure system
     m_p_lows = m_p_lows_factory->createOp();
@@ -213,7 +213,7 @@ void SegregatedSolveStrategy::solve()
     }
 
     // Compute new delta a
-    Thyra::apply(*Thyra::multiply(Muu_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a.ptr(), -1.);
+    Thyra::apply(*Thyra::multiply(m_Ml_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a.ptr(), -1.);
     Thyra::update(1., *m_delta_a_star, m_delta_a.ptr());
     
     // Compute a
