@@ -167,7 +167,7 @@ void SegregatedSolveStrategy::solve()
     Thyra::apply(*m_Auu, Thyra::NOTRANS, *m_u, m_u_rhs.ptr(), -1.);
     Thyra::apply(*m_Aup, Thyra::NOTRANS, *m_p, m_u_rhs.ptr(), -1., 1.);
     // Velocity system a RHS terms
-    Thyra::apply(*m_Muu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), -1., 1.);
+    Thyra::apply(*a_rhs_mat, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), -1., 1.);
     // Apply RHS matrix to current a vector
     Thyra::apply(*m_Auu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), m_time->dt(), 1.);
     // RHS theta scheme adjustment

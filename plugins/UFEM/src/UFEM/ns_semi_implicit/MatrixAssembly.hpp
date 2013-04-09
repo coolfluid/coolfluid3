@@ -60,10 +60,11 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
           ),
   element_quadrature
   (
-  Ml(u[_i], u[_i]) += transpose(N(u)) * N(u)
+     Ml(u[_i], u[_i]) += transpose(N(u)) * N(u),
+     M(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u) + lit(theta) * lit(dt()) * (nu_eff * transpose(nabla(u)) * nabla(u)),
+     M(u[_i], u[_j]) += lit(theta) * lit(dt()) * (transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j])
   )
         ),
-        M(u,u) = _T(u,u) + lit(theta) * lit(dt()) * _A(u,u),
         M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
         rhs_lss.system_matrix += _A,
         t_lss.system_matrix += _T,
