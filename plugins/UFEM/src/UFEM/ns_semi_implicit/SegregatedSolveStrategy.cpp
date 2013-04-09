@@ -75,10 +75,10 @@ SegregatedSolveStrategy::SegregatedSolveStrategy ( const std::string& name ) :
   m_velocity_parameters->mark_basic();
 
   m_pressure_parameters->set_parameter_list(*m_pressure_parameter_list);
-  m_velocity_parameters->set_parameter_list(*m_pressure_parameter_list);
+  m_velocity_parameters->set_parameter_list(*m_velocity_parameter_list);
   
   m_p_linear_solver_builder.setParameterList(m_pressure_parameter_list);
-  m_pressure_parameter_list->print();
+  m_u_linear_solver_builder.setParameterList(m_velocity_parameter_list);
 }
 
 SegregatedSolveStrategy::~SegregatedSolveStrategy()
@@ -159,6 +159,8 @@ void SegregatedSolveStrategy::solve()
   m_u = Teko::getBlock(m_u_idx, m_blocked_solution);
   m_p = Teko::getBlock(m_p_idx, m_blocked_solution);
 
+  Teuchos::RCP<Thyra::LinearOpBase<Real> const> a_rhs_mat = Thyra::add(m_Tuu, Thyra::scale(m_theta*m_time->dt(), m_Auu));
+
   for(Uint i = 0; i != m_nb_iterations; ++i)
   {
     // Velocity RHS
@@ -166,7 +168,7 @@ void SegregatedSolveStrategy::solve()
     Thyra::apply(*m_Aup, Thyra::NOTRANS, *m_p, m_u_rhs.ptr(), -1., 1.);
     // Velocity system a RHS terms
     Thyra::apply(*m_Muu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), -1., 1.);
-    // Apply RHS matrix to current delta_a vector
+    // Apply RHS matrix to current a vector
     Thyra::apply(*m_Auu, Thyra::NOTRANS, *m_a, m_u_rhs.ptr(), m_time->dt(), 1.);
     // RHS theta scheme adjustment
     Thyra::apply(*m_Aup, Thyra::NOTRANS, *m_delta_p_sum, m_u_rhs.ptr(), 1. - m_theta, 1.);
@@ -178,9 +180,15 @@ void SegregatedSolveStrategy::solve()
     std::vector<Real> da_star_norms(m_delta_a_star->domain()->dim());
     std::vector<Real> dp_norms(m_delta_p->domain()->dim());
 
-    // Velocity system
-    Teuchos::RCP<Thyra::LinearOpBase<Real> const> Muu_inv = Teko::buildInverse(*m_uu_inv_factory, m_Muu);
-    Thyra::apply(*Muu_inv, Thyra::NOTRANS, *m_u_rhs, m_delta_a_star.ptr());
+    // Solve the velocity system
+    m_u_lows = m_u_lows_factory->createOp();
+    Thyra::initializeOp(*m_u_lows_factory, m_Muu, m_u_lows.ptr());
+    Thyra::SolveStatus<Real> u_status = Thyra::solve<Real>(*m_u_lows, Thyra::NOTRANS, *m_u_rhs, m_delta_a_star.ptr());
+    if(u_status.solveStatus != Thyra::SOLVE_STATUS_CONVERGED)
+    {
+      CFwarn << "Velocity solve did not converge: " << u_status.message << CFendl;
+    }
+
     Thyra::norms(*m_delta_a_star, Teuchos::arrayViewFromVector(da_star_norms));
     //m_delta_a_star->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
     
@@ -206,10 +214,10 @@ void SegregatedSolveStrategy::solve()
     // Solve the pressure system
     m_p_lows = m_p_lows_factory->createOp();
     Thyra::initializeOp(*m_p_lows_factory, p_mat, m_p_lows.ptr());
-    Thyra::SolveStatus<Real> status = Thyra::solve<Real>(*m_p_lows, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
-    if(status.solveStatus != Thyra::SOLVE_STATUS_CONVERGED)
+    Thyra::SolveStatus<Real> p_status = Thyra::solve<Real>(*m_p_lows, Thyra::NOTRANS, *m_p_rhs, m_delta_p.ptr());
+    if(p_status.solveStatus != Thyra::SOLVE_STATUS_CONVERGED)
     {
-      CFwarn << "Pressure solve did not converge: " << status.message << CFendl;
+      CFwarn << "Pressure solve did not converge: " << p_status.message << CFendl;
     }
 
     // Compute new delta a
@@ -267,7 +275,7 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
     return;
 
   m_p_lows_factory = Thyra::createLinearSolveStrategy(m_p_linear_solver_builder);
-  m_p_lows_factory->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+  m_u_lows_factory = Thyra::createLinearSolveStrategy(m_u_linear_solver_builder);
 
   const Teuchos::RCP<Epetra_CrsMatrix const> crs_matrix = m_full_matrix->epetra_matrix();
   const math::VariablesDescriptor& descriptor = *m_variables_descriptor;
@@ -305,10 +313,6 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   m_Aup = Teko::getBlock(m_u_idx, m_p_idx, m_blocked_rhs_op);
   m_Apu = Teko::getBlock(m_p_idx, m_u_idx, m_blocked_rhs_op);
   m_App = Teko::getBlock(m_p_idx, m_p_idx, m_blocked_rhs_op);
-
-  m_inv_lib = Teko::InverseLibrary::buildFromStratimikos();
-
-  m_uu_inv_factory = m_inv_lib->getInverseFactory("Amesos");
   
   m_delta_a_star = Thyra::createMembers(m_Auu->range(), 1);
   m_delta_a = Thyra::createMembers(m_Auu->range(), 1);
@@ -325,7 +329,6 @@ void SegregatedSolveStrategy::trigger_variables_descriptor()
   m_p_rhs = Thyra::createMember(m_App->range());
   m_p_bc = Thyra::createMember(m_App->range());
   m_p_rhs_mask = Thyra::createMember(m_App->range());
-  
 }
 
 Teuchos::RCP<Thyra::ProductMultiVectorBase<Real> > SegregatedSolveStrategy::get_blocked_vector(const Handle<math::LSS::ThyraMultiVector> vec, const Teuchos::RCP< const Thyra::VectorSpaceBase<Real> >& space)

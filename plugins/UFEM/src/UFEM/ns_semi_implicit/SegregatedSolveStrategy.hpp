@@ -72,8 +72,10 @@ private:
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_App;
   Teuchos::RCP<const Thyra::LinearOpBase<Real> > m_Ml_inv; // Lumped mass matrix inverse
 
-  Teuchos::RCP<Teko::InverseLibrary> m_inv_lib;
-  Teuchos::RCP<Teko::InverseFactory> m_uu_inv_factory;
+  Stratimikos::DefaultLinearSolverBuilder m_u_linear_solver_builder;
+  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Real> > m_u_lows_factory;
+  Teuchos::RCP<Thyra::LinearOpWithSolveBase<Real> > m_u_lows;
+
   Stratimikos::DefaultLinearSolverBuilder m_p_linear_solver_builder;
   Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<Real> > m_p_lows_factory;
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<Real> > m_p_lows;

@@ -209,16 +209,17 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 2
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Belos'
-    #ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
-    #ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
-    belos_solver = 'Block GMRES'
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.solver_type = belos_solver
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].convergence_tolerance = 1e-10
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_iterations = 5000
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].num_blocks = 1000
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_restarts = 1000
+    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 20
+    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Amesos'
+    ns_solver.LSS.SolutionStrategy.VelocityLSSParameters.linear_solver_type = 'Amesos'
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
+    # belos_solver = 'Block GMRES'
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.solver_type = belos_solver
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].convergence_tolerance = 1e-10
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_iterations = 5000
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].num_blocks = 1000
+    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_restarts = 1000
     
     self.add_pressure_bc(ns_solver.BC)
 
