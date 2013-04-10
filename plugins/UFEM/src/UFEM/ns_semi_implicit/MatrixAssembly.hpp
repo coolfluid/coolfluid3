@@ -50,13 +50,14 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
             _A(p    , u[_i]) += transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
             _A(p    , p)     += tau_ps * transpose(nabla(p)) * nabla(p), // Continuity, PSPG
             _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
-            _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+            _A(u[_i], p)     += transpose(tau_su*u_adv*nabla(u)) * nabla(p)[_i] - transpose(nabla(u)[_i]) * N(p), // Pressure gradient (standard and SUPG)
             _A(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i] // Bulk viscosity and second viscosity effect
                                 + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-            M(p, u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)),
-            M(u[_i], p) += lit(theta) * transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i]
+            M(p, u[_i]) += /* More accurate with this term in: */tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p)) * nabla(u)[_i] /*+ tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)*/),
+            M(u[_i], p) += -lit(theta) * transpose(nabla(u)[_i]) * N(p)
+            //M(p,p) += -lit(theta) * (lit(tau_ps) + lit(dt())) * transpose(nabla(p)) * nabla(p)
           ),
   element_quadrature
   (

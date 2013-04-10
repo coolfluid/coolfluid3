@@ -221,7 +221,7 @@ void SegregatedSolveStrategy::solve()
     }
 
     // Compute new delta a
-    Thyra::apply(*Thyra::multiply(m_Ml_inv, m_Mup), Thyra::NOTRANS, *m_delta_p, m_delta_a.ptr(), -1.);
+    Thyra::apply(*Thyra::multiply(m_Ml_inv, Thyra::scale(m_theta, m_Aup)), Thyra::NOTRANS, *m_delta_p, m_delta_a.ptr(), -1.);
     Thyra::update(1., *m_delta_a_star, m_delta_a.ptr());
     
     // Compute a
