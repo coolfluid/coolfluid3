@@ -55,9 +55,9 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
                                 + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-            M(p, u[_i]) += /* More accurate with this term in: */tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p)) * nabla(u)[_i] /*+ tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)*/),
-            M(u[_i], p) += -lit(theta) * transpose(nabla(u)[_i]) * N(p)
-            //M(p,p) += -lit(theta) * (lit(tau_ps) + lit(dt())) * transpose(nabla(p)) * nabla(p)
+            //M(p, u[_i]) += /* More accurate with this term in: */tau_ps * transpose(nabla(p)[_i]) * N(u) + lit(dt()) * (transpose(N(p)) * nabla(u)[_i] /*+ tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u)*/),
+            //M(u[_i], p) += -lit(theta) * transpose(nabla(u)[_i]) * N(p)
+            M(p,p) += -lit(theta) * (lit(tau_ps) + lit(dt())) * transpose(nabla(p)) * nabla(p)
           ),
   element_quadrature
   (
@@ -66,7 +66,7 @@ void NavierStokesSemiImplicit::set_matrix_assembly(LSSAction& rhs_lss, LSSAction
      M(u[_i], u[_j]) += lit(theta) * lit(dt()) * (transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j])
   )
         ),
-        M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
+        //M(p,p) = -_A(p,p), // Minus, easier for the dirichlet conditions afterwards
         rhs_lss.system_matrix += _A,
         t_lss.system_matrix += _T,
         system_matrix += M,

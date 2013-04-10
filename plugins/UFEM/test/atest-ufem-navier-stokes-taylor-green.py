@@ -209,7 +209,7 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 20
+    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 50
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Amesos'
     ns_solver.LSS.SolutionStrategy.VelocityLSSParameters.linear_solver_type = 'Amesos'
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
