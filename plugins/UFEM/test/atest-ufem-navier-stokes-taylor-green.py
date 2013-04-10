@@ -168,7 +168,7 @@ class TaylorGreen:
     solver = self.setup_model()
     ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
     ns_solver.options.theta = theta
-    ns_solver.options.use_specializations = True
+    ns_solver.options.use_specializations = False
     self.theta = theta
     
     mesh = self.create_mesh(segments)
@@ -209,7 +209,7 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 50
+    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 35
     ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Amesos'
     ns_solver.LSS.SolutionStrategy.VelocityLSSParameters.linear_solver_type = 'Amesos'
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'

@@ -92,6 +92,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   zero_t_lss->options().set("lss", t_lss);
   
   set_matrix_assembly_quad(*m_rhs_lss, *m_t_lss);
+  set_matrix_assembly_triag(*m_rhs_lss, *m_t_lss);
   
   // Apply BC
   Handle<BoundaryConditions> bc =  create_component<BoundaryConditions>("BC");

@@ -50,6 +50,7 @@ private:
   void set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name);
 
   void set_matrix_assembly_quad(LSSAction& rhs_lss, LSSAction &t_lss);
+  void set_matrix_assembly_triag(LSSAction& rhs_lss, LSSAction &t_lss);
   
   /// Variables
   /// The velocity solution field
