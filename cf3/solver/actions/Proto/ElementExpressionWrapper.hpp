@@ -20,7 +20,8 @@ struct WrappableElementExpressions :
   <
     boost::proto::multiplies<boost::proto::_, boost::proto::_>,
     boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >
+    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
+    boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >
   >
 {
 };
@@ -133,7 +134,7 @@ struct WrapExpression :
     >,
     boost::proto::when
     <
-      boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
+      boost::proto::or_<boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >, boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > > >,
       WrapMatrixExpression
     >,
     boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >

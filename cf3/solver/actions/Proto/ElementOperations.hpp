@@ -409,6 +409,13 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     template<typename TagT, Uint Arity, Uint Dummy=0>
     struct ResultType;
 
+    /// Used as a terminal, so we assume it just needs the basic context data
+    template<Uint Dummy>
+    struct ResultType<boost::proto::tag::terminal, 0, Dummy>
+    {
+      typedef typename boost::result_of<OpImpl(typename boost::remove_reference<DataT>::type)>::type type;
+    };
+
     /// Specialization for a function with one argument
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 2, Dummy>
@@ -612,6 +619,15 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::data_param data) const
       {
         return OpImpl()(expr.value, GetChild<typename EvaluatedChild<1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
+      }
+
+      result_type operator()(boost::proto::tag::terminal,
+                             boost::mpl::int_<0>,
+                             typename impl::expr_param expr,
+                             typename impl::state_param state,
+                             typename impl::data_param data) const
+      {
+        return OpImpl()(expr.value, data);
       }
     };
 

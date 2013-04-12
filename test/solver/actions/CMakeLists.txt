@@ -45,6 +45,10 @@ coolfluid_add_test( UTEST     utest-proto-components
 coolfluid_add_test( UTEST     utest-proto-elements
                     CPP       utest-proto-elements.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh)
+                    
+coolfluid_add_test( UTEST     utest-proto-lss
+                    CPP       utest-proto-lss.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)
 
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
@@ -65,5 +69,6 @@ coolfluid_mark_not_orphan(
   utest-proto-components.cpp
   utest-proto-elements.cpp
   ptest-proto-parallel.cpp
+  utest-proto-lss.cpp
 )
 endif()
