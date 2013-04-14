@@ -20,6 +20,7 @@
 
 #include "common/PE/Comm.hpp"
 
+#include "mesh/UnifiedData.hpp"
 #include "mesh/LibMesh.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/MergedParallelDistribution.hpp"

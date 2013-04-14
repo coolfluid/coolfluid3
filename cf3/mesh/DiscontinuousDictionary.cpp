@@ -15,6 +15,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
+#include "common/List.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 

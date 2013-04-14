@@ -9,6 +9,7 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Dictionary.hpp"
 #include "mesh/Mesh.hpp"

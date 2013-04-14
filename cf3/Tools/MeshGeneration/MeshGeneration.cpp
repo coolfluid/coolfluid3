@@ -11,6 +11,7 @@
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionURI.hpp"
+#include "common/List.hpp"
 
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"

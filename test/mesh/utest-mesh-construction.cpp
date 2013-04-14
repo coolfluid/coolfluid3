@@ -15,6 +15,7 @@
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"

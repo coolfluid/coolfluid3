@@ -7,6 +7,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
+#include "common/List.hpp"
 
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/Elements.hpp"

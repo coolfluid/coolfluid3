@@ -51,6 +51,9 @@ Reader::Reader(const std::string& name)
   options().add( "SectionsAreBCs", false )
       .description("Treat Sections of lower dimensionality as BC. "
                         "This means no BCs from cgns will be read");
+  options().add( "zone_handling", false )
+      .description("If zero, and there is only 1 zone, the zone is skipped"
+                   " as nested region, and the zone's sections are added immediately.");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -163,30 +166,35 @@ void Reader::read_zone(Mesh& mesh)
     m_zone.total_nbElements = get_total_nbElements();
 
 
-    // Create a region for this zone if there is more than one
-    //Region& this_region = m_zone.unique? parent_region : parent_region.create_region(m_zone.name);
-    //this_region.add_tag("grid_zone");
-
-//    Region& this_region = parent_region.create_region(m_zone.name);
-    Region& this_region = mesh.topology();
-    this_region.add_tag("grid_zone");
-    m_zone_map[m_zone.idx] = &this_region;
+    // Create a region for this zone
+    Handle<Region> this_region;
+    if (m_zone.unique && options().value<bool>("zone_handling") == false)
+    {
+      this_region = mesh.topology().handle<Region>(); 
+    }
+    else
+    {
+      this_region = mesh.topology().create_region(m_zone.name).handle<Region>();
+    }
+    
+    this_region->add_tag("grid_zone");
+    m_zone_map[m_zone.idx] = this_region.get();
 
     // read coordinates in this zone
     for (int i=1; i<=m_zone.nbGrids; ++i)
-      read_coordinates_unstructured(this_region);
+      read_coordinates_unstructured(*this_region);
 
     // read sections (or subregions) in this zone
     m_global_to_region.reserve(m_zone.total_nbElements);
     for (m_section.idx=1; m_section.idx<=m_zone.nbSections; ++m_section.idx)
-      read_section(this_region);
+      read_section(*this_region);
 
 //    // Only read boco's if sections are not defined as BC's
 //    if (!option("SectionsAreBCs")->value<bool>())
 //    {
       // read boundaryconditions (or subregions) in this zone
       for (m_boco.idx=1; m_boco.idx<=m_zone.nbBocos; ++m_boco.idx)
-        read_boco_unstructured(this_region);
+        read_boco_unstructured(*this_region);
 //
 //      // Remove regions flagged as bc
 //      BOOST_FOREACH(Region& region, find_components_recursively_with_tag<Region>(this_region,"remove_this_tmp_component"))
@@ -242,20 +250,29 @@ void Reader::read_zone(Mesh& mesh)
     m_zone.total_nbElements = get_total_nbElements();
 
     // Create a region for this zone
-    //Region& this_region = parent_region.create_region(m_zone.name);
-    Region& this_region = mesh.topology();
-    this_region.add_tag("grid_zone");
-    m_zone_map[m_zone.idx] = &this_region;
+    Handle<Region> this_region;
+    if (m_zone.unique && options().value<bool>("zone_handling") == false)
+    {
+      this_region = mesh.topology().handle<Region>(); 
+    }
+    else
+    {
+      this_region = mesh.topology().create_region(m_zone.name).handle<Region>();
+    }
+
+    // Region& this_region = mesh.topology();
+    this_region->add_tag("grid_zone");
+    m_zone_map[m_zone.idx] = this_region.get();
 
     // read coordinates in this zone
     for (int i=1; i<=m_zone.nbGrids; ++i)
-      read_coordinates_structured(this_region);
+      read_coordinates_structured(*this_region);
 
-    create_structured_elements(this_region);
+    create_structured_elements(*this_region);
 
     // read boundaryconditions (or subregions) in this zone
     for (m_boco.idx=1; m_boco.idx<=m_zone.nbBocos; ++m_boco.idx)
-      read_boco_structured(this_region);
+      read_boco_structured(*this_region);
 
   }
 
@@ -457,7 +474,11 @@ void Reader::read_section(Region& parent_region)
       Uint table_idx = buffer[etype_CF]->add_row(row);
 
       // Store the global element number to a pair of (region , local element number)
-      m_global_to_region.push_back(Region_TableIndex_pair(find_component_ptr_with_name<Elements>(this_region, etype_CF),table_idx));
+      m_global_to_region.push_back(Region_TableIndex_pair(find_component_ptr_with_name<Elements>(this_region, "elements_"+etype_CF),table_idx));
+      if ( ! m_global_to_region.back().first )
+      {
+        throw BadValue(FromHere(), etype_CF+" not found in "+this_region.uri().string());
+      }
       cf3_assert( m_global_to_region.back().first );
     } // for elem
   } // if mixed

@@ -16,6 +16,7 @@
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
+#include "common/List.hpp"
 
 #include "mesh/tecplot/Writer.hpp"
 #include "mesh/GeoShape.hpp"

@@ -14,6 +14,7 @@
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 #include "common/DynTable.hpp"
+#include "common/List.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 

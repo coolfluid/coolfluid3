@@ -97,7 +97,7 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
   BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(mesh.geometry_fields(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
-  m_zone.nbElements = region.recursive_elements_count(true);
+  m_zone.nbElements = region.recursive_filtered_elements_count(IsElementsVolume(),true);
 
   m_zone.nbBdryVertices = 0;
 

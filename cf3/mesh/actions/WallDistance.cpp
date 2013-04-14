@@ -12,6 +12,7 @@
 #include "common/Foreach.hpp"
 #include "common/Option.hpp"
 #include "common/OptionList.hpp"
+#include "common/List.hpp"
 
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/DiscontinuousDictionary.hpp"

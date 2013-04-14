@@ -16,7 +16,7 @@
 #include "common/Signal.hpp"
 #include "common/List.hpp"
 #include "common/PropertyList.hpp"
-
+#include "common/Group.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/PE/Comm.hpp"

@@ -12,6 +12,7 @@
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PropertyList.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"

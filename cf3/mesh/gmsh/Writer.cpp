@@ -18,6 +18,7 @@
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Map.hpp"
+#include "common/List.hpp"
 
 #include "mesh/gmsh/Writer.hpp"
 #include "mesh/Mesh.hpp"
