@@ -16,6 +16,8 @@ endforeach()
 
 if(CF3_ENABLE_PROTO)
 
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(_ARGS 16 16 120)
 else()
@@ -48,7 +50,8 @@ coolfluid_add_test( UTEST     utest-proto-elements
                     
 coolfluid_add_test( UTEST     utest-proto-lss
                     CPP       utest-proto-lss.cpp
-                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
+                    MPI       1)
 
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
