@@ -325,28 +325,32 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
   // We assume that we have an epetra RHS with the same storage structure as the matrix!
   Epetra_Vector& epetra_rhs = *dynamic_cast<TrilinosVector&>(rhs).epetra_vector();
 
-  int num_entries, row_size;
+  int num_entries;
   Real* extracted_values;
   int* extracted_indices;
-  int* row_indices;
 
   const int bc_col = m_p2m[blockrow*m_neq+ieq];
 
-  if(bc_col >= m_num_my_elements)
-    return;
-
   m_dirichlet_nodes.push_back(std::make_pair(blockrow, ieq));
 
-  TRILINOS_THROW(m_mat->ExtractMyRowView(bc_col, row_size, extracted_values, row_indices));
-
+  const Uint nb_connected_nodes = m_starting_indices[blockrow+1] - m_starting_indices[blockrow];
+  std::vector<int> row_indices; row_indices.reserve(m_neq*nb_connected_nodes);
+  const Uint conn_start = m_starting_indices[blockrow];
+  const Uint conn_end = m_starting_indices[blockrow+1];
+  for(Uint i = conn_start; i != conn_end; ++i)
+  {
+    for(Uint j = 0; j != m_neq; ++j)
+    {
+      row_indices.push_back(m_p2m[m_node_connectivity[i]*m_neq+j]);
+    }
+  }
+  
   DirichletEntryT& cached_col_values = m_symmetric_dirichlet_values[bc_col];
 
   if(cached_col_values.empty())
   {
-    std::cout << "diri: generating cached values" << std::endl;
-    for(int other_row_idx = 0; other_row_idx != row_size; ++other_row_idx)
+    BOOST_FOREACH(const int other_row, row_indices)
     {
-      const int other_row = row_indices[other_row_idx];
       if(other_row >= m_num_my_elements)
         continue;
 
@@ -386,14 +390,12 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
   }
   else // Reuse the cached values, if the matrix wasn't reset since the previous BC application
   {
-    std::cout << "diri: using cached values" << std::endl;
     for(DirichletEntryT::const_iterator it = cached_col_values.begin(); it != cached_col_values.end(); ++it)
     {
       epetra_rhs[it->first] -= it->second * value;
     }
   }
 
-  std::cout << "diri: setting value to " << value << std::endl;
   rhs.set_value(blockrow, ieq, value);
 }
 
