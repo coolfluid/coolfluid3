@@ -180,15 +180,15 @@ struct CustomTerminal
 
 BOOST_AUTO_TEST_CASE( MyTerminal )
 {
-  SFOp< CustomSFOp<CustomTerminal> > op;
+  SFOp< CustomSFOp<CustomTerminal> > my_term;
 
   // Create an action that can wrap an expression
   Handle<ProtoAction> action = root.create_component<ProtoAction>("MyTermAction");
-  action->set_expression(elements_expression(_cout << lit(op) << "\n"));
+  action->set_expression(elements_expression(_cout << lit( my_term ) << "\n"));
   action->options().set("physical_model", physical_model);
   action->options().set(solver::Tags::regions(), loop_regions);
 
-  op.set_constant(2.);
+  my_term.op.set_constant(2.);
   
   // Run the action
   action->execute();
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   Handle<math::LSS::Vector> vec_copy(root.create_component("ScalarVector", "cf3.math.LSS.TrilinosVector"));
   lss->solution()->clone_to(*vec_copy);
   SFOp< CustomSFOp<ScalarLSSVector> > scalar_vector;
-  scalar_vector.set_vector(vec_copy);
+  scalar_vector.op.set_vector(vec_copy);
   
   // Run the expression
   action->set_expression(elements_expression(
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   
   Handle<math::LSS::Vector> vec_copy(root.create_component("VectorVector", "cf3.math.LSS.TrilinosVector"));
   lss->solution()->clone_to(*vec_copy);
-  vector_vector.set_vector(vec_copy);
+  vector_vector.op.set_vector(vec_copy);
   
   // Set the field to random
   for_each_node(mesh->topology(), T = sol_vec(T));

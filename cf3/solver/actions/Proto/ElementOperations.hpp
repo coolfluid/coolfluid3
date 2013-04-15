@@ -627,7 +627,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return boost::proto::value(expr)(expr.value, data);
+        return boost::proto::value(expr).op(expr.value, data);
       }
     };
 
@@ -647,8 +647,10 @@ struct CustomSFOp
 };
 
 template<typename OpT>
-struct SFOp< CustomSFOp<OpT> > : OpT
+struct SFOp< CustomSFOp<OpT> >
 {
+  OpT op;
+  
   template<typename Signature>
   struct result;
 
