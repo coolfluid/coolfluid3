@@ -627,7 +627,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value, data);
+        return boost::proto::value(expr)(expr.value, data);
       }
     };
 
@@ -647,7 +647,7 @@ struct CustomSFOp
 };
 
 template<typename OpT>
-struct SFOp< CustomSFOp<OpT> >
+struct SFOp< CustomSFOp<OpT> > : OpT
 {
   template<typename Signature>
   struct result;
@@ -663,7 +663,7 @@ struct SFOp< CustomSFOp<OpT> >
 template<typename OpT>
 struct MakeSFOp
 {
-  typedef typename boost::proto::terminal< SFOp< CustomSFOp< OpT > > >::type const type;
+  typedef typename boost::proto::terminal< SFOp< CustomSFOp< OpT > > >::type type;
 };
 
 /// Static terminals that can be used in proto expressions
