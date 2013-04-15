@@ -377,3 +377,22 @@ Teuchos::RCP< Thyra::MultiVectorBase< Real > > TrilinosVector::thyra_vector ( co
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::clone_to(Vector &other)
+{
+  if(!m_is_created)
+    throw common::SetupError(FromHere(), "Vector to clone " + uri().string() + " is not created");
+
+  TrilinosVector* other_ptr = dynamic_cast<TrilinosVector*>(&other);
+  if(is_null(other_ptr))
+    throw common::SetupError(FromHere(), "clone_to method of TrilinosVector needs another TrilinosVector, but a " + other.derived_type_name() + " was supplied instead.");
+
+  other_ptr->m_vec = Teuchos::rcp(new Epetra_Vector(*m_vec));
+  other_ptr->m_neq = m_neq;
+  other_ptr->m_blockrow_size = m_blockrow_size;
+  other_ptr->m_is_created = m_is_created;
+  other_ptr->m_p2m = m_p2m;
+  other_ptr->m_converted_indices = m_converted_indices;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////

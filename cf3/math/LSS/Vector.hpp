@@ -139,6 +139,12 @@ public:
   /// Accessor to the number of block rows
   virtual const Uint blockrow_size() = 0;
 
+  /// Clone this vector into another one
+  virtual void clone_to(Vector& other)
+  {
+    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+  }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

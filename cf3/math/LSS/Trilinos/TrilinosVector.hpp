@@ -154,6 +154,8 @@ public:
   /// @attention this function is not (and should never be) part of the interface itself, only used between trilinoses
   Teuchos::RCP<Epetra_Vector> epetra_vector() { return m_vec; }
 
+  void clone_to(Vector &other);
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY
