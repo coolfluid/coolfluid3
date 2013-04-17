@@ -163,7 +163,9 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // Fix global numbering
   /// @todo remove this and read glb_index ourself
   m_mesh->update_statistics();
-  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(m_mesh);
+
+  boost::shared_ptr<MeshTransformer> global_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering");
+  global_numbering->transform(m_mesh);
 
   mesh.raise_mesh_loaded();
 }
@@ -249,7 +251,7 @@ void Reader::find_ghost_nodes()
 
 
     // read every line and store the connectivity in the correct region through the buffer
-    Uint elementNumber, elementType, nbElementNodes;
+    Uint elementNumber, elementType, nbElementNodes, dummy_node;
     for (Uint i=0; i<m_headerData.NELEM; ++i)
     {
       if (m_headerData.NELEM > 100000)
@@ -262,7 +264,7 @@ void Reader::find_ghost_nodes()
       {
         // element description
         m_file >> elementNumber >> elementType >> nbElementNodes;
-
+        cf3_assert_desc(to_str(elementNumber)+" == "+to_str(i+1),elementNumber == i+1);
         // check if element nodes are ghost
         std::vector<Uint> neu_element_nodes(nbElementNodes);
         for (Uint j=0; j<nbElementNodes; ++j)
@@ -272,6 +274,18 @@ void Reader::find_ghost_nodes()
           {
             m_ghost_nodes.insert(neu_element_nodes[j]);
           }
+        }
+      }
+      else
+      {
+        // element description
+        m_file >> elementNumber >> elementType >> nbElementNodes;
+        cf3_assert_desc(to_str(elementNumber)+" == "+to_str(i+1),elementNumber == i+1);
+        // check if element nodes are ghost
+        std::vector<Uint> neu_element_nodes(nbElementNodes);
+        for (Uint j=0; j<nbElementNodes; ++j)
+        {
+          m_file >> dummy_node;
         }
       }
       // finish the line
@@ -302,34 +316,35 @@ void Reader::read_coordinates()
   std::set<Uint>::const_iterator not_found = m_ghost_nodes.end();
 
   Uint coord_idx=0;
-  for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx)
+  for (Uint neu_node_idx=1; neu_node_idx<=m_headerData.NUMNP; ++neu_node_idx)
   {
     if (m_headerData.NUMNP > 100000)
     {
-      if(node_idx%(m_headerData.NUMNP/20)==0)
-        CFinfo << 100*node_idx/m_headerData.NUMNP << "% " << CFendl;
+      if(neu_node_idx%(m_headerData.NUMNP/20)==0)
+        CFinfo << 100*neu_node_idx/m_headerData.NUMNP << "% " << CFendl;
     }
     getline(m_file,line);
-    if (m_hash->subhash(NODES).owns(node_idx-1))
+    if (m_hash->subhash(NODES).owns(neu_node_idx-1))
     {
-      nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
-      nodes.glb_idx()[coord_idx] = node_idx;
-      m_node_to_coord_idx[node_idx]=coord_idx;
+      nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(neu_node_idx-1);
+      nodes.glb_idx()[coord_idx] = neu_node_idx;
+      m_neu_node_to_coord_idx[neu_node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
       ss >> nodeNumber;
+      cf3_assert(nodeNumber == neu_node_idx);
       for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
         ss >> nodes.coordinates()[coord_idx][dim];
       coord_idx++;
     }
     else
     {
-      if (m_ghost_nodes.find(node_idx) != not_found)
+      if (m_ghost_nodes.find(neu_node_idx) != not_found)
       {
         // add global node index
-        nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
-        nodes.glb_idx()[coord_idx] = node_idx;
-        m_node_to_coord_idx[node_idx]=coord_idx;
+        nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(neu_node_idx-1);
+        nodes.glb_idx()[coord_idx] = neu_node_idx;
+        m_neu_node_to_coord_idx[neu_node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
         ss >> nodeNumber;
@@ -388,8 +403,8 @@ void Reader::read_connectivity()
       {
         cf_idx = m_nodes_neu_to_cf[elementType][j];
         m_file >> neu_node_number;
-        cf3_assert(m_node_to_coord_idx.count(neu_node_number));
-        cf_node_number = m_node_to_coord_idx[neu_node_number];
+        cf3_assert(m_neu_node_to_coord_idx.count(neu_node_number));
+        cf_node_number = m_neu_node_to_coord_idx[neu_node_number];
         cf3_assert(cf_node_number < nodes.size());
         cf_element[cf_idx] = cf_node_number;
       }
@@ -410,7 +425,7 @@ void Reader::read_connectivity()
   }
   getline(m_file,line);  // ENDOFSECTION
 
-  m_node_to_coord_idx.clear();
+  m_neu_node_to_coord_idx.clear();
 
 }
 

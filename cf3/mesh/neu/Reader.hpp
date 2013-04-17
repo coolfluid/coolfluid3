@@ -82,7 +82,7 @@ private: // data
   Handle< Region > m_tmp;
 
   std::set<Uint> m_ghost_nodes;
-  std::map<Uint,Uint> m_node_to_coord_idx;
+  std::map<Uint,Uint> m_neu_node_to_coord_idx;
 
   Uint m_nodal_coordinates_position;
   Uint m_elements_cells_position;

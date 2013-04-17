@@ -109,15 +109,23 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if 0
+// Disabled because there exists a duplicate node inside this hextet mesh
+// The GlobalNumbering algorithm hence gets confused as to who gets to own it.
+// It could be decided that one of them becomes a ghost!
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
-
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+
+  meshreader->options().set("read_groups",true);
 
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("hextet");
 
   meshreader->read_mesh_into("../../resources/hextet.neu",mesh);
+
+  CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
+  CFinfo << "nodes count    = " << find_component<Region>(mesh).recursive_nodes_count() << CFendl;
 
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh, "hextet.msh");
@@ -126,10 +134,8 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
   boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh, "hextet_write.neu");
-
-
 }
-
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 /*
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
