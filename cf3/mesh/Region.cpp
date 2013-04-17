@@ -21,6 +21,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
+#include "mesh/Edges.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -71,8 +72,10 @@ Elements& Region::create_elements(const std::string& element_type_name, Dictiona
       elements = create_component<Cells>(name);
     else if (elem_type->dimensionality() == elem_type->dimension()-1)
       elements = create_component<Faces>(name);
+    else if (elem_type->dimensionality() == elem_type->dimension()-2)
+      elements = create_component<Edges>(name);
     else
-      throw NotImplemented(FromHere(), "Edge elements are not implemented yet");
+      throw NotImplemented(FromHere(), "Point elements are not implemented yet");
 
     elements->initialize(element_type_name,nodes);
 

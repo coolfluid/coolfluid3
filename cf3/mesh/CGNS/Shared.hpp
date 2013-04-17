@@ -80,8 +80,8 @@ protected:
   struct CGNS_Base
   {
     int idx;
-    int cell_dim;
-    int phys_dim;
+    int cell_dim;       ///!< mesh dimensionality
+    int phys_dim;       ///!< mesh dimension
     std::string name;
     bool unique;
     int nbZones;

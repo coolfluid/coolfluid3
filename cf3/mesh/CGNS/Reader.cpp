@@ -108,7 +108,12 @@ void Reader::read_base(Mesh& parent_region)
   boost::algorithm::replace_all(m_base.name,".","_");
   boost::algorithm::replace_all(m_base.name,":","_");
   boost::algorithm::replace_all(m_base.name,"/","_");
-
+  
+  if ( options().value<Uint>("dimension") != 0 )
+  {
+    m_base.phys_dim = options().value<Uint>("dimension");     
+  }
+  
   // Create basic region structure
 //  Region& base_region = m_mesh->topology();
 //  m_base_map[m_base.idx] = &base_region;
