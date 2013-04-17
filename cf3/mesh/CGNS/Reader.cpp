@@ -170,6 +170,10 @@ void Reader::read_zone(Mesh& mesh)
     // Add up all the nb elements from all sections
     m_zone.total_nbElements = get_total_nbElements();
 
+    // Coordinate dimension is reduced to mesh dimension, as configured by
+    // options().value<Uint>("dimension")
+    if( m_base.phys_dim < m_zone.coord_dim )
+      m_zone.coord_dim = m_base.phys_dim;
 
     // Create a region for this zone
     Handle<Region> this_region;
@@ -301,6 +305,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
   Real *xCoord;
   Real *yCoord;
   Real *zCoord;
+    
   switch (m_zone.coord_dim)
   {
     case 3:
@@ -315,12 +320,9 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
   }
 
   m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
-
   common::Table<Real>& coords = nodes.coordinates();
   common::List<Uint>& rank = nodes.rank();
-  //  common::Table<Real>::Buffer buffer = nodes.coordinates().create_buffer();
-  //buffer.increase_array_size(m_zone.total_nbVertices);
-  //std::vector<Real> row(m_zone.coord_dim);
+
   for (int i=0; i<m_zone.total_nbVertices; ++i)
   {
     switch (m_zone.coord_dim)
@@ -995,12 +997,12 @@ void Reader::read_flowsolution()
         dict = m_mesh->geometry_fields().handle<Dictionary>();
         break;
       case CGNS_ENUMV( CellCenter ):
-        throw NotImplemented(FromHere(), "CGNS_ENUMV( CellCenter ) not implemented yet");
+        throw NotImplemented(FromHere(), "CellCenter not implemented yet");
         datasize = m_zone.total_nbElements;
-        if ( Handle<Component> found = m_mesh->get_child("CGNS_ENUMV( CellCenter )") )
+        if ( Handle<Component> found = m_mesh->get_child("CellCenter") )
           dict = found->handle<Dictionary>();
         else
-          dict = m_mesh->create_discontinuous_space("CGNS_ENUMV( CellCenter )","cf3.mesh.LagrangeP0").handle<Dictionary>();
+          dict = m_mesh->create_discontinuous_space("CellCenter","cf3.mesh.LagrangeP0").handle<Dictionary>();
         break;
       default:
         throw NotSupported(FromHere(), "Flow solution Grid location ["+to_str((int)m_flowsol.grid_loc)+"] is not supported");
