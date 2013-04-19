@@ -170,8 +170,8 @@ public:
   
   void signal_print_native(common::SignalArgs& args);
   
-  Teuchos::RCP< const Thyra::VectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const;
-  Teuchos::RCP< Thyra::VectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space );
+  Teuchos::RCP< const Thyra::VectorBase< Real > > thyra_vector () const;
+  Teuchos::RCP< Thyra::VectorBase< Real > > thyra_vector ();
   
 private:
 
@@ -180,6 +180,8 @@ private:
   
   /// teuchos style smart pointer wrapping an epetra vector
   Teuchos::RCP<Epetra_Vector> m_vec;
+
+  Teuchos::RCP<Epetra_Map> m_map;
 
   /// epetra mpi environment
   Epetra_MpiComm m_comm;

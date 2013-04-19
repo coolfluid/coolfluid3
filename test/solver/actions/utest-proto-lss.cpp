@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   Handle<math::LSS::ThyraVector> rhs(lss->rhs());
   
   // Set random solution
-  Thyra::randomize(0., 1., solution->thyra_vector(op->thyra_operator()->range()).ptr());
+  Thyra::randomize(0., 1., solution->thyra_vector().ptr());
   
   Handle<ProtoAction> action = root.create_component<ProtoAction>("ScalarLSSAction");
   
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   
   
   Teuchos::RCP< Thyra::MultiVectorBase<Real> > rhs2 = Thyra::createMembers(op->thyra_operator()->range(), 1);
-  Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(op->thyra_operator()->range()), rhs2.ptr());
+  Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(), rhs2.ptr());
   
   std::vector<Real> diff_norm(1);
   
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK(diff_norm.front() > 1e-6);
   
-  Thyra::update(-1., *rhs->thyra_vector(op->thyra_operator()->range()), rhs2.ptr());
+  Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK_SMALL(diff_norm.front(), 1e-10);
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   Handle<math::LSS::ThyraVector> rhs(lss->rhs());
   
   // Set random solution
-  Thyra::randomize(0., 1., solution->thyra_vector(op->thyra_operator()->range()).ptr());
+  Thyra::randomize(0., 1., solution->thyra_vector().ptr());
   
   Handle<math::LSS::Vector> vec_copy(root.create_component("VectorVector", "cf3.math.LSS.TrilinosVector"));
   lss->solution()->clone_to(*vec_copy);
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   action->execute();
   
   Teuchos::RCP< Thyra::MultiVectorBase<Real> > rhs2 = Thyra::createMembers(op->thyra_operator()->range(), 1);
-  Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(op->thyra_operator()->range()), rhs2.ptr());
+  Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(), rhs2.ptr());
   
   std::vector<Real> diff_norm(1);
   
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK(diff_norm.front() > 1e-6);
   
-  Thyra::update(-1., *rhs->thyra_vector(op->thyra_operator()->range()), rhs2.ptr());
+  Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK_SMALL(diff_norm.front(), 1e-10);

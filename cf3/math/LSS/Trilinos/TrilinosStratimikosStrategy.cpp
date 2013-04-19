@@ -143,8 +143,8 @@ struct TrilinosStratimikosStrategy::Implementation
 
     Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
 
-    Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector(m_matrix->thyra_operator()->range());
-    Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector(m_matrix->thyra_operator()->domain());
+    Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector();
+    Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector();
     
     //cf3_assert(m_lows->range()->isCompatible(*b->range()));
     //cf3_assert(m_lows->domain()->isCompatible(*x->range()));
@@ -182,11 +182,11 @@ struct TrilinosStratimikosStrategy::Implementation
 
     if(m_residual_vec.is_null())
     {
-      m_residual_vec = m_rhs->thyra_vector(m_matrix->thyra_operator()->range())->clone_v();
+      m_residual_vec = m_rhs->thyra_vector()->clone_v();
     }
 
-    Thyra::assign(m_rhs->thyra_vector(m_matrix->thyra_operator()->range()).ptr(), *m_residual_vec);
-    m_lows->apply(Thyra::NOTRANS, *m_solution->thyra_vector(m_matrix->thyra_operator()->domain()), m_residual_vec.ptr(), 1., -1.);
+    Thyra::assign(m_rhs->thyra_vector().ptr(), *m_residual_vec);
+    m_lows->apply(Thyra::NOTRANS, *m_solution->thyra_vector(), m_residual_vec.ptr(), 1., -1.);
     std::vector<Real> residuals(m_residual_vec->domain()->dim());
     Thyra::norms_2(*m_residual_vec, Teuchos::arrayViewFromVector(residuals));
     return *std::max_element(residuals.begin(), residuals.end());

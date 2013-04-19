@@ -121,7 +121,7 @@ struct ConstantPoissonStrategy::Implementation
     m_solution->reset();
 
     // Create the problem
-    m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->thyra_operator(), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()), m_rhs->thyra_vector(m_matrix->thyra_operator()->range())) );
+    m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->thyra_operator(), m_solution->thyra_vector(), m_rhs->thyra_vector()) );
 
     // Set the preconditioner
     if(m_self.options().value<bool>("use_ml_preconditioner"))

@@ -80,9 +80,9 @@ void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const Variables
   m_data.resize(myglobalelements.size());
   
   // map (its actually blockmap insteady of rowmap, to involve ghosts)
-  Epetra_Map map(-1,nmyglobalelements,&myglobalelements[0],0,m_comm);
+  m_map = Teuchos::rcp(new Epetra_Map(-1,nmyglobalelements,&myglobalelements[0],0,m_comm));
   // create vector
-  m_vec=Teuchos::rcp(new Epetra_Vector(View, map, &m_data[0]));
+  m_vec=Teuchos::rcp(new Epetra_Vector(View, *m_map, &m_data[0]));
 
   m_neq=vars.size();
   m_blockrow_size=cp.isUpdatable().size();
@@ -366,17 +366,18 @@ void TrilinosVector::signal_print_native(common::SignalArgs& args)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Teuchos::RCP< const Thyra::VectorBase< Real > > TrilinosVector::thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const
+Teuchos::RCP< const Thyra::VectorBase< Real > > TrilinosVector::thyra_vector () const
 {
-  //Thyra::create_VectorSpace(m_vec->Map());
+  Teuchos::RCP< const Thyra::VectorSpaceBase< Real > > space = Thyra::create_VectorSpace(m_map);
   return Thyra::create_Vector(m_vec, space);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Teuchos::RCP< Thyra::VectorBase< Real > > TrilinosVector::thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space )
+Teuchos::RCP< Thyra::VectorBase< Real > > TrilinosVector::thyra_vector ()
 {
+  Teuchos::RCP< const Thyra::VectorSpaceBase< Real > > space = Thyra::create_VectorSpace(m_map);
   return Thyra::create_Vector(m_vec, space);
 }
 
@@ -392,7 +393,8 @@ void TrilinosVector::clone_to(Vector &other)
     throw common::SetupError(FromHere(), "clone_to method of TrilinosVector needs another TrilinosVector, but a " + other.derived_type_name() + " was supplied instead.");
 
   other_ptr->m_data = m_data;
-  other_ptr->m_vec = Teuchos::rcp(new Epetra_Vector(View, m_vec->Map(), &other_ptr->m_data[0]));
+  other_ptr->m_vec = Teuchos::rcp(new Epetra_Vector(View, *m_map, &other_ptr->m_data[0]));
+  other_ptr->m_map = m_map;
   other_ptr->m_neq = m_neq;
   other_ptr->m_blockrow_size = m_blockrow_size;
   other_ptr->m_is_created = m_is_created;

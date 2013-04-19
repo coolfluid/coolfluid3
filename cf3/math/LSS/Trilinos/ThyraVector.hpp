@@ -9,7 +9,6 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Thyra_MultiVectorBase.hpp"
-#include "Thyra_VectorSpaceBase.hpp"
 
 #include "common/CF.hpp"
 
@@ -22,10 +21,10 @@ class ThyraVector
 {
 public:
   /// Const access to the matrix
-  virtual Teuchos::RCP<const Thyra::VectorBase<Real> > thyra_vector(const Teuchos::RCP< const Thyra::VectorSpaceBase<Real> >& space) const = 0;
+  virtual Teuchos::RCP<const Thyra::VectorBase<Real> > thyra_vector() const = 0;
   
   /// Writable access to the matrix
-  virtual Teuchos::RCP<Thyra::VectorBase<Real> > thyra_vector(const Teuchos::RCP< const Thyra::VectorSpaceBase<Real> >& space) = 0;
+  virtual Teuchos::RCP<Thyra::VectorBase<Real> > thyra_vector() = 0;
 };
 
 } // namespace LSS
