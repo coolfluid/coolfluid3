@@ -16,6 +16,9 @@
 
 
 #include "math/LSS/Trilinos/TrilinosDetail.hpp"
+#include "TrilinosVector.hpp"
+
+#include <Epetra_Operator.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -367,6 +370,41 @@ void create_indices_per_row(cf3::common::PE::CommPattern& cp,
     }
   }
 }
+
+
+void apply_matrix ( const Epetra_Operator& op, const Handle< Vector >& y, const cf3::Handle< const Vector >& x, const Real alpha, const Real beta )
+{
+  Handle<TrilinosVector> y_tril(y);
+  Handle<TrilinosVector const> x_tril(x);
+
+  if(is_null(y_tril) || is_null(x_tril))
+    throw common::SetupError(FromHere(), "Trilinos*Matrix::apply must be given TrilinosVector arguments");
+  
+  cf3_assert(op.OperatorDomainMap().PointSameAs(x_tril->epetra_vector()->Map()));
+
+  // Store the old values of y since we need them later on
+  Teuchos::RCP<Epetra_Vector> temp;
+  if(beta != 0.)
+  {
+    temp = Teuchos::rcp(new Epetra_Vector(*y_tril->epetra_vector()));
+  }
+  
+  // Apply the operator
+  TRILINOS_THROW(op.Apply(*x_tril->epetra_vector(), *y_tril->epetra_vector()));
+  
+  // Scale the result if needed
+  if(alpha != 1.)
+  {
+    y_tril->epetra_vector()->Scale(alpha);
+  }
+  
+  // Add in old values if needed
+  if(beta != 0.)
+  {
+    y_tril->epetra_vector()->Update(beta, *temp, 1.);
+  }
+}
+
 
 
 } // namespace LSS

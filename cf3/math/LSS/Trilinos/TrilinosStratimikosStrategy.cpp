@@ -20,7 +20,7 @@
 #include "Thyra_EpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveBase.hpp"
 #include "Thyra_VectorBase.hpp"
-#include "Thyra_MultiVectorStdOps.hpp"
+#include "Thyra_VectorStdOps.hpp"
 
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
 
@@ -29,7 +29,7 @@
 #include "common/OptionList.hpp"
 
 #include "ParameterList.hpp"
-#include "ThyraMultiVector.hpp"
+#include "ThyraVector.hpp"
 #include "ThyraOperator.hpp"
 #include "TrilinosStratimikosStrategy.hpp"
 #include "ParameterListDefaults.hpp"
@@ -143,8 +143,25 @@ struct TrilinosStratimikosStrategy::Implementation
 
     Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
 
-    Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *m_rhs->thyra_vector(m_matrix->thyra_operator()->range()), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()).ptr());
-    CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
+    Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector(m_matrix->thyra_operator()->range());
+    Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector(m_matrix->thyra_operator()->domain());
+    
+    //cf3_assert(m_lows->range()->isCompatible(*b->range()));
+    //cf3_assert(m_lows->domain()->isCompatible(*x->range()));
+
+    m_lows->domain()->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+    x->range()->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+    
+    try
+    {
+      Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *b, x.ptr());
+      CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
+    }
+    catch(std::exception& e)
+    {
+      std::cout << e.what() << std::endl;
+    }
+    
     if(m_self.options().option("compute_residual").value<bool>())
       CFinfo << "Solver residual: " << compute_residual() << CFendl;
   }
@@ -165,7 +182,7 @@ struct TrilinosStratimikosStrategy::Implementation
 
     if(m_residual_vec.is_null())
     {
-      m_residual_vec = m_rhs->thyra_vector(m_matrix->thyra_operator()->range())->clone_mv();
+      m_residual_vec = m_rhs->thyra_vector(m_matrix->thyra_operator()->range())->clone_v();
     }
 
     Thyra::assign(m_rhs->thyra_vector(m_matrix->thyra_operator()->range()).ptr(), *m_residual_vec);
@@ -193,9 +210,9 @@ struct TrilinosStratimikosStrategy::Implementation
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > m_lows;
 
   Handle<ThyraOperator const> m_matrix;
-  Handle<ThyraMultiVector> m_rhs;
-  Handle<ThyraMultiVector> m_solution;
-  Teuchos::RCP< Thyra::MultiVectorBase<Real> > m_residual_vec;
+  Handle<ThyraVector> m_rhs;
+  Handle<ThyraVector> m_solution;
+  Teuchos::RCP< Thyra::VectorBase<Real> > m_residual_vec;
   Handle<ParameterList> m_parameters;
 };
 
@@ -224,12 +241,12 @@ void TrilinosStratimikosStrategy::set_matrix(const Handle< Matrix >& matrix)
 
 void TrilinosStratimikosStrategy::set_rhs(const Handle< Vector >& rhs)
 {
-  m_implementation->m_rhs = Handle<ThyraMultiVector>(rhs);
+  m_implementation->m_rhs = Handle<ThyraVector>(rhs);
 }
 
 void TrilinosStratimikosStrategy::set_solution(const Handle< Vector >& solution)
 {
-  m_implementation->m_solution = Handle<ThyraMultiVector>(solution);
+  m_implementation->m_solution = Handle<ThyraVector>(solution);
 }
 
 void TrilinosStratimikosStrategy::solve()

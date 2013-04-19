@@ -152,12 +152,17 @@ public:
   virtual const Uint blockcol_size() = 0;
 
   /// Make a deep copy of the current matrix into other
-  virtual void clone_to(Matrix& other)
-  {
-    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
-  }
+  virtual void clone_to(Matrix& other) = 0;
 
   //@} END MISCELLANEOUS
+
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  virtual void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.) = 0;
+
+  //@} END LINEAR ALGEBRA
 
   /// @name TEST ONLY
   //@{

@@ -178,6 +178,14 @@ public:
 
   //@} END MISCELLANEOUS
 
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.);
+
+  //@} END LINEAR ALGEBRA
+  
   /// @name TEST ONLY
   //@{
 

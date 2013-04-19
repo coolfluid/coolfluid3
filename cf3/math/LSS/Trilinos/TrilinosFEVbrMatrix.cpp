@@ -105,7 +105,7 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
 
   // create matrix
   m_mat=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,&rowelements[0]));
-
+  
   // prepare the entries
   int row_start = 0;
   cf3_assert(rowelements.size() == nmyglobalelements);
@@ -121,6 +121,7 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
     TRILINOS_THROW(m_mat->EndSubmitEntries());
     row_start += row_nb_elems;
   }
+  
   TRILINOS_THROW(m_mat->FillComplete());
 
   // set class properties
@@ -792,3 +793,15 @@ Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosFEVbrMatrix::thyra_operator(
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosFEVbrMatrix::clone_to(Matrix &other)
+{
+  throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosFEVbrMatrix::apply(const Handle<Vector> &y, const Handle<const Vector> &x, const Real alpha, const Real beta)
+{
+  apply_matrix(*m_mat, y, x, alpha, beta);
+}

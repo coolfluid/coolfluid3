@@ -163,7 +163,20 @@ public:
   /// Accessor to the number of block columns
   const Uint blockcol_size() {  cf3_assert(m_is_created); return m_blockcol_size; }
 
+  void clone_to(Matrix &other)
+  {
+    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+  }
+
   //@} END MISCELLANEOUS
+
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.) {}
+
+  //@} END LINEAR ALGEBRA
 
   /// @name TEST ONLY
   //@{

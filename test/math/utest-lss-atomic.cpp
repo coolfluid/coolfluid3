@@ -1067,6 +1067,70 @@ BOOST_AUTO_TEST_CASE( solve_system_blocked )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( solve_system_laplacian )
+{
+  // commpattern
+  if (irank==0)
+  {
+    gid += 0,1,2,3;
+    rank_updatable += 0,0,0,1;
+  } else {
+    gid += 2,3,4,5,6;
+    rank_updatable += 0,1,1,1,1;
+  }
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  cp.insert("gid",gid,1,false);
+  cp.setup(Handle<common::PE::CommWrapper>(cp.get_child("gid")),rank_updatable);
+
+  // lss
+  if (irank==0)
+  {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3;
+    starting_indices += 0,2,5,8,10;
+  } else {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    starting_indices +=  0,2,5,8,11,13;
+  }
+  boost::shared_ptr<System> sys(common::allocate_component<System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  sys->create(cp,1,node_connectivity,starting_indices);
+
+  sys->solution_strategy()->options().set("compute_residual", true);
+  sys->solution_strategy()->options().set("verbosity_level", 3);
+  sys->solution_strategy()->options().set("print_settings", false);
+  sys->solution_strategy()->access_component("Parameters")->options().set("preconditioner_type", std::string("None"));
+  sys->solution_strategy()->access_component("Parameters")->options().set("linear_solver_type", std::string("Amesos"));
+  //sys->solution_strategy()->access_component("Parameters/LinearSolverTypes/Belos/SolverTypes/BlockGMRES")->options().set("verbosity", 1);
+
+  // set intital values and boundary conditions
+  sys->matrix()->reset(1.);
+  sys->solution()->reset(0.);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(4,-2.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,10.);
+  } else {
+    std::vector<Real> diag(5,-2.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(4,0,16.);
+  }
+
+  // solve and check
+  sys->solve();
+  sys->solution()->print_native(std::cout);
+//   std::vector<Real> vals;
+//   sys->solution()->debug_data(vals);
+//   for (int i=0; i<vals.size(); i++)
+//     if (cp.isUpdatable()[i/neq])
+//       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   CFinfo.setFilterRankZero(true);

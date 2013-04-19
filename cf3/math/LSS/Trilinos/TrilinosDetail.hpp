@@ -22,11 +22,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+class Epetra_Operator;
 namespace cf3 {
   namespace common { namespace PE { class CommPattern; } }
 namespace math {
   class VariablesDescriptor;
 namespace LSS {
+
+class Vector;
 
 /// Create a local node index to matrix local index lookup
 /// @param cp The comm pattern that governs the node distribution
@@ -62,6 +65,9 @@ void create_indices_per_row(cf3::common::PE::CommPattern& cp,
                      const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(),
                      const std::vector<bool>& periodic_links_active = std::vector<bool>()
                     );
+
+/// Compute y = alpha*op*x + beta*y
+void apply_matrix(const Epetra_Operator& op, const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.);
 
 } // namespace LSS
 } // namespace math

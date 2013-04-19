@@ -19,7 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Vector.hpp"
 
-#include "ThyraMultiVector.hpp"
+#include "ThyraVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosVector : public LSS::Vector, public ThyraMultiVector {
+class LSS_API TrilinosVector : public LSS::Vector, public ThyraVector {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -153,6 +153,7 @@ public:
   /// Accessor to the trilinos data
   /// @attention this function is not (and should never be) part of the interface itself, only used between trilinoses
   Teuchos::RCP<Epetra_Vector> epetra_vector() { return m_vec; }
+  Teuchos::RCP<Epetra_Vector const> epetra_vector() const { return m_vec; }
 
   void clone_to(Vector &other);
 
@@ -169,11 +170,14 @@ public:
   
   void signal_print_native(common::SignalArgs& args);
   
-  Teuchos::RCP< const Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const;
-  Teuchos::RCP< Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space );
+  Teuchos::RCP< const Thyra::VectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const;
+  Teuchos::RCP< Thyra::VectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space );
   
 private:
 
+  /// Actual vector data. The epetra vector is a view for this that omits the ghost nodes
+  std::vector<Real> m_data;
+  
   /// teuchos style smart pointer wrapping an epetra vector
   Teuchos::RCP<Epetra_Vector> m_vec;
 

@@ -37,7 +37,7 @@
 #include "math/LSS/System.hpp"
 #include "math/LSS/Vector.hpp"
 #include "math/LSS/Trilinos/ThyraOperator.hpp"
-#include "math/LSS/Trilinos/ThyraMultiVector.hpp"
+#include "math/LSS/Trilinos/ThyraVector.hpp"
 #include <math/LSS/SolveLSS.hpp>
 
 #include "mesh/Domain.hpp"
@@ -269,8 +269,8 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
   
   Handle<math::LSS::ThyraOperator> op(lss->matrix());
-  Handle<math::LSS::ThyraMultiVector> solution(lss->solution());
-  Handle<math::LSS::ThyraMultiVector> rhs(lss->rhs());
+  Handle<math::LSS::ThyraVector> solution(lss->solution());
+  Handle<math::LSS::ThyraVector> rhs(lss->rhs());
   
   // Set random solution
   Thyra::randomize(0., 1., solution->thyra_vector(op->thyra_operator()->range()).ptr());
@@ -368,8 +368,8 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   solve_action->options().set("lss", lss);
   
   Handle<math::LSS::ThyraOperator> op(lss->matrix());
-  Handle<math::LSS::ThyraMultiVector> solution(lss->solution());
-  Handle<math::LSS::ThyraMultiVector> rhs(lss->rhs());
+  Handle<math::LSS::ThyraVector> solution(lss->solution());
+  Handle<math::LSS::ThyraVector> rhs(lss->rhs());
   
   // Set random solution
   Thyra::randomize(0., 1., solution->thyra_vector(op->thyra_operator()->range()).ptr());

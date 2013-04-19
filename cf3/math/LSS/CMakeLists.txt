@@ -31,7 +31,7 @@ list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/ParameterListDefaults.hpp
     Trilinos/TekoBlockedOperator.hpp
     Trilinos/TekoBlockedOperator.cpp
-    Trilinos/ThyraMultiVector.hpp
+    Trilinos/ThyraVector.hpp
     Trilinos/ThyraOperator.hpp
     Trilinos/TrilinosCrsMatrix.hpp
     Trilinos/TrilinosCrsMatrix.cpp

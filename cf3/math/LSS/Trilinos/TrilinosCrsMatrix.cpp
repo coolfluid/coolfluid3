@@ -714,3 +714,12 @@ Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosCrsMatrix::thyra_operator()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::apply ( const Handle< Vector >& y, const cf3::Handle< const Vector >& x, const Real alpha, const Real beta )
+{
+  apply_matrix(*m_mat, y, x, alpha, beta);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
