@@ -16,6 +16,9 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <Teuchos_VerboseObject.hpp>
+#include <Thyra_VectorStdOps.hpp>
+
 #include "common/Log.hpp"
 #include "math/LSS/System.hpp"
 #include "math/LSS/Trilinos/ThyraVector.hpp"
@@ -138,7 +141,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_thyra_convert )
+BOOST_AUTO_TEST_CASE( test_matrix_apply )
 {
   boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
   common::PE::CommPattern& cp = *cp_ptr;
@@ -153,29 +156,95 @@ BOOST_AUTO_TEST_CASE( test_thyra_convert )
   
   Handle<LSS::TrilinosVector> sol(sys->solution());
   sol->epetra_vector()->Random();
-  //sys->rhs()->reset(1.);
+  sys->rhs()->reset(1.);
+  if(common::PE::Comm::instance().rank() == 1)
+    sol->set_value(4, 2.);
+  
+  mat->apply(sys->rhs(), sys->solution(), 2., 1.);
+  
+  const Uint nb_blocks = sys->rhs()->blockrow_size();
+  const Uint neq = sys->rhs()->neq();
+  
+  for(Uint i = 0; i != nb_blocks; ++i)
+  {
+    for(Uint j = 0; j != neq; ++j)
+    {
+      if(!cp.isUpdatable()[i])
+        continue;
+      Real result, val;
+      sys->rhs()->get_value(i, j, result);
+      sys->solution()->get_value(i, j, val);
+      if(common::PE::Comm::instance().rank() == 1 && i == 4)
+      {
+        BOOST_CHECK_CLOSE(result, 1.+val*2., 1e-12);
+      }
+      else
+      {
+        BOOST_CHECK_CLOSE(result, 1.+(val+2.)*2., 1e-12);
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE( test_thyra_convert )
+{
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  build_commpattern(cp);
+  boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  build_system(*sys,cp);
+
+  Handle<LSS::TrilinosVector> sol(sys->solution());
   sol->reset(1.);
+  Teuchos::RCP< Thyra::VectorBase<Real> > thyra_vec = sol->thyra_vector();
+
+  const Epetra_Vector& esol = *sol->epetra_vector();
+  const int edim = esol.Map().NumMyElements();
+  for(int i = 0; i != edim; ++i)
+  {
+    BOOST_CHECK_EQUAL(esol[i], 1.);
+  }
+
+  Thyra::assign(thyra_vec.ptr(), 2.);
+  for(int i = 0; i != edim; ++i)
+  {
+    BOOST_CHECK_EQUAL(esol[i], 2.);
+  }
+
+  sol->print_native(std::cout);
+
+  sol->reset(3.);
+  BOOST_CHECK_EQUAL(Thyra::get_ele(*thyra_vec, 0), 3.);
+  BOOST_CHECK_EQUAL(Thyra::get_ele(*thyra_vec, 1), 3.);
+  BOOST_CHECK_EQUAL(Thyra::get_ele(*thyra_vec, 2), 3.);
+  thyra_vec->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
+}
+
+BOOST_AUTO_TEST_CASE( test_assign )
+{
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  build_commpattern(cp);
+  boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  build_system(*sys,cp);
+
+  sys->solution()->reset(1.);
+  sys->rhs()->reset(2.);
   
-  mat->apply(sys->rhs(), sys->solution(), 1., 0.);
+  sys->solution()->assign(*sys->rhs());
   
-  //sys->solution()->print_native(std::cout);
-  sys->rhs()->print(std::cout);
-  
-//   const Uint nb_blocks = sys->rhs()->blockrow_size();
-//   const Uint neq = sys->rhs()->neq();
-//   
-//   for(Uint i = 0; i != nb_blocks; ++i)
-//   {
-//     for(Uint j = 0; j != neq; ++j)
-//     {
-//       if(!cp.isUpdatable()[i])
-//         continue;
-//       Real result, val;
-//       sys->rhs()->get_value(i, j, result);
-//       sys->solution()->get_value(i, j, val);
-//       BOOST_CHECK_CLOSE(result, 1.+val*4., 1e-12);
-//     }
-//   }
+  const Uint nb_blocks = sys->solution()->blockrow_size();
+  for(Uint i = 0; i != nb_blocks; ++i)
+  {
+    for(Uint j = 0; j != neq; ++j)
+    {
+      Real val;
+      sys->solution()->get_value(i, j, val);
+      BOOST_CHECK_EQUAL(val, 2.);
+    }
+  }
 }
 
 

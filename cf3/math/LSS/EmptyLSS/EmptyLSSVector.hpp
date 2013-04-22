@@ -176,6 +176,10 @@ public:
   /// Accessor to the number of block rows
   const Uint blockrow_size() { cf3_assert(m_is_created); return m_blockrow_size; }
 
+  void clone_to(Vector &other) {}
+
+  void assign(const Vector& source) {}
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

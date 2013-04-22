@@ -403,3 +403,17 @@ void TrilinosVector::clone_to(Vector &other)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::assign(const Vector& source)
+{
+  TrilinosVector const* source_ptr = dynamic_cast<TrilinosVector const*>(&source);
+  
+  if(is_null(source_ptr))
+    throw common::SetupError(FromHere(), "assign method of TrilinosVector needs another TrilinosVector, but a " + source.derived_type_name() + " was supplied instead.");
+  
+  if(source_ptr->m_data.size() != m_data.size())
+    throw common::SetupError(FromHere(), "assign method of TrilinosVector got a vector with incorrect size");
+  m_data.assign(source_ptr->m_data.begin(), source_ptr->m_data.end());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////

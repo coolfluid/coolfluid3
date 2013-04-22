@@ -157,6 +157,8 @@ public:
 
   void clone_to(Vector &other);
 
+  void assign(const Vector& source);
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

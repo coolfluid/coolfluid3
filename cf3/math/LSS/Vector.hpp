@@ -140,10 +140,12 @@ public:
   virtual const Uint blockrow_size() = 0;
 
   /// Clone this vector into another one
-  virtual void clone_to(Vector& other)
-  {
-    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
-  }
+  virtual void clone_to(Vector& other) = 0;
+
+  /// Assign from another vector
+  virtual void assign(const Vector& source) = 0;
+
+
 
   //@} END MISCELLANEOUS
 
