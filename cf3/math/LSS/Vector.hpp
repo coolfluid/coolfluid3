@@ -145,7 +145,9 @@ public:
   /// Assign from another vector
   virtual void assign(const Vector& source) = 0;
 
-
+  /// Update this vector with a scalar multiplication of the target vector; i.e.:
+  /// this += alpha*source
+  virtual void update(const Vector& source, const Real alpha = 1.) = 0;
 
   //@} END MISCELLANEOUS
 

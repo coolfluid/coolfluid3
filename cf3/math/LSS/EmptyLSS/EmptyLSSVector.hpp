@@ -179,6 +179,8 @@ public:
   void clone_to(Vector &other) {}
 
   void assign(const Vector& source) {}
+  
+  virtual void update ( const Vector& source, const Real alpha = 1. ) {}
 
   //@} END MISCELLANEOUS
 

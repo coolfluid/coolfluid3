@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( test_thyra_convert )
   thyra_vec->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
 }
 
-BOOST_AUTO_TEST_CASE( test_assign )
+BOOST_AUTO_TEST_CASE( test_assign_update )
 {
   boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
   common::PE::CommPattern& cp = *cp_ptr;
@@ -236,6 +236,7 @@ BOOST_AUTO_TEST_CASE( test_assign )
   sys->solution()->assign(*sys->rhs());
   
   const Uint nb_blocks = sys->solution()->blockrow_size();
+  
   for(Uint i = 0; i != nb_blocks; ++i)
   {
     for(Uint j = 0; j != neq; ++j)
@@ -243,6 +244,18 @@ BOOST_AUTO_TEST_CASE( test_assign )
       Real val;
       sys->solution()->get_value(i, j, val);
       BOOST_CHECK_EQUAL(val, 2.);
+    }
+  }
+  
+  sys->solution()->update(*sys->rhs(), 2.);
+  
+  for(Uint i = 0; i != nb_blocks; ++i)
+  {
+    for(Uint j = 0; j != neq; ++j)
+    {
+      Real val;
+      sys->solution()->get_value(i, j, val);
+      BOOST_CHECK_EQUAL(val, 6.);
     }
   }
 }
