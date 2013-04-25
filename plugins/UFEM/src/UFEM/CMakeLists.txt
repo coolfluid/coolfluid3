@@ -87,8 +87,7 @@ list( APPEND coolfluid_ufem_files
   
   ns_semi_implicit/NavierStokesSemiImplicit.hpp
   ns_semi_implicit/MatrixAssembly.hpp
-  ns_semi_implicit/SegregatedSolveStrategy.hpp
-  ns_semi_implicit/SegregatedSolveStrategy.cpp
+  ns_semi_implicit/LSSVectorOps.hpp
 )
 
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)

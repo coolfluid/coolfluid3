@@ -101,8 +101,8 @@ public:
 
   virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
 
-  /// Get the nodes and equations for all dirichlet boundary conditions
-  void get_dirichlet_nodes(std::vector< std::pair<Uint,Uint> >& dirichlet_nodes);
+  /// Get the nodes and equations for all dirichlet boundary conditions that have been applied so far
+  const std::vector< std::pair< Uint, Uint > >& get_dirichlet_nodes( ) const;
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);

@@ -401,9 +401,9 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::get_dirichlet_nodes(std::vector<std::pair<Uint, Uint> > &dirichlet_nodes)
+const std::vector<std::pair<Uint, Uint> >& TrilinosCrsMatrix::get_dirichlet_nodes() const
 {
-  dirichlet_nodes = m_dirichlet_nodes;
+  return m_dirichlet_nodes;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

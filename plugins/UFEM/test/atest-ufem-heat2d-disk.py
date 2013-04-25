@@ -9,6 +9,7 @@ cf.env.exception_log_level = 0
 cf.env.log_level = 1
 cf.env.exception_outputs = False
 
+
 # setup a model
 model = cf.Core.root().create_component('HotModel', 'cf3.solver.Model')
 domain = model.create_domain()

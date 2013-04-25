@@ -202,16 +202,19 @@ class TaylorGreen:
     
     solver = self.setup_model()
     ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
+
     ns_solver.options.theta = theta
+    ns_solver.options.nb_iterations = 2
     self.theta = theta
     #ns_solver.children.GlobalLSS.options.blocked_system = False
     
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.LSS.SolutionStrategy.options.nb_iterations = 35
-    ns_solver.LSS.SolutionStrategy.PressureLSSParameters.linear_solver_type = 'Amesos'
-    ns_solver.LSS.SolutionStrategy.VelocityLSSParameters.linear_solver_type = 'Amesos'
+    ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
+    ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
     # belos_solver = 'Block GMRES'
@@ -221,10 +224,10 @@ class TaylorGreen:
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].num_blocks = 1000
     # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_restarts = 1000
     
-    self.add_pressure_bc(ns_solver.BC)
+    self.add_pressure_bc(ns_solver.PressureLSS.BC)
 
     solver.create_fields()
-    self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
+    self.setup_ic('navier_stokes_u_solution', 'navier_stokes_p_solution')
   
   def iterate(self, numsteps, save_interval = 1, process_interval = 1):
     

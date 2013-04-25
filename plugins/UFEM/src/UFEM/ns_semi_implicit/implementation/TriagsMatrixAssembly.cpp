@@ -17,10 +17,10 @@ using namespace solver;
 using namespace solver::actions;
 using namespace solver::actions::Proto;
 
-void NavierStokesSemiImplicit::set_matrix_assembly_triag( cf3::UFEM::LSSAction& rhs_lss, cf3::UFEM::LSSAction& t_lss )
+void NavierStokesSemiImplicit::set_elements_expressions_triag()
 {
 #ifdef CF3_UFEM_ENABLE_TRIAGS
-  set_matrix_assembly< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >(rhs_lss, t_lss, "AssemblyTriags");
+  set_elements_expressions< boost::mpl::vector1<mesh::LagrangeP1::Triag2D> >("Triags");
 #endif
 }
 

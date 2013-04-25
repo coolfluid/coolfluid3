@@ -404,6 +404,9 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle< common::Action > result(parent.create_component(builder_parts.back(), builder_name));
 
+  if(is_null(result))
+    throw common::SetupError(FromHere(), "Something went wrong constructing a solver with builder " + builder_name);
+
   if(is_not_null(m_physics))
     result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
 

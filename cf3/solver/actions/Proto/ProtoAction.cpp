@@ -80,13 +80,13 @@ struct ProtoAction::Implementation
     ~PhysicsConstantLink()
     {
       if(is_not_null(m_physical_model))
-	m_physical_model->options().option(m_constant_name).detach_trigger(m_trigger_id);
+        m_physical_model->options().option(m_constant_name).detach_trigger(m_trigger_id);
     }
     
     void trigger()
     {
       if(is_null(m_physical_model))
-	throw common::SetupError(FromHere(), "Physical model for " + m_parent_path + " became null");
+        throw common::SetupError(FromHere(), "Physical model for " + m_parent_path + " became null");
 
       m_value = m_physical_model->options().option(m_constant_name).value<Real>();
       

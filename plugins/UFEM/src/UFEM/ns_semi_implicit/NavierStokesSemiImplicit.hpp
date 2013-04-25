@@ -7,24 +7,23 @@
 #ifndef cf3_UFEM_NavierStokesSemiImplicit_hpp
 #define cf3_UFEM_NavierStokesSemiImplicit_hpp
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-
-#include <boost/scoped_ptr.hpp>
-
 #include "solver/ActionDirector.hpp"
-#include "solver/actions/Iterate.hpp"
+#include "solver/actions/Proto/ElementOperations.hpp"
 
 #include "../LibUFEM.hpp"
 #include "../LSSActionUnsteady.hpp"
 #include "../NavierStokesPhysics.hpp"
 
+#include "LSSVectorOps.hpp"
+
 namespace cf3 {
 namespace UFEM {
 
+using solver::actions::Proto::SFOp;
+using solver::actions::Proto::CustomSFOp;  
+
 /// solver for the unsteady incompressible Navier-Stokes equations
-class UFEM_API NavierStokesSemiImplicit : public LSSActionUnsteady
+class UFEM_API NavierStokesSemiImplicit : public solver::ActionDirector
 {
 public: // functions
 
@@ -37,20 +36,23 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "NavierStokesSemiImplicit"; }
 
-  void execute();
-
 private:
+  /// Set up matrix expressions
+  template<typename T>
+  void set_elements_expressions(const std::string& name);
+  
+  void set_elements_expressions_quad();
+  void set_elements_expressions_triag();
+  
   /// Executed when the initial conditions are set
-  void on_initial_conditions_set(InitialConditions& initial_conditions);
+  void trigger_initial_conditions();
+  
+  void trigger_theta();
+  void trigger_nb_iterations();
+  void trigger_time();
+  void trigger_timestep();
   
   virtual void on_regions_set();
-
-  /// Helper functions to set the expression, taking into account the user's option to use specializations or not.
-  template<typename ElementsT>
-  void set_matrix_assembly(LSSAction& rhs_lss, LSSAction& t_lss, const std::string& action_name);
-
-  void set_matrix_assembly_quad(LSSAction& rhs_lss, LSSAction &t_lss);
-  void set_matrix_assembly_triag(LSSAction& rhs_lss, LSSAction &t_lss);
   
   /// Variables
   /// The velocity solution field
@@ -68,6 +70,13 @@ private:
   /// Effective viscosity field
   FieldVariable<6, ScalarField> nu_eff;
   
+  SFOp< CustomSFOp<VectorLSSVector> > u_vec;
+  SFOp< CustomSFOp<ScalarLSSVector> > p_vec;
+  SFOp< CustomSFOp<VectorLSSVector> > a;
+  SFOp< CustomSFOp<VectorLSSVector> > delta_a;
+  SFOp< CustomSFOp<ScalarLSSVector> > delta_p;
+  SFOp< CustomSFOp<ScalarLSSVector> > delta_p_sum;
+  
   /// Access to the physics
   PhysicsConstant u_ref;
   PhysicsConstant nu;
@@ -77,12 +86,27 @@ private:
   
   /// Theta scheme parameter
   Real theta;
-    
-  Handle<math::VariablesDescriptor> m_variables_descriptor;
   
-  // This LSS stores a matrix that is used to construct the RHS vector
-  Handle<LSSAction> m_rhs_lss;
-  Handle<LSSAction> m_t_lss;
+  /// Time step
+  Real dt;
+  
+  /// LSS for the pressure
+  Handle<LSSAction> m_p_lss;
+  /// LSS for the velocity
+  Handle<LSSAction> m_u_lss;
+  /// LSS holding the Auu matrix, for fast application
+  Handle<LSSAction> m_auu_lss;
+  
+  Handle<InitialConditions> m_initial_conditions;
+
+  // Actions that handle different stages of assembly, used by the set_elements_expressions function
+  Handle<common::Component> m_pressure_assembly;
+  Handle<common::Component> m_mass_matrix_assembly;
+  Handle<common::Component> m_velocity_assembly;
+  Handle<common::Component> m_inner_loop;
+  
+  // Time component
+  Handle<solver::Time> m_time;
 };
 
 } // UFEM
