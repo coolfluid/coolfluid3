@@ -46,6 +46,36 @@ common::ComponentBuilder < HeatCouplingRobin, common::ActionDirector, LibUFEM > 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+struct ExtractHeatFlux
+{
+    typedef void result_type;
+
+    template<typename TempT>
+    void operator()(TempT& T, Real& flux)
+    {
+        mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(T.support().m_coordinates);
+        mesh::Field& flux_field = Handle<mesh::Dictionary>(mesh.get_child("cf3.mesh.LagrangeP0"))->field("gradient_field");
+
+        const Uint field_begin = flux_field.dict().space(T.support().m_elements).connectivity()[0][0];
+
+        const math::VariablesDescriptor& descr = flux_field.descriptor();
+        const Uint grad_offset = descr.offset("TemperatureGradient");
+        Eigen::Matrix<Real, TempT::EtypeT::dimension, 1> grad_T;
+        for(Uint i = 0; i != TempT::EtypeT::dimension; ++i)
+        {
+            const mesh::Field::ConstRow row = flux_field[field_begin + T.support().m_element_idx];
+            grad_T[i] = row[grad_offset + i];
+        }
+
+        RealVector1 mappedcoord(0.);
+
+        flux = (grad_T.transpose() * T.support().normal(mappedcoord)/(T.support().normal(mappedcoord).norm()))[0];
+        std::cout << "flux(from struct):" << flux << "grad_T(from struct):" << grad_T.transpose() << "\n" ;
+    }
+};
+
+static solver::actions::Proto::MakeSFOp<ExtractHeatFlux>::type const extract_heat_flux = {};
+
 HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
   ActionDirector(name),
   m_rhs(options().add("lss", Handle<math::LSS::System>())
@@ -131,11 +161,13 @@ void HeatCouplingRobin::trigger_setup()
      group
      (
      _A(Tsolid) = _0,
+                                              extract_heat_flux(Tsolid, boost::proto::lit(m_heat_flux)),
      system_matrix +=  (h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
-     m_rhs += (h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))), // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
-     _cout << " m_rhs_first(Tfluid first part): = " << -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) << "\n",
-     _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n",
-     _cout << " system_matrix = " << -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n"
+     m_rhs += (h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))) // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
+    // _cout << " m_rhs_first(Tfluid first part): = " << -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) << "\n",
+    // _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n",
+    // _cout << " system_matrix = " << -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n",
+    //                                          _cout << "extracted heat flux: " << m_heat_flux << "\n"
      )
     ));
 
@@ -143,8 +175,8 @@ void HeatCouplingRobin::trigger_setup()
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
       group(m_rhs(T) += - integral<2>(transpose(N(T))*GradT*normal*lambda_f),
-      _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
-            _cout << " coordinates[0]:" << coordinates[0] << "flux:" << -GradT*normal*lambda_f/(_norm(normal)) << "\n"
+    //  _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
+            _cout << " coordinates[0]:" << coordinates[0] << "GradT:" << GradT*normal/(_norm(normal)) << "\n"
 
             )
     ));

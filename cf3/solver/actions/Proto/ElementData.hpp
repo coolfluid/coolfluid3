@@ -87,6 +87,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   GeometricSupport(const mesh::Elements& elements) :
+    m_elements(elements),
     m_coordinates(elements.geometry_fields().coordinates()),
     m_connectivity(elements.geometry_space().connectivity())
   {
@@ -200,6 +201,14 @@ public:
     compute_normal_dispatch(boost::mpl::bool_<EtypeT::dimension - EtypeT::dimensionality == 1>(), mapped_coords);
   }
 
+  /// Coordinates table
+  const common::Table<Real>& m_coordinates;
+
+  /// Index for the current element
+  Uint m_element_idx;
+
+  const mesh::Elements& m_elements;
+
 private:
   void compute_normal_dispatch(boost::mpl::false_, const typename EtypeT::MappedCoordsT&) const
   {
@@ -225,14 +234,8 @@ private:
   /// Stored node data
   ValueT m_nodes;
 
-  /// Coordinates table
-  const common::Table<Real>& m_coordinates;
-
   /// Connectivity table
   const common::Table<Uint>& m_connectivity;
-
-  /// Index for the current element
-  Uint m_element_idx;
 
   /// Temp storage for non-scalar results
   mutable typename EtypeT::SF::ValueT m_sf;

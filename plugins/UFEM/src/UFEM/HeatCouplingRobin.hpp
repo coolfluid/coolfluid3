@@ -65,6 +65,7 @@ private:
   PhysicsConstant rho;
 
   Real m_area;
+  Real m_heat_flux;
 
 };
 
