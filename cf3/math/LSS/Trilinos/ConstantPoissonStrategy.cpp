@@ -13,7 +13,7 @@
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosThyraAdapter.hpp"
-#include "BelosRCGSolMgr.hpp"
+#include "BelosBlockCGSolMgr.hpp"
 
 #include "ml_include.h"
 #include "ml_MultiLevelPreconditioner.h"
@@ -116,9 +116,10 @@ struct ConstantPoissonStrategy::Implementation
 
     if(is_null(m_solution))
       throw common::SetupError(FromHere(), "Null solution vector for " + m_self.uri().path());
-
-    // Start from zero initial guess the first time
-    m_solution->reset();
+    
+//     Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream("p_mat.txt", std::ios::out));
+//     Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
+//     Thyra::describeLinearOp(*Handle<math::LSS::ThyraOperator>(m_matrix)->thyra_operator(), *mat_fancy_out, Teuchos::VERB_EXTREME);
 
     // Create the problem
     m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->thyra_operator(), m_solution->thyra_vector(), m_rhs->thyra_vector()) );
@@ -182,7 +183,7 @@ struct ConstantPoissonStrategy::Implementation
     }
     m_problem->setHermitian();
 
-    m_solver = Teuchos::rcp(new Belos::RCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
+    m_solver = Teuchos::rcp(new Belos::BlockCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
 
     return 0;
   }
@@ -244,7 +245,7 @@ struct ConstantPoissonStrategy::Implementation
   Teuchos::RCP<ML_Epetra::MultiLevelPreconditioner> m_ml_prec;
   Teuchos::RCP<Ifpack_Preconditioner> m_ifpack_prec;
   Teuchos::RCP< Belos::LinearProblem<Real,MV,OP> > m_problem;
-  Teuchos::RCP< Belos::RCGSolMgr<double,MV,OP> > m_solver;
+  Teuchos::RCP< Belos::BlockCGSolMgr<double,MV,OP> > m_solver;
 
   Handle<TrilinosCrsMatrix> m_matrix;
   Handle<TrilinosVector> m_rhs;

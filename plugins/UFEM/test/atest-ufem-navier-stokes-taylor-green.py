@@ -206,14 +206,16 @@ class TaylorGreen:
     ns_solver.options.nb_iterations = 2
     self.theta = theta
     #ns_solver.children.GlobalLSS.options.blocked_system = False
+    ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy'
     
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
     #ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
     #ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
+    #ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
     ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
+    ns_solver.PressureLSS.LSS.SolutionStrategy.use_ml_preconditioner = True
     
     self.add_pressure_bc(ns_solver.PressureLSS.BC)
 
