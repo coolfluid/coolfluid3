@@ -113,7 +113,7 @@ struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
-    lss.convert_to_lss(block_accumulator.indices);
+    lss.convert_to_lss(data);
 
     for(Uint row = 0; row != mat_size; ++row)
     {
@@ -139,6 +139,8 @@ struct BlockAssignmentOp<SystemRHSTag, OpTagT>
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+    lss.convert_to_lss(data);
+
     for(Uint i = 0; i != mat_size; ++i)
     {
       // This converts u1,u2...pn to u1v1p1...
@@ -201,7 +203,7 @@ boost::proto::transform< RHSAccumulator >
       typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
       static const Uint nb_dofs = mat_size / SupportT::EtypeT::nb_nodes;
       math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
-      lss_term.convert_to_lss(block_accumulator.indices);
+      lss_term.convert_to_lss(data);
       
       for(Uint i = 0; i != var_offset; ++i)
       {

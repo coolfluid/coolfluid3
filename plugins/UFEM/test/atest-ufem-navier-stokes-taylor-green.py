@@ -84,7 +84,6 @@ class TaylorGreen:
     create_point_region.mesh = mesh
     create_point_region.execute()
     
-    
     if self.element == 'triag':
       triangulator = domain.create_component('Triangulator', 'cf3.mesh.MeshTriangulator')
       triangulator.mesh = mesh
@@ -109,14 +108,14 @@ class TaylorGreen:
     self.sample_coords = range(len(coords))
     self.probe_points = []
     
-    # for i in range(len(coords)):
-    #   (x,y) = coords[i]
-    #   if x == (segments/4) * 1./float(segments) and y == 0.:
-    #     self.probe_points.append(i)
+    for i in range(len(coords)):
+      (x,y) = coords[i]
+      if x == (segments/4) * 1./float(segments) and y == 0.:
+        self.probe_points.append(i)
     #     
     # print 'probe_points', self.probe_points, coords[self.probe_points[0]]
     
-    domain.write_mesh(cf.URI('tg-mesh.msh'))
+    #domain.write_mesh(cf.URI('tg-mesh.msh'))
     
     return mesh
     
@@ -177,7 +176,7 @@ class TaylorGreen:
     self.add_pressure_bc(ns_solver.BoundaryConditions)
     
     lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
-    lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    #lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
     # lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.solver_type = 'Mumps'
     #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.create_parameter_list('Amesos Settings').add_parameter(name = 'MaxProcs', value=1)
     #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.add_parameter(name = 'Redistribute', value=True)
@@ -186,11 +185,11 @@ class TaylorGreen:
     solver.create_fields()
     self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
     
-    kinetic_energy = solver.add_unsteady_solver('cf3.UFEM.KineticEnergyIntegral')
-    kinetic_energy.regions = [mesh.topology.interior.uri()]
-    kinetic_energy.history = solver.create_component('KEHistory', 'cf3.solver.History')
-    kinetic_energy.history.file = cf.URI('ke-history.tsv')
-    kinetic_energy.history.dimension = 1
+    # kinetic_energy = solver.add_unsteady_solver('cf3.UFEM.KineticEnergyIntegral')
+    # kinetic_energy.regions = [mesh.topology.interior.uri()]
+    # kinetic_energy.history = solver.create_component('KEHistory', 'cf3.solver.History')
+    # kinetic_energy.history.file = cf.URI('ke-history.tsv')
+    # kinetic_energy.history.dimension = 1
     
   def setup_semi_implicit(self, segments, Ua, Va, D, theta):  
     self.Ua = Ua
@@ -211,18 +210,10 @@ class TaylorGreen:
     mesh = self.create_mesh(segments)
     ns_solver.regions = [mesh.topology.interior.uri()]
     
-    ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    #ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    #ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
     ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
     ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.preconditioner_type = 'None'
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.VerboseObject.verbosity_level = 'medium'
-    # belos_solver = 'Block GMRES'
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.solver_type = belos_solver
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].convergence_tolerance = 1e-10
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_iterations = 5000
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].num_blocks = 1000
-    # ns_solver.LSS.SolutionStrategy.PressureLSSParameters.LinearSolverTypes.Belos.SolverTypes.children[belos_solver.replace(' ', '')].maximum_restarts = 1000
     
     self.add_pressure_bc(ns_solver.PressureLSS.BC)
 
@@ -237,7 +228,7 @@ class TaylorGreen:
       raise RuntimeError('Number of time steps cannot be divided by save_interval')
 
     self.basename = '{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta)
-    if not os.path.exists(self.basename):
+    if not os.path.exists(self.basename) and cf.Core.rank() == 0:
       os.makedirs(self.basename)
 
     self.outfile = open('uv_error-{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}-P{rank}.txt'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta, rank = cf.Core.rank()), 'w', 1)
@@ -318,8 +309,8 @@ class TaylorGreen:
     self.max_error[1, self.iteration] = np.max(np.abs(v_th - v_num))
     self.max_error[2, self.iteration] = np.max(np.abs(p_th - p_num))
     
-    if dumpfile:
-      np.savetxt('uvcontours-{t}.txt'.format(t = t), (x_arr, y_arr, u_num, v_num))
+    #if dumpfile:
+      #np.savetxt('uvcontours-{t}.txt'.format(t = t), (x_arr, y_arr, u_num, v_num))
     
     self.outfile.write('{t},{u},{v},{p}'.format(t = t, u = self.max_error[0, self.iteration], v = self.max_error[1, self.iteration], p = self.max_error[2, self.iteration]))
     for i in self.probe_points:
@@ -338,6 +329,3 @@ parser.add_option('--tsteps', type='int')
 taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
 taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
 taylor_green.iterate(options.tsteps, 1, 1)
-
-
-

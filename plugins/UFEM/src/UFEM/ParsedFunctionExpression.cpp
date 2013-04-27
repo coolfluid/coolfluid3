@@ -104,7 +104,6 @@ void ParsedFunctionExpression::trigger_time()
 {
   cf3_assert(is_not_null(m_time));
   m_function.predefined_values.back() = m_time->options().value<Real>("current_time");
-  std::cout << "set parsed function time to " << m_function.predefined_values.back() << std::endl;
 }
 
 const solver::actions::Proto::ScalarFunction& ParsedFunctionExpression::scalar_function()

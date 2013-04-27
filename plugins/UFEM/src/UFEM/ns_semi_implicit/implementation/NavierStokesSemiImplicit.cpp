@@ -101,12 +101,13 @@ struct InnerLoop : solver::Action
       auu->apply(u_lss->rhs(), u, -1.); // Apply pre-built Auu matrix
       auu->apply(u_lss->rhs(), a, m_time->dt()*(1.-theta), 1.);
       m_u_rhs_assembly->execute(); // In-place assembly for the storage-heavy operators
-      //Thyra::describeLinearOp(*Handle<math::LSS::ThyraOperator>(u_lss->matrix())->thyra_operator(), *Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
       u_lss->solution()->reset(0.);
       u_lss->solve();
+      u_lss->solution()->sync();
 
       // Pressure system: compute delta_p
       p_lss->rhs()->reset(0.);
+      u->sync();
       m_p_rhs_assembly->execute();
       p_lss->solution()->reset(0.);
       // Apply BC if the first iteration, set RHS to 0 otherwise
@@ -123,11 +124,13 @@ struct InnerLoop : solver::Action
         }
       }
       p_lss->solve();
+      p_lss->solution()->sync();
 
       // Compute delta_a
       u_lss->rhs()->reset(0.);
       m_apply_aup->execute(); // Compute Aup*delta_p (stored in u_lss RHS)
       Thyra::apply(*lumped_m_op, Thyra::NOTRANS, *aup_delta_p, delta_a.ptr(), -1., 1.); // delta_a = delta_a_star - Ml_inv*Aup*delta_p
+      u_lss->solution()->sync(); // delta_a is a link to u_mss->solution(), so it needs a sync after matrix apply      
       
       const math::LSS::Vector& da = *u_lss->solution();
       const math::LSS::Vector& dp = *p_lss->solution();
@@ -358,12 +361,12 @@ void NavierStokesSemiImplicit::on_regions_set()
   inner_loop->aup_delta_p = u_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector();
   
   // Make sure the terminals refer to the correct vectors
-  u_vec.op.set_vector(inner_loop->u);
-  p_vec.op.set_vector(inner_loop->p);
-  a.op.set_vector(inner_loop->a);
-  delta_a.op.set_vector(u_lss->solution());
-  delta_p.op.set_vector(p_lss->solution());
-  delta_p_sum.op.set_vector(inner_loop->delta_p_sum);
+  u_vec.op.set_vector(inner_loop->u, *u_lss);
+  p_vec.op.set_vector(inner_loop->p, *p_lss);
+  a.op.set_vector(inner_loop->a, *u_lss);
+  delta_a.op.set_vector(u_lss->solution(), *u_lss);
+  delta_p.op.set_vector(p_lss->solution(), *p_lss);
+  delta_p_sum.op.set_vector(inner_loop->delta_p_sum, *p_lss);
 }
 
 void NavierStokesSemiImplicit::trigger_theta()

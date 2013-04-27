@@ -149,6 +149,9 @@ public:
   /// this += alpha*source
   virtual void update(const Vector& source, const Real alpha = 1.) = 0;
 
+  /// Update any stored ghost nodes
+  virtual void sync() = 0;
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

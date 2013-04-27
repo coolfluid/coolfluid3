@@ -16,6 +16,35 @@
 namespace cf3 {
 namespace UFEM {
 
+/// Convert LSS indices (copy from base proto code)
+struct LSSIndexConverter
+{
+  void set_lss(const math::LSS::System& lss)
+  {
+    m_used_node_map = Handle< common::List<int> const >(lss.get_child("used_node_map")).get();
+  }
+
+  template<typename DataT>
+  void operator()(DataT& data) const
+  {
+    if(is_null(m_used_node_map))
+      return;
+
+    if(data.indices_converted)
+      return;
+
+    const Uint vec_size = data.block_accumulator.indices.size();
+    for(Uint i = 0; i != vec_size; ++i)
+    {
+      data.block_accumulator.indices[i] = (*m_used_node_map)[data.block_accumulator.indices[i]];
+    }
+
+    data.indices_converted = true;
+  }
+
+  const common::List<int>* m_used_node_map;
+};
+
 /// Custom proto op to access element values in an LSS vector for a scalar variable
 struct ScalarLSSVector
 {
@@ -32,6 +61,7 @@ struct ScalarLSSVector
   template<typename StorageT, typename DataT>
   const StorageT& operator()(StorageT& result, const DataT& data) const
   {
+    index_converter(data);
     acc.resize(DataT::SupportShapeFunction::nb_nodes, 1);
     acc.indices = data.block_accumulator.indices;
     vector->get_sol_values(acc);
@@ -40,12 +70,14 @@ struct ScalarLSSVector
   }
 
   // Set the constant to use for setting the matrix
-  void set_vector(const Handle<math::LSS::Vector>& v)
+  void set_vector(const Handle<math::LSS::Vector>& v, const math::LSS::System& lss)
   {
+    index_converter.set_lss(lss);
     vector = v;
   }
 
   Handle<math::LSS::Vector> vector;
+  LSSIndexConverter index_converter;
   mutable math::LSS::BlockAccumulator acc;
 };
 
@@ -65,6 +97,7 @@ struct VectorLSSVector
   template<typename StorageT, typename DataT>
   const StorageT& operator()(StorageT& result, const DataT& data) const
   {
+    index_converter(data);
     acc.resize(DataT::SupportShapeFunction::nb_nodes, DataT::dimension);
     acc.indices = data.block_accumulator.indices;
     vector->get_sol_values(acc);
@@ -81,12 +114,14 @@ struct VectorLSSVector
   }
 
   // Set the constant to use for setting the matrix
-  void set_vector(const Handle<math::LSS::Vector>& v)
+  void set_vector(const Handle<math::LSS::Vector>& v, const math::LSS::System& lss)
   {
+    index_converter.set_lss(lss);
     vector = v;
   }
 
   Handle<math::LSS::Vector> vector;
+  LSSIndexConverter index_converter;
   mutable math::LSS::BlockAccumulator acc;
 };
   

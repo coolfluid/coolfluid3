@@ -75,9 +75,20 @@ void TrilinosVector::create_blocked(common::PE::CommPattern& cp, const Variables
   int nmyglobalelements=0;
   std::vector<int> myglobalelements(0);
 
-  create_map_data(cp, vars, m_p2m, myglobalelements, nmyglobalelements, periodic_links_nodes, periodic_links_active);
+  std::vector<Uint> my_ranks;
+  create_map_data(cp, vars, m_p2m, myglobalelements, my_ranks, nmyglobalelements, periodic_links_nodes, periodic_links_active);
 
   m_data.resize(myglobalelements.size());
+
+  std::vector<Uint> gids(myglobalelements.begin(), myglobalelements.end()); // need Uint data for GIDs
+
+  if(is_not_null(get_child("CommPattern")))
+    remove_component("CommPattern");
+  m_comm_pattern = common::allocate_component<common::PE::CommPattern>("CommPattern");
+  m_comm_pattern->insert("gid",gids,1,false);
+  m_comm_pattern->setup(Handle<common::PE::CommWrapper>(m_comm_pattern->get_child("gid")),my_ranks);
+
+  m_comm_pattern->insert(name(), m_data, true);
   
   // map (its actually blockmap insteady of rowmap, to involve ghosts)
   m_map = Teuchos::rcp(new Epetra_Map(-1,nmyglobalelements,&myglobalelements[0],0,m_comm));
@@ -183,6 +194,8 @@ void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
   double *vals=(double*)&values.rhs[0];
   for (int i=0; i<(const int)numblocks; i++)
   {
+    cf3_assert(values.indices[i] >= 0);
+    cf3_assert(values.indices[i] < m_blockrow_size);
     for (int j=0; j<(const int)m_neq; j++)
       m_data[m_p2m[values.indices[i]*m_neq+j]]+=*vals++;
   }
@@ -200,6 +213,8 @@ void TrilinosVector::get_rhs_values(BlockAccumulator& values)
   double *vals=(double*)&values.rhs[0];
   for (int i=0; i<(const int)numblocks; i++)
   {
+    cf3_assert(values.indices[i] >= 0);
+    cf3_assert(values.indices[i] < m_blockrow_size);
     for (int j=0; j<(const int)m_neq; j++)
       *vals++=m_data[m_p2m[values.indices[i]*m_neq+j]];
   }
@@ -217,6 +232,8 @@ void TrilinosVector::set_sol_values(const BlockAccumulator& values)
   double *vals=(double*)&values.sol[0];
   for (int i=0; i<(const int)numblocks; i++)
   {
+    cf3_assert(values.indices[i] >= 0);
+    cf3_assert(values.indices[i] < m_blockrow_size);
     for (int j=0; j<(const int)m_neq; j++)
       m_data[m_p2m[values.indices[i]*m_neq+j]]=*vals++;
   }
@@ -234,6 +251,8 @@ void TrilinosVector::add_sol_values(const BlockAccumulator& values)
   double *vals=(double*)&values.sol[0];
   for (int i=0; i<(const int)numblocks; i++)
   {
+    cf3_assert(values.indices[i] >= 0);
+    cf3_assert(values.indices[i] < m_blockrow_size);
     for (int j=0; j<(const int)m_neq; j++)
       m_data[m_p2m[values.indices[i]*m_neq+j]]+=*vals++;
   }
@@ -251,6 +270,8 @@ void TrilinosVector::get_sol_values(BlockAccumulator& values)
   double *vals=(double*)&values.sol[0];
   for (int i=0; i<(const int)numblocks; i++)
   {
+    cf3_assert(values.indices[i] >= 0);
+    cf3_assert(values.indices[i] < m_blockrow_size);
     for (int j=0; j<(const int)m_neq; j++)
       *vals++=m_data[m_p2m[values.indices[i]*m_neq+j]];
   }
@@ -400,6 +421,8 @@ void TrilinosVector::clone_to(Vector &other)
   other_ptr->m_is_created = m_is_created;
   other_ptr->m_p2m = m_p2m;
   other_ptr->m_converted_indices = m_converted_indices;
+  other_ptr->m_comm_pattern = m_comm_pattern;
+  m_comm_pattern->insert(other_ptr->name(), other_ptr->m_data, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -413,7 +436,7 @@ void TrilinosVector::assign(const Vector& source)
   
   if(source_ptr->m_data.size() != m_data.size())
     throw common::SetupError(FromHere(), "assign method of TrilinosVector got a vector with incorrect size");
-  
+
   m_data.assign(source_ptr->m_data.begin(), source_ptr->m_data.end());
 }
 
@@ -445,6 +468,13 @@ void TrilinosVector::update ( const Vector& source, const Real alpha )
       m_data[i] += alpha*source_ptr->m_data[i];
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::sync()
+{
+  m_comm_pattern->synchronize(name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -79,16 +79,24 @@ public:
     return *m_solution;
   }
   
-  /// Convert the given indices, using the given mapping
-  template<typename VectorT>
-  void convert_to_lss(VectorT& indices)
+  /// Convert the indices in the block accumulator
+  /// TODO: Make this obsolete by always knowing the correct local indices
+  template<typename DataT>
+  void convert_to_lss(DataT& data)
   {
     if(is_null(m_used_node_map))
       return;
+
+    if(data.indices_converted)
+      return;
     
-    const Uint vec_size = indices.size();
+    const Uint vec_size = data.block_accumulator.indices.size();
     for(Uint i = 0; i != vec_size; ++i)
-      indices[i] = (*m_used_node_map)[indices[i]];
+    {
+      data.block_accumulator.indices[i] = (*m_used_node_map)[data.block_accumulator.indices[i]];
+    }
+
+    data.indices_converted = true;
   }
   
   int node_to_lss(const Uint node)

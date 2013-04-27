@@ -85,11 +85,12 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   const int nb_nodes = cp.isUpdatable().size();
 
   std::vector<int> myglobalelements(0);
+  std::vector<Uint> my_ranks;
   int nmyglobalelements=0;
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
   single_var_descriptor->options().set(common::Tags::dimension(), 1); // Use one equation that represents the entire block
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
-  create_map_data(cp, *single_var_descriptor, m_p2m, myglobalelements, nmyglobalelements, periodic_links_nodes, periodic_links_active);
+  create_map_data(cp, *single_var_descriptor, m_p2m, myglobalelements, my_ranks, nmyglobalelements, periodic_links_nodes, periodic_links_active);
 
   std::vector<int> rowelements; rowelements.reserve(nmyglobalelements);
   std::vector<int> indices_per_row;

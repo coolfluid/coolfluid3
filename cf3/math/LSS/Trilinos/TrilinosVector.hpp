@@ -161,6 +161,8 @@ public:
   
   void update ( const Vector& source, const Real alpha = 1. );
 
+  void sync();
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY
@@ -205,6 +207,8 @@ private:
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
 
+  /// The comm pattern is kept as shared ptr, so it can be shared between any clones of this vector.
+  boost::shared_ptr<common::PE::CommPattern> m_comm_pattern;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

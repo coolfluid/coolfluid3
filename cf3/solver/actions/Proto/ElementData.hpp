@@ -867,6 +867,7 @@ public:
   {
     block_accumulator.reset();
     m_support.update_block_connectivity(block_accumulator);
+    indices_converted = false;
   }
 
   void update_blocks(boost::mpl::true_)
@@ -964,6 +965,7 @@ public:
 
   /// Stores a mutable block accululator, always up-to-date with index mapping and correct size
   mutable math::LSS::BlockAccumulator block_accumulator;
+  mutable bool indices_converted; // Indicate if the indices in the block accumulator have been converted to LSS indices
 
 private:
   /// Variables used in the expression

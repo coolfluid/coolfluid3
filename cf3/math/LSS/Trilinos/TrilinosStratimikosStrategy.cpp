@@ -146,12 +146,6 @@ struct TrilinosStratimikosStrategy::Implementation
     Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector();
     Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector();
     
-    //cf3_assert(m_lows->range()->isCompatible(*b->range()));
-    //cf3_assert(m_lows->domain()->isCompatible(*x->range()));
-
-    m_lows->domain()->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
-    x->range()->describe(*Teuchos::VerboseObjectBase::getDefaultOStream(), Teuchos::VERB_EXTREME);
-    
     try
     {
       Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *b, x.ptr());

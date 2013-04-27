@@ -260,7 +260,23 @@ BOOST_AUTO_TEST_CASE( test_assign_update )
   }
 }
 
+BOOST_AUTO_TEST_CASE( test_sync )
+{
+  boost::shared_ptr<common::PE::CommPattern> cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
+  build_commpattern(cp);
+  boost::shared_ptr<LSS::System> sys(common::allocate_component<LSS::System>("sys"));
+  sys->options().option("matrix_builder").change_value(matrix_builder);
+  build_system(*sys,cp);
 
+  Handle<LSS::TrilinosVector> sol(sys->solution());
+  sol->reset(1.);
+  Teuchos::RCP< Thyra::VectorBase<Real> > thyra_vec = sol->thyra_vector();
+
+  Thyra::assign(thyra_vec.ptr(), 2.);
+  sol->sync();
+  sol->print(std::cout);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

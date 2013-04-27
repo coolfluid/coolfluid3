@@ -41,6 +41,7 @@ void create_map_data(cf3::common::PE::CommPattern& cp,
                       const VariablesDescriptor& variables,
                       std::vector<int>& p2m,
                       std::vector<int>& my_global_elements,
+                      std::vector<Uint>& my_ranks,
                       int& num_my_elements,
                       const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(),
                       const std::vector<bool>& periodic_links_active = std::vector<bool>());

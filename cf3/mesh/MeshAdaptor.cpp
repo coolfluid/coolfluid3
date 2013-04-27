@@ -1178,6 +1178,8 @@ void MeshAdaptor::fix_node_ranks(const std::vector< std::vector<boost::uint64_t>
 void MeshAdaptor::grow_overlap()
 {
 
+  PE::Comm& comm = PE::Comm::instance();
+  
   flush_nodes();
   flush_elements();
 
@@ -1228,11 +1230,10 @@ void MeshAdaptor::grow_overlap()
     cf3_assert(is_not_null(periodic_links_active_h));
     const List<bool>& periodic_links_active = *periodic_links_active_h;
 
-    // Build inverse periodic links
-    std::vector< std::vector<Uint> > inverse_periodic_links(nb_links);
+    // Add periodic boundary nodes
     for(Uint i = 0; i != nb_links; ++i)
     {
-      if(periodic_links_active[i])
+      if(periodic_links_active[i] && geometry_dict.rank()[i] == comm.rank())
       {
         Uint final_target_node = periodic_links_nodes[i];
         Uint count = 0;
@@ -1241,28 +1242,11 @@ void MeshAdaptor::grow_overlap()
           cf3_assert(++count < 10);
           final_target_node = periodic_links_nodes[final_target_node];
         }
-        inverse_periodic_links[final_target_node].push_back(i);
+        bdry_nodes.insert(i);
+        bdry_nodes.insert(final_target_node);
       }
     }
 
-    // Add linked nodes
-    boost_foreach (Uint node, bdry_nodes)
-    {
-      Uint tgt_node = node;
-      cf3_assert(tgt_node < nb_links);
-      Uint count = 0;
-      while(periodic_links_active[tgt_node])
-      {
-        cf3_assert(++count < 10);
-        tgt_node = periodic_links_nodes[tgt_node];
-        periodic_nodes.insert(tgt_node);
-      }
-      boost_foreach(const Uint inverse_link, inverse_periodic_links[node])
-      {
-        periodic_nodes.insert(inverse_link);
-      }
-    }
-    bdry_nodes.insert(periodic_nodes.begin(), periodic_nodes.end());
   }
 
   // Copy set into vector and convert to global indices

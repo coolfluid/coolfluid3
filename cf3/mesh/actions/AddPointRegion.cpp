@@ -55,8 +55,6 @@ AddPointRegion::AddPointRegion(const std::string& name) : MeshTransformer(name)
 void AddPointRegion::execute()
 {
   common::PE::Comm& comm = common::PE::Comm::instance();
-  const Uint nb_procs = comm.size();
-  const Uint my_rank = comm.rank();
 
   Mesh& mesh = *m_mesh;
   const Field& coords = mesh.geometry_fields().coordinates();
@@ -79,13 +77,35 @@ void AddPointRegion::execute()
   }
 
   Real min_dist2;
-  if(comm.is_active())
+  if(comm.size() > 1)
   {
     comm.all_reduce(common::PE::min(), &my_min_dist2, 1, &min_dist2);
   }
   else
   {
     min_dist2 = my_min_dist2;
+  }
+
+  // Get the maximum GID that is in use for the mesh
+  Uint my_max_gid = 0;
+  boost_foreach(const Entities& entities, common::find_components_recursively<Entities>(mesh))
+  {
+    boost_foreach(const Uint gid, entities.glb_idx().array())
+    {
+      if(gid > my_max_gid)
+        my_max_gid = gid;
+    }
+  }
+
+  Uint max_gid;
+
+  if(comm.size() > 1)
+  {
+    comm.all_reduce(common::PE::max(), &my_max_gid, 1, &max_gid);
+  }
+  else
+  {
+    max_gid = my_max_gid;
   }
 
   const std::string region_name = options().value<std::string>("region_name");
@@ -97,6 +117,8 @@ void AddPointRegion::execute()
     point_elems->resize(1);
     common::Table<Uint>& connectivity = point_elems->geometry_space().connectivity();
     connectivity[0][0] = my_i;
+    point_elems->glb_idx()[0] = max_gid + 1;
+    point_elems->rank()[0] = mesh.geometry_fields().rank()[my_i];
   }
 }
 

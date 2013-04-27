@@ -144,7 +144,7 @@ struct GidConverter
 
 }
 
-void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& variables, std::vector< int >& p2m, std::vector< int >& my_global_elements, int& num_my_elements, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
+void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& variables, std::vector< int >& p2m, std::vector< int >& my_global_elements, std::vector<Uint>& my_ranks, int& num_my_elements, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   // get global ids vector
   const detail::GidConverter gid(periodic_links_nodes, periodic_links_active, cp);
@@ -156,6 +156,7 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
 
   const Uint nb_nodes_for_rank = cp.isUpdatable().size();
   my_global_elements.reserve(nb_nodes_for_rank*total_nb_eq);
+  my_ranks.reserve(nb_nodes_for_rank*total_nb_eq);
 
   int nb_ghosts = 0;
   for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
@@ -172,6 +173,7 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
         for(int j = 0; j != neq; ++j)
         {
           my_global_elements.push_back(start_gid+j);
+          my_ranks.push_back(cp.rank(i));
         }
       }
       else if (!cp.isUpdatable()[i] && !(periodic_links_active.size() && periodic_links_active[i]))
@@ -237,7 +239,10 @@ void create_map_data(common::PE::CommPattern& cp, const VariablesDescriptor& var
       {
         const int start_gid = var_start_gid + gid[i]*neq;
         for(int j = 0; j != neq; ++j)
+        {
           my_global_elements.push_back(start_gid+j);
+          my_ranks.push_back(cp.rank(i));
+        }
       }
     }
   }

@@ -81,6 +81,8 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank)
 //  delete[] testgid;
 //);
 
+  m_ranks.assign(rank.begin(), rank.end());
+
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
   if (gid->stride()!=1) throw cf3::common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
@@ -133,6 +135,8 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, boost::multi_array<Uint,
 //  std::cout << "\n" << std::flush;
 //  delete[] testgid;
 //);
+
+  m_ranks.assign(rank.begin(), rank.end());
 
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );

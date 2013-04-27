@@ -101,8 +101,9 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
 
   // prepare intermediate data
   std::vector<int> my_global_elements;
+  std::vector<Uint> my_ranks;
 
-  create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements, periodic_links_nodes, periodic_links_active);
+  create_map_data(cp, vars, m_p2m, my_global_elements, my_ranks, m_num_my_elements, periodic_links_nodes, periodic_links_active);
   std::vector<int> num_indices_per_row; num_indices_per_row.reserve(m_num_my_elements);
   std::vector<int> indices_per_row;
   create_indices_per_row(cp, vars, node_connectivity, starting_indices, m_p2m, num_indices_per_row, indices_per_row, periodic_links_nodes, periodic_links_active);

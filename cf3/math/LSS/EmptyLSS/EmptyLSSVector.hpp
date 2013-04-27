@@ -180,7 +180,9 @@ public:
 
   void assign(const Vector& source) {}
   
-  virtual void update ( const Vector& source, const Real alpha = 1. ) {}
+  void update ( const Vector& source, const Real alpha = 1. ) {}
+
+  void sync() {}
 
   //@} END MISCELLANEOUS
 
