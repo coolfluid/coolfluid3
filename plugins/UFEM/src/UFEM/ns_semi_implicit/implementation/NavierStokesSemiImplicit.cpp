@@ -84,6 +84,9 @@ struct InnerLoop : solver::Action
     m_u_rhs_assembly = create_component<solver::ActionDirector>("URHSAssembly");
     m_p_rhs_assembly = create_component<solver::ActionDirector>("PRHSAssembly");
     m_apply_aup = create_component<solver::ActionDirector>("ApplyAup");
+    
+    solve_u_lss = create_component<math::LSS::SolveLSS>("SolveUSystem");
+    solve_p_lss = create_component<math::LSS::SolveLSS>("SolvePSystem");
   }
   
   static std::string type_name () { return "InnerLoop"; }
@@ -102,7 +105,7 @@ struct InnerLoop : solver::Action
       auu->apply(u_lss->rhs(), a, m_time->dt()*(1.-theta), 1.);
       m_u_rhs_assembly->execute(); // In-place assembly for the storage-heavy operators
       u_lss->solution()->reset(0.);
-      u_lss->solve();
+      solve_u_lss->execute();
       u_lss->solution()->sync();
 
       // Pressure system: compute delta_p
@@ -123,7 +126,7 @@ struct InnerLoop : solver::Action
           p_lss->rhs()->set_value(diri_idx.first, diri_idx.second, 0.);
         }
       }
-      p_lss->solve();
+      solve_p_lss->execute();
       p_lss->solution()->sync();
 
       // Compute delta_a
@@ -148,6 +151,10 @@ struct InnerLoop : solver::Action
   // Data members are public, because these are initialized where appropriate
   Handle<math::LSS::System> p_lss;
   Handle<math::LSS::System> u_lss;
+  
+  Handle<math::LSS::SolveLSS> solve_p_lss;
+  Handle<math::LSS::SolveLSS> solve_u_lss;
+  
   Handle<math::LSS::Matrix> auu;
   Handle<math::LSS::Vector> lumped_m_diag;
   
@@ -348,7 +355,9 @@ void NavierStokesSemiImplicit::on_regions_set()
   
   Handle<InnerLoop> inner_loop(get_child("InnerLoop"));
   inner_loop->p_lss = p_lss;
+  inner_loop->solve_p_lss->options().set("lss", p_lss);
   inner_loop->u_lss = u_lss;
+  inner_loop->solve_u_lss->options().set("lss", u_lss);
   inner_loop->auu = auu_lss->matrix();
   inner_loop->lumped_m_diag = auu_lss->rhs(); // Lumped mass matrix will be stored in the auu RHS
   
