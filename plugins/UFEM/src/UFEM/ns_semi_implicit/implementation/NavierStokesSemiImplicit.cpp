@@ -93,24 +93,44 @@ struct InnerLoop : solver::Action
   
   void execute()
   {
+    typedef std::pair<Uint,Uint> BlockrowIdxT;
+    
     a->reset(0.);
     delta_p_sum->reset(0.);
     u->assign(*u_lss->solution());
     p->assign(*p_lss->solution());
 
+    // Apply velocity BC
+    u_lss->rhs()->reset(0.);
+    velocity_bc->execute();
+    // The velocity BC deals with velocity, so we need to write this in terms of acceleration
+    u_lss->rhs()->scale(1./m_time->dt());
+    
     for(Uint i = 0; i != nb_iterations; ++i)
     {
+      if(i != 0)
+      {
+        u_lss->rhs()->reset(0.);
+      }
       // Velocity system: compute delta_a_star
-      auu->apply(u_lss->rhs(), u, -1.); // Apply pre-built Auu matrix
+      auu->apply(u_lss->rhs(), u, -1., 1.); // Apply pre-built Auu matrix
       auu->apply(u_lss->rhs(), a, m_time->dt()*(1.-theta), 1.);
       m_u_rhs_assembly->execute(); // In-place assembly for the storage-heavy operators
+      // Zero boundary condition after first pass
+      if(i != 0)
+      {
+        BOOST_FOREACH(const BlockrowIdxT& diri_idx, Handle<math::LSS::TrilinosCrsMatrix>(u_lss->matrix())->get_dirichlet_nodes())
+        {
+          u_lss->rhs()->set_value(diri_idx.first, diri_idx.second, 0.);
+        }
+      }
       u_lss->solution()->reset(0.);
+      CFdebug << "Solving velocity LSS..." << CFendl;
       solve_u_lss->execute();
       u_lss->solution()->sync();
 
       // Pressure system: compute delta_p
       p_lss->rhs()->reset(0.);
-      u->sync();
       m_p_rhs_assembly->execute();
       p_lss->solution()->reset(0.);
       // Apply BC if the first iteration, set RHS to 0 otherwise
@@ -120,20 +140,26 @@ struct InnerLoop : solver::Action
       }
       else
       {
-        typedef std::pair<Uint,Uint> BlockrowIdxT;
         BOOST_FOREACH(const BlockrowIdxT& diri_idx, Handle<math::LSS::TrilinosCrsMatrix>(p_lss->matrix())->get_dirichlet_nodes())
         {
           p_lss->rhs()->set_value(diri_idx.first, diri_idx.second, 0.);
         }
       }
+      CFdebug << "Solving pressure LSS..." << CFendl;
       solve_p_lss->execute();
       p_lss->solution()->sync();
 
       // Compute delta_a
       u_lss->rhs()->reset(0.);
       m_apply_aup->execute(); // Compute Aup*delta_p (stored in u_lss RHS)
+      // delta_a is delta_a_star for the dirichlet nodes
+      BOOST_FOREACH(const BlockrowIdxT& diri_idx, Handle<math::LSS::TrilinosCrsMatrix>(u_lss->matrix())->get_dirichlet_nodes())
+      {
+        u_lss->rhs()->set_value(diri_idx.first, diri_idx.second, 0.);
+      }
       Thyra::apply(*lumped_m_op, Thyra::NOTRANS, *aup_delta_p, delta_a.ptr(), -1., 1.); // delta_a = delta_a_star - Ml_inv*Aup*delta_p
-      u_lss->solution()->sync(); // delta_a is a link to u_mss->solution(), so it needs a sync after matrix apply      
+      u_lss->solution()->sync(); // delta_a is a link to u_lss->solution(), so it needs a sync after matrix apply
+      
       
       const math::LSS::Vector& da = *u_lss->solution();
       const math::LSS::Vector& dp = *p_lss->solution();
@@ -159,6 +185,7 @@ struct InnerLoop : solver::Action
   Handle<math::LSS::Vector> lumped_m_diag;
   
   Handle<common::Action> pressure_bc;
+  Handle<common::Action> velocity_bc;
 
   int nb_iterations;
 
@@ -199,6 +226,7 @@ struct SetupInnerLoopData : solver::Action
     Thyra::reciprocal(*lumped_inv_diag, lumped_inv_diag.ptr());
     // Construct the diagonal op
     inner_loop->lumped_m_op = Thyra::diagonal(lumped_inv_diag);
+    inner_loop->lumped_m_diag->sync();
   }
 
   Handle<InnerLoop> inner_loop;
@@ -269,11 +297,16 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_velocity_assembly = create_component<solver::ActionDirector>("VelocityAssembly");
   m_velocity_assembly->add_tag(detail::my_tag());
 
-  // Apply BC
+  // Boundary conditions
   Handle<BoundaryConditions> pressure_bc =  m_p_lss->create_component<BoundaryConditions>("BC");
   pressure_bc->mark_basic();
   pressure_bc->set_solution_tag("navier_stokes_p_solution");
   m_p_lss->options().set("disabled_actions", std::vector<std::string>(1, "BC")); // Disabled because we execute it from the inner loop
+  
+  Handle<BoundaryConditions> velocity_bc =  m_u_lss->create_component<BoundaryConditions>("BC");
+  velocity_bc->mark_basic();
+  velocity_bc->set_solution_tag("navier_stokes_u_solution");
+  m_u_lss->options().set("disabled_actions", std::vector<std::string>(1, "BC")); // Disabled because we execute it from the inner loop
 
   // Copy the current solution to the solution vectors
   create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(group(m_u_lss->solution(u) = u, m_p_lss->solution(p) = p)));
@@ -284,6 +317,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_inner_loop->mark_basic();
   m_inner_loop->add_tag(detail::my_tag());
   Handle<InnerLoop>(m_inner_loop)->pressure_bc = pressure_bc;
+  Handle<InnerLoop>(m_inner_loop)->velocity_bc = velocity_bc;
 
   // Update the solution
   create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(u3 = u2, u2 = u1, u1 = u, u = m_u_lss->solution(u), p = m_p_lss->solution(p))));
