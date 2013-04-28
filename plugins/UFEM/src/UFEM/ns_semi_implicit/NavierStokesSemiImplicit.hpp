@@ -43,6 +43,9 @@ private:
   
   void set_elements_expressions_quad();
   void set_elements_expressions_triag();
+  void set_elements_expressions_hexa();
+  void set_elements_expressions_prism();
+  void set_elements_expressions_tetra();
   
   /// Executed when the initial conditions are set
   void trigger_initial_conditions();

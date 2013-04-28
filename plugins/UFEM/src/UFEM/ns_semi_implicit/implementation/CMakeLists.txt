@@ -1,7 +1,10 @@
 include_directories(${Trilinos_INCLUDE_DIRS})
 
 list( APPEND ns_semi_implicit_implementation_files_no_debug
+  HexasMatrixAssembly.cpp
+  PrismsMatrixAssembly.cpp  
   QuadsMatrixAssembly.cpp
+  TetrasMatrixAssembly.cpp
   TriagsMatrixAssembly.cpp
 )
 list( APPEND ns_semi_implicit_implementation_files_with_debug

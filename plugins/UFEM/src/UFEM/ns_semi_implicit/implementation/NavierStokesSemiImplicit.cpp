@@ -360,6 +360,9 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   
   set_elements_expressions_quad();
   set_elements_expressions_triag();
+  set_elements_expressions_hexa();
+  set_elements_expressions_prism();
+  set_elements_expressions_tetra();
 }
 
 void NavierStokesSemiImplicit::on_regions_set()
