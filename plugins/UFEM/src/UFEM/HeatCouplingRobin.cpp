@@ -83,6 +83,7 @@ HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss")),
   h("heat_transfer_coefficient"),
+  h_dynamic("heat_transfer_coefficient_dynamic"),
   m_alpha("scalar_coefficient"),
   lambda_f("thermal_conductivity_fluid"),
   lambda_s("thermal_conductivity_solid"),
@@ -109,6 +110,11 @@ HeatCouplingRobin::HeatCouplingRobin(const std::string& name) :
     .description("The (volume) region in which to calculate the temperature gradient")
     .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_gradient_region, this))
     .link_to(&m_gradient_region);
+
+  options().add("dynamic_h", true)
+    .pretty_name("dynamic h usage imposed to fluid")
+    .description("If true use dynamic heat transfer coefficient, otherwise static")
+    .attach_trigger(boost::bind(&HeatCouplingRobin::trigger_setup, this));
 
   // Finally set the boundary condition
   create_static_component<ProtoAction>("NeumannHeatFlux");
@@ -185,6 +191,97 @@ void HeatCouplingRobin::trigger_setup()
   common::SignalArgs f = options.create_frame();
   common::Core::instance().event_handler().raise_event("ufem_variables_added", f);
 }
+
+void HeatCouplingRobin::execute()
+{
+  // Get the tags for the used fields
+  const std::string temperature_field_tag = options().value<std::string>("temperature_field_tag");
+  const std::string temperature_solid_field_tag = options().value<std::string>("temperature_solid_field_tag");
+
+  //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
+  Handle<ProtoAction> neumann_heat_flux(get_child("NeumannHeatFlux"));
+  Handle<ProtoAction> second_heat_flux(get_child("SecondHeatFlux"));
+
+  // Represents the temperature field, as calculated
+  FieldVariable<0, ScalarField> T("Temperature", temperature_field_tag);
+  FieldVariable<2, ScalarField> Tsolid("Temperature", temperature_solid_field_tag);
+  // Represents the gradient of the temperature, to be stored in an (element based) field
+  FieldVariable<3, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
+
+  // to do first of two steps for the Robin BC
+  const bool dynamic_h = options().value<bool>("dynamic_h");
+
+  if(dynamic_h==true)
+  {
+
+    // Expression for the Robin BC
+    neumann_heat_flux->set_expression(elements_expression
+    (
+     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+     group
+     (
+     _A(Tsolid) = _0,
+                                              extract_heat_flux(Tsolid, boost::proto::lit(m_heat_flux)),
+     system_matrix +=  (h_dynamic * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
+     m_rhs += (h_dynamic * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h_dynamic * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))) // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
+    // _cout << " m_rhs_first(Tfluid first part): = " << -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) << "\n",
+    // _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n",
+    // _cout << " system_matrix = " << -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n",
+    //                                          _cout << "extracted heat flux: " << m_heat_flux << "\n"
+     )
+    ));
+
+    second_heat_flux->set_expression(elements_expression
+    (
+      boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+      group(m_rhs(T) += - integral<2>(transpose(N(T))*GradT*normal*lambda_f),
+    //  _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
+            _cout << " coordinates[0]:" << coordinates[0] << "GradT:" << GradT*normal/(_norm(normal)) << "\n"
+
+            )
+    ));
+  // Raise an event to indicate that we added a variable (GradT)
+  common::XML::SignalOptions options;
+  common::SignalArgs f = options.create_frame();
+  common::Core::instance().event_handler().raise_event("ufem_variables_added", f);
+}
+  else
+  {
+      // Expression for the Robin BC
+      neumann_heat_flux->set_expression(elements_expression
+      (
+       boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+       group
+       (
+       _A(Tsolid) = _0,
+                                                extract_heat_flux(Tsolid, boost::proto::lit(m_heat_flux)),
+       system_matrix +=  (h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
+       m_rhs += (h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))) // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
+      // _cout << " m_rhs_first(Tfluid first part): = " << -( h * (integral<2>(transpose(N(T))*(T *_norm(normal))))) << "\n",
+      // _cout << " Tsolid = " << transpose(nodal_values(Tsolid)) << ", T: " << transpose(nodal_values(T)) << "\n",
+      // _cout << " system_matrix = " << -(h * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))) << "\n",
+      //                                          _cout << "extracted heat flux: " << m_heat_flux << "\n"
+       )
+      ));
+
+      second_heat_flux->set_expression(elements_expression
+      (
+        boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+        group(m_rhs(T) += - integral<2>(transpose(N(T))*GradT*normal*lambda_f),
+      //  _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
+              _cout << " coordinates[0]:" << coordinates[0] << "GradT:" << GradT*normal/(_norm(normal)) << "\n"
+
+              )
+      ));
+    // Raise an event to indicate that we added a variable (GradT)
+    common::XML::SignalOptions options;
+    common::SignalArgs f = options.create_frame();
+    common::Core::instance().event_handler().raise_event("ufem_variables_added", f);
+
+
+  }
+}
+
 
 } // namespace UFEM
 

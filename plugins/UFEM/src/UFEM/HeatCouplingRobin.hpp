@@ -39,6 +39,9 @@ public:
   /// Get the class name
   static std::string type_name () { return "HeatCouplingRobin"; }
 
+  /// Execute the control of heat transfer coefficient usage (dynamic or static)
+  virtual void execute();
+
 private:
   /// Called when the boundary regions are set
   virtual void on_regions_set();
@@ -57,6 +60,7 @@ private:
   // Access to the physics
 
   PhysicsConstant h;
+  PhysicsConstant h_dynamic;
   PhysicsConstant m_alpha;
 
   PhysicsConstant lambda_f;
