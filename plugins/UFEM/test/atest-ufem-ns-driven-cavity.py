@@ -26,7 +26,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
-#ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy'
+ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy'
 
 ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
 ic_visc.variable_name = 'EffectiveViscosity'
@@ -89,7 +89,7 @@ ic_u.value = ['0']
 ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
 ic_p.regions = ns_solver.regions
 ic_p.variable_name = 'Pressure'
-ic_p.value = ['0']
+ic_p.value = ['10']
 
 # Physical constants
 physics.options().set('density', 1000.)
@@ -105,28 +105,29 @@ bc.add_constant_bc(region_name = 'left', variable_name = 'Velocity').value = [0.
 bc.add_constant_bc(region_name = 'right', variable_name = 'Velocity').value = [0., 0.]
 bc = ns_solver.PressureLSS.BC
 bc.regions = [mesh.topology.uri()]
-bc.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
+bc.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 10.
 
 #linear solver parameters
-#lss = ns_solver.PressureLSS.LSS
-#lss.SolutionStrategy.MLParameters.aggregation_type = 'Uncoupled'
-#lss.SolutionStrategy.MLParameters.smoother_type = 'symmetric block Gauss-Seidel'
-#lss.SolutionStrategy.MLParameters.smoother_sweeps = 4
-#lss.SolutionStrategy.MLParameters.prec_type = 'MGV'
-#lss.SolutionStrategy.MLParameters.smoother_pre_or_post = 'post'
-#lss.SolutionStrategy.SolverParameters.convergence_tolerance = 1e-4
+lss = ns_solver.PressureLSS.LSS
+lss.SolutionStrategy.use_ml_preconditioner = True
+lss.SolutionStrategy.MLParameters.aggregation_type = 'Uncoupled'
+lss.SolutionStrategy.MLParameters.smoother_type = 'symmetric block Gauss-Seidel'
+lss.SolutionStrategy.MLParameters.smoother_sweeps = 4
+lss.SolutionStrategy.MLParameters.prec_type = 'MGV'
+lss.SolutionStrategy.MLParameters.smoother_pre_or_post = 'post'
+lss.SolutionStrategy.SolverParameters.convergence_tolerance = 1e-4
 
-#ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
-#lss = ns_solver.VelocityLSS.LSS
+ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
+lss = ns_solver.VelocityLSS.LSS
 
-#lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
-#lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-6
-#lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
-#lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
+lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-6
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
 
 # direct solve
-ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+#ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+#ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
 
 # Time setup
