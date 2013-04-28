@@ -160,6 +160,8 @@ public:
   void assign(const Vector& source);
   
   void update ( const Vector& source, const Real alpha = 1. );
+  
+  void scale ( const Real alpha );
 
   void sync();
 

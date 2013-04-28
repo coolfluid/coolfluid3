@@ -148,6 +148,10 @@ public:
   /// Update this vector with a scalar multiplication of the target vector; i.e.:
   /// this += alpha*source
   virtual void update(const Vector& source, const Real alpha = 1.) = 0;
+  
+  /// Scale the vector in-place with the given scalar
+  /// this *= alpha
+  virtual void scale(const Real alpha) = 0;
 
   /// Update any stored ghost nodes
   virtual void sync() = 0;

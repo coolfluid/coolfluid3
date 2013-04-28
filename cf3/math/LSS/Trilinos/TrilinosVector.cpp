@@ -472,6 +472,19 @@ void TrilinosVector::update ( const Vector& source, const Real alpha )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosVector::scale ( const Real alpha )
+{
+  const Uint size = m_data.size();
+  if(alpha != 1.)
+  {
+    for(Uint i = 0; i != size; ++i)
+      m_data[i] *= alpha;
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosVector::sync()
 {
   m_comm_pattern->synchronize(name());
