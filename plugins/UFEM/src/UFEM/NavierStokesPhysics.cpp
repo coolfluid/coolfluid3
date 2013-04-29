@@ -90,6 +90,11 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Heat_transfer_coefficient_dynamic")
     .mark_basic();
 
+  options().add("bulk_temperature", 1000.) //t_bulk[K]
+    .description("bulk temperature for dynamically calculated heat transfer coefficient")
+    .pretty_name("Bulk_Temperature")
+    .mark_basic();
+
   //options().add<RealVector>("gravitatonal_acceleration")
   //  .description("Acceleration due to gravitation ()")
   //  .pretty_name("Gravitatonal_acceleration")
