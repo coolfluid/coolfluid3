@@ -53,7 +53,9 @@ struct TrilinosStratimikosStrategy::Implementation
 {
   Implementation(common::Component& self) :
     m_self(self),
-    m_parameter_list(Teuchos::createParameterList())
+    m_parameter_list(Teuchos::createParameterList()),
+    m_preconditioner_reset(1),
+    m_iteration_count(0)
   {
     Teko::addTekoToStratimikosBuilder(m_linear_solver_builder);
     m_linear_solver_builder.setParameterList(m_parameter_list);
@@ -73,6 +75,12 @@ struct TrilinosStratimikosStrategy::Implementation
       .pretty_name("Print Settings")
       .description("Print out the solver settings upon first solve")
       .mark_basic();
+      
+    m_self.options().add("preconditioner_reset", m_preconditioner_reset)
+      .pretty_name("Preconditioner Reset")
+      .description("Number of iterations after which the preconditioner is reset")
+      .mark_basic()
+      .link_to(&m_preconditioner_reset);
 
     m_self.options().add("settings_file", common::URI("", cf3::common::URI::Scheme::FILE))
       .supported_protocol(cf3::common::URI::Scheme::FILE)
@@ -120,6 +128,7 @@ struct TrilinosStratimikosStrategy::Implementation
 
     // Update the component tree that represents the parameters. This automatically exposes available options
     update_parameters();
+    m_iteration_count = 0;
   }
 
   void solve()
@@ -141,7 +150,15 @@ struct TrilinosStratimikosStrategy::Implementation
       m_lows = m_lows_factory->createOp();
     }
 
-    Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    
+    if(m_iteration_count % m_preconditioner_reset == 0)
+    {
+      Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    }
+    else
+    {
+      Thyra::initializeAndReuseOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    }
 
     Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector();
     Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector();
@@ -158,6 +175,8 @@ struct TrilinosStratimikosStrategy::Implementation
     
     if(m_self.options().option("compute_residual").value<bool>())
       CFinfo << "Solver residual: " << compute_residual() << CFendl;
+    
+    ++m_iteration_count;
   }
 
   Real compute_residual()
@@ -208,6 +227,9 @@ struct TrilinosStratimikosStrategy::Implementation
   Handle<ThyraVector> m_solution;
   Teuchos::RCP< Thyra::VectorBase<Real> > m_residual_vec;
   Handle<ParameterList> m_parameters;
+  
+  Uint m_preconditioner_reset;
+  Uint m_iteration_count;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

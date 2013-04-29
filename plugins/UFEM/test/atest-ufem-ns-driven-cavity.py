@@ -120,6 +120,7 @@ lss.SolutionStrategy.SolverParameters.convergence_tolerance = 1e-4
 ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
 lss = ns_solver.VelocityLSS.LSS
 
+lss.SolutionStrategy.preconditioner_reset = 20
 lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-6
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
