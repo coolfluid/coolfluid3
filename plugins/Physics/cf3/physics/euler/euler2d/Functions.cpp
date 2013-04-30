@@ -209,9 +209,9 @@ void compute_specific_entropy( const Data& p, Real& specific_entropy)
 void compute_jacobian_conservative_wrt_primitive( const Data& p, Matrix_NEQSxNEQS& dcons_dprim )
 {
   dcons_dprim <<
-    1.,                             0.,                               0.,                                     0.,
-    p.U[XX],                        p.rho,                            0.,                                     0.,
-    p.U[YY],                        0.,                               p.rho,                                  0.,
+    1.,                             0.,                                  0.,                                  0.,
+    p.U[XX],                        p.rho,                               0.,                                  0.,
+    p.U[YY],                        0.,                                  p.rho,                               0.,
     p.H-(p.gamma-1.0)/p.gamma*p.p,  (p.gamma-1.0)*p.M*p.M*p.rho*p.U[XX], (p.gamma-1.0)*p.M*p.M*p.rho*p.U[YY], (p.gamma-1.0)/p.gamma*p.rho/(p.gamma-1.0);
   }
 
