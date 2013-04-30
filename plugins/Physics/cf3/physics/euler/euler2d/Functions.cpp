@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -199,6 +199,22 @@ void compute_hlle_flux( const Data& left, const Data& right, const ColVector_NDI
   }
   compute_convective_wave_speed(roe,normal,wave_speed);
 }
+
+void compute_specific_entropy( const Data& p, Real& specific_entropy)
+{
+  // Compute specific entropy from primitive variables
+  specific_entropy = (1.-(p.gamma-1.0)/p.gamma)*p.R*log(p.p) - ((p.gamma-1.0)/p.gamma)*p.R*log(p.rho);
+}
+
+void compute_jacobian_conservative_wrt_primitive( const Data& p, Matrix_NEQSxNEQS& dcons_dprim )
+{
+  dcons_dprim <<
+    1.,                             0.,                               0.,                                     0.,
+    p.U[XX],                        p.rho,                            0.,                                     0.,
+    p.U[YY],                        0.,                               p.rho,                                  0.,
+    p.H-(p.gamma-1.0)/p.gamma*p.p,  (p.gamma-1.0)*p.M*p.M*p.rho*p.U[XX], (p.gamma-1.0)*p.M*p.M*p.rho*p.U[YY], (p.gamma-1.0)/p.gamma*p.rho/(p.gamma-1.0);
+  }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 } // euler2d
