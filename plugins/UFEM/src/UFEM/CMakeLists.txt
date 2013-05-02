@@ -64,8 +64,6 @@ list( APPEND coolfluid_ufem_files
   Solver.cpp
   NavierStokes.hpp
   NavierStokesAssembly.hpp
-  NavierStokesExplicit.hpp
-  NavierStokesExplicitAssembly.hpp
   NavierStokesSpecializations.hpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
@@ -84,9 +82,8 @@ list( APPEND coolfluid_ufem_files
   SUPG.hpp
   Tags.hpp
   Tags.cpp
-  
-  ns_semi_implicit/NavierStokesSemiImplicit.hpp
   ns_semi_implicit/MatrixAssembly.hpp
+  ns_semi_implicit/NavierStokesSemiImplicit.hpp
   ns_semi_implicit/LSSVectorOps.hpp
 )
 

@@ -6,7 +6,6 @@
 
 #include <coolfluid-ufem-config.hpp>
 
-#include "../NavierStokesSemiImplicit.hpp"
 #include "../MatrixAssembly.hpp"
 
 namespace cf3 {
