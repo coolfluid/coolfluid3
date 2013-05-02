@@ -262,6 +262,28 @@ struct VectorLSSVector
   Handle<math::LSS::Vector> m_vector;
 };
 
+struct CustomLaplacianApply
+{
+  // Custom ops must implement the  TR1 result_of protocol
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename MatrixT, typename VectorT>
+  struct result<This(MatrixT, VectorT)>
+  {
+    typedef const VectorT& type;
+  };
+
+  template<typename StorageT, typename MatrixT, typename VectorT>
+  const StorageT& operator()(StorageT& result, const MatrixT& m, const VectorT& vec) const
+  {
+    result = m*vec;
+    return result;
+  }
+};
+
+MakeSFOp<CustomLaplacianApply>::type laplacian_apply = {};
+
 BOOST_AUTO_TEST_CASE( ScalarTest )
 {
   Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("scalar_lss");
@@ -392,6 +414,74 @@ BOOST_AUTO_TEST_CASE( VectorTest )
   std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK(diff_norm.front() > 1e-6);
   
+  Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
+  Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
+  std::cout << "diff norm: " << diff_norm.front() << std::endl;
+  BOOST_CHECK_SMALL(diff_norm.front(), 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE( NestedCustomOps )
+{
+  Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("nesting_lss");
+  lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
+
+  Handle<math::LSS::ThyraOperator> op(lss->matrix());
+  Handle<math::LSS::ThyraVector> solution(lss->solution());
+  Handle<math::LSS::ThyraVector> rhs(lss->rhs());
+
+  // Set random solution
+  Thyra::randomize(0., 1., solution->thyra_vector().ptr());
+
+  Handle<ProtoAction> action = root.create_component<ProtoAction>("ScalarLSSAction");
+
+  // Terminals to use
+  FieldVariable<0, ScalarField> T("ScalarVar2", "scalar2");
+  SystemMatrix matrix(*lss);
+  SystemRHS sys_rhs(*lss);
+  SolutionVector sol_vec(*lss);
+
+  Handle<math::LSS::Vector> vec_copy(root.create_component("ScalarVector2", "cf3.math.LSS.TrilinosVector"));
+  lss->solution()->clone_to(*vec_copy);
+  SFOp< CustomSFOp<ScalarLSSVector> > scalar_vector;
+  scalar_vector.op.set_vector(vec_copy);
+
+  boost::mpl::vector1<mesh::LagrangeP1::Quad2D> etype;
+
+  // Run the expression
+  action->set_expression(elements_expression(etype,
+    group
+    (
+      _A = _0,
+      element_quadrature
+      (
+        _A(T,T) += transpose(nabla(T)) * nabla(T)
+      ),
+      matrix += _A,
+      sys_rhs += laplacian_apply(_A, lit(scalar_vector))
+    )
+  ));
+
+  action->options().set("physical_model", physical_model);
+  action->options().set(solver::Tags::regions(), loop_regions);
+
+  field_manager->create_field("scalar2", mesh->geometry_fields());
+
+  // Set the field to random
+  for_each_node(mesh->topology(), T = sol_vec(T));
+
+  action->execute();
+
+
+  Teuchos::RCP< Thyra::MultiVectorBase<Real> > rhs2 = Thyra::createMembers(op->thyra_operator()->range(), 1);
+  Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(), rhs2.ptr());
+
+  std::vector<Real> diff_norm(1);
+
+  Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
+  std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
+  BOOST_CHECK(diff_norm.front() > 1e-6);
+
   Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;

@@ -621,6 +621,17 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         return OpImpl()(expr.value, GetChild<typename EvaluatedChild<1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
       }
 
+      result_type operator()(boost::proto::tag::function,
+                             boost::mpl::int_<3>,
+                             typename impl::expr_param expr,
+                             typename impl::state_param state,
+                             typename impl::data_param data) const
+      {
+        return OpImpl()(expr.value,
+          GetChild<typename EvaluatedChild<1>::type>()(GrammarT()(boost::proto::child_c<1>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<2>::type>()(GrammarT()(boost::proto::child_c<2>(expr), state, data), data));
+      }
+
       result_type operator()(boost::proto::tag::terminal,
                              boost::mpl::int_<0>,
                              typename impl::expr_param expr,

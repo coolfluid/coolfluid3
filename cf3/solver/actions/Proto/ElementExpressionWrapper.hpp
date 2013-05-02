@@ -134,8 +134,13 @@ struct WrapExpression :
     >,
     boost::proto::when
     <
-      boost::proto::or_<boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >, boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > > >,
-      WrapMatrixExpression
+      boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
+      WrapMatrixExpression(boost::proto::function<boost::proto::_, boost::proto::vararg<WrapExpression> >)
+    >,
+    boost::proto::when
+    <
+       boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >,
+       WrapMatrixExpression
     >,
     boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >
   >
