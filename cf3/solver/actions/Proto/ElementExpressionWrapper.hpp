@@ -74,7 +74,7 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     template<typename T, bool>
     struct WrapperSelector
     {
-      typedef typename impl::expr_param result_type;
+      typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type result_type;
       
       result_type operator()(typename impl::expr_param expr, typename impl::state_param , typename impl::data_param)
       {
