@@ -268,14 +268,14 @@ struct CustomLaplacianApply
   template<typename Signature>
   struct result;
 
-  template<typename This, typename MatrixT, typename VectorT>
-  struct result<This(MatrixT, VectorT)>
+  template<typename This, typename TempT, typename MatrixT, typename VectorT>
+  struct result<This(TempT, MatrixT, VectorT)>
   {
     typedef const VectorT& type;
   };
 
-  template<typename StorageT, typename MatrixT, typename VectorT>
-  const StorageT& operator()(StorageT& result, const MatrixT& m, const VectorT& vec) const
+  template<typename StorageT, typename TempT, typename MatrixT, typename VectorT>
+  const StorageT& operator()(StorageT& result, TempT& T, const MatrixT& m, const VectorT& vec) const
   {
     result = m*vec;
     return result;
@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE( NestedCustomOps )
         _A(T,T) += transpose(nabla(T)) * nabla(T)
       ),
       matrix += _A,
-      sys_rhs += laplacian_apply(_A, lit(scalar_vector))
+      sys_rhs += laplacian_apply(T, _A, lit(scalar_vector))
     )
   ));
 
