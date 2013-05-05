@@ -33,7 +33,7 @@ struct VelocityAssembly
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename UAdvT, typename NUT, typename MatrixT>
-  void operator()(const UT& u_fd, const UAdvT& u, const NUT& nu_eff, MatrixT& A, MatrixT& M, MatrixT& T, const Real& u_ref) const
+  void operator()(const UT& u_fd, const UAdvT& u, const NUT& nu_eff, MatrixT& M, MatrixT& T, const Real& u_ref) const
   {
     typedef typename UT::EtypeT ElementT;
     
@@ -44,12 +44,9 @@ struct VelocityAssembly
     static const Uint dim = ElementT::dimension;
 
     Eigen::Matrix<Real, 1, nb_nodes> adv;
-    Eigen::Matrix<Real, nb_nodes, 1> su_op;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> laplacian;
-    Eigen::Matrix<Real, nb_nodes, nb_nodes> su_adv;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> su_N;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> bulk_block;
-    Eigen::Matrix<Real, nb_nodes, nb_nodes> skew_block;
 
 
     typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
@@ -68,29 +65,37 @@ struct VelocityAssembly
       
       const Real bulk_coeff = w*(tau_bulk + 0.33333333333333*nu_eff.eval());
       laplacian = w*nu_eff.eval()*(u.nabla().transpose()*u.nabla()); // laplacian operator
-      
-      su_op = w * (u.shape_function() + tau_su*adv).transpose();
-      su_adv = su_op*adv;
-      su_N = su_op*u.shape_function();
+      su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
       
       for(Uint i = 0; i != dim; ++i)
       {
         M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += laplacian + bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
-        A.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += su_adv;
         T.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += su_N;
-        
-        for(Uint j = i+1; j != dim; ++j)
-        {
-          bulk_block = bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(j);
-          M.template block<nb_nodes, nb_nodes>(i*nb_nodes, j*nb_nodes) += bulk_block;
-          M.template block<nb_nodes, nb_nodes>(j*nb_nodes, i*nb_nodes) += bulk_block.transpose();
-        }
-        
-        skew_block = su_op * u.nabla().row(i);
-        for(Uint j = 0; j != dim; ++j)
-        {
-          A.template block<nb_nodes, nb_nodes>(j*nb_nodes, i*nb_nodes) += 0.5*u.eval()[j]*skew_block;
-        }
+      }
+    }
+    
+    // Bulk terms are OK with 1st order inegration
+    typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> Gauss1T;
+
+    const Uint gauss_idx = 0;
+    // This precomputes the required matrix operators
+    u.support().compute_shape_functions(Gauss1T::instance().coords.col(gauss_idx));
+    u.support().compute_jacobian(Gauss1T::instance().coords.col(gauss_idx));
+    u.compute_values(Gauss1T::instance().coords.col(gauss_idx));
+    nu_eff.compute_values(Gauss1T::instance().coords.col(gauss_idx));
+
+    const Real w = Gauss1T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
+    const Real bulk_coeff = w*(tau_bulk + 0.33333333333333*nu_eff.eval());
+    
+    for(Uint i = 0; i != dim; ++i)
+    {
+      //M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
+      
+      for(Uint j = i+1; j != dim; ++j)
+      {
+        bulk_block = bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(j);
+        M.template block<nb_nodes, nb_nodes>(i*nb_nodes, j*nb_nodes) += bulk_block;
+        M.template block<nb_nodes, nb_nodes>(j*nb_nodes, i*nb_nodes) += bulk_block.transpose();
       }
     }
   }
@@ -163,15 +168,15 @@ struct VelocityRHS
   template<typename Signature>
   struct result;
 
-  template<typename This, typename UT, typename UVecT, typename PVecT>
-  struct result<This(UT, UVecT, PVecT, PVecT, Real, Real)>
+  template<typename This, typename UT, typename NUT, typename UVecT1, typename UVecT2, typename PVecT>
+  struct result<This(UT, NUT, UVecT1, UVecT2, PVecT, Real, Real)>
   {
     typedef const Eigen::Matrix<Real, UT::EtypeT::nb_nodes*UT::EtypeT::dimension, 1>& type;
   };
 
   /// Compute the coefficients for the full Navier-Stokes equations
-  template<typename StorageT, typename UT, typename UVecT, typename PVecT>
-  const StorageT& operator()(StorageT& result, const UT& u, const UVecT& a_vec, const PVecT& p_vec, const PVecT& delta_p_sum, const Real& tau_su, const Real& theta) const
+  template<typename StorageT, typename UT, typename NUT, typename UVecT1, typename UVecT2, typename PVecT>
+  const StorageT& operator()(StorageT& result, const UT& u, const NUT& nu_eff, const UVecT1& a_vec, const UVecT2& dt_a_min_u_in, const PVecT& p_plus_dp_in, const Real& tau_su, const Real& tau_bulk) const
   {
     typedef typename UT::EtypeT ElementT;
 
@@ -180,7 +185,9 @@ struct VelocityRHS
 
     Eigen::Matrix<Real, 1, nb_nodes> adv;
     Eigen::Matrix<Real, 1, nb_nodes> N_plus_adv;
-    const PVecT p_plus_dp = (1. - theta)*delta_p_sum - p_vec;
+    const Eigen::Matrix<Real, nb_nodes, 1> p_plus_dp = p_plus_dp_in;
+    const UVecT1 dt_a_min_u = dt_a_min_u_in;
+    //dt_a_min_u.setZero();
     
     result.setZero();
 
@@ -192,18 +199,39 @@ struct VelocityRHS
       u.support().compute_shape_functions(GaussT::instance().coords.col(gauss_idx));
       u.support().compute_jacobian(GaussT::instance().coords.col(gauss_idx));
       u.compute_values(GaussT::instance().coords.col(gauss_idx));
+      nu_eff.compute_values(GaussT::instance().coords.col(gauss_idx));
+      
 
       const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant();
+      const Real w_visc = w * nu_eff.eval();
+      const Real tau_su_w = w * tau_su;
 
-      adv = tau_su*u.eval() * u.nabla(); // advection operator
-      N_plus_adv = adv + u.shape_function();
+      adv = u.eval() * u.nabla(); // advection operator
+      N_plus_adv = tau_su*adv + u.shape_function();
       const Real b = -w*(u.shape_function()*p_plus_dp)[0];
+      
+      // Compose the bulk  and skew symmetric term
+      Real f = 0.;
       for(Uint i = 0; i != dim; ++i)
       {
-        const Real a = w*(u.nabla().row(i)*p_plus_dp)[0];
-        const Real c = -w*(u.shape_function()*a_vec.row(i).transpose())[0];
+        f += u.nabla().row(i)*dt_a_min_u.row(i).transpose();
+      }
+      f *= w;
+      const Real f_bulk = (tau_bulk + 0.33333333333333*nu_eff.eval())*f;
+      const Real f_skew = 0.5*f;
+      
+      for(Uint i = 0; i != dim; ++i)
+      {
+        const Real a = tau_su_w*(u.nabla().row(i)*p_plus_dp)[0];
+        const Real c = -w*(u.shape_function()*(a_vec.row(i)).transpose())[0];
+        const Eigen::Matrix<Real, dim, 1> d = w_visc*(u.nabla()*dt_a_min_u.row(i).transpose());
+        const Real e = w*adv*dt_a_min_u.row(i).transpose();
         
-        result.template segment<nb_nodes>(i*nb_nodes) += a*adv.transpose() + b*u.nabla().row(i).transpose() + c*N_plus_adv.transpose();
+        
+        result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a 
+          + u.nabla().row(i).transpose() * (b + f_bulk)
+          + N_plus_adv.transpose() * (c + e + (f_skew * u.eval()[i]))
+          + u.nabla().transpose() * d;
       }
     }
 
@@ -287,7 +315,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
       _A = _0,
       element_quadrature( _A(u[_i], u[_i]) += transpose(N(u)) * N(u) ),
       lump(_A),
-      m_auu_lss->system_rhs += diagonal(_A)
+      m_u_lss->system_rhs += diagonal(_A)
     )
   ));
   
@@ -295,20 +323,9 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
   m_velocity_assembly->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group
     (
-      _A(u,u) = _0, _T(u,u) = _0, M(u,u) = _0,
-      velocity_assembly(u, u_adv, nu_eff, _A, M, _T, u_ref),
-//       compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
-//       element_quadrature
-//       (
-//         M(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u),
-//         M(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j],
-//         _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u),
-//         _A(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u),
-//         _A(u[_i], u[_j]) += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j]   
-//       ),
-      //_cout << "\nA:\n" << _A << "\nM:\n" << M << "\nT:\n" << _T << "\n",
-      m_u_lss->system_matrix += _T + lit(theta) * lit(dt) * M,
-      m_auu_lss->system_matrix += _A + M
+      _T(u,u) = _0, M(u,u) = _0,
+      velocity_assembly(u, u_adv, nu_eff, M, _T, u_ref),
+      m_u_lss->system_matrix += _T + lit(theta) * lit(dt) * M
     )
   ));
   
@@ -317,14 +334,8 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _A(u,u) = _0, _a = _0,
-      compute_tau(u, nu_eff, lit(tau_su)),
-//       element_quadrature
-//       (
-//         _a[u[_i]] += (transpose(tau_su*u_adv*nabla(u)) * nabla(u)[_i] - transpose(nabla(u)[_i]) * N(u)) * ((1. - lit(theta))*delta_p_sum - p_vec) // Aup
-//                    - (transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u)) * transpose(lit(a)[_i]) // Tuu
-//       ),
-//       m_u_lss->system_rhs += _a,
-      m_u_lss->system_rhs += velocity_rhs(u_adv, lit(a), lit(p_vec), lit(delta_p_sum), lit(tau_su), lit(theta))
+      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
     )
   ));
   
@@ -334,13 +345,6 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     (
       _A(p,p) = _0, _a = _0,
       compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
-//       element_quadrature
-//       (
-//         _a[p] += (transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(p)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(p)) * transpose(lit(u_vec)[_i] + lit(dt)*lit(delta_a)[_i]) // Apu
-//               +   tau_ps * transpose(nabla(p)[_i]) * N(p) * transpose(lit(a)[_i] + lit(delta_a)[_i]), // Tpu
-//         _A(p,p) += tau_ps * transpose(nabla(p)) * nabla(p)
-//       ),
-//       m_p_lss->system_rhs += _a + _A*p_vec
       m_p_lss->system_rhs += pressure_rhs(u_adv, lit(u_vec), lit(a), lit(delta_a), lit(p_vec), lit(tau_ps), lit(dt))
     )
   ));
@@ -351,11 +355,6 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     (
       _A(u,u) = _0, _a = _0,
       compute_tau(u, nu_eff, lit(tau_su)),
-//       element_quadrature
-//       (
-//         _a[u[_i]] += (transpose(tau_su*u_adv*nabla(u)) * nabla(u)[_i] - transpose(nabla(u)[_i]) * N(u)) * delta_p // Aup
-//       ),
-//       m_u_lss->system_rhs += lit(theta) * _a
       m_u_lss->system_rhs += apply_aup(u_adv, lit(delta_p), lit(tau_su), lit(theta))
     )
   ));

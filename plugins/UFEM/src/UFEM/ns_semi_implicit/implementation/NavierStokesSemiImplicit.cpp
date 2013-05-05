@@ -113,8 +113,6 @@ struct InnerLoop : solver::Action
         u_lss->rhs()->reset(0.);
       }
       // Velocity system: compute delta_a_star
-      auu->apply(u_lss->rhs(), u, -1., 1.); // Apply pre-built Auu matrix
-      auu->apply(u_lss->rhs(), a, m_time->dt()*(1.-theta), 1.);
       m_u_rhs_assembly->execute(); // In-place assembly for the storage-heavy operators
       // Zero boundary condition after first pass
       if(i != 0)
@@ -181,7 +179,6 @@ struct InnerLoop : solver::Action
   Handle<math::LSS::SolveLSS> solve_p_lss;
   Handle<math::LSS::SolveLSS> solve_u_lss;
   
-  Handle<math::LSS::Matrix> auu;
   Handle<math::LSS::Vector> lumped_m_diag;
   
   Handle<common::Action> pressure_bc;
@@ -220,7 +217,8 @@ struct SetupInnerLoopData : solver::Action
 
   void execute()
   {
-    // We use the auu RHS as lumped mass matrix
+    // We use the velocity RHS to constrct the lumped mass matrix during assembly
+    inner_loop->lumped_m_diag->assign(*inner_loop->u_lss->rhs());
     Handle<math::LSS::ThyraVector> lumped_diag(inner_loop->lumped_m_diag);
     Teuchos::RCP< Thyra::VectorBase<Real> > lumped_inv_diag = lumped_diag->thyra_vector();
     Thyra::reciprocal(*lumped_inv_diag, lumped_inv_diag.ptr());
@@ -286,12 +284,6 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_u_lss->set_solution_tag("navier_stokes_u_solution");
   m_u_lss->add_tag(detail::my_tag());
   m_u_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-
-  m_auu_lss = create_component<LSSAction>("AuuLSS");
-  m_auu_lss->mark_basic();
-  m_auu_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_rhs", false);
-  m_auu_lss->set_solution_tag("navier_stokes_u_solution");
-  m_auu_lss->add_tag(detail::my_tag());
   
   // Assembly of the velocity system matrices
   m_velocity_assembly = create_component<solver::ActionDirector>("VelocityAssembly");
@@ -342,13 +334,18 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
   lin_vel_ic->add_tag(detail::my_tag());
 
+  Handle<math::LSS::System> p_lss(m_p_lss->get_child("LSS"));
+  Handle<math::LSS::System> u_lss(m_u_lss->get_child("LSS"));
+  
   if(is_not_null(m_pressure_assembly))
     m_initial_conditions->remove_component("PressureAssembly");
+  m_initial_conditions->create_component("ZeroPressureSystem", "cf3.math.LSS.ZeroLSS")->options().set("lss", p_lss);
   m_pressure_assembly = m_initial_conditions->create_initial_condition("PressureAssembly", "cf3.solver.ActionDirector");
   m_pressure_assembly->add_tag(detail::my_tag());
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");
+  m_initial_conditions->create_component("ZeroVelocitySystem", "cf3.math.LSS.ZeroLSS")->options().set("lss", u_lss);
   m_mass_matrix_assembly = m_initial_conditions->create_initial_condition("MassMatrixAssembly", "cf3.solver.ActionDirector");
   m_mass_matrix_assembly->add_tag(detail::my_tag());
   
@@ -384,19 +381,22 @@ void NavierStokesSemiImplicit::on_regions_set()
   
   Handle<math::LSS::System> p_lss(m_p_lss->get_child("LSS"));
   Handle<math::LSS::System> u_lss(m_u_lss->get_child("LSS"));
-  Handle<math::LSS::System> auu_lss(m_auu_lss->get_child("LSS"));
   
   cf3_assert(p_lss->is_created());
   cf3_assert(u_lss->is_created());
-  cf3_assert(auu_lss->is_created());
+  
+  if(is_not_null(m_initial_conditions))
+  {
+    m_initial_conditions->get_child("ZeroPressureSystem")->options().set("lss", p_lss);
+    m_initial_conditions->get_child("ZeroVelocitySystem")->options().set("lss", u_lss);
+  }
   
   Handle<InnerLoop> inner_loop(get_child("InnerLoop"));
   inner_loop->p_lss = p_lss;
   inner_loop->solve_p_lss->options().set("lss", p_lss);
   inner_loop->u_lss = u_lss;
   inner_loop->solve_u_lss->options().set("lss", u_lss);
-  inner_loop->auu = auu_lss->matrix();
-  inner_loop->lumped_m_diag = auu_lss->rhs(); // Lumped mass matrix will be stored in the auu RHS
+  inner_loop->lumped_m_diag = detail::create_vector(*u_lss, "LumpedDiag");
   
   // Create vectors for temporary data
   inner_loop->u = detail::create_vector(*u_lss, "U");

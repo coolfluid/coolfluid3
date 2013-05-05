@@ -97,8 +97,6 @@ private:
   Handle<LSSAction> m_p_lss;
   /// LSS for the velocity
   Handle<LSSAction> m_u_lss;
-  /// LSS holding the Auu matrix, for fast application
-  Handle<LSSAction> m_auu_lss;
   
   Handle<InitialConditions> m_initial_conditions;
 
