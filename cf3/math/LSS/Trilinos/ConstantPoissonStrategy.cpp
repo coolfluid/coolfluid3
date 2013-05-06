@@ -159,7 +159,7 @@ struct ConstantPoissonStrategy::Implementation
 
       m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
       Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ml_prec ) );
-      m_problem->setLeftPrec(Thyra::epetraLinearOp(belos_prec));
+      m_problem->setRightPrec(Thyra::epetraLinearOp(belos_prec));
     }
     else
     {
@@ -181,7 +181,7 @@ struct ConstantPoissonStrategy::Implementation
       Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp( new Belos::EpetraPrecOp( m_ifpack_prec ) );
       m_problem->setLeftPrec(Thyra::epetraLinearOp(belos_prec));
     }
-    m_problem->setHermitian();
+    //m_problem->setHermitian();
 
     m_solver = Teuchos::rcp(new Belos::BlockCGSolMgr<double,MV,OP>(m_problem, m_solver_parameter_list));
 
