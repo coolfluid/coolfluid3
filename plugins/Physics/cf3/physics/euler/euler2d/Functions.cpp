@@ -203,17 +203,26 @@ void compute_hlle_flux( const Data& left, const Data& right, const ColVector_NDI
 void compute_specific_entropy( const Data& p, Real& specific_entropy)
 {
   // Compute specific entropy from primitive variables
-  specific_entropy = (1.-(p.gamma-1.0)/p.gamma)*p.R*log(p.p) - ((p.gamma-1.0)/p.gamma)*p.R*log(p.rho);
+  specific_entropy = p.R/(p.gamma-1.)*log(p.p) - p.gamma*p.R/(p.gamma-1.)*p.R*log(p.rho);
 }
 
 void compute_jacobian_conservative_wrt_primitive( const Data& p, Matrix_NEQSxNEQS& dcons_dprim )
 {
   dcons_dprim <<
-    1.,                             0.,                                  0.,                                  0.,
-    p.U[XX],                        p.rho,                               0.,                                  0.,
-    p.U[YY],                        0.,                                  p.rho,                               0.,
-    p.H-(p.gamma-1.0)/p.gamma*p.p,  (p.gamma-1.0)*p.M*p.M*p.rho*p.U[XX], (p.gamma-1.0)*p.M*p.M*p.rho*p.U[YY], (p.gamma-1.0)/p.gamma*p.rho/(p.gamma-1.0);
+    1.,          0.,             0.,              0.,
+    p.U[XX],     p.rho,          0.,              0.,
+    p.U[YY],     0.,             p.rho,           0.,
+    1./2.*p.U2,  p.rho*p.U[XX],  p.rho*p.U[YY], 1./(p.gamma-1.);
   }
+
+void compute_jacobian_primitive_wrt_conservative( const Data& p, Matrix_NEQSxNEQS& dprim_dcons )
+{
+  dprim_dcons <<
+    1.,                        0.,                     0.,                    0.,
+    -p.U[XX]/p.rho,            1./p.rho,               0.,                    0.,
+    -p.U[YY]*p.rho,            0.,                     1./p.rho,              0.,
+     1./2.*(p.gamma-1.)*p.U2,  p.U[XX]*(1.-p.gamma),  p.U[YY]*(1.-p.gamma),   p.gamma-1.;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
