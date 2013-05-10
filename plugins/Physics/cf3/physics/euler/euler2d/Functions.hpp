@@ -72,6 +72,10 @@ void compute_specific_entropy( const Data& p, Real& specific_entropy );
 void compute_jacobian_conservative_wrt_primitive( const Data& p,
                                                   Matrix_NEQSxNEQS& dcons_dprim );
 
+/// @brief Calculate the Jacobian of the primitive variables with respect to the conservative variables
+void compute_jacobian_primitive_wrt_conservative( const Data& p,
+                                                  Matrix_NEQSxNEQS& dprim_dcons );
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 } // euler2d
