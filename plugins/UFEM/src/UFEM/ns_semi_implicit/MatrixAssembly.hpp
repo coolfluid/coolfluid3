@@ -151,11 +151,11 @@ struct PressureRHS
         const Real b = w*(adv*u_plus_dt_da.row(i).transpose())[0];
         const Real c = tau_w*(u.shape_function()*a_plus_da.row(i).transpose())[0];
         
-        result += a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
+        result -= a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
       }
     }
 
-    result += App*p_vec;
+    result -= App*p_vec;
 
     return result;
   }
@@ -304,7 +304,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
       _A = _0,
       compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature( _A(p,p) += transpose(nabla(p)) * nabla(p) ),
-      m_p_lss->system_matrix += -lit(theta) * (lit(tau_ps) + lit(dt)) * _A
+      m_p_lss->system_matrix += lit(theta) * (lit(tau_ps) + lit(dt)) * _A
     )
   ));
   

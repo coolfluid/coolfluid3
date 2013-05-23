@@ -29,6 +29,8 @@ list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/ParameterList.hpp
     Trilinos/ParameterList.cpp
     Trilinos/ParameterListDefaults.hpp
+    Trilinos/RCGStrategy.hpp
+    Trilinos/RCGStrategy.cpp
     Trilinos/TekoBlockedOperator.hpp
     Trilinos/TekoBlockedOperator.cpp
     Trilinos/ThyraVector.hpp
