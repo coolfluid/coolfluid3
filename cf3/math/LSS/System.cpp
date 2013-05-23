@@ -64,6 +64,11 @@ LSS::System::System(const std::string& name) :
     .pretty_name("Solution Strategy")
     .description("Name of the builder that will be used to create the solution strategy")
     .mark_basic();
+    
+  options().add("solution_strategy_component", m_solution_strategy)
+    .pretty_name("Solution Strategy Component")
+    .description("Component to use as solution strategy for the next solve. Overrides any internally created strategy")
+    .link_to(&m_solution_strategy);
 
   regist_signal("print_system")
     .connect(boost::bind( &System::signal_print, this, _1 ))

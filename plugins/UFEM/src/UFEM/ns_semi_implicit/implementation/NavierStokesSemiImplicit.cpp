@@ -144,6 +144,14 @@ struct InnerLoop : solver::Action
         }
       }
       CFdebug << "Solving pressure LSS..." << CFendl;
+      if(i == 0 && is_not_null(m_p_strategy_first))
+      {
+        p_lss->options().set("solution_strategy_component", m_p_strategy_first);
+      }
+      else if (i > 0 && is_not_null(m_p_strategy_second))
+      {
+        p_lss->options().set("solution_strategy_component", m_p_strategy_second);
+      }
       solve_p_lss->execute();
       p_lss->solution()->sync();
 
@@ -198,6 +206,10 @@ struct InnerLoop : solver::Action
   Handle<solver::Time> m_time;
   Real theta;
 
+  // These are used when alternating the solution strategies between predictor and corrector steps
+  Handle<math::LSS::SolutionStrategy> m_p_strategy_first;
+  Handle<math::LSS::SolutionStrategy> m_p_strategy_second;
+
 private:
   Handle<solver::ActionDirector> m_u_rhs_assembly;
   Handle<solver::ActionDirector> m_p_rhs_assembly;
@@ -225,9 +237,26 @@ struct SetupInnerLoopData : solver::Action
     // Construct the diagonal op
     inner_loop->lumped_m_op = Thyra::diagonal(lumped_inv_diag);
     inner_loop->lumped_m_diag->sync();
+    
+    // Set up pressure RCG, if needed
+    if(pressure_rcg_solve)
+    {
+      inner_loop->m_p_strategy_first = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("FirstPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+      inner_loop->m_p_strategy_first->set_matrix(inner_loop->p_lss->matrix());
+      inner_loop->m_p_strategy_first->set_solution(inner_loop->p_lss->solution());
+      inner_loop->m_p_strategy_first->set_rhs(inner_loop->p_lss->rhs());
+      inner_loop->m_p_strategy_first->mark_basic();
+
+      inner_loop->m_p_strategy_second = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("SecondPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+      inner_loop->m_p_strategy_second->set_matrix(inner_loop->p_lss->matrix());
+      inner_loop->m_p_strategy_second->set_solution(inner_loop->p_lss->solution());
+      inner_loop->m_p_strategy_second->set_rhs(inner_loop->p_lss->rhs());
+      inner_loop->m_p_strategy_second->mark_basic();
+    }
   }
 
   Handle<InnerLoop> inner_loop;
+  bool pressure_rcg_solve;
 };
 
 ComponentBuilder < SetupInnerLoopData, common::Action, LibUFEM > SetupInnerLoopData_builder;
@@ -266,6 +295,10 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .description("Component that keeps track of time for this simulation")
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_time, this))
     .link_to(&m_time);
+
+  options().add("pressure_rcg_solve", false)
+    .pretty_name("Pressure RCG Solve")
+    .description("Use alternating Recycling Conjugate Gradients for the pressure system solution");
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
@@ -352,7 +385,9 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   Handle<InnerLoop> inner_loop(get_child("InnerLoop"));
   if(is_not_null(m_initial_conditions->get_child("SetupInnerLoopData")))
     m_initial_conditions->remove_component("SetupInnerLoopData");
-  m_initial_conditions->create_component<SetupInnerLoopData>("SetupInnerLoopData")->inner_loop = inner_loop;
+  Handle<SetupInnerLoopData> setup_inner = m_initial_conditions->create_component<SetupInnerLoopData>("SetupInnerLoopData");
+  setup_inner->inner_loop = inner_loop;
+  setup_inner->pressure_rcg_solve = options().value<bool>("pressure_rcg_solve");
   
   
   set_elements_expressions_quad();
@@ -389,6 +424,7 @@ void NavierStokesSemiImplicit::on_regions_set()
   {
     m_initial_conditions->get_child("ZeroPressureSystem")->options().set("lss", p_lss);
     m_initial_conditions->get_child("ZeroVelocitySystem")->options().set("lss", u_lss);
+    Handle<SetupInnerLoopData>(m_initial_conditions->get_child("SetupInnerLoopData"))->pressure_rcg_solve = options().value<bool>("pressure_rcg_solve");
   }
   
   Handle<InnerLoop> inner_loop(get_child("InnerLoop"));

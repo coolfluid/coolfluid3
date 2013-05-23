@@ -67,19 +67,19 @@ struct RCGStrategy::Implementation
     ML_Epetra::SetDefaults("SA", *m_ml_parameter_list);
     m_ml_parameter_list->set("ML output", 10);
     m_ml_parameter_list->set("max levels",10);
-    m_ml_parameter_list->set("aggregation: type", "MIS");
-    m_ml_parameter_list->set("smoother: type","Chebyshev");
-    m_ml_parameter_list->set("smoother: sweeps",3);
+    m_ml_parameter_list->set("aggregation: type", "Uncoupled");
+    m_ml_parameter_list->set("smoother: type","symmetric block Gauss-Seidel");
+    m_ml_parameter_list->set("smoother: sweeps",2);
     m_ml_parameter_list->set("smoother: pre or post", "both");
     m_ml_parameter_list->set("coarse: type","Amesos-KLU");
 
     // Default solver parameters
     m_solver_parameter_list->set( "Verbosity", Belos::TimingDetails | Belos::FinalSummary );
     m_solver_parameter_list->set( "Block Size", 1 );
-    m_solver_parameter_list->set( "Num Blocks", 300 );
+    m_solver_parameter_list->set( "Num Blocks", 400 );
     m_solver_parameter_list->set( "Maximum Iterations", 500 );
-    m_solver_parameter_list->set( "Convergence Tolerance", 1.0e-6 );
-    m_solver_parameter_list->set( "Num Recycled Blocks", 200 );
+    m_solver_parameter_list->set( "Convergence Tolerance", 1.0e-4 );
+    m_solver_parameter_list->set( "Num Recycled Blocks", 300 );
 
     update_parameters();
   }
