@@ -239,15 +239,13 @@ struct SetupInnerLoopData : solver::Action
     inner_loop->lumped_m_diag->sync();
     
     // Set up pressure RCG, if needed
-    if(pressure_rcg_solve)
+    if(is_not_null(inner_loop->m_p_strategy_first) && is_not_null(inner_loop->m_p_strategy_second))
     {
-      inner_loop->m_p_strategy_first = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("FirstPressureStrategy", "cf3.math.LSS.RCGStrategy"));
       inner_loop->m_p_strategy_first->set_matrix(inner_loop->p_lss->matrix());
       inner_loop->m_p_strategy_first->set_solution(inner_loop->p_lss->solution());
       inner_loop->m_p_strategy_first->set_rhs(inner_loop->p_lss->rhs());
       inner_loop->m_p_strategy_first->mark_basic();
 
-      inner_loop->m_p_strategy_second = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("SecondPressureStrategy", "cf3.math.LSS.RCGStrategy"));
       inner_loop->m_p_strategy_second->set_matrix(inner_loop->p_lss->matrix());
       inner_loop->m_p_strategy_second->set_solution(inner_loop->p_lss->solution());
       inner_loop->m_p_strategy_second->set_rhs(inner_loop->p_lss->rhs());
@@ -256,7 +254,6 @@ struct SetupInnerLoopData : solver::Action
   }
 
   Handle<InnerLoop> inner_loop;
-  bool pressure_rcg_solve;
 };
 
 ComponentBuilder < SetupInnerLoopData, common::Action, LibUFEM > SetupInnerLoopData_builder;
@@ -387,7 +384,6 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
     m_initial_conditions->remove_component("SetupInnerLoopData");
   Handle<SetupInnerLoopData> setup_inner = m_initial_conditions->create_component<SetupInnerLoopData>("SetupInnerLoopData");
   setup_inner->inner_loop = inner_loop;
-  setup_inner->pressure_rcg_solve = options().value<bool>("pressure_rcg_solve");
   
   
   set_elements_expressions_quad();
@@ -424,7 +420,6 @@ void NavierStokesSemiImplicit::on_regions_set()
   {
     m_initial_conditions->get_child("ZeroPressureSystem")->options().set("lss", p_lss);
     m_initial_conditions->get_child("ZeroVelocitySystem")->options().set("lss", u_lss);
-    Handle<SetupInnerLoopData>(m_initial_conditions->get_child("SetupInnerLoopData"))->pressure_rcg_solve = options().value<bool>("pressure_rcg_solve");
   }
   
   Handle<InnerLoop> inner_loop(get_child("InnerLoop"));
@@ -441,6 +436,12 @@ void NavierStokesSemiImplicit::on_regions_set()
   inner_loop->delta_a = u_lss->solution()->handle<math::LSS::ThyraVector>()->thyra_vector();
   inner_loop->delta_p_sum = detail::create_vector(*p_lss, "DeltaPSum");
   inner_loop->aup_delta_p = u_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector();
+  
+  if(options().value<bool>("pressure_rcg_solve"))
+  {
+    inner_loop->m_p_strategy_first = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("FirstPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+    inner_loop->m_p_strategy_second = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("SecondPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+  }
   
   // Make sure the terminals refer to the correct vectors
   u_vec.op.set_vector(inner_loop->u, *u_lss);
