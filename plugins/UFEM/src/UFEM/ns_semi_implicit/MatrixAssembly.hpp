@@ -27,6 +27,27 @@ using namespace solver::actions::Proto;
 
 using boost::proto::lit;
 
+/// Helper to detemine the appropriate default integration order
+template<typename ElementT>
+struct IntegralOrder
+{
+  const static int value = 2;
+};
+
+/// Triangles get order 1
+template<>
+struct IntegralOrder<mesh::LagrangeP1::Triag2D>
+{
+  const static int value = 1;
+};
+
+/// Tetrahedra get order 1
+template<>
+struct IntegralOrder<mesh::LagrangeP1::Tetra3D>
+{
+  const static int value = 1;
+};
+
 struct VelocityAssembly
 {
   typedef void result_type;
@@ -48,8 +69,32 @@ struct VelocityAssembly
     Eigen::Matrix<Real, nb_nodes, nb_nodes> su_N;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> bulk_block;
 
+    static const int ideal_order = IntegralOrder<ElementT>::value;
 
-    typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
+    // Always use second order for the mass part
+    if(ideal_order != 2)
+    {
+      typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> Gauss2T;
+      for(Uint gauss_idx = 0; gauss_idx != Gauss2T::nb_points; ++gauss_idx)
+      {
+        // This precomputes the required matrix operators
+        u.support().compute_shape_functions(Gauss2T::instance().coords.col(gauss_idx));
+        u.support().compute_jacobian(Gauss2T::instance().coords.col(gauss_idx));
+        u.compute_values(Gauss2T::instance().coords.col(gauss_idx));
+
+        const Real w = Gauss2T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
+
+        adv = (u.eval()*u.nabla()); // advection operator
+        su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
+
+        for(Uint i = 0; i != dim; ++i)
+        {
+          T.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += su_N;
+        }
+      }
+    }
+
+    typedef mesh::Integrators::GaussMappedCoords<ideal_order, ElementT::shape> GaussT;
 
     for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
     {
@@ -61,16 +106,24 @@ struct VelocityAssembly
 
       const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant();
 
-      adv = (u.eval()*u.nabla()); // advection operator
-      
       const Real bulk_coeff = w*(tau_bulk + 0.33333333333333*nu_eff.eval());
       laplacian = w*nu_eff.eval()*(u.nabla().transpose()*u.nabla()); // laplacian operator
-      su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
-      
-      for(Uint i = 0; i != dim; ++i)
+      if(ideal_order == 2)
       {
-        M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += laplacian + bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
-        T.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += su_N;
+        adv = (u.eval()*u.nabla()); // advection operator
+        su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
+        for(Uint i = 0; i != dim; ++i)
+        {
+          M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += laplacian + bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
+          T.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += su_N;
+        }
+      }
+      else
+      {
+        for(Uint i = 0; i != dim; ++i)
+        {
+          M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += laplacian + bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
+        }
       }
     }
     
@@ -131,7 +184,7 @@ struct PressureRHS
     App.setZero();
     result.setZero();
 
-    typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
+    typedef mesh::Integrators::GaussMappedCoords<IntegralOrder<ElementT>::value, ElementT::shape> GaussT;
 
     for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
     {
@@ -191,7 +244,44 @@ struct VelocityRHS
     
     result.setZero();
 
-    typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
+    static const int ideal_order = IntegralOrder<ElementT>::value;
+
+    if(ideal_order != 2)
+    {
+      /// Mass matrix part is always second order
+      typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> Gauss2T;
+      for(Uint gauss_idx = 0; gauss_idx != Gauss2T::nb_points; ++gauss_idx)
+      {
+        // This precomputes the required matrix operators
+        u.support().compute_shape_functions(Gauss2T::instance().coords.col(gauss_idx));
+        u.support().compute_jacobian(Gauss2T::instance().coords.col(gauss_idx));
+        u.compute_values(Gauss2T::instance().coords.col(gauss_idx));
+
+        const Real w = Gauss2T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
+
+        adv = u.eval() * u.nabla(); // advection operator
+        N_plus_adv = tau_su*adv + u.shape_function();
+
+        // Compose the bulk  and skew symmetric term
+        Real f = 0.;
+        for(Uint i = 0; i != dim; ++i)
+        {
+          f += u.nabla().row(i)*dt_a_min_u.row(i).transpose();
+        }
+        f *= w;
+        const Real f_skew = 0.5*f;
+
+        for(Uint i = 0; i != dim; ++i)
+        {
+          const Real c = -w*(u.shape_function()*(a_vec.row(i)).transpose())[0];
+          const Real e = w*adv*dt_a_min_u.row(i).transpose();
+
+          result.template segment<nb_nodes>(i*nb_nodes) += N_plus_adv.transpose() * (c + e + (f_skew * u.eval()[i]));
+        }
+      }
+    }
+
+    typedef mesh::Integrators::GaussMappedCoords<ideal_order, ElementT::shape> GaussT;
 
     for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
     {
@@ -207,7 +297,6 @@ struct VelocityRHS
       const Real tau_su_w = w * tau_su;
 
       adv = u.eval() * u.nabla(); // advection operator
-      N_plus_adv = tau_su*adv + u.shape_function();
       const Real b = -w*(u.shape_function()*p_plus_dp)[0];
       
       // Compose the bulk  and skew symmetric term
@@ -218,20 +307,35 @@ struct VelocityRHS
       }
       f *= w;
       const Real f_bulk = (tau_bulk + 0.33333333333333*nu_eff.eval())*f;
-      const Real f_skew = 0.5*f;
-      
-      for(Uint i = 0; i != dim; ++i)
+      if(ideal_order == 2)
       {
-        const Real a = tau_su_w*(u.nabla().row(i)*p_plus_dp)[0];
-        const Real c = -w*(u.shape_function()*(a_vec.row(i)).transpose())[0];
-        const Eigen::Matrix<Real, dim, 1> d = w_visc*(u.nabla()*dt_a_min_u.row(i).transpose());
-        const Real e = w*adv*dt_a_min_u.row(i).transpose();
-        
-        
-        result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a 
+        N_plus_adv = tau_su*adv + u.shape_function();
+        const Real f_skew = 0.5*f;
+        for(Uint i = 0; i != dim; ++i)
+        {
+          const Real a = tau_su_w*(u.nabla().row(i)*p_plus_dp)[0];
+          const Real c = -w*(u.shape_function()*(a_vec.row(i)).transpose())[0];
+          const Eigen::Matrix<Real, dim, 1> d = w_visc*(u.nabla()*dt_a_min_u.row(i).transpose());
+          const Real e = w*adv*dt_a_min_u.row(i).transpose();
+
+
+          result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a
           + u.nabla().row(i).transpose() * (b + f_bulk)
           + N_plus_adv.transpose() * (c + e + (f_skew * u.eval()[i]))
           + u.nabla().transpose() * d;
+        }
+      }
+      else
+      {
+        for(Uint i = 0; i != dim; ++i)
+        {
+          const Real a = tau_su_w*(u.nabla().row(i)*p_plus_dp)[0];
+          const Eigen::Matrix<Real, dim, 1> d = w_visc*(u.nabla()*dt_a_min_u.row(i).transpose());
+
+          result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a
+          + u.nabla().row(i).transpose() * (b + f_bulk)
+          + u.nabla().transpose() * d;
+        }
       }
     }
 
@@ -265,7 +369,7 @@ struct ApplyAup
     
     result.setZero();
 
-    typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> GaussT;
+    typedef mesh::Integrators::GaussMappedCoords<IntegralOrder<ElementT>::value, ElementT::shape> GaussT;
 
     for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
     {
