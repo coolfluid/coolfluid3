@@ -26,7 +26,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
-ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy'
+ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
 
 ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
 ic_visc.variable_name = 'EffectiveViscosity'
@@ -108,15 +108,6 @@ bc.regions = [mesh.topology.uri()]
 bc.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 10.
 
 #linear solver parameters
-lss = ns_solver.PressureLSS.LSS
-lss.SolutionStrategy.use_ml_preconditioner = True
-lss.SolutionStrategy.MLParameters.aggregation_type = 'Uncoupled'
-lss.SolutionStrategy.MLParameters.smoother_type = 'symmetric block Gauss-Seidel'
-lss.SolutionStrategy.MLParameters.smoother_sweeps = 4
-lss.SolutionStrategy.MLParameters.prec_type = 'MGV'
-lss.SolutionStrategy.MLParameters.smoother_pre_or_post = 'post'
-lss.SolutionStrategy.SolverParameters.convergence_tolerance = 1e-4
-
 ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
 lss = ns_solver.VelocityLSS.LSS
 

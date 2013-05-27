@@ -77,7 +77,6 @@ tstep = 0.15
 
 ns_solver.regions = [mesh.topology.uri()]
 
-#lss_p = ns_solver.InnerLoop.PressureSystem.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix', solution_strategy = 'cf3.math.LSS.ConstantPoissonStrategy')
 lss_p = ns_solver.InnerLoop.PressureSystem.LSS
 lss_p.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 #lss_p.SolutionStrategy.use_ml_preconditioner = True
