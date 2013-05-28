@@ -35,7 +35,7 @@
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::mesh::CGAL;
+using namespace cf3::CGAL;
 
 //////////////////////////////////////////////////////////////////////////////
 
