@@ -136,6 +136,7 @@ BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
   loop_over_regions(find_components_recursively<Elements>(sphere), VolumeFunctor(volume));
+  BOOST_CHECK_CLOSE(4.1627113937322715, volume, 0.1);
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 
