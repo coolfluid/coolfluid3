@@ -135,13 +135,20 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 {
   Group& tools = Core::instance().tools();
 
-  LoadMesh& mesh_loader =
-      find_component<LoadMesh>( tools );
+  Handle<LoadMesh> mesh_loader;
+
+  mesh_loader = find_component_ptr<LoadMesh>( tools );
+
+  if ( is_null(mesh_loader) )
+    mesh_loader = find_component_ptr<LoadMesh>( *this );
+
+  if ( is_null(mesh_loader) )
+    mesh_loader = create_component<LoadMesh>("mesh_loader");
 
   Handle<Mesh> mesh = create_component<Mesh>(name);
 
-  mesh_loader.options().set("dimension",dimension());
-  mesh_loader.load_mesh_into(file, *mesh);
+  mesh_loader->options().set("dimension",dimension());
+  mesh_loader->load_mesh_into(file, *mesh);
 
   CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
 
