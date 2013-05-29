@@ -37,7 +37,7 @@ void compute_diffusive_flux( const Data& p, const ColVector_NDIM& normal,
   Real tau_xy = p.mu*(p.grad_u[YY] + p.grad_v[XX]);
 
   // Heat flux
-  Real heat_flux = -p.k*(p.grad_T[XX]*nx + p.grad_T[YY]*ny);
+  Real heat_flux = -p.kappa*(p.grad_T[XX]*nx + p.grad_T[YY]*ny);
 
   flux[0] = 0.;
   flux[1] = tau_xx*nx + tau_xy*ny;
@@ -49,7 +49,7 @@ void compute_diffusive_wave_speed( const Data& p, const ColVector_NDIM& normal,
                                    Real& wave_speed )
 {
   // maximum of kinematic viscosity nu and thermal diffusivity alpha
-  wave_speed = std::max(p.mu/p.rho, p.k/(p.rho*p.Cp));
+  wave_speed = std::max(p.mu/p.rho, p.kappa/(p.rho*p.Cp));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

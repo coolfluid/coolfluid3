@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( test_navierstokes2d )
     Data p;
 
     p.mu = 4.;
-    p.k = 0.5;
+    p.kappa = 0.5;
     p.U[0] = 2.;
     p.U[1] = 2.;
     p.grad_u << 3., 2.;

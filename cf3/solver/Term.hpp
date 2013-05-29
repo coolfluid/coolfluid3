@@ -141,7 +141,9 @@ public: // Variable and PhysData computation
                       const ColVector_NDIM& coords,
                       const mesh::ReconstructPoint& interpolation,
                       const std::vector<mesh::ReconstructPoint>& gradient,
+                      const Matrix_NDIMxNDIM& jacobian,
                       const Matrix_NDIMxNDIM& jacobian_inverse,
+                      const Real& jacobian_determinant,
                       RowVector_NVAR& vars,
                       RowVector_NGRAD& gradvars,
                       Matrix_NDIMxNGRAD& gradvars_grad ) { }

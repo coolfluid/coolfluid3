@@ -24,7 +24,7 @@ struct Data : euler::euler2d::Data
   /// @name Gas constants
   //@{
   Real mu;                  ///< dynamic viscosity
-  Real k;                   ///< heat conductivity
+  Real kappa;               ///< Thermal conductivity
   Real Cp;                  ///< Heat capacity
   //@}
 

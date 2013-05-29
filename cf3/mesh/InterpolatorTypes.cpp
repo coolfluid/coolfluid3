@@ -35,7 +35,7 @@ ComponentBuilder< PseudoLaplacianLinearInterpolator , AInterpolator, LibMesh>
 
 // ShapeFunctionPointInterpolator for exact interpolation of one point, using a finite-element shapefunction
 typedef PointInterpolatorT<ElementFinderOcttree,StencilComputerOneCell,ShapeFunctionInterpolation> ShapeFunctionPointInterpolator;
-ComponentBuilder< PointInterpolatorT<ElementFinderOcttree,StencilComputerOneCell,ShapeFunctionInterpolation> , APointInterpolator, LibMesh>
+ComponentBuilder< ShapeFunctionPointInterpolator , APointInterpolator, LibMesh>
   ShapeFunctionPointInterpolator_builder(LibMesh::library_namespace()+".ShapeFunctionPointInterpolator");
 
 // ShapeFunctionInterpolator using ShapeFunctionPointInterpolator
