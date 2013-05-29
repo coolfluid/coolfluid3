@@ -556,7 +556,7 @@ void Mesh::signal_create_continuous_space ( SignalArgs& node )
   const Dictionary& created_component =
       create_continuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("space"));
+        options.value<std::string>("shape_function"));
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -572,7 +572,7 @@ void Mesh::signal_create_discontinuous_space ( SignalArgs& node )
   const Dictionary& created_component =
       create_discontinuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("space"));
+        options.value<std::string>("shape_function"));
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
