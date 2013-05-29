@@ -107,29 +107,23 @@ endif()
 # python support
 if( CF3_ENABLE_PYTHON )
 
-  find_package(PythonInterp QUIET )
+  # Search for python executable if not provided
+  find_package( PythonInterp QUIET )
 
-  coolfluid_set_package(PACKAGE PythonInterp DESCRIPTION "Python Interpreter"
-                        PURPOSE "Execution of Python code"
+  # This package searches for python libraries and include dirs
+  find_package( PythonDev QUIET )
+
+  coolfluid_set_package(PACKAGE Python DESCRIPTION "Python features"
+                        PURPOSE "Creation and use of Python interface"
                         TYPE OPTIONAL
-                        VARS PYTHON_EXECUTABLE
+                        VARS PYTHON_EXECUTABLE PYTHON_INCLUDE_DIR PYTHON_LIBRARIES Boost_PYTHON_FOUND
                         QUIET)
 
-  find_package(PythonLibs QUIET)
-
-  coolfluid_set_package( PACKAGE PythonLibs DESCRIPTION "Python Libraries"
-                         PURPOSE "Use of coolfluid through python scripts"
-                         TYPE OPTIONAL
-                         VARS PYTHON_LIBRARIES
-                         QUIET)
-
-  if(CF3_HAVE_PYTHONLIBS AND CF3_HAVE_PYTHONINTERP AND Boost_PYTHON_FOUND)
-    set(CF3_HAVE_PYTHON ON CACHE INTERNAL  "Python features can be built")
+  if( CF3_HAVE_PYTHON )
+    coolfluid_set_feature(Python ON "Python interface")
   else()
-    set(CF3_HAVE_PYTHON OFF CACHE INTERNAL "Python features cannot be built")
+    coolfluid_set_feature(Python OFF "Python interface")
   endif()
-
-  coolfluid_set_feature(Python ${CF3_HAVE_PYTHON} "Python interface")
 
 else()
     set(CF3_HAVE_PYTHON OFF CACHE INTERNAL "Python features disabled")
