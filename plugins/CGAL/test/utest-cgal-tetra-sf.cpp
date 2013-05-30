@@ -21,7 +21,6 @@
 #include "mesh/Region.hpp"
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/MeshWriter.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
@@ -47,9 +46,7 @@ struct GlobalFixture {
       sphere = allocate_component<Mesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-      URI file_out("sphere.msh");
-      meshwriter->write_from_to(*sphere,file_out);
+      sphere->write_mesh(URI("sphere.vtk"));
     }
   }
 
