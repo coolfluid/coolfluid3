@@ -18,7 +18,8 @@ namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Tetrahedralize a mesh using CGAL 3D triangulation
+/// Apply a Delaunay triangulation to the point cloud in a mesh and remove all other existing volume regions, if any.
+/// This results in a pure tetrahedral mesh filling the convex hull of the points. No surface regions are created.
 class Tetrahedralize : public mesh::MeshTransformer
 {
 public:
