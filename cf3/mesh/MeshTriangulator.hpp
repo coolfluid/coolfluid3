@@ -16,8 +16,7 @@ namespace cf3 {
 namespace mesh {
 
 /// MeshTriangulator component class
-/// This class finds quadrilateral and hexahedral zones in a mesh and replaces them with triangles and
-/// tetrahedra
+/// This class finds quadrilateral zones in a 2D mesh and replaces them with triangles
 /// @author Bart Janssens
 class Mesh_API MeshTriangulator : public MeshTransformer
 {
