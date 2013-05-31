@@ -10,6 +10,8 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind.hpp>
 
+#include "Amesos.h"
+
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosThyraAdapter.hpp"
@@ -66,13 +68,23 @@ struct RCGStrategy::Implementation
     // ML default parameters
     ML_Epetra::SetDefaults("SA", *m_ml_parameter_list);
     m_ml_parameter_list->set("ML output", 10);
-    m_ml_parameter_list->set("max levels",10);
-    m_ml_parameter_list->set("aggregation: type", "Uncoupled");
-    m_ml_parameter_list->set("smoother: type","symmetric block Gauss-Seidel");
+    m_ml_parameter_list->set("max levels",3);
+    m_ml_parameter_list->set("aggregation: type", "METIS");
+    m_ml_parameter_list->set("aggregation: nodes per aggregate", 16);
+    m_ml_parameter_list->set("smoother: type","Chebyshev");
     m_ml_parameter_list->set("smoother: sweeps",2);
     m_ml_parameter_list->set("smoother: pre or post", "both");
-    m_ml_parameter_list->set("coarse: type","Amesos-KLU");
-
+    
+    Amesos amesos;
+    if(amesos.Query("Amesos_Mumps"))
+    {
+      m_ml_parameter_list->set("coarse: type","Amesos-MUMPS");
+    }
+    else
+    {
+      m_ml_parameter_list->set("coarse: type","Amesos-KLU");
+    }
+    
     // Default solver parameters
     m_solver_parameter_list->set( "Verbosity", Belos::TimingDetails | Belos::FinalSummary );
     m_solver_parameter_list->set( "Block Size", 1 );
@@ -98,6 +110,43 @@ struct RCGStrategy::Implementation
     // Create the problem
     m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->epetra_matrix(), m_solution->epetra_vector(), m_rhs->epetra_vector()) );
 
+    Handle< common::Table<Real> const > coordinates = m_self.options().value< Handle< common::Table<Real> > >("coordinates");
+    Handle< common::List<Uint> const > used_nodes = m_self.options().value< Handle< common::List<Uint> > >("used_nodes");
+
+    if(is_not_null(coordinates) && is_not_null(used_nodes))
+    {
+      const int dim = coordinates->row_size();
+      const Uint nb_nodes = used_nodes->size();
+      for(Uint i = 0; i != dim; ++i)
+      {
+        m_coords[i].resize(nb_nodes);
+      }
+
+      for(Uint inode = 0; inode != nb_nodes; ++inode)
+      {
+        // Get local matrix index
+        const int mat_idx = m_matrix->matrix_index(inode, 0);
+        cf3_assert(mat_idx < nb_nodes);
+        // Store coord at location
+        const common::Table<Real>::ConstRow r = (*coordinates)[(*used_nodes)[inode]];
+        for(int i = 0; i != dim; ++i)
+        {
+          m_coords[i][mat_idx] = r[i];
+        }
+      }
+
+      m_ml_parameter_list->set("repartition: enable",1);
+      m_ml_parameter_list->set("repartition: max min ratio",1.3);
+      m_ml_parameter_list->set("repartition: min per proc",500);
+      m_ml_parameter_list->set("repartition: partitioner","Zoltan");
+      m_ml_parameter_list->set("repartition: Zoltan dimensions",dim);
+      
+      m_ml_parameter_list->set("x-coordinates", &m_coords[0][0]);
+      m_ml_parameter_list->set("y-coordinates", &m_coords[1][0]);
+      if(dim == 3)
+        m_ml_parameter_list->set("z-coordinates", &m_coords[2][0]);
+    }
+    
     // Set the preconditioner
     m_ml_prec = Teuchos::rcp(new ML_Epetra::MultiLevelPreconditioner(*m_matrix->epetra_matrix(), *m_ml_parameter_list, true));
     Teuchos::RCP<Belos::EpetraPrecOp> belos_prec = Teuchos::rcp(new Belos::EpetraPrecOp(m_ml_prec));
@@ -162,12 +211,23 @@ struct RCGStrategy::Implementation
   Handle<TrilinosVector> m_solution;
   Handle<ParameterList> m_ml_parameters;
   Handle<ParameterList> m_solver_parameters;
+
+  std::vector<Real> m_coords[3];
 };
 
 RCGStrategy::RCGStrategy(const string& name) :
   SolutionStrategy(name),
   m_implementation(new Implementation(*this))
 {
+  options().add("coordinates", Handle< common::Table<Real> >())
+    .pretty_name("Coordinates")
+    .description("Coordinates of the mesh associated with the matrix")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()));
+    
+  options().add("used_nodes", Handle< common::List<Uint> >())
+    .pretty_name("Used Nodes")
+    .description("List of used nodes for this matrix")
+    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()));
 }
 
 RCGStrategy::~RCGStrategy()

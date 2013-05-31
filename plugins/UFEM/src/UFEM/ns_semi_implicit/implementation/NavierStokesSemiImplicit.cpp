@@ -437,10 +437,26 @@ void NavierStokesSemiImplicit::on_regions_set()
   inner_loop->delta_p_sum = detail::create_vector(*p_lss, "DeltaPSum");
   inner_loop->aup_delta_p = u_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector();
   
+  Handle< common::Table<Real> > coordinates(common::find_parent_component<mesh::Mesh>(*m_loop_regions.front()).geometry_fields().coordinates().handle());
+  Handle< common::List<Uint> > used_nodes(m_p_lss->get_child(mesh::Tags::nodes_used()));
+  
+  cf3_assert(is_not_null(coordinates));
+  cf3_assert(is_not_null(used_nodes));
+  
   if(options().value<bool>("pressure_rcg_solve"))
   {
     inner_loop->m_p_strategy_first = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("FirstPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+    inner_loop->m_p_strategy_first->options().set("coordinates", coordinates);
+    inner_loop->m_p_strategy_first->options().set("used_nodes", used_nodes);
     inner_loop->m_p_strategy_second = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("SecondPressureStrategy", "cf3.math.LSS.RCGStrategy"));
+    inner_loop->m_p_strategy_second->options().set("coordinates", coordinates);
+    inner_loop->m_p_strategy_second->options().set("used_nodes", used_nodes);
+  }
+  
+  if(p_lss->solution_strategy()->options().check("coordinates") && p_lss->solution_strategy()->options().check("used_nodes"))
+  {
+    p_lss->solution_strategy()->options().set("coordinates", coordinates);
+    p_lss->solution_strategy()->options().set("used_nodes", used_nodes);
   }
   
   // Make sure the terminals refer to the correct vectors
