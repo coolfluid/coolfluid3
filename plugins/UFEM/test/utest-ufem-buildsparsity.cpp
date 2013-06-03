@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   
-  LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+  LSS::System& lss = lss_action->create_lss();
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_1DHeat.plt");

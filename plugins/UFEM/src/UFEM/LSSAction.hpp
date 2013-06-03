@@ -55,7 +55,6 @@ public: // functions
   virtual void execute();
 
   /// Create the LSS to use
-  /// @param matrix_builder Name of the matrix builder to use for the LSS
   math::LSS::System& create_lss();
 
   /// Access to the tag this component uses for finding its solution field

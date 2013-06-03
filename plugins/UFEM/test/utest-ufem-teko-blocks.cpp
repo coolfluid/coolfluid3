@@ -159,7 +159,8 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
   blocks.partition_blocks(PE::Comm::instance().size(), YY);
   blocks.create_mesh(mesh);
 
-  LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosCrsMatrix", "cf3.math.LSS.TrilinosStratimikosStrategy");
+  lss_action->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  LSS::System& lss = lss_action->create_lss();
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   
   model.simulate();
