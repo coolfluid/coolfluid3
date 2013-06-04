@@ -176,12 +176,12 @@ Component::Component ( const std::string& name ) :
       .hidden(true)
       .pretty_name("Store Timings")
       .description("Store calculated timing information into properties timer_mean, timer_minimum and timer_maximum for the tree starting at this component");
-      
+
   regist_signal( "clear" )
       .connect( boost::bind( &Component::signal_clear, this, _1 ) )
       .description("Removes all sub-components, except for the static ones")
       .pretty_name("Clear");
-      
+
   regist_signal( "reset_options" )
       .connect( boost::bind( &Component::signal_reset_options, this, _1 ) )
       .description("Sets all options of this component to their default value")
@@ -759,7 +759,7 @@ std::string Component::tree(bool basic_mode, Uint depth, Uint recursion_level) c
         tree += " -> " + (is_null(linked) ? "": linked->uri().string());
       }
 
-      tree += "\n";
+      tree += " (" + derived_type_name() + ")\n";
 
       boost_foreach( const Component& c, *this )
       {
@@ -787,7 +787,7 @@ void Component::signature_print_tree( SignalArgs& args ) const
   options.add("basic_mode", false )
       .description("If false, only components marked as basic will be printed");
   options.add("depth", 0u )
-      .description("Define howmany levels will be printed");
+      .description("Define how many levels will be printed");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
