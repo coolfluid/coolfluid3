@@ -160,7 +160,7 @@ public:
   }
 
   /// Replace the internal matrix with the supplied one
-  void replace_epetra_matrix(Teuchos::RCP<Epetra_CrsMatrix>& mat)
+  void replace_epetra_matrix(const Teuchos::RCP<Epetra_CrsMatrix>& mat)
   {
     m_mat = mat;
   }

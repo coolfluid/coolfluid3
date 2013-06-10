@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "../NavierStokesSemiImplicit.hpp"
+#include "../PressureSystem.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -300,7 +301,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
 
-  m_p_lss = create_component<LSSAction>("PressureLSS");
+  m_p_lss = create_component<PressureSystem>("PressureLSS");
   m_p_lss->mark_basic();
   m_p_lss->set_solution_tag("navier_stokes_p_solution");
   Handle<math::LSS::ZeroLSS> zero_p_lss = m_p_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
@@ -359,19 +360,24 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   visc_ic->set_expression(nodes_expression(nu_eff = nu));
   visc_ic->add_tag(detail::my_tag());
 
+  // Component where the user can add his own initial conditions
+  Handle<InitialConditions> ns_ic(m_initial_conditions->create_initial_condition("NavierStokes", "cf3.UFEM.InitialConditions"));
+  ns_ic->mark_basic();
+  ns_ic->add_tag(detail::my_tag());
+
   // Use a proto action to set the linearized_velocity easily
   Handle<ProtoAction> lin_vel_ic (m_initial_conditions->create_initial_condition("linearized_velocity", "cf3.solver.ProtoAction"));
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
   lin_vel_ic->add_tag(detail::my_tag());
 
-  Handle<math::LSS::System> p_lss(m_p_lss->get_child("LSS"));
   Handle<math::LSS::System> u_lss(m_u_lss->get_child("LSS"));
   
   if(is_not_null(m_pressure_assembly))
     m_initial_conditions->remove_component("PressureAssembly");
-  m_initial_conditions->create_component("ZeroPressureSystem", "cf3.math.LSS.ZeroLSS")->options().set("lss", p_lss);
-  m_pressure_assembly = m_initial_conditions->create_initial_condition("PressureAssembly", "cf3.solver.ActionDirector");
+  m_pressure_assembly = m_initial_conditions->create_initial_condition("PressureAssembly", "cf3.UFEM.PressureSystemAssembly");
+  m_pressure_assembly->options().set("pressure_lss_action", m_p_lss);
   m_pressure_assembly->add_tag(detail::my_tag());
+  m_pressure_assembly->options().set("theta", theta);
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");
@@ -418,7 +424,6 @@ void NavierStokesSemiImplicit::on_regions_set()
   
   if(is_not_null(m_initial_conditions))
   {
-    m_initial_conditions->get_child("ZeroPressureSystem")->options().set("lss", p_lss);
     m_initial_conditions->get_child("ZeroVelocitySystem")->options().set("lss", u_lss);
   }
   
@@ -471,6 +476,8 @@ void NavierStokesSemiImplicit::on_regions_set()
 void NavierStokesSemiImplicit::trigger_theta()
 {
   Handle<InnerLoop>(m_inner_loop)->theta = theta;
+  if(is_not_null(m_pressure_assembly))
+    m_pressure_assembly->options().set("theta", theta);
 }
 
 void NavierStokesSemiImplicit::trigger_nb_iterations()

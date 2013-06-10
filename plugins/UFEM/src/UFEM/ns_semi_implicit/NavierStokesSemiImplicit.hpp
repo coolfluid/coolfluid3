@@ -94,7 +94,7 @@ private:
   Real dt;
   
   /// LSS for the pressure
-  Handle<LSSAction> m_p_lss;
+  Handle<LSSActionUnsteady> m_p_lss;
   /// LSS for the velocity
   Handle<LSSAction> m_u_lss;
   

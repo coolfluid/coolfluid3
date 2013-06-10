@@ -93,6 +93,9 @@ protected:
   /// Called when the initial conditions are set
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
+  /// Called to actually create the LSS. Parameters are described in the LSS interface
+  virtual void do_create_lss(common::PE::CommPattern& cp, const math::VariablesDescriptor& vars, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active);
+
 public:
   /// Proto placeholder for the system matrix
   const solver::actions::Proto::SystemMatrix& system_matrix;

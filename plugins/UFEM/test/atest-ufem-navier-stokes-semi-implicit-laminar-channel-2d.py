@@ -22,9 +22,10 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
-#ns_solver.options.theta = 1.
+ns_solver.options.theta = .5
+ns_solver.options.nb_iterations = 2
 
-refinement_level = 4
+refinement_level = 1
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -70,7 +71,7 @@ physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
 physics.options().set('reference_velocity', 1.)
 
-tstep = 0.00015 / refinement_level**2
+tstep = 0.00015
 
 ns_solver.regions = [mesh.topology.uri()]
 
@@ -78,14 +79,14 @@ ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Ames
 ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
 # Initial conditions
-#ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
-#ic_u.variable_name = 'Velocity'
-#ic_u.regions = [mesh.topology.uri()]
-#ic_u.value = ['y*(2-y)', '0']
-#ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
-#ic_p.variable_name = 'Pressure'
-#ic_p.regions = [mesh.topology.uri()]
-#ic_p.value = ['20*(1-x/10)']
+ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
+ic_u.variable_name = 'Velocity'
+ic_u.regions = [mesh.topology.uri()]
+ic_u.value = ['y*(2-y)', '0']
+ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
+ic_p.variable_name = 'Pressure'
+ic_p.regions = [mesh.topology.uri()]
+ic_p.value = ['20*(1-x/10)']
 
 # Boundary conditions
 bc_u = ns_solver.VelocityLSS.BC
@@ -94,16 +95,16 @@ bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0
 bc_u.add_function_bc(region_name = 'left', variable_name = 'Velocity').value = ['y*(2-y)', '0']
 #bc_u.add_function_bc(region_name = 'right', variable_name = 'Velocity').value = ['y*(2-y)', '0']
 # Pressure BC
-ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 5.
+ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
 
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-time.end_time = 10.*tstep
+time.end_time = 1.*tstep
 model.simulate()
 
-# solver.create_fields()
-# solver.InitialConditions.execute()
+#solver.create_fields()
+#solver.InitialConditions.execute()
 
 domain.write_mesh(cf.URI('semi-implicit-laminar-channel-2d.pvtu'))
 

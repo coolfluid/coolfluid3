@@ -121,12 +121,12 @@ class TaylorGreen:
     
   def setup_ic(self, u_tag, p_tag):
     #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
-    ic_u = self.solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
+    ic_u = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
     ic_u.variable_name = 'Velocity'
     ic_u.regions = [self.mesh.topology.interior.uri()]
     ic_u.value = ['{Ua} - cos(pi/{D}*x)*sin(pi/{D}*y)'.format(Ua = self.Ua, D = self.D), '{Va} + sin(pi/{D}*x)*cos(pi/{D}*y)'.format(Va = self.Va, D = self.D)]
 
-    ic_p = self.solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
+    ic_p = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
     ic_p.regions = [self.mesh.topology.interior.uri()]
     ic_p.variable_name = 'Pressure'
     ic_p.value = ['-0.25*(cos(2*pi/{D}*x) + cos(2*pi/{D}*y))'.format(D = self.D)]
@@ -212,11 +212,11 @@ class TaylorGreen:
     ns_solver.regions = [mesh.topology.interior.uri()]
     
     #ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    #ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+    ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
     #ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
     ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
     
-    self.add_pressure_bc(ns_solver.PressureLSS.BC)
+    #self.add_pressure_bc(ns_solver.PressureLSS.BC)
 
     solver.create_fields()
     self.setup_ic('navier_stokes_u_solution', 'navier_stokes_p_solution')

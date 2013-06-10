@@ -400,18 +400,7 @@ template<typename ElementsT>
 void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name )
 { 
   static boost::proto::terminal< ElementSystemMatrix< boost::mpl::int_<2> > >::type const M = {};
-  
-  // Pressure system assembly
-  m_pressure_assembly->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
-    group
-    (
-      _A = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
-      element_quadrature( _A(p,p) += transpose(nabla(p)) * nabla(p) ),
-      m_p_lss->system_matrix += lit(theta) * (lit(tau_ps) + lit(dt)) * _A
-    )
-  ));
-  
+
   // Lumped mass matrix assembly
   m_mass_matrix_assembly->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group

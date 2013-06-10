@@ -242,17 +242,7 @@ void LSSAction::on_regions_set()
       }
     }
 
-    const bool blocked_system = options().option("blocked_system").value<bool>();
-    if(blocked_system)
-      CFdebug << "Creating blocked LSS for ";
-    else
-      CFdebug << "Creating per-node LSS for ";
-    CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
-
-    if(blocked_system)
-      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
-    else
-      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
+    do_create_lss(comm_pattern, descriptor, node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
 
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
@@ -335,6 +325,21 @@ void LSSAction::set_solution_tag(const std::string& tag)
 
 void LSSAction::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
+}
+
+void LSSAction::do_create_lss(PE::CommPattern &cp, const VariablesDescriptor &vars, std::vector<Uint> &node_connectivity, std::vector<Uint> &starting_indices, const std::vector<Uint> &periodic_links_nodes, const std::vector<bool> &periodic_links_active)
+{
+  const bool blocked_system = options().option("blocked_system").value<bool>();
+  if(blocked_system)
+    CFdebug << "Creating blocked LSS for ";
+  else
+    CFdebug << "Creating per-node LSS for ";
+  CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << vars.description() << CFendl;
+
+  if(blocked_system)
+    m_implementation->m_lss->create_blocked(cp, vars, node_connectivity, starting_indices, periodic_links_nodes, periodic_links_active);
+  else
+    m_implementation->m_lss->create(cp, vars.size(), node_connectivity, starting_indices, periodic_links_nodes, periodic_links_active);
 }
 
 } // UFEM

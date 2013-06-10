@@ -93,9 +93,6 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   std::vector< std::vector<Uint> > lids_to_receive(nb_procs);
   std::vector< std::vector<Uint> > gids_to_send(nb_procs);
 
-  Handle< common::List<Uint> const > periodic_links_nodes(dictionary.get_child("periodic_links_nodes"));
-  Handle< common::List<bool> const > periodic_links_active(dictionary.get_child("periodic_links_active"));
-
   // Fill gid list
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
