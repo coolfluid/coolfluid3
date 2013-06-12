@@ -63,8 +63,21 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
+blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+
+partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
+partitioner.mesh = mesh
+
+link_horizontal = partitioner.create_link_periodic_nodes()
+link_horizontal.source_region = mesh.topology.right
+link_horizontal.destination_region = mesh.topology.left
+link_horizontal.translation_vector = [-10., 0.]
+
+#partitioner.execute()
+
 
 # Physical constants
 physics.options().set('density', 1.)
@@ -75,7 +88,7 @@ tstep = 0.15
 
 ns_solver.regions = [mesh.topology.uri()]
 
-ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+#ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
 # Initial conditions
@@ -86,17 +99,17 @@ ic_u.value = ['y*(2-y)', '0']
 ic_p = solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
 ic_p.variable_name = 'Pressure'
 ic_p.regions = [mesh.topology.uri()]
-ic_p.value = ['20*(1-x/10)']
+ic_p.value = ['0']#['20*(1-x/10)']
 
 # Boundary conditions
 bc_u = ns_solver.VelocityLSS.BC
 bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
 bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 bc_u.add_function_bc(region_name = 'left', variable_name = 'Velocity').value = ['y*(2-y)', '0']
-bc_u.add_function_bc(region_name = 'right', variable_name = 'Velocity').value = ['y*(2-y)', '0']
+#bc_u.add_function_bc(region_name = 'right', variable_name = 'Velocity').value = ['y*(2-y)', '0']
 # Pressure BC
 ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
-ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'left', variable_name = 'Pressure').value = 20.
+#ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'left', variable_name = 'Pressure').value = 20.
 
 # Time setup
 time = model.create_time()

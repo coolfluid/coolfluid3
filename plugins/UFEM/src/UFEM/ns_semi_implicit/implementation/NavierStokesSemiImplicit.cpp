@@ -70,19 +70,19 @@ namespace detail
   }
 }
 
-void write_mat(const Teuchos::RCP<const Thyra::LinearOpBase<Real> >& mat, const std::string& filename)
-{
-  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
-  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
-  Thyra::describeLinearOp(*mat, *mat_fancy_out, Teuchos::VERB_EXTREME);
-}
+//void write_mat(const Teuchos::RCP<const Thyra::LinearOpBase<Real> >& mat, const std::string& filename)
+//{
+//  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
+//  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
+//  Thyra::describeLinearOp(*mat, *mat_fancy_out, Teuchos::VERB_EXTREME);
+//}
 
-void write_vec(const Teuchos::RCP<const Thyra::MultiVectorBase<Real> >& vec, const std::string& filename)
-{
-  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
-  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
-  vec->describe(*mat_fancy_out, Teuchos::VERB_EXTREME);
-}
+//void write_vec(const Teuchos::RCP<const Thyra::MultiVectorBase<Real> >& vec, const std::string& filename)
+//{
+//  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
+//  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
+//  vec->describe(*mat_fancy_out, Teuchos::VERB_EXTREME);
+//}
 
 /// This is the inner solve loop
 struct InnerLoop : solver::Action
@@ -137,7 +137,6 @@ struct InnerLoop : solver::Action
       CFdebug << "Solving velocity LSS..." << CFendl;
       solve_u_lss->execute();
       u_lss->solution()->sync();
-//      write_vec(u_lss->solution()->handle<math::LSS::ThyraVector>()->thyra_vector(), "u_sol.txt");
 
       // Pressure system: compute delta_p
       p_lss->rhs()->reset(0.);
@@ -164,8 +163,6 @@ struct InnerLoop : solver::Action
       {
         p_lss->options().set("solution_strategy_component", m_p_strategy_second);
       }
-//      write_mat(p_lss->matrix()->handle<math::LSS::ThyraOperator>()->thyra_operator(), "p_mat.txt");
-//      write_vec(p_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector(), "p_rhs.txt");
       solve_p_lss->execute();
       p_lss->solution()->sync();
 

@@ -204,11 +204,11 @@ struct PressureRHS
         const Real b = w*(adv*u_plus_dt_da.row(i).transpose())[0];
         const Real c = tau_w*(u.shape_function()*a_plus_da.row(i).transpose())[0];
         
-        result += a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
+        result -= a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
       }
     }
 
-    result += App*p_vec;
+    result -= App*p_vec;
 
     return result;
   }
