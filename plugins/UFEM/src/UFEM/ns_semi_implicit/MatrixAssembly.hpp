@@ -204,11 +204,11 @@ struct PressureRHS
         const Real b = w*(adv*u_plus_dt_da.row(i).transpose())[0];
         const Real c = tau_w*(u.shape_function()*a_plus_da.row(i).transpose())[0];
         
-        result -= a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
+        result += a*(u.shape_function() + adv*0.5).transpose() + (b+c)*u.nabla().row(i).transpose();
       }
     }
 
-    result -= App*p_vec;
+    result += App*p_vec;
 
     return result;
   }
@@ -240,7 +240,6 @@ struct VelocityRHS
     Eigen::Matrix<Real, 1, nb_nodes> N_plus_adv;
     const Eigen::Matrix<Real, nb_nodes, 1> p_plus_dp = p_plus_dp_in;
     const UVecT1 dt_a_min_u = dt_a_min_u_in;
-    //dt_a_min_u.setZero();
     
     result.setZero();
 
@@ -290,7 +289,6 @@ struct VelocityRHS
       u.support().compute_jacobian(GaussT::instance().coords.col(gauss_idx));
       u.compute_values(GaussT::instance().coords.col(gauss_idx));
       nu_eff.compute_values(GaussT::instance().coords.col(gauss_idx));
-      
 
       const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant();
       const Real w_visc = w * nu_eff.eval();

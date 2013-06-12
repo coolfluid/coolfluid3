@@ -70,6 +70,20 @@ namespace detail
   }
 }
 
+void write_mat(const Teuchos::RCP<const Thyra::LinearOpBase<Real> >& mat, const std::string& filename)
+{
+  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
+  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
+  Thyra::describeLinearOp(*mat, *mat_fancy_out, Teuchos::VERB_EXTREME);
+}
+
+void write_vec(const Teuchos::RCP<const Thyra::MultiVectorBase<Real> >& vec, const std::string& filename)
+{
+  Teuchos::RCP<std::ofstream> mat_out = Teuchos::rcp(new  std::ofstream(filename.c_str(), std::ios::out));
+  Teuchos::RCP<Teuchos::FancyOStream> mat_fancy_out = Teuchos::fancyOStream(mat_out);
+  vec->describe(*mat_fancy_out, Teuchos::VERB_EXTREME);
+}
+
 /// This is the inner solve loop
 struct InnerLoop : solver::Action
 {
@@ -99,24 +113,20 @@ struct InnerLoop : solver::Action
     a->reset(0.);
     delta_p_sum->reset(0.);
     u->assign(*u_lss->solution());
-    p->assign(*p_lss->solution());
-
-    // Apply velocity BC
-    u_lss->rhs()->reset(0.);
-    velocity_bc->execute();
-    // The velocity BC deals with velocity, so we need to write this in terms of acceleration
-    u_lss->rhs()->scale(1./m_time->dt());
-    
+    p->assign(*p_lss->solution());    
     for(Uint i = 0; i != nb_iterations; ++i)
     {
-      if(i != 0)
-      {
-        u_lss->rhs()->reset(0.);
-      }
+      u_lss->rhs()->reset(0.);
       // Velocity system: compute delta_a_star
-      m_u_rhs_assembly->execute(); // In-place assembly for the storage-heavy operators
-      // Zero boundary condition after first pass
-      if(i != 0)
+      m_u_rhs_assembly->execute();
+      if(i == 0) // Apply velocity BC the first inner iteration
+      {
+        u_lss->rhs()->scale(m_time->dt());
+        velocity_bc->execute();
+        // The velocity BC deals with velocity, so we need to write this in terms of acceleration
+        u_lss->rhs()->scale(1./m_time->dt());
+      }
+      else // Zero boundary condition after first pass
       {
         BOOST_FOREACH(const BlockrowIdxT& diri_idx, Handle<math::LSS::TrilinosCrsMatrix>(u_lss->matrix())->get_dirichlet_nodes())
         {
@@ -127,6 +137,7 @@ struct InnerLoop : solver::Action
       CFdebug << "Solving velocity LSS..." << CFendl;
       solve_u_lss->execute();
       u_lss->solution()->sync();
+//      write_vec(u_lss->solution()->handle<math::LSS::ThyraVector>()->thyra_vector(), "u_sol.txt");
 
       // Pressure system: compute delta_p
       p_lss->rhs()->reset(0.);
@@ -153,6 +164,8 @@ struct InnerLoop : solver::Action
       {
         p_lss->options().set("solution_strategy_component", m_p_strategy_second);
       }
+//      write_mat(p_lss->matrix()->handle<math::LSS::ThyraOperator>()->thyra_operator(), "p_mat.txt");
+//      write_vec(p_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector(), "p_rhs.txt");
       solve_p_lss->execute();
       p_lss->solution()->sync();
 
@@ -304,8 +317,6 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_p_lss = create_component<PressureSystem>("PressureLSS");
   m_p_lss->mark_basic();
   m_p_lss->set_solution_tag("navier_stokes_p_solution");
-  Handle<math::LSS::ZeroLSS> zero_p_lss = m_p_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  zero_p_lss->options().set("reset_matrix", false);
   m_p_lss->add_tag(detail::my_tag());
   m_p_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
 
