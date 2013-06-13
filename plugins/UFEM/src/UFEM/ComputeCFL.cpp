@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -25,8 +26,9 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 #include "mesh/LagrangeP0/Triag.hpp"
-#include <mesh/LagrangeP0/Hexa.hpp>
-#include <mesh/LagrangeP0/Tetra.hpp>
+#include "mesh/LagrangeP0/Hexa.hpp"
+#include "mesh/LagrangeP0/Tetra.hpp"
+#include "mesh/LagrangeP0/Prism.hpp"
 
 #include "ComputeCFL.hpp"
 #include "AdjacentCellToFace.hpp"
@@ -102,50 +104,64 @@ struct CFLOp
     typedef typename UT::EtypeT ElementT;
     get_scale(typename ShapeType<ElementT>::type(), u, cfl_scale);
   }
+  
+  template<typename UT, typename NodesT, unsigned long N>
+  Real max_edge_projection(const UT& u, const NodesT& nodes, const boost::array<int, N>& a_nodes, const boost::array<int, N>& b_nodes)
+  {
+    Real result = 0.;
+    for(int i = 0; i != N; ++i)
+    {
+      const UT diff = nodes.row(a_nodes[i]) - nodes.row(b_nodes[i]);
+      const Real projection = fabs(u.dot(diff) / diff.squaredNorm());
+        result = projection > result ? projection : result;
+    }
+    
+    return result;
+  }
 
   template<typename UT>
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TRIAG>, const UT& u, Real& cfl_scale)
   {
-    static const RealVector2 center(0.5, 0.5);
-    cfl_scale = sqrt(u.eval(center).squaredNorm() / (4./3.141592654*u.support().volume()));
+    static const RealVector2 center(1./3., 1./3.);
+    const boost::array<int, 3> a_nodes = { 0, 1, 2 };
+    const boost::array<int, 3> b_nodes = { 1, 2, 0 };
+    cfl_scale = max_edge_projection(u.eval(center), u.support().nodes(), a_nodes, b_nodes);
   }
   
   template<typename UT>
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TETRA>, const UT& u, Real& cfl_scale)
   {
-    static const RealVector3 center(0.5, 0.5, 0.5);
-    cfl_scale = u.eval(center).norm() /( 2.*::pow(3./(4.*3.141592654)*u.support().volume(),1./3.) );
+    static const RealVector3 center(1./3., 1./3., 1./3.);
+    const boost::array<int, 6> a_nodes = { 0, 1, 2, 0, 1, 2 };
+    const boost::array<int, 6> b_nodes = { 1, 2, 0, 3, 3, 3 };
+    cfl_scale = max_edge_projection(u.eval(center), u.support().nodes(), a_nodes, b_nodes);
   }
 
   template<typename UT>
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::PRISM>, const UT& u, Real& cfl_scale)
   {
-    static const RealVector3 center(0.5, 0.5, 0.5);
-    cfl_scale = u.eval(center).norm() /( 2.*::pow(3./(4.*3.141592654)*u.support().volume(),1./3.) );
+    static const RealVector3 center(1./3., 1./3., 0.);
+    const boost::array<int, 9> a_nodes = { 0, 1, 2, 3, 4, 5, 0, 1, 2 };
+    const boost::array<int, 9> b_nodes = { 1, 2, 0, 4, 5, 3, 3, 4, 5 };
+    cfl_scale = max_edge_projection(u.eval(center), u.support().nodes(), a_nodes, b_nodes);
   }
 
   template<typename UT>
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::QUAD>, const UT& u, Real& cfl_scale)
   {
     static const RealVector2 center(0., 0.);
-    const RealVector2 e_xi = u.support().nodes().row(1) - u.support().nodes().row(0);
-    const RealVector2 e_eta = u.support().nodes().row(3) - u.support().nodes().row(0);
-    const Real s_xi = e_xi.dot(u.eval(center)) / e_xi.squaredNorm();
-    const Real s_eta = e_eta.dot(u.eval()) / e_eta.squaredNorm(); // center omitted here, so it reuses the previously calculated value
-    cfl_scale = s_xi + s_eta;
+    const boost::array<int, 4> a_nodes = { 0, 1, 2, 3 };
+    const boost::array<int, 4> b_nodes = { 1, 2, 3, 0 };
+    cfl_scale = max_edge_projection(u.eval(center), u.support().nodes(), a_nodes, b_nodes);
   }
   
   template<typename UT>
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::HEXA>, const UT& u, Real& cfl_scale)
   {
     static const RealVector3 center(0., 0., 0.);
-    const RealVector3 e_xi = u.support().nodes().row(1) - u.support().nodes().row(0);
-    const RealVector3 e_eta = u.support().nodes().row(3) - u.support().nodes().row(0);
-    const RealVector3 e_zta = u.support().nodes().row(4) - u.support().nodes().row(0);
-    const Real s_xi = e_xi.dot(u.eval(center)) / e_xi.squaredNorm();
-    const Real s_eta = e_eta.dot(u.eval()) / e_eta.squaredNorm(); // center omitted here, so it reuses the previously calculated value
-    const Real s_zta = e_zta.dot(u.eval()) / e_zta.squaredNorm();
-    cfl_scale = s_xi + s_eta + s_zta;
+    const boost::array<int, 12> a_nodes = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3 };
+    const boost::array<int, 12> b_nodes = { 1, 2, 3, 0, 5, 6, 7, 4, 4, 5, 6, 7 };
+    cfl_scale = max_edge_projection(u.eval(center), u.support().nodes(), a_nodes, b_nodes);
   }
 
   template<typename UT>
@@ -165,16 +181,14 @@ void ComputeCFL::trigger_variable()
 
   FieldVariable<0, VectorField> u(var, tag);
   FieldVariable<1, ScalarField> cfl("CFL", "cfl", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
-  FieldVariable<2, ScalarField> dt_max("DtMax", "cfl", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
   set_expression(elements_expression
   (
-    boost::mpl::vector8<mesh::LagrangeP0::Triag, mesh::LagrangeP1::Triag2D, mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D, mesh::LagrangeP0::Hexa, mesh::LagrangeP1::Hexa3D, mesh::LagrangeP0::Tetra, mesh::LagrangeP1::Tetra3D>(),
+    boost::mpl::vector10<mesh::LagrangeP0::Triag, mesh::LagrangeP1::Triag2D, mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D, mesh::LagrangeP0::Hexa, mesh::LagrangeP1::Hexa3D, mesh::LagrangeP0::Tetra, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP0::Prism, mesh::LagrangeP1::Prism3D>(),
     group
     (
       compute_cfl(u, lit(m_cfl_scaling)),
       cfl = lit(m_time->dt()) * lit(m_cfl_scaling),
-      dt_max = lit(m_max_cfl) / lit(m_cfl_scaling),
       lit(m_max_computed_cfl) = _max(lit(m_max_computed_cfl), cfl)
     )
   ));
