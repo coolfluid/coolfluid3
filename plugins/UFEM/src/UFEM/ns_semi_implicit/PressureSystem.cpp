@@ -91,8 +91,20 @@ public:
     p_lss->reset(0.);
 
     // Assemble simplified pressure matrix
+#ifdef CF3_UFEM_ENABLE_TRIAGS
+    assemble_pp<mesh::LagrangeP1::Triag2D>(m_pressure_lss_action->system_matrix);
+#endif
 #ifdef CF3_UFEM_ENABLE_QUADS
     assemble_pp<mesh::LagrangeP1::Quad2D>(m_pressure_lss_action->system_matrix);
+#endif
+#ifdef CF3_UFEM_ENABLE_TETRAS
+    assemble_pp<mesh::LagrangeP1::Tetra3D>(m_pressure_lss_action->system_matrix);
+#endif
+#ifdef CF3_UFEM_ENABLE_HEXAS
+    assemble_pp<mesh::LagrangeP1::Hexa3D>(m_pressure_lss_action->system_matrix);
+#endif
+#ifdef CF3_UFEM_ENABLE_PRISMS
+    assemble_pp<mesh::LagrangeP1::Prism3D>(m_pressure_lss_action->system_matrix);
 #endif
   }
 
