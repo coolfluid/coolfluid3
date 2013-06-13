@@ -114,7 +114,14 @@ struct CFLOp
   void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TETRA>, const UT& u, Real& cfl_scale)
   {
     static const RealVector3 center(0.5, 0.5, 0.5);
-    cfl_scale = u.eval(center).norm() / ::pow(3./4./3.141592654*u.support().volume(),1./3.);
+    cfl_scale = u.eval(center).norm() /( 2.*::pow(3./(4.*3.141592654)*u.support().volume(),1./3.) );
+  }
+
+  template<typename UT>
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::PRISM>, const UT& u, Real& cfl_scale)
+  {
+    static const RealVector3 center(0.5, 0.5, 0.5);
+    cfl_scale = u.eval(center).norm() /( 2.*::pow(3./(4.*3.141592654)*u.support().volume(),1./3.) );
   }
 
   template<typename UT>
@@ -123,9 +130,9 @@ struct CFLOp
     static const RealVector2 center(0., 0.);
     const RealVector2 e_xi = u.support().nodes().row(1) - u.support().nodes().row(0);
     const RealVector2 e_eta = u.support().nodes().row(3) - u.support().nodes().row(0);
-    const Real u_xi = e_xi.dot(u.eval(center));
-    const Real u_eta = e_eta.dot(u.eval()); // center omitted here, so it reuses the previously calculated value
-    cfl_scale = sqrt(u_xi*u_xi/e_xi.squaredNorm() + u_eta*u_eta/e_eta.squaredNorm());
+    const Real s_xi = e_xi.dot(u.eval(center)) / e_xi.squaredNorm();
+    const Real s_eta = e_eta.dot(u.eval()) / e_eta.squaredNorm(); // center omitted here, so it reuses the previously calculated value
+    cfl_scale = s_xi + s_eta;
   }
   
   template<typename UT>
@@ -135,10 +142,10 @@ struct CFLOp
     const RealVector3 e_xi = u.support().nodes().row(1) - u.support().nodes().row(0);
     const RealVector3 e_eta = u.support().nodes().row(3) - u.support().nodes().row(0);
     const RealVector3 e_zta = u.support().nodes().row(4) - u.support().nodes().row(0);
-    const Real u_xi = e_xi.dot(u.eval(center));
-    const Real u_eta = e_eta.dot(u.eval()); // center omitted here, so it reuses the previously calculated value
-    const Real u_zta = e_zta.dot(u.eval());
-    cfl_scale = sqrt(u_xi*u_xi/e_xi.squaredNorm() + u_eta*u_eta/e_eta.squaredNorm() + u_zta*u_zta/e_zta.squaredNorm());
+    const Real s_xi = e_xi.dot(u.eval(center)) / e_xi.squaredNorm();
+    const Real s_eta = e_eta.dot(u.eval()) / e_eta.squaredNorm(); // center omitted here, so it reuses the previously calculated value
+    const Real s_zta = e_zta.dot(u.eval()) / e_zta.squaredNorm();
+    cfl_scale = s_xi + s_eta + s_zta;
   }
 
   template<typename UT>
