@@ -177,7 +177,6 @@ struct InnerLoop : solver::Action
       Thyra::apply(*lumped_m_op, Thyra::NOTRANS, *aup_delta_p, delta_a.ptr(), -1., 1.); // delta_a = delta_a_star - Ml_inv*Aup*delta_p
       u_lss->solution()->sync(); // delta_a is a link to u_lss->solution(), so it needs a sync after matrix apply
       
-      
       const math::LSS::Vector& da = *u_lss->solution();
       const math::LSS::Vector& dp = *p_lss->solution();
       
@@ -353,6 +352,8 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   // Update the solution
   create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(u3 = u2, u2 = u1, u1 = u, u = m_u_lss->solution(u), p = m_p_lss->solution(p))));
   get_child("Update")->add_tag(detail::my_tag());
+
+  create_component("ComputeCFL", "cf3.UFEM.ComputeCFL")->add_tag(detail::my_tag());;
   
   trigger_theta();
 }

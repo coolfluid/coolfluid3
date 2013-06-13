@@ -36,8 +36,7 @@ private:
   void trigger_variable();
   Real m_cfl_scaling;
   Real m_max_cfl;
-  Real m_dt;
-  Real m_min_dt;
+  Real m_max_computed_cfl;
   Handle<solver::Time> m_time;
 };
 

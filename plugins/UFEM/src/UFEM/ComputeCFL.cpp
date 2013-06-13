@@ -50,8 +50,7 @@ common::ComponentBuilder < ComputeCFL, common::Action, LibUFEM > ComputeCFL_Buil
 
 ComputeCFL::ComputeCFL(const std::string& name) :
   ProtoAction(name),
-  m_max_cfl(0.8),
-  m_dt(0.1)
+  m_max_cfl(0.8)
 {
   options().add("velocity_field_tag", "navier_stokes_u_solution")
     .pretty_name("Velocity Field Tag")
@@ -68,16 +67,11 @@ ComputeCFL::ComputeCFL(const std::string& name) :
     .description("Maximum allowed CFL number")
     .link_to(&m_max_cfl);
 
-  options().add("time_step", m_dt)
-    .pretty_name("Time Step")
-    .description("Time step to use as reference for CFL calculation")
-    .link_to(&m_dt)
-    .link_to(&m_min_dt);
-
   options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Time component for the simulation")
-    .link_to(&m_time);
+    .link_to(&m_time)
+    .attach_trigger(boost::bind(&ComputeCFL::trigger_variable, this));
 
   trigger_variable();
 }
@@ -172,31 +166,25 @@ void ComputeCFL::trigger_variable()
     group
     (
       compute_cfl(u, lit(m_cfl_scaling)),
-      cfl = lit(m_dt) * lit(m_cfl_scaling),
+      cfl = lit(m_time->dt()) * lit(m_cfl_scaling),
       dt_max = lit(m_max_cfl) / lit(m_cfl_scaling),
-      lit(m_min_dt) = _min(lit(m_min_dt), dt_max)
+      lit(m_max_computed_cfl) = _max(lit(m_max_computed_cfl), cfl)
     )
   ));
 }
 
 void ComputeCFL::execute()
 {
-  CFwarn << "executing CFL computation with dt " << m_dt << " and min_dt " << m_min_dt << CFendl;
+  m_max_computed_cfl = 0.;
   ProtoAction::execute();
 
-  Real global_min_dt = m_min_dt;
+  Real global_max_cfl = m_max_computed_cfl;
   if(common::PE::Comm::instance().is_active())
   {
-    common::PE::Comm::instance().all_reduce(common::PE::min(), &m_min_dt, 1, &global_min_dt);
+    common::PE::Comm::instance().all_reduce(common::PE::max(), &m_max_computed_cfl, 1, &global_max_cfl);
   }
 
-  m_min_dt = global_min_dt;
-
-  if(m_min_dt < m_dt)
-  {
-    CFwarn << "Time step " << m_dt << "s is too big to honour Courant number " << m_max_cfl << ", adjusting to " << m_min_dt << "s" << CFendl;
-    m_time->options().set("time_step", m_min_dt);
-  }
+  CFinfo << "CFL for time step " << m_time->dt() << " is " << global_max_cfl << CFendl;
 }
 
 

@@ -417,6 +417,18 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
       _T(u,u) = _0, M(u,u) = _0,
       velocity_assembly(u, u_adv, nu_eff, M, _T, u_ref),
       m_u_lss->system_matrix += _T + lit(theta) * lit(dt) * M
+
+//  _A = _0, _T = _0, M = _0,
+//  compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+//  element_quadrature
+//  (
+//    M(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u),
+//    M(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j],
+//    _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u)//,
+//    //_A(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)
+//    //_A(u[_i], u[_j]) += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j]
+//  ),
+//  m_u_lss->system_matrix += _T + lit(theta) * lit(dt) * (M + _A)
     )
   ));
   
