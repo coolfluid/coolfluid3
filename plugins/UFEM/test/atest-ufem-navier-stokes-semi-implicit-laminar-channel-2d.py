@@ -11,7 +11,7 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 4
+env.log_level = 1
 env.only_cpu0_writes = True
 
 # setup a model
@@ -24,6 +24,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
+ns_solver.enable_body_force = True
 
 refinement_level = 1
 
@@ -68,6 +69,12 @@ blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
+create_point_region = domain.create_component('CreatePointRegion', 'cf3.mesh.actions.AddPointRegion')
+create_point_region.coordinates = [5., 1.]
+create_point_region.region_name = 'center'
+create_point_region.mesh = mesh
+create_point_region.execute()
+
 partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
 partitioner.mesh = mesh
 
@@ -76,7 +83,7 @@ link_horizontal.source_region = mesh.topology.right
 link_horizontal.destination_region = mesh.topology.left
 link_horizontal.translation_vector = [-10., 0.]
 
-#partitioner.execute()
+partitioner.execute()
 
 
 # Physical constants
@@ -84,41 +91,42 @@ physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
 physics.options().set('reference_velocity', 1.)
 
-tstep = 0.15
+tstep = 0.5
 
 ns_solver.regions = [mesh.topology.uri()]
 
-#ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
 # Initial conditions
 ic_u = solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
 ic_u.variable_name = 'Velocity'
 ic_u.regions = [mesh.topology.uri()]
-ic_u.value = ['y*(2-y)', '0']
-ic_p = solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
-ic_p.variable_name = 'Pressure'
-ic_p.regions = [mesh.topology.uri()]
-ic_p.value = ['0']#['20*(1-x/10)']
+ic_u.value = ['0', '0']
+ic_g = solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'body_force')
+ic_g.variable_name = 'Force'
+ic_g.regions = [mesh.topology.uri()]
+ic_g.value = ['2', '0']
 
 # Boundary conditions
 bc_u = ns_solver.VelocityLSS.BC
 bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
 bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
-bc_u.add_function_bc(region_name = 'left', variable_name = 'Velocity').value = ['y*(2-y)', '0']
-#bc_u.add_function_bc(region_name = 'right', variable_name = 'Velocity').value = ['y*(2-y)', '0']
 # Pressure BC
-ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
-#ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'left', variable_name = 'Pressure').value = 20.
+ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
 
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-time.end_time = 10.*tstep
+time.end_time = 50.*tstep
 model.simulate()
 
-#solver.create_fields()
-#solver.InitialConditions.execute()
+for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stokes_u_solution):
+  u_ref = y*(2-y)
+  if abs(u_ref - u) > 1e-3:
+    raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
+  if abs(v) > 1e-8:
+    raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))
 
 domain.write_mesh(cf.URI('semi-implicit-laminar-channel-2d.pvtu'))
 

@@ -318,6 +318,7 @@ void Solver::create_fields()
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
   {
+    CFdebug << "adding field info from ProtoAction " << action.uri().path() << CFendl;
     action.insert_field_info(tags);
   }
 

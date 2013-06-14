@@ -174,6 +174,9 @@ static solver::actions::Proto::MakeSFOp<CFLOp>::type const compute_cfl = {};
 
 void ComputeCFL::trigger_variable()
 {
+  if(is_null(m_time))
+    return;
+
   using boost::proto::lit;
 
   const std::string tag = options().option("velocity_field_tag").value<std::string>();
@@ -196,6 +199,9 @@ void ComputeCFL::trigger_variable()
 
 void ComputeCFL::execute()
 {
+  if(is_null(m_time))
+    throw common::SetupError(FromHere(), "No time component configured for ComputeCFL");
+
   m_max_computed_cfl = 0.;
   ProtoAction::execute();
 

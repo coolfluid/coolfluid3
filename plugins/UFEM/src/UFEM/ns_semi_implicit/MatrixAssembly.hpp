@@ -436,12 +436,12 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
   m_inner_loop->get_child("URHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group
     (
-      _A(u,u) = _0, _a = _0,
+      _A(u,u) = _0,
       compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
     )
   ));
-  
+
   // Assembly of pressure RHS
   m_inner_loop->get_child("PRHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group
