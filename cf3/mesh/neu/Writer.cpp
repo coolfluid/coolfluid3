@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -17,6 +17,7 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
+#include "common/StringConversion.hpp"
 
 #include "mesh/neu/Writer.hpp"
 #include "mesh/Mesh.hpp"
@@ -83,7 +84,14 @@ void Writer::write()
   write_coordinates(file, *m_mesh);
   write_connectivity(file, *m_mesh);
   write_groups(file, *m_mesh);
-  write_boundaries(file, *m_mesh);
+
+  try
+  {
+    write_boundaries(file, *m_mesh);
+  }
+  catch( ... )
+  {
+  }
 
   file.close();
 }
@@ -342,9 +350,36 @@ void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
             }
             else
             {
-              std::string error_msg = "Face " + to_str(face) + " of element " + to_str(elem)
-                                     + " of " + elementregion.uri().string() + " has no neighbour.";
-              throw ValueNotFound (FromHere(), error_msg);
+              std::stringstream error_msg;
+              error_msg << "\nFace " << face << " of element " << elem
+                        << " of " << elementregion.uri().string() << " has no neighbour." << std::endl;
+              error_msg << "nb_elems = " << nb_elems << std::endl;
+              error_msg << "nb_faces per elem = " << nb_faces << std::endl;
+              error_msg << "elem coordinates:\n";
+              for( Uint n=0; n<elementregion.element_type().nb_nodes(); ++n)
+              {
+                error_msg << elementregion.geometry_space().connectivity()[elem][n] << ": ";
+                error_msg << elementregion.geometry_space().get_coordinates(elem).row(n) << std::endl;
+              }
+              boost_foreach( Uint n, elementregion.element_type().faces().nodes_range(face) )
+              {
+                error_msg << "node " << elementregion.geometry_space().connectivity()[elem][n] << "   face coord: " << elementregion.geometry_space().get_coordinates(elem).row(n) << std::endl;
+                error_msg << "     connected elems: \n";
+                boost_foreach( Uint nc_elem_idx, node_connectivity->node_element_range( elementregion.geometry_space().connectivity()[elem][n] ) )
+                {
+                  std::pair<Elements const*, Uint> element = node_connectivity->element(nc_elem_idx);
+                  error_msg << "          " << element.first->uri() << "[" << element.second << "]  ";
+                  error_msg << "   ( ";
+                  boost_foreach ( Uint elem_n, element.first->geometry_space().connectivity()[element.second] )
+                  {
+                     error_msg << elem_n << " ";
+                  }
+                  error_msg << ")" << std::endl;
+                }
+
+              }
+              error_msg << "It could be that faces are oriented in the wrong way!!!" << std::endl;
+              throw ValueNotFound (FromHere(), error_msg.str());
             }
           }
         }

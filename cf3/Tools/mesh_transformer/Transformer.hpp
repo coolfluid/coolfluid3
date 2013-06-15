@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -35,7 +35,11 @@ public:
   Transformer();
 
   static void help( const std::string& param);
-  static void input( const std::vector<std::string>& params );
+  static void input( const std::vector<std::string>& params, Uint dimension );
+  static void input0( const std::vector<std::string>& params);
+  static void input1( const std::vector<std::string>& params);
+  static void input2( const std::vector<std::string>& params);
+  static void input3( const std::vector<std::string>& params);
   static void output( const std::vector<std::string>& params );
   static void transform( const std::vector<std::string>& params );
 

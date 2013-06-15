@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -144,6 +144,13 @@ public:
 
   /// Get the face that is adjacent to the given face of the given element
   Uint adjacent_face(const Uint element, const Uint face) const;
+
+
+  /// Access to the raw data
+  Uint element_nb_faces() const { return m_element_nb_faces; }
+  const BoolsT& face_has_neighbour() const { return m_face_has_neighbour; }
+  const IndicesT& face_element_connectivity() const { return m_face_element_connectivity; }
+  const IndicesT& face_face_connectivity() const { return m_face_face_connectivity; }
 
 private: // data
   const CNodeConnectivity* m_node_connectivity; // normal pointer for performance reasons

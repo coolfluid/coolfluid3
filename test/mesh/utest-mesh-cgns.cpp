@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -30,6 +30,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "mesh/CGNS/Shared.hpp"
 
@@ -115,11 +116,15 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define NI 17
+#define NJ 9
+#define NK 5
+
 BOOST_AUTO_TEST_CASE( TestLibCGNS )
 {
 
- int maxelemi = 20*16*8;
- double x[21*17*9],y[21*17*9],z[21*17*9];
+ int maxelemi = (NI-1)*(NJ-1)*(NK-1);
+ double x[NI*NJ*NK],y[NI*NJ*NK],z[NI*NJ*NK];
  cgsize_t isize[3][1],ielem[maxelemi][8];
  int ni,nj,nk,iset,i,j,k,index_file,icelldim,iphysdim;
  int index_base,index_zone,index_coord,ielem_no,nelem_start;
@@ -127,9 +132,9 @@ BOOST_AUTO_TEST_CASE( TestLibCGNS )
  char basename[33],zonename[33];
 
 /* create gridpoints for simple example: */
- ni=21;
- nj=17;
- nk=9;
+ ni=NI;
+ nj=NJ;
+ nk=NK;
  iset=0;
  for (k=1; k <= nk; k++)
  {
@@ -154,7 +159,7 @@ BOOST_AUTO_TEST_CASE( TestLibCGNS )
  iphysdim=3;
  CALL_CGNS(cg_base_write(index_file,basename,icelldim,iphysdim,&index_base));
 /* define zone name (user can give any name) */
- strcpy(zonename,"Zone  1");
+ strcpy(zonename,"Zone 1");
 /* vertex size */
  isize[0][0]=ni*nj*nk;
 /* cell size */
@@ -205,13 +210,15 @@ relationships:
    printf("\nError, must increase maxelemi to at least %d\n",nelem_end);
    exit(0);
  }
+ std::cout << "volume: " << nelem_start << " , " << nelem_end << std::endl;
 /* unsorted boundary elements */
  nbdyelem=0;
 /* write CGNS_ENUMV( HEXA_8 ) element connectivity (user can give any name) */
  CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"Elem",CGNS_ENUMV( HEXA_8 ),nelem_start,  \
                   nelem_end,nbdyelem,ielem[0],&index_section));
 /* ---------------------------------------------------------- */
-int maxelemj = 1216;
+int maxelemj = (NI)*(NJ)*(NK);
+std::cout << "maxelemj = " << maxelemj << std::endl;
 cgsize_t jelem[maxelemj][4];
 /*
 do boundary (QUAD) elements (this part is optional,
@@ -223,6 +230,7 @@ maintain SIDS-standard ordering
  ielem_no=0;
 /* index no of first element */
  nelem_start=nelem_end+1;
+ int inflow_start = nelem_start;
  i=1;
  for (k=1; k < nk; k++)
  {
@@ -238,6 +246,7 @@ maintain SIDS-standard ordering
  }
 /* index no of last element */
  nelem_end=nelem_start+ielem_no-1;
+ int inflow_last = nelem_end;
  if (ielem_no > maxelemj)
  {
    printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
@@ -250,6 +259,7 @@ maintain SIDS-standard ordering
  ielem_no=0;
 /* index no of first element */
  nelem_start=nelem_end+1;
+ int outflow_start = nelem_start;
  i=ni-1;
  for (k=1; k < nk; k++)
  {
@@ -265,6 +275,7 @@ maintain SIDS-standard ordering
  }
 /* index no of last element */
  nelem_end=nelem_start+ielem_no-1;
+ int outflow_last = nelem_end;
  if (ielem_no > maxelemj)
  {
    printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
@@ -276,17 +287,18 @@ maintain SIDS-standard ordering
 /* SIDEWALLS: */
  ielem_no=0;
 /* index no of first element */
- nelem_start=nelem_end+1;
+ nelem_start=nelem_end+1; 
+ int side_wall_start = nelem_start;
  j=1;
  for (k=1; k < nk; k++)
  {
    for (i=1; i < ni; i++)
    {
      ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-     jelem[ielem_no][0]=ifirstnode;
-     jelem[ielem_no][1]=ifirstnode+ni*nj;
-     jelem[ielem_no][2]=ifirstnode+ni*nj+1;
-     jelem[ielem_no][3]=ifirstnode+1;
+     jelem[ielem_no][0]=ifirstnode+1;
+     jelem[ielem_no][1]=ifirstnode+ni*nj+1;
+     jelem[ielem_no][2]=ifirstnode+ni*nj;
+     jelem[ielem_no][3]=ifirstnode;
      ielem_no=ielem_no+1;
    }
  }
@@ -309,10 +321,10 @@ maintain SIDS-standard ordering
    for (i=1; i < ni; i++)
    {
      ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-     jelem[ielem_no][0]=ifirstnode;
-     jelem[ielem_no][1]=ifirstnode+1;
-     jelem[ielem_no][2]=ifirstnode+1+ni;
-     jelem[ielem_no][3]=ifirstnode+ni;
+     jelem[ielem_no][0]=ifirstnode+ni;
+     jelem[ielem_no][1]=ifirstnode+1+ni;
+     jelem[ielem_no][2]=ifirstnode+1;
+     jelem[ielem_no][3]=ifirstnode;
      ielem_no=ielem_no+1;
    }
  }
@@ -322,15 +334,16 @@ maintain SIDS-standard ordering
    for (i=1; i < ni; i++)
    {
      ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-     jelem[ielem_no][0]=ifirstnode+ni*nj;
-     jelem[ielem_no][1]=ifirstnode+ni*nj+ni;
-     jelem[ielem_no][2]=ifirstnode+ni*nj+1+ni;
-     jelem[ielem_no][3]=ifirstnode+ni*nj+1;
+     jelem[ielem_no][0]=ifirstnode+ni*nj+1;
+     jelem[ielem_no][1]=ifirstnode+ni*nj+1+ni;    
+     jelem[ielem_no][2]=ifirstnode+ni*nj+ni;
+     jelem[ielem_no][3]=ifirstnode+ni*nj;
      ielem_no=ielem_no+1;
    }
  }
 /* index no of last element */
  nelem_end=nelem_start+ielem_no-1;
+ int side_wall_last = nelem_end;
  if (ielem_no > maxelemj)
  {
    printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
@@ -346,8 +359,9 @@ maintain SIDS-standard ordering
  int maxcount(960);
  cgsize_t ipnts[maxcount];
  // BC inflow
- nelem_start=2561;
- nelem_end=2688;
+ std::cout << "inflow: " << inflow_start << " , " << inflow_last << std::endl;
+ nelem_start=inflow_start;
+ nelem_end=inflow_last;
  icount=0;
  for (n=nelem_start; n <= nelem_end; n++)
  {
@@ -368,8 +382,9 @@ maintain SIDS-standard ordering
  // BC outflow
  /* we know that for the unstructured zone, the following face elements */
  /* have been defined as outflow (real working code would check!): */
- nelem_start=2689;
- nelem_end=2816;
+ std::cout << "outflow: " << outflow_start << " , " << outflow_last << std::endl;
+ nelem_start=outflow_start;
+ nelem_end=outflow_last;
  icount=0;
  for (n=nelem_start; n <= nelem_end; n++)
  {
@@ -388,8 +403,9 @@ maintain SIDS-standard ordering
 
 /* we know that for the unstructured zone, the following face elements */
 /* have been defined as walls (real working code would check!): */
- nelem_start=2817;
- nelem_end=3776;
+ std::cout << "side_walls: " << side_wall_start << " , " << side_wall_last << std::endl;
+ nelem_start=side_wall_start;
+ nelem_end=side_wall_last;
  icount=0;
  for (n=nelem_start; n <= nelem_end; n++)
  {
@@ -661,12 +677,16 @@ BOOST_AUTO_TEST_CASE( ReadUnstructured )
 
   // the mesh to store in
   Mesh& mesh = *Core::instance().root().create_component<Mesh>("grid_c");
+  meshreader->options().set("zone_handling",true);
   BOOST_CHECK_NO_THROW(meshreader->read_mesh_into("grid_c.cgns",mesh));
 
   // Write to gmsh
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh,"grid_c.msh"));
 
+  // std::cout << mesh.tree() << std::endl;
+  // std::cout << *mesh.access_component_checked("topology/Walls/elements_cf3.mesh.LagrangeP1.Quad3D/spaces/geometry/connectivity")->handle<Connectivity>() << std::endl;
+   
   // Write to neu
   boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   BOOST_CHECK_NO_THROW(neu_writer->write_from_to(mesh,"grid_c.neu"));
@@ -679,11 +699,9 @@ BOOST_AUTO_TEST_CASE( ReadUnstructured )
   // Write to gmsh
   BOOST_CHECK_NO_THROW(gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh.msh"));
 
-
   //CFinfo << mesh_from_neu->tree() << CFendl;
   BOOST_CHECK(true);
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
@@ -716,7 +734,6 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 
 //  CFinfo << mesh_from_neu.tree() << CFendl;
   BOOST_CHECK(true);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -768,7 +785,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   cgns_reader->read_mesh_into("quadtriag2cgns.cgns",mesh2);
 
   boost::shared_ptr< MeshTransformer > info = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info", "info");
-  //info->transform(mesh2);
+  info->transform(mesh2);
 
   // Write to gmsh
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");

@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -49,7 +49,7 @@ struct Mesh_LagrangeP1_API Quad3D : public ElementTypeBase<Quad3D,Quad3D_traits>
   //@{
 
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
-  \
+  
   template < typename MatrixType >
   static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
 

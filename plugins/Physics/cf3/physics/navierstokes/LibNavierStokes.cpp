@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -6,16 +6,16 @@
 
 #include "cf3/common/RegistLibrary.hpp"
 
-#include "cf3/physics/NavierStokes/LibNavierStokes.hpp"
+#include "cf3/physics/euler/LibEuler.hpp"
 
 namespace cf3 {
 namespace physics {
-namespace NavierStokes {
+namespace euler {
 
   using namespace common;
 
-cf3::common::RegistLibrary<LibNavierStokes> LibNavierStokes;
+cf3::common::RegistLibrary<LibEuler> LibEuler;
 
-} // NavierStokes
+} // euler
 } // physics
 } // cf3

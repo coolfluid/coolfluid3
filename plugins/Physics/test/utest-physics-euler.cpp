@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::Euler"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 
 #include "math/Defs.hpp"

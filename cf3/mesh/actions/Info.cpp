@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -129,7 +129,18 @@ std::string Info::print_elements(const Component& region, Uint level)
   {
     for (Uint i=0; i<level; i++)
       tree += "    ";
-    std::string dimensionality = elements_region.element_type().dimension() == elements_region.element_type().dimensionality() ? "volume" : "surface";
+    std::string dimensionality;
+    if ( elements_region.element_type().dimension() == elements_region.element_type().dimensionality() )
+      dimensionality = "volume";
+    else if ( elements_region.element_type().dimension() == elements_region.element_type().dimensionality() + 1 )
+      dimensionality = "surface";
+    else if ( elements_region.element_type().dimension() == elements_region.element_type().dimensionality() + 2 )
+      dimensionality = "edge";
+    else if ( elements_region.element_type().dimension() == elements_region.element_type().dimensionality() + 3 )
+      dimensionality = "points";
+    else
+      throw InvalidStructure(FromHere(), "dimensionality of element is not physical");
+
     tree += elements_region.name() + " -- " + dimensionality + "  (" + to_str(elements_region.size()) +  ")\n";
   }
   return tree;

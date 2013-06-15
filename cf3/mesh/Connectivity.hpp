@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -7,22 +7,13 @@
 #ifndef cf3_mesh_Connectivity_hpp
 #define cf3_mesh_Connectivity_hpp
 
-//#include "mesh/Elements.hpp"
-#include "mesh/UnifiedData.hpp"
 #include "common/Table.hpp"
-#include "common/Group.hpp"
+#include "mesh/LibMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common {
-  class Link;
-  class Group;
-}
 namespace mesh {
-
-  class Region;
-  class Cells;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,9 +24,6 @@ class Mesh_API Connectivity : public common::Table<Uint>
 {
 public:
 
-  
-  
-
   /// Contructor
   /// @param name of the component
   Connectivity ( const std::string& name );
@@ -45,20 +33,6 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "Connectivity"; }
-
-//  UnifiedData& lookup();
-
-//  const UnifiedData& lookup() const { return *m_lookup; }
-
-//  UnifiedData& create_lookup();
-
-//  void set_lookup(UnifiedData& lookup);
-
-private: // data
-
-//  Handle<UnifiedData> m_lookup;
-
-//  Handle<common::Link> m_lookup_link;
 
 }; // Connectivity
 

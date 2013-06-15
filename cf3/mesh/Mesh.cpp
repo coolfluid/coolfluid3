@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -556,7 +556,7 @@ void Mesh::signal_create_continuous_space ( SignalArgs& node )
   const Dictionary& created_component =
       create_continuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("space"));
+        options.value<std::string>("shape_function"));
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -572,7 +572,7 @@ void Mesh::signal_create_discontinuous_space ( SignalArgs& node )
   const Dictionary& created_component =
       create_discontinuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("space"));
+        options.value<std::string>("shape_function"));
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);

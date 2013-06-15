@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -31,11 +31,17 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  void change_with_factor(const Real& factor);
+
+  virtual const Real& max_cfl() const { return m_cfl; }
+
 private:
 
   void parse_cfl();
 
-  math::AnalyticalFunction m_cfl;
+  math::AnalyticalFunction m_cfl_function;
+
+  Real m_cfl;
 
 };
 

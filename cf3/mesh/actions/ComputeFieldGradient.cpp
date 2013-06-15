@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -152,12 +152,12 @@ void ComputeFieldGradient::execute()
         entities.geometry_space().put_coordinates(cell_coords,e);
 
         // Assemble field values in a matrix
-        for (Uint n=0; n<field_space.shape_function().nb_nodes(); ++n)
+        for (Uint node=0; node<field_space.shape_function().nb_nodes(); ++node)
         {
-          Uint p = field_space.connectivity()[e][n];
+          Uint p = field_space.connectivity()[e][node];
           for (Uint v=0; v<field.row_size(); ++v)
           {
-            field_element_values(n,v) = field[p][v];
+            field_element_values(node,v) = field[p][v];
           }
         }
 

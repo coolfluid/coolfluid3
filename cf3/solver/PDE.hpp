@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -78,11 +78,17 @@ public: // functions
   /// @brief Handle to the configured solution
   const Handle<mesh::Field>& solution() { return m_solution; }
 
+  /// @brief Handle to the configured rhs
+  const Handle<mesh::Field>& rhs() { return m_rhs; }
+
+  /// @brief Handle to the configured wave_speed
+  const Handle<mesh::Field>& wave_speed() { if (is_null(m_wave_speed)) throw common::BadValue(FromHere(), ""); return m_wave_speed; }
+
   const Handle<solver::Time> time() { return m_time; }
   /// @brief Handle to the ODE right-hand-side computer
   ///
   /// dQ/dt = R( Q )
-  const Handle<solver::ComputeRHS>& rhs() { return m_rhs; }
+  const Handle<solver::ComputeRHS>& rhs_computer() { return m_rhs_computer; }
 
   const Handle<common::ActionDirector>& bc() { return m_bc; }
 
@@ -118,7 +124,9 @@ protected: // data
   Uint m_nb_eqs;
   Handle<mesh::Dictionary>                      m_fields;
   Handle<mesh::Field>                           m_solution;
-  Handle<solver::ComputeRHS>                    m_rhs;
+  Handle<mesh::Field>                           m_rhs;
+  Handle<mesh::Field>                           m_wave_speed;
+  Handle<solver::ComputeRHS>                    m_rhs_computer;
   Handle<common::ActionDirector>                m_bc;
   Handle<solver::Time>                          m_time;
 };

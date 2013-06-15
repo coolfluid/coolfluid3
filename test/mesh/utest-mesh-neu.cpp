@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -108,36 +108,34 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
+
+#if 0
+// Disabled because there exists a duplicate node inside this hextet mesh
+// The GlobalNumbering algorithm hence gets confused as to who gets to own it.
+// It could be decided that one of them becomes a ghost!
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
-
   boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
-  meshreader->options().set("number_of_processors",(Uint) Comm::instance().size());
-  meshreader->options().set("rank",(Uint) Comm::instance().rank());
-  meshreader->options().set("Repartition",false);
-  meshreader->options().set("OutputRank",(Uint) 2);
-
-  // the file to read from
-  boost::filesystem::path fp_in ("../../resources/hextet.neu");
+  meshreader->options().set("read_groups",true);
 
   // the mesh to store in
-  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>("hextet");
 
+  meshreader->read_mesh_into("../../resources/hextet.neu",mesh);
 
-  CFinfo.setFilterRankZero(false);
-  meshreader->do_read_mesh_into(fp_in,mesh);
-  CFinfo.setFilterRankZero(true);
+  CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count(true) << CFendl;
+  CFinfo << "nodes count    = " << find_component<Region>(mesh).recursive_nodes_count() << CFendl;
 
-  boost::filesystem::path fp_out ("hextet.msh");
   boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-  gmsh_writer->write_from_to(mesh,fp_out);
+  gmsh_writer->write_from_to(mesh, "hextet.msh");
 
   BOOST_CHECK(true);
 
+  boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
+  neu_writer->write_from_to(mesh, "hextet_write.neu");
 }
-*/
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 /*
 BOOST_AUTO_TEST_CASE( read_multiple_2D )

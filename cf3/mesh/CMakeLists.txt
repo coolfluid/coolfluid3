@@ -19,6 +19,8 @@ list( APPEND coolfluid_mesh_files
   DiscontinuousDictionary.cpp
   Domain.hpp
   Domain.cpp
+  Edges.hpp
+  Edges.cpp
   Entities.hpp
   Entities.cpp
   Elements.hpp

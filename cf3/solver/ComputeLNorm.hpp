@@ -1,25 +1,28 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_solver_actions_ComputeLNorm_hpp
-#define cf3_solver_actions_ComputeLNorm_hpp
+#ifndef cf3_solver_ComputeLNorm_hpp
+#define cf3_solver_ComputeLNorm_hpp
 
-#include "common/Action.hpp"
-
-#include "solver/actions/LibActions.hpp"
+#include "cf3/common/Action.hpp"
+#include "cf3/solver/LibSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common { template<typename T> class Table; }
-namespace mesh   { class Field; }
-namespace solver {
-namespace actions {
+  namespace mesh   { class Field; }
+  namespace solver { class History; }
+}
 
-class solver_actions_API ComputeLNorm : public common::Action {
+/////////////////////////////////////////////////////////////////////////////////////
+
+namespace cf3 {
+namespace solver {
+
+class solver_API ComputeLNorm : public common::Action {
 
 public: // functions
   /// Contructor
@@ -35,14 +38,20 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  std::vector<Real> compute_norm(common::Table<Real>& table) const;
+  std::vector<Real> compute_norm( mesh::Field& field) const;
 
+private:
+
+  Uint compute_nb_rows(const mesh::Field& field) const;
+
+  Handle<mesh::Field> m_field;
+
+  Handle<solver::History> m_history;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // actions
 } // solver
 } // cf3
 
-#endif // cf3_solver_actions_ComputeLNorm_hpp
+#endif // cf3_solver_ComputeLNorm_hpp

@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -128,12 +128,11 @@ void GlobalNumbering::execute()
   Uint i(0);
   boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
   {
-//    hilbert_indices.data()[i]=node_hash_value(to_vector(coords));
     math::copy(coords,coord_vec);
     hilbert_indices.data()[i]=compute_glb_idx(coord_vec);
 
     if (m_debug)
-      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< coord_vec.transpose() << ") to " << hilbert_indices.data()[i] << std::endl;
+      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node (local " << i << ")   (rank " << mesh.geometry_fields().rank()[i] << ")   coord("<< coord_vec.transpose() << ") to " << hilbert_indices.data()[i] << std::endl;
     ++i;
   }
 
@@ -167,7 +166,7 @@ void GlobalNumbering::execute()
     for (Uint i=0; i<hilbert_indices.data().size(); ++i)
     {
       if (hilbert_set.insert(hilbert_indices.data()[i]).second == false)  // it was already in the set
-        throw ValueExists(FromHere(), "node "+to_str(i)+" ("+to_str(coordinates[18])+") is duplicated");
+        throw ValueExists(FromHere(), "node "+to_str(i)+" ("+to_str(coordinates[i])+") is duplicated");
     }
 
     hilbert_set.clear();
@@ -297,7 +296,7 @@ void GlobalNumbering::execute()
             {
               const Uint loc_idx = node_hilbert2loc[hilbert_idx];
               if (m_debug)
-                std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< hilbert_idx << " (" << loc_idx<< ") to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< hilbert_idx << " (local " << loc_idx<< ") to (global " << rcv_node_to[rcv_idx] << ")" << std::endl;
               cf3_assert(rcv_idx < rcv_node_to.size());
               nodes_glb_idx[loc_idx]=rcv_node_to[rcv_idx];
               cf3_assert(loc_idx < nodes_rank.size());

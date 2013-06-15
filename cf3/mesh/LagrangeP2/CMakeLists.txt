@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_lagrangep2_files
   Quad.cpp
   Quad2D.hpp
   Quad2D.cpp
+  Quad3D.hpp
+  Quad3D.cpp
   Triag.hpp
   Triag.cpp
   Triag2D.hpp

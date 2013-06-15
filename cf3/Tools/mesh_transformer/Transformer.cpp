@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -52,7 +52,10 @@ Transformer::commands_description Transformer::description()
   commands_description desc("Mesh Transformer Commands");
   desc.add_options()
 //  ("help,h",    value< std::string >()->implicit_value(std::string())->notifier(&help     ), "this help if no arg, or more detailed help of submodule")
-  ("input",     value< std::vector<std::string> >()->notifier(&input    )->multitoken(), "input file(s)")
+  ("input",     value< std::vector<std::string> >()->notifier(&input0   )->multitoken(), "input file(s)")
+  ("input1d",   value< std::vector<std::string> >()->notifier(&input1   )->multitoken(), "input file(s), force 1D")
+  ("input2d",   value< std::vector<std::string> >()->notifier(&input2   )->multitoken(), "input file(s), force 2D")
+  ("input3d",   value< std::vector<std::string> >()->notifier(&input3   )->multitoken(), "input file(s), force 3D")
   ("output" ,   value< std::vector<std::string> >()->notifier(&output   )->multitoken(), "output file(s)")
   ("transform", value< std::vector<std::string> >()->notifier(&transform)->multitoken(), "transformations")
   ;
@@ -164,7 +167,27 @@ void Transformer::help( const std::string& param )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Transformer::input( const std::vector<std::string>& params )
+void Transformer::input0( const std::vector<std::string>& params )
+{
+  input(params,0u);
+}
+
+void Transformer::input1( const std::vector<std::string>& params )
+{
+  input(params,1u);
+}
+
+void Transformer::input2( const std::vector<std::string>& params )
+{
+  input(params,2u);
+}
+
+void Transformer::input3( const std::vector<std::string>& params )
+{
+  input(params,3u);
+}
+
+void Transformer::input( const std::vector<std::string>& params, Uint dimension )
 {
   bool dryrun = false;
 
@@ -188,40 +211,9 @@ void Transformer::input( const std::vector<std::string>& params )
     files.push_back(value);
   }
 
-  allocate_component<mesh::LoadMesh>("mesh_loader")->load_multiple_files(files,*mesh);
-//  boost_foreach(const std::string& value, params)
-//  {
-//    URI inputfile (value);
-//    const std::string ext = inputfile.extension();
-//    Handle< MeshReader > reader;
-//    if (!extensions_to_readers.count(ext))
-//    {
-//      Uint selection = 0;
-//      CFinfo << inputfile.path() << " has ambiguous extension " << ext << CFendl;
-//      boost_foreach(const boost::shared_ptr< MeshReader > selectreader , readers)
-//      CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
-//      CFinfo << "Select the correct reader: " << CFflush;
-//      std::cin >> selection;
-//      reader = Handle<MeshReader>(readers[--selection]);
-//    }
-//    else
-//    {
-//      Uint selection = 0;
-//      if (extensions_to_readers[ext].size()>1)
-//      {
-//        CFinfo << inputfile.path() << " with extension " << ext << " has multiple readers: " << CFendl;
-//        boost_foreach(const boost::shared_ptr< MeshReader > selectreader , extensions_to_readers[ext])
-//        CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
-//        CFinfo << "Select the correct reader: " << CFflush;
-//        std::cin >> selection;
-//        --selection;
-//      }
-//      reader = Handle<MeshReader>(extensions_to_readers[ext][selection]);
-//    }
-
-//    CFinfo << "\nReading " << inputfile.path() << " with " << reader->get_format() << CFendl;
-//    if (!dryrun) reader->read_mesh_into(inputfile,*mesh);
-//  }
+  boost::shared_ptr<mesh::LoadMesh> mesh_loader = allocate_component<mesh::LoadMesh>("mesh_loader");
+  mesh_loader->options().set("dimension",dimension);
+  mesh_loader->load_multiple_files(files,*mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -252,7 +252,12 @@ void create_face_element_connectivity(const Elements& own_celements,
               if(adjacent_face_nodes == face_nodes) // now we have a match if the node lists are identical
               {
                 const Uint global_face_idx = elem_idx * face_count + face_idx;
-                cf3_assert(!face_has_neighbour[global_face_idx]); // We must find only one matching face
+
+//  WD: DISABLED FOLLOWING ASSERTION BECAUSE:
+//    a cell-face might be adjacent to a inner surface as well as an adjacent cell.
+//    Probably it is the adjacent element that is sought after, and this one should be selected
+//    in that case.
+//                cf3_assert(!face_has_neighbour[global_face_idx]); // We must find only one matching face
                 face_has_neighbour[global_face_idx] = true;
                 face_element_connectivity[global_face_idx] = adjacent_element;
                 face_face_connectivity[global_face_idx] = adj_face_idx;
