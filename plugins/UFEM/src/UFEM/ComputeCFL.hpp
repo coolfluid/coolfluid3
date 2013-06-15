@@ -38,6 +38,7 @@ private:
   Real m_max_cfl;
   Real m_max_computed_cfl;
   Handle<solver::Time> m_time;
+  Real m_dt;
 };
 
 } // UFEM

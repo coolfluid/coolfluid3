@@ -52,7 +52,8 @@ common::ComponentBuilder < ComputeCFL, common::Action, LibUFEM > ComputeCFL_Buil
 
 ComputeCFL::ComputeCFL(const std::string& name) :
   ProtoAction(name),
-  m_max_cfl(0.8)
+  m_max_cfl(0.8),
+  m_dt(0.)
 {
   options().add("velocity_field_tag", "navier_stokes_u_solution")
     .pretty_name("Velocity Field Tag")
@@ -72,8 +73,7 @@ ComputeCFL::ComputeCFL(const std::string& name) :
   options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Time component for the simulation")
-    .link_to(&m_time)
-    .attach_trigger(boost::bind(&ComputeCFL::trigger_variable, this));
+    .link_to(&m_time);
 
   trigger_variable();
 }
@@ -174,9 +174,6 @@ static solver::actions::Proto::MakeSFOp<CFLOp>::type const compute_cfl = {};
 
 void ComputeCFL::trigger_variable()
 {
-  if(is_null(m_time))
-    return;
-
   using boost::proto::lit;
 
   const std::string tag = options().option("velocity_field_tag").value<std::string>();
@@ -191,7 +188,7 @@ void ComputeCFL::trigger_variable()
     group
     (
       compute_cfl(u, lit(m_cfl_scaling)),
-      cfl = lit(m_time->dt()) * lit(m_cfl_scaling),
+      cfl = lit(m_dt) * lit(m_cfl_scaling),
       lit(m_max_computed_cfl) = _max(lit(m_max_computed_cfl), cfl)
     )
   ));
@@ -201,6 +198,8 @@ void ComputeCFL::execute()
 {
   if(is_null(m_time))
     throw common::SetupError(FromHere(), "No time component configured for ComputeCFL");
+  
+  m_dt = m_time->dt();
 
   m_max_computed_cfl = 0.;
   ProtoAction::execute();
@@ -211,7 +210,7 @@ void ComputeCFL::execute()
     common::PE::Comm::instance().all_reduce(common::PE::max(), &m_max_computed_cfl, 1, &global_max_cfl);
   }
 
-  CFinfo << "CFL for time step " << m_time->dt() << " is " << global_max_cfl << CFendl;
+  CFinfo << "CFL for time step " << m_dt << " is " << global_max_cfl << CFendl;
 }
 
 
