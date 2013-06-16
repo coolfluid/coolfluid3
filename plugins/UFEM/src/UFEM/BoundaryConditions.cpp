@@ -65,7 +65,8 @@ struct BoundaryConditions::Implementation
     m_component.options().add(solver::Tags::regions(), std::vector<URI>())
       .pretty_name("Regions")
       .description("Regions the boundary condition applies to")
-      .link_to(&m_region_uris);
+      .link_to(&m_region_uris)
+      .mark_basic();
     m_component.options().add< Handle<physics::PhysModel> >(solver::Tags::physical_model())
       .pretty_name("Physical Model")
       .description("Physical Model")
@@ -167,6 +168,19 @@ struct BoundaryConditions::Implementation
 
     bc_action.options().set(solver::Tags::regions(), bc_regions);
     bc_action.configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
+    bc_action.options().option(solver::Tags::regions()).add_tag("norecurse");
+  }
+
+  void set_scalar_function_expression(const std::string& variable_name, ParsedFunctionExpression& func)
+  {
+    FieldVariable<0, ScalarField> var(variable_name, m_solution_tag);
+    func.set_expression( nodes_expression( dirichlet(var) = func.scalar_function() ) );
+  }
+
+  void set_vector_function_expression(const std::string& variable_name, ParsedFunctionExpression& func)
+  {
+    FieldVariable<0, VectorField> var(variable_name, m_solution_tag);
+    func.set_expression( nodes_expression( dirichlet(var) = func.vector_function() ) );
   }
 
   ActionDirector& m_component;
@@ -253,8 +267,16 @@ Handle< common::Action > BoundaryConditions::add_function_bc(const std::string& 
 {
   Handle<ParsedFunctionExpression> result = create_component<ParsedFunctionExpression>("BC"+region_name+variable_name);
 
-  FieldVariable<0, VectorField> var(variable_name, m_implementation->m_solution_tag);
-  result->set_expression( nodes_expression( m_implementation->dirichlet(var) = result->vector_function() ) );
+  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), m_implementation->m_solution_tag);
+
+  if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
+  {
+    m_implementation->set_scalar_function_expression(variable_name, *result);
+  }
+  else
+  {
+    m_implementation->set_vector_function_expression(variable_name, *result);
+  }
 
   m_implementation->configure_bc(*result, region_name);
 

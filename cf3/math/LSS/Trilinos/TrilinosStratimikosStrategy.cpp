@@ -20,7 +20,7 @@
 #include "Thyra_EpetraThyraWrappers.hpp"
 #include "Thyra_LinearOpWithSolveBase.hpp"
 #include "Thyra_VectorBase.hpp"
-#include "Thyra_MultiVectorStdOps.hpp"
+#include "Thyra_VectorStdOps.hpp"
 
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
 
@@ -29,7 +29,7 @@
 #include "common/OptionList.hpp"
 
 #include "ParameterList.hpp"
-#include "ThyraMultiVector.hpp"
+#include "ThyraVector.hpp"
 #include "ThyraOperator.hpp"
 #include "TrilinosStratimikosStrategy.hpp"
 #include "ParameterListDefaults.hpp"
@@ -53,7 +53,9 @@ struct TrilinosStratimikosStrategy::Implementation
 {
   Implementation(common::Component& self) :
     m_self(self),
-    m_parameter_list(Teuchos::createParameterList())
+    m_parameter_list(Teuchos::createParameterList()),
+    m_preconditioner_reset(1),
+    m_iteration_count(0)
   {
     Teko::addTekoToStratimikosBuilder(m_linear_solver_builder);
     m_linear_solver_builder.setParameterList(m_parameter_list);
@@ -73,6 +75,12 @@ struct TrilinosStratimikosStrategy::Implementation
       .pretty_name("Print Settings")
       .description("Print out the solver settings upon first solve")
       .mark_basic();
+      
+    m_self.options().add("preconditioner_reset", m_preconditioner_reset)
+      .pretty_name("Preconditioner Reset")
+      .description("Number of iterations after which the preconditioner is reset")
+      .mark_basic()
+      .link_to(&m_preconditioner_reset);
 
     m_self.options().add("settings_file", common::URI("", cf3::common::URI::Scheme::FILE))
       .supported_protocol(cf3::common::URI::Scheme::FILE)
@@ -120,6 +128,7 @@ struct TrilinosStratimikosStrategy::Implementation
 
     // Update the component tree that represents the parameters. This automatically exposes available options
     update_parameters();
+    m_iteration_count = 0;
   }
 
   void solve()
@@ -141,12 +150,33 @@ struct TrilinosStratimikosStrategy::Implementation
       m_lows = m_lows_factory->createOp();
     }
 
-    Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    
+    if(m_iteration_count % m_preconditioner_reset == 0)
+    {
+      Thyra::initializeOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    }
+    else
+    {
+      Thyra::initializeAndReuseOp(*m_lows_factory, m_matrix->thyra_operator(), m_lows.ptr());
+    }
 
-    Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *m_rhs->thyra_vector(m_matrix->thyra_operator()->range()), m_solution->thyra_vector(m_matrix->thyra_operator()->domain()).ptr());
-    CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
+    Teuchos::RCP< Thyra::VectorBase<Real> const > b = m_rhs->thyra_vector();
+    Teuchos::RCP< Thyra::VectorBase<Real> > x = m_solution->thyra_vector();
+    
+    try
+    {
+      Thyra::SolveStatus<double> status = Thyra::solve<double>(*m_lows, Thyra::NOTRANS, *b, x.ptr());
+      CFinfo << "Thyra::solve finished with status " << status.message << CFendl;
+    }
+    catch(std::exception& e)
+    {
+      std::cout << e.what() << std::endl;
+    }
+    
     if(m_self.options().option("compute_residual").value<bool>())
       CFinfo << "Solver residual: " << compute_residual() << CFendl;
+    
+    ++m_iteration_count;
   }
 
   Real compute_residual()
@@ -165,11 +195,11 @@ struct TrilinosStratimikosStrategy::Implementation
 
     if(m_residual_vec.is_null())
     {
-      m_residual_vec = m_rhs->thyra_vector(m_matrix->thyra_operator()->range())->clone_mv();
+      m_residual_vec = m_rhs->thyra_vector()->clone_v();
     }
 
-    Thyra::assign(m_rhs->thyra_vector(m_matrix->thyra_operator()->range()).ptr(), *m_residual_vec);
-    m_lows->apply(Thyra::NOTRANS, *m_solution->thyra_vector(m_matrix->thyra_operator()->domain()), m_residual_vec.ptr(), 1., -1.);
+    Thyra::assign(m_rhs->thyra_vector().ptr(), *m_residual_vec);
+    m_lows->apply(Thyra::NOTRANS, *m_solution->thyra_vector(), m_residual_vec.ptr(), 1., -1.);
     std::vector<Real> residuals(m_residual_vec->domain()->dim());
     Thyra::norms_2(*m_residual_vec, Teuchos::arrayViewFromVector(residuals));
     return *std::max_element(residuals.begin(), residuals.end());
@@ -193,10 +223,13 @@ struct TrilinosStratimikosStrategy::Implementation
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > m_lows;
 
   Handle<ThyraOperator const> m_matrix;
-  Handle<ThyraMultiVector> m_rhs;
-  Handle<ThyraMultiVector> m_solution;
-  Teuchos::RCP< Thyra::MultiVectorBase<Real> > m_residual_vec;
+  Handle<ThyraVector> m_rhs;
+  Handle<ThyraVector> m_solution;
+  Teuchos::RCP< Thyra::VectorBase<Real> > m_residual_vec;
   Handle<ParameterList> m_parameters;
+  
+  Uint m_preconditioner_reset;
+  Uint m_iteration_count;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,12 +257,12 @@ void TrilinosStratimikosStrategy::set_matrix(const Handle< Matrix >& matrix)
 
 void TrilinosStratimikosStrategy::set_rhs(const Handle< Vector >& rhs)
 {
-  m_implementation->m_rhs = Handle<ThyraMultiVector>(rhs);
+  m_implementation->m_rhs = Handle<ThyraVector>(rhs);
 }
 
 void TrilinosStratimikosStrategy::set_solution(const Handle< Vector >& solution)
 {
-  m_implementation->m_solution = Handle<ThyraMultiVector>(solution);
+  m_implementation->m_solution = Handle<ThyraVector>(solution);
 }
 
 void TrilinosStratimikosStrategy::solve()

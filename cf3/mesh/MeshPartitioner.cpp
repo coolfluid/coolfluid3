@@ -113,6 +113,35 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 void MeshPartitioner::initialize(Mesh& mesh)
 {
   m_mesh = mesh.handle<Mesh>();
+
+  // Data to indicate if a node has a periodic link
+  Handle< common::List<Uint> > periodic_links_nodes(mesh.geometry_fields().get_child("periodic_links_nodes"));
+  Handle< common::List<bool> > periodic_links_active(mesh.geometry_fields().get_child("periodic_links_active"));
+
+  const Uint nb_nodes = mesh.geometry_fields().size();
+  m_periodic_links.assign(nb_nodes, std::make_pair(false, 0));
+  m_inverse_periodic_links.assign(nb_nodes, std::vector<Uint>());
+
+  if(is_not_null(periodic_links_active))
+  {
+    cf3_assert(periodic_links_active->size() == nb_nodes);
+    const common::List<Uint>& links_nodes = *periodic_links_nodes;
+    const common::List<bool>&  links_active = *periodic_links_active;
+    for(Uint i = 0; i != nb_nodes; ++i)
+    {
+      if(links_active[i])
+      {
+        m_periodic_links[i] = std::make_pair(true, links_nodes[i]);
+        Uint final_target_node = links_nodes[i];
+        while(links_active[final_target_node])
+        {
+          final_target_node = links_nodes[final_target_node];
+        }
+        m_inverse_periodic_links[final_target_node].push_back(i);
+      }
+    }
+  }
+
   Dictionary& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
   for (Uint i=0; i<nodes.size(); ++i)
@@ -182,9 +211,10 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
 
   m_nb_owned_obj = 0;
   common::List<Uint>& node_glb_idx = nodes.glb_idx();
-  for (Uint i=0; i<nodes.size(); ++i)
+  const Uint nb_nodes = nodes.size();
+  for (Uint i=0; i<nb_nodes; ++i)
   {
-    if (!nodes.is_ghost(i))
+    if (!nodes.is_ghost(i) && !m_periodic_links[i].first)
     {
       //std::cout << PE::Comm::instance().rank() << " --   owning node " << node_glb_idx[i] << std::endl;
       ++m_nb_owned_obj;
@@ -196,11 +226,11 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
     m_nb_owned_obj += elements->size();
   }
 
-  Uint tot_nb_obj = m_lookup->size();
+  const Uint tot_nb_obj = m_lookup->size();
   m_global_to_local->reserve(tot_nb_obj);
   Uint loc_idx=0;
   //CFinfo << "adding nodes to map " << CFendl;
-  boost_foreach (Uint glb_idx, node_glb_idx.array())
+  boost_foreach (const Uint glb_idx, node_glb_idx.array())
   {
     //CFinfo << "  adding node with glb " << glb_idx << CFendl;
     if (nodes.is_ghost(loc_idx) == false)
@@ -362,6 +392,17 @@ void MeshPartitioner::migrate()
   mesh_adaptor.finish();
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+Uint MeshPartitioner::periodic_target_node ( Uint node ) const
+{
+  while(m_periodic_links[node].first)
+    node = m_periodic_links[node].second;
+  
+  return node;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 

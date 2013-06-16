@@ -281,6 +281,9 @@ public:
   /// @return vector of bools
   std::vector<bool>& isUpdatable() { return m_isUpdatable; }
 
+  /// Return the rank associated with the given local ID
+  int rank(const Uint lid) const { return m_ranks[lid]; }
+
   //@} END ACCESSORS
 
 protected: // helper function
@@ -342,6 +345,9 @@ private:
 
   /// this is the map of receiveing communication pattern
   std::vector< CPint > m_recvMap;
+
+  /// Rank for all the gids in local index space
+  std::vector<int> m_ranks;
 
 }; // CommPattern
 

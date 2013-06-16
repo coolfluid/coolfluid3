@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   std::vector<Uint> node_connectivity, starting_indices;
   Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
   Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
-  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  Handle< List<int> > used_node_map = domain.create_component< List<int> >("used_node_map");
   UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   // Check result
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   std::vector<Uint> node_connectivity, starting_indices;
   Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
   Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
-  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  Handle< List<int> > used_node_map = domain.create_component< List<int> >("used_node_map");
   UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   std::vector<Uint> node_connectivity, starting_indices;
   Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
   Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
-  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  Handle< List<int> > used_node_map = domain.create_component< List<int> >("used_node_map");
   UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   std::vector<Uint> node_connectivity, starting_indices;
   Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
   Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
-  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  Handle< List<int> > used_node_map = domain.create_component< List<int> >("used_node_map");
   UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
@@ -249,7 +249,6 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
-
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_3DHexaBlock.plt");
@@ -283,7 +282,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   std::vector<Uint> node_connectivity, starting_indices;
   Handle< List<Uint> > gids = domain.create_component< List<Uint> >("GIDs");
   Handle< List<Uint> > ranks = domain.create_component< List<Uint> >("Ranks");
-  Handle< List<Uint> > used_node_map = domain.create_component< List<Uint> >("used_node_map");
+  Handle< List<int> > used_node_map = domain.create_component< List<int> >("used_node_map");
   UFEM::build_sparsity(std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()), mesh.geometry_fields(), node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
 
   PE::CommPattern& comm_pattern = *domain.create_component<PE::CommPattern>("CommPattern");
@@ -349,7 +348,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));
   
-  LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+  LSS::System& lss = lss_action->create_lss();
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_1DHeat.plt");

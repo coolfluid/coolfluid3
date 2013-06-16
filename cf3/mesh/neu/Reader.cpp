@@ -394,6 +394,9 @@ void Reader::read_connectivity()
     // element description
     Uint elementNumber, elementType, nbElementNodes;
     m_file >> elementNumber >> elementType >> nbElementNodes;
+    
+    if(!m_supported_neu_types.count(elementType))
+      throw common::NotSupported(FromHere(), "Failed to read neutral file: unsupported element type " + common::to_str(elementType));
 
     // get element nodes
     if (m_hash->subhash(ELEMS).owns(i))
@@ -613,9 +616,8 @@ std::string Reader::element_type(const Uint neu_type, const Uint nb_nodes)
   else if (neu_type==TRIAG && nb_nodes==3) cf_type = "cf3.mesh.LagrangeP1.Triag" + dim + "D";  // triangle
   else if (neu_type==HEXA  && nb_nodes==8) cf_type = "cf3.mesh.LagrangeP1.Hexa"  + dim + "D";  // hexahedron
   else if (neu_type==TETRA && nb_nodes==4) cf_type = "cf3.mesh.LagrangeP1.Tetra" + dim + "D";  // tetrahedron
+  else if (neu_type==5 && nb_nodes==6) cf_type = "cf3.mesh.LagrangeP1.Prism3D";                // wedge (prism)
   /// @todo to be implemented
-  else if (neu_type==5 && nb_nodes==6) // wedge (prism)
-    throw common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
   else if (neu_type==7 && nb_nodes==5) // pyramid
     throw common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
   else {

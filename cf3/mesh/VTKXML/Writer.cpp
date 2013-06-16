@@ -248,7 +248,8 @@ void Writer::write()
     (GeoShape::TRIAG,5)
     (GeoShape::QUAD, 9)
     (GeoShape::TETRA, 10)
-    (GeoShape::HEXA, 12);
+    (GeoShape::HEXA, 12)
+    (GeoShape::PRISM, 13);
 
   // Count number of elements
   Uint nb_elems = 0;
@@ -413,9 +414,9 @@ void Writer::write()
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
         {
-          const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
+            const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
             const Uint n_elems = elements.size();
             if(dim == 2 && var_size == 2)
             {

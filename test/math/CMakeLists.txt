@@ -50,6 +50,8 @@ coolfluid_add_test( UTEST utest-lss-system-emptylss
                     LIBS  coolfluid_math_lss coolfluid_math
                     MPI   1 )
 if(CF3_HAVE_TRILINOS)
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 coolfluid_add_test( UTEST utest-lss-atomic-fevbr
                     CPP   utest-lss-atomic.cpp
                     LIBS  coolfluid_math_lss coolfluid_math
@@ -74,8 +76,13 @@ coolfluid_add_test( UTEST utest-lss-symmetric-dirichlet-crs
 
 add_test(NAME utest-lss-symmetric-dirichlet-fevbr COMMAND ${MPIEXEC} -np 2 $<TARGET_FILE:utest-lss-symmetric-dirichlet-crs> cf3.math.LSS.TrilinosFEVbrMatrix)
 
+coolfluid_add_test( UTEST utest-lss-vector
+                    CPP   utest-lss-vector.cpp
+                    LIBS  coolfluid_math_lss coolfluid_math
+                    MPI   2)
+
 else()
-coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp)
+coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp utest-lss-vector.cpp)
 endif()
 
 coolfluid_add_test( UTEST utest-lss-solvelss

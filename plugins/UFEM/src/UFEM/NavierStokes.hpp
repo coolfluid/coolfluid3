@@ -70,6 +70,7 @@ private:
   void set_quad_assembly();
   void set_tetra_assembly(const bool use_specialization);
   void set_hexa_assembly();
+  void set_prism_assembly();
   
 
   /// The velocity solution field

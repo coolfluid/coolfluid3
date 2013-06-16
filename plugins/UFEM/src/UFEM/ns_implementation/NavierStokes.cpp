@@ -95,6 +95,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_solution", false);
   // Extrapolate the velocity
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
+  //add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = u)));
 
   // Container for the assembly actions. Will be filled depending on the value of options, such as using specializations or not
   m_assembly = create_component<solver::ActionDirector>("Assembly");
@@ -129,12 +130,13 @@ void NavierStokes::trigger_assembly()
     }
   else
   {
-  // Add the assembly, depending on the use of specialized code or not
-  const bool use_specializations = options().value<bool>("use_specializations");
-  set_triag_assembly(use_specializations);
-  set_tetra_assembly(use_specializations);
-  set_quad_assembly();
-  set_hexa_assembly();
+    // Add the assembly, depending on the use of specialized code or not
+    const bool use_specializations = options().value<bool>("use_specializations");
+    set_triag_assembly(use_specializations);
+    set_tetra_assembly(use_specializations);
+    set_quad_assembly();
+    set_hexa_assembly();
+    set_prism_assembly();
   }
   if(is_not_null(m_physical_model))
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);

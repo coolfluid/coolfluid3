@@ -19,7 +19,7 @@
 #include "math/LSS/BlockAccumulator.hpp"
 #include "math/LSS/Vector.hpp"
 
-#include "ThyraMultiVector.hpp"
+#include "ThyraVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosVector : public LSS::Vector, public ThyraMultiVector {
+class LSS_API TrilinosVector : public LSS::Vector, public ThyraVector {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -63,8 +63,8 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(common::PE::CommPattern& cp, Uint neq);
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars);
+  void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Deallocate underlying data
   void destroy();
@@ -153,6 +153,17 @@ public:
   /// Accessor to the trilinos data
   /// @attention this function is not (and should never be) part of the interface itself, only used between trilinoses
   Teuchos::RCP<Epetra_Vector> epetra_vector() { return m_vec; }
+  Teuchos::RCP<Epetra_Vector const> epetra_vector() const { return m_vec; }
+
+  void clone_to(Vector &other);
+
+  void assign(const Vector& source);
+  
+  void update ( const Vector& source, const Real alpha = 1. );
+  
+  void scale ( const Real alpha );
+
+  void sync();
 
   //@} END MISCELLANEOUS
 
@@ -167,13 +178,18 @@ public:
   
   void signal_print_native(common::SignalArgs& args);
   
-  Teuchos::RCP< const Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space ) const;
-  Teuchos::RCP< Thyra::MultiVectorBase< Real > > thyra_vector ( const Teuchos::RCP< const Thyra::VectorSpaceBase< Real > >& space );
+  Teuchos::RCP< const Thyra::VectorBase< Real > > thyra_vector () const;
+  Teuchos::RCP< Thyra::VectorBase< Real > > thyra_vector ();
   
 private:
 
+  /// Actual vector data. The epetra vector is a view for this that omits the ghost nodes
+  std::vector<Real> m_data;
+  
   /// teuchos style smart pointer wrapping an epetra vector
   Teuchos::RCP<Epetra_Vector> m_vec;
+
+  Teuchos::RCP<Epetra_Map> m_map;
 
   /// epetra mpi environment
   Epetra_MpiComm m_comm;
@@ -193,6 +209,8 @@ private:
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
 
+  /// The comm pattern is kept as shared ptr, so it can be shared between any clones of this vector.
+  boost::shared_ptr<common::PE::CommPattern> m_comm_pattern;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

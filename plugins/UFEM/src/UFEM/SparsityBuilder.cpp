@@ -28,7 +28,7 @@ using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks, List<Uint>& used_node_map)
+boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region> >& regions, const Dictionary& dictionary, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices, List<Uint>& gids, List<Uint>& ranks, List<int>& used_node_map)
 {
   // Get some data from the dictionary
   const Uint nb_global_nodes = dictionary.size();
@@ -55,6 +55,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   gids.resize(nb_used_nodes);
   ranks.resize(nb_used_nodes);
   used_node_map.resize(nb_global_nodes);
+  std::fill(used_node_map.array().begin(), used_node_map.array().end(), -1);
   Uint nb_local_nodes = 0;
   for(Uint i = 0; i != nb_used_nodes; ++i)
   {
@@ -64,7 +65,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
     {
       ++nb_local_nodes;
     }
-    ranks[i] = dict_rank[i];
+    ranks[i] = dict_rank[node_idx];
   }
 
   // Get the layout of the new GIDs across CPUs

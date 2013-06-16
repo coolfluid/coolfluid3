@@ -35,7 +35,9 @@ struct SetRHSSetter :
               , typename impl::data_param data
     ) const
     {
-      const Uint node_idx = boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx);
+      const int node_idx = boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx);
+      if(node_idx < 0)
+        return;
       const Uint sys_idx = node_idx*data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
       boost::proto::value( boost::proto::child_c<0>(expr) ).rhs().set_value(sys_idx, state);
     }

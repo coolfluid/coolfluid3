@@ -189,6 +189,7 @@ physics::PhysModel& Model::create_physics( const std::string& builder )
 
   add_component(pm);
   m_implementation->m_physics = Handle<physics::PhysModel>(pm);
+  m_implementation->m_physics->mark_basic();
 
   configure_option_recursively(Tags::physical_model(), m_implementation->m_physics);
 

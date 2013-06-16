@@ -74,7 +74,7 @@ struct NavierStokesAssemblyFixture
     mesh->raise_mesh_loaded();
 
     solver->configure_option_recursively("regions", std::vector<URI>(1, mesh->topology().uri()));
-    math::LSS::System& lss = lss_action->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+    math::LSS::System& lss = lss_action->create_lss();
 
     const std::vector<std::string> disabled_actions = boost::assign::list_of("BoundaryConditions")("SolveLSS")("Update");
     lss_action->options().set("disabled_actions", disabled_actions);

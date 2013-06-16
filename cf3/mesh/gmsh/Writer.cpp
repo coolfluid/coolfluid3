@@ -69,6 +69,7 @@ Writer::Writer( const std::string& name )
   m_elementTypes["cf3.mesh.LagrangeP1.Quad3D" ]=P1QUAD;
   m_elementTypes["cf3.mesh.LagrangeP1.Tetra3D"]=P1TETRA;
   m_elementTypes["cf3.mesh.LagrangeP1.Hexa3D" ]=P1HEXA;
+  m_elementTypes["cf3.mesh.LagrangeP1.Prism3D"]=P1PRISM;
 
   m_elementTypes["cf3.mesh.LagrangeP2.Line1D" ]=P2LINE;
   m_elementTypes["cf3.mesh.LagrangeP2.Line2D" ]=P2LINE;

@@ -11,6 +11,7 @@
 #include "common/Libraries.hpp"
 #include "common/Group.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 #include "python/CoreWrapper.hpp"
 #include "python/ComponentWrapper.hpp"
@@ -73,6 +74,11 @@ struct CoreWrapper
   {
     common::Core::instance().terminate();
   }
+  
+  static void wait_for_debugger(const int rank)
+  {
+    common::PE::wait_for_debugger(rank);
+  }
 };
 
 void def_core()
@@ -93,7 +99,9 @@ void def_core()
     .def("rank", CoreWrapper::rank)
     .staticmethod("rank")
     .def("nb_procs", CoreWrapper::nb_procs)
-    .staticmethod("nb_procs");
+    .staticmethod("nb_procs")
+    .def("wait_for_debugger", CoreWrapper::wait_for_debugger)
+    .staticmethod("wait_for_debugger");
 }
 
 

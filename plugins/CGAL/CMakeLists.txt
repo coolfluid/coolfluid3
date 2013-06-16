@@ -9,6 +9,9 @@ project( CGAL CXX )
 coolfluid_define_plugin( CGAL ${CMAKE_CURRENT_SOURCE_DIR} )
 
 find_package(CGAL QUIET)
+if(CGAL_FOUND)
+  include(${CGAL_USE_FILE})
+endif()
 find_package(GMP QUIET)
 find_package(MPFR QUIET)
 

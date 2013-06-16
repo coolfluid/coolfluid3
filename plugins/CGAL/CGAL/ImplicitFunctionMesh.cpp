@@ -14,6 +14,7 @@
 #include <CGAL/number_utils.h>
 
 #include "common/Log.hpp"
+#include "common/List.hpp"
 #include "common/Table.hpp"
 
 #include "mesh/Connectivity.hpp"
@@ -22,6 +23,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Cells.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
@@ -34,7 +36,6 @@ using namespace cf3::mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
 namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,48 +48,65 @@ CGReal SphereFunction::operator()(const Point& p) const {
 
 /// Converts a CGAL mesh to a coolfluid mesh
 template<typename TriangulationComplexT>
-void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
+void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh)
+{
   // Map CGAL vertex handles to coolfluid point indices
   typedef ::CGAL::Unique_hash_map<typename TriangulationComplexT::Vertex_handle,Uint,::CGAL::Handle_hash_function> VertexMapT;
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
-
-  Region& region = mesh.topology().create_region("region");
-  Dictionary& nodes = mesh.geometry_fields();
-  mesh.initialize_nodes(0,DIM_3D);
-
-  // coordinate storage
-  Table<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
-  std::vector<Real> coords_row(3);
-  Uint coord_row_count = 0;
-
-  // connectivity storage
-  Elements& elements = region.create_elements("cf3.mesh.LagrangeP1.Tetra3D",nodes);
-  Table<Uint>::Buffer connBuffer = elements.geometry_space().connectivity().create_buffer(complex.number_of_cells());
-  std::vector<Uint> cell_row(4);
-
-  CFinfo << "iterating over the cells" << CFendl;
+  const Uint nb_cells = complex.number_of_cells();
+  
+  std::vector<Point> points; points.reserve(nb_cells*2);
+  std::vector<Uint> cells; cells.reserve(nb_cells*4);
 
   for(typename TriangulationComplexT::Cell_iterator cell = complex.cells_begin(); cell != complex.cells_end(); ++cell) {
     for(Uint i = 0; i != 4; ++i) {
       typename TriangulationComplexT::Vertex_handle v = cell->vertex(i);
       if(!vertex_map.is_defined(v)) { // store the point, if we didn't have it already
-        vertex_map[v] = coord_row_count;
-        const Point p = v->point();
-        coords_row[XX] = ::CGAL::to_double(p.x());
-        coords_row[YY] = ::CGAL::to_double(p.y());
-        coords_row[ZZ] = ::CGAL::to_double(p.z());
-        coordinatesBuffer.add_row(coords_row);
-        ++coord_row_count;
+        vertex_map[v] = points.size();
+        points.push_back(v->point());
       }
-      cell_row[i] = vertex_map[v];
+      cells.push_back(vertex_map[v]);
     }
-    connBuffer.add_row(cell_row);
   }
-  coordinatesBuffer.flush();
-  connBuffer.flush();
-  nodes.resize(nodes.coordinates().size());
-  elements.resize(elements.geometry_space().connectivity().size());
+
+  // Coordinates
+  const Uint nb_points = points.size();
+  Region& region = mesh.topology().create_region("region");
+  Dictionary& nodes = mesh.geometry_fields();
+  mesh.initialize_nodes(nb_points,DIM_3D);
+  Field& coordinates = nodes.coordinates();
+  for(Uint i = 0 ; i != nb_points; ++i)
+  {
+    Field::Row coords_row = coordinates[i];
+    coords_row[XX] = ::CGAL::to_double(points[i].x());
+    coords_row[YY] = ::CGAL::to_double(points[i].y());
+    coords_row[ZZ] = ::CGAL::to_double(points[i].z());
+  }
+
+  // Connectivity
+  Handle<Cells> tetras = region.create_component<Cells>("Tetras");
+  tetras->initialize("cf3.mesh.LagrangeP1.Tetra3D",nodes);
+  tetras->resize(cells.size());
+  Table<Uint>& connectivity = tetras->geometry_space().connectivity();
+  for(Uint i = 0; i != nb_cells; ++i)
+  {
+    Table<Uint>::Row row = connectivity[i];
+    for(Uint j = 0; j != 4; ++j)
+    {
+      row[j] = cells[i*4 + j];
+    }
+  }
+  
+  List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_points);
+  List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(nb_points);
+  for(Uint i = 0; i != nb_points; ++i)
+  {
+    ranks[i] = 0;
+    gids[i] = i;
+  }
+  
+  mesh.raise_mesh_loaded();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +146,6 @@ void create_mesh(const ImplicitFunction& function, Mesh& mesh, const MeshParamet
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace CGAL
-} // namespace mesh
 } // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////

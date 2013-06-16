@@ -31,15 +31,19 @@ struct DirichletBCTag
 typedef LSSWrapper<DirichletBCTag> DirichletBC;
 
 /// Helper function for assignment
-inline void assign_dirichlet(math::LSS::System& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset)
+inline void assign_dirichlet(math::LSS::System& lss, const Real new_value, const Real old_value, const int node_idx, const Uint offset)
 {
+  if(node_idx < 0)
+    return;
   lss.dirichlet(node_idx, offset, new_value - old_value, true);
 }
 
 /// Overload for vector types
 template<typename NewT, typename OldT>
-inline void assign_dirichlet(math::LSS::System& lss, const NewT& new_value, const OldT& old_value, const Uint node_idx, const Uint offset)
+inline void assign_dirichlet(math::LSS::System& lss, const NewT& new_value, const OldT& old_value, const int node_idx, const Uint offset)
 {
+  if(node_idx < 0)
+    return;
   for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
     lss.dirichlet(node_idx, offset+i, new_value[i] - old_value[i], true);
 }

@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   hc_bottom->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
   hc_top->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
-  math::LSS::System& bot_lss = hc_bottom->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
-  math::LSS::System& top_lss = hc_top->create_lss("cf3.math.LSS.TrilinosFEVbrMatrix");
+  math::LSS::System& bot_lss = hc_bottom->create_lss();
+  math::LSS::System& top_lss = hc_top->create_lss();
   
   bc_bot->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
   bc_bot->add_constant_bc("bottom", "Temperature")->options().set("value", 10.);

@@ -43,7 +43,8 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
   options().add("kinematic_viscosity", 1.7894e-5/1.2)
     .description("Kinematic Viscosity (m^2/s)")
     .pretty_name("Kinematic Viscosity")
-    .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this));
+    .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this))
+    .mark_basic();
 
   options().add<Real>("reference_temperature")
     .description("Reference temperature for the boussinesq approximation (K)")

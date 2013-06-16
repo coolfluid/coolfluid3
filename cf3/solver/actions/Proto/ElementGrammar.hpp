@@ -45,7 +45,7 @@ struct ElementMathBase :
 struct ElementMath :
   boost::proto::or_
   <
-    SFOps< boost::proto::terminal<boost::proto::_> >,
+    SFOps< boost::proto::call<ElementMath> >,
     ElementMathBase,
     ElementMatrixSubBlocks<boost::proto::_>,
     AssignNodalValues<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,

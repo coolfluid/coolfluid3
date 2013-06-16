@@ -26,7 +26,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
   
 /// @brief Classes for CGAL mesh format operations
 namespace CGAL {
@@ -48,7 +47,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.mesh.CGAL"; }
+  static std::string library_namespace() { return "cf3.CGAL"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for the LibraryRegister template
@@ -71,7 +70,6 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace CGAL
-} // namespace mesh
 } // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////

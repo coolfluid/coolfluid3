@@ -9,8 +9,11 @@
 
 #include "UFEM/LibUFEM.hpp"
 
+#include "common/Option.hpp"
+
 #include "math/VectorialFunction.hpp"
 
+#include "solver/Time.hpp"
 #include "solver/actions/Proto/Functions.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
@@ -23,11 +26,12 @@ class UFEM_API ParsedFunctionExpression : public solver::actions::Proto::ProtoAc
 {
 public:
   ParsedFunctionExpression(const std::string& name);
+  ~ParsedFunctionExpression();
 
   static std::string type_name() { return "ParsedFunctionExpression"; }
 
   /// Get the held function as a vector
-  const math::VectorialFunction& vector_function()
+  const solver::actions::Proto::VectorFunction& vector_function()
   {
     return m_function;
   }
@@ -37,9 +41,14 @@ public:
 
 private:
   void trigger_value();
+  void trigger_time_component();
+  void trigger_time();
+  common::Option::TriggerID m_time_trigger_id;
 
   // Can also represent a vector function
-  solver::actions::Proto::ScalarFunction m_function;
+  solver::actions::Proto::VectorFunction m_function;
+
+  Handle<solver::Time> m_time;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
