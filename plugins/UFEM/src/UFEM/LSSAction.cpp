@@ -86,8 +86,7 @@ LSSAction::LSSAction(const std::string& name) :
   regist_signal( "create_lss" )
     .connect( boost::bind( &LSSAction::signal_create_lss, this, _1 ) )
     .description("Create the Linear System Solver")
-    .pretty_name("Create LSS")
-    .signature( boost::bind( &LSSAction::signature_create_lss, this, _1 ) );
+    .pretty_name("Create LSS");
 
   options().add("dictionary", m_dictionary)
     .pretty_name("Dictionary")
@@ -103,6 +102,16 @@ LSSAction::LSSAction(const std::string& name) :
   options().add("blocked_system", false)
     .pretty_name("Blocked System")
     .description("Store the linear system internally as a set of blocks grouped per variable, rather than keeping the variables per node");
+
+  options().add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
+    .pretty_name("Matrix Builder")
+    .description("Builder to use when creating the LSS")
+    .mark_basic();
+
+  options().add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
+    .pretty_name("Solution Strategy")
+    .description("Builder to use when creating the initial LSS solution strategy")
+    .mark_basic();
 }
 
 LSSAction::~LSSAction()
@@ -121,15 +130,15 @@ void LSSAction::execute()
   solver::ActionDirector::execute();
 }
 
-LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std::string& solution_strategy)
+LSS::System& LSSAction::create_lss()
 {
   if(is_not_null(get_child("LSS")))
     remove_component("LSS");
   Handle<LSS::System> lss = create_component<LSS::System>("LSS");
   lss->mark_basic();
-  lss->options().set("matrix_builder", matrix_builder);
-  lss->options().set("solution_strategy", solution_strategy);
-
+  lss->options().set("matrix_builder", options().option("matrix_builder").value());
+  lss->options().set("solution_strategy", options().option("solution_strategy").value());
+  
   configure_option_recursively("lss", lss);
 
   cf3_assert(is_not_null(options().value< Handle<LSS::System> >("lss")));
@@ -139,23 +148,9 @@ LSS::System& LSSAction::create_lss(const std::string& matrix_builder, const std:
   return *lss;
 }
 
-void LSSAction::signature_create_lss(SignalArgs& node)
-{
-  SignalOptions options(node);
-  options.add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
-    .pretty_name("Matrix Builder")
-    .description("Name for the matrix builder to use when constructing the LSS")
-    .mark_basic();
-
-  options.add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
-    .pretty_name("Solution Strategy")
-    .description("Builder name for the solution strategy to use.");
-}
-
 void LSSAction::signal_create_lss(SignalArgs& node)
 {
-  SignalOptions options(node);
-  LSS::System& lss = create_lss(options.option("matrix_builder").value<std::string>(), options.option("solution_strategy").value<std::string>());
+  LSS::System& lss = create_lss();
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -192,7 +187,7 @@ void LSSAction::on_regions_set()
 
     Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
     Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
-    Handle< List<Uint> > used_node_map = m_implementation->m_lss->create_component< List<Uint> >("used_node_map");
+    Handle< List<int> > used_node_map = m_implementation->m_lss->create_component< List<int> >("used_node_map");
 
     std::vector<Uint> node_connectivity, starting_indices;
     boost::shared_ptr< List<Uint> > used_nodes = build_sparsity(m_loop_regions, *m_dictionary, node_connectivity, starting_indices, *gids, *ranks, *used_node_map);
@@ -207,17 +202,47 @@ void LSSAction::on_regions_set()
     comm_pattern.insert("gid",gids->array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),ranks->array());
 
-    const bool blocked_system = options().option("blocked_system").value<bool>();
-    if(blocked_system)
-      CFdebug << "Creating blocked LSS for ";
-    else
-      CFdebug << "Creating per-node LSS for ";
-    CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << descriptor.description() << CFendl;
+    if(is_not_null(m_dictionary->get_child("node_gids")))
+    {
+      Field& node_gids = *(Handle<Field>(m_dictionary->get_child("node_gids")));
+      const Uint nb_nodes = node_gids.size();
 
-    if(blocked_system)
-      m_implementation->m_lss->create_blocked(comm_pattern, descriptor, node_connectivity, starting_indices);
-    else
-      m_implementation->m_lss->create(comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+      for(Uint i = 0; i != nb_nodes; ++i)
+      {
+        node_gids[i][0] = -1.;
+      }
+      const Uint nb_used = used_nodes->size();
+      for(Uint i = 0; i != nb_used; ++i)
+      {
+        node_gids[used_nodes->array()[i]][0] = gids->array()[i];
+      }
+    }
+
+    // Build node periodicity based on the used nodes, if needed
+    std::vector<Uint> periodic_links_nodes_vec;
+    std::vector<bool> periodic_links_active_vec;
+
+    Handle< List<Uint> > periodic_links_nodes_h(m_dictionary->get_child("periodic_links_nodes"));
+    Handle< List<bool> > periodic_links_active_h(m_dictionary->get_child("periodic_links_active"));
+    if(is_not_null(periodic_links_nodes_h))
+    {
+      const List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+      const List<bool>& periodic_links_active = *periodic_links_active_h;
+      const List<Uint>& used_nodes_list = *used_nodes;
+      const Uint nb_used_nodes = used_nodes_list.size();
+      periodic_links_active_vec.resize(nb_used_nodes, false);
+      periodic_links_nodes_vec.resize(nb_used_nodes);
+      for(Uint i = 0; i != nb_used_nodes; ++i)
+      {
+        if(periodic_links_active[used_nodes_list[i]])
+        {
+          periodic_links_active_vec[i] = true;
+          periodic_links_nodes_vec[i] = (*used_node_map)[periodic_links_nodes[used_nodes_list[i]]];
+        }
+      }
+    }
+
+    do_create_lss(comm_pattern, descriptor, node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
 
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
@@ -300,6 +325,21 @@ void LSSAction::set_solution_tag(const std::string& tag)
 
 void LSSAction::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
+}
+
+void LSSAction::do_create_lss(PE::CommPattern &cp, const VariablesDescriptor &vars, std::vector<Uint> &node_connectivity, std::vector<Uint> &starting_indices, const std::vector<Uint> &periodic_links_nodes, const std::vector<bool> &periodic_links_active)
+{
+  const bool blocked_system = options().option("blocked_system").value<bool>();
+  if(blocked_system)
+    CFdebug << "Creating blocked LSS for ";
+  else
+    CFdebug << "Creating per-node LSS for ";
+  CFdebug <<  starting_indices.size()-1 << " blocks with descriptor " << solution_tag() << ": " << vars.description() << CFendl;
+
+  if(blocked_system)
+    m_implementation->m_lss->create_blocked(cp, vars, node_connectivity, starting_indices, periodic_links_nodes, periodic_links_active);
+  else
+    m_implementation->m_lss->create(cp, vars.size(), node_connectivity, starting_indices, periodic_links_nodes, periodic_links_active);
 }
 
 } // UFEM

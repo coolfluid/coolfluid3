@@ -127,7 +127,10 @@ coolfluid_add_test( UTEST   utest-mesh-connectivity-data
 coolfluid_add_test( UTEST utest-mesh-lagrangep1-hexa3d
                     CPP   utest-mesh-lagrangep1-hexa3d.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
-
+                    
+coolfluid_add_test( UTEST utest-mesh-lagrangep1-prism3d
+                    CPP   utest-mesh-lagrangep1-prism3d.cpp
+                    LIBS  coolfluid_mesh_lagrangep1 )
 
 coolfluid_add_test( UTEST utest-mesh-lagrangep1-tetra3d
                     CPP   utest-mesh-lagrangep1-tetra3d.cpp

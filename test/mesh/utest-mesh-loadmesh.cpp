@@ -14,6 +14,7 @@
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/Link.hpp"
+#include "common/List.hpp"
 #include "common/Foreach.hpp"
 #include "common/Core.hpp"
 #include "common/OptionArray.hpp"

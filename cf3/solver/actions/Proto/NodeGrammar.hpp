@@ -13,6 +13,7 @@
 #include "ExpressionGroup.hpp"
 #include "Functions.hpp"
 #include "SetRHS.hpp"
+#include "SetSolution.hpp"
 #include "NodeData.hpp"
 #include "RHSVector.hpp"
 #include "SolutionVector.hpp"
@@ -202,6 +203,7 @@ struct SingleExprNodeGrammar :
   <
     DirichletBCGrammar<NodeMath>,
     SetRHSGrammar<NodeMath>,
+    SetSolutionGrammar<NodeMath>,
     boost::proto::when
     <
       NodeMath,

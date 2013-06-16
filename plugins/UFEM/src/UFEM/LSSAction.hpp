@@ -55,8 +55,7 @@ public: // functions
   virtual void execute();
 
   /// Create the LSS to use
-  /// @param matrix_builder Name of the matrix builder to use for the LSS
-  math::LSS::System& create_lss(const std::string& matrix_builder = "cf3.math.LSS.TrilinosFEVbrMatrix", const std::string& solution_strategy = "cf3.math.LSS.TrilinosStratimikosStrategy");
+  math::LSS::System& create_lss();
 
   /// Access to the tag this component uses for finding its solution field
   std::string solution_tag();
@@ -69,7 +68,6 @@ private:
   boost::scoped_ptr<Implementation> m_implementation;
 
   /// Signals
-  void signature_create_lss( common::SignalArgs& node );
   void signal_create_lss( common::SignalArgs& node );
 
   /// trigger for the dictionary
@@ -90,10 +88,13 @@ private:
 protected:
 
   /// Called when the regions are set
-  void on_regions_set();
+  virtual void on_regions_set();
 
   /// Called when the initial conditions are set
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
+
+  /// Called to actually create the LSS. Parameters are described in the LSS interface
+  virtual void do_create_lss(common::PE::CommPattern& cp, const math::VariablesDescriptor& vars, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active);
 
 public:
   /// Proto placeholder for the system matrix

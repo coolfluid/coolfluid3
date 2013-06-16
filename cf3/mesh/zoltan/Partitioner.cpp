@@ -95,8 +95,13 @@ void Partitioner::partition_graph()
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
+  if(numExport < 0)
+  {
+    throw common::ParallelError(FromHere(), "Partitioning failed");
+  }
+  
   Uint comp; Uint loc_idx; bool found;
-  for (Uint i=0; i<(Uint)numExport; ++i)
+  for (int i=0; i<numExport; ++i)
   {
     boost::tie(comp,loc_idx) = location_idx(exportGlobalIds[i]);
     if (comp == 0) // if is node
@@ -213,6 +218,8 @@ void Partitioner::set_partitioning_params()
   // 1 = on-processor checking,
   // 2 = full checking. (CHECK_GRAPH==2 is very slow and should be used only during debugging).
 
+  zoltan_handle().Set_Param("EDGE_WEIGHT_DIM", "1");
+
   /// zoltan Query functions
 
   zoltan_handle().Set_Num_Obj_Fn(&Partitioner::query_nb_of_objects, this);
@@ -279,7 +286,7 @@ void Partitioner::query_list_of_connected_objects(void *data, int sizeGID, int s
   MeshPartitioner& p = *(MeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.list_of_connected_objects_in_part(PE::Comm::instance().rank(),nborGID);
+  p.list_of_connected_objects_in_part(PE::Comm::instance().rank(),nborGID, ewgts);
   p.list_of_connected_procs_in_part(PE::Comm::instance().rank(),nborProc);
 
 

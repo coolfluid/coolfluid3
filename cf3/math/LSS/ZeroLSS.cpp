@@ -63,13 +63,22 @@ void ZeroLSS::execute ()
   bool reset_solution = options().option("reset_solution").value<bool>();
 
   if(reset_matrix)
+  {
+    CFdebug << "Resetting matrix " << m_lss->matrix()->uri().string() << CFendl;
     m_lss->matrix()->reset();
+  }
 
   if(reset_rhs)
+  {
+    CFdebug << "Resetting RHS " << m_lss->rhs()->uri().string() << CFendl;
     m_lss->rhs()->reset();
+  }
 
   if(reset_solution)
+  {
+    CFdebug << "Resetting solution " << m_lss->solution()->uri().string() << CFendl;
     m_lss->solution()->reset();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -56,10 +56,10 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
+  virtual void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Keep the equations for one variable together, forming big subsystems in the global matrix
-  virtual void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs) = 0;
+  virtual void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -151,7 +151,18 @@ public:
   /// Accessor to the number of block columns
   virtual const Uint blockcol_size() = 0;
 
+  /// Make a deep copy of the current matrix into other
+  virtual void clone_to(Matrix& other) = 0;
+
   //@} END MISCELLANEOUS
+
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  virtual void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.) = 0;
+
+  //@} END LINEAR ALGEBRA
 
   /// @name TEST ONLY
   //@{

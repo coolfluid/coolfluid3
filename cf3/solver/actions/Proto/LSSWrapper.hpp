@@ -79,19 +79,27 @@ public:
     return *m_solution;
   }
   
-  /// Convert the given indices, using the given mapping
-  template<typename VectorT>
-  void convert_to_lss(VectorT& indices)
+  /// Convert the indices in the block accumulator
+  /// TODO: Make this obsolete by always knowing the correct local indices
+  template<typename DataT>
+  void convert_to_lss(DataT& data)
   {
     if(is_null(m_used_node_map))
       return;
+
+    if(data.indices_converted)
+      return;
     
-    const Uint vec_size = indices.size();
+    const Uint vec_size = data.block_accumulator.indices.size();
     for(Uint i = 0; i != vec_size; ++i)
-      indices[i] = (*m_used_node_map)[indices[i]];
+    {
+      data.block_accumulator.indices[i] = (*m_used_node_map)[data.block_accumulator.indices[i]];
+    }
+
+    data.indices_converted = true;
   }
   
-  Uint node_to_lss(const Uint node)
+  int node_to_lss(const Uint node)
   {
     if(is_null(m_used_node_map))
       return node;
@@ -110,7 +118,7 @@ private:
   
   // Used in case there is no 1-to-1 mapping between the mesh nodes and the LSS indices
   common::List<Uint>* m_used_nodes;
-  common::List<Uint>* m_used_node_map;
+  common::List<int>* m_used_node_map;
   
   void trigger_component()
   {
@@ -122,7 +130,7 @@ private:
       m_solution = m_cached_component->solution().get();
       
       m_used_nodes = Handle< common::List<Uint> >(m_cached_component->get_child(mesh::Tags::nodes_used())).get();
-      m_used_node_map = Handle< common::List<Uint> >(m_cached_component->get_child("used_node_map")).get();
+      m_used_node_map = Handle< common::List<int> >(m_cached_component->get_child("used_node_map")).get();
     }
     else
     {

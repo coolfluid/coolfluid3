@@ -547,10 +547,11 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
   FieldVariable<0, VectorField > T("Temperature", "solution");
   RealVector total(1); total.setZero();
 
-  math::VectorialFunction f;
+  solver::actions::Proto::VectorFunction f;
   f.variables("x");
   f.functions(std::vector<std::string>(1, "x+1"));
   f.parse();
+  f.predefined_values.resize(1);
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
   (
@@ -746,6 +747,35 @@ BOOST_AUTO_TEST_CASE( NodeIndexLoop )
   BOOST_CHECK_EQUAL(x_sum, 8.);
   BOOST_CHECK_EQUAL(y_sum, 16.);
   BOOST_CHECK_EQUAL(total_sum, 24.);
+}
+
+BOOST_AUTO_TEST_CASE( ElementVector )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("ElementVector");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  FieldVariable<0, VectorField> u("Velocity", "solution");
+  mesh->geometry_fields().create_field( "solution", "Velocity[v]" ).add_tag("solution");
+
+  for_each_node
+  (
+    mesh->topology(),
+    u = coordinates
+  );
+
+  RealVector elvec;
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    lit(elvec) = element_vector(u)
+  );
+
+  std::cout << elvec.transpose() << std::endl;
+  BOOST_CHECK_EQUAL(elvec.rows(), 8);
+  RealVector ref(8);
+  ref << 0,1,1,0,0,0,1,1;
+  BOOST_CHECK_EQUAL(elvec, ref);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -24,12 +24,16 @@ list( APPEND coolfluid_math_lss_files
 list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/BelosGMRESParameters.hpp
     Trilinos/BelosGMRESParameters.cpp
-    Trilinos/ConstantPoissonStrategy.hpp
-    Trilinos/ConstantPoissonStrategy.cpp
+    Trilinos/DirectStrategy.hpp
+    Trilinos/DirectStrategy.cpp
     Trilinos/ParameterList.hpp
     Trilinos/ParameterList.cpp
     Trilinos/ParameterListDefaults.hpp
-    Trilinos/ThyraMultiVector.hpp
+    Trilinos/RCGStrategy.hpp
+    Trilinos/RCGStrategy.cpp
+    Trilinos/TekoBlockedOperator.hpp
+    Trilinos/TekoBlockedOperator.cpp
+    Trilinos/ThyraVector.hpp
     Trilinos/ThyraOperator.hpp
     Trilinos/TrilinosCrsMatrix.hpp
     Trilinos/TrilinosCrsMatrix.cpp

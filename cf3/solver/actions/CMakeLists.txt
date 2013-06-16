@@ -74,6 +74,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/RestrictExpressionToElementType.hpp
     Proto/RHSVector.hpp
     Proto/SetRHS.hpp
+    Proto/SetSolution.hpp
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp

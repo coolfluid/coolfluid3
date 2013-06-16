@@ -27,14 +27,14 @@ struct ElementNormals
   void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
   {
     const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
-    const mesh::ElementType& face_etype = ElementT::face_type(0);
-    const Uint nb_face_nodes = face_etype.nb_nodes();
-    RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
     RealVector normal(ElementT::dimension);
     for(Uint i = 0; i != ElementT::nb_faces; ++i)
     {
+      const mesh::ElementType& face_etype = ElementT::face_type(i);
+      const Uint nb_face_nodes = face_etype.nb_nodes();
+      RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
       for(Uint j = 0; j != nb_face_nodes; ++j)
-        face_nodes.row(j) = nodes.row(face_conn.nodes[nb_face_nodes*i+j]);
+        face_nodes.row(j) = nodes.row(face_conn.nodes[face_conn.displs[i]+j]);
       face_etype.compute_normal(face_nodes, normal);
       normals.row(i) = face_etype.area(face_nodes) * normal;
     }

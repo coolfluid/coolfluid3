@@ -54,7 +54,7 @@ public:
   EmptyLSSMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=neq;
@@ -63,7 +63,7 @@ public:
     m_is_created=true;
   }
 
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=vars.size();
@@ -163,7 +163,20 @@ public:
   /// Accessor to the number of block columns
   const Uint blockcol_size() {  cf3_assert(m_is_created); return m_blockcol_size; }
 
+  void clone_to(Matrix &other)
+  {
+    throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+  }
+
   //@} END MISCELLANEOUS
+
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.) {}
+
+  //@} END LINEAR ALGEBRA
 
   /// @name TEST ONLY
   //@{

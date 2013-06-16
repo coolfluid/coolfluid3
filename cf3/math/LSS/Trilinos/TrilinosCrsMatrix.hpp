@@ -56,8 +56,8 @@ public:
   TrilinosCrsMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs);
-  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs);
+  void create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Deallocate underlying data
   void destroy();
@@ -100,6 +100,9 @@ public:
   void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values);
 
   virtual void symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs);
+
+  /// Get the nodes and equations for all dirichlet boundary conditions that have been applied so far
+  const std::vector< std::pair< Uint, Uint > >& get_dirichlet_nodes( ) const;
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from);
@@ -156,6 +159,17 @@ public:
     return m_mat;
   }
 
+  /// Replace the internal matrix with the supplied one
+  void replace_epetra_matrix(const Teuchos::RCP<Epetra_CrsMatrix>& mat)
+  {
+    m_mat = mat;
+  }
+  
+  /// Store the local matrix GIDs belonging to each variable in the given vector
+  /// @param var_descriptor Descriptor for the variables that are used in the matrix
+  /// @param var_gids Output containing the gids for each variable
+  void blocked_var_gids(const math::VariablesDescriptor& var_descriptor, std::vector<std::vector<int> > & var_gids);
+
   /// Get the index for the given node and equation in matrix local format
   inline int matrix_index(const Uint inode, const Uint ieq)
   {
@@ -164,6 +178,14 @@ public:
 
   //@} END MISCELLANEOUS
 
+  /// @name LINEAR ALGEBRA
+  //@{
+
+  /// Compute y = alpha*A*x + beta*y
+  void apply(const Handle<Vector>& y, const Handle<Vector const>& x, const Real alpha = 1., const Real beta = 0.);
+
+  //@} END LINEAR ALGEBRA
+  
   /// @name TEST ONLY
   //@{
 
@@ -175,6 +197,8 @@ public:
 
   virtual Teuchos::RCP< const Thyra::LinearOpBase< Real > > thyra_operator() const;
   virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
+
+  virtual void clone_to(Matrix &other);
 
 private:
 
@@ -201,6 +225,13 @@ private:
 
   /// Copy of the connectivity data
   std::vector<int> m_node_connectivity, m_starting_indices;
+
+  /// Cache matrix values in case of symmetric dirichlet, so they can be applied multiple times even if the matrix is not changed
+  typedef std::map<int, Real> DirichletEntryT;
+  typedef std::map<int, DirichletEntryT> DirichletMapT;
+  DirichletMapT m_symmetric_dirichlet_values;
+
+  std::vector< std::pair<Uint,Uint> > m_dirichlet_nodes;
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

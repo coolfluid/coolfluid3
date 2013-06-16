@@ -5,6 +5,8 @@ if( CMAKE_COMPILER_IS_GNUCC )
   set( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
 endif()
 
+include(${QT_USE_FILE})
+
 # moc classes
 list( APPEND coolfluid_qwt_moc_classes
     qwt_abstract_slider.h

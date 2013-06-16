@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_actions_files
+  AddPointRegion.hpp
+  AddPointRegion.cpp
   Info.hpp
   Info.cpp
   CreateField.hpp
@@ -37,10 +39,16 @@ list( APPEND coolfluid_mesh_actions_files
   Interpolate.cpp
   LibActions.hpp
   LibActions.cpp
+  LinkPeriodicNodes.hpp
+  LinkPeriodicNodes.cpp
   MakeBoundaryGlobal.hpp
   MakeBoundaryGlobal.cpp
+  PeriodicMeshPartitioner.hpp
+  PeriodicMeshPartitioner.cpp
   LoadBalance.hpp
   LoadBalance.cpp
+  RemoveGhostElements.hpp
+  RemoveGhostElements.cpp
   Rotate.hpp
   Rotate.cpp
   ShortestEdge.hpp

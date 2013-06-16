@@ -318,6 +318,7 @@ void Solver::create_fields()
   std::map<std::string, std::string> tags;
   BOOST_FOREACH(const ProtoAction& action, find_components_recursively<ProtoAction>(*this))
   {
+    CFdebug << "adding field info from ProtoAction " << action.uri().path() << CFendl;
     action.insert_field_info(tags);
   }
 
@@ -404,6 +405,9 @@ Handle< common::Action > Solver::add_solver(const std::string& builder_name, Com
   boost::split(builder_parts, builder_name, boost::is_any_of("."));
   Handle< common::Action > result(parent.create_component(builder_parts.back(), builder_name));
 
+  if(is_null(result))
+    throw common::SetupError(FromHere(), "Something went wrong constructing a solver with builder " + builder_name);
+
   if(is_not_null(m_physics))
     result->configure_option_recursively(solver::Tags::physical_model(), m_physics);
 
@@ -426,13 +430,10 @@ Handle< Probe > Solver::add_probe ( const std::string& name, Component& parent, 
   Handle<ProbePostProcessor> pp = probe->create_post_processor("Log","cf3.solver.actions.ProbePostProcHistory");
   pp->mark_basic();
 
-  Handle<History> hist(get_child("History"));
-  if(is_null(hist))
-  {
-    hist = create_component<History>("History");
-    hist->options().set("dimension",1u);
-    hist->mark_basic();
-  }
+  Handle<History> hist = probe->create_component<History>("History");
+  hist->options().set("dimension",1u);
+  hist->mark_basic();
+
   pp->options().set("history", hist);
 
   return probe;
@@ -443,7 +444,7 @@ void Solver::signal_add_probe ( SignalArgs& args )
   SignalOptions options(args);
   Handle<Dictionary> dict;
   if(options.check("dict"))
-    dict = options.option("dict").value< Handle<Dictionary> >();
+    dict = Handle<Dictionary>(options.option("dict").value< Handle<Component> >());
 
   const std::string name = options.option("name").value<std::string>();
 
@@ -463,6 +464,7 @@ void Solver::signature_add_probe ( SignalArgs& args )
   SignalOptions options(args);
   options.add("name", "SomeProbe").pretty_name("Name").description("Name of the probe to add").mark_basic();
   options.add("parent", Handle<Component>()).pretty_name("Parent").description("Component that will be the parent of the probe").mark_basic();
+  options.add("dict", Handle<Component>()).pretty_name("Dictionary").description("Dictionary to use for the fields");
 }
 
 

@@ -159,6 +159,28 @@ struct AddNodeValuesIndex : boost::proto::transform< AddNodeValuesIndex<IndexGra
   };
 };
 
+struct ElementVectorTag
+{
+};
+
+/// Get the nodal values of a variable as a flattened vector, i.e. for 2D velocity on a triangle:
+/// [u1,u2,u3,v1,v2,v3]
+static boost::proto::terminal<ElementVectorTag>::type const element_vector = {};
+
+struct ElementVectorTransform : boost::proto::transform<ElementVectorTransform>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename VarDataType<ExprT, DataT>::type::ElementVectorT const& result_type;
+
+    result_type operator()(typename impl::expr_param var, typename impl::state_param new_values, typename impl::data_param data)
+    {
+      return data.var_data(var).element_vector();
+    }
+  };
+};
+
 /// Get nodal values
 struct NodalValues :
   boost::proto::or_
@@ -167,6 +189,11 @@ struct NodalValues :
     <
       boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
       VarValue(boost::proto::_value(boost::proto::_child1))
+    >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<ElementVectorTag>, FieldTypes>,
+      ElementVectorTransform(boost::proto::_value(boost::proto::_child1))
     >,
     boost::proto::when
     <

@@ -11,6 +11,6 @@ coolfluid3_add_library( TARGET    coolfluid_tools_googleperftools
                         KERNEL
                         SOURCES   ${coolfluid_tools_googleperftools_files} 
                         LIBS      coolfluid_common
-                                  ${GOOGLEPERFTOOLS_PROFILER_LIBRARY}
+                                  ${GOOGLEPERFTOOLS_LIBRARIES}
                         INCLUDES  ${GOOGLEPERFTOOLS_INCLUDE_DIRS}
                         CONDITION CF3_HAVE_GOOGLEPERFTOOLS )

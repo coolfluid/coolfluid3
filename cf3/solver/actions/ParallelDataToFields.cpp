@@ -70,12 +70,14 @@ void ParallelDataToFields::execute()
   mesh::Dictionary& geom = mesh.geometry_fields();
   mesh::Field& node_rank = geom.get_child("node_rank") ? *(geom.get_child("node_rank")->handle<mesh::Field>()) : geom.create_field("node_rank");
   mesh::Field& node_ghost = geom.get_child("node_ghosts") ? *(geom.get_child("node_ghosts")->handle<mesh::Field>()) : geom.create_field("node_ghosts");
+  mesh::Field& node_gids = geom.get_child("node_gids") ? *(geom.get_child("node_gids")->handle<mesh::Field>()) : geom.create_field("node_gids");
 
   const Uint nb_points = geom.size();
   for(Uint i = 0; i != nb_points; ++i)
   {
     node_rank[i][0] = geom.rank()[i];
-    node_ghost[i][0] = geom.is_ghost(i);
+    node_ghost[i][0] = static_cast<Real>(geom.is_ghost(i));
+    node_gids[i][0] = static_cast<Real>(geom.glb_idx()[i]);
   }
 
   if(common::PE::Comm::instance().is_active() && common::PE::Comm::instance().size() > 1)

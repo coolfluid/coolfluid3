@@ -49,10 +49,10 @@ public:
   Vector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(common::PE::CommPattern& cp, Uint neq) = 0;
+  virtual void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Vector is split up keeping entries related to the same variable continuously
-  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars) = 0;
+  virtual void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>()) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -138,6 +138,23 @@ public:
 
   /// Accessor to the number of block rows
   virtual const Uint blockrow_size() = 0;
+
+  /// Clone this vector into another one
+  virtual void clone_to(Vector& other) = 0;
+
+  /// Assign from another vector
+  virtual void assign(const Vector& source) = 0;
+
+  /// Update this vector with a scalar multiplication of the target vector; i.e.:
+  /// this += alpha*source
+  virtual void update(const Vector& source, const Real alpha = 1.) = 0;
+  
+  /// Scale the vector in-place with the given scalar
+  /// this *= alpha
+  virtual void scale(const Real alpha) = 0;
+
+  /// Update any stored ghost nodes
+  virtual void sync() = 0;
 
   //@} END MISCELLANEOUS
 
