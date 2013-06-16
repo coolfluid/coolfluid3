@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "common/List.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/OptionList.hpp"

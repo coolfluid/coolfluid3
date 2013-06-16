@@ -17,6 +17,7 @@
 
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"

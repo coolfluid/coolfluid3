@@ -14,6 +14,7 @@
 #include <CGAL/Triangulation_vertex_base_with_info_3.h>
 
 #include "common/Builder.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"

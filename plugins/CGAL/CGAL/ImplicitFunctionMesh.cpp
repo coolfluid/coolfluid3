@@ -14,6 +14,7 @@
 #include <CGAL/number_utils.h>
 
 #include "common/Log.hpp"
+#include "common/List.hpp"
 #include "common/Table.hpp"
 
 #include "mesh/Connectivity.hpp"
