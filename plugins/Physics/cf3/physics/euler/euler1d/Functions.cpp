@@ -102,7 +102,7 @@ void compute_roe_average( const Data& left, const Data& right,
   roe.rho   = sqrt_rhoL*sqrt_rhoR;
   roe.u     = (sqrt_rhoL*left.u + sqrt_rhoR*right.u) / (sqrt_rhoL + sqrt_rhoR);
   roe.H     = (sqrt_rhoL*std::abs(left.H) + sqrt_rhoR*std::abs(right.H)) / (sqrt_rhoL + sqrt_rhoR);
-  roe.c2    = (roe.gamma-1.)*(roe.H-0.5*roe.u*roe.u/roe.rho);
+  roe.c2    = (roe.gamma-1.)*(roe.H-0.5*roe.u*roe.u);
   roe.p     = roe.c2 * roe.rho / roe.gamma;
   roe.c     = std::sqrt(roe.c2);
 }
