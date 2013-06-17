@@ -545,6 +545,10 @@ void Mesh::signature_create_space ( SignalArgs& node)
 
   options.add("shape_function" , std::string("cf3.mesh.LagrangeP1") )
       .description("shape function defining the space" ).mark_basic();
+
+  options.add("regions" , std::vector< Handle<Component> >(1, topology().handle() ) )
+      .description("regions to define the space in" ).mark_basic();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -553,10 +557,17 @@ void Mesh::signal_create_continuous_space ( SignalArgs& node )
 {
   SignalOptions options( node );
 
+  std::vector< Handle<Region> > regions;
+  boost_foreach( const Handle<Component>& region, options.value< std::vector< Handle<Component> > >("regions") )
+  {
+    regions.push_back(region->handle<Region>());
+  }
+
   const Dictionary& created_component =
       create_continuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("shape_function"));
+        options.value<std::string>("shape_function"),
+        regions);
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -569,10 +580,17 @@ void Mesh::signal_create_discontinuous_space ( SignalArgs& node )
 {
   SignalOptions options( node );
 
+  std::vector< Handle<Region> > regions;
+  boost_foreach( const Handle<Component>& region, options.value< std::vector< Handle<Component> > >("regions") )
+  {
+    regions.push_back(region->handle<Region>());
+  }
+
   const Dictionary& created_component =
       create_discontinuous_space(
         options.value<std::string>("name"),
-        options.value<std::string>("shape_function"));
+        options.value<std::string>("shape_function"),
+        regions);
 
   SignalFrame reply = node.create_reply(uri());
   SignalOptions reply_options(reply);
