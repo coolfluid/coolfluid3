@@ -52,7 +52,7 @@ void ProbePostProcHistory::execute()
   boost_foreach( const std::string& var_name, m_vars )
   {
     if (!m_probe->variables()->has_variable(var_name))
-      throw SetupError(FromHere(),"Variable "+var_name+" not found in "+m_probe->uri().string());
+      throw SetupError(FromHere(),"Variable "+var_name+" not found in "+m_probe->uri().string() + ". Valid values are: " + m_probe->variables()->description());
 
     m_history->set(m_probe->name()+"_"+var_name,m_probe->properties().value<Real>(var_name));
   }

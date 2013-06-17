@@ -366,11 +366,6 @@ struct GaussMappedCoordsImpl<5, GeoShape::TRIAG>
   }
 };
 
-
-
-
-
-
 template<>
 struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
 {
@@ -432,6 +427,74 @@ struct GaussMappedCoordsImpl<2, GeoShape::TETRA>
   }
 };
 
+template<>
+struct GaussMappedCoordsImpl<1, GeoShape::PRISM>
+{
+  static const Uint nb_points = 1;
+
+  typedef Eigen::Matrix<Real, 3, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    static const Real ksi = 1./3.;
+
+    CoordsT result;
+    result << ksi, ksi, 0.;
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result << 1.;
+    return result;
+  }
+};
+
+template<>
+struct GaussMappedCoordsImpl<2, GeoShape::PRISM>
+{
+  static const Uint nb_points = 6;
+
+  typedef Eigen::Matrix<Real, 3, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    CoordsT result;
+    result.resize(DIM_2D, nb_points);
+    result(KSI,0) = 0.5;
+    result(ETA,0) = 0.0;
+    result(ZTA,0) = GaussPoints<2>::x()[0];
+    result(KSI,1) = 0.5;
+    result(ETA,1) = 0.5;
+    result(ZTA,1) = GaussPoints<2>::x()[0];
+    result(KSI,2) = 0.0;
+    result(ETA,2) = 0.5;
+    result(ZTA,2) = GaussPoints<2>::x()[0];
+
+    result(KSI,3) = 0.5;
+    result(ETA,3) = 0.0;
+    result(ZTA,3) = -GaussPoints<2>::x()[0];
+    result(KSI,4) = 0.5;
+    result(ETA,4) = 0.5;
+    result(ZTA,4) = -GaussPoints<2>::x()[0];
+    result(KSI,5) = 0.0;
+    result(ETA,5) = 0.5;
+    result(ZTA,5) = -GaussPoints<2>::x()[0];
+
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    const Real line_weight = (GaussPoints<2>::w()[0]);
+    WeightsT result;
+    result.setConstant(line_weight / 6.);
+    return result;
+  }
+};
 
 /// Trapezium rule integration. Uses the end points of the line.
 template<>
@@ -639,214 +702,23 @@ private:
 };
 
 template<Uint Order, GeoShape::Type Shape>
-struct GaussIntegrator;
-
-template<>
-struct GaussIntegrator<1, GeoShape::TRIAG>
+struct GaussIntegrator
 {
   template<typename FunctorT, typename MappedCoordsT, typename ResultT>
   static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
   {
-    static const double mu = 0.3333333333333333333333333;
-    static const double w = 0.5;
-    mapped_coords.resize(2);
-    mapped_coords[KSI] = mu;
-    mapped_coords[ETA] = mu;
-    result = w * functor();
-  }
-};
+    typedef GaussMappedCoords<Order, Shape> GaussT;
+    const GaussT& gauss = GaussT::instance();
+    mapped_coords = gauss.coords.col(0);
+    result = gauss.weights[0] * functor();
 
-template<>
-struct GaussIntegrator<2, GeoShape::TRIAG>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    static const double w = 1.0/6.0;
-    mapped_coords.resize(2,0);
-    mapped_coords[KSI] = 0.5;
-    mapped_coords[ETA] = 0.0;
-    result = w * functor();
-    mapped_coords[KSI] = 0.5;
-    mapped_coords[ETA] = 0.5;
-    result += w * functor();
-    mapped_coords[KSI] = 0.0;
-    mapped_coords[ETA] = 0.5;
-    result += w * functor();
-  }
-};
-
-template<>
-struct GaussIntegrator<1, GeoShape::TETRA>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    static const double mu = 0.25;
-    static const double w = 0.1666666666666666666666667;
-    mapped_coords.resize(3);
-    mapped_coords[KSI] = mu;
-    mapped_coords[ETA] = mu;
-    mapped_coords[ZTA] = mu;
-    result = w * functor();
-  }
-};
-
-template<>
-struct GaussIntegrator<1, GeoShape::LINE>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    static const double mu = 0.;
-    static const double w = 2.;
-    mapped_coords[KSI] = mu;
-    result = w * functor();
-  }
-};
-
-template<Uint Order>
-struct GaussIntegrator<Order, GeoShape::LINE>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    // Init result to 0
-    mapped_coords.resize(1, 0);
-    result = functor();
-    result -= result;
-
-    const static Uint npoints = Order/2;
-    for(Uint i = 0; i != npoints; ++i)
+    for(Uint i = 1; i != GaussT::nb_points; ++i)
     {
-      const Real w = (GaussPoints<Order>::w()[i]);
-      mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-      result += w*functor();
-      mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-      result += w*functor();
+      mapped_coords = gauss.coords.col(i);
+      result += gauss.weights[i] * functor();
     }
   }
 };
-
-template<>
-struct GaussIntegrator<1, GeoShape::QUAD>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    static const double mu = 0.;
-    static const double w = 4.;
-    mapped_coords.resize(2);
-    mapped_coords[KSI] = mu;
-    mapped_coords[ETA] = mu;
-    result = w * functor();
-  }
-};
-
-template<Uint Order>
-struct GaussIntegrator<Order, GeoShape::QUAD>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    // Init result to 0
-    mapped_coords.resize(2, 0);
-    result = functor();
-    result -= result;
-
-    const static Uint npoints = Order/2;
-    for(Uint i = 0; i != npoints; ++i) {
-      for(Uint j = 0; j != npoints; ++j) {
-        const Real w = (GaussPoints<Order>::w()[i] * GaussPoints<Order>::w()[j]);
-        mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-        mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-        result += w*functor();
-        mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-        mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-        result += w*functor();
-        mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-        mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-        result += w*functor();
-        mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-        mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-        result += w*functor() ;
-      }
-    }
-  }
-};
-
-template<>
-struct GaussIntegrator<1, GeoShape::HEXA>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    static const double mu = 0.;
-    static const double w = 8.;
-    mapped_coords.resize(3);
-    mapped_coords[KSI] = mu;
-    mapped_coords[ETA] = mu;
-    mapped_coords[ETA] = mu;
-    result = w * functor();
-  }
-};
-
-template<Uint Order>
-struct GaussIntegrator<Order, GeoShape::HEXA>
-{
-  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
-  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
-  {
-    // Init result to 0
-    mapped_coords.resize(3, 0);
-    result = functor();
-    result -= result;
-
-    const static Uint npoints = Order/2;
-    for(Uint i = 0; i != npoints; ++i) {
-      for(Uint j = 0; j != npoints; ++j) {
-        for(Uint k = 0; k != npoints; ++k) {
-          const Real w = (GaussPoints<Order>::w()[i] * GaussPoints<Order>::w()[j] * GaussPoints<Order>::w()[k]);
-
-          mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[k];
-          result += w*functor();
-
-          mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[k];
-          result += w*functor();
-          mapped_coords[KSI] = -GaussPoints<Order>::x()[i];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[j];
-          mapped_coords[ETA] = -GaussPoints<Order>::x()[k];
-          result += w*functor();
-        }
-      }
-    }
-  }
-};
-
 
 } // Gauss
 } // mesh

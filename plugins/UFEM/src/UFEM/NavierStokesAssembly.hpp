@@ -66,9 +66,9 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
           )
         ),
         for_specialized_elements(supg_specialized(p, u, u_adv, nu_eff, u_ref, rho, _A, _T)),
+        system_rhs += -_A * _x,
         _A(p) = _A(p) / theta,
-        system_matrix += invdt() * _T + theta * _A,
-        system_rhs += -_A * _x
+        system_matrix += invdt() * _T + theta * _A
       )
     )
   ));

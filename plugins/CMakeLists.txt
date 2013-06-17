@@ -14,3 +14,5 @@ add_subdirectory( UFEM )
 
 # Plugins for the UI
 add_subdirectory( ui )
+
+add_subdirectory(vtk)

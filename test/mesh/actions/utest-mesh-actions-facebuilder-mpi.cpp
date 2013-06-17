@@ -10,6 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
+#include "common/List.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"

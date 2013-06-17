@@ -95,8 +95,8 @@ public: // functions
   template <typename VectorT>
   Uint nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const;
 
-  template <typename VectorT>
-  void list_of_connected_objects_in_part(const Uint part, VectorT& connections_per_obj) const;
+  template <typename VectorT, typename WeightsT>
+  void list_of_connected_objects_in_part(const Uint part, VectorT& connections_per_obj, WeightsT& edge_weights) const;
 
   template <typename VectorT>
   void list_of_connected_procs_in_part(const Uint part, VectorT& proc_per_neighbor) const;
@@ -119,7 +119,7 @@ protected: // functions
   bool is_elem(const Uint glb_obj) const
   {
     Uint p = part_of_obj(glb_obj);
-    return m_start_node_per_part[p] <= glb_obj && glb_obj < m_end_node_per_part[p];
+    return m_start_elem_per_part[p] <= glb_obj && glb_obj < m_end_elem_per_part[p];
   }
 
   boost::tuple<Uint,Uint> location_idx(const Uint glb_obj) const;
@@ -136,6 +136,8 @@ protected: // functions
     cf3_assert_desc("[obj " + common::to_str(obj)+ ">"+common::to_str(m_end_id_per_part.back())+" Should not be here", false);
     return 0;
   }
+  
+  Uint periodic_target_node(Uint node) const;
 
 protected: // data
 
@@ -165,6 +167,8 @@ private: // data
 
   Handle< UnifiedData > m_lookup;
 
+  std::vector< std::pair<bool, Uint > > m_periodic_links;
+  std::vector< std::vector<Uint> > m_inverse_periodic_links;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -180,10 +184,13 @@ template <typename VectorT>
 void MeshPartitioner::list_of_objects_owned_by_part(const Uint part, VectorT& obj_list) const
 {
   Uint idx=0;
-  foreach_container((const Uint glb_obj),*m_global_to_local)
+  foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
     if (part_of_obj(glb_obj) == part)
-      obj_list[idx++] = glb_obj;
+    {
+      if(!(glb_obj < m_end_node_per_part[part] && m_periodic_links[m_lookup->location(loc_obj).get<1>()].first))
+        obj_list[idx++] = glb_obj;
+    }
   }
 }
 
@@ -205,16 +212,27 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
 
       if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
-        const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
-        nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
+        if(!m_periodic_links[loc_idx].first)
+        {
+          const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+          nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
+          BOOST_FOREACH(const Uint linked_loc_idx, m_inverse_periodic_links[loc_idx])
+          {
+            nb_connections_per_obj[idx] += node_to_glb_elm.row_size(linked_loc_idx);
+          }
+          size += nb_connections_per_obj[idx++];
+        }
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
         const Connectivity& connectivity_table = elements->geometry_space().connectivity();
-        nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
+        nb_connections_per_obj[idx] = 0;
+        boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
+        {
+          ++nb_connections_per_obj[idx];
+        }
+        size += nb_connections_per_obj[idx++];
       }
-      size += nb_connections_per_obj[idx];
-      ++idx;
     }
   }
   cf3_assert_desc(common::to_str(idx)+"!="+common::to_str(nb_objects_owned_by_part(part)), idx == nb_objects_owned_by_part(part));
@@ -223,8 +241,8 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
 
 //////////////////////////////////////////////////////////////////////////////
 
-template <typename VectorT>
-void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
+template <typename VectorT, typename WeightsT>
+void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects, WeightsT& edge_weights) const
 {
   // declaration for boost::tie
   Handle< common::Component > comp;
@@ -238,9 +256,23 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
       if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
-        const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
-        boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-          connected_objects[idx++] = glb_elm;
+        if(!m_periodic_links[loc_idx].first)
+        {
+          const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+          boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
+          {
+            edge_weights[idx] = 1.;
+            connected_objects[idx++] = glb_elm;
+          }
+          BOOST_FOREACH(const Uint linked_loc_idx, m_inverse_periodic_links[loc_idx])
+          {
+            boost_foreach (const Uint glb_elm , node_to_glb_elm[linked_loc_idx])
+            {
+              edge_weights[idx] = 1.;
+              connected_objects[idx++] = glb_elm;
+            }
+          }
+        }
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
@@ -248,7 +280,10 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_objects[idx++] = glb_node_indices[ loc_node ];
+        {
+          edge_weights[idx] = m_periodic_links[loc_node].first ? 1. : 1.;
+          connected_objects[idx++] = glb_node_indices[ periodic_target_node(loc_node) ];
+        }
       }
     }
   }
@@ -274,16 +309,29 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
       if (Handle< Dictionary > nodes = Handle<Dictionary>(comp))
       {
-        const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
-        boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-          connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
+        if(!m_periodic_links[loc_idx].first)
+        {
+          const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+          boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
+            connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
+            
+          BOOST_FOREACH(const Uint linked_loc_idx, m_inverse_periodic_links[loc_idx])
+          {
+            boost_foreach (const Uint glb_elm , node_to_glb_elm[linked_loc_idx])
+            {
+              connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
+            }
+          }
+        }
       }
       else if (Handle< Elements > elements = Handle<Elements>(comp))
       {
         const Connectivity& connectivity_table = elements->geometry_space().connectivity();
         const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
+        {
+          connected_procs[idx++] = part_of_obj( glb_node_indices[periodic_target_node(loc_node)] ); /// @todo should be proc of obj, not part!!!
+        }
       }
     }
   }

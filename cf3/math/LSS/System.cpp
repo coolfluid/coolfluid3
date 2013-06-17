@@ -64,6 +64,11 @@ LSS::System::System(const std::string& name) :
     .pretty_name("Solution Strategy")
     .description("Name of the builder that will be used to create the solution strategy")
     .mark_basic();
+    
+  options().add("solution_strategy_component", m_solution_strategy)
+    .pretty_name("Solution Strategy Component")
+    .description("Component to use as solution strategy for the next solve. Overrides any internally created strategy")
+    .link_to(&m_solution_strategy);
 
   regist_signal("print_system")
     .connect(boost::bind( &System::signal_print, this, _1 ))
@@ -74,7 +79,7 @@ LSS::System::System(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
+void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   if (is_created())
     destroy();
@@ -89,9 +94,9 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
   m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
   m_sol = create_component<LSS::Vector>("Solution", vector_builder);
 
-  m_rhs->create(cp,neq);
-  m_sol->create(cp,neq);
-  m_mat->create(cp,neq,node_connectivity,starting_indices,*m_sol,*m_rhs);
+  m_rhs->create(cp,neq,periodic_links_nodes,periodic_links_active);
+  m_sol->create(cp,neq,periodic_links_nodes,periodic_links_active);
+  m_mat->create(cp,neq,node_connectivity,starting_indices,*m_sol,*m_rhs,periodic_links_nodes,periodic_links_active);
 
   m_rhs->mark_basic();
   m_sol->mark_basic();
@@ -106,7 +111,7 @@ void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector< Uint >& node_connectivity, std::vector< Uint >& starting_indices)
+void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector< Uint >& node_connectivity, std::vector< Uint >& starting_indices, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   if (is_created())
     destroy();
@@ -121,9 +126,9 @@ void LSS::System::create_blocked(common::PE::CommPattern& cp, const VariablesDes
   m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
   m_sol = create_component<LSS::Vector>("Solution", vector_builder);
 
-  m_rhs->create_blocked(cp,vars);
-  m_sol->create_blocked(cp,vars);
-  m_mat->create_blocked(cp,vars,node_connectivity,starting_indices,*m_sol,*m_rhs);
+  m_rhs->create_blocked(cp,vars,periodic_links_nodes,periodic_links_active);
+  m_sol->create_blocked(cp,vars,periodic_links_nodes,periodic_links_active);
+  m_mat->create_blocked(cp,vars,node_connectivity,starting_indices,*m_sol,*m_rhs,periodic_links_nodes,periodic_links_active);
 
   m_rhs->mark_basic();
   m_sol->mark_basic();

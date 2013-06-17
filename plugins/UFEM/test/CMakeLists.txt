@@ -1,3 +1,5 @@
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 # UFEM tests
 coolfluid_add_test( UTEST utest-proto-heat
                     CPP utest-proto-heat.cpp
@@ -59,6 +61,10 @@ coolfluid_add_test( ATEST atest-ufem-heat2d-disk
                     PYTHON atest-ufem-heat2d-disk.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
+coolfluid_add_test( ATEST utest-ufem-heat2d-periodic
+                    PYTHON utest-ufem-heat2d-periodic.py
+                    MPI 4 )
+
 coolfluid_add_test( ATEST atest-ufem-heat3d-channel
                     PYTHON atest-ufem-heat3d-channel.py
                     MPI 4 )
@@ -75,15 +81,23 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu
+                    MPI 2)
+                    
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-periodic-channel-2d
+                    PYTHON atest-ufem-navier-stokes-periodic-channel-2d.py
                     MPI 2)
 
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-laminar-channel-2d
-                    PYTHON atest-ufem-navier-stokes-explicit-laminar-channel-2d.py
+coolfluid_add_test( ATEST atest-ufem-ns-driven-cavity
+                    PYTHON atest-ufem-ns-driven-cavity.py
                     MPI 1)
 
-coolfluid_add_test( ATEST atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d
-                    PYTHON atest-ufem-navier-stokes-explicit-implicit-laminar-channel-2d.py
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-taylor-green
+                    PYTHON atest-ufem-navier-stokes-taylor-green.py
+                    MPI 4
+                    ARGUMENTS --dt=0.004 --elem=quad --segs=64 --theta=0.5 --tsteps=5)
+
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d
+                    PYTHON atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d.py
                     MPI 1)
 
 coolfluid_add_test( ATEST atest-quadtriag
@@ -113,3 +127,8 @@ coolfluid_add_test( ATEST atest-boussinesq
 
 coolfluid_add_test( PTEST ptest-navier-stokes-assembly
                     PYTHON ptest-navier-stokes-assembly.py)
+
+coolfluid_add_test( UTEST utest-ufem-teko-blocks
+                    CPP utest-ufem-teko-blocks.cpp
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
+                    MPI 1)

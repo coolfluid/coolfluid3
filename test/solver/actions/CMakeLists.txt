@@ -16,6 +16,8 @@ endforeach()
 
 if(CF3_ENABLE_PROTO)
 
+include_directories(${Trilinos_INCLUDE_DIRS})
+
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(_ARGS 16 16 120)
 else()
@@ -45,6 +47,15 @@ coolfluid_add_test( UTEST     utest-proto-components
 coolfluid_add_test( UTEST     utest-proto-elements
                     CPP       utest-proto-elements.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh)
+                    
+coolfluid_add_test( UTEST     utest-proto-nodeloop
+                    CPP       utest-proto-nodeloop.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh)
+                    
+coolfluid_add_test( UTEST     utest-proto-lss
+                    CPP       utest-proto-lss.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
+                    MPI       1)
 
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
@@ -60,10 +71,12 @@ coolfluid_add_test( PTEST     ptest-proto-parallel
 else()
 coolfluid_mark_not_orphan(
   ptest-proto-benchmark.cpp
+  utest-proto-nodeloop.cpp
   utest-proto-operators.cpp
   utest-proto-internals.cpp
   utest-proto-components.cpp
   utest-proto-elements.cpp
   ptest-proto-parallel.cpp
+  utest-proto-lss.cpp
 )
 endif()

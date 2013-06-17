@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <set>
 
 #include <boost/pointer_cast.hpp>
 
@@ -58,36 +59,6 @@ using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void create_nb_indices_per_row(cf3::common::PE::CommPattern& cp,
-                     const VariablesDescriptor& variables,
-                     const std::vector<Uint>& starting_indices,
-                     std::vector<int>& num_indices_per_row
-                    )
-{
-  const Uint nb_vars = variables.nb_vars();
-  const Uint total_nb_eq = variables.size();
-
-  const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  cf3_assert(nb_nodes_for_rank+1 == starting_indices.size());
-  num_indices_per_row.reserve(nb_nodes_for_rank*total_nb_eq);
-
-  for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
-  {
-    const Uint neq = variables.var_length(var_idx);
-    const Uint var_offset = variables.offset(var_idx);
-    for (int i=0; i<nb_nodes_for_rank; i++)
-    {
-      if (cp.isUpdatable()[i])
-      {
-        for(int j = 0; j != neq; ++j)
-        {
-          num_indices_per_row.push_back(total_nb_eq*(starting_indices[i+1]-starting_indices[i]));
-        }
-      }
-    }
-  }
-}
-
 common::ComponentBuilder < LSS::TrilinosCrsMatrix, LSS::Matrix, LSS::LibLSS > TrilinosCrsMatrix_Builder;
 
 TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
@@ -105,17 +76,17 @@ TrilinosCrsMatrix::TrilinosCrsMatrix(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosCrsMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
   single_var_descriptor->options().set(common::Tags::dimension(), neq);
   single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
-  create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs);
+  create_blocked(cp, *single_var_descriptor, node_connectivity, starting_indices, solution, rhs, periodic_links_nodes, periodic_links_active);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   // if already created
   if (m_is_created) destroy();
@@ -129,52 +100,35 @@ void TrilinosCrsMatrix::create_blocked(common::PE::CommPattern& cp, const Variab
   const Uint total_nb_eq = vars.size();
 
   // prepare intermediate data
-  std::vector<int> num_indices_per_row;
   std::vector<int> my_global_elements;
+  std::vector<Uint> my_ranks;
 
-  create_map_data(cp, vars, m_p2m, my_global_elements, m_num_my_elements);
-  create_nb_indices_per_row(cp, vars, starting_indices, num_indices_per_row);
+  create_map_data(cp, vars, m_p2m, my_global_elements, my_ranks, m_num_my_elements, periodic_links_nodes, periodic_links_active);
+  std::vector<int> num_indices_per_row; num_indices_per_row.reserve(m_num_my_elements);
+  std::vector<int> indices_per_row;
+  create_indices_per_row(cp, vars, node_connectivity, starting_indices, m_p2m, num_indices_per_row, indices_per_row, periodic_links_nodes, periodic_links_active);
+
+  m_converted_indices.resize(*std::max_element(num_indices_per_row.begin(), num_indices_per_row.end()));
 
   // rowmap, ghosts not present
   Epetra_Map rowmap(-1,m_num_my_elements,&my_global_elements[0],0,m_comm);
 
   // colmap, has ghosts at the end
-  const Uint nb_nodes_for_rank = cp.isUpdatable().size();
-  Epetra_Map colmap(-1,nb_nodes_for_rank*total_nb_eq,&my_global_elements[0],0,m_comm);
-  my_global_elements.clear();
+  Epetra_Map colmap(-1,my_global_elements.size(),&my_global_elements[0],0,m_comm);
+  my_global_elements.clear(); // no longer needed
 
   // Create the graph, using static profile for performance
   Epetra_CrsGraph graph(Copy, rowmap, colmap, &num_indices_per_row[0], true);
 
   // Fill the graph
-  int max_nb_row_entries=0;
-  for(int i = 0; i != nb_nodes_for_rank; ++i)
+  int row_start = 0;
+  cf3_assert(num_indices_per_row.size() == m_num_my_elements);
+  for(int i = 0; i != m_num_my_elements; ++i)
   {
-    const int nb_row_nodes = starting_indices[i+1] - starting_indices[i];
-    max_nb_row_entries = nb_row_nodes > max_nb_row_entries ? nb_row_nodes : max_nb_row_entries;
-  }
-  m_converted_indices.resize(max_nb_row_entries*total_nb_eq);
-  for(int i = 0; i != nb_nodes_for_rank; ++i)
-  {
-    if(cp.isUpdatable()[i])
-    {
-      const Uint columns_begin = starting_indices[i];
-      const Uint columns_end = starting_indices[i+1];
-      for(Uint j = columns_begin; j != columns_end; ++j)
-      {
-        const Uint column = j-columns_begin;
-        const Uint node_idx = node_connectivity[j]*total_nb_eq;
-        for(int k = 0; k != total_nb_eq; ++k)
-        {
-          m_converted_indices[column*total_nb_eq+k] = m_p2m[node_idx+k];
-        }
-      }
-      for(int k = 0; k != total_nb_eq; ++k)
-      {
-        const int row = m_p2m[i*total_nb_eq+k];
-        TRILINOS_THROW(graph.InsertMyIndices(row, static_cast<int>(total_nb_eq*(columns_end - columns_begin)), &m_converted_indices[0]));
-      }
-    }
+    const int row_nb_elems = num_indices_per_row[i];
+    cf3_assert( (row_start + row_nb_elems) <= indices_per_row.size() );
+    TRILINOS_THROW(graph.InsertMyIndices(i, row_nb_elems, &indices_per_row[row_start]));
+    row_start += row_nb_elems;
   }
 
   TRILINOS_THROW(graph.FillComplete());
@@ -369,21 +323,35 @@ void TrilinosCrsMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uin
 
 void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq, const Real value, Vector& rhs)
 {
-  const int columns_begin = m_starting_indices[blockrow];
-  const int columns_end = m_starting_indices[blockrow+1];
+  // We assume that we have an epetra RHS with the same storage structure as the matrix!
+  Epetra_Vector& epetra_rhs = *dynamic_cast<TrilinosVector&>(rhs).epetra_vector();
 
   int num_entries;
   Real* extracted_values;
   int* extracted_indices;
 
-  const Uint bc_col = m_p2m[blockrow*m_neq+ieq];
+  const int bc_col = m_p2m[blockrow*m_neq+ieq];
 
-  for(int col_idx = columns_begin; col_idx != columns_end; ++col_idx)
+  m_dirichlet_nodes.push_back(std::make_pair(blockrow, ieq));
+
+  const Uint nb_connected_nodes = m_starting_indices[blockrow+1] - m_starting_indices[blockrow];
+  std::vector<int> row_indices; row_indices.reserve(m_neq*nb_connected_nodes);
+  const Uint conn_start = m_starting_indices[blockrow];
+  const Uint conn_end = m_starting_indices[blockrow+1];
+  for(Uint i = conn_start; i != conn_end; ++i)
   {
-    const int col = m_node_connectivity[col_idx];
-    for(int j = 0; j != m_neq; ++j)
+    for(Uint j = 0; j != m_neq; ++j)
     {
-      const Uint other_row = m_p2m[col*m_neq+j];
+      row_indices.push_back(m_p2m[m_node_connectivity[i]*m_neq+j]);
+    }
+  }
+  
+  DirichletEntryT& cached_col_values = m_symmetric_dirichlet_values[bc_col];
+
+  if(cached_col_values.empty())
+  {
+    BOOST_FOREACH(const int other_row, row_indices)
+    {
       if(other_row >= m_num_my_elements)
         continue;
 
@@ -396,7 +364,8 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
         {
           if(extracted_indices[i] == bc_col)
           {
-            rhs.add_value(col, j, -extracted_values[i] * value);
+            cached_col_values[other_row] = extracted_values[i];
+            epetra_rhs[other_row] -= extracted_values[i] * value;
             extracted_values[i] = 0;
             break;
           }
@@ -420,11 +389,25 @@ void TrilinosCrsMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ieq,
       }
     }
   }
+  else // Reuse the cached values, if the matrix wasn't reset since the previous BC application
+  {
+    for(DirichletEntryT::const_iterator it = cached_col_values.begin(); it != cached_col_values.end(); ++it)
+    {
+      epetra_rhs[it->first] -= it->second * value;
+    }
+  }
 
   rhs.set_value(blockrow, ieq, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+const std::vector<std::pair<Uint, Uint> >& TrilinosCrsMatrix::get_dirichlet_nodes() const
+{
+  return m_dirichlet_nodes;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosCrsMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
@@ -524,6 +507,31 @@ void TrilinosCrsMatrix::reset(Real reset_to)
   cf3_assert(m_is_created);
   CFdebug << "Resetting CrsMatrix to " << reset_to << CFendl;
   TRILINOS_THROW(m_mat->PutScalar(reset_to));
+
+  m_symmetric_dirichlet_values.clear();
+  m_dirichlet_nodes.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::clone_to(Matrix &other)
+{
+  if(!m_is_created)
+    throw common::SetupError(FromHere(), "Matrix to clone " + uri().string() + " is not created");
+
+  TrilinosCrsMatrix* other_ptr = dynamic_cast<TrilinosCrsMatrix*>(&other);
+  if(is_null(other_ptr))
+    throw common::SetupError(FromHere(), "clone_to method of TrilinosCrsMatrix needs another TrilinosCrsMatrix, but a " + other.derived_type_name() + " was supplied instead.");
+
+  other_ptr->m_mat = Teuchos::rcp(new Epetra_CrsMatrix(*m_mat));
+  other_ptr->m_is_created = m_is_created;
+  other_ptr->m_neq = m_neq;
+  other_ptr->m_num_my_elements = m_num_my_elements;
+  other_ptr->m_p2m = m_p2m;
+  other_ptr->m_converted_indices = m_converted_indices;
+  other_ptr->m_node_connectivity = m_node_connectivity;
+  other_ptr->m_starting_indices = m_starting_indices;
+  other_ptr->m_symmetric_dirichlet_values = m_symmetric_dirichlet_values;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,6 +634,45 @@ void TrilinosCrsMatrix::print_native(ostream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosCrsMatrix::blocked_var_gids ( const VariablesDescriptor& var_descriptor, std::vector< std::vector< int > >& var_gids )
+{
+  cf3_assert(var_descriptor.size() == m_neq);
+  cf3_assert(m_p2m.size() % m_neq == 0);
+  const Uint nb_block_rows = m_p2m.size() / m_neq;
+  
+  const Epetra_Map & range_map = m_mat->OperatorRangeMap();
+  cf3_assert(range_map.NumMyElements() == m_num_my_elements);
+  int * matrix_global_ids = range_map.MyGlobalElements();
+  
+  const Uint nb_vars = var_descriptor.nb_vars();
+  std::vector< std::set<int> > var_gid_sets(nb_vars);
+  
+  for(Uint i = 0; i != nb_block_rows; ++i)
+  {
+    for(Uint j = 0; j != nb_vars; ++j)
+    {
+      const Uint var_begin = var_descriptor.offset(j);
+      const Uint var_end = var_begin + var_descriptor.var_length(j);
+      for(Uint k = var_begin; k != var_end; ++k)
+      {
+        const int lid = m_p2m[i*m_neq+k];
+        if(lid < m_num_my_elements)
+        {
+          var_gid_sets[j].insert(matrix_global_ids[lid]);
+        }
+      }
+    }
+  }
+
+  var_gids.assign(nb_vars, std::vector<int>());
+  for(Uint i = 0; i != nb_vars; ++i)
+  {
+    var_gids[i].assign(var_gid_sets[i].begin(), var_gid_sets[i].end());
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosCrsMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
 {
   row_indices.clear(); col_indices.clear(); values.clear();
@@ -668,3 +715,12 @@ Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosCrsMatrix::thyra_operator()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::apply ( const Handle< Vector >& y, const cf3::Handle< const Vector >& x, const Real alpha, const Real beta )
+{
+  apply_matrix(*m_mat, y, x, alpha, beta);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+

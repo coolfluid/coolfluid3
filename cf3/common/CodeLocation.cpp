@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <cstring>
 #include <list>
-
 #include "common/BoostFilesystem.hpp"
 
 #include "common/CodeLocation.hpp"
@@ -54,8 +53,7 @@ std::string CodeLocation::short_str() const
 
   filesystem::path path(m_file);
   std::list<filesystem::path> parts;
-  copy(path.begin(), path.end(), back_inserter(parts));
-
+  parts.push_back(path);
   if (parts.size() < 2)
   {
     place = path.string();

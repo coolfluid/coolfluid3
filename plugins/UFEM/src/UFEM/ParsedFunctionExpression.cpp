@@ -13,6 +13,8 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 
+#include "solver/Tags.hpp"
+
 
 #include "UFEM/ParsedFunctionExpression.hpp"
 
@@ -32,8 +34,25 @@ ParsedFunctionExpression::ParsedFunctionExpression(const std::string& name) : Pr
     .description("Array of functions to use. Each function is used as a component in the result vector.")
     .attach_trigger(boost::bind(&ParsedFunctionExpression::trigger_value, this))
     .mark_basic();
+
+  options().add(solver::Tags::time(), m_time)
+      .pretty_name("Time")
+      .description("Time tracking component")
+      .attach_trigger(boost::bind(&ParsedFunctionExpression::trigger_time_component, this))
+      .mark_basic();
   
   options().option("regions").attach_trigger(boost::bind(&ParsedFunctionExpression::trigger_value, this));
+  
+  m_function.predefined_values.resize(1, 0.);
+  m_function.variables( std::vector<std::string>(1, "t") );
+}
+
+ParsedFunctionExpression::~ParsedFunctionExpression()
+{
+  if(is_not_null(m_time))
+  {
+    m_time->options().option("current_time").detach_trigger(m_time_trigger_id);
+  }
 }
 
 void ParsedFunctionExpression::trigger_value()
@@ -53,10 +72,38 @@ void ParsedFunctionExpression::trigger_value()
     vars.push_back("y");
   if(dim > 2)
     vars.push_back("z");
+  
+  vars.push_back("t");
 
   m_function.variables(vars);
   m_function.functions(functions);
   m_function.parse();
+  const Real time = m_function.predefined_values.back();
+  m_function.predefined_values.assign(vars.size(), 0.);
+  m_function.predefined_values.back() = time;
+}
+
+void ParsedFunctionExpression::trigger_time_component()
+{
+  if(is_not_null(m_time))
+  {
+    m_time->options().option("current_time").detach_trigger(m_time_trigger_id);
+  }
+
+  m_time = options().value< Handle<solver::Time> >(solver::Tags::time());
+
+  if(is_not_null(m_time))
+  {
+    m_time_trigger_id = m_time->options().option("current_time").attach_trigger_tracked(boost::bind(&ParsedFunctionExpression::trigger_time, this));
+  }
+
+  trigger_time();
+}
+
+void ParsedFunctionExpression::trigger_time()
+{
+  cf3_assert(is_not_null(m_time));
+  m_function.predefined_values.back() = m_time->options().value<Real>("current_time");
 }
 
 const solver::actions::Proto::ScalarFunction& ParsedFunctionExpression::scalar_function()

@@ -30,12 +30,21 @@ Shared::Shared() :
   m_supported_types.push_back("cf3.mesh.LagrangeP1.Triag3D");
   m_supported_types.push_back("cf3.mesh.LagrangeP1.Hexa3D");
   m_supported_types.push_back("cf3.mesh.LagrangeP1.Tetra3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Prism3D");
 
   m_CFelement_to_neuElement[GeoShape::LINE ]=LINE;
   m_CFelement_to_neuElement[GeoShape::QUAD ]=QUAD;
   m_CFelement_to_neuElement[GeoShape::TRIAG]=TRIAG;
   m_CFelement_to_neuElement[GeoShape::HEXA ]=HEXA;
   m_CFelement_to_neuElement[GeoShape::TETRA]=TETRA;
+  m_CFelement_to_neuElement[GeoShape::PRISM]=PRISM;
+
+  m_supported_neu_types.insert(LINE);
+  m_supported_neu_types.insert(QUAD);
+  m_supported_neu_types.insert(TRIAG);
+  m_supported_neu_types.insert(HEXA);
+  m_supported_neu_types.insert(TETRA);
+  m_supported_neu_types.insert(PRISM);
 
   // ------------------------------------------------------- FACES
   // line
@@ -100,6 +109,21 @@ Shared::Shared() :
   m_faces_neu_to_cf[TETRA][2]=1;
   m_faces_neu_to_cf[TETRA][3]=2;
   m_faces_neu_to_cf[TETRA][4]=3;
+  
+  // prism
+  m_faces_cf_to_neu[PRISM].resize(5);
+  m_faces_cf_to_neu[PRISM][0]=4;
+  m_faces_cf_to_neu[PRISM][1]=5;
+  m_faces_cf_to_neu[PRISM][2]=3;
+  m_faces_cf_to_neu[PRISM][3]=1;
+  m_faces_cf_to_neu[PRISM][4]=2;
+  
+  m_faces_neu_to_cf[PRISM].resize(6);
+  m_faces_neu_to_cf[PRISM][1]=3;
+  m_faces_neu_to_cf[PRISM][2]=4;
+  m_faces_neu_to_cf[PRISM][3]=2;
+  m_faces_neu_to_cf[PRISM][4]=0;
+  m_faces_neu_to_cf[PRISM][5]=1;
 
 
   // --------------------------------------------------- NODES
@@ -172,7 +196,23 @@ Shared::Shared() :
   m_nodes_neu_to_cf[HEXA][5]=1;
   m_nodes_neu_to_cf[HEXA][6]=4;
   m_nodes_neu_to_cf[HEXA][7]=5;
-
+  
+  // prism
+  m_nodes_cf_to_neu[PRISM].resize(6);
+  m_nodes_cf_to_neu[PRISM][0]=0;
+  m_nodes_cf_to_neu[PRISM][1]=1;
+  m_nodes_cf_to_neu[PRISM][2]=2;
+  m_nodes_cf_to_neu[PRISM][3]=3;
+  m_nodes_cf_to_neu[PRISM][4]=4;
+  m_nodes_cf_to_neu[PRISM][5]=5;
+  
+  m_nodes_neu_to_cf[PRISM].resize(6);
+  m_nodes_neu_to_cf[PRISM][0]=0;
+  m_nodes_neu_to_cf[PRISM][1]=1;
+  m_nodes_neu_to_cf[PRISM][2]=2;
+  m_nodes_neu_to_cf[PRISM][3]=3;
+  m_nodes_neu_to_cf[PRISM][4]=4;
+  m_nodes_neu_to_cf[PRISM][5]=5;
 }
 
 //////////////////////////////////////////////////////////////////////////////

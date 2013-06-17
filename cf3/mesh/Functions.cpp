@@ -21,7 +21,7 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary, bool include_ghost_elems )
+boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links)
 {
   boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
 
@@ -31,6 +31,8 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   const Uint all_nb_nodes = dictionary.size();
 
   std::vector<bool> node_is_used(all_nb_nodes, false);
+  const List<Uint>* periodic_links_nodes = dynamic_cast< const List<Uint>* >(dictionary.get_child("periodic_links_nodes").get());
+  const List<bool>* periodic_links_active = dynamic_cast< const List<bool>* >(dictionary.get_child("periodic_links_active").get());
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
@@ -51,6 +53,19 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
           {
             node_is_used[node] = true;
             ++nb_nodes;
+          }
+          if(follow_periodic_links && periodic_links_active)
+          {
+            Uint tgt_node = node;
+            while((*periodic_links_active)[tgt_node])
+            {
+              tgt_node = (*periodic_links_nodes)[tgt_node];
+              if(!node_is_used[tgt_node])
+              {
+                node_is_used[tgt_node] = true;
+                ++nb_nodes;
+              }
+            }
           }
         }
       }
@@ -80,6 +95,19 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
             node_is_used[node] = true;
             nodes_array[back++] = node;
           }
+          if(follow_periodic_links && periodic_links_active)
+          {
+            Uint tgt_node = node;
+            while((*periodic_links_active)[tgt_node])
+            {
+              tgt_node = (*periodic_links_nodes)[tgt_node];
+              if(!node_is_used[tgt_node])
+              {
+                node_is_used[tgt_node] = true;
+                nodes_array[back++] = tgt_node;
+              }
+            }
+          }
         }
       }
     }
@@ -91,7 +119,7 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component& node_user, const Dictionary& dictionary, bool include_ghost_elems )
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component& node_user, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links)
 {
   std::vector< Handle<Entities const> > entities_vector;
   if (Handle<Entities const> entities_h = node_user.handle<Entities>())
@@ -99,7 +127,7 @@ boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component
   else
     entities_vector = range_to_const_vector( find_components_recursively<Entities>(node_user) );
 
-  return build_used_nodes_list(entities_vector,dictionary,include_ghost_elems);
+  return build_used_nodes_list(entities_vector,dictionary,include_ghost_elems, follow_periodic_links);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

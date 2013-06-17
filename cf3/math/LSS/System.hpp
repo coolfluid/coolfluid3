@@ -70,11 +70,11 @@ public:
 
   /// Setup sparsity structure
   /// @todo action for it
-  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Create a blocked system, where the unknowns for each physical variable are stored together. Note that this only changes the internal ordering,
   /// the interface is not affected.
-  void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  void create_blocked(cf3::common::PE::CommPattern& cp, const VariablesDescriptor& vars, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>());
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it

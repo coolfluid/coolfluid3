@@ -13,6 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/version.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #include "common/AllocatedComponent.hpp"
@@ -438,6 +439,10 @@ protected: // functions
   /// Friend declarations allow enable_shared_from_this to be private
   template<class T> friend class boost::enable_shared_from_this;
   template<class T> friend class boost::shared_ptr;
+#if BOOST_VERSION >= 105300
+  template< class T, class Y > friend void boost::detail::sp_deleter_construct(boost::shared_ptr< T >*, Y* );
+  template< class T, class Y > friend void boost::detail::sp_pointer_construct(boost::shared_ptr< T >*, Y*, boost::detail::shared_count&);
+#endif
 }; // Component
 
 

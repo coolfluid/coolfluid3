@@ -72,6 +72,7 @@ Shared::Shared() :
   m_supported_types.push_back("cf3.mesh.LagrangeP0.Point1D");
   m_supported_types.push_back("cf3.mesh.LagrangeP0.Point2D");
   m_supported_types.push_back("cf3.mesh.LagrangeP0.Point3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP0.Prism3D");
 
   m_CFelement_to_GmshElement[GeoShape::LINE ]=P1LINE;
   m_CFelement_to_GmshElement[GeoShape::TRIAG]=P1TRIAG;
@@ -79,6 +80,7 @@ Shared::Shared() :
   m_CFelement_to_GmshElement[GeoShape::HEXA ]=P1HEXA;
   m_CFelement_to_GmshElement[GeoShape::TETRA]=P1TETRA;
   m_CFelement_to_GmshElement[GeoShape::POINT]=P0POINT;
+  m_CFelement_to_GmshElement[GeoShape::PRISM]=P1PRISM;
 
   // --------------------------------------------------- NODES
 
@@ -369,6 +371,23 @@ Shared::Shared() :
   m_nodes_gmsh_to_cf[P3QUAD][13] = 13;
   m_nodes_gmsh_to_cf[P3QUAD][14] = 14;
   m_nodes_gmsh_to_cf[P3QUAD][15] = 15;
+  
+  // prism
+  m_nodes_cf_to_gmsh[P1PRISM].resize(6);
+  m_nodes_cf_to_gmsh[P1PRISM][0]=0;
+  m_nodes_cf_to_gmsh[P1PRISM][1]=2;
+  m_nodes_cf_to_gmsh[P1PRISM][2]=1;
+  m_nodes_cf_to_gmsh[P1PRISM][3]=3;
+  m_nodes_cf_to_gmsh[P1PRISM][4]=5;
+  m_nodes_cf_to_gmsh[P1PRISM][5]=4;
+  
+  m_nodes_gmsh_to_cf[P1PRISM].resize(6);
+  m_nodes_gmsh_to_cf[P1PRISM][0]=0;
+  m_nodes_gmsh_to_cf[P1PRISM][1]=2;
+  m_nodes_gmsh_to_cf[P1PRISM][2]=1;
+  m_nodes_gmsh_to_cf[P1PRISM][3]=3;
+  m_nodes_gmsh_to_cf[P1PRISM][4]=5;
+  m_nodes_gmsh_to_cf[P1PRISM][5]=4;
 
 }
 

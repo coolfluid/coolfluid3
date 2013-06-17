@@ -57,7 +57,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(common::PE::CommPattern& cp, Uint neq)
+  void create(common::PE::CommPattern& cp, Uint neq, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=neq;
@@ -65,7 +65,7 @@ public:
     m_is_created=true;
   }
   
-  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars)
+  void create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector<Uint>& periodic_links_nodes = std::vector<Uint>(), const std::vector<bool>& periodic_links_active = std::vector<bool>())
   {
     destroy();
     m_neq=vars.size();
@@ -175,6 +175,16 @@ public:
 
   /// Accessor to the number of block rows
   const Uint blockrow_size() { cf3_assert(m_is_created); return m_blockrow_size; }
+
+  void clone_to(Vector &other) {}
+
+  void assign(const Vector& source) {}
+  
+  void update ( const Vector& source, const Real alpha = 1. ) {}
+  
+  void scale ( const Real alpha ) {}
+
+  void sync() {}
 
   //@} END MISCELLANEOUS
 

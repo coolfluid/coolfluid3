@@ -29,7 +29,9 @@
 #include "common/OptionT.hpp"
 #include "common/PropertyList.hpp"
 #include "math/LSS/Trilinos/TrilinosFEVbrMatrix.hpp"
+#include "math/LSS/Trilinos/TrilinosDetail.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +68,7 @@ TrilinosFEVbrMatrix::TrilinosFEVbrMatrix(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs)
+void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint neq, const std::vector<Uint>& node_connectivity, const std::vector<Uint>& starting_indices, LSS::Vector& solution, LSS::Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
@@ -80,106 +82,58 @@ void TrilinosFEVbrMatrix::create(cf3::common::PE::CommPattern& cp, const Uint ne
   std::copy(node_connectivity.begin(), node_connectivity.end(), m_node_connectivity.begin());
   std::copy(starting_indices.begin(), starting_indices.end(), m_starting_indices.begin());
 
-  // Symmetric matrix
   const int nb_nodes = cp.isUpdatable().size();
-  m_keep_node.assign(m_node_connectivity.size(), true);
-//   for(int this_node = 0; this_node != nb_nodes; ++this_node)
-//   {
-//     const int this_node_begin = m_starting_indices[this_node];
-//     const int this_node_end = m_starting_indices[this_node+1];
-//     for(int i = this_node_begin; i != this_node_end; ++i)
-//     {
-//       const int other_node = m_node_connectivity[i];
-//       if(other_node == this_node || !m_keep_node[i])
-//         continue;
-//       const int other_node_begin = m_starting_indices[other_node];
-//       const int other_node_end = m_starting_indices[other_node+1];
-//       for(int j = other_node_begin; j != other_node_end; ++j)
-//       {
-//         if(m_node_connectivity[j] == this_node)
-//           m_keep_node[j] = false;
-//       }
-//     }
-//   }
 
-  // get global ids vector
-  int *gid=(int*)cp.gid()->pack();
-
-  // prepare intermediate data
-  int nmyglobalelements=0;
-  int maxrowentries=0;
-  std::vector<int> rowelements(0);
   std::vector<int> myglobalelements(0);
+  std::vector<Uint> my_ranks;
+  int nmyglobalelements=0;
+  boost::shared_ptr<VariablesDescriptor> single_var_descriptor = common::allocate_component<VariablesDescriptor>("SingleVariableDescriptor");
+  single_var_descriptor->options().set(common::Tags::dimension(), 1); // Use one equation that represents the entire block
+  single_var_descriptor->push_back("LSSvars", VariablesDescriptor::Dimensionalities::VECTOR);
+  create_map_data(cp, *single_var_descriptor, m_p2m, myglobalelements, my_ranks, nmyglobalelements, periodic_links_nodes, periodic_links_active);
 
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-    if (cp.isUpdatable()[i])
-    {
-      ++nmyglobalelements;
-      myglobalelements.push_back((int)gid[i]);
-      rowelements.push_back((int)(starting_indices[i+1]-starting_indices[i]));
-      maxrowentries=maxrowentries<(starting_indices[i+1]-starting_indices[i])?(starting_indices[i+1]-starting_indices[i]):maxrowentries;
-    }
+  std::vector<int> rowelements; rowelements.reserve(nmyglobalelements);
+  std::vector<int> indices_per_row;
+  create_indices_per_row(cp, *single_var_descriptor, node_connectivity, starting_indices, m_p2m, rowelements, indices_per_row, periodic_links_nodes, periodic_links_active);
+  const int maxrowentries = *std::max_element(rowelements.begin(), rowelements.end());
+
   std::vector<double>dummy_entries(maxrowentries*neq*neq,0.);
-  std::vector<int>global_columns(maxrowentries);
-
-  // process local to matrix local numbering mapper
-  int iupd=0;
-  int ighost=nmyglobalelements;
-  m_p2m.resize(0);
-  m_p2m.reserve(cp.isUpdatable().size());
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-  {
-    if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
-    else { m_p2m.push_back(ighost++); }
-  }
 
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-    if (!cp.isUpdatable()[i])
-      myglobalelements.push_back((int)gid[i]);
-  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),&myglobalelements[0],neq,0,m_comm);
+  Epetra_BlockMap colmap(-1,myglobalelements.size(),&myglobalelements[0],neq,0,m_comm);
   myglobalelements.clear();
 
   // create matrix
   m_mat=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,&rowelements[0]));
-/*must be a bug in Trilinos, Epetra_FEVbrMatrix constructor is in Copy mode but it hangs up anyway
-  more funny, when it gets out of scope and gets dealloc'd, everything survives according to memcheck
-  rowmap.~Epetra_BlockMap();
-  colmap.~Epetra_BlockMap();
-*/
-  rowelements.clear();
-
+  
   // prepare the entries
-  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
-    if (cp.isUpdatable()[i])
+  int row_start = 0;
+  cf3_assert(rowelements.size() == nmyglobalelements);
+  for(int i = 0; i != nmyglobalelements; ++i)
+  {
+    const int row_nb_elems = rowelements[i];
+    cf3_assert( (row_start + row_nb_elems) <= indices_per_row.size() );
+    TRILINOS_THROW(m_mat->BeginInsertMyValues(i,row_nb_elems,&indices_per_row[row_start]));
+    for(int j=0; j<row_nb_elems; j++)
     {
-      int nb_added = 0;
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
-      {
-        if(m_keep_node[j])
-        {
-          global_columns[nb_added++]=myglobalelements[m_p2m[node_connectivity[j]]];
-        }
-      }
-      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],nb_added,&global_columns[0]));
-      for(int j=0; j<(const int)nb_added; j++)
-        TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
-      TRILINOS_THROW(m_mat->EndSubmitEntries());
+      TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
     }
+    TRILINOS_THROW(m_mat->EndSubmitEntries());
+    row_start += row_nb_elems;
+  }
+  
   TRILINOS_THROW(m_mat->FillComplete());
-  //TRILINOS_THROW(m_mat->OptimizeStorage()); // in theory fillcomplete calls optimizestorage from Trilinos 8.x+
-  delete[] gid;
 
   // set class properties
   m_is_created=true;
   m_neq=neq;
   m_blockrow_size=nmyglobalelements;
   m_blockcol_size=cp.gid()->size();
-  CFdebug << "Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements." << CFendl;
+  CFdebug << "Created a " << m_mat->NumGlobalCols() << " x " << m_mat->NumGlobalRows() << " trilinos matrix with " << m_mat->NumGlobalNonzeros() << " non-zero elements. CrsGraph rows: " << m_mat->Graph().NumGlobalRows() << CFendl;
 }
 
-void TrilinosFEVbrMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs)
+void TrilinosFEVbrMatrix::create_blocked(common::PE::CommPattern& cp, const VariablesDescriptor& vars, const std::vector< Uint >& node_connectivity, const std::vector< Uint >& starting_indices, Vector& solution, Vector& rhs, const std::vector<Uint>& periodic_links_nodes, const std::vector<bool>& periodic_links_active)
 {
   throw common::NotImplemented(FromHere(), "create_blocked is not implemented for TrilinosFEVbrMatrix");
 }
@@ -549,7 +503,7 @@ void TrilinosFEVbrMatrix::symmetric_dirichlet(const Uint blockrow, const Uint ie
     bool row_has_node = false;
     for(int i = other_cols_begin; i != other_cols_end; ++i)
     {
-      if(m_node_connectivity[i] == blockrow && m_keep_node[i])
+      if(m_node_connectivity[i] == blockrow)
       {
         row_has_node = true;
         break;
@@ -840,3 +794,15 @@ Teuchos::RCP< Thyra::LinearOpBase< Real > > TrilinosFEVbrMatrix::thyra_operator(
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosFEVbrMatrix::clone_to(Matrix &other)
+{
+  throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosFEVbrMatrix::apply(const Handle<Vector> &y, const Handle<const Vector> &x, const Real alpha, const Real beta)
+{
+  apply_matrix(*m_mat, y, x, alpha, beta);
+}

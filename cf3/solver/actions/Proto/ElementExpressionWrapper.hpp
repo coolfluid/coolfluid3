@@ -20,7 +20,8 @@ struct WrappableElementExpressions :
   <
     boost::proto::multiplies<boost::proto::_, boost::proto::_>,
     boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >
+    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
+    boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >
   >
 {
 };
@@ -73,7 +74,7 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     template<typename T, bool>
     struct WrapperSelector
     {
-      typedef typename impl::expr_param result_type;
+      typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type result_type;
       
       result_type operator()(typename impl::expr_param expr, typename impl::state_param , typename impl::data_param)
       {
@@ -134,7 +135,12 @@ struct WrapExpression :
     boost::proto::when
     <
       boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
-      WrapMatrixExpression
+      WrapMatrixExpression(boost::proto::function<boost::proto::_, boost::proto::vararg<WrapExpression> >)
+    >,
+    boost::proto::when
+    <
+       boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >,
+       WrapMatrixExpression
     >,
     boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >
   >
