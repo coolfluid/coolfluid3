@@ -26,7 +26,7 @@ namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  class ListeningInfo;
+  struct ListeningInfo;
 
   /// @brief Listener for MPI messages.
 
