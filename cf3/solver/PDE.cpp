@@ -50,6 +50,13 @@ PDE::PDE ( const std::string& name  ) :
   options().add("rhs", m_rhs ).mark_basic().link_to(&m_rhs);
   options().add("wave_speed", m_wave_speed ).mark_basic().link_to(&m_wave_speed);
 
+  options().add("bdry_fields", m_bdry_fields )
+      .mark_basic()
+      .link_to(&m_bdry_fields)
+      .attach_trigger( boost::bind( &PDE::create_bdry_fields, this) );
+  options().add("bdry_solution", m_bdry_solution ).mark_basic().link_to(&m_bdry_solution);
+  options().add("bdry_solution_gradient", m_bdry_solution_gradient ).mark_basic().link_to(&m_bdry_solution_gradient);
+
   m_nb_eqs = 0u;
 
   m_rhs_computer = create_static_component<solver::ComputeRHS>("rhs_computer");
@@ -134,6 +141,46 @@ void PDE::create_fields()
   }
   m_rhs_computer->options().set("rhs",m_rhs);
   m_rhs_computer->options().set("wave_speed",m_wave_speed);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PDE::create_bdry_fields()
+{
+  if (m_nb_eqs == 0)
+    throw InvalidStructure(FromHere(), "PDE "+derived_type_name()+" does not have any equations defined");
+
+  if (is_null(m_bdry_fields))
+    throw SetupError(FromHere(), "boundary Dictionary in PDE "+uri().string()+" is not setup correctly");
+
+  if ( is_null(m_bdry_solution) || ( &m_bdry_solution->dict() != m_bdry_fields.get() ) )
+  {
+    if ( Handle<Component> found = m_bdry_fields->get_child("bdry_solution") )
+    {
+      m_bdry_solution = found->handle<Field>();
+    }
+    else
+    {
+      m_bdry_solution = m_bdry_fields->create_field("bdry_solution",solution_variables()).handle<Field>();
+      m_bdry_solution->parallelize();
+    }
+    options().set("bdry_solution",m_bdry_solution);
+  }
+
+  if ( is_null(m_bdry_solution_gradient) || ( &m_bdry_solution_gradient->dict() != m_bdry_fields.get() ) )
+  {
+    if ( Handle<Component> found = m_bdry_fields->get_child("bdry_solution_gradient") )
+    {
+      m_bdry_solution_gradient = found->handle<Field>();
+    }
+    else
+    {
+      m_bdry_solution_gradient = m_bdry_fields->create_field("bdry_solution_gradient",m_nb_eqs*m_nb_dim).handle<Field>();
+      m_bdry_solution_gradient->parallelize();
+    }
+    options().set("bdry_solution_gradient",m_bdry_solution_gradient);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
