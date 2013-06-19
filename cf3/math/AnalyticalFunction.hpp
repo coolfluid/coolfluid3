@@ -40,7 +40,7 @@ public: // functions
 
   /// Destructor
   ~AnalyticalFunction();
-  
+
   /// Define the parameters of the function
   void set_variables(const std::string& vars, const std::string& separator = ",");
 
@@ -58,6 +58,10 @@ public: // functions
   /// Parse the strings to extract the functions for each line of the vector.
   /// @throw ParsingFailed if there is an error while parsing
   void parse (const std::string& function, const std::vector<std::string>& vars);
+
+  /// Parse a function and return the variables found in the expression
+  /// @throw ParsingFailed if there is an error while parsing
+  void parse_and_deduce_variables (const std::string& function, std::vector<std::string>& vars);
 
   /// @return if the AnalyticalFunctionParser has been parsed yet.
   bool is_parsed() const { return m_is_parsed; }
@@ -99,7 +103,7 @@ private: // data
   std::vector<std::string> m_vars;
 
   /// a vector of string to hold the functions
-  std::string m_function; 
+  std::string m_function;
 
   /// vector holding the parsers, one for each entry in the vector
   boost::shared_ptr<FunctionParser> m_parser;
