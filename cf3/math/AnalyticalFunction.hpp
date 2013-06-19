@@ -40,7 +40,7 @@ public: // functions
 
   /// Destructor
   ~AnalyticalFunction();
-  
+
   /// Define the parameters of the function
   void set_variables(const std::string& vars, const std::string& separator = ",");
 
@@ -61,7 +61,7 @@ public: // functions
 
   /// Parse a function and return the variables found in the expression
   /// @throw ParsingFailed if there is an error while parsing
-  void parseAndDeduceVariables (const std::string& function, std::vector<std::string>& vars);
+  void parse_and_deduce_variables (const std::string& function, std::vector<std::string>& vars);
 
   /// @return if the AnalyticalFunctionParser has been parsed yet.
   bool is_parsed() const { return m_is_parsed; }

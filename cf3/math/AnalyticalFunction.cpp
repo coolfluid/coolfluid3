@@ -124,7 +124,7 @@ void AnalyticalFunction::parse (const std::string& function)
   m_is_parsed = true;
 }
 
-void AnalyticalFunction::parseAndDeduceVariables (const std::string& function, std::vector<std::string>& vars)
+void AnalyticalFunction::parse_and_deduce_variables (const std::string& function, std::vector<std::string>& vars)
 {
   clear();
   m_function = function;
