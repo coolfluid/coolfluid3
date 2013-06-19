@@ -111,14 +111,42 @@ void AnalyticalFunction::parse (const std::string& function)
     if (i!=0) ss << ",";
     ss << m_vars[i];
   }
-  m_parser->Parse(m_function,ss.str());
+  const int r = m_parser->Parse(m_function,ss.str());
 
-  if ( m_parser->GetParseErrorType() !=  FunctionParser::FP_NO_ERROR )
+  if ( m_parser->GetParseErrorType() != FunctionParser::FP_NO_ERROR )
   {
-    std::string msg("ParseError in AnalyticalFunction::parse(): ");
-    msg += " Error [" +std::string(m_parser->ErrorMsg()) + "]";
-    msg += " Function [" + m_function + "]";
-    msg += " Vars: ["    + ss.str() + "]";
+    std::string msg("ParseError in AnalyticalFunction::parse():\n");
+    msg += " Function [" + m_function + "]\n";
+    msg += std::string(r+11, ' ') + "^ " + std::string(m_parser->ErrorMsg()) + "\n";
+    msg += " Vars     [" + ss.str() + "]\n";
+    throw common::ParsingFailed (FromHere(),msg);
+  }
+  m_is_parsed = true;
+}
+
+void AnalyticalFunction::parse_and_deduce_variables (const std::string& function, std::vector<std::string>& vars)
+{
+  clear();
+  m_function = function;
+
+  m_parser = boost::shared_ptr<FunctionParser>( new FunctionParser() );
+  m_parser->AddConstant("pi", Consts::pi());
+
+  const int r = m_parser->ParseAndDeduceVariables(m_function, vars);
+  set_variables(vars);
+  std::stringstream ss;
+  for (Uint i=0; i<m_vars.size(); ++i)
+  {
+    if (i!=0) ss << ",";
+    ss << m_vars[i];
+  }
+
+  if ( m_parser->GetParseErrorType() != FunctionParser::FP_NO_ERROR )
+  {
+    std::string msg("ParseError in AnalyticalFunction::parseAndDeduceVariables():\n");
+    msg += " Function [" + m_function + "]\n";
+    msg += std::string(r+11, ' ') + "^ " + std::string(m_parser->ErrorMsg()) + "\n";
+    msg += " Vars     [" + ss.str() + "]\n";
     throw common::ParsingFailed (FromHere(),msg);
   }
   m_is_parsed = true;
