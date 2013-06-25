@@ -676,8 +676,8 @@ struct BlockArrays::Implementation
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
           Connectivity::Row elem_row = patch_conn[elem_idx++];
-          elem_row[0] = to_local(patch.global_idx(i + first_offset));
-          elem_row[1] = to_local(patch.global_idx(i + second_offset));
+          elem_row[1] = to_local(patch.global_idx(i + first_offset));
+          elem_row[0] = to_local(patch.global_idx(i + second_offset));
         }
       }
     }
