@@ -1216,39 +1216,6 @@ void MeshAdaptor::grow_overlap()
 
   //////PECheckArrivePoint(100, "boundary nodes found");
 
-  // Also add periodic links, if any
-  Handle< List<Uint> const > periodic_links_nodes_h(geometry_dict.get_child("periodic_links_nodes"));
-  if(is_not_null(periodic_links_nodes_h))
-  {
-    std::set<boost::uint64_t> periodic_nodes;
-    const Uint nb_links = periodic_links_nodes_h->size();
-    cf3_assert(nb_links == geometry_dict.size());
-
-    // Get the periodic data structures
-    const List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
-    Handle< List<bool> const > periodic_links_active_h(geometry_dict.get_child("periodic_links_active"));
-    cf3_assert(is_not_null(periodic_links_active_h));
-    const List<bool>& periodic_links_active = *periodic_links_active_h;
-
-    // Add periodic boundary nodes
-    for(Uint i = 0; i != nb_links; ++i)
-    {
-      if(periodic_links_active[i] && geometry_dict.rank()[i] == comm.rank())
-      {
-        Uint final_target_node = periodic_links_nodes[i];
-        Uint count = 0;
-        while(periodic_links_active[final_target_node])
-        {
-          cf3_assert(++count < 10);
-          final_target_node = periodic_links_nodes[final_target_node];
-        }
-        bdry_nodes.insert(i);
-        bdry_nodes.insert(final_target_node);
-      }
-    }
-
-  }
-
   // Copy set into vector and convert to global indices
   std::vector<boost::uint64_t> glb_boundary_nodes;
   glb_boundary_nodes.reserve(bdry_nodes.size());

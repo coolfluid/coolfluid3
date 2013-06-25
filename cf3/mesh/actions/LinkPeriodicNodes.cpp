@@ -14,6 +14,7 @@
 #include "common/Option.hpp"
 #include "common/OptionList.hpp"
 
+#include "mesh/ConnectivityData.hpp"
 #include "mesh/DiscontinuousDictionary.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
@@ -69,19 +70,13 @@ LinkPeriodicNodes::LinkPeriodicNodes(const std::string& name) : MeshTransformer(
       .description("Vector over which the source and destination nodes are translated")
       .link_to(&m_translation_vector)
       .mark_basic();
-
-  options().add("link_ghosts", true)
-      .pretty_name("Link Ghosts")
-      .description("Create links for ghost nodes in the source region")
-      .mark_basic();
 }
 
 void LinkPeriodicNodes::execute()
 {
-  const bool link_ghosts = options().value<bool>("link_ghosts");
-
   Mesh& mesh = *m_mesh;
   const Field& coords = mesh.geometry_fields().coordinates();
+  common::PE::Comm& comm = common::PE::Comm::instance();
 
   Handle< common::List<Uint> > periodic_links_nodes_h(mesh.geometry_fields().get_child("periodic_links_nodes"));
   Handle< common::List<bool> > periodic_links_active_h(mesh.geometry_fields().get_child("periodic_links_active"));
@@ -106,7 +101,7 @@ void LinkPeriodicNodes::execute()
   CFdebug << "Linking source region " << m_source_region->uri().string() << " to destination region " << m_destination_region->uri().string() << CFendl;
 
   if(source_nodes->size() != destination_nodes->size())
-    throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes");
+    throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes: " + m_source_region->name() + " has " + common::to_str(source_nodes->size()) + " nodes, " + m_destination_region->name() + " has " + common::to_str(destination_nodes->size()) + " nodes");
 
   if(m_translation_vector.size() != mesh.dimension())
     throw common::SetupError(FromHere(), "Translation vector number of components does not match mesh dimension");
@@ -117,11 +112,6 @@ void LinkPeriodicNodes::execute()
   
   BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
   {
-    if(periodic_links_active[source_node_idx])
-      continue;
-    if(!link_ghosts && mesh.geometry_fields().is_ghost(source_node_idx))
-      continue;
-
     bool found_match = false;
     const RealVector source_coord = to_vector(coords[source_node_idx]) + translation_vector;
     BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
@@ -139,29 +129,129 @@ void LinkPeriodicNodes::execute()
       break;
     }
   }
-  
-  if(!matched_region)
+
+  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(*m_destination_region, IsElementsSurface()));
+
+  BOOST_FOREACH(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(*m_source_region, IsElementsSurface()))
   {
-    RealVector source_centroid(coords.row_size());
-    source_centroid.setZero();
-    BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
+    Handle< common::List<Uint> > periodic_links_elements_h(elements.get_child("periodic_links_elements"));
+    if(is_null(periodic_links_elements_h))
+      periodic_links_elements_h = elements.create_component< common::List<Uint> >("periodic_links_elements");
+
+    common::List<Uint>& periodic_links_elements = *periodic_links_elements_h;
+
+    // This is a link to the component that holds the linked elements
+    Handle< common::Link > periodic_link(periodic_links_elements.get_child("periodic_link"));
+    if(is_null(periodic_link))
     {
-      source_centroid += to_vector(coords[source_node_idx]);
+      periodic_link = periodic_links_elements.create_component<common::Link>("periodic_link");
     }
-    source_centroid /= source_nodes->size();
-    
-    RealVector dest_centroid(coords.row_size());
-    dest_centroid.setZero();
-    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
+
+    Handle<Elements const> elements_to_link;
+
+    const Uint nb_elements = elements.size();
+    periodic_links_elements.resize(nb_elements);
+    const Connectivity& connectivity = elements.geometry_space().connectivity();
+    cf3_assert(connectivity.size() == nb_elements);
+    const Uint nb_element_nodes = connectivity.row_size();
+    std::vector<Uint> translated_row(nb_element_nodes);
+    for(Uint elem_idx = 0; elem_idx != nb_elements; ++elem_idx)
     {
-      dest_centroid += to_vector(coords[dest_node_idx]);
+      const Connectivity::ConstRow row = connectivity[elem_idx];
+      for(Uint i = 0; i != nb_element_nodes; ++i)
+      {
+        const Uint element_node = row[i];
+        translated_row[i] = periodic_links_nodes[element_node];
+
+        if(!periodic_links_active[element_node])
+          throw common::SetupError(FromHere(), "Error: node " + common::to_str(element_node) + " from region " + elements.uri().path() + " has no periodic link");
+      }
+      std::sort(translated_row.begin(), translated_row.end());
+      bool found_match = false;
+      BOOST_FOREACH(const Uint other_element_glb_idx, node_connectivity->node_element_range(translated_row.front()))
+      {
+        CNodeConnectivity::ElementReferenceT elref = node_connectivity->element(other_element_glb_idx);
+        cf3_assert(is_not_null(elref.first));
+        const Elements& other_elements = *elref.first;
+        const Uint other_idx = elref.second;
+        const Connectivity& other_conn = other_elements.geometry_space().connectivity();
+        const Connectivity::ConstRow other_row = other_conn[other_idx];
+        std::vector<Uint> other_row_sorted(other_row.begin(), other_row.end());
+        std::sort(other_row_sorted.begin(), other_row_sorted.end());
+        cf3_assert(other_row_sorted.size() == translated_row.size());
+        if(other_row_sorted == translated_row)
+        {
+          found_match = true;
+          Handle<Elements const> other_elements_h(other_elements.handle());
+          if(is_null(elements_to_link))
+          {
+            elements_to_link = other_elements_h;
+          }
+          else if(elements_to_link != other_elements_h)
+          {
+            throw common::SetupError(FromHere(), "Periodic links spread across elements collections!");
+          }
+          periodic_links_elements[elem_idx] = other_idx;
+          break;
+        }
+      }
+      if(!found_match)
+        throw common::SetupError(FromHere(), "No periodic match found for element " + common::to_str(elem_idx) + " of elements " + elements.uri().path());
     }
-    dest_centroid /= destination_nodes->size();
-    
-    std::stringstream errstr;
-    errstr << "source and destination boundaries do not match. Centroid offset vector is " << (dest_centroid - source_centroid).transpose();
-    throw common::SetupError(FromHere(), errstr.str());
+    // Set same linked elements across CPUs, even if no elements are found on the current rank
+    if(comm.is_active())
+    {
+      int linked_elem_idx = is_null(elements_to_link) ? -1 : elements_to_link->entities_idx();
+      std::vector<int> recv;
+      comm.all_gather(linked_elem_idx, recv);
+      BOOST_FOREACH(const int new_idx, recv)
+      {
+        if(new_idx != -1)
+        {
+          if(linked_elem_idx != -1)
+          {
+            cf3_always_assert(new_idx == linked_elem_idx);
+          }
+          else
+          {
+            linked_elem_idx = new_idx;
+          }
+        }
+      }
+      if(is_null(elements_to_link))
+      {
+        elements_to_link = Handle<Elements>(mesh.elements()[linked_elem_idx]);
+      }
+    }
+
+    cf3_assert(is_not_null(elements_to_link));
+    periodic_link->link_to(const_cast<Elements&>(*elements_to_link));
+    cf3_always_assert(nb_elements == elements_to_link->size());
   }
+  
+//  if(!matched_region)
+//  {
+//    RealVector source_centroid(coords.row_size());
+//    source_centroid.setZero();
+//    BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
+//    {
+//      source_centroid += to_vector(coords[source_node_idx]);
+//    }
+//    source_centroid /= source_nodes->size();
+    
+//    RealVector dest_centroid(coords.row_size());
+//    dest_centroid.setZero();
+//    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
+//    {
+//      dest_centroid += to_vector(coords[dest_node_idx]);
+//    }
+//    dest_centroid /= destination_nodes->size();
+    
+//    std::stringstream errstr;
+//    errstr << "source and destination boundaries do not match. Centroid offset vector is " << (dest_centroid - source_centroid).transpose();
+//    throw common::SetupError(FromHere(), errstr.str());
+//  }
 
 }
 
