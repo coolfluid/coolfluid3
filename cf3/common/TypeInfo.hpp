@@ -80,12 +80,15 @@ struct RegistTypeInfo
   /// @brief Registers this type into the TypeInfo registry
   RegistTypeInfo( const std::string& name = LIB::library_namespace()+"."+TYPE::type_name() )
   {
-    const std::string handle_name = "handle[" + name + "]";
-    const std::string array_name = "array[" + handle_name + "]";
-    
-    TypeInfo::instance().regist<TYPE>(name);
-    TypeInfo::instance().regist< Handle<TYPE> >(handle_name);
-    TypeInfo::instance().regist< std::vector< Handle<TYPE> > >(array_name);
+    if ( ! TypeInfo::instance().portable_types.count(name) )
+    {
+      const std::string handle_name = "handle[" + name + "]";
+      const std::string array_name = "array[" + handle_name + "]";
+
+      TypeInfo::instance().regist<TYPE>(name);
+      TypeInfo::instance().regist< Handle<TYPE> >(handle_name);
+      TypeInfo::instance().regist< std::vector< Handle<TYPE> > >(array_name);
+    }
   }
 };
 
@@ -96,13 +99,16 @@ template< typename TYPE >
 void regist_typeinfo( TYPE* self )
 {
   const std::string name = TYPE::type_name();
-  const std::string handle_name = "handle[" + name + "]";
-  const std::string array_name = "array[" + handle_name + "]";
 
-  TypeInfo::instance().regist< TYPE                        >( name );
-  TypeInfo::instance().regist< Handle<TYPE>                >( handle_name );
-  TypeInfo::instance().regist< std::vector< Handle<TYPE> > >( array_name );
+  if ( ! TypeInfo::instance().portable_types.count(name) )
+  {
+    const std::string handle_name = "handle[" + name + "]";
+    const std::string array_name = "array[" + handle_name + "]";
 
+    TypeInfo::instance().regist< TYPE                        >( name );
+    TypeInfo::instance().regist< Handle<TYPE>                >( handle_name );
+    TypeInfo::instance().regist< std::vector< Handle<TYPE> > >( array_name );
+  }
 }
 
 } // common

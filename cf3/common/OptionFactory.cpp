@@ -36,7 +36,8 @@ boost::shared_ptr< Option > OptionFactory::create_option ( const std::string& na
 
 void OptionFactory::register_builder ( const std::string& type, const boost::shared_ptr< OptionBuilder >& builder )
 {
-  m_builders[type] = builder;
+  if ( ! m_builders.count(type) )
+    m_builders[type] = builder;
 }
 
 
