@@ -624,7 +624,8 @@ void Component::signal_move_component ( SignalArgs& args  )
 std::string Component::info ( const std::string& what  ) const
 {
   std::stringstream ss;
-  ss << "Info on component \'" << uri().path() << "\'" << std::endl;
+  ss << "Info on component \'" << uri().path() << "\'" << std::endl
+     << "  component type: " << derived_type_name() << std::endl;
 
   boost_foreach(const char& character, what)
   {
@@ -643,8 +644,8 @@ std::string Component::info ( const std::string& what  ) const
     }
     if (character == 'o')
     {
-      ss << "  options:" << std::endl;
-      ss << options().list_options() << std::endl;
+      ss << "  options:" << std::endl
+         << options().list_options() << std::endl;
     }
     if (character == 's')
     {
