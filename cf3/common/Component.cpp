@@ -648,7 +648,12 @@ std::string Component::info ( const std::string& what  ) const
     }
     if (character == 's')
     {
-      ss << "  signals: \n    TODO" << std::endl;
+      ss << "  signals:" << std::endl;
+      boost_foreach( SignalPtr sig, signal_list() )
+      {
+        if (!sig->is_hidden())
+          ss << "  - " << sig->name() << std::endl;
+      }
     }
     if (character == 'p')
     {
@@ -669,7 +674,7 @@ std::string Component::info ( const std::string& what  ) const
 
 void Component::signal_print_info ( SignalArgs& args  ) const
 {
-  CFinfo << info() << CFendl;
+  CFinfo << info();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
