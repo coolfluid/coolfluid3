@@ -190,7 +190,7 @@ Component::Component ( const std::string& name ) :
   // properties
 
   properties().add("brief", std::string("No brief description available"));
-  properties().add("description", std::string("This component has not a long description"));
+  properties().add("description", std::string("This component does not have a long description"));
   properties().add("uuid", UUCount());
 
   // events
@@ -631,7 +631,7 @@ std::string Component::info ( const std::string& what  ) const
     if (character == 'c')
     {
       ss << "  sub components:" << std::endl;
-      BOOST_FOREACH( const Component& c, *this )
+      boost_foreach( const Component& c, *this )
       {
         if (c.has_tag(Tags::static_component()))
           ss << "  + [static]  ";
@@ -650,8 +650,20 @@ std::string Component::info ( const std::string& what  ) const
     {
       ss << "  signals:" << std::endl;
       boost_foreach( SignalPtr sig, signal_list() )
+      {
         if (!sig->is_hidden())
-          ss << "  - " << sig->name() << std::endl;
+        {
+          SignalArgs signal_args;
+          (*sig->signature()) (signal_args);
+          SignalOptions options(signal_args);
+          options.flush();
+          Uint cnt(0);
+          ss << "  - " << sig->name() << "(";
+          foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , options )
+            ss << (cnt++>0 ? ", ":"") << name << "=" << option->type() << "(" + option->value_str() << ")";
+          ss << ")" << std::endl;
+        }
+      }
     }
     if (character == 'p')
     {
