@@ -39,7 +39,7 @@ std::string any_to_str( const boost::any & value )
       return to_str(boost::any_cast<URI>(value));
     else if (value_type == "uucount")
       return to_str(boost::any_cast<UUCount>(value));
-    if (value_type == "array[bool]")
+    else if (value_type == "array[bool]")
       return to_str(boost::any_cast< std::vector<bool> >(value));
     else if (value_type == "array[unsigned]")
       return to_str(boost::any_cast< std::vector<Uint> >(value));
@@ -96,8 +96,13 @@ Common_TEMPLATE template std::string any_to_value<std::string>( const boost::any
 Common_TEMPLATE template URI any_to_value<URI>( const boost::any& );
 Common_TEMPLATE template UUCount any_to_value<UUCount>( const boost::any& );
 
-
+Common_TEMPLATE template std::vector<bool> any_to_value< std::vector<bool> >( const boost::any& );
+Common_TEMPLATE template std::vector<int> any_to_value< std::vector<int> >( const boost::any& );
+Common_TEMPLATE template std::vector<Uint> any_to_value< std::vector<Uint> >( const boost::any& );
 Common_TEMPLATE template std::vector<Real> any_to_value< std::vector<Real> >( const boost::any& );
+Common_TEMPLATE template std::vector<std::string> any_to_value< std::vector<std::string> >( const boost::any& );
+Common_TEMPLATE template std::vector<URI> any_to_value< std::vector<URI> >( const boost::any& );
+Common_TEMPLATE template std::vector<UUCount> any_to_value< std::vector<UUCount> >( const boost::any& );
 
 /////////////////////////////////////////////////////////////////////////////
 
