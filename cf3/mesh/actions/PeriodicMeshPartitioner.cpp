@@ -166,15 +166,6 @@ void PeriodicMeshPartitioner::execute()
 
   m_make_boundary_global->execute();
   m_periodic_boundary_linkers->execute();
-  
-
-  Handle< common::List<Uint> > periodic_links_nodes_h(mesh.geometry_fields().get_child("periodic_links_nodes"));
-  Handle< common::List<bool> > periodic_links_active_h(mesh.geometry_fields().get_child("periodic_links_active"));
-  cf3_assert(periodic_links_nodes_h);
-  cf3_assert(periodic_links_active_h);
-
-  const common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
-  const common::List<bool>& periodic_links_active = *periodic_links_active_h;
 
   boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()));
@@ -316,17 +307,6 @@ void PeriodicMeshPartitioner::execute()
   }
 #endif
 
-  const Uint nb_nodes = mesh.geometry_fields().size();
-  cf3_assert(nb_nodes == periodic_links_nodes.size());
-  cf3_assert(nb_nodes == periodic_links_active.size());
-
-  common::List<Uint>& ranks = mesh.geometry_fields().rank();
-
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = ranks[detail::final_target_node(periodic_links_nodes, periodic_links_active, i)];
-  }
-  
   // Clean up the mesh structures
   mesh.geometry_fields().remove_component("periodic_links_nodes");
   mesh.geometry_fields().remove_component("periodic_links_active");
@@ -370,13 +350,25 @@ void PeriodicMeshPartitioner::execute()
   m_make_boundary_global->execute();
   m_periodic_boundary_linkers->execute();
 
-  Handle< common::List<Uint> > periodic_links_nodes_h2(mesh.geometry_fields().get_child("periodic_links_nodes"));
-  Handle< common::List<bool> > periodic_links_active_h2(mesh.geometry_fields().get_child("periodic_links_active"));
-  cf3_assert(periodic_links_nodes_h2);
-  cf3_assert(periodic_links_active_h2);
+  Handle< common::List<Uint> > periodic_links_nodes_h(mesh.geometry_fields().get_child("periodic_links_nodes"));
+  Handle< common::List<bool> > periodic_links_active_h(mesh.geometry_fields().get_child("periodic_links_active"));
+  cf3_assert(periodic_links_nodes_h);
+  cf3_assert(periodic_links_active_h);
 
-  const common::List<Uint>& periodic_links_nodes2 = *periodic_links_nodes_h2;
-  const common::List<bool>& periodic_links_active2 = *periodic_links_active_h2;
+  const common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+  const common::List<bool>& periodic_links_active = *periodic_links_active_h;
+
+  const Uint nb_nodes = mesh.geometry_fields().size();
+  cf3_assert(nb_nodes == periodic_links_nodes.size());
+  cf3_assert(nb_nodes == periodic_links_active.size());
+
+  common::List<Uint>& ranks = mesh.geometry_fields().rank();
+
+  // Ensure that the rank of each periodic node is the same as it's target
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    ranks[i] = ranks[detail::final_target_node(periodic_links_nodes, periodic_links_active, i)];
+  }
 
   CFdebug << "Removing unused nodes..." << CFendl;
 
@@ -392,12 +384,10 @@ void PeriodicMeshPartitioner::execute()
       geom_dict_idx = i;
   }
 
-  const Uint new_nb_nodes = geom.size();
-
-  std::vector<bool> is_used(new_nb_nodes, false);
-  std::vector< std::vector<Uint> > inverse_periodic_links(new_nb_nodes);
+  std::vector<bool> is_used(nb_nodes, false);
+  std::vector< std::vector<Uint> > inverse_periodic_links(nb_nodes);
   // Any node connected to a volume element is used
-  for(Uint i = 0; i != new_nb_nodes; ++i)
+  for(Uint i = 0; i != nb_nodes; ++i)
   {
     BOOST_FOREACH(const Uint element_glb_idx, node_connectivity->node_element_range(i))
     {
@@ -410,19 +400,19 @@ void PeriodicMeshPartitioner::execute()
   }
 
   // Any node connected periodically to a used node is also used
-  for(Uint i = 0; i != new_nb_nodes; ++i)
+  for(Uint i = 0; i != nb_nodes; ++i)
   {
     Uint target_node = i;
-    while(periodic_links_active2[target_node])
+    while(periodic_links_active[target_node])
     {
-      target_node = periodic_links_nodes2[target_node];
+      target_node = periodic_links_nodes[target_node];
       if(is_used[i])
         is_used[target_node] = true;
     }
     inverse_periodic_links[target_node].push_back(i);
   }
 
-  for(Uint i = 0; i != new_nb_nodes; ++i)
+  for(Uint i = 0; i != nb_nodes; ++i)
   {
     if(!is_used[i])
       continue;
@@ -457,7 +447,7 @@ void PeriodicMeshPartitioner::execute()
   MeshAdaptor remove_nodes_adaptor(mesh);
   remove_nodes_adaptor.prepare();
   remove_nodes_adaptor.make_element_node_connectivity_global();
-  for(Uint i = 0; i != new_nb_nodes; ++i)
+  for(Uint i = 0; i != nb_nodes; ++i)
   {
     if(!is_used[i])
     {
