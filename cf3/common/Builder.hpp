@@ -82,6 +82,37 @@ public:
 }; // Builder
 
 /////////////////////////////////////////////////////////////////////////////////
+/// Builder for OptionComponents
+template< typename CTYPE >
+class OptionComponentBuilder : public OptionBuilder
+{
+public:
+  OptionComponentBuilder() {}
+  virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
+  {
+    return boost::shared_ptr<Option>(new OptionComponent<CTYPE>(name, Handle<CTYPE>(Core::instance().root().access_component(URI(boost::any_cast<std::string>(default_value))))));
+  }
+};
+
+/// Builder for OptionArrays of this component
+template< typename CTYPE >
+class OptionComponentArrayBuilder : public OptionBuilder
+{
+public:
+  OptionComponentArrayBuilder() {}
+  virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
+  {
+    const std::vector<std::string> uri_strings = boost::any_cast< std::vector<std::string> >(default_value);
+    typename OptionArray< Handle<CTYPE> >::value_type def_val; def_val.reserve(uri_strings.size());
+    BOOST_FOREACH(const std::string& uri_str, uri_strings)
+    {
+      def_val.push_back(Handle<CTYPE>(Core::instance().root().access_component(URI(uri_str))));
+    }
+    return boost::shared_ptr<Option>(new OptionArray< Handle<CTYPE> >(name, def_val));
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Component that builds other components of a given abstract type
 /// This is the actual builder for one concrete type.
@@ -104,8 +135,8 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<Builder,BuilderT<BASE,CONCRETE> >::value) );
 
     // Register option builders
-    RegisterOptionBuilder opt_builder(common::class_name< Handle<CONCRETE> >(), new OptionComponentBuilder(*this));
-    RegisterOptionBuilder arr_builder(common::class_name< std::vector< Handle<CONCRETE> > >(), new OptionArrayBuilder(*this));
+    RegisterOptionBuilder opt_builder(common::class_name< Handle<CONCRETE> >(), new OptionComponentBuilder<CONCRETE>());
+    RegisterOptionBuilder arr_builder(common::class_name< std::vector< Handle<CONCRETE> > >(), new OptionComponentArrayBuilder<CONCRETE>());
   }
 
   /// @brief Virtual destructor.
@@ -133,44 +164,44 @@ public:
     return this->create_component_typed(name);
   }
 
-private:
-  /// Builder for OptionComponents
-  class OptionComponentBuilder : public OptionBuilder
-  {
-  public:
-    OptionComponentBuilder(const Builder& builder) : m_builder(builder)
-    {
-    }
+//private:
+//  /// Builder for OptionComponents
+//  class OptionComponentBuilder : public OptionBuilder
+//  {
+//  public:
+//    OptionComponentBuilder(const Builder& builder) : m_builder(builder)
+//    {
+//    }
 
-    virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
-    {
-      return boost::shared_ptr<Option>(new OptionComponent<CONCRETE>(name, Handle<CONCRETE>(m_builder.access_component(URI(boost::any_cast<std::string>(default_value))))));
-    }
+//    virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
+//    {
+//      return boost::shared_ptr<Option>(new OptionComponent<CONCRETE>(name, Handle<CONCRETE>(m_builder.access_component(URI(boost::any_cast<std::string>(default_value))))));
+//    }
 
-  private:
-    const Builder& m_builder;
-  };
+//  private:
+//    const Builder& m_builder;
+//  };
 
-  /// Builder for OptionArrays of this component
-  class OptionArrayBuilder : public OptionBuilder
-  {
-  public:
-    OptionArrayBuilder(const Builder& builder) : m_builder(builder)
-    {
-    }
-    virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
-    {
-      const std::vector<std::string> uri_strings = boost::any_cast< std::vector<std::string> >(default_value);
-      typename OptionArray< Handle<CONCRETE> >::value_type def_val; def_val.reserve(uri_strings.size());
-      BOOST_FOREACH(const std::string& uri_str, uri_strings)
-      {
-        def_val.push_back(Handle<CONCRETE>(m_builder.access_component(URI(uri_str))));
-      }
-      return boost::shared_ptr<Option>(new OptionArray< Handle<CONCRETE> >(name, def_val));
-    }
-  private:
-    const Builder& m_builder;
-  };
+//  /// Builder for OptionArrays of this component
+//  class OptionArrayBuilder : public OptionBuilder
+//  {
+//  public:
+//    OptionArrayBuilder(const Builder& builder) : m_builder(builder)
+//    {
+//    }
+//    virtual boost::shared_ptr< Option > create_option(const std::string& name, const boost::any& default_value)
+//    {
+//      const std::vector<std::string> uri_strings = boost::any_cast< std::vector<std::string> >(default_value);
+//      typename OptionArray< Handle<CONCRETE> >::value_type def_val; def_val.reserve(uri_strings.size());
+//      BOOST_FOREACH(const std::string& uri_str, uri_strings)
+//      {
+//        def_val.push_back(Handle<CONCRETE>(m_builder.access_component(URI(uri_str))));
+//      }
+//      return boost::shared_ptr<Option>(new OptionArray< Handle<CONCRETE> >(name, def_val));
+//    }
+//  private:
+//    const Builder& m_builder;
+//  };
 }; // BuilderT
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +261,25 @@ struct ComponentBuilder
   }
 
 }; // ComponentBuilder
+
+/////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Helper class to register typeinfo and option type of a component
+/// This is mostly useful for abstract component classes, as builders cannot
+/// be created for this.
+template < class COMPONENT, class LIB >
+struct RegisterComponent
+{
+  RegisterComponent( const std::string& name =
+      std::string( LIB::library_namespace() + "." + COMPONENT::type_name()) )
+  {
+    RegistTypeInfo<COMPONENT,LIB> regist_type(name);
+    RegisterOptionBuilder opt_builder( common::class_name< Handle<COMPONENT> >(),
+                                       new OptionComponentBuilder<COMPONENT>() );
+    RegisterOptionBuilder arr_builder( common::class_name< std::vector< Handle<COMPONENT> > >(),
+                                       new OptionComponentArrayBuilder<COMPONENT>() );
+  }
+};
 
 /////////////////////////////////////////////////////////////////////////////////
 

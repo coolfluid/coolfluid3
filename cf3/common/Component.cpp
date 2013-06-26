@@ -190,7 +190,7 @@ Component::Component ( const std::string& name ) :
   // properties
 
   properties().add("brief", std::string("No brief description available"));
-  properties().add("description", std::string("This component has not a long description"));
+  properties().add("description", std::string("This component does not have a long description"));
   properties().add("uuid", UUCount());
 
   // events
@@ -624,14 +624,15 @@ void Component::signal_move_component ( SignalArgs& args  )
 std::string Component::info ( const std::string& what  ) const
 {
   std::stringstream ss;
-  ss << "Info on component \'" << uri().path() << "\'" << std::endl;
+  ss << "Info on component \'" << uri().path() << "\'" << std::endl
+     << "  component type: " << derived_type_name() << std::endl;
 
   boost_foreach(const char& character, what)
   {
     if (character == 'c')
     {
       ss << "  sub components:" << std::endl;
-      BOOST_FOREACH( const Component& c, *this )
+      boost_foreach( const Component& c, *this )
       {
         if (c.has_tag(Tags::static_component()))
           ss << "  + [static]  ";
@@ -643,12 +644,27 @@ std::string Component::info ( const std::string& what  ) const
     }
     if (character == 'o')
     {
-      ss << "  options:" << std::endl;
-      ss << options().list_options() << std::endl;
+      ss << "  options:" << std::endl
+         << options().list_options() << std::endl;
     }
     if (character == 's')
     {
-      ss << "  signals: \n    TODO" << std::endl;
+      ss << "  signals:" << std::endl;
+      boost_foreach( SignalPtr sig, signal_list() )
+      {
+        if (!sig->is_hidden())
+        {
+          SignalArgs signal_args;
+          (*sig->signature()) (signal_args);
+          SignalOptions options(signal_args);
+          options.flush();
+          Uint cnt(0);
+          ss << "  - " << sig->name() << "(";
+          foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , options )
+            ss << (cnt++>0 ? ", ":"") << name << "=" << option->type() << "(" + option->value_str() << ")";
+          ss << ")" << std::endl;
+        }
+      }
     }
     if (character == 'p')
     {
@@ -669,7 +685,7 @@ std::string Component::info ( const std::string& what  ) const
 
 void Component::signal_print_info ( SignalArgs& args  ) const
 {
-  CFinfo << info() << CFendl;
+  CFinfo << info() << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
