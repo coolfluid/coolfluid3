@@ -372,54 +372,18 @@ void PeriodicMeshPartitioner::execute()
 
   CFdebug << "Removing unused nodes..." << CFendl;
 
+  std::vector< Handle<Entities const> > volume_elems;
+  BOOST_FOREACH(Elements& elements, common::find_components_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume()))
+  {
+    volume_elems.push_back(elements.handle<Entities>());
+  }
+  
   // Remove unused nodes
-  node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(common::find_components_recursively<mesh::Elements>(mesh.topology()));
-
-  const Dictionary& geom = mesh.geometry_fields();
-  Uint geom_dict_idx = 0;
-  for(Uint i = 0; i != mesh.dictionaries().size(); ++i)
-  {
-    if(mesh.dictionaries()[i].get() == &geom)
-      geom_dict_idx = i;
-  }
-
+  boost::shared_ptr< common::List<Uint> > used_nodes = build_used_nodes_list(volume_elems, mesh.geometry_fields(), true, true);
   std::vector<bool> is_used(nb_nodes, false);
-  std::vector< std::vector<Uint> > inverse_periodic_links(nb_nodes);
-  // Any node connected to a volume element is used
-  for(Uint i = 0; i != nb_nodes; ++i)
+  BOOST_FOREACH(const Uint used_node_idx, used_nodes->array())
   {
-    BOOST_FOREACH(const Uint element_glb_idx, node_connectivity->node_element_range(i))
-    {
-      if(node_connectivity->element(element_glb_idx).first->element_type().dimensionality() == mesh.dimension())
-      {
-        is_used[i] = true;
-        break;
-      }
-    }
-  }
-
-  // Any node connected periodically to a used node is also used
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    Uint target_node = i;
-    while(periodic_links_active[target_node])
-    {
-      target_node = periodic_links_nodes[target_node];
-      if(is_used[i])
-        is_used[target_node] = true;
-    }
-    inverse_periodic_links[target_node].push_back(i);
-  }
-
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    if(!is_used[i])
-      continue;
-    BOOST_FOREACH(const Uint inverse_node, inverse_periodic_links[i])
-    {
-      is_used[inverse_node] = true;
-    }
+    is_used[used_node_idx] = true;
   }
 
   // Any element having an unused node will be removed
@@ -444,6 +408,14 @@ void PeriodicMeshPartitioner::execute()
   }
   remove_unused_elements.finish();
 
+  const Dictionary& geom = mesh.geometry_fields();
+  Uint geom_dict_idx = 0;
+  for(Uint i = 0; i != mesh.dictionaries().size(); ++i)
+  {
+    if(mesh.dictionaries()[i].get() == &geom)
+      geom_dict_idx = i;
+  }
+  
   MeshAdaptor remove_nodes_adaptor(mesh);
   remove_nodes_adaptor.prepare();
   remove_nodes_adaptor.make_element_node_connectivity_global();
@@ -462,6 +434,19 @@ void PeriodicMeshPartitioner::execute()
   mesh.geometry_fields().remove_component("periodic_links_nodes");
   mesh.geometry_fields().remove_component("periodic_links_active");
   m_periodic_boundary_linkers->execute();
+  cf3_assert(build_used_nodes_list(volume_elems, mesh.geometry_fields(), true, true)->size() == mesh.geometry_fields().size());
+
+#ifndef NDEBUG
+  periodic_links_nodes_h = Handle< common::List<Uint> >(mesh.geometry_fields().get_child("periodic_links_nodes"));
+  periodic_links_active_h = Handle< common::List<bool> > (mesh.geometry_fields().get_child("periodic_links_active"));
+  const Uint final_nb_nodes = mesh.geometry_fields().size();
+  cf3_assert(periodic_links_nodes_h->size() == final_nb_nodes);
+  for(Uint i = 0; i != final_nb_nodes; ++i)
+  {
+    if(periodic_links_active_h->array()[i])
+      cf3_assert(mesh.geometry_fields().rank()[i] == mesh.geometry_fields().rank()[periodic_links_nodes_h->array()[i]]);
+  }
+#endif
 }
 
 Handle< MeshTransformer > PeriodicMeshPartitioner::create_link_periodic_nodes()

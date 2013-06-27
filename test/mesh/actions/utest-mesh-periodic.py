@@ -71,7 +71,7 @@ domain.write_mesh(cf.URI('periodic.pvtu'))
 
 writer = root.create_component('MshWriter', 'cf3.mesh.gmsh.Writer')
 writer.enable_overlap = True
-writer.fields = [mesh.elems_P0.element_gids.uri()]
+writer.fields = [mesh.elems_P0.element_gids.uri(), mesh.geometry.node_gids.uri()]
 writer.mesh = mesh
 writer.file = cf.URI('periodic.msh')
 writer.execute()

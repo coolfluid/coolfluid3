@@ -42,6 +42,65 @@ inline bool is_close(const RealVector& a, const RealVector& b)
   return (b-a).squaredNorm() < 1e-8;
 }
 
+// Get the used nodes list of a region, including any nodes that live on the current CPU
+// but are only linked to on other CPUs
+std::vector<Uint> used_nodes(const mesh::Region& region, const mesh::Dictionary& dict)
+{
+  // Start with a used node list of the current CPU
+  boost::shared_ptr< common::List< Uint > > own_used_node_list = build_used_nodes_list(region, dict, false, false);
+  std::vector<Uint> used_node_vec;
+  common::PE::Comm& comm = common::PE::Comm::instance();
+  
+  if(!comm.is_active())
+  {
+    used_node_vec.assign(own_used_node_list->array().begin(), own_used_node_list->array().end());
+    return used_node_vec;
+  }
+  
+  std::vector<Uint> own_gids; own_gids.reserve(own_used_node_list->size());
+  const Uint nb_nodes = dict.size();
+  std::vector<bool> is_added(nb_nodes, false);
+  BOOST_FOREACH(const Uint own_idx, own_used_node_list->array())
+  {
+    own_gids.push_back(dict.glb_idx()[own_idx]);
+    is_added[own_idx] = true; // All local nodes are in the list automatically
+  }
+  
+  std::vector< std::vector<Uint> > recv_gids;
+  comm.all_gather(own_gids, recv_gids);
+  
+  std::set<Uint> global_boundary_gids; // GIDs that reside on other CPUs
+  const Uint nb_procs = comm.size();
+  for(Uint i = 0; i != nb_procs; ++i)
+  {
+    if(i == comm.rank())
+      continue;
+    
+    BOOST_FOREACH(const Uint gid, recv_gids[i])
+    {
+      global_boundary_gids.insert(gid);
+    }
+  }
+  
+  std::list<Uint> extra_nodes;
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    if(is_added[i])
+      continue;
+    
+    if(global_boundary_gids.count(dict.glb_idx()[i]))
+    {
+      is_added[i] = true;
+      extra_nodes.push_back(i);
+    }
+  }
+  
+  used_node_vec.reserve(own_used_node_list->size()+ extra_nodes.size());
+  used_node_vec.insert(used_node_vec.end(), own_used_node_list->array().begin(), own_used_node_list->array().end());
+  used_node_vec.insert(used_node_vec.end(), extra_nodes.begin(), extra_nodes.end());
+  return used_node_vec;
+}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,38 +154,29 @@ void LinkPeriodicNodes::execute()
   cf3_assert(periodic_links_nodes.size() == mesh.geometry_fields().size());
   cf3_assert(periodic_links_active.size() == mesh.geometry_fields().size());
 
-  boost::shared_ptr< common::List< Uint > > source_nodes = build_used_nodes_list(*m_source_region, mesh.geometry_fields(), true, false);
-  boost::shared_ptr< common::List< Uint > > destination_nodes = build_used_nodes_list(*m_destination_region, mesh.geometry_fields(), true, false);
-  
+  const std::vector<Uint> source_nodes = detail::used_nodes(*m_source_region, mesh.geometry_fields());
+  const std::vector<Uint> destination_nodes = detail::used_nodes(*m_destination_region, mesh.geometry_fields());
+
   CFdebug << "Linking source region " << m_source_region->uri().string() << " to destination region " << m_destination_region->uri().string() << CFendl;
 
-  if(source_nodes->size() != destination_nodes->size())
-    throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes: " + m_source_region->name() + " has " + common::to_str(source_nodes->size()) + " nodes, " + m_destination_region->name() + " has " + common::to_str(destination_nodes->size()) + " nodes");
+ if(source_nodes.size() != destination_nodes.size())
+   throw common::SetupError(FromHere(), "Source and destination regions do not have the same number of nodes: " + m_source_region->name() + " has " + common::to_str(source_nodes.size()) + " nodes, " + m_destination_region->name() + " has " + common::to_str(destination_nodes.size()) + " nodes");
 
   if(m_translation_vector.size() != mesh.dimension())
     throw common::SetupError(FromHere(), "Translation vector number of components does not match mesh dimension");
 
   const RealVector translation_vector = to_vector(m_translation_vector);
 
-  bool matched_region = true;
-  
-  BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
+  BOOST_FOREACH(const Uint source_node_idx, source_nodes)
   {
-    bool found_match = false;
     const RealVector source_coord = to_vector(coords[source_node_idx]) + translation_vector;
-    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
+    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes)
     {
       if(detail::is_close(source_coord, to_vector(coords[dest_node_idx])))
       {
         periodic_links_active[source_node_idx] = true;
         periodic_links_nodes[source_node_idx] = dest_node_idx;
-        found_match = true;
       }
-    }
-    if(!found_match)
-    {
-      matched_region = false;
-      break;
     }
   }
 
@@ -229,30 +279,6 @@ void LinkPeriodicNodes::execute()
     periodic_link->link_to(const_cast<Elements&>(*elements_to_link));
     cf3_always_assert(nb_elements == elements_to_link->size());
   }
-  
-//  if(!matched_region)
-//  {
-//    RealVector source_centroid(coords.row_size());
-//    source_centroid.setZero();
-//    BOOST_FOREACH(const Uint source_node_idx, source_nodes->array())
-//    {
-//      source_centroid += to_vector(coords[source_node_idx]);
-//    }
-//    source_centroid /= source_nodes->size();
-    
-//    RealVector dest_centroid(coords.row_size());
-//    dest_centroid.setZero();
-//    BOOST_FOREACH(const Uint dest_node_idx, destination_nodes->array())
-//    {
-//      dest_centroid += to_vector(coords[dest_node_idx]);
-//    }
-//    dest_centroid /= destination_nodes->size();
-    
-//    std::stringstream errstr;
-//    errstr << "source and destination boundaries do not match. Centroid offset vector is " << (dest_centroid - source_centroid).transpose();
-//    throw common::SetupError(FromHere(), errstr.str());
-//  }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
