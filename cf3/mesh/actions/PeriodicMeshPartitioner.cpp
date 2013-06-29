@@ -342,11 +342,7 @@ void PeriodicMeshPartitioner::execute()
   move_elements_adaptor.move_elements(elements_to_move);
   move_elements_adaptor.finish();
 
-  CFinfo << "  + growing overlap layer ..." << CFendl;
-  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
-  CFinfo << "  + growing overlap layer ... done" << CFendl;
-
-  // Relink the boundaries after overlap growing
+  // Relink the boundaries after element moving
   m_make_boundary_global->execute();
   m_periodic_boundary_linkers->execute();
 
@@ -369,6 +365,17 @@ void PeriodicMeshPartitioner::execute()
   {
     ranks[i] = ranks[detail::final_target_node(periodic_links_nodes, periodic_links_active, i)];
   }
+  
+  CFinfo << "  + growing overlap layer ..." << CFendl;
+  common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
+  CFinfo << "  + growing overlap layer ... done" << CFendl;
+  
+  mesh.geometry_fields().remove_component("periodic_links_nodes");
+  mesh.geometry_fields().remove_component("periodic_links_active");
+  
+  // Relink the boundaries after overlap grow
+  m_make_boundary_global->execute();
+  m_periodic_boundary_linkers->execute();
 
   CFdebug << "Removing unused nodes..." << CFendl;
 
@@ -378,9 +385,11 @@ void PeriodicMeshPartitioner::execute()
     volume_elems.push_back(elements.handle<Entities>());
   }
   
+  const Uint nb_nodes2 = mesh.geometry_fields().size();
+  
   // Remove unused nodes
   boost::shared_ptr< common::List<Uint> > used_nodes = build_used_nodes_list(volume_elems, mesh.geometry_fields(), true, true);
-  std::vector<bool> is_used(nb_nodes, false);
+  std::vector<bool> is_used(nb_nodes2, false);
   BOOST_FOREACH(const Uint used_node_idx, used_nodes->array())
   {
     is_used[used_node_idx] = true;
@@ -419,7 +428,7 @@ void PeriodicMeshPartitioner::execute()
   MeshAdaptor remove_nodes_adaptor(mesh);
   remove_nodes_adaptor.prepare();
   remove_nodes_adaptor.make_element_node_connectivity_global();
-  for(Uint i = 0; i != nb_nodes; ++i)
+  for(Uint i = 0; i != nb_nodes2; ++i)
   {
     if(!is_used[i])
     {
@@ -434,6 +443,7 @@ void PeriodicMeshPartitioner::execute()
   mesh.geometry_fields().remove_component("periodic_links_nodes");
   mesh.geometry_fields().remove_component("periodic_links_active");
   m_periodic_boundary_linkers->execute();
+  
   cf3_assert(build_used_nodes_list(volume_elems, mesh.geometry_fields(), true, true)->size() == mesh.geometry_fields().size());
 
 #ifndef NDEBUG
