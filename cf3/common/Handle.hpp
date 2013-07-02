@@ -7,6 +7,8 @@
 #ifndef cf3_common_Handle_hpp
 #define cf3_common_Handle_hpp
 
+#include <algorithm>
+
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/or.hpp>
@@ -66,6 +68,13 @@ public:
       m_cached_ptr = nullptr;
 
     return m_cached_ptr;
+  }
+
+  /// Swap two handles
+  Handle& swap(Handle& other) {
+    std::swap(other.m_cached_ptr,m_cached_ptr);
+    std::swap(other.m_weak_ptr,  m_weak_ptr);
+    return *this;
   }
 
   /// Set the handle to null
