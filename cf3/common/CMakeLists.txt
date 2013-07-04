@@ -13,6 +13,8 @@ list( APPEND coolfluid_common_files
     Assertions.hpp
     BasicExceptions.cpp
     BasicExceptions.hpp
+    BinaryDataWriter.hpp
+    BinaryDataWriter.cpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostAnyConversion.cpp
