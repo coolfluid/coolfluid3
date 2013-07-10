@@ -17,7 +17,7 @@
 
 #include "solver/PDE.hpp"
 #include "solver/Time.hpp"
-#include "solver/Term.hpp"
+#include "solver/TermComputer.hpp"
 #include "solver/BC.hpp"
 #include "solver/ComputeRHS.hpp"
 
@@ -195,6 +195,14 @@ void PDE::configure(const Handle<Component>& component)
       opt->link_option(component->options().option_ptr(opt_name));
       component->options().set(opt_name,opt->value());
     }
+    boost_foreach( Component& subcomponent, find_components_recursively(*component) )
+    {
+      if ( subcomponent.options().check(opt_name) )
+      {
+        opt->link_option(subcomponent.options().option_ptr(opt_name));
+        subcomponent.options().set(opt_name,opt->value());
+      }
+    }
   }
 }
 
@@ -205,35 +213,18 @@ Handle<solver::Time> PDE::add_time()
   m_time = create_component<solver::Time>("time");
   m_time->mark_basic();
   options().add("time",m_time);
-  boost_foreach( solver::Term& term, find_components<solver::Term>(*this) )
-  {
-    term.options().set("time",m_time);
-  }
-  boost_foreach( solver::BC& bc, find_components<solver::BC>(*this) )
-  {
-    bc.options().set("time",m_time);
-  }
-
   return m_time;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Handle<solver::Term> PDE::add_term(const std::string& term_name, const std::string& term_type, const std::string& term_computer_type)
+Handle<solver::TermComputer> PDE::add_term(const std::string& term_name, const std::string& term_computer)
 {
-  // - Create term
-  Handle<solver::Term> term = create_component<solver::Term>(term_name,term_type);
-  // - Link all the PDE's configuration options to the term
-  configure(term->handle());
+  Handle<Component> term = m_rhs_computer->create_component(term_name,term_computer);
 
-  std::string tct = ( ! term_computer_type.empty() ? term_computer_type : term_type+"Computer" );
-  CFinfo << "term_computer = " << tct << CFendl;
-  Handle<Component> term_computer = m_rhs_computer->create_component(term_name+"_computer",tct);
-  term_computer->mark_basic();
-  term_computer->options().set("term",term->handle());
-
-  // - Return the created term
-  return term;
+  term->mark_basic();
+  configure(term);
+  return term->handle<TermComputer>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,9 +247,8 @@ void PDE::signal_add_term( common::SignalArgs& args )
 {
   common::XML::SignalOptions opts(args);
 
-  Handle<solver::Term> term = add_term( opts.value<std::string>("name"),
-                                        opts.value<std::string>("type"),
-                                        opts.value<std::string>("computer"));
+  Handle<solver::TermComputer> term = add_term( opts.value<std::string>("name"),
+                                                opts.value<std::string>("type") );
 
   common::XML::SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -271,7 +261,6 @@ void PDE::signature_add_term( common::SignalArgs& args )
   common::XML::SignalOptions opts(args);
   opts.add("name",std::string());
   opts.add("type",std::string());
-  opts.add("computer",std::string());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

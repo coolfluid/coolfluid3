@@ -24,7 +24,7 @@ namespace cf3 {
   }
   namespace solver {
     class ComputeRHS;
-    class Term;
+    class TermComputer;
     class BC;
     class Time;
   }
@@ -108,9 +108,8 @@ public: // functions
   Handle<solver::Time> add_time();
 
   /// @brief Create a term, configure it, and create a term-computer
-  Handle<solver::Term> add_term( const std::string& term_name,
-                                 const std::string& term_type,
-                                 const std::string& term_computer_type = "" );
+  Handle<solver::TermComputer> add_term( const std::string& term_name,
+                                         const std::string& term_computer );
 
   /// @brief Create a boundary condition, configure it, and create a bc-computer
   Handle<solver::BC> add_bc( const std::string& bc_name,

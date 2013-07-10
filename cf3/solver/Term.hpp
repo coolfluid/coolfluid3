@@ -11,8 +11,6 @@
 
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
-//#include "common/OptionList.hpp"
-//#include "common/Option.hpp"
 #include "physics/MatrixTypes.hpp"
 #include "solver/LibSolver.hpp"
 
@@ -38,6 +36,9 @@ namespace solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Term class
+/// @author Willem Deconinck
+/// This class
 class solver_API Term : public common::Component
 {
 public:
@@ -56,11 +57,6 @@ public:
 
   const Handle<solver::Time>& time() const { return m_time; }
 
-//  template <typename T>
-//  common::Option& add_linked_option(Component& component, const std::string& name, T& value);
-
-//  virtual void add_configuration_options(Component& component);
-
   virtual void create_fields();
   virtual void create_bdry_fields();
 
@@ -76,33 +72,6 @@ protected:
   Handle<solver::Time>     m_time;
 
 };
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template <typename T>
-//inline common::Option& Term::add_linked_option(Component& component, const std::string& name, T& value)
-//{
-//  if ( !options().check(name) )
-//  {
-//    options().add(name,value)
-//        .link_to(&value);
-//  }
-//  if ( &component != this )
-//  {
-//    if ( component.options().check(name) )
-//    {
-//      component.options()[name]
-//          .link_option(options().option_ptr(name));
-//      options()[name] = component.options()[name].value();
-//    }
-//    else
-//    {
-//      component.options().add(name,value)
-//        .link_option(options().option_ptr(name));
-//    }
-//  }
-//  return component.options()[name];
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
