@@ -8,9 +8,9 @@
 #include <boost/function.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 
 #include "common/Signal.hpp"
 #include "common/PropertyList.hpp"
@@ -33,11 +33,11 @@ struct BinaryDataWriter::Implementation
   Implementation(const URI& file) :
     filename(build_filename(file, PE::Comm::instance().rank())),
     xml_filename(file),
-    out_file(filename, std::ios_base::out | std::ios_base::binary),
     index(0),
     xml_doc("1.0", "ISO-8859-1")
   {
     const Uint v = version();
+    out_file.open(filename, std::ios_base::out | std::ios_base::binary);
     out_file.write(reinterpret_cast<const char*>(&v), sizeof(Uint));
 
     PE::Comm& comm = PE::Comm::instance();
@@ -63,26 +63,30 @@ struct BinaryDataWriter::Implementation
     out_file.close();
     if(PE::Comm::instance().rank() == 0)
       XML::to_file(xml_doc, xml_filename);
+
+    PE::Comm::instance().barrier();
   }
 
   Uint write_data_block(const char* data, const std::streamsize count, const std::string& list_name, const Uint nb_rows, const Uint nb_cols)
   {
+    cf3_assert(out_file.is_open());
     PE::Comm& comm = PE::Comm::instance();
     // Prefix and suffix markers
     static const std::string block_prefix("__CFDATA_BEGIN");
-    static const std::string block_suffix("__CFDATA_END");
 
     const Uint block_begin = out_file.tellp();
 
+    // Write the prefix
+    out_file.write(block_prefix.c_str(), block_prefix.size());
+    
     // Build a compressed stream
-    std::stringstream raw_data(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-    boost::iostreams::filtering_ostream out_block;
-    out_block.push(boost::iostreams::zlib_compressor());
-    out_block.push(raw_data);
-    out_block.write(data, count);
-    out_block.flush();
-
-    out_file << block_prefix << raw_data.rdbuf() << block_suffix;
+    boost::iostreams::filtering_ostream compressing_stream;
+    compressing_stream.push(boost::iostreams::zlib_compressor());
+    compressing_stream.push(out_file);
+    
+    // Write the data
+    compressing_stream.write(data, count);
+    compressing_stream.pop();
 
     const Uint block_end = out_file.tellp();
 
@@ -167,13 +171,6 @@ BinaryDataWriter::~BinaryDataWriter()
 void BinaryDataWriter::close()
 {
   m_implementation.reset();
-}
-
-std::string BinaryDataWriter::file_name() const
-{
-  if(is_null(m_implementation.get()))
-    throw SetupError(FromHere(), "BinaryDataWriter has no active file");
-  return m_implementation->filename;
 }
 
 Uint BinaryDataWriter::write_data_block(const char* data, const std::streamsize count, const std::string& list_name, const Uint nb_rows, const Uint nb_cols)

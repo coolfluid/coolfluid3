@@ -15,6 +15,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 
+#include "common/BinaryDataReader.hpp"
 #include "common/BinaryDataWriter.hpp"
 #include "common/Core.hpp"
 #include "common/List.hpp"
@@ -123,6 +124,35 @@ BOOST_AUTO_TEST_CASE( WriteBinaryData )
   writer.close();
 }
 
+BOOST_AUTO_TEST_CASE( ReadBinaryData )
+{
+  common::Component& read_group = *common::Core::instance().root().create_component("ReadGroup", "cf3.common.Group");
+  common::BinaryDataReader& reader = *read_group.create_component<common::BinaryDataReader>("Reader");
+  reader.options().set("file", common::URI("binary_data.cfbinxml"));
+  
+  common::Table<Uint>& read_int_table = *read_group.create_component< common::Table<Uint> >("IntTable");
+  common::Table<Real>& read_real_table = *read_group.create_component< common::Table<Real> >("RealTable");
+  common::List<Uint>& read_int_list = *read_group.create_component< common::List<Uint> >("IntList");
+  common::List<Real>& read_real_list = *read_group.create_component< common::List<Real> >("RealList");
+  
+  Handle<common::Component> write_group = common::Core::instance().root().get_child("WriteGroup");
+  Handle< common::Table<Uint> > write_int_table(write_group->get_child("IntTable"));
+  Handle< common::Table<Real> > write_real_table(write_group->get_child("RealTable"));
+  Handle< common::List<Uint> > write_int_list(write_group->get_child("IntList"));
+  Handle< common::List<Real> > write_real_list(write_group->get_child("RealList"));
+  
+  reader.read_table(read_int_table, 0);
+  reader.read_table(read_real_table, 1);
+  reader.read_list(read_real_list, 2);
+  reader.read_list(read_int_list, 3);
+  
+  BOOST_CHECK_EQUAL(read_int_table.row_size(), write_int_table->row_size());
+  BOOST_CHECK_EQUAL(read_int_table.size(), write_int_table->size());
+  BOOST_CHECK(read_int_table.array() == write_int_table->array());
+  BOOST_CHECK(read_real_table.array() == write_real_table->array());
+  BOOST_CHECK(read_real_list.array() == write_real_list->array());
+  BOOST_CHECK(read_int_list.array() == write_int_list->array());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

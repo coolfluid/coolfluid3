@@ -51,9 +51,6 @@ public: // functions
   /// Close the current file
   void close();
 
-  /// The actual file name. Note that this is different from the name set by the user, since it is adjusted to include the process rank
-  std::string file_name() const;
-
 private:
   // Write a data block to the binary file
   Uint write_data_block(const char* data, const std::streamsize count, const std::string& list_name, const Uint nb_rows, const Uint nb_cols);
