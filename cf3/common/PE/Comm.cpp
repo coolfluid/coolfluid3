@@ -82,7 +82,7 @@ void Comm::init(int argc, char** args)
   if ( is_finalized() )
     throw SetupError( FromHere(), "Should not call Comm::initialize() after Comm::finalize()" );
 
-  if( !is_initialized() && !is_finalized() ) // then initialize
+  if( !is_initialized() ) // then initialize
   {
     MPI_CHECK_RESULT(MPI_Init,(&argc,&args));
     //  CFinfo << "MPI (version " <<  version() << ") -- initiated" << CFendl;
