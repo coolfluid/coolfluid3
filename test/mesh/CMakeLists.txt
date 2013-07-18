@@ -64,6 +64,11 @@ coolfluid_add_test( UTEST   utest-mesh-transformer
 coolfluid_add_test( UTEST utest-mesh-components
                     CPP   utest-mesh-components.cpp
                     LIBS  coolfluid_mesh )
+                    
+coolfluid_add_test( UTEST utest-mesh-gausslegendre
+                    CPP   utest-mesh-gausslegendre.cpp
+                    LIBS  coolfluid_mesh_gausslegendre coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 )
+
 
 coolfluid_add_test( UTEST utest-mesh-meshadaptor
                     CPP   utest-mesh-meshadaptor.cpp
