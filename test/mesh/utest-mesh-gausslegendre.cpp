@@ -153,18 +153,27 @@ BOOST_AUTO_TEST_CASE( LagrangeP2_Line_integral_dynamic )
 {
   // A third order polynomial function will be integrated exactly by a gauss legendre quadrature of order 2.
   // Exact integral for polynomial order 2*p-1
-  Handle<mesh::ElementType> etype = Core::instance().root().create_component<mesh::ElementType>("etype","cf3.mesh.LagrangeP2.Line1D");
+  Handle<mesh::ElementType> etype = Core::instance().root().create_component<mesh::ElementType>("etype","cf3.mesh.LagrangeP2.Line2D");
   Handle<mesh::Quadrature > qdr   = Core::instance().root().create_component<mesh::Quadrature >("qdr",  "cf3.mesh.gausslegendre.LineP2");
 
   Real a=0, b=4;
-  RealVector elem_coords(etype->nb_nodes());  elem_coords <<  a,  b,  0.5*(a+b) ;
+  Real ax=a*std::sqrt(2.)/2., ay=a*std::sqrt(2.)/2.;
+  Real bx=b*std::sqrt(2.)/2., by=b*std::sqrt(2.)/2.;
+  RealMatrix elem_coords(etype->nb_nodes(),etype->dimension());
   RealVector func(etype->nb_nodes());
+
+  elem_coords <<
+      ax,          ay,
+      bx,          by,
+      0.5*(ax+bx), 0.5*(ay+by) ;
 
   // Set function to x^2
   for (Uint n=0; n<etype->nb_nodes(); ++n)
   {
-    Real x = elem_coords[n];
-    func[n] = std::pow(x,2.);
+    Real x = elem_coords(n,XX);
+    Real y = elem_coords(n,YY);
+    Real r = std::sqrt(x*x+y*y);
+    func[n] = std::pow(r,2.);
   }
 
   Real integral(0.);
