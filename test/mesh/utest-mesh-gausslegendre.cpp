@@ -11,15 +11,16 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+
 #include "mesh/Quadrature.hpp"
 #include "mesh/gausslegendre/Line.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "mesh/LagrangeP2/Line1D.hpp"
 #include "mesh/LagrangeP1/Line2D.hpp"
-#include "mesh/Reconstructions.hpp"
-
-#include "common/Log.hpp"
-#include "common/Core.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/ShapeFunction.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -85,18 +86,16 @@ BOOST_AUTO_TEST_CASE( Line_static )
   CFinfo << 8 << "  roots   " << gausslegendre::Line<8>::local_coordinates().transpose() << CFendl;
   CFinfo << 8 << "  weights " << gausslegendre::Line<8>::weights() << CFendl;
 
-  CFinfo << 10 << "  roots   " << gausslegendre::Line<10>::local_coordinates().transpose() << CFendl;
-  CFinfo << 10 << "  weights " << gausslegendre::Line<10>::weights() << CFendl;
+  CFinfo << 10 << " roots   " << gausslegendre::Line<10>::local_coordinates().transpose() << CFendl;
+  CFinfo << 10 << " weights " << gausslegendre::Line<10>::weights() << CFendl;
 
-  CFinfo << integrate<1>(std::exp, 0.,1.) << CFendl;
-  CFinfo << integrate<2>(std::exp, 0.,1.) << CFendl;
-  CFinfo << integrate<3>(std::exp, 0.,1.) << CFendl;
-  CFinfo << integrate<4>(std::exp, 0.,1.) << CFendl;
-  CFinfo << integrate<5>(std::exp, 0.,1.) << CFendl;
-  CFinfo << integrate<8>(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<1 >(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<2 >(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<3 >(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<4 >(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<5 >(std::exp, 0.,1.) << CFendl;
+  CFinfo << integrate<8 >(std::exp, 0.,1.) << CFendl;
   CFinfo << integrate<10>(std::exp, 0.,1.) << CFendl;
-
-
 }
 
 
@@ -123,7 +122,7 @@ BOOST_AUTO_TEST_CASE( Line_dynamic )
   CFinfo << 5 << "  weights " << lineP5->weights() << CFendl;
 }
 
-BOOST_AUTO_TEST_CASE( LagrangeP2_Line_integral )
+BOOST_AUTO_TEST_CASE( LagrangeP2_Line_integral_static )
 {
   // A third order polynomial function will be integrated exactly by a gauss legendre quadrature of order 2.
   // Exact integral for polynomial order 2*p-1
@@ -132,20 +131,48 @@ BOOST_AUTO_TEST_CASE( LagrangeP2_Line_integral )
   Real a=0, b=4;
   ETYPE::NodesT                             elem_coords;  elem_coords <<  a,  b,  0.5*(a+b) ;
   Eigen::Matrix<Real, ETYPE::nb_nodes, 1>   func;
-  
+
   // Set function to x^2
   for (Uint n=0; n<ETYPE::nb_nodes; ++n)
   {
     Real x = elem_coords[n];
     func[n] = std::pow(x,2.);
   }
-  
+
   Real integral(0.);
   for( Uint n=0; n<QDR::nb_nodes; ++n)
   {
     ETYPE::SF::ValueT interpolate = ETYPE::SF::value( QDR::local_coordinates().row(n) );
     Real Jdet = ETYPE::jacobian_determinant( QDR::local_coordinates().row(n), elem_coords );
     integral += Jdet * QDR::weights()[n] * interpolate * func;
+  }
+  BOOST_CHECK_CLOSE(integral, std::pow(b,3.)/3.,1e-10);  // integral(x^2) = x^3/3
+}
+
+BOOST_AUTO_TEST_CASE( LagrangeP2_Line_integral_dynamic )
+{
+  // A third order polynomial function will be integrated exactly by a gauss legendre quadrature of order 2.
+  // Exact integral for polynomial order 2*p-1
+  Handle<mesh::ElementType> etype = Core::instance().root().create_component<mesh::ElementType>("etype","cf3.mesh.LagrangeP2.Line1D");
+  Handle<mesh::Quadrature > qdr   = Core::instance().root().create_component<mesh::Quadrature >("qdr",  "cf3.mesh.gausslegendre.LineP2");
+
+  Real a=0, b=4;
+  RealVector elem_coords(etype->nb_nodes());  elem_coords <<  a,  b,  0.5*(a+b) ;
+  RealVector func(etype->nb_nodes());
+
+  // Set function to x^2
+  for (Uint n=0; n<etype->nb_nodes(); ++n)
+  {
+    Real x = elem_coords[n];
+    func[n] = std::pow(x,2.);
+  }
+
+  Real integral(0.);
+  for( Uint n=0; n<qdr->nb_nodes(); ++n)
+  {
+    RealRowVector interpolate = etype->shape_function().value( qdr->local_coordinates().row(n) );
+    Real Jdet = etype->jacobian_determinant( qdr->local_coordinates().row(n), elem_coords );
+    integral += Jdet * qdr->weights()[n] * interpolate * func;
   }
   BOOST_CHECK_CLOSE(integral, std::pow(b,3.)/3.,1e-10);  // integral(x^2) = x^3/3
 }
