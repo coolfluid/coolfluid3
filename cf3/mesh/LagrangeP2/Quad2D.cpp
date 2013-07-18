@@ -297,72 +297,10 @@ void Quad2D::compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes
   LagrangeP1::Quad2D::compute_mapped_coordinate(coord,nodes_p1, mapped_coord);
   return;
 
-  // Axes of the local coordinate system, centered around the centroid and going through the center of each face
-//  SF::ValueT sf;
-//  SF::compute_value(CoordsT(1.,0.), sf);
-//  CoordsT ux = (sf*nodes).transpose();
-//  SF::compute_value(CoordsT(0.,1.), sf);
-//  CoordsT uy = (sf*nodes).transpose();
-
-//  SF::compute_value(CoordsT(-1.,0.), sf);
-//  CoordsT ux_neg = (sf*nodes).transpose();
-//  SF::compute_value(CoordsT(0.,-1.), sf);
-//  CoordsT uy_neg = (sf*nodes).transpose();
-
-//  CoordsT centroid;
-//  centroid[XX] = (ux[XX] + ux_neg[XX]) * 0.5;
-//  centroid[YY] = (uy[YY] + uy_neg[YY]) * 0.5;
-
-//  ux -= ux_neg;
-//  uy -= uy_neg;
-
-//  ux *= 0.5; // because the origin is at the center
-//  uy *= 0.5;
-
-
-//  const Real ux_len_inv = 1. / ux.norm();
-//  const Real uy_len_inv = 1. / uy.norm();
-
-//  ux *= ux_len_inv;
-//  uy *= uy_len_inv;
-
-//  std::cout << " centroid = " << centroid.transpose() << std::endl;
-//  std::cout << "ux,uy = " << ux.transpose() << "   ,   " << uy.transpose() << std::endl;
-
-//  // Normal vectors
-//  CoordsT nx = CoordsT(ux[YY],-ux[XX]);
-//  CoordsT ny = CoordsT(uy[YY],-uy[XX]);
-
-//  // division factors for line-plane intersection
-//  const Real fx = ux_len_inv / ux.dot(nx);
-//  const Real fy = uy_len_inv / uy.dot(ny);
-
-//  std::cout << "fx = " << fx << "   fy = " << fy << std::endl;
-//  CoordsT diff = coord-centroid;
-
-//  std::cout << "diff = " << diff.transpose() << std::endl;
-
-//  CoordsT test;
-//  const Real threshold = 1e-24; // 1e-12 squared, because we compare the squared distance
-//  Uint nb_iters = 0;
-//  // Initial guess will be correct if our element is a parallelepiped
-//  mapped_coord[KSI] = diff.dot(nx) * fx;
-//  mapped_coord[ETA] = diff.dot(ny) * fy;
-//  while (nb_iters < 100 && diff.dot(diff) > threshold)
-//  {
-//    SF::compute_value(mapped_coord, sf);
-//    test = (sf*nodes).transpose();
-//    diff = coord - test;
-//    test[XX] = diff.dot(nx) * fx;  // Transform difference to the relative coordinate system and
-//    test[YY] = diff.dot(ny) * fy;  // use it to adjust our initial guess
-//    mapped_coord += test;
-//    ++nb_iters;
-//  }
-
-//  std::cout << "nb_iters = " << nb_iters << std::endl;
-
-//  if(nb_iters > 100)
-//    throw common::FailedToConverge(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
+  // Consider using following reference:
+  // Lim, I. L., Johnston, I. W., Choi, S. K., & Murti, V. (1992).
+  // An improved numerical inverse isoparametric mapping technique for 2D mesh rezoning.
+  // Engineering Fracture Mechanics, 41(3), 417–435. doi:10.1016/0013-7944(92)90082-P
 }
 
 ////////////////////////////////////////////////////////////////////////////////
