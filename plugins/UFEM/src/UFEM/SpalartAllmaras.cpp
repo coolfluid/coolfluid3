@@ -79,8 +79,8 @@ struct ComputeSACoeffs
 {
   typedef void result_type;
 
-  template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_t, SACoeffs& coeffs, const Real& nu_lam) const
+  template<typename UT, typename NUT, typename DT>
+  void operator()(const UT& u, const NUT& nu_t, const DT& d, SACoeffs& coeffs, const Real& nu_lam) const
   {
 
     // nu_t.value() is a column vector with the nodal values of the viscosity for the element.
@@ -103,7 +103,7 @@ struct ComputeSACoeffs
     Eigen::Matrix<Real, UT::dimension, UT::dimension> nabla_u = nabla_mat * u.value(); // The gradient of the velocity is the shape function gradient matrix multiplied with the nodal values
     // wall distance
     // const Real d = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
-    coeffs.D = u.support().coordinates(GaussT::instance().coords)[1]; // y-coordinate of the cell center
+    coeffs.D = d.value().mean(); // Mean cell wall distance
     //coeffs.omega = sqrt(2.)*0.5*(nabla_u - nabla_u.transpose()).norm();
     coeffs.omega = 0.5*(nabla_u - nabla_u.transpose()).norm();
     coeffs.Fv1 = fv1(coeffs.chi, 7.1);
@@ -193,6 +193,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
   FieldVariable<4, ScalarField> nu_t("NU_t", "Nu_t");
   FieldVariable<5, ScalarField> nu_dim("NU_dim", "Nu_dim");
+  FieldVariable<6, ScalarField> d("wall_distance", "wall_distance");
 
   PhysicsConstant rho("density");
   PhysicsConstant mu("dynamic_viscosity");
@@ -200,10 +201,9 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
   *this
     << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
-//    << create_proto_action("set_wall_distance", nodes_expression(d=coordinates[1]))
     << create_proto_action
     (
-      "SpecializedAssembly",
+      "Assembly",
       elements_expression
       (
         // specialized_elements,
@@ -213,7 +213,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                        (
                         _A = _0, _T = _0,
                         UFEM::compute_tau(u_adv, nu_eff, tau_su),
-                        compute_sa_coeffs(u_adv, NU, m_sa_coeffs, nu_lam),
+                        compute_sa_coeffs(u_adv, NU, d, m_sa_coeffs, nu_lam),
                         element_quadrature
                         (
                            _A(NU) +=
