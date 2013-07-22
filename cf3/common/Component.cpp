@@ -68,7 +68,7 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "create_component" )
       .connect( boost::bind( &Component::signal_create_component, this, _1 ) )
-      .description("creates a component")
+      .description("creates a new component inside this component")
       .pretty_name("Create component")
       .signature( boost::bind(&Component::signature_create_component, this, _1) );
 
@@ -89,7 +89,7 @@ Component::Component ( const std::string& name ) :
       .connect( boost::bind( &Component::signal_print_tree, this, _1 ) )
       .hidden(false)
       .read_only(true)
-      .description("Print the component tree inside this component")
+      .description("print the component tree inside this component")
       .pretty_name("Print tree")
       .signature( boost::bind(&Component::signature_print_tree, this, _1) );
 
@@ -137,39 +137,39 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "rename_component" )
       .connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
-      .description("Renames this component")
+      .description("renames this component")
       .pretty_name("Rename")
       .signature( boost::bind(&Component::signature_rename_component, this, _1) );
 
   regist_signal( "delete_component" )
       .connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
-      .description("Deletes a component")
+      .description("deletes a component")
       .pretty_name("Delete");
 
   regist_signal( "move_component" )
       .connect( boost::bind( &Component::signal_move_component, this, _1 ) )
-      .description("Moves a component to another component")
+      .description("moves a component into another component")
       .pretty_name("Move")
       .signature( boost::bind(&Component::signature_move_component, this, _1) );
 
   regist_signal( "save_tree" )
       .connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
       .hidden(true)
-      .description("Saves the tree")
+      .description("saves the tree")
       .pretty_name("Save tree");
 
   regist_signal( "list_content" )
       .connect( boost::bind( &Component::signal_list_content, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("Lists component content")
+      .description("lists component content")
       .pretty_name("List content");
 
   regist_signal( "signal_signature" )
       .connect( boost::bind(&Component::signal_signature, this, _1))
       .hidden(true)
       .read_only(true)
-      .description("Gives signature of a signal");
+      .description("gives signature of a signal");
 
   regist_signal( "store_timings" )
       .connect( boost::bind(&Component::signal_store_timings, this, _1))
@@ -179,12 +179,12 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "clear" )
       .connect( boost::bind( &Component::signal_clear, this, _1 ) )
-      .description("Removes all sub-components, except for the static ones")
+      .description("removes all sub-components, except for the static ones")
       .pretty_name("Clear");
 
   regist_signal( "reset_options" )
       .connect( boost::bind( &Component::signal_reset_options, this, _1 ) )
-      .description("Sets all options of this component to their default value")
+      .description("sets all options of this component to their default value")
       .pretty_name("Reset Options");
 
   // properties
@@ -624,32 +624,41 @@ void Component::signal_move_component ( SignalArgs& args  )
 std::string Component::info ( const std::string& what  ) const
 {
   std::stringstream ss;
-  ss << "Info on component \'" << uri().path() << "\'" << std::endl
-     << "  component type: " << derived_type_name() << std::endl;
+  ss.fill(' ');
+
+  ss << "COMPONENT" << std::endl
+     << "     " << uri().path() << std::endl
+     << "     " << derived_type_name() << " -- " << properties().value_str("brief") << std::endl
+     << std::endl
+     << "DESCRIPTION" << std::endl
+     << "     " << properties().value_str("description") << std::endl
+     << std::endl;
 
   boost_foreach(const char& character, what)
   {
     if (character == 'c')
     {
-      ss << "  sub components:" << std::endl;
+      ss << "SUBCOMPONENTS" << std::endl;
       boost_foreach( const Component& c, *this )
       {
         if (c.has_tag(Tags::static_component()))
-          ss << "  + [static]  ";
+          ss << "     + [static]  ";
         else
-          ss << "  + [dynamic] ";
+          ss << "     + [dynamic] ";
 
-        ss << c.name() << " / " << c.derived_type_name() << std::endl;
+        ss << c.name() << " -- " << c.derived_type_name() << std::endl;
       }
+      ss << std::endl;
     }
     if (character == 'o')
     {
-      ss << "  options:" << std::endl
+      ss << "OPTIONS" << std::endl
          << options().list_options() << std::endl;
+      ss << std::endl;
     }
     if (character == 's')
     {
-      ss << "  signals:" << std::endl;
+      ss << "SIGNALS" << std::endl;
       boost_foreach( SignalPtr sig, signal_list() )
       {
         if (!sig->is_hidden())
@@ -659,25 +668,30 @@ std::string Component::info ( const std::string& what  ) const
           SignalOptions options(signal_args);
           options.flush();
           Uint cnt(0);
-          ss << "  - " << sig->name() << "(";
+          ss << "     " << sig->name() << " -- " << sig->description() << std::endl;
+          ss << "     usage: " << sig->name() << "(";
           foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , options )
             ss << (cnt++>0 ? ", ":"") << name << "=" << option->type() << "(" + option->value_str() << ")";
           ss << ")" << std::endl;
+          ss << std::endl;
         }
       }
+      ss << std::endl;
     }
     if (character == 'p')
     {
-      ss << "  properties:" << std::endl;
+      ss << "PROPERTIES" << std::endl;
       typedef std::pair<const std::string,boost::any> Property_t;
       boost_foreach(const Property_t& property, properties() )
-        ss <<  "  - " << property.first << "=" << properties().value_str(property.first) << std::endl;
+        ss <<  "     " << property.first << "=" << properties().value_str(property.first) << std::endl;
+      ss << std::endl;
     }
     if (character == 't')
     {
-      ss << "  tags:" << std::endl;
+      ss << "TAGS" << std::endl;
       boost_foreach(const std::string& tag, get_tags() )
-        ss << "  - " << tag << std::endl;
+        ss << "     " << tag << std::endl;
+      ss << std::endl;
     }
   }
   return ss.str();
