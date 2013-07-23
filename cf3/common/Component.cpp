@@ -659,6 +659,7 @@ std::string Component::info ( const std::string& what  ) const
     if (character == 's')
     {
       ss << "SIGNALS" << std::endl;
+      std::vector<std::string> sorted_signal_info;
       boost_foreach( SignalPtr sig, signal_list() )
       {
         if (!sig->is_hidden())
@@ -668,14 +669,17 @@ std::string Component::info ( const std::string& what  ) const
           SignalOptions options(signal_args);
           options.flush();
           Uint cnt(0);
-          ss << "     " << sig->name() << " -- " << sig->description() << std::endl;
-          ss << "     usage: " << sig->name() << "(";
+          std::string signal_info = std::string("     " + sig->name() + " -- " + sig->description() + "\n" +
+                                                "     usage: " + sig->name() + "(");
           foreach_container( (const std::string& name) (const boost::shared_ptr<Option> option) , options )
-            ss << (cnt++>0 ? ", ":"") << name << "=" << option->type() << "(" + option->value_str() << ")";
-          ss << ")" << std::endl;
-          ss << std::endl;
+            signal_info += (cnt++>0 ? ", ":"") + name + "=" + option->type() + "(" + option->value_str() + ")";
+          signal_info += ")\n";
+          sorted_signal_info.push_back(signal_info);
         }
       }
+      std::sort(sorted_signal_info.begin(), sorted_signal_info.end());
+      boost_foreach(std::string const& signal_info, sorted_signal_info)
+          ss << signal_info << std::endl;
       ss << std::endl;
     }
     if (character == 'p')
