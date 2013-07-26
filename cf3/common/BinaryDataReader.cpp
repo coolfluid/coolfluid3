@@ -96,16 +96,19 @@ struct BinaryDataReader::Implementation
     const std::string read_prefix(prefix_buf.begin(), prefix_buf.end());
     if(read_prefix != block_prefix)
       throw SetupError(FromHere(), "Bad block prefix for block " + to_str(block_idx));
-    
-    // Build a decompressing stream
-    boost::iostreams::filtering_istream decompressing_stream;
-    decompressing_stream.set_auto_close(false);
-    decompressing_stream.push(boost::iostreams::zlib_decompressor());
-    decompressing_stream.push(boost::iostreams::restrict(binary_file, 0, compressed_size));
-    
-    // Read the data
-    decompressing_stream.read(data, count);
-    decompressing_stream.pop();
+   
+    if(count != 0)
+    {
+      // Build a decompressing stream
+      boost::iostreams::filtering_istream decompressing_stream;
+      decompressing_stream.set_auto_close(false);
+      decompressing_stream.push(boost::iostreams::zlib_decompressor());
+      decompressing_stream.push(boost::iostreams::restrict(binary_file, 0, compressed_size));
+      
+      // Read the data
+      decompressing_stream.read(data, count);
+      decompressing_stream.pop();
+    }
     
     cf3_assert(binary_file.tellg() == block_end);
   }
@@ -154,6 +157,12 @@ std::string BinaryDataReader::block_name ( const Uint block_idx )
 {
   return m_implementation->get_block_node(block_idx).attribute_value("name");
 }
+
+std::string BinaryDataReader::block_type_name ( const Uint block_idx )
+{
+  return m_implementation->get_block_node(block_idx).attribute_value("type_name");
+}
+
 
 void BinaryDataReader::read_data_block(char *data, const Uint count, const Uint block_idx)
 {

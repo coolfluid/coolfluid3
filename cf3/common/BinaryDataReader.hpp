@@ -38,6 +38,9 @@ public: // functions
   template<typename T>
   void read_table(Table<T>& table, const Uint block_idx)
   {
+    if(block_type_name(block_idx) != class_name<T>())
+      throw SetupError(FromHere(), "Block at index " + to_str(block_idx) + " is of type " + block_type_name(block_idx) + " and can't be stored in " + table.type_name());
+    
     const Uint rows = block_rows(block_idx);
     const Uint cols = block_cols(block_idx);
     table.set_row_size(cols);
@@ -49,6 +52,9 @@ public: // functions
   template<typename T>
   void read_list(List<T>& list, const Uint block_idx)
   {
+    if(block_type_name(block_idx) != class_name<T>())
+      throw SetupError(FromHere(), "Block at index " + to_str(block_idx) + " is of type " + block_type_name(block_idx) + " and can't be stored in " + list.type_name());
+    
     const Uint rows = block_rows(block_idx);
     list.resize(rows);
     read_data_block(reinterpret_cast<char*>(list.array().data()), sizeof(T)*rows, block_idx);
@@ -65,6 +71,9 @@ public: // functions
 
   /// Name of the given block
   std::string block_name(const Uint block_idx);
+  
+  /// Type name of the data stored in the given block
+  std::string block_type_name(const Uint block_idx);
 
 private:
   // Read aata block from the binary file

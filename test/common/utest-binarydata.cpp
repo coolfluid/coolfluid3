@@ -23,6 +23,7 @@
 #include "common/Table.hpp"
 
 #include "common/PE/Comm.hpp"
+#include <common/Environment.hpp>
 
 using namespace cf3;
 
@@ -87,6 +88,7 @@ BOOST_FIXTURE_TEST_SUITE( BinaryDataSuite, BinaryDataFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
+  common::Core::instance().environment().options().set("log_level", 4);
   common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc,boost::unit_test::framework::master_test_suite().argv);
   BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
 }
@@ -120,6 +122,13 @@ BOOST_AUTO_TEST_CASE( WriteBinaryData )
   writer.append_data(real_table);
   writer.append_data(real_list);
   writer.append_data(int_list);
+  
+  common::List<Real>& empty_real_list = *group.create_component< common::List<Real> >("EmptyRealList");
+  common::Table<Real>& empty_real_table = *group.create_component< common::Table<Real> >("EmptyRealTable");
+  empty_real_table.set_row_size(real_table_cols);
+  
+  writer.append_data(empty_real_list);
+  writer.append_data(empty_real_table);
 
   writer.close();
 }
@@ -152,6 +161,16 @@ BOOST_AUTO_TEST_CASE( ReadBinaryData )
   BOOST_CHECK(read_real_table.array() == write_real_table->array());
   BOOST_CHECK(read_real_list.array() == write_real_list->array());
   BOOST_CHECK(read_int_list.array() == write_int_list->array());
+  
+  common::List<Real>& empty_real_list = *read_group.create_component< common::List<Real> >("EmptyRealList");
+  common::Table<Real>& empty_real_table = *read_group.create_component< common::Table<Real> >("EmptyRealTable");
+  
+  reader.read_list(empty_real_list, 4);
+  reader.read_table(empty_real_table, 5);
+  
+  BOOST_CHECK_EQUAL(empty_real_list.size(), 0);
+  BOOST_CHECK_EQUAL(empty_real_table.size(), 0);
+  BOOST_CHECK_EQUAL(empty_real_table.row_size(), 8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -38,14 +38,14 @@ public: // functions
   template<typename T>
   Uint append_data(const Table<T>& table)
   {
-    return write_data_block(reinterpret_cast<const char*>(table.array().data()), sizeof(T)*table.row_size()*table.size(), table.name(), table.size(), table.row_size());
+    return write_data_block(reinterpret_cast<const char*>(table.array().data()), sizeof(T)*table.row_size()*table.size(), table.name(), table.size(), table.row_size(), class_name<T>());
   }
   
   /// Append a new data block, returning the block index number for the current file
   template<typename T>
   Uint append_data(const List<T>& list)
   {
-    return write_data_block(reinterpret_cast<const char*>(list.array().data()), sizeof(T)*list.size(), list.name(), list.size(), 1);
+    return write_data_block(reinterpret_cast<const char*>(list.array().data()), sizeof(T)*list.size(), list.name(), list.size(), 1, class_name<T>());
   }
 
   /// Close the current file
@@ -53,7 +53,7 @@ public: // functions
 
 private:
   // Write a data block to the binary file
-  Uint write_data_block(const char* data, const std::streamsize count, const std::string& list_name, const Uint nb_rows, const Uint nb_cols);
+  Uint write_data_block(const char* data, const std::streamsize count, const std::string& list_name, const Uint nb_rows, const Uint nb_cols, const std::string& type_name);
 
   // Trigger on output file change
   void trigger_file();
