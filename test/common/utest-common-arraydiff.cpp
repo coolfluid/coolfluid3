@@ -69,6 +69,15 @@ struct BinaryDataFixture
     }
   }
 
+  void fill_list(common::List<bool>& list)
+  {
+    const Uint nb_rows = list.size();
+    for(Uint i = 0; i != nb_rows; ++i)
+    {
+      list[i] = (i % 2 == 0);
+    }
+  }
+
   const Uint rank;
 
   boost::random::mt19937 gen;
@@ -162,6 +171,20 @@ BOOST_AUTO_TEST_CASE( CompareArrays )
   array_differ->execute();
   BOOST_CHECK(array_differ->properties().value<bool>("arrays_equal"));
   real_list2[rank] += static_cast<Real>(rank+1)*1e-14;
+  array_differ->execute();
+  BOOST_CHECK(!array_differ->properties().value<bool>("arrays_equal"));
+
+  common::List<bool>& bool_list1 = *group.create_component< common::List<bool> >("BoolList1");
+  common::List<bool>& bool_list2 = *group.create_component< common::List<bool> >("BoolList2");
+  bool_list1.resize(int_list_size);
+  bool_list2.resize(int_list_size);
+  fill_list( bool_list1 );
+  bool_list2.array() = bool_list1.array();
+  array_differ->options().set("left", bool_list1.handle());
+  array_differ->options().set("right", bool_list2.handle());
+  array_differ->execute();
+  BOOST_CHECK(array_differ->properties().value<bool>("arrays_equal"));
+  bool_list1[rank] = !bool_list2[rank];
   array_differ->execute();
   BOOST_CHECK(!array_differ->properties().value<bool>("arrays_equal"));
 }

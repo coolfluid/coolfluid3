@@ -7,7 +7,7 @@ env.only_cpu0_writes = True
 
 root = cf.Core.root()
 domain = root.create_component('Domain', 'cf3.mesh.Domain')
-mesh = domain.create_component('mesh','cf3.mesh.Mesh')
+mesh = domain.create_component('OriginalMesh','cf3.mesh.Mesh')
 
 
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -29,6 +29,13 @@ blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
 blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 1)
 blocks.create_mesh(mesh.uri())
 
+link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
+link_horizontal.mesh = mesh
+link_horizontal.source_region = mesh.topology.right
+link_horizontal.destination_region = mesh.topology.left
+link_horizontal.translation_vector = [-1., 0.]
+link_horizontal.execute()
+
 make_par_data = root.create_component('MakeParData', 'cf3.solver.actions.ParallelDataToFields')
 make_par_data.mesh = mesh
 make_par_data.execute()
@@ -43,10 +50,10 @@ reader.execute()
 
 reader.mesh.print_tree()
 
-differ = domain.create_component('Differ', 'cf3.common.ArrayDiff')
-differ.left = mesh.geometry.children.global_indices
-differ.right = reader.mesh.geometry.children.global_indices
-differ.execute()
+meshdiff = domain.create_component('MeshDiff', 'cf3.mesh.actions.MeshDiff')
+meshdiff.left = mesh
+meshdiff.right = reader.mesh
+meshdiff.execute()
 
-mesh.delete_component()
-domain.write_mesh(cf.URI('cf3mesh_read.pvtu'))
+if not meshdiff.properties()['mesh_equal']:
+  raise Exception('Read mesh differs from original!')

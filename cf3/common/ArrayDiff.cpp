@@ -220,7 +220,7 @@ ArrayDiff::~ArrayDiff()
 
 void ArrayDiff::execute()
 {
-  typedef boost::mpl::vector4<int, Uint, float, double> allowed_types;
+  typedef boost::mpl::vector5<int, Uint, float, double, bool> allowed_types;
   const Handle<Component const> left = options().value< Handle<Component const> >("left");
   const Handle<Component const> right = options().value< Handle<Component const> >("right");
   

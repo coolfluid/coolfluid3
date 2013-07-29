@@ -78,6 +78,8 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
     throw common::FileFormatError(FromHere(), "File " + path.path() + " does has no topology node");
   
   common::XML::XmlNode region_node(topology_node.content->first_node("region"));
+  typedef std::map<Handle< common::List<Uint> >, std::string> PeriodicMapT;
+  PeriodicMapT periodic_links_map; // Collect a map of the periodic links to create, if any
   for(; region_node.is_valid(); region_node.content = region_node.content->next_sibling("region"))
   {
     Region& region = mesh.topology().create_region(region_node.attribute_value("name"));
@@ -87,7 +89,25 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
       Elements& elems = region.create_elements(elements_node.attribute_value("element_type"), mesh.geometry_fields());
       data_reader->read_list(elems.glb_idx(), common::from_str<Uint>(elements_node.attribute_value("global_indices")));
       data_reader->read_list(elems.rank(), common::from_str<Uint>(elements_node.attribute_value("ranks")));
+      common::XML::XmlNode periodic_node(elements_node.content->first_node("periodic_links_elements"));
+      if(periodic_node.is_valid())
+      {
+        Handle< common::List<Uint> > periodic_links_elements = elems.create_component< common::List<Uint> >("periodic_links_elements");
+        data_reader->read_list(*periodic_links_elements, common::from_str<Uint>(periodic_node.attribute_value("index")));
+        periodic_links_map.insert(std::make_pair(periodic_links_elements, periodic_node.attribute_value("periodic_link")));
+      }
     }
+  }
+
+  // Link the periodic elements, now all elements have been created
+  for(PeriodicMapT::const_iterator it = periodic_links_map.begin(); it != periodic_links_map.end(); ++it)
+  {
+    Handle<common::Link> link = it->first->create_component<common::Link>("periodic_link");
+    Handle<Elements> elements_to_link(mesh.access_component(common::URI(it->second, common::URI::Scheme::CPATH)));
+    if(is_null(elements_to_link))
+      throw common::FileFormatError(FromHere(), "Invalid periodic link: " + it->second);
+
+    link->link_to(*elements_to_link);
   }
   
   common::XML::XmlNode dictionaries_node(mesh_node.content->first_node("dictionaries"));
@@ -110,6 +130,17 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
           mesh.initialize_nodes(data_reader->block_rows(table_idx), data_reader->block_cols(table_idx));
           data_reader->read_table(mesh.geometry_fields().coordinates(), table_idx);
         }
+      }
+      
+      // Periodic links
+      if(is_not_null(dictionary_node.content->first_attribute("periodic_links_nodes")) && is_not_null(dictionary_node.content->first_attribute("periodic_links_active")))
+      {
+        cf3_assert(is_null(mesh.geometry_fields().get_child("periodic_links_nodes")));
+        cf3_assert(is_null(mesh.geometry_fields().get_child("periodic_links_active")));
+        Handle< common::List<Uint> >  periodic_links_nodes = mesh.geometry_fields().create_component< common::List<Uint> >("periodic_links_nodes");
+        Handle< common::List<bool> > periodic_links_active = mesh.geometry_fields().create_component< common::List<bool> >("periodic_links_active");
+        data_reader->read_list(*periodic_links_nodes, common::from_str<Uint>(dictionary_node.attribute_value("periodic_links_nodes")));
+        data_reader->read_list(*periodic_links_active, common::from_str<Uint>(dictionary_node.attribute_value("periodic_links_active")));
       }
     }
   }

@@ -151,7 +151,7 @@ void MeshDiff::execute()
   array_differ->options().set("zero_threshold", options().value<Real>("zero_threshold"));
   
   // Compare all arrays and lists in the mesh
-  typedef boost::mpl::vector4<int, Uint, float, double> allowed_types;
+  typedef boost::mpl::vector5<int, Uint, float, double, bool> allowed_types;
   bool mesh_equal = true;
   boost::mpl::for_each<allowed_types>(detail::DoDiff(*left, *right, *array_differ, mesh_equal));
   properties().set("mesh_equal", mesh_equal);

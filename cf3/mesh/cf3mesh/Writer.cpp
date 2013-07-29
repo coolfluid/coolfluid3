@@ -29,6 +29,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Tags.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -47,19 +48,30 @@ common::ComponentBuilder < cf3mesh::Writer, MeshWriter, LibCF3Mesh> aCF3MeshWrit
 namespace detail
 {
   // Recursively write all region nodes starting at the given parent component
-  void write_regions(common::XML::XmlNode& node, const common::Component& parent, common::BinaryDataWriter& writer)
+  void write_regions(common::XML::XmlNode& node, const common::Component& parent, common::BinaryDataWriter& writer, const std::string& root_path)
   {
     BOOST_FOREACH(const Region& region, common::find_components<Region>(parent))
     {
       common::XML::XmlNode region_node = node.add_node("region");
       region_node.set_attribute("name", region.name());
-      write_regions(region_node, region, writer);
+      write_regions(region_node, region, writer, root_path);
       BOOST_FOREACH(const Elements& elements, common::find_components<Elements>(region))
       {
         common::XML::XmlNode elements_node = region_node.add_node("elements");
         elements_node.set_attribute("element_type", elements.element_type().derived_type_name());
         elements_node.set_attribute("global_indices", common::to_str(writer.append_data(elements.glb_idx())));
         elements_node.set_attribute("ranks", common::to_str(writer.append_data(elements.rank())));
+        
+        Handle< common::List<Uint> const > periodic_links_elements(elements.get_child("periodic_links_elements"));
+        if(is_not_null(periodic_links_elements))
+        {
+          common::XML::XmlNode periodic_node = elements_node.add_node("periodic_links_elements");
+          periodic_node.set_attribute("index", common::to_str(writer.append_data(*periodic_links_elements)));
+          Handle< common::Link const > periodic_link(periodic_links_elements->get_child("periodic_link"));
+          cf3_always_assert(is_not_null(periodic_link));
+          cf3_always_assert(is_not_null(periodic_link->follow()));
+          periodic_node.set_attribute("periodic_link", boost::replace_first_copy(periodic_link->follow()->uri().path(), root_path, ""));
+        }
       }
     }
   }
@@ -152,15 +164,26 @@ void Writer::write()
     }
     
     dict_node.set_attribute("space_lib_name", space_lib_name);
+    
+    // Add periodic data if needed
+    if(dictionary.has_tag(mesh::Tags::geometry()))
+    {
+      Handle< common::List<Uint> const > periodic_links_nodes(dictionary.get_child("periodic_links_nodes"));
+      Handle< common::List<bool> const > periodic_links_active(dictionary.get_child("periodic_links_active"));
+      if(is_not_null(periodic_links_nodes) && is_not_null(periodic_links_active))
+      {
+        dict_node.set_attribute("periodic_links_nodes", common::to_str(data_writer->append_data(*periodic_links_nodes)));
+        dict_node.set_attribute("periodic_links_active", common::to_str(data_writer->append_data(*periodic_links_active)));
+      }
+    }
   }
   
   // Topology and geometry connectivity
   common::XML::XmlNode topology_node = mesh_node.add_node("topology");
-  detail::write_regions(topology_node, mesh.topology(), *data_writer);
+  detail::write_regions(topology_node, mesh.topology(), *data_writer, mesh.uri().path() + "/");
   
   if(comm.rank() == 0)
   {
-    std::cout << mesh.tree() << std::endl;
     common::XML::to_file(xml_doc, m_file_path);
   }
 }
