@@ -46,5 +46,10 @@ reader.execute()
 
 reader.mesh.print_tree()
 
+differ = domain.create_component('Differ', 'cf3.common.ArrayDiff')
+differ.left = mesh.geometry.children.global_indices
+differ.right = reader.mesh.geometry.children.global_indices
+differ.execute()
+
 mesh.delete_component()
 domain.write_mesh(cf.URI('cf3mesh_read.pvtu'))
