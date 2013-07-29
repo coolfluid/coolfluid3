@@ -35,7 +35,7 @@ namespace detail
   // MPL functor that does the actual difference
   struct DoArrayDiff
   {
-    DoArrayDiff(const Handle<Component> left, const Handle<Component> right, const Uint max_ulps, const Real zero_threshold, bool& found_type, bool& arrays_equal) :
+    DoArrayDiff(const Handle<Component const>& left, const Handle<Component const>& right, const Uint max_ulps, const Real zero_threshold, bool& found_type, bool& arrays_equal) :
       m_left(left),
       m_right(right),
       m_max_ulps(max_ulps),
@@ -52,8 +52,8 @@ namespace detail
       if(m_left->derived_type_name() != m_right->derived_type_name())
         throw common::SetupError(FromHere(), "Array types do not match");
       
-      Handle< List<NumberT> > left_list(m_left);
-      Handle< List<NumberT> > right_list(m_right);
+      Handle< List<NumberT> const > left_list(m_left);
+      Handle< List<NumberT> const > right_list(m_right);
       if(is_not_null(left_list) && is_not_null(right_list))
       {
         m_found_type = true;
@@ -67,17 +67,17 @@ namespace detail
       }
       else
       {
-        Handle< Table<NumberT> > left_table(m_left);
-        Handle< Table<NumberT> > right_table(m_right);
+        Handle< Table<NumberT> const > left_table(m_left);
+        Handle< Table<NumberT> const > right_table(m_right);
         if(is_not_null(left_table) && is_not_null(right_table))
         {
+          m_found_type = true;
           if(left_table->size() != right_table->size() || left_table->row_size() != right_table->row_size())
           {
             CFdebug << m_prefix << "Array sizes don't match" << CFendl;
             m_arrays_equal = false;
             return;
           }
-          m_found_type = true;
           compare_tables(boost::is_floating_point<NumberT>(), *left_table, *right_table);
         }
       }
@@ -175,8 +175,8 @@ namespace detail
       return fabs(boost::math::float_distance(left, right));
     }
     
-    Handle<Component> m_left;
-    Handle<Component> m_right;
+    Handle<Component const> m_left;
+    Handle<Component const> m_right;
     const Uint m_max_ulps;
     const Real m_zero_threshold;
     
@@ -191,12 +191,12 @@ namespace detail
   
 ArrayDiff::ArrayDiff(const std::string& name): Action(name)
 {
-  options().add("left", Handle<Component>())
+  options().add("left", Handle<Component const>())
     .pretty_name("Left")
     .description("Left array in the comparison")
     .mark_basic();
     
-  options().add("right", Handle<Component>())
+  options().add("right", Handle<Component const>())
     .pretty_name("Right")
     .description("Right array in the comparison")
     .mark_basic();
@@ -208,7 +208,7 @@ ArrayDiff::ArrayDiff(const std::string& name): Action(name)
     
   options().add("zero_threshold", 1e-16)
     .pretty_name("Zero Threshold")
-    .description("Floatin point numbers smaller than this are considered to be zero")
+    .description("Floating point numbers smaller than this are considered to be zero")
     .mark_basic();
 
   properties().add("arrays_equal", false);
@@ -221,8 +221,15 @@ ArrayDiff::~ArrayDiff()
 void ArrayDiff::execute()
 {
   typedef boost::mpl::vector4<int, Uint, float, double> allowed_types;
-  const Handle<Component> left = options().value< Handle<Component> >("left");
-  const Handle<Component> right = options().value< Handle<Component> >("right");
+  const Handle<Component const> left = options().value< Handle<Component const> >("left");
+  const Handle<Component const> right = options().value< Handle<Component const> >("right");
+  
+  if(is_null(left))
+    throw common::SetupError(FromHere(), "Left array is not set in " + uri().path());
+  
+  if(is_null(right))
+    throw common::SetupError(FromHere(), "Right array is not set in " + uri().path());
+  
   const Uint max_ulps = options().value<Uint>("max_ulps");
   const Real zero_threshold = options().value<Real>("zero_threshold");
   bool found_type = false;
