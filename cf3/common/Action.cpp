@@ -6,7 +6,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
@@ -19,6 +19,8 @@ namespace cf3 {
 namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+RegisterComponent<Action,LibCommon> register_action;
 
 Action::Action ( const std::string& name ) : Component(name)
 {

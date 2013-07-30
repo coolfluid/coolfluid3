@@ -145,32 +145,44 @@ add_subdirectory( plugins )
 
 # find plugins
 # developer may set several base directories that host multiple plugins each
-foreach( EXDIR ${CF3_PLUGIN_DIRS} )
 
-  include_directories( ${EXDIR} )
+macro( subdirlist result curdir )
+  file(GLOB children RELATIVE ${curdir} ${curdir}/*)
+  set(dirlist "")
+  foreach(child ${children})
+    if(IS_DIRECTORY ${curdir}/${child})
+      set(dirlist ${dirlist} ${child})
+    endif()
+  endforeach()
+  set(${result} ${dirlist})
+endmacro()
+
+foreach( EXDIR ${CF3_PLUGIN_DIRS} )
 
   coolfluid_log_file( "---------------------------------------------------------" )
   coolfluid_log_file( "PLUGINS DIR [${EXDIR}]")
   coolfluid_log_file( "---------------------------------------------------------" )
 
-  # find modules in each search dir
-  file( GLOB FOUND_PLUGIN_DIRS "${EXDIR}/*/CMakeLists.txt")
-  list( SORT FOUND_PLUGIN_DIRS )
+  subdirlist(SUBDIRS ${EXDIR})
 
-  foreach( ADIR ${FOUND_PLUGIN_DIRS} )
-
-    string(REGEX REPLACE "(/)*CMakeLists.txt" "" aPluginDir ${ADIR})
-
-    if( IS_DIRECTORY ${aPluginDir} )
-
-      get_filename_component( aPluginName ${aPluginDir} NAME )
-
-      add_subdirectory( ${aPluginDir} plugins/${aPluginName} )
-
+  foreach( subdir_name ${SUBDIRS} )
+    set( subdir "${EXDIR}/${subdir_name}" )
+    file( GLOB FOUND_PLUGIN_DIR "${subdir}/CMakeLists.txt" )
+    if( FOUND_PLUGIN_DIR )
+      get_filename_component( plugin_name ${subdir} NAME )
+      add_subdirectory( ${subdir} plugins/${plugin_name} )
+    else()
+      subdirlist( SUBSUBDIRS ${subdir} )
+      foreach( subsubdir_name ${SUBSUBDIRS} )
+        set( subsubdir "${subdir}/${subsubdir_name}" )
+        file( GLOB FOUND_PLUGIN_DIR "${subsubdir}/CMakeLists.txt" )
+        if( FOUND_PLUGIN_DIR )
+          get_filename_component( plugin_name ${subsubdir} NAME )
+          add_subdirectory( ${subsubdir} plugins/${plugin_name} )
+        endif()
+      endforeach()
     endif()
-
   endforeach()
-
 endforeach()
 
 coolfluid_log("")

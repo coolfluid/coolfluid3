@@ -75,6 +75,7 @@ coolfluid_add_test( PTEST     ptest-proto-parallel
 else()
 coolfluid_mark_not_orphan(
   ptest-proto-benchmark.cpp
+  utest-proto-nodeloop.cpp
   utest-proto-operators.cpp
   utest-proto-internals.cpp
   utest-proto-components.cpp

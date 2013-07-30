@@ -168,6 +168,79 @@ BOOST_AUTO_TEST_CASE( Test_Euler2D_riemann )
 
 }
 
+BOOST_AUTO_TEST_CASE( Test_Euler2D_SymmetryBCs )
+{
+  euler2d::Data pL, pR, pAvg;
+
+  pL.gamma=1.4;                                      pR.gamma=1.4;
+  pL.R=287.05;                                       pR.R=287.05;
+
+  Real rho = 1.408;
+  Real u = 50;
+  Real v = 20;
+  Real p = 101100;
+  euler2d::RowVector_NEQS prim_left, prim_right;
+  prim_left  << rho,  u,  v, p; pL.compute_from_primitive(prim_left);
+  prim_right << rho, -u,  v, p; pR.compute_from_primitive(prim_right);
+
+  Real H = pL.H;
+
+  BOOST_CHECK_EQUAL( pL.rho , rho );
+  BOOST_CHECK_EQUAL( pL.p   , p );
+
+
+  compute_roe_average( pL, pR, pAvg );
+
+  BOOST_CHECK_EQUAL( pAvg.gamma   , 1.4 );
+  BOOST_CHECK_EQUAL( pAvg.rho     , rho );
+  BOOST_CHECK_EQUAL( pAvg.H       , pL.H );
+  BOOST_CHECK_EQUAL( pAvg.U[XX]   , 0. );
+  BOOST_CHECK_EQUAL( pAvg.U[YY]   , v );
+  BOOST_CHECK_EQUAL( pAvg.U2      , v*v );
+
+  euler2d::RowVector_NEQS flux;
+  euler2d::ColVector_NDIM normal; normal << 1., 0.;
+  Real wave_speed;
+
+  euler2d::RowVector_NEQS fluxL;
+  euler2d::RowVector_NEQS fluxR;
+
+  compute_convective_flux( pL, normal, fluxL, wave_speed );
+  std::cout << "convective_flux left         = " << fluxL << std::endl;
+  compute_convective_flux( pR, normal, fluxR, wave_speed );
+  std::cout << "convective_flux right        = " << fluxR << std::endl;
+  flux = 0.5*(fluxL+fluxR);
+
+
+  std::cout << "symmetry_wall_flux (Central) = " << flux << std::endl;
+  BOOST_CHECK_EQUAL( fluxL[0] , (rho*u) );
+  BOOST_CHECK_EQUAL( fluxL[1] , (rho*u)*u + p);
+  BOOST_CHECK_EQUAL( fluxL[2] , (rho*u)*v );
+  BOOST_CHECK_EQUAL( fluxL[3] , (rho*u)*H );
+
+  BOOST_CHECK_EQUAL( fluxR[0] , (-rho*u) );
+  BOOST_CHECK_EQUAL( fluxR[1] , (-rho*u)*(-u) + p);
+  BOOST_CHECK_EQUAL( fluxR[2] , (-rho*u)*v );
+  BOOST_CHECK_EQUAL( fluxR[3] , (-rho*u)*H );
+
+  BOOST_CHECK_EQUAL( flux[0] , 0. );
+  BOOST_CHECK_EQUAL( flux[1] , rho*u*u + p );
+  BOOST_CHECK_EQUAL( flux[2] , 0. );
+  BOOST_CHECK_EQUAL( flux[3] , 0. );
+
+  compute_rusanov_flux( pL, pR, normal, flux, wave_speed );
+  std::cout << "symmetry_wall_flux (Rusanov) = " << flux << std::endl;
+
+  compute_roe_flux( pL, pR, normal, flux, wave_speed );
+  std::cout << "symmetry_wall_flux (Roe)     = " << flux << std::endl;
+
+  compute_convective_flux( pAvg, normal, flux, wave_speed );
+  std::cout << "convective_flux (RoeAvg)     = " << flux << std::endl;
+
+
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

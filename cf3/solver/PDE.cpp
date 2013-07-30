@@ -17,7 +17,7 @@
 
 #include "solver/PDE.hpp"
 #include "solver/Time.hpp"
-#include "solver/Term.hpp"
+#include "solver/TermComputer.hpp"
 #include "solver/BC.hpp"
 #include "solver/ComputeRHS.hpp"
 
@@ -49,6 +49,13 @@ PDE::PDE ( const std::string& name  ) :
   options().add("solution", m_solution ).mark_basic().link_to(&m_solution);
   options().add("rhs", m_rhs ).mark_basic().link_to(&m_rhs);
   options().add("wave_speed", m_wave_speed ).mark_basic().link_to(&m_wave_speed);
+
+  options().add("bdry_fields", m_bdry_fields )
+      .mark_basic()
+      .link_to(&m_bdry_fields)
+      .attach_trigger( boost::bind( &PDE::create_bdry_fields, this) );
+  options().add("bdry_solution", m_bdry_solution ).mark_basic().link_to(&m_bdry_solution);
+  options().add("bdry_solution_gradient", m_bdry_solution_gradient ).mark_basic().link_to(&m_bdry_solution_gradient);
 
   m_nb_eqs = 0u;
 
@@ -138,6 +145,46 @@ void PDE::create_fields()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void PDE::create_bdry_fields()
+{
+  if (m_nb_eqs == 0)
+    throw InvalidStructure(FromHere(), "PDE "+derived_type_name()+" does not have any equations defined");
+
+  if (is_null(m_bdry_fields))
+    throw SetupError(FromHere(), "boundary Dictionary in PDE "+uri().string()+" is not setup correctly");
+
+  if ( is_null(m_bdry_solution) || ( &m_bdry_solution->dict() != m_bdry_fields.get() ) )
+  {
+    if ( Handle<Component> found = m_bdry_fields->get_child("bdry_solution") )
+    {
+      m_bdry_solution = found->handle<Field>();
+    }
+    else
+    {
+      m_bdry_solution = m_bdry_fields->create_field("bdry_solution",solution_variables()).handle<Field>();
+      m_bdry_solution->parallelize();
+    }
+    options().set("bdry_solution",m_bdry_solution);
+  }
+
+  if ( is_null(m_bdry_solution_gradient) || ( &m_bdry_solution_gradient->dict() != m_bdry_fields.get() ) )
+  {
+    if ( Handle<Component> found = m_bdry_fields->get_child("bdry_solution_gradient") )
+    {
+      m_bdry_solution_gradient = found->handle<Field>();
+    }
+    else
+    {
+      m_bdry_solution_gradient = m_bdry_fields->create_field("bdry_solution_gradient",m_nb_eqs*m_nb_dim).handle<Field>();
+      m_bdry_solution_gradient->parallelize();
+    }
+    options().set("bdry_solution_gradient",m_bdry_solution_gradient);
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void PDE::configure(const Handle<Component>& component)
 {
   cf3_assert( is_not_null(component) );
@@ -147,6 +194,14 @@ void PDE::configure(const Handle<Component>& component)
     {
       opt->link_option(component->options().option_ptr(opt_name));
       component->options().set(opt_name,opt->value());
+    }
+    boost_foreach( Component& subcomponent, find_components_recursively(*component) )
+    {
+      if ( subcomponent.options().check(opt_name) )
+      {
+        opt->link_option(subcomponent.options().option_ptr(opt_name));
+        subcomponent.options().set(opt_name,opt->value());
+      }
     }
   }
 }
@@ -158,35 +213,18 @@ Handle<solver::Time> PDE::add_time()
   m_time = create_component<solver::Time>("time");
   m_time->mark_basic();
   options().add("time",m_time);
-  boost_foreach( solver::Term& term, find_components<solver::Term>(*this) )
-  {
-    term.options().set("time",m_time);
-  }
-  boost_foreach( solver::BC& bc, find_components<solver::BC>(*this) )
-  {
-    bc.options().set("time",m_time);
-  }
-
   return m_time;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Handle<solver::Term> PDE::add_term(const std::string& term_name, const std::string& term_type, const std::string& term_computer_type)
+Handle<solver::TermComputer> PDE::add_term(const std::string& term_name, const std::string& term_computer)
 {
-  // - Create term
-  Handle<solver::Term> term = create_component<solver::Term>(term_name,term_type);
-  // - Link all the PDE's configuration options to the term
-  configure(term->handle());
+  Handle<Component> term = m_rhs_computer->create_component(term_name,term_computer);
 
-  std::string tct = ( ! term_computer_type.empty() ? term_computer_type : term_type+"Computer" );
-  CFinfo << "term_computer = " << tct << CFendl;
-  Handle<Component> term_computer = m_rhs_computer->create_component(term_name+"_computer",tct);
-  term_computer->mark_basic();
-  term_computer->options().set("term",term->handle());
-
-  // - Return the created term
-  return term;
+  term->mark_basic();
+  configure(term);
+  return term->handle<TermComputer>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,9 +247,8 @@ void PDE::signal_add_term( common::SignalArgs& args )
 {
   common::XML::SignalOptions opts(args);
 
-  Handle<solver::Term> term = add_term( opts.value<std::string>("name"),
-                                        opts.value<std::string>("type"),
-                                        opts.value<std::string>("computer"));
+  Handle<solver::TermComputer> term = add_term( opts.value<std::string>("name"),
+                                                opts.value<std::string>("type") );
 
   common::XML::SignalFrame reply = args.create_reply(uri());
   SignalOptions reply_options(reply);
@@ -224,7 +261,6 @@ void PDE::signature_add_term( common::SignalArgs& args )
   common::XML::SignalOptions opts(args);
   opts.add("name",std::string());
   opts.add("type",std::string());
-  opts.add("computer",std::string());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

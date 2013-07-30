@@ -11,8 +11,6 @@
 
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
-//#include "common/OptionList.hpp"
-//#include "common/Option.hpp"
 #include "physics/MatrixTypes.hpp"
 #include "solver/LibSolver.hpp"
 
@@ -38,6 +36,9 @@ namespace solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Term class
+/// @author Willem Deconinck
+/// This class
 class solver_API Term : public common::Component
 {
 public:
@@ -49,49 +50,28 @@ public:
 
   const Handle<mesh::Dictionary>& fields()  { return m_fields; }
   const Handle<mesh::Field>& solution()   { return m_solution; }
+
+  const Handle<mesh::Dictionary>& bdry_fields()  { return m_bdry_fields; }
+  const Handle<mesh::Field>& bdry_solution()   { return m_bdry_solution; }
+  const Handle<mesh::Field>& bdry_solution_gradient()   { return m_bdry_solution_gradient; }
+
   const Handle<solver::Time>& time() const { return m_time; }
 
-//  template <typename T>
-//  common::Option& add_linked_option(Component& component, const std::string& name, T& value);
-
-//  virtual void add_configuration_options(Component& component);
-
   virtual void create_fields();
+  virtual void create_bdry_fields();
 
 protected:
 
   Handle<mesh::Dictionary> m_fields;
   Handle<mesh::Field>      m_solution;
+
+  Handle<mesh::Dictionary> m_bdry_fields;
+  Handle<mesh::Field>      m_bdry_solution;
+  Handle<mesh::Field>      m_bdry_solution_gradient;
+
   Handle<solver::Time>     m_time;
 
 };
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template <typename T>
-//inline common::Option& Term::add_linked_option(Component& component, const std::string& name, T& value)
-//{
-//  if ( !options().check(name) )
-//  {
-//    options().add(name,value)
-//        .link_to(&value);
-//  }
-//  if ( &component != this )
-//  {
-//    if ( component.options().check(name) )
-//    {
-//      component.options()[name]
-//          .link_option(options().option_ptr(name));
-//      options()[name] = component.options()[name].value();
-//    }
-//    else
-//    {
-//      component.options().add(name,value)
-//        .link_option(options().option_ptr(name));
-//    }
-//  }
-//  return component.options()[name];
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -134,8 +114,6 @@ public: // types
 public: // Variable and PhysData computation
     
   /// @brief Compute variables and gradients in a given element point
-  ///
-  /// The interpolation and gradient reconstructions, as well as
   void get_variables( const mesh::Space& space,
                       const Uint elem_idx,
                       const ColVector_NDIM& coords,
@@ -147,6 +125,18 @@ public: // Variable and PhysData computation
                       RowVector_NVAR& vars,
                       RowVector_NGRAD& gradvars,
                       Matrix_NDIMxNGRAD& gradvars_grad ) { }
+
+  void get_bdry_variables( const mesh::Space& space,
+                           const Uint elem_idx,
+                           const ColVector_NDIM& coords,
+                           const mesh::ReconstructPoint& interpolation,
+                           const std::vector<mesh::ReconstructPoint>& gradient,
+                           const Matrix_NDIMxNDIM& jacobian,
+                           const Matrix_NDIMxNDIM& jacobian_inverse,
+                           const Real& jacobian_determinant,
+                           RowVector_NVAR& vars,
+                           RowVector_NGRAD& gradvars,
+                           Matrix_NDIMxNGRAD& gradvars_grad ) { }
 
   /// @brief Set constants in the data
   template< typename DATA>

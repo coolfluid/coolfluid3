@@ -21,7 +21,7 @@ namespace common {
 
   class Component;
   class EventHandler;
-  class BuildInfo;
+  struct BuildInfo;
   class CodeProfiler;
   class Environment;
   class Group;

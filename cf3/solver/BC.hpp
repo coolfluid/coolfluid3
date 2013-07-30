@@ -46,6 +46,9 @@ public:
 
   const Handle<mesh::Dictionary>& fields()  { return m_fields; }
   const Handle<mesh::Field>& solution()   { return m_solution; }
+  const Handle<mesh::Dictionary>& bdry_fields()  { return m_bdry_fields; }
+  const Handle<mesh::Field>& bdry_solution()   { return m_bdry_solution; }
+  const Handle<mesh::Field>& bdry_solution_gradient()   { return m_bdry_solution_gradient; }
   const Handle<solver::Time>& time() const { return m_time; }
 
 //  template <typename T>
@@ -60,6 +63,9 @@ protected:
   std::vector< Handle<Component> > m_regions;
   Handle<mesh::Dictionary>         m_fields;
   Handle<mesh::Field>              m_solution;
+  Handle<mesh::Dictionary>         m_bdry_fields;
+  Handle<mesh::Field>              m_bdry_solution;
+  Handle<mesh::Field>              m_bdry_solution_gradient;
   Handle<solver::Time>             m_time;
 
 };

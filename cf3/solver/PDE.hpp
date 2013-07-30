@@ -24,7 +24,7 @@ namespace cf3 {
   }
   namespace solver {
     class ComputeRHS;
-    class Term;
+    class TermComputer;
     class BC;
     class Time;
   }
@@ -72,7 +72,7 @@ public: // functions
 
   virtual std::string solution_variables() const;
 
-  /// @brief Handle to the fieldsionary
+  /// @brief Handle to the fields
   const Handle<mesh::Dictionary>& fields() { return m_fields; }
 
   /// @brief Handle to the configured solution
@@ -84,21 +84,32 @@ public: // functions
   /// @brief Handle to the configured wave_speed
   const Handle<mesh::Field>& wave_speed() { if (is_null(m_wave_speed)) throw common::BadValue(FromHere(), ""); return m_wave_speed; }
 
+  /// @brief Handle to the boundary fields
+  const Handle<mesh::Dictionary>& bdry_fields() { return m_bdry_fields; }
+
+  /// @brief Handle to the configured solution
+  const Handle<mesh::Field>& bdry_solution() { return m_bdry_solution; }
+
+  /// @brief Handle to the configured solution
+  const Handle<mesh::Field>& bdry_solution_gradient() { return m_bdry_solution_gradient; }
+
+  /// @brief Handle to the time component
   const Handle<solver::Time> time() { return m_time; }
+
   /// @brief Handle to the ODE right-hand-side computer
   ///
   /// dQ/dt = R( Q )
   const Handle<solver::ComputeRHS>& rhs_computer() { return m_rhs_computer; }
 
+  /// @brief Action that executes all contained boundary conditions
   const Handle<common::ActionDirector>& bc() { return m_bc; }
 
   /// @brief Create a time component, making this unsteady in time
   Handle<solver::Time> add_time();
 
   /// @brief Create a term, configure it, and create a term-computer
-  Handle<solver::Term> add_term( const std::string& term_name,
-                                 const std::string& term_type,
-                                 const std::string& term_computer_type = "" );
+  Handle<solver::TermComputer> add_term( const std::string& term_name,
+                                         const std::string& term_computer );
 
   /// @brief Create a boundary condition, configure it, and create a bc-computer
   Handle<solver::BC> add_bc( const std::string& bc_name,
@@ -109,6 +120,9 @@ public: // functions
 
   /// @brief create necessary fields when fields is configured
   virtual void create_fields();
+
+  /// @brief create necessary bdry_fields when bdry_fields is configured
+  virtual void create_bdry_fields();
 
 public: // signals
 
@@ -122,13 +136,19 @@ protected: // data
 
   Uint m_nb_dim;
   Uint m_nb_eqs;
+  Handle<solver::ComputeRHS>                    m_rhs_computer;
+  Handle<common::ActionDirector>                m_bc;
+  Handle<solver::Time>                          m_time;
+
   Handle<mesh::Dictionary>                      m_fields;
   Handle<mesh::Field>                           m_solution;
   Handle<mesh::Field>                           m_rhs;
   Handle<mesh::Field>                           m_wave_speed;
-  Handle<solver::ComputeRHS>                    m_rhs_computer;
-  Handle<common::ActionDirector>                m_bc;
-  Handle<solver::Time>                          m_time;
+
+  Handle<mesh::Dictionary>                      m_bdry_fields;
+  Handle<mesh::Field>                           m_bdry_solution;
+  Handle<mesh::Field>                           m_bdry_solution_gradient;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

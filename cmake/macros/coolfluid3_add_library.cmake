@@ -50,7 +50,7 @@ macro( coolfluid3_add_library )
     endif()
 
     set( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
-
+    set( ${LIBNAME}_includedirs "" )
     ### sources
 
     # separate the source files and remove them from the orphan list
@@ -103,12 +103,19 @@ macro( coolfluid3_add_library )
             list( APPEND ${LIBNAME}_includedirs ${${plugin}_DIR} )
         endforeach()
 
-        # include dirs from plugins
+        # include dirs from INCLUDES parameter
         if( _PAR_INCLUDES )
           foreach( path ${_PAR_INCLUDES} )
             list( APPEND ${LIBNAME}_includedirs ${path} )
           endforeach()
         endif()
+
+        # add include dirs of LIBS if defined
+        foreach( lib ${_PAR_LIBS} )
+            foreach( path ${${lib}_includedirs} ) # skip NOTFOUND
+                list( APPEND ${LIBNAME}_includedirs ${path} )
+            endforeach()
+        endforeach()
 
         # add include dirs if defined
         foreach( path ${${LIBNAME}_includedirs} ) # skip NOTFOUND
@@ -213,6 +220,8 @@ macro( coolfluid3_add_library )
 
     endif()
 
+  set( ${LIBNAME}_includedirs ${${LIBNAME}_includedirs} CACHE INTERNAL "" )
+
   # log some info about the library
 
   get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
@@ -221,7 +230,7 @@ macro( coolfluid3_add_library )
   coolfluid_log_file("${LIBNAME}_builds          : [${${LIBNAME}_builds}]")
   coolfluid_log_file("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
   coolfluid_log_file("${LIBNAME} kernel lib      : [${_PAR_KERNEL}]")
-  coolfluid_log_file("${LIBNAME}_includedirs     : [${_PAR_INCLUDES}]")
+  coolfluid_log_file("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
   coolfluid_log_file("${LIBNAME}_libs            : [${_PAR_LIBS}]")
   coolfluid_log_file("${LIBNAME}_has_all_plugins : [${${LIBNAME}_has_all_plugins}]")
   coolfluid_log_file("${LIBNAME}_requires_plugins: [${_PAR_PLUGINS}]")
@@ -230,6 +239,7 @@ macro( coolfluid3_add_library )
 
   coolfluid_log_file("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
   coolfluid_log_file("${LIBNAME} install API     : [${CF3_BUILD_${LIBNAME}_API}]")
+
 
 endmacro( coolfluid3_add_library  )
 

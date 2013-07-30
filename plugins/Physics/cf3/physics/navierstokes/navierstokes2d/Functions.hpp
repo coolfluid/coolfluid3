@@ -11,6 +11,7 @@
 #ifndef cf3_physics_navierstokes_navierstokes2d_Functions_hpp
 #define cf3_physics_navierstokes_navierstokes2d_Functions_hpp
 
+#include "cf3/physics/euler/euler2d/Functions.hpp"
 #include "cf3/physics/navierstokes/navierstokes2d/Data.hpp"
 
 namespace cf3 {

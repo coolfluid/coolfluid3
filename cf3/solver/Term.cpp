@@ -23,6 +23,12 @@ Term::Term( const std::string& name ) : common::Component(name)
       .attach_trigger( boost::bind( &Term::create_fields, this) );
   options().add("solution",m_solution).link_to(&m_solution);
 
+  options().add("bdry_fields",m_bdry_fields)
+      .link_to(&m_bdry_fields)
+      .attach_trigger( boost::bind( &Term::create_bdry_fields, this) );
+  options().add("bdry_solution",m_bdry_solution).link_to(&m_bdry_solution);
+  options().add("bdry_solution_gradient",m_bdry_solution).link_to(&m_bdry_solution_gradient);
+
   options().add("time",m_time).link_to(&m_time);
 }
 
@@ -35,6 +41,10 @@ Term::~Term()
 //}
 
 void Term::create_fields()
+{
+}
+
+void Term::create_bdry_fields()
 {
 }
 
