@@ -319,7 +319,7 @@ void ContinuousDictionary::rebuild_node_to_element_connectivity()
     {
       boost_foreach (const Uint node_idx, space->connectivity()[elem_idx])
       {
-        cf3_assert_desc(to_str(node_idx)+"<"+to_str(size())+" --> something wrong with the element-node connectivity table",node_idx<size());
+        cf3_assert_desc(to_str(node_idx)+"<"+to_str(size())+" --> something wrong with the element-node connectivity table from space "+space->uri().path(),node_idx<size());
         ++connectivity_sizes[node_idx];
       }
     }

@@ -212,6 +212,7 @@ void WallDistance::execute()
   Mesh& mesh = *m_mesh;
 
   Field& d = mesh.geometry_fields().create_field("WallDistance", "wall_distance");
+  d.add_tag("wall_distance");
   const Field& coords = mesh.geometry_fields().coordinates();
   const Uint nb_nodes = coords.size();
 

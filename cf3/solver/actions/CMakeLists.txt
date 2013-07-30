@@ -26,6 +26,8 @@ list( APPEND coolfluid_solver_actions_files
   Loop.cpp
   PrintIterationSummary.hpp
   PrintIterationSummary.cpp
+  ReadRestartFile.hpp
+  ReadRestartFile.cpp
   SynchronizeFields.hpp
   SynchronizeFields.cpp
   ComputeArea.hpp
@@ -40,6 +42,8 @@ list( APPEND coolfluid_solver_actions_files
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
+  WriteRestartFile.hpp
+  WriteRestartFile.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files

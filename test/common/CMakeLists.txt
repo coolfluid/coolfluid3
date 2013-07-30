@@ -194,3 +194,13 @@ coolfluid_add_test( UTEST utest-uucount
 coolfluid_add_test( UTEST utest-handle
                     CPP   utest-handle.cpp
                     LIBS  coolfluid_common )
+
+coolfluid_add_test( UTEST utest-binarydata
+                    CPP   utest-binarydata.cpp
+                    LIBS  coolfluid_common
+                    MPI 4 )
+
+coolfluid_add_test( UTEST utest-common-arraydiff
+                    CPP   utest-common-arraydiff.cpp
+                    LIBS  coolfluid_common
+                    MPI 2 )

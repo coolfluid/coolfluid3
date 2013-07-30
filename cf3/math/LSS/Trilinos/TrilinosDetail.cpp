@@ -134,7 +134,7 @@ struct GidConverter
 
   inline int operator[](const int i) const
   {
-    cf3_assert(gids[i] >= 0);
+    cf3_assert_desc("Bad GID lookup on " + common::to_str(i), gids[i] >= 0);
     return gids[i];
   }
 
