@@ -54,6 +54,7 @@ void ParallelDataToFields::execute()
   mesh::Dictionary& elems_P0 = is_null(elems_P0_handle) ? mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0") : *elems_P0_handle;
   mesh::Field& elem_rank = elems_P0.get_child("element_rank") ? *(elems_P0.get_child("element_rank")->handle<mesh::Field>()) : elems_P0.create_field("element_rank");
   mesh::Field& elem_ghost = elems_P0.get_child("element_ghosts") ? *(elems_P0.get_child("element_ghosts")->handle<mesh::Field>()) : elems_P0.create_field("element_ghosts");
+  mesh::Field& elem_gids = elems_P0.get_child("element_gids") ? *(elems_P0.get_child("element_gids")->handle<mesh::Field>()) : elems_P0.create_field("element_gids");
 
   boost_foreach(const Handle<mesh::Entities>& elements_handle, elems_P0.entities_range())
   {
@@ -64,6 +65,7 @@ void ParallelDataToFields::execute()
       Uint field_idx = space.connectivity()[elem][0];
       elem_rank[field_idx][0] = elements.rank()[elem];
       elem_ghost[field_idx][0] = elements.is_ghost(elem) ? 1. : 0.;
+      elem_gids[field_idx][0] = elements.glb_idx()[elem];
     }
   }
 

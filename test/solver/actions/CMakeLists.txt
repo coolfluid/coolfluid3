@@ -57,6 +57,10 @@ coolfluid_add_test( UTEST     utest-proto-lss
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
                     MPI       1)
 
+coolfluid_add_test( UTEST     utest-solver-actions-restart
+                    PYTHON    utest-solver-actions-restart.py
+                    MPI       4)
+
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(_ARGS 160 160 120)

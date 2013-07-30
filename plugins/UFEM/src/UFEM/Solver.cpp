@@ -472,6 +472,43 @@ void Solver::signature_add_probe ( SignalArgs& args )
 void Solver::execute()
 {
   create_fields();
+  common::PE::Comm& comm = common::PE::Comm::instance();
+  if(comm.is_active())
+  {
+    Uint nb_owned_nodes = 0;
+    Uint nb_ghost_nodes = 0;
+    BOOST_FOREACH(const Uint rank, mesh().geometry_fields().rank().array())
+    {
+      if(rank == comm.rank())
+        ++nb_owned_nodes;
+      else
+        ++nb_ghost_nodes;
+    }
+    
+    std::vector<Uint> owned_recv;
+    std::vector<Uint> ghost_recv;
+    
+    comm.all_gather(nb_owned_nodes, owned_recv);
+    comm.all_gather(nb_ghost_nodes, ghost_recv);
+    if(comm.rank() == 0)
+    {
+      const Uint total_nb_owned = std::accumulate(owned_recv.begin(),owned_recv.end(),0);
+      CFinfo << "Parallel node distribution:" << CFendl;
+      Uint min_nb_nodes = nb_owned_nodes;
+      Uint max_nb_nodes = 0;
+      for(Uint i = 0; i != comm.size(); ++i)
+      {
+        min_nb_nodes = owned_recv[i] < min_nb_nodes ? owned_recv[i] : min_nb_nodes;
+        max_nb_nodes = owned_recv[i] > max_nb_nodes ? owned_recv[i] : max_nb_nodes;
+        CFinfo << "  rank " << i << ": " << owned_recv[i] << " nodes (" << static_cast<Real>(owned_recv[i]) / static_cast<Real>(total_nb_owned)*100. << "%) with " << ghost_recv[i] << " ghosts" << CFendl;
+      }
+      CFinfo << "  maximum: " << max_nb_nodes << "(" << static_cast<Real>(max_nb_nodes) / static_cast<Real>(total_nb_owned)*100. << "%), minimum: " << min_nb_nodes << "(" << static_cast<Real>(min_nb_nodes) / static_cast<Real>(total_nb_owned)*100. << "%)" << CFendl;
+    }
+  }
+  else
+  {
+    CFinfo << "Running the solver over a mesh with " << mesh().geometry_fields().size() << " nodes." << CFendl;
+  }
   solver::SimpleSolver::execute();
 }
 

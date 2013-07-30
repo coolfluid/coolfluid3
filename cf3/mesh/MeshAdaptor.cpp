@@ -1214,8 +1214,6 @@ void MeshAdaptor::grow_overlap()
   // Remove from memory again, boundary nodes are found
   face2cell.reset();
 
-  //////PECheckArrivePoint(100, "boundary nodes found");
-
   // Also add periodic links, if any
   Handle< List<Uint> const > periodic_links_nodes_h(geometry_dict.get_child("periodic_links_nodes"));
   if(is_not_null(periodic_links_nodes_h))
@@ -1246,8 +1244,9 @@ void MeshAdaptor::grow_overlap()
         bdry_nodes.insert(final_target_node);
       }
     }
-
   }
+  
+  //////PECheckArrivePoint(100, "boundary nodes found");
 
   // Copy set into vector and convert to global indices
   std::vector<boost::uint64_t> glb_boundary_nodes;
