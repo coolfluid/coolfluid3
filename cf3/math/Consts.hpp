@@ -36,14 +36,29 @@ namespace Consts
   inline Real real_max() { return std::numeric_limits<Real>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
   inline Real real_min() { return std::numeric_limits<Real>::min(); }
+  /// Definition of the minimum number representable with the chosen precision.
+  inline Real real_nan() { return std::numeric_limits<Real>::signaling_NaN(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
   /// @code std::abs(x) > math::Consts::eps()  @endcode
   inline Real eps() { return std::numeric_limits<Real>::epsilon(); }
   /// Definition of Infinity
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
-  /// Definition of the Pi constant.
-  inline Real pi() { return M_PI; }
+  /// Definition of the Pi constant
+  inline Real pi()  { return M_PI; }
+  /// Definition of the Boltzmann's constant [J/K]
+  inline Real kB()  { return 1.3806503e-23; }
+  /// Definition of the Unit charge [C]
+  inline Real e()   { return 1.60217646e-19; }
+  /// Definition of Avogadro's constant [1/mol]
+  inline Real NA()  { return 6.02214199e23; }
+  /// Definition of the Faraday's constant [C/mol]   ( = e() * NA() )
+  inline Real F()   { return 96485.341352; }
+  /// Definition of the ideal gas constant [J/mol K] ( = kb() * NA() )
+  inline Real R()   { return 8.3144721451; }
+  /// Definition of the Euler gamma
+  inline Real gamma() { return 0.57721566; }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
