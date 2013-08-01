@@ -18,17 +18,17 @@ class TaylorGreen:
   Va = 0.
   D = 0.5
   
-  t = np.array([])
-  max_error = np.array([])
-  
   model = None
   solver = None
   mesh = None
   
   
-  def __init__(self, dt, element):
+  def __init__(self, builder, dt, element, prefix):
     self.dt = dt
     self.element = element
+    self.prefix = prefix
+    self.setup_model(builder)
+    self.builder = builder
     
   def __del__(self):
     if self.model != None:
@@ -104,45 +104,55 @@ class TaylorGreen:
 
     partitioner.execute()
     
-    coords = self.mesh.geometry.coordinates
-    self.sample_coords = range(len(coords))
-    self.probe_points = []
+    domain.write_mesh(cf.URI(self.prefix + '.cf3mesh'))
     
-    for i in range(len(coords)):
-      (x,y) = coords[i]
-      if x == (segments/4) * 1./float(segments) and y == 0.:
-        self.probe_points.append(i)
-    #     
-    # print 'probe_points', self.probe_points, coords[self.probe_points[0]]
+  def read_mesh(self, filename):
+    reader = self.model.Domain.create_component('CF3MeshReader', 'cf3.mesh.cf3mesh.Reader')
+    reader.mesh = self.model.Domain.create_component('Mesh','cf3.mesh.Mesh')
+    reader.file = cf.URI(filename)
+    reader.execute()
+    self.mesh = reader.mesh
     
-    #domain.write_mesh(cf.URI('tg-mesh.msh'))
-    
-    return mesh
-    
-  def setup_ic(self, u_tag, p_tag):
+  def setup_ic(self):
+    if self.builder == 'cf3.UFEM.NavierStokes':
+      ic_comp = self.solver.InitialConditions
+      u_tag = 'navier_stokes_solution'
+      p_tag = 'navier_stokes_solution'
+    else:
+      ic_comp = self.solver.InitialConditions.NavierStokes
+      u_tag = 'navier_stokes_u_solution'
+      p_tag = 'navier_stokes_p_solution'
     #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
-    ic_u = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
+    ic_u = ic_comp.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
     ic_u.variable_name = 'Velocity'
     ic_u.regions = [self.mesh.topology.interior.uri()]
     ic_u.value = ['{Ua} - cos(pi/{D}*x)*sin(pi/{D}*y)'.format(Ua = self.Ua, D = self.D), '{Va} + sin(pi/{D}*x)*cos(pi/{D}*y)'.format(Va = self.Va, D = self.D)]
 
-    ic_p = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
+    ic_p = ic_comp.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
     ic_p.regions = [self.mesh.topology.interior.uri()]
     ic_p.variable_name = 'Pressure'
     ic_p.value = ['-0.25*(cos(2*pi/{D}*x) + cos(2*pi/{D}*y))'.format(D = self.D)]
     
-    ic_u.execute()
-    ic_p.execute()
+  def set_restart(self, filename):
+    if self.builder == 'cf3.UFEM.NavierStokes':
+      reader = self.solver.InitialConditions.create_component('Reader', 'cf3.solver.actions.ReadRestartFile')
+    else:
+      reader = self.solver.InitialConditions.Restarts.create_component('Reader', 'cf3.solver.actions.ReadRestartFile')
+    reader.mesh = self.mesh
+    reader.file = cf.URI(filename)
   
-  def setup_model(self):
+  def setup_model(self, builder):
     if self.model != None:
       self.model.delete_component()
     
-    model = cf.Core.root().create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
+    model = cf.Core.root().create_component('NavierStokes'+self.prefix, 'cf3.solver.ModelUnsteady')
     self.model = model
     domain = model.create_domain()
     physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
     self.solver = model.create_solver('cf3.UFEM.Solver')
+    self.ns_solver = self.solver.add_unsteady_solver(builder)
+    self.restart_writer = self.solver.add_restart_writer()
+    self.restart_writer.Writer.file = cf.URI(self.prefix+'-{iteration}.cf3restart')
     
     # Physical constants
     physics.density = 1.
@@ -156,177 +166,112 @@ class TaylorGreen:
     nu = self.model.NavierStokesPhysics.kinematic_viscosity
     bc.add_function_bc(region_name = 'center', variable_name = var_name).value = ['-0.25 * (cos(2*pi/{D}*(x - {Ua}*(t+{dt}))) + cos(2*pi/{D}*(y - {Va}*(t+{dt})))) * exp(-4*{nu}*pi^2/{D}^2*(t+{dt})) '.format(D = self.D, nu = nu, Ua = self.Ua, Va = self.Va, dt = self.dt)]
   
-  def setup_implicit(self, segments, Ua, Va, D, theta):
+  def setup(self, Ua, Va, D, theta):
     self.Ua = Ua
     self.Va = Va
     self.D = D
-    self.segments = segments
     
-    self.modelname = 'implicit'
-    
-    solver = self.setup_model()
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-    ns_solver.options.theta = theta
-    ns_solver.options.use_specializations = False
+    mesh = self.mesh
+    self.ns_solver.regions = [mesh.topology.interior.uri()]
+    self.ns_solver.options.theta = theta
     self.theta = theta
     
-    mesh = self.create_mesh(segments)
-    ns_solver.regions = [mesh.topology.interior.uri()]
+    series_writer = self.solver.TimeLoop.create_component('TimeWriter', 'cf3.solver.actions.TimeSeriesWriter')
+    writer = series_writer.create_component('Writer', 'cf3.mesh.VTKXML.Writer')
+    writer.file = cf.URI(self.prefix+'-{iteration}.pvtu')
+    writer.mesh = self.mesh
     
-    self.add_pressure_bc(ns_solver.BoundaryConditions)
-    
-    lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
-    #lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    # lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.solver_type = 'Mumps'
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.create_parameter_list('Amesos Settings').add_parameter(name = 'MaxProcs', value=1)
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.add_parameter(name = 'Redistribute', value=True)
-    #lss.SolutionStrategy.Parameters.LinearSolverTypes.Amesos.AmesosSettings.create_parameter_list('Mumps').add_parameter(name='Equilibrate', value = False)
+    if self.builder == 'cf3.UFEM.NavierStokes':
+      self.add_pressure_bc(self.ns_solver.BoundaryConditions)
+      self.solver.create_fields()
+      writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
+      lss = self.ns_solver.LSS
+      lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
+      lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-16
+      lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'NSSA'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.eigen_analysis_type = 'Anorm'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.add_parameter(name = 'PDE equations', value =3)
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'MIS'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 3
 
-    solver.create_fields()
-    self.setup_ic('navier_stokes_solution', 'navier_stokes_solution')
-    
-    # kinetic_energy = solver.add_unsteady_solver('cf3.UFEM.KineticEnergyIntegral')
-    # kinetic_energy.regions = [mesh.topology.interior.uri()]
-    # kinetic_energy.history = solver.create_component('KEHistory', 'cf3.solver.History')
-    # kinetic_energy.history.file = cf.URI('ke-history.tsv')
-    # kinetic_energy.history.dimension = 1
-    
-  def setup_semi_implicit(self, segments, Ua, Va, D, theta):  
-    self.Ua = Ua
-    self.Va = Va
-    self.D = D
-    self.segments = segments
-    
-    self.modelname = 'semi'
-    
-    solver = self.setup_model()
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
+    else:
+      self.ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+      self.ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+      self.ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
+      self.ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
+      
+      self.add_pressure_bc(self.ns_solver.PressureLSS.BC)
 
-    ns_solver.options.theta = theta
-    ns_solver.options.nb_iterations = 2
-    self.theta = theta
-    #ns_solver.children.GlobalLSS.options.blocked_system = False
-    #ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
-    
-    mesh = self.create_mesh(segments)
-    ns_solver.regions = [mesh.topology.interior.uri()]
-    
-    ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-    ns_solver.PressureLSS.LSS.SolutionStrategy.print_settings = False
-    ns_solver.VelocityLSS.LSS.SolutionStrategy.print_settings = False
-    
-    self.add_pressure_bc(ns_solver.PressureLSS.BC)
+      self.solver.create_fields()
+      writer.fields = [mesh.geometry.navier_stokes_p_solution.uri(), mesh.geometry.navier_stokes_u_solution.uri()]
 
-    solver.create_fields()
-    self.setup_ic('navier_stokes_u_solution', 'navier_stokes_p_solution')
-  
-  def iterate(self, numsteps, save_interval = 1, process_interval = 1):
-    
+  def iterate(self, numsteps, save_interval = 1):    
     tstep = self.dt
-    
-    if (numsteps % save_interval) != 0:
-      raise RuntimeError('Number of time steps cannot be divided by save_interval')
-
-    self.basename = '{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta)
-    if not os.path.exists(self.basename) and cf.Core.rank() == 0:
-      os.makedirs(self.basename)
-
-    self.outfile = open('uv_error-{modelname}-{element}-{segments}-dt_{tstep}-theta_{theta}-P{rank}.txt'.format(modelname = self.modelname, element = self.element, segments = self.segments, tstep = tstep, theta = self.theta, rank = cf.Core.rank()), 'w', 1)
-    self.outfile.write('# time (s), max u error, max v error, max p error')
-    for i in range(len(self.probe_points)):
-      self.outfile.write(', probe {probe} u error, probe {probe} v error, probe {probe} p error'.format(probe = i))
-    self.outfile.write('\n')
+    self.restart_writer.interval = save_interval
     
     # Time setup
     time = self.model.create_time()
     time.time_step = tstep
-
-    # Setup a time series write
-    final_end_time = numsteps*tstep
-    self.iteration = 0
-    time.end_time = 0.
+    time.end_time = numsteps*tstep
+    self.model.simulate()
+    self.model.print_timing_tree()
     
-    # Resize the error array
-    self.max_error = np.zeros((3, numsteps))
-    self.t = np.zeros(numsteps)
-
-    while time.current_time < final_end_time:
-      time.end_time += tstep
-      self.model.simulate()
-      #self.model.Solver.TimeLoop.NavierStokesExplicit.InnerLoop.PressureSystem.LSS.print_system('pressure_system.plt')
-      self.t[self.iteration] = time.current_time
-      if (self.iteration % process_interval == 0) or time.current_time >= final_end_time:
-        self.check_result(time.current_time >= final_end_time)
-      if self.iteration % save_interval == 0:
-        self.model.Domain.write_mesh(cf.URI(self.basename+'/taylor-green-' +str(self.iteration) + '.pvtu'))
-      self.iteration += 1
-      if self.iteration == 1:
-        self.model.Solver.options.disabled_actions = ['InitialConditions']
-    self.outfile.close()
-
-    # print timings
+  def iterate_restart(self, end_time, save_interval = 1):    
+    self.restart_writer.interval = save_interval
+    
+    # Time setup
+    time = self.model.create_time()
+    time.end_time = end_time
+    self.model.simulate()
     self.model.print_timing_tree()
 
+dt = 0.004
+elem = 'quad'
+segs = 32
+theta = 0.5
 
-  def check_result(self, dumpfile = False):
-    t = self.t[self.iteration]
-    Ua = self.Ua
-    Va = self.Va
-    D = self.D
-    
-    nu = self.model.NavierStokesPhysics.kinematic_viscosity
-    
-    try:
-      u_sol = self.mesh.geometry.navier_stokes_solution
-      p_sol = self.mesh.geometry.navier_stokes_solution
-      u_idx = 0
-      v_idx = 1
-      p_idx = 2
-    except AttributeError:
-      u_sol = self.mesh.geometry.navier_stokes_u_solution
-      p_sol = self.mesh.geometry.navier_stokes_p_solution
-      u_idx = 0
-      v_idx = 1
-      p_idx = 0
-      
-    coords = self.mesh.geometry.coordinates
-    x_arr = np.zeros(len(coords))
-    y_arr = np.zeros(len(coords))
-    p_num = np.zeros(len(coords))
-    u_num = np.zeros(len(coords))
-    v_num = np.zeros(len(coords))
-    p_th = np.zeros(len(coords))
-    u_th = np.zeros(len(coords))
-    v_th = np.zeros(len(coords))
-    for i in self.sample_coords:
-      (x, y) = (x_arr[i], y_arr[i]) = coords[i]
-      (u_num[i], v_num[i], p_num[i]) = ( u_sol[i][u_idx], u_sol[i][v_idx], p_sol[i][p_idx] )
-      u_th[i] = Ua - np.cos(np.pi/D*(x-Ua*t))*np.sin(np.pi/D*(y-Va*t))*np.exp(-2.*nu*np.pi**2/D**2*t)
-      v_th[i] = Va + np.sin(np.pi/D*(x-Ua*t))*np.cos(np.pi/D*(y-Va*t))*np.exp(-2.*nu*np.pi**2/D**2*t)
-      p_th[i] = -0.25 * (np.cos(2*np.pi/D*(x - Ua*t)) + np.cos(2*np.pi/D*(y - Va*t)))*np.exp(-4.*nu*np.pi**2/D**2*t)
-      
-    self.max_error[0, self.iteration] = np.max(np.abs(u_th - u_num))
-    self.max_error[1, self.iteration] = np.max(np.abs(v_th - v_num))
-    self.max_error[2, self.iteration] = np.max(np.abs(p_th - p_num))
-    
-    #if dumpfile:
-      #np.savetxt('uvcontours-{t}.txt'.format(t = t), (x_arr, y_arr, u_num, v_num))
-    
-    self.outfile.write('{t},{u},{v},{p}'.format(t = t, u = self.max_error[0, self.iteration], v = self.max_error[1, self.iteration], p = self.max_error[2, self.iteration]))
-    for i in self.probe_points:
-      self.outfile.write(',{u},{v},{p}'.format(u = u_th[i] - u_num[i], v = v_th[i] - v_num[i], p = p_th[i] - p_num[i]))
-    self.outfile.write('\n')
+# Run a simulation, saving restarts every 5 steps
+tg_impl = TaylorGreen(builder = 'cf3.UFEM.NavierStokes', dt = dt, element=elem, prefix='restart-implicit-full')
+tg_impl.create_mesh(segs)
+tg_impl.setup(0.3, 0.2, D=0.5, theta=theta)
+tg_impl.setup_ic()
+tg_impl.iterate(10, 5)
 
-parser = OptionParser()
-parser.add_option('--dt', type='float')
-parser.add_option('--elem', type='string')
-parser.add_option('--segs', type='int')
-parser.add_option('--theta', type='float')
-parser.add_option('--tsteps', type='int')
-(options, args) = parser.parse_args()
+# Restart after the 5 first steps
+tg_impl_restart = TaylorGreen(builder = 'cf3.UFEM.NavierStokes', dt = dt, element=elem, prefix='restart-implicit-restarted')
+tg_impl_restart.read_mesh(tg_impl.prefix + '.cf3mesh')
+tg_impl_restart.setup(0.3, 0.2, D=0.5, theta=theta)
+tg_impl_restart.set_restart(tg_impl.prefix+'-5.cf3restart')
+tg_impl_restart.iterate_restart(10.*dt, 5)
 
+root = cf.Core.root()
+meshdiff = root.create_component('MeshDiff', 'cf3.mesh.actions.MeshDiff')
+meshdiff.left = tg_impl.mesh
+meshdiff.right = tg_impl_restart.mesh
+meshdiff.max_ulps = 500000 # this relatively high number is due to the use of the iterative LSS solver
+meshdiff.execute()
+if not meshdiff.properties()['mesh_equal']:
+  raise Exception('Bad restart for implicit solve')
 
-taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
-taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
-taylor_green.iterate(options.tsteps, 1, 1)
+# Run a simulation, saving restarts every 5 steps
+tg_semi_impl = TaylorGreen(builder = 'cf3.UFEM.NavierStokesSemiImplicit', dt = dt, element=elem, prefix='restart-semi-full')
+tg_semi_impl.create_mesh(segs)
+tg_semi_impl.setup(0.3, 0.2, D=0.5, theta=theta)
+tg_semi_impl.setup_ic()
+tg_semi_impl.iterate(10, 5)
+
+# Restart after the 5 first steps
+tg_semi_impl_restart = TaylorGreen(builder = 'cf3.UFEM.NavierStokesSemiImplicit', dt = dt, element=elem, prefix='restart-semi-restarted')
+tg_semi_impl_restart.read_mesh(tg_semi_impl.prefix + '.cf3mesh')
+tg_semi_impl_restart.setup(0.3, 0.2, D=0.5, theta=theta)
+tg_semi_impl_restart.set_restart(tg_semi_impl.prefix+'-5.cf3restart')
+tg_semi_impl_restart.iterate_restart(10.*dt, 5)
+
+meshdiff.max_ulps = 10
+meshdiff.left = tg_semi_impl.mesh
+meshdiff.right = tg_semi_impl_restart.mesh
+meshdiff.execute()
+if not meshdiff.properties()['mesh_equal']:
+  raise Exception('Bad restart for semi-implicit solve')

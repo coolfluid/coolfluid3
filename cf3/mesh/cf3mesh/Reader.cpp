@@ -87,6 +87,7 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
     for(; elements_node.is_valid(); elements_node.content = elements_node.content->next_sibling("elements"))
     {
       Elements& elems = region.create_elements(elements_node.attribute_value("element_type"), mesh.geometry_fields());
+      elems.rename(elements_node.attribute_value("name"));
       data_reader->read_list(elems.glb_idx(), common::from_str<Uint>(elements_node.attribute_value("global_indices")));
       data_reader->read_list(elems.rank(), common::from_str<Uint>(elements_node.attribute_value("ranks")));
       common::XML::XmlNode periodic_node(elements_node.content->first_node("periodic_links_elements"));
@@ -193,6 +194,11 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
       data_reader->read_table(entities_list[i]->space(dictionary).connectivity(), entities_binary_file_indices[i]);
     }
   }
+
+  mesh.update_structures();
+  mesh.update_statistics();
+  mesh.check_sanity();
+  mesh.raise_mesh_loaded();
 }
 
 

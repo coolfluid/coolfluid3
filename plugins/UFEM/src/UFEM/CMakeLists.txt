@@ -82,6 +82,8 @@ list( APPEND coolfluid_ufem_files
   SUPG.hpp
   Tags.hpp
   Tags.cpp
+  WriteRestartManager.hpp
+  WriteRestartManager.cpp
 
   ns_semi_implicit/LSSVectorOps.hpp
   ns_semi_implicit/MatrixAssembly.hpp

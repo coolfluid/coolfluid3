@@ -69,6 +69,9 @@ NavierStokes::NavierStokes(const std::string& name) :
   // g_acceleration("gravitatonal_acceleration")
 
 {
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("linearized_velocity")("navier_stokes_viscosity");
+  properties().add("restart_field_tags", restart_field_tags);
+
   options().add("use_specializations", true)
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
@@ -138,10 +141,6 @@ void NavierStokes::trigger_assembly()
     set_hexa_assembly();
     set_prism_assembly();
   }
-  if(is_not_null(m_physical_model))
-    configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
-
-  configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 
   if(is_not_null(m_initial_conditions))
   {
@@ -174,6 +173,11 @@ void NavierStokes::trigger_assembly()
       p += solution(p)
     ))));
   }
+
+  if(is_not_null(m_physical_model))
+    configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
+
+  configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 }
 
 void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditions)

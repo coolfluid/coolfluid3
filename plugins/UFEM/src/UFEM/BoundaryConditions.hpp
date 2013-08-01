@@ -7,10 +7,10 @@
 #ifndef cf3_UFEM_BoundaryConditions_hpp
 #define cf3_UFEM_BoundaryConditions_hpp
 
+#include <boost/scoped_ptr.hpp>
+
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
-
-#include "solver/Solver.hpp"
 
 #include "LibUFEM.hpp"
 

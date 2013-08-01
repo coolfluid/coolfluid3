@@ -96,12 +96,9 @@ void GlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  Handle<Component> node2elem_handle = mesh.geometry_fields().get_child("node2elem");
-  if (node2elem_handle)
-    mesh.geometry_fields().remove_component("node2elem");
 
-
-  NodeElementConnectivity& node2elem = *mesh.geometry_fields().create_component<NodeElementConnectivity>("node2elem");
+  boost::shared_ptr<NodeElementConnectivity> node2elem_ptr = common::allocate_component<NodeElementConnectivity>("node2elem");
+  NodeElementConnectivity& node2elem = *node2elem_ptr;
   node2elem.setup(mesh.topology());
 
 

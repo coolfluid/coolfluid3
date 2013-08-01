@@ -302,6 +302,9 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u_ref("reference_velocity"),
   nu("kinematic_viscosity")
 {
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");
+  properties().add("restart_field_tags", restart_field_tags);
+  
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
@@ -406,6 +409,11 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
   lin_vel_ic->add_tag(detail::my_tag());
 
+  // This is the place to add any readers for restarting
+  Handle<InitialConditions> restart_ic(m_initial_conditions->create_initial_condition("Restarts", "cf3.UFEM.InitialConditions"));
+  restart_ic->mark_basic();
+  restart_ic->add_tag(detail::my_tag());
+
   Handle<math::LSS::System> u_lss(m_u_lss->get_child("LSS"));
   
   if(is_not_null(m_pressure_assembly))
@@ -436,7 +444,7 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
 }
 
 void NavierStokesSemiImplicit::on_regions_set()
-{  
+{ 
   if(is_not_null(m_initial_conditions))
   {
     if(options().value<bool>("enable_body_force"))

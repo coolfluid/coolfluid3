@@ -120,13 +120,17 @@ class TaylorGreen:
     return mesh
     
   def setup_ic(self, u_tag, p_tag):
+    if self.modelname == 'implicit':
+      ic_comp = self.solver.InitialConditions
+    else:
+      ic_comp = self.solver.InitialConditions.NavierStokes
     #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
-    ic_u = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
+    ic_u = ic_comp.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = u_tag)
     ic_u.variable_name = 'Velocity'
     ic_u.regions = [self.mesh.topology.interior.uri()]
     ic_u.value = ['{Ua} - cos(pi/{D}*x)*sin(pi/{D}*y)'.format(Ua = self.Ua, D = self.D), '{Va} + sin(pi/{D}*x)*cos(pi/{D}*y)'.format(Va = self.Va, D = self.D)]
 
-    ic_p = self.solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
+    ic_p = ic_comp.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = p_tag)
     ic_p.regions = [self.mesh.topology.interior.uri()]
     ic_p.variable_name = 'Pressure'
     ic_p.value = ['-0.25*(cos(2*pi/{D}*x) + cos(2*pi/{D}*y))'.format(D = self.D)]
@@ -310,13 +314,17 @@ class TaylorGreen:
     self.max_error[1, self.iteration] = np.max(np.abs(v_th - v_num))
     self.max_error[2, self.iteration] = np.max(np.abs(p_th - p_num))
     
-    #if dumpfile:
-      #np.savetxt('uvcontours-{t}.txt'.format(t = t), (x_arr, y_arr, u_num, v_num))
-    
     self.outfile.write('{t},{u},{v},{p}'.format(t = t, u = self.max_error[0, self.iteration], v = self.max_error[1, self.iteration], p = self.max_error[2, self.iteration]))
     for i in self.probe_points:
       self.outfile.write(',{u},{v},{p}'.format(u = u_th[i] - u_num[i], v = v_th[i] - v_num[i], p = p_th[i] - p_num[i]))
     self.outfile.write('\n')
+    if self.iteration > 3:
+      if self.max_error[0, self.iteration] > 0.0014:
+        raise Exception('u error is too great')
+      if self.max_error[1, self.iteration] > 0.0014:
+        raise Exception('v error is too great')
+      if self.max_error[2, self.iteration] > 0.0033:
+        raise Exception('p error is too great')
 
 parser = OptionParser()
 parser.add_option('--dt', type='float')
@@ -326,7 +334,10 @@ parser.add_option('--theta', type='float')
 parser.add_option('--tsteps', type='int')
 (options, args) = parser.parse_args()
 
+taylor_green_impl = TaylorGreen(dt = options.dt, element=options.elem)
+taylor_green_impl.setup_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
+taylor_green_impl.iterate(options.tsteps, 1, 1)
 
-taylor_green = TaylorGreen(dt = options.dt, element=options.elem)
-taylor_green.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
-taylor_green.iterate(options.tsteps, 1, 1)
+taylor_green_semi = TaylorGreen(dt = options.dt, element=options.elem)
+taylor_green_semi.setup_semi_implicit(options.segs, 0.3, 0.2, D=0.5, theta=options.theta)
+taylor_green_semi.iterate(options.tsteps, 1, 1)
