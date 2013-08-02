@@ -175,7 +175,13 @@ void NavierStokes::trigger_assembly()
   }
 
   if(is_not_null(m_physical_model))
+  {
     configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
+  }
+
+  // Ensure the initial condition field list gets updated
+  if(is_not_null(m_initial_conditions))
+    m_initial_conditions->options().set("field_tag", solution_tag());
 
   configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
 }
