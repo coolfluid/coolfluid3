@@ -46,3 +46,6 @@ coolfluid_add_test( UTEST utest-mesh-wall-distance
                     ARGUMENTS ${CMAKE_SOURCE_DIR}/plugins/UFEM/test/meshes/ring3d-tetras.neu
                     MPI 4)
                     
+coolfluid_add_test( UTEST utest-mesh-actions-meshdiff
+                    PYTHON utest-mesh-actions-meshdiff.py
+                    MPI 4)

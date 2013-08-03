@@ -43,7 +43,7 @@ block_nodes[0] = [0, 1, 3, 2]
 block_nodes[1] = [2, 3, 5, 4]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [refinement_level*20, refinement_level*10]
+block_subdivs[0] = [refinement_level*20, refinement_level*16]
 block_subdivs[1] = block_subdivs[0]
 
 gradings = blocks.create_block_gradings()
@@ -64,7 +64,11 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+nb_procs = cf.Core.nb_procs()
+if block_subdivs[0][1] % nb_procs != 0:
+  raise Exception("Vertical slices can't be divided by the number of processors")
+
+blocks.partition_blocks(nb_partitions = nb_procs, direction = 1)
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
@@ -75,15 +79,12 @@ create_point_region.region_name = 'center'
 create_point_region.mesh = mesh
 create_point_region.execute()
 
-partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
-partitioner.mesh = mesh
-
-link_horizontal = partitioner.create_link_periodic_nodes()
+link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
+link_horizontal.mesh = mesh
 link_horizontal.source_region = mesh.topology.right
 link_horizontal.destination_region = mesh.topology.left
 link_horizontal.translation_vector = [-10., 0.]
-
-partitioner.execute()
+link_horizontal.execute()
 
 
 # Physical constants
@@ -123,7 +124,7 @@ model.simulate()
 
 for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stokes_u_solution):
   u_ref = y*(2-y)
-  if abs(u_ref - u) > 1e-3:
+  if abs(u_ref - u) > 1e-2:
     raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
   if abs(v) > 1e-8:
     raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))

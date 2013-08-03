@@ -105,6 +105,7 @@ void WriteMesh::update_list_of_available_writers()
   
   // TODO proper way to find the list of potential writers
   const std::vector<std::string> known_writers = boost::assign::list_of
+  ("cf3.mesh.cf3mesh.Writer")
 #ifdef CF3_HAVE_CGNS
     ("cf3.mesh.CGNS.Writer")
 #endif

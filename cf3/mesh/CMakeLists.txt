@@ -173,3 +173,5 @@ add_subdirectory( actions )       # namespace actions that can be performed on t
 add_subdirectory(VTKLegacy)       # Writer for VTK legacy files
 
 add_subdirectory(VTKXML)       # Writer for VTK XML files
+
+add_subdirectory(cf3mesh) # Writer for the native mesh format

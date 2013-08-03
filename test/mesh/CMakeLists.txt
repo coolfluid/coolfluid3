@@ -274,6 +274,10 @@ coolfluid_add_test( UTEST    utest-mesh-simplemeshgenerator
 
 coolfluid_add_test( UTEST    utest-mesh-triangulator
                     PYTHON   utest-mesh-triangulator.py)
+                    
+coolfluid_add_test( UTEST    utest-mesh-cf3mesh
+                    PYTHON   utest-mesh-cf3mesh.py
+                    MPI 4)
 
 ############################################################################################
 
