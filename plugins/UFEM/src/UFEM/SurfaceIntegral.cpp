@@ -141,16 +141,24 @@ void SurfaceIntegral::execute()
 
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*m_loop_regions.front());
 
-  Handle<mesh::Dictionary> elems_P0_handle(mesh.get_child("elems_P0"));
-  mesh::Dictionary& elems_P0 = is_null(elems_P0_handle) ? mesh.create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0") : *elems_P0_handle;
-  if(is_null(elems_P0.get_child("surface_integrator")))
+  const std::string elems_name = "cf3.mesh.LagrangeP0";
+  Handle<mesh::Dictionary> elems_P0_handle(mesh.get_child(elems_name));
+  mesh::Dictionary& elems_P0 = is_null(elems_P0_handle) ? mesh.create_discontinuous_space(elems_name,"cf3.mesh.LagrangeP0") : *elems_P0_handle;
+  if(!elems_P0.has_tag("ufem_dict"))
+    elems_P0.add_tag("ufem_dict");
+
+  Handle<mesh::Field> is_local_element(elems_P0.get_child("surface_integrator"));
+  if(is_null(is_local_element))
   {
-    mesh::Field& is_local_element = elems_P0.create_field("surface_integrator", "is_local_element");
-    is_local_element.add_tag("surface_integrator");
-    const Uint nb_elems = is_local_element.size();
+    is_local_element = elems_P0.create_field("surface_integrator", "is_local_element").handle<mesh::Field>();
+    is_local_element->add_tag("surface_integrator");
+  }
+  if(!is_local_element->has_tag("local_element_initialized"))
+  {
+    const Uint nb_elems = is_local_element->size();
     for(Uint i = 0; i != nb_elems; ++i)
     {
-      is_local_element[i][0] = !elems_P0.is_ghost(i);
+      is_local_element->array()[i][0] = !elems_P0.is_ghost(i);
     }
   }
 
