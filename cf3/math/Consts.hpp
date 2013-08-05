@@ -46,19 +46,6 @@ namespace Consts
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
   /// Definition of the Pi constant
   inline Real pi()  { return M_PI; }
-  /// Definition of the Boltzmann's constant [J/K]
-  inline Real kB()  { return 1.3806503e-23; }
-  /// Definition of the Unit charge [C]
-  inline Real e()   { return 1.60217646e-19; }
-  /// Definition of Avogadro's constant [1/mol]
-  inline Real NA()  { return 6.02214199e23; }
-  /// Definition of the Faraday's constant [C/mol]   ( = e() * NA() )
-  inline Real F()   { return 96485.341352; }
-  /// Definition of the ideal gas constant [J/mol K] ( = kb() * NA() )
-  inline Real R()   { return 8.3144721451; }
-  /// Definition of the Euler gamma
-  inline Real gamma() { return 0.57721566; }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@ list( APPEND coolfluid_physics_files
   LibPhysics.hpp
   LibPhysics.cpp
   MatrixTypes.hpp
+  Consts.hpp
   PhysModel.cpp
   PhysModel.hpp
   Variables.hpp
