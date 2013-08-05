@@ -57,7 +57,7 @@ public: // functions
 
 private: // functions
 
-  virtual void write() {};
+  virtual void write() {}
 
   void config_fields();  ///< configure fields from URI's
   void config_regions(); ///< configure regions from URI's
