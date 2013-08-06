@@ -26,6 +26,8 @@ list( APPEND coolfluid_ufem_files
   BoundaryConditions.cpp
   BoussinesqAssembly.hpp
   BoussinesqAssemblyExtended.hpp
+  BulkVelocity.hpp
+  BulkVelocity.cpp
   ComputeCFL.hpp
   ComputeCFL.cpp
   CouplingIterationControl.cpp

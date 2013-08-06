@@ -21,9 +21,6 @@ solver = model.create_solver('cf3.UFEM.Solver')
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 
-ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
-ic_visc.variable_name = 'EffectiveViscosity'
-
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 6)
@@ -39,12 +36,13 @@ block_nodes[0] = [0, 1, 3, 2]
 block_nodes[1] = [2, 3, 5, 4]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [40, 20]
-block_subdivs[1] = [40, 20]
+block_subdivs[0] = [10, 40]
+block_subdivs[1] = [10, 40]
 
+grading = 5.
 gradings = blocks.create_block_gradings()
-gradings[0] = [1., 1., 1., 1.]
-gradings[1] = [1., 1., 1., 1.]
+gradings[0] = [1., 1., grading, grading]
+gradings[1] = [1., 1., 1./grading, 1./grading]
 
 left_patch = blocks.create_patch_nb_faces(name = 'left', nb_faces = 2)
 left_patch[0] = [2, 0]
@@ -100,11 +98,20 @@ pressure_integral.history = solver.create_component('ForceHistory', 'cf3.solver.
 pressure_integral.history.file = cf.URI('force-implicit.tsv')
 pressure_integral.history.dimension = 2
 
+bulk_velocity = solver.add_unsteady_solver('cf3.UFEM.BulkVelocity')
+bulk_velocity.set_field(variable_name = 'Velocity', field_tag = 'navier_stokes_solution')
+bulk_velocity.regions = [mesh.topology.right.uri()]
+bulk_velocity.history = bulk_velocity.create_component('History', 'cf3.solver.History')
+bulk_velocity.history.file = cf.URI('bulk-velocity.tsv')
+bulk_velocity.history.dimension = 1
+
+lss = ns_solver.LSS
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-5
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 50
+
 # Time setup
 time = model.create_time()
 time.options().set('time_step', 0.1)
-
-#ns_solver.options().set('disabled_actions', ['SolveLSS'])
 
 # Setup a time series write
 final_end_time = 10.
@@ -123,3 +130,14 @@ while current_end_time < final_end_time:
 
 # print timings
 model.print_timing_tree()
+
+# centerline velocity
+u_max = 0
+for [u,v,p] in mesh.geometry.navier_stokes_solution:
+  if u > u_max:
+    u_max = u
+
+print 'Uc / Ub =', u_max / bulk_velocity.result
+
+if (u_max / bulk_velocity.result) > 1.6 or (u_max / bulk_velocity.result) < 1.4:
+  raise Exception('Laminar profile not reached')

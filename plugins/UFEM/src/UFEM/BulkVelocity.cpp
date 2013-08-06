@@ -27,7 +27,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Triag.hpp"
 
-#include "SurfaceIntegral.hpp"
+#include "BulkVelocity.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -42,9 +42,9 @@ namespace UFEM
 
 using namespace solver::actions::Proto;
 
-common::ComponentBuilder < SurfaceIntegral, common::Action, LibUFEM > SurfaceIntegral_Builder;
+common::ComponentBuilder < BulkVelocity, common::Action, LibUFEM > BulkVelocity_Builder;
 
-SurfaceIntegral::SurfaceIntegral(const std::string& name) :
+BulkVelocity::BulkVelocity(const std::string& name) :
   ProtoAction(name),
   m_changing_result(false)
 {    
@@ -55,69 +55,45 @@ SurfaceIntegral::SurfaceIntegral(const std::string& name) :
       .mark_basic();
       
   regist_signal ( "set_field" )
-    .connect( boost::bind ( &SurfaceIntegral::signal_set_field, this, _1 ) )
+    .connect( boost::bind ( &BulkVelocity::signal_set_field, this, _1 ) )
     .description( "Set up the model using a specific solver" )
     .pretty_name( "Setup" )
-    .signature( boost::bind ( &SurfaceIntegral::signature_set_field, this, _1 ) );
+    .signature( boost::bind ( &BulkVelocity::signature_set_field, this, _1 ) );
+  
+  options().add("result", 0.)
+    .pretty_name("Result")
+    .description("Result of the last bulk velocity computation")
+    .mark_basic()
+    .attach_trigger(boost::bind(&BulkVelocity::trigger_result, this));
 }
 
-SurfaceIntegral::~SurfaceIntegral()
+BulkVelocity::~BulkVelocity()
 {
 }
 
-void SurfaceIntegral::set_field(const std::string& variable_name, const std::string& tag)
+void BulkVelocity::set_field(const std::string& variable_name, const std::string& tag)
 {
   using boost::proto::lit;
-  
-  const Uint dim = physical_model().ndim();
-  if(options().check("result"))
-    options().erase("result");
 
   typedef boost::mpl::vector6<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Quad3D, mesh::LagrangeP1::Triag3D, mesh::LagrangeP0::Line, mesh::LagrangeP0::Quad, mesh::LagrangeP0::Triag> element_types;
   
   // Indicate is an element is a owned by the current process
+  FieldVariable<0, VectorField> v(variable_name, tag); // The velocity
   FieldVariable<1, ScalarField> local("is_local_element", "surface_integrator", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
-
-  math::VariablesDescriptor& descriptor = common::find_component_with_tag<math::VariablesDescriptor>(physical_model().variable_manager(), tag);
-  if(descriptor.dimensionality(variable_name) == math::VariablesDescriptor::Dimensionalities::SCALAR)
-  {
-    if(dim == 1)
-      options().add("result", 0.).pretty_name("Result").description("Result of the last integral computation").mark_basic().attach_trigger(boost::bind(&SurfaceIntegral::trigger_result, this));
-    else
-      options().add("result", std::vector<Real>(dim)).pretty_name("Result").description("Result of the last integral computation").mark_basic().attach_trigger(boost::bind(&SurfaceIntegral::trigger_result, this));
-    
-    FieldVariable<0, ScalarField> s(variable_name, tag);
-    
-    m_integral_value.resize(dim);
-    m_integral_value.setZero();
-    
-    set_expression(elements_expression(element_types(),
-      lit(m_integral_value) += local*integral<1>(s * normal)));
-  }
-  else if(descriptor.dimensionality(variable_name) == math::VariablesDescriptor::Dimensionalities::VECTOR)
-  {
-    m_integral_value.resize(1);
-    m_integral_value.setZero();
-    options().add("result", 0.).pretty_name("Result").description("Result of the last integral computation").mark_basic().attach_trigger(boost::bind(&SurfaceIntegral::trigger_result, this));
-    
-    FieldVariable<0, VectorField> v(variable_name, tag);
-    
-    set_expression(elements_expression(element_types(),
-      lit(m_integral_value) += local*integral<1>(v * normal)));
-  }
-  else
-  {
-    throw common::SetupError(FromHere(), "Variable type " + math::VariablesDescriptor::Dimensionalities::Convert::instance().to_str(descriptor.dimensionality(variable_name)) + " for variable " + variable_name + " is neither SCALAR nor VECTOR");
-  }
+  
+  set_expression(elements_expression(element_types(), group(
+    lit(m_integral_value) += local*integral<1>(v * normal)[0],
+    lit(m_area) += local*integral<1>(_norm(normal))
+  )));
 }
 
-void SurfaceIntegral::signal_set_field(common::SignalArgs& args)
+void BulkVelocity::signal_set_field(common::SignalArgs& args)
 {
   common::XML::SignalOptions options(args);
   set_field(options.value<std::string>("variable_name"), options.value<std::string>("field_tag"));
 }
 
-void SurfaceIntegral::signature_set_field(common::SignalArgs& args)
+void BulkVelocity::signature_set_field(common::SignalArgs& args)
 {
   common::XML::SignalOptions options(args);
   
@@ -131,12 +107,14 @@ void SurfaceIntegral::signature_set_field(common::SignalArgs& args)
 }
 
 
-void SurfaceIntegral::execute()
+void BulkVelocity::execute()
 {
-  m_integral_value.setZero();
+  m_integral_value = 0.;
+  m_area = 0.;
+  
   if(m_loop_regions.empty())
   {
-    CFwarn << "SurfaceIntegral has no regions" << CFendl;
+    CFwarn << "BulkVelocity has no regions" << CFendl;
     return;
   }
 
@@ -165,33 +143,29 @@ void SurfaceIntegral::execute()
 
   solver::actions::Proto::ProtoAction::execute();
   
-  const Uint dim = m_integral_value.size();
-  
-  std::vector<Real> local_v(dim);
-  for(Uint i = 0; i != dim; ++i)
-    local_v[i] = m_integral_value[i];
-  std::vector<Real> global_v(local_v.begin(), local_v.end());
+  //TODO: Stop this from counting overlapping faces twice
+  Real global_integral = m_integral_value;
+  Real global_area = m_area;
   
   if(common::PE::Comm::instance().is_active())
   {
-    common::PE::Comm::instance().all_reduce(common::PE::plus(), local_v, global_v);
+    common::PE::Comm::instance().all_reduce(common::PE::plus(), &m_integral_value, 1, &global_integral);
+    common::PE::Comm::instance().all_reduce(common::PE::plus(), &m_area, 1, &global_area);
   }
+  m_result = global_integral / global_area;
 
   m_changing_result = true;
-  if(dim == 1)
-    options().set("result", global_v[0]);
-  else
-    options().set("result", global_v);
+  options().set("result", m_result);
   m_changing_result = false;
   
   if(is_not_null(m_history))
   {
-    m_history->set(m_variable_name, global_v);
+    m_history->set("bulk_velocity", m_result);
     m_history->save_entry();
   }
 }
 
-void SurfaceIntegral::trigger_result()
+void BulkVelocity::trigger_result()
 {
   if(!m_changing_result)
     throw common::BadValue(FromHere(), "Option result was changed, but this is not allowed!");
