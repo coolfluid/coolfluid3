@@ -18,6 +18,8 @@ add_subdirectory(ns_semi_implicit)
 list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.hpp
   AdjacentCellToFace.cpp
+  AdjustForceTerm.hpp
+  AdjustForceTerm.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp

@@ -212,7 +212,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
                        (
                         _A = _0, _T = _0,
-                        UFEM::compute_tau(u_adv, nu_eff, tau_su),
+                        UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
                         compute_sa_coeffs(u_adv, NU, d, m_sa_coeffs, nu_lam),
                         element_quadrature
                         (
@@ -220,8 +220,8 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
                              transpose(N(NU)) * u_adv * nabla(NU) + tau_su * transpose(u_adv*nabla(NU)) * u_adv * nabla(NU)                             // advection terms
                              - cb1 * transpose(N(NU)) * N(NU) *  m_sa_coeffs.shat                                                                                   // production
 
-                               + cw1*((transpose(N(NU))*N(NU) * NU) * lit(m_sa_coeffs.one_over_D_squared)) * (m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)      // cw1 * fw * (NU_hat/d)^2
-                               - m_sa_coeffs.min)) * _pow(((1+_pow(cw3,6))/(_pow((m_sa_coeffs.min + cw2*(_pow(m_sa_coeffs.min,6)-m_sa_coeffs.min)),6)+_pow(cw3,6))),1/6)            // destruction
+                               + cw1*((transpose(N(NU))*N(NU) * NU) * lit(m_sa_coeffs.one_over_D_squared)) * (m_sa_coeffs.min + cw2*(_pow(lit(m_sa_coeffs.min),6)      // cw1 * fw * (NU_hat/d)^2
+                               - m_sa_coeffs.min)) * _pow(((1+_pow(cw3,6))/(_pow((lit(m_sa_coeffs.min) + cw2*(_pow(lit(m_sa_coeffs.min),6)-m_sa_coeffs.min)),6)+_pow(lit(cw3),6))),1/6)            // destruction
 
                              + one_over_sigma * ((NU + mu) * transpose(nabla(NU)) * nabla(NU))                                                               // diffusion: (NU+NU_hat) partial NU_hat to xj to xj
                              - one_over_sigma * (cb2) * transpose(N(NU)) * transpose(nabla(NU) * nodal_values(NU))*nabla(NU),                                            // diffusion: nabla(NU)^2 times the weight function
