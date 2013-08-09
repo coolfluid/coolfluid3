@@ -30,10 +30,10 @@ namespace Consts
   inline Real e()   { return 1.60217646e-19; }
   /// Definition of Avogadro's constant [1/mol]
   inline Real NA()  { return 6.02214199e23; }
-  /// Definition of the Faraday's constant [C/mol]   ( = e() * NA() )
-  inline Real F()   { return 96485.341352; }
-  /// Definition of the ideal gas constant [J/mol K] ( = kb() * NA() )
-  inline Real R()   { return 8.3144721451; }
+  /// Definition of the Faraday's constant [C/mol]
+  inline Real F()   { return e() * NA(); }
+  /// Definition of the ideal gas constant [J/mol K]
+  inline Real R()   { return kB() * NA(); }
   /// Definition of the Euler gamma
   inline Real gamma() { return 0.57721566; }
 }
