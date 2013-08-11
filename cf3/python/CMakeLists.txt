@@ -10,6 +10,8 @@ if( CF3_HAVE_PYTHON )
       TableWrapper.cpp
       LibPython.hpp
       LibPython.cpp
+      Math.hpp
+      Math.cpp
       MatrixWrappers.hpp
       MatrixWrappers.cpp
       PythonAny.hpp
@@ -25,6 +27,8 @@ if( CF3_HAVE_PYTHON )
       NetworkXPython.cpp
       TestAllOptions.hpp
       TestAllOptions.cpp
+      TestSignals.hpp
+      TestSignals.cpp
     )
 
     coolfluid3_add_library( TARGET  coolfluid_python
