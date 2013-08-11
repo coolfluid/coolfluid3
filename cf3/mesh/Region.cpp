@@ -75,7 +75,7 @@ Elements& Region::create_elements(const std::string& element_type_name, Dictiona
     else if (elem_type->dimensionality() == elem_type->dimension()-2)
       elements = create_component<Edges>(name);
     else
-      throw NotImplemented(FromHere(), "Point elements are not implemented yet");
+      elements = create_component<Elements>("Point");
 
     elements->initialize(element_type_name,nodes);
 
