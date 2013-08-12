@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -52,7 +53,7 @@ void TimeSeriesWriter::execute()
   if(current_iter % m_interval != 0)
     return;
 
-  const std::string current_time_str = common::to_str(m_time->current_time());
+  const std::string current_time_str = boost::lexical_cast<std::string>(m_time->current_time());
   const std::string current_iter_str = common::to_str(current_iter);
 
 
