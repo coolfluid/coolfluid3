@@ -9,10 +9,16 @@ list( APPEND coolfluid_common_files
     AllocatedComponent.cpp
     ArrayBase.hpp
     ArrayBufferT.hpp
+    ArrayDiff.hpp
+    ArrayDiff.cpp
     Assertions.cpp
     Assertions.hpp
     BasicExceptions.cpp
     BasicExceptions.hpp
+    BinaryDataReader.hpp
+    BinaryDataReader.cpp
+    BinaryDataWriter.hpp
+    BinaryDataWriter.cpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostAnyConversion.cpp

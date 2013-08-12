@@ -552,7 +552,7 @@ public:
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_elements_begin(m_field.dict().space(elements).connectivity()[0][0]),
+    m_elements_begin(m_field.dict().space(elements).size() ? m_field.dict().space(elements).connectivity()[0][0] : 0),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }
@@ -625,7 +625,7 @@ public:
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_elements_begin(m_field.dict().space(elements).connectivity()[0][0]),
+    m_elements_begin(m_field.dict().space(elements).size() ? m_field.dict().space(elements).connectivity()[0][0] : 0),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }

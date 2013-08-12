@@ -119,10 +119,6 @@ struct InnerLoop : solver::Action
       u_lss->rhs()->reset(0.);
       // Velocity system: compute delta_a_star
       m_u_rhs_assembly->execute();
-      if(is_not_null(body_force))
-      {
-        u_lss->rhs()->update(*body_force);
-      }
       if(i == 0) // Apply velocity BC the first inner iteration
       {
         u_lss->rhs()->scale(m_time->dt());
@@ -213,7 +209,6 @@ struct InnerLoop : solver::Action
   Handle< math::LSS::Vector > u;
   Handle< math::LSS::Vector > a;
   Handle< math::LSS::Vector > p;
-  Handle< math::LSS::Vector > body_force;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > delta_a;
   Teuchos::RCP<Thyra::MultiVectorBase<Real> > aup_delta_p; // This is actually u_lss->rhs()
   Handle< math::LSS::Vector > delta_p_sum;
@@ -266,23 +261,6 @@ struct SetupInnerLoopData : solver::Action
       inner_loop->m_p_strategy_second->set_rhs(inner_loop->p_lss->rhs());
       inner_loop->m_p_strategy_second->mark_basic();
     }
-
-    Handle<NavierStokesSemiImplicit> semi_parent = common::find_parent_component_ptr<NavierStokesSemiImplicit>(*inner_loop);
-    cf3_assert(is_not_null(semi_parent));
-    // Store the body force field in a vector that is assumed to be time-independent
-    // This is easy enough to change, but for now time-dependent body forces are not needed
-    if(semi_parent->options().value<bool>("enable_body_force"))
-    {
-      inner_loop->u_lss->rhs()->reset(0.);
-      
-      Handle<ProtoAction> assemble_force_term(get_child("AssembleForceTerm"));
-      cf3_assert(is_not_null(assemble_force_term));
-      assemble_force_term->execute();
-
-      inner_loop->body_force = detail::create_vector(*inner_loop->u_lss, "BodyForce");
-      inner_loop->body_force->assign(*inner_loop->u_lss->rhs());
-    }
-
   }
 
   Handle<InnerLoop> inner_loop;
@@ -302,6 +280,9 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u_ref("reference_velocity"),
   nu("kinematic_viscosity")
 {
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");
+  properties().add("restart_field_tags", restart_field_tags);
+  
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
@@ -332,6 +313,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   options().add("enable_body_force", false)
     .pretty_name("Enable Force Term")
     .description("Activate the volume force term")
+    .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
@@ -406,6 +388,11 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
   lin_vel_ic->add_tag(detail::my_tag());
 
+  // This is the place to add any readers for restarting
+  Handle<InitialConditions> restart_ic(m_initial_conditions->create_initial_condition("Restarts", "cf3.UFEM.InitialConditions"));
+  restart_ic->mark_basic();
+  restart_ic->add_tag(detail::my_tag());
+
   Handle<math::LSS::System> u_lss(m_u_lss->get_child("LSS"));
   
   if(is_not_null(m_pressure_assembly))
@@ -427,40 +414,11 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   Handle<SetupInnerLoopData> setup_inner = m_initial_conditions->create_component<SetupInnerLoopData>("SetupInnerLoopData");
   setup_inner->inner_loop = inner_loop;
   
-  
-  set_elements_expressions_quad();
-  set_elements_expressions_triag();
-  set_elements_expressions_hexa();
-  set_elements_expressions_prism();
-  set_elements_expressions_tetra();
+  trigger_reset_assembly();
 }
 
 void NavierStokesSemiImplicit::on_regions_set()
-{  
-  if(is_not_null(m_initial_conditions))
-  {
-    if(options().value<bool>("enable_body_force"))
-    {
-      FieldVariable<7, VectorField> g("Force", "body_force");
-      
-      Handle<SetupInnerLoopData> setup_inner(m_initial_conditions->get_child("SetupInnerLoopData"));
-      cf3_assert(is_not_null(setup_inner));
-      
-      Handle<ProtoAction> assemble_force_term = setup_inner->create_component<ProtoAction>("AssembleForceTerm");
-      assemble_force_term->set_expression(elements_expression(boost::mpl::vector5<mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Prism3D>(), group
-      (
-        _A(u,u) = _0, _a = _0,
-        element_quadrature
-        (
-          _a[u[_i]] += transpose(N(u)) * g[_i]
-        ),
-        m_u_lss->system_rhs += _a
-      )));
-      
-      assemble_force_term->add_tag(detail::my_tag());
-    }
-  }
-  
+{
   BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*this, detail::my_tag()))
   {
     comp.configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
@@ -528,8 +486,6 @@ void NavierStokesSemiImplicit::on_regions_set()
   delta_a.op.set_vector(u_lss->solution(), *u_lss);
   delta_p.op.set_vector(p_lss->solution(), *p_lss);
   delta_p_sum.op.set_vector(inner_loop->delta_p_sum, *p_lss);
-  
-  
 }
 
 void NavierStokesSemiImplicit::trigger_theta()
@@ -555,6 +511,21 @@ void NavierStokesSemiImplicit::trigger_time()
 void NavierStokesSemiImplicit::trigger_timestep()
 {
   dt = m_time->dt();
+}
+
+void NavierStokesSemiImplicit::trigger_reset_assembly()
+{
+  m_mass_matrix_assembly->clear();
+  m_velocity_assembly->clear();
+  m_inner_loop->get_child("URHSAssembly")->clear();
+  m_inner_loop->get_child("PRHSAssembly")->clear();
+  m_inner_loop->get_child("ApplyAup")->clear();
+  
+  set_elements_expressions_quad();
+  set_elements_expressions_triag();
+  set_elements_expressions_hexa();
+  set_elements_expressions_prism();
+  set_elements_expressions_tetra();
 }
 
 } // UFEM

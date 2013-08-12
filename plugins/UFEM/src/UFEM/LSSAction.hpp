@@ -7,6 +7,8 @@
 #ifndef cf3_UFEM_LSSAction_hpp
 #define cf3_UFEM_LSSAction_hpp
 
+#include <boost/scoped_ptr.hpp>
+
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 

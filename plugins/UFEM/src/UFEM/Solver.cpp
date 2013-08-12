@@ -11,6 +11,7 @@
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
 #include <common/EventHandler.hpp>
+#include <common/PropertyList.hpp>
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -35,6 +36,7 @@
 #include "Solver.hpp"
 #include "SparsityBuilder.hpp"
 #include "Tags.hpp"
+#include "WriteRestartManager.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -47,6 +49,25 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 
 common::ComponentBuilder < UFEM::Solver, solver::Solver, LibUFEM > UFEMSolver_Builder;
+
+namespace detail
+{
+  
+/// Get the timeloop, creating it if needed
+Handle<Component> timeloop(Component& parent)
+{
+  Handle<Component> timeloop = parent.get_child("TimeLoop");
+  if(is_null(timeloop))
+  {
+    timeloop = parent.create_component("TimeLoop", "cf3.solver.actions.Iterate");
+    timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
+    timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
+    timeloop->mark_basic();
+  }
+  return timeloop;
+}
+
+}
 
 Solver::Solver(const std::string& name) :
   SimpleSolver(name),
@@ -75,6 +96,11 @@ Solver::Solver(const std::string& name) :
     .description("Create an iteration solver, solving a linear system more than once every time step")
     .pretty_name("Create iteration Solver")
     .signature( boost::bind ( &Solver::signature_add_solver, this, _1) );
+    
+  regist_signal( "add_restart_writer" )
+    .connect( boost::bind( &Solver::signal_add_restart_writer, this, _1 ) )
+    .description("Create a component that writes restart information for all solvers added up to now.")
+    .pretty_name("Add restart writer");
 
   regist_signal( "create_initial_conditions" )
     .connect( boost::bind( &Solver::signal_create_initial_conditions, this, _1 ) )
@@ -116,20 +142,22 @@ Handle< common::Action > Solver::add_unsteady_solver(const std::string& builder_
     create_initial_conditions();
   }
 
-  Handle<Component> timeloop = get_child("TimeLoop");
-  if(is_null(timeloop))
+  Handle<Component> timeloop = detail::timeloop(*this);
+  std::vector< boost::shared_ptr<Component> > removed_components;
+  BOOST_FOREACH(Component& comp, *timeloop)
   {
-    timeloop = create_component("TimeLoop", "cf3.solver.actions.Iterate");
-    timeloop->create_component("CriterionTime", "cf3.solver.CriterionTime");
-  }
-  else
-  {
-    timeloop->remove_component("AdvanceTime");
+    if(comp.name() == "AdvanceTime" || !removed_components.empty())
+      removed_components.push_back(timeloop->remove_component(comp.name()));
   }
 
+  // insert new component before the AdvanceTime
   Handle<common::Action> result = add_solver(builder_name, *timeloop);
 
-  timeloop->create_component("AdvanceTime", "cf3.solver.actions.AdvanceTime");
+  // add back AdvanceTime and anything after it
+  BOOST_FOREACH(const boost::shared_ptr<Component> comp, removed_components)
+  {
+    timeloop->add_component(comp);
+  }
 
   return result;
 }
@@ -196,6 +224,27 @@ Handle< common::Action > Solver::add_iteration_solver(const std::string& builder
   return result;
 }
 
+Handle< common::Action > Solver::add_restart_writer()
+{
+  std::vector<std::string> field_tags;
+  BOOST_FOREACH(const common::Action& action, common::find_components_recursively<common::Action>(*this))
+  {
+    if(action.properties().check("restart_field_tags"))
+    {
+      const std::vector<std::string> restart_field_tags = action.properties().value< std::vector<std::string> >("restart_field_tags");
+      field_tags.insert(field_tags.end(), restart_field_tags.begin(), restart_field_tags.end());
+    }
+  }
+  
+  Handle<common::Action> writer = add_solver("cf3.UFEM.WriteRestartManager", *detail::timeloop(*this));
+  writer->options().set("field_tags", field_tags);
+  if(!m_need_field_creation)
+    writer->options().set("mesh", m_mesh);
+  
+  return writer;
+}
+
+
 Handle<InitialConditions> Solver::create_initial_conditions()
 {
   if(is_not_null(m_initial_conditions))
@@ -260,6 +309,17 @@ void Solver::signal_add_iteration_solver(SignalArgs& args)
   SignalOptions reply_options(reply);
   reply_options.add("created_component", result->uri());
 }
+
+void Solver::signal_add_restart_writer ( SignalArgs& args )
+{
+  SignalOptions options(args);
+  Handle<common::Action> result = add_restart_writer();
+  
+  SignalFrame reply = args.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", result->uri());
+}
+
 
 void Solver::signal_create_initial_conditions(SignalArgs& args)
 {
@@ -395,6 +455,11 @@ void Solver::create_fields()
       field->parallelize_with(dict->comm_pattern());
     }
   }
+  
+  BOOST_FOREACH(WriteRestartManager& writer, common::find_components_recursively<WriteRestartManager>(*this))
+  {
+    writer.options().set("mesh", m_mesh);
+  }
 
   m_need_field_creation = false;
 }
@@ -472,6 +537,43 @@ void Solver::signature_add_probe ( SignalArgs& args )
 void Solver::execute()
 {
   create_fields();
+  common::PE::Comm& comm = common::PE::Comm::instance();
+  if(comm.is_active())
+  {
+    Uint nb_owned_nodes = 0;
+    Uint nb_ghost_nodes = 0;
+    BOOST_FOREACH(const Uint rank, mesh().geometry_fields().rank().array())
+    {
+      if(rank == comm.rank())
+        ++nb_owned_nodes;
+      else
+        ++nb_ghost_nodes;
+    }
+    
+    std::vector<Uint> owned_recv;
+    std::vector<Uint> ghost_recv;
+    
+    comm.all_gather(nb_owned_nodes, owned_recv);
+    comm.all_gather(nb_ghost_nodes, ghost_recv);
+    if(comm.rank() == 0)
+    {
+      const Uint total_nb_owned = std::accumulate(owned_recv.begin(),owned_recv.end(),0);
+      CFinfo << "Parallel node distribution:" << CFendl;
+      Uint min_nb_nodes = nb_owned_nodes;
+      Uint max_nb_nodes = 0;
+      for(Uint i = 0; i != comm.size(); ++i)
+      {
+        min_nb_nodes = owned_recv[i] < min_nb_nodes ? owned_recv[i] : min_nb_nodes;
+        max_nb_nodes = owned_recv[i] > max_nb_nodes ? owned_recv[i] : max_nb_nodes;
+        CFinfo << "  rank " << i << ": " << owned_recv[i] << " nodes (" << static_cast<Real>(owned_recv[i]) / static_cast<Real>(total_nb_owned)*100. << "%) with " << ghost_recv[i] << " ghosts" << CFendl;
+      }
+      CFinfo << "  maximum: " << max_nb_nodes << "(" << static_cast<Real>(max_nb_nodes) / static_cast<Real>(total_nb_owned)*100. << "%), minimum: " << min_nb_nodes << "(" << static_cast<Real>(min_nb_nodes) / static_cast<Real>(total_nb_owned)*100. << "%)" << CFendl;
+    }
+  }
+  else
+  {
+    CFinfo << "Running the solver over a mesh with " << mesh().geometry_fields().size() << " nodes." << CFendl;
+  }
   solver::SimpleSolver::execute();
 }
 

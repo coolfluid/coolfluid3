@@ -94,7 +94,11 @@ coolfluid_add_test( ATEST atest-ufem-ns-driven-cavity
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-taylor-green
                     PYTHON atest-ufem-navier-stokes-taylor-green.py
                     MPI 4
-                    ARGUMENTS --dt=0.004 --elem=quad --segs=64 --theta=0.5 --tsteps=5)
+                    ARGUMENTS --dt=0.004 --elem=quad --segs=32 --theta=0.5 --tsteps=5)
+
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-restart
+                    PYTHON atest-ufem-navier-stokes-restart.py
+                    MPI 2)
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-semi-implicit-laminar-channel-2d.py
@@ -132,3 +136,7 @@ coolfluid_add_test( UTEST utest-ufem-teko-blocks
                     CPP utest-ufem-teko-blocks.cpp
                     LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
                     MPI 1)
+                    
+coolfluid_add_test(UTEST utest-ufem-surfaceintegral
+                   PYTHON utest-ufem-surfaceintegral.py
+                   MPI 4)

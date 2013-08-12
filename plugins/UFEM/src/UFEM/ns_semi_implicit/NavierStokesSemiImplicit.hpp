@@ -54,6 +54,7 @@ private:
   void trigger_nb_iterations();
   void trigger_time();
   void trigger_timestep();
+  void trigger_reset_assembly();
   
   virtual void on_regions_set();
   

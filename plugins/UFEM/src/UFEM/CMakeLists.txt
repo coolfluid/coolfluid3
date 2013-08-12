@@ -18,6 +18,8 @@ add_subdirectory(ns_semi_implicit)
 list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.hpp
   AdjacentCellToFace.cpp
+  AdjustForceTerm.hpp
+  AdjustForceTerm.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp
@@ -26,6 +28,8 @@ list( APPEND coolfluid_ufem_files
   BoundaryConditions.cpp
   BoussinesqAssembly.hpp
   BoussinesqAssemblyExtended.hpp
+  BulkVelocity.hpp
+  BulkVelocity.cpp
   ComputeCFL.hpp
   ComputeCFL.cpp
   CouplingIterationControl.cpp
@@ -82,6 +86,8 @@ list( APPEND coolfluid_ufem_files
   SUPG.hpp
   Tags.hpp
   Tags.cpp
+  WriteRestartManager.hpp
+  WriteRestartManager.cpp
 
   ns_semi_implicit/LSSVectorOps.hpp
   ns_semi_implicit/MatrixAssembly.hpp

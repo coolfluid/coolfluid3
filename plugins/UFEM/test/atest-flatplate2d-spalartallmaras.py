@@ -113,6 +113,12 @@ physics.density = 1.2
 physics.dynamic_viscosity = 1.7894e-5
 physics.reference_velocity = u_in[0]
 
+# Compute the wall distance
+wall_distance = domain.create_component('WallDistance', 'cf3.mesh.actions.WallDistance')
+wall_distance.mesh = mesh
+wall_distance.regions = [mesh.topology.bottom1, mesh.topology.bottom2]
+wall_distance.execute()
+
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)

@@ -82,7 +82,7 @@ Line1D::MappedCoordsT Line1D::mapped_coordinate(const CoordsT& coord, const Node
 
 Real Line1D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes)
 {
-  return (mapped_coord[KSI]-0.5)*nodes[0] + (mapped_coord[KSI]+0.5)*nodes[1] + 2.*mapped_coord[KSI]*nodes[2];
+  return (mapped_coord[KSI]-0.5)*nodes[0] + (mapped_coord[KSI]+0.5)*nodes[1] - 2.*mapped_coord[KSI]*nodes[2];
 }
 
 void Line1D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)

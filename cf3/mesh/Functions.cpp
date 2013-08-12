@@ -21,7 +21,7 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links)
+boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Handle<Entities const> >& entities_vector, const Dictionary& dictionary, const bool include_ghost_elems, const bool follow_periodic_links)
 {
   boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
 
@@ -35,7 +35,6 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   const List<bool>* periodic_links_active = dynamic_cast< const List<bool>* >(dictionary.get_child("periodic_links_active").get());
 
   // First count the number of unique nodes
-  Uint nb_nodes = 0;
   boost_foreach(const Handle<Entities const>& entities, entities_vector)
   {
     const Space& space = entities->space(dictionary);
@@ -52,64 +51,56 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
           if(!node_is_used[node])
           {
             node_is_used[node] = true;
-            ++nb_nodes;
-          }
-          if(follow_periodic_links && periodic_links_active)
-          {
-            Uint tgt_node = node;
-            while((*periodic_links_active)[tgt_node])
-            {
-              tgt_node = (*periodic_links_nodes)[tgt_node];
-              if(!node_is_used[tgt_node])
-              {
-                node_is_used[tgt_node] = true;
-                ++nb_nodes;
-              }
-            }
           }
         }
       }
     }
   }
-
-  // reserve space for all unique nodes
-  used_nodes->resize(nb_nodes);
-  common::List<Uint>::ListT& nodes_array = used_nodes->array();
-
-  // Add the unique node indices
-  node_is_used.assign(all_nb_nodes, false);
-  Uint back = 0;
-  boost_foreach(const Handle<Entities const>& entities, entities_vector)
+  
+  if(follow_periodic_links && periodic_links_active)
   {
-    const Space& space = entities->space(dictionary);
-    const Uint nb_elems = space.size();
-    for (Uint idx=0; idx<nb_elems; ++idx)
+    const List<Uint>& per_links = *periodic_links_nodes;
+    const List<bool>& per_active = *periodic_links_active;
+    // Any node connected periodically to a used node is also used. This needs to be done multiple times for multiple periodic links
+    bool update = true;
+    Uint counter = 0;
+    while(update)
     {
-      // Don't include ghost-elements if not requested
-      if(include_ghost_elems || entities->is_ghost(idx) == false)
+      update = false;
+      cf3_always_assert(counter < 4);
+      for(Uint i = 0; i != all_nb_nodes; ++i)
       {
-        boost_foreach(const Uint node, space.connectivity()[idx])
+        if(!per_active[i])
+          continue;
+        if(node_is_used[i] && !node_is_used[per_links[i]])
         {
-          if(!node_is_used[node])
-          {
-            node_is_used[node] = true;
-            nodes_array[back++] = node;
-          }
-          if(follow_periodic_links && periodic_links_active)
-          {
-            Uint tgt_node = node;
-            while((*periodic_links_active)[tgt_node])
-            {
-              tgt_node = (*periodic_links_nodes)[tgt_node];
-              if(!node_is_used[tgt_node])
-              {
-                node_is_used[tgt_node] = true;
-                nodes_array[back++] = tgt_node;
-              }
-            }
-          }
+          update = true;
+          node_is_used[per_links[i]] = true;
+        }
+        if(node_is_used[per_links[i]] && !node_is_used[i])
+        {
+          update = true;
+          node_is_used[i] = true;
         }
       }
+      ++counter;
+    }
+  }
+
+  // reserve space for all unique nodes
+  const Uint nb_used_nodes = std::count(node_is_used.begin(), node_is_used.end(), true);
+  used_nodes->resize(nb_used_nodes);
+  common::List<Uint>::ListT& nodes_array = used_nodes->array();
+  
+
+  // Add the unique node indices
+  Uint back = 0;
+  for(Uint i = 0; i != all_nb_nodes; ++i)
+  {
+    if(node_is_used[i])
+    {
+      cf3_assert(back < nb_used_nodes);
+      nodes_array[back++] = i;
     }
   }
 
@@ -119,7 +110,7 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component& node_user, const Dictionary& dictionary, bool include_ghost_elems, const bool follow_periodic_links)
+boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component& node_user, const Dictionary& dictionary, const bool include_ghost_elems, const bool follow_periodic_links)
 {
   std::vector< Handle<Entities const> > entities_vector;
   if (Handle<Entities const> entities_h = node_user.handle<Entities>())

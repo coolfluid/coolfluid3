@@ -82,7 +82,8 @@ void LoadMesh::update_list_of_available_readers()
     ("cf3.mesh.CGNS.Reader")
   #endif
     ("cf3.mesh.gmsh.Reader")
-    ("cf3.mesh.neu.Reader");
+    ("cf3.mesh.neu.Reader")
+    ("cf3.mesh.cf3mesh.Reader");
 
   boost_foreach(const std::string& reader_name, known_readers)
   {
@@ -92,7 +93,10 @@ void LoadMesh::update_list_of_available_readers()
     boost::shared_ptr<MeshReader> reader = boost::dynamic_pointer_cast<MeshReader>(build_component_nothrow(reader_name, reader_name));
     
     if(is_null(reader))
+    {
+      CFdebug << "Reader " << reader_name << " is not available" << CFendl;
       continue;
+    }
     
     add_component(reader);
   
