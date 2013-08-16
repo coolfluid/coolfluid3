@@ -247,9 +247,9 @@ coolfluid_add_test( UTEST utest-parallel-field
                     CPP utest-parallel-field.cpp
                     LIBS coolfluid_mesh_actions
                          coolfluid_mesh_lagrangep1
-                         coolfluid_mesh_lagrangep2)
-                     MPI 2
-                     CONDITION coolfluid_mesh_zoltan_builds OR coolfluid_mesh_ptscotch_builds )
+                         coolfluid_mesh_lagrangep2
+                    MPI 2
+                    CONDITION coolfluid_mesh_zoltan_builds OR coolfluid_mesh_ptscotch_builds )
 
 
 coolfluid_add_test( UTEST    utest-mesh-loadmesh
