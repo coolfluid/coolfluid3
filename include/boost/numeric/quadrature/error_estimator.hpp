@@ -22,6 +22,7 @@
 #include "boost/math/tools/precision.hpp"
 
 #include <cmath>
+#include <iomanip>
 
 namespace boost
 {
