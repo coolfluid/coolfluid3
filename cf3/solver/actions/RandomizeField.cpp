@@ -106,7 +106,7 @@ void RandomizeField::execute()
   const std::vector<Real> minimum_values = detail::get_vector(*this, "minimum_values", var_length);
   
   boost::random::mt19937 gen(common::PE::Comm::instance().rank());
-  boost::random::uniform_real_distribution<Real> dist(0., 1.);
+  boost::random::uniform_real_distribution<Real> dist(-1., 1.);
   
   const Uint nb_rows = field.size();
   for(Uint i = 0; i != nb_rows; ++i)
