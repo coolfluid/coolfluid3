@@ -38,6 +38,8 @@ list( APPEND coolfluid_solver_actions_files
   ParallelDataToFields.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
+  RandomizeField.hpp
+  RandomizeField.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
