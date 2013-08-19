@@ -53,22 +53,33 @@ public: // functions
   std::string shape_name() const { return mesh::GeoShape::Convert::instance().to_str( shape() ); }
 
   /// @return shape as enumerator
-  virtual GeoShape::Type shape() const = 0;
+  GeoShape::Type shape() const { return m_shape; }
 
   /// @return number of nodes
-  virtual Uint nb_nodes() const = 0;
+  Uint nb_nodes() const { return m_nb_nodes; }
 
   /// @return Order of the quadrature (exact integration of polynomials of this order)
-  virtual Uint order() const = 0;
+  Uint order() const { return m_order; }
 
   /// @return dimensionality (e.g. shell in 3D world: dimensionality = 2)
-  virtual Uint dimensionality() const = 0;
+  Uint dimensionality() const { return m_dimensionality; }
 
   /// @return a matrix with all local coordinates where the quadrature weights are defined
-  virtual const RealMatrix& local_coordinates() const = 0;
+  const RealMatrix& local_coordinates() const { return m_local_coordinates; }
 
   /// @return a matrix with all local coordinates where the quadrature weights are defined
-  virtual const RealRowVector& weights() const = 0;
+  const RealRowVector& weights() const { return m_weights; }
+
+  //@}
+
+protected:
+
+  GeoShape::Type m_shape;
+  Uint m_nb_nodes;
+  Uint m_order;
+  Uint m_dimensionality;
+  RealMatrix m_local_coordinates;
+  RealRowVector m_weights;
 
 }; // Quadrature
 

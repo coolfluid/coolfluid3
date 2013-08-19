@@ -47,11 +47,19 @@ public:
   /// Default constructor without arguments
   QuadratureT( const std::string& name = type_name() ) : Abstract(name)
   {
-    m_local_coordinates.resize(QDR::nb_nodes,QDR::dimensionality);
-    m_local_coordinates = QDR::local_coordinates();
+    Abstract::m_shape = QDR::shape;
 
-    m_weights.resize(QDR::nb_nodes);
-    m_weights = QDR::weights();
+    Abstract::m_order = QDR::order;
+
+    Abstract::m_nb_nodes = QDR::nb_nodes;
+
+    Abstract::m_dimensionality = QDR::dimensionality;
+
+    Abstract::m_local_coordinates.resize(QDR::nb_nodes,QDR::dimensionality);
+    Abstract::m_local_coordinates = QDR::local_coordinates();
+
+    Abstract::m_weights.resize(QDR::nb_nodes);
+    Abstract::m_weights = QDR::weights();
   }
 
   /// Default destructor
@@ -61,44 +69,6 @@ public:
   static std::string type_name() { return QDR::type_name(); }
 
   //@}
-
-  //  Accessor functions
-  //  ------------------------
-
-  virtual Uint nb_nodes() const
-  {
-    return QDR::nb_nodes;
-  }
-
-  virtual Uint order() const
-  {
-    return QDR::order;
-  }
-
-  virtual Uint dimensionality() const
-  {
-    return QDR::dimensionality;
-  }
-
-  virtual GeoShape::Type shape() const
-  {
-    return QDR::shape;
-  }
-
-  virtual const RealMatrix& local_coordinates() const
-  {
-    return m_local_coordinates;
-  }
-
-  virtual const RealRowVector& weights() const
-  {
-    return m_weights;
-  }
-
-private:
-
-  RealMatrix    m_local_coordinates;
-  RealRowVector m_weights;
 
 };
 
