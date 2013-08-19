@@ -65,7 +65,8 @@ coolfluid_add_test( UTEST     utest-solver-actions-timeseries
                     PYTHON    utest-solver-actions-timeseries.py)
 
 coolfluid_add_test( UTEST     utest-solver-actions-randomize
-                    PYTHON    utest-solver-actions-randomize.py)
+                    PYTHON    utest-solver-actions-randomize.py
+                    MPI 4)
 
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")

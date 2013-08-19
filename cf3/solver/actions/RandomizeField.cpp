@@ -105,7 +105,7 @@ void RandomizeField::execute()
   const std::vector<Real> maximum_values = detail::get_vector(*this, "maximum_values", var_length);
   const std::vector<Real> minimum_values = detail::get_vector(*this, "minimum_values", var_length);
   
-  boost::random::mt19937 gen;
+  boost::random::mt19937 gen(common::PE::Comm::instance().rank());
   boost::random::uniform_real_distribution<Real> dist(0., 1.);
   
   const Uint nb_rows = field.size();
@@ -118,6 +118,36 @@ void RandomizeField::execute()
       const Real new_value = value + ref_val*dist(gen)*maximum_variations[j];
       value = std::max(std::min(new_value, maximum_values[j]), minimum_values[j]);
     }
+  }
+  
+  // Sync periodic nodes
+  Handle< common::List<Uint> > periodic_links_nodes_h(field.parent()->get_child("periodic_links_nodes"));
+  Handle< common::List<bool> > periodic_links_active_h(field.parent()->get_child("periodic_links_active"));
+  if(is_not_null(periodic_links_active_h) && is_not_null(periodic_links_nodes_h))
+  {
+    const common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
+    const common::List<bool>& periodic_links_active = *periodic_links_active_h;
+    cf3_assert(nb_rows == periodic_links_nodes.size());
+    for(Uint i = 0; i != nb_rows; ++i)
+    {
+      Uint target_node = i;
+      while(periodic_links_active[target_node])
+      {
+        target_node = periodic_links_nodes[target_node];
+      }
+      if(i != target_node)
+      {
+        for(Uint j = 0; j != var_length; ++j)
+          field[i][var_begin+j] = field[target_node][var_begin+j];
+      }
+    }
+  }
+  
+  // Parallel sync
+  if(common::PE::Comm::instance().is_active())
+  {
+    field.parallelize();
+    field.synchronize();
   }
 }
 
