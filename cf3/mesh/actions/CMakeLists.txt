@@ -55,6 +55,8 @@ list( APPEND coolfluid_mesh_actions_files
   Rotate.cpp
   ShortestEdge.hpp
   ShortestEdge.cpp
+  SurfaceIntegral.hpp
+  SurfaceIntegral.cpp
   Translate.hpp
   Translate.cpp
   WallDistance.hpp

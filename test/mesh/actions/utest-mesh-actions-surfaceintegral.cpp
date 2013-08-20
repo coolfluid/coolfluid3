@@ -1,0 +1,103 @@
+// Copyright (C) 2010-2013 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Tests mesh::actions::SurfaceIntegral"
+
+#include <boost/test/unit_test.hpp>
+
+#include "common/OptionList.hpp"
+#include "common/Core.hpp"
+
+#include "mesh/actions/CreateField.hpp"
+#include "mesh/actions/SurfaceIntegral.hpp"
+
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Dictionary.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::mesh;
+using namespace cf3::mesh::actions;
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct TestFixture
+{
+  /// common setup for each test case
+  TestFixture()
+  {
+    m_argc = boost::unit_test::framework::master_test_suite().argc;
+    m_argv = boost::unit_test::framework::master_test_suite().argv;
+  }
+
+  /// common tear-down for each test case
+  ~TestFixture()
+  {
+  }
+
+  /// possibly common functions used on the tests below
+
+  int m_argc;
+  char** m_argv;
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_SUITE( TestSuite, TestFixture )
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Initiate )
+{
+ Core::instance().initiate(m_argc,m_argv);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( IntegrateLine )
+{
+  // Create a P1 square mesh with side 10.
+  Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator");
+  mesh_generator->options().set("mesh",Core::instance().root().uri()/"mesh");
+  mesh_generator->options().set("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().set("nb_cells",std::vector<Uint>(2,5));
+  Mesh& mesh = mesh_generator->generate();
+
+  // Create a field with value 1. everywhere
+  boost::shared_ptr<CreateField> create_field = allocate_component<CreateField>("create_field");
+  std::vector<std::string> functions;
+  functions.push_back("f=1.");
+  create_field->options().set("functions",functions);
+  create_field->options().set("name",std::string("field"));
+  create_field->options().set("dict",mesh.geometry_fields().uri());
+  create_field->transform(mesh);
+  Field& field = *mesh.geometry_fields().get_child("field")->handle<Field>();
+  
+  // Integrate the field. It should return the total line length = 4*10.
+  boost::shared_ptr<SurfaceIntegral> surface_integral = allocate_component<SurfaceIntegral>("surface_integral");
+  surface_integral->options().set("order",1u);
+  Real integral = surface_integral->integrate(field, std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()) );
+  BOOST_CHECK_EQUAL(integral,40.);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Terminate )
+{
+  Core::instance().terminate();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_SUITE_END()
+
+////////////////////////////////////////////////////////////////////////////////
+
