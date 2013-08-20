@@ -6,6 +6,8 @@ list( APPEND coolfluid_mesh_gausslegendre_files
   Line.cpp
   Quad.hpp
   Quad.cpp
+  Hexa.hpp
+  Hexa.cpp
   Legendre.hpp
   Legendre.cpp
 )
