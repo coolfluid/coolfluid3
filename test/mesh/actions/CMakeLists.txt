@@ -25,9 +25,9 @@ coolfluid_add_test( UTEST utest-mesh-actions-fieldcreation
                     CPP   utest-mesh-actions-fieldcreation.cpp
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep2)
 
-coolfluid_add_test( UTEST utest-mesh-actions-surfaceintegral
-                    CPP   utest-mesh-actions-surfaceintegral.cpp
-                    LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1)
+coolfluid_add_test( UTEST utest-mesh-actions-integral
+                    CPP   utest-mesh-actions-integral.cpp
+                    LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_gausslegendre )
 
 coolfluid_add_test( UTEST utest-mesh-actions-rotate-translate
                     CPP   utest-mesh-actions-rotate-translate.cpp

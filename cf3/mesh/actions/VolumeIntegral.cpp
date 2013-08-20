@@ -24,7 +24,7 @@
 #include "mesh/Quadrature.hpp"
 #include "mesh/Connectivity.hpp"
 
-#include "mesh/actions/SurfaceIntegral.hpp"
+#include "mesh/actions/VolumeIntegral.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,18 +37,18 @@ using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < SurfaceIntegral, Action, mesh::actions::LibActions> SurfaceIntegral_Builder;
+common::ComponentBuilder < VolumeIntegral, Action, mesh::actions::LibActions> VolumeIntegral_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-SurfaceIntegral::SurfaceIntegral( const std::string& name )
+VolumeIntegral::VolumeIntegral( const std::string& name )
 : Action(name)
 {
 
-  properties()["brief"] = std::string("Compute surface-integral of field");
+  properties()["brief"] = std::string("Compute Volume-integral of field");
   std::string desc;
   desc =
-    "Compute surface integral of a field, given surface regions";
+    "Compute Volume integral of a field, given Volume regions";
   properties()["description"] = desc;
 
   m_order = 2.;
@@ -71,16 +71,16 @@ SurfaceIntegral::SurfaceIntegral( const std::string& name )
       .link_to(&m_regions);
 
   regist_signal ( "integrate" )
-      .description( "SurfaceIntegral" )
-      .pretty_name("SurfaceIntegral" )
-      .connect   ( boost::bind ( &SurfaceIntegral::signal_integrate,    this, _1 ) )
-      .signature ( boost::bind ( &SurfaceIntegral::signature_integrate, this, _1 ) );
+      .description( "VolumeIntegral" )
+      .pretty_name("VolumeIntegral" )
+      .connect   ( boost::bind ( &VolumeIntegral::signal_integrate,    this, _1 ) )
+      .signature ( boost::bind ( &VolumeIntegral::signature_integrate, this, _1 ) );
 
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SurfaceIntegral::execute()
+void VolumeIntegral::execute()
 {
   if (is_null(m_field))
     throw SetupError(FromHere(),uri().string()+": field not configured");
@@ -93,7 +93,7 @@ void SurfaceIntegral::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-Real SurfaceIntegral::integrate(const Field& field, const std::vector< Handle<Region> >& regions)
+Real VolumeIntegral::integrate(const Field& field, const std::vector< Handle<Region> >& regions)
 {
   // Create a set, so that we have no duplicate entities
   std::set< Handle<Entities> > entities_set;
@@ -101,8 +101,8 @@ Real SurfaceIntegral::integrate(const Field& field, const std::vector< Handle<Re
   {
     boost_foreach( Entities& patch, find_components_recursively<Entities>(*region) )
     {
-      // only surface elements are added
-      if( patch.element_type().dimensionality() == patch.element_type().dimension()-1 )
+      // only Volume elements are added
+      if( patch.element_type().dimensionality() == patch.element_type().dimension() )
         entities_set.insert(patch.handle<Entities>());
     }
   }
@@ -116,13 +116,13 @@ Real SurfaceIntegral::integrate(const Field& field, const std::vector< Handle<Re
   return integrate(field, entities);
 }
 
-Real SurfaceIntegral::integrate(const Field& field, const std::vector< Handle<Entities> >& entities)
+Real VolumeIntegral::integrate(const Field& field, const std::vector< Handle<Entities> >& entities)
 {
   Real integral = 0.;
   boost_foreach( const Handle<Entities>& patch, entities )
   {
-    if( patch->element_type().dimensionality() >= patch->element_type().dimension() )
-      throw SetupError( FromHere(), "Cannot compute surface integral of volume element");
+    if( patch->element_type().dimensionality() != patch->element_type().dimension() )
+      throw SetupError( FromHere(), "Cannot compute Volume integral of surface element");
 
     if( is_not_null(m_quadrature) )
       remove_component("quadrature");
@@ -177,7 +177,7 @@ Real SurfaceIntegral::integrate(const Field& field, const std::vector< Handle<En
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SurfaceIntegral::signal_integrate ( common::SignalArgs& node )
+void VolumeIntegral::signal_integrate ( common::SignalArgs& node )
 {
   common::XML::SignalOptions options( node );
 
@@ -193,7 +193,7 @@ void SurfaceIntegral::signal_integrate ( common::SignalArgs& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SurfaceIntegral::signature_integrate ( common::SignalArgs& node)
+void VolumeIntegral::signature_integrate ( common::SignalArgs& node)
 {
   common::XML::SignalOptions options( node );
 

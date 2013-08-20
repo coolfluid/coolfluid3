@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_gausslegendre_Line_hpp
-#define cf3_mesh_gausslegendre_Line_hpp
+#ifndef cf3_mesh_gausslegendre_Quad_hpp
+#define cf3_mesh_gausslegendre_Quad_hpp
 
 #include "mesh/QuadratureBase.hpp"
 #include "mesh/gausslegendre/API.hpp"
@@ -18,37 +18,38 @@ namespace gausslegendre {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint P>
-struct mesh_gausslegendre_API Line_traits
+struct mesh_gausslegendre_API Quad_traits
 {
-  enum { nb_nodes       = P               };
-  enum { dimensionality = 1               };
+  enum { nb_nodes       = P*P             };
+  enum { dimensionality = 2               };
   enum { order          = P               };
-  enum { shape          = GeoShape::LINE  };
+  enum { shape          = GeoShape::QUAD  };
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @class Line
+/// @class Quad
 /// @verbatim
-/// Reference domain: <-1,1>
+/// Reference domain: <-1,1>, <-1,1>
 /// @endverbatim
 /// @see Quadrature for documentation on undocumented static functions
 template <Uint P>
-struct mesh_gausslegendre_API Line : QuadratureBase< Line_traits<P> >
+struct mesh_gausslegendre_API Quad : QuadratureBase< Quad_traits<P> >
 {
 public:
-  typedef typename QuadratureBase< Line_traits<P> >::LocalCoordsT  LocalCoordsT;
-  typedef typename QuadratureBase< Line_traits<P> >::WeightsT       WeightsT;
+  typedef typename QuadratureBase< Quad_traits<P> >::LocalCoordsT  LocalCoordsT;
+  typedef typename QuadratureBase< Quad_traits<P> >::WeightsT       WeightsT;
 
   static const LocalCoordsT& local_coordinates();
   static const WeightsT& weights();
 
 private:
+
   // @brief Storage and conversion to static Eigen type
   struct GaussLegendreQuadrature
   {
-    typename QuadratureBase< Line_traits<P> >::LocalCoordsT roots;
-    typename QuadratureBase< Line_traits<P> >::WeightsT weights;
+    typename QuadratureBase< Quad_traits<P> >::LocalCoordsT roots;
+    typename QuadratureBase< Quad_traits<P> >::WeightsT weights;
 
     static const GaussLegendreQuadrature& instance()
     {
@@ -63,17 +64,23 @@ private:
       std::pair< std::vector<Real>, std::vector<Real> > qdr = GaussLegendre(P);
       for (Uint i=0; i<P; ++i)
       {
-        roots[i] = qdr.first[i];
-        weights[i] = qdr.second[i];
+        for (Uint j=0; j<P; ++j)
+        {
+          roots(j+P*i, KSI) = qdr.first[i];
+          roots(j+P*i, ETA) = qdr.first[j];
+          weights[j+P*i] = qdr.second[i] * qdr.second[j];
+        }
       }
     }
+
   };
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint P>
-const typename Line<P>::WeightsT& Line<P>::weights()
+const typename Quad<P>::WeightsT& Quad<P>::weights()
 {
   static const WeightsT w = GaussLegendreQuadrature::instance().weights;
   return w;
@@ -82,7 +89,7 @@ const typename Line<P>::WeightsT& Line<P>::weights()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <Uint P>
-const typename Line<P>::LocalCoordsT& Line<P>::local_coordinates()
+const typename Quad<P>::LocalCoordsT& Quad<P>::local_coordinates()
 {
   static const LocalCoordsT loc_coord = GaussLegendreQuadrature::instance().roots;
   return loc_coord;
@@ -94,4 +101,4 @@ const typename Line<P>::LocalCoordsT& Line<P>::local_coordinates()
 } // mesh
 } // cf3
 
-#endif // cf3_mesh_gausslegendre_Line_hpp
+#endif // cf3_mesh_gausslegendre_Quad_hpp

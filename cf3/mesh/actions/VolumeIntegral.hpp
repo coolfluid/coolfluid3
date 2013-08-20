@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_SurfaceIntegral_hpp
-#define cf3_mesh_actions_SurfaceIntegral_hpp
+#ifndef cf3_mesh_actions_VolumeIntegral_hpp
+#define cf3_mesh_actions_VolumeIntegral_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,31 +26,31 @@ namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// @brief SurfaceIntegral Fields with matching support
+/// @brief VolumeIntegral Fields with matching support
 ///
 /// @post After this, the mesh is ready to be parallellized
 /// @author Willem Deconinck
-class mesh_actions_API SurfaceIntegral : public common::Action {
+class mesh_actions_API VolumeIntegral : public common::Action {
 
 public: // functions
 
   /// constructor
-  SurfaceIntegral( const std::string& name );
+  VolumeIntegral( const std::string& name );
 
   /// Gets the Class name
-  static std::string type_name() { return "SurfaceIntegral"; }
+  static std::string type_name() { return "VolumeIntegral"; }
 
   virtual void execute();
 
-  /// SurfaceIntegral of a field
+  /// VolumeIntegral of a field
   /// @param [in]  field       integrate this field
-  /// @param [in]  regions     integrate surface regions contained
+  /// @param [in]  regions     integrate Volume regions contained
   /// @result Value of integration
   Real integrate(const Field& field, const std::vector< Handle<Region> >& regions);
 
-  /// SurfaceIntegral of a field
+  /// VolumeIntegral of a field
   /// @param [in]  field        integrate this field
-  /// @param [in]  entities     integrate surface entities
+  /// @param [in]  entities     integrate Volume entities
   /// @result Value of integration
   Real integrate(const Field& field, const std::vector< Handle<Entities> >& entities);
     
@@ -64,7 +64,7 @@ private:
   std::vector< Handle<Region> > m_regions;
   Handle<Quadrature> m_quadrature;
 
-}; // end SurfaceIntegral
+}; // end VolumeIntegral
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,4 +75,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_SurfaceIntegral_hpp
+#endif // cf3_mesh_actions_VolumeIntegral_hpp

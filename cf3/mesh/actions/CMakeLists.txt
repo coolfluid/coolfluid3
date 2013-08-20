@@ -59,6 +59,8 @@ list( APPEND coolfluid_mesh_actions_files
   SurfaceIntegral.cpp
   Translate.hpp
   Translate.cpp
+  VolumeIntegral.hpp
+  VolumeIntegral.cpp
   WallDistance.hpp
   WallDistance.cpp
 )

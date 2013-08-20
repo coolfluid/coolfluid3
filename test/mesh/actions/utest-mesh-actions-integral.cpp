@@ -14,6 +14,7 @@
 
 #include "mesh/actions/CreateField.hpp"
 #include "mesh/actions/SurfaceIntegral.hpp"
+#include "mesh/actions/VolumeIntegral.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -62,7 +63,7 @@ BOOST_AUTO_TEST_CASE( Initiate )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( IntegrateLine )
+BOOST_AUTO_TEST_CASE( Integrate )
 {
   // Create a P1 square mesh with side 10.
   Handle<MeshGenerator> mesh_generator = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_generator");
@@ -81,11 +82,18 @@ BOOST_AUTO_TEST_CASE( IntegrateLine )
   create_field->transform(mesh);
   Field& field = *mesh.geometry_fields().get_child("field")->handle<Field>();
   
-  // Integrate the field. It should return the total line length = 4*10.
-  boost::shared_ptr<SurfaceIntegral> surface_integral = allocate_component<SurfaceIntegral>("surface_integral");
-  surface_integral->options().set("order",1u);
-  Real integral = surface_integral->integrate(field, std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()) );
-  BOOST_CHECK_EQUAL(integral,40.);
+  // Surface Integral of the field. It should return the total line length = 4*10.
+  boost::shared_ptr<SurfaceIntegral> surface_integration = allocate_component<SurfaceIntegral>("surface_integration");
+  surface_integration->options().set("order",1u);
+  Real surface_integral = surface_integration->integrate(field, std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()) );
+  BOOST_CHECK_EQUAL(surface_integral,40.);
+
+  // Volume Integral of the field. It should return the total area = 10*10.
+  boost::shared_ptr<VolumeIntegral> volume_integration = allocate_component<VolumeIntegral>("volume_integration");
+  volume_integration->options().set("order",1u);
+  Real volume_integral = volume_integration->integrate(field, std::vector< Handle<Region> >(1, mesh.topology().handle<Region>()) );
+  BOOST_CHECK_EQUAL(volume_integral,100.);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

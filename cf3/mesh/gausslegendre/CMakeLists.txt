@@ -4,6 +4,8 @@ list( APPEND coolfluid_mesh_gausslegendre_files
   LibGaussLegendre.cpp
   Line.hpp
   Line.cpp
+  Quad.hpp
+  Quad.cpp
   Legendre.hpp
   Legendre.cpp
 )
