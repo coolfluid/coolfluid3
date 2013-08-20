@@ -11,6 +11,7 @@
 
 #include "common/OptionList.hpp"
 #include "common/Core.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "mesh/actions/CreateField.hpp"
 #include "mesh/actions/SurfaceIntegral.hpp"
@@ -59,6 +60,7 @@ BOOST_FIXTURE_TEST_SUITE( TestSuite, TestFixture )
 BOOST_AUTO_TEST_CASE( Initiate )
 {
  Core::instance().initiate(m_argc,m_argv);
+ PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +133,7 @@ BOOST_AUTO_TEST_CASE( IntegrateOnCube )
 
 BOOST_AUTO_TEST_CASE( Terminate )
 {
+  PE::Comm::instance().finalize();
   Core::instance().terminate();
 }
 

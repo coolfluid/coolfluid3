@@ -11,6 +11,7 @@
 #include "common/OptionList.hpp"
 #include "common/PropertyList.hpp"
 #include "common/Signal.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "math/MatrixTypes.hpp"
 
@@ -118,7 +119,7 @@ Real VolumeIntegral::integrate(const Field& field, const std::vector< Handle<Reg
 
 Real VolumeIntegral::integrate(const Field& field, const std::vector< Handle<Entities> >& entities)
 {
-  Real integral = 0.;
+  Real local_integral = 0.;
   boost_foreach( const Handle<Entities>& patch, entities )
   {
     if( patch->element_type().dimensionality() != patch->element_type().dimension() )
@@ -151,28 +152,33 @@ Real VolumeIntegral::integrate(const Field& field, const std::vector< Handle<Ent
     /// Loop over every element of this patch
     for (Uint e=0; e<nb_elems; ++e)
     {
-      patch->geometry_space().put_coordinates(elem_coords,e);
-
-      // interpolate
-      for (Uint n=0; n<nb_nodes_per_elem; ++n)
+      if( ! patch->is_ghost(e) )
       {
-        const Uint p = space.connectivity()[e][n];
-        for (Uint v=0; v<nb_vars; ++v)
+        patch->geometry_space().put_coordinates(elem_coords,e);
+
+        // interpolate
+        for (Uint n=0; n<nb_nodes_per_elem; ++n)
         {
-          field_pt_values(n,v) = field[p][v];
+          const Uint p = space.connectivity()[e][n];
+          for (Uint v=0; v<nb_vars; ++v)
+          {
+            field_pt_values(n,v) = field[p][v];
+          }
         }
-      }
-      qdr_pt_values = interpolate * field_pt_values;
+        qdr_pt_values = interpolate * field_pt_values;
 
-      // integrate
-      for( Uint qn=0; qn<nb_qdr_pts; ++qn)
-      {
-        const Real Jdet = patch->element_type().jacobian_determinant( m_quadrature->local_coordinates().row(qn), elem_coords );
-        integral += Jdet * m_quadrature->weights()[qn] * qdr_pt_values(qn,0);
+        // integrate
+        for( Uint qn=0; qn<nb_qdr_pts; ++qn)
+        {
+          const Real Jdet = patch->element_type().jacobian_determinant( m_quadrature->local_coordinates().row(qn), elem_coords );
+          local_integral += Jdet * m_quadrature->weights()[qn] * qdr_pt_values(qn,0);
+        }
       }
     }
   }
-  return integral;
+  Real global_integral;
+  PE::Comm::instance().all_reduce(PE::plus(), &local_integral, 1, &global_integral);
+  return global_integral;
 }
 
 //////////////////////////////////////////////////////////////////////////////
