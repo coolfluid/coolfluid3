@@ -22,11 +22,13 @@
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
 
-#include "HeatConductionVirtual.hpp"
-#include "Tags.hpp"
+#include "UFEM/Tags.hpp"
+
+#include "PoissonVirtual.hpp"
 
 namespace cf3 {
 namespace UFEM {
+namespace demo {
 
 using namespace common;
 using namespace solver;
@@ -34,16 +36,16 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using namespace mesh;
 
-ComponentBuilder < HeatConductionVirtual, LSSAction, LibUFEM > HeatConductionVirtual_builder;
+ComponentBuilder < PoissonVirtual, LSSAction, LibUFEMDemo > PoissonVirtual_builder;
 
-class HeatConductionVirtualAssembly : public solver::Action
+class PoissonVirtualAssembly : public solver::Action
 {
 public:
-  HeatConductionVirtualAssembly ( const std::string& name ) : solver::Action(name)
+  PoissonVirtualAssembly ( const std::string& name ) : solver::Action(name)
   {
   }
 
-  static std::string type_name () { return "HeatConductionVirtualAssembly"; }
+  static std::string type_name () { return "PoissonVirtualAssembly"; }
 
   virtual void execute()
   {
@@ -67,10 +69,17 @@ public:
         acc.resize(nb_nodes, 1);
         RealMatrix jacobian_adj;
         jacobian_adj.resize(sf.dimensionality(), sf.dimensionality());
+        RealRowVector N;
+        N.resize(sf.nb_nodes());
+        RealColVector f;
+        f.resize(sf.nb_nodes());
         RealMatrix nodes;
         nodes.resize(nb_nodes, sf.dimensionality());
         RealMatrix nabla;
         nabla.resize(sf.dimensionality(), nb_nodes);
+
+        const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
+        const mesh::Field& source_term = common::find_component_recursively_with_tag<mesh::Field>(mesh, "source_term");
         
         std::vector<RealMatrix> gauss_gradients(GaussT::nb_points, RealMatrix(sf.dimensionality(), nb_nodes));
         for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
@@ -82,15 +91,22 @@ public:
         {
           acc.neighbour_indices(connectivity[i]);
           mesh::fill(nodes, coordinates, connectivity[i]);
+          for(Uint j = 0; j != nb_nodes; ++j)
+            f[j] = source_term[acc.indices[j]][0];
+
           acc.reset();
 
           for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
           {
             et.compute_jacobian_adjoint(GaussT::instance().coords.col(gauss_idx), nodes, jacobian_adj);
+            const Real w = GaussT::instance().weights[gauss_idx];
+            const Real det_jac =  et.jacobian_determinant(GaussT::instance().coords.col(gauss_idx), nodes);
+            sf.compute_value(GaussT::instance().coords.col(gauss_idx), N);
             nabla.noalias() = jacobian_adj*gauss_gradients[gauss_idx];
-            acc.mat.noalias() += GaussT::instance().weights[gauss_idx] / et.jacobian_determinant(GaussT::instance().coords.col(gauss_idx), nodes) * nabla.transpose()*nabla;
+            acc.mat.noalias() += w * nabla.transpose()*nabla / det_jac;
+            acc.rhs.noalias() += w*det_jac*N.transpose()*(N*f);
           }
-
+          
           m_lss->add_values(acc);
         }
       }
@@ -100,35 +116,44 @@ public:
   Handle<math::LSS::System> m_lss;
 };
 
-ComponentBuilder < HeatConductionVirtualAssembly, common::Component, LibUFEM > HeatConductionVirtualAssembly_builder;
+ComponentBuilder < PoissonVirtualAssembly, common::Component, LibUFEM > PoissonVirtualAssembly_builder;
 
-HeatConductionVirtual::HeatConductionVirtual ( const std::string& name ) : LSSAction ( name )
+PoissonVirtual::PoissonVirtual ( const std::string& name ) : LSSAction ( name )
 {
-  set_solution_tag("heat_conduction_solution");
+  // This determines the name of the field that will be used to store the solution
+  set_solution_tag("poisson_solution");
 
-  ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
-  FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
-
+  // Create action components that wil be executed in the order they are created here:
+  // 1. Set the linear system matrix and vectors to zero
   create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  Handle<HeatConductionVirtualAssembly> assembly = create_component<HeatConductionVirtualAssembly>("Assembly");
 
+  // 2. Assemble the system matrix and RHS using an action component
+  Handle<PoissonVirtualAssembly> assembly = create_component<PoissonVirtualAssembly>("Assembly");
+  options().option("lss").link_to(&assembly->m_lss);
+
+  // 3. Apply bondary conditions
   Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
 
+  // 4. Solve the linear system
   create_component<math::LSS::SolveLSS>("SolveLSS");
-  create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(T += solution(T)));
 
-  configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
-
-  options().option("lss").link_to(&assembly->m_lss);
+  // 5. Update the solution
+  // The unknown function. The first template argument is a constant to distinguish each variable at compile time
+  FieldVariable<0, ScalarField> u("u", solution_tag());
+  // The source term, to be set at runtime using an initial condition
+  FieldVariable<1, ScalarField> f("f", "source_term");
+  create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = solution(u)));
+  // Dummy action to have f created automatically
+  create_component<ProtoAction>("DummyF")->set_expression(nodes_expression(f));
 }
 
-void HeatConductionVirtual::on_initial_conditions_set(InitialConditions& initial_conditions)
+void PoissonVirtual::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   initial_conditions.create_initial_condition(solution_tag());
 }
 
-
+} // demo
 } // UFEM
 } // cf3

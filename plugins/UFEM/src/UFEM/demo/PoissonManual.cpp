@@ -20,11 +20,13 @@
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/Tags.hpp"
 
-#include "HeatConductionManual.hpp"
-#include "Tags.hpp"
+#include "UFEM/Tags.hpp"
+
+#include "PoissonManual.hpp"
 
 namespace cf3 {
 namespace UFEM {
+namespace demo {
 
 using namespace common;
 using namespace solver;
@@ -32,16 +34,16 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using namespace mesh;
 
-ComponentBuilder < HeatConductionManual, LSSAction, LibUFEM > HeatConductionManual_builder;
+ComponentBuilder < PoissonManual, LSSAction, LibUFEMDemo > PoissonManual_builder;
 
-class HeatConductionManualAssembly : public solver::Action
+class PoissonManualAssembly : public solver::Action
 {
 public:
-  HeatConductionManualAssembly ( const std::string& name ) : solver::Action(name)
+  PoissonManualAssembly ( const std::string& name ) : solver::Action(name)
   {
   }
   
-  static std::string type_name () { return "HeatConductionManualAssembly"; }
+  static std::string type_name () { return "PoissonManualAssembly"; }
   
   virtual void execute()
   {
@@ -58,45 +60,36 @@ public:
         Eigen::Matrix<Real, 3, 2> nodes, normals;
         math::LSS::BlockAccumulator acc;
         acc.resize(3, 1);
-        
-        Eigen::Matrix<Real, 3, 3> A;
-        Eigen::Matrix<Real, 3, 1> x;
+
+        Eigen::Matrix<Real, 3, 1> f;
         
         const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
-        const mesh::Field& field = common::find_component_recursively_with_tag<mesh::Field>(mesh, "heat_conduction_solution");
+        const mesh::Field& source_term = common::find_component_recursively_with_tag<mesh::Field>(mesh, "source_term");
         
         for(Uint i = 0; i != nb_elems; ++i)
         {
           acc.neighbour_indices(connectivity[i]);
           mesh::fill(nodes, coordinates, connectivity[i]);
-          mesh::fill(x, field, connectivity[i]);
+          mesh::fill(f, source_term, connectivity[i]);
           
           normals(0, XX) = nodes(1, YY) - nodes(2, YY); normals(0, YY) = nodes(2, XX) - nodes(1, XX);
           normals(1, XX) = nodes(2, YY) - nodes(0, YY); normals(1, YY) = nodes(0, XX) - nodes(2, XX);
           normals(2, XX) = nodes(0, YY) - nodes(1, YY); normals(2, YY) = nodes(1, XX) - nodes(0, XX);
           
-          const Real c = 1. / (2.*(normals(2, YY)*normals(1, XX) - normals(1, YY)*normals(2, XX)));
+          // Jacobian determinant
+          const Real det_jac = normals(2, YY)*normals(1, XX) - normals(1, YY)*normals(2, XX);
+          const Real c = 1. / (2.*det_jac);
           
           for(Uint i = 0; i != 3; ++i)
             for(Uint j = 0; j != 3; ++j)
-              A(i, j) = c * (normals(i, XX)*normals(j, XX) + normals(i, YY)*normals(j, YY));
+              acc.mat(i, j) = c * (normals(i, XX)*normals(j, XX) + normals(i, YY)*normals(j, YY));
+
           
-          static const Uint mat_size = 3;
-          static const Uint nb_dofs = 1;
-          static const Uint nb_nodes = 3;
-            
-          for(Uint row = 0; row != mat_size; ++row)
-          {
-            // This converts u1,u2...pn to u1v1p1...
-            const Uint block_row = (row % nb_nodes)*nb_dofs + row / nb_nodes;
-            for(Uint col = 0; col != mat_size; ++col)
-            {
-              const Uint block_col = (col % nb_nodes)*nb_dofs + col / nb_nodes;
-              acc.mat(block_row, block_col) = A(row, col);
-            }
-          }
-          
-          acc.rhs.noalias() = A*x;
+          acc.rhs[0] = (2*f[0] + f[1] + f[2]);
+          acc.rhs[1] = (f[0] + 2*f[1] + f[2]);
+          acc.rhs[2] = (f[0] + f[1] + 2*f[2]);
+          acc.rhs *= det_jac/24.;
+
           m_lss->add_values(acc);
         }
       }
@@ -106,35 +99,39 @@ public:
   Handle<math::LSS::System> m_lss;
 };
 
-ComponentBuilder < HeatConductionManualAssembly, common::Component, LibUFEM > HeatConductionManualAssembly_builder;
+ComponentBuilder < PoissonManualAssembly, common::Component, LibUFEM > PoissonManualAssembly_builder;
 
-HeatConductionManual::HeatConductionManual ( const std::string& name ) : LSSAction ( name )
+PoissonManual::PoissonManual ( const std::string& name ) : LSSAction ( name )
 {
-  set_solution_tag("heat_conduction_solution");
-  
-  ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
-  FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
-  
+  // This determines the name of the field that will be used to store the solution
+  set_solution_tag("poisson_solution");
+
+  // Create action components that wil be executed in the order they are created here:
+  // 1. Set the linear system matrix and vectors to zero
   create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  Handle<HeatConductionManualAssembly> assembly = create_component<HeatConductionManualAssembly>("Assembly");
-  
+
+  // 2. Assemble the system matrix and RHS using an action component
+  Handle<PoissonManualAssembly> assembly = create_component<PoissonManualAssembly>("Assembly");
+  options().option("lss").link_to(&assembly->m_lss);
+
+  // 3. Apply bondary conditions
   Handle<BoundaryConditions> bc = create_component<BoundaryConditions>("BoundaryConditions");
   bc->mark_basic();
   bc->set_solution_tag(solution_tag());
-  
+
+  // 4. Solve the linear system
   create_component<math::LSS::SolveLSS>("SolveLSS");
-  create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(T += solution(T)));
-  
-  configure_option_recursively(solver::Tags::physical_model(), m_physical_model);
-  
-  options().option("lss").link_to(&assembly->m_lss);
+
+  // 5. Update the solution
+  // The unknown function. The first template argument is a constant to distinguish each variable at compile time
+  FieldVariable<0, ScalarField> u("u", solution_tag());
+  // The source term, to be set at runtime using an initial condition
+  FieldVariable<1, ScalarField> f("f", "source_term");
+  create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = solution(u)));
+  // Dummy action to have f created automatically
+  create_component<ProtoAction>("DummyF")->set_expression(nodes_expression(f));
 }
 
-void HeatConductionManual::on_initial_conditions_set(InitialConditions& initial_conditions)
-{
-  initial_conditions.create_initial_condition(solution_tag());
-}
-
-
+} // demo
 } // UFEM
 } // cf3

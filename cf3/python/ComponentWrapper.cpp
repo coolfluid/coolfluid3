@@ -380,6 +380,11 @@ void print_timing_tree(ComponentWrapper& self)
   cf3::common::print_timing_tree(self.component());
 }
 
+void store_timings(ComponentWrapper& self)
+{
+  cf3::common::store_timings(self.component());
+}
+
 void configure_option_recursively(ComponentWrapper& self, const std::string& option_name, const boost::python::object& value)
 {
     self.component().configure_option_recursively(option_name, python_to_any(value));
@@ -705,6 +710,7 @@ void def_component()
     .def("access_component", access_component_uri)
     .def("access_component", access_component_str)
     .def("print_timing_tree", print_timing_tree)
+    .def("store_timings", store_timings)
     .add_property("options", component_options)
     .add_property("properties", component_properties)
     .add_property("children", component_children)
