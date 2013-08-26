@@ -82,6 +82,42 @@ const RealMatrix& Triag::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const RealMatrix& Triag::mononomial_coefficients()
+{
+  static const RealMatrix coeffs=
+      (RealMatrix(nb_nodes, nb_nodes) <<
+
+       1, -3, -3,  2,  4,  2,
+       0, -1,  0,  2,  0,  0,
+       0,  0, -1,  0,  0,  2,
+       0,  4,  0, -4, -4,  0,
+       0,  0,  0,  0,  4,  0,
+       0,  0,  4,  0, -4, -4
+
+       ).finished();
+  return coeffs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Triag::mononomial_exponents()
+{
+  static const RealMatrix exponents=
+      (RealMatrix(nb_nodes, dimensionality) <<
+
+       0, 0,
+       1, 0,
+       0, 1,
+       2, 0,
+       1, 1,
+       0, 2
+
+       ).finished();
+  return exponents;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP2
 } // mesh
 } // cf3

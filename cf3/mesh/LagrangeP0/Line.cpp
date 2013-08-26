@@ -48,6 +48,32 @@ const RealMatrix& Line::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const RealMatrix& Line::mononomial_coefficients()
+{
+  static const RealMatrix coeffs =
+      (RealMatrix(nb_nodes, nb_nodes) <<
+
+       1.
+
+       ).finished();
+  return coeffs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Line::mononomial_exponents()
+{
+  static const RealMatrix exponents =
+      (RealMatrix(nb_nodes, dimensionality) <<
+
+       0
+
+       ).finished();
+  return exponents;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP0
 } // mesh
 } // cf3

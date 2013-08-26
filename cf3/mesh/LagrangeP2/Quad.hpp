@@ -45,6 +45,8 @@ struct Mesh_LagrangeP2_API Quad : public ShapeFunctionBase<Quad,Quad_traits>
   static const RealMatrix& local_coordinates();
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
+  static const RealMatrix& mononomial_coefficients();
+  static const RealMatrix& mononomial_exponents();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
