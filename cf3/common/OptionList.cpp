@@ -160,10 +160,12 @@ std::string OptionList::list_options() const
   {
     if (cnt > 0)
     {
-      opt_list=opt_list+"\n";
+      opt_list=opt_list+"\n\n";
     }
 
-    opt_list = opt_list + "  - " + name + ":" + option->type() + "=" + option->value_str();
+    opt_list = opt_list + "     " + name + ":" + option->type() + " -- " +
+               (option->description() == ""?"no information":option->description())
+               + "\n     " + option->value_str();
 
     if (option->has_restricted_list())
     {

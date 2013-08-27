@@ -141,8 +141,6 @@ void Writer::write_file(std::fstream& file)
   {
     Entities const& elements = *elements_h;
     const ElementType& etype = elements.element_type();
-    if (etype.shape() == GeoShape::POINT)
-      continue;
 
     Uint nb_elems = elements.size();
 
@@ -172,7 +170,7 @@ void Writer::write_file(std::fstream& file)
     if (nb_elems == 0)
       continue;
 
-    if (etype.order() != 1)
+    if (etype.order() > 1)
     {
       throw NotImplemented(FromHere(), "Tecplot can only output P1 elements. A new P1 space should be created, and used as geometry space");
     }
@@ -423,9 +421,19 @@ void Writer::write_file(std::fstream& file)
     {
       if (m_enable_overlap || !elements.is_ghost(e))
       {
-        boost_foreach ( Uint n, connectivity[e])
+        if (etype.shape() == GeoShape::POINT)
         {
-          file << zone_node_idx[n] << " ";
+          // these are represented by a FELINESEG, with coalesced nodes
+          Uint const& n = connectivity[e][0];
+          file << zone_node_idx[n] << " "
+               << zone_node_idx[n] << " ";
+        }
+        else
+        {
+          boost_foreach ( Uint n, connectivity[e])
+          {
+            file << zone_node_idx[n] << " ";
+          }
         }
         file << "\n";
       }
