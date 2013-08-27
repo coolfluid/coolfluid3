@@ -343,9 +343,8 @@ void Writer::write()
     // one zone per element type per cpu
     // therefore the title is dependent on those parameters
     CFdebug << "smurf: writing zone header \"" << zone_name << "\"" << CFendl
-            << "       etype   : " << zone_type(etype)  << CFendl
-            << "       nb_elems: " << nb_elems          << CFendl
-            << "       zone_idx: " << zone_idx          << CFendl;
+            << "       tec_type: " << zone_type(etype)  << CFendl
+            << "       nb_elems: " << nb_elems          << CFendl;
     mwriter.writeZoneHeader(zone_type(etype),SmURF::BLOCK,zone_name, nb_nodes, nb_elems, 1, zone_idx);
 
     // TODO: implement cell-centered vars
@@ -456,9 +455,6 @@ void Writer::write()
       }
 
     }
-
-    CFdebug << "       etype   : " << zone_type(etype) << CFendl
-            << "       nb_elems: " << ve.size() << CFendl;
 
     const int sharefrom = (zone_type(etype)==SmURF::ORDERED || !i? -1:0);
     mwriter.writeZoneData(zone_type(etype),SmURF::BLOCK,zone_type(etype)==SmURF::ORDERED?std::vector<std::vector<unsigned> >(0):ve,vv,sharefrom);

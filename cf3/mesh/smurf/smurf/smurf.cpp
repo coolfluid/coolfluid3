@@ -4,6 +4,10 @@
 #include <algorithm>
 #include "smurf.h"
 
+
+#define ZONEMARKER 299.0
+#define EOHMARKER  357.0
+
 using namespace std;
 namespace SmURF {
 
@@ -396,4 +400,7 @@ void MeshReader::readZoneData(const TecZone& z, vector< vector< unsigned > >& ve
 // ------------------------------------------------------------------------ //
 
 }
+
+#undef EOHMARKER
+#undef ZONEMARKER
 

@@ -4,9 +4,6 @@
 #include <fstream>
 #include <vector>
 
-#define ZONEMARKER 299.0
-#define EOHMARKER  357.0
-
 // based on PREPLOT V11.2-0  06/05/2007
 // Copyright (C) Tecplot, Inc. 1987-2008
 

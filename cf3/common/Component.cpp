@@ -68,7 +68,7 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "create_component" )
       .connect( boost::bind( &Component::signal_create_component, this, _1 ) )
-      .description("creates a new component inside this component")
+      .description("creates a new subcomponent")
       .pretty_name("Create component")
       .signature( boost::bind(&Component::signature_create_component, this, _1) );
 
@@ -76,20 +76,20 @@ Component::Component ( const std::string& name ) :
       .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("lists the component tree inside this component")
+      .description("list the tree of subcomponents")
       .pretty_name("List tree");
 
   regist_signal( "list_tree_recursive" )
       .connect( boost::bind( &Component::signal_list_tree_recursive, this, _1 ) )
       .hidden(true)
-      .description("lists the component tree inside this component")
+      .description("list the tree of subcomponents")
       .pretty_name("List tree recursively");
 
   regist_signal( "print_tree" )
       .connect( boost::bind( &Component::signal_print_tree, this, _1 ) )
       .hidden(false)
       .read_only(true)
-      .description("print the component tree inside this component")
+      .description("list the tree of subcomponents")
       .pretty_name("Print tree")
       .signature( boost::bind(&Component::signature_print_tree, this, _1) );
 
@@ -97,72 +97,72 @@ Component::Component ( const std::string& name ) :
   regist_signal( "list_properties" )
       .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
       .hidden(true)
-      .description("lists the properties of this component")
+      .description("list the properties of this component")
       .pretty_name("List properties");
 
   regist_signal( "list_options" )
       .connect( boost::bind( &Component::signal_list_options, this, _1 ) )
       .hidden(true)
-      .description("lists the options of this component")
+      .description("list the options of this component")
       .pretty_name("List options");
 
   regist_signal( "list_options_recursive" )
       .connect( boost::bind( &Component::signal_list_options_recursive, this, _1 ) )
       .hidden(true)
-      .description("lists the options of this component and its subcomponents")
+      .description("list the options of this component and its subcomponents")
       .pretty_name("List options recursively");
 
   regist_signal( "list_signals" )
       .connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
       .hidden(true)
-      .description("lists the options of this component")
+      .description("list the options of this component")
       .pretty_name("List signals");
 
   regist_signal( "list_signals_recursive" )
       .connect( boost::bind( &Component::signal_list_signals_recursive, this, _1 ) )
       .hidden(true)
-      .description("lists the options of this component and its subcomponents")
+      .description("lists the signals of this component and its subcomponents")
       .pretty_name("List signals recursively");
 
   regist_signal( "configure" )
       .connect( boost::bind( &Component::signal_configure, this, _1 ) )
       .hidden(true)
-      .description("configures this component")
+      .description("configure this component")
       .pretty_name("Configure");
 
   regist_signal( "print_info" )
       .connect( boost::bind( &Component::signal_print_info, this, _1 ) )
-      .description("prints info on this component")
+      .description("print detailed information about this component and its functionality")
       .pretty_name("Info");
 
   regist_signal( "rename_component" )
       .connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
-      .description("renames this component")
+      .description("rename this component")
       .pretty_name("Rename")
       .signature( boost::bind(&Component::signature_rename_component, this, _1) );
 
   regist_signal( "delete_component" )
       .connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
-      .description("deletes a component")
+      .description("delete this component")
       .pretty_name("Delete");
 
   regist_signal( "move_component" )
       .connect( boost::bind( &Component::signal_move_component, this, _1 ) )
-      .description("moves a component into another component")
+      .description("move this component into another component")
       .pretty_name("Move")
       .signature( boost::bind(&Component::signature_move_component, this, _1) );
 
   regist_signal( "save_tree" )
       .connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
       .hidden(true)
-      .description("saves the tree")
+      .description("save the tree to XML")
       .pretty_name("Save tree");
 
   regist_signal( "list_content" )
       .connect( boost::bind( &Component::signal_list_content, this, _1 ) )
       .hidden(true)
       .read_only(true)
-      .description("lists component content")
+      .description("list component content")
       .pretty_name("List content");
 
   regist_signal( "signal_signature" )
@@ -179,12 +179,12 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "clear" )
       .connect( boost::bind( &Component::signal_clear, this, _1 ) )
-      .description("removes all sub-components, except for the static ones")
+      .description("remove all non-static subcomponents")
       .pretty_name("Clear");
 
   regist_signal( "reset_options" )
       .connect( boost::bind( &Component::signal_reset_options, this, _1 ) )
-      .description("sets all options of this component to their default value")
+      .description("set all options of this component to their default value")
       .pretty_name("Reset Options");
 
   // properties
