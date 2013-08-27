@@ -1,12 +1,12 @@
 list( APPEND coolfluid_mesh_smurf_files
   Writer.hpp
   Writer.cpp
-  # Reader.hpp
-  # Reader.cpp
+  Reader.hpp
+  Reader.cpp
   LibSmurf.cpp
   LibSmurf.hpp
-  # Shared.cpp
-  # Shared.hpp
+  Shared.cpp
+  Shared.hpp
   
   smurf/smurf.cpp
   smurf/smurf.h
