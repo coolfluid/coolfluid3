@@ -159,6 +159,8 @@ add_subdirectory( CGNS )          # CGNS file IO
 
 add_subdirectory( tecplot )       # tecplot file IO
 
+add_subdirectory( smurf )         # smurf file IO (binary tecplot)
+
 add_subdirectory( zoltan )        # zoltan mesh partitioning
 
 add_subdirectory( ptscotch )      # PTScotch mesh partitioning

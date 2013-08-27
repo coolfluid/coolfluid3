@@ -52,7 +52,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   // Output file path
   m_file_path = URI("mesh", URI::Scheme::FILE);
   options().add("file", m_file_path)
-      .supported_protocol(URI::Scheme::FILE)  
+      .supported_protocol(URI::Scheme::FILE)
       .description("File to write")
       .pretty_name("File")
       .link_to(&m_file_path)
