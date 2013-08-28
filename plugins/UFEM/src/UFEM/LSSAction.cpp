@@ -106,6 +106,7 @@ LSSAction::LSSAction(const std::string& name) :
   options().add("matrix_builder", "cf3.math.LSS.TrilinosFEVbrMatrix")
     .pretty_name("Matrix Builder")
     .description("Builder to use when creating the LSS")
+    .attach_trigger(boost::bind(&LSSAction::create_lss, this))
     .mark_basic();
 
   options().add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")

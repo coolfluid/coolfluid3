@@ -117,8 +117,8 @@ struct SUPGSpecialized
         //difusion (Standard)
         val = nu/(4.*volume);
         A(Ui,Uj)+=val*(4./3.*normals(i, XX)*normals(j, XX)+      normals(i, YY)*normals(j, YY));
-//         A(Ui,Vj)+=val*       normals(i, YY)*normals(j, XX);
-//         A(Vi,Uj)+=val*       normals(i, XX)*normals(j, YY);
+        //         A(Ui,Vj)+=val*       normals(i, YY)*normals(j, XX);
+        //         A(Vi,Uj)+=val*       normals(i, XX)*normals(j, YY);
         A(Ui,Vj)+=val*       normals(i, XX)*normals(j, YY)/3.;
         A(Vi,Uj)+=val*       normals(i, YY)*normals(j, XX)/3.;
         A(Vi,Vj)+=val*(      normals(i, XX)*normals(j, XX)+4./3.*normals(i, YY)*normals(j, YY));
@@ -155,11 +155,6 @@ struct SUPGSpecialized
         val = tau_ps/6.;
         T(Pi,Uj) += val*normals(i, XX);
         T(Pi,Vj) += val*normals(i, YY);
-
-        // Increasing diagonal dominance - crank nicholson related
-//         A(Pi,Pj) *= 2.;
-//         A(Pi,Uj) *= 2.;
-//         A(Pi,Vj) *= 2.;
       }
     }
   }
