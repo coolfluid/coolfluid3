@@ -2,6 +2,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_demo
   SOURCES
     NavierStokesManual.hpp
     NavierStokesManual.cpp
+    NavierStokesSpecialized.hpp
+    NavierStokesSpecialized.cpp
     PoissonManual.cpp
     PoissonManual.hpp
     PoissonProto.cpp

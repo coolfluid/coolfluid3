@@ -214,9 +214,6 @@ public:
         }
       }
     }
-    
-    
-    
   }
   
   Handle<math::LSS::System> m_lss;
@@ -257,7 +254,6 @@ NavierStokesManual::NavierStokesManual ( const std::string& name ) : LSSActionUn
   // 5. Update the solution
   FieldVariable<0, VectorField> u("Velocity", solution_tag());
   FieldVariable<1, ScalarField> p("Pressure", solution_tag());
-  // The source term, to be set at runtime using an initial condition
   create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(p += solution(p), u += solution(u))));
 }
 

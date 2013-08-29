@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_ElementData_hpp
 #define cf3_solver_actions_Proto_ElementData_hpp
 
+#include <boost/array.hpp>
+
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/mpl.hpp>
@@ -88,7 +90,7 @@ public:
 
   GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry_fields().coordinates()),
-    m_connectivity(elements.geometry_space().connectivity())
+    m_connectivity_array(elements.geometry_space().connectivity().array())
   {
   }
 
@@ -96,24 +98,20 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[element_idx];
+    std::copy(row.begin(), row.end(), m_connectivity.begin());
+    mesh::fill(m_nodes, m_coordinates, m_connectivity);
   }
 
   void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
   {
-    block_accumulator.neighbour_indices(m_connectivity[m_element_idx]);
+    block_accumulator.neighbour_indices(m_connectivity);
   }
 
   /// Reference to the current nodes
   ValueResultT nodes() const
   {
     return m_nodes;
-  }
-
-  /// Connectivity data for the current element
-  common::Table<Uint>::ConstRow element_connectivity() const
-  {
-    return m_connectivity[m_element_idx];
   }
 
   Real volume() const
@@ -228,8 +226,11 @@ private:
   /// Coordinates table
   const common::Table<Real>& m_coordinates;
 
-  /// Connectivity table
-  const common::Table<Uint>& m_connectivity;
+  /// Connectivity for all elements
+  const mesh::Connectivity::ArrayT& m_connectivity_array;
+  
+  /// Connectivity table for the current element
+  boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
 
   /// Index for the current element
   Uint m_element_idx;
@@ -358,7 +359,7 @@ public:
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(get_connectivity(placeholder.field_tag(), elements)),
+    m_connectivity_array(get_connectivity(placeholder.field_tag(), elements).array()),
     m_support(support),
     offset(m_field.descriptor().offset(placeholder.name())),
     m_need_sync(false)
@@ -381,12 +382,9 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
-  }
-
-  const common::Table<Uint>::ConstRow element_connectivity() const
-  {
-    return m_connectivity[m_element_idx];
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[element_idx];
+    std::copy(row.begin(), row.end(), m_connectivity.begin());
+    mesh::fill(m_element_values, m_field, m_connectivity, offset);
   }
 
   /// Reference to the geometric support
@@ -413,12 +411,11 @@ public:
   template<typename NodeValsT>
   void add_nodal_values(const NodeValsT& vals)
   {
-    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
     for(Uint i = 0; i != dimension; ++i)
     {
       m_element_values.col(i) += vals.template block<EtypeT::nb_nodes, 1>(i*EtypeT::nb_nodes, 0);
       for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
-        m_field[conn[j]][offset+i] = m_element_values(j,i);
+        m_field[m_connectivity[j]][offset+i] = m_element_values(j,i);
     }
     
     m_need_sync = true;
@@ -427,11 +424,10 @@ public:
   template<typename NodeValsT>
   void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
   {
-    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
     for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
     {
       m_element_values(i, component_idx) += vals[i];
-      m_field[conn[i]][offset+component_idx] = m_element_values(i, component_idx);
+      m_field[m_connectivity[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
     
     m_need_sync = true;
@@ -508,7 +504,8 @@ private:
   mesh::Field& m_field;
 
   /// Connectivity table
-  const mesh::Connectivity& m_connectivity;
+  const mesh::Connectivity::ArrayT& m_connectivity_array;
+  boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;
@@ -865,7 +862,6 @@ public:
   /// Update block accumulator only if a system of equations is accessed in the expressions
   void update_blocks(boost::mpl::false_)
   {
-    block_accumulator.reset();
     m_support.update_block_connectivity(block_accumulator);
     indices_converted = false;
   }

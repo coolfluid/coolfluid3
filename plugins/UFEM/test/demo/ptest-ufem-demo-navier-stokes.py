@@ -35,7 +35,7 @@ n = 1000
 profiler = Profiler()
 
 # We loop over all available implementations, to test them all
-for modelname in ['Specialized', 'Proto', 'Manual']:
+for modelname in ['Specialized', 'Manual']:
   # Setup a model
   model = None
   model = cf.Core.root().create_component(modelname+'Model', 'cf3.solver.ModelUnsteady')
@@ -48,18 +48,10 @@ for modelname in ['Specialized', 'Proto', 'Manual']:
   physics.reference_velocity = 1.
   # Manager for finite element solvers
   solver = model.create_solver('cf3.UFEM.Solver')
-  ns_solver = None
-  if modelname == 'Manual':
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.demo.NavierStokesManual')
-  else:
-    ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
+  ns_solver = solver.add_unsteady_solver('cf3.UFEM.demo.NavierStokes' + modelname)
   ns_solver.matrix_builder = 'cf3.math.LSS.EmptyLSSMatrix'
   #ns_solver.matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix'
   #ns_solver.matrix_builder = 'cf3.math.LSS.TrilinosCrsMatrix'
-  if modelname == 'Specialized':
-    ns_solver.options.use_specializations = True
-  if modelname == 'Proto':
-    ns_solver.options.use_specializations = False
 
   # Generate a unit square
   mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
