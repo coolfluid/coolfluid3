@@ -198,6 +198,11 @@ public:
     compute_normal_dispatch(boost::mpl::bool_<EtypeT::dimension - EtypeT::dimensionality == 1>(), mapped_coords);
   }
 
+  const boost::array<Uint, EtypeT::nb_nodes>& element_connectivity() const
+  {
+    return m_connectivity;
+  }
+
 private:
   void compute_normal_dispatch(boost::mpl::false_, const typename EtypeT::MappedCoordsT&) const
   {

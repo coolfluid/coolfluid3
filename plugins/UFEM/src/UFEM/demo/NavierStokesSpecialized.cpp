@@ -38,8 +38,8 @@ struct NavierStokesSpecializedAssembly
 {
   typedef void result_type;
 
-  template<typename PT, typename UT, typename NUT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  template<typename PT, typename UT, typename NUT>
+  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, const Handle<math::LSS::System>& lss, math::LSS::BlockAccumulator& acc)
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u.value().colwise().mean();
@@ -47,6 +47,12 @@ struct NavierStokesSpecializedAssembly
     const Real volume = u.support().volume();
     const Real fc = 0.5;
     const Real nu = fabs(nu_eff.value().mean());
+
+    Eigen::Matrix<Real, 9, 9> A, T;
+    Eigen::Matrix<Real, 9, 1> x;
+    A.setZero();
+    T.setZero();
+    acc.neighbour_indices(u.support().element_connectivity());
 
     // Face normals
     ElementT::NodesT normals;
@@ -77,17 +83,21 @@ struct NavierStokesSpecializedAssembly
 
     for(Uint i=0; i<3; ++i)
     {
-      const Uint Pi = i + 3*p.offset;
-      const Uint Ui = i + 3*u.offset;
-      const Uint Vi = Ui + 3;
+      const Uint Ui = 3*i;
+      const Uint Vi = Ui + 1;
+      const Uint Pi = Ui + 2;
 
       const Real u_ni = u_avg[XX]*normals(i, XX)+u_avg[YY]*normals(i, YY);
+      
+      x[Ui] = u.value()(i, XX);
+      x[Vi] = u.value()(i, YY);
+      x[Pi] = p.value()[i];
 
       for(Uint j=0; j<3; ++j)
       {
-        const Uint Pj = j + 3*p.offset;
-        const Uint Uj = j + 3*u.offset;
-        const Uint Vj = Uj + 3;
+        const Uint Uj = 3*j;
+        const Uint Vj = Uj + 1;
+        const Uint Pj = Uj + 2;
 
         const Real uk=u_avg[XX];
         const Real vk=u_avg[YY];
@@ -160,6 +170,12 @@ struct NavierStokesSpecializedAssembly
         T(Pi,Vj) += val*normals(i, YY);
       }
     }
+    acc.rhs = -A*x;
+    A.row(0) /= theta;
+    A.row(3) /= theta;
+    A.row(6) /= theta;
+    acc.mat = invdt * T + theta*A;
+    lss->add_values(acc);
   }
 };
 
@@ -167,11 +183,19 @@ static solver::actions::Proto::MakeSFOp<NavierStokesSpecializedAssembly>::type c
 
 NavierStokesSpecialized::NavierStokesSpecialized ( const std::string& name ) : LSSActionUnsteady( name )
 {
+  using boost::proto::lit;
+  
   // Option for the theta scheme
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .link_to(&theta);
+
+  // Keep a link to the LSS
+  options().option("lss").link_to(&m_lss);
+
+  // Size of the block accumulator
+  m_block_accumulator.resize(3, 3);
 
   // This determines the name of the field that will be used to store the solution
   set_solution_tag("navier_stokes_solution");
@@ -186,16 +210,12 @@ NavierStokesSpecialized::NavierStokesSpecialized ( const std::string& name ) : L
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
   PhysicsConstant u_ref("reference_velocity");
   PhysicsConstant rho("density");
-
+  
   Handle<ProtoAction> assembly = create_component<ProtoAction>("Assembly");
   assembly->set_expression(elements_expression(boost::mpl::vector1< mesh::LagrangeP1::Triag2D>(),
   group
   (
-    _A(u) = _0, _A(p) = _0, _T(u) = _0, _T(p) = _0,
-    assemble_ns_triags(p, u, nu_eff, u_ref, rho, _A, _T),
-    system_rhs += -_A * _x,
-    _A(p) = _A(p) / theta,
-    system_matrix += invdt() * _T + theta * _A
+    assemble_ns_triags(p, u, nu_eff, u_ref, rho, lit(theta), lit(invdt()), m_lss, m_block_accumulator)
   )));
 
 

@@ -33,6 +33,10 @@ cf.env.log_level = 1
 
 n = 1000
 
+measurement = ET.Element('DartMeasurement', name = 'Problem size', type = 'numeric/integer')
+measurement.text = str(n)
+print ET.tostring(measurement)
+
 profiler = Profiler()
 
 # We loop over all available implementations, to test them all

@@ -32,10 +32,14 @@ cf.env.regist_signal_handlers = False
 
 n = 1000
 
+measurement = ET.Element('DartMeasurement', name = 'Problem size', type = 'numeric/integer')
+measurement.text = str(n)
+print ET.tostring(measurement)
+
 profiler = Profiler()
 
 # We loop over all available implementations, to test them all
-for modelname in ['Specialized', 'Manual']:
+for modelname in ['Manual', 'Specialized']:
   # Setup a model
   model = None
   model = cf.Core.root().create_component(modelname+'Model', 'cf3.solver.ModelUnsteady')
