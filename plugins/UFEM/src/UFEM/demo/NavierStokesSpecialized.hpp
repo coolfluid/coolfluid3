@@ -34,7 +34,6 @@ public: // functions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
   Real theta;
-  Handle<math::LSS::System> m_lss;
   math::LSS::BlockAccumulator m_block_accumulator;
 };
 

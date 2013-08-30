@@ -54,6 +54,9 @@ public:
 
     if(is_null(m_lss))
       throw common::SetupError(FromHere(), "LSS not set for " + uri().path());
+    
+    math::LSS::Matrix& lss_mat = *m_lss->matrix();
+    math::LSS::Vector& lss_rhs = *m_lss->rhs();
 
     BOOST_FOREACH(const Handle<mesh::Region>& region, m_loop_regions)
     {
@@ -107,7 +110,8 @@ public:
             acc.rhs.noalias() += w*det_jac*N.transpose()*(N*f);
           }
           
-          m_lss->add_values(acc);
+          lss_mat.add_values(acc);
+          lss_rhs.add_rhs_values(acc);
         }
       }
     }

@@ -387,9 +387,7 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    const mesh::Connectivity::ConstRow row = m_connectivity_array[element_idx];
-    std::copy(row.begin(), row.end(), m_connectivity.begin());
-    mesh::fill(m_element_values, m_field, m_connectivity, offset);
+    mesh::fill(m_element_values, m_field, m_connectivity_array[element_idx], offset);
   }
 
   /// Reference to the geometric support
@@ -416,11 +414,12 @@ public:
   template<typename NodeValsT>
   void add_nodal_values(const NodeValsT& vals)
   {
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[m_element_idx];
     for(Uint i = 0; i != dimension; ++i)
     {
       m_element_values.col(i) += vals.template block<EtypeT::nb_nodes, 1>(i*EtypeT::nb_nodes, 0);
       for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
-        m_field[m_connectivity[j]][offset+i] = m_element_values(j,i);
+        m_field[row[j]][offset+i] = m_element_values(j,i);
     }
     
     m_need_sync = true;
@@ -429,10 +428,11 @@ public:
   template<typename NodeValsT>
   void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
   {
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[m_element_idx];
     for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
     {
       m_element_values(i, component_idx) += vals[i];
-      m_field[m_connectivity[i]][offset+component_idx] = m_element_values(i, component_idx);
+      m_field[row[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
     
     m_need_sync = true;
@@ -510,7 +510,6 @@ private:
 
   /// Connectivity table
   const mesh::Connectivity::ArrayT& m_connectivity_array;
-  boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;

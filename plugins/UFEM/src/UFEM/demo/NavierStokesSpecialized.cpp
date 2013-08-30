@@ -38,8 +38,8 @@ struct NavierStokesSpecializedAssembly
 {
   typedef void result_type;
 
-  template<typename PT, typename UT, typename NUT>
-  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, const Handle<math::LSS::System>& lss, math::LSS::BlockAccumulator& acc)
+  template<typename PT, typename UT, typename NUT, typename LSST>
+  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, LSST& lss, math::LSS::BlockAccumulator& acc)
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u.value().colwise().mean();
@@ -175,7 +175,8 @@ struct NavierStokesSpecializedAssembly
     A.row(3) /= theta;
     A.row(6) /= theta;
     acc.mat = invdt * T + theta*A;
-    lss->add_values(acc);
+    lss.matrix().add_values(acc);
+    lss.rhs().add_rhs_values(acc);
   }
 };
 
@@ -190,9 +191,6 @@ NavierStokesSpecialized::NavierStokesSpecialized ( const std::string& name ) : L
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .link_to(&theta);
-
-  // Keep a link to the LSS
-  options().option("lss").link_to(&m_lss);
 
   // Size of the block accumulator
   m_block_accumulator.resize(3, 3);
@@ -212,11 +210,10 @@ NavierStokesSpecialized::NavierStokesSpecialized ( const std::string& name ) : L
   PhysicsConstant rho("density");
   
   Handle<ProtoAction> assembly = create_component<ProtoAction>("Assembly");
-  assembly->set_expression(elements_expression(boost::mpl::vector1< mesh::LagrangeP1::Triag2D>(),
-  group
-  (
-    assemble_ns_triags(p, u, nu_eff, u_ref, rho, lit(theta), lit(invdt()), m_lss, m_block_accumulator)
-  )));
+  assembly->set_expression(elements_expression(
+    boost::mpl::vector1< mesh::LagrangeP1::Triag2D>(),
+    assemble_ns_triags(p, u, nu_eff, u_ref, rho, lit(theta), lit(invdt()), system_matrix, m_block_accumulator)
+  ));
 
 
   // 3. Apply boundary conditions

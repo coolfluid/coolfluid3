@@ -29,6 +29,9 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "PoissonSpecialized"; }
+  
+private:
+  math::LSS::BlockAccumulator m_block_accumulator;
 };
 
 } // demo

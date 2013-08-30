@@ -41,8 +41,8 @@ struct PoissonTriagAssembly
 
   // Functor that takes: source term f, result element matrix A, result element RHS vector a
   // f is actually of type ETypeTVariableData, found in ElementData.hpp in the Proto directory
-  template<typename FT, typename MatrixT, typename VectorT>
-  void operator()(const FT& f, MatrixT& A, VectorT& a) const
+  template<typename FT, typename LSST>
+  void operator()(const FT& f, LSST& lss, math::LSS::BlockAccumulator& acc) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     // Get the coordinates of the element nodes
@@ -58,25 +58,24 @@ struct PoissonTriagAssembly
     const Real det_jac = normals(2, YY)*normals(1, XX) - normals(1, YY)*normals(2, XX);
     const Real c = 1. / (2.*det_jac);
     
-    // Set matrix values
+    acc.neighbour_indices(f.support().element_connectivity());
+        
     for(Uint i = 0; i != 3; ++i)
-    {
       for(Uint j = 0; j != 3; ++j)
-      {
-        A(i, j) = c * (normals(i, XX)*normals(j, XX) + normals(i, YY)*normals(j, YY));
-      }
-    }
-    
+        acc.mat(i, j) = c * (normals(i, XX)*normals(j, XX) + normals(i, YY)*normals(j, YY));
+
     // Get the values of the source term
     const Real f0 = f.value()[0];
     const Real f1 = f.value()[1];
     const Real f2 = f.value()[2];
     
-    // Set the RHS vector
-    a[0] = (2*f0 + f1 + f2);
-    a[1] = (f0 + 2*f1 + f2);
-    a[2] = (f0 + f1 + 2*f2);
-    a *= det_jac/24.;
+    acc.rhs[0] = (2*f0 + f1 + f2);
+    acc.rhs[1] = (f0 + 2*f1 + f2);
+    acc.rhs[2] = (f0 + f1 + 2*f2);
+    acc.rhs *= det_jac/24.;
+
+    lss.matrix().add_values(acc);
+    lss.rhs().add_rhs_values(acc);
   }
 };
 
@@ -85,6 +84,9 @@ static solver::actions::Proto::MakeSFOp<PoissonTriagAssembly>::type const assemb
 
 PoissonSpecialized::PoissonSpecialized ( const std::string& name ) : LSSAction ( name )
 {
+  // Setup of private variables
+  m_block_accumulator.resize(3, 1);
+  
   // This determines the name of the field that will be used to store the solution
   set_solution_tag("poisson_solution");
 
@@ -105,12 +107,7 @@ PoissonSpecialized::PoissonSpecialized ( const std::string& name ) : LSSAction (
   assembly->set_expression(elements_expression
   (
     boost::mpl::vector1< mesh::LagrangeP1::Triag2D>(), // Specialization for P1 triangles
-    group
-    (
-      assemble_triags(f, _A(u,u), _a[u]),
-      system_matrix +=  _A, // Assemble into the global linear system
-      system_rhs += _a
-    )
+    assemble_triags(f, system_matrix, m_block_accumulator)
   ));
 
   // 3. Apply bondary conditions

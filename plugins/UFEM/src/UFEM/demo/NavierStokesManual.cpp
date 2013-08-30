@@ -48,6 +48,9 @@ public:
     if(is_null(m_lss))
       throw common::SetupError(FromHere(), "LSS not set for " + uri().path());
     
+    math::LSS::Matrix& lss_mat = *m_lss->matrix();
+    math::LSS::Vector& lss_rhs = *m_lss->rhs();
+    
     typedef mesh::LagrangeP1::Triag2D ElementT;
     
     BOOST_FOREACH(const Handle<mesh::Region>& region, m_loop_regions)
@@ -210,7 +213,8 @@ public:
           A.row(3) /= theta;
           A.row(6) /= theta;
           acc.mat = invdt * T + theta*A;
-          m_lss->add_values(acc);
+          lss_mat.add_values(acc);
+          lss_rhs.add_rhs_values(acc);
         }
       }
     }

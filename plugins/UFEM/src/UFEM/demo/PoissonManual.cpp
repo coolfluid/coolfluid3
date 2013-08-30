@@ -50,6 +50,9 @@ public:
     if(is_null(m_lss))
       throw common::SetupError(FromHere(), "LSS not set for " + uri().path());
     
+    math::LSS::Matrix& lss_mat = *m_lss->matrix();
+    math::LSS::Vector& lss_rhs = *m_lss->rhs();
+    
     BOOST_FOREACH(const Handle<mesh::Region>& region, m_loop_regions)
     {
       BOOST_FOREACH(const mesh::Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementType<mesh::LagrangeP1::Triag2D>()))
@@ -90,7 +93,8 @@ public:
           acc.rhs[2] = (f[0] + f[1] + 2*f[2]);
           acc.rhs *= det_jac/24.;
 
-          m_lss->add_values(acc);
+          lss_mat.add_values(acc);
+          lss_rhs.add_rhs_values(acc);
         }
       }
     }
