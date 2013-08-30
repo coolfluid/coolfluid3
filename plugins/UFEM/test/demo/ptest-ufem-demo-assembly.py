@@ -84,11 +84,11 @@ for lss_name in ['EmptyLSS', 'TrilinosFEVbr', 'TrilinosCrs']:
     ic_f.regions = [mesh.topology.uri()]
 
     # run the simulation to ensure all setup is OK
-    for i in range(10):
-      model.simulate()
+    model.simulate()
     # Profile only the assembly
     profiler.start('Poisson' + modelname + '-' + lss_name + '.pprof')
-    poisson_solver.Assembly.execute()
+    for i in range(10):
+      poisson_solver.Assembly.execute()
     profiler.stop()
     model.store_timings()
     
