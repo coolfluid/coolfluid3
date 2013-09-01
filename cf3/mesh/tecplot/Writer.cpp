@@ -451,6 +451,8 @@ std::string Writer::zone_type(const ElementType& etype) const
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+#undef CF3_BREAK_LINE
+
 } // tecplot
 } // mesh
 } // cf3
