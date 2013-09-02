@@ -41,7 +41,7 @@ public: // typedefs
   typedef Eigen::Array<Real,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> ArrayStorage ;
   typedef Eigen::Map< ArrayStorage , Eigen::Unaligned, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> > Ref ;
 
-  typedef Eigen::Block<Ref, Eigen::Dynamic, 1, false, true> RefCol;
+  typedef Eigen::Block<Ref, Eigen::Dynamic, 1> RefCol;
 
   typedef Eigen::Array<Real,1,Eigen::Dynamic,Eigen::RowMajor> RowArrayStorage ;
   typedef Eigen::Map< RowArrayStorage , Eigen::Unaligned > RowArrayRef ;

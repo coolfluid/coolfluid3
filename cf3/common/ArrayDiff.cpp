@@ -59,7 +59,7 @@ namespace detail
         m_found_type = true;
         if(left_list->size() != right_list->size())
         {
-          CFdebug << m_prefix << "Array sizes don't match" << CFendl;
+          CFdebug << m_prefix << "Array sizes don't match: left: " << left_list->size() << ", right: " << right_list->size() << CFendl;
           m_arrays_equal = false;
           return;
         }
@@ -74,7 +74,7 @@ namespace detail
           m_found_type = true;
           if(left_table->size() != right_table->size() || left_table->row_size() != right_table->row_size())
           {
-            CFdebug << m_prefix << "Array sizes don't match" << CFendl;
+            CFdebug << m_prefix << "Array sizes don't match: left: " << left_table->size() << "x" << left_table->row_size() << ", right: " << right_table->size() << "x" << right_table->row_size() << CFendl;
             m_arrays_equal = false;
             return;
           }
@@ -96,7 +96,7 @@ namespace detail
         if(diff > m_max_ulps)
         {
           m_arrays_equal = false;
-          CFdebug << m_prefix << "List mismatch at index "  << i << ": distance [" << left[i] << ", " << right[i] << "] is " << diff << CFendl;
+          CFdebug << m_prefix << "List mismatch at index "  << i << ": distance [" << left[i] << ", " << right[i] << "] is " << right[i]-left[i] << "(" << diff << " ulps)" << CFendl;
         }
       }
     }
@@ -134,7 +134,7 @@ namespace detail
           if(diff > m_max_ulps)
           {
             m_arrays_equal = false;
-            CFdebug << m_prefix << "Array mismatch at index ["  << i << "," << j << "]: distance [" << left_row[j] << ", " << right_row[j] << "] is " << diff << CFendl;
+            CFdebug << m_prefix << "Array mismatch at index ["  << i << "," << j << "]: distance [" << left_row[j] << ", " << right_row[j] << "] is " << right_row[j]-left_row[j] << "(" << diff << " ulps)" << CFendl;
           }
         }
       }

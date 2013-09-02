@@ -4,6 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+#include <cstdlib>
+#include <limits>
+#include <iomanip>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/compare.hpp>
@@ -67,6 +72,7 @@ namespace common {
   Common_API std::string to_str<float> (const float & v)
   {
     std::ostringstream oss;
+    oss << std::scientific << std::setprecision(std::numeric_limits<float>::digits10+1);
     oss << v;
     return oss.str();
   }
@@ -75,6 +81,7 @@ namespace common {
   Common_API std::string to_str<double> (const double & v)
   {
     std::ostringstream oss;
+    oss << std::scientific << std::setprecision(std::numeric_limits<double>::digits10+1);
     oss << v;
     return oss.str();
   }
@@ -276,13 +283,25 @@ namespace common {
   template <>
   Common_API float from_str<float> (const std::string& str)
   {
-    return boost::lexical_cast<float> ( str );
+    char * error;
+    float result = std::strtod(str.c_str(), &error);
+    if (*error != 0)
+    {
+      throw ParsingFailed(FromHere(), "String " + str + " could not be parsed as a number");
+    }
+    return result;
   }
 
   template <>
   Common_API double from_str<double> (const std::string& str)
   {
-    return boost::lexical_cast<double> ( str );
+    char * error;
+    double result = std::strtod(str.c_str(), &error);
+    if (*error != 0)
+    {
+      throw ParsingFailed(FromHere(), "String " + str + " could not be parsed as a number");
+    }
+    return result;
   }
 
   template <>

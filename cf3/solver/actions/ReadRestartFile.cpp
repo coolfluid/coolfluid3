@@ -21,6 +21,9 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Connectivity.hpp"
 
+#include "solver/Tags.hpp"
+#include "solver/Time.hpp"
+
 #include "solver/actions/ReadRestartFile.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +50,11 @@ ReadRestartFile::ReadRestartFile ( const std::string& name ) :
     .pretty_name("File")
     .description("File name for the input file")
     .mark_basic();
+    
+  options().add(solver::Tags::time(), Handle<solver::Time>())
+    .pretty_name("Time")
+    .description("Time component, filled with the timing info from the file")
+    .mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -57,12 +65,20 @@ void ReadRestartFile::execute()
   if(is_null(mesh))
     throw common::SetupError(FromHere(), "Option mesh is not configured");
 
+  Handle<Time> time = options().value< Handle<Time> >(solver::Tags::time());
+  if(is_null(time))
+    throw common::SetupError(FromHere(), "Time component not configured");
+  
   const common::URI filepath = options().value<common::URI>("file");
   boost::shared_ptr<common::XML::XmlNode> input_file = common::XML::parse_file(filepath);
 
   common::XML::XmlNode restart_node(input_file->content->first_node("restart"));
   if(!restart_node.is_valid())
     throw common::FileFormatError(FromHere(), "File  " + filepath.path() + " has no restart node");
+  
+  time->options().set("time_step", common::from_str<Real>(restart_node.attribute_value("time_step")));
+  time->options().set("current_time", common::from_str<Real>(restart_node.attribute_value("current_time")));
+  time->options().set("iteration", common::from_str<Uint>(restart_node.attribute_value("iteration")));
 
   if(common::from_str<Uint>(restart_node.attribute_value("version")) != 1)
     throw common::FileFormatError(FromHere(), "File  " + filepath.path() + " has unsupported version");

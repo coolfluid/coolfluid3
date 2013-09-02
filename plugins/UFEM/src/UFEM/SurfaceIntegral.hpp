@@ -20,8 +20,9 @@ namespace cf3 {
   namespace mesh { class Region; }
 namespace UFEM {
 
-/// Calculates the surface integral of a variable. A tag and variable name for the field must be set in the options,
-/// as well as a History component to log the value.
+/// Calculates the surface integral of a variable.
+/// The result of the integral is returned through the result option
+/// A History component can be set to log the value.
 class UFEM_API SurfaceIntegral : public solver::actions::Proto::ProtoAction
 {
 public:
@@ -35,10 +36,22 @@ public:
   /// Get the class name
   static std::string type_name () { return "SurfaceIntegral"; }
   
+  /// Set up the field to use. This builds either a vector or a scalar expression, depending on the variable passed
+  void set_field(const std::string& variable_name, const std::string& tag);
+  
+  void signal_set_field(common::SignalArgs& args);
+  void signature_set_field(common::SignalArgs& args);
+  
   virtual void execute();
+  
+  /// Return the result
+  const RealVector& result()
+  {
+    return m_integral_value;
+  }
 private:
-  /// Trigger that sets the expression when one of the relevant options changed
-  void trigger_set_expression();
+  /// Trigger on a change of the result
+  void trigger_result();
 
   /// Name of the variable to use
   std::string m_variable_name;
@@ -47,6 +60,7 @@ private:
   RealVector m_integral_value;
   
   Handle<solver::History> m_history;
+  bool m_changing_result;
 };
 
 } // UFEM

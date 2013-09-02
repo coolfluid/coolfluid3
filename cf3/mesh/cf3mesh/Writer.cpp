@@ -58,6 +58,7 @@ namespace detail
       BOOST_FOREACH(const Elements& elements, common::find_components<Elements>(region))
       {
         common::XML::XmlNode elements_node = region_node.add_node("elements");
+        elements_node.set_attribute("name", elements.name());
         elements_node.set_attribute("element_type", elements.element_type().derived_type_name());
         elements_node.set_attribute("global_indices", common::to_str(writer.append_data(elements.glb_idx())));
         elements_node.set_attribute("ranks", common::to_str(writer.append_data(elements.rank())));

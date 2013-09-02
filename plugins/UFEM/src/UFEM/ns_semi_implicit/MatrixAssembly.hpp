@@ -227,6 +227,12 @@ struct VelocityRHS
     typedef const Eigen::Matrix<Real, UT::EtypeT::nb_nodes*UT::EtypeT::dimension, 1>& type;
   };
 
+  template<typename This, typename UT, typename NUT, typename GT, typename UVecT1, typename UVecT2, typename PVecT>
+  struct result<This(UT, NUT, GT, UVecT1, UVecT2, PVecT, Real, Real)>
+  {
+    typedef const Eigen::Matrix<Real, UT::EtypeT::nb_nodes*UT::EtypeT::dimension, 1>& type;
+  };
+
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename StorageT, typename UT, typename NUT, typename UVecT1, typename UVecT2, typename PVecT>
   const StorageT& operator()(StorageT& result, const UT& u, const NUT& nu_eff, const UVecT1& a_vec, const UVecT2& dt_a_min_u_in, const PVecT& p_plus_dp_in, const Real& tau_su, const Real& tau_bulk) const
@@ -339,6 +345,32 @@ struct VelocityRHS
 
     return result;
   }
+
+  template<typename StorageT, typename UT, typename NUT, typename GT, typename UVecT1, typename UVecT2, typename PVecT>
+  const StorageT& operator()(StorageT& result, const UT& u, const NUT& nu_eff, const GT& g, const UVecT1& a_vec, const UVecT2& dt_a_min_u_in, const PVecT& p_plus_dp_in, const Real& tau_su, const Real& tau_bulk) const
+  {
+    typedef typename UT::EtypeT ElementT;
+    static const Uint nb_nodes = ElementT::nb_nodes;
+    static const Uint dim = ElementT::dimension;
+
+    (*this)(result, u, nu_eff, a_vec, dt_a_min_u_in, p_plus_dp_in, tau_su, tau_bulk);
+    typedef mesh::Integrators::GaussMappedCoords<2, ElementT::shape> Gauss2T;
+    for(Uint gauss_idx = 0; gauss_idx != Gauss2T::nb_points; ++gauss_idx)
+    {
+      // This precomputes the required matrix operators
+      g.support().compute_shape_functions(Gauss2T::instance().coords.col(gauss_idx));
+      g.support().compute_jacobian(Gauss2T::instance().coords.col(gauss_idx));
+      g.compute_values(Gauss2T::instance().coords.col(gauss_idx));
+
+      const Real w = Gauss2T::instance().weights[gauss_idx] * g.support().jacobian_determinant();
+
+      for(Uint i = 0; i != dim; ++i)
+      {
+        result.template segment<nb_nodes>(i*nb_nodes) += g.shape_function().transpose() * g.eval()[i] * w;
+      }
+    }
+    return result;
+  }
 };
 
 static solver::actions::Proto::MakeSFOp<VelocityRHS>::type const velocity_rhs = {};
@@ -410,6 +442,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     )
   ));
   
+
   // Assembly of the velocity matrices
   m_velocity_assembly->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group
@@ -433,14 +466,27 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
   ));
   
   // Assembly of velocity RHS
-  m_inner_loop->get_child("URHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
+  if(!options().value<bool>("enable_body_force"))
+  {
+    m_inner_loop->get_child("URHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
     group
     (
       _A(u,u) = _0,
       compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
-    )
-  ));
+    )));
+  }
+  else
+  {
+    FieldVariable<7, VectorField> g("Force", "body_force");
+    m_inner_loop->get_child("URHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),
+    group
+    (
+      _A(u,u) = _0,
+      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, g, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
+    )));
+  }
 
   // Assembly of pressure RHS
   m_inner_loop->get_child("PRHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),

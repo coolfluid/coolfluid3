@@ -60,6 +60,9 @@ coolfluid_add_test( UTEST     utest-proto-lss
 coolfluid_add_test( UTEST     utest-solver-actions-restart
                     PYTHON    utest-solver-actions-restart.py
                     MPI       4)
+                    
+coolfluid_add_test( UTEST     utest-solver-actions-timeseries
+                    PYTHON    utest-solver-actions-timeseries.py)
 
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")

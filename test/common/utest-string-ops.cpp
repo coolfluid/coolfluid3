@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( boostFunctions )
 BOOST_AUTO_TEST_CASE( test__to_str )
 {
   BOOST_CHECK_EQUAL(to_str(42), "42");
-  BOOST_CHECK_EQUAL(to_str(3.14), "3.14");
+  BOOST_CHECK(boost::starts_with(to_str(3.14), "3.14000"));
 }
 
 BOOST_AUTO_TEST_CASE( test__from_str )

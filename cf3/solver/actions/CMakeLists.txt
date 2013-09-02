@@ -42,6 +42,8 @@ list( APPEND coolfluid_solver_actions_files
   LibActions.cpp
   Conditional.hpp
   Conditional.cpp
+  TimeSeriesWriter.hpp
+  TimeSeriesWriter.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
 )

@@ -122,14 +122,14 @@ time.time_step = tstep
 time.end_time = 50.*tstep
 model.simulate()
 
+domain.write_mesh(cf.URI('semi-implicit-laminar-channel-2d.pvtu'))
+
 for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stokes_u_solution):
   u_ref = y*(2-y)
   if abs(u_ref - u) > 1e-2:
     raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
   if abs(v) > 1e-8:
     raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))
-
-domain.write_mesh(cf.URI('semi-implicit-laminar-channel-2d.pvtu'))
 
 # print timings
 model.print_timing_tree()

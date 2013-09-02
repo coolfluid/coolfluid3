@@ -38,7 +38,9 @@
 #include "mesh/Space.hpp"
 #include "mesh/Interpolator.hpp"
 
-#include "Tools/Gnuplot/Gnuplot.hpp"
+#ifdef GNUPLOT_FOUND
+  #include "Tools/Gnuplot/Gnuplot.hpp"
+#endif
 
 using namespace boost;
 using namespace cf3;

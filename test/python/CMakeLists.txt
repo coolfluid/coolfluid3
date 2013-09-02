@@ -29,3 +29,6 @@ coolfluid_add_test( UTEST  utest-python-options
 
 coolfluid_add_test( UTEST  utest-python-component
                     PYTHON utest-python-component.py )
+
+coolfluid_add_test( UTEST  utest-python-math
+                    PYTHON utest-python-math.py )

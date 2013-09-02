@@ -10,8 +10,6 @@
 #include "solver/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "solver/Solver.hpp"
-
 #include "LibUFEM.hpp"
 
 namespace cf3 {

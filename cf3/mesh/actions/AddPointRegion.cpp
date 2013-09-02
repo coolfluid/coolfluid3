@@ -111,7 +111,8 @@ void AddPointRegion::execute()
   const std::string region_name = options().value<std::string>("region_name");
   Handle<Elements> point_elems = mesh.topology().create_region(region_name).create_component<Elements>("Point");
   mesh.topology().get_child(region_name)->mark_basic();
-  point_elems->initialize("cf3.mesh.LagrangeP0.Point2D",mesh.geometry_fields());
+  const std::string elem_name = mesh.dimension() == 2 ? "cf3.mesh.LagrangeP0.Point2D" : (mesh.dimension() == 3 ? "cf3.mesh.LagrangeP0.Point3D": "cf3.mesh.LagrangeP0.Point1D");
+  point_elems->initialize(elem_name,mesh.geometry_fields());
   if(min_dist2 == my_min_dist2)
   {
     point_elems->resize(1);

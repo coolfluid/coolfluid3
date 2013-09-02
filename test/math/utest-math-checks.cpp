@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE
 
+#include <iomanip>
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
@@ -25,7 +26,7 @@ typedef long int lint;
 // This function is similar to what is implemented in FloatingPoint class
 // It is based on the original article "Comparison of Floating Point Numbers" by Bruce Dawson
 // It was adapted to use double precision (a limitation that FloatingPointer does not have)
-bool AlmostEqual2sComplement(double A, double B, uint64_t maxUlps)
+bool AlmostEqual2sComplement(double A, double B, boost::uint64_t maxUlps)
 {
     // Make sure maxUlps is non-negative and small enough that the
     // default NAN won't compare as equal to anything.
@@ -64,8 +65,8 @@ BOOST_AUTO_TEST_CASE( floating_point_far_from_zero )
   const Real a = 1.;
   const Real b = a + Consts::eps();
 
-  std::cout << "a [" << a << "] & [" << *(uint64_t*)&a << "]" << std::endl;
-  std::cout << "b [" << b << "] & [" << *(uint64_t*)&b << "]" << std::endl;
+  std::cout << "a [" << a << "] & [" << *(boost::uint64_t*)&a << "]" << std::endl;
+  std::cout << "b [" << b << "] & [" << *(boost::uint64_t*)&b << "]" << std::endl;
 
   std::cout << "diff [" << FloatingPoint<Real>(a).diff( FloatingPoint<Real>(b) ) << "]" << std::endl;
 
@@ -96,8 +97,8 @@ BOOST_AUTO_TEST_CASE( floating_point_far_from_zero_2 )
   const lint bi = ai+1;
   const Real b  =  *(Real*)&bi;
 
-  std::cout << "a [" << a << "] & [" << *(uint64_t*)&a << "]" << std::endl;
-  std::cout << "b [" << b << "] & [" << *(uint64_t*)&b << "]" << std::endl;
+  std::cout << "a [" << a << "] & [" << *(boost::uint64_t*)&a << "]" << std::endl;
+  std::cout << "b [" << b << "] & [" << *(boost::uint64_t*)&b << "]" << std::endl;
 
   std::cout << "diff [" << FloatingPoint<Real>(a).diff( FloatingPoint<Real>(b) ) << "]" << std::endl;
 
@@ -132,8 +133,8 @@ BOOST_AUTO_TEST_CASE( floating_point_near_zero )
 //  const Real b = Consts::eps();                      // 2.2..E-16
   const Real b = Consts::eps() * Consts::real_min();   // 2.2..E-16 * 2.2..E-308
 
-  std::cout << "a [" << a << "] & [" << *(uint64_t*)&a << "]" << std::endl;
-  std::cout << "b [" << b << "] & [" << *(uint64_t*)&b << "]" << std::endl;
+  std::cout << "a [" << a << "] & [" << *(boost::uint64_t*)&a << "]" << std::endl;
+  std::cout << "b [" << b << "] & [" << *(boost::uint64_t*)&b << "]" << std::endl;
 
   std::cout << "diff [" << FloatingPoint<Real>(a).diff( FloatingPoint<Real>(b) ) << "]" << std::endl;
 

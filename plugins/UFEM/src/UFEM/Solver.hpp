@@ -27,11 +27,7 @@ namespace UFEM {
 
 class InitialConditions;
 
-/// Solver for UFEM problems, allowing dynamic configuration and providing access to
-/// * Linear system solver
-/// * Physical model
-/// * Mesh used
-/// * Region to loop over
+/// Manage a collection of UFEM solvers
 class UFEM_API Solver : public solver::SimpleSolver
 {
 public: // functions
@@ -65,6 +61,9 @@ public: // functions
   /// An initialization step is added automatically
   /// @param builder_names List of builders for the actions to add
   Handle<common::Action> add_iteration_solver(const std::string& builder_name);
+  
+  /// Add a restart writer
+  Handle<common::Action> add_restart_writer();
 
   /// Create an initial conditions component
   Handle<InitialConditions> create_initial_conditions();
@@ -79,6 +78,7 @@ public: // functions
   void signal_add_unsteady_solver(common::SignalArgs& args);
   void signal_add_unsteady_advance_solver(common::SignalArgs& args);
   void signal_add_iteration_solver(common::SignalArgs& args);
+  void signal_add_restart_writer(common::SignalArgs& args);
   void signal_create_initial_conditions(common::SignalArgs& args);
   void signal_create_fields(common::SignalArgs& args);
   void signature_add_probe(common::SignalArgs& args);
