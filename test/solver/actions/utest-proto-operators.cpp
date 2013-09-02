@@ -14,6 +14,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/proto/debug.hpp>
 
 #include "solver/Model.hpp"
 #include "solver/Solver.hpp"
@@ -114,6 +115,28 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
               -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
   );
   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+}
+
+BOOST_AUTO_TEST_CASE( MatrixAccess )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("AccessGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
+
+  FieldVariable<0, VectorField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u[0] = 0., u[1] = 1.));
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      _cout << "column " << _i << ": " <<  transpose(_col(nodal_values(u), _i)) << "\n",
+      _cout << "row 3: " << _row(nodal_values(u), 3) << "\n"
+    )
+  );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
