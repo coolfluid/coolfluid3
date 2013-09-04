@@ -23,7 +23,11 @@ namespace Proto {
 
 /// Matches expressions that need to be wrapped in an extension before they can be evaluated (i.e. Eigen products)
 struct WrappableNodeExpressions :
-    boost::proto::multiplies<boost::proto::_, boost::proto::_>
+  boost::proto::or_
+  <
+    boost::proto::multiplies<boost::proto::_, boost::proto::_>,
+    boost::proto::terminal<VectorFunction>
+  >
 {
 };
 
@@ -44,7 +48,7 @@ struct NodeLooperDim
   }
 
 
-  /// Domain ued for extended expressions
+  /// Domain used for extended expressions
   struct NodesDomain;
 
   /// Wraps a given expression, so the value that it represents can be stored inside the expression itself
@@ -113,6 +117,11 @@ struct NodeLooperDim
         (
           WrapExpression(boost::proto::_left), WrapExpression(boost::proto::_right)
         )
+      >,
+      boost::proto::when
+      <
+        boost::proto::terminal<VectorFunction>,
+        boost::proto::functional::make_expr<boost::proto::tag::terminal, NodesDomain>(boost::proto::_value)
       >,
       boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >
     >

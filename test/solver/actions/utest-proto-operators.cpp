@@ -575,12 +575,14 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
   f.functions(std::vector<std::string>(1, "x+1"));
   f.parse();
   f.predefined_values.resize(1);
+  
+  RealVector one(1); one.setConstant(1.);
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
   (
     group
     (
-      T = boost::proto::lit(f),
+      T = boost::proto::lit(f) + one,
       _cout << T << "\n",
       boost::proto::lit(total) += T
     )
@@ -588,7 +590,7 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
 
   test_expr->loop(mesh->topology());
 
-  BOOST_CHECK_EQUAL(total[0], 15.);
+  BOOST_CHECK_EQUAL(total[0], 20.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
