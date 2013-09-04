@@ -103,11 +103,6 @@ public:
     mesh::fill(m_nodes, m_coordinates, m_connectivity);
   }
 
-  void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
-  {
-    block_accumulator.neighbour_indices(m_connectivity);
-  }
-
   /// Reference to the current nodes
   ValueResultT nodes() const
   {
@@ -388,6 +383,11 @@ public:
   {
     m_element_idx = element_idx;
     mesh::fill(m_element_values, m_field, m_connectivity_array[element_idx], offset);
+  }
+  
+  void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
+  {
+    block_accumulator.neighbour_indices(m_connectivity_array[m_element_idx]);
   }
 
   /// Reference to the geometric support
@@ -838,14 +838,31 @@ public:
       m_element_matrices[i].setZero();
       m_element_vectors[i].setZero();
     }
-
+    
+    init_block_accumulator(typename boost::fusion::result_of::empty<EquationDataT>::type());
+  }
+  
+  // Init LSS block accumulator
+  void init_block_accumulator(boost::mpl::false_)
+  {
     typedef typename boost::mpl::transform
     <
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
       FieldWidth<boost::mpl::_1, SupportEtypeT>
     >::type NbEqsPerVarT;
-
-    block_accumulator.resize(SupportShapeFunction::nb_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
+    
+    block_accumulator.resize(accumulator_size(boost::fusion::front(m_equation_data)), ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
+  }
+  
+  // No LSS, so nothing to be done
+  void init_block_accumulator(boost::mpl::true_)
+  {
+  }
+  
+  template<typename FirstEquationDataT>
+  Uint accumulator_size(const FirstEquationDataT*)
+  {
+    return FirstEquationDataT::EtypeT::nb_nodes;
   }
 
   ~ElementData()
@@ -866,7 +883,7 @@ public:
   /// Update block accumulator only if a system of equations is accessed in the expressions
   void update_blocks(boost::mpl::false_)
   {
-    m_support.update_block_connectivity(block_accumulator);
+    boost::fusion::front(m_equation_data)->update_block_connectivity(block_accumulator);
     indices_converted = false;
   }
 
