@@ -1,5 +1,7 @@
 coolfluid3_add_library(TARGET coolfluid_ufem_demo
   SOURCES
+    NavierStokesChorin.hpp
+    NavierStokesChorin.cpp
     NavierStokesManual.hpp
     NavierStokesManual.cpp
     NavierStokesSpecialized.hpp

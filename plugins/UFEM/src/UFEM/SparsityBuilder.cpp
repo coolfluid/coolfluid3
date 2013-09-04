@@ -160,7 +160,7 @@ boost::shared_ptr< List<Uint> > build_sparsity(const std::vector< Handle<Region>
   // Determine the number of connected nodes for each element
   BOOST_FOREACH(const Handle<Entities const>& elements, used_entities)
   {
-    const Connectivity& connectivity = elements->geometry_space().connectivity();
+    const Connectivity& connectivity = elements->space(dictionary).connectivity();
     const Uint nb_elems = connectivity.size();
     const Uint nb_elem_nodes = connectivity.row_size();
     for(Uint elem = 0; elem != nb_elems; ++elem)

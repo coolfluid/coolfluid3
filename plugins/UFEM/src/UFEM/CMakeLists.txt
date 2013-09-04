@@ -20,6 +20,8 @@ list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.cpp
   AdjustForceTerm.hpp
   AdjustForceTerm.cpp
+  BCDirichletFunction.hpp
+  BCDirichletFunction.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp

@@ -88,10 +88,9 @@ LSSAction::LSSAction(const std::string& name) :
     .description("Create the Linear System Solver")
     .pretty_name("Create LSS");
 
-  options().add("dictionary", m_dictionary)
-    .pretty_name("Dictionary")
-    .description("The dictionary to use for field lookups")
-    .link_to(&m_dictionary);
+  options().add("use_geometry_space", true)
+    .pretty_name("use_geometry_space")
+    .description("LSS will be based on the geometry connectivity if this is true");
 
   options().add("initial_conditions", m_initial_conditions)
     .pretty_name("Initial Conditions")
@@ -125,6 +124,9 @@ void LSSAction::execute()
   {
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": LSS is not created");
   }
+  
+  if(!m_implementation->m_lss->is_created())
+    on_regions_set();
 
   CFdebug << "Running with LSS " << options().option("lss").value_str() << CFendl;
 
@@ -163,28 +165,48 @@ void LSSAction::on_regions_set()
 {
   if(m_implementation->m_updating) // avoid recursion
   {
-    CFdebug << "Skipping on_regions_set to avoid recursion" << CFendl;
     return;
   }
+  
+  if(m_loop_regions.empty())
+  {
+    return;
+  }
+  
+  Handle<mesh::Mesh> mesh = find_parent_component_ptr<mesh::Mesh>(*m_loop_regions.front());
+  cf3_assert(is_not_null(mesh));
+  
+  if(options().value<bool>("use_geometry_space"))
+  {
+    m_dictionary = mesh->geometry_fields().handle<mesh::Dictionary>();
+  }
+  else
+  {
+    Handle<mesh::Field> field = find_component_ptr_recursively_with_tag<mesh::Field>(*mesh, solution_tag());
+    if(is_null(field))
+    {
+      CFdebug << "Skipping LSS creation on " << uri().path() << " because the non-geometry space field with tag " << solution_tag() << " does not exist yet" << CFendl;
+      return;
+    }
+    m_dictionary = field->dict().handle<mesh::Dictionary>();
+  }
 
+  cf3_always_assert(is_not_null(m_dictionary));
+
+  m_implementation->m_updating = true;
+  
   m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
   {
     create_lss();
   }
 
-  if(is_null(m_dictionary))
-  {
-    CFdebug << "Skipping on_regions_set because dictionary is null" << CFendl;
-    return;
-  }
-
-  m_implementation->m_updating = true;
-
   // Create the LSS if the mesh is set
-  if(!m_loop_regions.empty() && !m_implementation->m_lss->is_created())
+  if(!m_implementation->m_lss->is_created())
   {
     VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), solution_tag());
+
+    CFdebug << "Creating LSS for " << uri().path() << " using dictionary " << m_dictionary->uri().path() << CFendl;
 
     Handle< List<Uint> > gids = m_implementation->m_lss->create_component< List<Uint> >("GIDs");
     Handle< List<Uint> > ranks = m_implementation->m_lss->create_component< List<Uint> >("Ranks");
@@ -248,13 +270,18 @@ void LSSAction::on_regions_set()
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
     configure_option_recursively("lss", m_implementation->m_lss);
+    // Also do links to BCs
+    BOOST_FOREACH(common::Link& link, common::find_components_recursively<common::Link>(*this))
+    {
+      if(link.is_linked() && link.follow()->options().check("lss"))
+      {
+        link.follow()->configure_option_recursively("lss", m_implementation->m_lss);
+      }
+    }
   }
   else
   {
-    if(m_loop_regions.empty())
-      CFdebug << "Skipping on_regions_set because region list is empty" << CFendl;
-    else
-      CFdebug << "Skipping on_regions_set because LSS is already created" << CFendl;
+    CFdebug << "Skipping on_regions_set because LSS is already created" << CFendl;
   }
 
   // Update the regions of any owned initial conditions
