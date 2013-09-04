@@ -92,6 +92,16 @@ Line3D::JacobianT Line3D::jacobian(const MappedCoordsT& mapped_coord, const Node
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Line3D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
+  const Real DxDxi = 0.5*(nodes(1, XX) - nodes(0, XX));
+  const Real DyDxi = 0.5*(nodes(1, YY) - nodes(0, YY));
+  const Real DzDxi = 0.5*(nodes(1, ZZ) - nodes(0, ZZ));
+  return std::sqrt( DxDxi*DxDxi + DyDxi*DyDxi + DzDxi*DzDxi );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP1
 } // mesh
 } // cf3

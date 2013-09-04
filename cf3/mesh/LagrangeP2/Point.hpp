@@ -57,6 +57,8 @@ struct Mesh_LagrangeP2_API Point
   static const RealMatrix& face_normals();
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
+  static const RealMatrix& mononomial_coefficients();
+  static const RealMatrix& mononomial_exponents();
 
   // Implemented static functions
   // ----------------------------

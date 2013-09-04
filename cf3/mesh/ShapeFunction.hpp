@@ -101,6 +101,18 @@ public: // functions
   /// @param [out] gradient           computed gradient (size = dimensionality x nb_nodes)
   virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const = 0;
 
+  /// @brief mononomial coefficients to define a shape function together with mononomial_exponents()
+  /// value(i) = Sum(j=0, ..., m-1) M(i,j) F(j)
+  /// with F(j) = KSI^P(j,0) ETA^P(j,1) ZTA^P(j,2)
+  /// with P == mononomial_exponents() and M == mononomial_coefficients()
+  virtual const RealMatrix& mononomial_coefficients() const = 0;
+
+  /// @brief mononomial exponents to define a shape function together with mononomial_coefficients()
+  /// value(i) = Sum(j=0, ..., m-1) M(i,j) F(j)
+  /// with F(j) = KSI^P(j,0) ETA^P(j,1) ZTA^P(j,2)
+  /// with P == mononomial_exponents() and M == mononomial_coefficients()
+  virtual const RealMatrix& mononomial_exponents() const = 0;
+
   //@}
 
 }; // ShapeFunction

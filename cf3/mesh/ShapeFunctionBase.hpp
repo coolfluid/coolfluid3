@@ -64,6 +64,8 @@ public:
   static const RealMatrix& face_normals();
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
+  static const RealMatrix& mononomial_coefficients();
+  static const RealMatrix& mononomial_exponents();
 
   // Implemented static functions
   // ----------------------------
@@ -109,6 +111,26 @@ inline const RealMatrix& ShapeFunctionBase<SF,TR>::local_coordinates()
   throw_not_implemented(FromHere());
   const static RealMatrix local_coords_obj;
   return local_coords_obj;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename SF,typename TR>
+inline const RealMatrix& ShapeFunctionBase<SF,TR>::mononomial_coefficients()
+{
+  throw_not_implemented(FromHere());
+  const static RealMatrix matrix_obj;
+  return matrix_obj;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename SF,typename TR>
+inline const RealMatrix& ShapeFunctionBase<SF,TR>::mononomial_exponents()
+{
+  throw_not_implemented(FromHere());
+  const static RealMatrix matrix_obj;
+  return matrix_obj;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

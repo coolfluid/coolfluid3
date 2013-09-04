@@ -17,7 +17,6 @@
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
-#include "common/Map.hpp"
 #include "common/List.hpp"
 
 #include "mesh/gmsh/Writer.hpp"
@@ -25,11 +24,13 @@
 #include "mesh/MeshMetadata.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Entities.hpp"
+#include "mesh/ShapeFunction.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Functions.hpp"
+#include "mesh/GeoShape.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -115,6 +116,7 @@ void Writer::write()
   }
 
   write_header(file);
+  write_interpolation_schemes(file);
   write_coordinates(file);
   write_connectivity(file);
   write_elem_nodal_data(file);
@@ -295,6 +297,72 @@ void Writer::write_connectivity(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////
 
+void Writer::write_interpolation_schemes(std::fstream& file)
+{
+  // step 1: detect which shapefunctions need to be used
+  std::set< Handle<Dictionary> > dicts;
+  boost_foreach(Handle<Field const> field, m_fields)
+  {
+    cf3_assert(is_null(field) == false);
+    dicts.insert( field->dict().handle<Dictionary>() );
+  }
+  boost_foreach( const Handle<Dictionary>& dict, dicts )
+  {
+    std::vector<Uint> shape(11);
+    shape[GeoShape::POINT] = 1;
+    shape[GeoShape::LINE ] = 2;
+    shape[GeoShape::TRIAG] = 3;
+    shape[GeoShape::QUAD ] = 4;
+    shape[GeoShape::TETRA] = 5;
+    shape[GeoShape::PYRAM] = 6;
+    shape[GeoShape::PRISM] = 7;
+    shape[GeoShape::HEXA ] = 8;
+    // 1 for points, 2 for lines, 3 for triangles, 4 for quadrangles, 5 for tetrahedra, 6 for pyramids, 7 for prisms, 8 for hexahedra, 9 for polygons and 10 for polyhedra.
+    std::vector< Handle<ShapeFunction const> > shape_functions(11);
+
+    Uint nb_interpolation_schemes = 0;
+    boost_foreach( const Handle<Space>& space, dict->spaces() )
+    {
+      Handle<ShapeFunction const> sf = space->shape_function().handle<ShapeFunction const>();
+      if( is_null( shape_functions[ shape[sf->shape()] ] ) )
+      {
+        shape_functions[ shape[sf->shape()] ] = sf;
+        ++nb_interpolation_schemes;
+      }
+      else if ( shape_functions[ shape[sf->shape()] ]->derived_type_name() != sf->derived_type_name() )
+      {
+        throw NotSupported( FromHere(), "Gmsh cannot support different interpolation schemes for the same element type within one field");
+      }
+    }
+
+    // step 2: write
+    file << "$InterpolationScheme\n";
+    file << "\""<<dict->name() << "\"\n";
+    file << nb_interpolation_schemes << "\n";
+    boost_foreach( Handle<ShapeFunction const>& sf, shape_functions )
+    {
+      if (is_not_null(sf))
+      {
+        file << "\n" << shape[ sf->shape() ] << "\n";
+        file << 2 << "\n";
+        file << sf->mononomial_coefficients().rows() << " " << sf->mononomial_coefficients().rows() << "\n";
+        file << sf->mononomial_coefficients() << "\n";
+        file << sf->mononomial_exponents().rows() << " " << 3 << "\n";
+        for (Uint i=0; i<sf->mononomial_exponents().rows(); ++i)
+        {
+          for (Uint j=0; j<sf->mononomial_exponents().cols(); ++j)
+            file << sf->mononomial_exponents()(i,j) << " ";
+          for (Uint j=sf->mononomial_exponents().cols(); j<3; ++j)
+            file << "0 ";
+          file << "\n";
+        }
+      }
+    }
+    file << "$EndInterpolationScheme\n";
+  }
+}
+
+//////////////////////////////////////////////////////////////////////
 
 void Writer::write_elem_nodal_data(std::fstream& file)
 {
@@ -329,6 +397,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       const Real field_time = field.properties().value<Real>("time");
       const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
+      const std::string dict_name = field.dict().name();
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
@@ -372,9 +441,10 @@ void Writer::write_elem_nodal_data(std::fstream& file)
 
         file << "$ElementNodeData\n";
 
-        // add 2 string tags : var_name, field_name
-        file << 2 << "\n";
+        // add 3 string tags : var_name, dict_name, field_name
+        file << 3 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+        file << "\"" << dict_name << "\"\n";
         file << "\"" << field_name << "\"\n";
         // add 1 real tag: time
         file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
@@ -389,47 +459,35 @@ void Writer::write_elem_nodal_data(std::fstream& file)
             const Space& field_space = field.space(elements);
             Uint local_nb_elms = elements.size();
 
-            const Uint nb_states = field_space.shape_function().nb_nodes();
-            RealMatrix field_data (nb_states,static_cast<int>(var_type));
-
-            const Uint nb_nodes = elements.element_type().nb_nodes();
+            const Uint nb_sf_nodes = field_space.shape_function().nb_nodes();
+            RealVector field_data (static_cast<int>(var_type));
 
             /// write element
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
               if (m_enable_overlap || !elements.is_ghost(local_elm_idx))
               {
-                file << elements.glb_idx()[local_elm_idx]+1 << " " << nb_nodes << " ";
+                file << elements.glb_idx()[local_elm_idx]+1 << " " << nb_sf_nodes << " ";
                 /// set field data
                 Connectivity::ConstRow field_indexes = field_space.connectivity()[local_elm_idx];
-                for (Uint iState=0; iState<nb_states; ++iState)
+                for (Uint n=0; n<nb_sf_nodes; ++n)
                 {
                   for (Uint j=0; j<var_type; ++j)
-                    field_data(iState,j) = field[field_indexes[iState]][row_idx+j];
-                }
-
-                for (Uint iNode=0; iNode<nb_nodes; ++iNode)
-                {
-                  /// get element_node local coordinates
-                  RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
-
-                  /// evaluate field shape function in element_node
-                  RealVector node_data = field_space.shape_function().value(local_coords)*field_data;
-                  cf3_assert(node_data.size() == var_type);
+                    field_data[j] = field[field_indexes[n]][row_idx+j];
 
                   if (var_type==TENSOR_2D)
                   {
-                    data[0]=node_data[0];
-                    data[1]=node_data[1];
-                    data[3]=node_data[2];
-                    data[4]=node_data[3];
+                    data[0]=field_data[0];
+                    data[1]=field_data[1];
+                    data[3]=field_data[2];
+                    data[4]=field_data[3];
                     for (Uint idx=0; idx<datasize; ++idx)
                       file << " " << data[idx];
                   }
                   else
                   {
                     for (Uint j=0; j<var_type; ++j)
-                      file << " " << node_data[j];
+                      file << " " << field_data[j];
                     if (var_type == VECTOR_2D)
                       file << " " << 0.0;
                   }
@@ -495,6 +553,7 @@ void Writer::write_nodal_data(std::fstream& file)
       const Real field_time = field.properties().value<Real>("time");
       const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
+      const std::string dict_name = field.dict().name();
       Uint nb_elements = 0;
       std::vector< Handle<Entities const> > filtered_used_entities_by_field;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
@@ -536,8 +595,9 @@ void Writer::write_nodal_data(std::fstream& file)
         file << "$NodeData\n";
 
         // add 2 string tags : var_name, field_name
-        file << 2 << "\n";
+        file << 3 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+        file << "\"" << dict_name << "\"\n";
         file << "\"" << field_name << "\"\n";
         // add 1 real tag: time
         file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
@@ -550,8 +610,8 @@ void Writer::write_nodal_data(std::fstream& file)
           const Space& geom_space  = elements_handle->geometry_space();
           const Uint nb_elems = elements_handle->size();
 
-          const Uint nb_states = field_space.shape_function().nb_nodes();
-          RealMatrix field_data (nb_states, static_cast<int>(var_type));
+          const Uint nb_sf_nodes = field_space.shape_function().nb_nodes();
+          RealMatrix field_data (nb_sf_nodes, static_cast<int>(var_type));
 
           for (Uint elem_idx=0; elem_idx<nb_elems; ++elem_idx)
           {
@@ -562,7 +622,7 @@ void Writer::write_nodal_data(std::fstream& file)
 
               /// set field data
               Connectivity::ConstRow field_indexes = field_space.connectivity()[elem_idx];
-              for (Uint iState=0; iState<nb_states; ++iState)
+              for (Uint iState=0; iState<nb_sf_nodes; ++iState)
               {
                 for (Uint j=0; j<var_type; ++j)
                   field_data(iState,j) = field[field_indexes[iState]][row_idx+j];

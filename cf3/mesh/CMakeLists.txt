@@ -71,6 +71,9 @@ list( APPEND coolfluid_mesh_files
   Octtree.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
+  Quadrature.hpp
+  QuadratureBase.hpp
+  QuadratureT.hpp
   Reconstructions.hpp
   Region.hpp
   Region.cpp
@@ -148,6 +151,8 @@ add_subdirectory(LagrangeP2)      # LagrangeP2 elements / shape functions
 add_subdirectory(LagrangeP2B)     # LagrangeP2 bubble elements / shape functions
 
 add_subdirectory(LagrangeP3)      # LagrangeP3 elements / shape functions
+
+add_subdirectory(gausslegendre)   # Gauss Legendre quadrature
 
 add_subdirectory( neu )           # neutral file IO
 
