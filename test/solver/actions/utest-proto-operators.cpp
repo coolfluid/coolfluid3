@@ -19,6 +19,7 @@
 #include "solver/Model.hpp"
 #include "solver/Solver.hpp"
 
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Functions.hpp"
@@ -801,6 +802,68 @@ BOOST_AUTO_TEST_CASE( ElementVector )
   RealVector ref(8);
   ref << 0,1,1,0,0,0,1,1;
   BOOST_CHECK_EQUAL(elvec, ref);
+}
+
+
+BOOST_AUTO_TEST_CASE( Grad )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[scalar]" ).add_tag("solution");
+
+  FieldVariable<0, ScalarField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u = 2.*coordinates[0]));
+
+  RealVector2 result1, result2;
+  result1.setZero(); result2.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      element_quadrature(lit(result1) += gradient(u)),
+      lit(result1) = result1 / volume,
+      lit(result2) = gradient(u, result2)
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(result1[0], 2.);
+  BOOST_CHECK_EQUAL(result2[0], 2.);
+  BOOST_CHECK_EQUAL(result1[1], 0.);
+  BOOST_CHECK_EQUAL(result2[1], 0.);
+}
+
+BOOST_AUTO_TEST_CASE( Div )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
+
+  FieldVariable<0, VectorField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u[0] = 2.*coordinates[0], u[1] = 1.));
+
+  Real result1 = 0.;
+  Real result2 = 1.;
+  RealVector2 centroid; centroid.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      element_quadrature(lit(result1) += divergence(u)),
+      lit(result1) = result1 / volume,
+      lit(result2) = divergence(u, centroid)
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(result1, 2.);
+  BOOST_CHECK_EQUAL(result2, 2.);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
