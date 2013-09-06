@@ -47,6 +47,40 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
+namespace detail
+{  
+  /// Helper struct to get the number of element nodes
+  template<typename EquationDataT>
+  struct GetNbNodes
+  {
+    template<typename BoolT, typename EqDataT>
+    struct apply
+    {
+    };
+    
+    template<typename EqDataT>
+    struct apply<boost::mpl::false_, EqDataT>
+    {
+      static const Uint value = boost::remove_pointer
+      <
+        typename boost::remove_reference
+        <
+          typename boost::fusion::result_of::front<EquationDataT>::type
+        >::type
+      >::type::EtypeT::nb_nodes;
+    };
+    
+    template<typename EqDataT>
+    struct apply<boost::mpl::true_, EqDataT>
+    {
+      static const Uint value = 0;
+    };
+    
+    static const Uint value = apply<typename boost::fusion::result_of::empty<EquationDataT>::type, EquationDataT>::value;
+  };
+  
+}
+  
 /// Grammar matching expressions if they have a terminal with the index given in the template parameter
 template<Uint I>
 struct UsesVar :
@@ -825,6 +859,8 @@ public:
 
   /// A view of only the data used in the element matrix
   typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
+  
+  static const Uint nb_lss_nodes = detail::GetNbNodes<EquationDataT>::value;
 
   ElementData(VariablesT& variables, mesh::Elements& elements) :
     m_variables(variables),
@@ -851,18 +887,12 @@ public:
       FieldWidth<boost::mpl::_1, SupportEtypeT>
     >::type NbEqsPerVarT;
     
-    block_accumulator.resize(accumulator_size(boost::fusion::front(m_equation_data)), ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
+    block_accumulator.resize(nb_lss_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
   }
   
   // No LSS, so nothing to be done
   void init_block_accumulator(boost::mpl::true_)
   {
-  }
-  
-  template<typename FirstEquationDataT>
-  Uint accumulator_size(const FirstEquationDataT*)
-  {
-    return FirstEquationDataT::EtypeT::nb_nodes;
   }
 
   ~ElementData()
