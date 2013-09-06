@@ -17,6 +17,7 @@
 #include "math/LSS/SolveLSS.hpp"
 #include "math/LSS/ZeroLSS.hpp"
 
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/Tags.hpp"
@@ -67,7 +68,7 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
       _A( u[_i], u[_i]) += nu*transpose(nabla( u ))*nabla( u ),
       _T( u[_i], u[_i]) += transpose(N( u ))*N( u )
     ),
-    tentative_lss->system_matrix += tentative_lss->invdt()*_T + _A
+    tentative_lss->system_matrix += lit(tentative_lss->invdt())*_T + _A
   )));
 
   // RHS assembly
@@ -78,7 +79,7 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
     _a[u] = _0, // Set the element vector for the u_star variable to 0 and at the same time indicate that u_star is part of the linear system
     element_quadrature
     (
-      _a[u[_i]] += tentative_lss->invdt() * transpose(N(u))*u[_i] + transpose(N(u))*(u*nabla(u))*_col(nodal_values(u), _i)
+      _a[u[_i]] += lit(tentative_lss->invdt()) * transpose(N(u))*u[_i] - transpose(N(u))*(u*nabla(u))*_col(nodal_values(u), _i)
     ),
     tentative_lss->system_rhs += _a
   )));
@@ -105,7 +106,7 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   group
   (
     _a[p] = _0,
-    element_quadrature(_a[p] += transpose(N(p))*nabla( u )[_i]*_col(nodal_values(u), _i)),
+    element_quadrature(_a[p] += transpose(N(p))*divergence(u)),
     pressure_lss->system_rhs += -lit(pressure_lss->invdt())*_a
   )));
   
@@ -130,9 +131,8 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   group
   (
     _a[u] = _0,
-    element_quadrature(_a[u[_i]] += transpose(N(u))*(/*u[_i] - correction_lss->dt() */ (nabla(p)[_i]*nodal_values(p)))),
-    correction_lss->system_rhs += _a,
-  _cout << transpose(_a) << "\n"
+    element_quadrature(_a[u[_i]] += transpose(N(u))*(u[_i] - lit(correction_lss->dt()) * gradient(p)[_i])),
+    correction_lss->system_rhs += _a
   )));
   
   // Velocity boundary conditions
@@ -156,11 +156,12 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   // Update the fields
   tentative_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = tentative_lss->solution(u)));
   pressure_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(p = pressure_lss->solution(p)));
-  correction_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = correction_lss->system_rhs(u)));
+  correction_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = correction_lss->solution(u)));
 }
 
 void NavierStokesChorin::execute()
 {
+  using boost::proto::lit;
   Handle<common::Action> tentative_lss(get_child("TentativeLSS"));
   Handle<common::Action> pressure_lss(get_child("PressureLSS"));
   Handle<common::Action> correction_lss(get_child("CorrectionLSS"));
@@ -168,14 +169,6 @@ void NavierStokesChorin::execute()
   // Execute all LSS actions
   tentative_lss->execute();
   pressure_lss->execute();
-  
-  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution", mesh::LagrangeP2::LibLagrangeP2::library_namespace());
-  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_p_solution");
-  
-  //for_each_element<LagrangeP1P2>(*m_loop_regions.front(), _cout << transpose(integral<5>(transpose(N(u)) * (nabla(p)[0]*nodal_values(p))[0])) << "\n");
-
-  for_each_element<LagrangeP1P2>(*m_loop_regions.front(), _cout << transpose(integral<4>((nabla(p)*nodal_values(p)))) << "\n");
-  
   correction_lss->execute();
   
   // Disable the assembly of the matrix after the first run

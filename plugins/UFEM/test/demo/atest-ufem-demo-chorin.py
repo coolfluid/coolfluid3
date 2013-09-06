@@ -9,7 +9,7 @@ cf.env.exception_backtrace = False
 cf.env.exception_outputs = False
 cf.env.regist_signal_handlers = False
 
-n = 4
+n = 10
 
 # Print out the problem size to the testing dashboard
 measurement = ET.Element('DartMeasurement', name = 'Problem size', type = 'numeric/integer')
@@ -46,6 +46,18 @@ triangulator.execute()
 # Set the region over which the solver operates
 ns_solver.regions = [mesh.topology.uri()]
 
+# Initial conditions
+ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
+ic_u.variable_name = 'Velocity'
+ic_u.options.field_space_name = 'cf3.mesh.LagrangeP2'
+ic_u.value = ['0', '0']
+ic_u.regions = ns_solver.regions
+
+ic_p = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_p_solution')
+ic_p.variable_name = 'Pressure'
+ic_p.value = ['20-2*x']
+ic_p.regions = ns_solver.regions
+
 # Boundary conditions
 ns_solver.VelocityBC.regions = ns_solver.regions
 ns_solver.PressureBC.regions = ns_solver.regions
@@ -57,30 +69,25 @@ bc_wall.field_tag = 'navier_stokes_u_solution'
 bc_wall.space = 'cf3.mesh.LagrangeP2'
 bc_wall.value = ['0', '0']
 bc_wall.regions = [mesh.topology.top.uri(), mesh.topology.bottom.uri()]
-# Parabolic inlet
-bc_in = ns_solver.VelocityBC.create_bc_action(region_name = 'left', builder_name = 'cf3.UFEM.BCDirichletFunction')
-bc_in.solving_for_difference = False
-bc_in.variable_name = 'Velocity'
-bc_in.field_tag = 'navier_stokes_u_solution'
-bc_in.space = 'cf3.mesh.LagrangeP2'
-bc_in.value = ['y*(2-y)', '0']
-# Fix outlet pressure
-bc_p = ns_solver.PressureBC.create_bc_action(region_name = 'right', builder_name = 'cf3.UFEM.BCDirichletFunction')
-bc_p.solving_for_difference = False
-bc_p.variable_name = 'Pressure'
-bc_p.field_tag = 'navier_stokes_p_solution'
-bc_p.value = ['0']
+# Imposed pressure difference
+bc_p_out = ns_solver.PressureBC.create_bc_action(region_name = 'right', builder_name = 'cf3.UFEM.BCDirichletFunction')
+bc_p_out.solving_for_difference = False
+bc_p_out.variable_name = 'Pressure'
+bc_p_out.field_tag = 'navier_stokes_p_solution'
+bc_p_out.value = ['0']
+bc_p_in = ns_solver.PressureBC.create_bc_action(region_name = 'left', builder_name = 'cf3.UFEM.BCDirichletFunction')
+bc_p_in.solving_for_difference = False
+bc_p_in.variable_name = 'Pressure'
+bc_p_in.field_tag = 'navier_stokes_p_solution'
+bc_p_in.value = ['20']
 
 # Timestepping
 time = model.create_time()
 time.time_step = 0.1
-time.end_time = 1.*time.time_step
+time.end_time = 100.*time.time_step
 
 # Run the simulation
 model.simulate()
-
-ns_solver.children.PressureLSS.LSS.print_system('pressure.plt')
-ns_solver.children.CorrectionLSS.LSS.print_system('correction.plt')
 
 # Print timings
 model.print_timing_tree()

@@ -824,6 +824,7 @@ BOOST_AUTO_TEST_CASE( Grad )
     mesh->topology(),
     group
     (
+      _cout << "u*gradient(u): " << u(result1) * gradient(u, result1) << "\n",
       element_quadrature(lit(result1) += gradient(u)),
       lit(result1) = result1 / volume,
       lit(result2) = gradient(u, result2)
