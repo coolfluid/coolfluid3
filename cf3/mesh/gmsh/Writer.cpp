@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -220,10 +221,8 @@ void Writer::write_coordinates(std::fstream& file)
   file << nb_nodes << "\n";
 
   const Uint nb_dim = m_mesh->dimension();
-  Uint node_number=0;
   const Dictionary& geometry = m_mesh->geometry_fields();
   const common::Table<Real>& coordinates = geometry.coordinates();
-  Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
     common::Table<Real>::ConstRow coord = coordinates[node];
@@ -337,7 +336,22 @@ void Writer::write_interpolation_schemes(std::fstream& file)
 
     // step 2: write
     file << "$InterpolationScheme\n";
-    file << "\""<<dict->name() << "\"\n";
+    std::string space_lib_name;
+    boost_foreach(const Handle< Entities >& entities, dict->entities_range())
+    {
+      std::string entities_path = entities->uri().path();
+      boost::erase_first(entities_path, m_mesh->uri().path());
+      if(space_lib_name.empty())
+      {
+        std::string sf_name = entities->space(*dict).shape_function().derived_type_name();
+        std::vector<std::string> name_parts;
+        boost::split(name_parts, sf_name, boost::is_any_of("."));
+        space_lib_name = name_parts.front();
+        for(Uint i = 1; i != name_parts.size()-1; ++i)
+          space_lib_name += "." + name_parts[i];
+      }
+    }
+    file << "\""<<dict->name() << " ["<< space_lib_name <<"]\"\n";
     file << nb_interpolation_schemes << "\n";
     boost_foreach( Handle<ShapeFunction const>& sf, shape_functions )
     {
@@ -397,7 +411,24 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       const Real field_time = field.properties().value<Real>("time");
       const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
-      const std::string dict_name = field.dict().name();
+
+      std::string space_lib_name;
+      boost_foreach(const Handle< Entities >& entities, field.dict().entities_range())
+      {
+        std::string entities_path = entities->uri().path();
+        boost::erase_first(entities_path, m_mesh->uri().path());
+        if(space_lib_name.empty())
+        {
+          std::string sf_name = entities->space(field.dict()).shape_function().derived_type_name();
+          std::vector<std::string> name_parts;
+          boost::split(name_parts, sf_name, boost::is_any_of("."));
+          space_lib_name = name_parts.front();
+          for(Uint i = 1; i != name_parts.size()-1; ++i)
+            space_lib_name += "." + name_parts[i];
+        }
+      }
+
+      const std::string interpolation_scheme = field.dict().name() + " ["+space_lib_name+"]";
       Uint nb_elements = 0;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
@@ -441,10 +472,10 @@ void Writer::write_elem_nodal_data(std::fstream& file)
 
         file << "$ElementNodeData\n";
 
-        // add 3 string tags : var_name, dict_name, field_name
+        // add 3 string tags : var_name, interpolation_scheme, field_name
         file << 3 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-        file << "\"" << dict_name << "\"\n";
+        file << "\"" << interpolation_scheme << "\"\n";
         file << "\"" << field_name << "\"\n";
         // add 1 real tag: time
         file << 1 << "\n" << field_time << "\n";  // 1 real tag: time
@@ -553,8 +584,23 @@ void Writer::write_nodal_data(std::fstream& file)
       const Real field_time = field.properties().value<Real>("time");
       const Uint field_iter = field.properties().value<Uint>("step");
       const std::string field_name = field.name();
-      const std::string dict_name = field.dict().name();
-      Uint nb_elements = 0;
+      std::string space_lib_name;
+      boost_foreach(const Handle< Entities >& entities, field.dict().entities_range())
+      {
+        std::string entities_path = entities->uri().path();
+        boost::erase_first(entities_path, m_mesh->uri().path());
+        if(space_lib_name.empty())
+        {
+          std::string sf_name = entities->space(field.dict()).shape_function().derived_type_name();
+          std::vector<std::string> name_parts;
+          boost::split(name_parts, sf_name, boost::is_any_of("."));
+          space_lib_name = name_parts.front();
+          for(Uint i = 1; i != name_parts.size()-1; ++i)
+            space_lib_name += "." + name_parts[i];
+        }
+      }
+
+      const std::string interpolation_scheme = field.dict().name() + " ["+space_lib_name+"]";      Uint nb_elements = 0;
       std::vector< Handle<Entities const> > filtered_used_entities_by_field;
       boost_foreach(const Handle<Entities const>& elements_handle, m_filtered_entities )
       {
@@ -597,7 +643,7 @@ void Writer::write_nodal_data(std::fstream& file)
         // add 2 string tags : var_name, field_name
         file << 3 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-        file << "\"" << dict_name << "\"\n";
+        file << "\"" << interpolation_scheme << "\"\n";
         file << "\"" << field_name << "\"\n";
         // add 1 real tag: time
         file << 1 << "\n" << field_time << "\n";  // 1 real tag: time

@@ -1419,6 +1419,7 @@ void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
           if (dictionaries.count(other_dict.name()) == 0)
           {
             Handle<Dictionary> dict = m_mesh->create_component(other_dict.name(),other_dict.derived_type_name())->handle<Dictionary>();
+            dict->properties().add("space_lib",other_dict.properties().value<std::string>("space_lib"));
             dictionaries[dict->name()]=dict;
           }
           space = entities->create_space(other_space->shape_function().derived_type_name(),*dictionaries[other_dict.name()]).handle<Space>();

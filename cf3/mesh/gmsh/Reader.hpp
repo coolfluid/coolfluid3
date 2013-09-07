@@ -123,6 +123,7 @@ private: // data
   {
     std::string name;
     std::vector<std::string> var_names;
+    std::string interpolation_scheme;
     Real time;
     Uint time_step;
     std::vector<Uint> var_types;
@@ -154,6 +155,8 @@ private: // data
       }
       return "null";
     }
+    std::string dict_name() const;
+    std::string space_lib_name() const;
   };
 
   void fix_negative_volumes(Mesh& mesh);
