@@ -31,6 +31,7 @@
 #include "python/ComponentWrapper.hpp"
 #include "python/PythonAny.hpp"
 #include "python/TableWrapper.hpp"
+#include "python/ListWrapper.hpp"
 #include "python/Utility.hpp"
 
 namespace cf3 {
@@ -252,6 +253,8 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
 
   // Add extra functionality for derived classes
   add_ctable_methods(wrapped, result);
+  add_clist_methods(wrapped, result);
+
   return result;
 }
 

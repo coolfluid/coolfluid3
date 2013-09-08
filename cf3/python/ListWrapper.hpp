@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF3_Python_TableWrapper_hpp
-#define CF3_Python_TableWrapper_hpp
+#ifndef CF3_Python_ListWrapper_hpp
+#define CF3_Python_ListWrapper_hpp
 
 #include <boost/python/object_fwd.hpp>
 
@@ -15,14 +15,14 @@ namespace python {
 
 class ComponentWrapper;
 
-/// Python wrapping for the Table class
-void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj);
+/// Python wrapping for the List class
+void add_clist_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj);
 
-void def_ctable_types();
+void def_clist_types();
 
 } // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Python_TableWrapper_hpp
+#endif // cf3_Python_ListWrapper_hpp
