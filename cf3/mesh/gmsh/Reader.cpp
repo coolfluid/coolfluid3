@@ -699,6 +699,10 @@ void Reader::read_element_node_data()
       Handle<Dictionary> dict = find_component_ptr_with_name<Dictionary>(*m_mesh,gmsh_field.dict_name());
       if( is_null(dict) )
       {
+        if ( gmsh_field.space_lib_name() == "unknown" )
+        {
+          throw common::ParsingFailed(FromHere(), "interpolation_scheme is not provided");
+        }
         dict = m_mesh->create_discontinuous_space(gmsh_field.dict_name(),gmsh_field.space_lib_name()).handle<Dictionary>();
       }
 
@@ -1038,30 +1042,31 @@ void Reader::fix_negative_volumes(Mesh& mesh)
 
 std::string Reader::Field::dict_name() const
 {
+  if (interpolation_scheme == "unknown")
+    return "geometry";
+
   const boost::regex pattern("([[:word:]]+)([[:space:]]+\\[(.*)\\])?");
   boost::match_results<std::string::const_iterator> what;
   if (boost::regex_search(interpolation_scheme,what,pattern))
   {
     return what[1];
   }
-  else
-  {
-    return "geometry";
-  }
+  return "geometry";
 }
 
 std::string Reader::Field::space_lib_name() const
 {
+  if (interpolation_scheme == "unknown")
+    return "unknown";
+
   const boost::regex pattern("([[:word:]]+)([[:space:]]+\\[(.*)\\])?");
   boost::match_results<std::string::const_iterator> what;
   if (boost::regex_search(interpolation_scheme,what,pattern))
   {
+    if ( std::string(what[3]).empty() ) return "unknown";
     return what[3];
   }
-  else
-  {
-    return "unknown";
-  }
+  return "unknown";
 }
 
 //////////////////////////////////////////////////////////////////////////////
