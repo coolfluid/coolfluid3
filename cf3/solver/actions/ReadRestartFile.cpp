@@ -84,9 +84,9 @@ void ReadRestartFile::execute()
   if(options().value<bool>("read_time_step"))
   {
     time->options().set("time_step", common::from_str<Real>(restart_node.attribute_value("time_step")));
+    time->options().set("current_time", common::from_str<Real>(restart_node.attribute_value("current_time")));
+    time->options().set("iteration", common::from_str<Uint>(restart_node.attribute_value("iteration")));
   }
-  time->options().set("current_time", common::from_str<Real>(restart_node.attribute_value("current_time")));
-  time->options().set("iteration", common::from_str<Uint>(restart_node.attribute_value("iteration")));
 
   if(common::from_str<Uint>(restart_node.attribute_value("version")) != 1)
     throw common::FileFormatError(FromHere(), "File  " + filepath.path() + " has unsupported version");
