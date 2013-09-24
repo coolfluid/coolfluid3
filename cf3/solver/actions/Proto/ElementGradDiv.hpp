@@ -50,13 +50,17 @@ struct GradientOp
 /// Evaluate the divergence
 struct DivOp
 {
+  // The result is a scalar
   typedef Real result_type;
 
+  // Return the divergence of unknown var, computed at mapped_coords
   template<typename VarT>
   Real operator()(const VarT& var, const typename VarT::MappedCoordsT& mapped_coords)
   {
+    // Get the gradient matrix
     const typename VarT::GradientT& nabla = var.nabla(mapped_coords);
     Real result = 0.;
+    // Apply each component and return the result
     for(int i = 0; i != VarT::EtypeT::dimensionality; ++i)
     {
       result += nabla.row(i) * var.value().col(i);

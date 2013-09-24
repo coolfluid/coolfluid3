@@ -45,43 +45,43 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
 
   PhysicsConstant nu("kinematic_viscosity");
 
-  // Manage the tentative velocity
-  Handle<LSSActionUnsteady> tentative_lss = create_component<LSSActionUnsteady>("TentativeLSS");
-  tentative_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  tentative_lss->options().set("use_geometry_space", false);
-  tentative_lss->set_solution_tag("navier_stokes_u_solution");
+  // Manage the auxiliary velocity
+  Handle<LSSActionUnsteady> auxiliary_lss = create_component<LSSActionUnsteady>("AuxiliaryLSS");
+  auxiliary_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  auxiliary_lss->options().set("use_geometry_space", false);
+  auxiliary_lss->set_solution_tag("navier_stokes_u_solution");
 
-  // The tentative velocity field, of P2 order
-  FieldVariable<0, VectorField> u("Velocity", tentative_lss->solution_tag(), mesh::LagrangeP2::LibLagrangeP2::library_namespace());
+  // The auxiliary velocity field, of P2 order
+  FieldVariable<0, VectorField> u("Velocity", auxiliary_lss->solution_tag(), mesh::LagrangeP2::LibLagrangeP2::library_namespace());
 
   // Zero the LSS
-  tentative_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  auxiliary_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
 
   // Matrix assembly
-  Handle<ProtoAction> tentative_mat_assembly = tentative_lss->create_component<ProtoAction>("MatrixAssembly");
-  tentative_mat_assembly->set_expression(elements_expression(LagrangeP1P2(),
+  Handle<ProtoAction> auxiliary_mat_assembly = auxiliary_lss->create_component<ProtoAction>("MatrixAssembly");
+  auxiliary_mat_assembly->set_expression(elements_expression(LagrangeP1P2(),
   group
   (
     _A( u ) = _0, _T( u ) = _0,
     element_quadrature
     (
-      _A( u[_i], u[_i]) += nu*transpose(nabla( u ))*nabla( u ),
+      _A( u[_i], u[_i]) += transpose(nabla( u ))*nabla( u ),
       _T( u[_i], u[_i]) += transpose(N( u ))*N( u )
     ),
-    tentative_lss->system_matrix += lit(tentative_lss->invdt())*_T + _A
+    auxiliary_lss->system_matrix += auxiliary_lss->invdt()*_T + nu*_A
   )));
 
   // RHS assembly
-  Handle<ProtoAction> tentative_rhs_assembly = tentative_lss->create_component<ProtoAction>("RHSAssembly");
-  tentative_rhs_assembly->set_expression(elements_expression(LagrangeP1P2(),
+  Handle<ProtoAction> auxiliary_rhs_assembly = auxiliary_lss->create_component<ProtoAction>("RHSAssembly");
+  auxiliary_rhs_assembly->set_expression(elements_expression(LagrangeP1P2(),
   group
   (
     _a[u] = _0, // Set the element vector for the u_star variable to 0 and at the same time indicate that u_star is part of the linear system
     element_quadrature
     (
-      _a[u[_i]] += lit(tentative_lss->invdt()) * transpose(N(u))*u[_i] - transpose(N(u))*(u*nabla(u))*_col(nodal_values(u), _i)
+      _a[u[_i]] += auxiliary_lss->invdt() * transpose(N(u))*u[_i] - transpose(N(u))*(u*nabla(u))*_col(nodal_values(u), _i)
     ),
-    tentative_lss->system_rhs += _a
+    auxiliary_lss->system_rhs += _a
   )));
   
   Handle<LSSActionUnsteady> pressure_lss = create_component<LSSActionUnsteady>("PressureLSS");
@@ -114,7 +114,7 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   Handle<LSSActionUnsteady> correction_lss = create_component<LSSActionUnsteady>("CorrectionLSS");
   correction_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
   correction_lss->options().set("use_geometry_space", false);
-  correction_lss->set_solution_tag(tentative_lss->solution_tag());
+  correction_lss->set_solution_tag(auxiliary_lss->solution_tag());
   correction_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
   
   Handle<ProtoAction> correction_matrix_assembly = correction_lss->create_component<ProtoAction>("MatrixAssembly");
@@ -138,8 +138,8 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   // Velocity boundary conditions
   Handle<BoundaryConditions> u_bc = create_component<BoundaryConditions>("VelocityBC");
   u_bc->mark_basic();
-  u_bc->set_solution_tag(tentative_lss->solution_tag());
-  tentative_lss->create_component<common::Link>("BC")->link_to(*u_bc);
+  u_bc->set_solution_tag(auxiliary_lss->solution_tag());
+  auxiliary_lss->create_component<common::Link>("BC")->link_to(*u_bc);
   correction_lss->create_component<common::Link>("BC")->link_to(*u_bc);
   
   // Pressure boundary conditions
@@ -149,12 +149,12 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   pressure_lss->create_component<common::Link>("BC")->link_to(*p_bc);
   
   // Solution of the systems
-  tentative_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
+  auxiliary_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
   pressure_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
   correction_lss->create_component<math::LSS::SolveLSS>("SolveLSS");
   
   // Update the fields
-  tentative_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = tentative_lss->solution(u)));
+  auxiliary_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = auxiliary_lss->solution(u)));
   pressure_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(p = pressure_lss->solution(p)));
   correction_lss->create_component<ProtoAction>("Update")->set_expression(nodes_expression(u = correction_lss->solution(u)));
 }
@@ -162,23 +162,23 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
 void NavierStokesChorin::execute()
 {
   using boost::proto::lit;
-  Handle<common::Action> tentative_lss(get_child("TentativeLSS"));
+  Handle<common::Action> auxiliary_lss(get_child("AuxiliaryLSS"));
   Handle<common::Action> pressure_lss(get_child("PressureLSS"));
   Handle<common::Action> correction_lss(get_child("CorrectionLSS"));
   
   // Execute all LSS actions
-  tentative_lss->execute();
+  auxiliary_lss->execute();
   pressure_lss->execute();
   correction_lss->execute();
   
   // Disable the assembly of the matrix after the first run
   const std::vector<std::string> disabled(1, "MatrixAssembly");
-  tentative_lss->options().set("disabled_actions", disabled);
+  auxiliary_lss->options().set("disabled_actions", disabled);
   pressure_lss->options().set("disabled_actions", disabled);
   correction_lss->options().set("disabled_actions", disabled);
   
   // Don't zero the matrix anymore after the first run
-  tentative_lss->get_child("ZeroLSS")->options().set("reset_matrix", false);
+  auxiliary_lss->get_child("ZeroLSS")->options().set("reset_matrix", false);
   pressure_lss->get_child("ZeroLSS")->options().set("reset_matrix", false);
   correction_lss->get_child("ZeroLSS")->options().set("reset_matrix", false);
 }
@@ -186,7 +186,7 @@ void NavierStokesChorin::execute()
 // Make sure we set the regions on out child actions
 void NavierStokesChorin::on_regions_set()
 {
-  get_child("TentativeLSS")->options().set("regions", options()["regions"].value());
+  get_child("AuxiliaryLSS")->options().set("regions", options()["regions"].value());
   get_child("PressureLSS")->options().set("regions", options()["regions"].value());
   get_child("CorrectionLSS")->options().set("regions", options()["regions"].value());
 }

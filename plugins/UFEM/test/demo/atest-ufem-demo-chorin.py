@@ -81,10 +81,21 @@ bc_p_in.variable_name = 'Pressure'
 bc_p_in.field_tag = 'navier_stokes_p_solution'
 bc_p_in.value = ['20']
 
+# Create the fields, to ensure LSS creation
+solver.create_fields()
+# LSS options
+lss = ns_solver.children.AuxiliaryLSS.create_lss()
+lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'SA'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'MIS'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 2
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_pre_or_post = 'both'
+
 # Timestepping
 time = model.create_time()
 time.time_step = 0.1
-time.end_time = 100.*time.time_step
+time.end_time = 10.*time.time_step
 
 # Run the simulation
 model.simulate()
