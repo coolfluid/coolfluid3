@@ -31,7 +31,7 @@ cf.env.exception_outputs = False
 cf.env.regist_signal_handlers = False
 cf.env.log_level = 1
 
-n = 512
+n = 64
 
 measurement = ET.Element('DartMeasurement', name = 'Problem size', type = 'numeric/integer')
 measurement.text = str(n)
@@ -41,7 +41,7 @@ profiler = Profiler()
 
 # We loop over all available implementations, to test them all
 for lss_name in ['EmptyLSS', 'TrilinosCrs']:
-  for modelname in ['Proto', 'Specialized', 'Manual', 'Virtual']:
+  for modelname in ['Proto']:
     # Setup a model
     model = cf.Core.root().create_component(modelname+'Model', 'cf3.solver.Model')
     # The domain holds the mesh
@@ -58,13 +58,13 @@ for lss_name in ['EmptyLSS', 'TrilinosCrs']:
     mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
     mesh_generator = domain.create_component("MeshGenerator","cf3.mesh.SimpleMeshGenerator")
     mesh_generator.mesh = mesh.uri()
-    mesh_generator.nb_cells = [n,n]
-    mesh_generator.lengths = [1.,1.]
-    mesh_generator.offsets = [0.,0.]
+    mesh_generator.nb_cells = [n,n,n]
+    mesh_generator.lengths = [1.,1.,1.]
+    mesh_generator.offsets = [0.,0.,0.]
     mesh_generator.execute()
 
     # Triangulate it
-    triangulator = domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
+    triangulator = domain.create_component('triangulator', 'cf3.vtk.Tetrahedralize')
     triangulator.mesh = mesh
     triangulator.execute()
 
@@ -93,7 +93,7 @@ for lss_name in ['EmptyLSS', 'TrilinosCrs']:
     model.store_timings()
     
     try:
-      assembly_time = poisson_solver.Assembly.properties()["timer_minimum"]
+      assembly_time = poisson_solver.Assembly.properties()["timer_mean"]
       measurement = ET.Element('DartMeasurement', name = modelname + ' ' + lss_name + ' timing', type = 'numeric/double')
       measurement.text = str(assembly_time)
       print ET.tostring(measurement)

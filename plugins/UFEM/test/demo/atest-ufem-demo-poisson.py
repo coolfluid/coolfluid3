@@ -18,13 +18,13 @@ poisson_solver = solver.add_direct_solver('cf3.UFEM.demo.PoissonProto')
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 mesh_generator = domain.create_component("MeshGenerator","cf3.mesh.SimpleMeshGenerator")
 mesh_generator.mesh = mesh.uri()
-mesh_generator.nb_cells = [6,4]
-mesh_generator.lengths = [1.,1.]
-mesh_generator.offsets = [0.,0.]
+mesh_generator.nb_cells = [6,4,10]
+mesh_generator.lengths = [1.,1.,1.]
+mesh_generator.offsets = [0.,0.,0.]
 mesh_generator.execute()
 
 # Triangulate it
-triangulator = domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
+triangulator = domain.create_component('triangulator', 'cf3.vtk.Tetrahedralize')
 triangulator.mesh = mesh
 triangulator.execute()
 
@@ -54,6 +54,6 @@ model.print_timing_tree()
 domain.write_mesh(cf.URI('atest-ufem-demo-poisson.pvtu'))
 
 # Check result
-for [x,y], [u] in zip(mesh.geometry.coordinates, mesh.geometry.poisson_solution):
+for [x,y,z], [u] in zip(mesh.geometry.coordinates, mesh.geometry.poisson_solution):
   if abs(1. + x**2 + 2.*y**2 - u) > 1e-12:
     raise Exception('Solution is incorrect')

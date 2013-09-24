@@ -6,6 +6,9 @@ coolfluid_add_test( ATEST atest-ufem-demo-all
 
 coolfluid_add_test( PTEST ptest-ufem-demo-assembly
                     PYTHON ptest-ufem-demo-assembly.py)
+
+coolfluid_add_test( PTEST ptest-ufem-demo-assembly3d
+                    PYTHON ptest-ufem-demo-assembly3d.py)
                     
 coolfluid_add_test( PTEST ptest-ufem-demo-navier-stokes
                     PYTHON ptest-ufem-demo-navier-stokes.py)
