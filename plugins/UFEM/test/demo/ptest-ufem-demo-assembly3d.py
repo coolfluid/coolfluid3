@@ -31,7 +31,7 @@ cf.env.exception_outputs = False
 cf.env.regist_signal_handlers = False
 cf.env.log_level = 1
 
-n = 64
+n = 16
 
 measurement = ET.Element('DartMeasurement', name = 'Problem size', type = 'numeric/integer')
 measurement.text = str(n)

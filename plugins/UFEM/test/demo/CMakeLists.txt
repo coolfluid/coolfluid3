@@ -15,3 +15,6 @@ coolfluid_add_test( PTEST ptest-ufem-demo-navier-stokes
 
 coolfluid_add_test( ATEST atest-ufem-demo-chorin
                     PYTHON atest-ufem-demo-chorin.py)
+
+coolfluid_add_test( PTEST ptest-ufem-demo-chorin-assembly
+                    PYTHON ptest-ufem-demo-chorin-assembly.py)

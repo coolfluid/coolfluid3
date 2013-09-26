@@ -48,7 +48,7 @@ time = model.create_time()
 time.options().set('time_step', 0.1)
 
 # Setup a time series write
-final_end_time = 2.
+final_end_time = 0.5
 save_interval = 0.5
 current_end_time = 0.
 iteration = 0
