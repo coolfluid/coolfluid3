@@ -64,9 +64,12 @@ for lss_name in ['EmptyLSS', 'TrilinosCrs']:
     mesh_generator.execute()
 
     # Triangulate it
-    triangulator = domain.create_component('triangulator', 'cf3.vtk.Tetrahedralize')
-    triangulator.mesh = mesh
-    triangulator.execute()
+    try:
+      triangulator = domain.create_component('triangulator', 'cf3.vtk.Tetrahedralize')
+      triangulator.mesh = mesh
+      triangulator.execute()
+    except:
+      print 'Tetrahedralizer not found, running using Hexas'
 
     # Set the region over which the solver operates
     poisson_solver.regions = [mesh.topology.uri()]

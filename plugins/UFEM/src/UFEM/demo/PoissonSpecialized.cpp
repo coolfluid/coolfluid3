@@ -39,8 +39,7 @@ struct PoissonTriagAssembly
 {
   typedef void result_type;
 
-  // Functor that takes: source term f, result element matrix A, result element RHS vector a
-  // f is actually of type ETypeTVariableData, found in ElementData.hpp in the Proto directory
+  // Functor that takes: source term f, Linear system lss, element matrix and vector acc
   template<typename FT, typename LSST>
   void operator()(const FT& f, LSST& lss, math::LSS::BlockAccumulator& acc) const
   {
