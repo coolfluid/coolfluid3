@@ -55,7 +55,7 @@ namespace detail
       common::XML::XmlNode region_node = node.add_node("region");
       region_node.set_attribute("name", region.name());
       write_regions(region_node, region, writer, root_path);
-      BOOST_FOREACH(const Elements& elements, common::find_components<Elements>(region))
+      BOOST_FOREACH(const Entities& elements, common::find_components<Entities>(region))
       {
         common::XML::XmlNode elements_node = region_node.add_node("elements");
         elements_node.set_attribute("name", elements.name());
