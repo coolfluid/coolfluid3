@@ -39,6 +39,35 @@ common::ComponentBuilder < NavierStokesChorin, common::Action, LibUFEMDemo > Nav
 typedef boost::mpl::vector1<mesh::LagrangeP1::Triag2D> LagrangeP1;
 typedef boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP2::Triag2D> LagrangeP1P2;
 
+struct CorrectionMatrix
+{
+  typedef void result_type;
+  
+  template<typename UT, typename MatrixT>
+  void operator()(UT& u, MatrixT& A)
+  {
+    static const Uint nb_nodes = UT::EtypeT::nb_nodes;
+    Eigen::Matrix<Real, nb_nodes, nb_nodes> mass_matrix;
+    mass_matrix.setZero();
+    
+    // 4th order quadrature
+    typedef mesh::Integrators::GaussMappedCoords<4, UT::EtypeT::shape> GaussT;
+    for(Uint gauss_idx = 0; gauss_idx != GaussT::nb_points; ++gauss_idx)
+    {
+      u.shape_function(GaussT::instance().coords.col(gauss_idx));
+      const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant(GaussT::instance().coords.col(gauss_idx));
+      mass_matrix.noalias() += u.shape_function().transpose() * (u.shape_function()*w);
+    }
+    
+    for(Uint i = 0; i != UT::EtypeT::dimension; ++i)
+    {
+      A.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes).noalias() = mass_matrix;
+    }
+  }
+};
+
+static MakeSFOp<CorrectionMatrix>::type const correction_matrix = {};
+
 NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Action( name )
 {
   using boost::proto::lit;
@@ -123,6 +152,7 @@ NavierStokesChorin::NavierStokesChorin ( const std::string& name ) : solver::Act
   (
     _A(u) = _0,
     element_quadrature(_A(u[_i], u[_i]) += transpose(N(u))*N(u)),
+    //correction_matrix(u, _A),
     correction_lss->system_matrix += _A
   )));
   
