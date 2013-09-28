@@ -37,6 +37,20 @@ void print_error(const T&)
   T::print_error();
 }
 
+/// Dummy shape function type used for element-based fields
+template<Uint Dim>
+struct ElementBased
+{
+  static const Uint dimension = Dim;
+  static const Uint nb_nodes = 1;
+  /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
+  struct SF
+  {
+    typedef RealMatrix GradientT;
+    typedef RealMatrix ValueT;
+  };
+};
+
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
 struct Var : I

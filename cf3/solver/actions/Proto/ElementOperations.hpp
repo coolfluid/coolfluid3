@@ -14,7 +14,6 @@
 #include "common/CF.hpp"
 
 #include "Transforms.hpp"
-#include "ElementData.hpp"
 #include "GaussPoints.hpp"
 
 /// @file

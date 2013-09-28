@@ -39,6 +39,7 @@
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
+#include "ElementTransforms.hpp"
 #include "FieldSync.hpp"
 #include "Terminals.hpp"
 
@@ -79,31 +80,89 @@ namespace detail
     static const Uint value = apply<typename boost::fusion::result_of::empty<EquationDataT>::type, EquationDataT>::value;
   };
   
-}
-  
-/// Grammar matching expressions if they have a terminal with the index given in the template parameter
-template<Uint I>
-struct UsesVar :
-  boost::proto::or_
-  <
-    boost::proto::when
+  /// Grammar matching expressions if they have a terminal with the index given in the template parameter
+  template<typename MatchingGrammarT>
+  struct HasSubGrammar :
+    boost::proto::or_
     <
-      boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >,
-      boost::mpl::true_()
-    >,
-    boost::proto::when
-    <
-      boost::proto::terminal< boost::proto::_ >,
-      boost::mpl::false_()
-    >,
-    boost::proto::when
-    <
-      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
-      boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< UsesVar<I> > >() >
+      boost::proto::when
+      <
+        MatchingGrammarT,
+        boost::mpl::true_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::terminal< boost::proto::_ >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+        boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< HasSubGrammar<MatchingGrammarT> > >() >
+      >
     >
-  >
-{
-};
+  {
+  };
+  
+  /// Grammar matching expressions if they have a terminal with the index given in the template parameter
+  template<Uint I>
+  struct UsesVar : HasSubGrammar< boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >
+  {
+  };
+  
+  template<typename ExprT, typename MatchingGrammarT>
+  struct HasSubExpr
+  {
+    static const bool value = boost::result_of<HasSubGrammar<MatchingGrammarT>(ExprT)>::type::value;
+  };
+  
+  /// Returns true if an interpolation op is used
+  template<Uint I>
+  struct MatchImplicitEval :
+    boost::proto::or_
+    <
+      boost::proto::when
+      <
+        boost::proto::or_
+        <
+          boost::proto::function< boost::proto::terminal< SFOp<boost::proto::_> >, boost::proto::vararg<boost::proto::_> >,
+          boost::proto::terminal< SFOp<boost::proto::_> >,
+          boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+          ElementMatrixGrammar,
+          ElementMatrixGrammarIndexed< boost::mpl::int_<0>, boost::mpl::int_<0> >
+        >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >,
+        boost::mpl::true_()
+      >
+    >
+  {
+  };
+  
+  template<Uint I>
+  struct HasEvalVar :
+    boost::proto::or_
+    <
+      boost::proto::call< MatchImplicitEval<I> >,
+      boost::proto::when
+      <
+        boost::proto::terminal< boost::proto::_ >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+        boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< HasEvalVar<I> > >() >
+      >
+    >
+  {
+  };
+  
+  
+}
 
 /// Functions and operators associated with a geometric support
 template<typename ETYPE>
@@ -270,6 +329,7 @@ private:
   Uint m_element_idx;
 
   /// Temp storage for non-scalar results
+private:
   mutable typename EtypeT::SF::ValueT m_sf;
   mutable typename EtypeT::CoordsT m_eval_result;
   mutable typename EtypeT::JacobianT m_jacobian_matrix;
@@ -284,20 +344,6 @@ inline mesh::Field& find_field(mesh::Elements& elements, const std::string& tag)
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
   return common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
 }
-
-/// Dummy shape function type used for element-based fields
-template<Uint Dim>
-struct ElementBased
-{
-  static const Uint dimension = Dim;
-  static const Uint nb_nodes = 1;
-  /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
-  struct SF
-  {
-    typedef RealMatrix GradientT;
-    typedef RealMatrix ValueT;
-  };
-};
 
 /// Data associated with field variables
 template<typename ETYPE, typename SupportEtypeT, Uint Dim, bool IsEquationVar>
@@ -471,13 +517,13 @@ public:
     
     m_need_sync = true;
   }
-
+  
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
   void compute_values(const MappedCoordsT& mapped_coords) const
   {
     compute_values_dispatch(boost::mpl::bool_<EtypeT::dimension == EtypeT::dimensionality>(), mapped_coords);
   }
-
+  
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
@@ -624,6 +670,10 @@ public:
     cf3_assert(false); // should not be used
     return m_dummy_result;
   }
+  
+  void compute_values(const MappedCoordsT& mapped_coords) const
+  {
+  }
 
 private:
   mesh::Field& m_field;
@@ -696,6 +746,10 @@ public:
   {
     cf3_assert(false); // should not be used
     return m_dummy_result;
+  }
+  
+  void compute_values(const MappedCoordsT& mapped_coords) const
+  {
   }
 
 private:
@@ -1139,16 +1193,18 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      apply(typename boost::result_of<UsesVar<I::value>(ExprT)>::type(), boost::fusion::at<I>(m_variables_data));
+      apply(typename boost::result_of<detail::UsesVar<I::value>(ExprT)>::type(), I(), boost::fusion::at<I>(m_variables_data));
     }
 
-    void apply(boost::mpl::false_, const boost::mpl::void_&)
+    template<typename I, typename T>
+    void apply(boost::mpl::false_, I, T)
     {
     }
 
-    template<typename T>
-    void apply(boost::mpl::true_, T*& d)
+    template<typename I, typename T>
+    void apply(boost::mpl::true_, I, T*& d)
     {
+//       static const bool needs_eval = boost::result_of<detail::HasEvalVar<I::value>(ExprT)>::type::value;
       d->compute_values(m_mapped_coords);
     }
 
