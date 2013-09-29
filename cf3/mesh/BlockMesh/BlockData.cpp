@@ -1369,11 +1369,15 @@ Handle< Table< Uint > > BlockArrays::create_patch(const std::string& name, const
 
 Handle< Mesh > BlockArrays::create_block_mesh()
 {
+//  if (is_not_null(m_implementation->block_mesh))
+  {
+//    remove_component("InnerBlockMesh");
+  }
   m_implementation->block_mesh = create_component<Mesh>("InnerBlockMesh");
 
-  const Uint nb_nodes = m_implementation->points->size();
+  const Uint nb_nodes   = m_implementation->points->size();
   const Uint dimensions = m_implementation->points->row_size();
-  const Uint nb_blocks = m_implementation->blocks->size();
+  const Uint nb_blocks  = m_implementation->blocks->size();
 
   // root region and coordinates
   Region& block_mesh_region = m_implementation->block_mesh->topology().create_region("block_mesh_region");
@@ -1443,6 +1447,7 @@ Handle< Mesh > BlockArrays::create_block_mesh()
   }
 
   // Create a field containing the indices of the unassigned patches
+  std::cout << "creating elems_P0" << std::endl;
   Dictionary& elems_P0 = m_implementation->block_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0", std::vector< Handle<Entities> >(1, default_shell_elems.handle<Entities>()));
   Field& shell_face_indices = elems_P0.create_field("shell_face_index");
   const Space& shell_space = elems_P0.space(default_shell_elems);
@@ -1452,11 +1457,23 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     shell_face_indices[field_idx][0] = i;
   }
 
+  const Uint nb_partitions = m_implementation->block_distribution.size()-1;
+  for(Uint part = 0; part != nb_partitions; ++part)
+  {
+    const Uint blocks_begin = m_implementation->block_distribution[part];
+    const Uint blocks_end = m_implementation->block_distribution[part+1];
+    for(Uint i = blocks_begin; i != blocks_end; ++i)
+    {
+      block_elements.rank()[i] = part;
+      block_elements.glb_idx()[i] = i;
+    }
+  }
+
   // Create a field containing the ranks of the blocks
+  std::cout << "creating blocks_P0" << std::endl;
   Dictionary& block_elems_P0 = m_implementation->block_mesh->create_discontinuous_space("blocks_P0","cf3.mesh.LagrangeP0", std::vector< Handle<Entities> >(1, block_elements.handle<Entities>()));
   Field& block_ranks = block_elems_P0.create_field("block_rank");
   const Space& block_space = block_elems_P0.space(block_elements);
-  const Uint nb_partitions = m_implementation->block_distribution.size()-1;
   for(Uint part = 0; part != nb_partitions; ++part)
   {
     const Uint blocks_begin = m_implementation->block_distribution[part];

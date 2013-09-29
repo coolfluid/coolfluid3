@@ -151,7 +151,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
   }
 
   Uint tot_nb_owned_elems(0);
-  boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
     tot_nb_owned_elems += elements.size();
   }

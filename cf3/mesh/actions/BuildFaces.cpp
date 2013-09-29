@@ -37,6 +37,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/MeshAdaptor.hpp"
 
 #include "mesh/actions/BuildFaces.hpp"
 
@@ -107,6 +108,10 @@ void BuildFaces::execute()
   if (m_store_cell2face)
     build_cell_face_connectivity(mesh);
 
+  MeshAdaptor mesh_adaptor(mesh);
+  mesh_adaptor.prepare();
+  mesh_adaptor.assign_global_numbering_and_rank_to_unknown_elems();
+  mesh_adaptor.finish();
   mesh.update_statistics();
   mesh.update_structures();
   /// @post The newly created faces have unknown global index and rank!

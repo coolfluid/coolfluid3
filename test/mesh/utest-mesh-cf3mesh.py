@@ -9,7 +9,6 @@ root = cf.Core.root()
 domain = root.create_component('Domain', 'cf3.mesh.Domain')
 mesh = domain.create_component('OriginalMesh','cf3.mesh.Mesh')
 
-
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 4)
 points[0]  = [0., 0.]
@@ -23,9 +22,9 @@ block_subdivs[0] = [40,20]
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 1., 1.]
 blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
-blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 2]
-blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
-blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
+blocks.create_patch_nb_faces(name = 'right',  nb_faces = 1)[0] = [1, 2]
+blocks.create_patch_nb_faces(name = 'top',    nb_faces = 1)[0] = [2, 3]
+blocks.create_patch_nb_faces(name = 'left',   nb_faces = 1)[0] = [3, 0]
 blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 1)
 blocks.create_mesh(mesh.uri())
 
