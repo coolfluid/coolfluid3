@@ -36,14 +36,16 @@ namespace Consts
   inline Real real_max() { return std::numeric_limits<Real>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
   inline Real real_min() { return std::numeric_limits<Real>::min(); }
+  /// Definition of the minimum number representable with the chosen precision.
+  inline Real real_nan() { return std::numeric_limits<Real>::signaling_NaN(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
   /// @code std::abs(x) > math::Consts::eps()  @endcode
   inline Real eps() { return std::numeric_limits<Real>::epsilon(); }
   /// Definition of Infinity
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
-  /// Definition of the Pi constant.
-  inline Real pi() { return M_PI; }
+  /// Definition of the Pi constant
+  inline Real pi()  { return M_PI; }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

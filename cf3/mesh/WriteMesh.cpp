@@ -102,7 +102,7 @@ WriteMesh::~WriteMesh()
 void WriteMesh::update_list_of_available_writers()
 {
   m_extensions_to_writers.clear();
-  
+
   // TODO proper way to find the list of potential writers
   const std::vector<std::string> known_writers = boost::assign::list_of
   ("cf3.mesh.cf3mesh.Writer")
@@ -112,6 +112,7 @@ void WriteMesh::update_list_of_available_writers()
     ("cf3.mesh.gmsh.Writer")
     ("cf3.mesh.neu.Writer")
     ("cf3.mesh.tecplot.Writer")
+    ("cf3.mesh.smurf.Writer")
     ("cf3.mesh.VTKLegacy.Writer")
     ("cf3.mesh.VTKXML.Writer");
 
@@ -119,14 +120,14 @@ void WriteMesh::update_list_of_available_writers()
   {
     if(is_not_null(get_child(writer_name)))
       remove_component(writer_name);
-    
+
     boost::shared_ptr<MeshWriter> writer = boost::dynamic_pointer_cast<MeshWriter>(build_component_nothrow(writer_name, writer_name));
-    
+
     if(is_null(writer))
       continue;
-    
+
     add_component(writer);
-  
+
     boost_foreach(const std::string& extension, writer->get_extensions())
       m_extensions_to_writers[extension].push_back(writer->handle<MeshWriter>());
   }

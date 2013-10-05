@@ -75,7 +75,7 @@ LoadMesh::~LoadMesh() {}
 void LoadMesh::update_list_of_available_readers()
 {
   m_extensions_to_readers.clear();
-  
+
   // TODO proper way to find the list of potential readers
   const std::vector<std::string> known_readers = boost::assign::list_of
   #ifdef CF3_HAVE_CGNS
@@ -83,23 +83,24 @@ void LoadMesh::update_list_of_available_readers()
   #endif
     ("cf3.mesh.gmsh.Reader")
     ("cf3.mesh.neu.Reader")
-    ("cf3.mesh.cf3mesh.Reader");
+    ("cf3.mesh.cf3mesh.Reader")
+    ("cf3.mesh.smurf.Reader");
 
   boost_foreach(const std::string& reader_name, known_readers)
   {
     if(is_not_null(get_child(reader_name)))
       remove_component(reader_name);
-  
+
     boost::shared_ptr<MeshReader> reader = boost::dynamic_pointer_cast<MeshReader>(build_component_nothrow(reader_name, reader_name));
-    
+
     if(is_null(reader))
     {
       CFdebug << "Reader " << reader_name << " is not available" << CFendl;
       continue;
     }
-    
+
     add_component(reader);
-  
+
     boost_foreach(const std::string& extension, reader->get_extensions())
       m_extensions_to_readers[extension].push_back(reader->handle<MeshReader>());
   }
