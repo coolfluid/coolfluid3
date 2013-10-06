@@ -20,6 +20,8 @@ list( APPEND coolfluid_ufem_files
   AdjacentCellToFace.cpp
   AdjustForceTerm.hpp
   AdjustForceTerm.cpp
+  BCDirichletFunction.hpp
+  BCDirichletFunction.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp
@@ -36,12 +38,8 @@ list( APPEND coolfluid_ufem_files
   CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
-  HeatConductionManual.hpp
-  HeatConductionManual.cpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
-  HeatConductionVirtual.hpp
-  HeatConductionVirtual.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
   ComputeFlux.hpp
@@ -115,3 +113,5 @@ set_source_files_properties(
   HeatConductionSteady.cpp
   SpalartAllmaras.cpp
 PROPERTIES COMPILE_FLAGS "-g0")
+
+add_subdirectory(demo)

@@ -78,6 +78,12 @@ reader = domain.create_component('Reader', 'cf3.solver.actions.ReadRestartFile')
 reader.mesh = mesh
 reader.file = restart_file
 reader.time = time
+reader.read_time_step = False
+reader.execute()
+if time.time_step != 1.:
+  raise Exception('Time step read when it shouldn not have been')
+  
+reader.read_time_step = True
 reader.execute()
 
 # Check the result

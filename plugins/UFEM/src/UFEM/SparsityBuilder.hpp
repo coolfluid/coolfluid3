@@ -23,8 +23,7 @@ namespace UFEM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Build the sparsity structure for a LSS. This function assumes that the solution
-/// is in the same space as the geometry.
+/// Build the sparsity structure for a LSS.
 /// @param mesh Mesh on which the solver is run. All Cells below mesh.topology() are considered
 /// @param node_connectivity Lists the connected nodes for each node.
 /// @param start_indices For each node N, the index in node_connectivity where the list of connected nodes of node N starts.

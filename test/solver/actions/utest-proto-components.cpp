@@ -196,18 +196,20 @@ BOOST_AUTO_TEST_CASE( ProtoActionTest )
   // Declare a mesh variable
   FieldVariable<0, ScalarField> T("Temperature2", "T2");
 
+  Component& parent = Core::instance().root();
+
   // Create an action that can wrap an expression
-  ProtoAction& action = *Core::instance().root().create_component<ProtoAction>("Action");
-  action.set_expression(nodes_expression(T = 288.));
-  action.options().set("physical_model", model->physics().handle<physics::PhysModel>());
-  action.options().set(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
+  Handle<ProtoAction> action = parent.create_component<ProtoAction>("Action");
+  action->set_expression(nodes_expression(T = 288.));
+  action->options().set("physical_model", model->physics().handle<physics::PhysModel>());
+  action->options().set(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
 
   // Create the fields
   field_manager->create_field("T2", mesh->geometry_fields());
   BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh->geometry_fields(), "T2"));
 
   // Run the action
-  action.execute();
+  action->execute();
 
   // Sum up the values for the temperature
   Real temp_sum = 0.;

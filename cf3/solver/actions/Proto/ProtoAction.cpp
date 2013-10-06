@@ -134,8 +134,20 @@ void ProtoAction::set_expression(const boost::shared_ptr< Expression >& expressi
   m_implementation->trigger_physical_model();
 }
 
+bool ProtoAction::expression_is_set() const
+{
+  return is_not_null(m_implementation->m_expression);
+}
+
+
 void ProtoAction::insert_field_info(std::map<std::string, std::string>& tags) const
 {
+  if(is_null(m_implementation->m_expression))
+  {
+    CFdebug << "Not inserting field info for " << uri().path()  << " because the expression is not set" << CFendl;
+    return;
+  }
+  
   m_implementation->m_expression->insert_field_info(tags);
 }
 

@@ -48,11 +48,7 @@
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace cf3;
-using namespace cf3::solver;
-using namespace cf3::solver::actions;
 using namespace cf3::solver::actions::Proto;
-using namespace cf3::mesh;
-using namespace cf3::common;
 
 using namespace cf3::math::Consts;
 
@@ -69,16 +65,16 @@ static boost::proto::terminal< void(*)(const RealMatrix2&, const RealMatrix2&, R
 ////////////////////////////////////////////////////
 
 /// List of all supported shapefunctions that allow high order integration
-typedef boost::mpl::vector3< LagrangeP1::Line1D,
-                             LagrangeP1::Quad2D,
-                             LagrangeP1::Hexa3D
+typedef boost::mpl::vector3< mesh::LagrangeP1::Line1D,
+                             mesh::LagrangeP1::Quad2D,
+                             mesh::LagrangeP1::Hexa3D
 > HigherIntegrationElements;
 
-typedef boost::mpl::vector5< LagrangeP1::Line1D,
-                             LagrangeP1::Triag2D,
-                             LagrangeP1::Quad2D,
-                             LagrangeP1::Hexa3D,
-                             LagrangeP1::Tetra3D
+typedef boost::mpl::vector5< mesh::LagrangeP1::Line1D,
+                             mesh::LagrangeP1::Triag2D,
+                             mesh::LagrangeP1::Quad2D,
+                             mesh::LagrangeP1::Hexa3D,
+                             mesh::LagrangeP1::Tetra3D
 > VolumeTypes;
 
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
@@ -86,19 +82,25 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 template<typename T>
 void print_type(T)
 {
-  std::cout << demangle(typeid(T).name()) << std::endl;
+  std::cout << common::demangle(typeid(T).name()) << std::endl;
 }
 
 template<typename T>
 void print_type()
 {
-  std::cout << demangle(typeid(T).name()) << std::endl;
+  std::cout << common::demangle(typeid(T).name()) << std::endl;
 }
 
 template<typename ExprT>
 void print_variables(const ExprT&)
 {
   print_type<typename ExpressionProperties<ExprT>::VariablesT>();
+}
+
+template<typename GrammarT, typename ExprT>
+bool get_result(const GrammarT&, const ExprT&)
+{
+  return boost::result_of<GrammarT(ExprT)>::type::value;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,6 +136,13 @@ BOOST_AUTO_TEST_CASE( EquationVars )
       )
     )
   ));
+}
+
+BOOST_AUTO_TEST_CASE( SubExpressions )
+{
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution");
+  BOOST_CHECK(!get_result(solver::actions::Proto::detail::HasEvalVar<0>(), _A(u[_i], u[_i]) += transpose(N(u))*N(u)));
+  BOOST_CHECK(get_result(solver::actions::Proto::detail::HasEvalVar<0>(), _A(u[_i], u[_i]) += transpose(N(u)) * u*nabla(u)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

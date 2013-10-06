@@ -124,6 +124,17 @@ public:
     SF::compute_gradient(local_coordinate, const_cast<typename SF::GradientT&>(grad));
     gradient = grad;
   }
+
+  virtual const RealMatrix& mononomial_coefficients() const
+  {
+    return SF::mononomial_coefficients();
+  }
+
+  virtual const RealMatrix& mononomial_exponents() const
+  {
+    return SF::mononomial_exponents();
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

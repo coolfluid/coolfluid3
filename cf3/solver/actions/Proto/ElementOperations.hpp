@@ -14,7 +14,6 @@
 #include "common/CF.hpp"
 
 #include "Transforms.hpp"
-#include "ElementData.hpp"
 #include "GaussPoints.hpp"
 
 /// @file
@@ -611,6 +610,26 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<6>::type>()(ChildGrammar()(boost::proto::child_c<6>(expr), state, data), data),
           GetChild<typename EvaluatedChild<7>::type>()(ChildGrammar()(boost::proto::child_c<7>(expr), state, data), data),
           GetChild<typename EvaluatedChild<8>::type>()(ChildGrammar()(boost::proto::child_c<8>(expr), state, data), data)
+        );
+      }
+
+      result_type operator()(boost::proto::tag::function,
+                             boost::mpl::int_<10>,
+                             typename impl::expr_param expr,
+                             typename impl::state_param state,
+                             typename impl::data_param data) const
+      {
+        return OpImpl()
+        (
+          GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<4>::type>()(ChildGrammar()(boost::proto::child_c<4>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<5>::type>()(ChildGrammar()(boost::proto::child_c<5>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<6>::type>()(ChildGrammar()(boost::proto::child_c<6>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<7>::type>()(ChildGrammar()(boost::proto::child_c<7>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<8>::type>()(ChildGrammar()(boost::proto::child_c<8>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<9>::type>()(ChildGrammar()(boost::proto::child_c<9>(expr), state, data), data)
         );
       }
     };

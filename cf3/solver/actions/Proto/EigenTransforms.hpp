@@ -411,7 +411,7 @@ struct MatrixRowAccess :
   {
     typedef typename boost::remove_reference<ExprT>::type ExprValT;
 
-    typedef typename ExprValT::RowXpr result_type;
+    typedef typename ExprValT::ConstRowXpr result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
@@ -566,13 +566,13 @@ struct EigenIndexing :
     >,
     boost::proto::when
     <
-      boost::proto::function< GrammarT, boost::proto::terminal<RowTag>, IntegersT >,
-      MatrixRowAccess( GrammarT(boost::proto::_child0), IntegersT(boost::proto::_child2) )
+      boost::proto::function< boost::proto::terminal<RowTag>, GrammarT, IntegersT >,
+      MatrixRowAccess( GrammarT(boost::proto::_child1), IntegersT(boost::proto::_child2) )
     >,
     boost::proto::when
     <
-      boost::proto::function< GrammarT, boost::proto::terminal<ColTag>, IntegersT >,
-      MatrixColAccess( GrammarT(boost::proto::_child0), IntegersT(boost::proto::_child2) )
+      boost::proto::function< boost::proto::terminal<ColTag>, boost::proto::_, IntegersT >,
+      MatrixColAccess( GrammarT(boost::proto::_child1), IntegersT(boost::proto::_child2) )
     >,
     // Subscripting
     boost::proto::when

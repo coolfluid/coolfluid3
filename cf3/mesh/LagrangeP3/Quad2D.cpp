@@ -64,6 +64,14 @@ Real Quad2D::area(const NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// TODO: inverse mapping
+// Consider using following reference:
+// Lim, I. L., Johnston, I. W., Choi, S. K., & Murti, V. (1992).
+// An improved numerical inverse isoparametric mapping technique for 2D mesh rezoning.
+// Engineering Fracture Mechanics, 41(3), 417–435. doi:10.1016/0013-7944(92)90082-P
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP3
 } // mesh
 } // cf3

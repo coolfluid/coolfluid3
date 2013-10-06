@@ -70,6 +70,25 @@ void Line2D::compute_normal(const NodesT& nodes , CoordsT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line2D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+{
+  cf3_assert(result.rows()==dimension);
+  cf3_assert(result.cols()==dimension);
+  result(KSI,XX) = (mapped_coord[KSI]-0.5)*nodes(0, XX) + (mapped_coord[KSI]+0.5)*nodes(1, XX) - 2.*mapped_coord[KSI]*nodes(2, XX);
+  result(KSI,YY) = (mapped_coord[KSI]-0.5)*nodes(0, YY) + (mapped_coord[KSI]+0.5)*nodes(1, YY) - 2.*mapped_coord[KSI]*nodes(2, YY);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Line2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
+  const Real DxDxi = (mapped_coord[KSI]-0.5)*nodes(0, XX) + (mapped_coord[KSI]+0.5)*nodes(1, XX) - 2.*mapped_coord[KSI]*nodes(2, XX);
+  const Real DyDxi = (mapped_coord[KSI]-0.5)*nodes(0, YY) + (mapped_coord[KSI]+0.5)*nodes(1, YY) - 2.*mapped_coord[KSI]*nodes(2, YY);
+  return std::sqrt( DxDxi*DxDxi + DyDxi*DyDxi );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP2
 } // mesh
 } // cf3

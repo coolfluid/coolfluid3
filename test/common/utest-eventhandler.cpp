@@ -7,8 +7,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for common::EventHandler"
 
-#include <stdint.h>
-
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 
