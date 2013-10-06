@@ -81,6 +81,10 @@ RandomizeField::RandomizeField ( const std::string& name ) :
     .pretty_name("Reference Component")
     .description("Component to use as the base for the scaling")
     .mark_basic();
+    
+  options().add("seed", 0u)
+    .pretty_name("Seed")
+    .description("Seed for the random generator.");    
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +109,7 @@ void RandomizeField::execute()
   const std::vector<Real> maximum_values = detail::get_vector(*this, "maximum_values", var_length);
   const std::vector<Real> minimum_values = detail::get_vector(*this, "minimum_values", var_length);
   
-  boost::random::mt19937 gen(common::PE::Comm::instance().rank());
+  boost::random::mt19937 gen(common::PE::Comm::instance().rank() + options().value<Uint>("seed"));
   boost::random::uniform_real_distribution<Real> dist(-1., 1.);
   
   const Uint nb_rows = field.size();
