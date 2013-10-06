@@ -101,10 +101,19 @@ public:
 
   /// @brief Write the history to file, signature
   void signature_write(common::SignalArgs& args);
+
+  /// @brief Read the history from file, signal
+  void signal_read(common::SignalArgs& args);
+
+  /// @brief Read the history from file, signature
+  void signature_read(common::SignalArgs& args);
   //@}
 
   /// @brief Write the history to file
   void write_file(boost::filesystem::fstream& file);
+
+  /// @brief Read the history from file
+  void read_file(boost::filesystem::fstream& file);
 
   /// @brief Read access to the table storing the history
   /// @note This flushes the buffer first, so that most recent information is available
@@ -112,7 +121,6 @@ public:
 
   /// @brief Information of every variable stored in history
   Handle<math::VariablesDescriptor const> variables() const;
-
 
   /// @brief Flush the buffer in the table
   void flush();
@@ -123,7 +131,8 @@ public:
 private: // functions
 
   /// @brief open a file with given URI
-  static void open_file(boost::filesystem::fstream& file, const common::URI& file_uri);
+  static void open_read_access_file(boost::filesystem::fstream& file, const common::URI& file_uri);
+  static void open_write_access_file(boost::filesystem::fstream& file, const common::URI& file_uri);
 
   /// @brief resize table and rebuild buffer if needed
   bool resize_if_necessary();

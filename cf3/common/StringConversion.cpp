@@ -322,6 +322,16 @@ namespace common {
     return str;
   }
 
+  template <>
+  Common_API std::vector< std::string > from_str<std::vector<std::string> > (const std::string& str)
+  {
+    std::vector< std::string > new_vector;
+    std::stringstream ss(str);
+    std::string tmp;
+    while (ss >> tmp) new_vector.push_back( tmp );
+    return new_vector;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // common
