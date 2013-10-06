@@ -18,9 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common { template <typename KEY, typename DATA> class Map; }
 namespace mesh {
   class Entities;
+  class ShapeFunction;
 namespace gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,8 @@ private: // functions
 
   void write_connectivity(std::fstream& file);
 
+  void write_interpolation_schemes(std::fstream& file);
+
   void write_nodal_data(std::fstream& file);
 
   void write_elem_nodal_data(std::fstream& file);
@@ -65,6 +67,7 @@ private: // data
   std::map<std::string,Uint> m_elementTypes;
 
   std::vector< Handle<Entities const> > m_entities_vector;
+
 }; // end Writer
 
 

@@ -13,7 +13,6 @@
 
 #include "solver/actions/Proto/EigenTransforms.hpp"
 #include "solver/actions/Proto/ElementOperations.hpp"
-#include "solver/actions/Proto/ElementData.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
 /// @file
@@ -81,27 +80,25 @@ struct SFOps :
 };
 
 /// Dummy for non-element fields
-template<typename T>
+template<typename T, typename ElementBasedT>
 struct GetElementResultType
 {
   typedef typename boost::remove_const<typename boost::remove_reference<typename T::EvalT>::type>::type& type;
 };
 
-/// Correct type for element-based fields
-template<typename SupportEtypeT, Uint Dim, bool IsEquationVar>
-struct GetElementResultType< EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar> >
+template<typename T, Uint Dim>
+struct GetElementResultType<T, ElementBased<Dim> >
 {
-  typedef typename EtypeTVariableData<ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>::ValueResultT type;
+  typedef typename T::ValueResultT type;
 };
 
-/// Filter to extract the value from an element-based field
 struct ElementValue : boost::proto::transform<ElementValue>
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename VarDataType<ExprT, DataT>::type VarDataT;
-    typedef typename GetElementResultType<VarDataT>::type result_type;
+    typedef typename GetElementResultType<VarDataT, typename VarDataT::EtypeT>::type result_type;
 
     result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
     {

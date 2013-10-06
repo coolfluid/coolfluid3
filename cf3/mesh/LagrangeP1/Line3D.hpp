@@ -53,6 +53,7 @@ struct Mesh_LagrangeP1_API Line3D : public ElementTypeBase<Line3D,Line3D_traits>
   static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   template < typename MatrixType >
   static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, MatrixType& jacobian);
+  static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes);
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);
   static Real length(const NodesT& nodes);

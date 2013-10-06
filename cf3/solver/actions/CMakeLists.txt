@@ -38,6 +38,8 @@ list( APPEND coolfluid_solver_actions_files
   ParallelDataToFields.cpp
   PeriodicWriteMesh.hpp
   PeriodicWriteMesh.cpp
+  RandomizeField.hpp
+  RandomizeField.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
@@ -60,6 +62,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp
     Proto/ElementExpressionWrapper.hpp
+    Proto/ElementGradDiv.hpp
     Proto/ElementGrammar.hpp
     Proto/ElementIntegration.hpp
     Proto/ElementLooper.hpp

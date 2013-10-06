@@ -30,6 +30,33 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
+namespace detail {
+  /// Helper to get the number of LSS nodes, avoiding static divide-by-zero
+  template<Uint I>
+  struct SafeNbNodes
+  {
+    static const Uint value = I;
+  };
+  
+  template<>
+  struct SafeNbNodes<0>
+  {
+    static const Uint value = 1;
+  };
+  
+  template<Uint I>
+  inline void assert_nb_nodes()
+  {
+  }
+  
+  template<>
+  inline void assert_nb_nodes<0>()
+  {
+    throw common::ShouldNotBeHere(FromHere(), "Number of element nodes was found to be zero.");
+  }
+}
+  
+  
 /// Tag for system matrix
 struct SystemMatrixTag
 {
@@ -111,17 +138,19 @@ struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
-    static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
+    detail::assert_nb_nodes<DataT::nb_lss_nodes>();
+    static const Uint nb_nodes = detail::SafeNbNodes<DataT::nb_lss_nodes>::value;
+    static const Uint nb_dofs = mat_size / nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
     lss.convert_to_lss(data);
 
     for(Uint row = 0; row != mat_size; ++row)
     {
       // This converts u1,u2...pn to u1v1p1...
-      const Uint block_row = (row % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + row / DataT::SupportT::EtypeT::nb_nodes;
+      const Uint block_row = (row % nb_nodes)*nb_dofs + row / nb_nodes;
       for(Uint col = 0; col != mat_size; ++col)
       {
-        const Uint block_col = (col % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + col / DataT::SupportT::EtypeT::nb_nodes;
+        const Uint block_col = (col % nb_nodes)*nb_dofs + col / nb_nodes;
         block_accumulator.mat(block_row, block_col) = rhs(row, col);
       }
     }
@@ -137,14 +166,16 @@ struct BlockAssignmentOp<SystemRHSTag, OpTagT>
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
-    static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
+    detail::assert_nb_nodes<DataT::nb_lss_nodes>();
+    static const Uint nb_nodes = detail::SafeNbNodes<DataT::nb_lss_nodes>::value;
+    static const Uint nb_dofs = mat_size / nb_nodes;
     math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
     lss.convert_to_lss(data);
 
     for(Uint i = 0; i != mat_size; ++i)
     {
       // This converts u1,u2...pn to u1v1p1...
-      const Uint block_idx = (i % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + i / DataT::SupportT::EtypeT::nb_nodes;
+      const Uint block_idx = (i % nb_nodes)*nb_dofs + i / nb_nodes;
       block_accumulator.rhs[block_idx] = rhs[i];
     }
 
@@ -199,26 +230,29 @@ boost::proto::transform< RHSAccumulator >
     {
       math::LSS::System& lss = lss_term.lss();
       // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
-      static const Uint mat_size = boost::remove_reference<DataT>::type::EMatrixSizeT::value;
-      typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
-      static const Uint nb_dofs = mat_size / SupportT::EtypeT::nb_nodes;
+      typedef typename boost::remove_reference<DataT>::type DataUnrefT;
+      static const Uint mat_size = DataUnrefT::EMatrixSizeT::value;
+      typedef typename DataUnrefT::SupportT SupportT;
+      detail::assert_nb_nodes<DataUnrefT::nb_lss_nodes>();
+      static const Uint nb_nodes = detail::SafeNbNodes<DataUnrefT::nb_lss_nodes>::value;
+      static const Uint nb_dofs = mat_size / nb_nodes;
       math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
       lss_term.convert_to_lss(data);
       
       for(Uint i = 0; i != var_offset; ++i)
       {
-        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        const Uint block_idx = (i % nb_nodes)*nb_dofs + i / nb_nodes;
         block_accumulator.rhs[block_idx] = 0.;
       }
       const Uint var_end = var_offset + rhs.size();
       for(Uint i = var_offset; i != var_end; ++i)
       {
-        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        const Uint block_idx = (i % nb_nodes)*nb_dofs + i / nb_nodes;
         block_accumulator.rhs[block_idx] = rhs[i];
       }
       for(Uint i = var_end; i != mat_size; ++i)
       {
-        const Uint block_idx = (i % SupportT::EtypeT::nb_nodes)*nb_dofs + i / SupportT::EtypeT::nb_nodes;
+        const Uint block_idx = (i % nb_nodes)*nb_dofs + i / nb_nodes;
         block_accumulator.rhs[block_idx] = 0.;
       }
       do_assign_op_rhs(boost::proto::tag::plus_assign(), *lss.rhs(), block_accumulator);

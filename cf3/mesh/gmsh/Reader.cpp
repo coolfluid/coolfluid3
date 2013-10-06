@@ -915,8 +915,9 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   std::string dummy;
 
   Uint nb_string_tags(0);
-  std::string var_name("var");
+  std::string var_name("field");
   std::string field_name("field");
+  std::string interpolation_scheme;
   Uint nb_real_tags(0);
   Real field_time(0.);
   Uint nb_integer_tags(0);
@@ -937,12 +938,16 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
     field_name = var_name;
     if (nb_string_tags > 1)
     {
-      m_file >> field_name;
-      field_name = field_name.substr(1,field_name.length()-2);
+      m_file >> interpolation_scheme;
     }
     if (nb_string_tags > 2)
     {
-      for (Uint i=1; i<nb_string_tags; ++i)
+      m_file >> field_name;
+      field_name = field_name.substr(1,field_name.length()-2);
+    }
+    if (nb_string_tags > 3)
+    {
+      for (Uint i=2; i<nb_string_tags; ++i)
         m_file >> dummy;
     }
   }

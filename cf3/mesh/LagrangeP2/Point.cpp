@@ -50,6 +50,32 @@ const RealMatrix& Point::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const RealMatrix& Point::mononomial_coefficients()
+{
+  static const RealMatrix coeffs =
+      (RealMatrix(nb_nodes, 1) <<
+
+       1.
+
+       ).finished();
+  return coeffs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Point::mononomial_exponents()
+{
+  static const RealMatrix exponents =
+      (RealMatrix(nb_nodes, 1) <<
+
+       0.
+
+       ).finished();
+  return exponents;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const RealMatrix& Point::face_normals()
 {
   throw common::NotImplemented(FromHere(),"Point doesn't have faces");

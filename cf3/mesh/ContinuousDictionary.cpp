@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <set>
-
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
@@ -65,7 +63,7 @@ ContinuousDictionary::~ContinuousDictionary()
 
 void ContinuousDictionary::rebuild_spaces_from_geometry()
 {
-  std::set<boost::uint64_t> points;
+  std::map<boost::uint64_t, Uint> points;
   RealMatrix elem_coordinates;
   Uint dim = DIM_0D;
 
@@ -94,6 +92,7 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
   }
   bounding_box.make_global();
 
+  Uint point_idx = 0;
   // (b) Create unique indices for every coordinate
   math::Hilbert compute_glb_idx(bounding_box, 20);  // functor
   boost_foreach(const Handle<Entities>& entities_handle, entities_range())
@@ -107,7 +106,8 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
         boost::uint64_t hash = compute_glb_idx(space_coordinates);
-        points.insert( hash );
+        if(points.insert(std::make_pair(hash, point_idx)).second)
+          ++point_idx;
       }
     }
   }
@@ -140,7 +140,7 @@ void ContinuousDictionary::rebuild_spaces_from_geometry()
       {
         RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
         boost::uint64_t hash = compute_glb_idx(space_coordinates);
-        Uint idx = std::distance(points.begin(), points.find(hash));
+        const Uint idx = points[hash];
         connectivity[elem][node] = idx;
         coordinates.set_row(idx, space_coordinates);
         rank()[idx] = UNKNOWN;

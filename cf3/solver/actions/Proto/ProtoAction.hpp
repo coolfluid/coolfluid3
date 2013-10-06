@@ -35,11 +35,14 @@ public:
 
   static std::string type_name() { return "ProtoAction"; }
 
-  void execute();
+  virtual void execute();
 
   /// Set the expression. The action retains ownership of the supplied expression
   /// @param expression The proto expression to set
   void set_expression(const boost::shared_ptr<Expression> & expression);
+  
+  /// True if the expression is set
+  bool expression_is_set() const;
 
   /// Append the tags used in the expression
   void insert_field_info(std::map<std::string, std::string>& tags) const;

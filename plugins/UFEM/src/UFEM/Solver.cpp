@@ -345,8 +345,6 @@ void Solver::mesh_loaded(mesh::Mesh& mesh)
 
 void Solver::mesh_changed(Mesh& mesh)
 {
-  CFdebug << "UFEM::Solver: Reacting to mesh_changed signal" << CFendl;
-  configure_option_recursively("dictionary", mesh.geometry_fields().handle<Dictionary>());
   m_need_field_creation = true;
 }
 

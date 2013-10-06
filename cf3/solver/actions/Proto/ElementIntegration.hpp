@@ -8,6 +8,7 @@
 #define cf3_solver_actions_Proto_ElementIntegration_hpp
 
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/max_element.hpp>
 
 #include <boost/proto/transform/lazy.hpp>
 
@@ -24,7 +25,64 @@ namespace cf3 {
 namespace solver {
 namespace actions {
 namespace Proto {
+  
+template<typename DataT, typename VarT>
+struct GetOrderFromData
+{
+  static const Uint value = DataT::EtypeT::order;
+};
 
+template<typename DataT>
+struct GetOrderFromData<DataT, boost::mpl::void_>
+{
+  static const Uint value = 0;
+};
+
+/// Get the order of variable I
+template<typename I, typename DataT, typename ExprT>
+struct GetOrder
+{
+  // The type of the data associated with the variable, containing info about the order. Void if the variable doesn't exist
+  typedef typename DataT::template DataType<I>::type VarDataT;
+  // The type of the variable. Void if the variable doesn't appear in the current subexpression
+  typedef typename boost::result_of<DefineType<I::value>(ExprT)>::type VarT;
+  typedef boost::mpl::int_<GetOrderFromData<VarDataT, VarT>::value> type;
+};
+  
+/// Get the maximum order of the shape functions used in Expr
+template<typename ExprT, typename DataT>
+struct MaxOrder
+{
+  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
+  
+  typedef typename boost::mpl::deref<typename boost::mpl::max_element
+  <
+    typename boost::mpl::transform
+    <
+      typename boost::mpl::copy<boost::mpl::range_c<int,0,NbVarsT::value>, boost::mpl::back_inserter< boost::mpl::vector_c<Uint> > >::type, //range from 0 to NbVarsT
+      GetOrder<boost::mpl::_1, DataT, ExprT>
+    >::type
+  >::type>::type type;
+};
+
+/// Determine integration order based on the order of the shape function
+template<Uint>
+struct IntegrationOrder
+{
+};
+
+template<>
+struct IntegrationOrder<1>
+{
+  static const Uint value = 2;
+};
+
+template<>
+struct IntegrationOrder<2>
+{
+  static const Uint value = 4;
+};
+  
 /// Tag for an integral, wit the order provided as an MPL integral constant
 template<typename OrderT>
 struct IntegralTag
@@ -181,9 +239,12 @@ struct ElementQuadratureEval :
               , typename impl::data_param data
     ) const
     {
-      typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
-      typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
-      typedef mesh::Integrators::GaussMappedCoords<2, ShapeFunctionT::shape> GaussT;
+      typedef typename boost::remove_reference<DataT>::type UnrefDataT;
+      typedef typename UnrefDataT::SupportT::EtypeT SupportShapeFunctionT;
+      typedef typename SupportShapeFunctionT::MappedCoordsT MappedCoordsT;
+      
+      static const Uint max_order = MaxOrder<ExprT, UnrefDataT>::type::value;
+      typedef mesh::Integrators::GaussMappedCoords<IntegrationOrder<max_order>::value, SupportShapeFunctionT::shape> GaussT;
 
       for(Uint i = 0; i != GaussT::nb_points; ++i)
       {

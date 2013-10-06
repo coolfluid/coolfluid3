@@ -61,6 +61,38 @@ const RealMatrix& Line::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const RealMatrix& Line::mononomial_coefficients()
+{
+  static const RealMatrix coeffs=
+      (RealMatrix(nb_nodes, nb_nodes) <<
+
+       -1,   1,   9,  -9,
+       -1,  -1,   9,   9,
+        9,  -27, -9,   27,
+        9,   27, -9,  -27
+
+       ).finished() / 16.;
+  return coeffs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Line::mononomial_exponents()
+{
+  static const RealMatrix exponents=
+      (RealMatrix(nb_nodes, dimensionality) <<
+
+       0,
+       1,
+       2,
+       3
+
+       ).finished();
+  return exponents;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP3
 } // mesh
 } // cf3

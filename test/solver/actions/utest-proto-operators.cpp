@@ -14,10 +14,12 @@
 
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/proto/debug.hpp>
 
 #include "solver/Model.hpp"
 #include "solver/Solver.hpp"
 
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Functions.hpp"
@@ -114,6 +116,28 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
               -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
   );
   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+}
+
+BOOST_AUTO_TEST_CASE( MatrixAccess )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("AccessGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
+
+  FieldVariable<0, VectorField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u[0] = 0., u[1] = 1.));
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      _cout << "column " << _i << ": " <<  transpose(_col(nodal_values(u), _i)) << "\n",
+      _cout << "row 3: " << _row(nodal_values(u), 3) << "\n"
+    )
+  );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
@@ -552,12 +576,14 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
   f.functions(std::vector<std::string>(1, "x+1"));
   f.parse();
   f.predefined_values.resize(1);
+  
+  RealVector one(1); one.setConstant(1.);
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
   (
     group
     (
-      T = boost::proto::lit(f),
+      T = boost::proto::lit(f) + one,
       _cout << T << "\n",
       boost::proto::lit(total) += T
     )
@@ -565,7 +591,7 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
 
   test_expr->loop(mesh->topology());
 
-  BOOST_CHECK_EQUAL(total[0], 15.);
+  BOOST_CHECK_EQUAL(total[0], 20.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -776,6 +802,69 @@ BOOST_AUTO_TEST_CASE( ElementVector )
   RealVector ref(8);
   ref << 0,1,1,0,0,0,1,1;
   BOOST_CHECK_EQUAL(elvec, ref);
+}
+
+
+BOOST_AUTO_TEST_CASE( Grad )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[scalar]" ).add_tag("solution");
+
+  FieldVariable<0, ScalarField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u = 2.*coordinates[0]));
+
+  RealVector2 result1, result2;
+  result1.setZero(); result2.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      _cout << "u*gradient(u): " << u(result1) * gradient(u, result1) << "\n",
+      element_quadrature(lit(result1) += gradient(u)),
+      lit(result1) = result1 / volume,
+      lit(result2) = gradient(u, result2)
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(result1[0], 2.);
+  BOOST_CHECK_EQUAL(result2[0], 2.);
+  BOOST_CHECK_EQUAL(result1[1], 0.);
+  BOOST_CHECK_EQUAL(result2[1], 0.);
+}
+
+BOOST_AUTO_TEST_CASE( Div )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
+
+  FieldVariable<0, VectorField > u("u", "solution");
+
+  for_each_node(mesh->topology(), group(u[0] = 2.*coordinates[0], u[1] = 1.));
+
+  Real result1 = 0.;
+  Real result2 = 1.;
+  RealVector2 centroid; centroid.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      element_quadrature(lit(result1) += divergence(u)),
+      lit(result1) = result1 / volume,
+      lit(result2) = divergence(u, centroid)
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(result1, 2.);
+  BOOST_CHECK_EQUAL(result2, 2.);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

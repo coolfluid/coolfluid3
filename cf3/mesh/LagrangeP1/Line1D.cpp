@@ -96,7 +96,7 @@ Line1D::MappedCoordsT Line1D::mapped_coordinate(const CoordsT& coord, const Node
 ////////////////////////////////////////////////////////////////////////////////
 
 Real Line1D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes) {
-  return 0.5*volume(nodes);
+  return 0.5*(nodes(1, XX) - nodes(0, XX));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
