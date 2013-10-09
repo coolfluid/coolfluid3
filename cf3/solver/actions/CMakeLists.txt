@@ -46,6 +46,8 @@ list( APPEND coolfluid_solver_actions_files
   Conditional.cpp
   TimeSeriesWriter.hpp
   TimeSeriesWriter.cpp
+  TurbulenceStatistics.hpp
+  TurbulenceStatistics.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
 )
