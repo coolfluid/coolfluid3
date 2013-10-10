@@ -37,27 +37,6 @@ common::ComponentBuilder < TurbulenceStatistics, common::Action, LibActions > Tu
 
 namespace detail
 {
-  std::vector<Real> gather_vector_field(const std::vector<Uint>& used_nodes, const mesh::Field& field)
-  {
-    const Uint nb_used_nodes = used_nodes.size();
-    std::vector<Real> local_result; local_result.reserve(nb_used_nodes*field.row_size());
-    for(Uint i = 0; i != nb_used_nodes; ++i)
-    {
-      const mesh::Field::ConstRow row = field[used_nodes[i]];
-      local_result.insert(local_result.end(), row.begin(), row.end());
-    }
-    
-    common::PE::Comm& comm = common::PE::Comm::instance();
-    if(!comm.is_active())
-      return local_result;
-    
-    std::vector<Real> global_result;
-    std::vector<int> recv_counts(comm.size(), -1);
-    comm.gather(local_result, local_result.size(), global_result, recv_counts, 0);
-    
-    return global_result;
-  }
-
   typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean> > MeanAccT;
   typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::rolling_mean> > RollingAccT;
 
@@ -185,60 +164,41 @@ void TurbulenceStatistics::execute()
   if(m_count % write_interval == 0)
   {
     const int nb_means = m_means.size();
-    std::vector<Real> my_means; my_means.reserve(nb_means);
-    std::vector<Real> my_rolling_means; my_rolling_means.reserve(nb_means);
+    std::vector<Real> means; means.reserve(nb_means);
+    std::vector<Real> rolling_means; rolling_means.reserve(nb_means);
     for(Uint i = 0; i != nb_means; ++i)
     {
-      my_means.push_back(boost::accumulators::mean(m_means[i]));
-      my_rolling_means.push_back(boost::accumulators::rolling_mean(m_rolling_means[i]));
+      means.push_back(boost::accumulators::mean(m_means[i]));
+      rolling_means.push_back(boost::accumulators::rolling_mean(m_rolling_means[i]));
     }
     
-    std::vector<Real> global_means;
-    std::vector<Real> global_rolling_means;
-    std::vector<int> recv_counts(comm.size(), -1);
-    if(comm.is_active())
+    const common::URI original_uri = options().value<common::URI>("file").path();
+    std::string out_path = (original_uri.base_path() / (original_uri.base_name() + "_P" + common::to_str(comm.rank()) + original_uri.extension())).path();
+    boost::algorithm::replace_all(out_path, "{iteration}", common::to_str(m_count));
+
+    boost::filesystem::fstream file(out_path, std::ios_base::out);
+    if(!file)
+      throw common::FileSystemError(FromHere(), "Failed to open file " + out_path);
+
+    if(m_dim == 2)
     {
-      comm.gather(my_means, nb_means, global_means, recv_counts, 0);
-      comm.gather(my_rolling_means, nb_means, global_rolling_means, recv_counts, 0);
+      file << "# U, V, uu, vv, uv, U_rolling, V_rolling, uu_rolling, vv_rolling, uv_rolling\n";
     }
-    else
+    else if(m_dim == 3)
     {
-      global_means = my_means;
-      global_rolling_means = my_rolling_means;
+      file << "# U, V, W, uu, vv, ww, uv, uw, vw, U_rolling, V_rolling, W_rolling, uu_rolling, vv_rolling, ww_rolling, uv_rolling, uw_rolling, vw_rolling\n";
     }
-    
-    if(comm.rank() == 0)
+    for(Uint i = 0; i != nb_nodes; ++i)
     {
-      std::string out_path = options().value<common::URI>("file").path();
-      boost::algorithm::replace_all(out_path, "{iteration}", common::to_str(m_count));
-      boost::filesystem::fstream file(out_path, std::ios_base::out);
-      if(!file)
-        throw common::FileSystemError(FromHere(), "Failed to open file " + out_path);
-      
-      if(m_dim == 2)
-      {
-        file << "# U, V, uu, vv, uv, U_rolling, V_rolling, uu_rolling, vv_rolling, uv_rolling\n";
-      }
-      else if(m_dim == 3)
-      {
-        file << "# U, V, W, uu, vv, ww, uv, uw, vw, U_rolling, V_rolling, W_rolling, uu_rolling, vv_rolling, ww_rolling, uv_rolling, uw_rolling, vw_rolling\n";
-      }
-      const Uint global_nb_means = global_means.size();
-      cf3_assert(global_rolling_means.size() == global_nb_means);
-      cf3_assert(global_nb_means % stride == 0);
-      const Uint global_nb_nodes = global_nb_means / stride;
-      for(Uint i = 0; i != global_nb_nodes; ++i)
-      {
-        file << global_means[i*stride];
-        for(Uint j = 1; j != stride; ++j)
-          file << " " << global_means[i*stride+j];
-        
-        for(Uint j = 0; j != stride; ++j)
-          file << " " << global_rolling_means[i*stride+j];
-        file << "\n";
-      }
-      file.close();
+      file << means[i*stride];
+      for(Uint j = 1; j != stride; ++j)
+        file << " " << means[i*stride+j];
+
+      for(Uint j = 0; j != stride; ++j)
+        file << " " << rolling_means[i*stride+j];
+      file << "\n";
     }
+    file.close();
   }
 
   // Write the probe data
@@ -423,38 +383,30 @@ void TurbulenceStatistics::setup()
   std::string coords_path = original_uri.path();
   if(boost::algorithm::contains(coords_path, "{iteration}"))
   {
-    boost::algorithm::replace_all(coords_path, "{iteration}", "coordinates");
+    boost::algorithm::replace_all(coords_path, "{iteration}", "coordinates_P" + common::to_str(comm.rank()));
   }
   else
   {
-    coords_path = (original_uri.base_path() / (original_uri.base_name() + "-coordinates" + original_uri.extension())).path();
+    coords_path = (original_uri.base_path() / (original_uri.base_name() + "-coordinates_P" + common::to_str(comm.rank()) + original_uri.extension())).path();
   }
   
-  const std::vector<Real> used_coords = detail::gather_vector_field(m_used_nodes, coords);
-  cf3_assert(used_coords.size() % m_dim == 0);
-  
-  if(comm.rank() == 0)
+  boost::filesystem::fstream file(coords_path, std::ios_base::out);
+  if(!file)
+    throw common::FileSystemError(FromHere(), "Failed to open file " + coords_path);
+  file << "# x y";
+  if(m_dim > 2)
+    file << " z";
+  file << "\n";
+
+  BOOST_FOREACH(const Uint node_idx, m_used_nodes)
   {
-    boost::filesystem::fstream file(coords_path, std::ios_base::out);
-    if(!file)
-      throw common::FileSystemError(FromHere(), "Failed to open file " + coords_path);
-    file << "# x y";
-    if(m_dim > 2)
-      file << " z";
+    const mesh::Field::ConstRow row = coords[node_idx];
+    file << row[0];
+    for(Uint j = 1; j != m_dim; ++j)
+      file << " " << row[j];
     file << "\n";
-    
-    const Uint nb_coords = used_coords.size();
-    for(Uint i = 0; i != nb_coords;)
-    {
-      file << used_coords[i];
-      ++i;
-      if(i % m_dim != 0)
-        file << " ";
-      else
-        file << "\n";
-    }
-    file.close();
   }
+  file.close();
 
   reset_statistics();
 }
