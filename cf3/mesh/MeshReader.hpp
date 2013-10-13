@@ -55,7 +55,7 @@ public: // functions
   ///        It just reads the config options
   void signal_read( common::SignalArgs& node  );
 
-  void read_signature( common::SignalArgs & node );
+  void signature_read( common::SignalArgs & node );
 
   //@} END SIGNALS
 

@@ -176,7 +176,7 @@ void PDESolver::do_iteration()
     CFinfo << "  " << history()->entry().summary() << CFendl;
 
   m_pde->time()->options().set( "current_time", m_pde->time()->current_time() );
-
+  m_pde->time()->options().set( "iteration", m_pde->time()->iter() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

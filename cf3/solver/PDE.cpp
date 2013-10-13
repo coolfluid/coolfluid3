@@ -105,6 +105,7 @@ void PDE::create_fields()
     if ( Handle<Component> found = m_fields->get_child("solution") )
     {
       m_solution = found->handle<Field>();
+      m_solution->parallelize();
     }
     else
     {
@@ -118,6 +119,7 @@ void PDE::create_fields()
     if ( Handle<Component> found = m_fields->get_child("rhs") )
     {
       m_rhs = found->handle<Field>();
+      m_rhs->parallelize();
     }
     else
     {
@@ -131,6 +133,7 @@ void PDE::create_fields()
     if ( Handle<Component> found = m_fields->get_child("wave_speed") )
     {
       m_wave_speed = found->handle<Field>();
+      m_wave_speed->parallelize();
     }
     else
     {

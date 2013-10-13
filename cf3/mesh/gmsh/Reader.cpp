@@ -689,8 +689,8 @@ void Reader::read_element_node_data()
     {
       if (gmsh_field.nb_entries != m_total_nb_elements)
       {
-        CFwarn << "Skipping field " << field_name << ": it has " << gmsh_field.nb_entries << " entries while the total number of elements is " << m_total_nb_elements << CFendl;
-        continue;
+        //CFwarn << "Skipping field " << field_name << ": it has " << gmsh_field.nb_entries << " entries while the total number of elements is " << m_total_nb_elements << CFendl;
+        //continue;
       }
 
       /// TODO: There are shapefunctions defined in this library that are otherwise not found from the buildername :-(

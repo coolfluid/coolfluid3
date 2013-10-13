@@ -167,6 +167,7 @@ public:
 
   /// return the elementType
   ElementType& element_type() const;
+  Uint comp_idx() const;
   Uint glb_idx() const;
   Uint rank() const;
   bool is_ghost() const;
