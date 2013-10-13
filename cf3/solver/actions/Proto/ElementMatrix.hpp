@@ -165,6 +165,7 @@ struct IsEquationVariable :
         boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
         boost::proto::function<ElementSystemMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
         boost::proto::function<ElementSystemMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::subscript<ElementVectorTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
         ElementMatrixSubBlocks< boost::mpl::int_<I> >
       >,
       boost::mpl::true_()

@@ -15,7 +15,8 @@ CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
   options().add("file_path", URI("profile_file.txt", cf3::common::URI::Scheme::FILE))
     .pretty_name("File Path")
-    .description("Path to the file where the profile data should be stored");
+    .description("Path to the file where the profile data should be stored")
+    .mark_basic();
     
   regist_signal( "start_profiling" )
     .connect( boost::bind( &CodeProfiler::signal_start_profiling, this, _1 ) )

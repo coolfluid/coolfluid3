@@ -132,38 +132,38 @@ env.options().set('regist_signal_handlers', False)
 env.options().set('log_level', 0)
 
 # Generic assembly over quads
-test_case = TestCase('QuadsGeneric', [500,400], False)
+test_case = TestCase('QuadsGeneric', [150,100], False)
 test_case.square_mesh_quads()
 test_case.run()
 test_case.model.delete_component()
 
 
 # Generic assembly over triags
-test_case = TestCase('TriagsGeneric', [500,400], False)
+test_case = TestCase('TriagsGeneric', [150,100], False)
 test_case.square_mesh_triags()
 test_case.run()
 test_case.model.delete_component()
 
 # Generic assembly over hexahedrons
-test_case = TestCase('HexasGeneric', [80, 50, 50], False)
+test_case = TestCase('HexasGeneric', [20, 10, 10], False)
 test_case.cube_mesh_hexas()
 test_case.run()
 test_case.model.delete_component()
 
 # Generic assembly over tetrahedrons
-test_case = TestCase('TetrasGeneric', [80, 50, 50], False)
+test_case = TestCase('TetrasGeneric', [20, 10, 10], False)
 test_case.cube_mesh_tetras()
 test_case.run()
 test_case.model.delete_component()
 
 # Specialized assembly over triangles
-test_case = TestCase('TriagsSpecialized', [500,400], True)
+test_case = TestCase('TriagsSpecialized', [150,100], True)
 test_case.square_mesh_triags()
 test_case.run()
 test_case.model.delete_component()
 
 # Specialized assembly over tetrahedrons
-test_case = TestCase('TetrasSpecialized', [80, 50, 50], True)
+test_case = TestCase('TetrasSpecialized', [20, 10, 10], True)
 test_case.cube_mesh_tetras()
 test_case.run()
 test_case.model.delete_component()

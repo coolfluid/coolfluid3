@@ -51,12 +51,12 @@ block_nodes[4] = [9, 0, 2, 10]
 block_nodes[5] = [10, 2, 4, 11]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [80, 40]
-block_subdivs[1] = [80, 40]
-block_subdivs[2] = [80, 40]
-block_subdivs[3] = [80, 40]
-block_subdivs[4] = [80, 40]
-block_subdivs[5] = [80, 40]
+block_subdivs[0] = [20, 10]
+block_subdivs[1] = [20, 10]
+block_subdivs[2] = [20, 10]
+block_subdivs[3] = [20, 10]
+block_subdivs[4] = [20, 10]
+block_subdivs[5] = [20, 10]
 
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 5., 5.]

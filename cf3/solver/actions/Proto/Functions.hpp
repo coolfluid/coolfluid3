@@ -84,13 +84,12 @@ struct ParsedVectorFunctionTransform :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef typename boost::remove_reference<DataT>::type::CoordsT result_type;
+    typedef const typename boost::remove_reference<DataT>::type::CoordsT& result_type;
 
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      result_type result;
-      evaluate_function(boost::proto::value(expr), data.coordinates(), result);
-      return result;
+      evaluate_function(boost::proto::value(expr), data.coordinates(), expr.value);
+      return expr.value;
     }
   };
 };

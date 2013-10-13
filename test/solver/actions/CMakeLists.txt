@@ -64,6 +64,14 @@ coolfluid_add_test( UTEST     utest-solver-actions-restart
 coolfluid_add_test( UTEST     utest-solver-actions-timeseries
                     PYTHON    utest-solver-actions-timeseries.py)
 
+coolfluid_add_test( UTEST     utest-solver-actions-randomize
+                    PYTHON    utest-solver-actions-randomize.py
+                    MPI 4)
+
+coolfluid_add_test( UTEST     utest-proto-lagrangep2
+                    CPP       utest-proto-lagrangep2.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_generation coolfluid_solver)
+
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(_ARGS 160 160 120)

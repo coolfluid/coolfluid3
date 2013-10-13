@@ -140,3 +140,5 @@ coolfluid_add_test( UTEST utest-ufem-teko-blocks
 coolfluid_add_test(UTEST utest-ufem-surfaceintegral
                    PYTHON utest-ufem-surfaceintegral.py
                    MPI 4)
+
+add_subdirectory(demo)

@@ -7,6 +7,8 @@
 #ifndef cf3_solver_actions_Proto_ElementData_hpp
 #define cf3_solver_actions_Proto_ElementData_hpp
 
+#include <boost/array.hpp>
+
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/mpl.hpp>
@@ -37,6 +39,7 @@
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
+#include "ElementTransforms.hpp"
 #include "FieldSync.hpp"
 #include "Terminals.hpp"
 
@@ -45,29 +48,121 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
-/// Grammar matching expressions if they have a terminal with the index given in the template parameter
-template<Uint I>
-struct UsesVar :
-  boost::proto::or_
-  <
-    boost::proto::when
+namespace detail
+{  
+  /// Helper struct to get the number of element nodes
+  template<typename EquationDataT>
+  struct GetNbNodes
+  {
+    template<typename BoolT, typename EqDataT>
+    struct apply
+    {
+    };
+    
+    template<typename EqDataT>
+    struct apply<boost::mpl::false_, EqDataT>
+    {
+      static const Uint value = boost::remove_pointer
+      <
+        typename boost::remove_reference
+        <
+          typename boost::fusion::result_of::front<EquationDataT>::type
+        >::type
+      >::type::EtypeT::nb_nodes;
+    };
+    
+    template<typename EqDataT>
+    struct apply<boost::mpl::true_, EqDataT>
+    {
+      static const Uint value = 0;
+    };
+    
+    static const Uint value = apply<typename boost::fusion::result_of::empty<EquationDataT>::type, EquationDataT>::value;
+  };
+  
+  /// Grammar matching expressions if they have a terminal with the index given in the template parameter
+  template<typename MatchingGrammarT>
+  struct HasSubGrammar :
+    boost::proto::or_
     <
-      boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >,
-      boost::mpl::true_()
-    >,
-    boost::proto::when
-    <
-      boost::proto::terminal< boost::proto::_ >,
-      boost::mpl::false_()
-    >,
-    boost::proto::when
-    <
-      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
-      boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< UsesVar<I> > >() >
+      boost::proto::when
+      <
+        MatchingGrammarT,
+        boost::mpl::true_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::terminal< boost::proto::_ >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+        boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< HasSubGrammar<MatchingGrammarT> > >() >
+      >
     >
-  >
-{
-};
+  {
+  };
+  
+  /// Grammar matching expressions if they have a terminal with the index given in the template parameter
+  template<Uint I>
+  struct UsesVar : HasSubGrammar< boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >
+  {
+  };
+  
+  template<typename ExprT, typename MatchingGrammarT>
+  struct HasSubExpr
+  {
+    static const bool value = boost::result_of<HasSubGrammar<MatchingGrammarT>(ExprT)>::type::value;
+  };
+  
+  /// Returns true if an interpolation op is used
+  template<Uint I>
+  struct MatchImplicitEval :
+    boost::proto::or_
+    <
+      boost::proto::when
+      <
+        boost::proto::or_
+        <
+          boost::proto::function< boost::proto::terminal< SFOp<boost::proto::_> >, boost::proto::vararg<boost::proto::_> >,
+          boost::proto::terminal< SFOp<boost::proto::_> >,
+          boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+          ElementMatrixGrammar,
+          ElementMatrixGrammarIndexed< boost::mpl::int_<0>, boost::mpl::int_<0> >
+        >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >,
+        boost::mpl::true_()
+      >
+    >
+  {
+  };
+  
+  template<Uint I>
+  struct HasEvalVar :
+    boost::proto::or_
+    <
+      boost::proto::call< MatchImplicitEval<I> >,
+      boost::proto::when
+      <
+        boost::proto::terminal< boost::proto::_ >,
+        boost::mpl::false_()
+      >,
+      boost::proto::when
+      <
+        boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+        boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< HasEvalVar<I> > >() >
+      >
+    >
+  {
+  };
+  
+  
+}
 
 /// Functions and operators associated with a geometric support
 template<typename ETYPE>
@@ -88,7 +183,7 @@ public:
 
   GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry_fields().coordinates()),
-    m_connectivity(elements.geometry_space().connectivity())
+    m_connectivity_array(elements.geometry_space().connectivity().array())
   {
   }
 
@@ -96,24 +191,15 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
-  }
-
-  void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
-  {
-    block_accumulator.neighbour_indices(m_connectivity[m_element_idx]);
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[element_idx];
+    std::copy(row.begin(), row.end(), m_connectivity.begin());
+    mesh::fill(m_nodes, m_coordinates, m_connectivity);
   }
 
   /// Reference to the current nodes
   ValueResultT nodes() const
   {
     return m_nodes;
-  }
-
-  /// Connectivity data for the current element
-  common::Table<Uint>::ConstRow element_connectivity() const
-  {
-    return m_connectivity[m_element_idx];
   }
 
   Real volume() const
@@ -200,6 +286,11 @@ public:
     compute_normal_dispatch(boost::mpl::bool_<EtypeT::dimension - EtypeT::dimensionality == 1>(), mapped_coords);
   }
 
+  const boost::array<Uint, EtypeT::nb_nodes>& element_connectivity() const
+  {
+    return m_connectivity;
+  }
+
 private:
   void compute_normal_dispatch(boost::mpl::false_, const typename EtypeT::MappedCoordsT&) const
   {
@@ -228,13 +319,17 @@ private:
   /// Coordinates table
   const common::Table<Real>& m_coordinates;
 
-  /// Connectivity table
-  const common::Table<Uint>& m_connectivity;
+  /// Connectivity for all elements
+  const mesh::Connectivity::ArrayT& m_connectivity_array;
+  
+  /// Connectivity table for the current element
+  boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
 
   /// Index for the current element
   Uint m_element_idx;
 
   /// Temp storage for non-scalar results
+private:
   mutable typename EtypeT::SF::ValueT m_sf;
   mutable typename EtypeT::CoordsT m_eval_result;
   mutable typename EtypeT::JacobianT m_jacobian_matrix;
@@ -249,20 +344,6 @@ inline mesh::Field& find_field(mesh::Elements& elements, const std::string& tag)
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
   return common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
 }
-
-/// Dummy shape function type used for element-based fields
-template<Uint Dim>
-struct ElementBased
-{
-  static const Uint dimension = Dim;
-  static const Uint nb_nodes = 1;
-  /// Mimic some shape function functionality, to avoid compile errors. Not that this is only used during the recursion on the types, and never actually used
-  struct SF
-  {
-    typedef RealMatrix GradientT;
-    typedef RealMatrix ValueT;
-  };
-};
 
 /// Data associated with field variables
 template<typename ETYPE, typename SupportEtypeT, Uint Dim, bool IsEquationVar>
@@ -358,7 +439,7 @@ public:
   template<typename VariableT>
   EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
-    m_connectivity(get_connectivity(placeholder.field_tag(), elements)),
+    m_connectivity_array(get_connectivity(placeholder.field_tag(), elements).array()),
     m_support(support),
     offset(m_field.descriptor().offset(placeholder.name())),
     m_need_sync(false)
@@ -381,12 +462,12 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
+    mesh::fill(m_element_values, m_field, m_connectivity_array[element_idx], offset);
   }
-
-  const common::Table<Uint>::ConstRow element_connectivity() const
+  
+  void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
   {
-    return m_connectivity[m_element_idx];
+    block_accumulator.neighbour_indices(m_connectivity_array[m_element_idx]);
   }
 
   /// Reference to the geometric support
@@ -413,12 +494,12 @@ public:
   template<typename NodeValsT>
   void add_nodal_values(const NodeValsT& vals)
   {
-    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[m_element_idx];
     for(Uint i = 0; i != dimension; ++i)
     {
       m_element_values.col(i) += vals.template block<EtypeT::nb_nodes, 1>(i*EtypeT::nb_nodes, 0);
       for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
-        m_field[conn[j]][offset+i] = m_element_values(j,i);
+        m_field[row[j]][offset+i] = m_element_values(j,i);
     }
     
     m_need_sync = true;
@@ -427,22 +508,22 @@ public:
   template<typename NodeValsT>
   void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
   {
-    const mesh::Connectivity::ConstRow conn = m_connectivity[m_element_idx];
+    const mesh::Connectivity::ConstRow row = m_connectivity_array[m_element_idx];
     for(Uint i = 0; i != EtypeT::nb_nodes; ++i)
     {
       m_element_values(i, component_idx) += vals[i];
-      m_field[conn[i]][offset+component_idx] = m_element_values(i, component_idx);
+      m_field[row[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
     
     m_need_sync = true;
   }
-
+  
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
   void compute_values(const MappedCoordsT& mapped_coords) const
   {
     compute_values_dispatch(boost::mpl::bool_<EtypeT::dimension == EtypeT::dimensionality>(), mapped_coords);
   }
-
+  
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
@@ -508,7 +589,7 @@ private:
   mesh::Field& m_field;
 
   /// Connectivity table
-  const mesh::Connectivity& m_connectivity;
+  const mesh::Connectivity::ArrayT& m_connectivity_array;
 
   /// Gemetric support
   const SupportT& m_support;
@@ -589,6 +670,10 @@ public:
     cf3_assert(false); // should not be used
     return m_dummy_result;
   }
+  
+  void compute_values(const MappedCoordsT& mapped_coords) const
+  {
+  }
 
 private:
   mesh::Field& m_field;
@@ -661,6 +746,10 @@ public:
   {
     cf3_assert(false); // should not be used
     return m_dummy_result;
+  }
+  
+  void compute_values(const MappedCoordsT& mapped_coords) const
+  {
   }
 
 private:
@@ -824,6 +913,8 @@ public:
 
   /// A view of only the data used in the element matrix
   typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
+  
+  static const Uint nb_lss_nodes = detail::GetNbNodes<EquationDataT>::value;
 
   ElementData(VariablesT& variables, mesh::Elements& elements) :
     m_variables(variables),
@@ -837,14 +928,25 @@ public:
       m_element_matrices[i].setZero();
       m_element_vectors[i].setZero();
     }
-
+    
+    init_block_accumulator(typename boost::fusion::result_of::empty<EquationDataT>::type());
+  }
+  
+  // Init LSS block accumulator
+  void init_block_accumulator(boost::mpl::false_)
+  {
     typedef typename boost::mpl::transform
     <
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
       FieldWidth<boost::mpl::_1, SupportEtypeT>
     >::type NbEqsPerVarT;
-
-    block_accumulator.resize(SupportShapeFunction::nb_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
+    
+    block_accumulator.resize(nb_lss_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
+  }
+  
+  // No LSS, so nothing to be done
+  void init_block_accumulator(boost::mpl::true_)
+  {
   }
 
   ~ElementData()
@@ -865,8 +967,7 @@ public:
   /// Update block accumulator only if a system of equations is accessed in the expressions
   void update_blocks(boost::mpl::false_)
   {
-    block_accumulator.reset();
-    m_support.update_block_connectivity(block_accumulator);
+    boost::fusion::front(m_equation_data)->update_block_connectivity(block_accumulator);
     indices_converted = false;
   }
 
@@ -1092,16 +1193,18 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      apply(typename boost::result_of<UsesVar<I::value>(ExprT)>::type(), boost::fusion::at<I>(m_variables_data));
+      apply(typename boost::result_of<detail::UsesVar<I::value>(ExprT)>::type(), I(), boost::fusion::at<I>(m_variables_data));
     }
 
-    void apply(boost::mpl::false_, const boost::mpl::void_&)
+    template<typename I, typename T>
+    void apply(boost::mpl::false_, I, T)
     {
     }
 
-    template<typename T>
-    void apply(boost::mpl::true_, T*& d)
+    template<typename I, typename T>
+    void apply(boost::mpl::true_, I, T*& d)
     {
+//       static const bool needs_eval = boost::result_of<detail::HasEvalVar<I::value>(ExprT)>::type::value;
       d->compute_values(m_mapped_coords);
     }
 
