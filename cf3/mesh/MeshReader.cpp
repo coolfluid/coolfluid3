@@ -96,7 +96,7 @@ void MeshReader::signal_read( SignalArgs& node  )
   Handle< Component > domain = options.value< Handle<Component> >("domain");
 
   std::vector<URI> files = options.value< std::vector<URI> >("files");
-  if (files.empty())
+  if (files.empty() && options.check("file") )
     files.push_back( options.value<URI>("file"));
 
   // create a mesh in the domain

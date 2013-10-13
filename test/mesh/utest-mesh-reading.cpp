@@ -213,10 +213,10 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
   SignalOptions options;
 
   // URI with a wrong protocol
-  options.add("location", URI("file:/"));
+  options.add("domain", domain->handle() );
 
   frame = options.create_frame("Target", "/", "/");
-  BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
+  BOOST_CHECK_THROW( reader->signal_read(frame), ValueNotFound );
 }
 
 
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add("location", URI("cpath:/MyDom"));
+  options.add("domain", domain->handle() );
   options.add("files", files);
 
   frame = options.create_frame("Target", "/", "/");
@@ -238,62 +238,6 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   BOOST_CHECK_THROW( reader->signal_read(frame), BadValue );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
-}
-
-BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
-{
-  SignalFrame frame;
-  SignalOptions options;
-
-  // first file is wrong (exception and the mesh should be empty afterwards)
-  std::vector<URI> files;
-  files.push_back( "http://www.google.com" );
-  files.push_back( "file:../../resources/hextet.neu" );
-  options.add("location", URI("cpath:/MyDom"));
-  options.add("files", files);
-
-  frame = options.create_frame("Target", "/", "/");
-
-  BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
-}
-
-BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
-{
-  SignalFrame frame;
-  SignalOptions options;
-
-  // a file in the middle is wrong (exception and the mesh should be empty afterwards)
-  std::vector<URI> files;
-  files.push_back( "file:../../resources/hextet.neu" );
-  files.push_back( "http://www.google.com" );
-  files.push_back( "file:../../resources/hextet.neu" );
-  options.add("location", URI("cpath:/MyDom"));
-  options.add("files", files);
-
-  frame = options.create_frame("Target", "/", "/");
-
-  BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
-}
-
-BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
-{
-  SignalFrame frame;
-  SignalOptions options;
-
-  // everything is OK
-  std::vector<URI> files;
-  files.push_back( "file:../../resources/hextet.neu" );
- // more than 1 file no longer supported
-//  files.push_back( "file:../../resources/quadtriag.neu" );
-  options.add("location", URI("cpath:/MyDom"));
-  options.add("files", files);
-
-  frame = options.create_frame("Target", "/", "/");
-
-  BOOST_CHECK_NO_THROW( reader->signal_read(frame) );
-  BOOST_CHECK_NE( domain->count_children(), (Uint) 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
