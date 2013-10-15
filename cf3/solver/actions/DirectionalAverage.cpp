@@ -89,6 +89,8 @@ DirectionalAverage::DirectionalAverage ( const std::string& name ) :
 void DirectionalAverage::execute()
 {
   setup();
+
+  std::fill(m_averages.begin(), m_averages.end(), 0.);
   
   const mesh::Field::ArrayT& field_values = m_field->array();
   const Uint nb_nodes = field_values.size();
@@ -203,7 +205,7 @@ void DirectionalAverage::setup()
   }
   
   // For each position, we store the count and then the sum of all values in the field
-  m_averages.assign(m_positions.size() * (m_field->row_size()+1), 0.);
+  m_averages.resize(m_positions.size() * (m_field->row_size()+1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
