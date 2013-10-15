@@ -54,17 +54,19 @@ stats.file = cf.URI('turbulence-statistics.txt')
 stats.rolling_window = 10
 stats.add_probe([1., 0.5 ])
 stats.add_probe([1., 0.15])
+stats.setup()
+
+dir_avg = domain.create_component('DirectionalAverage', 'cf3.solver.actions.DirectionalAverage')
+dir_avg.direction = 1
+dir_avg.field = mesh.geometry.turbulence_statistics
+dir_avg.file = cf.URI('turbulence-statistics-profile.txt')
 
 for i in range(1000):
   init_field.execute()
   randomizer.options.seed = i
   randomizer.execute()
   stats.execute()
-  
-dir_avg = domain.create_component('DirectionalAverage', 'cf3.solver.actions.DirectionalAverage')
-dir_avg.direction = 1
-dir_avg.field = mesh.geometry.turbulence_statistics
-dir_avg.file = cf.URI('turbulence-statistics-profile.txt')
+
 dir_avg.execute()
 
 writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')

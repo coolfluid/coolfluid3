@@ -88,6 +88,11 @@ TurbulenceStatistics::TurbulenceStatistics ( const std::string& name ) :
     .description("Add a probe at the given location, logging to its own file")
     .pretty_name("Add Probe")
     .signature( boost::bind( &TurbulenceStatistics::signature_add_probe, this, _1));
+
+  regist_signal( "setup" )
+    .connect( boost::bind( &TurbulenceStatistics::signal_setup, this, _1 ) )
+    .description("Set up the internal counters and field for the statistics")
+    .pretty_name("Setup");
   
   properties().add("restart_field_tags", std::vector<std::string>(1, "turbulence_statistics"));
 }
@@ -238,6 +243,11 @@ void TurbulenceStatistics::signature_add_probe(common::SignalArgs& args)
 {
   common::XML::SignalOptions options(args);
   options.add("probe_location", std::vector<Real>()).pretty_name("Probe Location").description("Location to probe, i.e. write every timestep");
+}
+
+void TurbulenceStatistics::signal_setup(common::SignalArgs& args)
+{
+  setup();
 }
 
 void TurbulenceStatistics::setup()

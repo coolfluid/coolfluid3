@@ -58,6 +58,7 @@ private:
 
   void signal_add_probe(common::SignalArgs& args);
   void signature_add_probe(common::SignalArgs& args);
+  void signal_setup(common::SignalArgs& args);
 
   /// Size of the rolling window
   Uint m_rolling_size;
