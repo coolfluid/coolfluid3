@@ -11,6 +11,7 @@
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
 #include "common/List.hpp"
+#include "common/PropertyList.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Signal.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -36,51 +37,13 @@ common::ComponentBuilder < TurbulenceStatistics, common::Action, LibActions > Tu
 ///////////////////////////////////////////////////////////////////////////////////////
 
 namespace detail
-{
-  typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean> > MeanAccT;
-  typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::rolling_mean> > RollingAccT;
-
-  Real get_mean(const MeanAccT& acc)
+{  
+  inline void update_mean(Real& mean, const Real new_value, const Uint count)
   {
-    return boost::accumulators::mean(acc);
-  }
-
-  Real get_mean(const RollingAccT& acc)
-  {
-    return boost::accumulators::rolling_mean(acc);
-  }
-
-  template<typename AccumulatorsT>
-  void append_stats(const Uint i, const Real u, const Real v, AccumulatorsT& acc)
-  {
-    acc[i  ](u);
-    acc[i+1](v);
-
-    const Real up =  u - get_mean(acc[i]);
-    const Real vp =  v - get_mean(acc[i+1]);
-
-    acc[i+2](up*up);
-    acc[i+3](vp*vp);
-    acc[i+4](up*vp);
-  }
-
-  template<typename AccumulatorsT>
-  void append_stats(const Uint i, const Real u, const Real v, const Real w, AccumulatorsT& acc)
-  {
-    acc[i  ](u);
-    acc[i+1](v);
-    acc[i+2](w);
-
-    const Real up =  u - get_mean(acc[i]);
-    const Real vp =  v - get_mean(acc[i+1]);
-    const Real wp =  w - get_mean(acc[i+2]);
-
-    acc[i+3](up*up);
-    acc[i+4](vp*vp);
-    acc[i+5](wp*wp);
-    acc[i+6](up*vp);
-    acc[i+7](up*wp);
-    acc[i+8](vp*wp);
+    if(count != 0)
+      mean = (mean * static_cast<Real>(count) + new_value) / static_cast<Real>(count+1);
+    else
+      mean = new_value;
   }
 }
 
@@ -106,25 +69,27 @@ TurbulenceStatistics::TurbulenceStatistics ( const std::string& name ) :
 
   options().add("rolling_window", 10u)
     .pretty_name("Rolling window")
-    .description("Window size for the rolling averages")
+    .description("Window size for the rolling averages in probes")
     .attach_trigger(boost::bind(&TurbulenceStatistics::reset_statistics, this))
     .mark_basic();
     
   options().add("file", common::URI())
     .pretty_name("File")
-    .description("File name for the output file")
+    .description("Base file name for the probe output files")
     .mark_basic();
 
-  options().add("write_interval", 100u)
-    .pretty_name("write_interval")
-    .description("Write each N iterations")
-    .mark_basic();
+  options().add("count", m_count)
+    .pretty_name("Count")
+    .description("Number of averages made")
+    .link_to(&m_count);
 
   regist_signal( "add_probe" )
     .connect( boost::bind( &TurbulenceStatistics::signal_add_probe, this, _1 ) )
     .description("Add a probe at the given location, logging to its own file")
     .pretty_name("Add Probe")
     .signature( boost::bind( &TurbulenceStatistics::signature_add_probe, this, _1));
+  
+  properties().add("restart_field_tags", std::vector<std::string>(1, "turbulence_statistics"));
 }
 
 void TurbulenceStatistics::execute()
@@ -132,103 +97,124 @@ void TurbulenceStatistics::execute()
   setup();
   common::PE::Comm& comm = common::PE::Comm::instance();
 
-  const Uint nb_nodes = m_used_nodes.size();
-  const Uint stride = 2.*m_dim + m_dim-1 + m_dim-2;
+  const Uint nb_nodes = m_used_nodes->size();
+  const common::List<Uint>::ListT& used_nodes_list = m_used_nodes->array();
   const mesh::Field::ArrayT& velocity_array = m_field->array();
+  mesh::Field::ArrayT& means_array = m_statistics_field->array();
+  const Uint stride = 2.*m_dim + m_dim-1 + m_dim-2;
+  const Uint nb_my_probes = m_probe_nodes.size();
 
   if(m_dim == 2)
   {
     for(Uint i = 0; i != nb_nodes; ++i)
     {
-      const mesh::Field::ConstRow velocity = velocity_array[m_used_nodes[i]];
+      const mesh::Field::ConstRow velocity = velocity_array[used_nodes_list[i]];
+      mesh::Field::Row means = means_array[used_nodes_list[i]];
       const Real u = velocity[XX]; const Real v = velocity[YY];
-      detail::append_stats(stride*i, u, v, m_means);
-      detail::append_stats(stride*i, u, v, m_rolling_means);
+    
+      detail::update_mean(means[0], u, m_count);
+      detail::update_mean(means[1], v, m_count);
+      detail::update_mean(means[2], u*u, m_count);
+      detail::update_mean(means[3], v*v, m_count);
+      detail::update_mean(means[4], u*v, m_count);
+    }
+
+    for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
+    {
+      const Uint probe_begin = my_probe_idx*stride;
+      const mesh::Field::ConstRow velocity = velocity_array[m_probe_nodes[my_probe_idx]];
+      const Real u = velocity[XX]; const Real v = velocity[YY];
+
+      m_means[probe_begin  ](u);
+      m_means[probe_begin+1](v);
+      m_means[probe_begin+2](u*u);
+      m_means[probe_begin+3](v*v);
+      m_means[probe_begin+4](u*v);
+
+      m_rolling_means[probe_begin  ](u);
+      m_rolling_means[probe_begin+1](v);
+      m_rolling_means[probe_begin+2](u*u);
+      m_rolling_means[probe_begin+3](v*v);
+      m_rolling_means[probe_begin+4](u*v);
     }
   }
   else if(m_dim == 3)
   {
     for(Uint i = 0; i != nb_nodes; ++i)
     {
-      const mesh::Field::ConstRow velocity = velocity_array[m_used_nodes[i]];
+      const mesh::Field::ConstRow velocity = velocity_array[used_nodes_list[i]];
+      mesh::Field::Row means = means_array[used_nodes_list[i]];
       const Real u = velocity[XX]; const Real v = velocity[YY]; const Real w = velocity[ZZ];
-      detail::append_stats(stride*i, u, v, w, m_means);
-      detail::append_stats(stride*i, u, v, w, m_rolling_means);
+      
+      detail::update_mean(means[0], u, m_count);
+      detail::update_mean(means[1], v, m_count);
+      detail::update_mean(means[2], w, m_count);
+      detail::update_mean(means[3], u*u, m_count);
+      detail::update_mean(means[4], v*v, m_count);
+      detail::update_mean(means[5], w*w, m_count);
+      detail::update_mean(means[6], u*v, m_count);
+      detail::update_mean(means[7], u*w, m_count);
+      detail::update_mean(means[8], v*w, m_count);
     }
-  }
 
-  ++m_count;
-
-  // Write out the statistics if we reach the interval to do so
-  const Uint write_interval = options().value<Uint>("write_interval");
-  if(m_count % write_interval == 0)
-  {
-    const int nb_means = m_means.size();
-    std::vector<Real> means; means.reserve(nb_means);
-    std::vector<Real> rolling_means; rolling_means.reserve(nb_means);
-    for(Uint i = 0; i != nb_means; ++i)
+    for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
     {
-      means.push_back(boost::accumulators::mean(m_means[i]));
-      rolling_means.push_back(boost::accumulators::rolling_mean(m_rolling_means[i]));
-    }
-    
-    const common::URI original_uri = options().value<common::URI>("file").path();
-    std::string out_path = (original_uri.base_path() / (original_uri.base_name() + "_P" + common::to_str(comm.rank()) + original_uri.extension())).path();
-    boost::algorithm::replace_all(out_path, "{iteration}", common::to_str(m_count));
+      const Uint probe_begin = my_probe_idx*stride;
+      const mesh::Field::ConstRow velocity = velocity_array[m_probe_nodes[my_probe_idx]];
+      const Real u = velocity[XX]; const Real v = velocity[YY];; const Real w = velocity[ZZ];
 
-    boost::filesystem::fstream file(out_path, std::ios_base::out);
-    if(!file)
-      throw common::FileSystemError(FromHere(), "Failed to open file " + out_path);
+      m_means[probe_begin  ](u);
+      m_means[probe_begin+1](v);
+      m_means[probe_begin+2](w);
+      m_means[probe_begin+3](u*u);
+      m_means[probe_begin+4](v*v);
+      m_means[probe_begin+5](w*w);
+      m_means[probe_begin+6](u*v);
+      m_means[probe_begin+7](u*w);
+      m_means[probe_begin+8](v*w);
 
-    if(m_dim == 2)
-    {
-      file << "# U, V, uu, vv, uv, U_rolling, V_rolling, uu_rolling, vv_rolling, uv_rolling\n";
+      m_rolling_means[probe_begin  ](u);
+      m_rolling_means[probe_begin+1](v);
+      m_rolling_means[probe_begin+2](w);
+      m_rolling_means[probe_begin+3](u*u);
+      m_rolling_means[probe_begin+4](v*v);
+      m_rolling_means[probe_begin+5](w*w);
+      m_rolling_means[probe_begin+6](u*v);
+      m_rolling_means[probe_begin+7](u*w);
+      m_rolling_means[probe_begin+8](v*w);
     }
-    else if(m_dim == 3)
-    {
-      file << "# U, V, W, uu, vv, ww, uv, uw, vw, U_rolling, V_rolling, W_rolling, uu_rolling, vv_rolling, ww_rolling, uv_rolling, uw_rolling, vw_rolling\n";
-    }
-    for(Uint i = 0; i != nb_nodes; ++i)
-    {
-      file << means[i*stride];
-      for(Uint j = 1; j != stride; ++j)
-        file << " " << means[i*stride+j];
-
-      for(Uint j = 0; j != stride; ++j)
-        file << " " << rolling_means[i*stride+j];
-      file << "\n";
-    }
-    file.close();
   }
 
   // Write the probe data
-  const Uint nb_my_probes = m_probe_nodes.size();
   for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
   {
-    const Uint node_begin = m_probe_nodes[my_probe_idx]*stride;
+    const Uint probe_begin = my_probe_idx*stride;
+    const Uint probe_end = probe_begin + stride;
     boost::filesystem::fstream& file = *m_probe_files[my_probe_idx];
-    for(Uint j = 0; j != stride; ++j)
+    for(Uint j = probe_begin; j != probe_end; ++j)
     {
       if(j != 0)
         file << " ";
-      file << boost::accumulators::mean(m_means[node_begin+j]);
+      file << boost::accumulators::mean(m_means[j]);
     }
     
     for(Uint j = 0; j != stride; ++j)
     {
-      file << " " << boost::accumulators::rolling_mean(m_rolling_means[node_begin+j]);
+      file << " " << boost::accumulators::rolling_mean(m_rolling_means[j]);
     }
     
     file << "\n";
   }
+
+  options().set("count", m_count+1u);
 }
 
 void TurbulenceStatistics::reset_statistics()
 {
-  const Uint nb_accs = (2.*m_dim + m_dim-1 + m_dim-2)*m_used_nodes.size();
+  const Uint nb_accs = (2.*m_dim + m_dim-1 + m_dim-2)*m_probe_nodes.size();
   m_means.assign(nb_accs, MeanAccT());
   m_rolling_means.assign(nb_accs, RollingAccT(boost::accumulators::tag::rolling_window::window_size = options().value<Uint>("rolling_window")));
-  m_count = 0;
+  options().set("count", 0u);
 }
 
 void TurbulenceStatistics::add_probe(const RealVector& probe_location)
@@ -260,7 +246,7 @@ void TurbulenceStatistics::setup()
     return;
   m_options_changed = false;
 
-  m_used_nodes.clear();
+  m_used_nodes.reset();
 
   Handle<mesh::Region> region = options().value< Handle<mesh::Region> >("region");
   if(is_null(region))
@@ -303,13 +289,13 @@ void TurbulenceStatistics::setup()
   
   common::PE::Comm& comm = common::PE::Comm::instance();
 
-  boost::shared_ptr< common::List<Uint> >used_nodes_list = mesh::build_used_nodes_list(*region, *dictionary, false, false);
-  m_used_nodes.reserve(used_nodes_list->size());
+  m_used_nodes = mesh::build_used_nodes_list(*region, *dictionary, true, false);
   const int nb_probes = m_probe_locations.size();
   std::vector<int> my_probes_found(nb_probes, 0);
   m_probe_nodes.clear();
   m_probe_indices.clear();
-  BOOST_FOREACH(const Uint node_idx, used_nodes_list->array())
+  const common::List<Uint>::ListT& used_nodes_list = m_used_nodes->array();
+  BOOST_FOREACH(const Uint node_idx, used_nodes_list)
   {
     if(dictionary->is_ghost(node_idx))
       continue;
@@ -321,12 +307,11 @@ void TurbulenceStatistics::setup()
       }
       if(((RealVector::Map(&coords[node_idx][0], m_dim) - m_probe_locations[probe_idx]).array().abs() < 1e-10).all())
       {
-        m_probe_nodes.push_back(m_used_nodes.size());
+        m_probe_nodes.push_back(node_idx);
         m_probe_indices.push_back(probe_idx);
         my_probes_found[probe_idx] = 1;
       }
     }
-    m_used_nodes.push_back(node_idx);
   }
 
   std::vector<int> global_probes_found(nb_probes);
@@ -354,15 +339,8 @@ void TurbulenceStatistics::setup()
   for(Uint my_idx = 0; my_idx != nb_my_probes; ++my_idx)
   {
     const Uint probe_idx = m_probe_indices[my_idx];
-    std::string probe_path = original_uri.path();
-    if(boost::algorithm::contains(probe_path, "{iteration}"))
-    {
-      boost::algorithm::replace_all(probe_path, "{iteration}", "probe-" + common::to_str(probe_idx));
-    }
-    else
-    {
-      probe_path = (original_uri.base_path() / (original_uri.base_name() + "-probe-" + common::to_str(probe_idx) + original_uri.extension())).path();
-    }
+    std::string probe_path = (original_uri.base_path() / (original_uri.base_name() + "-probe-" + common::to_str(probe_idx) + original_uri.extension())).path();
+
     m_probe_files.push_back(boost::make_shared<boost::filesystem::fstream>(probe_path, std::ios_base::out));
     boost::filesystem::fstream& file = *m_probe_files.back();
     if(!file)
@@ -379,34 +357,20 @@ void TurbulenceStatistics::setup()
     }
   }
 
-  // Write out the coordinates
-  std::string coords_path = original_uri.path();
-  if(boost::algorithm::contains(coords_path, "{iteration}"))
+  // Create a field for the statistics data
+  m_statistics_field = Handle<mesh::Field>(dictionary->get_child("turbulence_statistics"));
+  if(is_null(m_statistics_field))
   {
-    boost::algorithm::replace_all(coords_path, "{iteration}", "coordinates_P" + common::to_str(comm.rank()));
+    if(m_dim == 2)
+    {
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,uv").handle<mesh::Field>();
+    }
+    else if(m_dim == 3)
+    {
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,ww,uv,uw,vw").handle<mesh::Field>();
+    }
+    m_statistics_field->add_tag("turbulence_statistics");
   }
-  else
-  {
-    coords_path = (original_uri.base_path() / (original_uri.base_name() + "-coordinates_P" + common::to_str(comm.rank()) + original_uri.extension())).path();
-  }
-  
-  boost::filesystem::fstream file(coords_path, std::ios_base::out);
-  if(!file)
-    throw common::FileSystemError(FromHere(), "Failed to open file " + coords_path);
-  file << "# x y";
-  if(m_dim > 2)
-    file << " z";
-  file << "\n";
-
-  BOOST_FOREACH(const Uint node_idx, m_used_nodes)
-  {
-    const mesh::Field::ConstRow row = coords[node_idx];
-    file << row[0];
-    for(Uint j = 1; j != m_dim; ++j)
-      file << " " << row[j];
-    file << "\n";
-  }
-  file.close();
 
   reset_statistics();
 }

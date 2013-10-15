@@ -49,10 +49,9 @@ randomizer.maximum_values = [Uc*1.3, Uc/3.]
 randomizer.minimum_values = [-Uc, -Uc/3.]
 
 stats = domain.create_component('Statistics', 'cf3.solver.actions.TurbulenceStatistics')
-stats.region = mesh.topology.right
-stats.file = cf.URI('turbulence-statistics-{iteration}.txt')
+stats.region = mesh.topology
+stats.file = cf.URI('turbulence-statistics.txt')
 stats.rolling_window = 10
-stats.write_interval = 100
 stats.add_probe([1., 0.5 ])
 stats.add_probe([1., 0.15])
 
@@ -61,9 +60,15 @@ for i in range(1000):
   randomizer.options.seed = i
   randomizer.execute()
   stats.execute()
+  
+dir_avg = domain.create_component('DirectionalAverage', 'cf3.solver.actions.DirectionalAverage')
+dir_avg.direction = 1
+dir_avg.field = mesh.geometry.turbulence_statistics
+dir_avg.file = cf.URI('turbulence-statistics-profile.txt')
+dir_avg.execute()
 
 writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')
-writer.fields = [velocity.uri(), mesh.geometry.coordinates.uri()]
+writer.fields = [velocity.uri(), mesh.geometry.coordinates.uri(), mesh.geometry.turbulence_statistics.uri()]
 writer.mesh = mesh
 writer.file = cf.URI('turbulence-statistics.pvtu')
 writer.execute()

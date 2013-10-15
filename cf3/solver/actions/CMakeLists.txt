@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_solver_actions_files
   AdvanceTime.hpp
   AdvanceTime.cpp
+  DirectionalAverage.hpp
+  DirectionalAverage.cpp
   Iterate.hpp
   Iterate.cpp
   LoopOperation.hpp

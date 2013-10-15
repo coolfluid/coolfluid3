@@ -64,9 +64,10 @@ private:
   /// True if one of the options changed since last execute
   bool m_options_changed;
   /// Nodes used by the region
-  std::vector<Uint> m_used_nodes;
+  boost::shared_ptr< common::List<Uint> > m_used_nodes;
   /// Field having the velocity
   Handle<mesh::Field> m_field;
+  Handle<mesh::Field> m_statistics_field;
   Uint m_dim;
   Uint m_field_offset;
   
