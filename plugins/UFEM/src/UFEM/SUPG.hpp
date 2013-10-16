@@ -48,7 +48,7 @@ struct ComputeTau
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
     typedef typename UT::EtypeT ElementT;
 
@@ -61,18 +61,18 @@ struct ComputeTau
     const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
     tau_ps = he*xi/(2.*u_ref);
     tau_bulk = he*u_ref/xi;
-    tau_su = compute_tau_su(u, element_nu);
+    tau_su = compute_tau_su(u, element_nu, dt);
   }
 
   /// Only compute the SUPG coefficient
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, Real& tau_su) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_su) const
   {
-    tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()));
+    tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()), dt);
   }
 
   template<typename UT>
-  Real compute_tau_su(const UT& u, const Real& element_nu) const
+  Real compute_tau_su(const UT& u, const Real& element_nu, const Real& dt) const
   {
     typedef typename UT::EtypeT ElementT;
 
@@ -85,17 +85,17 @@ struct ComputeTau
       typename ElementNormals<ElementT>::NormalsT normals;
       ElementNormals<ElementT>()(u.support().nodes(), normals);
       const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*element_nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-      return h*xi/(2.*umag);
+      const Real tau_adv = h/(2.*umag);
+      const Real tau_time = 0.5*dt;
+      const Real tau_diff = h*h/(4.*element_nu);
+      return 1./(1./tau_adv + 1./tau_time + 1./tau_diff);
     }
 
     return 0.;
   }
 };
 
-/// Placeholder for the compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, tau_ps_field, tau_su_field, tau_bulk_field)
+/// Placeholder for the compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, dt, tau_ps, tau_su, tau_bulk)
 static solver::actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 } // UFEM
