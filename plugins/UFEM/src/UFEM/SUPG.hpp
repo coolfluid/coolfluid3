@@ -18,28 +18,22 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// Helper struct to get the face normals of an element
-template<typename ElementT>
-struct ElementNormals
+namespace detail
 {
-  typedef Eigen::Matrix<Real, ElementT::nb_faces, ElementT::dimension> NormalsT;
+// Helper to get the norm of either a vector or a scalar
 
-  void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
-  {
-    const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
-    RealVector normal(ElementT::dimension);
-    for(Uint i = 0; i != ElementT::nb_faces; ++i)
-    {
-      const mesh::ElementType& face_etype = ElementT::face_type(i);
-      const Uint nb_face_nodes = face_etype.nb_nodes();
-      RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
-      for(Uint j = 0; j != nb_face_nodes; ++j)
-        face_nodes.row(j) = nodes.row(face_conn.nodes[face_conn.displs[i]+j]);
-      face_etype.compute_normal(face_nodes, normal);
-      normals.row(i) = face_etype.area(face_nodes) * normal;
-    }
-  }
-};
+template<typename T>
+inline Real norm(const T& vector)
+{
+  return vector.norm();
+}
+
+inline Real norm(const Real scalar)
+{
+  return scalar;
+}
+
+}
 
 /// Calculation of the stabilization coefficients for the SUPG method
 struct ComputeTau
@@ -75,16 +69,16 @@ struct ComputeTau
   Real compute_tau_su(const UT& u, const Real& element_nu, const Real& dt) const
   {
     typedef typename UT::EtypeT ElementT;
+    typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
 
-    // Average cell velocity
-    const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
-    const Real umag = u_avg.norm();
+
+    // cell velocity
+    u.compute_values(GaussT::instance().coords.col(0));
+    const Real umag = detail::norm(u.eval());
 
     if(umag > 1e-10)
     {
-      typename ElementNormals<ElementT>::NormalsT normals;
-      ElementNormals<ElementT>()(u.support().nodes(), normals);
-      const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
+      const Real h = 2.*umag / (u.eval()*u.nabla()).sum();
       const Real tau_adv = h/(2.*umag);
       const Real tau_time = 0.5*dt;
       const Real tau_diff = h*h/(4.*element_nu);
