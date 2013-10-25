@@ -142,3 +142,4 @@ coolfluid_add_test(UTEST utest-ufem-surfaceintegral
                    MPI 4)
 
 add_subdirectory(demo)
+add_subdirectory(particles)

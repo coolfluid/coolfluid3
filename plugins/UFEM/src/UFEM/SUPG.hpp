@@ -64,6 +64,13 @@ struct ComputeTau
   {
     tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()), dt);
   }
+  
+  /// Only compute the SUPG coefficient, overload for scalar viscosity
+  template<typename UT>
+  void operator()(const UT& u, const Real& nu_eff, const Real& dt, Real& tau_su) const
+  {
+    tau_su = compute_tau_su(u, nu_eff, dt);
+  }
 
   template<typename UT>
   Real compute_tau_su(const UT& u, const Real& element_nu, const Real& dt) const
