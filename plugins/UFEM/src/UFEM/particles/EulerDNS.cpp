@@ -145,7 +145,7 @@ void EulerDNS::trigger_set_expression()
       UFEM::compute_tau(u, lit(1.e-14), lit(dt()), lit(tau_su)),
       element_quadrature
       (
-        _A(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * u*nabla(c) + // advection of concentration
+        _A(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * u*nabla(c) - // advection of concentration
                     lit(tau_p)*transpose(N(c)) * ((invdt()*(u - u1) + body_force_enable*g + u*nabla(u)*nodal_values(u)) * nabla(c) + detail::div_adv(u)*N(c)), // Particle inertia
         _T(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * N(c)
       ),
