@@ -72,48 +72,6 @@ void MeshInterpolator::execute()
   common::PE::Comm& comm = common::PE::Comm::instance();
   const Uint nb_procs = comm.size();
   const Uint my_rank = comm.rank();
-
-  // Make all elements of the source mesh global if we have a parallel run
-  if(comm.size() > 1)
-  {
-    MeshAdaptor adaptor(*source_mesh);
-    adaptor.prepare();
-
-    std::vector< std::vector< std::vector<Uint> > > elements_to_send(nb_procs, std::vector< std::vector<Uint> > (source_mesh->elements().size()));
-    boost_foreach(mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(source_mesh->topology()))
-    {
-      const Uint elements_idx = elements.entities_idx();
-      const Uint nb_elems = elements.size();
-      std::vector<Uint> own_elements; own_elements.reserve(nb_elems);
-      for(Uint i = 0; i != nb_elems; ++i)
-      {
-        if(!elements.is_ghost(i))
-        {
-          own_elements.push_back(i);
-        }
-      }
-      for(Uint rank = 0; rank != nb_procs; ++rank)
-      {
-        if(rank != my_rank)
-          elements_to_send[rank][elements_idx] = own_elements;
-      }
-    }
-
-    std::vector< std::vector< std::vector<Uint> > > nodes_to_send;
-    adaptor.find_nodes_to_export(elements_to_send,nodes_to_send);
-
-    std::vector< std::vector< std::vector<boost::uint64_t> > > imported_elements;
-    adaptor.send_elements(elements_to_send, imported_elements);
-
-    adaptor.flush_elements();
-
-    std::vector< std::vector< std::vector<boost::uint64_t> > > imported_nodes;
-    adaptor.send_nodes(nodes_to_send,imported_nodes);
-
-    adaptor.flush_nodes();
-
-    adaptor.finish();
-  }
   
   Handle<PointInterpolator> point_interpolator(get_child("PointInterpolator"));
   cf3_always_assert(is_not_null(point_interpolator));
@@ -140,9 +98,10 @@ void MeshInterpolator::execute()
     const Uint nb_target_points = target_coords.size();
     const Uint dim = target_coords.row_size();
     std::vector<SpaceElem> space_elems(nb_target_points);
-    std::vector<Uint> points_begin; points_begin.reserve(nb_target_points+1); points_begin.push_back(0);
+    std::vector<Uint> points_begin(nb_target_points+1); points_begin[0] = 0;
     std::vector<Uint> all_points; all_points.reserve(nb_target_points*8);
     std::vector<Real> all_weights; all_weights.reserve(nb_target_points*8);
+    std::vector<Real> my_missing_points; my_missing_points.reserve(nb_target_points/10);
     
     
     for(Uint i = 0; i != nb_target_points; ++i)
@@ -150,17 +109,89 @@ void MeshInterpolator::execute()
       std::vector<Uint> points;
       std::vector<Real> weights;
       std::vector<SpaceElem> dummy_stencil;
-      Eigen::Map<RealVector const> coord(&target_coords[i][0], dim);
+      Field::ConstRow coordrow = target_coords[i];
+      Eigen::Map<RealVector const> coord(&coordrow[0], dim);
       bool found = point_interpolator->compute_storage(coord, space_elems[i], dummy_stencil, points, weights);
       if(!found)
       {
-        std::stringstream err;
-        err << " Point " << coord.transpose() << " was not found in source mesh";
-        throw common::SetupError(FromHere(), err.str());
+        my_missing_points.insert(my_missing_points.end(), coordrow.begin(), coordrow.end());
       }
-      all_points.insert(all_points.end(), points.begin(), points.end());
-      all_weights.insert(all_weights.end(), weights.begin(), weights.end());
-      points_begin.push_back(points_begin.back()+points.size());
+    }
+
+    if(comm.size() > 1)
+    {
+      MeshAdaptor adaptor(*source_mesh);
+      adaptor.prepare();
+      std::vector< std::vector< std::vector<Uint> > > elements_to_send(nb_procs, std::vector< std::vector<Uint> > (source_mesh->elements().size()));
+
+      std::vector< std::vector<Real> > recv_missing_points;
+      comm.all_gather(my_missing_points, recv_missing_points);
+      const Uint nb_ranks = comm.size();
+      cf3_assert(recv_missing_points.size() == nb_ranks);
+
+      for(Uint rank = 0; rank != nb_ranks; ++rank)
+      {
+        if(rank == comm.rank())
+          continue;
+        const std::vector<Real>& other_missing_points = recv_missing_points[rank];
+        cf3_assert(other_missing_points.size() % dim == 0);
+        const Uint missing_end = other_missing_points.size() / dim;
+        for(Uint missing_idx = 0; missing_idx != missing_end; ++missing_idx)
+        {
+          std::vector<Uint> points;
+          std::vector<Real> weights;
+          std::vector<SpaceElem> dummy_stencil;
+          SpaceElem space_elem;
+          Eigen::Map<RealVector const> coord(&other_missing_points[missing_idx*dim], dim);
+          bool found = point_interpolator->compute_storage(coord, space_elem, dummy_stencil, points, weights);
+          if(found && !space_elem.is_ghost())
+          {
+            elements_to_send[rank][space_elem.comp->support().entities_idx()].push_back(space_elem.idx);
+          }
+        }
+      }
+
+      std::vector< std::vector< std::vector<Uint> > > nodes_to_send;
+      adaptor.find_nodes_to_export(elements_to_send,nodes_to_send);
+
+      std::vector< std::vector< std::vector<boost::uint64_t> > > imported_elements;
+      adaptor.send_elements(elements_to_send, imported_elements);
+
+      adaptor.flush_elements();
+
+      std::vector< std::vector< std::vector<boost::uint64_t> > > imported_nodes;
+      adaptor.send_nodes(nodes_to_send,imported_nodes);
+
+      adaptor.flush_nodes();
+
+      adaptor.finish();
+
+      point_interpolator->remove_tag(common::Tags::static_component());
+      remove_component(*point_interpolator);
+      source_mesh->remove_component("octtree");
+      point_interpolator = create_static_component<PointInterpolator>("PointInterpolator");
+      point_interpolator->options().set("dict", source_dict);
+    }
+
+    for(Uint i = 0; i != nb_target_points; ++i)
+    {
+      std::vector<Uint> points;
+      std::vector<Real> weights;
+      std::vector<SpaceElem> dummy_stencil;
+      Field::ConstRow coordrow = target_coords[i];
+      Eigen::Map<RealVector const> coord(&coordrow[0], dim);
+      bool found = point_interpolator->compute_storage(coord, space_elems[i], dummy_stencil, points, weights);
+      if(!found)
+      {
+        CFwarn << " Point " << coord.transpose() << " was not found in source mesh" << CFendl;
+        points_begin[i+1] = points_begin[i];
+      }
+      else
+      {
+        all_points.insert(all_points.end(), points.begin(), points.end());
+        all_weights.insert(all_weights.end(), weights.begin(), weights.end());
+        points_begin[i+1] = all_points.size();
+      }
     }
 
     BOOST_FOREACH(const Handle<Field>& source_field, source_dict->fields())

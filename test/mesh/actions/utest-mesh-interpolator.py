@@ -6,8 +6,9 @@ env.log_level = 4
 env.only_cpu0_writes = True
 
 root = cf.Core.root()
-domain = root.create_component('Domain', 'cf3.mesh.Domain')
-source_mesh = root.create_component('sourcemesh','cf3.mesh.Mesh')
+source_domain = root.create_component('SourceDomain', 'cf3.mesh.Domain')
+target_domain = root.create_component('TargetDomain', 'cf3.mesh.Domain')
+source_mesh = source_domain.create_component('sourcemesh','cf3.mesh.Mesh')
 
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 4)
@@ -35,7 +36,7 @@ for i in range(len(source_coords)):
   testfield[i][0] = 2.*source_coords[i][0]
   testfield[i][1] = 3.*source_coords[i][1]
   
-target_mesh = domain.create_component('targetmesh','cf3.mesh.Mesh')
+target_mesh = target_domain.create_component('targetmesh','cf3.mesh.Mesh')
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 4)
 points[0]  = [0., 0.]
@@ -61,4 +62,5 @@ interpolator.source_mesh = source_mesh
 interpolator.target_mesh = target_mesh
 interpolator.execute()
 
-domain.write_mesh(cf.URI('interpolator.pvtu'))
+source_domain.write_mesh(cf.URI('interpolator-source.pvtu'))
+target_domain.write_mesh(cf.URI('interpolator-target.pvtu'))
