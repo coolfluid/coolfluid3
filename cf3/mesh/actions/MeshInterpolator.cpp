@@ -203,6 +203,10 @@ void MeshInterpolator::execute()
       if(is_null(target_field))
       {
         target_field = target_dict->create_field(source_field->name(), source_field->descriptor().description()).handle<Field>();
+        BOOST_FOREACH(const std::string& tag, source_field->get_tags())
+        {
+          target_field->add_tag(tag);
+        }
       }
 
       const Field::ArrayT& source_array = source_field->array();
