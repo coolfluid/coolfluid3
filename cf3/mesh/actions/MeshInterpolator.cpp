@@ -170,6 +170,7 @@ void MeshInterpolator::execute()
       remove_component(*point_interpolator);
       source_mesh->remove_component("octtree");
       point_interpolator = create_static_component<PointInterpolator>("PointInterpolator");
+      point_interpolator->options().set("function", std::string("cf3.mesh.ShapeFunctionInterpolation"));
       point_interpolator->options().set("dict", source_dict);
     }
 

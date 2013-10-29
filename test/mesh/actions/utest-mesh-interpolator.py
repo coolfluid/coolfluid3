@@ -3,7 +3,7 @@ import coolfluid as cf
 
 env = cf.Core.environment()
 env.log_level = 4
-env.only_cpu0_writes = True
+env.only_cpu0_writes = False
 
 root = cf.Core.root()
 source_domain = root.create_component('SourceDomain', 'cf3.mesh.Domain')
@@ -57,7 +57,7 @@ blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
 blocks.extrude_blocks(positions=[1.], nb_segments=[40], gradings=[80.])
 blocks.partition_blocks(nb_partitions = 2, direction = 0)
-blocks.partition_blocks(nb_partitions = 2, direction = 1)
+blocks.partition_blocks(nb_partitions = 2, direction = 2)
 blocks.create_mesh(target_mesh.uri())
 
 interpolator = root.create_component('Interpolator', 'cf3.mesh.actions.MeshInterpolator')
