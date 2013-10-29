@@ -459,7 +459,12 @@ bool Octtree::find_element(const RealVector& target_coord, Entity& element)
   }
   // if arrived here, it means no element has been found in the octtree cell. Give up.
   element = Entity();
-  CFdebug << "coord " << t_coord.transpose() << " has not been found in the octtree cell" << CFendl;
+  CFdebug << "coord";
+  for(Uint i = 0; i != m_dim; ++i)
+  {
+    CFdebug << " " << common::to_str(t_coord[i]);
+  }
+  CFdebug << " has not been found in the octtree cell" << CFendl;
   return false;
 }
 

@@ -26,6 +26,7 @@ blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
 blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 2]
 blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
+blocks.extrude_blocks(positions=[1.], nb_segments=[10], gradings=[1.])
 blocks.partition_blocks(nb_partitions = 2, direction = 0)
 blocks.partition_blocks(nb_partitions = 2, direction = 1)
 blocks.create_mesh(source_mesh.uri())
@@ -33,8 +34,8 @@ blocks.create_mesh(source_mesh.uri())
 source_coords = source_mesh.geometry.coordinates
 testfield = source_mesh.geometry.create_field(name = 'test', variables = 'testx,testy')
 for i in range(len(source_coords)):
-  testfield[i][0] = 2.*source_coords[i][0]
-  testfield[i][1] = 3.*source_coords[i][1]
+  testfield[i][0] = 1.+2.*source_coords[i][0]
+  testfield[i][1] = 2.+3.*source_coords[i][1]
   
 target_mesh = target_domain.create_component('targetmesh','cf3.mesh.Mesh')
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -46,13 +47,15 @@ points[3]  = [0., 1.]
 block_nodes = blocks.create_blocks(1)
 block_nodes[0] = [0, 1, 2, 3]
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [40,40]
+block_subdivs[0] = [10,10]
 gradings = blocks.create_block_gradings()
-gradings[0] = [0.2, 0.2, 10., 10.]
+#gradings[0] = [0.2, 0.2, 10., 10.]
+gradings[0] = [1., 1., 1., 1.]
 blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
 blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 2]
 blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
+blocks.extrude_blocks(positions=[1.], nb_segments=[40], gradings=[80.])
 blocks.partition_blocks(nb_partitions = 2, direction = 0)
 blocks.partition_blocks(nb_partitions = 2, direction = 1)
 blocks.create_mesh(target_mesh.uri())
