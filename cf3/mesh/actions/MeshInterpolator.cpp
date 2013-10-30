@@ -99,7 +99,8 @@ void MeshInterpolator::execute()
     const Uint nb_target_points = target_coords.size();
     const Uint dim = target_coords.row_size();
     std::vector<SpaceElem> space_elems(nb_target_points);
-    std::vector<Uint> points_begin(nb_target_points+1); points_begin[0] = 0;
+    std::vector<Uint> points_begin_idxs(nb_target_points, 0);
+    std::vector<Uint> points_end_idxs(nb_target_points, 0);
     std::vector<Uint> all_points; all_points.reserve(nb_target_points*8);
     std::vector<Real> all_weights; all_weights.reserve(nb_target_points*8);
     std::vector<Real> my_missing_points; my_missing_points.reserve(nb_target_points/10);
@@ -209,13 +210,13 @@ void MeshInterpolator::execute()
       if(!found && !target_dict->is_ghost(i))
       {
         CFerror << " Point " << coord.transpose() << " was not found in source mesh" << CFendl;
-        points_begin[i+1] = points_begin[i];
       }
       else
       {
+        points_begin_idxs[i] = all_points.size();
         all_points.insert(all_points.end(), points.begin(), points.end());
         all_weights.insert(all_weights.end(), weights.begin(), weights.end());
-        points_begin[i+1] = all_points.size();
+        points_end_idxs[i] = all_points.size();
       }
     }
 
@@ -246,10 +247,12 @@ void MeshInterpolator::execute()
           continue;
         Eigen::Map<RealVector> target_row(&target_array[i][0], row_size);
         target_row.setZero();
-        const Uint interp_begin = points_begin[i];
-        const Uint interp_end = points_begin[i+1];
+        RealVector avg_row(target_row);
+        const Uint interp_begin = points_begin_idxs[i];
+        const Uint interp_end = points_end_idxs[i];
         cf3_assert(interp_begin < all_points.size());
         cf3_assert(interp_end <= all_points.size());
+        Real weightsum = 0;
         for(Uint j = interp_begin; j != interp_end; ++j)
         {
           if(all_points[j] >= source_array.size())
@@ -258,6 +261,13 @@ void MeshInterpolator::execute()
           }
           Eigen::Map<RealVector const> source_row(&source_array[all_points[j]][0], row_size);
           target_row += all_weights[j] * source_row;
+          avg_row += source_row;
+          weightsum += all_weights[j];
+        }
+        if(weightsum > 1. + 1e-10)
+        {
+          CFerror << "Bad weights found, using unweighted average on point " << i << CFendl;
+          target_row = avg_row;
         }
       }
 
