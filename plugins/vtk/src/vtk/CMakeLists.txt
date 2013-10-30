@@ -2,6 +2,8 @@ coolfluid3_add_library( TARGET coolfluid_vtk
   SOURCES
     LibVTK.hpp
     LibVTK.cpp
+    MeshInterpolator.hpp
+    MeshInterpolator.cpp
     Tetrahedralize.hpp
     Tetrahedralize.cpp
   LIBS

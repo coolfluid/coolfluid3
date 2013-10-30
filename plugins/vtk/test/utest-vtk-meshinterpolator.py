@@ -100,7 +100,7 @@ blocks.partition_blocks(nb_partitions = 8, direction = 0)
 # blocks.partition_blocks(nb_partitions = 2, direction = 2)
 blocks.create_mesh(target_mesh.uri())
 
-interpolator = root.create_component('Interpolator', 'cf3.mesh.actions.MeshInterpolator')
+interpolator = root.create_component('Interpolator', 'cf3.vtk.MeshInterpolator')
 interpolator.source_mesh = source_mesh
 interpolator.target_mesh = target_mesh
 interpolator.execute()
