@@ -174,6 +174,16 @@ void MeshInterpolator::execute()
       point_interpolator->options().set("dict", source_dict);
     }
 
+    // Sometimes a point still is not found, so we slightly perturb the coordinates
+    std::vector<RealVector> perturbations(dim*2, RealVector(dim));
+    for(Uint i = 0; i != dim; ++i)
+    {
+      perturbations[2*i  ].setZero();
+      perturbations[2*i+1].setZero();
+      perturbations[2*i  ][i] = 1e-10;
+      perturbations[2*i+1][i] = -1e-10;
+    }
+
     for(Uint i = 0; i != nb_target_points; ++i)
     {
       std::vector<Uint> points;
@@ -184,7 +194,16 @@ void MeshInterpolator::execute()
       bool found = point_interpolator->compute_storage(coord, space_elems[i], dummy_stencil, points, weights);
       if(!found)
       {
-        CFwarn << " Point " << coord.transpose() << " was not found in source mesh" << CFendl;
+        BOOST_FOREACH(const RealVector& perturbation, perturbations)
+        {
+          found = point_interpolator->compute_storage(coord+perturbation, space_elems[i], dummy_stencil, points, weights);
+          if(found)
+            break;
+        }
+      }
+      if(!found)
+      {
+        CFerror << " Point " << coord.transpose() << " was not found in source mesh" << CFendl;
         points_begin[i+1] = points_begin[i];
       }
       else

@@ -57,4 +57,4 @@ coolfluid_add_test( UTEST utest-mesh-actions-meshdiff
 
 coolfluid_add_test( UTEST utest-mesh-interpolator
                     PYTHON utest-mesh-interpolator.py
-                    MPI 4)
+                    MPI 8)
