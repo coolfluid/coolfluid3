@@ -23,6 +23,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshAdaptor.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Functions.hpp"
 #include "mesh/Connectivity.hpp"
@@ -166,6 +167,10 @@ void MeshInterpolator::execute()
 
       adaptor.finish();
 
+      CFinfo << "  + growing overlap layer ..." << CFendl;
+      common::build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(*source_mesh);
+      CFinfo << "  + growing overlap layer ... done" << CFendl;
+
       point_interpolator->remove_tag(common::Tags::static_component());
       remove_component(*point_interpolator);
       source_mesh->remove_component("octtree");
@@ -180,8 +185,8 @@ void MeshInterpolator::execute()
     {
       perturbations[2*i  ].setZero();
       perturbations[2*i+1].setZero();
-      perturbations[2*i  ][i] = 1e-10;
-      perturbations[2*i+1][i] = -1e-10;
+      perturbations[2*i  ][i] = 1e-8;
+      perturbations[2*i+1][i] = -1e-8;
     }
 
     for(Uint i = 0; i != nb_target_points; ++i)
@@ -201,7 +206,7 @@ void MeshInterpolator::execute()
             break;
         }
       }
-      if(!found)
+      if(!found && !target_dict->is_ghost(i))
       {
         CFerror << " Point " << coord.transpose() << " was not found in source mesh" << CFendl;
         points_begin[i+1] = points_begin[i];
@@ -237,6 +242,8 @@ void MeshInterpolator::execute()
 
       for(Uint i = 0; i != nb_target_points; ++i)
       {
+        if(target_dict->is_ghost(i))
+          continue;
         Eigen::Map<RealVector> target_row(&target_array[i][0], row_size);
         target_row.setZero();
         const Uint interp_begin = points_begin[i];
@@ -253,6 +260,9 @@ void MeshInterpolator::execute()
           target_row += all_weights[j] * source_row;
         }
       }
+
+      target_field->parallelize();
+      target_field->synchronize();
     }
   }
 }
