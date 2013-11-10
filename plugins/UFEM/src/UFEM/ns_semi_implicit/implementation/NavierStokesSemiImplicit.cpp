@@ -457,20 +457,37 @@ void NavierStokesSemiImplicit::on_regions_set()
   inner_loop->delta_p_sum = detail::create_vector(*p_lss, "DeltaPSum");
   inner_loop->aup_delta_p = u_lss->rhs()->handle<math::LSS::ThyraVector>()->thyra_vector();
   
-  Handle< common::Table<Real> > coordinates(common::find_parent_component<mesh::Mesh>(*m_loop_regions.front()).geometry_fields().coordinates().handle());
+  mesh::Dictionary& dict = common::find_parent_component<mesh::Mesh>(*m_loop_regions.front()).geometry_fields();
+  Handle< common::Table<Real> > coordinates(dict.coordinates().handle());
   Handle< common::List<Uint> > used_nodes(m_p_lss->get_child(mesh::Tags::nodes_used()));
   
   cf3_assert(is_not_null(coordinates));
   cf3_assert(is_not_null(used_nodes));
   
+  std::vector<bool> periodic_links_active_vec;
+
+  Handle< List<bool> > periodic_links_active_h(dict.get_child("periodic_links_active"));
+  if(is_not_null(periodic_links_active_h))
+  {
+    const List<bool>& periodic_links_active = *periodic_links_active_h;
+    const List<Uint>& used_nodes_list = *used_nodes;
+    const Uint nb_used_nodes = used_nodes_list.size();
+    periodic_links_active_vec.resize(nb_used_nodes, false);
+    for(Uint i = 0; i != nb_used_nodes; ++i)
+    {
+      if(periodic_links_active[used_nodes_list[i]])
+      {
+        periodic_links_active_vec[i] = true;
+      }
+    }
+  }
+  
   if(options().value<bool>("pressure_rcg_solve"))
   {
     inner_loop->m_p_strategy_first = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("FirstPressureStrategy", "cf3.math.LSS.RCGStrategy"));
-    inner_loop->m_p_strategy_first->options().set("coordinates", coordinates);
-    inner_loop->m_p_strategy_first->options().set("used_nodes", used_nodes);
+    inner_loop->m_p_strategy_first->set_coordinates(*Handle<PE::CommPattern>(m_p_lss->get_child("CommPattern")), *coordinates, *used_nodes, periodic_links_active_vec);
     inner_loop->m_p_strategy_second = Handle<math::LSS::SolutionStrategy>(inner_loop->parent()->create_component("SecondPressureStrategy", "cf3.math.LSS.RCGStrategy"));
-    inner_loop->m_p_strategy_second->options().set("coordinates", coordinates);
-    inner_loop->m_p_strategy_second->options().set("used_nodes", used_nodes);
+    inner_loop->m_p_strategy_second->set_coordinates(*Handle<PE::CommPattern>(m_p_lss->get_child("CommPattern")), *coordinates, *used_nodes, periodic_links_active_vec);
   }
   
   if(p_lss->solution_strategy()->options().check("coordinates") && p_lss->solution_strategy()->options().check("used_nodes"))

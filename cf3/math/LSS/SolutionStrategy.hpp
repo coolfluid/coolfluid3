@@ -10,6 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
+#include "common/Table.hpp"
+#include "common/List.hpp"
 
 #include "math/LSS/LibLSS.hpp"
 #include "math/LSS/BlockAccumulator.hpp"
@@ -55,7 +57,9 @@ public:
   virtual void solve() = 0;
 
   virtual Real compute_residual() = 0;
-
+  
+  /// Set the coordinates, picked at indices in used_nodes from the coords table. This can be useful for some algebraic multigrid preconditioners such as ML
+  virtual void set_coordinates(common::PE::CommPattern& cp, const common::Table<Real>& coords, const common::List<Uint>& used_nodes, const std::vector<bool>& periodic_links_active) = 0;
 }; // end of class SolutionStrategy
 
 ////////////////////////////////////////////////////////////////////////////////////////////

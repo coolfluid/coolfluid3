@@ -63,7 +63,9 @@ struct RCGStrategy::Implementation
   Implementation(common::Component& self) :
     m_self(self),
     m_ml_parameter_list(Teuchos::createParameterList()),
-    m_solver_parameter_list(Teuchos::createParameterList())
+    m_solver_parameter_list(Teuchos::createParameterList()),
+    m_xcoords(0),
+    m_dim(0)
   {
     // ML default parameters
     ML_Epetra::SetDefaults("SA", *m_ml_parameter_list);
@@ -110,41 +112,17 @@ struct RCGStrategy::Implementation
     // Create the problem
     m_problem = Teuchos::rcp( new Belos::LinearProblem<Real,MV,OP>(m_matrix->epetra_matrix(), m_solution->epetra_vector(), m_rhs->epetra_vector()) );
 
-    Handle< common::Table<Real> const > coordinates = m_self.options().value< Handle< common::Table<Real> > >("coordinates");
-    Handle< common::List<Uint> const > used_nodes = m_self.options().value< Handle< common::List<Uint> > >("used_nodes");
-
-    if(is_not_null(coordinates) && is_not_null(used_nodes))
+    if(is_not_null(m_xcoords))
     {
-      const int dim = coordinates->row_size();
-      const Uint nb_nodes = used_nodes->size();
-      for(Uint i = 0; i != dim; ++i)
-      {
-        m_coords[i].resize(nb_nodes);
-      }
-
-      for(Uint inode = 0; inode != nb_nodes; ++inode)
-      {
-        // Get local matrix index
-        const int mat_idx = m_matrix->matrix_index(inode, 0);
-        cf3_assert(mat_idx < nb_nodes);
-        // Store coord at location
-        const common::Table<Real>::ConstRow r = (*coordinates)[(*used_nodes)[inode]];
-        for(int i = 0; i != dim; ++i)
-        {
-          m_coords[i][mat_idx] = r[i];
-        }
-      }
-
       m_ml_parameter_list->set("repartition: enable",1);
       m_ml_parameter_list->set("repartition: max min ratio",1.3);
       m_ml_parameter_list->set("repartition: min per proc",500);
       m_ml_parameter_list->set("repartition: partitioner","Zoltan");
-      m_ml_parameter_list->set("repartition: Zoltan dimensions",dim);
+      m_ml_parameter_list->set("repartition: Zoltan dimensions",m_dim);
       
-      m_ml_parameter_list->set("x-coordinates", &m_coords[0][0]);
-      m_ml_parameter_list->set("y-coordinates", &m_coords[1][0]);
-      if(dim == 3)
-        m_ml_parameter_list->set("z-coordinates", &m_coords[2][0]);
+      m_ml_parameter_list->set("x-coordinates", m_xcoords);
+      m_ml_parameter_list->set("y-coordinates", m_ycoords);
+      m_ml_parameter_list->set("z-coordinates", m_zcoords);
     }
     
     // Set the preconditioner
@@ -211,19 +189,17 @@ struct RCGStrategy::Implementation
   Handle<TrilinosVector> m_solution;
   Handle<ParameterList> m_ml_parameters;
   Handle<ParameterList> m_solver_parameters;
-
-  std::vector<Real> m_coords[3];
+  
+  Real* m_xcoords;
+  Real* m_ycoords;
+  Real* m_zcoords;
+  int m_dim;
 };
 
 RCGStrategy::RCGStrategy(const string& name) :
-  SolutionStrategy(name),
+  CoordinatesStrategy(name),
   m_implementation(new Implementation(*this))
-{
-  options().add("coordinates", Handle< common::Table<Real> >())
-    .pretty_name("Coordinates")
-    .description("Coordinates of the mesh associated with the matrix")
-    .attach_trigger(boost::bind(&Implementation::reset_solver, m_implementation.get()));
-    
+{    
   options().add("used_nodes", Handle< common::List<Uint> >())
     .pretty_name("Used Nodes")
     .description("List of used nodes for this matrix")
@@ -274,6 +250,17 @@ void RCGStrategy::on_parameters_changed_event(common::SignalArgs& args)
     CFdebug << "Ignoring trilinos_parameters_changed event from paramater list " << parameters_uri.string() << CFendl;
   }
 }
+
+void RCGStrategy::set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active)
+{
+  math::LSS::CoordinatesStrategy::set_coordinates(cp, coords, used_nodes, periodic_links_active);
+  m_implementation->m_dim = coords.row_size();
+  m_implementation->m_xcoords = m_x_coords.empty() ? 0 : &m_x_coords[0];
+  m_implementation->m_ycoords = m_y_coords.empty() ? 0 : &m_y_coords[0];
+  m_implementation->m_zcoords = m_z_coords.empty() ? 0 : &m_z_coords[0];
+  m_implementation->reset_solver();
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////

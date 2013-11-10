@@ -266,6 +266,11 @@ void LSSAction::on_regions_set()
     }
 
     do_create_lss(comm_pattern, descriptor, node_connectivity, starting_indices, periodic_links_nodes_vec, periodic_links_active_vec);
+    cf3_always_assert(m_implementation->m_lss->is_created());
+    Handle<math::LSS::SolutionStrategy> solution_strategy = m_implementation->m_lss->solution_strategy();
+    cf3_assert(is_not_null(solution_strategy));
+    // If the solution takes a coordinate list, then generate the list and pass it along
+    solution_strategy->set_coordinates(comm_pattern, m_dictionary->coordinates(), *used_nodes, periodic_links_active_vec);
 
     CFdebug << "Finished creating LSS" << CFendl;
     configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());

@@ -11,7 +11,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "math/LSS/SolutionStrategy.hpp"
+#include "CoordinatesStrategy.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace cf3 {
 namespace math {
 namespace LSS {
 
-class LSS_API DirectStrategy : public SolutionStrategy
+class LSS_API DirectStrategy : public CoordinatesStrategy
 {
 public:
   DirectStrategy(const std::string& name);
