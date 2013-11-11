@@ -141,4 +141,9 @@ coolfluid_add_test(UTEST utest-ufem-surfaceintegral
                    PYTHON utest-ufem-surfaceintegral.py
                    MPI 4)
 
+coolfluid_add_test( ATEST atest-ufem-navier-stokes-mlaux
+                    PYTHON atest-ufem-navier-stokes-mlaux.py
+                    MPI 2)
+
 add_subdirectory(demo)
+add_subdirectory(particles)

@@ -269,6 +269,7 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
 Dictionary& Mesh::create_continuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
   Dictionary& dict = *create_component<ContinuousDictionary>(space_name);
+  dict.properties().add("space_lib_name", space_lib_name);
 
   CFinfo << "Creating Continuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )
@@ -315,6 +316,7 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
 Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, const std::string& space_lib_name, const std::vector< Handle<Entities> >& entities )
 {
   Dictionary& dict = *create_component<DiscontinuousDictionary>(space_name);
+  dict.properties().add("space_lib_name", space_lib_name);
 
   CFinfo << "Creating Disontinuous space " << dict.uri() << " ("<<space_lib_name<<") for entities" << CFendl;
   boost_foreach(const Handle<Entities>& entities_handle, entities )

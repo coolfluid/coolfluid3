@@ -54,6 +54,7 @@
 
 // compiler features
 #cmakedefine CF3_CXX_SUPPORTS_NULLPTR  // nullptr as type
+#cmakedefine CF3_CXX_NATIVE_NULLPTR  // nullptr as type, defined in cstddef
 #define CXX_NEEDS_FRIEND_TMPL_DECL           // cxx friend templates
 #define cf_restrict ${CF3_RESTRICT_KEYWORD}   // define our restrict keyword
 

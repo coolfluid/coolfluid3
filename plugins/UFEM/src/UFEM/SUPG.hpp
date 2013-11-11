@@ -18,28 +18,22 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// Helper struct to get the face normals of an element
-template<typename ElementT>
-struct ElementNormals
+namespace detail
 {
-  typedef Eigen::Matrix<Real, ElementT::nb_faces, ElementT::dimension> NormalsT;
+// Helper to get the norm of either a vector or a scalar
 
-  void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
-  {
-    const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
-    RealVector normal(ElementT::dimension);
-    for(Uint i = 0; i != ElementT::nb_faces; ++i)
-    {
-      const mesh::ElementType& face_etype = ElementT::face_type(i);
-      const Uint nb_face_nodes = face_etype.nb_nodes();
-      RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
-      for(Uint j = 0; j != nb_face_nodes; ++j)
-        face_nodes.row(j) = nodes.row(face_conn.nodes[face_conn.displs[i]+j]);
-      face_etype.compute_normal(face_nodes, normal);
-      normals.row(i) = face_etype.area(face_nodes) * normal;
-    }
-  }
-};
+template<typename T>
+inline Real norm(const T& vector)
+{
+  return vector.norm();
+}
+
+inline Real norm(const Real scalar)
+{
+  return scalar;
+}
+
+}
 
 /// Calculation of the stabilization coefficients for the SUPG method
 struct ComputeTau
@@ -48,7 +42,7 @@ struct ComputeTau
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
     typedef typename UT::EtypeT ElementT;
 
@@ -61,41 +55,48 @@ struct ComputeTau
     const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
     tau_ps = he*xi/(2.*u_ref);
     tau_bulk = he*u_ref/xi;
-    tau_su = compute_tau_su(u, element_nu);
+    tau_su = compute_tau_su(u, element_nu, dt);
   }
 
   /// Only compute the SUPG coefficient
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, Real& tau_su) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_su) const
   {
-    tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()));
+    tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()), dt);
+  }
+  
+  /// Only compute the SUPG coefficient, overload for scalar viscosity
+  template<typename UT>
+  void operator()(const UT& u, const Real& nu_eff, const Real& dt, Real& tau_su) const
+  {
+    tau_su = compute_tau_su(u, nu_eff, dt);
   }
 
   template<typename UT>
-  Real compute_tau_su(const UT& u, const Real& element_nu) const
+  Real compute_tau_su(const UT& u, const Real& element_nu, const Real& dt) const
   {
     typedef typename UT::EtypeT ElementT;
+    typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
 
-    // Average cell velocity
-    const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
-    const Real umag = u_avg.norm();
+
+    // cell velocity
+    u.compute_values(GaussT::instance().coords.col(0));
+    const Real umag = detail::norm(u.eval());
 
     if(umag > 1e-10)
     {
-      typename ElementNormals<ElementT>::NormalsT normals;
-      ElementNormals<ElementT>()(u.support().nodes(), normals);
-      const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*element_nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-      return h*xi/(2.*umag);
+      const Real h = 2.*umag / (u.eval()*u.nabla()).sum();
+      const Real tau_adv = h/(2.*umag);
+      const Real tau_time = 0.5*dt;
+      const Real tau_diff = h*h/(4.*element_nu);
+      return 1./(1./tau_adv + 1./tau_time + 1./tau_diff);
     }
 
     return 0.;
   }
 };
 
-/// Placeholder for the compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, tau_ps_field, tau_su_field, tau_bulk_field)
+/// Placeholder for the compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, dt, tau_ps, tau_su, tau_bulk)
 static solver::actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 } // UFEM

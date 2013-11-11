@@ -55,7 +55,8 @@ struct TrilinosStratimikosStrategy::Implementation
     m_self(self),
     m_parameter_list(Teuchos::createParameterList()),
     m_preconditioner_reset(1),
-    m_iteration_count(0)
+    m_iteration_count(0),
+    m_xcoords(0)
   {
     Teko::addTekoToStratimikosBuilder(m_linear_solver_builder);
     m_linear_solver_builder.setParameterList(m_parameter_list);
@@ -213,6 +214,24 @@ struct TrilinosStratimikosStrategy::Implementation
     m_parameters = m_self.create_component<ParameterList>("Parameters");
     m_parameters->mark_basic();
     m_parameters->set_parameter_list(*m_parameter_list);
+    
+    Teuchos::ParameterEntry* prec_types = m_parameter_list->getEntryPtr("Preconditioner Types");
+    if(is_not_null(prec_types))
+    {
+      cf3_assert(prec_types->isList());
+      Teuchos::ParameterEntry* ml = Teuchos::getValue<Teuchos::ParameterList>(*prec_types).getEntryPtr("ML");
+      if(is_not_null(ml))
+      {
+        cf3_assert(ml->isList());
+        Teuchos::ParameterEntry* ml_settings = Teuchos::getValue<Teuchos::ParameterList>(*ml).getEntryPtr("ML Settings");
+        cf3_assert(is_not_null(ml_settings));
+        cf3_assert(ml_settings->isList());
+        Teuchos::ParameterList& ml_list = Teuchos::getValue<Teuchos::ParameterList>(*ml_settings);
+        ml_list.set("x-coordinates", m_xcoords);
+        ml_list.set("y-coordinates", m_ycoords);
+        ml_list.set("z-coordinates", m_zcoords);
+      }
+    }
   }
 
   common::Component& m_self;
@@ -230,12 +249,16 @@ struct TrilinosStratimikosStrategy::Implementation
   
   Uint m_preconditioner_reset;
   Uint m_iteration_count;
+  
+  Real* m_xcoords;
+  Real* m_ycoords;
+  Real* m_zcoords;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 TrilinosStratimikosStrategy::TrilinosStratimikosStrategy(const std::string& name) :
-  SolutionStrategy(name),
+  CoordinatesStrategy(name),
   m_implementation(new Implementation(*this))
 {
   set_default_parameters("cf3.math.LSS.BelosGMRESParameters");
@@ -297,6 +320,16 @@ void TrilinosStratimikosStrategy::on_parameters_changed_event(common::SignalArgs
     CFdebug << "Ignoring trilinos_parameters_changed event from paramater list " << parameters_uri.string() << CFendl;
   }
 }
+
+void TrilinosStratimikosStrategy::set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active)
+{
+  math::LSS::CoordinatesStrategy::set_coordinates(cp, coords, used_nodes, periodic_links_active);
+  m_implementation->m_xcoords = m_x_coords.empty() ? 0 : &m_x_coords[0];
+  m_implementation->m_ycoords = m_y_coords.empty() ? 0 : &m_y_coords[0];
+  m_implementation->m_zcoords = m_z_coords.empty() ? 0 : &m_z_coords[0];
+  m_implementation->update_parameters();
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////

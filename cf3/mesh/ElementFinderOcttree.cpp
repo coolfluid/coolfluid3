@@ -166,7 +166,12 @@ bool ElementFinderOcttree::find_element(const RealVector& target_coord, SpaceEle
   }
 //  std::cout << "---> not found" << std::endl;
   // if arrived here, it means no element has been found in the octtree cell. Give up.
-  CFdebug << "coord " << t_coord.transpose() << " has not been found in the octtree cell" << CFendl;
+  CFdebug << "coord";
+  for(Uint i = 0; i != t_coord.size(); ++i)
+  {
+    CFdebug << " " << common::to_str(t_coord[i]);
+  }
+  CFdebug << " has not been found in the octtree cell" << CFendl;
   return false;
 
 //  bool found = m_octtree->find_element(target_coord,m_tmp);

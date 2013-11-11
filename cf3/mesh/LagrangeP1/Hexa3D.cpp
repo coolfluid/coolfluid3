@@ -364,13 +364,17 @@ bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, co
     // Do transformation
     RealVector3 ppp = T*M.inverse()*pp;
 
-    if (ppp[ZZ] < h*ppp[XX]*ppp[YY])
+    if (h*ppp[XX]*ppp[YY] - ppp[ZZ] > tolerance)
+    {
       return false;
+    }
   }
   else
   {
-    if (bp_x_dp.dot(pp) < 0)
+    if (bp_x_dp.dot(pp) < -tolerance)
+    {
       return false;
+    }
   }
   return true;
 }

@@ -54,12 +54,12 @@ struct VelocityAssembly
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename UAdvT, typename NUT, typename MatrixT>
-  void operator()(const UT& u_fd, const UAdvT& u, const NUT& nu_eff, MatrixT& M, MatrixT& T, const Real& u_ref) const
+  void operator()(const UT& u_fd, const UAdvT& u, const NUT& nu_eff, MatrixT& M, MatrixT& T, const Real& u_ref, const Real& dt) const
   {
     typedef typename UT::EtypeT ElementT;
     
     Real tau_ps, tau_su, tau_bulk;
-    ComputeTau()(u_fd, nu_eff, u_ref, tau_ps, tau_su, tau_bulk);
+    ComputeTau()(u_fd, nu_eff, u_ref, dt, tau_ps, tau_su, tau_bulk);
 
     static const Uint nb_nodes = ElementT::nb_nodes;
     static const Uint dim = ElementT::dimension;
@@ -448,7 +448,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _T(u,u) = _0, M(u,u) = _0,
-      velocity_assembly(u, u_adv, nu_eff, M, _T, u_ref),
+      velocity_assembly(u, u_adv, nu_eff, M, _T, u_ref, lit(dt)),
       m_u_lss->system_matrix += _T + lit(theta) * lit(dt) * M
 
 //  _A = _0, _T = _0, M = _0,
@@ -472,7 +472,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _A(u,u) = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau(u_adv, nu_eff, u_ref, lit(dt), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
     )));
   }
@@ -483,7 +483,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _A(u,u) = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau(u_adv, nu_eff, u_ref, lit(dt), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, g, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
     )));
   }
@@ -493,7 +493,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _A(p,p) = _0, _a = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau(u, nu_eff, u_ref, lit(dt), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       m_p_lss->system_rhs += pressure_rhs(u_adv, lit(u_vec), lit(a), lit(delta_a), lit(p_vec), lit(tau_ps), lit(dt))
     )
   ));
@@ -503,7 +503,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
     group
     (
       _A(u,u) = _0, _a = _0,
-      compute_tau(u, nu_eff, lit(tau_su)),
+      compute_tau(u_adv, nu_eff, lit(dt), lit(tau_su)),
       m_u_lss->system_rhs += apply_aup(u_adv, lit(delta_p), lit(tau_su), lit(theta))
     )
   ));

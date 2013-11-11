@@ -89,8 +89,10 @@ namespace detail
       }
       const Real start = mapped_coords[0][edge];
       cf3_assert(fabs(start+1.) < eps);
+      mapped_coords[0][edge] = -1.;
       const Real end = mapped_coords[segments][edge];
       cf3_assert(fabs(end-1.) < eps);
+      mapped_coords[segments][edge] = 1.;
     }
   }
 

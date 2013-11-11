@@ -44,6 +44,11 @@ void EmptyStrategy::solve()
 {
 }
 
+void EmptyStrategy::set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active)
+{
+}
+
+
 } // namespace LSS
 } // namespace math
 } // namespace cf3

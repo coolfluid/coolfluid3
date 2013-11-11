@@ -359,18 +359,27 @@ void Writer::write_interpolation_schemes(std::fstream& file)
     {
       if (is_not_null(sf))
       {
-        file << "\n" << shape[ sf->shape() ] << "\n";
-        file << 2 << "\n";
-        file << sf->mononomial_coefficients().rows() << " " << sf->mononomial_coefficients().rows() << "\n";
-        file << sf->mononomial_coefficients() << "\n";
-        file << sf->mononomial_exponents().rows() << " " << 3 << "\n";
-        for (Uint i=0; i<sf->mononomial_exponents().rows(); ++i)
+        try
         {
-          for (Uint j=0; j<sf->mononomial_exponents().cols(); ++j)
-            file << sf->mononomial_exponents()(i,j) << " ";
-          for (Uint j=sf->mononomial_exponents().cols(); j<3; ++j)
-            file << "0 ";
-          file << "\n";
+          std::stringstream line;
+          line << "\n" << shape[ sf->shape() ] << "\n";
+          line << 2 << "\n";
+          line << sf->mononomial_coefficients().rows() << " " << sf->mononomial_coefficients().rows() << "\n";
+          line << sf->mononomial_coefficients() << "\n";
+          line << sf->mononomial_exponents().rows() << " " << 3 << "\n";
+          for (Uint i=0; i<sf->mononomial_exponents().rows(); ++i)
+          {
+            for (Uint j=0; j<sf->mononomial_exponents().cols(); ++j)
+              line << sf->mononomial_exponents()(i,j) << " ";
+            for (Uint j=sf->mononomial_exponents().cols(); j<3; ++j)
+              line << "0 ";
+            line << "\n";
+          }
+          file << line.str();
+        }
+        catch(common::NotImplemented&)
+        {
+          CFinfo << "Skipping not implemented interpolation scheme for shape function " << sf->derived_type_name() << CFendl;
         }
       }
     }

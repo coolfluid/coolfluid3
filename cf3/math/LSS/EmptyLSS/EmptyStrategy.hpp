@@ -43,6 +43,7 @@ public:
   void set_solution(const Handle<LSS::Vector>& solution);
   void solve();
   Real compute_residual();
+  virtual void set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active);
 }; // end of class EmptyStrategy
 
 ////////////////////////////////////////////////////////////////////////////////////////////

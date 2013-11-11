@@ -145,7 +145,7 @@ void Partitioner::set_partitioning_params()
   // time on large number of processors.
 
 
-  zoltan_handle().Set_Param( "LB_METHOD", "GRAPH");
+  zoltan_handle().Set_Param( "LB_METHOD", "HYPERGRAPH");
   // The load-balancing algorithm used by zoltan is specified by this parameter. Valid values are
   // BLOCK (for block partitioning),
   // RANDOM (for random partitioning),
