@@ -34,6 +34,11 @@ struct Data
   Real rho0;
   Real p0;
   Real c0;
+
+  ColVector_NDIM grad_rho0;
+  ColVector_NDIM grad_u0;
+  ColVector_NDIM grad_v0;
+  ColVector_NDIM grad_p0;
   //@}
   
   Real rho;                 ///< density
