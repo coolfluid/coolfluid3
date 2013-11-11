@@ -14,7 +14,7 @@
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
-
+#include "math/Consts.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Dictionary.hpp"
@@ -68,7 +68,7 @@ Rotate::Rotate( const std::string& name )
       .mark_basic();
 
   options().add("angle",0.)
-      .description("Rotation angle [rad]")
+      .description("Rotation angle [deg]")
       .mark_basic();
 }
 
@@ -77,7 +77,7 @@ Rotate::Rotate( const std::string& name )
 void Rotate::execute()
 {
   // Get options
-  const Real theta = options().value<Real>("angle");
+  const Real theta = options().value<Real>("angle")*math::Consts::pi()/180.;
   std::vector<Real> axis_dir_vec = options().value< std::vector<Real> >("axis_direction");
   std::vector<Real> axis_point_vec = options().value< std::vector<Real> >("axis_point");
 
