@@ -45,7 +45,7 @@ PDE::PDE ( const std::string& name  ) :
   options().add("fields", m_fields )
       .mark_basic()
       .link_to(&m_fields)
-      .attach_trigger( boost::bind( &PDE::create_fields, this) );
+      .attach_trigger( boost::bind( &PDE::create_fields_trigger, this) );
   options().add("solution", m_solution ).mark_basic().link_to(&m_solution);
   options().add("rhs", m_rhs ).mark_basic().link_to(&m_rhs);
   options().add("wave_speed", m_wave_speed ).mark_basic().link_to(&m_wave_speed);
@@ -93,6 +93,11 @@ std::string PDE::solution_variables() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void PDE::create_fields_trigger()
+{
+  create_fields(); // this function can be overloaded
+}
 
 void PDE::create_fields()
 {

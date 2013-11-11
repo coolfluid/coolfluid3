@@ -132,6 +132,10 @@ public: // signals
   void signal_add_bc( common::SignalArgs& args );
   void signature_add_bc( common::SignalArgs& args );
 
+private:
+
+  void create_fields_trigger();
+
 protected: // data
 
   Uint m_nb_dim;
