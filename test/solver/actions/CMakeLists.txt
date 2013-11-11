@@ -92,6 +92,7 @@ coolfluid_mark_not_orphan(
   utest-proto-components.cpp
   utest-proto-elements.cpp
   ptest-proto-parallel.cpp
+  utest-proto-lagrangep2.cpp
   utest-proto-lss.cpp
 )
 endif()
