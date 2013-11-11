@@ -44,6 +44,14 @@ private:
 
   Uint compute_nb_rows(const mesh::Field& field) const;
 
+  void compute_L2( const mesh::Field& field, std::vector<Real>& norms ) const;
+
+  void compute_L1( const mesh::Field& field, std::vector<Real>& norms ) const;
+
+  void compute_Linf( const mesh::Field& field, std::vector<Real>& norms ) const;
+
+  void compute_Lp( const mesh::Field& field, std::vector<Real>& norms, Uint order ) const;
+
   Handle<mesh::Field> m_field;
 
   Handle<solver::History> m_history;
