@@ -33,6 +33,18 @@ namespace common {
   }
 
   template <>
+  Common_API std::string to_str< std::vector<bool>::reference >( const std::vector<bool>::reference & v )
+  {
+    return v ? "true" : "false";
+  }
+
+  template <>
+  Common_API std::string to_str< std::vector<bool>::const_reference >( const std::vector<bool>::const_reference & v )
+  {
+    return v ? "true" : "false";
+  }
+
+  template <>
   Common_API std::string to_str<int> (const int & v)
   {
     return boost::lexical_cast<std::string>(v);
@@ -106,7 +118,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<bool> > (const std::vector<bool> & v)
+  Common_API std::string to_str< std::vector<bool> > (const std::vector<bool> & v)
   {
     std::string s = "";
     if (v.size())
@@ -119,7 +131,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<int> > (const std::vector<int> & v)
+  Common_API std::string to_str< std::vector<int> > (const std::vector<int> & v)
   {
     std::string s = "";
     if (v.size())
@@ -132,7 +144,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<unsigned long> > (const std::vector<unsigned long> & v)
+  Common_API std::string to_str< std::vector<unsigned long> > (const std::vector<unsigned long> & v)
   {
     std::string s = "";
     if (v.size())
@@ -145,7 +157,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<Uint> > (const std::vector<Uint> & v)
+  Common_API std::string to_str< std::vector<Uint> > (const std::vector<Uint> & v)
   {
     std::string s = "";
     if (v.size())
