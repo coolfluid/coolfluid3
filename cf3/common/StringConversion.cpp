@@ -32,6 +32,8 @@ namespace common {
     return v ? "true" : "false";
   }
 
+#ifdef _LIBCPP_VERSION
+  // libc++ defines following types as different from bool, whereas libstdc++ sees it as duplicate types
   template <>
   Common_API std::string to_str< std::vector<bool>::reference >( const std::vector<bool>::reference & v )
   {
@@ -43,6 +45,7 @@ namespace common {
   {
     return v ? "true" : "false";
   }
+#endif
 
   template <>
   Common_API std::string to_str<int> (const int & v)
