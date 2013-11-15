@@ -25,7 +25,7 @@ ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
 ns_solver.enable_body_force = True
-
+ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
 refinement_level = 1
 
 # Generate mesh
@@ -96,7 +96,7 @@ tstep = 0.5
 
 ns_solver.regions = [mesh.topology.uri()]
 
-ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+ns_solver.PressureLSS.LSS.SolutionStrategy.solver_type = 'Amesos_Klu'
 ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
 
 # Initial conditions

@@ -111,6 +111,7 @@ LSSAction::LSSAction(const std::string& name) :
   options().add("solution_strategy", "cf3.math.LSS.TrilinosStratimikosStrategy")
     .pretty_name("Solution Strategy")
     .description("Builder to use when creating the initial LSS solution strategy")
+    .attach_trigger(boost::bind(&LSSAction::create_lss, this))
     .mark_basic();
 }
 
@@ -343,12 +344,6 @@ void LSSAction::trigger_initial_conditions()
       CFdebug << "  added initial condition " << ic.name() << CFendl;
     }
   }
-}
-
-void LSSAction::trigger_solution_strategy()
-{
-  if(is_not_null(m_implementation->m_lss))
-    m_implementation->m_lss->options().set("solution_strategy", options().option("solution_strategy").value());
 }
 
 std::string LSSAction::solution_tag()
