@@ -345,6 +345,11 @@ void LSSAction::trigger_initial_conditions()
   }
 }
 
+void LSSAction::trigger_solution_strategy()
+{
+  if(is_not_null(m_implementation->m_lss))
+    m_implementation->m_lss->options().set("solution_strategy", options().option("solution_strategy").value());
+}
 
 std::string LSSAction::solution_tag()
 {

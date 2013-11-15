@@ -77,6 +77,9 @@ private:
 
   /// Trigger for the initial conditions
   void trigger_initial_conditions();
+  
+  /// Trigger strategy builder
+  void trigger_solution_strategy();
 
   /// The dictionary to use for field lookups
   Handle<mesh::Dictionary> m_dictionary;
