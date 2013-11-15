@@ -64,7 +64,6 @@ struct VelocityAssembly
     static const Uint nb_nodes = ElementT::nb_nodes;
     static const Uint dim = ElementT::dimension;
 
-    Eigen::Matrix<Real, 1, nb_nodes> adv;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> laplacian;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> su_N;
     Eigen::Matrix<Real, nb_nodes, nb_nodes> bulk_block;
@@ -84,8 +83,7 @@ struct VelocityAssembly
 
         const Real w = Gauss2T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
 
-        adv = (u.eval()*u.nabla()); // advection operator
-        su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
+        su_N = (w * (u.shape_function()).transpose())*u.shape_function();
 
         for(Uint i = 0; i != dim; ++i)
         {
@@ -110,8 +108,7 @@ struct VelocityAssembly
       laplacian = w*nu_eff.eval()*(u.nabla().transpose()*u.nabla()); // laplacian operator
       if(ideal_order == 2)
       {
-        adv = (u.eval()*u.nabla()); // advection operator
-        su_N = (w * (u.shape_function() + tau_su*adv).transpose())*u.shape_function();
+        su_N = (w * (u.shape_function()).transpose())*u.shape_function();
         for(Uint i = 0; i != dim; ++i)
         {
           M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += laplacian + bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
