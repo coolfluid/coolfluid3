@@ -279,7 +279,8 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   u_ref("reference_velocity"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+  c1(1.)
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -316,6 +317,11 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .description("Activate the volume force term")
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
+    
+  options().add("c1", c1)
+    .pretty_name("c1")
+    .description("Constant to divide the time step by, for calibrating the SUPG parameter")
+    .link_to(&c1);
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
