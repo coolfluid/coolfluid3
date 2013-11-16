@@ -31,6 +31,7 @@
 #include "math/LSS/Trilinos/TekoBlockedOperator.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
 
+#include "solver/ActionDirectorWithSkip.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Iterate.hpp"
@@ -325,16 +326,16 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_p_lss->add_tag(detail::my_tag());
   m_p_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
 
+  // Assembly of the velocity system matrices
   m_u_lss = create_component<LSSAction>("VelocityLSS");
   m_u_lss->mark_basic();
-  m_u_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  m_velocity_assembly = m_u_lss->create_component<solver::ActionDirectorWithSkip>("Assembly");
+  m_velocity_assembly->create_static_component<math::LSS::ZeroLSS>("ZeroLSS");
+  m_velocity_assembly->add_tag(detail::my_tag());
+  m_velocity_assembly->mark_basic();
   m_u_lss->set_solution_tag("navier_stokes_u_solution");
   m_u_lss->add_tag(detail::my_tag());
   m_u_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  
-  // Assembly of the velocity system matrices
-  m_velocity_assembly = create_component<solver::ActionDirector>("VelocityAssembly");
-  m_velocity_assembly->add_tag(detail::my_tag());
 
   // Boundary conditions
   Handle<BoundaryConditions> pressure_bc =  m_p_lss->create_component<BoundaryConditions>("BC");
