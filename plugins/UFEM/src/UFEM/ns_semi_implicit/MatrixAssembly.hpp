@@ -15,7 +15,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
-#include "UFEM/SUPG.hpp"
+#include "UFEM/SUPG2.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -59,7 +59,7 @@ struct VelocityAssembly
     typedef typename UT::EtypeT ElementT;
     
     Real tau_ps, tau_su, tau_bulk;
-    ComputeTau()(u_fd, nu_eff, u_ref, dt, tau_ps, tau_su, tau_bulk);
+    supgtest::ComputeTau()(u_fd, nu_eff, u_ref, dt, tau_ps, tau_su, tau_bulk);
 
     static const Uint nb_nodes = ElementT::nb_nodes;
     static const Uint dim = ElementT::dimension;

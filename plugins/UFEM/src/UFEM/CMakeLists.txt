@@ -82,6 +82,7 @@ list( APPEND coolfluid_ufem_files
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
   SUPG.hpp
+  SUPG2.hpp
   Tags.hpp
   Tags.cpp
   WriteRestartManager.hpp

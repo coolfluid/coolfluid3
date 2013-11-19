@@ -88,7 +88,7 @@ struct ComputeTau
     u.compute_values(GaussT::instance().coords.col(0));
     Eigen::Matrix<Real, ElementT::dimensionality, ElementT::dimensionality> gij; // metric tensor
     gij.noalias() = u.nabla()*u.nabla().transpose();
-    const Real c2 = 36.;
+    const Real c2 = 1.;
     
     const Real tau_adv_sq = fabs((u.eval()*gij*detail::transpose(u.eval()))[0]); // Very close 0 but slightly negative sometimes
     tau_su = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + c2*element_nu*element_nu*gij.squaredNorm());
