@@ -27,7 +27,7 @@
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 
-#include "../SUPG2.hpp"
+#include "../SUPG.hpp"
 
 #include "PressureSystem.hpp"
 
