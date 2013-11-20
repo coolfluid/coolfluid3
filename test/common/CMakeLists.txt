@@ -204,3 +204,6 @@ coolfluid_add_test( UTEST utest-common-arraydiff
                     CPP   utest-common-arraydiff.cpp
                     LIBS  coolfluid_common
                     MPI 2 )
+                    
+coolfluid_add_test (UTEST utest-common-print-timing-tree
+                    PYTHON utest-common-print-timing-tree.py)
