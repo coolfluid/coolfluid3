@@ -51,7 +51,7 @@ struct DivAdvOp
   typedef Real result_type;
 
   template<typename VarT>
-  Real operator()(const VarT& var)
+  Real operator()(const VarT& var) const
   {
     const typename VarT::GradientT& nabla = var.nabla();
     Real result = 0.;
@@ -141,7 +141,7 @@ void EulerDNS::trigger_set_expression()
     group
     (
       _A = _0, _T = _0,
-      UFEM::compute_tau(u, lit(1.e-14), lit(dt()), lit(tau_su)),
+      compute_tau(u, lit(1.e-14), lit(dt()), lit(tau_su)),
       element_quadrature
       (
         _A(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * u*nabla(c) - // advection of concentration

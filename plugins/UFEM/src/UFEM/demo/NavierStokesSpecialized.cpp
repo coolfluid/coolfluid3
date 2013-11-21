@@ -39,7 +39,7 @@ struct NavierStokesSpecializedAssembly
   typedef void result_type;
 
   template<typename PT, typename UT, typename NUT, typename LSST>
-  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, LSST& lss, math::LSS::BlockAccumulator& acc)
+  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, LSST& lss, math::LSS::BlockAccumulator& acc) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u.value().colwise().mean();
