@@ -30,7 +30,6 @@
 #include "solver/Tags.hpp"
 
 #include "../NavierStokesSpecializations.hpp"
-#include "../SUPG.hpp"
 #include "../Tags.hpp"
 
 #include "../BoussinesqAssembly.hpp"

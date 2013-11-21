@@ -27,7 +27,6 @@
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
-#include "../SUPG.hpp"
 #include "../Tags.hpp"
 
 namespace cf3 {

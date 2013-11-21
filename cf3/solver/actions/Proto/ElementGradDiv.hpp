@@ -33,14 +33,14 @@ struct GradientOp
   };
 
   template<typename VarT, typename ResultT>
-  const ResultT& operator()(ResultT& result, const VarT& var, const typename VarT::MappedCoordsT& mapped_coords)
+  const ResultT& operator()(ResultT& result, const VarT& var, const typename VarT::MappedCoordsT& mapped_coords) const
   {
     result.noalias() = var.nabla(mapped_coords) * var.value();
     return result;
   }
 
   template<typename VarT, typename ResultT>
-  const ResultT& operator()(ResultT& result, const VarT& var)
+  const ResultT& operator()(ResultT& result, const VarT& var) const
   {
     result.noalias() = var.nabla() * var.value();
     return result;
@@ -55,7 +55,7 @@ struct DivOp
 
   // Return the divergence of unknown var, computed at mapped_coords
   template<typename VarT>
-  Real operator()(const VarT& var, const typename VarT::MappedCoordsT& mapped_coords)
+  Real operator()(const VarT& var, const typename VarT::MappedCoordsT& mapped_coords) const
   {
     // Get the gradient matrix
     const typename VarT::GradientT& nabla = var.nabla(mapped_coords);
@@ -69,7 +69,7 @@ struct DivOp
   }
 
   template<typename VarT>
-  Real operator()(const VarT& var)
+  Real operator()(const VarT& var) const
   {
     const typename VarT::GradientT& nabla = var.nabla();
     Real result = 0.;

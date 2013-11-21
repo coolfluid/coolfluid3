@@ -29,7 +29,6 @@
 
 #include "UFEM/LSSActionUnsteady.hpp"
 #include "UFEM/Solver.hpp"
-#include "UFEM/SUPG.hpp"
 #include "UFEM/Tags.hpp"
 #include "UFEM/ParsedFunctionExpression.hpp"
 

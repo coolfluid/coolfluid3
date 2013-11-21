@@ -21,6 +21,8 @@ namespace UFEM {
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
+ComputeTauT compute_tau;
+
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
 boost::shared_ptr<solver::actions::Proto::ProtoAction> wrap_expression(const boost::shared_ptr<Expression>& expr)

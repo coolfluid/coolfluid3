@@ -279,8 +279,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   u_ref("reference_velocity"),
-  nu("kinematic_viscosity"),
-  c1(1.)
+  nu("kinematic_viscosity")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -318,10 +317,15 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
     
-  options().add("c1", c1)
+  options().add("c1", boost::proto::value(compute_tau).op.c1)
     .pretty_name("c1")
     .description("Constant to divide the time step by, for calibrating the SUPG parameter")
-    .link_to(&c1);
+    .link_to(&(boost::proto::value(compute_tau).op.c1));
+    
+  options().add("c2", boost::proto::value(compute_tau).op.c2)
+    .pretty_name("c2")
+    .description("Constant to adjust the diffusion contribution of SUPG stabilization")
+    .link_to(&(boost::proto::value(compute_tau).op.c2));
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
@@ -408,6 +412,10 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   m_pressure_assembly->options().set("pressure_lss_action", m_p_lss);
   m_pressure_assembly->add_tag(detail::my_tag());
   m_pressure_assembly->options().set("theta", theta);
+  m_pressure_assembly->options().set("c1", options().value<Real>("c1"));
+  m_pressure_assembly->options().set("c2", options().value<Real>("c2"));
+  options().option("c1").link_option(m_pressure_assembly->options().option_ptr("c1"));
+  options().option("c2").link_option(m_pressure_assembly->options().option_ptr("c2"));
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");

@@ -498,7 +498,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data));
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data));
       }
 
       result_type operator()(boost::proto::tag::function,
@@ -507,7 +507,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                         typename impl::state_param state,
                         typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data)
@@ -520,7 +520,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-      return OpImpl()
+      return boost::proto::value(boost::proto::child_c<0>(expr)).op
       (
         GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
         GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -534,7 +534,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -549,7 +549,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -565,7 +565,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -582,7 +582,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -600,7 +600,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -619,7 +619,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op
         (
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
@@ -644,7 +644,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data));
       }
 
@@ -654,7 +654,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data));
       }
@@ -665,7 +665,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data));
@@ -677,7 +677,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
@@ -690,7 +690,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
@@ -705,7 +705,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
@@ -721,7 +721,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
@@ -738,7 +738,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value,
+        return boost::proto::value(boost::proto::child_c<0>(expr)).op(expr.value,
           GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),

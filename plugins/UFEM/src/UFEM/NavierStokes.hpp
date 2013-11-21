@@ -22,6 +22,7 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 #include "NavierStokesPhysics.hpp"
+#include "SUPG.hpp"
 
 namespace cf3 {
   
@@ -110,6 +111,8 @@ private:
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
+
+  ComputeTauT compute_tau;
 };
 
 } // UFEM

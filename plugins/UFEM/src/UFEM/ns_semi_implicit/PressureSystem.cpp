@@ -27,8 +27,6 @@
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 
-#include "../SUPG.hpp"
-
 #include "PressureSystem.hpp"
 
 #include <coolfluid-ufem-config.hpp>
@@ -76,6 +74,16 @@ public:
       .pretty_name("Theta")
       .description("Theta parameter for the theta scheme")
       .link_to(&theta);
+      
+    options().add("c1", boost::proto::value(compute_tau).op.c1)
+      .pretty_name("c1")
+      .description("Constant to divide the time step by, for calibrating the SUPG parameter")
+      .link_to(&(boost::proto::value(compute_tau).op.c1));
+    
+    options().add("c2", boost::proto::value(compute_tau).op.c2)
+      .pretty_name("c2")
+      .description("Constant to adjust the diffusion contribution of SUPG stabilization")
+      .link_to(&(boost::proto::value(compute_tau).op.c2));
   }
 
   static std::string type_name () { return "PressureSystemAssembly"; }
@@ -145,6 +153,8 @@ private:
 
   Real tau_ps, tau_su, tau_bulk;
   Real theta;
+
+  ComputeTauT compute_tau;
 };
 
 common::ComponentBuilder < PressureSystemAssembly, common::Action, LibUFEM > PressureSystemAssembly_Builder;

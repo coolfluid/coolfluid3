@@ -99,14 +99,14 @@ struct CFLOp
   };
 
   template<typename UT>
-  void operator()(const UT& u, Real& cfl_scale)
+  void operator()(const UT& u, Real& cfl_scale) const
   {
     typedef typename UT::EtypeT ElementT;
     get_scale(typename ShapeType<ElementT>::type(), u, cfl_scale);
   }
   
   template<typename UT, typename NodesT, unsigned long N>
-  Real max_edge_projection(const UT& u, const NodesT& nodes, const boost::array<int, N>& a_nodes, const boost::array<int, N>& b_nodes)
+  Real max_edge_projection(const UT& u, const NodesT& nodes, const boost::array<int, N>& a_nodes, const boost::array<int, N>& b_nodes) const
   {
     Real result = 0.;
     for(int i = 0; i != N; ++i)
@@ -120,7 +120,7 @@ struct CFLOp
   }
 
   template<typename UT>
-  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TRIAG>, const UT& u, Real& cfl_scale)
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TRIAG>, const UT& u, Real& cfl_scale) const
   {
     static const RealVector2 center(1./3., 1./3.);
     const boost::array<int, 3> a_nodes = { 0, 1, 2 };
@@ -129,7 +129,7 @@ struct CFLOp
   }
   
   template<typename UT>
-  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TETRA>, const UT& u, Real& cfl_scale)
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::TETRA>, const UT& u, Real& cfl_scale) const
   {
     static const RealVector3 center(1./3., 1./3., 1./3.);
     const boost::array<int, 6> a_nodes = { 0, 1, 2, 0, 1, 2 };
@@ -138,7 +138,7 @@ struct CFLOp
   }
 
   template<typename UT>
-  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::PRISM>, const UT& u, Real& cfl_scale)
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::PRISM>, const UT& u, Real& cfl_scale) const
   {
     static const RealVector3 center(1./3., 1./3., 0.);
     const boost::array<int, 9> a_nodes = { 0, 1, 2, 3, 4, 5, 0, 1, 2 };
@@ -147,7 +147,7 @@ struct CFLOp
   }
 
   template<typename UT>
-  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::QUAD>, const UT& u, Real& cfl_scale)
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::QUAD>, const UT& u, Real& cfl_scale) const
   {
     static const RealVector2 center(0., 0.);
     const boost::array<int, 4> a_nodes = { 0, 1, 2, 3 };
@@ -156,7 +156,7 @@ struct CFLOp
   }
   
   template<typename UT>
-  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::HEXA>, const UT& u, Real& cfl_scale)
+  void get_scale(boost::mpl::int_<cf3::mesh::GeoShape::HEXA>, const UT& u, Real& cfl_scale) const
   {
     static const RealVector3 center(0., 0., 0.);
     const boost::array<int, 12> a_nodes = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3 };
@@ -165,7 +165,7 @@ struct CFLOp
   }
 
   template<typename UT>
-  inline void get_scale(boost::mpl::void_, const UT& u, Real& cfl_scale)
+  inline void get_scale(boost::mpl::void_, const UT& u, Real& cfl_scale) const
   {
   }
 };

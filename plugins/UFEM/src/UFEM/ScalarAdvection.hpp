@@ -58,6 +58,8 @@ private:
 
   /// Stabilization coefficient
   Real tau_su;
+
+  ComputeTauT compute_tau;
 };
 
 } // UFEM

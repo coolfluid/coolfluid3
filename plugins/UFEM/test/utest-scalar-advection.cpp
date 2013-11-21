@@ -156,6 +156,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   RealVector initial_u(1); initial_u.setConstant(-10.);
 
+  UFEM::ComputeTauT compute_tau;
+
   // add the top-level actions (assembly, BC and solve)
   *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u, nu_eff = nu)));
   *lss_action

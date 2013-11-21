@@ -9,6 +9,7 @@
 
 #include "LibUFEMParticles.hpp"
 #include "../LSSActionUnsteady.hpp"
+#include "../SUPG.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -36,6 +37,8 @@ private:
   Real tau_su;
   /// Particle relaxation time
   Real tau_p;
+
+  ComputeTauT compute_tau;
 };
 
 } // particles

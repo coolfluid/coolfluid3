@@ -30,7 +30,6 @@
 #include <solver/ModelUnsteady.hpp>
 #include <solver/Solver.hpp>
 
-#include "UFEM/SUPG.hpp"
 #include <UFEM/Solver.hpp>
 #include <UFEM/LSSActionUnsteady.hpp>
 

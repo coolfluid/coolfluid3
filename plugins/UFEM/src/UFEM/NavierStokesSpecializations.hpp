@@ -27,14 +27,14 @@ struct SUPGSpecialized
   typedef void result_type;
 
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T) const
   {
     apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, u_ref, rho, A, T);
   }
 
   /// Specialization for triangles
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u_adv.value().colwise().mean();
@@ -161,7 +161,7 @@ struct SUPGSpecialized
 
   /// Specialization for tetrahedra
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Tetra3D ElementT;
     const RealVector3 u_avg = u_adv.value().colwise().mean();

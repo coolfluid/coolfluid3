@@ -14,6 +14,8 @@
 #include "../LSSActionUnsteady.hpp"
 #include "../NavierStokesPhysics.hpp"
 
+#include "../SUPG.hpp"
+
 #include "LSSVectorOps.hpp"
 
 namespace cf3 {
@@ -94,9 +96,6 @@ private:
   /// Time step
   Real dt;
   
-  /// Constant to divide the time step by, for calibrating the SUPG parameter
-  Real c1;
-  
   /// LSS for the pressure
   Handle<LSSActionUnsteady> m_p_lss;
   /// LSS for the velocity
@@ -112,6 +111,8 @@ private:
   
   // Time component
   Handle<solver::Time> m_time;
+
+  ComputeTauT compute_tau;
 };
 
 } // UFEM

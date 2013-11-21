@@ -11,6 +11,7 @@
 
 #include "../LibUFEM.hpp"
 #include "../LSSActionUnsteady.hpp"
+#include "../SUPG.hpp"
 
 namespace cf3 {
 namespace solver { class Time; }

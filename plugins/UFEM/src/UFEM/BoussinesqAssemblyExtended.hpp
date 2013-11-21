@@ -13,7 +13,6 @@
 #include "solver/actions/Proto/Expression.hpp"
 
 #include "NavierStokesSpecializations.hpp"
-#include "SUPG.hpp"
 
 namespace cf3 {
 namespace UFEM {
