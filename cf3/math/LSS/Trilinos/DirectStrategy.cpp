@@ -41,7 +41,9 @@ struct DirectStrategy::Implementation
   Implementation(common::Component& self) :
     m_self(self),
     m_solver_parameter_list(Teuchos::createParameterList()),
-    m_solver_type("Amesos_Klu")
+    m_solver_type("Amesos_Klu"),
+    m_interval(0u),
+    m_count(0u)
   {
     // Default solver parameters
     m_solver_parameter_list->set("PrintTiming",true);
@@ -53,6 +55,12 @@ struct DirectStrategy::Implementation
       .description("Solver type for Amesos factory")
       .link_to(&m_solver_type)
       .attach_trigger(boost::bind(&Implementation::reset_solver, this))
+      .mark_basic();
+      
+    self.options().add("interval", m_interval)
+      .pretty_name("Interval")
+      .description("Interval between recalculation of the factorization")
+      .link_to(&m_interval)
       .mark_basic();
     
     update_parameters();
@@ -80,6 +88,7 @@ struct DirectStrategy::Implementation
     m_solver.reset(m_factory.Create(m_solver_type, m_problem));
     
     // Factorize the matrix
+    CFdebug << "Directstrategy: factoring matrix" << CFendl;
     m_solver->SymbolicFactorization();
     m_solver->NumericFactorization();
 
@@ -88,12 +97,17 @@ struct DirectStrategy::Implementation
 
   void solve()
   {
+    if(m_interval != 0 && (m_count % m_interval) == 0)
+      reset_solver();
+    
     if(is_null(m_solver.get()))
     {
       setup_solver();
     }
 
     m_solver->Solve();
+    
+    ++m_count;
   }
 
   Real compute_residual()
@@ -130,6 +144,9 @@ struct DirectStrategy::Implementation
   
   std::string m_solver_type;
   Epetra_LinearProblem m_problem;
+  
+  Uint m_interval;
+  Uint m_count;
 };
 
 DirectStrategy::DirectStrategy(const string& name) :
