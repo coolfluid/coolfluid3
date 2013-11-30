@@ -54,8 +54,10 @@ struct MeshInterpolation_Fixture
   /// common setup for each test case
   MeshInterpolation_Fixture()
   {
-     int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-     char*** argv = &boost::unit_test::framework::master_test_suite().argv;
+    // uncomment if you want to use arguments to the test executable
+    m_argc = boost::unit_test::framework::master_test_suite().argc;
+    m_argv = boost::unit_test::framework::master_test_suite().argv;
+
   }
 
   /// common tear-down for each test case
@@ -65,11 +67,8 @@ struct MeshInterpolation_Fixture
 
   /// possibly common functions used on the tests below
 
-
-  /// common values accessed by all tests goes here
-  int    m_argc;
+  int m_argc;
   char** m_argv;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +76,6 @@ struct MeshInterpolation_Fixture
 BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {

@@ -133,7 +133,7 @@ struct DirectStrategy::Implementation
 };
 
 DirectStrategy::DirectStrategy(const string& name) :
-  SolutionStrategy(name),
+  CoordinatesStrategy(name),
   m_implementation(new Implementation(*this))
 {
 }

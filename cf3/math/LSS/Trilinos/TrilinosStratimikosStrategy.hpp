@@ -11,7 +11,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "math/LSS/SolutionStrategy.hpp"
+#include "CoordinatesStrategy.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API TrilinosStratimikosStrategy : public SolutionStrategy
+class LSS_API TrilinosStratimikosStrategy : public CoordinatesStrategy
 {
 public:
 
@@ -44,6 +44,7 @@ public:
   void set_solution(const Handle<LSS::Vector>& solution);
   void solve();
   Real compute_residual();
+  virtual void set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active);
 
   /// Construct default parameters using the builder for a ParameterListDefaults object.
   void set_default_parameters(const std::string& builder_name);

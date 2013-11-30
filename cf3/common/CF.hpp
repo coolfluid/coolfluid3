@@ -72,6 +72,8 @@ public:
 private:
   void operator&() const;
 } nullptr = {};
+#elif defined CF3_CXX_NATIVE_NULLPTR
+  using std::nullptr_t;
 #else
   #define nullptr 0
 #endif

@@ -11,7 +11,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "math/LSS/SolutionStrategy.hpp"
+#include "CoordinatesStrategy.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace cf3 {
 namespace math {
 namespace LSS {
 
-class LSS_API RCGStrategy : public SolutionStrategy
+class LSS_API RCGStrategy : public CoordinatesStrategy
 {
 public:
   RCGStrategy(const std::string& name);
@@ -39,6 +39,7 @@ public:
   void set_solution(const Handle<LSS::Vector>& solution);
   void solve();
   Real compute_residual();
+  virtual void set_coordinates(common::PE::CommPattern& cp, const common::Table< Real >& coords, const common::List< Uint >& used_nodes, const std::vector< bool >& periodic_links_active);
 
 private:
   void on_parameters_changed_event(common::SignalArgs& args);

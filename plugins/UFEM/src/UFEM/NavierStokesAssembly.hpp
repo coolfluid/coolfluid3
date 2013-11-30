@@ -52,7 +52,7 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
         _A = _0, _T = _0,
         for_generic_elements
         (
-          compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+          compute_tau(u_adv, nu_eff, u_ref, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
             _A(p    , u[_i]) += transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection

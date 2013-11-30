@@ -24,6 +24,8 @@ list( APPEND coolfluid_math_lss_files
 list( APPEND coolfluid_math_lss_trilinos_files
     Trilinos/BelosGMRESParameters.hpp
     Trilinos/BelosGMRESParameters.cpp
+    Trilinos/CoordinatesStrategy.hpp
+    Trilinos/CoordinatesStrategy.cpp
     Trilinos/DirectStrategy.hpp
     Trilinos/DirectStrategy.cpp
     Trilinos/ParameterList.hpp

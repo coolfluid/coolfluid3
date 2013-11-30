@@ -68,6 +68,10 @@ coolfluid_add_test( UTEST     utest-solver-actions-randomize
                     PYTHON    utest-solver-actions-randomize.py
                     MPI 4)
 
+coolfluid_add_test( UTEST     utest-solver-actions-turbulence-statistics
+                    PYTHON    utest-solver-actions-turbulence-statistics.py
+                    MPI 4)
+
 coolfluid_add_test( UTEST     utest-proto-lagrangep2
                     CPP       utest-proto-lagrangep2.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_generation coolfluid_solver)
@@ -92,6 +96,7 @@ coolfluid_mark_not_orphan(
   utest-proto-components.cpp
   utest-proto-elements.cpp
   ptest-proto-parallel.cpp
+  utest-proto-lagrangep2.cpp
   utest-proto-lss.cpp
 )
 endif()

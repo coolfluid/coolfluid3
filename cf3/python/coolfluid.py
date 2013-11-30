@@ -18,6 +18,7 @@ sys.setdlopenflags(flags)
 
 #initiate the CF3 environment. Note: there is no argv if executed from the ScriptEngine
 if sys.__dict__.has_key('argv'):
+  Core.environment().regist_signal_handlers = True
   Core.initiate(sys.argv)
 
 # shortcut for root

@@ -54,3 +54,7 @@ coolfluid_add_test( UTEST utest-mesh-wall-distance
 coolfluid_add_test( UTEST utest-mesh-actions-meshdiff
                     PYTHON utest-mesh-actions-meshdiff.py
                     MPI 4)
+
+coolfluid_add_test( UTEST utest-mesh-interpolator
+                    PYTHON utest-mesh-interpolator.py
+                    MPI 8)

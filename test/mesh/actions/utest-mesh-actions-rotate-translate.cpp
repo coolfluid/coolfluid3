@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_rotate_2d )
   boost::shared_ptr<MeshTransformer> rotate = boost::dynamic_pointer_cast<MeshTransformer>(build_component("cf3.mesh.actions.Rotate","rotate"));
   std::vector<Real> axis_point = list_of(5.)(5.);
   rotate->options().set("axis_point",axis_point);
-  rotate->options().set("angle",math::Consts::pi()/2.);
+  rotate->options().set("angle",90.);
   rotate->transform(mesh);
   mesh.write_mesh("file:rotated_rect.msh");
 }
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( test_rotate_3d )
   std::vector<Real> axis_point = list_of(5.)(5.)(5.);
   rotate->options().set("axis_direction",axis_direction);
   rotate->options().set("axis_point",axis_point);
-  rotate->options().set("angle",math::Consts::pi()/2.);
+  rotate->options().set("angle",90.);
   rotate->transform(mesh);
   mesh.write_mesh("file:rotated_box.msh");
 }

@@ -63,6 +63,7 @@ randomizer.variable_name = 'Velocity'
 randomizer.maximum_variations = [0.3, 0.3]
 randomizer.maximum_values = [Uc, Uc/3.]
 randomizer.minimum_values = [-Uc, -Uc/3.]
+randomizer.options.seed = 1
 randomizer.execute()
 
 writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')

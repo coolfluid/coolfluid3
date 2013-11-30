@@ -41,10 +41,12 @@ list( APPEND coolfluid_mesh_actions_files
   LibActions.cpp
   LinkPeriodicNodes.hpp
   LinkPeriodicNodes.cpp
-  MeshDiff.hpp
-  MeshDiff.cpp
   MakeBoundaryGlobal.hpp
   MakeBoundaryGlobal.cpp
+  MeshDiff.hpp
+  MeshDiff.cpp
+  MeshInterpolator.hpp
+  MeshInterpolator.cpp
   PeriodicMeshPartitioner.hpp
   PeriodicMeshPartitioner.cpp
   LoadBalance.hpp
