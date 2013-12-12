@@ -107,6 +107,7 @@ void compute_rusanov_flux( const Data& left, const Data& right, const ColVector_
 void compute_absolute_flux_jacobian( const Data& p, const ColVector_NDIM& normal,
                                      Matrix_NEQSxNEQS& absolute_flux_jacobian)
 {
+  cf3_assert(p.c0 > 1e-12);
   const Real u0n = p.U0.dot(normal);
   const Real inv_2c  = 0.5/p.c0;
   const Real inv_2c2 = 0.5/(p.c0*p.c0);
@@ -132,12 +133,12 @@ void compute_absolute_flux_jacobian( const Data& p, const ColVector_NDIM& normal
 void compute_cir_flux( const Data& left, const Data& right, const ColVector_NDIM& normal,
                        RowVector_NEQS& flux, Real& wave_speed )
 {
-  static RowVector_NEQS flux_left, flux_right;
+  RowVector_NEQS flux_left, flux_right;
   compute_convective_flux(left, normal,flux_left);
   compute_convective_flux(right,normal,flux_right);
 
   // No Roe-average is needed as the eigen-system is only dependant of the mean flow
-  static Matrix_NEQSxNEQS A;
+  Matrix_NEQSxNEQS A;
   compute_absolute_flux_jacobian(left,normal,A);
 
   flux.noalias()  = 0.5*(flux_left+flux_right);
