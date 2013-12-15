@@ -148,7 +148,6 @@ public:
     comp( const_cast<Entities*>(&entities) ),
     idx(index)
   {
-    cf3_assert(idx<comp->size());
   }
 
   Entity(const Handle<Entities>& entities, const Uint index=0) :
@@ -156,7 +155,6 @@ public:
     idx(index)
   {
     cf3_assert( is_not_null(comp) );
-    cf3_assert(idx<comp->size());
   }
 
   Entities* comp;
