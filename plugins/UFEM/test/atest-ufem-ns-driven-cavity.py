@@ -94,7 +94,6 @@ ic_p.value = ['10']
 # Physical constants
 physics.options().set('density', 1000.)
 physics.options().set('dynamic_viscosity', 10.)
-physics.options().set('reference_velocity', u_lid[0])
 
 # Boundary conditions
 bc = ns_solver.VelocityLSS.BC

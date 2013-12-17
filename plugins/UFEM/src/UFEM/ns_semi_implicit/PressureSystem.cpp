@@ -119,11 +119,10 @@ public:
   template<typename ElementT>
   void assemble_pp(const SystemMatrix& mat)
   {
-    const Real u_ref = physical_model().options().value<Real>("reference_velocity");
     for_each_element<ElementT>(group
     (
       _A = _0,
-      compute_tau(u, nu_eff, u_ref, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau(u, nu_eff, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature( _A(p, p) += transpose(nabla(p)) * nabla(p) ),
       mat += lit(theta) * (lit(tau_ps) + lit(m_pressure_lss_action->dt())) *_A
     ));

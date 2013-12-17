@@ -120,7 +120,6 @@ def run_case(modeltype):
   # Physical constants
   physics.options().set('density', 1000.)
   physics.options().set('dynamic_viscosity', 10.)
-  physics.options().set('reference_velocity', u_in[0])
 
   # Boundary conditions
   if implicit:

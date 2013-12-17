@@ -189,7 +189,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   physics::PhysModel& physical_model = model.create_physics("cf3.UFEM.NavierStokesPhysics");
   physical_model.options().set("dynamic_viscosity", 1.7894e-5);
   physical_model.options().set("density", 1.);
-  physical_model.options().set("reference_velocity", 1.);
 
   // Setup mesh
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");

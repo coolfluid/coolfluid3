@@ -278,7 +278,6 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u2("AdvectionVelocity2", "linearized_velocity"),
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
-  u_ref("reference_velocity"),
   nu("kinematic_viscosity")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");

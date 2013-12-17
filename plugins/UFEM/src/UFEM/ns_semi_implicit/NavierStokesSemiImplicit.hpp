@@ -84,7 +84,6 @@ private:
   SFOp< CustomSFOp<ScalarLSSVector> > delta_p_sum;
   
   /// Access to the physics
-  PhysicsConstant u_ref;
   PhysicsConstant nu;
 
   /// Storage of the stabilization coefficients

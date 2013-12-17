@@ -62,7 +62,6 @@ struct NavierStokesAssemblyFixture
 
     physical_model.options().set("density", 1.);
     physical_model.options().set("dynamic_viscosity", 1.);
-    physical_model.options().set("reference_velocity", 1.);
 
     Time& time = model->create_time();
     time.options().set("time_step", 1.);

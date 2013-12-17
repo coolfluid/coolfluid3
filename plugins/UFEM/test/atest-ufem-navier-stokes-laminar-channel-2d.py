@@ -81,7 +81,6 @@ domain.write_mesh(cf.URI('laminar-channel-2d_output-init.pvtu'))
 # Physical constants
 physics.options().set('density', 1000.)
 physics.options().set('dynamic_viscosity', 10.)
-physics.options().set('reference_velocity', u_in[0])
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions

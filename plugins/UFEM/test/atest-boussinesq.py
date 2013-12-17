@@ -80,7 +80,6 @@ solver.InitialConditions.navier_stokes_solution.Temperature = phi_in
 #properties for Navier-Stokes
 physics.density = 1.
 physics.dynamic_viscosity = 1.e-5
-physics.reference_velocity = u_in[0]
 
 # Boundary conditions for Boussinesq
 bc = boussinesq.get_child('BoundaryConditions')

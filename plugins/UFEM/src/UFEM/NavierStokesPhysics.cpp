@@ -21,11 +21,6 @@ common::ComponentBuilder < NavierStokesPhysics, physics::PhysModel, LibUFEM > Na
 
 NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(name), m_recursing(false)
 {
-  options().add<Real>("reference_velocity")
-    .description("Reference velocity for the calculation of the stabilization coefficients")
-    .pretty_name("Reference velocity")
-    .mark_basic();
-
   options().add("density", 1.2)
     .description("Mass density (kg / m^3)")
     .pretty_name("Density")

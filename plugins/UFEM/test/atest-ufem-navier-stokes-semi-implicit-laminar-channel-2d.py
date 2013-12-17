@@ -91,7 +91,6 @@ link_horizontal.execute()
 # Physical constants
 physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
-physics.options().set('reference_velocity', 1.)
 
 tstep = 0.5
 

@@ -94,7 +94,6 @@ private:
 
 
   /// Access to the physics
-  PhysicsConstant u_ref;
   PhysicsConstant rho;
   PhysicsConstant nu;
 

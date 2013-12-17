@@ -111,7 +111,6 @@ solver.InitialConditions.spalart_allmaras_solution.TurbulentViscosity = NU_in
 #properties for Navier-Stokes
 physics.density = 1.2
 physics.dynamic_viscosity = 1.7894e-5
-physics.reference_velocity = u_in[0]
 
 # Compute the wall distance
 wall_distance = domain.create_component('WallDistance', 'cf3.mesh.actions.WallDistance')

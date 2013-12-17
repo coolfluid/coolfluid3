@@ -61,7 +61,7 @@ struct ComputeTau
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
     // Average viscosity
     const Real element_nu = fabs(nu_eff.value().mean());
@@ -137,7 +137,7 @@ struct ComputeTau
   Real c1, c2;
 };
 
-/// Type for a compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, dt, tau_ps, tau_su, tau_bulk)
+/// Type for a compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, dt, tau_ps, tau_su, tau_bulk)
 typedef solver::actions::Proto::MakeSFOp<ComputeTau>::type ComputeTauT;
 
 

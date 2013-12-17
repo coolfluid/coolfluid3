@@ -175,7 +175,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     }
     physical_model.options().set("density", rho);
     physical_model.options().set("dynamic_viscosity", mu);
-    physical_model.options().set("reference_velocity", c);
 
     // Setup mesh
     boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");
