@@ -142,12 +142,8 @@ void Quad2D::compute_jacobian<Quad2D::JacobianT>(const MappedCoordsT& mapped_coo
   m_shapeFuncDerivs(8,ETA) =  2.*ksi2_eta - 2.*eta;
 
   // evaluate Jacobian
-  result(KSI,XX) = m_shapeFuncDerivs(0,KSI)*nodes(0,XX);
-  result(ETA,XX) = m_shapeFuncDerivs(0,ETA)*nodes(0,XX);
-
-  result(KSI,YY) = m_shapeFuncDerivs(0,KSI)*nodes(0,YY);
-  result(ETA,YY) = m_shapeFuncDerivs(0,ETA)*nodes(0,YY);
-  for (Uint n = 1; n < 9; ++n)
+  result.setZero();
+  for (Uint n = 0; n < 9; ++n)
   {
     result(KSI,XX) += m_shapeFuncDerivs(n,KSI)*nodes(n,XX);
     result(ETA,XX) += m_shapeFuncDerivs(n,ETA)*nodes(n,XX);

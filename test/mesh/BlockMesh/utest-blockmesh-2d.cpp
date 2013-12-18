@@ -22,6 +22,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/MeshWriter.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -76,19 +77,28 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   BOOST_CHECK_EQUAL(mesh.dimension(), 2);
 
-  mesh.write_mesh("grid-2d.msh");
+  BOOST_CHECK_NO_THROW(mesh.write_mesh("grid-2d.msh"));
+
 
   // Test block partitioning
-  blocks.partition_blocks(5, 0);
-  blocks.partition_blocks(3, 1);
+  BOOST_CHECK_NO_THROW(blocks.partition_blocks(5, 0));
+//  BOOST_CHECK_NO_THROW(blocks.partition_blocks(3, 1));
+
   Handle<Mesh> block_mesh = blocks.create_block_mesh();
+  BOOST_CHECK(true);
   std::vector<URI> fields;
   BOOST_FOREACH(const Field& field, find_components_recursively<Field>(*block_mesh))
   {
     if(field.name() != "coordinates")
       fields.push_back(field.uri());
   }
-  block_mesh->write_mesh("grid-2d-parblocks.msh", fields);
+
+  Handle<MeshWriter> mesh_writer = block_mesh->create_component<MeshWriter>("writer","cf3.mesh.gmsh.Writer");
+  mesh_writer->options().set("mesh",block_mesh->handle<Mesh const>());
+  mesh_writer->options().set("fields",fields);
+  mesh_writer->options().set("enable_overlap",true);
+  mesh_writer->options().set("file",URI("grid-2d-parblocks.msh"));
+  mesh_writer->execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

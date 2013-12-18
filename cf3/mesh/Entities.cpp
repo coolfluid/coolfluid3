@@ -206,6 +206,7 @@ bool Entities::is_ghost(const Uint idx) const
 
 
 ElementType& Entity::element_type() const { return comp->element_type(); }
+Uint Entity::comp_idx() const { return comp->entities_idx(); }
 Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
 Uint Entity::rank() const { return comp->rank()[idx]; }
 bool Entity::is_ghost() const { return comp->is_ghost(idx); }

@@ -34,7 +34,6 @@ History::History ( const std::string& name ) :
 
   options().add("dimension",0u).mark_basic();
 
-
   m_logging = true;
   options().add("logging",m_logging)
       .description("Turn on logging at every entry")
@@ -51,6 +50,13 @@ History::History ( const std::string& name ) :
       .pretty_name("Write" )
       .connect   ( boost::bind ( &History::signal_write,    this, _1 ) )
       .signature ( boost::bind ( &History::signature_write, this, _1 ) );
+
+  regist_signal ( "read" )
+      .description( "Read history" )
+      .pretty_name("Read" )
+      .connect   ( boost::bind ( &History::signal_read,    this, _1 ) )
+      .signature ( boost::bind ( &History::signature_read, this, _1 ) );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +141,7 @@ void History::save_entry()
       if (!m_file)
       {
         flush();
-        open_file(m_file,options().value<URI>("file"));
+        open_write_access_file(m_file,options().value<URI>("file"));
         write_file(m_file);
         m_file.flush();
       }
@@ -190,16 +196,51 @@ void History::signal_write(common::SignalArgs& args)
     URI file_uri = opts.option("file").value<URI>();
 
     boost::filesystem::fstream file;
-    open_file(file,file_uri);
+    open_write_access_file(file,file_uri);
     write_file(file);
-
     file.close();
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void History::open_file(boost::filesystem::fstream& file, const common::URI& file_uri)
+void History::signature_read(common::SignalArgs& args)
+{
+  SignalOptions opts(args);
+  opts.add("file",URI("history.tsv"))
+      .description("Tab Separated Value log file for output of history");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void History::signal_read(common::SignalArgs& args)
+{
+  SignalOptions opts(args);
+  URI file_uri = opts.option("file").value<URI>();
+
+  boost::filesystem::fstream file;
+  open_read_access_file(file,file_uri);
+  read_file(file);
+
+  file.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void History::open_read_access_file(boost::filesystem::fstream& file, const common::URI& file_uri)
+{
+  boost::filesystem::path path (file_uri.path());
+  file.open(path,std::ios_base::in);
+  if (!file) // didn't open so throw exception
+  {
+    throw boost::filesystem::filesystem_error( path.string() + " failed to open",
+                                               boost::system::error_code() );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void History::open_write_access_file(boost::filesystem::fstream& file, const common::URI& file_uri)
 {
   boost::filesystem::path path (file_uri.path());
   file.open(path,std::ios_base::out);
@@ -256,6 +297,31 @@ void History::write_file(boost::filesystem::fstream& file)
     }
     file << "\n";
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void History::read_file(boost::filesystem::fstream& file)
+{
+  bool logging = m_logging;
+  options().set("logging",false);
+  std::string line;
+  std::vector<std::string> variables;
+  Real var;
+  std::getline(file,line);
+  variables = from_str< std::vector<std::string> >( line );
+
+  while( std::getline(file, line) )
+  {
+    std::stringstream line_ss(line);
+    for (Uint i=1; i<variables.size(); ++i) // first idx in header == "#"
+    {
+      line_ss >> var;
+      set(variables[i],var);
+    }
+    save_entry();
+  }
+  options().set("logging",logging);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

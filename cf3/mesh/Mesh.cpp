@@ -281,6 +281,7 @@ Dictionary& Mesh::create_continuous_space( const std::string& space_name, const 
   {
     entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
   }
+  dict.properties().add("space_lib",space_lib_name);
   dict.build();
   update_structures();
   return dict;
@@ -327,6 +328,7 @@ Dictionary& Mesh::create_discontinuous_space( const std::string& space_name, con
   {
     entities_handle->create_space(space_lib_name+"."+entities_handle->element_type().shape_name(),dict);
   }
+  dict.properties().add("space_lib",space_lib_name);
   dict.build();
   update_structures();
   return dict;

@@ -354,7 +354,7 @@ bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, co
 
   const CoordsT bp_x_dp = M.col(0).cross(M.col(1));
   const Real h = bp_x_dp.dot(M.col(2));
-  if (h != 0)
+  if (std::abs(h) > tolerance)
   {
     RealMatrix3 T;
     T << 1,  0,  1,

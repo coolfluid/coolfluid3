@@ -30,6 +30,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Tags.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -55,14 +56,77 @@ namespace detail
       common::XML::XmlNode region_node = node.add_node("region");
       region_node.set_attribute("name", region.name());
       write_regions(region_node, region, writer, root_path);
-      BOOST_FOREACH(const Elements& elements, common::find_components<Elements>(region))
+      BOOST_FOREACH(const Entities& elements, common::find_components<Entities>(region))
       {
         common::XML::XmlNode elements_node = region_node.add_node("elements");
+        elements_node.set_attribute("idx", common::to_str(elements.entities_idx()));
         elements_node.set_attribute("name", elements.name());
         elements_node.set_attribute("element_type", elements.element_type().derived_type_name());
         elements_node.set_attribute("global_indices", common::to_str(writer.append_data(elements.glb_idx())));
         elements_node.set_attribute("ranks", common::to_str(writer.append_data(elements.rank())));
-        
+
+        if( is_not_null(elements.connectivity_cell2face()) )
+        {
+          using namespace common;
+          common::XML::XmlNode connectivity_cell2face = elements_node.add_node("connectivity_cell2face");
+          const Uint rows = elements.connectivity_cell2face()->size();
+          const Uint cols = elements.connectivity_cell2face()->row_size();
+          boost::shared_ptr< Table<Uint> > conn = allocate_component< Table<Uint> >("tmp");
+          conn->set_row_size( 2*cols );
+          conn->resize( rows );
+          for (Uint e=0; e<rows; ++e)
+          {
+            for (Uint n=0; n<cols; ++n)
+            {
+              conn->array()[e][n+cols*0] = elements.connectivity_cell2face()->array()[e][n].comp_idx();
+              conn->array()[e][n+cols*1] = elements.connectivity_cell2face()->array()[e][n].idx;
+            }
+          }
+          connectivity_cell2face.set_attribute("connectivity", to_str(writer.append_data(*conn)));
+        }
+        if( is_not_null(elements.connectivity_face2cell()) )
+        {
+          using namespace common;
+          common::XML::XmlNode connectivity_face2cell = elements_node.add_node("connectivity_face2cell");
+          const Uint rows = elements.connectivity_face2cell()->size();
+          const Uint cols = elements.connectivity_face2cell()->connectivity().row_size();
+          boost::shared_ptr< Table<Uint> > conn = allocate_component< Table<Uint> >("tmp");
+          conn->set_row_size( 2*cols );
+          conn->resize( rows );
+          for (Uint e=0; e<rows; ++e)
+          {
+            for (Uint n=0; n<cols; ++n)
+            {
+              conn->array()[e][n+cols*0] = elements.connectivity_face2cell()->connectivity()[e][n].comp_idx();
+              conn->array()[e][n+cols*1] = elements.connectivity_face2cell()->connectivity()[e][n].idx;
+            }
+          }
+          connectivity_face2cell.set_attribute("connectivity",     to_str(writer.append_data(*conn)));
+          connectivity_face2cell.set_attribute("is_bdry_face",     to_str(writer.append_data(elements.connectivity_face2cell()->is_bdry_face())));
+          connectivity_face2cell.set_attribute("face_number",      to_str(writer.append_data(elements.connectivity_face2cell()->face_number())));
+          connectivity_face2cell.set_attribute("cell_rotation",    to_str(writer.append_data(elements.connectivity_face2cell()->cell_rotation())));
+          connectivity_face2cell.set_attribute("cell_orientation", to_str(writer.append_data(elements.connectivity_face2cell()->cell_orientation())));
+        }
+        if( is_not_null(elements.connectivity_cell2cell()) )
+        {
+          using namespace common;
+          common::XML::XmlNode connectivity_cell2cell = elements_node.add_node("connectivity_cell2cell");
+          const Uint rows = elements.connectivity_cell2cell()->size();
+          const Uint cols = elements.connectivity_cell2cell()->row_size();
+          boost::shared_ptr< Table<Uint> > conn = allocate_component< Table<Uint> >("tmp");
+          conn->set_row_size( 2*cols );
+          conn->resize( rows );
+          for (Uint e=0; e<rows; ++e)
+          {
+            for (Uint n=0; n<cols; ++n)
+            {
+              conn->array()[e][n+cols*0] = elements.connectivity_cell2cell()->array()[e][n].comp_idx();
+              conn->array()[e][n+cols*1] = elements.connectivity_cell2cell()->array()[e][n].idx;
+            }
+          }
+          connectivity_cell2cell.set_attribute("connectivity", to_str(writer.append_data(*conn)));
+        }
+
         Handle< common::List<Uint> const > periodic_links_elements(elements.get_child("periodic_links_elements"));
         if(is_not_null(periodic_links_elements))
         {

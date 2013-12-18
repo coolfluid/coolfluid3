@@ -49,7 +49,7 @@ struct threshold_compare
   {
   }
 
-  bool operator()(const Real a, const Real b)
+  bool operator()(const Real a, const Real b) const
   {
     return (b - a) > m_threshold;
   }

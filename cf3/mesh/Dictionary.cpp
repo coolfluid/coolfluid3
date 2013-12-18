@@ -291,7 +291,7 @@ bool Dictionary::check_sanity(std::vector<std::string>& messages) const
       std::pair<std::set<Uint>::iterator, bool > inserted = unique_gids.insert(glb_idx()[i]);
       if (inserted.second == false)
       {
-        messages.push_back(glb_idx().uri().string()+"["+to_str(i)+"] has non-unique entries.  (entry "+to_str(glb_idx()[i])+" exists more than once, no further checks)");
+        messages.push_back(glb_idx().uri().string()+"["+to_str(i)+"] has non-unique entries.  (glb_idx "+to_str(glb_idx()[i])+" exists more than once, no further checks)");
         break;
       }
     }

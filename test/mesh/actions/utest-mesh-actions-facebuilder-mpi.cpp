@@ -116,7 +116,9 @@ BOOST_AUTO_TEST_CASE( build_faces )
   BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/cells")) );
   BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/inner_faces")) );
 //  BOOST_CHECK( is_not_null(Core::instance().root().access_component("mesh/topology/gas/outer_faces")) );
-//  std::cout << mesh->topology().access_component("quadtriag/gas").tree() << std::endl;
+
+  std::cout << "glb_idx = " << *mesh->topology().access_component("gas/inner_faces/Line/global_indices")->handle< List<Uint> >() << std::endl;
+  std::cout << "rank = " << *mesh->topology().access_component("gas/inner_faces/Line/rank")->handle< List<Uint> >() << std::endl;
   );
 
 }

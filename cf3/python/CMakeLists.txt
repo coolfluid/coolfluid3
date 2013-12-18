@@ -8,6 +8,8 @@ if( CF3_HAVE_PYTHON )
       CoreWrapper.cpp
       TableWrapper.hpp
       TableWrapper.cpp
+      ListWrapper.hpp
+      ListWrapper.cpp
       LibPython.hpp
       LibPython.cpp
       Math.hpp

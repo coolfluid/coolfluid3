@@ -66,7 +66,7 @@ MeshReader::MeshReader ( const std::string& name  ) :
     .connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
     .description("reads a mesh")
     .pretty_name("Read mesh");
-  signal("read")->signature( boost::bind(&MeshReader::read_signature, this, _1) );
+  signal("read")->signature( boost::bind(&MeshReader::signature_read, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,27 +92,17 @@ void MeshReader::signal_read( SignalArgs& node  )
 {
   SignalOptions options( node );
 
-  URI path = options.value<URI>("location");
-
-  if( path.scheme() != URI::Scheme::CPATH )
-    throw ProtocolError( FromHere(), "Wrong protocol to access the location component, expecting a \'cpath\' but got \'" + path.string() +"\'");
-
   // get the domain
-  Handle< Component > location = access_component_checked( path );
+  Handle< Component > domain = options.value< Handle<Component> >("domain");
 
   std::vector<URI> files = options.value< std::vector<URI> >("files");
-
-  // check protocol for file loading
-  boost_foreach(URI file, files)
-  {
-    if( file.empty() || file.scheme() != URI::Scheme::FILE )
-      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
-  }
+  if (files.empty() && options.check("file") )
+    files.push_back( options.value<URI>("file"));
 
   // create a mesh in the domain
   if( !files.empty() )
   {
-    Handle<Mesh> mesh = location->create_component<Mesh>("Mesh");
+    Handle<Mesh> mesh = domain->create_component<Mesh>("Mesh");
 
     // Get the file paths
     boost_foreach(const URI& file, files)
@@ -121,10 +111,13 @@ void MeshReader::signal_read( SignalArgs& node  )
       mesh->block_mesh_changed(true);
       do_read_mesh_into(file, *mesh);
       mesh->block_mesh_changed(false);
-
-      // Raise an event to indicate that a mesh was loaded happened
-      mesh->raise_mesh_loaded();
     }
+    // Raise an event to indicate that a mesh was loaded happened
+    mesh->raise_mesh_loaded();
+
+    SignalFrame reply = node.create_reply(uri());
+    SignalOptions reply_options(reply);
+    reply_options.add("created_component", mesh->uri());
   }
   else
   {
@@ -236,17 +229,20 @@ void MeshReader::remove_empty_element_regions(Region& parent_region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshReader::read_signature( SignalArgs& node )
+void MeshReader::signature_read( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add("location", URI() )
-      .supported_protocol( URI::Scheme::CPATH )
+  options.add("domain", Handle<Component>() )
       .description("Component to load mesh into");
 
-  options.add("files", URI("", URI::Scheme::FILE) )
-      .supported_protocol( URI::Scheme::FILE )
+  options.add("files", std::vector<URI>() )
       .description("Files to read");
+
+  options.add("file", URI("", URI::Scheme::FILE) )
+      .supported_protocol( URI::Scheme::FILE )
+      .description("File to read");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

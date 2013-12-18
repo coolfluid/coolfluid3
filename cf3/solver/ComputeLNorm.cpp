@@ -27,12 +27,12 @@ namespace solver {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void compute_L2( const Field& field, std::vector<Real>& norms )
+void ComputeLNorm::compute_L2( const Field& field, std::vector<Real>& norms ) const
 {
 
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
   std::vector<Real> glb_norm(norms.size(),0.); // norm summed over all processors
-
+  Uint N=0;
   if (field.discontinuous())
   {
     // loop over all elements
@@ -41,10 +41,14 @@ void compute_L2( const Field& field, std::vector<Real>& norms )
       // only if the elements are volume elements
       if (space->support().element_type().dimension() == space->support().element_type().dimensionality())
       {
+        Uint nb_nodes_per_elem = space->shape_function().nb_nodes();
+
         for (Uint e=0; e<space->size(); ++e)
         {
           if (!space->support().is_ghost(e))
           {
+            N += nb_nodes_per_elem;
+
             // compute norm for these nodes
             boost_foreach( const Uint node, space->connectivity()[e] )
             {
@@ -62,6 +66,7 @@ void compute_L2( const Field& field, std::vector<Real>& norms )
     {
       if (!field.is_ghost(n))
       {
+        ++N;
         for (Uint i=0; i<norms.size(); ++i)
           loc_norm[i] += field[n][i]*field[n][i];
       }
@@ -70,16 +75,22 @@ void compute_L2( const Field& field, std::vector<Real>& norms )
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm[0], norms.size(), &glb_norm[0] );
 
+  if( options().value<bool>("scale") )
+    PE::Comm::instance().all_reduce( PE::plus(), &N, 1, &N );
+  else
+    N = 1;
+
   for (Uint i=0; i<norms.size(); ++i)
-    norms[i] = std::sqrt(glb_norm[i]);
+    norms[i] = std::sqrt(glb_norm[i]/static_cast<Real>(N));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void compute_L1( const Field& field, std::vector<Real>& norms )
+void ComputeLNorm::compute_L1( const Field& field, std::vector<Real>& norms ) const
 {
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
 
+  Uint N=0;
   if (field.discontinuous())
   {
     // loop over all elements
@@ -88,10 +99,13 @@ void compute_L1( const Field& field, std::vector<Real>& norms )
       // only if the elements are volume elements
       if (space->support().element_type().dimension() == space->support().element_type().dimensionality())
       {
+        Uint nb_nodes_per_elem = space->shape_function().nb_nodes();
         for (Uint e=0; e<space->size(); ++e)
         {
           if (!space->support().is_ghost(e))
           {
+            N += nb_nodes_per_elem;
+
             // compute norm for these nodes
             boost_foreach( const Uint node, space->connectivity()[e] )
             {
@@ -109,6 +123,7 @@ void compute_L1( const Field& field, std::vector<Real>& norms )
     {
       if (!field.is_ghost(n))
       {
+        ++N;
         for (Uint i=0; i<norms.size(); ++i)
           loc_norm[i] += std::abs( field[n][i] );
       }
@@ -116,11 +131,19 @@ void compute_L1( const Field& field, std::vector<Real>& norms )
   }
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm[0], norms.size(), &norms[0] );
+
+  if( options().value<bool>("scale") )
+    PE::Comm::instance().all_reduce( PE::plus(), &N, 1, &N );
+  else
+    N = 1;
+
+  for (Uint i=0; i<norms.size(); ++i)
+    norms[i] = norms[i]/static_cast<Real>(N);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void compute_Linf( const Field& field, std::vector<Real>& norms )
+void ComputeLNorm::compute_Linf( const Field& field, std::vector<Real>& norms ) const
 {
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
 
@@ -160,17 +183,19 @@ void compute_Linf( const Field& field, std::vector<Real>& norms )
   }
 
   PE::Comm::instance().all_reduce( PE::max(), &loc_norm[0], norms.size(), &norms[0] );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void compute_Lp( const Field& field, std::vector<Real>& norms, Uint order )
+void ComputeLNorm::compute_Lp( const Field& field, std::vector<Real>& norms, Uint order ) const
 {
   const int size = 1; // sum 1 value in each processor
 
   std::vector<Real> loc_norm(norms.size(),0.); // norm on local processor
   std::vector<Real> glb_norm(norms.size(),0.); // norm summed over all processors
 
+  Uint N=0;
   if (field.discontinuous())
   {
     // loop over all elements
@@ -179,10 +204,14 @@ void compute_Lp( const Field& field, std::vector<Real>& norms, Uint order )
       // only if the elements are volume elements
       if (space->support().element_type().dimension() == space->support().element_type().dimensionality())
       {
+        Uint nb_nodes_per_elem = space->shape_function().nb_nodes();
+
         for (Uint e=0; e<space->size(); ++e)
         {
           if (!space->support().is_ghost(e))
           {
+            N += nb_nodes_per_elem;
+
             // compute norm for these nodes
             boost_foreach( const Uint node, space->connectivity()[e] )
             {
@@ -200,6 +229,7 @@ void compute_Lp( const Field& field, std::vector<Real>& norms, Uint order )
     {
       if (!field.is_ghost(n))
       {
+        ++N;
         for (Uint i=0; i<norms.size(); ++i)
           loc_norm[i] += std::pow( std::abs(field[n][i]), (int)order ) ;
       }
@@ -208,8 +238,13 @@ void compute_Lp( const Field& field, std::vector<Real>& norms, Uint order )
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm[0], norms.size(), &glb_norm[0] );
 
+  if( options().value<bool>("scale") )
+    PE::Comm::instance().all_reduce( PE::plus(), &N, 1, &N );
+  else
+    N = 1;
+
   for (Uint i=0; i<norms.size(); ++i)
-    norms[i] = std::pow(glb_norm[i], 1./order );
+    norms[i] = std::pow(glb_norm[i]/static_cast<Real>(N), 1./order );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -290,12 +325,6 @@ std::vector<Real> ComputeLNorm::compute_norm(Field& field) const
 
     default: compute_Lp( field, norm, order );  break;
 
-  }
-
-  if( options().value<bool>("scale") && order )
-  {
-    for (Uint i=0; i<norm.size(); ++i)
-      norm[i] /= nb_rows;
   }
 
   field.properties()["norm"] = norm;

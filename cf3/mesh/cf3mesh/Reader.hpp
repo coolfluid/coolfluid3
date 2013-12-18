@@ -17,6 +17,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
+namespace common {
+  class BinaryDataReader;
+}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace cf3 {
 namespace mesh {
 namespace cf3mesh {
 
@@ -39,6 +47,15 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 private:
   virtual void do_read_mesh_into(const common::URI& path, Mesh& mesh);
+
+  void read_topology(const common::XML::XmlNode& region_node, Region& region, Dictionary& geometry);
+
+  void read_elements(const common::XML::XmlNode& region_node, Region& region, Dictionary& geometry);
+
+private:
+  boost::shared_ptr<common::BinaryDataReader> data_reader;
+  Handle<Mesh> m_mesh;
+  std::vector< Handle<Entities> > m_entities;
 }; // end Reader
 
 

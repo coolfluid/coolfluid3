@@ -48,6 +48,8 @@ const RealMatrix& Point::local_coordinates()
   return loc_coord;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 const RealMatrix& Point::mononomial_coefficients()
 {
   static const RealMatrix coeffs =

@@ -6,6 +6,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
@@ -682,26 +683,30 @@ void Reader::read_element_node_data()
 
   if (gmsh_fields.size())
   {
-    // Create discontinuous dictionary enveloping the same shape-function as the standard geometry dictionary
-    Dictionary& dict = *m_mesh->create_component<DiscontinuousDictionary>("discontinuous_geometry");
-    m_mesh->geometry_fields().update_structures();
-    boost_foreach(const Handle<Entities>& entities_handle, m_mesh->geometry_fields().entities_range() )
-    {
-      entities_handle->create_space(entities_handle->element_type().shape_function().derived_type_name(),dict);
-    }
-    dict.build();
-    m_mesh->update_structures();
 
     // 1) Find which elements regions this field is defined in.
     foreach_container( (const std::string& field_name) (const Reader::Field& gmsh_field) , gmsh_fields)
     {
       if (gmsh_field.nb_entries != m_total_nb_elements)
       {
-        CFwarn << "Skipping field " << field_name << ": it has " << gmsh_field.nb_entries << " entries while the total number of elements is " << m_total_nb_elements << CFendl;
-        continue;
+        //CFwarn << "Skipping field " << field_name << ": it has " << gmsh_field.nb_entries << " entries while the total number of elements is " << m_total_nb_elements << CFendl;
+        //continue;
       }
 
-      mesh::Field& field = dict.create_field(field_name,gmsh_field.description());
+      /// TODO: There are shapefunctions defined in this library that are otherwise not found from the buildername :-(
+      ///       We should find a solution for this to autoload automatically
+      Core::instance().libraries().autoload_library_with_namespace("cf3.dcm.core");
+      Handle<Dictionary> dict = find_component_ptr_with_name<Dictionary>(*m_mesh,gmsh_field.dict_name());
+      if( is_null(dict) )
+      {
+        if ( gmsh_field.space_lib_name() == "unknown" )
+        {
+          throw common::ParsingFailed(FromHere(), "interpolation_scheme is not provided");
+        }
+        dict = m_mesh->create_discontinuous_space(gmsh_field.dict_name(),gmsh_field.space_lib_name()).handle<Dictionary>();
+      }
+
+      mesh::Field& field = dict->create_field(field_name,gmsh_field.description());
 
       for (Uint var=0; var<field.nb_vars(); ++var)
       {
@@ -728,7 +733,7 @@ void Reader::read_element_node_data()
           if (it != m_elem_idx_gmsh_to_cf.end())
           {
             boost::tie(elements,cf_idx) = it->second;
-            const Space& space = elements->space(dict);
+            const Space& space = elements->space(*dict);
 
             cf3_assert(elements->element_type().nb_nodes() == gmsh_nb_elem_nodes);
 
@@ -917,7 +922,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   Uint nb_string_tags(0);
   std::string var_name("field");
   std::string field_name("field");
-  std::string interpolation_scheme;
+  std::string interpolation_scheme("unknown");
   Uint nb_real_tags(0);
   Real field_time(0.);
   Uint nb_integer_tags(0);
@@ -934,21 +939,30 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   {
     m_file >> var_name;
     var_name = var_name.substr(1,var_name.length()-2);
-
     field_name = var_name;
     if (nb_string_tags > 1)
     {
       m_file >> interpolation_scheme;
+      std::string tmp = interpolation_scheme;
+      while(interpolation_scheme[0] == '"' && interpolation_scheme[interpolation_scheme.size()-1] != '"')
+      {
+        m_file >> tmp;
+        interpolation_scheme += " "+tmp;
+      }
     }
     if (nb_string_tags > 2)
     {
       m_file >> field_name;
       field_name = field_name.substr(1,field_name.length()-2);
+
     }
     if (nb_string_tags > 3)
     {
       for (Uint i=2; i<nb_string_tags; ++i)
+      {
         m_file >> dummy;
+      }
+
     }
   }
 
@@ -977,6 +991,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
 
   Field& field = fields[field_name];
   field.name=field_name;
+  field.interpolation_scheme=interpolation_scheme;
   field.var_names.push_back(var_name);
   field.var_types.push_back(var_type);
   field.time=field_time;
@@ -1023,6 +1038,35 @@ void Reader::fix_negative_volumes(Mesh& mesh)
       }
     }
   }
+}
+
+std::string Reader::Field::dict_name() const
+{
+  if (interpolation_scheme == "unknown")
+    return "geometry";
+
+  const boost::regex pattern("([[:word:]]+)([[:space:]]+\\[(.*)\\])?");
+  boost::match_results<std::string::const_iterator> what;
+  if (boost::regex_search(interpolation_scheme,what,pattern))
+  {
+    return what[1];
+  }
+  return "geometry";
+}
+
+std::string Reader::Field::space_lib_name() const
+{
+  if (interpolation_scheme == "unknown")
+    return "unknown";
+
+  const boost::regex pattern("([[:word:]]+)([[:space:]]+\\[(.*)\\])?");
+  boost::match_results<std::string::const_iterator> what;
+  if (boost::regex_search(interpolation_scheme,what,pattern))
+  {
+    if ( std::string(what[3]).empty() ) return "unknown";
+    return what[3];
+  }
+  return "unknown";
 }
 
 //////////////////////////////////////////////////////////////////////////////

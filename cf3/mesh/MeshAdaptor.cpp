@@ -1419,6 +1419,7 @@ void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
           if (dictionaries.count(other_dict.name()) == 0)
           {
             Handle<Dictionary> dict = m_mesh->create_component(other_dict.name(),other_dict.derived_type_name())->handle<Dictionary>();
+            dict->properties().add("space_lib",other_dict.properties().value<std::string>("space_lib"));
             dictionaries[dict->name()]=dict;
           }
           space = entities->create_space(other_space->shape_function().derived_type_name(),*dictionaries[other_dict.name()]).handle<Space>();
@@ -1795,6 +1796,109 @@ void MeshAdaptor::assign_partition_agnostic_global_indices_to_dict( Dictionary& 
     throw NotImplemented(FromHere(), "TODO, implement numbering for discontinuous dictionaries");
   }
   node_glb_to_loc_needs_rebuild = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MeshAdaptor::assign_global_numbering_and_rank_to_unknown_elems()
+{
+  const Handle<BoundingBox>& global_bounding_box = m_mesh->global_bounding_box();
+
+  math::Hilbert compute_hilbert_idx(*global_bounding_box,20);
+
+  boost::uint64_t max_glb_idx = 0;
+  Uint nb_unknown_elems = 0;
+
+  std::vector< Handle<Entities> > element_patches = find_components_recursively<Entities>(*m_mesh).as_vector();
+  std::map<boost::uint64_t, std::pair<Uint,Uint> > hilbert_to_local;
+  std::map<boost::uint64_t, std::pair<Uint,Uint> >::iterator hilbert_to_local_it;
+  std::map<boost::uint64_t, std::pair<Uint,Uint> >::iterator hilbert_to_local_not_found = hilbert_to_local.end();
+
+  Uint patch_idx=0;
+  Uint loc_idx=0;
+  Uint glb_idx=0;
+  boost_foreach (const Handle<Entities>& element_patch, element_patches )
+  {
+    for (loc_idx=0; loc_idx<element_patch->size(); ++loc_idx)
+    {
+      glb_idx = element_patch->glb_idx()[loc_idx];
+      if ( glb_idx < math::Consts::uint_max() )
+      {
+        max_glb_idx = std::max( static_cast<boost::uint64_t>(glb_idx), max_glb_idx);
+      }
+      else
+      {
+        RealVector centroid(m_mesh->dimension());
+        element_patch->element_type().compute_centroid( element_patch->geometry_space().get_coordinates(loc_idx), centroid );
+        hilbert_to_local[ compute_hilbert_idx(centroid) ] = std::make_pair(patch_idx,loc_idx);
+        ++nb_unknown_elems;
+      }
+    }
+    ++patch_idx;
+  }
+  if (PE::Comm::instance().is_active())
+    PE::Comm::instance().all_reduce(PE::max(),&max_glb_idx,1,&max_glb_idx);
+
+
+  for (Uint root=0; root<PE::Comm::instance().size(); ++root)
+  {
+    std::vector<boost::uint64_t> send_hash; send_hash.reserve(nb_unknown_elems);
+    std::vector<boost::uint64_t> send_id;   send_id.reserve(nb_unknown_elems);
+
+    if ( root == PE::Comm::instance().rank() )
+    {
+      boost_foreach (const Handle<Entities>& element_patch, element_patches )
+      {
+        for (loc_idx=0; loc_idx<element_patch->size(); ++loc_idx)
+        {
+          glb_idx = element_patch->glb_idx()[loc_idx];
+          if ( glb_idx > max_glb_idx )
+          {
+            RealVector centroid(m_mesh->dimension());
+            element_patch->element_type().compute_centroid( element_patch->geometry_space().get_coordinates(loc_idx), centroid );
+            send_hash.push_back( compute_hilbert_idx(centroid) );
+            ++max_glb_idx;
+            send_id.push_back(max_glb_idx);
+            element_patch->glb_idx()[loc_idx]=max_glb_idx;
+            element_patch->rank()[loc_idx]=root;
+          }
+        }
+      }
+    }
+
+    if (PE::Comm::instance().is_active())
+    {
+      std::vector<boost::uint64_t> recv_hash(0);
+      std::vector<boost::uint64_t> recv_id(0);
+      PE::Comm::instance().broadcast(send_hash,recv_hash,root);
+      PE::Comm::instance().broadcast(send_id,recv_id,root);
+
+      if (PE::Comm::instance().rank() != root)
+      {
+        for (Uint p=root; p<PE::Comm::instance().size(); ++p)
+        {
+          if (p == PE::Comm::instance().rank())
+          {
+            Uint recv_idx(0);
+            boost_foreach(const boost::uint64_t hash, recv_hash)
+            {
+              hilbert_to_local_it = hilbert_to_local.find(hash);
+              if ( hilbert_to_local_it != hilbert_to_local_not_found )
+              {
+                patch_idx         = hilbert_to_local_it->second.first;
+                loc_idx = hilbert_to_local_it->second.second;
+                element_patches[patch_idx]->glb_idx()[loc_idx]=recv_id[recv_idx];
+                element_patches[patch_idx]->rank()[loc_idx]=root;
+              }
+              ++recv_idx;
+            }
+            break;
+          }
+        }
+      }
+      PE::Comm::instance().all_reduce(PE::max(),&max_glb_idx,1,&max_glb_idx);
+    }
+  } // end foreach broadcasting process
 }
 
 ////////////////////////////////////////////////////////////////////////////////

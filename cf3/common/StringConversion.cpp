@@ -32,6 +32,21 @@ namespace common {
     return v ? "true" : "false";
   }
 
+#ifdef _LIBCPP_VERSION
+  // libc++ defines following types as different from bool, whereas libstdc++ sees it as duplicate types
+  template <>
+  Common_API std::string to_str< std::vector<bool>::reference >( const std::vector<bool>::reference & v )
+  {
+    return v ? "true" : "false";
+  }
+
+  template <>
+  Common_API std::string to_str< std::vector<bool>::const_reference >( const std::vector<bool>::const_reference & v )
+  {
+    return v ? "true" : "false";
+  }
+#endif
+
   template <>
   Common_API std::string to_str<int> (const int & v)
   {
@@ -106,7 +121,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<bool> > (const std::vector<bool> & v)
+  Common_API std::string to_str< std::vector<bool> > (const std::vector<bool> & v)
   {
     std::string s = "";
     if (v.size())
@@ -119,7 +134,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<int> > (const std::vector<int> & v)
+  Common_API std::string to_str< std::vector<int> > (const std::vector<int> & v)
   {
     std::string s = "";
     if (v.size())
@@ -132,7 +147,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<unsigned long> > (const std::vector<unsigned long> & v)
+  Common_API std::string to_str< std::vector<unsigned long> > (const std::vector<unsigned long> & v)
   {
     std::string s = "";
     if (v.size())
@@ -145,7 +160,7 @@ namespace common {
   }
 
   template <>
-  Common_API std::string to_str<std::vector<Uint> > (const std::vector<Uint> & v)
+  Common_API std::string to_str< std::vector<Uint> > (const std::vector<Uint> & v)
   {
     std::string s = "";
     if (v.size())
@@ -320,6 +335,16 @@ namespace common {
   Common_API std::string from_str<std::string> (const std::string& str)
   {
     return str;
+  }
+
+  template <>
+  Common_API std::vector< std::string > from_str<std::vector<std::string> > (const std::string& str)
+  {
+    std::vector< std::string > new_vector;
+    std::stringstream ss(str);
+    std::string tmp;
+    while (ss >> tmp) new_vector.push_back( tmp );
+    return new_vector;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

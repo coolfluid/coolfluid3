@@ -197,6 +197,10 @@ public:
   /// @brief Correct ranks of nodes to be unique in all pid's
   void fix_node_ranks();
 
+  /// @brief Exactly what it says
+  /// new elements have a rank and glb_idx to be Uint::max or std::numeric_limits<boost::uint64_t>::max()
+  void assign_global_numbering_and_rank_to_unknown_elems();
+
   /// @brief remove ghost nodes
   /// @post Nodes are not flushed yet, so additional operations can be performed
   void remove_ghost_nodes();
