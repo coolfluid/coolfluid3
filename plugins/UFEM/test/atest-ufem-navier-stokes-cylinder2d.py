@@ -20,7 +20,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-#ns_solver.options.use_specializations = False
+ns_solver.options.use_specializations = False
 
 #Load mesh
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
