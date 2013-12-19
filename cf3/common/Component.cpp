@@ -187,6 +187,12 @@ Component::Component ( const std::string& name ) :
       .description("set all options of this component to their default value")
       .pretty_name("Reset Options");
 
+  regist_signal( "add_tag" )
+      .connect( boost::bind( &Component::signal_add_tag, this, _1 ) )
+      .description("Add a tag to the component")
+      .pretty_name("Add Tag")
+      .signature( boost::bind( &Component::signature_add_tag, this, _1 ) );
+
   // properties
 
   properties().add("brief", std::string("No brief description available"));
@@ -1128,6 +1134,22 @@ void Component::signal_clear ( SignalArgs& args )
 void Component::signal_reset_options ( SignalArgs& args )
 {
   reset_options();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_add_tag( SignalArgs &args )
+{
+  SignalOptions opts(args);
+  add_tag(opts.value<std::string>("tag"));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::signature_add_tag( SignalArgs& args )
+{
+  SignalOptions opts(args);
+  opts.add("tag", "").pretty_name("Tag").description("Tag to add");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
