@@ -146,4 +146,5 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-mlaux
                     MPI 2)
 
 add_subdirectory(demo)
+add_subdirectory(les)
 add_subdirectory(particles)

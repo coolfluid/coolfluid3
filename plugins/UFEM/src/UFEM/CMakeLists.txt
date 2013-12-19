@@ -115,4 +115,5 @@ set_source_files_properties(
 PROPERTIES COMPILE_FLAGS "-g0")
 
 add_subdirectory(demo)
+add_subdirectory(les)
 add_subdirectory(particles)
