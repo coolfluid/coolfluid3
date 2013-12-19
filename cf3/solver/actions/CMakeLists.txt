@@ -55,6 +55,7 @@ list( APPEND coolfluid_solver_actions_files
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
+    # Core Proto files
     Proto/BlockAccumulator.hpp
     Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
@@ -91,6 +92,10 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
+
+    # Actions using Proto
+    NodeValence.hpp
+    NodeValence.cpp
 )
 
 if( CF3_ENABLE_PROTO )

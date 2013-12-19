@@ -398,7 +398,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     {
       typedef typename VarDataType<I, DataT>::type VarDataT;
 
-      const VarDataT& operator()(const Var<I, T>& var, typename impl::data_param data) const
+      VarDataT& operator()(const Var<I, T>& var, typename impl::data_param data) const
       {
         return data.var_data(var);
       }
