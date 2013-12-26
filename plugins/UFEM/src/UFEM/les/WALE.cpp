@@ -68,8 +68,8 @@ struct ComputeNuWALE
     const Real S_norm = 0.5*(g + g.transpose()).squaredNorm();
     const Real Sd_norm = Sd.squaredNorm();
     
-    const Real delta_s = ::pow(u.support().volume(), 1./3.);
-    Real nu_t = cw*delta_s * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
+    const Real delta_s2 = ::pow(u.support().volume(), 2./3.);
+    Real nu_t = cw*cw*delta_s2 * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
     if(nu_t < 0. || !std::isfinite(nu_t))
       nu_t = 0.;
     
