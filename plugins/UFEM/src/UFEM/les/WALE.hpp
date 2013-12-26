@@ -26,6 +26,8 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "WALE"; }
+  
+  virtual void execute();
 
 private:
   void trigger_set_expression();
@@ -34,6 +36,7 @@ private:
   Real m_cw;
   Handle<InitialConditions> m_initial_conditions;
   Handle<common::Component> m_node_valence;
+  Handle<solver::actions::Proto::ProtoAction> m_reset_viscosity;
 };
 
 } // les

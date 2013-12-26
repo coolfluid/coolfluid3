@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "WALE.hpp"
+#include <cmath>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -28,6 +28,7 @@
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
 
+#include "WALE.hpp"
 #include "../Tags.hpp"
 
 namespace cf3 {
@@ -68,7 +69,9 @@ struct ComputeNuWALE
     const Real Sd_norm = Sd.squaredNorm();
     
     const Real delta_s = ::pow(u.support().volume(), 1./3.);
-    const Real nu_t = cw*delta_s * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
+    Real nu_t = cw*delta_s * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
+    if(nu_t < 0. || !std::isfinite(nu_t))
+      nu_t = 0.;
     
     const Eigen::Matrix<Real, ElementT::nb_nodes, 1> nodal_vals = (nu_t + nu_visc)*valence.value().array().inverse();
     nu.add_nodal_values(nodal_vals);
@@ -99,6 +102,8 @@ WALE::WALE(const std::string& name) :
     .description("Tag for the field containing the velocity")
     .attach_trigger(boost::bind(&WALE::trigger_set_expression, this));
     
+  m_reset_viscosity = create_component<ProtoAction>("ResetViscosity");
+    
   trigger_set_expression();
 }
 
@@ -116,8 +121,16 @@ void WALE::trigger_set_expression()
     mesh::LagrangeP1::Prism3D
   > AllowedElementTypesT;
 
+  m_reset_viscosity->set_expression(nodes_expression(nu_eff = 0.));
   set_expression(elements_expression(AllowedElementTypesT(), detail::compute_nu(u, nu_eff, valence, nu_visc, lit(m_cw))));
 }
+
+void WALE::execute()
+{
+  m_reset_viscosity->execute();
+  ProtoAction::execute();
+}
+
 
 void WALE::on_regions_set()
 {
@@ -125,6 +138,7 @@ void WALE::on_regions_set()
   {
     m_node_valence->options().set("regions", options().option("regions").value());
   }
+  m_reset_viscosity->options().set("regions", options().option("regions").value());
 }
 
 

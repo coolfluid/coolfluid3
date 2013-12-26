@@ -220,7 +220,7 @@ print_timings.root = model
 # Time setup
 time = model.create_time()
 tstep = 0.02
-time.end_time = 1.*tstep
+time.end_time = 5.*tstep
 time.time_step = tstep
 
 # solver.InitialConditions.execute()
