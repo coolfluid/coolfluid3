@@ -68,7 +68,20 @@ struct ComputeNuWALE
     const Real S_norm = 0.5*(g + g.transpose()).squaredNorm();
     const Real Sd_norm = Sd.squaredNorm();
     
-    const Real delta_s2 = ::pow(u.support().volume(), 2./3.);
+    
+    // Get the minimal edge length
+    Real delta_s2 = 1e10;
+    for(Uint i = 0; i != ElementT::nb_nodes; ++i)
+    {
+      for(Uint j = 0; j != ElementT::nb_nodes; ++j)
+      {
+        if(i != j)
+        {
+          delta_s2 = std::min(delta_s2, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
+        }
+      }
+    }
+    
     Real nu_t = cw*cw*delta_s2 * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
     if(nu_t < 0. || !std::isfinite(nu_t))
       nu_t = 0.;
