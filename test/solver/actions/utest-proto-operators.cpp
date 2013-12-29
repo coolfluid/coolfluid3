@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
 }
 
 /// Custom op that just modifies its argument
-struct Counter
+struct Counter : boost::noncopyable
 {
   Counter() : increment(0.)
   {
@@ -334,16 +334,19 @@ BOOST_AUTO_TEST_CASE( VoidOp )
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
   
-  MakeSFOp<Counter>::type counter;
-  boost::proto::value(counter).op.increment = 2.;
+  MakeSFOp<Counter>::stored_type counter;
+  MakeSFOp<Counter>::reference_type add_count = boost::proto::as_child(counter);
+  
+  counter.op.increment = 2.;
 
   // Check if the counter really counts
   int count = 0;
-  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  
+  elements_expression
   (
-    mesh->topology(),
-    counter(count)
-  );
+    boost::mpl::vector1<LagrangeP1::Line1D>(),
+    add_count(lit(count))
+  )->loop(mesh->topology());
 
   BOOST_CHECK_EQUAL(count, 20);
 }

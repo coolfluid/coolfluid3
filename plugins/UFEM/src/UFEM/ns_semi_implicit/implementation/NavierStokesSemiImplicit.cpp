@@ -316,15 +316,25 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
     
-  options().add("c1", boost::proto::value(compute_tau).op.c1)
-    .pretty_name("c1")
-    .description("Constant to divide the time step by, for calibrating the SUPG parameter")
-    .link_to(&(boost::proto::value(compute_tau).op.c1));
+  options().add("alpha_ps", compute_tau.data.op.alpha_ps)
+    .pretty_name("alpha_ps")
+    .description("Constant to multiply the PSPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_ps));
+      
+  options().add("alpha_su", compute_tau.data.op.alpha_su)
+    .pretty_name("alpha_su")
+    .description("Constant to multiply the SUPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_su));
+      
+  options().add("alpha_bu", compute_tau.data.op.alpha_bu)
+    .pretty_name("alpha_bu")
+    .description("Constant to multiply the Bulk parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_bu));
     
-  options().add("c2", boost::proto::value(compute_tau).op.c2)
-    .pretty_name("c2")
-    .description("Constant to adjust the diffusion contribution of SUPG stabilization")
-    .link_to(&(boost::proto::value(compute_tau).op.c2));
+  options().add("alternate_bulk", compute_tau.data.op.alternate_bulk)
+    .pretty_name("Alternate Bulk")
+    .description("Use the alternate Bulk viscosity from Trofimova et al.")
+    .link_to(&(compute_tau.data.op.alternate_bulk));
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
@@ -411,10 +421,8 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   m_pressure_assembly->options().set("pressure_lss_action", m_p_lss);
   m_pressure_assembly->add_tag(detail::my_tag());
   m_pressure_assembly->options().set("theta", theta);
-  m_pressure_assembly->options().set("c1", options().value<Real>("c1"));
-  m_pressure_assembly->options().set("c2", options().value<Real>("c2"));
-  options().option("c1").link_option(m_pressure_assembly->options().option_ptr("c1"));
-  options().option("c2").link_option(m_pressure_assembly->options().option_ptr("c2"));
+  m_pressure_assembly->options().set("alpha_ps", options().value<Real>("alpha_ps"));
+  options().option("alpha_ps").link_option(m_pressure_assembly->options().option_ptr("alpha_ps"));
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");

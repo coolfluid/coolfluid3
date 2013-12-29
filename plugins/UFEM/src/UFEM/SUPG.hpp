@@ -49,11 +49,13 @@ inline Real transpose(const Real val)
 }
 
 /// Calculation of the stabilization coefficients for the SUPG method
-struct ComputeTau
+struct ComputeTauImpl : boost::noncopyable
 {
-  ComputeTau() :
-    c1(1.),
-    c2(4.)
+  ComputeTauImpl() :
+    alpha_ps(1.),
+    alpha_su(1.),
+    alpha_bu(1.),
+    alternate_bulk(false)
   {
   }
 
@@ -113,11 +115,19 @@ struct ComputeTau
     
     const Real tau_adv_inv = (2.*umag)/h_ugn;
     const Real tau_time_inv = 2./dt;
-    const Real tau_diff_inv = (element_nu)/(h_rgn*h_rgn);
+    const Real tau_diff_inv = (4.*element_nu)/(h_rgn*h_rgn);
     
-    tau_su = 1./(tau_adv_inv + c1*tau_time_inv + c2*tau_diff_inv);
+    tau_su = 1./(tau_adv_inv + tau_time_inv + tau_diff_inv);
     tau_ps = tau_su;
-    tau_bulk = tau_su*umag*umag;
+    
+    if(alternate_bulk)
+      tau_bulk = h_rgn*h_rgn / tau_su; // According to Trofimova et al.
+    else
+      tau_bulk = tau_su*umag*umag; // According to Tezduyar
+      
+    tau_ps *= alpha_ps;
+    tau_su *= alpha_su;
+    tau_bulk *= alpha_bu;
     
     //std::cout << "tau_su: " << tau_su << ", tau_ps: " << tau_ps << ", tau_bulk: " << tau_bulk << ", h_rgn: " << h_rgn << std::endl;
     
@@ -132,13 +142,24 @@ struct ComputeTau
 //    tau_bulk = tau_adv_sq < 1e-13 ? 0 : sqrt(tau_adv_sq)/gij.trace();
   }
 
-  // c1 and c2 parameters as defined in:
-  //Trofimova, A. V.; Tejada-Martinez, A. E.; Jansen, K. E. & Lahey, R. T. Direct numerical simulation of turbulent channel flows using a stabilized finite element method Computers & Fluids, 2009, 38, 924-938
-  Real c1, c2;
+  Real alpha_ps, alpha_su, alpha_bu;
+  bool alternate_bulk; // If True, uses the definition from Trofimova et al.
 };
 
-/// Type for a compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, dt, tau_ps, tau_su, tau_bulk)
-typedef solver::actions::Proto::MakeSFOp<ComputeTau>::type ComputeTauT;
+/// Convenience type for a compute_tau operation, grouping the stored operator and its proto counterpart
+struct ComputeTau
+{
+  ComputeTau() :
+    apply(boost::proto::as_child(data))
+  {
+  }
+  
+  // Stores the operator
+  solver::actions::Proto::MakeSFOp<ComputeTauImpl>::stored_type data;
+  
+  // Use as apply(velocity_field, nu_eff_field, dt, tau_ps, tau_su, tau_bulk)
+  solver::actions::Proto::MakeSFOp<ComputeTauImpl>::reference_type apply;
+};
 
 
 } // UFEM

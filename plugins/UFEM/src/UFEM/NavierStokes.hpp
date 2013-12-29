@@ -111,7 +111,7 @@ private:
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 };
 
 } // UFEM

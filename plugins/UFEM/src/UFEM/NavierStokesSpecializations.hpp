@@ -54,6 +54,7 @@ struct SUPGSpecialized
     normals(2, YY) = nodes(1, XX) - nodes(0, XX);
 
     Real tau_ps, tau_su, tau_bulk;
+    ComputeTauImpl compute_tau;
     compute_tau.compute_coefficients(u, nu, dt, tau_ps, tau_su, tau_bulk);
 
     for(Uint i=0; i<3; ++i)
@@ -173,6 +174,7 @@ struct SUPGSpecialized
 
 
     Real tau_ps, tau_su, tau_bulk;
+    ComputeTauImpl compute_tau;
     compute_tau.compute_coefficients(u, nu, dt, tau_ps, tau_su, tau_bulk);
 
     Real val;
@@ -298,9 +300,6 @@ struct SUPGSpecialized
       }
     }
   }
-
-  ComputeTau compute_tau;
-  
 };
 
 /// Placeholder for the specialized ops, to be used as function inside proto expressions

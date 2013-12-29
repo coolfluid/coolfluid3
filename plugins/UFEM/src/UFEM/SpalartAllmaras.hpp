@@ -84,7 +84,7 @@ private:
   Real r, g, shat;
   Real tau_su;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 
 };
 

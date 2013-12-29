@@ -111,7 +111,7 @@ private:
   // Time component
   Handle<solver::Time> m_time;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 };
 
 } // UFEM

@@ -38,7 +38,7 @@ private:
   /// Particle relaxation time
   Real tau_p;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 };
 
 } // particles
