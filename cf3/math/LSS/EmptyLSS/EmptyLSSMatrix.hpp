@@ -167,6 +167,11 @@ public:
   {
     throw common::NotImplemented(FromHere(), "Clone method is not impmemented for " + derived_type_name());
   }
+  
+  virtual void read_native(const common::URI& file)
+  {
+    throw common::NotImplemented(FromHere(), "read_native method is not impmemented for " + derived_type_name());
+  }
 
   //@} END MISCELLANEOUS
 

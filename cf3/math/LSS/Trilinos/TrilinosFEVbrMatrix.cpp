@@ -802,6 +802,13 @@ void TrilinosFEVbrMatrix::clone_to(Matrix &other)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosFEVbrMatrix::read_native(const common::URI& file)
+{
+  throw common::NotImplemented(FromHere(), "read_native method is not impmemented for " + derived_type_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosFEVbrMatrix::apply(const Handle<Vector> &y, const Handle<const Vector> &x, const Real alpha, const Real beta)
 {
   apply_matrix(*m_mat, y, x, alpha, beta);

@@ -146,6 +146,8 @@ public:
   const Uint blockcol_size() {  cf3_assert(m_is_created); return m_blockcol_size; }
 
   void clone_to(Matrix &other);
+  
+  virtual void read_native(const common::URI& file);
 
   //@} END MISCELLANEOUS
 

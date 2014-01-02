@@ -155,6 +155,9 @@ public:
 
   /// Update any stored ghost nodes
   virtual void sync() = 0;
+  
+  /// Read a vector in the native file format
+  virtual void read_native(const common::URI& filename, const std::string type = "") = 0;
 
   //@} END MISCELLANEOUS
 

@@ -164,7 +164,9 @@ public:
   void scale ( const Real alpha );
 
   void sync();
-
+  
+  virtual void read_native(const common::URI& filename, const string type = "");
+  
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY

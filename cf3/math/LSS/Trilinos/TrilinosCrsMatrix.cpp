@@ -21,6 +21,7 @@
 
 // EpetraExt includes
 #include "EpetraExt_CrsMatrixIn.h"
+#include "EpetraExt_readEpetraLinearSystem.h"
 #include "EpetraExt_VectorIn.h"
 
 #include "Thyra_EpetraLinearOp.hpp"
@@ -532,6 +533,15 @@ void TrilinosCrsMatrix::clone_to(Matrix &other)
   other_ptr->m_node_connectivity = m_node_connectivity;
   other_ptr->m_starting_indices = m_starting_indices;
   other_ptr->m_symmetric_dirichlet_values = m_symmetric_dirichlet_values;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosCrsMatrix::read_native(const common::URI& file)
+{  
+  EpetraExt::readEpetraLinearSystem(file.path(), m_comm, &m_mat);
+  
+  m_is_created = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
