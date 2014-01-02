@@ -103,16 +103,14 @@ struct ComputeNuWALE
         
     const SMatT grad_u = u.nabla(GaussT::instance().coords.col(0))*u.value();
     const SMatT S = 0.5*(grad_u + grad_u.transpose());
-    const SMatT Omega = 0.5*(grad_u - grad_u.transpose());
-    
     const Real S_norm2 = S.squaredNorm();
-    const Real Omega_norm2 = Omega.squaredNorm();
-    
-    SMatT Sd = S*S.transpose() + Omega*Omega.transpose();
-    Sd.diagonal().array() -= (S_norm2 - Omega_norm2)/3.;
+    const SMatT grad_u2 = grad_u*grad_u;
+
+    SMatT Sd = 0.5*(grad_u2 + grad_u2.transpose());
+    Sd.diagonal().array() -= grad_u2.trace()/3.;
     const Real Sd_norm2 = Sd.squaredNorm();
 
-    // Compute the cell size using the method of Scotti et al.
+    // Compute the anisotropic cell size adjustment using the method of Scotti et al.
     Real d1, d2, d3, a1, a2;
     cell_sizes(u.support().nodes(), d1, d2, d3);
     aspect_ratios(d1, d2, d3, a1, a2);
@@ -120,21 +118,10 @@ struct ComputeNuWALE
     const Real log_a2 = ::log(a2);
     const Real f = ::cosh(::sqrt(4./27.*(log_a1*log_a1 - log_a1*log_a2 + log_a2*log_a2)));
     
-    // Get the minimal edge length
-    Real delta_s2 = 1e10;
-    for(Uint i = 0; i != ElementT::nb_nodes; ++i)
-    {
-      for(Uint j = 0; j != ElementT::nb_nodes; ++j)
-      {
-        if(i != j)
-        {
-          delta_s2 = std::min(delta_s2, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
-        }
-      }
-    }
-    
-    Real nu_t = cw*cw*f*f*delta_s2 * ::pow(Sd_norm2, 1.5) / (::pow(S_norm2, 2.5) + ::pow(Sd_norm2, 1.25));
+    // Get the isotropic length scale
+    const Real delta_iso = ::pow(u.support().volume(), 2./3.);
 
+    Real nu_t = cw*cw*f*f*delta_iso * ::pow(Sd_norm2, 1.5) / (::pow(S_norm2, 2.5) + ::pow(Sd_norm2, 1.25));
     if(nu_t < 0. || !std::isfinite(nu_t))
       nu_t = 0.;
     
