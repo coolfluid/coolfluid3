@@ -46,6 +46,47 @@ common::ComponentBuilder < WALE, common::Action, LibUFEMLES > WALE_builder;
 
 namespace detail
 {
+
+inline void cell_sizes(const mesh::LagrangeP1::Hexa3D::NodesT& nodes, Real& d1, Real& d2, Real& d3)
+{
+  d1 = (nodes.row(1) - nodes.row(0)).norm();
+  d2 = (nodes.row(3) - nodes.row(0)).norm();
+  d3 = (nodes.row(4) - nodes.row(0)).norm();
+}
+
+inline void cell_sizes(const mesh::LagrangeP1::Prism3D::NodesT& nodes, Real& d1, Real& d2, Real& d3)
+{
+  d1 = (nodes.row(1) - nodes.row(0)).norm();
+  d2 = (nodes.row(2) - nodes.row(0)).norm();
+  d3 = (nodes.row(3) - nodes.row(0)).norm();
+}
+
+inline void cell_sizes(const mesh::LagrangeP1::Tetra3D::NodesT& nodes, Real& d1, Real& d2, Real& d3)
+{
+  d1 = (nodes.row(1) - nodes.row(0)).norm();
+  d2 = (nodes.row(2) - nodes.row(0)).norm();
+  d3 = (nodes.row(3) - nodes.row(0)).norm();
+}
+
+inline void aspect_ratios(const Real d1, const Real d2, const Real d3, Real& a1, Real& a2)
+{
+  if (d1 >= d2 && d1 >= d3)
+  {
+    a1 = d2/d1;
+    a2 = d3/d1;
+  }
+  else if (d2 >= d1 && d2 >= d3)
+  {
+    a1 = d1/d2;
+    a2 = d3/d2;
+  }
+  else
+  {
+    a1 = d1/d3;
+    a2 = d2/d3;
+  }
+}
+  
 /// Compute the turbulent viscosity
 struct ComputeNuWALE
 {
@@ -59,15 +100,25 @@ struct ComputeNuWALE
     
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
     typedef Eigen::Matrix<Real, dim, dim> SMatT;
+        
+    const SMatT grad_u = u.nabla(GaussT::instance().coords.col(0))*u.value();
+    const SMatT S = 0.5*(grad_u + grad_u.transpose());
+    const SMatT Omega = 0.5*(grad_u - grad_u.transpose());
     
-    const SMatT g = u.nabla(GaussT::instance().coords.col(0))*u.value();
-    const SMatT g2 = g.array() * g.array();
-    SMatT Sd = 0.5*(g2 + g2.transpose());
-    Sd.diagonal().array() -= g2.trace()/3.;
+    const Real S_norm2 = S.squaredNorm();
+    const Real Omega_norm2 = Omega.squaredNorm();
     
-    const Real S_norm = 0.5*(g + g.transpose()).squaredNorm();
-    const Real Sd_norm = Sd.squaredNorm();
-    
+    SMatT Sd = S*S.transpose() + Omega*Omega.transpose();
+    Sd.diagonal().array() -= (S_norm2 - Omega_norm2)/3.;
+    const Real Sd_norm2 = Sd.squaredNorm();
+
+    // Compute the cell size using the method of Scotti et al.
+    Real d1, d2, d3, a1, a2;
+    cell_sizes(u.support().nodes(), d1, d2, d3);
+    aspect_ratios(d1, d2, d3, a1, a2);
+    const Real log_a1 = ::log(a1);
+    const Real log_a2 = ::log(a2);
+    const Real f = ::cosh(::sqrt(4./27.*(log_a1*log_a1 - log_a1*log_a2 + log_a2*log_a2)));
     
     // Get the minimal edge length
     Real delta_s2 = 1e10;
@@ -82,7 +133,8 @@ struct ComputeNuWALE
       }
     }
     
-    Real nu_t = cw*cw*delta_s2 * ::pow(Sd_norm, 1.5) / (::pow(S_norm, 2.5) + ::pow(Sd_norm, 1.25));
+    Real nu_t = cw*cw*f*f*delta_s2 * ::pow(Sd_norm2, 1.5) / (::pow(S_norm2, 2.5) + ::pow(Sd_norm2, 1.25));
+
     if(nu_t < 0. || !std::isfinite(nu_t))
       nu_t = 0.;
     
@@ -96,7 +148,7 @@ static MakeSFOp<ComputeNuWALE>::type const compute_nu = {};
 
 WALE::WALE(const std::string& name) :
   ProtoAction(name),
-  m_cw(0.325)
+  m_cw(0.55)
 {
   options().add("cw", m_cw)
     .pretty_name("Cw")
