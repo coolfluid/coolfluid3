@@ -223,7 +223,7 @@ tstep = 0.02
 time.end_time = 5.*tstep
 time.time_step = tstep
 
-# solver.InitialConditions.execute()
+solver.InitialConditions.execute()
 
 model.simulate()
 domain.write_mesh(cf.URI('les-wale.pvtu'))

@@ -47,8 +47,25 @@ NodeValence::NodeValence ( const std::string& name ) :
 {
   FieldVariable<0, ScalarField> valence("Valence", "node_valence");
   
+  Handle<ProtoAction> zero_field = create_static_component<ProtoAction>("ZeroField");
+  zero_field->set_expression(nodes_expression(valence = 0.));
+  m_zero_field = zero_field;
+  
   set_expression(elements_expression(mesh::LagrangeP1::CellTypes(), set_node_valence(valence)));
 }
+
+void NodeValence::on_regions_set()
+{
+  cf3::solver::Action::on_regions_set();
+  m_zero_field->options().set("regions", options().option("regions").value());
+}
+
+void NodeValence::execute()
+{
+  m_zero_field->execute();
+  cf3::solver::actions::Proto::ProtoAction::execute();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -32,6 +32,14 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "NodeValence"; }
+  
+  virtual void on_regions_set();
+  
+  virtual void execute();
+  
+private:
+  // Action to zero the field first
+  Handle<common::Action> m_zero_field;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
