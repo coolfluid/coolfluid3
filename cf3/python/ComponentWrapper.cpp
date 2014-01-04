@@ -355,7 +355,7 @@ boost::python::object get_child(ComponentWrapper& self, const std::string& name)
   if (self.component().get_child(name))
     return wrap_component(self.component().get_child(name));
   else
-    throw common::ValueNotFound(FromHere(),"Component "+common::to_str(self.component().uri()/name)+" does not exist");
+    return boost::python::object(); // This is the None object in python
 }
 
 boost::python::object access_component_uri(ComponentWrapper& self, const common::URI& uri)
