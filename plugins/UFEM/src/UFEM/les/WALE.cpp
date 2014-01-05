@@ -135,7 +135,7 @@ static MakeSFOp<ComputeNuWALE>::type const compute_nu = {};
 
 WALE::WALE(const std::string& name) :
   ProtoAction(name),
-  m_cw(0.55)
+  m_cw(0.5)
 {
   options().add("cw", m_cw)
     .pretty_name("Cw")

@@ -146,6 +146,8 @@ struct ComputeTauImpl : boost::noncopyable
     tau_su *= alpha_su;
     tau_bulk *= alpha_bu;
     
+    tau_bulk = std::max(tau_bulk, element_nu/3.);
+    
     //std::cout << "tau_su: " << tau_su << ", tau_ps: " << tau_ps << ", tau_bulk: " << tau_bulk << ", h_rgn: " << h_rgn << std::endl;
     
 //    Eigen::Matrix<Real, ElementT::dimensionality, ElementT::dimensionality> gij; // metric tensor

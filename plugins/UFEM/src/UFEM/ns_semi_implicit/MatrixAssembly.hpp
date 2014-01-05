@@ -99,7 +99,7 @@ struct VelocityAssembly
 
       const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant();
 
-      const Real bulk_coeff = w*(tau_bulk + 0.33333333333333*nu_eff.eval());
+      const Real bulk_coeff = w*tau_bulk;
       laplacian = w*nu_eff.eval()*(u.nabla().transpose()*u.nabla()); // laplacian operator
       if(ideal_order == 2)
       {
@@ -130,7 +130,7 @@ struct VelocityAssembly
     nu_eff.compute_values(Gauss1T::instance().coords.col(gauss_idx));
 
     const Real w = Gauss1T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
-    const Real bulk_coeff = w*(tau_bulk + 0.33333333333333*nu_eff.eval());
+    const Real bulk_coeff = w*tau_bulk;
     
     for(Uint i = 0; i != dim; ++i)
     {
@@ -302,7 +302,7 @@ struct VelocityRHS
         f += u.nabla().row(i)*dt_a_min_u.row(i).transpose();
       }
       f *= w;
-      const Real f_bulk = (tau_bulk + 0.33333333333333*nu_eff.eval())*f;
+      const Real f_bulk = tau_bulk*f;
       if(ideal_order == 2)
       {
         N_plus_adv = tau_su*adv + u.shape_function();
@@ -449,7 +449,7 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
 //  element_quadrature
 //  (
 //    M(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u),
-//    M(u[_i], u[_j]) += transpose((tau_bulk + 0.33333333333333*nu_eff)*nabla(u)[_i]) * nabla(u)[_j],
+//    M(u[_i], u[_j]) += transpose(tau_bulk*nabla(u)[_i]) * nabla(u)[_j],
 //    _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u)//,
 //    //_A(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u)
 //    //_A(u[_i], u[_j]) += transpose(0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j]
