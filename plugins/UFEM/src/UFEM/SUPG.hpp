@@ -20,8 +20,8 @@ namespace UFEM {
 
 namespace detail
 {
+  
 // Helper to get the norm of either a vector or a scalar
-
 template<typename T>
 inline Real norm(const T& vector)
 {
@@ -33,8 +33,19 @@ inline Real norm(const Real scalar)
   return scalar;
 }
 
-// Helper to get the transpose of either a vector or a scalar
+// Helper to get the mean of either a vector or a scalar
+template<typename T>
+inline Real mean(const T& vector)
+{
+  return vector.mean();
+}
 
+inline Real mean(const Real scalar)
+{
+  return scalar;
+}
+
+// Helper to get the transpose of either a vector or a scalar
 template<typename T>
 inline Eigen::Transpose<T const> transpose(const T& mat)
 {
@@ -66,7 +77,7 @@ struct ComputeTauImpl : boost::noncopyable
   void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
     // Average viscosity
-    const Real element_nu = fabs(nu_eff.value().mean());
+    const Real element_nu = fabs(detail::mean(nu_eff.value()));
 
     compute_coefficients(u, element_nu, dt, tau_ps, tau_su, tau_bulk);
   }
@@ -76,7 +87,7 @@ struct ComputeTauImpl : boost::noncopyable
   void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_su) const
   {
     Real tau_ps, tau_bu;
-    compute_coefficients(u, fabs(nu_eff.value().mean()), dt, tau_ps, tau_su, tau_bu);
+    compute_coefficients(u, fabs(detail::mean(nu_eff.value())), dt, tau_ps, tau_su, tau_bu);
   }
   
   /// Only compute the SUPG coefficient, overload for scalar viscosity
@@ -87,6 +98,12 @@ struct ComputeTauImpl : boost::noncopyable
     compute_coefficients(u, nu_eff, dt, tau_ps, tau_su, tau_bu);
   }
 
+  // Ignore lement-based variants
+  template<typename SupportEtypeT, Uint Dim, bool IsEquationVar>
+  void compute_coefficients(const solver::actions::Proto::EtypeTVariableData<solver::actions::Proto::ElementBased<Dim>, SupportEtypeT, Dim, IsEquationVar>& u, const Real element_nu, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
+  {
+  }
+  
   template<typename UT>
   void compute_coefficients(const UT& u, const Real element_nu, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
