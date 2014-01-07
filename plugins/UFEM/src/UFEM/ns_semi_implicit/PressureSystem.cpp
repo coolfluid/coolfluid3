@@ -79,6 +79,21 @@ public:
       .pretty_name("alpha_ps")
       .description("Constant to multiply the PSPG parameter with.")
       .link_to(&(compute_tau.data.op.alpha_ps));
+      
+    options().add("use_metric_tensor", compute_tau.data.op.use_metric_tensor)
+      .pretty_name("Use Metric Tensor")
+      .description("Use the metric tensor instead of the minimal element edge length as length scale.")
+      .link_to(&(compute_tau.data.op.use_metric_tensor));
+    
+    options().add("c1", compute_tau.data.op.c1)
+      .pretty_name("c1")
+      .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+      .link_to(&(compute_tau.data.op.c1));
+      
+    options().add("c2", compute_tau.data.op.c2)
+      .pretty_name("c2")
+      .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+      .link_to(&(compute_tau.data.op.c2));
   }
 
   static std::string type_name () { return "PressureSystemAssembly"; }

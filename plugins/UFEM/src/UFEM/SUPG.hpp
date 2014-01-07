@@ -66,7 +66,9 @@ struct ComputeTauImpl : boost::noncopyable
     alpha_ps(1.),
     alpha_su(1.),
     alpha_bu(1.),
-    alternate_bulk(false)
+    use_metric_tensor(false),
+    c1(1.),
+    c2(16.)
   {
   }
 
@@ -113,56 +115,60 @@ struct ComputeTauImpl : boost::noncopyable
     
     u.compute_values(GaussT::instance().coords.col(0));
 
-    // Get the minimal edge length
-    Real h_rgn = 1e10;
-    for(Uint i = 0; i != ElementT::nb_nodes; ++i)
+    if(!use_metric_tensor)
     {
-      for(Uint j = 0; j != ElementT::nb_nodes; ++j)
+      // Get the minimal edge length
+      Real h_rgn = 1e10;
+      for(Uint i = 0; i != ElementT::nb_nodes; ++i)
       {
-        if(i != j)
+        for(Uint j = 0; j != ElementT::nb_nodes; ++j)
         {
-          h_rgn = std::min(h_rgn, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
+          if(i != j)
+          {
+            h_rgn = std::min(h_rgn, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
+          }
         }
       }
+      h_rgn = sqrt(h_rgn);
+
+      const Real umag = detail::norm(u.eval());
+      const Real h_ugn = h_rgn;//fabs(2.*umag / (u.eval()*u.nabla()).sum());
+
+      const Real tau_adv_inv = (2.*umag)/h_ugn;
+      const Real tau_time_inv = 2./dt;
+      const Real tau_diff_inv = (4.*element_nu)/(h_rgn*h_rgn);
+
+      tau_su = 1./(tau_adv_inv + tau_time_inv + tau_diff_inv);
+      tau_ps = tau_su;
+      tau_bulk = tau_su*umag*umag;
     }
-    h_rgn = sqrt(h_rgn);
-    
-    const Real umag = detail::norm(u.eval());
-    const Real h_ugn = h_rgn;//fabs(2.*umag / (u.eval()*u.nabla()).sum());
-    
-    const Real tau_adv_inv = (2.*umag)/h_ugn;
-    const Real tau_time_inv = 2./dt;
-    const Real tau_diff_inv = (4.*element_nu)/(h_rgn*h_rgn);
-    
-    tau_su = 1./(tau_adv_inv + tau_time_inv + tau_diff_inv);
-    tau_ps = tau_su;
-    
-    if(alternate_bulk)
-      tau_bulk = h_rgn*h_rgn / tau_su; // According to Trofimova et al.
     else
-      tau_bulk = tau_su*umag*umag; // According to Tezduyar
+    {
+      u.support().compute_jacobian(GaussT::instance().coords.col(0));
+      
+      const Eigen::Matrix<Real, ElementT::dimensionality, ElementT::dimensionality> gij = u.support().jacobian_inverse().transpose() * u.support().jacobian_inverse();
+      const Real tau_adv_sq = fabs((u.eval()*gij*detail::transpose(u.eval()))[0]); // Very close 0 but slightly negative sometimes
+      const Real tau_diff = element_nu*element_nu*gij.squaredNorm();
+
+      tau_su = 1. / sqrt((4.*c1*c1/(dt*dt)) + tau_adv_sq + c2*tau_diff);
+      tau_ps = tau_su;
+      tau_bulk = 1./(tau_su * gij.trace());
+    }
       
     tau_ps *= alpha_ps;
     tau_su *= alpha_su;
     tau_bulk *= alpha_bu;
     
-    tau_bulk = std::max(tau_bulk, element_nu/3.);
-    
-    //std::cout << "tau_su: " << tau_su << ", tau_ps: " << tau_ps << ", tau_bulk: " << tau_bulk << ", h_rgn: " << h_rgn << std::endl;
-    
-//    Eigen::Matrix<Real, ElementT::dimensionality, ElementT::dimensionality> gij; // metric tensor
-//    gij.noalias() = u.nabla()*u.nabla().transpose();
-//    const Real c2 = 1.;
-
-//    const Real tau_adv_sq = fabs((u.eval()*gij*detail::transpose(u.eval()))[0]); // Very close 0 but slightly negative sometimes
-//    const Real tau_diff = element_nu*element_nu*gij.squaredNorm();
-
-//    tau_su = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + c2*tau_diff);
-//    tau_bulk = tau_adv_sq < 1e-13 ? 0 : sqrt(tau_adv_sq)/gij.trace();
+    if(!use_metric_tensor)
+    {
+      tau_bulk = std::max(tau_bulk, element_nu/3.);
+    }
   }
 
   Real alpha_ps, alpha_su, alpha_bu;
-  bool alternate_bulk; // If True, uses the definition from Trofimova et al.
+  bool use_metric_tensor; // If True, uses the definition from i.e. Trofimova et al. (Direct numerical simulation of turbulent channel flows using a stabilized finite element method Computers & Fluids, 2009, 38, 924-938)
+  // Configuration constants for the abov method:
+  Real c1,c2;
 };
 
 /// Convenience type for a compute_tau operation, grouping the stored operator and its proto counterpart

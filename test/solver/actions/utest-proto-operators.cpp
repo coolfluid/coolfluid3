@@ -877,6 +877,43 @@ BOOST_AUTO_TEST_CASE( Div )
   BOOST_CHECK_EQUAL(result2, 2.);
 }
 
+
+struct MetricTensor
+{
+  /// Custom ops must implement the  TR1 result_of protocol
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename DataT>
+  struct result<This(DataT)>
+  {
+    typedef const typename DataT::SupportShapeFunction::JacobianT& type;
+  };
+
+  template<typename StorageT, typename DataT>
+  const StorageT& operator()(StorageT& result, const DataT& data) const
+  {
+    typedef mesh::Integrators::GaussMappedCoords<1, DataT::SupportShapeFunction::shape> GaussT;
+    data.support().compute_jacobian(GaussT::instance().coords.col(0));
+    result = data.support().jacobian_inverse().transpose() * data.support().jacobian_inverse();
+    return result;
+  }
+};
+
+BOOST_AUTO_TEST_CASE( MetricTensorTest )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("MetricGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 0.2, 2., 1, 1);
+
+  SFOp< CustomSFOp<MetricTensor> > metric_tensor;
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    _cout << metric_tensor << "\n"
+  );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

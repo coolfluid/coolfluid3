@@ -212,7 +212,7 @@ struct JacobianOp : boost::proto::transform< JacobianOp >
   template<typename SupportT>
   struct ResultType
   {
-    typedef const typename SupportT::ShapeFunctionT::JacobianT& type;
+    typedef const typename SupportT::EtypeT::JacobianT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
