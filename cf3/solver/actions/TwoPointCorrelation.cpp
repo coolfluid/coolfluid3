@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iostream>
 #include <set>
 
 #include <boost/bind.hpp>
@@ -247,8 +246,6 @@ void TwoPointCorrelation::setup()
 
   common::PE::Comm& comm = common::PE::Comm::instance();
   
-  std::cout << "rank " << comm.rank() << ": using " << nb_used_nodes << " nodes" << std::endl;
-  
   if(comm.is_active())
   {
     std::vector<Real> my_unique_x_coords(unique_x_coords.begin(), unique_x_coords.end());
@@ -342,12 +339,10 @@ void TwoPointCorrelation::setup()
       m_sampled_values.resize(boost::extents[nb_used_nodes][m_field->row_size()]);
     }
     
-    std::cout << "setting up comm pattern" << std::endl;
     m_comm_pattern = create_component<common::PE::CommPattern>("CommPattern");
     m_comm_pattern->insert("gid", m_gids, 1, false);
     m_comm_pattern->setup(Handle<common::PE::CommWrapper>(m_comm_pattern->get_child("gid")), m_ranks);
     m_comm_pattern->insert("samples", m_sampled_values);
-    std::cout << "finished setting up comm pattern" << std::endl;
   }
   else
   {
