@@ -50,6 +50,8 @@ list( APPEND coolfluid_solver_actions_files
   TimeSeriesWriter.cpp
   TurbulenceStatistics.hpp
   TurbulenceStatistics.cpp
+  TwoPointCorrelation.hpp
+  TwoPointCorrelation.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
 )

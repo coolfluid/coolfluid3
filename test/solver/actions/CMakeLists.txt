@@ -80,6 +80,10 @@ coolfluid_add_test( UTEST     utest-solver-actions-nodevalence
                     PYTHON    utest-solver-actions-nodevalence.py
                     MPI 4)
 
+coolfluid_add_test( UTEST     utest-solver-actions-twopointcorr
+                    PYTHON    utest-solver-actions-twopointcorr.py
+                    MPI 4)
+
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(_ARGS 160 160 120)
 else()

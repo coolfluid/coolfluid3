@@ -99,8 +99,8 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank)
 
   // add to add buffer
   // if performance issues, replace for(...) add_global(...) with direct push_back
-  if (gid->size()!=0)
-  {
+  //if (gid->size()!=0)
+  //{
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
     for(int i=0; i<(const int)map.size(); i++) map[i]=i;
@@ -119,7 +119,7 @@ void CommPattern::setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank)
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
     setup();
-  }
+  //}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
