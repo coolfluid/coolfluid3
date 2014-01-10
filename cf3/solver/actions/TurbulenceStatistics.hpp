@@ -67,10 +67,12 @@ private:
   /// Nodes used by the region
   boost::shared_ptr< common::List<Uint> > m_used_nodes;
   /// Field having the velocity
-  Handle<mesh::Field> m_field;
+  Handle<mesh::Field> m_velocity_field;
+  Handle<mesh::Field> m_pressure_field;
   Handle<mesh::Field> m_statistics_field;
   Uint m_dim;
-  Uint m_field_offset;
+  Uint m_velocity_field_offset;
+  Uint m_pressure_field_offset;
   
   typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::mean> > MeanAccT;
   typedef boost::accumulators::accumulator_set< Real, boost::accumulators::stats<boost::accumulators::tag::rolling_mean> > RollingAccT;

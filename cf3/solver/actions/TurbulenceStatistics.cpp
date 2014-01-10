@@ -52,12 +52,19 @@ TurbulenceStatistics::TurbulenceStatistics ( const std::string& name ) :
   m_rolling_size(10),
   m_options_changed(true),
   m_dim(0),
-  m_field_offset(0),
+  m_velocity_field_offset(0),
+  m_pressure_field_offset(0),
   m_count(0)
 {
-  options().add("variable_name", "Velocity")
-    .pretty_name("Variable Name")
+  options().add("velocity_variable_name", "Velocity")
+    .pretty_name("Velocity Variable Name")
     .description("The velocity field for which turbulent statistics are to be calculated")
+    .attach_trigger(boost::bind(&TurbulenceStatistics::trigger_option, this))
+    .mark_basic();
+    
+  options().add("pressure_variable_name", "Pressure")
+    .pretty_name("Pressure Variable Name")
+    .description("The pressure field for which turbulent statistics are to be calculated")
     .attach_trigger(boost::bind(&TurbulenceStatistics::trigger_option, this))
     .mark_basic();
 
@@ -104,7 +111,8 @@ void TurbulenceStatistics::execute()
 
   const Uint nb_nodes = m_used_nodes->size();
   const common::List<Uint>::ListT& used_nodes_list = m_used_nodes->array();
-  const mesh::Field::ArrayT& velocity_array = m_field->array();
+  const mesh::Field::ArrayT& velocity_array = m_velocity_field->array();
+  const mesh::Field::ArrayT& pressure_array = m_pressure_field->array();
   mesh::Field::ArrayT& means_array = m_statistics_field->array();
   const Uint stride = 2.*m_dim + m_dim-1 + m_dim-2;
   const Uint nb_my_probes = m_probe_nodes.size();
@@ -115,20 +123,22 @@ void TurbulenceStatistics::execute()
     {
       const mesh::Field::ConstRow velocity = velocity_array[used_nodes_list[i]];
       mesh::Field::Row means = means_array[used_nodes_list[i]];
-      const Real u = velocity[XX]; const Real v = velocity[YY];
+      const Real u = velocity[XX+m_velocity_field_offset]; const Real v = velocity[YY+m_velocity_field_offset];
+      const Real p = pressure_array[used_nodes_list[i]][m_pressure_field_offset];
     
       detail::update_mean(means[0], u, m_count);
       detail::update_mean(means[1], v, m_count);
       detail::update_mean(means[2], u*u, m_count);
       detail::update_mean(means[3], v*v, m_count);
       detail::update_mean(means[4], u*v, m_count);
+      detail::update_mean(means[5], p, m_count);
     }
 
     for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
     {
       const Uint probe_begin = my_probe_idx*stride;
       const mesh::Field::ConstRow velocity = velocity_array[m_probe_nodes[my_probe_idx]];
-      const Real u = velocity[XX]; const Real v = velocity[YY];
+      const Real u = velocity[XX+m_velocity_field_offset]; const Real v = velocity[YY+m_velocity_field_offset];
 
       m_means[probe_begin  ](u);
       m_means[probe_begin+1](v);
@@ -149,7 +159,8 @@ void TurbulenceStatistics::execute()
     {
       const mesh::Field::ConstRow velocity = velocity_array[used_nodes_list[i]];
       mesh::Field::Row means = means_array[used_nodes_list[i]];
-      const Real u = velocity[XX]; const Real v = velocity[YY]; const Real w = velocity[ZZ];
+      const Real u = velocity[XX+m_velocity_field_offset]; const Real v = velocity[YY+m_velocity_field_offset]; const Real w = velocity[ZZ+m_velocity_field_offset];
+      const Real p = pressure_array[used_nodes_list[i]][m_pressure_field_offset];
       
       detail::update_mean(means[0], u, m_count);
       detail::update_mean(means[1], v, m_count);
@@ -160,13 +171,14 @@ void TurbulenceStatistics::execute()
       detail::update_mean(means[6], u*v, m_count);
       detail::update_mean(means[7], u*w, m_count);
       detail::update_mean(means[8], v*w, m_count);
+      detail::update_mean(means[9], p, m_count);
     }
 
     for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
     {
       const Uint probe_begin = my_probe_idx*stride;
       const mesh::Field::ConstRow velocity = velocity_array[m_probe_nodes[my_probe_idx]];
-      const Real u = velocity[XX]; const Real v = velocity[YY];; const Real w = velocity[ZZ];
+      const Real u = velocity[XX+m_velocity_field_offset]; const Real v = velocity[YY+m_velocity_field_offset]; const Real w = velocity[ZZ+m_velocity_field_offset];
 
       m_means[probe_begin  ](u);
       m_means[probe_begin+1](v);
@@ -264,8 +276,10 @@ void TurbulenceStatistics::setup()
     return;
   }
 
-  const std::string var_name = options().value<std::string>("variable_name");
-  m_field.reset();
+  const std::string velocity_var_name = options().value<std::string>("velocity_variable_name");
+  const std::string pressure_var_name = options().value<std::string>("pressure_variable_name");
+  m_velocity_field.reset();
+  m_pressure_field.reset();
   
   const mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*region);
   Handle<mesh::Dictionary> dictionary;
@@ -273,27 +287,40 @@ void TurbulenceStatistics::setup()
   {
     BOOST_FOREACH(const Handle<mesh::Field>& field, dict->fields())
     {
-      if(field->has_variable(var_name))
+      if(field->has_variable( velocity_var_name ))
       {
-        if(is_not_null(m_field))
-          throw common::SetupError(FromHere(), "There are two fields that contain the variable " + var_name);
+        if(is_not_null(m_velocity_field))
+          throw common::SetupError(FromHere(), "There are two fields that contain the variable " + velocity_var_name );
         
-        m_field = field;
+        m_velocity_field = field;
         dictionary = dict;
       }
     }
   }
   
-  if(is_null(m_field))
-    throw common::SetupError(FromHere(), "There is no field with the variable " + var_name);
+  if(is_null(m_velocity_field))
+    throw common::SetupError(FromHere(), "There is no field with the variable " + velocity_var_name );
   
   m_dim = mesh.dimension();
   if(m_dim == 1)
   {
     throw common::SetupError(FromHere(), "TurbulenceStatistics are not supported in 1D");
   }
-  cf3_assert(m_field->var_length(var_name) == m_dim);
-  m_field_offset = m_field->var_offset(var_name);
+  cf3_assert(m_velocity_field->var_length(velocity_var_name) == m_dim);
+  m_velocity_field_offset = m_velocity_field->var_offset( velocity_var_name );
+  
+  BOOST_FOREACH(const Handle<mesh::Field>& field, dictionary->fields())
+  {
+    if(field->has_variable( pressure_var_name ))
+    { 
+      m_pressure_field = field;
+    }
+  }
+  
+  if(is_null(m_pressure_field))
+    throw common::SetupError(FromHere(), "There is no field with the variable " + pressure_var_name );
+  
+  m_pressure_field_offset = m_pressure_field->var_offset( pressure_var_name );
 
   const mesh::Field& coords = dictionary->coordinates();
   
@@ -373,11 +400,11 @@ void TurbulenceStatistics::setup()
   {
     if(m_dim == 2)
     {
-      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,uv").handle<mesh::Field>();
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,uv,p").handle<mesh::Field>();
     }
     else if(m_dim == 3)
     {
-      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,ww,uv,uw,vw").handle<mesh::Field>();
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,ww,uv,uw,vw,p").handle<mesh::Field>();
     }
     m_statistics_field->add_tag("turbulence_statistics");
   }

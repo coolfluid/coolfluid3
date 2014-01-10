@@ -34,6 +34,7 @@ blocks.create_mesh(mesh.uri())
 
 # Create a field
 velocity = mesh.geometry.create_field(name = 'velocity', variables='Velocity[vector]')
+pressure = mesh.geometry.create_field(name = 'pressure', variables='Pressure')
 
 # Action to initialize it
 init_field = domain.create_component('InitField', 'cf3.mesh.actions.InitFieldFunction')
